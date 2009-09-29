@@ -34,6 +34,10 @@
 #include <QtGui/QScrollArea>
 #include <QtGui/QComboBox>
 #include <QtCore/QPair>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
+#include <QtGui/QLabel>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -42,6 +46,7 @@ class QModelIndex;
 class QTabWidget;
 class QHBoxLayout;
 class QComboBox;
+class QMenu;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -78,7 +83,7 @@ private:
     QList<Panel> m_panels;
 };
 
-class BuildConfigurationComboBox : public QComboBox
+class BuildConfigurationComboBox : public QStackedWidget
 {
     Q_OBJECT
 public:
@@ -94,6 +99,8 @@ private:
     int nameToIndex(const QString &buildConfiguration);
     bool ignoreIndexChange;
     ProjectExplorer::Project *m_project;
+    QComboBox *m_comboBox;
+    QLabel *m_label;
 };
 
 class ActiveConfigurationWidget : public QWidget
@@ -132,22 +139,31 @@ private:
     bool m_ignoreChange;
 };
 
-class ProjectComboBox : public QComboBox
+class ProjectLabel : public QLabel
 {
     Q_OBJECT
 public:
-    ProjectComboBox(QWidget *parent);
-    ~ProjectComboBox();
+    ProjectLabel(QWidget *parent);
+    ~ProjectLabel();
+public slots:
+    void setProject(ProjectExplorer::Project *);
+};
 
+class ProjectPushButton : public QPushButton
+{
+    Q_OBJECT
+public:
+    ProjectPushButton(QWidget *parent);
+    ~ProjectPushButton();
 signals:
     void projectChanged(ProjectExplorer::Project *);
 
 private slots:
     void projectAdded(ProjectExplorer::Project*);
     void projectRemoved(ProjectExplorer::Project*);
-    void itemActivated(int);
+    void actionTriggered();
 private:
-    ProjectExplorer::Project *m_lastProject;
+    QMenu *m_menu;
 };
 
 class ProjectWindow : public QWidget

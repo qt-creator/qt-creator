@@ -125,7 +125,6 @@ FORMS += processstep.ui \
     runsettingspropertiespage.ui \
     sessiondialog.ui \
     projectwizardpage.ui \
-    buildstepspage.ui \
     removefiledialog.ui \
     projectexplorersettingspage.ui \
     projectwelcomepagewidget.ui

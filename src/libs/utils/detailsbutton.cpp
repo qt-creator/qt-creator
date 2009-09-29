@@ -4,10 +4,11 @@ using namespace Utils;
 
 DetailsButton::DetailsButton(QWidget *parent)
 #ifdef Q_OS_MAC
-    : QPushButton(parent)
+    : QPushButton(parent),
 #else
-    : QToolButton(parent)
+    : QToolButton(parent),
 #endif
+    m_checked(false)
 {
 #ifdef Q_OS_MAC
     setAttribute(Qt::WA_MacSmallSize);
@@ -15,5 +16,17 @@ DetailsButton::DetailsButton(QWidget *parent)
 #else
     setCheckable(true);
 #endif
-    setText(tr("Details"));
+    setText(tr("Show Details"));
+    connect(this, SIGNAL(clicked()),
+            this, SLOT(onClicked()));
+}
+
+void DetailsButton::onClicked()
+{
+    m_checked = !m_checked;
+    if (m_checked) {
+        setText(tr("Hide Details"));
+    } else {
+        setText(tr("Show Details"));
+    }
 }

@@ -18,6 +18,10 @@ class QTCREATOR_UTILS_EXPORT DetailsButton
     Q_OBJECT
 public:
     DetailsButton(QWidget *parent=0);
+public slots:
+    void onClicked();
+private:
+    bool m_checked;
 };
 }
 #endif // DETAILSBUTTON_H
