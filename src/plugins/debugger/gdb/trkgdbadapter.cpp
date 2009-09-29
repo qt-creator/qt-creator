@@ -95,7 +95,6 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     m_bufferedMemoryRead(true),
     m_waitCount(0)
 {
-    setState(DebuggerNotReady);
 #ifdef Q_OS_WIN
     const DWORD portOffset = GetCurrentProcessId() % 100;
 #else
@@ -622,6 +621,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         bool ok = false;
         const uint registerNumber = regName.toInt(&ok, 16);
         const uint value = swapEndian(valueName.toInt(&ok, 16));
+        // FIXME: Assume all goes well.
+        m_snapshot.registers[registerNumber] = value;
         QByteArray ba = trkWriteRegisterMessage(registerNumber, value);
         sendTrkMessage(0x13, TrkCB(handleWriteRegister), ba, "Write register");
         // Note that App TRK refuses to write registers 13 and 14
@@ -1605,12 +1606,63 @@ void TrkGdbAdapter::write(const QByteArray &data)
             sendTrkMessage(ba.at(0), TrkCB(handleDirectTrk), ba.mid(1));
         return;
     }
+    if (data.startsWith("@@")) {
+        QByteArray data1 = data.mid(2);
+        if (data1.endsWith(char(10)))
+            data1.chop(1);
+        if (data1.endsWith(char(13)))
+            data1.chop(1);
+        if (data1.endsWith(' '))
+            data1.chop(1);
+        bool ok;
+        uint addr = data1.toInt(&ok, 0);
+        qDebug() << "Writing: " << quoteUnprintableLatin1(data1) << addr;
+        directStep(addr);
+        return;
+    }
     m_gdbProc.write(data, data.size());
 }
 
 void TrkGdbAdapter::handleDirectTrk(const TrkResult &result)
 {
     logMessage("HANDLE DIRECT TRK: " + stringFromArray(result.data));
+}
+
+uint oldPC;
+
+void TrkGdbAdapter::directStep(uint addr)
+{
+    // Write PC:
+    qDebug() << "ADDR: " << addr;
+    oldPC = m_snapshot.registers[RegisterPC];
+    m_snapshot.registers[RegisterPC] = addr;
+    QByteArray ba = trkWriteRegisterMessage(RegisterPC, addr);
+    sendTrkMessage(0x13, TrkCB(handleDirectStep1), ba, "Write PC");
+}
+
+void TrkGdbAdapter::handleDirectStep1(const TrkResult &result)
+{
+    logMessage("HANDLE DIRECT STEP1: " + stringFromArray(result.data));
+    QByteArray ba;
+    appendByte(&ba, 0x11); // options "step over"
+    appendInt(&ba, m_snapshot.registers[RegisterPC]);
+    appendInt(&ba, m_snapshot.registers[RegisterPC]);
+    appendInt(&ba, m_session.pid);
+    appendInt(&ba, m_session.tid);
+    sendTrkMessage(0x19, TrkCB(handleDirectStep2), ba, "Direct step");
+}
+
+void TrkGdbAdapter::handleDirectStep2(const TrkResult &result)
+{
+    logMessage("HANDLE DIRECT STEP2: " + stringFromArray(result.data));
+    m_snapshot.registers[RegisterPC] = oldPC;
+    QByteArray ba = trkWriteRegisterMessage(RegisterPC, oldPC);
+    sendTrkMessage(0x13, TrkCB(handleDirectStep3), ba, "Write PC");
+}
+
+void TrkGdbAdapter::handleDirectStep3(const TrkResult &result)
+{
+    logMessage("HANDLE DIRECT STEP2: " + stringFromArray(result.data));
 }
 
 void TrkGdbAdapter::setWorkingDirectory(const QString &dir)

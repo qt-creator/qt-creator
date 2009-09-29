@@ -152,6 +152,11 @@ public:
     void handleDeleteProcess2(const TrkResult &result);
     void handleDirectTrk(const TrkResult &response);
 
+    void directStep(uint addr);
+    void handleDirectStep1(const TrkResult &response);
+    void handleDirectStep2(const TrkResult &response);
+    void handleDirectStep3(const TrkResult &response);
+
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleAndReportReadRegistersAfterStop(const TrkResult &result);
     void reportRegisters();
