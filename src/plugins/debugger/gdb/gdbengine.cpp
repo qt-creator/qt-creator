@@ -1286,10 +1286,10 @@ void GdbEngine::handleStop2(const GdbMi &data)
         }
     }
 
-    // FIXME: Hack, remove as soon as we get real stack traces.
-    if (m_gdbAdapter->isTrkAdapter()) {
+    // Quick shot
+    if (fullName.isValid()) {
         StackFrame f;
-        f.file = QString::fromLocal8Bit(fullName.data());
+        f.file = QFile::decodeName(fullName.data());
         f.line = frame.findChild("line").data().toInt();
         f.address = _(frame.findChild("addr").data());
         gotoLocation(f, true);
