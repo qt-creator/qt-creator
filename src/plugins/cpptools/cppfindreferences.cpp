@@ -237,7 +237,7 @@ protected:
 
         const QList<TypeOfExpression::Result> results =
                 typeofExpression(expression, _doc, lastVisibleSymbol,
-                                 TypeOfExpression::NoPreprocess);
+                                 TypeOfExpression::Preprocess);
 
         QList<Symbol *> candidates;
 
