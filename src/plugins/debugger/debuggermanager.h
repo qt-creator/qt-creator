@@ -248,7 +248,7 @@ private slots:
     void clearStatusMessage();
     void attemptBreakpointSynchronization();
     void reloadFullStack();
-    void stepByInstructionTriggered();
+    void operateByInstructionTriggered();
     void startFailed();
 
 private:

@@ -77,7 +77,7 @@ enum DebuggerActionCode
     AutoQuit,
     LockView,
     LogTimeStamps,
-    StepByInstruction,
+    OperateByInstruction,
 
     RecheckDebuggingHelpers,
     UseDebuggingHelpers,
@@ -127,7 +127,8 @@ Core::Utils::SavedAction *theDebuggerAction(int code);
 bool theDebuggerBoolSetting(int code);
 QString theDebuggerStringSetting(int code);
 
-struct DebuggerManagerActions {
+struct DebuggerManagerActions
+{
     QAction *continueAction;
     QAction *stopAction;
     QAction *resetAction; // FIXME: Should not be needed in a stable release

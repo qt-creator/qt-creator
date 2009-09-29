@@ -2360,7 +2360,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         theDebuggerAction(ExpandStack)->setEnabled(canExpand);
         manager()->stackHandler()->setFrames(stackFrames, canExpand);
 
-        if (topFrame != -1 || theDebuggerBoolSetting(StepByInstruction)) {
+        if (topFrame != -1 || theDebuggerBoolSetting(OperateByInstruction)) {
             const StackFrame &frame = manager()->stackHandler()->currentFrame();
             gotoLocation(frame, true);
         }

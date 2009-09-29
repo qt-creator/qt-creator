@@ -173,7 +173,7 @@ Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
         return QAbstractTableModel::flags(index);
     const StackFrame &frame = m_stackFrames.at(index.row());
     const bool isValid = (!frame.file.isEmpty() && !frame.function.isEmpty())
-        || theDebuggerBoolSetting(StepByInstruction);
+        || theDebuggerBoolSetting(OperateByInstruction);
     return isValid ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
 }
 

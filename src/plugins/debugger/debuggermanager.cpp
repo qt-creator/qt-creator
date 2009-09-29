@@ -511,8 +511,8 @@ void DebuggerManager::init()
     connect(theDebuggerAction(WatchPoint), SIGNAL(triggered()),
         this, SLOT(watchPoint()));
 
-    connect(theDebuggerAction(StepByInstruction), SIGNAL(triggered()),
-        this, SLOT(stepByInstructionTriggered()));
+    connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
+        this, SLOT(operateByInstructionTriggered()));
 
 
     d->m_breakDock = d->m_mainWindow->addDockForWidget(d->m_breakWindow);
@@ -1100,7 +1100,7 @@ void DebuggerManager::stepExec()
 {
     QTC_ASSERT(d->m_engine, return);
     resetLocation();
-    if (theDebuggerBoolSetting(StepByInstruction))
+    if (theDebuggerBoolSetting(OperateByInstruction))
         d->m_engine->stepIExec();
     else
         d->m_engine->stepExec();
@@ -1117,7 +1117,7 @@ void DebuggerManager::nextExec()
 {
     QTC_ASSERT(d->m_engine, return);
     resetLocation();
-    if (theDebuggerBoolSetting(StepByInstruction))
+    if (theDebuggerBoolSetting(OperateByInstruction))
         d->m_engine->nextIExec();
     else
         d->m_engine->nextExec();
@@ -1350,7 +1350,7 @@ void DebuggerManager::fileOpen(const QString &fileName)
     emit gotoLocationRequested(frame, false);
 }
 
-void DebuggerManager::stepByInstructionTriggered()
+void DebuggerManager::operateByInstructionTriggered()
 {
     QTC_ASSERT(d->m_stackHandler, return);
     StackFrame frame = d->m_stackHandler->currentFrame();

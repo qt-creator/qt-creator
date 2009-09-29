@@ -120,7 +120,7 @@ const char * const TOGGLE_BREAK         = "Debugger.ToggleBreak";
 const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
 const char * const BREAK_AT_MAIN        = "Debugger.BreakAtMain";
 const char * const ADD_TO_WATCH         = "Debugger.AddToWatch";
-const char * const STEP_BY_INSTRUCTION  = "Debugger.StepByInstruction";
+const char * const OPERATE_BY_INSTRUCTION  = "Debugger.OperateByInstruction";
 
 #ifdef Q_WS_MAC
 const char * const INTERRUPT_KEY            = "Shift+F5";
@@ -686,10 +686,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEPOUT_KEY));
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(theDebuggerAction(StepByInstruction),
-        Constants::STEP_BY_INSTRUCTION, debuggercontext);
-    mdebug->addAction(cmd);
-
     cmd = am->registerAction(actions.runToLineAction,
         Constants::RUN_TO_LINE, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
@@ -714,6 +710,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Break"), globalcontext);
+    mdebug->addAction(cmd);
+
+    cmd = am->registerAction(theDebuggerAction(OperateByInstruction),
+        Constants::OPERATE_BY_INSTRUCTION, debuggercontext);
     mdebug->addAction(cmd);
 
     cmd = am->registerAction(actions.breakAction,
@@ -829,7 +829,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::NEXT)->action()));
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEP)->action()));
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEPOUT)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEP_BY_INSTRUCTION)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::OPERATE_BY_INSTRUCTION)->action()));
 #ifdef USE_REVERSE_DEBUGGING
     debugToolBarLayout->addWidget(new Core::Utils::StyledSeparator);
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::REVERSE)->action()));
@@ -1093,7 +1093,7 @@ void DebuggerPlugin::resetLocation()
 
 void DebuggerPlugin::gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker)
 {
-    if (theDebuggerBoolSetting(StepByInstruction) || !frame.isUsable()) {
+    if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
         if (!m_disassemblerViewAgent)
             m_disassemblerViewAgent = new DisassemblerViewAgent(m_manager);
         m_disassemblerViewAgent->setFrame(frame);
