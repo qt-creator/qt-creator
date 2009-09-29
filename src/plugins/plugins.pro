@@ -100,6 +100,7 @@ plugin_qt4projectmanager.depends += plugin_cpptools
 plugin_qt4projectmanager.depends += plugin_cppeditor
 plugin_qt4projectmanager.depends += plugin_help
 plugin_qt4projectmanager.depends += plugin_designer
+plugin_qt4projectmanager.depends += plugin_debugger
 
 plugin_quickopen.subdir = quickopen
 plugin_quickopen.depends = plugin_coreplugin
