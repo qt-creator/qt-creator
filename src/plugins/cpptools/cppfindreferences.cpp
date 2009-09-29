@@ -180,7 +180,6 @@ protected:
             ensureNameIsValid(ast->name);
 
             SimpleNameAST *simple = ast->name->asSimpleName();
-            qDebug() << identifier(simple->identifier_token) << _id;
             if (identifier(simple->identifier_token) == _id) {
                 LookupContext context = currentContext(ast);
                 const QList<Symbol *> candidates = context.resolve(simple->name);
