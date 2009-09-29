@@ -152,11 +152,15 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(LogTimeStamps, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Step by instruction"));
+    item->setText(tr("Operate by instruction"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setIcon(QIcon(":/debugger/images/debugger_stepoverproc_small.png"));
-    instance->insertItem(StepByInstruction, item);
+    item->setToolTip(tr("This switches the debugger to instruction-wise "
+        "operation mode. In this mode, stepping operates on single "
+        "instructions and the source location view also shows the "
+        "disassembled instructions."));
+    instance->insertItem(OperateByInstruction, item);
 
     //
     // Locals & Watchers

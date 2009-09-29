@@ -62,7 +62,7 @@ Q_SIGNALS:
     void changed();
 
 public:
-    void findAll(const CPlusPlus::Snapshot &snapshot, CPlusPlus::Symbol *symbol);
+    void findAll(CPlusPlus::Symbol *symbol);
 
 private Q_SLOTS:
     void displayResult(int);

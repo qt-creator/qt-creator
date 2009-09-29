@@ -213,7 +213,6 @@ private:
     QStringList mocDirPaths(ProFileReader *reader) const;
     QStringList includePaths(ProFileReader *reader) const;
     QStringList subDirsPaths(ProFileReader *reader) const;
-    QStringList qBuildSubDirsPaths(const QString &scanDir)  const;
 
     void invalidate();
 

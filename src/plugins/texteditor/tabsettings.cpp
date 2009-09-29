@@ -87,6 +87,14 @@ void TabSettings::fromSettings(const QString &category, const QSettings *s)
     m_tabKeyBehavior  = (TabKeyBehavior)s->value(group + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior).toInt();
 }
 
+
+bool TabSettings::cursorIsAtBeginningOfLine(const QTextCursor &cursor) const
+{
+    QString text = cursor.block().text();
+    int fns = firstNonSpace(text);
+    return (cursor.position() - cursor.block().position() <= fns);
+}
+
 int TabSettings::lineIndentPosition(const QString &text) const
 {
     int i = 0;
@@ -238,6 +246,32 @@ void TabSettings::indentLine(QTextBlock block, int newIndent) const
 
     // Quickly check whether indenting is required.
     if (indentationColumn(text) == newIndent)
+        return;
+
+    const QString indentString = indentationString(0, newIndent);
+    newIndent = indentString.length();
+
+    if (oldBlockLength == indentString.length() && text == indentString)
+        return;
+
+    QTextCursor cursor(block);
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::StartOfBlock);
+    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, firstNonSpace(text));
+    cursor.removeSelectedText();
+    cursor.insertText(indentString);
+    cursor.endEditBlock();
+}
+
+void TabSettings::reindentLine(QTextBlock block, int delta) const
+{
+    const QString text = block.text();
+    const int oldBlockLength = text.size();
+
+    int oldIndent = indentationColumn(text);
+    int newIndent = qMax(oldIndent + delta, 0);
+
+    if (oldIndent == newIndent)
         return;
 
     const QString indentString = indentationString(0, newIndent);

@@ -31,12 +31,10 @@
 
 #include "breakhandler.h"
 #include "debuggeractions.h"
-#include "debuggeragents.h"
 #include "debuggerdialogs.h"
 #include "debuggerconstants.h"
 #include "debuggermanager.h"
 #include "debuggerrunner.h"
-#include "stackframe.h"
 #include "debuggerstringutils.h"
 
 #include "ui_commonoptionspage.h"
@@ -120,7 +118,7 @@ const char * const TOGGLE_BREAK         = "Debugger.ToggleBreak";
 const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
 const char * const BREAK_AT_MAIN        = "Debugger.BreakAtMain";
 const char * const ADD_TO_WATCH         = "Debugger.AddToWatch";
-const char * const STEP_BY_INSTRUCTION  = "Debugger.StepByInstruction";
+const char * const OPERATE_BY_INSTRUCTION  = "Debugger.OperateByInstruction";
 
 #ifdef Q_WS_MAC
 const char * const INTERRUPT_KEY            = "Shift+F5";
@@ -420,7 +418,6 @@ DebuggerPlugin::DebuggerPlugin()
   : m_manager(0),
     m_debugMode(0),
     m_locationMark(0),
-    m_disassemblerViewAgent(0),
     m_gdbRunningContext(0),
     m_cmdLineEnabledEngines(AllEngineTypes),
     m_cmdLineAttachPid(0),
@@ -686,10 +683,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEPOUT_KEY));
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(theDebuggerAction(StepByInstruction),
-        Constants::STEP_BY_INSTRUCTION, debuggercontext);
-    mdebug->addAction(cmd);
-
     cmd = am->registerAction(actions.runToLineAction,
         Constants::RUN_TO_LINE, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
@@ -714,6 +707,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Break"), globalcontext);
+    mdebug->addAction(cmd);
+
+    cmd = am->registerAction(theDebuggerAction(OperateByInstruction),
+        Constants::OPERATE_BY_INSTRUCTION, debuggercontext);
     mdebug->addAction(cmd);
 
     cmd = am->registerAction(actions.breakAction,
@@ -829,7 +826,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::NEXT)->action()));
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEP)->action()));
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEPOUT)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEP_BY_INSTRUCTION)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::OPERATE_BY_INSTRUCTION)->action()));
 #ifdef USE_REVERSE_DEBUGGING
     debugToolBarLayout->addWidget(new Core::Utils::StyledSeparator);
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::REVERSE)->action()));
@@ -888,8 +885,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     connect(m_manager, SIGNAL(resetLocationRequested()),
         this, SLOT(resetLocation()));
-    connect(m_manager, SIGNAL(gotoLocationRequested(Debugger::Internal::StackFrame,bool)),
-        this, SLOT(gotoLocation(Debugger::Internal::StackFrame,bool)));
+    connect(m_manager, SIGNAL(gotoLocationRequested(QString,int,bool)),
+        this, SLOT(gotoLocation(QString,int,bool)));
     connect(m_manager, SIGNAL(stateChanged(int)),
         this, SLOT(handleStateChanged(int)));
     connect(m_manager, SIGNAL(previousModeRequested()),
@@ -1091,26 +1088,12 @@ void DebuggerPlugin::resetLocation()
     m_locationMark = 0;
 }
 
-void DebuggerPlugin::gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker)
+void DebuggerPlugin::gotoLocation(const QString &file, int line, bool setMarker)
 {
-    if (theDebuggerBoolSetting(StepByInstruction) || !frame.isUsable()) {
-        if (!m_disassemblerViewAgent)
-            m_disassemblerViewAgent = new DisassemblerViewAgent(m_manager);
-        m_disassemblerViewAgent->setFrame(frame);
-        if (setMarker)
-            resetLocation();
-    } else {
-        static QString lastFile;
-        static int lastLine;
-        if (frame.line != lastLine || frame.file != lastFile) {
-            lastLine = frame.line;
-            lastFile = frame.file;
-            TextEditor::BaseTextEditor::openEditorAt(frame.file, frame.line);
-            if (setMarker) {
-                resetLocation();
-                m_locationMark = new LocationMark(frame.file, frame.line);
-            }
-        }
+    TextEditor::BaseTextEditor::openEditorAt(file, line);
+    if (setMarker) {
+        resetLocation();
+        m_locationMark = new LocationMark(file, line);
     }
 }
 

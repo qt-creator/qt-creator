@@ -197,7 +197,7 @@ QString S60DeviceRunConfiguration::packageFileName() const
 "/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/gcce/udeb/foo.exe"    - "!:\sys\bin\foo.exe"
 \endcode */
 
-static QString executableFromPkgFile(const QString &pkgFileName, QString *errorMessage)
+static QString localExecutableFromPkgFile(const QString &pkgFileName, QString *errorMessage)
 {
     QFile pkgFile(pkgFileName);
     if (!pkgFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
@@ -214,12 +214,12 @@ static QString executableFromPkgFile(const QString &pkgFileName, QString *errorM
     return QString();
 }
 
-QString S60DeviceRunConfiguration::executableFileName() const
+QString S60DeviceRunConfiguration::localExecutableFileName() const
 {
     const QString pkg = packageFileName();
     if (!pkg.isEmpty()) {
         QString errorMessage;
-        const QString rc = executableFromPkgFile(pkg, &errorMessage);
+        const QString rc = localExecutableFromPkgFile(pkg, &errorMessage);
         if (rc.isEmpty())
             qWarning("%s\n", qPrintable(errorMessage));
         return rc;
@@ -536,7 +536,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfigu
     m_toolsDirectory = S60Manager::instance()->deviceForQtVersion(
             project->qtVersion(project->activeBuildConfiguration())).toolsRoot
             + "/epoc32/tools";
-    m_executableFileName = lsFile(s60runConfig->executableFileName());
+    m_executableFileName = lsFile(s60runConfig->localExecutableFileName());
     m_makesisTool = m_toolsDirectory + "/makesis.exe";
     m_packageFile = QFileInfo(s60runConfig->packageFileName()).fileName();
 }
@@ -770,6 +770,18 @@ void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Laun
 {
     // No setting an executable on the launcher causes it to deploy only
     m_startParams->executable = executable;
+    // Prefer the '*.sym' file over the '.exe', which should exist at the same
+    // location in debug builds
+    const QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration().objectCast<S60DeviceRunConfiguration>();
+    const QString localExecutableFileName = rc->localExecutableFileName();
+    const int lastDotPos = localExecutableFileName.lastIndexOf(QLatin1Char('.'));
+    if (lastDotPos != -1) {
+        m_startParams->symbolFileName = localExecutableFileName.mid(0, lastDotPos) + QLatin1String(".sym");
+        if (!QFileInfo(m_startParams->symbolFileName).isFile()) {
+            m_startParams->symbolFileName.clear();
+            emit addToOutputWindow(this, tr("Warning: Cannot locate the symbol file belonging to %1.").arg(localExecutableFileName));
+        }
+    }
 }
 
 void S60DeviceDebugRunControl::handleLauncherFinished()

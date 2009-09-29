@@ -220,14 +220,12 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     contextMenu->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
-    if (! qgetenv("QTCREATOR_REFERENCES").isEmpty()) {
-        QAction *findReferencesAction = new QAction(tr("Find References"), this);
-        cmd = am->registerAction(findReferencesAction,
-                                 Constants::FIND_REFERENCES, context);
-        connect(findReferencesAction, SIGNAL(triggered()), this, SLOT(findReferences()));
-        contextMenu->addAction(cmd);
-        am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
-    }
+    QAction *findReferencesAction = new QAction(tr("Find References"), this);
+    cmd = am->registerAction(findReferencesAction,
+                             Constants::FIND_REFERENCES, context);
+    connect(findReferencesAction, SIGNAL(triggered()), this, SLOT(findReferences()));
+    contextMenu->addAction(cmd);
+    am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format

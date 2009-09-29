@@ -51,6 +51,9 @@ qrc_*.cpp
 *.Debug
 *.Release
 
+# translation related:
+share/qtcreator/translations/extract-mimetypes.xq
+
 # Directories to ignore
 # ---------------------
 

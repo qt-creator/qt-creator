@@ -521,6 +521,8 @@ protected:
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
     // Indent at cursor. Calls indentBlock for selection or current line.
     virtual void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
+    // Reindent at cursor. Selection will be adjusted according to the indentation change of the first block
+    virtual void reindent(QTextDocument *doc, const QTextCursor &cursor);
 
     struct Link
     {

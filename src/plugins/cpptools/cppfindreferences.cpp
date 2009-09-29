@@ -51,6 +51,7 @@
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/Overview.h>
+#include <cplusplus/TypeOfExpression.h>
 
 #include <QtCore/QTime>
 #include <QtCore/QtConcurrentRun>
@@ -130,8 +131,17 @@ protected:
 
     bool checkCandidates(const QList<Symbol *> &candidates) const
     {
-        // ### FIXME return isDeclSymbol(LookupContext::canonicalSymbol(candidates));
-        return true;
+        if (Symbol *canonicalSymbol = LookupContext::canonicalSymbol(candidates)) {
+#if 0
+            qDebug() << "*** canonical symbol:" << canonicalSymbol->fileName()
+                    << canonicalSymbol->line() << canonicalSymbol->column()
+                    << "candidates:" << candidates.size();
+#endif
+
+            return isDeclSymbol(canonicalSymbol);
+        }
+
+        return false;
     }
 
     bool isDeclSymbol(Symbol *symbol) const
@@ -158,26 +168,163 @@ protected:
         return LookupContext(lastVisibleSymbol, _exprDoc, _doc, _snapshot);
     }
 
-    virtual bool visit(QualifiedNameAST *ast)
+    void ensureNameIsValid(NameAST *ast)
     {
-        if (! ast->name) {
-            //qWarning() << "invalid AST at" << _doc->fileName() << line << column;
-            ast->name = _sem.check(ast, /*scope */ static_cast<Scope *>(0));
+        if (ast && ! ast->name)
+            ast->name = _sem.check(ast, /*scope = */ 0);
+    }
+
+    virtual bool visit(MemInitializerAST *ast)
+    {
+        if (ast->name && ast->name->asSimpleName() != 0) {
+            ensureNameIsValid(ast->name);
+
+            SimpleNameAST *simple = ast->name->asSimpleName();
+            if (identifier(simple->identifier_token) == _id) {
+                LookupContext context = currentContext(ast);
+                const QList<Symbol *> candidates = context.resolve(simple->name);
+                if (checkCandidates(candidates))
+                    reportResult(simple->identifier_token);
+            }
+        }
+        accept(ast->expression);
+        return false;
+    }
+
+    virtual bool visit(PostfixExpressionAST *ast)
+    {
+        _postfixExpressionStack.append(ast);
+        return true;
+    }
+
+    virtual void endVisit(PostfixExpressionAST *)
+    {
+        _postfixExpressionStack.removeLast();
+    }
+
+    virtual bool visit(MemberAccessAST *ast)
+    {
+        if (ast->member_name) {
+            if (SimpleNameAST *simple = ast->member_name->asSimpleName()) {
+                if (identifier(simple->identifier_token) == _id) {
+                    Q_ASSERT(! _postfixExpressionStack.isEmpty());
+
+                    checkExpression(_postfixExpressionStack.last()->firstToken(),
+                                    simple->identifier_token);
+
+                    return false;
+                }
+            }
         }
 
-        Q_ASSERT(ast->name != 0);
-        Identifier *id = ast->name->identifier();
-        if (id == _id && ast->unqualified_name) {
-            LookupContext context = currentContext(ast);
-            const QList<Symbol *> candidates = context.resolve(ast->name);
-            if (checkCandidates(candidates))
-                reportResult(ast->unqualified_name->firstToken());
+        return true;
+    }
+
+    void checkExpression(unsigned startToken, unsigned endToken)
+    {
+        const unsigned begin = tokenAt(startToken).begin();
+        const unsigned end = tokenAt(endToken).end();
+
+        const QString expression = _source.mid(begin, end - begin);
+        // qDebug() << "*** expression:" << expression;
+
+        TypeOfExpression typeofExpression;
+        typeofExpression.setSnapshot(_snapshot);
+
+        unsigned line, column;
+        getTokenStartPosition(startToken, &line, &column);
+        Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
+
+        const QList<TypeOfExpression::Result> results =
+                typeofExpression(expression, _doc, lastVisibleSymbol,
+                                 TypeOfExpression::Preprocess);
+
+        QList<Symbol *> candidates;
+
+        foreach (TypeOfExpression::Result r, results) {
+            FullySpecifiedType ty = r.first;
+            Symbol *lastVisibleSymbol = r.second;
+
+            candidates.append(lastVisibleSymbol);
+        }
+
+        if (checkCandidates(candidates))
+            reportResult(endToken);
+    }
+
+    virtual bool visit(QualifiedNameAST *ast)
+    {
+        for (NestedNameSpecifierAST *nested_name_specifier = ast->nested_name_specifier;
+             nested_name_specifier; nested_name_specifier = nested_name_specifier->next) {
+
+            if (NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name) {
+                SimpleNameAST *simple_name = class_or_namespace_name->asSimpleName();
+
+                TemplateIdAST *template_id = 0;
+                if (! simple_name) {
+                    template_id = class_or_namespace_name->asTemplateId();
+
+                    if (template_id) {
+                        for (TemplateArgumentListAST *template_arguments = template_id->template_arguments;
+                             template_arguments; template_arguments = template_arguments->next) {
+                            accept(template_arguments->template_argument);
+                        }
+                    }
+                }
+
+                if (simple_name || template_id) {
+                    const unsigned identifier_token = simple_name
+                               ? simple_name->identifier_token
+                               : template_id->identifier_token;
+
+                    if (identifier(identifier_token) == _id)
+                        checkExpression(ast->firstToken(), identifier_token);
+                }
+            }
+        }
+
+        if (ast->unqualified_name) {
+            SimpleNameAST *simple_name = ast->unqualified_name->asSimpleName();
+
+            TemplateIdAST *template_id = 0;
+            if (! simple_name) {
+                template_id = ast->unqualified_name->asTemplateId();
+
+                if (template_id) {
+                    for (TemplateArgumentListAST *template_arguments = template_id->template_arguments;
+                         template_arguments; template_arguments = template_arguments->next) {
+                        accept(template_arguments->template_argument);
+                    }
+                }
+            }
+
+            if (simple_name || template_id) {
+                const unsigned identifier_token = simple_name
+                        ? simple_name->identifier_token
+                        : template_id->identifier_token;
+
+                if (identifier(identifier_token) == _id)
+                    checkExpression(ast->firstToken(), identifier_token);
+            }
         }
 
         return false;
     }
 
     virtual bool visit(SimpleNameAST *ast)
+    {
+        Identifier *id = identifier(ast->identifier_token);
+        if (id == _id) {
+            LookupContext context = currentContext(ast);
+            const QList<Symbol *> candidates = context.resolve(ast->name);
+            if (checkCandidates(candidates))
+                reportResult(ast->identifier_token);
+        }
+
+        return false;
+    }
+
+    virtual bool visit(DestructorNameAST *ast)
     {
         Identifier *id = identifier(ast->identifier_token);
         if (id == _id) {
@@ -212,6 +359,8 @@ private:
     QByteArray _source;
     Document::Ptr _exprDoc;
     Semantic _sem;
+    QList<PostfixExpressionAST *> _postfixExpressionStack;
+    QList<QualifiedNameAST *> _qualifiedNameStack;
 };
 
 } // end of anonymous namespace
@@ -230,6 +379,7 @@ CppFindReferences::~CppFindReferences()
 }
 
 static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
+                        const QMap<QString, QString> wl,
                         Snapshot snapshot,
                         Symbol *symbol)
 {
@@ -239,20 +389,19 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
     Identifier *symbolId = symbol->identifier();
     Q_ASSERT(symbolId != 0);
 
-    const QString fileName = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
+    const QString sourceFile = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
 
-    QStringList files(fileName);
-    files += snapshot.dependsOn(fileName);
+    QStringList files(sourceFile);
+    files += snapshot.dependsOn(sourceFile);
     qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
 
     future.setProgressRange(0, files.size());
 
-    tm.start();
     for (int i = 0; i < files.size(); ++i) {
-        const QString &fn = files.at(i);
-        future.setProgressValueAndText(i, QFileInfo(fn).fileName());
+        const QString &fileName = files.at(i);
+        future.setProgressValueAndText(i, QFileInfo(fileName).fileName());
 
-        Document::Ptr previousDoc = snapshot.value(fn);
+        Document::Ptr previousDoc = snapshot.value(fileName);
         if (previousDoc) {
             Control *control = previousDoc->control();
             Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size());
@@ -260,13 +409,20 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
                 continue; // skip this document, it's not using symbolId.
         }
 
-        QFile f(fn);
-        if (! f.open(QFile::ReadOnly))
-            continue;
+        QByteArray source;
 
-        const QString source = QTextStream(&f).readAll(); // ### FIXME
-        const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fn);
-        Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, fn);
+        if (wl.contains(fileName))
+            source = snapshot.preprocessedCode(wl.value(fileName), fileName);
+        else {
+            QFile file(fileName);
+            if (! file.open(QFile::ReadOnly))
+                continue;
+
+            const QString contents = QTextStream(&file).readAll(); // ### FIXME
+            source = snapshot.preprocessedCode(contents, fileName);
+        }
+
+        Document::Ptr doc = snapshot.documentFromSource(source, fileName);
         doc->tokenize();
 
         Control *control = doc->control();
@@ -277,17 +433,21 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
             process(symbol, id, unit->ast());
         }
     }
+
     future.setProgressValue(files.size());
 }
 
-void CppFindReferences::findAll(const Snapshot &snapshot, Symbol *symbol)
+void CppFindReferences::findAll(Symbol *symbol)
 {
     _resultWindow->clearContents();
     _resultWindow->popup(true);
 
+    const Snapshot snapshot = _modelManager->snapshot();
+    const QMap<QString, QString> wl = _modelManager->buildWorkingCopyList();
+
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
-    QFuture<Core::Utils::FileSearchResult> result = QtConcurrent::run(&find_helper, snapshot, symbol);
+    QFuture<Core::Utils::FileSearchResult> result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching..."),

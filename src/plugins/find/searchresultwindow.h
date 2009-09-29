@@ -40,6 +40,7 @@
 #include <QtGui/QStackedWidget>
 #include <QtGui/QListWidget>
 #include <QtGui/QToolButton>
+#include <QtGui/QLabel>
 
 namespace Find {
 
@@ -49,8 +50,15 @@ class FIND_EXPORT ResultWindowItem : public QObject
 {
     Q_OBJECT
 
+public:
+    void setData(const QVariant &data);
+    QVariant data() const;
+
 signals:
     void activated(const QString &fileName, int lineNumber, int column);
+
+private:
+    QVariant m_data;
 
     friend class SearchResultWindow;
 };
@@ -81,7 +89,14 @@ public:
     void goToPrev();
     bool canNavigate();
 
+    void setShowReplaceUI(bool show);
+    bool isShowingReplaceUI() const;
+    QList<ResultWindowItem *> selectedItems() const;
+
     void setTextEditorFont(const QFont &font);
+
+signals:
+    void replaceButtonClicked(const QString &replaceText);
 
 public slots:
     void clearContents();
@@ -93,6 +108,7 @@ private slots:
     void handleExpandCollapseToolButton(bool checked);
     void handleJumpToSearchResult(int index, const QString &fileName, int lineNumber,
                                   int searchTermStart, int searchTermLength);
+    void handleReplaceButton();
 
 private:
     void readSettings();
@@ -101,9 +117,13 @@ private:
     Internal::SearchResultTreeView *m_searchResultTreeView;
     QListWidget *m_noMatchesFoundDisplay;
     QToolButton *m_expandCollapseToolButton;
+    QLabel *m_replaceLabel;
+    QLineEdit *m_replaceTextEdit;
+    QToolButton *m_replaceButton;
     static const bool m_initiallyExpand = false;
     QStackedWidget *m_widget;
     QList<ResultWindowItem *> m_items;
+    bool m_isShowingReplaceUI;
 };
 
 } // namespace Find

@@ -30,6 +30,7 @@
 #include "debuggermanager.h"
 
 #include "debuggeractions.h"
+#include "debuggeragents.h"
 #include "debuggerrunner.h"
 #include "debuggerconstants.h"
 #include "idebuggerengine.h"
@@ -168,6 +169,7 @@ DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
             << " attachPID=" << p.attachPID << " useTerminal=" << p.useTerminal
             << " remoteChannel=" << p.remoteChannel
             << " remoteArchitecture=" << p.remoteArchitecture
+            << " symbolFileName=" << p.symbolFileName
             << " serverStartScript=" << p.serverStartScript
             << " toolchain=" << p.toolChainType << '\n';
     return str;
@@ -194,6 +196,7 @@ static const char *stateName(int s)
         SN(InferiorStartFailed)
         SN(InferiorRunningRequested)
         SN(InferiorRunning)
+        SN(InferiorUnrunnable)
         SN(InferiorStopping)
         SN(InferiorStopped)
         SN(InferiorStopFailed)
@@ -251,9 +254,9 @@ static Debugger::Internal::IDebuggerEngine *scriptEngine = 0;
 static Debugger::Internal::IDebuggerEngine *tcfEngine = 0;
 static Debugger::Internal::IDebuggerEngine *winEngine = 0;
 
-struct DebuggerManagerPrivate {
-
-    DebuggerManagerPrivate();
+struct DebuggerManagerPrivate
+{
+    DebuggerManagerPrivate(DebuggerManager *manager);
 
     static DebuggerManager *instance;
 
@@ -294,6 +297,7 @@ struct DebuggerManagerPrivate {
     bool m_busy;
     QTimer *m_statusTimer;
     QString m_lastPermanentStatusMessage;
+    DisassemblerViewAgent m_disassemblerViewAgent;
 
     IDebuggerEngine *m_engine;
     DebuggerState m_state;
@@ -301,13 +305,15 @@ struct DebuggerManagerPrivate {
 
 DebuggerManager *DebuggerManagerPrivate::instance = 0;
 
-DebuggerManagerPrivate::DebuggerManagerPrivate() :
-    m_startParameters(new DebuggerStartParameters),
-    m_inferiorPid(0)
+DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager)
+  : m_startParameters(new DebuggerStartParameters),
+    m_disassemblerViewAgent(manager)
 {
+    m_inferiorPid = 0;
 }
 
-DebuggerManager::DebuggerManager() : d(new DebuggerManagerPrivate)
+DebuggerManager::DebuggerManager()
+  : d(new DebuggerManagerPrivate(this))
 {
     DebuggerManagerPrivate::instance = this;
     init();
@@ -510,8 +516,8 @@ void DebuggerManager::init()
     connect(theDebuggerAction(WatchPoint), SIGNAL(triggered()),
         this, SLOT(watchPoint()));
 
-    connect(theDebuggerAction(StepByInstruction), SIGNAL(triggered()),
-        this, SLOT(stepByInstructionTriggered()));
+    connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
+        this, SLOT(operateByInstructionTriggered()));
 
 
     d->m_breakDock = d->m_mainWindow->addDockForWidget(d->m_breakWindow);
@@ -859,6 +865,12 @@ static IDebuggerEngine *debuggerEngineForToolChain(ProjectExplorer::ToolChain::T
     case ProjectExplorer::ToolChain::WINCE:
         rc = winEngine;
         break;
+    case ProjectExplorer::ToolChain::WINSCW: // S60
+    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        rc = gdbEngine;
+        break;
     case ProjectExplorer::ToolChain::OTHER:
     case ProjectExplorer::ToolChain::UNKNOWN:
     case ProjectExplorer::ToolChain::INVALID:
@@ -1023,6 +1035,7 @@ void DebuggerManager::cleanupViews()
     watchHandler()->cleanup();
     registerHandler()->removeAll();
     d->m_sourceFilesWindow->removeAll();
+    d->m_disassemblerViewAgent.cleanup();
 }
 
 void DebuggerManager::exitDebugger()
@@ -1093,7 +1106,7 @@ void DebuggerManager::stepExec()
 {
     QTC_ASSERT(d->m_engine, return);
     resetLocation();
-    if (theDebuggerBoolSetting(StepByInstruction))
+    if (theDebuggerBoolSetting(OperateByInstruction))
         d->m_engine->stepIExec();
     else
         d->m_engine->stepExec();
@@ -1110,7 +1123,7 @@ void DebuggerManager::nextExec()
 {
     QTC_ASSERT(d->m_engine, return);
     resetLocation();
-    if (theDebuggerBoolSetting(StepByInstruction))
+    if (theDebuggerBoolSetting(OperateByInstruction))
         d->m_engine->nextIExec();
     else
         d->m_engine->nextExec();
@@ -1330,20 +1343,31 @@ void DebuggerManager::resetLocation()
 
 void DebuggerManager::gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker)
 {
-    // connected to the plugin
-    emit gotoLocationRequested(frame, setMarker);
+    if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
+        d->m_disassemblerViewAgent.setFrame(frame);
+        if (setMarker)
+            resetLocation();
+    } else {
+        static QString lastFile;
+        static int lastLine;
+        if (frame.line != lastLine || frame.file != lastFile) {
+            lastLine = frame.line;
+            lastFile = frame.file;
+            // Connected to the plugin.
+            emit gotoLocationRequested(lastFile, lastLine, setMarker);
+        }
+    }
 }
 
 void DebuggerManager::fileOpen(const QString &fileName)
 {
-    // connected to the plugin
     StackFrame frame;
     frame.file = fileName;
     frame.line = -1;
-    emit gotoLocationRequested(frame, false);
+    gotoLocation(frame, false);
 }
 
-void DebuggerManager::stepByInstructionTriggered()
+void DebuggerManager::operateByInstructionTriggered()
 {
     QTC_ASSERT(d->m_stackHandler, return);
     StackFrame frame = d->m_stackHandler->currentFrame();
@@ -1564,7 +1588,7 @@ static bool isAllowedTransition(int from, int to)
 
     case InferiorStarting:
         return to == InferiorRunningRequested || to == InferiorStopped
-            || to == InferiorStartFailed;
+            || to == InferiorStartFailed || to == InferiorUnrunnable;
     case InferiorStartFailed:
         return to == DebuggerNotReady;
 
@@ -1580,6 +1604,8 @@ static bool isAllowedTransition(int from, int to)
     case InferiorStopFailed:
         return to == DebuggerNotReady;
 
+    case InferiorUnrunnable:
+        return to == AdapterShuttingDown;
     case InferiorShuttingDown:
         return to == InferiorShutDown || to == InferiorShutdownFailed;
     case InferiorShutDown:
@@ -1601,8 +1627,8 @@ void DebuggerManager::setState(DebuggerState state)
 
     QString msg = _("State changed from %1(%2) to %3(%4).")
         .arg(stateName(d->m_state)).arg(d->m_state).arg(stateName(state)).arg(state);
-    if (!((d->m_state == -1 && state == 0) || (d->m_state == 0 && state == 0)))
-        qDebug() << msg << d->m_state << state;
+    //if (!((d->m_state == -1 && state == 0) || (d->m_state == 0 && state == 0)))
+    //    qDebug() << msg << d->m_state << state;
     if (!isAllowedTransition(d->m_state, state))
         qDebug() << "UNEXPECTED STATE TRANSITION: " << msg;
 
@@ -1623,44 +1649,45 @@ void DebuggerManager::setState(DebuggerState state)
         emit debuggingFinished();
     }
 
-    const bool started = state == InferiorRunning
+    const bool stoppable = state == InferiorRunning
         || state == InferiorRunningRequested
         || state == InferiorStopping
-        || state == InferiorStopped;
+        || state == InferiorStopped
+        || state == InferiorUnrunnable;
 
     const bool running = state == InferiorRunning;
+    const bool stopped = state == InferiorStopped;
 
-    const bool ready = state == InferiorStopped
-            && d->m_startParameters->startMode != AttachCore;
-
-    if (ready)
+    if (stopped)
         QApplication::alert(mainWindow(), 3000);
 
-    d->m_actions.watchAction->setEnabled(ready);
+    d->m_actions.watchAction->setEnabled(stopped);
     d->m_actions.breakAction->setEnabled(true);
 
     bool interruptIsExit = !running;
     if (interruptIsExit) {
-        d->m_actions.stopAction->setIcon(QIcon(":/debugger/images/debugger_stop_small.png"));
+        static QIcon icon(":/debugger/images/debugger_stop_small.png");
+        d->m_actions.stopAction->setIcon(icon);
         d->m_actions.stopAction->setText(tr("Stop Debugger"));
     } else {
-        d->m_actions.stopAction->setIcon(QIcon(":/debugger/images/debugger_interrupt_small.png"));
+        static QIcon icon(":/debugger/images/debugger_interrupt_small.png");
+        d->m_actions.stopAction->setIcon(icon);
         d->m_actions.stopAction->setText(tr("Interrupt"));
     }
 
-    d->m_actions.stopAction->setEnabled(started);
+    d->m_actions.stopAction->setEnabled(stoppable);
     d->m_actions.resetAction->setEnabled(true);
 
-    d->m_actions.stepAction->setEnabled(ready);
-    d->m_actions.stepOutAction->setEnabled(ready);
-    d->m_actions.runToLineAction->setEnabled(ready);
-    d->m_actions.runToFunctionAction->setEnabled(ready);
-    d->m_actions.jumpToLineAction->setEnabled(ready);
-    d->m_actions.nextAction->setEnabled(ready);
-    //showStatusMessage(QString("started: %1, running: %2")
-    // .arg(started).arg(running));
+    d->m_actions.stepAction->setEnabled(stopped);
+    d->m_actions.stepOutAction->setEnabled(stopped);
+    d->m_actions.runToLineAction->setEnabled(stopped);
+    d->m_actions.runToFunctionAction->setEnabled(stopped);
+    d->m_actions.jumpToLineAction->setEnabled(stopped);
+    d->m_actions.nextAction->setEnabled(stopped);
+    //showStatusMessage(QString("stoppable: %1, running: %2")
+    // .arg(stoppable).arg(running));
     emit stateChanged(d->m_state);
-    const bool notbusy = ready || state == DebuggerNotReady;
+    const bool notbusy = stopped || state == DebuggerNotReady;
     setBusyCursor(!notbusy);
 }
 

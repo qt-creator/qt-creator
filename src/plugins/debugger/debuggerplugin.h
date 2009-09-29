@@ -62,8 +62,6 @@ namespace Internal {
 class BreakpointData;
 class DebuggerRunControlFactory;
 class DebugMode;
-class DisassemblerViewAgent;
-struct StackFrame;
 
 class DebuggerPlugin : public ExtensionSystem::IPlugin
 {
@@ -97,7 +95,7 @@ private slots:
         int lineNumber, QMenu *menu);
 
     void resetLocation();
-    void gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker);
+    void gotoLocation(const QString &file, int line, bool setMarker);
 
     void breakpointSetRemoveMarginActionTriggered();
     void breakpointEnableDisableMarginActionTriggered();
@@ -131,7 +129,6 @@ private:
 
     QString m_previousMode;
     TextEditor::BaseTextMark *m_locationMark;
-    DisassemblerViewAgent *m_disassemblerViewAgent;
     int m_gdbRunningContext;
     unsigned m_cmdLineEnabledEngines;
     quint64 m_cmdLineAttachPid;

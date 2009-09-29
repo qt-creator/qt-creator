@@ -742,7 +742,7 @@ void CppModelManager::removeEditorSupport(AbstractEditorSupport *editorSupport)
 void CppModelManager::findReferences(CPlusPlus::Symbol *symbol)
 {
     if (symbol->identifier())
-        m_findReferences->findAll(snapshot(), symbol);
+        m_findReferences->findAll(symbol);
 }
 
 QMap<QString, QString> CppModelManager::buildWorkingCopyList()

@@ -276,7 +276,12 @@ QList<Scope *> LookupContext::buildVisibleScopes()
     QList<Scope *> scopes;
 
     if (_symbol) {
-        for (Scope *scope = _symbol->scope(); scope; scope = scope->enclosingScope()) {
+        Scope *scope = _symbol->scope();
+
+        if (Function *fun = _symbol->asFunction())
+            scope = fun->members(); // handle ctor initializers.
+
+        for (; scope; scope = scope->enclosingScope()) {
             if (scope == _thisDocument->globalSymbols())
                 break;
 

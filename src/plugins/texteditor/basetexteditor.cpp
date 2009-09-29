@@ -827,7 +827,7 @@ void BaseTextEditor::moveLineUpDown(bool up)
         move.setPosition(end, QTextCursor::KeepAnchor);
     }
 
-    indent(document(), move, QChar::Null);
+    reindent(document(), move);
     move.endEditBlock();
 
     setTextCursor(move);
@@ -3356,8 +3356,8 @@ void BaseTextEditor::indentBlock(QTextDocument *, QTextBlock, QChar)
 void BaseTextEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
 {
     if (cursor.hasSelection()) {
-        QTextBlock block = doc->findBlock(qMin(cursor.selectionStart(), cursor.selectionEnd()));
-        const QTextBlock end = doc->findBlock(qMax(cursor.selectionStart(), cursor.selectionEnd())).next();
+        QTextBlock block = doc->findBlock(cursor.selectionStart());
+        const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
         do {
             indentBlock(doc, block, typedChar);
             block = block.next();
@@ -3366,6 +3366,29 @@ void BaseTextEditor::indent(QTextDocument *doc, const QTextCursor &cursor, QChar
         indentBlock(doc, cursor.block(), typedChar);
     }
 }
+
+void BaseTextEditor::reindent(QTextDocument *doc, const QTextCursor &cursor)
+{
+    if (cursor.hasSelection()) {
+        QTextBlock block = doc->findBlock(cursor.selectionStart());
+        const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
+
+        const TabSettings &ts = d->m_document->tabSettings();
+        int previousIndentation = ts.indentationColumn(block.text());
+        indentBlock(doc, block, QChar::Null);
+        int currentIndentation = ts.indentationColumn(block.text());
+        int delta = currentIndentation - previousIndentation;
+
+        block = block.next();
+        while (block.isValid() && block != end) {
+            ts.reindentLine(block, delta);
+            block = block.next();
+        }
+    } else {
+        indentBlock(doc, cursor.block(), QChar::Null);
+    }
+}
+
 
 BaseTextEditor::Link BaseTextEditor::findLinkAt(const QTextCursor &, bool)
 {
@@ -4466,11 +4489,39 @@ QMimeData *BaseTextEditor::createMimeDataFromSelection() const
     if (d->m_inBlockSelectionMode) {
         QMimeData *mimeData = new QMimeData;
         QString text = d->copyBlockSelection();
-        mimeData->setData(QLatin1String("application/vnd.nokia.qtcreator.blocktext"), text.toUtf8());
+        mimeData->setData(QLatin1String("application/vnd.nokia.qtcreator.vblocktext"), text.toUtf8());
         mimeData->setText(text); // for exchangeability
         return mimeData;
+    } else if (textCursor().hasSelection()){
+        QTextCursor cursor = textCursor();
+        QMimeData *mimeData = new QMimeData;
+        QString text = cursor.selectedText();
+        mimeData->setText(text);
+
+        /*
+          Try to figure out whether we are copying an entire block, and store the complete block
+          including indentation in the qtcreator.blocktext mimetype.
+        */
+        QTextCursor selstart = cursor;
+        selstart.setPosition(cursor.selectionStart());
+        QTextCursor selend = cursor;
+        selend.setPosition(cursor.selectionEnd());
+        const TabSettings &ts = d->m_document->tabSettings();
+
+        bool startOk = ts.cursorIsAtBeginningOfLine(selstart);
+        bool endOk = (selend.block() != selstart.block() && ts.cursorIsAtBeginningOfLine(selend));
+
+        if (startOk && endOk) {
+            selstart.movePosition(QTextCursor::StartOfBlock);
+            selend.movePosition(QTextCursor::StartOfBlock);
+            cursor.setPosition(selstart.position());
+            cursor.setPosition(selend.position(), QTextCursor::KeepAnchor);
+            text = cursor.selectedText();
+            mimeData->setData(QLatin1String("application/vnd.nokia.qtcreator.blocktext"), text.toUtf8());
+        }
+        return mimeData;
     }
-    return QPlainTextEdit::createMimeDataFromSelection();
+    return 0;
 }
 
 bool BaseTextEditor::canInsertFromMimeData(const QMimeData *source) const
@@ -4480,8 +4531,11 @@ bool BaseTextEditor::canInsertFromMimeData(const QMimeData *source) const
 
 void BaseTextEditor::insertFromMimeData(const QMimeData *source)
 {
-    if (!isReadOnly() && source->hasFormat(QLatin1String("application/vnd.nokia.qtcreator.blocktext"))) {
-        QString text = QString::fromUtf8(source->data(QLatin1String("application/vnd.nokia.qtcreator.blocktext")));
+    if (isReadOnly())
+        return;
+
+    if (source->hasFormat(QLatin1String("application/vnd.nokia.qtcreator.vblocktext"))) {
+        QString text = QString::fromUtf8(source->data(QLatin1String("application/vnd.nokia.qtcreator.vblocktext")));
         if (text.isEmpty())
             return;
         QStringList lines = text.split(QLatin1Char('\n'));
@@ -4511,13 +4565,15 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
         return;
     }
 
+
+
     QString text = source->text();
     if (text.isEmpty())
         return;
 
     const TabSettings &ts = d->m_document->tabSettings();
     QTextCursor cursor = textCursor();
-    if (cursor.hasSelection() || !ts.m_autoIndent) {
+    if (!ts.m_autoIndent) {
         cursor.beginEditBlock();
         cursor.insertText(text);
         cursor.endEditBlock();
@@ -4526,29 +4582,28 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
     }
 
     cursor.beginEditBlock();
-    int bpos = cursor.block().position();
-    int pos = cursor.position() - bpos;
-    int fns = ts.firstNonSpace(cursor.block().text());
 
-    if (pos <= fns) { // cursor is at beginning of line, we will reindent
+    if (ts.cursorIsAtBeginningOfLine(cursor)
+        && source->hasFormat(QLatin1String("application/vnd.nokia.qtcreator.blocktext"))) {
+        text = QString::fromUtf8(source->data(QLatin1String("application/vnd.nokia.qtcreator.blocktext")));
+        if (text.isEmpty())
+            return;
 
-        bool hasEndingNewline = (text.endsWith(QLatin1Char('\n'))
-                                 || text.endsWith(QChar::ParagraphSeparator)
-                                 || text.endsWith(QLatin1Char('\r')));
+        cursor.removeSelectedText();
 
-        if (hasEndingNewline)
-            cursor.setPosition(bpos); // we'll add a final newline, preserve current line's indentation
+        int bpos = cursor.block().position();
+        int pos = cursor.position() - bpos;
+
+        cursor.setPosition(bpos); // since we'll add a final newline, preserve current line's indentation
 
         cursor.insertText(text);
         pos = cursor.position();
         cursor.setPosition(bpos);
         cursor.setPosition(pos, QTextCursor::KeepAnchor);
-        if (hasEndingNewline)
-            cursor.setPosition(cursor.position()-1, QTextCursor::KeepAnchor);
-        indent(document(), cursor, QChar::Null);
+        cursor.setPosition(cursor.position()-1, QTextCursor::KeepAnchor);
+        reindent(document(), cursor);
         cursor.clearSelection();
-        if (hasEndingNewline)
-            cursor.setPosition(cursor.position()+1);
+        cursor.setPosition(cursor.position()+1); // skip newline
     } else {
         cursor.insertText(text);
     }

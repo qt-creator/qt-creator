@@ -143,7 +143,7 @@ int format(const QString &fileName)
         if (p.last().endsWith(colon))
             typedIn = colon;
 
-        const int indent = Indenter::instance().indentForBottomLine(p.constBegin(), p.constEnd(), typedIn);
+        const int indent = Indenter::instance().indentForBottomLine(it, p.constBegin(), p.constEnd(), typedIn);
 
         const QString trimmed = line.trimmed();
         // Indent the line in the list so that the formatter code sees the indented line.

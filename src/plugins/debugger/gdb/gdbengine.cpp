@@ -61,6 +61,7 @@
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <texteditor/itexteditor.h>
+#include <projectexplorer/toolchain.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
@@ -111,6 +112,7 @@ namespace Internal {
 static bool stateAcceptsGdbCommands(DebuggerState state)
 {
     return state == AdapterStarted
+        || state == InferiorUnrunnable
         || state == InferiorPreparing
         || state == InferiorPrepared
         || state == InferiorStarting
@@ -512,11 +514,15 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 static QRegExp re1(_("New .hread 0x[0-9a-f]+ \\(LWP ([0-9]*)\\)"));
                 // MinGW 6.8: [New thread 2437.0x435345]
                 static QRegExp re2(_("New .hread ([0-9]+)\\.0x[0-9a-f]*"));
+                // Mac: [Switching to process 9294 local thread 0x2e03]
+                static QRegExp re3(_("Switching to process ([0-9]+) local thread"));
                 QTC_ASSERT(re1.isValid() && re2.isValid(), return);
                 if (re1.indexIn(_(data)) != -1)
                     maybeHandleInferiorPidChanged(re1.cap(1));
                 else if (re2.indexIn(_(data)) != -1)
                     maybeHandleInferiorPidChanged(re2.cap(1));
+                else if (re3.indexIn(_(data)) != -1)
+                    maybeHandleInferiorPidChanged(re3.cap(1));
             }
 
             // Show some messages to give the impression something happens.
@@ -722,10 +728,9 @@ void GdbEngine::postCommand(const QString &command, GdbCommandFlags flags,
 void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 {
     if (!stateAcceptsGdbCommands(state())) {
-        qDebug() << _("NO GDB PROCESS RUNNING, CMD IGNORED: ") << cmd.command
-            << state();
         PENDING_DEBUG(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
-        debugMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
+        debugMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: %1 %2")
+            .arg(cmd.command).arg(state()));
         return;
     }
 
@@ -821,17 +826,9 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
     }
 
     if (response.token < m_oldestAcceptableToken && (cmd.flags & Discardable)) {
-        //qDebug() << "### SKIPPING OLD RESULT" << response.toString();
-        //showMessageBox(QMessageBox::Information(tr("Skipped"), "xxx"));
+        //debugMessage(_("### SKIPPING OLD RESULT") + response.toString());
         return;
     }
-
-#if 0
-    qDebug() << "# handleOutput,"
-        << "cmd name:" << cmd.callbackName
-        << " cmd synchronized:" << cmd.synchronized
-        << "\n response: " << response.toString();
-#endif
 
     GdbResponse responseWithCookie = response;
     responseWithCookie.cookie = cmd.cookie;
@@ -864,7 +861,7 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
         Continuation cont = m_continuationAfterDone;
         m_continuationAfterDone = 0;
         (this->*cont)();
-        //showStatusMessage(tr("Continuing after temporary stop."));
+        showStatusMessage(tr("Continuing after temporary stop."), 1000);
     } else {
         PENDING_DEBUG("MISSING TOKENS: " << m_cookieForToken.keys());
     }
@@ -880,10 +877,10 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
     m_gdbAdapter->write(command.toLatin1() + "\r\n");
 }
 
-// called from CoreAdapter and AttachAdapter
+// Called from CoreAdapter and AttachAdapter
 void GdbEngine::updateAll()
 {
-    QTC_ASSERT(state() == InferiorStopped, /**/);
+    QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
     manager()->resetLocation();
     tryLoadDebuggingHelpers();
     manager()->stackHandler()->setCurrentIndex(0);
@@ -917,49 +914,6 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
         }
         if (m_shortToFullName != oldShortToFull)
             manager()->sourceFileWindow()->setSourceFiles(m_shortToFullName);
-    }
-}
-
-void GdbEngine::handleInfoThreads(const GdbResponse &response)
-{
-    if (response.resultClass != GdbResultDone)
-        return;
-    // FIXME: use something more robust
-    // WIN:     [New thread 3380.0x2bc]
-    //          * 3 Thread 2312.0x4d0  0x7c91120f in ?? ()
-    // LINUX:   * 1 Thread 0x7f466273c6f0 (LWP 21455)  0x0000000000404542 in ...
-    const QString data = _(response.data.findChild("consolestreamoutput").data());
-    if (data.isEmpty())
-        return;
-    // check "[New thread 3380.0x2bc]"
-    if (data.startsWith(QLatin1Char('['))) {
-        QRegExp ren(_("^\\[New thread (\\d+)\\.0x.*"));
-        Q_ASSERT(ren.isValid());
-        if (ren.indexIn(data) != -1) {
-            maybeHandleInferiorPidChanged(ren.cap(1));
-            return;
-        }
-    }
-    // check "* 3 Thread ..."
-    QRegExp re(_("^\\*? +\\d+ +[Tt]hread (\\d+)\\.0x.* in"));
-    Q_ASSERT(re.isValid());
-    if (re.indexIn(data) != -1)
-        maybeHandleInferiorPidChanged(re.cap(1));
-}
-
-void GdbEngine::handleInfoProc(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        #ifdef Q_OS_MAC
-        //^done,process-id="85075"
-        maybeHandleInferiorPidChanged(_(response.data.findChild("process-id").data()));
-        #else
-        // FIXME: use something more robust
-        QRegExp re(__("process (\\d+)"));
-        QString data = __(response.data.findChild("consolestreamoutput").data());
-        if (re.indexIn(data) != -1)
-            maybeHandleInferiorPidChanged(re.cap(1));
-        #endif
     }
 }
 
@@ -1043,16 +997,6 @@ static bool isStoppedReason(const QByteArray &reason)
 #if 0
 void GdbEngine::handleAqcuiredInferior()
 {
-    #ifdef Q_OS_WIN
-    postCommand(_("info thread"), CB(handleInfoThreads));
-    #elif defined(Q_OS_MAC)
-    postCommand(_("info pid"), NeedsStop, CB(handleInfoProc));
-    #else
-    postCommand(_("info proc"), CB(handleInfoProc));
-    #endif
-    if (theDebuggerBoolSetting(ListSourceFiles))
-        reloadSourceFiles();
-
     // Reverse debugging. FIXME: Should only be used when available.
     //if (theDebuggerBoolSetting(EnableReverseDebugging))
     //    postCommand(_("target response"));
@@ -1341,12 +1285,13 @@ void GdbEngine::handleStop2(const GdbMi &data)
         }
     }
 
-    // FIXME: Hack, remove as soon as we get real stack traces.
-    if (m_gdbAdapter->isTrkAdapter()) {
+    // Quick shot
+    if (fullName.isValid()) {
         StackFrame f;
-        f.file = QString::fromLocal8Bit(fullName.data());
+        f.file = QFile::decodeName(fullName.data());
         f.line = frame.findChild("line").data().toInt();
         f.address = _(frame.findChild("addr").data());
+        f.function = _(frame.findChild("func").data());
         gotoLocation(f, true);
     }
 
@@ -1511,6 +1456,33 @@ int GdbEngine::currentFrame() const
     return manager()->stackHandler()->currentIndex();
 }
 
+AbstractGdbAdapter *GdbEngine::determineAdapter(const DebuggerStartParametersPtr &sp) const
+{
+    switch (sp->toolChainType) {
+    case ProjectExplorer::ToolChain::WINSCW: // S60
+    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        return m_trkAdapter;
+    default:
+        break;
+    }
+    // @todo: remove testing hack
+    if (sp->executable.endsWith(_(".sym")))
+        return m_trkAdapter;
+    switch (sp->startMode) {
+    case AttachCore:
+        return m_coreAdapter;
+    case StartRemote:
+        return m_remoteAdapter;
+    case AttachExternal:
+        return m_attachAdapter;
+    default:
+        break;
+    }
+    return m_plainAdapter;
+}
+
 void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
@@ -1525,16 +1497,7 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     if (m_gdbAdapter)
         disconnectAdapter();
 
-    if (sp->executable.endsWith(_(".sym")))
-        m_gdbAdapter = m_trkAdapter;
-    else if (sp->startMode == AttachCore)
-        m_gdbAdapter = m_coreAdapter;
-    else if (sp->startMode == StartRemote)
-        m_gdbAdapter = m_remoteAdapter;
-    else if (sp->startMode == AttachExternal)
-        m_gdbAdapter = m_attachAdapter;
-    else 
-        m_gdbAdapter = m_plainAdapter;
+    m_gdbAdapter = determineAdapter(sp);
 
     if (startModeAllowsDumpers())
         connectDebuggingHelperActions();
@@ -2341,7 +2304,10 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         theDebuggerAction(ExpandStack)->setEnabled(canExpand);
         manager()->stackHandler()->setFrames(stackFrames, canExpand);
 
-        if (topFrame != -1 || theDebuggerBoolSetting(StepByInstruction)) {
+        if (topFrame != -1 && topFrame != 0) {
+            // For topFrame == -1 there is no frame at all, for topFrame == 0
+            // we already issued a 'gotoLocation' when reading the *stopped
+            // message.
             const StackFrame &frame = manager()->stackHandler()->currentFrame();
             gotoLocation(frame, true);
         }

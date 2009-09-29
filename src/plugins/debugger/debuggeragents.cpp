@@ -143,10 +143,10 @@ public:
 struct DisassemblerViewAgentPrivate
 {
     QPointer<TextEditor::ITextEditor> editor;
-    QString address;
-    QString function;
+    StackFrame frame;
     QPointer<DebuggerManager> manager;
     LocationMark2 *locationMark;
+    QHash<QString, QString> cache;
 };
 
 /*!
@@ -193,17 +193,33 @@ DisassemblerViewAgent::~DisassemblerViewAgent()
 {
     if (d->editor)
         d->editor->deleteLater();
+    d->editor = 0;
     delete d;
     d = 0;
 }
 
+void DisassemblerViewAgent::cleanup()
+{
+    d->cache.clear();
+    //if (d->editor)
+    //    d->editor->deleteLater();
+    //d->editor = 0;
+}
+
 void DisassemblerViewAgent::setFrame(const StackFrame &frame)
 {
+    d->frame = frame;
+    if (!frame.function.isEmpty()) {
+        QHash<QString, QString>::ConstIterator it =
+            d->cache.find(frame.function + frame.file);
+        if (it != d->cache.end()) {
+            setContents(*it);
+            return;
+        }
+    } 
     IDebuggerEngine *engine = d->manager->currentEngine();
     QTC_ASSERT(engine, return);
     engine->fetchDisassembler(this, frame);
-    d->address = frame.address;
-    d->function = frame.function;
 }
 
 void DisassemblerViewAgent::setContents(const QString &contents)
@@ -212,6 +228,7 @@ void DisassemblerViewAgent::setContents(const QString &contents)
     using namespace Core;
     using namespace TextEditor;
 
+    d->cache.insert(d->frame.function + d->frame.file, contents);
     QPlainTextEdit *plainTextEdit = 0;
     EditorManager *editorManager = EditorManager::instance();
     if (!d->editor) {
@@ -232,10 +249,10 @@ void DisassemblerViewAgent::setContents(const QString &contents)
         plainTextEdit->setPlainText(contents);
 
     d->editor->markableInterface()->removeMark(d->locationMark);
-    d->editor->setDisplayName(_("Disassembler (%1)").arg(d->function));
+    d->editor->setDisplayName(_("Disassembler (%1)").arg(d->frame.function));
 
     for (int pos = 0, line = 0; ; ++line, ++pos) {
-        if (contents.midRef(pos, d->address.size()) == d->address) {
+        if (contents.midRef(pos, d->frame.address.size()) == d->frame.address) {
             d->editor->markableInterface()->addMark(d->locationMark, line + 1);
             if (plainTextEdit) {
                 QTextCursor tc = plainTextEdit->textCursor();
@@ -252,7 +269,7 @@ void DisassemblerViewAgent::setContents(const QString &contents)
 
 QString DisassemblerViewAgent::address() const
 {
-    return d->address;
+    return d->frame.address;
 }
 
 } // namespace Internal

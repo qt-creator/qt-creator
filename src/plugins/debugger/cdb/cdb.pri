@@ -19,7 +19,7 @@ CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows/sdk"
 }
 
 exists ($$CDB_PATH) {
-message("Experimental: Adding support for $$CDB_PATH")
+message("Adding support for $$CDB_PATH")
 
 DEFINES+=CDB_ENABLED
 

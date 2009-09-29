@@ -1196,29 +1196,6 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
     return subProjectPaths;
 }
 
-QStringList Qt4ProFileNode::qBuildSubDirsPaths(const QString &scanDir) const
-{
-    QStringList subProjectPaths;
-
-    // With QBuild we only look for project files named qbuild.pro
-    QString realFile = scanDir + "/qbuild.pro";
-    if (QFile::exists(realFile))
-        subProjectPaths << realFile;
-
-    // With QBuild 'subdirs' are implied
-    QDir dir(scanDir);
-    QStringList subDirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    foreach (QString subDir, subDirs) {
-        // 'tests' sub directories are an exception to the 'QBuild scans everything' rule.
-        // Tests are only build with the 'make test' command, in which case QBuild WILL look
-        // for a tests subdir and run everything in there.
-        if (subDir != "tests")
-            subProjectPaths += qBuildSubDirsPaths(scanDir + "/" + subDir);
-    }
-
-    return subProjectPaths;
-}
-
 QString Qt4PriFileNode::buildDir() const
 {
     const QDir srcDirRoot = QFileInfo(m_project->rootProjectNode()->path()).absoluteDir();

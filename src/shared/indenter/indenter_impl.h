@@ -647,10 +647,11 @@ bool  Indenter<Iterator>::isUnfinishedLine()
     if ( ! m_constants.m_bracesSemicolon.contains(lastCh) && !yyLine->endsWith(m_constants.m_3dots) ) {
 	/*
 	  It doesn't end with ';' or similar. If it's neither
-	  "Q_OBJECT" nor "if ( x )", it must be an unfinished line.
+      "Q_OBJECT" nor "if ( x )" nor is a template function, it must be an unfinished line.
 	*/
-	unf = ( yyLine->contains(m_constants.m_qobject) == 0 &&
-		!matchBracelessControlStatement() );
+    unf = ( !yyLine->contains(m_constants.m_qobject) &&
+            !matchBracelessControlStatement() &&
+            !yyLine->contains(m_constants.m_templateFunc) );
     } else if ( lastCh == semicolon ) {
 	if ( lastParen(*yyLine) == openingParenthesis ) {
 	    /*

@@ -79,15 +79,11 @@ public:
         MinGW = 2,
         MSVC = 3,
         WINCE = 4,
-#ifdef QTCREATOR_WITH_S60
         WINSCW = 5,
         GCCE = 6,
         RVCT_ARMV5 = 7,
         RVCT_ARMV6 = 8,
         LAST_VALID = 9,
-#else
-        LAST_VALID = 5,
-#endif
         OTHER = 200,
         UNKNOWN = 201,
         INVALID = 202
