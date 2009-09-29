@@ -49,7 +49,8 @@ Constants::Constants() :
     m_iflikeKeyword(QLatin1String("\\b(?:catch|do|for|if|while|foreach)\\b")),
     m_caseLabel(QLatin1String("^\\s*(?:case\\b(?:[^:]|::)+"
                 "|(?:public|protected|private|signals|Q_SIGNALS|default)(?:\\s+slots|\\s+Q_SLOTS)?\\s*"
-                "):"))
+                "):")),
+    m_templateFunc(QLatin1String("template<.*>"))
 {
     m_literal.setMinimal(true);
     m_inlineCComment.setMinimal(true);
@@ -59,4 +60,5 @@ Constants::Constants() :
     Q_ASSERT(m_braceX.isValid());
     Q_ASSERT(m_iflikeKeyword.isValid());
     Q_ASSERT(m_caseLabel.isValid());
+    Q_ASSERT(m_templateFunc.isValid());
 }

@@ -54,6 +54,7 @@ struct Constants {
     QRegExp m_braceX;
     QRegExp m_iflikeKeyword;
     QRegExp m_caseLabel;
+    QRegExp m_templateFunc;
 };
 
 /*  The "linizer" is a group of functions and variables to iterate
