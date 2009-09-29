@@ -918,49 +918,6 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleInfoThreads(const GdbResponse &response)
-{
-    if (response.resultClass != GdbResultDone)
-        return;
-    // FIXME: use something more robust
-    // WIN:     [New thread 3380.0x2bc]
-    //          * 3 Thread 2312.0x4d0  0x7c91120f in ?? ()
-    // LINUX:   * 1 Thread 0x7f466273c6f0 (LWP 21455)  0x0000000000404542 in ...
-    const QString data = _(response.data.findChild("consolestreamoutput").data());
-    if (data.isEmpty())
-        return;
-    // check "[New thread 3380.0x2bc]"
-    if (data.startsWith(QLatin1Char('['))) {
-        QRegExp ren(_("^\\[New thread (\\d+)\\.0x.*"));
-        Q_ASSERT(ren.isValid());
-        if (ren.indexIn(data) != -1) {
-            maybeHandleInferiorPidChanged(ren.cap(1));
-            return;
-        }
-    }
-    // check "* 3 Thread ..."
-    QRegExp re(_("^\\*? +\\d+ +[Tt]hread (\\d+)\\.0x.* in"));
-    Q_ASSERT(re.isValid());
-    if (re.indexIn(data) != -1)
-        maybeHandleInferiorPidChanged(re.cap(1));
-}
-
-void GdbEngine::handleInfoProc(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        #ifdef Q_OS_MAC
-        //^done,process-id="85075"
-        maybeHandleInferiorPidChanged(_(response.data.findChild("process-id").data()));
-        #else
-        // FIXME: use something more robust
-        QRegExp re(__("process (\\d+)"));
-        QString data = __(response.data.findChild("consolestreamoutput").data());
-        if (re.indexIn(data) != -1)
-            maybeHandleInferiorPidChanged(re.cap(1));
-        #endif
-    }
-}
-
 void GdbEngine::handleInfoShared(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
@@ -1041,16 +998,6 @@ static bool isStoppedReason(const QByteArray &reason)
 #if 0
 void GdbEngine::handleAqcuiredInferior()
 {
-    #ifdef Q_OS_WIN
-    postCommand(_("info thread"), CB(handleInfoThreads));
-    #elif defined(Q_OS_MAC)
-    postCommand(_("info pid"), NeedsStop, CB(handleInfoProc));
-    #else
-    postCommand(_("info proc"), CB(handleInfoProc));
-    #endif
-    if (theDebuggerBoolSetting(ListSourceFiles))
-        reloadSourceFiles();
-
     // Reverse debugging. FIXME: Should only be used when available.
     //if (theDebuggerBoolSetting(EnableReverseDebugging))
     //    postCommand(_("target response"));

@@ -261,8 +261,6 @@ private:
     void handleExecJumpToLine(const GdbResponse &response);
     void handleExecRunToFunction(const GdbResponse &response);
     void handleInfoShared(const GdbResponse &response);
-    void handleInfoProc(const GdbResponse &response);
-    void handleInfoThreads(const GdbResponse &response);
     void handleShowVersion(const GdbResponse &response);
     void handleQueryPwd(const GdbResponse &response);
     void handleQuerySources(const GdbResponse &response);
