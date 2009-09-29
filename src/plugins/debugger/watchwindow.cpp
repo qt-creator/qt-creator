@@ -91,13 +91,13 @@ public:
         QString exp = model->data(index, ExpressionRole).toString();
         model->setData(index, value, Qt::EditRole);
         if (index.column() == 1) {
-            // the value column
+            // The value column.
             theDebuggerAction(AssignValue)->trigger(QString(exp + '=' + value));
         } else if (index.column() == 2) {
-            // the type column
+            // The type column.
             theDebuggerAction(AssignType)->trigger(QString(exp + '=' + value));
         } else if (index.column() == 0) {
-            // the watcher name column
+            // The watcher name column.
             theDebuggerAction(RemoveWatchExpression)->trigger(exp);
             theDebuggerAction(WatchExpression)->trigger(value);
         }
@@ -204,7 +204,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QModelIndex mi0 = idx.sibling(idx.row(), 0);
     QModelIndex mi1 = idx.sibling(idx.row(), 1);
     QModelIndex mi2 = idx.sibling(idx.row(), 2);
-    QString exp = model()->data(mi0).toString();
+    QString exp = model()->data(mi0, ExpressionRole).toString();
     QString type = model()->data(mi2).toString();
 
     QStringList alternativeFormats = 
