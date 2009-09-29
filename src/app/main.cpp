@@ -313,6 +313,17 @@ int main(int argc, char **argv)
         displayError(msgCoreLoadFailure(coreplugin->errorString()));
         return 1;
     }
+    {
+        QStringList errors;
+        foreach (ExtensionSystem::PluginSpec *p, pluginManager.plugins())
+            if (p->hasError())
+                errors.append(p->errorString());
+        if (!errors.isEmpty())
+            QMessageBox::warning(0,
+                QCoreApplication::translate("Application", "Qt Creator - Plugin loader messages"),
+                errors.join(QString::fromLatin1("\n\n")));
+    }
+
     if (isFirstInstance) {
         // Set up lock and remote arguments for the first instance only.
         // Silently fallback to unconnected instances for any subsequent
