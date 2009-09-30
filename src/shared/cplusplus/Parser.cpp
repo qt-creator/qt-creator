@@ -2561,6 +2561,10 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierAST *&node)
 bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
                                     bool acceptStructDeclarator)
 {
+    if (LA() == T_IDENTIFIER && isMacro(cursor())) {
+        // printf("***** found macro reference `%s'\n", tok().identifier->chars());
+    }
+
     unsigned qt_invokable_token = 0;
     if (acceptStructDeclarator && (LA() == T_Q_SIGNAL || LA() == T_Q_SLOT))
         qt_invokable_token = consumeToken();

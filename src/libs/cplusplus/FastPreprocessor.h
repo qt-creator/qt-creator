@@ -34,10 +34,29 @@
 #include "CppDocument.h"
 #include "pp.h"
 
+#include <Control.h>
+
 #include <QtCore/QSet>
 #include <QtCore/QString>
 
 namespace CPlusPlus {
+
+class CPLUSPLUS_EXPORT FastMacroResolver: public MacroResolver
+{
+public:
+    FastMacroResolver(const Snapshot &snapshot);
+
+    virtual bool isMacro(TranslationUnit *unit, unsigned tokenIndex) const;
+
+private:
+    bool isMacro_helper(const QByteArray &macroName,
+                        const QString &fileName,
+                        QSet<QString> *processed,
+                        bool *done) const;
+
+private:
+    Snapshot _snapshot;
+};
 
 class CPLUSPLUS_EXPORT FastPreprocessor: public Client
 {

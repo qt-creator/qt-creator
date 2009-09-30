@@ -28,8 +28,70 @@
 **************************************************************************/
 
 #include "FastPreprocessor.h"
+#include <Literals.h>
+#include <TranslationUnit.h>
 
 using namespace CPlusPlus;
+
+FastMacroResolver::FastMacroResolver(const Snapshot &snapshot)
+    : _snapshot(snapshot)
+{ }
+
+bool FastMacroResolver::isMacro(TranslationUnit *unit, unsigned tokenIndex) const
+{
+    const Token &tk = unit->tokenAt(tokenIndex);
+    if (tk.isNot(T_IDENTIFIER))
+        return false;
+
+    Identifier *id = tk.identifier;
+    const QByteArray macroName = QByteArray::fromRawData(id->chars(), id->size());
+    const QString fileName = QString::fromUtf8(unit->fileName(), unit->fileNameLength());
+
+    bool done = false;
+    QSet<QString> processed;
+
+    if (isMacro_helper(macroName, fileName, &processed, &done))
+        return true;
+
+    return false;
+}
+
+bool FastMacroResolver::isMacro_helper(const QByteArray &macroName,
+                                       const QString &fileName,
+                                       QSet<QString> *processed,
+                                       bool *done) const
+{
+    if (processed->contains(fileName))
+        return false;
+
+    processed->insert(fileName);
+
+    if (Document::Ptr doc = _snapshot.value(fileName)) {
+        const QList<Macro> definedMacros = doc->definedMacros();
+
+        for (int i = definedMacros.size() - 1; i != -1; --i) {
+            const Macro &macro = definedMacros.at(i);
+
+            if (macro.name() == macroName) { // ### handle line numbers.
+                if (macro.isHidden()) {
+                    *done = true;
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        foreach (const Document::Include &incl, doc->includes()) {
+            if (isMacro_helper(macroName, incl.fileName(), processed, done))
+                return true;
+            else if (*done)
+                return false;
+        }
+    }
+
+    return false;
+}
 
 FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
     : _snapshot(snapshot),

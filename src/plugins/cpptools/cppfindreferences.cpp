@@ -52,6 +52,7 @@
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
+#include <cplusplus/FastPreprocessor.h>
 
 #include <QtCore/QTime>
 #include <QtCore/QtConcurrentRun>
@@ -425,6 +426,8 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
 
     future.setProgressRange(0, files.size());
 
+    FastMacroResolver fastMacroResolver(snapshot);
+
     for (int i = 0; i < files.size(); ++i) {
         const QString &fileName = files.at(i);
         future.setProgressValueAndText(i, QFileInfo(fileName).fileName());
@@ -456,8 +459,15 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
 
         Control *control = doc->control();
         if (Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size())) {
-            doc->check();
             TranslationUnit *unit = doc->translationUnit();
+            Control *control = doc->control();
+
+            control->setMacroResolver(&fastMacroResolver);
+            doc->parse();
+            control->setMacroResolver(0);
+
+            doc->check();
+
             Process process(doc, snapshot, &future);
             process(symbol, id, unit->ast());
         }

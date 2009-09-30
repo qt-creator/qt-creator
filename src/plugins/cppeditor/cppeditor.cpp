@@ -57,6 +57,8 @@
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/BackwardsScanner.h>
+#include <cplusplus/FastPreprocessor.h>
+
 #include <cpptools/cppmodelmanagerinterface.h>
 
 #include <coreplugin/icore.h>
@@ -2064,10 +2066,13 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     if (!doc) {
         const QByteArray preprocessedCode = source.snapshot.preprocessedCode(source.code, source.fileName);
 
-        doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
-        doc->check();
-
         snapshot = source.snapshot;
+        doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
+
+        FastMacroResolver fastMacroResolver(snapshot);
+        doc->control()->setMacroResolver(&fastMacroResolver);
+        doc->check();
+        doc->control()->setMacroResolver(0);
     }
 
     Control *control = doc->control();
