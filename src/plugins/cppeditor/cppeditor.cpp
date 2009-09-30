@@ -1537,28 +1537,43 @@ int CPPEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
     else
         braceDepth= 0;
 
-    if (braceDepth > 0) { // we do have an extra brace, let's close it
-        int pos = cursor.position();
+    if (braceDepth <= 0)
+        return 0; // braces are all balanced or worse, no need to do anything
 
-        MatchingText matchingText;
-        const QString textToInsert = matchingText.insertParagraphSeparator(cursor);
+    // we have an extra brace , let's see if we should close it
 
-        cursor.insertText(textToInsert);
-        cursor.setPosition(pos);
-        const TabSettings &ts = tabSettings();
-        if (ts.m_autoIndent) {
-            cursor.insertBlock();
-            indent(document(), cursor, QChar::Null);
-        } else {
-            QString previousBlockText = cursor.block().text();
-            cursor.insertBlock();
-            cursor.insertText(ts.indentationString(previousBlockText));
-        }
-        cursor.setPosition(pos);
-        m_allowSkippingOfBlockEnd = true;
-        return 1;
+
+    /* verify that the next block is not further intended compared to the current block.
+       This covers the following case:
+
+            if (condition) {|
+                statement;
+    */
+    const TabSettings &ts = tabSettings();
+    QTextBlock block = cursor.block();
+    int indentation = ts.indentationColumn(block.text());
+    if (block.next().isValid()
+        && ts.indentationColumn(block.next().text()) > indentation)
+        return 0;
+
+    int pos = cursor.position();
+
+    MatchingText matchingText;
+    const QString textToInsert = matchingText.insertParagraphSeparator(cursor);
+
+    cursor.insertText(textToInsert);
+    cursor.setPosition(pos);
+    if (ts.m_autoIndent) {
+        cursor.insertBlock();
+        indent(document(), cursor, QChar::Null);
+    } else {
+        QString previousBlockText = cursor.block().text();
+        cursor.insertBlock();
+        cursor.insertText(ts.indentationString(previousBlockText));
     }
-    return 0;
+    cursor.setPosition(pos);
+    m_allowSkippingOfBlockEnd = true;
+    return 1;
 }
 
 bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor,
