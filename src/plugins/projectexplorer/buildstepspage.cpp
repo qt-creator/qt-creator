@@ -29,7 +29,6 @@
 
 #include "buildstepspage.h"
 
-#include "ui_buildstepspage.h"
 #include "project.h"
 
 #include <coreplugin/coreconstants.h>
@@ -40,6 +39,8 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
 #include <QtGui/QMenu>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
