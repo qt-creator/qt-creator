@@ -95,7 +95,8 @@
 #   define STATE_DEBUG(s)
 #endif
 
-// Note: the Debugger process itself is referred to as 'Debugger',
+// Note: the Debugger process itself and any helper processes like
+// gdbserver, the trk client etc are referred to as 'Adapter',
 // whereas the debugged process is referred to as 'Inferior'.
 //
 //               0 == DebuggerNotReady
@@ -112,11 +113,13 @@
 //                          |
 //                     InferiorStarting --> InferiorStartFailed --> 0
 //                          |
-//         (core)           |
-//      .-----------------<-|
-//      |                   |    (attach)               
-//  InferiorUnrunnable      |----------------------.
+//         (core)           |     (attach) (remote)
+//      .-----------------<-|->--------------------.
+//      |                   v                      |
+//  InferiorUnrunnable      |                      |
 //      |                   |                      v
+//      |                   | (plain)
+//      |                   | (trk)
 //      |                   |
 //      |                   |  .------------------------------------.
 //      |                   |  v                                    |
