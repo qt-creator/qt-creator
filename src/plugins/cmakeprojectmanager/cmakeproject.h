@@ -122,7 +122,6 @@ public:
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
     ProjectExplorer::ToolChain *toolChain(ProjectExplorer::BuildConfiguration *configuration) const;
 
-    bool parseCMakeLists();
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
     virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
@@ -135,6 +134,7 @@ private slots:
     void slotActiveBuildConfiguration();
 
 private:
+    bool parseCMakeLists();
     void updateToolChain(const QString &compiler);
 
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
@@ -155,6 +155,8 @@ private:
     ProjectExplorer::FileWatcher *m_watcher;
     bool m_insideFileChanged;
     QSet<QString> m_watchedFiles;
+
+    friend class CMakeBuildConfigurationFactory; // for parseCMakeLists
 };
 
 class CMakeCbpParser : public QXmlStreamReader

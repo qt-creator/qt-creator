@@ -216,7 +216,7 @@ bool Project::restoreSettings()
     if (!restoreSettingsImpl(reader))
         return false;
 
-    if (m_activeBuildConfiguration.isEmpty() && !m_buildConfigurations.isEmpty())
+    if (m_activeBuildConfiguration.isEmpty() && !m_buildConfigurationValues.isEmpty())
         setActiveBuildConfiguration(m_buildConfigurationValues.at(0));
 
     if (!m_activeRunConfiguration && !m_runConfigurations.isEmpty())

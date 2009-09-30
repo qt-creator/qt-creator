@@ -33,10 +33,6 @@
 
 using namespace ProjectExplorer;
 
-BuildConfiguration::BuildConfiguration()
-{
-}
-
 BuildConfiguration::BuildConfiguration(const QString &name)
     : m_name(name)
 {

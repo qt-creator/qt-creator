@@ -272,6 +272,7 @@ void BuildSettingsWidget::createConfiguration()
     QAction *action = qobject_cast<QAction *>(sender());
     const QString &type = action->data().toString();
     if (m_project->buildConfigurationFactory()->create(type)) {
+        // TODO switching to last buildconfiguration in list might not be what we want
         m_buildConfiguration = m_project->buildConfigurations().last()->name();
         updateBuildSettings();
     }

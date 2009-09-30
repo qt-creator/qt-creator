@@ -101,6 +101,7 @@ public:
     void copyBuildConfiguration(const QString &source, const QString &dest);
     BuildConfiguration *buildConfiguration(const QString & name) const;
     QList<BuildConfiguration *> buildConfigurations() const;
+    // remove and add "QString uniqueConfigurationDisplayName(const QString &proposedName) const" instead
     void setDisplayNameFor(BuildConfiguration *configuration, const QString &displayName);
     BuildConfiguration *activeBuildConfiguration() const;
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
@@ -184,7 +185,6 @@ protected:
 private:
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
-    QStringList m_buildConfigurations;
     QMap<QString, QVariant> m_values;
     QList<BuildConfiguration *> m_buildConfigurationValues;
     QString m_activeBuildConfiguration;

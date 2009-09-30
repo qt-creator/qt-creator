@@ -41,27 +41,30 @@
 
 namespace ProjectExplorer {
 
+class Project;
+
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit BuildConfiguration();
     BuildConfiguration(const QString &name);
     BuildConfiguration(const QString &name, BuildConfiguration *source);
-    void setName(const QString &name);
     QString name() const;
     QString displayName() const;
     void setDisplayName(const QString &name);
 
     QVariant value(const QString &key) const;
     void setValue(const QString &key, QVariant value);
+
     QMap<QString, QVariant> toMap() const;
     void setValuesFromMap(QMap<QString, QVariant> map);
-
 private:
+    void setName(const QString &name);
+
     QHash<QString, QVariant> m_values;
     QString m_name;
+    friend class Project;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory : public QObject
