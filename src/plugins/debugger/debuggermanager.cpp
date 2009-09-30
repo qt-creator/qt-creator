@@ -98,39 +98,47 @@
 // Note: the Debugger process itself is referred to as 'Debugger',
 // whereas the debugged process is referred to as 'Inferior'.
 //
-// 0 == DebuggerNotReady
-//          |
-//     EngineStarting
-//          |
-//     AdapterStarting --> AdapterStartFailed --> 0
-//          |
-//     AdapterStarted
-//          |
-//     InferiorStarting --> InferiorStartFailed --> 0
-//          |          |
-//          |          |
-//     InferiorStopped |
-//          |          |
-//          | <--------
-//          |  .------------------------------------.
-//          |  v                                    |
-//     InferiorRunningRequested                     |
-//          |                                       |
-//     InferiorRunning  --> 1 (normal exit)         |
-//          |                                       |
-//     InferiorStopping                             |
-//          |                                       |
-//     InferiorStopped --> 1                        |
-//          |                                       |
-//          `---------------------------------------'
-//          
-// 1 == InferiorShuttingDown  -> InferiorShutdownFailed
-//          |
-//     InferiorShutDown
-//          |
-//     AdapterShuttingDown  -> AdapterShutdownFailed --> 0
-//          |
-//          0
+//               0 == DebuggerNotReady
+//                          |
+//                     EngineStarting
+//                          |
+//                     AdapterStarting --> AdapterStartFailed --> 0
+//                          |
+//                     AdapterStarted
+//                          |
+//                     InferiorPreparing --> InferiorPreparationFailed --> 0
+//                          |
+//                     InferiorPrepared
+//                          |
+//                     InferiorStarting --> InferiorStartFailed --> 0
+//                          |
+//         (core)           |
+//      .-----------------<-|
+//      |                   |    (attach)               
+//  InferiorUnrunnable      |----------------------.
+//      |                   |                      v
+//      |                   |
+//      |                   |  .------------------------------------.
+//      |                   |  v                                    |
+//      |              InferiorRunningRequested    v                |
+//      |                   |                      |                |
+//      |        .---- InferiorRunning             |                |
+//      |        |          |                      |                |
+//      |        |     InferiorStopping            |                |
+//      |        |          |                      |                |
+//      |        v          v                      |                |
+//      |        |<--- InferiorStopped <-----------'                |
+//      |        |          |                                       |
+//      |        |          `---------------------------------------'
+//      |        |          
+//      |        '---> InferiorShuttingDown  -> InferiorShutdownFailed
+//      |                   |
+//      |              InferiorShutDown
+//      |                   |
+//      |                   v
+//      '------------> AdapterShuttingDown  -> AdapterShutdownFailed --> 0
+//                          |
+//                          0
 //
 // Allowed actions:
 //    [R] :  Run
