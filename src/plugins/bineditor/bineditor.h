@@ -213,6 +213,7 @@ private:
     QBasicTimer m_autoScrollTimer;
     Core::IEditor *m_ieditor;
     QString m_addressString;
+    int m_addressBytes;
 };
 
 } // namespace BINEditor

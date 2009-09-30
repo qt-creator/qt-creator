@@ -83,6 +83,7 @@ BinEditor::BinEditor(QWidget *parent)
     m_baseAddr = 0;
     m_blockSize = 4096;
     m_size = 0;
+    m_addressBytes = 4;
     init();
     m_unmodifiedState = 0;
     m_readOnly = false;
@@ -93,7 +94,6 @@ BinEditor::BinEditor(QWidget *parent)
     m_cursorVisible = false;
     m_caseSensitiveSearch = false;
     setFocusPolicy(Qt::WheelFocus);
-    m_addressString = QString(16 + 3, QLatin1Char(':'));
 }
 
 BinEditor::~BinEditor()
@@ -102,6 +102,9 @@ BinEditor::~BinEditor()
 
 void BinEditor::init()
 {
+    const int addressStringWidth =
+        2*m_addressBytes + (m_addressBytes - 1) / 2;
+    m_addressString = QString(addressStringWidth, QLatin1Char(':'));
     QFontMetrics fm(fontMetrics());
     m_margin = 4;
     m_descent = fm.descent();
@@ -113,7 +116,8 @@ void BinEditor::init()
     m_numVisibleLines = viewport()->height() / m_lineHeight;
     m_textWidth = 16 * m_charWidth + m_charWidth;
     int m_numberWidth = fm.width(QChar(QLatin1Char('9')));
-    m_labelWidth = 16 * m_numberWidth + 4 * m_charWidth;
+    m_labelWidth =
+        2*m_addressBytes * m_numberWidth + (m_addressBytes - 1)/2 * m_charWidth;
 
     int expectedCharWidth = m_columnWidth / 3;
     const char *hex = "0123456789abcdef";
@@ -132,7 +136,9 @@ void BinEditor::init()
 
         m_isMonospacedFont = false;
         m_columnWidth = fm.width("MMM");
-        m_labelWidth = fm.width("MMMM:MMMM:MMMM:MMMM");
+        m_labelWidth = m_addressBytes == 4
+            ? fm.width("MMMM:MMMM")
+            : fm.width("MMMM:MMMM:MMMM:MMMM");
     }
 
     horizontalScrollBar()->setRange(0, 2 * m_margin + 16 * m_columnWidth
@@ -333,6 +339,7 @@ void BinEditor::setData(const QByteArray &data)
     m_lazyRequests.clear();
     m_data = data;
     m_size = data.size();
+    m_addressBytes = 4;
 
     m_unmodifiedState = 0;
     m_undoStack.clear();
@@ -411,6 +418,8 @@ void BinEditor::setLazyData(quint64 startAddr, int range, int blockSize)
     m_baseAddr = (m_baseAddr / blockSize) * blockSize;
     m_size = m_baseAddr != 0 && static_cast<quint64>(range) >= -m_baseAddr
              ? -m_baseAddr : range;
+    m_addressBytes = (m_baseAddr + m_size < quint64(1) << 32
+                      && m_baseAddr + m_size >= m_baseAddr) ? 4 : 8;
 
     m_unmodifiedState = 0;
     m_undoStack.clear();
@@ -677,9 +686,11 @@ QString BinEditor::addressString(quint64 address)
         0, 1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18
     };
 
-    for (int b = 0; b < 8; ++b) {
-        addressStringData[indices[15 - b*2]] = hex[(address >> (8*b)) & 0xf];
-        addressStringData[indices[14 - b*2]] = hex[(address >> (8*b + 4)) & 0xf];
+    for (int b = 0; b < m_addressBytes; ++b) {
+        addressStringData[indices[2*m_addressBytes - 1 - b*2]] =
+            hex[(address >> (8*b)) & 0xf];
+        addressStringData[indices[2*m_addressBytes - 2 - b*2]] =
+            hex[(address >> (8*b + 4)) & 0xf];
     }
     return m_addressString;
 }
