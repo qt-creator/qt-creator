@@ -119,6 +119,8 @@ public:
     bool operator != (const FullySpecifiedType &other) const;
     bool operator < (const FullySpecifiedType &other) const;
 
+    FullySpecifiedType simplified() const;
+
 private:
     Type *_type;
     struct Flags {

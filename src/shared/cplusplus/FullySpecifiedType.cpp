@@ -201,4 +201,12 @@ bool FullySpecifiedType::operator < (const FullySpecifiedType &other) const
     return _type < other._type;
 }
 
+FullySpecifiedType FullySpecifiedType::simplified() const
+{
+    if (const ReferenceType *refTy = type()->asReferenceType())
+        return refTy->elementType().simplified();
+
+    return *this;
+}
+
 CPLUSPLUS_END_NAMESPACE

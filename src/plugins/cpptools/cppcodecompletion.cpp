@@ -988,10 +988,7 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
     QList<Symbol *> classObjectCandidates;
 
     if (m_completionOperator == T_ARROW)  {
-        FullySpecifiedType ty = result.first;
-
-        if (ReferenceType *refTy = ty->asReferenceType())
-            ty = refTy->elementType();
+        FullySpecifiedType ty = result.first.simplified();
 
         if (Class *classTy = ty->asClassType()) {
             Symbol *symbol = result.second;
@@ -1026,10 +1023,7 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
                     if (! funTy)
                         continue;
 
-                    ty = funTy->returnType();
-
-                    if (ReferenceType *refTy = ty->asReferenceType())
-                        ty = refTy->elementType();
+                    ty = funTy->returnType().simplified();
 
                     if (PointerType *ptrTy = ty->asPointerType()) {
                         if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
@@ -1063,19 +1057,13 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
             }
         }
     } else if (m_completionOperator == T_DOT) {
-        FullySpecifiedType ty = result.first;
-
-        if (ReferenceType *refTy = ty->asReferenceType())
-            ty = refTy->elementType();
+        FullySpecifiedType ty = result.first.simplified();
 
         NamedType *namedTy = 0;
 
         if (ArrayType *arrayTy = ty->asArrayType()) {
             // Replace . with [0]. when `ty' is an array type.
-            FullySpecifiedType elementTy = arrayTy->elementType();
-
-            if (ReferenceType *refTy = elementTy->asReferenceType())
-                elementTy = refTy->elementType();
+            FullySpecifiedType elementTy = arrayTy->elementType().simplified();
 
             if (elementTy->isNamedType() || elementTy->isPointerType()) {
                 ty = elementTy;
@@ -1322,9 +1310,8 @@ bool CppCodeCompletion::completeQtMethod(const QList<TypeOfExpression::Result> &
 
     QSet<QString> signatures;
     foreach (const TypeOfExpression::Result &p, results) {
-        FullySpecifiedType ty = p.first;
-        if (ReferenceType *refTy = ty->asReferenceType())
-            ty = refTy->elementType();
+        FullySpecifiedType ty = p.first.simplified();
+
         if (PointerType *ptrTy = ty->asPointerType())
             ty = ptrTy->elementType();
         else
