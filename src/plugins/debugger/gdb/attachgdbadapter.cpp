@@ -135,7 +135,7 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
         m_engine->updateAll();
     } else if (response.resultClass == GdbResultError) {
         QString msg = __(response.data.findChild("msg").data());
-        setState(InferiorPreparationFailed);
+        setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
     }
 }
@@ -167,6 +167,11 @@ void AttachGdbAdapter::shutdown()
 {
     switch (state()) {
     
+    case InferiorStartFailed:
+        m_engine->postCommand(_("-gdb-exit"));
+        setState(DebuggerNotReady);
+        return;
+
     case InferiorStopped:
         setState(InferiorShuttingDown);
         m_engine->postCommand(_("detach"), CB(handleDetach));
