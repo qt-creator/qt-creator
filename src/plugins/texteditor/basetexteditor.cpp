@@ -139,6 +139,28 @@ ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
     return 0;
 }
 
+static void convertToPlainText(QString &txt)
+{
+    QChar *uc = txt.data();
+    QChar *e = uc + txt.size();
+
+    for (; uc != e; ++uc) {
+        switch (uc->unicode()) {
+        case 0xfdd0: // QTextBeginningOfFrame
+        case 0xfdd1: // QTextEndOfFrame
+        case QChar::ParagraphSeparator:
+        case QChar::LineSeparator:
+            *uc = QLatin1Char('\n');
+            break;
+        case QChar::Nbsp:
+            *uc = QLatin1Char(' ');
+            break;
+        default:
+            ;
+        }
+    }
+}
+
 BaseTextEditor::BaseTextEditor(QWidget *parent)
     : QPlainTextEdit(parent)
 {
@@ -4496,6 +4518,7 @@ QMimeData *BaseTextEditor::createMimeDataFromSelection() const
         QTextCursor cursor = textCursor();
         QMimeData *mimeData = new QMimeData;
         QString text = cursor.selectedText();
+        convertToPlainText(text);
         mimeData->setText(text);
 
         /*
