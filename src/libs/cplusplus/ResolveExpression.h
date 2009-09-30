@@ -53,14 +53,7 @@ public:
                                           unsigned accessOp,
                                           Name *memberName) const;
 
-    QList<Result> resolveMember(const Result &result,
-                                Name *memberName,
-                                NamedType *namedTy) const;
-
-    QList<Result> resolveMember(const Result &result,
-                                Name *memberName,
-                                NamedType *namedTy,
-                                Class *klass) const;
+    QList<Result> resolveMember(Name *memberName, Class *klass) const;
 
     QList<Result> resolveArrowOperator(const Result &result,
                                        NamedType *namedTy,
@@ -69,6 +62,10 @@ public:
     QList<Result> resolveArrayOperator(const Result &result,
                                        NamedType *namedTy,
                                        Class *klass) const;
+
+
+    QList<Symbol *> resolveBaseExpression(const QList<Result> &baseResults,
+                                          int accessOp) const;
 
 protected:
     QList<Result> switchResults(const QList<Result> &symbols);
