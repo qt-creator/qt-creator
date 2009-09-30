@@ -135,6 +135,9 @@ struct CdbDebugEnginePrivate
     bool attemptBreakpointSynchronization(QString *errorMessage);
     void notifyCrashed();
 
+    enum EndInferiorAction { DetachInferior, TerminateInferior };
+    bool endInferior(EndInferiorAction a, QString *errorMessage);
+
     enum EndDebuggingMode { EndDebuggingDetach, EndDebuggingTerminate, EndDebuggingAuto };
     void endDebugging(EndDebuggingMode em = EndDebuggingAuto);
 
