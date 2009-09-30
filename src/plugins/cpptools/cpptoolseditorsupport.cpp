@@ -412,6 +412,8 @@ void CppEditorSupport::checkDocumentNow()
     const QByteArray preprocessedCode = snapshot.preprocessedCode(plainText, fileName);
 
     if (Document::Ptr doc = snapshot.documentFromSource(preprocessedCode, fileName)) {
+        doc->parse();
+
         CheckDocument checkDocument(doc, snapshot);
         QList<QuickFixOperationPtr> quickFixes = checkDocument(ed->textCursor());
         if (! quickFixes.isEmpty()) {

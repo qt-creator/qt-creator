@@ -288,6 +288,7 @@ static void semanticSearch_helper(QFutureInterface<Core::Utils::FileSearchResult
         }
 
         Document::Ptr newDoc = snapshot.documentFromSource(source, fileName);
+        newDoc->parse();
 
         if (SemanticSearch *search = factory->create(future, newDoc, snapshot)) {
             search->setSource(source);

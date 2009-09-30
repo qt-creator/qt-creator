@@ -390,6 +390,9 @@ void Document::check(CheckMode mode)
 {
     Q_ASSERT(!_globalNamespace);
 
+    if (! isParsed())
+        parse();
+
     Semantic semantic(_control);
     if (mode == FastCheck)
         semantic.setSkipFunctionBodies(true);
@@ -450,7 +453,6 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
     }
 
     newDoc->setSource(preprocessedCode);
-    newDoc->parse();
     return newDoc;
 }
 

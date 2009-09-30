@@ -255,6 +255,8 @@ bool TranslationUnit::parse(ParseMode mode)
     if (! isTokenized())
         tokenize();
 
+    f._parsed = true;
+
     Parser parser(this);
     parser.setQtMocRunEnabled(f._qtMocRunEnabled);
     parser.setObjCEnabled(f._objCEnabled);
