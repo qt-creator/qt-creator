@@ -48,6 +48,7 @@
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QMainWindow>
+#include <QtGui/QInputDialog>
 #include <QtGui/QComboBox>
 #include <QtGui/QStringListModel>
 #include <QtGui/QListWidget>
@@ -132,13 +133,21 @@ QString GenericBuildConfigurationFactory::displayNameForType(const QString &type
 
 bool GenericBuildConfigurationFactory::create(const QString &type) const
 {
-
-// bool GenericProject::newBuildConfiguration(const QString &buildConfiguration)
-// {
-//     makeStep()->setBuildTarget(buildConfiguration, "all", true);
-//     return true;
-// }
-    return false;
+    QTC_ASSERT(type == "Create", return false);
+    //TODO asking for name is duplicated everywhere, but maybe more
+    // wizards will show up, that incorporate choosing the name
+    bool ok;
+    QString buildConfigurationName = QInputDialog::getText(0,
+                          tr("New configuration"),
+                          tr("New Configuration Name:"),
+                          QLineEdit::Normal,
+                          QString(),
+                          &ok);
+    if (!ok || buildConfigurationName.isEmpty())
+        return false;
+    BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
+    m_project->addBuildConfiguration(bc); // also makes the name unique...
+    m_project->makeStep()->setBuildTarget(bc->name(), "all", true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
