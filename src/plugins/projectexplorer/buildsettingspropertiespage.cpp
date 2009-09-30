@@ -271,12 +271,8 @@ void BuildSettingsWidget::createConfiguration()
 {
     QAction *action = qobject_cast<QAction *>(sender());
     const QString &type = action->data().toString();
-    QList<BuildConfiguration *> configurations = m_project->buildConfigurationFactory()->create(type);
-    if (!configurations.isEmpty()) {
-        foreach (BuildConfiguration *configuration, configurations) {
-            m_project->addBuildConfiguration(configuration);
-        }
-        m_buildConfiguration = configurations.first()->name();
+    if (m_project->buildConfigurationFactory()->create(type)) {
+        m_buildConfiguration = m_project->buildConfigurations().last()->name();
         updateBuildSettings();
     }
 }

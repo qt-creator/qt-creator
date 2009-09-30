@@ -68,8 +68,7 @@ public:
     QStringList availableCreationTypes() const;
     QString displayNameForType(const QString &type) const;
 
-    QList<ProjectExplorer::BuildConfiguration *> create(const QString &type) const;
-    QList<ProjectExplorer::BuildConfiguration *> createDefaultConfigurations() const;
+    bool create(const QString &type) const;
 
 private:
     GenericProject *m_project;

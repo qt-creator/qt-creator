@@ -77,10 +77,10 @@ public:
     // used to translate the types to names to display to the user
     virtual QString displayNameForType(const QString &type) const = 0;
 
-    virtual QList<BuildConfiguration *> create(const QString &type) const = 0;
+    virtual bool create(const QString &type) const = 0;
 // restore
 // clone
-    virtual QList<BuildConfiguration *> createDefaultConfigurations() const = 0;
+// default?
 
 signals:
     void availableCreationTypesChanged();

@@ -130,7 +130,7 @@ QString GenericBuildConfigurationFactory::displayNameForType(const QString &type
     return tr("Create");
 }
 
-QList<BuildConfiguration *> GenericBuildConfigurationFactory::create(const QString &type) const
+bool GenericBuildConfigurationFactory::create(const QString &type) const
 {
 
 // bool GenericProject::newBuildConfiguration(const QString &buildConfiguration)
@@ -138,13 +138,7 @@ QList<BuildConfiguration *> GenericBuildConfigurationFactory::create(const QStri
 //     makeStep()->setBuildTarget(buildConfiguration, "all", true);
 //     return true;
 // }
-
-    return QList<BuildConfiguration *>() << new BuildConfiguration;
-}
-
-QList<BuildConfiguration *> GenericBuildConfigurationFactory::createDefaultConfigurations() const
-{
-    return QList<BuildConfiguration *>() << new BuildConfiguration;
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

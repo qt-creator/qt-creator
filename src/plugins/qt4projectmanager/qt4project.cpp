@@ -270,9 +270,9 @@ QString Qt4BuildConfigurationFactory::displayNameForType(const QString &type) co
     return QString();
 }
 
-QList<BuildConfiguration *> Qt4BuildConfigurationFactory::create(const QString &type) const
+bool Qt4BuildConfigurationFactory::create(const QString &type) const
 {
-    QTC_ASSERT(m_versions.contains(type), return QList<BuildConfiguration *>());
+    QTC_ASSERT(m_versions.contains(type), return false);
     const VersionInfo &info = m_versions.value(type);
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,
@@ -282,15 +282,11 @@ QList<BuildConfiguration *> Qt4BuildConfigurationFactory::create(const QString &
                           QString(),
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
-        return QList<BuildConfiguration *>();
+        return false;
     BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
     bc->setValue(KEY_QT_VERSION_ID, info.versionId);
-    return QList<BuildConfiguration *>() << bc;
-}
-
-QList<BuildConfiguration *> Qt4BuildConfigurationFactory::createDefaultConfigurations() const
-{
-    return QList<BuildConfiguration *>() << new BuildConfiguration;
+    m_project->addBuildConfiguration(bc);
+    return true;
 }
 
 /*!

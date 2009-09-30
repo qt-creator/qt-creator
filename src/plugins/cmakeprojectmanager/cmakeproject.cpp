@@ -89,9 +89,9 @@ QString CMakeBuildConfigurationFactory::displayNameForType(const QString &type) 
     return tr("Create");
 }
 
-QList<BuildConfiguration *> CMakeBuildConfigurationFactory::create(const QString &type) const
+bool CMakeBuildConfigurationFactory::create(const QString &type) const
 {
-    QTC_ASSERT(type == "Create", return QList<BuildConfiguration*>());
+    QTC_ASSERT(type == "Create", return false);
 
     //TODO configuration name should be part of the cmakeopenprojectwizard
     bool ok;
@@ -102,11 +102,11 @@ QList<BuildConfiguration *> CMakeBuildConfigurationFactory::create(const QString
                           QString(),
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
-        return QList<BuildConfiguration *>();
+        return false;
     BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
+    m_project->addBuildConfiguration(bc);
 
     // Default to all
-    //TODO the buildConfigurationName has not been made unique yet
     if (m_project->targets().contains("all"))
         m_project->makeStep()->setBuildTarget(buildConfigurationName, "all", true);
 
@@ -116,17 +116,12 @@ QList<BuildConfiguration *> CMakeBuildConfigurationFactory::create(const QString
                                 m_project->environment(bc));
     if (copw.exec() != QDialog::Accepted) {
         delete bc;
-        return QList<BuildConfiguration *>();
+        return false;
     }
     bc->setValue("buildDirectory", copw.buildDirectory());
     bc->setValue("msvcVersion", copw.msvcVersion());
     m_project->parseCMakeLists();
-    return QList<BuildConfiguration *>() << bc;
-}
-
-QList<BuildConfiguration *> CMakeBuildConfigurationFactory::createDefaultConfigurations() const
-{
-    return QList<BuildConfiguration *>() << new BuildConfiguration;
+    return true;
 }
 
 /*!
