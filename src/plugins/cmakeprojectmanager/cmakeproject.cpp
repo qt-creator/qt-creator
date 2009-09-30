@@ -104,11 +104,6 @@ bool CMakeBuildConfigurationFactory::create(const QString &type) const
     if (!ok || buildConfigurationName.isEmpty())
         return false;
     BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
-    m_project->addBuildConfiguration(bc);
-
-    // Default to all
-    if (m_project->targets().contains("all"))
-        m_project->makeStep()->setBuildTarget(buildConfigurationName, "all", true);
 
     CMakeOpenProjectWizard copw(m_project->projectManager(),
                                 m_project->sourceDirectory(),
@@ -118,6 +113,10 @@ bool CMakeBuildConfigurationFactory::create(const QString &type) const
         delete bc;
         return false;
     }
+    m_project->addBuildConfiguration(bc); // this also makes the name unique
+    // Default to all
+    if (m_project->targets().contains("all"))
+        m_project->makeStep()->setBuildTarget(buildConfigurationName, "all", true);
     bc->setValue("buildDirectory", copw.buildDirectory());
     bc->setValue("msvcVersion", copw.msvcVersion());
     m_project->parseCMakeLists();
