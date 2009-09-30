@@ -1444,7 +1444,11 @@ void GdbEngine::shutdown()
 
 void GdbEngine::detachDebugger()
 {
-    QTC_ASSERT(startMode() == AttachExternal, /**/);
+    QTC_ASSERT(state() == InferiorStopped, /**/);
+    QTC_ASSERT(startMode() != AttachCore, /**/);
+    postCommand(_("detach")); 
+    setState(InferiorShuttingDown);
+    setState(InferiorShutDown);
     shutdown();
 }
 

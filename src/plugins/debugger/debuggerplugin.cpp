@@ -898,6 +898,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(theDebuggerAction(SettingsDialog), SIGNAL(triggered()),
         this, SLOT(showSettingsDialog()));
 
+    handleStateChanged(DebuggerNotReady);
     return true;
 }
 
@@ -1120,8 +1121,8 @@ void DebuggerPlugin::handleStateChanged(int state)
     const bool starting = state == EngineStarting;
     //const bool running = state == InferiorRunning;
 
-    const bool ready = state == InferiorStopped
-            && m_manager->startParameters()->startMode != AttachCore;
+    const bool detachable = state == InferiorStopped
+        && m_manager->startParameters()->startMode != AttachCore;
 
     m_startExternalAction->setEnabled(!started && !starting);
     m_attachExternalAction->setEnabled(!started && !starting);
@@ -1131,7 +1132,7 @@ void DebuggerPlugin::handleStateChanged(int state)
     m_attachCoreAction->setEnabled(!started && !starting);
 #endif
     m_startRemoteAction->setEnabled(!started && !starting);
-    m_detachAction->setEnabled(ready);
+    m_detachAction->setEnabled(detachable);
 }
 
 void DebuggerPlugin::writeSettings() const

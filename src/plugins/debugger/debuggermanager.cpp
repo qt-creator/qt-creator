@@ -1695,8 +1695,6 @@ void DebuggerManager::setState(DebuggerState state)
     d->m_actions.runToFunctionAction->setEnabled(stopped);
     d->m_actions.jumpToLineAction->setEnabled(stopped);
     d->m_actions.nextAction->setEnabled(stopped);
-    //showStatusMessage(QString("stoppable: %1, running: %2")
-    // .arg(stoppable).arg(running));
     emit stateChanged(d->m_state);
     const bool notbusy = state == InferiorStopped
         || state == DebuggerNotReady
