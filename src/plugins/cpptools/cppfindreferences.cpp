@@ -166,12 +166,19 @@ protected:
         return false;
     }
 
-    LookupContext currentContext(AST *ast) const
+    LookupContext _previousContext;
+
+    LookupContext currentContext(AST *ast)
     {
         unsigned line, column;
         getTokenStartPosition(ast->firstToken(), &line, &column);
         Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
+
+        if (lastVisibleSymbol && lastVisibleSymbol == _previousContext.symbol())
+            return _previousContext;
+
         LookupContext ctx(lastVisibleSymbol, _exprDoc, _doc, _snapshot);
+        _previousContext = ctx;
         return ctx;
     }
 
@@ -456,6 +463,8 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
 
         Control *control = doc->control();
         if (Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size())) {
+            QTime tm;
+            tm.start();
             TranslationUnit *unit = doc->translationUnit();
             Control *control = doc->control();
 
@@ -464,10 +473,18 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
             doc->parse();
             control->setMacroResolver(0);
 
+            //qDebug() << "***" << unit->fileName() << "parsed in:" << tm.elapsed();
+
+            tm.start();
             doc->check();
+            //qDebug() << "***" << unit->fileName() << "checked in:" << tm.elapsed();
+
+            tm.start();
 
             Process process(doc, snapshot, &future);
             process(symbol, id, unit->ast());
+
+            //qDebug() << "***" << unit->fileName() << "processed in:" << tm.elapsed();
         }
     }
 
