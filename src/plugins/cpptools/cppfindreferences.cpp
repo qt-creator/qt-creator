@@ -439,7 +439,6 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
 
 void CppFindReferences::findAll(Symbol *symbol)
 {
-    const bool wasInReplaceMode = _resultWindow->isShowingReplaceUI();
     _resultWindow->clearContents();
     _resultWindow->setShowReplaceUI(true);
     _resultWindow->popup(true);
