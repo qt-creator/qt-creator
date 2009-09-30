@@ -1411,7 +1411,7 @@ void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
 void TrkGdbAdapter::startAdapter()
 {
     // Retrieve parameters
-    const DebuggerStartParameters &parameters = m_engine->startParameters();
+    const DebuggerStartParameters &parameters = startParameters();
     setOverrideTrkDevice(parameters.remoteChannel);
     m_remoteExecutable = parameters.executable;
     m_symbolFile = parameters.symbolFileName;

@@ -1698,7 +1698,9 @@ void DebuggerManager::setState(DebuggerState state)
     //showStatusMessage(QString("stoppable: %1, running: %2")
     // .arg(stoppable).arg(running));
     emit stateChanged(d->m_state);
-    const bool notbusy = stopped || state == DebuggerNotReady;
+    const bool notbusy = state == InferiorStopped
+        || state == DebuggerNotReady
+        || state == InferiorUnrunnable;
     setBusyCursor(!notbusy);
 }
 

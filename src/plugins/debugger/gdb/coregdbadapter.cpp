@@ -112,36 +112,16 @@ void CoreGdbAdapter::prepareInferior()
 {
     QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
     setState(InferiorPreparing);
-    if (!startParameters().processArgs.isEmpty())
-        m_engine->postCommand(_("-exec-arguments ")
-            + startParameters().processArgs.join(_(" ")));
-    QFileInfo fi(m_engine->startParameters().executable);
-    m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fi.absoluteFilePath()),
-        CB(handleFileExecAndSymbols));
-}
-
-void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
-{
-    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
-        //m_breakHandler->clearBreakMarkers();
-        setState(InferiorPrepared);
-        emit inferiorPrepared();
-    } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Starting executable failed:\n") +
-            __(response.data.findChild("msg").data());
-        setState(InferiorPreparationFailed);
-        emit inferiorPreparationFailed(msg);
-    }
+    setState(InferiorPrepared);
+    emit inferiorPrepared();
 }
 
 void CoreGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    QFileInfo fi(startParameters().executable);
-    QString fileName = _c('"') + fi.absoluteFilePath() + _c('"');
     QFileInfo fi2(startParameters().coreFile);
     // quoting core name below fails in gdb 6.8-debian
+    m_executable.clear();
     QString coreName = fi2.absoluteFilePath();
     m_engine->postCommand(_("target core ") + coreName, CB(handleTargetCore));
 }
@@ -150,14 +130,40 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        setState(InferiorUnrunnable);
         showStatusMessage(tr("Attached to core."));
-        m_engine->updateAll();
+        m_executable = startParameters().executable;
+        if (m_executable.isEmpty()) {
+            GdbMi console = response.data.findChild("consolestreamoutput");
+            int pos1 = console.data().indexOf('`');
+            int pos2 = console.data().indexOf('\'');
+            if (pos1 != -1 && pos2 != -1)
+                m_executable = console.data().mid(pos1 + 1, pos2 - pos1 - 1);
+        }
+        QFileInfo fi(m_executable);
+        m_engine->postCommand(_("-file-exec-and-symbols \"%1\"")
+            .arg(fi.absoluteFilePath()), CB(handleFileExecAndSymbols));
     } else {
         QTC_ASSERT(response.resultClass == GdbResultError, /**/);
         const QByteArray &msg = response.data.findChild("msg").data();
         setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
+    }
+}
+
+void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
+{
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    if (response.resultClass == GdbResultDone) {
+        showStatusMessage(tr("Symbols found."));
+        setState(InferiorUnrunnable);
+        m_engine->updateAll();
+    } else if (response.resultClass == GdbResultError) {
+        QString msg = tr("Symbols not found in \"%1\" failed:\n%2")
+            .arg(__(response.data.findChild("msg").data()));
+        setState(InferiorUnrunnable);
+        m_engine->updateAll();
+        //setState(InferiorStartFailed);
+       // emit inferiorStartFailed(msg);
     }
 }
 
@@ -169,12 +175,21 @@ void CoreGdbAdapter::interruptInferior()
 
 void CoreGdbAdapter::shutdown()
 {
-    if (state() == InferiorUnrunnable || state() == InferiorShutDown) {
+    switch (state()) {
+
+    case DebuggerNotReady:
+        return;
+
+    case InferiorUnrunnable:
+    case InferiorShutDown:
+    case InferiorPreparationFailed:
         setState(AdapterShuttingDown);
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
+
+    default:
+        QTC_ASSERT(false, qDebug() << state());
     }
-    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
 }
 
 void CoreGdbAdapter::handleExit(const GdbResponse &response)

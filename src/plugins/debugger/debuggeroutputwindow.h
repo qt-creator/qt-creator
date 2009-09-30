@@ -31,8 +31,8 @@
 #define DEBUGGER_OUTPUTWINDOW_H
 
 #include <QtGui/QLineEdit>
-#include <QtGui/QSplitter>
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QSplitter>
 #include <QtGui/QWidget>
 
 namespace Debugger {

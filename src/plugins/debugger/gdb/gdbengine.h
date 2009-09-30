@@ -338,6 +338,7 @@ private:
     // Stack specific stuff
     //
     void handleStackListFrames(const GdbResponse &response);
+    void handleStackListFrames1(const GdbResponse &response);
     void handleStackSelectThread(const GdbResponse &response);
     void handleStackListThreads(const GdbResponse &response);
     Q_SLOT void reloadStack();

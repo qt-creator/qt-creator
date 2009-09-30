@@ -108,6 +108,7 @@ private slots:
     void attachCore();
     void attachRemoteTcf();
     void attachCmdLinePid();
+    void attachCmdLineCore();
 
 private:
     void readSettings();
@@ -117,6 +118,7 @@ private:
                               const QStringList::const_iterator& end,
                               QString *errorMessage);
     void attachExternalApplication(qint64 pid, const QString &crashParameter = QString());
+    void attachCore(const QString &core, const QString &exeFileName);
 
     friend class Debugger::DebuggerManager;
     friend class GdbOptionPage;
@@ -132,6 +134,7 @@ private:
     int m_gdbRunningContext;
     unsigned m_cmdLineEnabledEngines;
     quint64 m_cmdLineAttachPid;
+    QString m_cmdLineAttachCore;
     // Event handle for attaching to crashed Windows processes.
     quint64 m_cmdLineWinCrashEvent;
     QAction *m_toggleLockedAction;

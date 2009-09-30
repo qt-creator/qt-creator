@@ -881,14 +881,19 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
 void GdbEngine::updateAll()
 {
     QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
-    manager()->resetLocation();
     tryLoadDebuggingHelpers();
-    manager()->stackHandler()->setCurrentIndex(0);
     updateLocals(); 
-    reloadStack();
+    postCommand(_("-stack-list-frames"), WatchUpdate, CB(handleStackListFrames1), false);
+    manager()->stackHandler()->setCurrentIndex(0);
     if (supportsThreads())
         postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), 0);
     manager()->reloadRegisters();
+}
+
+void GdbEngine::handleStackListFrames1(const GdbResponse &response)
+{
+    handleStackListFrames(response);
+    manager()->gotoLocation(manager()->stackHandler()->currentFrame(), true);
 }
 
 void GdbEngine::handleQuerySources(const GdbResponse &response)

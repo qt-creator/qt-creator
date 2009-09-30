@@ -76,6 +76,7 @@ private:
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
 
     QProcess m_gdbProc;
+    QString m_executable;
 };
 
 } // namespace Internal

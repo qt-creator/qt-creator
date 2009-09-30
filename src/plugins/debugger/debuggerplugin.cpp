@@ -478,8 +478,8 @@ bool DebuggerPlugin::parseArgument(QStringList::const_iterator &it,
         bool ok;
         m_cmdLineAttachPid = it->toULongLong(&ok);
         if (!ok) {
-            *errorMessage = msgInvalidNumericParameter(option, *it);
-            return false;
+            m_cmdLineAttachPid = 0;
+            m_cmdLineAttachCore = *it;
         }
         return true;
     }
@@ -530,7 +530,8 @@ bool DebuggerPlugin::parseArguments(const QStringList &args, QString *errorMessa
     if (Debugger::Constants::Internal::debug)
         qDebug().nospace() << args << "engines=0x"
             << QString::number(m_cmdLineEnabledEngines, 16)
-            << " pid" << m_cmdLineAttachPid << '\n';
+            << " pid" << m_cmdLineAttachPid
+            << " core" << m_cmdLineAttachCore << '\n';
     return true;
 }
 
@@ -909,6 +910,8 @@ void DebuggerPlugin::extensionsInitialized()
         m_manager->runTest(QString::fromLocal8Bit(env));
     if (m_cmdLineAttachPid)
         QTimer::singleShot(0, this, SLOT(attachCmdLinePid()));
+    if (!m_cmdLineAttachCore.isEmpty())
+        QTimer::singleShot(0, this, SLOT(attachCmdLineCore()));
 }
 
 void DebuggerPlugin::attachCmdLinePid()
@@ -1249,9 +1252,14 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashP
         runControl->start();
 }
 
+void DebuggerPlugin::attachCmdLineCore()
+{
+    m_manager->showStatusMessage(tr("Attaching to core %1.").arg(m_cmdLineAttachCore));
+    attachCore(m_cmdLineAttachCore, QString());
+}
+
 void DebuggerPlugin::attachCore()
 {
-    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     AttachCoreDialog dlg(m_manager->mainWindow());
     dlg.setExecutableFile(
             configValue(_("LastExternalExecutableFile")).toString());
@@ -1263,8 +1271,14 @@ void DebuggerPlugin::attachCore()
                    dlg.executableFile());
     setConfigValue(_("LastExternalCoreFile"),
                    dlg.coreFile());
-    sp->executable = dlg.executableFile();
-    sp->coreFile = dlg.coreFile();
+    attachCore(dlg.coreFile(), dlg.executableFile());
+}
+
+void DebuggerPlugin::attachCore(const QString &core, const QString &exe)
+{
+    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
+    sp->executable = exe;
+    sp->coreFile = core;
     sp->startMode = AttachCore;
     RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())

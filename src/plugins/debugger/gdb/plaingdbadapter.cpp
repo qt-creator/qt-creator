@@ -144,7 +144,7 @@ void PlainGdbAdapter::prepareInferior()
     if (!startParameters().processArgs.isEmpty())
         m_engine->postCommand(_("-exec-arguments ")
             + startParameters().processArgs.join(_(" ")));
-    QFileInfo fi(m_engine->startParameters().executable);
+    QFileInfo fi(startParameters().executable);
     m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fi.absoluteFilePath()),
         CB(handleFileExecAndSymbols));
 }
