@@ -504,10 +504,12 @@ void LookupContext::expand(Scope *scope,
 Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
 {
     Symbol *canonical = symbol;
+
     for (; symbol; symbol = symbol->next()) {
         if (symbol->name() == canonical->name())
             canonical = symbol;
     }
+
     return canonical;
 }
 
@@ -516,35 +518,16 @@ Symbol *LookupContext::canonicalSymbol(const QList<Symbol *> &candidates)
     if (candidates.isEmpty())
         return 0;
 
-    Symbol *candidate = candidates.first();
-    if (candidate->scope()->isClassScope() && candidate->type()->isFunctionType()) {
-        Function *function = 0;
-
-        for (int i = 0; i < candidates.size(); ++i) {
-            Symbol *c = candidates.at(i);
-
-            if (! c->scope()->isClassScope())
-                continue; 
-
-            else if (Function *f = c->type()->asFunctionType()) {
-                if (f->isVirtual())
-                    function = f;
-            }
-        }
-
-        if (function)
-            return canonicalSymbol(function);
-    }
-
-    return canonicalSymbol(candidate);
+    return canonicalSymbol(candidates.first());
 }
 
 Symbol *LookupContext::canonicalSymbol(const QList<QPair<FullySpecifiedType, Symbol *> > &results)
 {
     QList<Symbol *> candidates;
     QPair<FullySpecifiedType, Symbol *> result;
-    foreach (result, results) {
+
+    foreach (result, results)
         candidates.append(result.second); // ### not exacly.
-    }
+
     return canonicalSymbol(candidates);
 }
