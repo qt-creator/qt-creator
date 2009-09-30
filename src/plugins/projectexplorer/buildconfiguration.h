@@ -77,10 +77,13 @@ public:
     // used to translate the types to names to display to the user
     virtual QString displayNameForType(const QString &type) const = 0;
 
+    // creates build configuration(s) for given type and adds them to project
+    // returns true if build configuration(s) actually have been added
     virtual bool create(const QString &type) const = 0;
+
+// to come:
 // restore
 // clone
-// default?
 
 signals:
     void availableCreationTypesChanged();
