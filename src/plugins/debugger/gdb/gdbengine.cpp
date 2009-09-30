@@ -4165,7 +4165,7 @@ void GdbEngine::handleAdapterShutDown()
 void GdbEngine::handleAdapterShutdownFailed(const QString &msg)
 {
     debugMessage(_("ADAPTER SHUTDOWN FAILED"));
-    showMessageBox(QMessageBox::Critical, tr("Inferior shutdown failed"), msg);
+    showMessageBox(QMessageBox::Critical, tr("Adapter shutdown failed"), msg);
     setState(DebuggerNotReady);
 }
 
