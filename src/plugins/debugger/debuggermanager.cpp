@@ -1628,7 +1628,7 @@ void DebuggerManager::setState(DebuggerState state)
     QString msg = _("State changed from %1(%2) to %3(%4).")
         .arg(stateName(d->m_state)).arg(d->m_state).arg(stateName(state)).arg(state);
     //if (!((d->m_state == -1 && state == 0) || (d->m_state == 0 && state == 0)))
-    //    qDebug() << msg << d->m_state << state;
+    //    qDebug() << msg;
     if (!isAllowedTransition(d->m_state, state))
         qDebug() << "UNEXPECTED STATE TRANSITION: " << msg;
 

@@ -95,6 +95,8 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     m_bufferedMemoryRead(true),
     m_waitCount(0)
 {
+    m_gdbServer = 0;
+    m_gdbConnection = 0;
 #ifdef Q_OS_WIN
     const DWORD portOffset = GetCurrentProcessId() % 100;
 #else
@@ -141,7 +143,7 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
 
 TrkGdbAdapter::~TrkGdbAdapter()
 {
-    m_gdbServer.close();
+    delete m_gdbServer;
     logMessage("Shutting down.\n");
 }
 
@@ -257,7 +259,6 @@ void TrkGdbAdapter::startInferiorEarly()
             QString msg = QString::fromLatin1("Failed to connect to %1 after "
                 "%2 attempts").arg(device).arg(m_waitCount);
             logMessage(msg);
-            setState(DebuggerNotReady);
             emit adapterStartFailed(msg);
         }
         return;
@@ -300,8 +301,9 @@ void TrkGdbAdapter::logMessage(const QString &msg)
 void TrkGdbAdapter::handleGdbConnection()
 {
     logMessage("HANDLING GDB CONNECTION");
-
-    m_gdbConnection = m_gdbServer.nextPendingConnection();
+    QTC_ASSERT(m_gdbConnection == 0, /**/);
+    m_gdbConnection = m_gdbServer->nextPendingConnection();
+    QTC_ASSERT(m_gdbConnection, return);
     connect(m_gdbConnection, SIGNAL(disconnected()),
             m_gdbConnection, SLOT(deleteLater()));
     connect(m_gdbConnection, SIGNAL(readyRead()),
@@ -315,6 +317,7 @@ static inline QString msgGdbPacket(const QString &p)
 
 void TrkGdbAdapter::readGdbServerCommand()
 {
+    QTC_ASSERT(m_gdbConnection, return);
     QByteArray packet = m_gdbConnection->readAll();
     m_gdbReadBuffer.append(packet);
 
@@ -1000,6 +1003,14 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
     //  40 00 00]
     //logMessage("       RESULT: " + result.toString());
     // [80 08 00   00 00 01 B5   00 00 01 B6   78 67 40 00   00 40 00 00]
+    if (result.errorCode()) {
+        logMessage("ERROR: " + result.errorString());
+        QString msg = _("Cannot start executable \"%1\" on the device:\n%2")
+            .arg(m_remoteExecutable).arg(result.errorString());
+        //m_trkDevice.close();
+        emit adapterStartFailed(msg);
+        return;
+    }
     const char *data = result.data.data();
     m_session.pid = extractInt(data + 1);
     m_session.tid = extractInt(data + 5);
@@ -1481,7 +1492,7 @@ void TrkGdbAdapter::startInferior()
 
 void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)
 {
-    QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
+    QTC_ASSERT(state() == InferiorRunning, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
         debugMessage(_("INFERIOR STARTED"));
         showStatusMessage(tr("Inferior running."));
@@ -1518,11 +1529,14 @@ static void setGdbCygwinEnvironment(const QString &cygwin, QProcess *process)
 void TrkGdbAdapter::startGdb()
 {
     QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
-    if (!m_gdbServer.listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
+    QTC_ASSERT(m_gdbServer == 0, delete m_gdbServer);
+    QTC_ASSERT(m_gdbConnection == 0, m_gdbConnection = 0);
+    m_gdbServer = new QTcpServer(this);
+    
+    if (!m_gdbServer->listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
         QString msg = QString("Unable to start the gdb server at %1: %2.")
-            .arg(m_gdbServerName).arg(m_gdbServer.errorString());
+            .arg(m_gdbServerName).arg(m_gdbServer->errorString());
         logMessage(msg);
-        setState(DebuggerNotReady);
         emit adapterStartFailed(msg); 
         return;
     }
@@ -1530,7 +1544,7 @@ void TrkGdbAdapter::startGdb()
     logMessage(QString("Gdb server running on %1.\nLittle endian assumed.")
         .arg(m_gdbServerName));
 
-    connect(&m_gdbServer, SIGNAL(newConnection()),
+    connect(m_gdbServer, SIGNAL(newConnection()),
         this, SLOT(handleGdbConnection()));
 
     logMessage("STARTING GDB");
@@ -1692,6 +1706,10 @@ void TrkGdbAdapter::shutdown()
 {
     switch (state()) {
 
+    case AdapterStarting:
+        setState(DebuggerNotReady);
+        return;
+
     case InferiorStopped:
     case InferiorStopping:
     case InferiorRunningRequested:
@@ -1702,7 +1720,10 @@ void TrkGdbAdapter::shutdown()
 
     case InferiorShutDown:
         setState(AdapterShuttingDown);
-        sendTrkMessage(0x02, TrkCB(handleDisconnect));
+        //sendTrkMessage(0x02, TrkCB(handleDisconnect));
+        m_trkDevice.close();
+        delete m_gdbServer;
+        m_gdbServer = 0;
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
 

@@ -221,7 +221,7 @@ public:
     void logMessage(const QString &msg);  // triggers output() if m_verbose
     Q_SLOT void trkLogMessage(const QString &msg);
 
-    QTcpServer m_gdbServer;
+    QPointer<QTcpServer> m_gdbServer;
     QPointer<QTcpSocket> m_gdbConnection;
     QByteArray m_gdbReadBuffer;
     bool m_gdbAckMode;
