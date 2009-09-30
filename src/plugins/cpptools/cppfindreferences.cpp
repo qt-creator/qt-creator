@@ -67,8 +67,8 @@ namespace {
 struct Process: protected ASTVisitor
 {
 public:
-    Process(QFutureInterface<Core::Utils::FileSearchResult> &future,
-            Document::Ptr doc, const Snapshot &snapshot)
+    Process(Document::Ptr doc, const Snapshot &snapshot,
+            QFutureInterface<Core::Utils::FileSearchResult> *future)
             : ASTVisitor(doc->control()),
               _future(future),
               _doc(doc),
@@ -79,12 +79,14 @@ public:
         _snapshot.insert(_doc);
     }
 
-    void operator()(Symbol *symbol, Identifier *id, AST *ast)
+    QList<int> operator()(Symbol *symbol, Identifier *id, AST *ast)
     {
+        _references.clear();
         _declSymbol = symbol;
         _id = id;
         _exprDoc = Document::create("<references>");
         accept(ast);
+        return _references;
     }
 
 protected:
@@ -123,10 +125,13 @@ protected:
         if (col)
             --col;  // adjust the column position.
 
-        int len = tk.f.length;
+        const int len = tk.f.length;
 
-        _future.reportResult(Core::Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
-                                                           line, lineText, col, len));
+        if (_future)
+            _future->reportResult(Core::Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
+                                                                line, lineText, col, len));
+
+        _references.append(tokenIndex);
     }
 
     bool checkCandidates(const QList<Symbol *> &candidates) const
@@ -351,7 +356,7 @@ protected:
     }
 
 private:
-    QFutureInterface<Core::Utils::FileSearchResult> &_future;
+    QFutureInterface<Core::Utils::FileSearchResult> *_future;
     Identifier *_id; // ### remove me
     Symbol *_declSymbol;
     Document::Ptr _doc;
@@ -361,6 +366,7 @@ private:
     Semantic _sem;
     QList<PostfixExpressionAST *> _postfixExpressionStack;
     QList<QualifiedNameAST *> _qualifiedNameStack;
+    QList<int> _references;
 };
 
 } // end of anonymous namespace
@@ -376,6 +382,28 @@ CppFindReferences::CppFindReferences(CppModelManager *modelManager)
 
 CppFindReferences::~CppFindReferences()
 {
+}
+
+QList<int> CppFindReferences::references(Symbol *symbol,
+                                         Document::Ptr doc,
+                                         const Snapshot& snapshot) const
+{
+    Identifier *id = 0;
+    if (Identifier *symbolId = symbol->identifier())
+        id = doc->control()->findIdentifier(symbolId->chars(), symbolId->size());
+
+    QList<int> references;
+
+    if (! id)
+        return references;
+
+    TranslationUnit *translationUnit = doc->translationUnit();
+    Q_ASSERT(translationUnit != 0);
+
+    Process process(doc, snapshot, /*future = */ 0);
+    references = process(symbol, id, translationUnit->ast());
+
+    return references;
 }
 
 static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
@@ -429,7 +457,7 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
         if (Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size())) {
             doc->check();
             TranslationUnit *unit = doc->translationUnit();
-            Process process(future, doc, snapshot);
+            Process process(doc, snapshot, &future);
             process(symbol, id, unit->ast());
         }
     }

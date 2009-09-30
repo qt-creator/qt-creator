@@ -223,6 +223,10 @@ protected:
 
     bool isInComment(const QTextCursor &cursor) const;
 
+    CPlusPlus::Symbol *findCanonicalSymbol(const QTextCursor &cursor,
+                                           CPlusPlus::Document::Ptr doc,
+                                           const CPlusPlus::Snapshot &snapshot) const;
+
 private Q_SLOTS:
     void updateFileName();
     void jumpToMethod(int index);

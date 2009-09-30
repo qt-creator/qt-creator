@@ -35,15 +35,11 @@
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
 #include <utils/filesearch.h>
+#include <cplusplus/CppDocument.h>
 
 namespace Find {
     class SearchResultWindow;
 } // end of namespace Find
-
-namespace CPlusPlus {
-    class Snapshot;
-    class Symbol;
-} // end of namespace CPlusPlus
 
 namespace CppTools {
 namespace Internal {
@@ -57,6 +53,10 @@ class CppFindReferences: public QObject
 public:
     CppFindReferences(CppModelManager *modelManager);
     virtual ~CppFindReferences();
+
+    QList<int> references(CPlusPlus::Symbol *symbol,
+                          CPlusPlus::Document::Ptr doc,
+                          const CPlusPlus::Snapshot& snapshot) const;
 
 Q_SIGNALS:
     void changed();

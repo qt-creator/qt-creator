@@ -830,11 +830,11 @@ void CPPEditor::reformatDocument()
     c.insertText(QString::fromUtf8(str.c_str(), str.length()));
 }
 
-void CPPEditor::findReferences()
+CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
+                                                  Document::Ptr doc,
+                                                  const Snapshot &snapshot) const
 {
-    QTextCursor tc = textCursor();
-    m_currentRenameSelection = -1;
-
+    QTextCursor tc = cursor;
     int line, col;
     convertPosition(tc.position(), &line, &col);
     ++col;
@@ -843,10 +843,9 @@ void CPPEditor::findReferences()
 
     ExpressionUnderCursor expressionUnderCursor;
     const QString code = expressionUnderCursor(tc);
-    qDebug() << "code:" << code;
+    // qDebug() << "code:" << code;
 
-    Snapshot snapshot = m_modelManager->snapshot();
-    Document::Ptr doc = snapshot.value(file()->fileName());
+    const QString fileName = const_cast<CPPEditor *>(this)->file()->fileName();
 
     TypeOfExpression typeOfExpression;
     typeOfExpression.setSnapshot(snapshot);
@@ -857,8 +856,46 @@ void CPPEditor::findReferences()
                                                                      lastVisibleSymbol,
                                                                      TypeOfExpression::Preprocess);
 
-    if (Symbol *canonicalSymbol = LookupContext::canonicalSymbol(results)) {
-        m_modelManager->findReferences(canonicalSymbol);
+    Symbol *canonicalSymbol = LookupContext::canonicalSymbol(results);
+    return canonicalSymbol;
+}
+
+void CPPEditor::findReferences()
+{
+    m_currentRenameSelection = -1;
+
+    QList<QTextEdit::ExtraSelection> selections;
+
+    SemanticInfo info = m_lastSemanticInfo;
+
+    if (info.doc) {
+        if (Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot)) {
+            TranslationUnit *unit = info.doc->translationUnit();
+
+            const QList<int> references = m_modelManager->references(canonicalSymbol, info.doc, info.snapshot);
+            foreach (int index, references) {
+                unsigned line, column;
+                unit->getTokenPosition(index, &line, &column);
+
+                if (column)
+                    --column;  // adjust the column position.
+
+                const int len = unit->tokenAt(index).f.length;
+
+                QTextCursor cursor(document()->findBlockByNumber(line - 1));
+                cursor.setPosition(cursor.position() + column);
+                cursor.setPosition(cursor.position() + len, QTextCursor::KeepAnchor);
+
+                QTextEdit::ExtraSelection sel;
+                sel.format = m_occurrencesFormat;
+                sel.cursor = cursor;
+                selections.append(sel);
+            }
+
+            setExtraSelections(CodeSemanticsSelection, selections);
+
+            m_modelManager->findReferences(canonicalSymbol);
+        }
     }
 }
 
@@ -2015,7 +2052,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
         doc->check();
 
-        snapshot = source.snapshot.simplified(doc);
+        snapshot = source.snapshot;
     }
 
     Control *control = doc->control();

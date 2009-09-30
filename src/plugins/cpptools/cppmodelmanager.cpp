@@ -739,6 +739,13 @@ void CppModelManager::removeEditorSupport(AbstractEditorSupport *editorSupport)
     m_addtionalEditorSupport.remove(editorSupport);
 }
 
+QList<int> CppModelManager::references(CPlusPlus::Symbol *symbol,
+                                       CPlusPlus::Document::Ptr doc,
+                                       const CPlusPlus::Snapshot &snapshot)
+{
+    return m_findReferences->references(LookupContext::canonicalSymbol(symbol), doc, snapshot);
+}
+
 void CppModelManager::findReferences(CPlusPlus::Symbol *symbol)
 {
     if (symbol->identifier())

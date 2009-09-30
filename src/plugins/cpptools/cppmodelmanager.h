@@ -102,6 +102,10 @@ public:
     virtual void addEditorSupport(AbstractEditorSupport *editorSupport);
     virtual void removeEditorSupport(AbstractEditorSupport *editorSupport);
 
+    virtual QList<int> references(CPlusPlus::Symbol *symbol,
+                                  CPlusPlus::Document::Ptr doc,
+                                  const CPlusPlus::Snapshot &snapshot);
+
     virtual void findReferences(CPlusPlus::Symbol *symbol);
 
     void setHeaderSuffixes(const QStringList &suffixes)

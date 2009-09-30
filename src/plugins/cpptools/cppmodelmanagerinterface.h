@@ -95,6 +95,10 @@ public:
     virtual void addEditorSupport(AbstractEditorSupport *editorSupport) = 0;
     virtual void removeEditorSupport(AbstractEditorSupport *editorSupport) = 0;
 
+    virtual QList<int> references(CPlusPlus::Symbol *symbol,
+                                  CPlusPlus::Document::Ptr doc,
+                                  const CPlusPlus::Snapshot &snapshot) = 0;
+
     virtual void findReferences(CPlusPlus::Symbol *symbol) = 0;
 };
 
