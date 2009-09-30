@@ -166,6 +166,7 @@ public:
 private Q_SLOTS:
     void setMainScript(const QString &scriptFile);
     void onQmlViewerChanged();
+    void onQmlViewerArgsChanged();
 
 
 private:
@@ -175,6 +176,7 @@ private:
     QmlProject *m_project;
     QString m_scriptFile;
     QString m_qmlViewer;
+    QString m_qmlViewerArgs;
     QLatin1String m_type;
 };
 

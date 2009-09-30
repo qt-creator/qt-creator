@@ -55,6 +55,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QComboBox>
 #include <QtGui/QMessageBox>
+#include <QtGui/QLineEdit>
 
 using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
@@ -365,6 +366,9 @@ QStringList QmlRunConfiguration::commandLineArguments() const
 {
     QStringList args;
 
+    if (!m_qmlViewerArgs.isEmpty())
+        args.append(m_qmlViewerArgs);
+
     const QString s = mainScript();
     if (! s.isEmpty())
         args.append(s);
@@ -424,7 +428,12 @@ QWidget *QmlRunConfiguration::configurationWidget()
     qmlViewer->setPath(executable());
     connect(qmlViewer, SIGNAL(changed(QString)), this, SLOT(onQmlViewerChanged()));
 
+    QLineEdit *qmlViewerArgs = new QLineEdit;
+    qmlViewerArgs->setText(m_qmlViewerArgs);
+    connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onQmlViewerArgsChanged()));
+
     form->addRow(tr("QML Viewer"), qmlViewer);
+    form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
     form->addRow(tr("Main QML File:"), combo);
 
     return config;
@@ -454,11 +463,18 @@ void QmlRunConfiguration::onQmlViewerChanged()
     }
 }
 
+void QmlRunConfiguration::onQmlViewerArgsChanged()
+{
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(sender()))
+        m_qmlViewerArgs = lineEdit->text();
+}
+
 void QmlRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
 {
     ProjectExplorer::LocalApplicationRunConfiguration::save(writer);
 
     writer.saveValue(QLatin1String("qmlviewer"), m_qmlViewer);
+    writer.saveValue(QLatin1String("qmlviewerargs"), m_qmlViewerArgs);
     writer.saveValue(QLatin1String("mainscript"), m_scriptFile);
 }
 
@@ -467,6 +483,7 @@ void QmlRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReade
     ProjectExplorer::LocalApplicationRunConfiguration::restore(reader);
 
     m_qmlViewer = reader.restoreValue(QLatin1String("qmlviewer")).toString();
+    m_qmlViewerArgs = reader.restoreValue(QLatin1String("qmlviewerargs")).toString();
     m_scriptFile = reader.restoreValue(QLatin1String("mainscript")).toString();
 
     if (m_qmlViewer.isEmpty())
