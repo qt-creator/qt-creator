@@ -1404,10 +1404,10 @@ void TrkGdbAdapter::startAdapter()
     setOverrideTrkDevice(parameters.remoteChannel);
     m_remoteExecutable = parameters.executable;
     m_symbolFile = parameters.symbolFileName;
-    // @todo: testing hack, remove!
+    // FIXME: testing hack, remove!
     if (m_remoteExecutable.endsWith(_(".sym"))) {
         m_symbolFile = m_remoteExecutable;
-        m_remoteExecutable = QLatin1String("C:\\sys\\bin\\filebrowseapp.exe");
+        m_remoteExecutable = parameters.processArgs.join(_(" "));
     }
     // Start
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
