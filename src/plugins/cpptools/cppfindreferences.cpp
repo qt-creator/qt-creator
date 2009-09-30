@@ -432,6 +432,7 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
         Document::Ptr previousDoc = snapshot.value(fileName);
         if (previousDoc) {
             Control *control = previousDoc->control();
+            previousDoc->control();
             Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size());
             if (! id)
                 continue; // skip this document, it's not using symbolId.

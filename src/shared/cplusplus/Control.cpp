@@ -59,6 +59,12 @@
 
 CPLUSPLUS_BEGIN_NAMESPACE
 
+MacroResolver::MacroResolver()
+{ }
+
+MacroResolver::~MacroResolver()
+{ }
+
 template <typename _Iterator>
 static void delete_map_entries(_Iterator first, _Iterator last)
 {
@@ -87,7 +93,8 @@ public:
     Data(Control *control)
         : control(control),
           translationUnit(0),
-          diagnosticClient(0)
+          diagnosticClient(0),
+          macroResolver(0)
     { }
 
     ~Data()
@@ -516,6 +523,7 @@ public:
     Control *control;
     TranslationUnit *translationUnit;
     DiagnosticClient *diagnosticClient;
+    MacroResolver *macroResolver;
     LiteralTable<Identifier> identifiers;
     LiteralTable<StringLiteral> stringLiterals;
     LiteralTable<NumericLiteral> numericLiterals;
@@ -575,6 +583,12 @@ TranslationUnit *Control::switchTranslationUnit(TranslationUnit *unit)
     d->translationUnit = unit;
     return previousTranslationUnit;
 }
+
+MacroResolver *Control::macroResolver() const
+{ return d->macroResolver; }
+
+void Control::setMacroResolver(MacroResolver *macroResolver)
+{ d->macroResolver = macroResolver; }
 
 DiagnosticClient *Control::diagnosticClient() const
 { return d->diagnosticClient; }

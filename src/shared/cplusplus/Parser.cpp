@@ -244,6 +244,14 @@ void Parser::match(int kind, unsigned *token)
     }
 }
 
+bool Parser::isMacro(unsigned tokenIndex) const
+{
+    if (MacroResolver *r = _control->macroResolver())
+        return r->isMacro(_translationUnit, tokenIndex);
+
+    return false;
+}
+
 bool Parser::parseClassOrNamespaceName(NameAST *&node)
 {
     if (LA() == T_IDENTIFIER) {
