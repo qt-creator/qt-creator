@@ -79,7 +79,7 @@ private:
     void handleFileCreation(const TrkResult &result);
     void handleCopy(const TrkResult &result);
     void continueCopying();
-    void handleFileCreated(const TrkResult &result);
+    void handleFileCopied(const TrkResult &result);
     void handleInstallPackageFinished(const TrkResult &result);
     void handleCpuType(const TrkResult &result);
     void handleCreateProcess(const TrkResult &result);

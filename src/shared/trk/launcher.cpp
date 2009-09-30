@@ -343,12 +343,12 @@ void Launcher::continueCopying()
         QByteArray ba;
         appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
         appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
-        d->m_device.sendTrkMessage(TrkCloseFile, TrkCallback(this, &Launcher::handleFileCreated), ba);
+        d->m_device.sendTrkMessage(TrkCloseFile, TrkCallback(this, &Launcher::handleFileCopied), ba);
         d->m_copyState.data.reset();
     }
 }
 
-void Launcher::handleFileCreated(const TrkResult &result)
+void Launcher::handleFileCopied(const TrkResult &result)
 {
     Q_UNUSED(result)
     installAndRun();
