@@ -40,7 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <duieditor/duimodelmanagerinterface.h>
+#include <qmleditor/qmlmodelmanagerinterface.h>
 
 #include <utils/synchronousprocess.h>
 #include <utils/pathchooser.h>
@@ -67,7 +67,7 @@ using namespace QmlProjectManager::Internal;
 QmlProject::QmlProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
-      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<DuiEditor::DuiModelManagerInterface>())
+      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlEditor::QmlModelManagerInterface>())
 {
     QFileInfo fileInfo(m_fileName);
     m_projectName = fileInfo.completeBaseName();

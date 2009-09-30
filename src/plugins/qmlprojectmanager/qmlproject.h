@@ -41,8 +41,8 @@
 
 #include <QtCore/QDir>
 
-namespace DuiEditor {
-class DuiModelManagerInterface;
+namespace QmlEditor {
+class QmlModelManagerInterface;
 }
 
 namespace QmlProjectManager {
@@ -108,7 +108,7 @@ private:
     QString m_filesFileName;
     QmlProjectFile *m_file;
     QString m_projectName;
-    DuiEditor::DuiModelManagerInterface *m_modelManager;
+    QmlEditor::QmlModelManagerInterface *m_modelManager;
 
     QStringList m_files;
 

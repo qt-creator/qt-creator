@@ -1,0 +1,12 @@
+#ifndef QMLEDITOR_GLOBAL_H
+#define QMLEDITOR_GLOBAL_H
+
+#include <QtGlobal>
+
+#if defined(QMLEDITOR_LIBRARY)
+#  define QMLEDITOR_EXPORT Q_DECL_EXPORT
+#else
+#  define QMLEDITOR_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // QMLEDITOR_GLOBAL_H
