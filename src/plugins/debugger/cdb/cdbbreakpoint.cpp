@@ -179,12 +179,15 @@ static inline QString msgCannotAddBreakPoint(const QString &why)
 }
 
 bool CDBBreakPoint::add(CIDebugControl* debugControl,
-                        quint64 *address, unsigned long *id,
-                        QString *errorMessage) const
+                        QString *errorMessage,
+                        unsigned long *id,
+                        quint64 *address) const
 {
     IDebugBreakpoint2* ibp = 0;
-    *address = 0;
-    *id = 0;
+    if (address)
+        *address = 0;
+    if (id)
+        *id = 0;
     HRESULT hr = debugControl->AddBreakpoint2(DEBUG_BREAKPOINT_CODE, DEBUG_ANY_ID, &ibp);
     if (FAILED(hr)) {
         *errorMessage = msgCannotAddBreakPoint(msgComFailed("AddBreakpoint2", hr));
@@ -196,14 +199,18 @@ bool CDBBreakPoint::add(CIDebugControl* debugControl,
     }
     if (!apply(ibp, errorMessage))
         return false;
-    // GetOffset can fail when attaching to remote processes.
-    hr = ibp->GetOffset(address);
-    if (FAILED(hr))
-        *address = 0;
-    hr = ibp->GetId(id);
-    if (FAILED(hr)) {
-        *errorMessage = msgCannotAddBreakPoint(msgComFailed("GetId", hr));
-        return false;
+    // GetOffset can fail when attaching to remote processes, ignore return
+    if (address) {
+        hr = ibp->GetOffset(address);
+        if (FAILED(hr))
+            *address = 0;
+    }
+    if (id) {
+        hr = ibp->GetId(id);
+        if (FAILED(hr)) {
+            *errorMessage = msgCannotAddBreakPoint(msgComFailed("GetId", hr));
+            return false;
+        }
     }
     return true;
 }
@@ -458,7 +465,7 @@ bool CDBBreakPoint::synchronizeBreakPoints(CIDebugControl* debugControl,
             quint64 address;
             unsigned long id;
             CDBBreakPoint ncdbbp(*nbd);
-            breakPointOk = ncdbbp.add(debugControl, &address, &id, &warning);
+            breakPointOk = ncdbbp.add(debugControl, &warning, &id, &address);
             if (breakPointOk) {
                 if (debugBP)
                     qDebug() << "Added " << id << " at " << address << ncdbbp;

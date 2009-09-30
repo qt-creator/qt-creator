@@ -63,7 +63,10 @@ struct CDBBreakPoint
     // Apply parameters
     bool apply(IDebugBreakpoint2 *ibp, QString *errorMessage) const;
     // Convenience to add to a IDebugControl4
-    bool add(CIDebugControl* debugControl, quint64 *address, unsigned long *id, QString *errorMessage) const;
+    bool add(CIDebugControl* debugControl,
+             QString *errorMessage,
+             unsigned long *id = 0,
+             quint64 *address = 0) const;
 
     // Retrieve/parse breakpoints from the interfaces
     bool retrieve(IDebugBreakpoint2 *ibp, QString *errorMessage);

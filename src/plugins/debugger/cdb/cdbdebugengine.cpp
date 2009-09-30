@@ -943,8 +943,31 @@ void CdbDebugEngine::updateWatchData(const WatchData &incomplete)
         qDebug() << *manager()->watchHandler()->model(LocalsWatch);
 }
 
+// Continue inferior with a debugger command, such as "p", "pt"
+// or its thread variations
+bool CdbDebugEnginePrivate::executeContinueCommand(const QString &command)
+{
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << command;
+    clearForRun();
+    setCodeLevel(); // Step by instruction
+    m_engine->setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
+    manager()->showDebuggerOutput(LogMisc, CdbDebugEngine::tr("Continuing with '%1'...").arg(command));
+    QString errorMessage;
+    const bool success = CdbDebugEnginePrivate::executeDebuggerCommand(m_cif.debugControl, command, &errorMessage);
+    if (success) {
+        m_engine->setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
+        m_engine->startWatchTimer();
+    } else {
+        m_engine->setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
+        m_engine->warning(CdbDebugEngine::tr("Unable to continue: %1").arg(errorMessage));
+    }
+    return success;
+}
+
 void CdbDebugEngine::stepExec()
 {
+    // Step into
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
 
@@ -964,55 +987,57 @@ void CdbDebugEngine::stepExec()
 
 void CdbDebugEngine::stepOutExec()
 {
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO;
+   if (debugCDB)
+       qDebug() << Q_FUNC_INFO;
+   // emulate gdb 'exec-finish' (exec until return of current function)
+   // by running up to address of the above stack frame (mostly works).
+   const StackHandler* sh = manager()->stackHandler();
+   const int idx = sh->currentIndex() + 1;
+   const QList<StackFrame> stackframes = sh->frames();
+   if (idx < 0 || idx >= stackframes.size()) {
+       warning(QString::fromLatin1("Cannot step out of stack frame %1.").arg(idx));
+       return;
+   }
+   // Set a temporary breakpoint and continue
+   const StackFrame& frame = stackframes.at(idx);
+   bool success = false;
+   QString errorMessage;
+   do {
+       const ULONG64 address = frame.address.toULongLong(&success, 16);
+       if (!success) {
+           errorMessage = QLatin1String("Cannot obtain address from stack frame");
+           break;
+       }
+       manager()->showDebuggerOutput(LogMisc, tr("Running to 0x%1...").arg(address, 0, 16));
+       IDebugBreakpoint2* pBP;
+       HRESULT hr = m_d->m_cif.debugControl->AddBreakpoint2(DEBUG_BREAKPOINT_CODE, DEBUG_ANY_ID, &pBP);
+       if (FAILED(hr) || !pBP) {
+           errorMessage = QString::fromLatin1("Cannot create temporary breakpoint: %1").arg(msgDebugEngineComResult(hr));
+           break;
+       }
 
-    StackHandler* sh = manager()->stackHandler();
-    const int idx = sh->currentIndex() + 1;
-    QList<StackFrame> stackframes = sh->frames();
-    if (idx < 0 || idx >= stackframes.size()) {
-        warning(QString::fromLatin1("Cannot step out of stack frame %1").arg(idx));
-        return;
-    }
-
-    // Set a temporary breakpoint and continue
-    const StackFrame& frame = stackframes.at(idx);
-    bool success = false;
-    QString errorMessage;
-    do {
-        const ULONG64 address = frame.address.toULongLong(&success, 16);
-        if (!success) {
-            errorMessage = QLatin1String("Cannot obtain address from stack frame");
-            break;
-        }
-
-        IDebugBreakpoint2* pBP;
-        HRESULT hr = m_d->m_cif.debugControl->AddBreakpoint2(DEBUG_BREAKPOINT_CODE, DEBUG_ANY_ID, &pBP);
-        if (FAILED(hr) || !pBP) {
-            errorMessage = QString::fromLatin1("Cannot create temporary breakpoint: %1").arg(msgDebugEngineComResult(hr));
-            break;
-        }
-
-        pBP->SetOffset(address);
-        pBP->AddFlags(DEBUG_BREAKPOINT_ENABLED);
-        pBP->AddFlags(DEBUG_BREAKPOINT_ONE_SHOT);
-        if (!m_d->continueInferior(&errorMessage))
-            break;
-        success = true;
-    } while (false);
-    if (!success)
-        warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
+       pBP->SetOffset(address);
+       pBP->AddFlags(DEBUG_BREAKPOINT_ENABLED);
+       pBP->AddFlags(DEBUG_BREAKPOINT_ONE_SHOT);
+       if (!m_d->continueInferior(&errorMessage))
+           break;
+       success = true;
+   } while (false);
+   if (!success)
+       warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
 }
 
 void CdbDebugEngine::nextExec()
 {
+    // Step over
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
-
     m_d->clearForRun();
-    m_d->setCodeLevel();
+    m_d->setCodeLevel(); // Step by instruction
     setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
     const HRESULT hr = m_d->m_cif.debugControl->SetExecutionStatus(DEBUG_STATUS_STEP_OVER);
+    // To control threads, use:
+    // -- const HRESULT hr = m_d->m_cif.debugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, "~* p", 0);
     if (SUCCEEDED(hr)) {
         setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
         startWatchTimer();        
@@ -1023,26 +1048,14 @@ void CdbDebugEngine::nextExec()
 }
 
 void CdbDebugEngine::stepIExec()
-{
-    warning(QString::fromLatin1("CdbDebugEngine::stepIExec() not implemented"));
+{   
+    // Step by instruction
+    nextExec();
 }
 
 void CdbDebugEngine::nextIExec()
 {
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO;
-
-    m_d->clearForRun();
-    m_d->setCodeLevel();
-    setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
-    const HRESULT hr = m_d->m_cif.debugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, "p", 0);
-    if (SUCCEEDED(hr)) {
-        setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
-        startWatchTimer();
-    } else {
-        setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
-        warning(msgFunctionFailed(Q_FUNC_INFO, msgDebugEngineComResult(hr)));
-    }
+    nextExec();
 }
 
 void CdbDebugEngine::continueInferior()
@@ -1148,20 +1161,34 @@ void CdbDebugEngine::interruptInferior()
 
 void CdbDebugEngine::runToLineExec(const QString &fileName, int lineNumber)
 {
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO << fileName << lineNumber;
+    manager()->showDebuggerOutput(LogMisc, tr("Running up to %1:%2...").arg(fileName).arg(lineNumber));
+    QString errorMessage;
+    CDBBreakPoint tempBreakPoint;
+    tempBreakPoint.fileName = fileName;
+    tempBreakPoint.lineNumber = lineNumber;
+    tempBreakPoint.oneShot = true;
+    const bool ok = tempBreakPoint.add(m_d->m_cif.debugControl, &errorMessage)
+                    && m_d->continueInferior(&errorMessage);
+    if (!ok)
+        warning(errorMessage);
 }
 
 void CdbDebugEngine::runToFunctionExec(const QString &functionName)
 {
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO << functionName;
+    manager()->showDebuggerOutput(LogMisc, tr("Running up to function '%1()'...").arg(functionName));
+    QString errorMessage;
+    CDBBreakPoint tempBreakPoint;
+    tempBreakPoint.funcName = functionName;
+    tempBreakPoint.oneShot = true;
+    const bool ok = tempBreakPoint.add(m_d->m_cif.debugControl, &errorMessage)
+                    && m_d->continueInferior(&errorMessage);
+    if (!ok)
+        warning(errorMessage);
 }
 
-void CdbDebugEngine::jumpToLineExec(const QString &fileName, int lineNumber)
+void CdbDebugEngine::jumpToLineExec(const QString & /* fileName */, int /*lineNumber*/)
 {
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO << fileName << lineNumber;
+    warning(tr("Jump to line is not implemented"));
 }
 
 void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &value)
@@ -1300,7 +1327,7 @@ void CdbDebugEngine::activateFrame(int frameIndex)
         }
     } while (false);
     if (!success) {
-        const QString msg = QString::fromLatin1("Internal error: activateFrame() failed for frame #1 of %2, thread %3: %4").
+        const QString msg = QString::fromLatin1("Internal error: activateFrame() failed for frame #%1 of %2, thread %3: %4").
                             arg(frameIndex).arg(stackHandler->stackSize()).arg(m_d->m_currentThreadId).arg(errorMessage);
         warning(msg);
     }
@@ -1577,6 +1604,7 @@ void CdbDebugEnginePrivate::handleDebugEvent()
             m_engine->setState(InferiorStopping, Q_FUNC_INFO, __LINE__);
         m_engine->setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
         m_currentThreadId = updateThreadList();
+        manager()->showDebuggerOutput(LogMisc, CdbDebugEngine::tr("Stopped, current thread: %1").arg(m_currentThreadId));
         ThreadsHandler *threadsHandler = manager()->threadsHandler();
         const int threadIndex = threadIndexById(threadsHandler, m_currentThreadId);
         if (threadIndex != -1)

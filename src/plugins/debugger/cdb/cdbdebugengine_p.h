@@ -131,6 +131,7 @@ struct CdbDebugEnginePrivate
 
     bool continueInferiorProcess(QString *errorMessage = 0);
     bool continueInferior(QString *errorMessage);
+    bool executeContinueCommand(const QString &command);
 
     bool attemptBreakpointSynchronization(QString *errorMessage);
     void notifyCrashed();
