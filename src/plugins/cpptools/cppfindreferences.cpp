@@ -171,7 +171,8 @@ protected:
         unsigned line, column;
         getTokenStartPosition(ast->firstToken(), &line, &column);
         Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
-        return LookupContext(lastVisibleSymbol, _exprDoc, _doc, _snapshot);
+        LookupContext ctx(lastVisibleSymbol, _exprDoc, _doc, _snapshot);
+        return ctx;
     }
 
     void ensureNameIsValid(NameAST *ast)
@@ -232,7 +233,7 @@ protected:
         const unsigned end = tokenAt(endToken).end();
 
         const QString expression = _source.mid(begin, end - begin);
-        // qDebug() << "*** expression:" << expression;
+        // qDebug() << "*** check expression:" << expression;
 
         TypeOfExpression typeofExpression;
         typeofExpression.setSnapshot(_snapshot);
@@ -426,16 +427,12 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
 
     future.setProgressRange(0, files.size());
 
-    FastMacroResolver fastMacroResolver(snapshot);
-
     for (int i = 0; i < files.size(); ++i) {
         const QString &fileName = files.at(i);
         future.setProgressValueAndText(i, QFileInfo(fileName).fileName());
 
-        Document::Ptr previousDoc = snapshot.value(fileName);
-        if (previousDoc) {
+        if (Document::Ptr previousDoc = snapshot.value(fileName)) {
             Control *control = previousDoc->control();
-            previousDoc->control();
             Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size());
             if (! id)
                 continue; // skip this document, it's not using symbolId.
@@ -462,6 +459,7 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
             TranslationUnit *unit = doc->translationUnit();
             Control *control = doc->control();
 
+            FastMacroResolver fastMacroResolver(unit, snapshot);
             control->setMacroResolver(&fastMacroResolver);
             doc->parse();
             control->setMacroResolver(0);

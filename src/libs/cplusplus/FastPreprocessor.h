@@ -44,18 +44,17 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT FastMacroResolver: public MacroResolver
 {
 public:
-    FastMacroResolver(const Snapshot &snapshot);
+    FastMacroResolver(TranslationUnit *unit, const Snapshot &snapshot);
 
     virtual bool isMacro(TranslationUnit *unit, unsigned tokenIndex) const;
 
 private:
-    bool isMacro_helper(const QByteArray &macroName,
-                        const QString &fileName,
-                        QSet<QString> *processed,
-                        bool *done) const;
+    void updateCache(const QString &fileName, QSet<QString> *processed);
 
 private:
+    TranslationUnit *_unit;
     Snapshot _snapshot;
+    QSet<QByteArray> _cachedMacros;
 };
 
 class CPLUSPLUS_EXPORT FastPreprocessor: public Client
