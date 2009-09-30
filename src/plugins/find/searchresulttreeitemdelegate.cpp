@@ -77,7 +77,7 @@ void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionVi
             QRect emptyRect;
             doLayout(opt, &checkRect, &emptyRect, &emptyRect, false);
 
-            QItemDelegate::drawCheck(painter, opt, opt.rect, checkState);
+            QItemDelegate::drawCheck(painter, opt, checkRect, checkState);
         }
 
         painter->restore();
