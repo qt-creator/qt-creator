@@ -443,7 +443,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
             this, SIGNAL(userChangesUpdated()));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
-    vbox->setContentsMargins(20, 0, 0, 0);
+    vbox->setContentsMargins(0, 0, 0, 0);
 
     m_detailsContainer = new Utils::DetailsWidget(this);
 
