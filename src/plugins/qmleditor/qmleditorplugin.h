@@ -65,13 +65,7 @@ public:
     void initializeEditor(ScriptEditor *editor);
 
 private:
-    void registerActions();
-
     static QmlEditorPlugin *m_instance;
-
-    typedef QList<int> Context;
-    Context m_context;
-    Context m_scriptcontext;
 
     QmlModelManagerInterface *m_modelManager;
     QmlFileWizard *m_wizard;

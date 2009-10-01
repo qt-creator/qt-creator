@@ -203,6 +203,7 @@ const QVector<QTextCharFormat> &QScriptHighlighter::defaultFormats()
         rc[CommentFormat].setForeground(Qt::red);
         rc[CommentFormat].setFontItalic(true);
         rc[PreProcessorFormat].setForeground(Qt::darkBlue);
+        rc[VisualWhitespace].setForeground(Qt::lightGray);
     }
     return rc;
 }

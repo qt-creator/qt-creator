@@ -47,6 +47,7 @@ public:
 
     enum { NumberFormat, StringFormat, TypeFormat,
            KeywordFormat, PreProcessorFormat, LabelFormat, CommentFormat,
+           VisualWhitespace,
            NumFormats };
 
     bool isDuiEnabled() const;

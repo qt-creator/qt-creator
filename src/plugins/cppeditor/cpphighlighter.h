@@ -65,7 +65,6 @@ private:
     bool isQtKeyword(const QStringRef &text) const;
 
     QTextCharFormat m_formats[NumCppFormats];
-    QTextCharFormat visualSpaceFormat;
 };
 
 } // namespace Internal

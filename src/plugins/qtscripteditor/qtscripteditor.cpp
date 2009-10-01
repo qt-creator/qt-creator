@@ -322,7 +322,8 @@ void ScriptEditor::setFontSettings(const TextEditor::FontSettings &fs)
                    << QLatin1String(TextEditor::Constants::C_KEYWORD)
                    << QLatin1String(TextEditor::Constants::C_PREPROCESSOR)
                    << QLatin1String(TextEditor::Constants::C_LABEL)
-                   << QLatin1String(TextEditor::Constants::C_COMMENT);
+                   << QLatin1String(TextEditor::Constants::C_COMMENT)
+                   << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
     }
 
     highlighter->setFormats(fs.toTextCharFormats(categories));

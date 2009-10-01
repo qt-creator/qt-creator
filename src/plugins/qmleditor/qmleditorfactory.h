@@ -48,9 +48,7 @@ class QmlEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    typedef QList<int> Context;
-
-    QmlEditorFactory(const Context &context, QObject *parent);
+    QmlEditorFactory(QObject *parent);
     ~QmlEditorFactory();
 
     virtual QStringList mimeTypes() const;
@@ -62,9 +60,6 @@ public:
 private:
     const QString m_kind;
     const QStringList m_mimeTypes;
-    const Context m_context;
-
-    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 } // namespace Internal

@@ -41,18 +41,15 @@
 using namespace QmlEditor::Internal;
 using namespace QmlEditor::Constants;
 
-QmlEditorFactory::QmlEditorFactory(const Context &context, QObject *parent)
+QmlEditorFactory::QmlEditorFactory(QObject *parent)
   : Core::IEditorFactory(parent),
     m_kind(QLatin1String(C_QMLEDITOR)),
-    m_mimeTypes(QLatin1String(QmlEditor::Constants::QMLEDITOR_MIMETYPE)),
-    m_context(context),
-    m_actionHandler(new QmlEditorActionHandler)
+    m_mimeTypes(QLatin1String(QmlEditor::Constants::QMLEDITOR_MIMETYPE))
 {
 }
 
 QmlEditorFactory::~QmlEditorFactory()
 {
-    delete m_actionHandler;
 }
 
 QString QmlEditorFactory::kind() const
@@ -72,7 +69,7 @@ Core::IFile *QmlEditorFactory::open(const QString &fileName)
 
 Core::IEditor *QmlEditorFactory::createEditor(QWidget *parent)
 {
-    ScriptEditor *rc = new ScriptEditor(m_context, parent);
+    ScriptEditor *rc = new ScriptEditor(parent);
     QmlEditorPlugin::instance()->initializeEditor(rc);
     return rc->editableInterface();
 }

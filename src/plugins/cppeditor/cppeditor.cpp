@@ -1868,7 +1868,8 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
                    << QLatin1String(TextEditor::Constants::C_LABEL)
                    << QLatin1String(TextEditor::Constants::C_COMMENT)
                    << QLatin1String(TextEditor::Constants::C_DOXYGEN_COMMENT)
-                   << QLatin1String(TextEditor::Constants::C_DOXYGEN_TAG);
+                   << QLatin1String(TextEditor::Constants::C_DOXYGEN_TAG)
+                   << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
     }
 
     const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);

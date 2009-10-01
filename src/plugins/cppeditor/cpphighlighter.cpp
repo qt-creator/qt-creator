@@ -44,7 +44,6 @@ using namespace CPlusPlus;
 CppHighlighter::CppHighlighter(QTextDocument *document) :
     QSyntaxHighlighter(document)
 {
-    visualSpaceFormat.setForeground(Qt::lightGray);
 }
 
 void CppHighlighter::highlightBlock(const QString &text)
@@ -75,7 +74,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         }
         TextEditDocumentLayout::clearParentheses(currentBlock());
         if (text.length()) // the empty line can still contain whitespace
-            setFormat(0, text.length(), visualSpaceFormat);
+            setFormat(0, text.length(), m_formats[CppVisualWhitespace]);
         return;
     }
 
@@ -98,7 +97,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         if (previousTokenEnd != tk.position()) {
             setFormat(previousTokenEnd, tk.position() - previousTokenEnd,
-                      visualSpaceFormat);
+                      m_formats[CppVisualWhitespace]);
         }
 
         if (tk.is(T_LPAREN) || tk.is(T_LBRACE) || tk.is(T_LBRACKET)) {
@@ -176,7 +175,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         const SimpleToken tk = tokens.last();
         const int lastTokenEnd = tk.position() + tk.length();
         if (text.length() > lastTokenEnd)
-            setFormat(lastTokenEnd, text.length() - lastTokenEnd, visualSpaceFormat);
+            setFormat(lastTokenEnd, text.length() - lastTokenEnd, m_formats[CppVisualWhitespace]);
     }
 
     if (TextBlockUserData *userData = TextEditDocumentLayout::testUserData(currentBlock())) {

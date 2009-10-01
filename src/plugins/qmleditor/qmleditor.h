@@ -59,7 +59,7 @@ class ScriptEditorEditable : public TextEditor::BaseTextEditorEditable
     Q_OBJECT
 
 public:
-    ScriptEditorEditable(ScriptEditor *, const QList<int> &);
+    ScriptEditorEditable(ScriptEditor *);
     QList<int> context() const;
 
     bool duplicateSupported() const { return true; }
@@ -95,8 +95,7 @@ class ScriptEditor : public TextEditor::BaseTextEditor
 public:
     typedef QList<int> Context;
 
-    ScriptEditor(const Context &context,
-                 QWidget *parent = 0);
+    ScriptEditor(QWidget *parent = 0);
     ~ScriptEditor();
 
     QList<Declaration> declarations() const;

@@ -92,13 +92,10 @@ bool QmlEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     m_modelManager = new QmlModelManager(this);
     addAutoReleasedObject(m_modelManager);
 
-    m_scriptcontext << core->uniqueIDManager()->uniqueIdentifier(QmlEditor::Constants::C_QMLEDITOR);
-    m_context = m_scriptcontext;
-    m_context << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+    QList<int> context;
+    context<< core->uniqueIDManager()->uniqueIdentifier(QmlEditor::Constants::C_QMLEDITOR);
 
-    registerActions();
-
-    m_editor = new QmlEditorFactory(m_context, this);
+    m_editor = new QmlEditorFactory(this);
     addObject(m_editor);
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
@@ -148,10 +145,6 @@ void QmlEditorPlugin::initializeEditor(QmlEditor::Internal::ScriptEditor *editor
     // auto completion
     connect(editor, SIGNAL(requestAutoCompletion(ITextEditable*, bool)),
             TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(ITextEditable*, bool)));
-}
-
-void QmlEditorPlugin::registerActions()
-{
 }
 
 Q_EXPORT_PLUGIN(QmlEditorPlugin)

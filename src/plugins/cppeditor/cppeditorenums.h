@@ -49,6 +49,7 @@ enum CppFormats {
     CppCommentFormat,
     CppDoxygenCommentFormat,
     CppDoxygenTagFormat,
+    CppVisualWhitespace,
     NumCppFormats
 };
 

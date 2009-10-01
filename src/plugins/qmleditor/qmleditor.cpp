@@ -46,6 +46,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/fontsettings.h>
@@ -364,14 +365,17 @@ protected:
 #endif
 };
 
-ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor, const QList<int> &context)
-    : BaseTextEditorEditable(editor), m_context(context)
+ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor)
+    : BaseTextEditorEditable(editor)
 {
+
+    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
+    m_context << uidm->uniqueIdentifier(QmlEditor::Constants::C_QMLEDITOR);
+    m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 }
 
-ScriptEditor::ScriptEditor(const Context &context, QWidget *parent) :
+ScriptEditor::ScriptEditor(QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
-    m_context(context),
     m_methodCombo(0),
     m_modelManager(0)
 {
@@ -411,7 +415,7 @@ QStringList ScriptEditor::words() const
 
 Core::IEditor *ScriptEditorEditable::duplicate(QWidget *parent)
 {
-    ScriptEditor *newEditor = new ScriptEditor(m_context, parent);
+    ScriptEditor *newEditor = new ScriptEditor(parent);
     newEditor->duplicateFrom(editor());
     QmlEditorPlugin::instance()->initializeEditor(newEditor);
     return newEditor->editableInterface();
@@ -605,7 +609,8 @@ void ScriptEditor::setFontSettings(const TextEditor::FontSettings &fs)
                 << QLatin1String(TextEditor::Constants::C_KEYWORD)
                 << QLatin1String(TextEditor::Constants::C_PREPROCESSOR)
                 << QLatin1String(TextEditor::Constants::C_LABEL)
-                << QLatin1String(TextEditor::Constants::C_COMMENT);
+                << QLatin1String(TextEditor::Constants::C_COMMENT)
+                << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
     }
 
     highlighter->setFormats(fs.toTextCharFormats(categories));
@@ -674,7 +679,7 @@ void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar typedCha
 
 TextEditor::BaseTextEditorEditable *ScriptEditor::createEditableInterface()
 {
-    ScriptEditorEditable *editable = new ScriptEditorEditable(this, m_context);
+    ScriptEditorEditable *editable = new ScriptEditorEditable(this);
     createToolBar(editable);
     return editable;
 }
