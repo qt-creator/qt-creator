@@ -1762,8 +1762,7 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
                 data->condition = data->bpCondition;
         } else if (child.hasName("enabled")) {
             data->bpEnabled = (child.data() == "y");
-        }
-        else if (child.hasName("pending")) {
+        } else if (child.hasName("pending")) {
             data->pending = true;
             int pos = child.data().lastIndexOf(':');
             if (pos > 0) {
@@ -1776,6 +1775,12 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
             } else {
                 files.prepend(QString::fromLocal8Bit(child.data()));
             }
+        } else if (child.hasName("at")) {
+            // Happens with (e.g.?) gdb 6.4 symbianelf
+            QByteArray ba = child.data();
+            if (ba.startsWith('<') && ba.endsWith('>'))
+                ba = ba.mid(1, ba.size() - 2);
+            data->bpFuncName = _(ba);
         }
     }
     // This field is not present.  Contents needs to be parsed from
