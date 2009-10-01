@@ -1475,7 +1475,7 @@ AbstractGdbAdapter *GdbEngine::determineAdapter(const DebuggerStartParametersPtr
         break;
     }
     // @todo: remove testing hack
-    if (sp->executable.endsWith(_(".sym")))
+    if (sp->processArgs.at(0) == _("@sym@"))
         return m_trkAdapter;
     switch (sp->startMode) {
     case AttachCore:

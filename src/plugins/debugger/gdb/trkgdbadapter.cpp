@@ -1424,9 +1424,9 @@ void TrkGdbAdapter::startAdapter()
     m_remoteExecutable = parameters.executable;
     m_symbolFile = parameters.symbolFileName;
     // FIXME: testing hack, remove!
-    if (m_remoteExecutable.endsWith(_(".sym"))) {
-        m_symbolFile = m_remoteExecutable;
-        m_remoteExecutable = parameters.processArgs.join(_(" "));
+    if (parameters.processArgs.at(0) == _("@sym@")) {
+        m_remoteExecutable = parameters.processArgs.at(1);
+        m_symbolFile = parameters.processArgs.at(2);
     }
     // Start
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
