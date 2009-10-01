@@ -816,6 +816,8 @@ void HelpPlugin::activateContents()
 {
     activateHelpMode();
     m_sideBar->activateItem(m_contentItem);
+    openHelpPage(QString::fromLatin1("qthelp://com.nokia.qtcreator.%1%2%3/doc/index.html")
+                 .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE));
 }
 
 void HelpPlugin::activateSearch()
