@@ -690,7 +690,7 @@ void SubversionPlugin::startCommit(const QStringList &files)
         return;
     }
     m_commitMessageFileName = changeTmpFile.fileName();
-    // TODO: Retrieve submit template from
+    // TODO: Regitctrieve submit template from
     const QString submitTemplate;
     // Create a submit
     changeTmpFile.write(submitTemplate.toUtf8());
@@ -780,14 +780,17 @@ void SubversionPlugin::annotate(const QString &file)
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
+    const int lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(file);
 
     if (Core::IEditor *editor = locateEditor("annotateFileName", file)) {
         editor->createNew(response.stdOut);
-        Core::EditorManager::instance()->activateEditor(editor);
+        VCSBase::VCSBaseEditor::gotoLineOfEditor(editor, lineNumber);
+        Core::EditorManager::instance()->activateEditor(editor);        
     } else {
         const QString title = QString::fromLatin1("svn annotate %1").arg(QFileInfo(file).fileName());
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, file, codec);
         newEditor->setProperty("annotateFileName", file);
+        VCSBase::VCSBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
 }
 

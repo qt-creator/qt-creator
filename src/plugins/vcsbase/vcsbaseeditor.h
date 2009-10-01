@@ -119,6 +119,15 @@ public:
     // manager which is a BaseTextEditable.
     static VCSBaseEditor *getVcsBaseEditor(const Core::IEditor *editor);
 
+    // Utility to find the line number of the current editor. Optionally,
+    // pass in the file name to match it. To be used when jumping to current
+    // line number in a 'annnotate current file' slot, which checks if the
+    // current file originates from the current editor or the project selection.
+    static int lineNumberOfCurrentEditor(const QString &currentFile = QString());
+
+    //Helper to go to line of editor if it is a text editor
+    static bool gotoLineOfEditor(Core::IEditor *e, int lineNumber);
+
 signals:
     void describeRequested(const QString &source, const QString &change);
 

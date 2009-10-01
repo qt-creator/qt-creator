@@ -80,7 +80,7 @@ public:
 
     void status(const QString &workingDirectory);
     void log(const QString &workingDirectory, const QString &fileName);
-    void blame(const QString &workingDirectory, const QString &fileName);
+    void blame(const QString &workingDirectory, const QString &fileName, int lineNumber = -1);
     void showCommit(const QString &workingDirectory, const QString &commit);
     void checkout(const QString &workingDirectory, const QString &file);
     void checkoutBranch(const QString &workingDirectory, const QString &branch);

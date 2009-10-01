@@ -298,10 +298,10 @@ void GitClient::show(const QString &source, const QString &id)
     executeGit(workDir, arguments, editor);
 }
 
-void GitClient::blame(const QString &workingDirectory, const QString &fileName)
+void GitClient::blame(const QString &workingDirectory, const QString &fileName, int lineNumber /* = -1 */)
 {
     if (Git::Constants::debug)
-        qDebug() << "blame" << workingDirectory << fileName;
+        qDebug() << "blame" << workingDirectory << fileName << lineNumber;
     QStringList arguments(QLatin1String("blame"));
     arguments << QLatin1String("--") << fileName;
 

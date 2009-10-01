@@ -651,9 +651,11 @@ void PerforcePlugin::annotate(const QString &fileName)
     const PerforceResponse result = runP4Cmd(args, QStringList(),
                                              CommandToWindow|StdErrToWindow|ErrorToWindow, codec);
     if (!result.error) {
+        const int lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(fileName);
         const QFileInfo fi(fileName);
-        showOutputInEditor(tr("p4 annotate %1").arg(fi.fileName()),
-            result.stdOut, VCSBase::AnnotateOutput, codec);
+        Core::IEditor *ed = showOutputInEditor(tr("p4 annotate %1").arg(fi.fileName()),
+                                               result.stdOut, VCSBase::AnnotateOutput, codec);
+        VCSBase::VCSBaseEditor::gotoLineOfEditor(ed, lineNumber);
     }
 }
 

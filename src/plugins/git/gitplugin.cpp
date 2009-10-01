@@ -481,7 +481,7 @@ void GitPlugin::statusFile()
 
 void GitPlugin::logFile()
 {
-    const QFileInfo fileInfo = currentFile();
+    const QFileInfo fileInfo = currentFile();    
     const QString fileName = fileInfo.fileName();
     const QString workingDirectory = fileInfo.absolutePath();
     m_gitClient->log(workingDirectory, fileName);
@@ -492,7 +492,9 @@ void GitPlugin::blameFile()
     const QFileInfo fileInfo = currentFile();
     const QString fileName = fileInfo.fileName();
     const QString workingDirectory = fileInfo.absolutePath();
-    m_gitClient->blame(workingDirectory, fileName);
+
+    m_gitClient->blame(workingDirectory, fileName,
+                       VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(fileInfo.absoluteFilePath()));
 }
 
 void GitPlugin::logProject()

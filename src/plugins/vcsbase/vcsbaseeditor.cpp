@@ -36,6 +36,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/ifile.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
@@ -600,5 +601,34 @@ VCSBaseEditor *VCSBaseEditor::getVcsBaseEditor(const Core::IEditor *editor)
         return qobject_cast<VCSBaseEditor *>(be->editor());
     return 0;
 }
+
+// Return line number of current editor if it matches.
+int VCSBaseEditor::lineNumberOfCurrentEditor(const QString &currentFile)
+{
+    Core::IEditor *ed = Core::EditorManager::instance()->currentEditor();
+    if (!ed)
+        return -1;
+    if (!currentFile.isEmpty()) {
+        const Core::IFile *ifile  = ed->file();
+        if (!ifile || ifile->fileName() != currentFile)
+            return -1;
+    }
+    const TextEditor::BaseTextEditorEditable *eda = qobject_cast<const TextEditor::BaseTextEditorEditable *>(ed);
+    if (!eda)
+        return -1;
+    return eda->currentLine();
+}
+
+bool VCSBaseEditor::gotoLineOfEditor(Core::IEditor *e, int lineNumber)
+{
+    if (lineNumber >= 0 && e) {
+        if (TextEditor::BaseTextEditorEditable *be = qobject_cast<TextEditor::BaseTextEditorEditable*>(e)) {
+            be->gotoLine(lineNumber);
+            return true;
+        }
+    }
+    return false;
+}
+
 
 } // namespace VCSBase
