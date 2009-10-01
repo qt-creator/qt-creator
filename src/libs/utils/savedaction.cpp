@@ -421,7 +421,8 @@ void SavedAction::trigger(const QVariant &data)
 void SavedActionSet::insert(SavedAction *action, QWidget *widget)
 {
     m_list.append(action);
-    action->connectWidget(widget);
+    if (widget)
+        action->connectWidget(widget);
 }
 
 void SavedActionSet::apply(QSettings *settings)
