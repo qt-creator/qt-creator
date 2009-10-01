@@ -20,6 +20,7 @@ public:
     void setSummaryText(const QString &text);
     void setWidget(QWidget *widget);
     void setToolWidget(QWidget *widget);
+    void paintEvent(QPaintEvent *paintEvent);
 private slots:
     void detailsButtonClicked();
 private:

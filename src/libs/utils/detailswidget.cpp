@@ -3,6 +3,7 @@
 
 #include <QtGui/QGridLayout>
 #include <QtCore/QStack>
+#include <QtGui/QPainter>
 
 using namespace Utils;
 
@@ -12,7 +13,7 @@ DetailsWidget::DetailsWidget(QWidget *parent)
       m_toolWidget(0)
 {
     m_grid = new QGridLayout(this);
-    m_grid->setMargin(0);
+    //m_grid->setMargin(0);
     m_summaryLabel = new QLabel(this);
     m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_detailsButton = new DetailsButton(this);
@@ -27,6 +28,51 @@ DetailsWidget::DetailsWidget(QWidget *parent)
 DetailsWidget::~DetailsWidget()
 {
 
+}
+
+void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
+{
+    //TL-->                 ___________  <-- TR
+    //                     |           |
+    //ML->   ______________| <--MM     |
+    //       |                         |
+    //BL->   |_________________________|  <-- BR
+
+
+    QWidget::paintEvent(paintEvent);
+
+    if (!m_detailsButton->isToggled())
+        return;
+
+    QRect detailsGeometry = m_detailsButton->geometry();
+    QRect widgetGeometry = m_widget->geometry();
+
+    QPoint tl(detailsGeometry.topLeft());
+    tl += QPoint(-3, -3);
+
+    QPoint tr(detailsGeometry.topRight());
+    tr += QPoint(3, -3);
+
+    QPoint mm(detailsGeometry.left() - 3, widgetGeometry.top() - 3);
+
+    QPoint ml(1, mm.y());
+
+    int bottom = geometry().height() - 3;
+    QPoint bl(1, bottom);
+    QPoint br(tr.x(), bottom);
+
+    QPainter p(this);
+    p.setPen(Qt::NoPen);
+    QColor c = palette().color(QPalette::Background);
+    c = c.darker(115);
+    p.setBrush(c);
+    //p.setBrush(palette().button());
+
+//    QPolygon polygon;
+//    polygon << tl << tr << br << bl << ml << mm;
+//    p.drawConvexPolygon(polygon);
+    p.drawRoundedRect(QRect(tl, br), 5, 5);
+    p.drawRoundedRect(QRect(ml, br), 5, 5);
 }
 
 void DetailsWidget::detailsButtonClicked()
