@@ -1348,6 +1348,8 @@ void DebuggerManager::jumpToLineExec()
 
 void DebuggerManager::resetLocation()
 {
+    d->m_disassemblerViewAgent.resetLocation();
+    d->m_stackHandler->setCurrentIndex(-1);
     // Connected to the plugin.
     emit resetLocationRequested();
 }

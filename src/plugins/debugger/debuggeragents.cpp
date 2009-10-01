@@ -201,11 +201,15 @@ DisassemblerViewAgent::~DisassemblerViewAgent()
 void DisassemblerViewAgent::cleanup()
 {
     d->cache.clear();
-    if (d->editor)
-        d->editor->markableInterface()->removeMark(d->locationMark);
     //if (d->editor)
     //    d->editor->deleteLater();
     //d->editor = 0;
+}
+
+void DisassemblerViewAgent::resetLocation()
+{
+    if (d->editor)
+        d->editor->markableInterface()->removeMark(d->locationMark);
 }
 
 void DisassemblerViewAgent::setFrame(const StackFrame &frame)
