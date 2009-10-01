@@ -124,6 +124,7 @@ private:
     bool evaluateExpression(const QString &expression, QString *value, QString *type, QString *errorMessage);
     void evaluateWatcher(WatchData *wd);
     QString editorToolTip(const QString &exp, const QString &function);
+    bool step(unsigned long executionStatus);
 
     CdbDebugEnginePrivate *m_d;
 

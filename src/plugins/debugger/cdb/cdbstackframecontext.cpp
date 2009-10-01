@@ -128,50 +128,21 @@ WatchHandleDumperInserter::WatchHandleDumperInserter(WatchHandler *wh,
     Q_ASSERT(m_hexNullPattern.isValid());
 }
 
-// Is this a non-null pointer to a dumpeable item with a value
-// "0x4343 class QString *" ? - Insert a fake '*' dereferenced item
-// and run dumpers on it. If that succeeds, insert the fake items owned by dumpers,
-// which will trigger the ignore predicate.
-// Note that the symbol context does not create '*' dereferenced items for
-// classes (see note in its header documentation).
-bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QString *errorMessage)
-{
-    if (debugCDBWatchHandling)
-        qDebug() << ">expandPointerToDumpable" << wd.iname;
 
-    bool handled = false;
-    do {
-        if (!isPointerType(wd.type))
-            break;
-        const int classPos = wd.value.indexOf(" class ");
-        if (classPos == -1)
-            break;
-        const QString hexAddrS = wd.value.mid(0, classPos);
-        if (m_hexNullPattern.exactMatch(hexAddrS))
-            break;
-        const QString type = stripPointerType(wd.value.mid(classPos + 7));
-        WatchData derefedWd;
-        derefedWd.setType(type);
-        derefedWd.setAddress(hexAddrS);
-        derefedWd.name = QString(QLatin1Char('*'));
-        derefedWd.iname = wd.iname + QLatin1String(".*");
-        derefedWd.source = OwnerDumper | CdbStackFrameContext::ChildrenKnownBit;
-        const CdbDumperHelper::DumpResult dr = m_dumper->dumpType(derefedWd, true, &m_dumperResult, errorMessage);
-        if (dr != CdbDumperHelper::DumpOk)
-            break;
-        // Insert the pointer item with 1 additional child + its dumper results
-        // Note: formal arguments might already be expanded in the symbol group.
-        WatchData ptrWd = wd;
-        ptrWd.source = OwnerDumper | CdbStackFrameContext::ChildrenKnownBit;
-        ptrWd.setHasChildren(true);
-        ptrWd.setChildrenUnneeded();
-        m_wh->insertData(ptrWd);
-        m_wh->insertBulkData(m_dumperResult);
-        handled = true;
-    } while (false);
-    if (debugCDBWatchHandling)
-        qDebug() << "<expandPointerToDumpable returns " << handled << *errorMessage;
-    return handled;
+// Prevent recursion of the model by setting value and type
+static inline void fixDumperValueAndType(WatchData *wd, const WatchData *source = 0)
+{
+    static const QString unknown = QCoreApplication::translate("CdbStackFrameContext", "<Unknown>");
+    if (wd->isTypeNeeded() || wd->type.isEmpty()) {
+        wd->setType(source ? source->type : unknown);
+    }
+    if (wd->isValueNeeded()) {
+        if (source && source->isValueKnown()) {
+            wd->setValue(source->value);
+        } else {
+            wd->setValue(unknown);
+        }
+    }
 }
 
 // When querying an item, the queried item is sometimes returned in incomplete form.
@@ -180,6 +151,7 @@ static inline void fixDumperResult(const WatchData &source,
                                    QList<WatchData> *result,
                                    bool suppressGrandChildren)
 {
+
     const int size = result->size();
     if (!size)
         return;
@@ -188,16 +160,7 @@ static inline void fixDumperResult(const WatchData &source,
     WatchData &returned = result->front();
     if (returned.iname != source.iname)
         return;
-    if (returned.type.isEmpty())
-        returned.setType(source.type);
-    if (returned.isValueNeeded()) {
-        if (source.isValueKnown()) {
-            returned.setValue(source.value);
-        } else {
-            // Should not happen
-            returned.setValue(QCoreApplication::translate("CdbStackFrameContext", "<Unknown>"));
-        }
-    }
+    fixDumperValueAndType(&returned, &source);
     // Indicate owner and known children
     returned.source = OwnerDumper;
     if (returned.isChildrenKnown() && returned.isHasChildrenKnown() && returned.hasChildren)
@@ -225,9 +188,58 @@ static inline void fixDumperResult(const WatchData &source,
             if (suppressGrandChildren && (wd.isChildrenNeeded() || wd.isHasChildrenNeeded()))
                 wd.setHasChildren(false);
         }
+        //   <Out of scope value> have sometimes missing types. Kill recursion
+        fixDumperValueAndType(&wd);
     }
     if (debugCDBWatchHandling)
         debugWatchDataList(*result, "<fixDumperResult");
+}
+
+// Is this a non-null pointer to a dumpeable item with a value
+// "0x4343 class QString *" ? - Insert a fake '*' dereferenced item
+// and run dumpers on it. If that succeeds, insert the fake items owned by dumpers,
+// which will trigger the ignore predicate.
+// Note that the symbol context does not create '*' dereferenced items for
+// classes (see note in its header documentation).
+bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QString *errorMessage)
+{
+    if (debugCDBWatchHandling)
+        qDebug() << ">expandPointerToDumpable" << wd.toString();
+
+    bool handled = false;
+    do {
+        if (!isPointerType(wd.type))
+            break;
+        const int classPos = wd.value.indexOf(" class ");
+        if (classPos == -1)
+            break;
+        const QString hexAddrS = wd.value.mid(0, classPos);
+        if (m_hexNullPattern.exactMatch(hexAddrS))
+            break;
+        const QString type = stripPointerType(wd.value.mid(classPos + 7));
+        WatchData derefedWd;
+        derefedWd.setType(type);
+        derefedWd.setAddress(hexAddrS);
+        derefedWd.name = QString(QLatin1Char('*'));
+        derefedWd.iname = wd.iname + QLatin1String(".*");
+        derefedWd.source = OwnerDumper | CdbStackFrameContext::ChildrenKnownBit;
+        const CdbDumperHelper::DumpResult dr = m_dumper->dumpType(derefedWd, true, &m_dumperResult, errorMessage);
+        if (dr != CdbDumperHelper::DumpOk)
+            break;
+        fixDumperResult(derefedWd, &m_dumperResult, true);
+        // Insert the pointer item with 1 additional child + its dumper results
+        // Note: formal arguments might already be expanded in the symbol group.
+        WatchData ptrWd = wd;
+        ptrWd.source = OwnerDumper | CdbStackFrameContext::ChildrenKnownBit;
+        ptrWd.setHasChildren(true);
+        ptrWd.setChildrenUnneeded();
+        m_wh->insertData(ptrWd);
+        m_wh->insertBulkData(m_dumperResult);
+        handled = true;
+    } while (false);
+    if (debugCDBWatchHandling)
+        qDebug() << "<expandPointerToDumpable returns " << handled << *errorMessage;
+    return handled;
 }
 
 WatchHandleDumperInserter &WatchHandleDumperInserter::operator=(WatchData &wd)

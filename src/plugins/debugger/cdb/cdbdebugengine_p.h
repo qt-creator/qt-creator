@@ -157,6 +157,7 @@ struct CdbDebugEnginePrivate
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
     int                     m_currentThreadId;
+    int                     m_eventThreadId;
     HandleBreakEventMode    m_breakEventMode;
 
     int                     m_watchTimer;

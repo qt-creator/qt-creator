@@ -257,6 +257,8 @@ QString WatchData::toString() const
 
     if (isChildrenNeeded())
         str << "children=<needed>,";
+    if (source)
+        str << "source=" << source;
     str.flush();
     if (res.endsWith(QLatin1Char(',')))
         res.truncate(res.size() - 1);

@@ -120,6 +120,11 @@ QString msgComFailed(const char *func, HRESULT hr)
     return QString::fromLatin1("%1 failed: %2").arg(QLatin1String(func), msgDebugEngineComResult(hr));
 }
 
+QString msgDebuggerCommandFailed(const QString &command, HRESULT hr)
+{
+    return QString::fromLatin1("Unable to execute '%1': %2").arg(command, msgDebugEngineComResult(hr));
+}
+
 static const char *msgNoStackTraceC = "Internal error: no stack trace present.";
 
 static inline QString msgLibLoadFailed(const QString &lib, const QString &why)
@@ -295,6 +300,8 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *manager,
     m_hDebuggeeThread(0),
     m_breakEventMode(BreakEventHandle),
     m_dumper(new CdbDumperHelper(manager, &m_cif)),
+    m_currentThreadId(-1),
+    m_eventThreadId(-1),
     m_watchTimer(-1),
     m_debugEventCallBack(engine),
     m_engine(engine),
@@ -437,9 +444,8 @@ void CdbDebugEnginePrivate::clearForRun()
         qDebug() << Q_FUNC_INFO;
 
     m_breakEventMode = BreakEventHandle;
-    m_firstActivatedFrame = false;
+    m_eventThreadId = -1;
     cleanStackTrace();
-    m_editorToolTipCache.clear();
 }
 
 void CdbDebugEnginePrivate::cleanStackTrace()
@@ -448,6 +454,8 @@ void CdbDebugEnginePrivate::cleanStackTrace()
         delete m_currentStackTrace;
         m_currentStackTrace = 0;
     }
+    m_firstActivatedFrame = false;
+    m_editorToolTipCache.clear();
 }
 
 CdbDebugEngine::CdbDebugEngine(DebuggerManager *manager, const QSharedPointer<CdbOptions> &options) :
@@ -965,24 +973,85 @@ bool CdbDebugEnginePrivate::executeContinueCommand(const QString &command)
     return success;
 }
 
-void CdbDebugEngine::stepExec()
+static inline QString msgStepFailed(unsigned long executionStatus, int threadId, const QString &why)
 {
-    // Step into
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO;
+    if (executionStatus ==  DEBUG_STATUS_STEP_OVER)
+        return QString::fromLatin1("Thread %1: Unable to step over: %2").arg(threadId).arg(why);
+    return QString::fromLatin1("Thread %1: Unable to step into: %2").arg(threadId).arg(why);
+}
 
-    m_d->clearForRun();
-    m_d->setCodeLevel();
+// Step with  DEBUG_STATUS_STEP_OVER ('p'-command) or
+// DEBUG_STATUS_STEP_INTO ('t'-trace-command) or
+// its reverse equivalents in the case of single threads.
+bool CdbDebugEngine::step(unsigned long executionStatus)
+{
+    if (debugCDB)
+        qDebug() << Q_FUNC_INFO << executionStatus << "curr " << m_d->m_currentThreadId << " evt " << m_d->m_eventThreadId;
+
+    // State of reverse stepping as of 10/2009 (Debugging tools 6.11@404):
+    // The constants exist, but invoking the calls leads to E_NOINTERFACE.
+    // Also there is no CDB command for it.
+    if (executionStatus == DEBUG_STATUS_REVERSE_STEP_OVER || executionStatus == DEBUG_STATUS_REVERSE_STEP_INTO) {
+        warning(tr("Reverse stepping is not implemented."));
+        return false;
+    }
+
+    // SetExecutionStatus() continues the thread that triggered the
+    // stop event (~# p). This can be confusing if the user is looking
+    // at the stack trace of another thread and wants to step that one. If that
+    // is the case, explicitly tell it to step the current thread using a command.
+    const int triggeringEventThread = m_d->m_eventThreadId;
+    const bool sameThread = triggeringEventThread == -1
+                            || m_d->m_currentThreadId == triggeringEventThread
+                            || manager()->threadsHandler()->threads().size() == 1;
+    m_d->clearForRun(); // clears thread ids
+    m_d->setCodeLevel(); // Step by instruction or source line
     setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
-    const HRESULT hr = m_d->m_cif.debugControl->SetExecutionStatus(DEBUG_STATUS_STEP_INTO);
-    if (SUCCEEDED(hr)) {
+    bool success = false;
+    if (sameThread) { // Step event-triggering thread, use fast API
+        const HRESULT hr = m_d->m_cif.debugControl->SetExecutionStatus(executionStatus);
+        success = SUCCEEDED(hr);
+        if (!success)
+            warning(msgStepFailed(executionStatus, m_d->m_currentThreadId, msgComFailed("SetExecutionStatus", hr)));
+    } else {
+        // Need to use a command to explicitly specify the current thread
+        QString command;
+        QTextStream str(&command);
+        str << '~' << m_d->m_currentThreadId << ' '
+                << (executionStatus == DEBUG_STATUS_STEP_OVER ? 'p' : 't');
+        manager()->showDebuggerOutput(tr("Stepping %1").arg(command));
+        const HRESULT hr = m_d->m_cif.debugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, command.toLatin1().constData(), DEBUG_EXECUTE_ECHO);
+        success = SUCCEEDED(hr);
+        if (!success)
+            warning(msgStepFailed(executionStatus, m_d->m_currentThreadId, msgDebuggerCommandFailed(command, hr)));
+    }
+    if (success) {
+        startWatchTimer();
         setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
     } else {
         setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
-        warning(msgFunctionFailed(Q_FUNC_INFO, msgComFailed("SetExecutionStatus", hr)));
     }
-    m_d->m_breakEventMode = CdbDebugEnginePrivate::BreakEventIgnoreOnce;
-    startWatchTimer();
+    return success;
+}
+
+void CdbDebugEngine::stepExec()
+{
+    step(manager()->isReverseDebugging() ? DEBUG_STATUS_REVERSE_STEP_INTO : DEBUG_STATUS_STEP_INTO);
+}
+
+void CdbDebugEngine::nextExec()
+{
+    step(manager()->isReverseDebugging() ? DEBUG_STATUS_REVERSE_STEP_OVER : DEBUG_STATUS_STEP_OVER);
+}
+
+void CdbDebugEngine::stepIExec()
+{      
+    stepExec(); // Step into by instruction (figured out by step)
+}
+
+void CdbDebugEngine::nextIExec()
+{
+    nextExec(); // Step over by instruction (figured out by step)
 }
 
 void CdbDebugEngine::stepOutExec()
@@ -1025,37 +1094,6 @@ void CdbDebugEngine::stepOutExec()
    } while (false);
    if (!success)
        warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
-}
-
-void CdbDebugEngine::nextExec()
-{
-    // Step over
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO;
-    m_d->clearForRun();
-    m_d->setCodeLevel(); // Step by instruction
-    setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
-    const HRESULT hr = m_d->m_cif.debugControl->SetExecutionStatus(DEBUG_STATUS_STEP_OVER);
-    // To control threads, use:
-    // -- const HRESULT hr = m_d->m_cif.debugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, "~* p", 0);
-    if (SUCCEEDED(hr)) {
-        setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
-        startWatchTimer();        
-    } else {
-        setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
-        warning(msgFunctionFailed(Q_FUNC_INFO, msgComFailed("SetExecutionStatus", hr)));
-    }
-}
-
-void CdbDebugEngine::stepIExec()
-{   
-    // Step by instruction
-    nextExec();
-}
-
-void CdbDebugEngine::nextIExec()
-{
-    nextExec();
 }
 
 void CdbDebugEngine::continueInferior()
@@ -1603,7 +1641,7 @@ void CdbDebugEnginePrivate::handleDebugEvent()
         if (m_engine->state() != InferiorStopping)
             m_engine->setState(InferiorStopping, Q_FUNC_INFO, __LINE__);
         m_engine->setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
-        m_currentThreadId = updateThreadList();
+        m_eventThreadId = m_currentThreadId = updateThreadList();
         manager()->showDebuggerOutput(LogMisc, CdbDebugEngine::tr("Stopped, current thread: %1").arg(m_currentThreadId));
         ThreadsHandler *threadsHandler = manager()->threadsHandler();
         const int threadIndex = threadIndexById(threadsHandler, m_currentThreadId);
@@ -1701,7 +1739,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
     // Create a new context
-    clearForRun();
+    cleanStackTrace();
     QString errorMessage;
     m_engine->reloadRegisters();
     if (!setCDBThreadId(m_currentThreadId, &errorMessage)) {
@@ -1727,6 +1765,15 @@ void CdbDebugEnginePrivate::updateStackTrace()
             current = i;
             break;
         }
+    // Visibly warn the users about missing top frames/all frames, as they otherwise
+    // might think stepping is broken.    
+    if (!stackFrames.at(0).isUsable()) {
+        const QString topFunction = count ? stackFrames.at(0).function : QString();
+        const QString msg = current >= 0 ?
+                            CdbDebugEngine::tr("Thread %1: Missing debug information for top stack frame (%2).").arg(m_currentThreadId).arg(topFunction) :
+                            CdbDebugEngine::tr("Thread %1: No debug information available (%2).").arg(m_currentThreadId).arg(topFunction);
+        m_engine->warning(msg);
+    }
 
     manager()->stackHandler()->setFrames(stackFrames);
     m_firstActivatedFrame = true;
