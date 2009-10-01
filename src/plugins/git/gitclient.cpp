@@ -310,7 +310,7 @@ void GitClient::blame(const QString &workingDirectory, const QString &fileName, 
     const QString sourceFile = source(workingDirectory, fileName);
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, sourceFile, true, "blameFileName", sourceFile);
-    executeGit(workingDirectory, arguments, editor);
+    executeGit(workingDirectory, arguments, editor, false, GitCommand::NoReport, lineNumber);
 }
 
 void GitClient::checkoutBranch(const QString &workingDirectory, const QString &branch)
@@ -473,13 +473,16 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
 // Factory function to create an asynchronous command
 GitCommand *GitClient::createCommand(const QString &workingDirectory,
                              VCSBase::VCSBaseEditor* editor,
-                             bool outputToWindow)
+                             bool outputToWindow,
+                             int editorLineNumber)
 {
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDirectory << editor;
 
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
-    GitCommand* command = new GitCommand(binary(), workingDirectory, processEnvironment());
+    GitCommand* command = new GitCommand(binary(), workingDirectory, processEnvironment(), QVariant(editorLineNumber));
+    if (editor)
+        connect(command, SIGNAL(finished(bool,QVariant)), editor, SLOT(commandFinishedGotoLine(bool,QVariant)));
     if (outputToWindow) {
         if (editor) { // assume that the commands output is the important thing
             connect(command, SIGNAL(outputData(QByteArray)), outputWindow, SLOT(appendDataSilently(QByteArray)));
@@ -501,10 +504,11 @@ void GitClient::executeGit(const QString &workingDirectory,
                            const QStringList &arguments,
                            VCSBase::VCSBaseEditor* editor,
                            bool outputToWindow,
-                           GitCommand::TerminationReportMode tm)
+                           GitCommand::TerminationReportMode tm,
+                           int editorLineNumber)
 {
     VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(QLatin1String(Constants::GIT_BINARY), arguments));
-    GitCommand *command = createCommand(workingDirectory, editor, outputToWindow);
+    GitCommand *command = createCommand(workingDirectory, editor, outputToWindow, editorLineNumber);
     command->addJob(arguments, m_settings.timeout);
     command->setTerminationReportMode(tm);
     command->execute();

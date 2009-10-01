@@ -34,6 +34,10 @@
 
 #include <QtCore/QRegExp>
 
+QT_BEGIN_NAMESPACE
+class QVariant;
+QT_END_NAMESPACE
+
 namespace Git {
 namespace Internal {
 
@@ -49,6 +53,8 @@ public:
 
 public slots:
     void setPlainTextDataFiltered(const QByteArray &a);
+    // Matches  the signature of the finished signal of GitCommand
+    void commandFinishedGotoLine(bool ok, const QVariant &v);
 
 private:
     virtual QSet<QString> annotationChanges() const;

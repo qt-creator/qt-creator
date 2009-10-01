@@ -155,13 +155,15 @@ private:
 
     GitCommand *createCommand(const QString &workingDirectory,
                              VCSBase::VCSBaseEditor* editor = 0,
-                             bool outputToWindow = false);
+                             bool outputToWindow = false,
+                             int editorLineNumber = -1);
 
     void executeGit(const QString &workingDirectory,
                     const QStringList &arguments,
                     VCSBase::VCSBaseEditor* editor = 0,
                     bool outputToWindow = false,
-                    GitCommand::TerminationReportMode tm = GitCommand::NoReport);
+                    GitCommand::TerminationReportMode tm = GitCommand::NoReport,
+                    int editorLineNumber = -1);
 
     bool synchronousGit(const QString &workingDirectory,
                         const QStringList &arguments,

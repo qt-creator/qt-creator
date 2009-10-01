@@ -32,10 +32,13 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
+#include <QtCore/QVariant>
 
 namespace Git {
 namespace Internal {
 
+// Asynchronous command with output signals and a finished
+// signal with a magic cookie
 class GitCommand : public QObject
 {
     Q_DISABLE_COPY(GitCommand)
@@ -48,7 +51,8 @@ public:
 
     explicit GitCommand(const QStringList &binary,
                         const QString &workingDirectory,
-                        const QStringList &environment);
+                        const QStringList &environment,
+                        const QVariant &cookie = QVariant());
 
 
     void addJob(const QStringList &arguments, int timeout);
@@ -68,6 +72,7 @@ private:
 Q_SIGNALS:
     void outputData(const QByteArray&);
     void errorText(const QString&);
+    void finished(bool ok, const QVariant &cookie);
 
 private:
     struct Job {
@@ -81,6 +86,7 @@ private:
     QStringList m_basicArguments;
     const QString m_workingDirectory;
     const QStringList m_environment;
+    const QVariant m_cookie;
 
     QList<Job> m_jobs;
     TerminationReportMode m_reportTerminationMode;

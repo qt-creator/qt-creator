@@ -41,6 +41,8 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 
+Q_DECLARE_METATYPE(QVariant)
+
 namespace Git {
 namespace Internal {
 
@@ -60,15 +62,20 @@ GitCommand::Job::Job(const QStringList &a, int t) :
     arguments(a),
     timeout(t)
 {
+    // Finished cookie is emitted via queued slot, needs metatype
+    static const int qvMetaId = qRegisterMetaType<QVariant>();
+    Q_UNUSED(qvMetaId)
 }
 
 GitCommand::GitCommand(const QStringList &binary,
                         const QString &workingDirectory,
-                        const QStringList &environment)  :
+                        const QStringList &environment,
+                        const QVariant &cookie)  :
     m_binaryPath(binary.front()),
     m_basicArguments(binary),
     m_workingDirectory(workingDirectory),
     m_environment(environment),
+    m_cookie(cookie),
     m_reportTerminationMode(NoReport)
 {
     m_basicArguments.pop_front();
@@ -169,6 +176,7 @@ void GitCommand::run()
     if (!error.isEmpty())
         emit errorText(error);
 
+    emit finished(ok, m_cookie);
     // As it is used asynchronously, we need to delete ourselves
     this->deleteLater();
 }

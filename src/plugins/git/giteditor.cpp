@@ -184,5 +184,14 @@ void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
     }
 }
 
+void GitEditor::commandFinishedGotoLine(bool ok, const QVariant &v)
+{
+    if (ok && v.type() == QVariant::Int) {
+        const int line = v.toInt();
+        if (line >= 0)
+            gotoLine(line);
+    }
+}
+
 } // namespace Internal
 } // namespace Git
