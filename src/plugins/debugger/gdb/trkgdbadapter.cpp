@@ -102,7 +102,7 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
 #else
     const uid_t portOffset = getuid();
 #endif
-    m_gdbServerName = QString::fromLatin1("127.0.0.1:%1").arg(2222 + portOffset);
+    m_gdbServerName = _("127.0.0.1:%1").arg(2222 + portOffset);
     connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
         this, SIGNAL(readyReadStandardError()));
     connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
@@ -251,12 +251,18 @@ void TrkGdbAdapter::startInferiorEarly()
     QString errorMessage;
     const QString device = effectiveTrkDevice();
     if (!m_trkDevice.open(device, &errorMessage)) {
-        logMessage(QString::fromLatin1("Waiting on %1 (%2)").arg(device, errorMessage));
+        logMessage(_("Waiting on %1 (%2)").arg(device, errorMessage));
+        if (errorMessage.contains(_("ermission denied"))) {
+            static int direction = 0;
+            direction = (direction + 1) % 4;
+            showStatusMessage(_("Please start TRK on your device! %1")
+                .arg(QChar("/|\\-"[direction])));
+        }
         // Do not loop forever
         if (m_waitCount++ < (m_options->mode == TrkOptions::BlueTooth ? 60 : 5)) {
             QTimer::singleShot(1000, this, SLOT(startInferiorEarly()));
         } else {
-            QString msg = QString::fromLatin1("Failed to connect to %1 after "
+            QString msg = _("Failed to connect to %1 after "
                 "%2 attempts").arg(device).arg(m_waitCount);
             logMessage(msg);
             emit adapterStartFailed(msg);
@@ -386,18 +392,18 @@ void TrkGdbAdapter::readGdbServerCommand()
 bool TrkGdbAdapter::sendGdbServerPacket(const QByteArray &packet, bool doFlush)
 {
     if (!m_gdbConnection) {
-        logMessage(QString::fromLatin1("Cannot write to gdb: No connection (%1)")
-            .arg(QString::fromLatin1(packet)));
+        logMessage(_("Cannot write to gdb: No connection (%1)")
+            .arg(_(packet)));
         return false;
     }
     if (m_gdbConnection->state() != QAbstractSocket::ConnectedState) {
-        logMessage(QString::fromLatin1("Cannot write to gdb: Not connected (%1)")
-            .arg(QString::fromLatin1(packet)));
+        logMessage(_("Cannot write to gdb: Not connected (%1)")
+            .arg(_(packet)));
         return false;
     }
     if (m_gdbConnection->write(packet) == -1) {
-        logMessage(QString::fromLatin1("Cannot write to gdb: %1 (%2)")
-            .arg(m_gdbConnection->errorString()).arg(QString::fromLatin1(packet)));
+        logMessage(_("Cannot write to gdb: %1 (%2)")
+            .arg(m_gdbConnection->errorString()).arg(_(packet)));
         return false;
     }
     if (doFlush)
@@ -748,7 +754,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         const uint addr = cmd.mid(3, pos - 3).toInt(&ok, 16);
         const uint len = cmd.mid(pos + 1).toInt(&ok, 16);
         //qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
-        logMessage(QString::fromLatin1("Inserting breakpoint at 0x%1, %2")
+        logMessage(_("Inserting breakpoint at 0x%1, %2")
             .arg(addr, 0, 16).arg(len));
         const QByteArray ba = trkBreakpointMessage(addr, len, len == 4);
         sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba, addr);
@@ -765,7 +771,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         const uint len = cmd.mid(pos + 1).toInt(&ok, 16);
         const uint bp = m_session.addressToBP[addr];
         if (bp == 0) {
-            logMessage(QString::fromLatin1("NO RECORDED BP AT 0x%1, %2")
+            logMessage(_("NO RECORDED BP AT 0x%1, %2")
                 .arg(addr, 0, 16).arg(len));
             sendGdbServerMessage("E00");
         } else {
@@ -789,7 +795,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
                     .toInt(&ok1, 16);
                 const int length = data.mid(commaPos + 1).toInt(&ok2, 16);
                 if (ok1 && ok2) {
-                    const QString msg = QString::fromLatin1("Read of OS auxilary "
+                    const QString msg = _("Read of OS auxilary "
                         "vector (%1, %2) not implemented.").arg(offset).arg(length);
                     logMessage(msgGdbPacket(msg));
                     sendGdbServerMessage("E20", msg.toLatin1());
@@ -873,7 +879,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             const uint addr = extractInt(data);
             const uint pid = extractInt(data + 4);
             const uint tid = extractInt(data + 8);
-            logMessage(prefix + QString::fromLatin1("NOTE: PID %1/TID %2 "
+            logMessage(prefix + _("NOTE: PID %1/TID %2 "
                 "STOPPED at 0x%3").arg(pid).arg(tid).arg(addr, 0, 16));
             sendTrkAck(result.token);
             if (addr) {
@@ -940,7 +946,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
                 ? QString::fromAscii(result.data.mid(12, len)) : QString();
             if (!name.isEmpty())
                 m_session.modules.removeAll(name);
-            logMessage(QString::fromLatin1("%1 %2 UNLOAD: %3")
+            logMessage(_("%1 %2 UNLOAD: %3")
                 .arg(QString::fromAscii(prefix))
                 .arg(itemType ? QLatin1String("LIB") : QLatin1String("PROCESS"))
                 .arg(name));
@@ -1110,7 +1116,7 @@ void TrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TrkResult &resul
 static QString msgMemoryReadError(int code, uint addr, uint len = 0)
 {
     const QString lenS = len ? QString::number(len) : QLatin1String("<unknown>");
-    return QString::fromLatin1("Memory read error %1 at: 0x%2 %3")
+    return _("Memory read error %1 at: 0x%2 %3")
         .arg(code).arg(addr, 0 ,16).arg(lenS);
 }
 
@@ -1334,7 +1340,7 @@ void TrkGdbAdapter::readMemory(uint addr, uint len)
 
     // We try to get medium-sized chunks of data from the device
     if (m_verbose > 2)
-        logMessage(QString::fromLatin1("readMemory %1 bytes from 0x%2 blocksize=%3")
+        logMessage(_("readMemory %1 bytes from 0x%2 blocksize=%3")
             .arg(len).arg(addr, 0, 16).arg(MemoryChunkSize));
 
     if (m_bufferedMemoryRead) {
@@ -1343,7 +1349,7 @@ void TrkGdbAdapter::readMemory(uint addr, uint len)
         for (; blockaddr < addr + len; blockaddr += MemoryChunkSize) {
             if (!m_snapshot.memory.contains(blockaddr)) {
                 if (m_verbose)
-                    logMessage(QString::fromLatin1("Requesting buffered "
+                    logMessage(_("Requesting buffered "
                         "memory %1 bytes from 0x%2")
                     .arg(MemoryChunkSize).arg(blockaddr, 0, 16));
                 sendTrkMessage(0x10, TrkCB(handleReadMemoryBuffered),
@@ -1363,7 +1369,7 @@ void TrkGdbAdapter::readMemory(uint addr, uint len)
         }
     } else { // Unbuffered, direct requests
         if (m_verbose)
-            logMessage(QString::fromLatin1("Requesting unbuffered memory %1 "
+            logMessage(_("Requesting unbuffered memory %1 "
                 "bytes from 0x%2").arg(len).arg(addr, 0, 16));
         sendTrkMessage(0x10, TrkCB(handleReadMemoryUnbuffered),
            trkReadMemoryMessage(addr, len), QVariant(addr));
@@ -1441,7 +1447,7 @@ void TrkGdbAdapter::startAdapter()
         m_rfcommProc.start(blueToothListener, blueToothListenerArguments);
         m_rfcommProc.waitForStarted();
         if (m_rfcommProc.state() != QProcess::Running) {
-            QString msg = QString::fromLatin1("Failed to start BlueTooth "
+            QString msg = _("Failed to start BlueTooth "
                 "listener %1 on %2: %3\n");
             msg = msg.arg(blueToothListener, device, m_rfcommProc.errorString());
             msg += QString::fromLocal8Bit(m_rfcommProc.readAllStandardError());
@@ -1462,7 +1468,7 @@ void TrkGdbAdapter::prepareInferior()
     setState(InferiorPreparing);
     const QString fileName = m_symbolFile;
     if (m_symbolFile.isEmpty()) {
-        logMessage(QString::fromLatin1("WARNING: No symbol file available."));
+        logMessage(_("WARNING: No symbol file available."));
     } else {
         m_engine->postCommand(_("add-symbol-file \"%1\" %2").arg(m_symbolFile)
                               .arg(m_session.codeseg));
@@ -1550,7 +1556,7 @@ void TrkGdbAdapter::startGdb()
         this, SLOT(handleGdbConnection()));
 
     logMessage("STARTING GDB");
-    logMessage(QString::fromLatin1("### Starting gdb %1").arg(m_options->gdb));
+    logMessage(_("### Starting gdb %1").arg(m_options->gdb));
     QStringList gdbArgs;
     gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
     gdbArgs.append(QLatin1String("-i"));
@@ -1579,13 +1585,13 @@ void TrkGdbAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
 void TrkGdbAdapter::handleRfcommReadyReadStandardError()
 {
     QByteArray ba = m_rfcommProc.readAllStandardError();
-    logMessage(QString("RFCONN stderr: %1").arg(QString::fromLatin1(ba)));
+    logMessage(QString("RFCONN stderr: %1").arg(_(ba)));
 }
 
 void TrkGdbAdapter::handleRfcommReadyReadStandardOutput()
 {
     QByteArray ba = m_rfcommProc.readAllStandardOutput();
-    logMessage(QString("RFCONN stdout: %1").arg(QString::fromLatin1(ba)));
+    logMessage(QString("RFCONN stdout: %1").arg(_(ba)));
 }
 
 
