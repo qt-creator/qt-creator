@@ -2293,13 +2293,13 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         qreal blockHeight = 0;
         QTextBlock b = visibleCollapsedBlock;
 
-        while (!b.isVisible() && visibleCollapsedBlockOffset.y() + blockHeight <= e->rect().bottom()) {
+        while (!b.isVisible()) {
             b.setVisible(true); // make sure block bounding rect works
             QRectF r = blockBoundingRect(b).translated(visibleCollapsedBlockOffset);
 
             QTextLayout *layout = b.layout();
             for (int i = layout->lineCount()-1; i >= 0; --i)
-                maxWidth = qMax(maxWidth, layout->lineAt(i).naturalTextWidth() + margin);
+                maxWidth = qMax(maxWidth, layout->lineAt(i).naturalTextWidth() + 2*margin);
 
             blockHeight += r.height();
 
