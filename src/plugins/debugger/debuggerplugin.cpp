@@ -293,7 +293,8 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
         m_ui.checkBoxUseMessageBoxForSignals);
     m_group.insert(theDebuggerAction(SkipKnownFrames),
         m_ui.checkBoxSkipKnownFrames);
-    m_group.insert(theDebuggerAction(UseToolTipsInMainEditor), 0);
+    m_group.insert(theDebuggerAction(UseToolTipsInMainEditor), 
+        m_ui.checkBoxUseToolTipsInMainEditor);
     m_group.insert(theDebuggerAction(UseToolTipsInLocalsView), 0);
     m_group.insert(theDebuggerAction(UseToolTipsInBreakpointsView), 0);
     m_group.insert(theDebuggerAction(UseAddressInBreakpointsView), 0);

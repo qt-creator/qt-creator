@@ -42,6 +42,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="checkBoxUseToolTipsInMainEditor">
+        <property name="text">
+         <string>Use tooltips in main editor while debugging</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
         <property name="toolTip">
          <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic

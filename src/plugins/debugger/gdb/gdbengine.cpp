@@ -737,12 +737,10 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
     if (cmd.flags & RebuildModel) {
         ++m_pendingRequests;
         PENDING_DEBUG("   CALLBACK" << cmd.callbackName
-            << "INCREMENTS PENDING TO:" << m_pendingRequests << cmd.command
-            << m_gdbAdapter->state());
+            << "INCREMENTS PENDING TO:" << m_pendingRequests << cmd.command);
     } else {
         PENDING_DEBUG("   UNKNOWN CALLBACK" << cmd.callbackName
-            << "LEAVES PENDING AT:" << m_pendingRequests << cmd.command
-            << m_gdbAdapter->state());
+            << "LEAVES PENDING AT:" << m_pendingRequests << cmd.command);
     }
 
     if (cmd.flags & NeedsStop) {
@@ -2512,7 +2510,6 @@ bool GdbEngine::showToolTip()
     WatchHandler *handler = manager()->watchHandler();
     WatchModel *model = handler->model(TooltipsWatch);
     QString iname = tooltipINameForExpression(m_toolTipExpression);
-    model->setActiveData(iname);
     WatchItem *item = model->findItem(iname, model->rootItem());
     if (!item) {
         hideDebuggerToolTip();
@@ -2745,7 +2742,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     }
     WatchData data = data0;
 
-    // Avoid endless loops created by faulty dumpers
+    // Avoid endless loops created by faulty dumpers.
     QString processedName = QString(_("%1-%2").arg(dumpChildren).arg(data.iname));
     if (m_processedNames.contains(processedName)) {
         emit gdbInputAvailable(LogStatus,
@@ -2971,6 +2968,7 @@ void GdbEngine::updateWatchData(const WatchData &data)
     // Bump requests to avoid model rebuilding during the nested
     // updateWatchModel runs.
     ++m_pendingRequests;
+    PENDING_DEBUG("UPDATE WATCH BUMPS PENDING UP TO " << m_pendingRequests);
 #if 1
     QMetaObject::invokeMethod(this, "updateWatchDataHelper",
         Qt::QueuedConnection, Q_ARG(WatchData, data));
@@ -2992,6 +2990,7 @@ void GdbEngine::updateWatchDataHelper(const WatchData &data)
     updateSubItem(data);
     //PENDING_DEBUG("INTERNAL TRIGGERING UPDATE WATCH MODEL");
     --m_pendingRequests;
+    PENDING_DEBUG("UPDATE WATCH DONE BUMPS PENDING DOWN TO " << m_pendingRequests);
     if (m_pendingRequests <= 0)
         rebuildModel();
 }
@@ -3512,7 +3511,7 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
 
 void GdbEngine::insertData(const WatchData &data0)
 {
-    //qDebug() << "INSERT DATA" << data0.toString();
+    PENDING_DEBUG("INSERT DATA" << data0.toString());
     WatchData data = data0;
     if (data.value.startsWith(__("mi_cmd_var_create:"))) {
         qDebug() << "BOGUS VALUE:" << data.toString();

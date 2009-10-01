@@ -30,6 +30,7 @@
 #include "watchhandler.h"
 #include "watchutils.h"
 #include "debuggeractions.h"
+#include "debuggermanager.h"
 
 #if USE_MODEL_TEST
 #include "modeltest.h"
@@ -589,8 +590,10 @@ void WatchModel::fetchMore(const QModelIndex &index)
     if (WatchItem *item = watchItem(index)) {
         item->fetchTriggered = true;
         WatchData data = *item;
-        data.setChildrenNeeded();
-        emit m_handler->watchDataUpdateNeeded(data);
+        if (item->children.isEmpty()) {
+            data.setChildrenNeeded();
+            m_handler->m_manager->updateWatchData(data);
+        }
     }
 }
 
@@ -903,7 +906,7 @@ void WatchModel::insertData(const WatchData &data)
 
 void WatchModel::insertBulkData(const QList<WatchData> &list)
 {
-#if 1
+#if 0
     for (int i = 0; i != list.size(); ++i) 
         insertData(list.at(i));
     return;
@@ -1037,8 +1040,9 @@ QDebug operator<<(QDebug d, const WatchModel &m)
 //
 ///////////////////////////////////////////////////////////////////////
 
-WatchHandler::WatchHandler()
+WatchHandler::WatchHandler(DebuggerManager *manager)
 {
+    m_manager = manager;
     m_expandPointers = true;
     m_inChange = false;
 
@@ -1089,7 +1093,7 @@ void WatchHandler::insertData(const WatchData &data)
     MODEL_DEBUG("INSERTDATA: " << data.toString());
     QTC_ASSERT(data.isValid(), return);
     if (data.isSomethingNeeded()) {
-        emit watchDataUpdateNeeded(data);
+        m_manager->updateWatchData(data);
     } else {
         WatchModel *model = modelForIName(data.iname);
         QTC_ASSERT(model, return);
@@ -1097,10 +1101,10 @@ void WatchHandler::insertData(const WatchData &data)
     }
 }
 
-// bulk-insertion
+// Bulk-insertion
 void WatchHandler::insertBulkData(const QList<WatchData> &list)
 {
-#if 0
+#if 1
     foreach (const WatchItem &data, list)
         insertData(data);
     return;
@@ -1123,7 +1127,7 @@ void WatchHandler::insertBulkData(const QList<WatchData> &list)
 
     foreach (const WatchData &data, list) {
         if (data.isSomethingNeeded())
-            emit watchDataUpdateNeeded(data);
+            m_manager->updateWatchData(data);
     }
 }
 
@@ -1160,7 +1164,6 @@ void WatchHandler::watchExpression(const QString &exp)
     data.iname = watcherName(exp);
     insertData(data);
     saveWatchers();
-    //emit watchModelUpdateRequested();
 }
 
 void WatchHandler::setDisplayedIName(const QString &iname, bool on)
@@ -1273,8 +1276,7 @@ void WatchHandler::updateWatchers()
 
 void WatchHandler::loadWatchers()
 {
-    QVariant value;
-    sessionValueRequested("Watchers", &value);
+    QVariant value = m_manager->sessionValue("Watchers");
     foreach (const QString &exp, value.toStringList())
         m_watcherNames[exp] = watcherCounter++;
 
@@ -1294,13 +1296,12 @@ void WatchHandler::saveWatchers()
         if (!watcherName.isEmpty() && watcherName != watcherEditPlaceHolder())
             watcherNames.push_back(watcherName);
     }
-    setSessionValueRequested("Watchers", QVariant(watcherNames));
+    m_manager->setSessionValue("Watchers", QVariant(watcherNames));
 }
 
 void WatchHandler::loadTypeFormats()
 {
-    QVariant value;
-    sessionValueRequested("DefaultFormats", &value);
+    QVariant value = m_manager->sessionValue("DefaultFormats");
     QMap<QString, QVariant> typeFormats = value.toMap();
     QMapIterator<QString, QVariant> it(typeFormats);
     while (it.hasNext()) {
@@ -1320,7 +1321,7 @@ void WatchHandler::saveTypeFormats()
         if (!key.isEmpty())
             typeFormats.insert(key, it.value());
     }
-    setSessionValueRequested("DefaultFormats", QVariant(typeFormats));
+    m_manager->setSessionValue("DefaultFormats", QVariant(typeFormats));
 }
 
 void WatchHandler::saveSessionData()

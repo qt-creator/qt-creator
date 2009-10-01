@@ -442,27 +442,20 @@ void DebuggerManager::init()
     registerView->setModel(d->m_registerHandler->model());
 
     // Locals
-    d->m_watchHandler = new WatchHandler;
+    d->m_watchHandler = new WatchHandler(this);
     QTreeView *localsView = qobject_cast<QTreeView *>(d->m_localsWindow);
     localsView->setModel(d->m_watchHandler->model(LocalsWatch));
 
     // Watchers
     QTreeView *watchersView = qobject_cast<QTreeView *>(d->m_watchersWindow);
     watchersView->setModel(d->m_watchHandler->model(WatchersWatch));
-    connect(d->m_watchHandler, SIGNAL(sessionValueRequested(QString,QVariant*)),
-        this, SIGNAL(sessionValueRequested(QString,QVariant*)));
-    connect(d->m_watchHandler, SIGNAL(setSessionValueRequested(QString,QVariant)),
-        this, SIGNAL(setSessionValueRequested(QString,QVariant)));
     connect(theDebuggerAction(AssignValue), SIGNAL(triggered()),
         this, SLOT(assignValueInDebugger()), Qt::QueuedConnection);
 
     // Tooltip
     //QTreeView *tooltipView = qobject_cast<QTreeView *>(d->m_tooltipWindow);
     //tooltipView->setModel(d->m_watchHandler->model(TooltipsWatch));
-    //qRegisterMetaType<WatchData>("WatchData");
     qRegisterMetaType<WatchData>("WatchData");
-    connect(d->m_watchHandler, SIGNAL(watchDataUpdateNeeded(Debugger::Internal::WatchData)),
-            this, SLOT(updateWatchData(Debugger::Internal::WatchData)));
 
     d->m_actions.continueAction = new QAction(tr("Continue"), this);
     d->m_actions.continueAction->setIcon(QIcon(":/debugger/images/debugger_continue_small.png"));

@@ -44,6 +44,9 @@ class QDebug;
 QT_END_NAMESPACE
 
 namespace Debugger {
+
+class DebuggerManager;
+
 namespace Internal {
 
 class WatchItem;
@@ -203,7 +206,6 @@ private:
     void removeOutdatedHelper(WatchItem *item);
     WatchItem *rootItem() const;
     void removeItem(WatchItem *item);
-    void setActiveData(const QString &data) { m_activeData = data; }
 
     void emitDataChanged(int column,
         const QModelIndex &parentIndex = QModelIndex());
@@ -221,7 +223,6 @@ private:
     WatchHandler *m_handler;
     WatchType m_type;
     WatchItem *m_root;
-    QString m_activeData;
 };
 
 class WatchHandler : public QObject
@@ -229,7 +230,7 @@ class WatchHandler : public QObject
     Q_OBJECT
 
 public:
-    WatchHandler();
+    explicit WatchHandler(DebuggerManager *manager);
     WatchModel *model(WatchType type) const;
     WatchModel *modelForIName(const QString &data) const;
 
@@ -261,11 +262,6 @@ public:
 
     static QString watcherEditPlaceHolder();
 
-signals:
-    void watchDataUpdateNeeded(const Debugger::Internal::WatchData &data);
-    void sessionValueRequested(const QString &name, QVariant *value);
-    void setSessionValueRequested(const QString &name, const QVariant &value);
-
 private:
     friend class WatchModel;
 
@@ -294,6 +290,7 @@ private:
     WatchModel *m_locals;
     WatchModel *m_watchers;
     WatchModel *m_tooltips;
+    DebuggerManager *m_manager;
 };
 
 } // namespace Internal

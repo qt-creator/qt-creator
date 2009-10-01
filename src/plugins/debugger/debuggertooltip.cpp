@@ -137,6 +137,7 @@ Q_SLOT void ToolTipWidget::computeSize()
     setMinimumSize(m_size);
     setMaximumSize(m_size);
 }
+
 void ToolTipWidget::done()
 {
     qApp->removeEventFilter(this);
