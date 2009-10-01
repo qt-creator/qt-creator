@@ -148,6 +148,7 @@ bool GenericBuildConfigurationFactory::create(const QString &type) const
     BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
     m_project->addBuildConfiguration(bc); // also makes the name unique...
     m_project->makeStep()->setBuildTarget(bc->name(), "all", true);
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
