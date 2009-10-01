@@ -750,7 +750,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         //qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
         logMessage(QString::fromLatin1("Inserting breakpoint at 0x%1, %2")
             .arg(addr, 0, 16).arg(len));
-        const QByteArray ba = trkBreakpointMessage(addr, len, m_session.pid);
+        const QByteArray ba = trkBreakpointMessage(addr, len, len == 4);
         sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba, addr);
     }
 
@@ -1266,6 +1266,10 @@ void TrkGdbAdapter::handleAndReportSetBreakpoint(const TrkResult &result)
     //  Command: 0x80 Acknowledge
     //    Error: 0x00
     // [80 09 00 00 00 00 0A]
+    if (result.errorCode()) {
+        logMessage("ERROR: " + result.errorString());
+        return;
+    }
     uint bpnr = extractInt(result.data.data() + 1);
     uint addr = result.cookie.toUInt();
     m_session.addressToBP[addr] = bpnr;
