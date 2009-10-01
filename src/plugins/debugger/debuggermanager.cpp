@@ -1348,7 +1348,7 @@ void DebuggerManager::jumpToLineExec()
 
 void DebuggerManager::resetLocation()
 {
-    // connected to the plugin
+    // Connected to the plugin.
     emit resetLocationRequested();
 }
 
@@ -1359,14 +1359,8 @@ void DebuggerManager::gotoLocation(const Debugger::Internal::StackFrame &frame, 
         if (setMarker)
             resetLocation();
     } else {
-        static QString lastFile;
-        static int lastLine;
-        if (frame.line != lastLine || frame.file != lastFile) {
-            lastLine = frame.line;
-            lastFile = frame.file;
-            // Connected to the plugin.
-            emit gotoLocationRequested(lastFile, lastLine, setMarker);
-        }
+        // Connected to the plugin.
+        emit gotoLocationRequested(frame.file, frame.line, setMarker);
     }
 }
 
