@@ -771,9 +771,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         } else {
             m_session.addressToBP.remove(addr);
             QByteArray ba;
-            appendByte(&ba, 0x00);
-            appendShort(&ba, bp);
-            appendInt(&ba, addr);
+            appendInt(&ba, bp);
             sendTrkMessage(0x1C, TrkCB(handleClearBreakpoint), ba, addr);
         }
     }
