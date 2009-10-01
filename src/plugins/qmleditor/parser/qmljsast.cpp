@@ -75,6 +75,11 @@ Statement *Node::statementCast()
     return 0;
 }
 
+UiObjectMember *Node::uiObjectMemberCast()
+{
+    return 0;
+}
+
 ExpressionNode *ExpressionNode::expressionCast()
 {
     return this;
@@ -86,6 +91,11 @@ BinaryExpression *BinaryExpression::binaryExpressionCast()
 }
 
 Statement *Statement::statementCast()
+{
+    return this;
+}
+
+UiObjectMember *UiObjectMember::uiObjectMemberCast()
 {
     return this;
 }

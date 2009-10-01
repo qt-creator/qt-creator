@@ -2,6 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
@@ -21,10 +22,9 @@
 ** ensure the GNU Lesser General Public License version 2.1 requirements
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Nokia gives you certain
-** additional rights.  These rights are described in the Nokia Qt LGPL
-** Exception version 1.1, included in the file LGPL_EXCEPTION.txt in this
-** package.
+** In addition, as a special exception, Nokia gives you certain additional
+** rights.  These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
@@ -59,8 +59,8 @@ class QmlJSGrammar
 public:
   enum {
     EOF_SYMBOL = 0,
-    REDUCE_HERE = 96,
-    SHIFT_THERE = 95,
+    REDUCE_HERE = 97,
+    SHIFT_THERE = 96,
     T_AND = 1,
     T_AND_AND = 2,
     T_AND_EQ = 3,
@@ -86,8 +86,9 @@ public:
     T_EQ_EQ = 18,
     T_EQ_EQ_EQ = 19,
     T_FALSE = 83,
-    T_FEED_JS_EXPRESSION = 94,
-    T_FEED_JS_STATEMENT = 93,
+    T_FEED_JS_EXPRESSION = 95,
+    T_FEED_JS_STATEMENT = 94,
+    T_FEED_UI_OBJECT_MEMBER = 93,
     T_FEED_UI_PROGRAM = 92,
     T_FINALLY = 20,
     T_FOR = 21,
@@ -156,15 +157,15 @@ public:
     T_XOR = 79,
     T_XOR_EQ = 80,
 
-    ACCEPT_STATE = 621,
-    RULE_COUNT = 337,
-    STATE_COUNT = 622,
-    TERMINAL_COUNT = 97,
+    ACCEPT_STATE = 630,
+    RULE_COUNT = 340,
+    STATE_COUNT = 631,
+    TERMINAL_COUNT = 98,
     NON_TERMINAL_COUNT = 105,
 
-    GOTO_INDEX_OFFSET = 622,
-    GOTO_INFO_OFFSET = 2402,
-    GOTO_CHECK_OFFSET = 2402
+    GOTO_INDEX_OFFSET = 631,
+    GOTO_INFO_OFFSET = 2618,
+    GOTO_CHECK_OFFSET = 2618
   };
 
   static const char  *const spell [];

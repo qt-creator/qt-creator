@@ -89,6 +89,7 @@
 
 --- feed tokens
 %token T_FEED_UI_PROGRAM
+%token T_FEED_UI_OBJECT_MEMBER
 %token T_FEED_JS_STATEMENT
 %token T_FEED_JS_EXPRESSION
 
@@ -285,6 +286,7 @@ public:
     bool parse() { return parse(T_FEED_UI_PROGRAM); }
     bool parseStatement() { return parse(T_FEED_JS_STATEMENT); }
     bool parseExpression() { return parse(T_FEED_JS_EXPRESSION); }
+    bool parseUiObjectMember() { return parse(T_FEED_UI_OBJECT_MEMBER); }
 
     AST::UiProgram *ast() const
     { return AST::cast<AST::UiProgram *>(program); }
@@ -303,6 +305,14 @@ public:
             return 0;
 
         return program->expressionCast();
+    }
+
+    AST::UiObjectMember *uiObjectMember() const
+    {
+        if (! program)
+            return 0;
+
+        return program->uiObjectMemberCast();
     }
 
     QList<DiagnosticMessage> diagnosticMessages() const
@@ -543,6 +553,14 @@ case $rule_number: {
 ./
 
 TopLevel: T_FEED_JS_EXPRESSION Expression ;
+/.
+case $rule_number: {
+  sym(1).Node = sym(2).Node;
+  program = sym(1).Node;
+} break;
+./
+
+TopLevel: T_FEED_UI_OBJECT_MEMBER UiObjectMember ;
 /.
 case $rule_number: {
   sym(1).Node = sym(2).Node;
@@ -846,6 +864,21 @@ case $rule_number: {
     node->typeToken = loc(2);
     node->identifierToken = loc(2);
     node->semicolonToken = loc(3);
+    sym(1).Node = node;
+}   break;
+./
+
+UiObjectMember: T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT T_IDENTIFIER T_AUTOMATIC_SEMICOLON ;
+UiObjectMember: T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT T_IDENTIFIER T_SEMICOLON ;
+/.
+case $rule_number: {
+    AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(4).sval, sym(6).sval);
+    node->typeModifier = sym(2).sval;
+    node->propertyToken = loc(1);
+    node->typeModifierToken = loc(2);
+    node->typeToken = loc(4);
+    node->identifierToken = loc(6);
+    node->semicolonToken = loc(7);
     sym(1).Node = node;
 }   break;
 ./
