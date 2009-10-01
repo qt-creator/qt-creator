@@ -31,8 +31,6 @@
 #include "project.h"
 #include "session.h"
 
-#include <utils/detailsbutton.h>
-
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/ifile.h>
 
