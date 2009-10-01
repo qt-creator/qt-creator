@@ -310,6 +310,8 @@ DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
 
     m_splitter->addWidget(m_inputText);
     m_splitter->addWidget(m_combinedText);
+    m_splitter->setStretchFactor(0, 1);
+    m_splitter->setStretchFactor(1, 3);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
