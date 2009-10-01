@@ -749,7 +749,6 @@ void QtVersionManager::parseParts(const QStringList &parts, QList<QMakeAssignmen
             after = true;
         } else if(part.contains('=')) {
             if (regExp.exactMatch(part)) {
-                qDebug()<<regExp.cap(1)<<"|"<<regExp.cap(2)<<"|"<<regExp.cap(3);
                 QMakeAssignment qa;
                 qa.variable = regExp.cap(1);
                 qa.op = regExp.cap(2);
