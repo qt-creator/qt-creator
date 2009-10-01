@@ -2321,6 +2321,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
             // we already issued a 'gotoLocation' when reading the *stopped
             // message.
             const StackFrame &frame = manager()->stackHandler()->currentFrame();
+            qDebug() << "GOTO, 2nd try" << frame.toString();
             gotoLocation(frame, true);
         }
     } else {
@@ -2353,8 +2354,8 @@ void GdbEngine::activateFrame(int frameIndex)
 
     StackHandler *stackHandler = manager()->stackHandler();
     int oldIndex = stackHandler->currentIndex();
-    //qDebug() << "ACTIVATE FRAME:" << frameIndex << oldIndex
-    //    << stackHandler->currentIndex();
+    qDebug() << "ACTIVATE FRAME:" << frameIndex << oldIndex
+        << stackHandler->currentIndex();
 
     if (frameIndex == stackHandler->stackSize()) {
         reloadFullStack();
@@ -3875,6 +3876,8 @@ void GdbEngine::fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
     QTC_ASSERT(agent, return);
     bool ok = true;
     quint64 address = agent->address().toULongLong(&ok, 0);
+    qDebug() << "ADDRESS: " << agent->address() << address;
+    QTC_ASSERT(ok, return);
     quint64 start = address - 20;
     quint64 end = address + 100;
     // -data-disassemble [ -s start-addr -e end-addr ]
@@ -4005,6 +4008,7 @@ void GdbEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 {
     lastFile = frame.file;
     lastLine = frame.line;
+    //qDebug() << "GOTO " << frame.toString() << setMarker;
     m_manager->gotoLocation(frame, setMarker);
 }
 

@@ -226,6 +226,7 @@ QByteArray TrkGdbAdapter::trkWriteRegisterMessage(byte reg, uint value)
 QByteArray TrkGdbAdapter::trkReadMemoryMessage(uint addr, uint len)
 {
     QByteArray ba;
+    ba.reserve(11);
     appendByte(&ba, 0x08); // Options, FIXME: why?
     appendShort(&ba, len);
     appendInt(&ba, addr);
@@ -237,11 +238,34 @@ QByteArray TrkGdbAdapter::trkReadMemoryMessage(uint addr, uint len)
 QByteArray TrkGdbAdapter::trkStepRangeMessage(byte option)
 {
     QByteArray ba;
+    ba.reserve(13);
     appendByte(&ba, option);
-    appendInt(&ba, m_snapshot.registers[RegisterPC]); // start address
-    appendInt(&ba, m_snapshot.registers[RegisterPC]); // end address
+    appendInt(&ba, m_snapshot.registers[RegisterPC]); // Start address
+    appendInt(&ba, m_snapshot.registers[RegisterPC]); // End address
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid);
+    return ba;
+}
+
+QByteArray TrkGdbAdapter::trkDeleteProcessMessage()
+{
+    QByteArray ba;
+    ba.reserve(6);
+    appendByte(&ba, 0); // ?
+    appendByte(&ba, 0); // Sub-command: Delete Process
+    appendInt(&ba, m_session.pid);
+    return ba;
+}
+
+QByteArray TrkGdbAdapter::trkInterruptMessage()
+{
+    QByteArray ba;
+    ba.reserve(9);
+    // Stop the thread (2) or the process (1) or the whole system (0).
+    // We choose 2, as 1 does not seem to work.
+    appendByte(&ba, 2);
+    appendInt(&ba, m_session.pid);
+    appendInt(&ba, m_session.tid); // threadID: 4 bytes Variable number of bytes.
     return ba;
 }
 
@@ -562,12 +586,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "k" || cmd.startsWith("vKill")) {
         // Kill inferior process
         logMessage(msgGdbPacket(QLatin1String("kill")));
-        QByteArray ba;
-        appendByte(&ba, 0); // ?
-        appendByte(&ba, 0); // Sub-command: Delete Process
-        appendInt(&ba, m_session.pid);
         sendTrkMessage(0x41, TrkCB(handleDeleteProcess),
-            ba, "Delete process"); // Delete Item
+            trkDeleteProcessMessage(), "Delete process"); 
     }
 
     else if (cmd.startsWith("m")) {
@@ -1380,13 +1400,7 @@ void TrkGdbAdapter::interruptInferior()
 {
     QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
     qDebug() << "TRYING TO INTERRUPT INFERIOR";
-    QByteArray ba;
-    // stop the thread (2) or the process (1) or the whole system (0)
-    // We choose 2, as 1 does not seem to work.
-    appendByte(&ba, 2);
-    appendInt(&ba, m_session.pid);
-    appendInt(&ba, m_session.tid); // threadID: 4 bytes Variable number of bytes.
-    sendTrkMessage(0x1a, TrkCallback(), ba, "Interrupting...");
+    sendTrkMessage(0x1a, TrkCallback(), trkInterruptMessage(), "Interrupting...");
 }
 
 void TrkGdbAdapter::handleGdbError(QProcess::ProcessError error)
@@ -1718,10 +1732,15 @@ void TrkGdbAdapter::shutdown()
         setState(DebuggerNotReady);
         return;
 
-    case InferiorStopped:
     case InferiorStopping:
     case InferiorRunningRequested:
     case InferiorRunning:
+        //sendTrkMessage(0x1a, TrkCallback(), trkInterruptMessage(), "Interrupting...");
+        // Fall through.
+
+    case InferiorStopped:
+        //sendTrkMessage(0x41, TrkCallback(), trkDeleteProcessMessage(), "Delete process"); 
+        //sendTrkMessage(0x02, TrkCB(handleDisconnect));
         setState(InferiorShuttingDown);
         m_engine->postCommand(_("kill"), CB(handleKill));
         return;

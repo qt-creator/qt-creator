@@ -1357,9 +1357,9 @@ void DebuggerManager::resetLocation()
 void DebuggerManager::gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker)
 {
     if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
-        d->m_disassemblerViewAgent.setFrame(frame);
         if (setMarker)
             resetLocation();
+        d->m_disassemblerViewAgent.setFrame(frame);
     } else {
         // Connected to the plugin.
         emit gotoLocationRequested(frame.file, frame.line, setMarker);

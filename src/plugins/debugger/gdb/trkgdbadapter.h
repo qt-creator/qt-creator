@@ -167,6 +167,8 @@ public:
     QByteArray trkReadMemoryMessage(uint addr, uint len);
     QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
     QByteArray trkStepRangeMessage(byte option);
+    QByteArray trkDeleteProcessMessage();
+    QByteArray trkInterruptMessage();
     void handleAndReportSetBreakpoint(const TrkResult &result);
     void handleReadMemoryBuffered(const TrkResult &result);
     void handleReadMemoryUnbuffered(const TrkResult &result);
