@@ -1291,14 +1291,12 @@ void GdbEngine::handleStop2(const GdbMi &data)
     }
 
     // Quick shot
-    if (fullName.isValid()) {
-        StackFrame f;
-        f.file = QFile::decodeName(fullName.data());
-        f.line = frame.findChild("line").data().toInt();
-        f.address = _(frame.findChild("addr").data());
-        f.function = _(frame.findChild("func").data());
-        gotoLocation(f, true);
-    }
+    StackFrame f;
+    f.file = QFile::decodeName(fullName.data());
+    f.line = frame.findChild("line").data().toInt();
+    f.address = _(frame.findChild("addr").data());
+    f.function = _(frame.findChild("func").data());
+    gotoLocation(f, true);
 
     //
     // Stack
