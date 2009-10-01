@@ -10,6 +10,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/treewidgetcolumnstretcher.h>
 #include <utils/qtcassert.h>
+#include <qtconcurrent/runextensions.h>
 
 #include <QtCore/QFuture>
 #include <QtCore/QtConcurrentRun>
@@ -33,9 +34,12 @@ DebuggingHelperBuildTask::~DebuggingHelperBuildTask()
 {
 }
 
-void DebuggingHelperBuildTask::run()
+void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
 {
+    future.setProgressRange(0, 4);
+    future.setProgressValue(1);
     const QString output = m_version->buildDebuggingHelperLibrary();
+    future.setProgressValue(1);
     emit finished(m_version->name(), output);
     deleteLater();
 }
@@ -249,7 +253,7 @@ void QtOptionsPageWidget::buildDebuggingHelper()
     DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(m_versions.at(index));
     connect(buildTask, SIGNAL(finished(QString,QString)), this, SLOT(debuggingHelperBuildFinished(QString,QString)),
             Qt::QueuedConnection);
-    QFuture<void> task = QtConcurrent::run(buildTask, &DebuggingHelperBuildTask::run);
+    QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
     const QString taskName = tr("Building helpers");
     Core::ICore::instance()->progressManager()->addTask(task, taskName,
                                                         QLatin1String("Qt4ProjectManager::BuildHelpers"),

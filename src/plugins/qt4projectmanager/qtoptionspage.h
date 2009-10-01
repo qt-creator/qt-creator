@@ -32,6 +32,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtCore/QSharedPointer>
+#include <QtCore/QFutureInterface>
 
 #include <QtGui/QWidget>
 #include <QtGui/QPixmap>
@@ -61,7 +62,7 @@ public:
     explicit DebuggingHelperBuildTask(const QSharedPointerQtVersion &version);
     virtual ~DebuggingHelperBuildTask();
 
-    void run();
+    void run(QFutureInterface<void> &future);
 
 signals:
     void finished(const QString &versionName, const QString &output);
