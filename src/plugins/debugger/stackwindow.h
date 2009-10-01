@@ -61,9 +61,9 @@ public slots:
 private slots:
     void rowActivated(const QModelIndex &index);
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
+    void showAddressColumn(bool on);
 
 private:
-    void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void copyContentsToClipboard();
 

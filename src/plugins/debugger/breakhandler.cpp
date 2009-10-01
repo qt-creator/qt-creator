@@ -257,9 +257,8 @@ bool BreakpointData::conditionsMatch() const
 //////////////////////////////////////////////////////////////////
 
 BreakHandler::BreakHandler(DebuggerManager *manager, QObject *parent)
-    : QAbstractItemModel(parent), m_manager(manager)
-{
-}
+    : QAbstractTableModel(parent), m_manager(manager)
+{}
 
 BreakHandler::~BreakHandler()
 {
@@ -268,7 +267,7 @@ BreakHandler::~BreakHandler()
 
 int BreakHandler::columnCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : 6;
+    return parent.isValid() ? 0 : 7;
 }
 
 int BreakHandler::rowCount(const QModelIndex &parent) const
@@ -436,7 +435,7 @@ QVariant BreakHandler::headerData(int section,
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         static QString headers[] = {
             tr("Number"),  tr("Function"), tr("File"), tr("Line"),
-            tr("Condition"), tr("Ignore")
+            tr("Condition"), tr("Ignore"), tr("Address")
         };
         return headers[section];
     }
@@ -505,10 +504,13 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 return data->pending ? data->ignoreCount : data->bpIgnoreCount;
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit after being ignored so many times.");
+        case 6:
+            if (role == Qt::DisplayRole)
+                return data->bpAddress;
             break;
     }
     if (role == Qt::ToolTipRole)
-        return theDebuggerBoolSetting(UseToolTipsInLocalsView)
+        return theDebuggerBoolSetting(UseToolTipsInBreakpointsView)
                 ? data->toToolTip() : QVariant();
     return QVariant();
 }
@@ -519,7 +521,7 @@ Qt::ItemFlags BreakHandler::flags(const QModelIndex &mi) const
         //case 0:
         //    return Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
         default:
-            return  QAbstractItemModel::flags(mi);
+            return QAbstractTableModel::flags(mi);
     }
 }
 

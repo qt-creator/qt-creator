@@ -259,6 +259,10 @@ DebuggerSettings *DebuggerSettings::instance()
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTips"));
     item->setText(tr("Use tooltips in main editor when debugging"));
+    item->setToolTip(tr("Checking this will enable tooltips for variable "
+        "values during debugging. Since this can slow down debugging and "
+        "does not provide reliable information as it does not use scope "
+        "information, it is switched off by default."));
     item->setCheckable(true);
     item->setDefaultValue(false);
     instance->insertItem(UseToolTipsInMainEditor, item);
@@ -266,11 +270,41 @@ DebuggerSettings *DebuggerSettings::instance()
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInLocalsView"));
     item->setText(tr("Use tooltips in locals view when debugging"));
+    item->setToolTip(tr("Checking this will enable tooltips in the locals "
+        "view during debugging."));
     item->setCheckable(true);
     item->setDefaultValue(false);
     instance->insertItem(UseToolTipsInLocalsView, item);
 
     item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInBreakpointsView"));
+    item->setText(tr("Use tooltips in breakpoints view when debugging"));
+    item->setToolTip(tr("Checking this will enable tooltips in the breakpoints "
+        "view during debugging."));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    instance->insertItem(UseToolTipsInBreakpointsView, item);
+
+    item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseAddressInBreakpointsView"));
+    item->setText(tr("Show address data in breakpoints view when debugging"));
+    item->setToolTip(tr("Checking this will show a column with address "
+        "information in the breakpoint view during debugging."));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    instance->insertItem(UseAddressInBreakpointsView, item);
+    item = new SavedAction(instance);
+
+    item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseAddressInStackView"));
+    item->setText(tr("Show address data in stack view when debugging"));
+    item->setToolTip(tr("Checking this will show a column with address "
+        "information in the stack view during debugging."));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    instance->insertItem(UseAddressInStackView, item);
+    item = new SavedAction(instance);
+
     item->setSettingsKey(debugModeGroup, QLatin1String("ListSourceFiles"));
     item->setText(tr("List source files"));
     item->setCheckable(true);

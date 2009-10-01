@@ -33,7 +33,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QAbstractItemModel>
+#include <QtCore/QAbstractTableModel>
 
 namespace Debugger {
 class DebuggerManager;
@@ -109,7 +109,7 @@ public:
 //
 //////////////////////////////////////////////////////////////////
 
-class BreakHandler : public QAbstractItemModel
+class BreakHandler : public QAbstractTableModel
 {
     Q_OBJECT
 
@@ -158,9 +158,6 @@ private:
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, const QVariant &, int role);
-    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
-    QModelIndex index(int row, int column, const QModelIndex &) const
-        { return createIndex(row, column); }
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 

@@ -85,6 +85,13 @@ enum DebuggerActionCode
     CustomDebuggingHelperLocation,
     DebugDebuggingHelpers,
     
+    UseToolTipsInMainEditor,
+    UseToolTipsInLocalsView,
+    UseToolTipsInBreakpointsView,
+    UseToolTipsInStackView,
+    UseAddressInBreakpointsView,
+    UseAddressInStackView,
+
     // Gdb
     GdbLocation,
     GdbEnvironment,
@@ -100,8 +107,6 @@ enum DebuggerActionCode
     WatchExpressionInWindow,
     RemoveWatchExpression,
     WatchPoint,
-    UseToolTipsInMainEditor,
-    UseToolTipsInLocalsView,
     AssignValue,
     AssignType,
 

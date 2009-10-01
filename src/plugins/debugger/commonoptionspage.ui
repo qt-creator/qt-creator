@@ -53,26 +53,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBoxUseToolTipsInMainEditor">
-        <property name="toolTip">
-         <string>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</string>
-        </property>
-        <property name="text">
-         <string>Use tooltips in locals view while debugging</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="checkBoxUseToolTipsInLocalsView">
-        <property name="toolTip">
-         <string>Checking this will enable tooltips for in the locals view during debugging.</string>
-        </property>
-        <property name="text">
-         <string>Use tooltips in main editor while debugging</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
         <property name="text">
          <string>Enable reverse debugging</string>

@@ -93,6 +93,13 @@ BreakWindow::BreakWindow(QWidget *parent)
         this, SLOT(rowActivated(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
         this, SLOT(setAlternatingRowColorsHelper(bool)));
+    connect(theDebuggerAction(UseAddressInBreakpointsView), SIGNAL(toggled(bool)),
+        this, SLOT(showAddressColumn(bool)));
+}
+
+void BreakWindow::showAddressColumn(bool on)
+{
+    setColumnHidden(6, !on);
 }
 
 static QModelIndexList normalizeIndexes(const QModelIndexList &list)
@@ -201,6 +208,8 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(breakAtFunctionAction);
     menu.addAction(breakAtMainAction);
     menu.addSeparator();
+    menu.addAction(theDebuggerAction(UseToolTipsInBreakpointsView));
+    menu.addAction(theDebuggerAction(UseAddressInBreakpointsView));
     menu.addAction(adjustColumnAction);
     menu.addAction(alwaysAdjustAction);
     menu.addSeparator();
@@ -300,10 +309,8 @@ void BreakWindow::editConditions(const QModelIndexList &list)
 
 void BreakWindow::resizeColumnsToContents()
 {
-    resizeColumnToContents(0);
-    resizeColumnToContents(1);
-    resizeColumnToContents(2);
-    resizeColumnToContents(3);
+    for (int i = model()->columnCount(); --i >= 0; )
+        resizeColumnToContents(i);
 }
 
 void BreakWindow::setAlwaysResizeColumnsToContents(bool on)
@@ -311,10 +318,8 @@ void BreakWindow::setAlwaysResizeColumnsToContents(bool on)
     m_alwaysResizeColumnsToContents = on;
     QHeaderView::ResizeMode mode = on 
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
-    header()->setResizeMode(0, mode);
-    header()->setResizeMode(1, mode);
-    header()->setResizeMode(2, mode);
-    header()->setResizeMode(3, mode);
+    for (int i = model()->columnCount(); --i >= 0; )
+        header()->setResizeMode(i, mode);
 }
 
 void BreakWindow::rowActivated(const QModelIndex &idx)

@@ -273,6 +273,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(theDebuggerAction(UseDebuggingHelpers));
 
     menu.addSeparator();
+    menu.addAction(theDebuggerAction(UseToolTipsInLocalsView));
     QAction *actAdjustColumnWidths =
         menu.addAction(tr("Adjust column widths to contents"));
     QAction *actAlwaysAdjustColumnWidth =
