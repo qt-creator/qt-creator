@@ -4624,18 +4624,10 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
                             || text.endsWith(QChar::ParagraphSeparator)
                             || text.endsWith(QLatin1Char('\r')));
 
-    QTextCursor unnecessaryWhitespace;
-    if (hasFinalNewline) {
-        // since we'll add a final newline, preserve current line's indentation
+    if (hasFinalNewline) // since we'll add a final newline, preserve current line's indentation
         cursor.setPosition(cursor.block().position());
-    } else {
-        unnecessaryWhitespace = cursor;
-        int pos = cursor.position();
-        // construct the selection in a way that it will not expand when the cursor position moves
-        unnecessaryWhitespace.movePosition(QTextCursor::StartOfBlock);
-        unnecessaryWhitespace.setPosition(pos, QTextCursor::KeepAnchor);
-    }
 
+    int cursorPosition = cursor.position();
     cursor.insertText(text);
 
     int reindentBlockEnd = cursor.blockNumber() - (hasFinalNewline?1:0);
@@ -4643,8 +4635,12 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
     if (reindentBlockStart < reindentBlockEnd
         || (reindentBlockStart == reindentBlockEnd
             && (!insertAtBeginningOfLine || hasFinalNewline))) {
-        if (insertAtBeginningOfLine && !hasFinalNewline)
+        if (insertAtBeginningOfLine && !hasFinalNewline) {
+            QTextCursor unnecessaryWhitespace = cursor;
+            unnecessaryWhitespace.setPosition(cursorPosition);
+            unnecessaryWhitespace.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
             unnecessaryWhitespace.removeSelectedText();
+        }
         QTextCursor c = cursor;
         c.setPosition(cursor.document()->findBlockByNumber(reindentBlockStart).position());
         c.setPosition(cursor.document()->findBlockByNumber(reindentBlockEnd).position(),
