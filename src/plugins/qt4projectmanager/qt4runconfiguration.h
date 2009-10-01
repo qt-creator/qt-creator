@@ -169,7 +169,6 @@ private slots:
     void usingDyldImageSuffixChanged(bool);
     void baseEnvironmentComboBoxChanged(int index);
 
-    void toggleDetails();
 private:
     void updateSummary();
     Qt4RunConfiguration *m_qt4RunConfiguration;

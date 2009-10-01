@@ -126,7 +126,7 @@ QStringList GenericBuildConfigurationFactory::availableCreationTypes() const
     return QStringList() << "Create";
 }
 
-QString GenericBuildConfigurationFactory::displayNameForType(const QString &type) const
+QString GenericBuildConfigurationFactory::displayNameForType(const QString & /* type */) const
 {
     return tr("Create");
 }

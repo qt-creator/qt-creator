@@ -84,7 +84,7 @@ QStringList CMakeBuildConfigurationFactory::availableCreationTypes() const
     return QStringList() << "Create";
 }
 
-QString CMakeBuildConfigurationFactory::displayNameForType(const QString &type) const
+QString CMakeBuildConfigurationFactory::displayNameForType(const QString & /* type */) const
 {
     return tr("Create");
 }
