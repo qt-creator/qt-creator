@@ -96,6 +96,8 @@ BuildSettingsSubWidgets::~BuildSettingsSubWidgets()
 
 void BuildSettingsSubWidgets::addWidget(const QString &name, QWidget *widget)
 {
+    QSpacerItem *item = new QSpacerItem(1, 10, QSizePolicy::Fixed, QSizePolicy::Fixed);
+
     QLabel *label = new QLabel(this);
     label->setText(name);
     QFont f = label->font();
@@ -103,6 +105,7 @@ void BuildSettingsSubWidgets::addWidget(const QString &name, QWidget *widget)
     f.setPointSizeF(f.pointSizeF() *1.2);
     label->setFont(f);
 
+    layout()->addItem(item);
     layout()->addWidget(label);
     layout()->addWidget(widget);
 
@@ -112,6 +115,9 @@ void BuildSettingsSubWidgets::addWidget(const QString &name, QWidget *widget)
 
 void BuildSettingsSubWidgets::clear()
 {
+    foreach(QSpacerItem *item, m_spacerItems)
+        layout()->removeItem(item);
+    qDeleteAll(m_spacerItems);
     qDeleteAll(m_widgets);
     qDeleteAll(m_labels);
     m_widgets.clear();

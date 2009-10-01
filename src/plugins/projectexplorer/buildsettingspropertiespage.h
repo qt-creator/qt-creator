@@ -37,6 +37,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QLabel>
 #include <QtGui/QGroupBox>
+#include <QtGui/QSpacerItem>
 
 namespace ProjectExplorer {
 
@@ -56,6 +57,7 @@ public:
 private:
     QList<QWidget *> m_widgets;
     QList<QLabel *> m_labels;
+    QList<QSpacerItem *> m_spacerItems;
 };
 
 class BuildSettingsPanelFactory : public IPanelFactory

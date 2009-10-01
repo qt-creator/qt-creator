@@ -31,6 +31,7 @@
 #define DEPENDENCIESDIALOG_H
 
 #include "iprojectproperties.h"
+#include <utils/detailswidget.h>
 
 #include <QtCore/QSize>
 #include <QtGui/QWidget>
@@ -119,15 +120,13 @@ public:
     DependenciesWidget(SessionManager *session, Project *project,
                        QWidget *parent = 0);
 private slots:
-    void toggleDetails();
     void updateDetails();
 
 private:
     SessionManager *m_session;
     Project *m_project;
     DependenciesModel *m_model;
-    QWidget *m_detailsWidget;
-    QLabel *m_titleLabel;
+    Utils::DetailsWidget *m_detailsContainer;
 };
 
 } // namespace Internal

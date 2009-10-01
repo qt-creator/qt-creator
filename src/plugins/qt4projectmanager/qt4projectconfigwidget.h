@@ -32,6 +32,7 @@
 
 #include <projectexplorer/buildstep.h>
 #include <QtGui/QPushButton>
+#include <utils/detailswidget.h>
 
 namespace Qt4ProjectManager {
 
@@ -63,7 +64,6 @@ private slots:
     void qtVersionComboBoxCurrentIndexChanged(const QString &);
     void manageQtVersions();
     void selectToolChain(int index);
-    void toggleDetails();
     void updateDetails();
 
 private:
@@ -74,6 +74,7 @@ private:
     QAbstractButton *m_browseButton;
     Qt4Project *m_pro;
     QString m_buildConfiguration;
+    Utils::DetailsWidget *m_detailsContainer;
 };
 
 } // namespace Internal

@@ -31,6 +31,7 @@
 #define BUILDSTEPSPAGE_H
 
 #include "buildstep.h"
+#include <utils/detailswidget.h>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
@@ -55,8 +56,7 @@ namespace Ui {
 struct BuildStepsWidgetStruct
 {
     BuildStepConfigWidget *widget;
-    QLabel *detailsLabel;
-    QAbstractButton *detailsButton;
+    Utils::DetailsWidget *detailsWidget;
     QToolButton *upButton;
     QToolButton *downButton;
     QHBoxLayout *hbox;

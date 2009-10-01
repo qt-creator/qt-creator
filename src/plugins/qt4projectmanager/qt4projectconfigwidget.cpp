@@ -36,7 +36,6 @@
 #include "qt4projectmanager.h"
 #include "ui_qt4projectconfigwidget.h"
 
-#include <utils/detailsbutton.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -56,40 +55,22 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     : BuildConfigWidget(),
       m_pro(project)
 {
+    QVBoxLayout *vbox = new QVBoxLayout(this);
+    vbox->setMargin(0);
+    m_detailsContainer = new Utils::DetailsWidget(this);
+    vbox->addWidget(m_detailsContainer);
+    QWidget *details = new QWidget(m_detailsContainer);
+    m_detailsContainer->setWidget(details);
     m_ui = new Ui::Qt4ProjectConfigWidget();
-    m_ui->setupUi(this);
+    m_ui->setupUi(details);
 
-    // fix the layout
+
     m_browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
-#ifdef Q_OS_WIN
-    m_browseButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-#endif
-    m_ui->gridLayout->addWidget(m_browseButton, 4, 2);
-    int minimumHeight = qMax(m_ui->qtVersionComboBox->sizeHint().height(), m_ui->manageQtVersionPushButtons->sizeHint().height());
-    Qt::Alignment labelAlignment = Qt::Alignment(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
-    for (int i = 0; i < m_ui->gridLayout->rowCount(); ++i) {
-        m_ui->gridLayout->setRowMinimumHeight(i, minimumHeight);
-        QLayoutItem *item = m_ui->gridLayout->itemAtPosition(i, 0);
-        if (item)
-            item->setAlignment(labelAlignment);
-    }
+    // TODO refix the layout
 
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
     m_ui->shadowBuildDirEdit->setExpectedKind(Core::Utils::PathChooser::Directory);
     m_ui->invalidQtWarningLabel->setVisible(false);
-
-    m_ui->detailsWidget->setVisible(false);
-    m_ui->titleLabel->setText("");
-
-    QAbstractButton *detailsButton = new Utils::DetailsButton(this);
-    QHBoxLayout *layout = new QHBoxLayout;
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    layout->addWidget(detailsButton);
-    m_ui->detailsButtonWidget->setLayout(layout);
-
-    connect(detailsButton, SIGNAL(clicked()),
-            this, SLOT(toggleDetails()));
 
     connect(m_ui->nameLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(changeConfigName(QString)));
@@ -128,12 +109,6 @@ Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
     delete m_ui;
 }
 
-void Qt4ProjectConfigWidget::toggleDetails()
-{
-    m_ui->detailsWidget->setVisible(!m_ui->detailsWidget->isVisible());
-    fixupLayout(m_ui->detailsWidget);
-}
-
 void Qt4ProjectConfigWidget::updateDetails()
 {
     ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(m_buildConfiguration);
@@ -147,7 +122,7 @@ void Qt4ProjectConfigWidget::updateDetails()
         versionString = tr("No Qt Version set");
     }
     // Qt Version, Build Directory and Toolchain
-    m_ui->titleLabel->setText(tr("using Qt version: <b>%1</b><br>"
+    m_detailsContainer->setSummaryText(tr("using Qt version: <b>%1</b><br>"
                                  "with tool chain <b>%2</b><br>"
                                  "building in <b>%3</b>")
                               .arg(versionString,

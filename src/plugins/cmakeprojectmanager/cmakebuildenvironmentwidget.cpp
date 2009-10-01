@@ -53,16 +53,10 @@ CMakeBuildEnvironmentWidget::CMakeBuildEnvironmentWidget(CMakeProject *project)
 
     connect(m_buildEnvironmentWidget, SIGNAL(userChangesUpdated()),
             this, SLOT(environmentModelUserChangesUpdated()));
-    connect(m_buildEnvironmentWidget, SIGNAL(detailsVisibleChanged(bool)),
-            this, SLOT(layoutFixup()));
     connect(m_clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(clearSystemEnvironmentCheckBoxClicked(bool)));
 }
 
-void CMakeBuildEnvironmentWidget::layoutFixup()
-{
-    fixupLayout(m_buildEnvironmentWidget->detailsWidget());
-}
 
 QString CMakeBuildEnvironmentWidget::displayName() const
 {

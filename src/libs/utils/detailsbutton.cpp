@@ -24,9 +24,9 @@ DetailsButton::DetailsButton(QWidget *parent)
 void DetailsButton::onClicked()
 {
     m_checked = !m_checked;
-    if (m_checked) {
-        setText(tr("Hide Details"));
-    } else {
-        setText(tr("Show Details"));
-    }
+}
+
+bool DetailsButton::isToggled()
+{
+    return m_checked;
 }

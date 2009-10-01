@@ -31,6 +31,7 @@
 #define QT4RUNCONFIGURATION_H
 
 #include <utils/pathchooser.h>
+#include <utils/detailswidget.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/environmenteditmodel.h>
@@ -181,8 +182,7 @@ private:
     QCheckBox *m_usingDyldImageSuffix;
 
     QComboBox *m_baseEnvironmentComboBox;
-    QWidget *m_detailsWidget;
-    QLabel *m_summaryLabel;
+    Utils::DetailsWidget *m_detailsContainer;
 
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     bool m_isShown;

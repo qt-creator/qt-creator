@@ -99,6 +99,7 @@ PanelsWidget::~PanelsWidget()
 void PanelsWidget::addWidget(QWidget *widget)
 {
     Panel p;
+    p.spacer = 0;
     p.nameLabel = 0;
     p.panelWidget = widget;
 
@@ -109,7 +110,10 @@ void PanelsWidget::addWidget(QWidget *widget)
 
 void PanelsWidget::addWidget(const QString &name, QWidget *widget)
 {
+
+
     Panel p;
+    p.spacer = new QSpacerItem(1, 10, QSizePolicy::Fixed, QSizePolicy::Fixed);
     p.nameLabel = new QLabel(this);
     p.nameLabel->setText(name);
     QFont f = p.nameLabel->font();
@@ -119,6 +123,7 @@ void PanelsWidget::addWidget(const QString &name, QWidget *widget)
 
     p.panelWidget = widget;
 
+    m_layout->insertSpacerItem(m_layout->count() - 1, p.spacer);
     m_layout->insertWidget(m_layout->count() - 1, p.nameLabel);
     QHBoxLayout *hboxLayout = new QHBoxLayout();
     hboxLayout->setContentsMargins(20, 0, 0, 0);
@@ -131,6 +136,10 @@ void PanelsWidget::addWidget(const QString &name, QWidget *widget)
 void PanelsWidget::clear()
 {
     foreach(Panel p, m_panels) {
+        if (p.spacer) {
+            m_layout->removeItem(p.spacer);
+            delete p.spacer;
+        }
         delete p.nameLabel;
         delete p.panelWidget;
         delete p.marginLayout;
@@ -143,6 +152,10 @@ void PanelsWidget::removeWidget(QWidget *widget)
     for(int i=0; i<m_panels.count(); ++i) {
         const Panel & p = m_panels.at(i);
         if (p.panelWidget == widget) {
+            if (p.spacer) {
+                m_layout->removeItem(p.spacer);
+                delete p.spacer;
+            }
             if (p.marginLayout)
                 p.marginLayout->removeWidget(p.panelWidget);
             else

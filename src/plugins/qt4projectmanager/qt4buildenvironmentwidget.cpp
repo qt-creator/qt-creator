@@ -56,16 +56,8 @@ Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
     connect(m_buildEnvironmentWidget, SIGNAL(userChangesUpdated()),
             this, SLOT(environmentModelUserChangesUpdated()));
 
-    connect(m_buildEnvironmentWidget, SIGNAL(detailsVisibleChanged(bool)),
-            this, SLOT(layoutFixup()));
-
     connect(m_clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(clearSystemEnvironmentCheckBoxClicked(bool)));
-}
-
-void Qt4BuildEnvironmentWidget::layoutFixup()
-{
-    fixupLayout(m_buildEnvironmentWidget->detailsWidget());
 }
 
 QString Qt4BuildEnvironmentWidget::displayName() const

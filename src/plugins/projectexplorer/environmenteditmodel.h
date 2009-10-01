@@ -35,6 +35,7 @@
 #include <QtCore/QString>
 #include <QtCore/QAbstractItemModel>
 #include <QtGui/QWidget>
+#include <utils/detailswidget.h>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
@@ -106,14 +107,8 @@ public:
     QList<EnvironmentItem> userChanges() const;
     void setUserChanges(QList<EnvironmentItem> list);
 
-    bool detailsVisible() const;
-    void setDetailsVisible(bool b);
-
-    QWidget *detailsWidget() const;
-
 public slots:
     void updateButtons();
-    void toggleDetails();
 
 signals:
     void userChangesUpdated();
@@ -129,8 +124,7 @@ private slots:
 
 private:
     EnvironmentModel *m_model;
-    QLabel *m_summaryText;
-    QWidget *m_details;
+    Utils::DetailsWidget *m_detailsContainer;
     QTreeView *m_environmentTreeView;
     QPushButton *m_editButton;
     QPushButton *m_addButton;

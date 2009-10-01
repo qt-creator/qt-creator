@@ -47,6 +47,7 @@ class QTabWidget;
 class QHBoxLayout;
 class QComboBox;
 class QMenu;
+class QSpacerItem;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -75,6 +76,7 @@ private:
 
     struct Panel
     {
+        QSpacerItem *spacer;
         QLabel *nameLabel;
         QWidget *panelWidget;
         QHBoxLayout *marginLayout;

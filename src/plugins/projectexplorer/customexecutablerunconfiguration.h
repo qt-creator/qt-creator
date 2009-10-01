@@ -31,8 +31,9 @@
 #define CUSTOMEXECUTABLERUNCONFIGURATION_H
 
 #include "applicationrunconfiguration.h"
-
+#include <utils/detailswidget.h>
 #include <QtGui/QWidget>
+
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
@@ -166,7 +167,6 @@ private slots:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged();
     void baseEnvironmentComboBoxChanged(int index);
-    void toggleDetails();
 private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
@@ -177,9 +177,7 @@ private:
     QCheckBox *m_useTerminalCheck;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     QComboBox *m_baseEnvironmentComboBox;
-    QWidget  *m_detailsWidget;
-    QLabel *m_summaryLabel;
-    QAbstractButton *m_detailsButton;
+    Utils::DetailsWidget *m_detailsContainer;
 };
 
 } // namespace Internal

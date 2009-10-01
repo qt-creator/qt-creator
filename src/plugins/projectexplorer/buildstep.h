@@ -169,9 +169,6 @@ public:
         :QWidget(0)
         {}
 
-    // This function iterates all parents and relayouts
-    // This is a hack to work around flickering
-    void fixupLayout(QWidget *widget);
     virtual QString displayName() const = 0;
 
     // This is called to set up the config widget before showing it

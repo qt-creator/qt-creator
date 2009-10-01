@@ -444,25 +444,13 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(20, 0, 0, 0);
 
-    m_summaryText = new QLabel(this);
-    m_summaryText->setText("");
+    m_detailsContainer = new Utils::DetailsWidget(this);
 
-    QAbstractButton *detailsButton = new Utils::DetailsButton(this);
+    QWidget *details = new QWidget(m_detailsContainer);
+    m_detailsContainer->setWidget(details);
+    details->setVisible(false);
 
-    connect(detailsButton, SIGNAL(clicked()),
-            this, SLOT(toggleDetails()));
-
-    QHBoxLayout *hbox = new QHBoxLayout();
-    hbox->addWidget(m_summaryText);
-    hbox->addWidget(detailsButton);
-    hbox->setMargin(0);
-
-    vbox->addLayout(hbox);
-
-    m_details = new QWidget(this);
-    m_details->setVisible(false);
-
-    QVBoxLayout *vbox2 = new QVBoxLayout(m_details);
+    QVBoxLayout *vbox2 = new QVBoxLayout(details);
     vbox2->setMargin(0);
 
     if (additionalDetailsWidget)
@@ -503,7 +491,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     horizontalLayout->addLayout(buttonLayout);
     vbox2->addLayout(horizontalLayout);
 
-    vbox->addWidget(m_details);
+    vbox->addWidget(m_detailsContainer);
     
     connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(updateButtons()));
@@ -526,27 +514,6 @@ EnvironmentWidget::~EnvironmentWidget()
 {
     delete m_model;
     m_model = 0;
-}
-
-bool EnvironmentWidget::detailsVisible() const
-{
-    return m_details->isVisible();
-}
-
-void EnvironmentWidget::setDetailsVisible(bool b)
-{
-    m_details->setVisible(b);
-}
-
-void EnvironmentWidget::toggleDetails()
-{
-    m_details->setVisible(!m_details->isVisible());
-    emit detailsVisibleChanged(m_details->isVisible());
-}
-
-QWidget *EnvironmentWidget::detailsWidget() const
-{
-    return m_details;
 }
 
 void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &env)
@@ -591,7 +558,7 @@ void EnvironmentWidget::updateSummaryText()
     }
     if (text.isEmpty())
         text = tr("Summary: No changes to Environment");
-    m_summaryText->setText(text);
+    m_detailsContainer->setSummaryText(text);
 }
 
 void EnvironmentWidget::updateButtons()

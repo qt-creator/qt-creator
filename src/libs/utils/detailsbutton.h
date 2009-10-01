@@ -18,6 +18,7 @@ class QTCREATOR_UTILS_EXPORT DetailsButton
     Q_OBJECT
 public:
     DetailsButton(QWidget *parent=0);
+    bool isToggled();
 public slots:
     void onClicked();
 private:

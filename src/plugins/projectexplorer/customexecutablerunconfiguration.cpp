@@ -94,23 +94,14 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     layout->addRow(QString(), m_useTerminalCheck);
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
-    vbox->setContentsMargins(0, -1, 0, -1);
+    vbox->setMargin(0);
 
-    m_summaryLabel = new QLabel(this);
+    m_detailsContainer = new Utils::DetailsWidget(this);
+    vbox->addWidget(m_detailsContainer);
 
-    m_detailsButton = new Utils::DetailsButton(this);
-    connect(m_detailsButton, SIGNAL(clicked()),
-            this, SLOT(toggleDetails()));
-
-    QHBoxLayout *hbox = new QHBoxLayout();
-    hbox->addWidget(m_summaryLabel);
-    hbox->addWidget(m_detailsButton);
-    vbox->addLayout(hbox);
-
-    m_detailsWidget = new QWidget(this);
-    m_detailsWidget->setLayout(layout);
-    vbox->addWidget(m_detailsWidget);
-    m_detailsWidget->setVisible(false);
+    QWidget *detailsWidget = new QWidget(m_detailsContainer);
+    m_detailsContainer->setWidget(detailsWidget);
+    detailsWidget->setLayout(layout);
 
     QLabel *environmentLabel = new QLabel(this);
     environmentLabel->setText(tr("Run Environment"));
@@ -163,11 +154,6 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
             this, SLOT(baseEnvironmentChanged()));
     connect(m_runConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
             this, SLOT(userEnvironmentChangesChanged()));
-}
-
-void CustomExecutableConfigurationWidget::toggleDetails()
-{
-    m_detailsWidget->setVisible(!m_detailsWidget->isVisible());
 }
 
 void CustomExecutableConfigurationWidget::userChangesUpdated()
@@ -242,7 +228,7 @@ void CustomExecutableConfigurationWidget::changed()
                arg(executable,
                    ProjectExplorer::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
 
-    m_summaryLabel->setText(text);
+    m_detailsContainer->setSummaryText(text);
     // We triggered the change, don't update us
     if (m_ignoreChange)
         return;

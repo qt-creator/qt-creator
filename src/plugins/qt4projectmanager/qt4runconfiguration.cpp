@@ -42,7 +42,6 @@
 #include <projectexplorer/environmenteditmodel.h>
 #include <projectexplorer/persistentsettings.h>
 #include <utils/qtcassert.h>
-#include <utils/detailsbutton.h>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QInputDialog>
@@ -120,7 +119,14 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_usingDyldImageSuffix(0),
     m_isShown(false)
 {
-    QFormLayout *toplayout = new QFormLayout();
+    QVBoxLayout *vboxTopLayout = new QVBoxLayout(this);
+    vboxTopLayout->setMargin(0);
+
+    m_detailsContainer = new Utils::DetailsWidget(this);
+    vboxTopLayout->addWidget(m_detailsContainer);
+    QWidget *detailsWidget = new QWidget(m_detailsContainer);
+    m_detailsContainer->setWidget(detailsWidget);
+    QFormLayout *toplayout = new QFormLayout(detailsWidget);
     toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
@@ -163,27 +169,6 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     connect(m_usingDyldImageSuffix, SIGNAL(toggled(bool)),
             this, SLOT(usingDyldImageSuffixToggled(bool)));
 #endif
-
-    m_detailsWidget = new QWidget(this);
-    m_detailsWidget->setVisible(false);
-    QVBoxLayout *vboxTopLayout = new QVBoxLayout(this);
-    vboxTopLayout->setMargin(0);
-    m_summaryLabel = new QLabel(this);
-    m_summaryLabel->setText("This is a summary");
-    QAbstractButton *detailsButton = new Utils::DetailsButton(this);
-
-    connect(detailsButton, SIGNAL(clicked()),
-            this, SLOT(toggleDetails()));
-
-    QHBoxLayout *detailsLayout = new QHBoxLayout();
-    detailsLayout->setMargin(0);
-    detailsLayout->addWidget(m_summaryLabel);
-    detailsLayout->addWidget(detailsButton);
-
-    vboxTopLayout->addLayout(detailsLayout);
-
-    vboxTopLayout->addWidget(m_detailsWidget);
-    m_detailsWidget->setLayout(toplayout);
 
     QLabel *environmentLabel = new QLabel(this);
     environmentLabel->setText(tr("Run Environment"));
@@ -252,11 +237,6 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
             this, SLOT(baseEnvironmentChanged()));
 }
 
-void Qt4RunConfigurationWidget::toggleDetails()
-{
-    m_detailsWidget->setVisible(!m_detailsWidget->isVisible());
-}
-
 void Qt4RunConfigurationWidget::updateSummary()
 {
     const QString &filename = QFileInfo(m_qt4RunConfiguration->executable()).fileName();
@@ -265,7 +245,7 @@ void Qt4RunConfigurationWidget::updateSummary()
             filename,
             arguments,
             m_qt4RunConfiguration->runMode() == LocalApplicationRunConfiguration::Console ? tr("(in terminal)") : "");
-    m_summaryLabel->setText(text);
+    m_detailsContainer->setSummaryText(text);
 }
 
 void Qt4RunConfigurationWidget::baseEnvironmentComboBoxChanged(int index)

@@ -227,29 +227,18 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
+    m_detailsContainer = new Utils::DetailsWidget(this);
+    vbox->addWidget(m_detailsContainer);
 
-    QHBoxLayout *hbox = new QHBoxLayout();
-    m_titleLabel = new QLabel(this);
-    m_titleLabel->setText("Dummy Text");
-    hbox->addWidget(m_titleLabel);
-
-    QAbstractButton *detailsButton = new Utils::DetailsButton(this);
-    connect(detailsButton, SIGNAL(clicked()),
-            this, SLOT(toggleDetails()));
-
-    hbox->addWidget(detailsButton);
-    vbox->addLayout(hbox);
-
-    m_detailsWidget = new QWidget(this);
-    QHBoxLayout *layout = new QHBoxLayout(m_detailsWidget);
+    QWidget *detailsWidget = new QWidget(m_detailsContainer);
+    m_detailsContainer->setWidget(detailsWidget);
+    QHBoxLayout *layout = new QHBoxLayout(detailsWidget);
     layout->setContentsMargins(0, -1, 0, -1);
     DependenciesView *treeView = new DependenciesView(this);
     treeView->setModel(m_model);
     treeView->setHeaderHidden(true);
     layout->addWidget(treeView);
     layout->addSpacerItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed));
-    vbox->addWidget(m_detailsWidget);
-    m_detailsWidget->setVisible(false);
 
     updateDetails();
 
@@ -262,11 +251,6 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
             this, SLOT(updateDetails()));
     connect(session, SIGNAL(sessionLoaded()),
             this, SLOT(updateDetails()));
-}
-
-void DependenciesWidget::toggleDetails()
-{
-    m_detailsWidget->setVisible(!m_detailsWidget->isVisible());
 }
 
 void DependenciesWidget::updateDetails()
@@ -286,7 +270,7 @@ void DependenciesWidget::updateDetails()
     } else {
         text = tr("%1 depends on: %2.").arg(m_project->name(), dependsOn.join(QLatin1String(", ")));
     }
-    m_titleLabel->setText(text);
+    m_detailsContainer->setSummaryText(text);
 }
 
 //
