@@ -90,8 +90,8 @@ QtVersionManager::QtVersionManager()
         int id = s->value("Id", -1).toInt();
         if (id == -1)
             id = getUniqueId();
-        else if (id > m_idcount)
-            m_idcount = id;
+        else if (m_idcount < id)
+            m_idcount = id + 1;
         bool isAutodetected;
         QString autodetectionSource;
         if (s->contains("isAutodetected")) {
