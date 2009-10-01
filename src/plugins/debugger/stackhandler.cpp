@@ -89,6 +89,8 @@ StackHandler::StackHandler(QObject *parent)
 {
     m_currentIndex = 0;
     m_canExpand = false;
+    connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
+        this, SLOT(resetModel()));
 }
 
 int StackHandler::rowCount(const QModelIndex &parent) const
