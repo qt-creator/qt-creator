@@ -753,12 +753,12 @@ int UnixReaderThread::tryRead()
     if (FD_ISSET(m_terminatePipeFileDescriptors[0], &tempReadSet)
         || FD_ISSET(m_terminatePipeFileDescriptors[0], &tempExceptionSet))
         return 1;
+
     // determine number of pending bytes and read
     int numBytes;
     if (ioctl(fileDescriptor, FIONREAD, &numBytes) < 0) {
         emit error(msgUnixCallFailedErrno("ioctl", errno));
         return -1;
-
     }
     m_context->mutex.lock();
     const QByteArray data = m_context->file.read(numBytes);
@@ -770,7 +770,8 @@ int UnixReaderThread::tryRead()
 void UnixReaderThread::run()
 {
     // Read loop
-    while ( tryRead() == 0) ;
+    while (tryRead() == 0)
+        ;
 }
 
 void UnixReaderThread::terminate()
