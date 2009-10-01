@@ -35,7 +35,6 @@
 #include <projectexplorer/environment.h>
 #include <projectexplorer/debugginghelper.h>
 #include <utils/qtcassert.h>
-#include <utils/detailsbutton.h>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QGroupBox>
@@ -262,21 +261,15 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 
     fl->addRow(tr("Working Directory:"), boxlayout);
 
-    m_detailsWidget = new QWidget(this);
-    m_detailsWidget->setLayout(fl);
-    m_detailsWidget->setVisible(false);
+    m_detailsContainer = new Utils::DetailsWidget(this);
 
-    m_summaryLabel = new QLabel(this);
-    m_detailsButton = new Utils::DetailsButton(this);
-
-    QHBoxLayout *hbox = new QHBoxLayout();
-    hbox->addWidget(m_summaryLabel);
-    hbox->addWidget(m_detailsButton);
+    QWidget *m_details = new QWidget(m_detailsContainer);
+    m_detailsContainer->setWidget(m_details);
+    m_details->setLayout(fl);
 
     QVBoxLayout *vbx = new QVBoxLayout(this);
-    vbx->setContentsMargins(0, -1, 0, -1);
-    vbx->addLayout(hbox);
-    vbx->addWidget(m_detailsWidget);
+    vbx->setMargin(0);;
+    vbx->addWidget(m_detailsContainer);
 
     QLabel *environmentLabel = new QLabel(this);
     environmentLabel->setText(tr("Run Environment"));
@@ -316,9 +309,6 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(resetButton, SIGNAL(clicked()),
             this, SLOT(resetWorkingDirectory()));
 
-    connect(m_detailsButton, SIGNAL(clicked()),
-            this, SLOT(toggleDetails()));
-
     connect(m_environmentWidget, SIGNAL(userChangesUpdated()),
             this, SLOT(userChangesUpdated()));
 
@@ -329,11 +319,6 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(m_cmakeRunConfiguration, SIGNAL(userEnvironmentChangesChanged(QList<ProjectExplorer::EnvironmentItem>)),
             this, SLOT(userEnvironmentChangesChanged()));
 
-}
-
-void CMakeRunConfigurationWidget::toggleDetails()
-{
-    m_detailsWidget->setVisible(!m_detailsWidget->isVisible());
 }
 
 void CMakeRunConfigurationWidget::setWorkingDirectory()
@@ -397,7 +382,7 @@ void CMakeRunConfigurationWidget::updateSummary()
     QString text = tr("Running executable: <b>%1</b> %2")
                    .arg(QFileInfo(m_cmakeRunConfiguration->executable()).fileName(),
                         ProjectExplorer::Environment::joinArgumentList(m_cmakeRunConfiguration->commandLineArguments()));
-    m_summaryLabel->setText(text);
+    m_detailsContainer->setSummaryText(text);
 }
 
 
