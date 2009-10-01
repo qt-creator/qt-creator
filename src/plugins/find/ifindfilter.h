@@ -32,11 +32,13 @@
 
 #include "find_global.h"
 
-#include <QtCore/QSettings>
-#include <QtGui/QIcon>
-#include <QtGui/QKeySequence>
-#include <QtGui/QWidget>
 #include <QtGui/QTextDocument>
+
+QT_BEGIN_NAMESPACE
+class QKeySequence;
+class QWidget;
+class QSettings;
+QT_END_NAMESPACE
 
 namespace Find {
 

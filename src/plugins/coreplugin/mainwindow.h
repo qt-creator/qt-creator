@@ -44,6 +44,8 @@
 QT_BEGIN_NAMESPACE
 class QSettings;
 class QShortcut;
+class QPrinter;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace Core {

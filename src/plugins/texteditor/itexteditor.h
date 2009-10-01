@@ -37,12 +37,13 @@
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtCore/QMap>
-#include <QtGui/QColor>
-#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
 class QMenu;
 class QTextBlock;
+class QIcon;
+class QRect;
+class QPoint;
 QT_END_NAMESPACE
 
 namespace TextEditor {

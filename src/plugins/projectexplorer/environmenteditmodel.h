@@ -35,7 +35,7 @@
 #include <QtCore/QString>
 #include <QtCore/QAbstractItemModel>
 #include <QtGui/QWidget>
-#include <utils/detailswidget.h>
+
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
@@ -44,6 +44,10 @@ class QPushButton;
 class QLabel;
 class QStackedWidget;
 QT_END_NAMESPACE
+
+namespace Utils {
+class DetailsWidget;
+}
 
 namespace ProjectExplorer {
 

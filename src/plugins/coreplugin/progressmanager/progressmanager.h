@@ -35,7 +35,6 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QFuture>
-#include <QtGui/QIcon>
 
 namespace Core {
 

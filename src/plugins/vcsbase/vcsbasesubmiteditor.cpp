@@ -66,6 +66,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QCompleter>
 #include <QtGui/QLineEdit>
+#include <QtGui/QTextEdit>
 
 enum { debug = 0 };
 enum { wantToolBar = 0 };

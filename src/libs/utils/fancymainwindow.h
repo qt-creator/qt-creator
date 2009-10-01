@@ -34,10 +34,12 @@
 
 #include <QtCore/QList>
 #include <QtCore/QHash>
-#include <QtCore/QSettings>
+
 #include <QtGui/QMainWindow>
-#include <QtGui/QDockWidget>
-#include <QtCore/QSettings>
+
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
 namespace Core {
 namespace Utils {

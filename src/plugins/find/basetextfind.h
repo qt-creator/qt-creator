@@ -34,7 +34,12 @@
 #include "ifindsupport.h"
 
 #include <QtCore/QPointer>
-#include <QtGui/QPlainTextEdit>
+#include <QtGui/QTextCursor>
+
+QT_BEGIN_NAMESPACE
+class QPlainTextEdit;
+class QTextEdit;
+QT_END_NAMESPACE
 
 namespace Find {
 

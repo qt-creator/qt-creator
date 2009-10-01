@@ -29,6 +29,7 @@
 
 #include "pluginerrorview.h"
 #include "ui_pluginerrorview.h"
+#include "pluginspec.h"
 
 #include <QtCore/QString>
 

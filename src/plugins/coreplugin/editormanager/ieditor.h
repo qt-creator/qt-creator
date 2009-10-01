@@ -32,9 +32,10 @@
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/ifile.h>
 
 namespace Core {
+
+class IFile;
 
 class CORE_EXPORT IEditor : public IContext
 {

@@ -33,15 +33,23 @@
 #include "texteditor_global.h"
 
 #include <find/ifindfilter.h>
-#include <find/searchresultwindow.h>
 #include <utils/filesearch.h>
 
 #include <QtCore/QFutureWatcher>
 #include <QtCore/QPointer>
-#include <QtGui/QLabel>
-#include <QtGui/QComboBox>
+
 #include <QtGui/QStringListModel>
-#include <QtGui/QCheckBox>
+
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QComboBox;
+class QCheckBox;
+class QStringListModel;
+QT_END_NAMESPACE
+
+namespace Find {
+class SearchResultWindow;
+}
 
 namespace TextEditor {
 

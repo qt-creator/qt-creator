@@ -33,7 +33,6 @@
 #include "quickopen_global.h"
 
 #include <QtCore/QObject>
-#include <QtCore/QString>
 
 namespace QuickOpen {
 

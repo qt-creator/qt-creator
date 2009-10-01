@@ -32,8 +32,7 @@
 
 #include "core_global.h"
 
-#include <QStyle>
-#include <QWindowsStyle>
+#include <QtGui/QWindowsStyle>
 
 QT_BEGIN_NAMESPACE
 class QLinearGradient;

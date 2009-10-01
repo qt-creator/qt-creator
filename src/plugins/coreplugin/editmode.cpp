@@ -37,6 +37,8 @@
 #include "outputpane.h"
 #include "navigationwidget.h"
 #include "rightpane.h"
+#include "ieditor.h"
+#include "ifile.h"
 
 #include <QtCore/QLatin1String>
 #include <QtGui/QHBoxLayout>

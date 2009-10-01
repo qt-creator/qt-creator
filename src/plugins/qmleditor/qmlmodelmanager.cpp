@@ -41,6 +41,8 @@
 #include "qmleditorconstants.h"
 #include "qmlmodelmanager.h"
 
+#include <QtCore/QMetaType>
+
 using namespace QmlEditor;
 using namespace QmlEditor::Internal;
 

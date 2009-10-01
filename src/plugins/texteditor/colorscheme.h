@@ -35,7 +35,6 @@
 #include <QtCore/QMap>
 #include <QtCore/QString>
 #include <QtGui/QColor>
-#include <QtGui/QTextCharFormat>
 
 namespace TextEditor {
 

@@ -30,9 +30,12 @@
 #include "helpmode.h"
 #include "helpplugin.h"
 
-#include <QtCore/QLatin1String>
-#include <QtGui/QWidget>
 #include <coreplugin/findplaceholder.h>
+
+#include <QtCore/QLatin1String>
+
+#include <QtGui/QWidget>
+#include <QtGui/QLayout>
 
 using namespace Help;
 using namespace Help::Internal;

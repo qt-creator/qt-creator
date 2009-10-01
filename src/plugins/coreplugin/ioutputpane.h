@@ -35,7 +35,10 @@
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtCore/QString>
-#include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
 
 namespace Core {
 

@@ -29,6 +29,7 @@
 
 #include "plugindetailsview.h"
 #include "ui_plugindetailsview.h"
+#include "pluginspec.h"
 
 #include <QtCore/QDir>
 

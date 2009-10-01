@@ -32,7 +32,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtDebug>
+#include <QtCore/QtDebug>
+#include <QtCore/QSettings>
 #include <QtCore/QDirIterator>
 #include <QtGui/QPushButton>
 #include <QtGui/QFileDialog>

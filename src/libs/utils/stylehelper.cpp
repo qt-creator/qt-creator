@@ -31,6 +31,10 @@
 
 #include <QtGui/QPixmapCache>
 #include <QtGui/QWidget>
+#include <QtCore/QRect>
+#include <QtGui/QPainter>
+#include <QtGui/QApplication>
+#include <QtGui/QPalette>
 
 // Clamps float color values within (0, 255)
 static int clamp(float x)

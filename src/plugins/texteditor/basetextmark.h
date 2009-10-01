@@ -31,6 +31,7 @@
 #define BASETEXTMARK_H
 
 #include "itexteditor.h"
+#include <QtGui/QIcon>
 
 namespace TextEditor {
 

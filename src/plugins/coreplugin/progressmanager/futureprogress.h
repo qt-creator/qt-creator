@@ -36,11 +36,11 @@
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
 #include <QtGui/QWidget>
-#include <QtGui/QIcon>
-#include <QtGui/QAction>
-#include <QtGui/QProgressBar>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QHBoxLayout>
+
+QT_BEGIN_NAMESPACE
+class QProgressBar;
+class QHBoxLayout;
+QT_END_NAMESPACE
 
 class ProgressBar;
 

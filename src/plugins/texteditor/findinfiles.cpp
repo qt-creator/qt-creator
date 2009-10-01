@@ -29,7 +29,8 @@
 
 #include "findinfiles.h"
 
-#include <QtDebug>
+#include <QtCore/QtDebug>
+#include <QtCore/QSettings>
 #include <QtCore/QDirIterator>
 #include <QtGui/QPushButton>
 #include <QtGui/QFileDialog>

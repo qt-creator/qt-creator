@@ -34,10 +34,7 @@
 #include <aggregation/aggregate.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QSet>
 #include <QtCore/QStringList>
-#include <QtCore/QWriteLocker>
 #include <QtCore/QReadWriteLock>
 
 QT_BEGIN_NAMESPACE

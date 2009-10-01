@@ -34,10 +34,9 @@
 
 #include <coreplugin/core_global.h>
 
-#include <QtCore/QObject>
-#include <QtGui/QIcon>
-#include <QtGui/QKeySequence>
-#include <QtGui/QLayout>
+QT_BEGIN_NAMESPACE
+class QIcon;
+QT_END_NAMESPACE
 
 namespace Core {
 

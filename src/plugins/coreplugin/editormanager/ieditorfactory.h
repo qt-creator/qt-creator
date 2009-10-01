@@ -31,15 +31,10 @@
 #define IEDITORFACTORY_H
 
 #include <coreplugin/ifilefactory.h>
-#include <coreplugin/editormanager/ieditor.h>
-
-#include <QtCore/QObject>
-
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
 
 namespace Core {
+
+class IEditor;
 
 class CORE_EXPORT IEditorFactory : public Core::IFileFactory
 {

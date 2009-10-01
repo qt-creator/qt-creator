@@ -33,6 +33,9 @@
 #include <QtGui/QColor>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QMenu>
+#include <QtGui/QProgressBar>
+#include <QtGui/QHBoxLayout>
+
 
 using namespace Core;
 

@@ -31,20 +31,19 @@
 #define NAVIGATIONWIDGET_H
 
 #include <coreplugin/minisplitter.h>
-#include <utils/styledbar.h>
 
-#include <QtGui/QWidget>
 #include <QtGui/QComboBox>
-#include <QtGui/QSplitter>
-#include <QtGui/QToolButton>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
 class QShortcut;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace Core {
-
+namespace Utils {
+class StyledBar;
+}
 class INavigationWidgetFactory;
 class IMode;
 class Command;

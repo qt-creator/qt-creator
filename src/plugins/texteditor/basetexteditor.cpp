@@ -56,6 +56,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
+#include <QtCore/QTimeLine>
 #include <QtGui/QAbstractTextDocumentLayout>
 #include <QtGui/QApplication>
 #include <QtGui/QKeyEvent>
@@ -77,6 +78,7 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMenu>
+#include <QtGui/QKeyEvent>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

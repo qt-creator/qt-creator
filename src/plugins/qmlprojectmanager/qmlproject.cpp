@@ -39,6 +39,7 @@
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <qmleditor/qmlmodelmanagerinterface.h>
 

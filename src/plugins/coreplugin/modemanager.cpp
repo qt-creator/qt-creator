@@ -49,6 +49,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QSignalMapper>
+#include <QtGui/QShortcut>
 
 #include <QtGui/QAction>
 #include <QtGui/QTabWidget>

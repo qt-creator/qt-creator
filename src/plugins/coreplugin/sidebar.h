@@ -39,7 +39,6 @@
 
 QT_BEGIN_NAMESPACE
 class QSettings;
-class QComboBox;
 class QToolBar;
 class QAction;
 class QToolButton;

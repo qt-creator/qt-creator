@@ -32,6 +32,7 @@
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/icontext.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QPointer>

@@ -88,6 +88,7 @@
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
+#include <QtGui/QToolButton>
 #include <QtGui/QMessageBox>
 
 #include <climits>

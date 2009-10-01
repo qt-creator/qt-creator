@@ -35,8 +35,10 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QSettings>
 #include <QtCore/QRegExp>
 #include <QtGui/QGridLayout>
+#include <QtGui/QLabel>
 
 using namespace Find;
 using namespace ProjectExplorer;

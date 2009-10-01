@@ -38,11 +38,12 @@
 #include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtCore/QVector>
-#include <QtGui/QColor>
+#include <QtGui/QFont>
 
 QT_BEGIN_NAMESPACE
 class QTextCharFormat;
 class QSettings;
+
 QT_END_NAMESPACE
 
 namespace TextEditor {

@@ -30,21 +30,18 @@
 #ifndef FORMWINDOWEDITOR_H
 #define FORMWINDOWEDITOR_H
 
-#include "editorwidget.h"
+#include "designer_export.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QtCore/QByteArray>
 #include <QtCore/QStringList>
-#include <QtGui/QDockWidget>
-
-#include "designer_export.h"
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 class QDesignerFormWindowManagerInterface;
 class QFile;
 class QToolBar;
+class QDockWidget;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -57,6 +54,7 @@ namespace Internal {
 
 class FormWindowFile;
 class FormWindowHost;
+class EditorWidget;
 
 // Master class maintaining a form window editor,
 // containing file and widget host
@@ -93,9 +91,9 @@ public:
     QWidget *integrationContainer();
     void updateFormWindowSelectionHandles(bool state);
     void setSuggestedFileName(const QString &fileName);
-    QDockWidget* const* dockWidgets() const { return m_editorWidget->dockWidgets(); }
-    bool isLocked() const { return m_editorWidget->isLocked(); }
-    void setLocked(bool locked) { m_editorWidget->setLocked(locked); }
+    QDockWidget* const* dockWidgets() const;
+    bool isLocked() const;
+    void setLocked(bool locked);
 
     QString contents() const;
 

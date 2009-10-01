@@ -38,6 +38,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/styledbar.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
@@ -45,6 +47,7 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QResizeEvent>
 #include <QtGui/QToolButton>
+#include <QtGui/QShortcut>
 
 Q_DECLARE_METATYPE(Core::INavigationWidgetFactory *)
 

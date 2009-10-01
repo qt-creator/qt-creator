@@ -85,6 +85,8 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QStatusBar>
 #include <QtGui/QWizard>
+#include <QtGui/QPrinter>
+#include <QtGui/QToolButton>
 
 /*
 #ifdef Q_OS_UNIX

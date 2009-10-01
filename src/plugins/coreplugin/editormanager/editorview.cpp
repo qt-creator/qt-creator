@@ -34,6 +34,7 @@
 #include "openeditorsmodel.h"
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <coreplugin/findplaceholder.h>
 #include <utils/qtcassert.h>

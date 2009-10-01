@@ -169,7 +169,7 @@ QString QmlLookupContext::toString(UiQualifiedId *id)
     return str;
 }
 
-QList<QmlSymbol*> QmlLookupContext::visibleSymbols(QmlJS::AST::Node *scope)
+QList<QmlSymbol*> QmlLookupContext::visibleSymbols(QmlJS::AST::Node * /* scope */)
 {
     // FIXME
     return QList<QmlSymbol*>();

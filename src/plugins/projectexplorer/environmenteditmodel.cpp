@@ -30,6 +30,7 @@
 #include "environmenteditmodel.h"
 
 #include <utils/detailsbutton.h>
+#include <utils/detailswidget.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHeaderView>

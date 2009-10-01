@@ -29,6 +29,7 @@
 
 #include "filesystemfilter.h"
 #include "quickopentoolwindow.h"
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <QtCore/QDir>
 

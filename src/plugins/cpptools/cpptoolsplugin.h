@@ -36,6 +36,7 @@
 #include <utils/filesearch.h>
 
 #include <QtGui/QTextDocument>
+#include <QtGui/QKeySequence>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFutureInterface>
 #include <QtCore/QPointer>

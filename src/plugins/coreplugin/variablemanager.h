@@ -36,7 +36,10 @@
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 #include <QtCore/QString>
-#include <QtCore/QFileInfo>
+
+QT_BEGIN_NAMESPACE
+class QFileInfo;
+QT_END_NAMESPACE
 
 namespace Core {
 

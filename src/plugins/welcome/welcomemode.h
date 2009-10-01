@@ -34,8 +34,6 @@
 
 #include <coreplugin/imode.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QPair>
 
 QT_BEGIN_NAMESPACE
 class QWidget;

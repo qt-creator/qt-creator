@@ -33,6 +33,7 @@
 #include "../core_global.h"
 
 #include <coreplugin/icorelistener.h>
+#include <coreplugin/ifile.h>
 
 #include <QtGui/QWidget>
 #include <QtCore/QList>

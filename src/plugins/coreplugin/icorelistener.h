@@ -31,11 +31,10 @@
 #define ICORELISTENER_H
 
 #include "core_global.h"
-#include <coreplugin/editormanager/ieditor.h>
 #include <QtCore/QObject>
 
 namespace Core {
-
+class IEditor;
 /*!
   \class Core::ICoreListener
 

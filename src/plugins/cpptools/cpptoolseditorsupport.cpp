@@ -30,6 +30,8 @@
 #include "cpptoolseditorsupport.h"
 #include "cppmodelmanager.h"
 
+#include <coreplugin/ifile.h>
+
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 

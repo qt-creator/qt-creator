@@ -31,11 +31,12 @@
 #define PLUGINDETAILSVIEW_H_
 
 #include "extensionsystem_global.h"
-#include "pluginspec.h"
 
 #include <QtGui/QWidget>
 
 namespace ExtensionSystem {
+
+class PluginSpec;
 
 namespace Internal {
 namespace Ui {

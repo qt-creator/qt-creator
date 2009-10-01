@@ -40,6 +40,7 @@
 #include <projectexplorer/filewatcher.h>
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>

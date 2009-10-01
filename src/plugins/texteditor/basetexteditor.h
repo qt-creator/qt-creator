@@ -37,14 +37,11 @@
 #include <find/ifindsupport.h>
 
 #include <QtGui/QPlainTextEdit>
-#include <QtGui/QLabel>
-#include <QtGui/QKeyEvent>
-#include <QtCore/QTimeLine>
-#include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
-class QLabel;
+class QKeyEvent;
 class QToolBar;
+class QTimeLine;
 QT_END_NAMESPACE
 
 namespace Core {

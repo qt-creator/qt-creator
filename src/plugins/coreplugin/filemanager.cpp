@@ -30,6 +30,7 @@
 #include "filemanager.h"
 
 #include "editormanager.h"
+#include "ieditor.h"
 #include "icore.h"
 #include "ifile.h"
 #include "iversioncontrol.h"

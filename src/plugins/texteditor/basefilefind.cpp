@@ -33,12 +33,17 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <find/textfindconstants.h>
+#include <find/searchresultwindow.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <utils/stylehelper.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDirIterator>
+#include <QtCore/QSettings>
+#include <QtGui/QLabel>
+#include <QtGui/QComboBox>
+#include <QtGui/QCheckBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QFileDialog>
 

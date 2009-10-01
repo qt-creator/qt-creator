@@ -31,7 +31,6 @@
 #define CUSTOMEXECUTABLERUNCONFIGURATION_H
 
 #include "applicationrunconfiguration.h"
-#include <utils/detailswidget.h>
 #include <QtGui/QWidget>
 
 
@@ -43,6 +42,9 @@ class QLabel;
 class QAbstractButton;
 QT_END_NAMESPACE
 
+namespace Utils {
+class DetailsWidget;
+}
 namespace Core {
 namespace Utils {
 class PathChooser;

@@ -36,6 +36,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/debugginghelper.h>
 #include <utils/detailsbutton.h>
+#include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 
 #include <QtGui/QCheckBox>

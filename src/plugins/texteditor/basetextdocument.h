@@ -35,12 +35,13 @@
 #include "itexteditor.h"
 #include "tabsettings.h"
 
+#include <coreplugin/ifile.h>
+
 QT_BEGIN_NAMESPACE
 class QTextCursor;
 class QTextDocument;
 class QSyntaxHighlighter;
 QT_END_NAMESPACE
-
 
 namespace TextEditor {
 

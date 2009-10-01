@@ -28,6 +28,9 @@
 **************************************************************************/
 
 #include "variablemanager.h"
+#include "ifile.h"
+
+#include <QtCore/QFileInfo>
 
 using namespace Core;
 

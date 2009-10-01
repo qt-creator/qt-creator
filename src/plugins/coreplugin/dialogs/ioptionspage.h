@@ -33,8 +33,10 @@
 #include <coreplugin/core_global.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
 
 namespace Core {
 

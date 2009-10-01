@@ -32,6 +32,8 @@
 #include "gdb/gdbmi.h"
 #include <utils/qtcassert.h>
 
+#include <coreplugin/ifile.h>
+
 #include <texteditor/basetexteditor.h>
 #include <texteditor/basetextmark.h>
 #include <texteditor/itexteditor.h>

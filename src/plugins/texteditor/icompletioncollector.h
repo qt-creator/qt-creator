@@ -35,7 +35,6 @@
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
 #include <QtGui/QIcon>
-#include <QtGui/QKeyEvent>
 
 namespace TextEditor {
 

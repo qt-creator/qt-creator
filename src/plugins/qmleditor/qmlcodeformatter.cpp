@@ -25,7 +25,7 @@ bool QmlCodeFormatter::visit(QmlJS::AST::UiProgram *ast)
     return false;
 }
 
-QString QmlCodeFormatter::operator()(QmlJS::AST::UiProgram *ast, const QString &originalSource, const QList<QmlJS::AST::SourceLocation> &comments, int start, int end)
+QString QmlCodeFormatter::operator()(QmlJS::AST::UiProgram *ast, const QString &originalSource, const QList<QmlJS::AST::SourceLocation> & /* comments */, int start, int end)
 {
     m_result.clear();
     m_result.reserve(originalSource.length() * 2);

@@ -50,7 +50,7 @@ public:
     virtual ~VCSBaseOutputWindow();
 
     virtual QWidget *outputWidget(QWidget *parent);
-    virtual QWidgetList toolBarWidgets() const;
+    virtual QList<QWidget*> toolBarWidgets() const;
     virtual QString name() const;
 
     virtual int priorityInStatusBar() const;

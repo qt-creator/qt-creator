@@ -32,6 +32,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtGui/QTextBlock>
+#include <QtGui/QPlainTextEdit>
 
 using namespace Find;
 

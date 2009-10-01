@@ -39,6 +39,8 @@
 #include <QtGui/QListWidget>
 #include <QtGui/QToolButton>
 #include <QtGui/QLineEdit>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QLabel>
 
 using namespace Find;
 using namespace Find::Internal;

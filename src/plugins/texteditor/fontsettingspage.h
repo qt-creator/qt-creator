@@ -36,13 +36,11 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QtGui/QColor>
-#include <QtGui/QTextCharFormat>
 #include <QtCore/QString>
-#include <QtCore/QVector>
 
 QT_BEGIN_NAMESPACE
 class QWidget;
+class QColor;
 QT_END_NAMESPACE
 
 namespace TextEditor {

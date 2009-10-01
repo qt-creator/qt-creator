@@ -32,6 +32,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <QtCore/QSettings>
 #include <QtGui/QMainWindow>
 
 using namespace Find;

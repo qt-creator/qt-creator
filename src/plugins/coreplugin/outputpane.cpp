@@ -38,6 +38,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <extensionsystem/pluginmanager.h>
 

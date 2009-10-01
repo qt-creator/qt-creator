@@ -35,12 +35,13 @@
 
 #include <coreplugin/ioutputpane.h>
 
-#include <QtCore/QThread>
-#include <QtCore/QStringList>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QListWidget>
-#include <QtGui/QToolButton>
-#include <QtGui/QLabel>
+
+QT_BEGIN_NAMESPACE
+class QStackedWidget;
+class QListWidget;
+class QToolButton;
+class QLabel;
+QT_END_NAMESPACE
 
 namespace Find {
 

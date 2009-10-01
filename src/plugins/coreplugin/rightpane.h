@@ -33,7 +33,10 @@
 #include "core_global.h"
 
 #include <QtGui/QWidget>
-#include <QtCore/QSettings>
+
+QT_BEGIN_HEADER
+class QSettings;
+QT_END_HEADER
 
 namespace Core {
 

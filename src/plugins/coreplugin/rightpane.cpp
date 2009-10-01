@@ -29,12 +29,16 @@
 
 #include "rightpane.h"
 
+#include <coreplugin/modemanager.h>
+#include <extensionsystem/pluginmanager.h>
+
+#include <QtCore/QSettings>
+
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QSplitter>
 #include <QtGui/QResizeEvent>
 #include <QtGui/QTextEdit>
-#include <coreplugin/modemanager.h>
-#include <extensionsystem/pluginmanager.h>
+
 
 using namespace Core;
 using namespace Core::Internal;
