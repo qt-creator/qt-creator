@@ -59,7 +59,7 @@ macx {
     QMAKE_EXTRA_TARGETS += html_docs qch_docs docs
 }
 
-OTHER_FILES = qtcreator.qdoc \
-              qtcreator.qdocconf
-OTHER_FILES += api/qtcreator-api.qdoc \
-               api/qtcreator-api.qdocconf
+OTHER_FILES = $$PWD/qtcreator.qdoc \
+              $$PWD/qtcreator.qdocconf
+OTHER_FILES += $$PWD/api/qtcreator-api.qdoc \
+               $$PWD/api/qtcreator-api.qdocconf
