@@ -1308,8 +1308,14 @@ void testUninitialized()
     std::stack<int> ssi;
 }
 
+void testEndlessRecursion()
+{
+    testEndlessRecursion();
+}
+
 int main(int argc, char *argv[])
 {
+    //testEndlessRecursion();
     testQStack();
     testUninitialized();
     testPointer();
