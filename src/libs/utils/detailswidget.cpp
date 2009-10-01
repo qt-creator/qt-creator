@@ -15,11 +15,12 @@ DetailsWidget::DetailsWidget(QWidget *parent)
     m_grid = new QGridLayout(this);
     //m_grid->setMargin(0);
     m_summaryLabel = new QLabel(this);
+    m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     m_detailsButton = new DetailsButton(this);
 
     m_grid->addWidget(m_summaryLabel, 0, 0, 2, 0);
-    m_grid->addWidget(m_detailsButton, 0, 2);
+    m_grid->addWidget(m_detailsButton, 1, 2);
 
     connect(m_detailsButton, SIGNAL(clicked()),
             this, SLOT(detailsButtonClicked()));
@@ -34,9 +35,9 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
 {
     //TL-->                 ___________  <-- TR
     //                     |           |
-    //ML->   ______________| <--MM     |
+    //ML->   ______________| <--MM     | <--MR
     //       |                         |
-    //BL->   |_________________________|  <-- BR
+    //BL->   |_________________________| <-- BR
 
 
     QWidget::paintEvent(paintEvent);
@@ -57,20 +58,17 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
 
     QPoint ml(1, mm.y());
 
+    QPoint mr(tr.x(), mm.y());
+
     int bottom = geometry().height() - 3;
     QPoint bl(1, bottom);
     QPoint br(tr.x(), bottom);
 
     QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
     p.setPen(Qt::NoPen);
-    QColor c = palette().color(QPalette::Background);
-    c = c.darker(115);
-    p.setBrush(c);
-    //p.setBrush(palette().button());
 
-//    QPolygon polygon;
-//    polygon << tl << tr << br << bl << ml << mm;
-//    p.drawConvexPolygon(polygon);
+    p.setBrush(palette().dark());
     p.drawRoundedRect(QRect(tl, br), 5, 5);
     p.drawRoundedRect(QRect(ml, br), 5, 5);
 }
@@ -104,7 +102,7 @@ void DetailsWidget::setToolWidget(QWidget *widget)
         return;
     if (m_toolWidget)
         m_grid->removeWidget(m_toolWidget);
-    m_grid->addWidget(widget, 0, 1);
+    m_grid->addWidget(widget, 1, 1);
     m_toolWidget = widget;
 }
 
