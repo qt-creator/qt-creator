@@ -13,7 +13,7 @@ adapted accordingly.
 
 General
    * Added the option to automatically reload files when externally modified,
-     or to ignore external modifications (contributed by Henrik Abelsson)
+     or to ignore external modifications
    * Improved the general resizing behavior for small screen sizes
    * Fixed a crash in the RSS reader that sometimes causes Qt Creator to crash
      on startup
@@ -28,22 +28,23 @@ Editing
    * Added highlighting of uses of the symbol under the cursor
    * Added completion of include directives
    * Added the option to turn off marking of text changes
+   * Added automatic matching of brackets and quotes
    * Objective-C: Much improved parsing
    * Objective-C: Added partial semantic checking and symbol navigation
    * Fixed searching in files to take open documents into account
    * Added a Locator filter for symbols in the current document
    * Handle block selection in fakevim
-   * Added Copy full path to the editors combobox.
+   * Added Copy full path to the editors combobox
    * Added left/right arrow buttons for "Go back/forward" in navigation history
 
 Project support
    * Added support for adding and removing files from a generic Makefile-based
-     project (contributed by Kevin Michel)
+     project
    * Added better control over the environment used for running.
-   * Add all cmake files to the project tree. (Only works with a cvs cmake.)
-   * Support cmake with Microsoft Visual Studio Compiler (Only works with cvs
+   * Add all cmake files to the project tree (only works with a cvs cmake)
+   * Support cmake with Microsoft Visual Studio Compiler (only works with cvs
      cmake)
-   * Fix a few cmake wizard bugs, where canceling left creator in a strange 
+   * Fix a few cmake wizard bugs, where canceling left creator in a strange
      state
    * The qmake and make steps can now be removed.
    * The qmake step is a lot smarter and tries harder to not run
@@ -73,7 +74,7 @@ Designer
 
 Version control plugins
    * Added CVS support
-   * Added "sync" menu item to the perforce plugin
+   * Added "sync" menu item to the Perforce plugin
 
 Wizards
    * Fixed GUI project and form class wizards to use the same settings.
@@ -89,3 +90,5 @@ Mac
 
 Additional credits go to:
    * Christian Hoenig (Locator filter for symbols in current document)
+   * Henrik Abelsson (Configure what to do with externally modified files)
+   * Kevin Michel (Adding and removing files from a generic project)

@@ -198,7 +198,6 @@ void FindPlugin::setupFilterMenuItems()
     }
     m_findDialog->setFindFilters(findInterfaces);
     m_openFindDialog->setEnabled(haveEnabledFilters);
-
 }
 
 QTextDocument::FindFlags FindPlugin::findFlags() const
