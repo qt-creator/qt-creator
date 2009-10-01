@@ -71,11 +71,11 @@ private:
     Q_SLOT void readUploadStandardError();
     Q_SLOT void uploadProcError(QProcess::ProcessError error);
 
+    void handleSetTargetAsync(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
+    void handleTargetRemote(const GdbResponse &response);
     void handleKill(const GdbResponse &response);
     void handleExit(const GdbResponse &response);
-    void handleTargetRemote(const GdbResponse &response);
-    void handleFirstContinue(const GdbResponse &response);
 
     Q_SLOT void handleGdbStarted();
     Q_SLOT void handleGdbError(QProcess::ProcessError error);
