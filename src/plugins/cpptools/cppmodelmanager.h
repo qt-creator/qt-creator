@@ -166,6 +166,7 @@ private:
     static void updateIncludesInPaths(QFutureInterface<void> &future,
                                       CppModelManager *manager,
                                       QStringList paths,
+                                      QStringList frameworkPaths,
                                       QStringList suffixes);
 
     static void parse(QFutureInterface<void> &future,

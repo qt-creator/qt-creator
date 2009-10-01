@@ -809,6 +809,7 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
         QFuture<void> result = QtConcurrent::run(&CppModelManager::updateIncludesInPaths,
                                                  this,
                                                  pinfo.includePaths,
+                                                 pinfo.frameworkPaths,
                                                  m_headerSuffixes);
 
         if (pinfo.includePaths.size() > 1) {
@@ -1127,6 +1128,7 @@ void CppModelManager::onAboutToUnloadSession()
 void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
                                             CppModelManager *manager,
                                             QStringList paths,
+                                            QStringList frameworkPaths,
                                             QStringList suffixes)
 {
     QMap<QString, QStringList> entriesInPaths;
@@ -1136,6 +1138,24 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
     int processed = 0;
 
     future.setProgressRange(0, paths.size());
+
+    // Add framework header directories to path list
+    QStringList frameworkFilter;
+    frameworkFilter << QLatin1String("*.framework");
+    QStringListIterator fwPathIt(frameworkPaths);
+    while (fwPathIt.hasNext()) {
+        const QString &fwPath = fwPathIt.next();
+        QStringList entriesInFrameworkPath;
+        const QStringList &frameworks = QDir(fwPath).entryList(frameworkFilter, QDir::Dirs | QDir::NoDotAndDotDot);
+        QStringListIterator fwIt(frameworks);
+        while (fwIt.hasNext()) {
+            QString framework = fwIt.next();
+            paths.append(fwPath + QLatin1Char('/') + framework + QLatin1String("/Headers"));
+            framework.chop(10); // remove the ".framework"
+            entriesInFrameworkPath.append(framework + QLatin1Char('/'));
+        }
+        entriesInPaths.insert(fwPath, entriesInFrameworkPath);
+    }
 
     while (!paths.isEmpty()) {
         if (future.isPaused())

@@ -1239,6 +1239,23 @@ bool CppCodeCompletion::completeInclude(const QTextCursor &cursor)
                 m_completions.append(item);
             }
         }
+
+        QStringList frameworkPaths = m_manager->projectInfo(project).frameworkPaths;
+        foreach (const QString &frameworkPath, frameworkPaths) {
+            QString realPath = frameworkPath;
+            if (!directoryPrefix.isEmpty()) {
+                realPath += QLatin1Char('/');
+                realPath += directoryPrefix;
+                realPath += QLatin1String(".framework/Headers");
+            }
+            foreach (const QString &itemText, m_manager->includesInPath(realPath)) {
+                TextEditor::CompletionItem item(this);
+                item.m_text += itemText;
+                // TODO: Icon for include files
+                item.m_icon = m_icons.keywordIcon();
+                m_completions.append(item);
+            }
+        }
     }
 
     return !m_completions.isEmpty();
