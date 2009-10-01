@@ -80,7 +80,6 @@ private slots:
     void removeBuildStep();
     void upBuildStep();
     void downBuildStep();
-    void toggleDetails();
     void updateSummary();
 
 private:
