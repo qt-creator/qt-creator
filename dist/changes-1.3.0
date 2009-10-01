@@ -33,7 +33,8 @@ Editing
    * Fixed searching in files to take open documents into account
    * Added a Locator filter for symbols in the current document
    * Handle block selection in fakevim
-   * Add Copy full path to the editors combobox.
+   * Added Copy full path to the editors combobox.
+   * Added left/right arrow buttons for "Go back/forward" in navigation history
 
 Project support
    * Added support for adding and removing files from a generic Makefile-based
