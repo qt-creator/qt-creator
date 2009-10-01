@@ -481,11 +481,11 @@ QString Qt4Project::makeCommand(BuildConfiguration *configuration) const
 QString Qt4Project::defaultMakeTarget(BuildConfiguration *configuration) const
 {
 #ifdef QTCREATOR_WITH_S60
-    ToolChain *tc = toolChain(buildConfiguration);
+    ToolChain *tc = toolChain(configuration);
     if (!tc)
         return QString::null;
     QtVersion::QmakeBuildConfig buildConfig
-            = QtVersion::QmakeBuildConfig(value(activeBuildConfiguration(), "buildConfiguration").toInt());
+            = QtVersion::QmakeBuildConfig(activeBuildConfiguration()->value("buildConfiguration").toInt());
 
     if (tc->type() == ToolChain::GCCE) {
         if (!(buildConfig & QtVersion::DebugBuild)) {
