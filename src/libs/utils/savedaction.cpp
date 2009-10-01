@@ -326,10 +326,9 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
 */
 void SavedAction::disconnectWidget()
 {
-    QTC_ASSERT(m_widget,
-        qDebug() << "Widget already disconnected: " << m_widget << toString(); return);
     m_widget = 0;
 }
+
 void SavedAction::apply(QSettings *s)
 {
     if (QAbstractButton *button = qobject_cast<QAbstractButton *>(m_widget))
