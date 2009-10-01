@@ -34,9 +34,9 @@
 
 #include <QtGui/QWidget>
 
-QT_BEGIN_HEADER
+QT_BEGIN_NAMESPACE
 class QSettings;
-QT_END_HEADER
+QT_END_NAMESPACE
 
 namespace Core {
 
