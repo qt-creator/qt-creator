@@ -63,6 +63,9 @@ public:
     QWidget *createWidget(QWidget *parent);
     void initialize(QDesignerFormEditorInterface *core);
 
+protected:
+    bool initialized() const        { return m_initialized; }
+
 private:
     QString displayName() const;
     QString geometryProperty() const;

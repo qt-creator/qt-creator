@@ -43,11 +43,19 @@
 #include <utils/submiteditorwidget.h>
 #include <utils/submitfieldwidget.h>
 #include <utils/pathlisteditor.h>
+#include <utils/detailsbutton.h>
+#include <utils/detailswidget.h>
 
 #include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QExtensionFactory>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QList>
+
+QT_BEGIN_NAMESPACE
+class QExtensionManager;
+QT_END_NAMESPACE
 
 // Custom Widgets
 
@@ -163,7 +171,62 @@ public:
     explicit PathListEditor_CW(QObject *parent = 0);
 };
 
-// Collection
+class DetailsButton_CW :
+    public QObject,
+    public CustomWidget<Utils::DetailsButton>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit DetailsButton_CW(QObject *parent = 0);
+};
+
+// Details Widget: plugin + simple, hacky container extension that
+// accepts only one page.
+
+class DetailsWidget_CW :
+    public QObject,
+    public CustomWidget<Utils::DetailsWidget>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit DetailsWidget_CW(QObject *parent = 0);
+    QString domXml() const;
+    void initialize(QDesignerFormEditorInterface *core);
+};
+
+class DetailsWidgetContainerExtension: public QObject,
+                                         public QDesignerContainerExtension
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerContainerExtension)
+public:
+    explicit DetailsWidgetContainerExtension(Utils::DetailsWidget *widget, QObject *parent);
+
+    void addWidget(QWidget *widget);
+    int count() const;
+    int currentIndex() const;
+    void insertWidget(int index, QWidget *widget);
+    void remove(int index);
+    void setCurrentIndex(int index);
+    QWidget *widget(int index) const;
+
+private:
+    Utils::DetailsWidget *m_detailsWidget;
+};
+
+class DetailsWidgetExtensionFactory: public QExtensionFactory
+{
+    Q_OBJECT
+public:
+    explicit DetailsWidgetExtensionFactory(QExtensionManager *parent = 0);
+
+protected:
+    QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
+};
+
+// ------------ Collection
 
 class WidgetCollection : public QObject, public QDesignerCustomWidgetCollectionInterface
 {
@@ -175,7 +238,7 @@ public:
     virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const;
 
 private:
-    QList<QDesignerCustomWidgetInterface*> m_plugins;
+    QList<QDesignerCustomWidgetInterface*> m_plugins;    
 };
 
 #endif // CUSTOMWIDGETS_H
