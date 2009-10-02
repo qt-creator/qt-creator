@@ -1177,7 +1177,7 @@ static void qDumpQAbstractItemModel(QDumper &d)
 
 static void qDumpQByteArray(QDumper &d)
 {
-    qCheckAccess(deref(d.data));
+    qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
     const QByteArray &ba = *reinterpret_cast<const QByteArray *>(d.data);
 
     if (!ba.isEmpty()) {
@@ -1461,7 +1461,7 @@ int hashOffset(bool optimizedIntKey, bool forKey, unsigned keySize, unsigned val
 
 static void qDumpQHash(QDumper &d)
 {
-    qCheckAccess(deref(d.data));
+    qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
     const char *keyType   = d.templateParameters[0];
     const char *valueType = d.templateParameters[1];
 
@@ -1569,7 +1569,7 @@ static void qDumpQHashNode(QDumper &d)
 #if USE_QT_GUI
 static void qDumpQImage(QDumper &d)
 {
-    qCheckAccess(deref(d.data));
+    qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
     const QImage &im = *reinterpret_cast<const QImage *>(d.data);
     d.beginItem("value");
         d.put("(").put(im.width()).put("x").put(im.height()).put(")");
@@ -1611,7 +1611,7 @@ static void qDumpQImageData(QDumper &d)
 
 static void qDumpQList(QDumper &d)
 {
-    qCheckAccess(deref(d.data));
+    qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
     // This uses the knowledge that QList<T> has only a single member
     // of type  union { QListData p; QListData::Data *d; };
 
@@ -1691,7 +1691,7 @@ static void qDumpQList(QDumper &d)
 
 static void qDumpQLinkedList(QDumper &d)
 {
-    qCheckAccess(deref(d.data));
+    qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
     // This uses the knowledge that QLinkedList<T> has only a single member
     // of type  union { QLinkedListData *d; QLinkedListNode<T> *e; };
     const QLinkedListData *ldata =
@@ -1817,7 +1817,7 @@ static void qDumpQMapNode(QDumper &d)
 
 static void qDumpQMap(QDumper &d)
 {
-    qCheckAccess(deref(d.data));
+    qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
     QMapData *h = *reinterpret_cast<QMapData *const*>(d.data);
     const char *keyType   = d.templateParameters[0];
     const char *valueType = d.templateParameters[1];
@@ -1956,7 +1956,7 @@ static void qDumpQModelIndex(QDumper &d)
 
 static void qDumpQObject(QDumper &d)
 {
-    qCheckAccess(deref(d.data));
+    qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
     const QObject *ob = reinterpret_cast<const QObject *>(d.data);
     const QMetaObject *mo = ob->metaObject();
     d.putItem("value", ob->objectName());
@@ -2206,7 +2206,7 @@ static void qDumpQVariant(QDumper &d, const QVariant *v)
 
 static inline void qDumpQVariant(QDumper &d)
 {
-    qCheckAccess(deref(d.data));
+    qCheckAccess(d.data);
     qDumpQVariant(d, reinterpret_cast<const QVariant *>(d.data));
 }
 
@@ -2832,7 +2832,7 @@ static void qDumpQSharedPointer(QDumper &d)
 
 static void qDumpQString(QDumper &d)
 {
-    //qCheckAccess(deref(d.data));
+    //qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
     const QString &str = *reinterpret_cast<const QString *>(d.data);
 
     const int size = str.size();
@@ -2857,7 +2857,7 @@ static void qDumpQString(QDumper &d)
 
 static void qDumpQStringList(QDumper &d)
 {
-    qCheckAccess(deref(d.data));
+    qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
     const QStringList &list = *reinterpret_cast<const QStringList *>(d.data);
     int n = list.size();
     if (n < 0)
@@ -2906,7 +2906,7 @@ static void qDumpQTextCodec(QDumper &d)
 
 static void qDumpQVector(QDumper &d)
 {
-    qCheckAccess(deref(d.data));
+    qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
     QVectorTypedData<int> *dummy = 0;
     const unsigned typeddatasize = (char*)(&dummy->array) - (char*)dummy;
 
@@ -3810,7 +3810,11 @@ void *qDumpObjectData440(
         d.exp       = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
         d.innerType = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
         d.iname     = inbuffer; while (*inbuffer) ++inbuffer; ++inbuffer;
-
+#if 0
+        qDebug() << "data=" << d.data << "dumpChildren=" << d.dumpChildren
+                << " extra=" << d.extraInt[0] << d.extraInt[1]  << d.extraInt[2]  << d.extraInt[3]
+                << d.outerType << d.iname << d.exp << d.iname;
+#endif
         handleProtocolVersion2and3(d);
     }
 

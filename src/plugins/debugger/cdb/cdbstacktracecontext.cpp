@@ -86,7 +86,8 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
     // Convert the DEBUG_STACK_FRAMEs to our StackFrame structure and populate the frames
     WCHAR wszBuf[MAX_PATH];
     for (ULONG i=0; i < frameCount; ++i) {
-        StackFrame frame(i);
+        StackFrame frame;
+        frame.level = i;
         const ULONG64 instructionOffset = m_cdbFrames[i].InstructionOffset;
         if (i == 0)
             m_instructionOffset = instructionOffset;

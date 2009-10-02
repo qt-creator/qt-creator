@@ -128,21 +128,29 @@ WatchHandleDumperInserter::WatchHandleDumperInserter(WatchHandler *wh,
     Q_ASSERT(m_hexNullPattern.isValid());
 }
 
-
 // Prevent recursion of the model by setting value and type
-static inline void fixDumperValueAndType(WatchData *wd, const WatchData *source = 0)
-{
-    static const QString unknown = QCoreApplication::translate("CdbStackFrameContext", "<Unknown>");
-    if (wd->isTypeNeeded() || wd->type.isEmpty()) {
-        wd->setType(source ? source->type : unknown);
+static inline bool fixDumperType(WatchData *wd, const WatchData *source = 0)
+{    
+    const bool missing = wd->isTypeNeeded() || wd->type.isEmpty();
+    if (missing) {
+        static const QString unknownType = QCoreApplication::translate("CdbStackFrameContext", "<Unknown Type>");
+        wd->setType(source ? source->type : unknownType);
     }
-    if (wd->isValueNeeded()) {
+    return missing;
+}
+
+static inline bool fixDumperValue(WatchData *wd, const WatchData *source = 0)
+{
+    const bool missing = wd->isValueNeeded();
+    if (missing) {
         if (source && source->isValueKnown()) {
             wd->setValue(source->value);
         } else {
-            wd->setValue(unknown);
+            static const QString unknownValue = QCoreApplication::translate("CdbStackFrameContext", "<Unknown Value>");
+            wd->setValue(unknownValue);
         }
     }
+    return missing;
 }
 
 // When querying an item, the queried item is sometimes returned in incomplete form.
@@ -160,7 +168,8 @@ static inline void fixDumperResult(const WatchData &source,
     WatchData &returned = result->front();
     if (returned.iname != source.iname)
         return;
-    fixDumperValueAndType(&returned, &source);
+    fixDumperType(&returned, &source);
+    fixDumperValue(&returned, &source);
     // Indicate owner and known children
     returned.source = OwnerDumper;
     if (returned.isChildrenKnown() && returned.isHasChildrenKnown() && returned.hasChildren)
@@ -179,7 +188,9 @@ static inline void fixDumperResult(const WatchData &source,
         it->source = OwnerDumper;
         if (it->isChildrenKnown() && it->isHasChildrenKnown() && it->hasChildren)
             it->source |= CdbStackFrameContext::ChildrenKnownBit;
-        if (wd.addr.isEmpty() && wd.isSomethingNeeded()) {
+        // Cannot dump items with missing addresses or missing types
+        const bool typeFixed = fixDumperType(&wd); // Order of evaluation!
+        if ((wd.addr.isEmpty() && wd.isSomethingNeeded()) || typeFixed) {
             wd.setHasChildren(false);
             wd.setAllUnneeded();
         } else {
@@ -188,8 +199,6 @@ static inline void fixDumperResult(const WatchData &source,
             if (suppressGrandChildren && (wd.isChildrenNeeded() || wd.isHasChildrenNeeded()))
                 wd.setHasChildren(false);
         }
-        //   <Out of scope value> have sometimes missing types. Kill recursion
-        fixDumperValueAndType(&wd);
     }
     if (debugCDBWatchHandling)
         debugWatchDataList(*result, "<fixDumperResult");
@@ -226,7 +235,7 @@ bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QSt
         const CdbDumperHelper::DumpResult dr = m_dumper->dumpType(derefedWd, true, &m_dumperResult, errorMessage);
         if (dr != CdbDumperHelper::DumpOk)
             break;
-        fixDumperResult(derefedWd, &m_dumperResult, true);
+        fixDumperResult(derefedWd, &m_dumperResult, false);
         // Insert the pointer item with 1 additional child + its dumper results
         // Note: formal arguments might already be expanded in the symbol group.
         WatchData ptrWd = wd;
