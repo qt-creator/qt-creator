@@ -1185,7 +1185,7 @@ void GdbEngine::reloadStack()
     // returns with "^error,msg="Previous frame identical to this frame
     // (corrupt stack?)". Might be related to the fact that we can't
     // access the memory belonging to the lower frames. But as we know
-    // this always happens, ask the second time immediately instead
+    // this sometimes happens, ask the second time immediately instead
     // of waiting for the first request to fail.
     if (m_gdbAdapter->isTrkAdapter())
         postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
@@ -2299,7 +2299,8 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
             }
             #endif
 
-            // Initialize top frame to the first valid frame
+            // Initialize top frame to the first valid frame.
+            // FIXME: Check for QFile(frame.fullname).isReadable()?
             const bool isValid = !frame.file.isEmpty() && !frame.function.isEmpty();
             if (isValid && topFrame == -1)
                 topFrame = i;
@@ -2310,12 +2311,14 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         theDebuggerAction(ExpandStack)->setEnabled(canExpand);
         manager()->stackHandler()->setFrames(stackFrames, canExpand);
 
-        if (topFrame != -1 && topFrame != 0) {
+        if (topFrame != -1 && topFrame != 0
+                && !theDebuggerBoolSetting(OperateByInstruction)) {
             // For topFrame == -1 there is no frame at all, for topFrame == 0
             // we already issued a 'gotoLocation' when reading the *stopped
-            // message.
+            // message. Also, when OperateByInstruction we always want to
+            // use frame #0.
             const StackFrame &frame = manager()->stackHandler()->currentFrame();
-            qDebug() << "GOTO, 2nd try" << frame.toString();
+            qDebug() << "GOTO, 2nd try" << frame.toString() << topFrame;
             gotoLocation(frame, true);
         }
     } else {
@@ -2348,19 +2351,18 @@ void GdbEngine::activateFrame(int frameIndex)
 
     StackHandler *stackHandler = manager()->stackHandler();
     int oldIndex = stackHandler->currentIndex();
-    qDebug() << "ACTIVATE FRAME:" << frameIndex << oldIndex
-        << stackHandler->currentIndex();
 
     if (frameIndex == stackHandler->stackSize()) {
         reloadFullStack();
         return;
     }
+
     QTC_ASSERT(frameIndex < stackHandler->stackSize(), return);
 
     if (oldIndex != frameIndex) {
         setTokenBarrier();
 
-        // Assuming this always succeeds saves a roundtrip.
+        // Assuming the command always succeeds this saves a roundtrip.
         // Otherwise the lines below would need to get triggered
         // after a response to this -stack-select-frame here.
         postCommand(_("-stack-select-frame ") + QString::number(frameIndex));
@@ -2369,12 +2371,7 @@ void GdbEngine::activateFrame(int frameIndex)
         updateLocals();
     }
 
-    const StackFrame &frame = stackHandler->currentFrame();
-
-    if (frame.isUsable())
-        gotoLocation(frame, true);
-    else
-        qDebug() << "FULL NAME NOT USABLE:" << frame.file;
+    gotoLocation(stackHandler->currentFrame(), true);
 }
 
 void GdbEngine::handleStackListThreads(const GdbResponse &response)
@@ -3953,8 +3950,6 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
 
     if (response.resultClass == GdbResultDone) {
         GdbMi lines = response.data.findChild("asm_insns");
-        if (!lines.children().isEmpty())
-            qDebug() << "LINES: " << lines.childAt(0).findChild("line").data();
         if (lines.children().isEmpty())
             fetchDisassemblerByAddress(ac.agent, true);
         else if (lines.children().size() == 1
@@ -3986,7 +3981,7 @@ void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResponse &response)
             if (ac.agent->contentsCoversAddress(contents)) {
                 ac.agent->setContents(parseDisassembler(lines));
             } else {
-                qDebug() << "FALL BACK TO NON-MIXED";
+                debugMessage(_("FALL BACK TO NON-MIXED"));
                 fetchDisassemblerByAddress(ac.agent, false);
             }
         }
