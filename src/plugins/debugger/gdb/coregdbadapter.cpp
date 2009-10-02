@@ -78,18 +78,6 @@ void CoreGdbAdapter::startAdapter()
     gdbArgs.prepend(_("mi"));
     gdbArgs.prepend(_("-i"));
 
-    if (!m_engine->m_outputCollector.listen()) {
-        emit adapterStartFailed(tr("Cannot set up communication with child process: %1")
-                .arg(m_engine->m_outputCollector.errorString()), QString());
-        return;
-    }
-    gdbArgs.prepend(_("--tty=") + m_engine->m_outputCollector.serverName());
-
-    if (!startParameters().workingDir.isEmpty())
-        setWorkingDirectory(startParameters().workingDir);
-    if (!startParameters().environment.isEmpty())
-        setEnvironment(startParameters().environment);
-
     QString location = theDebuggerStringSetting(GdbLocation);
     m_gdbProc.start(location, gdbArgs);
 }
