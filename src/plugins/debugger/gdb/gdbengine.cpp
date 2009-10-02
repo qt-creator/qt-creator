@@ -2315,12 +2315,21 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         theDebuggerAction(ExpandStack)->setEnabled(canExpand);
         manager()->stackHandler()->setFrames(stackFrames, canExpand);
 
-        if (topFrame != -1 && topFrame != 0
-                && !theDebuggerBoolSetting(OperateByInstruction)) {
-            // For topFrame == -1 there is no frame at all, for topFrame == 0
-            // we already issued a 'gotoLocation' when reading the *stopped
-            // message. Also, when OperateByInstruction we always want to
-            // use frame #0.
+        #ifdef Q_OS_MAC
+        // Mac gdb does not add the location to the "stopped" message,
+        // so the early gotoLocation() was not triggered. Force it here.
+        bool jump = topFrame != -1
+            && !theDebuggerBoolSetting(OperateByInstruction);
+        #else
+        // For topFrame == -1 there is no frame at all, for topFrame == 0
+        // we already issued a 'gotoLocation' when reading the *stopped
+        // message. Also, when OperateByInstruction we always want to
+        // use frame #0.
+        bool jump = topFrame != -1 && topFrame != 0
+            && !theDebuggerBoolSetting(OperateByInstruction);
+        #endif
+        
+        if (jump) {
             const StackFrame &frame = manager()->stackHandler()->currentFrame();
             qDebug() << "GOTO, 2nd try" << frame.toString() << topFrame;
             gotoLocation(frame, true);
