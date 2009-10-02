@@ -513,7 +513,7 @@ void FormEditorW::setupActions()
     addToolAction(m_designerSubWindowActions[PropertyEditorSubWindow], am, globalcontext,
                   QLatin1String("FormEditor.PropertyEditor"), mviews, "");
 
-    m_designerSubWindowActions[SignalSlotEditorSubWindow] = new ProxyAction(tr("Signals & Slots Editor"), this);
+    m_designerSubWindowActions[SignalSlotEditorSubWindow] = new ProxyAction(tr("Signals && Slots Editor"), this);
     addToolAction(m_designerSubWindowActions[SignalSlotEditorSubWindow], am, globalcontext,
                   QLatin1String("FormEditor.SignalsAndSlotsEditor"), mviews, "");
 
