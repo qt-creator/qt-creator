@@ -1511,9 +1511,13 @@ int Parenthesis::closeCollapseAtPos(const Parentheses &parentheses)
     int depth = 0;
     for (int i = 0; i < parentheses.size(); ++i) {
         const Parenthesis &p = parentheses.at(i);
-        if (p.chr == QLatin1Char('{') || p.chr == QLatin1Char('+')) {
+        if (p.chr == QLatin1Char('{')
+            || p.chr == QLatin1Char('+')
+            || p.chr == QLatin1Char('[')) {
             ++depth;
-        } else if (p.chr == QLatin1Char('}') || p.chr == QLatin1Char('-')) {
+        } else if (p.chr == QLatin1Char('}')
+            || p.chr == QLatin1Char('-')
+            || p.chr == QLatin1Char(']')) {
             if (--depth < 0)
                 return p.pos;
         }
@@ -1529,13 +1533,17 @@ int Parenthesis::collapseAtPos(const Parentheses &parentheses, QChar *character)
     int depth = 0;
     for (int i = 0; i < parentheses.size(); ++i) {
         const Parenthesis &p = parentheses.at(i);
-        if (p.chr == QLatin1Char('{') || p.chr == QLatin1Char('+')) {
+        if (p.chr == QLatin1Char('{')
+            || p.chr == QLatin1Char('+')
+            || p.chr == QLatin1Char('[')) {
             if (depth == 0) {
                 result = p.pos;
                 c = p.chr;
             }
             ++depth;
-        } else if (p.chr == QLatin1Char('}') || p.chr == QLatin1Char('-')) {
+        } else if (p.chr == QLatin1Char('}')
+            || p.chr == QLatin1Char('-')
+            || p.chr == QLatin1Char(']')) {
             if (--depth < 0)
                 depth = 0;
             result = -1;
@@ -1557,8 +1565,8 @@ int TextBlockUserData::braceDepthDelta() const
     int delta = 0;
     for (int i = 0; i < m_parentheses.size(); ++i) {
         switch (m_parentheses.at(i).chr.unicode()) {
-        case '{': case '+': ++delta; break;
-        case '}': case '-': --delta; break;
+        case '{': case '+': case '[': ++delta; break;
+        case '}': case '-': case ']': --delta; break;
         default: break;
         }
     }
@@ -3676,7 +3684,8 @@ bool TextBlockUserData::findPreviousBlockOpenParenthesis(QTextCursor *cursor, bo
             for (int i = parenList.count()-1; i >= 0; --i) {
                 Parenthesis paren = parenList.at(i);
                 if (paren.chr != QLatin1Char('{') && paren.chr != QLatin1Char('}')
-                    && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-'))
+                    && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-')
+                    && paren.chr != QLatin1Char('[') && paren.chr != QLatin1Char(']'))
                     continue;
                 if (block == cursor->block()) {
                     if (position - block.position() <= paren.pos + (paren.type == Parenthesis::Closed ? 1 : 0))
@@ -3739,7 +3748,8 @@ bool TextBlockUserData::findNextBlockClosingParenthesis(QTextCursor *cursor)
             for (int i = 0; i < parenList.count(); ++i) {
                 Parenthesis paren = parenList.at(i);
                 if (paren.chr != QLatin1Char('{') && paren.chr != QLatin1Char('}')
-                    && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-'))
+                    && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-')
+                    && paren.chr != QLatin1Char('[') && paren.chr != QLatin1Char(']'))
                     continue;
                 if (block == cursor->block() &&
                     (position - block.position() > paren.pos - (paren.type == Parenthesis::Opened ? 1 : 0)))
