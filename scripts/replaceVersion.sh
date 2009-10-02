@@ -81,18 +81,6 @@ sed \
 mv -f "${TMPFILE}" "${CORE_CONSTANT_H}"
 
 
-## Patch installer.rc
-TMPFILE=`mktemp versionPatch.XXXXXX`
-INSTALLER_RC="${SCRIPT_DIR}/../../dev/ide/nightly_builds/installer/installer.rc"
-echo "Patching \`${INSTALLER_RC}'"
-sed \
-        -e "s/"${OLD_DOT_FOUR}"/"${NEW_DOT_FOUR}"/" \
-        -e "s/"${OLD_COMMA_FOUR}"/"${NEW_COMMA_FOUR}"/" \
-    "${INSTALLER_RC}" > "${TMPFILE}"
-    p4 edit `sed -e 's/\/\.\//\//g' -e 's/\/[^\/]\+\/\.\.\//\//g' <<<"${INSTALLER_RC}"`
-mv -f "${TMPFILE}" "${INSTALLER_RC}"
-
-
 ## Patch Info.plist
 TMPFILE=`mktemp versionPatch.XXXXXX`
 INFO_PLIST="${SCRIPT_DIR}/src/app/Info.plist"
