@@ -13,10 +13,9 @@ namespace Internal {
 class QmlLookupContext
 {
 public:
-    QmlLookupContext(const QStack<QmlJS::AST::Node *> &scopes,
+    QmlLookupContext(const QStack<QmlSymbol *> &scopes,
                      const QmlDocument::Ptr &doc,
                      const Snapshot &snapshot);
-    ~QmlLookupContext();
 
     QmlSymbol *resolve(const QString &name);
     QmlSymbol *resolveType(const QString &name)
@@ -27,23 +26,19 @@ public:
     QmlDocument::Ptr document() const
     { return _doc; }
 
-    QList<QmlSymbol*> visibleSymbols(QmlJS::AST::Node *scope);
+    QList<QmlSymbol*> visibleSymbolsInScope();
     QList<QmlSymbol*> visibleTypes();
 
 private:
-    QmlSymbol *createSymbol(const QString &fileName, QmlJS::AST::UiObjectMember *node);
-
     QmlSymbol *resolveType(const QString &name, const QString &fileName);
-    QmlSymbol *resolveProperty(const QString &name, QmlJS::AST::Node *scope, const QString &fileName);
-    QmlSymbol *resolveProperty(const QString &name, QmlJS::AST::UiObjectInitializer *initializer, const QString &fileName);
+    QmlSymbol *resolveProperty(const QString &name, QmlSymbol *scope, const QString &fileName);
 
     static QString toString(QmlJS::AST::UiQualifiedId *id);
 
 private:
-    QStack<QmlJS::AST::Node *> _scopes;
+    QStack<QmlSymbol *> _scopes;
     QmlDocument::Ptr _doc;
     Snapshot _snapshot;
-    QList<QmlSymbol*> _temporarySymbols;
 };
 
 } // namespace Internal

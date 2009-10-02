@@ -10,7 +10,7 @@ using namespace QmlEditor::Internal;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
-QmlLookupContext::QmlLookupContext(const QStack<QmlJS::AST::Node *> &scopes,
+QmlLookupContext::QmlLookupContext(const QStack<QmlSymbol *> &scopes,
                                    const QmlDocument::Ptr &doc,
                                    const Snapshot &snapshot):
         _scopes(scopes),
@@ -19,28 +19,49 @@ QmlLookupContext::QmlLookupContext(const QStack<QmlJS::AST::Node *> &scopes,
 {
 }
 
-QmlLookupContext::~QmlLookupContext()
+static inline int findFirstQmlObjectScope(const QStack<QmlSymbol*> &scopes, int startIdx)
 {
-    qDeleteAll(_temporarySymbols);
+    if (startIdx < 0 || startIdx >= scopes.size())
+        return -1;
+
+    for (int i = startIdx; i >= 0; --i) {
+        QmlSymbol *current = scopes.at(i);
+
+        if (current->isSymbolFromFile()) {
+            Node *node = current->asSymbolFromFile()->node();
+
+            if (cast<UiObjectBinding*>(node) || cast<UiObjectDefinition*>(node)) {
+                return i;
+            }
+        }
+    }
+
+    return -1;
+}
+
+static inline QmlSymbol *resolveParent(const QStack<QmlSymbol*> &scopes)
+{
+    int idx = findFirstQmlObjectScope(scopes, scopes.size() - 1);
+    if (idx < 1)
+        return 0;
+
+    idx = findFirstQmlObjectScope(scopes, idx - 1);
+
+    if (idx < 0)
+        return 0;
+    else
+        return scopes.at(idx);
 }
 
 QmlSymbol *QmlLookupContext::resolve(const QString &name)
 {
     // look at property definitions
-    if (QmlSymbol *propertySymbol = resolveProperty(name, _scopes.top(), _doc->fileName()))
-        return propertySymbol;
+    if (!_scopes.isEmpty())
+        if (QmlSymbol *propertySymbol = resolveProperty(name, _scopes.top(), _doc->fileName()))
+            return propertySymbol;
 
     if (name == "parent") {
-        for (int i = _scopes.size() - 2; i >= 0; --i) {
-            Node *scope = _scopes.at(i);
-
-            if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(scope))
-                return createSymbol(_doc->fileName(), definition);
-            else if (UiObjectBinding *binding = cast<UiObjectBinding*>(scope))
-                return createSymbol(_doc->fileName(), binding);
-        }
-
-        return 0;
+        return resolveParent(_scopes);
     }
 
     // look at the ids.
@@ -50,13 +71,6 @@ QmlSymbol *QmlLookupContext::resolve(const QString &name)
         return ids[name];
     else
         return 0;
-}
-
-QmlSymbol *QmlLookupContext::createSymbol(const QString &fileName, QmlJS::AST::UiObjectMember *node)
-{
-    QmlSymbol *symbol = new QmlSymbolFromFile(fileName, node);
-    _temporarySymbols.append(symbol);
-    return symbol;
 }
 
 QmlSymbol *QmlLookupContext::resolveType(const QString &name, const QString &fileName)
@@ -88,66 +102,41 @@ QmlSymbol *QmlLookupContext::resolveType(const QString &name, const QString &fil
         if (importedTypes.contains(name)) {
             QmlDocument::Ptr importedDoc = importedTypes.value(name);
 
-            UiProgram *importedProgram = importedDoc->program();
-            if (importedProgram && importedProgram->members && importedProgram->members->member)
-                return createSymbol(importedDoc->fileName(), importedProgram->members->member);
+            return importedDoc->symbols().at(0);
         }
     }
 
     return 0;
 }
 
-QmlSymbol *QmlLookupContext::resolveProperty(const QString &name, Node *scope, const QString &fileName)
+QmlSymbol *QmlLookupContext::resolveProperty(const QString &name, QmlSymbol *scope, const QString &fileName)
 {
+    foreach (QmlSymbol *symbol, scope->members())
+        if (symbol->name() == name)
+            return symbol;
+
     UiQualifiedId *typeName = 0;
 
-    if (UiObjectBinding *binding = cast<UiObjectBinding*>(scope)) {
-        if (QmlSymbol *symbol = resolveProperty(name, binding->initializer, fileName))
-            return symbol;
-        else
+    if (scope->isSymbolFromFile()) {
+        Node *ast = scope->asSymbolFromFile()->node();
+
+        if (UiObjectBinding *binding = cast<UiObjectBinding*>(ast)) {
             typeName = binding->qualifiedTypeNameId;
-    } else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(scope)) {
-        if (QmlSymbol *symbol = resolveProperty(name, definition->initializer, fileName))
-            return symbol;
-        else
+        } else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(ast)) {
             typeName = definition->qualifiedTypeNameId;
-    } // TODO: extend this to handle (JavaScript) block scopes.
+        } // TODO: extend this to handle (JavaScript) block scopes.
+    }
 
     if (typeName == 0)
         return 0;
 
     QmlSymbol *typeSymbol = resolveType(toString(typeName), fileName);
-    if (typeSymbol && typeSymbol->isSymbolFromFile()) {
-        return resolveProperty(name, typeSymbol->asSymbolFromFile()->node(), typeSymbol->asSymbolFromFile()->fileName());
-    }
-
-    return 0;
-}
-
-QmlSymbol *QmlLookupContext::resolveProperty(const QString &name, QmlJS::AST::UiObjectInitializer *initializer, const QString &fileName)
-{
-    if (!initializer)
+    if (!typeSymbol)
         return 0;
 
-    for (UiObjectMemberList *iter = initializer->members; iter; iter = iter->next) {
-        UiObjectMember *member = iter->member;
-        if (!member)
-            continue;
-
-        if (UiPublicMember *publicMember = cast<UiPublicMember*>(member)) {
-            if (name == publicMember->name->asString())
-                return createSymbol(fileName, publicMember);
-        } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member)) {
-            if (name == toString(objectBinding->qualifiedId))
-                return createSymbol(fileName, objectBinding);
-        } else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member)) {
-            if (name == toString(arrayBinding->qualifiedId))
-                return createSymbol(fileName, arrayBinding);
-        } else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member)) {
-            if (name == toString(scriptBinding->qualifiedId))
-                return createSymbol(fileName, scriptBinding);
-        }
-    }
+    if (typeSymbol->isSymbolFromFile()) {
+        return resolveProperty(name, typeSymbol->asSymbolFromFile(), typeSymbol->asSymbolFromFile()->fileName());
+    } // TODO: internal types
 
     return 0;
 }
@@ -169,10 +158,17 @@ QString QmlLookupContext::toString(UiQualifiedId *id)
     return str;
 }
 
-QList<QmlSymbol*> QmlLookupContext::visibleSymbols(QmlJS::AST::Node * /* scope */)
+QList<QmlSymbol*> QmlLookupContext::visibleSymbolsInScope()
 {
-    // FIXME
-    return QList<QmlSymbol*>();
+    QList<QmlSymbol*> result;
+
+    if (!_scopes.isEmpty()) {
+        QmlSymbol *scope = _scopes.top();
+
+        result.append(scope->members());
+    }
+
+    return result;
 }
 
 QList<QmlSymbol*> QmlLookupContext::visibleTypes()
@@ -196,11 +192,7 @@ QList<QmlSymbol*> QmlLookupContext::visibleTypes()
 
         const QMap<QString, QmlDocument::Ptr> types = _snapshot.componentsDefinedByImportedDocuments(_doc, path);
         foreach (const QmlDocument::Ptr typeDoc, types) {
-            UiProgram *typeProgram = typeDoc->program();
-
-            if (typeProgram && typeProgram->members && typeProgram->members->member) {
-                result.append(createSymbol(typeDoc->fileName(), typeProgram->members->member));
-            }
+            result.append(typeDoc->symbols().at(0));
         }
     }
 

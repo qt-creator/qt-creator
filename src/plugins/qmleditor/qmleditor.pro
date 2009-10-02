@@ -17,7 +17,6 @@ HEADERS += qmleditor.h \
     qmleditorconstants.h \
     qmlhoverhandler.h \
     qmldocument.h \
-    qmlcompletionvisitor.h \
     qmlmodelmanagerinterface.h \
     qmleditor_global.h \
     qmlmodelmanager.h \
@@ -27,7 +26,8 @@ HEADERS += qmleditor.h \
     qmllookupcontext.h \
     qmlresolveexpression.h \
     qmlsymbol.h \
-    qmlfilewizard.h
+    qmlfilewizard.h \
+    qmlscope.h
 SOURCES += qmleditor.cpp \
     qmleditorfactory.cpp \
     qmleditorplugin.cpp \
@@ -36,7 +36,6 @@ SOURCES += qmleditor.cpp \
     qmlcodecompletion.cpp \
     qmlhoverhandler.cpp \
     qmldocument.cpp \
-    qmlcompletionvisitor.cpp \
     qmlmodelmanagerinterface.cpp \
     qmlmodelmanager.cpp \
     qmlcodeformatter.cpp \
@@ -45,5 +44,6 @@ SOURCES += qmleditor.cpp \
     qmllookupcontext.cpp \
     qmlresolveexpression.cpp \
     qmlsymbol.cpp \
-    qmlfilewizard.cpp
+    qmlfilewizard.cpp \
+    qmlscope.cpp
 RESOURCES += qmleditor.qrc

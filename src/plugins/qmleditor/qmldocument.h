@@ -74,6 +74,10 @@ public:
     QString path() const { return _path; }
     QString componentName() const { return _componentName; }
 
+    QmlSymbolFromFile *findSymbol(QmlJS::AST::Node *node) const;
+    QmlSymbol::List symbols() const
+    { return _symbols; }
+
 private:
     QmlJS::Engine *_engine;
     QmlJS::NodePool *_pool;
@@ -85,6 +89,7 @@ private:
     QString _source;
     bool _parsedCorrectly;
     IdTable _ids;
+    QmlSymbol::List _symbols;
 };
 
 class QMLEDITOR_EXPORT Snapshot: public QMap<QString, QmlDocument::Ptr>

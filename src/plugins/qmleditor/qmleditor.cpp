@@ -719,12 +719,28 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
     if (!doc)
         return link;
 
+    QTextCursor expressionCursor(cursor);
+    {
+        // correct the position by moving to the end of an identifier (if we're hovering over one):
+        const QString txt = cursor.block().text();
+        int pos = cursor.position();
+        forever {
+            const QChar ch = characterAt(pos);
+
+            if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
+                ++pos;
+            else
+                break;
+        }
+        expressionCursor.setPosition(pos);
+    }
+
     QmlExpressionUnderCursor expressionUnderCursor;
-    expressionUnderCursor(cursor, doc->program());
+    expressionUnderCursor(expressionCursor, doc);
 
     QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, snapshot);
-    QmlResolveExpression resolve(context);
-    QmlSymbol *symbol = resolve(expressionUnderCursor.expressionNode());
+    QmlResolveExpression resolver(context);
+    QmlSymbol *symbol = resolver.typeOf(expressionUnderCursor.expressionNode());
 
     if (!symbol)
         return link;

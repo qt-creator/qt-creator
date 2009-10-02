@@ -8,6 +8,9 @@ class ITextEditable;
 }
 
 namespace QmlEditor {
+
+class QmlModelManagerInterface;
+
 namespace Internal {
 
 class QmlCodeCompletion: public TextEditor::ICompletionCollector
@@ -15,7 +18,7 @@ class QmlCodeCompletion: public TextEditor::ICompletionCollector
     Q_OBJECT
 
 public:
-    QmlCodeCompletion(QObject *parent = 0);
+    QmlCodeCompletion(QmlModelManagerInterface *modelManager, QObject *parent = 0);
     virtual ~QmlCodeCompletion();
 
     Qt::CaseSensitivity caseSensitivity() const;
@@ -30,6 +33,7 @@ public:
     virtual void cleanup();
 
 private:
+    QmlModelManagerInterface *m_modelManager;
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;
     QList<TextEditor::CompletionItem> m_completions;

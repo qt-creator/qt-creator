@@ -1,17 +1,25 @@
-#include "qmlcompletionvisitor.h"
 #include "qmlcodecompletion.h"
 #include "qmleditor.h"
+#include "qmlmodelmanagerinterface.h"
+#include "qmlexpressionundercursor.h"
+#include "qmllookupcontext.h"
+#include "qmlresolveexpression.h"
+#include "qmlsymbol.h"
+
 #include <texteditor/basetexteditor.h>
 #include <QtDebug>
 
 using namespace QmlEditor::Internal;
 
-QmlCodeCompletion::QmlCodeCompletion(QObject *parent)
+QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager,QObject *parent)
     : TextEditor::ICompletionCollector(parent),
+      m_modelManager(modelManager),
       m_editor(0),
       m_startPosition(0),
       m_caseSensitivity(Qt::CaseSensitive)
-{ }
+{
+    Q_ASSERT(modelManager);
+}
 
 QmlCodeCompletion::~QmlCodeCompletion()
 { }
@@ -49,26 +57,52 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     m_startPosition = pos;
     m_completions.clear();
 
-    foreach (const QString &word, edit->keywords()) {
-        TextEditor::CompletionItem item(this);
-        item.m_text = word;
-        m_completions.append(item);
-    }
-
-    foreach (const QString &word, edit->words()) {
-        TextEditor::CompletionItem item(this);
-        item.m_text = word;
-        m_completions.append(item);
-    }
+//    foreach (const QString &word, edit->keywords()) {
+//        TextEditor::CompletionItem item(this);
+//        item.m_text = word;
+//        m_completions.append(item);
+//    }
+//
+//    foreach (const QString &word, edit->words()) {
+//        TextEditor::CompletionItem item(this);
+//        item.m_text = word;
+//        m_completions.append(item);
+//    }
 
     QmlDocument::Ptr qmlDocument = edit->qmlDocument();
-    if (!qmlDocument.isNull()) {
-        QmlJS::AST::UiProgram *program = qmlDocument->program();
+    qDebug() << "*** document:" << qmlDocument;
+    if (qmlDocument.isNull())
+        return pos;
 
-        if (program) {
-            QmlCompletionVisitor visitor;
+    if (!qmlDocument->program())
+        qmlDocument = m_modelManager->snapshot().value(qmlDocument->fileName());
 
-            foreach (const QString &word, visitor(program, m_startPosition)) {
+    if (qmlDocument->program()) {
+         QmlJS::AST::UiProgram *program = qmlDocument->program();
+        qDebug() << "*** program:" << program;
+ 
+         if (program) {
+            QmlExpressionUnderCursor expressionUnderCursor;
+            QTextCursor cursor(edit->document());
+            cursor.setPosition(pos);
+            expressionUnderCursor(cursor, qmlDocument);
+
+            QmlLookupContext context(expressionUnderCursor.expressionScopes(), qmlDocument, m_modelManager->snapshot());
+            QmlResolveExpression resolver(context);
+            QList<QmlSymbol*> symbols = resolver.visibleSymbols(expressionUnderCursor.expressionNode());
+
+            foreach (QmlSymbol *symbol, symbols) {
+                QString word;
+
+                if (symbol->isIdSymbol()) {
+                    word = symbol->asIdSymbol()->id();
+                } else {
+                    word = symbol->name();
+                }
+
+                if (word.isEmpty())
+                    continue;
+ 
                 TextEditor::CompletionItem item(this);
                 item.m_text = word;
                 m_completions.append(item);

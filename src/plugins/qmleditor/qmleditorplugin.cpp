@@ -111,7 +111,7 @@ bool QmlEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
         | TextEditor::TextEditorActionHandler::UnCollapseAll);
     m_actionHandler->initializeActions();
 
-    m_completion = new QmlCodeCompletion();
+    m_completion = new QmlCodeCompletion(m_modelManager);
     addAutoReleasedObject(m_completion);
 
     addAutoReleasedObject(new QmlHoverHandler());

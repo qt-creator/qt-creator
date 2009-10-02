@@ -12,11 +12,6 @@ QmlResolveExpression::QmlResolveExpression(const QmlLookupContext &context)
 {
 }
 
-QmlResolveExpression::~QmlResolveExpression()
-{
-    qDeleteAll(_temporarySymbols);
-}
-
 QmlSymbol *QmlResolveExpression::typeOf(Node *node)
 {
     QmlSymbol *previousValue = switchValue(0);
@@ -25,6 +20,30 @@ QmlSymbol *QmlResolveExpression::typeOf(Node *node)
     return switchValue(previousValue);
 }
 
+QList<QmlSymbol*> QmlResolveExpression::visibleSymbols(Node *node)
+{
+    QList<QmlSymbol*> result;
+
+    QmlSymbol *symbol = typeOf(node);
+    if (symbol) {
+        if (symbol->isIdSymbol())
+            symbol = symbol->asIdSymbol()->parentNode();
+        result.append(symbol->members());
+
+        // TODO: also add symbols from super-types
+    } else {
+        result.append(_context.visibleTypes());
+    }
+
+    if (node) {
+        foreach (QmlIdSymbol *idSymbol, _context.document()->ids().values())
+            result.append(idSymbol);
+    }
+
+    result.append(_context.visibleSymbolsInScope());
+
+    return result;
+}
 
 QmlSymbol *QmlResolveExpression::switchValue(QmlSymbol *value)
 {
@@ -58,52 +77,19 @@ bool QmlResolveExpression::visit(FieldMemberExpression *ast)
 {
     const QString memberName = ast->name->asString();
 
-    const QmlSymbol *base = typeOf(ast->base);
+    QmlSymbol *base = typeOf(ast->base);
     if (!base)
         return false;
 
     if (base->isIdSymbol())
         base = base->asIdSymbol()->parentNode();
 
-    UiObjectMemberList *members = 0;
+    if (!base)
+        return false;
 
-    if (const QmlSymbolFromFile *symbol = base->asSymbolFromFile()) {
-        Node *node = symbol->node();
-
-        if (UiObjectBinding *binding = cast<UiObjectBinding*>(node)) {
-            if (binding->initializer)
-                members = binding->initializer->members;
-        } else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(node)) {
-            if (definition->initializer)
-                members = definition->initializer->members;
-        }
-    }
-
-    for (UiObjectMemberList *it = members; it; it = it->next) {
-        UiObjectMember *member = it->member;
-
-        if (UiPublicMember *publicMember = cast<UiPublicMember *>(member)) {
-            if (publicMember->name && publicMember->name->asString() == memberName) {
-                _value = createPropertyDefinitionSymbol(publicMember);
-                break; // we're done.
-            }
-        } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member)) {
-            if (matches(objectBinding->qualifiedId, memberName)) {
-                _value = createSymbolFromFile(objectBinding);
-                break; // we're done
-            }
-        } else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member)) {
-            if (matches(scriptBinding->qualifiedId, memberName)) {
-                _value = createSymbolFromFile(scriptBinding);
-                break; // we're done
-            }
-        } else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member)) {
-            if (matches(arrayBinding->qualifiedId, memberName)) {
-                _value = createSymbolFromFile(arrayBinding);
-                break; // we're done
-            }
-        }
-    }
+    foreach (QmlSymbol *memberSymbol, base->members())
+        if (memberSymbol->name() == memberName)
+            _value = memberSymbol;
 
     return false;
 }
@@ -113,18 +99,4 @@ bool QmlResolveExpression::visit(QmlJS::AST::UiQualifiedId *ast)
     _value = _context.resolveType(ast);
 
     return false;
-}
-
-QmlPropertyDefinitionSymbol *QmlResolveExpression::createPropertyDefinitionSymbol(QmlJS::AST::UiPublicMember *ast)
-{
-    QmlPropertyDefinitionSymbol *symbol = new QmlPropertyDefinitionSymbol(_context.document()->fileName(), ast);
-    _temporarySymbols.append(symbol);
-    return symbol;
-}
-
-QmlSymbolFromFile *QmlResolveExpression::createSymbolFromFile(QmlJS::AST::UiObjectMember *ast)
-{
-    QmlSymbolFromFile *symbol = new QmlSymbolFromFile(_context.document()->fileName(), ast);
-    _temporarySymbols.append(symbol);
-    return symbol;
 }

@@ -6,6 +6,7 @@
 #include <QStack>
 #include <QString>
 
+#include "qmldocument.h"
 #include "qmljsastvisitor_p.h"
 #include "qmlsymbol.h"
 
@@ -15,23 +16,22 @@ namespace Internal {
 class IdCollector: protected QmlJS::AST::Visitor
 {
 public:
-    QMap<QString, QmlIdSymbol*> operator()(const QString &fileName, QmlJS::AST::UiProgram *ast);
+    QMap<QString, QmlIdSymbol*> operator()(QmlDocument *doc);
 
 protected:
+    virtual bool visit(QmlJS::AST::UiArrayBinding *ast);
     virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
     virtual bool visit(QmlJS::AST::UiScriptBinding *ast);
 
-    virtual void endVisit(QmlJS::AST::UiObjectBinding *);
-    virtual void endVisit(QmlJS::AST::UiObjectDefinition *);
-
 private:
+    QmlSymbolFromFile *switchSymbol(QmlJS::AST::UiObjectMember *node);
     void addId(const QString &id, QmlJS::AST::UiScriptBinding *ast);
 
 private:
-    QString _fileName;
+    QmlDocument *_doc;
     QMap<QString, QmlIdSymbol*> _ids;
-    QStack<QmlJS::AST::Node *> _scopes;
+    QmlSymbolFromFile *_currentSymbol;
 };
 
 } // namespace Internal

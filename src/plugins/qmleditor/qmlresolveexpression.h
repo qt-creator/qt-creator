@@ -12,15 +12,13 @@ class QmlResolveExpression: protected QmlJS::AST::Visitor
 {
 public:
     QmlResolveExpression(const QmlLookupContext &context);
-    ~QmlResolveExpression();
 
-    QmlSymbol *operator()(QmlJS::AST::Node *node)
-    { return typeOf(node); }
+    QmlSymbol *typeOf(QmlJS::AST::Node *node);
+    QList<QmlSymbol*> visibleSymbols(QmlJS::AST::Node *node);
 
 protected:
     using QmlJS::AST::Visitor::visit;
 
-    QmlSymbol *typeOf(QmlJS::AST::Node *node);
     QmlSymbol *switchValue(QmlSymbol *symbol);
 
     virtual bool visit(QmlJS::AST::FieldMemberExpression *ast);
@@ -28,12 +26,7 @@ protected:
     virtual bool visit(QmlJS::AST::UiQualifiedId *ast);
 
 private:
-    QmlPropertyDefinitionSymbol *createPropertyDefinitionSymbol(QmlJS::AST::UiPublicMember *ast);
-    QmlSymbolFromFile *createSymbolFromFile(QmlJS::AST::UiObjectMember *ast);
-
-private:
     QmlLookupContext _context;
-    QList<QmlSymbol*> _temporarySymbols;
     QmlSymbol *_value;
 };
 

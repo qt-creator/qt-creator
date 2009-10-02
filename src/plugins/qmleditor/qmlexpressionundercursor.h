@@ -2,21 +2,30 @@
 #define QMLEXPRESSIONUNDERCURSOR_H
 
 #include <QStack>
+#include <QTextBlock>
 #include <QTextCursor>
 
-#include "qmljsastvisitor_p.h"
+#include "qmldocument.h"
+#include "qmljsastfwd_p.h"
+#include "qmlsymbol.h"
+
+namespace QmlJS {
+    class Engine;
+    class NodePool;
+}
 
 namespace QmlEditor {
 namespace Internal {
 
-class QmlExpressionUnderCursor: protected QmlJS::AST::Visitor
+class QmlExpressionUnderCursor
 {
 public:
     QmlExpressionUnderCursor();
+    virtual ~QmlExpressionUnderCursor();
 
-    void operator()(const QTextCursor &cursor, QmlJS::AST::UiProgram *program);
+    void operator()(const QTextCursor &cursor, const QmlDocument::Ptr &doc);
 
-    QStack<QmlJS::AST::Node *> expressionScopes() const
+    QStack<QmlSymbol *> expressionScopes() const
     { return _expressionScopes; }
 
     QmlJS::AST::Node *expressionNode() const
@@ -28,26 +37,21 @@ public:
     int expressionLength() const
     { return _expressionLength; }
 
-protected:
-    virtual bool visit(QmlJS::AST::Block *ast);
-    virtual bool visit(QmlJS::AST::FieldMemberExpression *ast);
-    virtual bool visit(QmlJS::AST::IdentifierExpression *ast);
-    virtual bool visit(QmlJS::AST::UiImport *ast);
-    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
-    virtual bool visit(QmlJS::AST::UiQualifiedId *ast);
+private:
+    void parseExpression(const QTextBlock &block);
 
-    virtual void endVisit(QmlJS::AST::Block *);
-    virtual void endVisit(QmlJS::AST::UiObjectBinding *);
-    virtual void endVisit(QmlJS::AST::UiObjectDefinition *);
+    QmlJS::AST::ExpressionNode *tryExpression(const QString &text);
+    QmlJS::AST::Statement *tryStatement(const QString &text);
+    QmlJS::AST::UiObjectMember *tryBinding(const QString &text);
 
 private:
-    QStack<QmlJS::AST::Node *> _scopes;
-    QStack<QmlJS::AST::Node *> _expressionScopes;
+    QStack<QmlSymbol *> _expressionScopes;
     QmlJS::AST::Node *_expressionNode;
     int _expressionOffset;
     int _expressionLength;
     quint32 _pos;
+    QmlJS::Engine *_engine;
+    QmlJS::NodePool *_nodePool;
 };
 
 } // namespace Internal

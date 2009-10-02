@@ -1,3 +1,5 @@
+#include <QDebug>
+
 #include "idcollector.h"
 #include "qmljsast_p.h"
 #include "qmljsengine_p.h"
@@ -7,36 +9,39 @@ using namespace QmlJS::AST;
 using namespace QmlEditor;
 using namespace QmlEditor::Internal;
 
-QMap<QString, QmlIdSymbol*> IdCollector::operator()(const QString &fileName, QmlJS::AST::UiProgram *ast)
+QMap<QString, QmlIdSymbol*> IdCollector::operator()(QmlDocument *doc)
 {
-    _fileName = fileName;
+    _doc = doc;
     _ids.clear();
+    _currentSymbol = 0;
 
-    Node::accept(ast, this);
+    Node::accept(doc->program(), this);
 
     return _ids;
 }
 
+bool IdCollector::visit(UiArrayBinding *ast)
+{
+    QmlSymbolFromFile *oldSymbol = switchSymbol(ast);
+    Node::accept(ast->members, this);
+    _currentSymbol = oldSymbol;
+    return false;
+}
+
 bool IdCollector::visit(QmlJS::AST::UiObjectBinding *ast)
 {
-    _scopes.push(ast);
-    return true;
+    QmlSymbolFromFile *oldSymbol = switchSymbol(ast);
+    Node::accept(ast->initializer, this);
+    _currentSymbol = oldSymbol;
+    return false;
 }
 
 bool IdCollector::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
-    _scopes.push(ast);
-    return true;
-}
-
-void IdCollector::endVisit(QmlJS::AST::UiObjectBinding *)
-{
-    _scopes.pop();
-}
-
-void IdCollector::endVisit(QmlJS::AST::UiObjectDefinition *)
-{
-    _scopes.pop();
+    QmlSymbolFromFile *oldSymbol = switchSymbol(ast);
+    Node::accept(ast->initializer, this);
+    _currentSymbol = oldSymbol;
+    return false;
 }
 
 bool IdCollector::visit(QmlJS::AST::UiScriptBinding *ast)
@@ -44,21 +49,40 @@ bool IdCollector::visit(QmlJS::AST::UiScriptBinding *ast)
     if (!(ast->qualifiedId->next) && ast->qualifiedId->name->asString() == "id")
         if (ExpressionStatement *e = cast<ExpressionStatement*>(ast->statement))
             if (IdentifierExpression *i = cast<IdentifierExpression*>(e->expression))
-                addId(i->name->asString(), ast);
+                if (i->name)
+                    addId(i->name->asString(), ast);
 
     return false;
 }
 
+QmlSymbolFromFile *IdCollector::switchSymbol(QmlJS::AST::UiObjectMember *node)
+{
+    QmlSymbolFromFile *newSymbol = 0;
+
+    if (_currentSymbol == 0) {
+        newSymbol = _doc->findSymbol(node);
+    } else {
+        newSymbol = _currentSymbol->findMember(node);
+    }
+
+    QmlSymbolFromFile *oldSymbol = _currentSymbol;
+
+    if (newSymbol) {
+        _currentSymbol = newSymbol;
+    } else {
+        QString filename = _doc->fileName();
+        qWarning() << "Scope without symbol @"<<filename<<":"<<node->firstSourceLocation().startLine<<":"<<node->firstSourceLocation().startColumn;
+    }
+
+    return oldSymbol;
+}
+
 void IdCollector::addId(const QString &id, QmlJS::AST::UiScriptBinding *ast)
 {
-    if (!_ids.contains(id)) {
-        Node *parent = _scopes.top();
+    if (!_ids.contains(id) && _currentSymbol) {
+        QmlSymbolFromFile *symbol = _currentSymbol->findMember(ast);
 
-        if (UiObjectBinding *binding = cast<UiObjectBinding*>(parent))
-            _ids[id] = new QmlIdSymbol(_fileName, ast, QmlSymbolFromFile(_fileName, binding));
-        else if (UiObjectDefinition *definition = cast<UiObjectDefinition*>(parent))
-            _ids[id] = new QmlIdSymbol(_fileName, ast, QmlSymbolFromFile(_fileName, definition));
-        else
-            Q_ASSERT(!"Unknown parent for id");
+        if (QmlIdSymbol *idSymbol = symbol->asIdSymbol())
+            _ids[id] = idSymbol;
     }
 }

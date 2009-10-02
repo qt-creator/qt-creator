@@ -61,7 +61,7 @@ QmlDocument::~QmlDocument()
     if (_pool)
         delete _pool;
 
-    qDeleteAll(_ids.values());
+    qDeleteAll(_symbols);
 }
 
 QmlDocument::Ptr QmlDocument::create(const QString &fileName)
@@ -109,12 +109,26 @@ bool QmlDocument::parse()
     _program = parser.ast();
     _diagnosticMessages = parser.diagnosticMessages();
 
-    if (_parsedCorrectly && _program) {
-        Internal::IdCollector collect;
-        _ids = collect(_fileName, _program);
+    if (_program) {
+        for (QmlJS::AST::UiObjectMemberList *iter = _program->members; iter; iter = iter->next)
+            if (iter->member)
+                _symbols.append(new QmlSymbolFromFile(_fileName, iter->member));
+
+         Internal::IdCollector collect;
+        _ids = collect(this);
     }
 
     return _parsedCorrectly;
+}
+
+QmlSymbolFromFile *QmlDocument::findSymbol(QmlJS::AST::Node *node) const
+{
+    foreach (QmlSymbol *symbol, _symbols)
+        if (symbol->isSymbolFromFile())
+            if (symbol->asSymbolFromFile()->node() == node)
+                return symbol->asSymbolFromFile();
+
+    return 0;
 }
 
 Snapshot::Snapshot()
@@ -127,6 +141,9 @@ Snapshot::~Snapshot()
 
 void Snapshot::insert(const QmlDocument::Ptr &document)
 {
+    if (!document || !document->program())
+        return;
+
     QMap<QString, QmlDocument::Ptr>::insert(document->fileName(), document);
 }
 
