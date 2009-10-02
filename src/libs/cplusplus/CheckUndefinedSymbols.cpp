@@ -135,18 +135,24 @@ void CheckUndefinedSymbols::buildTypeMap(Class *klass)
     addType(klass->name());
 
     for (unsigned i = 0; i < klass->memberCount(); ++i) {
-        Symbol *member = klass->memberAt(i);
+        buildMemberTypeMap(klass->memberAt(i));
+    }
+}
 
-        if (Class *klass = member->asClass()) {
-            buildTypeMap(klass);
-        } else if (Enum *e = member->asEnum()) {
-            addType(e->name());
-        } else if (ForwardClassDeclaration *fwd = member->asForwardClassDeclaration()) {
-            addType(fwd->name());
-        } else if (Declaration *decl = member->asDeclaration()) {
-            if (decl->isTypedef())
-                addType(decl->name());
-        }
+void CheckUndefinedSymbols::buildMemberTypeMap(Symbol *member)
+{
+    if (member == 0)
+        return;
+
+    if (Class *klass = member->asClass()) {
+        buildTypeMap(klass);
+    } else if (Enum *e = member->asEnum()) {
+        addType(e->name());
+    } else if (ForwardClassDeclaration *fwd = member->asForwardClassDeclaration()) {
+        addType(fwd->name());
+    } else if (Declaration *decl = member->asDeclaration()) {
+        if (decl->isTypedef())
+            addType(decl->name());
     }
 }
 
@@ -176,10 +182,16 @@ void CheckUndefinedSymbols::buildTypeMap(NamespaceBinding *binding, QSet<Namespa
                     addType(fKlass->name());
                 } else if (ObjCClass *klass = member->asObjCClass()) {
                     addType(klass->name());
+
+                    for (unsigned i = 0; i < klass->memberCount(); ++i)
+                        buildMemberTypeMap(klass->memberAt(i));
                 } else if (ObjCForwardProtocolDeclaration *fProto = member->asObjCForwardProtocolDeclaration()) {
                     addType(fProto->name());
                 } else if (ObjCProtocol *proto = member->asObjCProtocol()) {
                     addType(proto->name());
+
+                    for (unsigned i = 0; i < proto->memberCount(); ++i)
+                        buildMemberTypeMap(proto->memberAt(i));
                 }
             }
         }
