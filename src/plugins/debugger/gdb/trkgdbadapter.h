@@ -150,25 +150,10 @@ public:
     void handleDisconnect(const TrkResult &result);
     void handleDeleteProcess(const TrkResult &result);
     void handleDeleteProcess2(const TrkResult &result);
-    void handleDirectTrk(const TrkResult &response);
-
-    void directStep(uint addr);
-    void handleDirectStep1(const TrkResult &response);
-    void handleDirectStep2(const TrkResult &response);
-    void handleDirectStep3(const TrkResult &response);
-
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleAndReportReadRegistersAfterStop(const TrkResult &result);
     void reportRegisters();
     QByteArray memoryReadLogMessage(uint addr, uint len, const QByteArray &ba) const;
-    QByteArray trkContinueMessage();
-    QByteArray trkReadRegistersMessage();
-    QByteArray trkWriteRegisterMessage(byte reg, uint value);
-    QByteArray trkReadMemoryMessage(uint addr, uint len);
-    QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
-    QByteArray trkStepRangeMessage(byte option);
-    QByteArray trkDeleteProcessMessage();
-    QByteArray trkInterruptMessage();
     void handleAndReportSetBreakpoint(const TrkResult &result);
     void handleReadMemoryBuffered(const TrkResult &result);
     void handleReadMemoryUnbuffered(const TrkResult &result);
@@ -183,6 +168,32 @@ public:
     void reportToGdb(const TrkResult &result);
 
     void readMemory(uint addr, uint len);
+
+    void handleDirectTrk(const TrkResult &response);
+    void directStep(uint addr);
+    void handleDirectStep1(const TrkResult &response);
+    void handleDirectStep2(const TrkResult &response);
+    void handleDirectStep3(const TrkResult &response);
+
+    void handleDirectWrite1(const TrkResult &response);
+    void handleDirectWrite2(const TrkResult &response);
+    void handleDirectWrite3(const TrkResult &response);
+    void handleDirectWrite4(const TrkResult &response);
+    void handleDirectWrite5(const TrkResult &response);
+    void handleDirectWrite6(const TrkResult &response);
+    void handleDirectWrite7(const TrkResult &response);
+    void handleDirectWrite8(const TrkResult &response);
+    void handleDirectWrite9(const TrkResult &response);
+
+    QByteArray trkContinueMessage();
+    QByteArray trkReadRegistersMessage();
+    QByteArray trkWriteRegisterMessage(byte reg, uint value);
+    QByteArray trkReadMemoryMessage(uint addr, uint len);
+    QByteArray trkWriteMemoryMessage(uint add, const QByteArray &date);
+    QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
+    QByteArray trkStepRangeMessage(byte option);
+    QByteArray trkDeleteProcessMessage();
+    QByteArray trkInterruptMessage();
 
     trk::TrkDevice m_trkDevice;
 

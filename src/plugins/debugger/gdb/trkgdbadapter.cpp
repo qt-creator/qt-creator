@@ -92,7 +92,7 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     m_running(false),
     m_gdbAckMode(true),
     m_verbose(2),
-    m_bufferedMemoryRead(true),
+    m_bufferedMemoryRead(false),
     m_waitCount(0)
 {
     m_gdbServer = 0;
@@ -235,11 +235,25 @@ QByteArray TrkGdbAdapter::trkReadMemoryMessage(uint addr, uint len)
     return ba;
 }
 
+QByteArray TrkGdbAdapter::trkWriteMemoryMessage(uint addr, const QByteArray &data)
+{
+    QByteArray ba;
+    ba.reserve(11 + data.size());
+    appendByte(&ba, 0x08); // Options, FIXME: why?
+    appendShort(&ba, data.size());
+    appendInt(&ba, addr);
+    appendInt(&ba, m_session.pid);
+    appendInt(&ba, m_session.tid);
+    ba.append(data);
+    return ba;
+}
+
 QByteArray TrkGdbAdapter::trkStepRangeMessage(byte option)
 {
     QByteArray ba;
-    ba.reserve(13);
+    ba.reserve(17);
     appendByte(&ba, option);
+    qDebug() << "STEP ON " << hexxNumber(m_snapshot.registers[RegisterPC]);
     appendInt(&ba, m_snapshot.registers[RegisterPC]); // Start address
     appendInt(&ba, m_snapshot.registers[RegisterPC]); // End address
     appendInt(&ba, m_session.pid);
@@ -1669,13 +1683,6 @@ void TrkGdbAdapter::write(const QByteArray &data)
 {
     // Write magic packets directly to TRK.
     if (data.startsWith("@#")) {
-        QByteArray ba = QByteArray::fromHex(data.mid(2));
-        qDebug() << "Writing: " << quoteUnprintableLatin1(ba);
-        if (ba.size() >= 1)
-            sendTrkMessage(ba.at(0), TrkCB(handleDirectTrk), ba.mid(1));
-        return;
-    }
-    if (data.startsWith("@@")) {
         QByteArray data1 = data.mid(2);
         if (data1.endsWith(char(10)))
             data1.chop(1);
@@ -1689,15 +1696,172 @@ void TrkGdbAdapter::write(const QByteArray &data)
         directStep(addr);
         return;
     }
+    if (data.startsWith("@$")) {
+        QByteArray ba = QByteArray::fromHex(data.mid(2));
+        qDebug() << "Writing: " << quoteUnprintableLatin1(ba);
+        if (ba.size() >= 1)
+            sendTrkMessage(ba.at(0), TrkCB(handleDirectTrk), ba.mid(1));
+        return;
+    }
+    if (data.startsWith("@@")) {
+        // Read data
+        sendTrkMessage(0x10, TrkCB(handleDirectWrite1),
+           trkReadMemoryMessage(m_session.dataseg, 12));
+        return;
+    }
     m_gdbProc.write(data, data.size());
+}
+
+uint oldPC;
+QByteArray oldMem;
+uint scratch;
+
+void TrkGdbAdapter::handleDirectWrite1(const TrkResult &response)
+{
+    scratch = m_session.dataseg + 512;
+    logMessage("DIRECT WRITE1: " + response.toString());
+    if (const int errorCode = response.errorCode()) {
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+    } else {
+        oldMem = response.data.mid(3);
+        oldPC = m_snapshot.registers[RegisterPC];
+        logMessage("READ MEM: " + oldMem.toHex());
+        //qDebug("READ MEM: " + oldMem.toHex());
+        QByteArray ba;
+        appendByte(&ba, 0xaa);
+        appendByte(&ba, 0xaa);
+        appendByte(&ba, 0xaa);
+        appendByte(&ba, 0xaa);
+
+#if 0
+        // Arm:
+        //  0:   e51f4004        ldr     r4, [pc, #-4]   ; 4 <.text+0x4>
+        appendByte(&ba, 0x04);
+        appendByte(&ba, 0x50);  // R5
+        appendByte(&ba, 0x1f);
+        appendByte(&ba, 0xe5);
+#else
+        // Thumb:
+        // subs  r0, #16  
+        appendByte(&ba, 0x08);
+        appendByte(&ba, 0x3b);
+        // subs  r0, #16  
+        appendByte(&ba, 0x08);
+        appendByte(&ba, 0x3b);
+        //
+        appendByte(&ba, 0x08);
+        appendByte(&ba, 0x3b);
+        // subs  r0, #16  
+        appendByte(&ba, 0x08);
+        appendByte(&ba, 0x3b);
+#endif
+
+        // Write data
+        sendTrkMessage(0x11, TrkCB(handleDirectWrite2),
+            trkWriteMemoryMessage(scratch, ba));
+    }
+}
+
+void TrkGdbAdapter::handleDirectWrite2(const TrkResult &response)
+{
+    logMessage("DIRECT WRITE2: " + response.toString());
+    if (const int errorCode = response.errorCode()) {
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+    } else {
+        // Check
+        sendTrkMessage(0x10, TrkCB(handleDirectWrite3),
+            trkReadMemoryMessage(scratch, 12));
+    }
+}
+
+void TrkGdbAdapter::handleDirectWrite3(const TrkResult &response)
+{
+    logMessage("DIRECT WRITE3: " + response.toString());
+    if (const int errorCode = response.errorCode()) {
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+    } else {
+        // Set PC
+        sendTrkMessage(0x13, TrkCB(handleDirectWrite4),
+            trkWriteRegisterMessage(RegisterPC, scratch + 4));
+    }
+}
+
+void TrkGdbAdapter::handleDirectWrite4(const TrkResult &response)
+{
+    m_snapshot.registers[RegisterPC] = scratch + 4;
+return;
+    logMessage("DIRECT WRITE4: " + response.toString());
+    if (const int errorCode = response.errorCode()) {
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+    } else {
+        QByteArray ba1;
+        appendByte(&ba1, 0x11); // options "step over"
+        appendInt(&ba1, scratch + 4);
+        appendInt(&ba1, scratch + 4);
+        appendInt(&ba1, m_session.pid);
+        appendInt(&ba1, m_session.tid);
+        sendTrkMessage(0x19, TrkCB(handleDirectWrite5), ba1);
+    }
+}
+
+void TrkGdbAdapter::handleDirectWrite5(const TrkResult &response)
+{
+    logMessage("DIRECT WRITE5: " + response.toString());
+    if (const int errorCode = response.errorCode()) {
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+    } else {
+        // Restore PC
+        sendTrkMessage(0x13, TrkCB(handleDirectWrite6),
+            trkWriteRegisterMessage(RegisterPC, oldPC));
+    }
+}
+
+void TrkGdbAdapter::handleDirectWrite6(const TrkResult &response)
+{
+    logMessage("DIRECT WRITE6: " + response.toString());
+    if (const int errorCode = response.errorCode()) {
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+    } else {
+        // Restore memory
+        sendTrkMessage(0x11, TrkCB(handleDirectWrite7),
+            trkWriteMemoryMessage(scratch, oldMem));
+    }
+}
+
+void TrkGdbAdapter::handleDirectWrite7(const TrkResult &response)
+{
+    logMessage("DIRECT WRITE7: " + response.toString());
+    if (const int errorCode = response.errorCode()) {
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+    } else {
+        // Check
+        sendTrkMessage(0x10, TrkCB(handleDirectWrite8),
+            trkReadMemoryMessage(scratch, 8));
+    }
+}
+
+void TrkGdbAdapter::handleDirectWrite8(const TrkResult &response)
+{
+    logMessage("DIRECT WRITE8: " + response.toString());
+    if (const int errorCode = response.errorCode()) {
+        logMessage("ERROR: " + response.errorString() + "in handleDirectWrite1");
+    } else {
+        // Re-read registers
+        sendTrkMessage(0x12,
+            TrkCB(handleAndReportReadRegistersAfterStop),
+            trkReadRegistersMessage());
+    }
+}
+
+void TrkGdbAdapter::handleDirectWrite9(const TrkResult &response)
+{
+    logMessage("DIRECT WRITE9: " + response.toString());
 }
 
 void TrkGdbAdapter::handleDirectTrk(const TrkResult &result)
 {
     logMessage("HANDLE DIRECT TRK: " + stringFromArray(result.data));
 }
-
-uint oldPC;
 
 void TrkGdbAdapter::directStep(uint addr)
 {
