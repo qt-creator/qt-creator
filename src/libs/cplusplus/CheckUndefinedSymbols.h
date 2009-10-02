@@ -57,6 +57,7 @@ protected:
 
     void addType(Name *name);
     void buildTypeMap(Class *klass);
+    void buildMemberTypeMap(Symbol *member);
     void buildTypeMap(NamespaceBinding *binding, QSet<NamespaceBinding *> *processed);
 
     FunctionDeclaratorAST *currentFunctionDeclarator() const;
