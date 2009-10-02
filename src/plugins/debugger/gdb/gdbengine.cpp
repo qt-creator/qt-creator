@@ -1843,11 +1843,7 @@ void GdbEngine::handleBreakList(const GdbResponse &response)
 
 void GdbEngine::handleBreakList(const GdbMi &table)
 {
-    //qDebug() << "GdbEngine::handleOutput: table:"
-    //  << table.toString();
     GdbMi body = table.findChild("body");
-    //qDebug() << "GdbEngine::handleOutput: body:"
-    //  << body.toString();
     QList<GdbMi> bkpts;
     if (body.isValid()) {
         // Non-Mac
@@ -1855,14 +1851,11 @@ void GdbEngine::handleBreakList(const GdbMi &table)
     } else {
         // Mac
         bkpts = table.children();
-        // remove the 'hdr' and artificial items
-        //qDebug() << "FOUND" << bkpts.size() << "BREAKPOINTS";
+        // Remove the 'hdr' and artificial items.
         for (int i = bkpts.size(); --i >= 0; ) {
             int num = bkpts.at(i).findChild("number").data().toInt();
-            if (num <= 0) {
-                //qDebug() << "REMOVING" << i << bkpts.at(i).toString();
+            if (num <= 0)
                 bkpts.removeAt(i);
-            }
         }
         //qDebug() << "LEFT" << bkpts.size() << "BREAKPOINTS";
     }
@@ -1915,8 +1908,8 @@ void GdbEngine::handleBreakCondition(const GdbResponse &response)
     int index = response.cookie.toInt();
     BreakHandler *handler = manager()->breakHandler();
     if (response.resultClass == GdbResultDone) {
-        // we just assume it was successful. otherwise we had to parse
-        // the output stream data
+        // We just assume it was successful. Otherwise we had to parse
+        // the output stream data.
         BreakpointData *data = handler->at(index);
         //qDebug() << "HANDLE BREAK CONDITION" << index << data->condition;
         data->bpCondition = data->condition;
@@ -1938,12 +1931,10 @@ void GdbEngine::handleBreakInsert(const GdbResponse &response)
     int index = response.cookie.toInt();
     BreakHandler *handler = manager()->breakHandler();
     if (response.resultClass == GdbResultDone) {
-        //qDebug() << "HANDLE BREAK INSERT" << index;
 //#if defined(Q_OS_MAC)
-        // interesting only on Mac?
+        // Interesting only on Mac?
         BreakpointData *data = handler->at(index);
         GdbMi bkpt = response.data.findChild("bkpt");
-        //qDebug() << "BKPT:" << bkpt.toString() << " DATA:" << data->toToolTip();
         breakpointDataFromOutput(data, bkpt);
 //#endif
         attemptBreakpointSynchronization();
@@ -1956,14 +1947,11 @@ void GdbEngine::handleBreakInsert(const GdbResponse &response)
         QFileInfo fi(data->fileName);
         QString where = _c('"') + fi.fileName() + _("\":")
             + data->lineNumber;
-        //QString where = m_data->fileName + _c(':') + data->lineNumber;
 #elif defined(Q_OS_MAC)
         QFileInfo fi(data->fileName);
         QString where = _c('"') + fi.fileName() + _("\":")
             + data->lineNumber;
 #else
-        //QString where = "\"\\\"" + data->fileName + "\\\":"
-        //    + data->lineNumber + "\"";
         QString where = _c('"') + data->fileName + _("\":")
             + data->lineNumber;
         // Should not happen with -break-insert -f. gdb older than 6.8?
@@ -2009,9 +1997,6 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
         data->markerLineNumber = data->bpLineNumber.toInt();
         data->markerFileName = full;
         data->bpFileName = full;
-        //qDebug() << "FOUND BREAKPOINT\n" << output
-        //    << re.cap(1) << "\n" << re.cap(2) << "\n"
-        //    << re.cap(3) << "\n" << re.cap(4) << "\n";
     } else {
         qDebug() << "COULD NOT MATCH " << re.pattern() << " AND " << output;
         data->bpNumber = _("<unavailable>");
@@ -2181,8 +2166,8 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
 {
     QList<Module> modules;
     if (response.resultClass == GdbResultDone) {
-        // that's console-based output, likely Linux or Windows,
-        // but we can avoid the #ifdef here
+        // That's console-based output, likely Linux or Windows,
+        // but we can avoid the #ifdef here.
         QString data = QString::fromLocal8Bit(response.data.findChild("consolestreamoutput").data());
         QTextStream ts(&data, QIODevice::ReadOnly);
         while (!ts.atEnd()) {
@@ -2292,7 +2277,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
                 // Also wrong. Happens on Vista with Gdb 5.50
                    || (frame.function == __("operator new") && frame.line == 151);
 
-            // immediately leave bogus frames
+            // Immediately leave bogus frames.
             if (topFrame == -1 && isBogus) {
                 postCommand(_("-exec-finish"));
                 return;
