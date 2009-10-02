@@ -1460,6 +1460,8 @@ void TrkGdbAdapter::startAdapter()
         m_remoteExecutable = parameters.processArgs.at(1);
         m_symbolFile = parameters.processArgs.at(2);
     }
+    // Unixish gdbs accept only forward slashes
+    m_symbolFile.replace(QLatin1Char('\\'), QLatin1Char('/'));
     // Start
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
