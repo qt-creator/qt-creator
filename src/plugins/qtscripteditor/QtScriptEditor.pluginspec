@@ -1,4 +1,4 @@
-<plugin name="QtScriptEditor" version="1.2.91" compatVersion="1.2.91">
+<plugin name="QtScriptEditor" version="1.2.92" compatVersion="1.2.92">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,7 +19,7 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Editor for QtScript.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.2.91"/>
-        <dependency name="TextEditor" version="1.2.91"/>
+        <dependency name="Core" version="1.2.92"/>
+        <dependency name="TextEditor" version="1.2.92"/>
     </dependencyList>
 </plugin>
