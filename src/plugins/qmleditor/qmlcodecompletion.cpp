@@ -70,7 +70,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 //    }
 
     QmlDocument::Ptr qmlDocument = edit->qmlDocument();
-    qDebug() << "*** document:" << qmlDocument;
+//    qDebug() << "*** document:" << qmlDocument;
     if (qmlDocument.isNull())
         return pos;
 
@@ -79,7 +79,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     if (qmlDocument->program()) {
          QmlJS::AST::UiProgram *program = qmlDocument->program();
-        qDebug() << "*** program:" << program;
+//        qDebug() << "*** program:" << program;
  
          if (program) {
             QmlExpressionUnderCursor expressionUnderCursor;

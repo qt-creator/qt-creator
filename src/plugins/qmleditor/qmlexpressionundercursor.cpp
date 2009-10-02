@@ -225,16 +225,16 @@ void QmlExpressionUnderCursor::parseExpression(const QTextBlock &block)
     Node *node = 0;
 
     if (UiObjectMember *binding = tryBinding(text)) {
-        qDebug() << "**** binding";
+//        qDebug() << "**** binding";
         node = binding;
     } else if (Statement *stmt = tryStatement(text)) {
-        qDebug() << "**** statement";
+//        qDebug() << "**** statement";
         node = stmt;
     } else if (ExpressionNode *expr = tryExpression(text)) {
-        qDebug() << "**** expression";
+//        qDebug() << "**** expression";
         node = expr;
     } else {
-        qDebug() << "**** none";
+//        qDebug() << "**** none";
     }
 
     if (node) {
