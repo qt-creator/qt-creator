@@ -80,8 +80,7 @@ void StackWindow::showAddressColumn(bool on)
 
 void StackWindow::rowActivated(const QModelIndex &index)
 {
-    //qDebug() << "ACTIVATED: " << index.row() << index.column();
-    emit frameActivated(index.row());
+    m_manager->activateFrame(index.row());
 }
 
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
@@ -115,7 +114,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
 
-    //menu.addAction(theDebuggerAction(UseTooltipsInStackView));
+    menu.addAction(theDebuggerAction(UseToolTipsInStackView));
     menu.addAction(theDebuggerAction(UseAddressInStackView));
 
     QAction *actAdjust = menu.addAction(tr("Adjust column widths to contents"));

@@ -19,16 +19,16 @@ sources.fileextensions  = "qtcreator.qdoc addressbook-sdk.qdoc"
 
 qhp.projects            = QtCreator
 qhp.QtCreator.file             = qtcreator.qhp
-qhp.QtCreator.namespace        = com.nokia.qtcreator.1291
+qhp.QtCreator.namespace        = com.nokia.qtcreator.1293
 qhp.QtCreator.virtualFolder    = doc
 qhp.QtCreator.indexTitle       = Qt Creator
 qhp.QtCreator.indexRoot        =
 qhp.QtCreator.extraFiles       = classic.css \
                           images/qt-logo.png \
                           images/qtcreator-screenshots.png
-qhp.QtCreator.filterAttributes = qtcreator 1.2.91
-qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 1.2.91
-qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 1.2.91
+qhp.QtCreator.filterAttributes = qtcreator 1.2.93
+qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 1.2.93
+qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 1.2.93
 
 # macros.qdocconf
 
@@ -211,5 +211,5 @@ HTML.footer             = "<p /><address><hr /><div align=\"center\">\n" \
                           "<table width=\"100%\" cellspacing=\"0\" border=\"0\"><tr class=\"address\">\n" \
                           "<td width=\"40%\" align=\"left\">Copyright &copy; 2009 Nokia Corporation and/or its subsidiary(-ies)</td>\n" \
                           "<td width=\"20%\" align=\"center\"><a href=\"trademarks.html\">Trademarks</a></td>\n" \
-                          "<td width=\"40%\" align=\"right\"><div align=\"right\">Qt Creator 1.2.91</div></td>\n" \
+                          "<td width=\"40%\" align=\"right\"><div align=\"right\">Qt Creator 1.2.93</div></td>\n" \
                           "</tr></table></div></address>"

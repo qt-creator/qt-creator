@@ -628,7 +628,8 @@ QString ScriptEditor::wordUnderCursor() const
 
 bool ScriptEditor::isElectricCharacter(const QChar &ch) const
 {
-    if (ch == QLatin1Char('}'))
+    if (ch == QLatin1Char('}')
+        || ch == QLatin1Char(']'))
         return true;
     return false;
 }
@@ -637,12 +638,13 @@ void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar typedCha
 {
     TextEditor::TabSettings ts = tabSettings();
 
-    if (typedChar == QLatin1Char('}')
-        || ((typedChar == QChar::Null) && block.text().trimmed() == "}")) {
+    if (typedChar == QLatin1Char('}') || typedChar == QLatin1Char(']')
+        || (typedChar == QChar::Null
+            && (block.text().trimmed() == "}" || block.text().trimmed() == "]"))) {
 
         QTextCursor tc(block);
 
-        if (typedChar == QLatin1Char('}'))
+        if (typedChar == QLatin1Char('}') || typedChar == QLatin1Char(']'))
             tc = textCursor();
 
         if (TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tc)) {

@@ -114,9 +114,20 @@ enum TargetConstants
     MemoryChunkSize = 256
 };
 
+struct Library
+{
+    Library() {}
+
+    QString name;
+    uint codeseg;
+    uint dataseg;
+};
+
 struct Session
 {
-    Session() {
+    Session() { reset(); }
+
+    void reset() {
         cpuMajor = 0;
         cpuMinor = 0;
         bigEndian = 0;
@@ -130,6 +141,7 @@ struct Session
         dataseg = 0;
 
         currentThread = 0;
+        libraries.clear();
     }
 
     // Trk feedback
@@ -146,6 +158,9 @@ struct Session
     uint dataseg;
     QHash<uint, uint> addressToBP;
 
+    typedef QList<Library> Libraries;
+    Libraries libraries;
+
     // Gdb request
     uint currentThread;
     QStringList modules;
@@ -159,6 +174,7 @@ struct Snapshot
     typedef QHash<uint, QByteArray> Memory;
     Memory memory;
 };
+
 
 struct Breakpoint
 {

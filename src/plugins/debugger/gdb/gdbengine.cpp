@@ -967,10 +967,7 @@ void GdbEngine::handleExecRunToFunction(const GdbResponse &response)
     setState(InferiorStopped);
     showStatusMessage(tr("Function reached. Stopped."));
     GdbMi frame = response.data.findChild("frame");
-    StackFrame f;
-    f.file = QString::fromLocal8Bit(frame.findChild("fullname").data());
-    f.line = frame.findChild("line").data().toInt();
-    f.address = _(frame.findChild("addr").data());
+    StackFrame f = parseStackFrame(frame, 0);
     gotoLocation(f, true);
 }
 
@@ -1166,11 +1163,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     // system="0.00136",start="1218810678.805432",end="1218810678.812011"}
     setState(InferiorStopped);
     showStatusMessage(tr("Run to Function finished. Stopped."));
-    GdbMi frame = data.findChild("frame");
-    StackFrame f;
-    f.file = QString::fromLocal8Bit(frame.findChild("fullname").data());
-    f.line = frame.findChild("line").data().toInt();
-    f.address = _(frame.findChild("addr").data());
+    StackFrame f = parseStackFrame(data.findChild("frame"), 0);
     gotoLocation(f, true);
 #endif
 }
@@ -1192,7 +1185,7 @@ void GdbEngine::reloadStack()
     // returns with "^error,msg="Previous frame identical to this frame
     // (corrupt stack?)". Might be related to the fact that we can't
     // access the memory belonging to the lower frames. But as we know
-    // this always happens, ask the second time immediately instead
+    // this sometimes happens, ask the second time immediately instead
     // of waiting for the first request to fail.
     if (m_gdbAdapter->isTrkAdapter())
         postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
@@ -1288,13 +1281,11 @@ void GdbEngine::handleStop2(const GdbMi &data)
         }
     }
 
-    // Quick shot
-    StackFrame f;
-    f.file = QFile::decodeName(fullName.data());
-    f.line = frame.findChild("line").data().toInt();
-    f.address = _(frame.findChild("addr").data());
-    f.function = _(frame.findChild("func").data());
-    gotoLocation(f, true);
+    // Quick shot: Jump to stack frame #0.
+    if (frame.isValid()) {
+        const StackFrame f = parseStackFrame(frame, 0);
+        gotoLocation(f, true);
+    }
 
     //
     // Stack
@@ -1852,11 +1843,7 @@ void GdbEngine::handleBreakList(const GdbResponse &response)
 
 void GdbEngine::handleBreakList(const GdbMi &table)
 {
-    //qDebug() << "GdbEngine::handleOutput: table:"
-    //  << table.toString();
     GdbMi body = table.findChild("body");
-    //qDebug() << "GdbEngine::handleOutput: body:"
-    //  << body.toString();
     QList<GdbMi> bkpts;
     if (body.isValid()) {
         // Non-Mac
@@ -1864,14 +1851,11 @@ void GdbEngine::handleBreakList(const GdbMi &table)
     } else {
         // Mac
         bkpts = table.children();
-        // remove the 'hdr' and artificial items
-        //qDebug() << "FOUND" << bkpts.size() << "BREAKPOINTS";
+        // Remove the 'hdr' and artificial items.
         for (int i = bkpts.size(); --i >= 0; ) {
             int num = bkpts.at(i).findChild("number").data().toInt();
-            if (num <= 0) {
-                //qDebug() << "REMOVING" << i << bkpts.at(i).toString();
+            if (num <= 0)
                 bkpts.removeAt(i);
-            }
         }
         //qDebug() << "LEFT" << bkpts.size() << "BREAKPOINTS";
     }
@@ -1924,8 +1908,8 @@ void GdbEngine::handleBreakCondition(const GdbResponse &response)
     int index = response.cookie.toInt();
     BreakHandler *handler = manager()->breakHandler();
     if (response.resultClass == GdbResultDone) {
-        // we just assume it was successful. otherwise we had to parse
-        // the output stream data
+        // We just assume it was successful. Otherwise we had to parse
+        // the output stream data.
         BreakpointData *data = handler->at(index);
         //qDebug() << "HANDLE BREAK CONDITION" << index << data->condition;
         data->bpCondition = data->condition;
@@ -1947,12 +1931,10 @@ void GdbEngine::handleBreakInsert(const GdbResponse &response)
     int index = response.cookie.toInt();
     BreakHandler *handler = manager()->breakHandler();
     if (response.resultClass == GdbResultDone) {
-        //qDebug() << "HANDLE BREAK INSERT" << index;
 //#if defined(Q_OS_MAC)
-        // interesting only on Mac?
+        // Interesting only on Mac?
         BreakpointData *data = handler->at(index);
         GdbMi bkpt = response.data.findChild("bkpt");
-        //qDebug() << "BKPT:" << bkpt.toString() << " DATA:" << data->toToolTip();
         breakpointDataFromOutput(data, bkpt);
 //#endif
         attemptBreakpointSynchronization();
@@ -1965,14 +1947,11 @@ void GdbEngine::handleBreakInsert(const GdbResponse &response)
         QFileInfo fi(data->fileName);
         QString where = _c('"') + fi.fileName() + _("\":")
             + data->lineNumber;
-        //QString where = m_data->fileName + _c(':') + data->lineNumber;
 #elif defined(Q_OS_MAC)
         QFileInfo fi(data->fileName);
         QString where = _c('"') + fi.fileName() + _("\":")
             + data->lineNumber;
 #else
-        //QString where = "\"\\\"" + data->fileName + "\\\":"
-        //    + data->lineNumber + "\"";
         QString where = _c('"') + data->fileName + _("\":")
             + data->lineNumber;
         // Should not happen with -break-insert -f. gdb older than 6.8?
@@ -2018,9 +1997,6 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
         data->markerLineNumber = data->bpLineNumber.toInt();
         data->markerFileName = full;
         data->bpFileName = full;
-        //qDebug() << "FOUND BREAKPOINT\n" << output
-        //    << re.cap(1) << "\n" << re.cap(2) << "\n"
-        //    << re.cap(3) << "\n" << re.cap(4) << "\n";
     } else {
         qDebug() << "COULD NOT MATCH " << re.pattern() << " AND " << output;
         data->bpNumber = _("<unavailable>");
@@ -2190,8 +2166,8 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
 {
     QList<Module> modules;
     if (response.resultClass == GdbResultDone) {
-        // that's console-based output, likely Linux or Windows,
-        // but we can avoid the #ifdef here
+        // That's console-based output, likely Linux or Windows,
+        // but we can avoid the #ifdef here.
         QString data = QString::fromLocal8Bit(response.data.findChild("consolestreamoutput").data());
         QTextStream ts(&data, QIODevice::ReadOnly);
         while (!ts.atEnd()) {
@@ -2253,6 +2229,22 @@ void GdbEngine::handleStackSelectThread(const GdbResponse &)
 }
 
 
+StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
+{
+    //qDebug() << "HANDLING FRAME:" << frameMi.toString();
+    QStringList files;
+    files.append(QFile::decodeName(frameMi.findChild("fullname").data()));
+    files.append(QFile::decodeName(frameMi.findChild("file").data()));
+    StackFrame frame;
+    frame.level = level;
+    frame.file = fullName(files);
+    frame.function = _(frameMi.findChild("func").data());
+    frame.from = _(frameMi.findChild("from").data());
+    frame.line = frameMi.findChild("line").data().toInt();
+    frame.address = _(frameMi.findChild("addr").data());
+    return frame;
+}
+
 void GdbEngine::handleStackListFrames(const GdbResponse &response)
 {
     #if defined(Q_OS_MAC)
@@ -2274,19 +2266,8 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
 
         int n = stack.childCount();
         for (int i = 0; i != n; ++i) {
-            //qDebug() << "HANDLING FRAME:" << stack.childAt(i).toString();
-            const GdbMi frameMi = stack.childAt(i);
-            StackFrame frame(i);
-            QStringList files;
-            files.append(QFile::decodeName(frameMi.findChild("fullname").data()));
-            files.append(QFile::decodeName(frameMi.findChild("file").data()));
-            frame.file = fullName(files);
-            frame.function = _(frameMi.findChild("func").data());
-            frame.from = _(frameMi.findChild("from").data());
-            frame.line = frameMi.findChild("line").data().toInt();
-            frame.address = _(frameMi.findChild("addr").data());
-
-            stackFrames.append(frame);
+            stackFrames.append(parseStackFrame(stack.childAt(i), i));
+            const StackFrame &frame = stackFrames.back();
 
             #if defined(Q_OS_WIN)
             const bool isBogus =
@@ -2296,14 +2277,15 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
                 // Also wrong. Happens on Vista with Gdb 5.50
                    || (frame.function == __("operator new") && frame.line == 151);
 
-            // immediately leave bogus frames
+            // Immediately leave bogus frames.
             if (topFrame == -1 && isBogus) {
                 postCommand(_("-exec-finish"));
                 return;
             }
             #endif
 
-            // Initialize top frame to the first valid frame
+            // Initialize top frame to the first valid frame.
+            // FIXME: Check for QFile(frame.fullname).isReadable()?
             const bool isValid = !frame.file.isEmpty() && !frame.function.isEmpty();
             if (isValid && topFrame == -1)
                 topFrame = i;
@@ -2314,12 +2296,23 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         theDebuggerAction(ExpandStack)->setEnabled(canExpand);
         manager()->stackHandler()->setFrames(stackFrames, canExpand);
 
-        if (topFrame != -1 && topFrame != 0) {
-            // For topFrame == -1 there is no frame at all, for topFrame == 0
-            // we already issued a 'gotoLocation' when reading the *stopped
-            // message.
+        #ifdef Q_OS_MAC
+        // Mac gdb does not add the location to the "stopped" message,
+        // so the early gotoLocation() was not triggered. Force it here.
+        bool jump = topFrame != -1
+            && !theDebuggerBoolSetting(OperateByInstruction);
+        #else
+        // For topFrame == -1 there is no frame at all, for topFrame == 0
+        // we already issued a 'gotoLocation' when reading the *stopped
+        // message. Also, when OperateByInstruction we always want to
+        // use frame #0.
+        bool jump = topFrame != -1 && topFrame != 0
+            && !theDebuggerBoolSetting(OperateByInstruction);
+        #endif
+        
+        if (jump) {
             const StackFrame &frame = manager()->stackHandler()->currentFrame();
-            qDebug() << "GOTO, 2nd try" << frame.toString();
+            qDebug() << "GOTO, 2nd try" << frame.toString() << topFrame;
             gotoLocation(frame, true);
         }
     } else {
@@ -2352,19 +2345,18 @@ void GdbEngine::activateFrame(int frameIndex)
 
     StackHandler *stackHandler = manager()->stackHandler();
     int oldIndex = stackHandler->currentIndex();
-    qDebug() << "ACTIVATE FRAME:" << frameIndex << oldIndex
-        << stackHandler->currentIndex();
 
     if (frameIndex == stackHandler->stackSize()) {
         reloadFullStack();
         return;
     }
+
     QTC_ASSERT(frameIndex < stackHandler->stackSize(), return);
 
     if (oldIndex != frameIndex) {
         setTokenBarrier();
 
-        // Assuming this always succeeds saves a roundtrip.
+        // Assuming the command always succeeds this saves a roundtrip.
         // Otherwise the lines below would need to get triggered
         // after a response to this -stack-select-frame here.
         postCommand(_("-stack-select-frame ") + QString::number(frameIndex));
@@ -2373,12 +2365,7 @@ void GdbEngine::activateFrame(int frameIndex)
         updateLocals();
     }
 
-    const StackFrame &frame = stackHandler->currentFrame();
-
-    if (frame.isUsable())
-        gotoLocation(frame, true);
-    else
-        qDebug() << "FULL NAME NOT USABLE:" << frame.file;
+    gotoLocation(stackHandler->currentFrame(), true);
 }
 
 void GdbEngine::handleStackListThreads(const GdbResponse &response)
@@ -3875,18 +3862,18 @@ void GdbEngine::fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
     QTC_ASSERT(agent, return);
     bool ok = true;
     quint64 address = agent->address().toULongLong(&ok, 0);
-    qDebug() << "ADDRESS: " << agent->address() << address;
+    //qDebug() << "ADDRESS: " << agent->address() << address;
     QTC_ASSERT(ok, return);
-    quint64 start = address - 20;
-    quint64 end = address + 100;
+    QString start = QString::number(address - 20, 16);
+    QString end = QString::number(address + 100, 16);
     // -data-disassemble [ -s start-addr -e end-addr ]
     //  | [ -f filename -l linenum [ -n lines ] ] -- mode
     if (useMixedMode) 
-        postCommand(_("-data-disassemble -s %1 -e %2 -- 1").arg(start).arg(end),
+        postCommand(_("-data-disassemble -s 0x%1 -e 0x%2 -- 1").arg(start).arg(end),
             Discardable, CB(handleFetchDisassemblerByAddress1),
             QVariant::fromValue(DisassemblerAgentCookie(agent)));
     else
-        postCommand(_("-data-disassemble -s %1 -e %2 -- 0").arg(start).arg(end),
+        postCommand(_("-data-disassemble -s 0x%1 -e 0x%2 -- 0").arg(start).arg(end),
             Discardable, CB(handleFetchDisassemblerByAddress0),
             QVariant::fromValue(DisassemblerAgentCookie(agent)));
 }
@@ -3959,6 +3946,9 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
         GdbMi lines = response.data.findChild("asm_insns");
         if (lines.children().isEmpty())
             fetchDisassemblerByAddress(ac.agent, true);
+        else if (lines.children().size() == 1
+                    && lines.childAt(0).findChild("line").data() == "0")
+            fetchDisassemblerByAddress(ac.agent, true);
         else
             ac.agent->setContents(parseDisassembler(lines));
     } else if (response.resultClass == GdbResultError) {
@@ -3980,8 +3970,15 @@ void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResponse &response)
         GdbMi lines = response.data.findChild("asm_insns");
         if (lines.children().isEmpty())
             fetchDisassemblerByAddress(ac.agent, false);
-        else
-            ac.agent->setContents(parseDisassembler(lines));
+        else {
+            QString contents = parseDisassembler(lines);
+            if (ac.agent->contentsCoversAddress(contents)) {
+                ac.agent->setContents(parseDisassembler(lines));
+            } else {
+                debugMessage(_("FALL BACK TO NON-MIXED"));
+                fetchDisassemblerByAddress(ac.agent, false);
+            }
+        }
     } else {
         // 26^error,msg="Cannot access memory at address 0x801ca308"
         QByteArray msg = response.data.findChild("msg").data();

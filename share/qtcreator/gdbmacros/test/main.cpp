@@ -227,7 +227,17 @@ static int dumpQMapQStringString()
 
 static int dumpQVariant()
 {
-    QVariant test(QLatin1String("item"));
+    QVariant test = QLatin1String("item");
+    prepareInBuffer("QVariant", "local.qvariant", "local.qvariant", "");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, 0, 0,0 ,0);
+    fputs(qDumpOutBuffer, stdout);
+    fputs("\n\n", stdout);
+    test = QVariant(int(42));
+    prepareInBuffer("QVariant", "local.qvariant", "local.qvariant", "");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, 0, 0,0 ,0);
+    fputs(qDumpOutBuffer, stdout);
+    fputs("\n\n", stdout);
+    test = QVariant(double(3.141));
     prepareInBuffer("QVariant", "local.qvariant", "local.qvariant", "");
     qDumpObjectData440(2, 42, testAddress(&test), 1, 0, 0,0 ,0);
     fputs(qDumpOutBuffer, stdout);

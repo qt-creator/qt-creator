@@ -724,6 +724,17 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerMessage("l<target><architecture>symbianelf</architecture></target>");
     }
 
+    else if (cmd.startsWith("qXfer:libraries:read")) {
+        sendGdbServerAck();
+        /*
+            <library-list>
+              <library name="/lib/libc.so.6">
+                <segment address="0x10000000"/>
+              </library>
+            </library-list>
+i        */
+    }
+
     else if (cmd == "QStartNoAckMode") {
         //$qSupported#37
         //logMessage("Handling 'QStartNoAckMode'");
@@ -952,9 +963,16 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             str << " CODE: " << hexxNumber(codeseg);
             str << " DATA: " << hexxNumber(dataseg);
             str << " NAME: '" << name << '\'';
+            Library lib;
+            lib.name = name;
+            lib.codeseg = codeseg;
+            lib.dataseg = dataseg;
+            m_session.libraries.append(lib);
             logMessage(logMsg);
-            // This lets gdb trigger a register update etc
-            //sendGdbServerMessage("T05library:r;");
+            // This lets gdb trigger a register update etc.
+            // With CS gdb 6.4 we get a non-standard $qfDllInfo#7f+ request
+            // afterwards, so don't use it for now.
+            //sendGdbServerMessage("T05library:;");
             sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
             break;
         }
@@ -1442,6 +1460,8 @@ void TrkGdbAdapter::startAdapter()
         m_remoteExecutable = parameters.processArgs.at(1);
         m_symbolFile = parameters.processArgs.at(2);
     }
+    // Unixish gdbs accept only forward slashes
+    m_symbolFile.replace(QLatin1Char('\\'), QLatin1Char('/'));
     // Start
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);

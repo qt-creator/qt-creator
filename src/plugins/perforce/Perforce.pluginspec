@@ -1,4 +1,4 @@
-<plugin name="Perforce" version="1.2.91" compatVersion="1.2.91">
+<plugin name="Perforce" version="1.2.93" compatVersion="1.2.93">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,9 +19,9 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Perforce integration.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.2.91"/>
-        <dependency name="ProjectExplorer" version="1.2.91"/>
-        <dependency name="Core" version="1.2.91"/>
-	<dependency name="VCSBase" version="1.2.91"/>
+        <dependency name="TextEditor" version="1.2.93"/>
+        <dependency name="ProjectExplorer" version="1.2.93"/>
+        <dependency name="Core" version="1.2.93"/>
+	<dependency name="VCSBase" version="1.2.93"/>
     </dependencyList>
 </plugin>

@@ -378,8 +378,6 @@ void DebuggerManager::init()
     QAbstractItemView *stackView =
         qobject_cast<QAbstractItemView *>(d->m_stackWindow);
     stackView->setModel(d->m_stackHandler->stackModel());
-    connect(stackView, SIGNAL(frameActivated(int)),
-        this, SLOT(activateFrame(int)));
     connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
         this, SLOT(reloadFullStack()));
     connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),
@@ -1634,14 +1632,14 @@ void DebuggerManager::setState(DebuggerState state)
 
     showDebuggerOutput(LogDebug, msg);
 
-    resetLocation();
+    //resetLocation();
     if (state == d->m_state)
         return;
 
     d->m_state = state;
 
-    if (d->m_state == InferiorStopped)
-        resetLocation();
+    //if (d->m_state == InferiorStopped)
+    //    resetLocation();
 
     if (d->m_state == DebuggerNotReady) {
         setBusyCursor(false);
