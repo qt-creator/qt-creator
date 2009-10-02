@@ -9,6 +9,7 @@
 #include <texteditor/basetexteditor.h>
 #include <QtDebug>
 
+using namespace QmlEditor;
 using namespace QmlEditor::Internal;
 
 QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager,QObject *parent)
