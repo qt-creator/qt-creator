@@ -969,8 +969,10 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             lib.dataseg = dataseg;
             m_session.libraries.append(lib);
             logMessage(logMsg);
-            // This lets gdb trigger a register update etc
-            sendGdbServerMessage("T05library:;");
+            // This lets gdb trigger a register update etc.
+            // With CS gdb 6.4 we get a non-standard $qfDllInfo#7f+ request
+            // afterwards, so don't use it for now.
+            //sendGdbServerMessage("T05library:;");
             sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
             break;
         }

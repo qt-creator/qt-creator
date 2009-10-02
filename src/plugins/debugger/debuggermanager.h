@@ -228,9 +228,10 @@ public slots:
 
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
-private slots:
+public slots: // FIXME
     void showDebuggerOutput(const QString &msg)
         { showDebuggerOutput(LogDebug, msg); }
+private slots:
     void showDebuggerOutput(int channel, const QString &msg);
     void showDebuggerInput(int channel, const QString &msg);
     void showApplicationOutput(const QString &data);

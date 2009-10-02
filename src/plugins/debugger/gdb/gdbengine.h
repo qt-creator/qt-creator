@@ -156,6 +156,7 @@ private:
 
     bool supportsThreads() const;
     void gotoLocation(const StackFrame &frame, bool setLocationMarker);
+    StackFrame parseStackFrame(const GdbMi &mi, int level);
 
     void connectAdapter();
     void disconnectAdapter();

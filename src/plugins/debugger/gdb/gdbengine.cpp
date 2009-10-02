@@ -967,10 +967,7 @@ void GdbEngine::handleExecRunToFunction(const GdbResponse &response)
     setState(InferiorStopped);
     showStatusMessage(tr("Function reached. Stopped."));
     GdbMi frame = response.data.findChild("frame");
-    StackFrame f;
-    f.file = QString::fromLocal8Bit(frame.findChild("fullname").data());
-    f.line = frame.findChild("line").data().toInt();
-    f.address = _(frame.findChild("addr").data());
+    StackFrame f = parseStackFrame(frame, 0);
     gotoLocation(f, true);
 }
 
@@ -1166,11 +1163,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     // system="0.00136",start="1218810678.805432",end="1218810678.812011"}
     setState(InferiorStopped);
     showStatusMessage(tr("Run to Function finished. Stopped."));
-    GdbMi frame = data.findChild("frame");
-    StackFrame f;
-    f.file = QString::fromLocal8Bit(frame.findChild("fullname").data());
-    f.line = frame.findChild("line").data().toInt();
-    f.address = _(frame.findChild("addr").data());
+    StackFrame f = parseStackFrame(data.findChild("frame"), 0);
     gotoLocation(f, true);
 #endif
 }
@@ -1288,13 +1281,11 @@ void GdbEngine::handleStop2(const GdbMi &data)
         }
     }
 
-    // Quick shot
-    StackFrame f;
-    f.file = QFile::decodeName(fullName.data());
-    f.line = frame.findChild("line").data().toInt();
-    f.address = _(frame.findChild("addr").data());
-    f.function = _(frame.findChild("func").data());
-    gotoLocation(f, true);
+    // Quick shot: Jump to stack frame #0.
+    if (frame.isValid()) {
+        const StackFrame f = parseStackFrame(frame, 0);
+        gotoLocation(f, true);
+    }
 
     //
     // Stack
@@ -2253,6 +2244,22 @@ void GdbEngine::handleStackSelectThread(const GdbResponse &)
 }
 
 
+StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
+{
+    //qDebug() << "HANDLING FRAME:" << frameMi.toString();
+    QStringList files;
+    files.append(QFile::decodeName(frameMi.findChild("fullname").data()));
+    files.append(QFile::decodeName(frameMi.findChild("file").data()));
+    StackFrame frame;
+    frame.level = level;
+    frame.file = fullName(files);
+    frame.function = _(frameMi.findChild("func").data());
+    frame.from = _(frameMi.findChild("from").data());
+    frame.line = frameMi.findChild("line").data().toInt();
+    frame.address = _(frameMi.findChild("addr").data());
+    return frame;
+}
+
 void GdbEngine::handleStackListFrames(const GdbResponse &response)
 {
     #if defined(Q_OS_MAC)
@@ -2274,19 +2281,8 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
 
         int n = stack.childCount();
         for (int i = 0; i != n; ++i) {
-            //qDebug() << "HANDLING FRAME:" << stack.childAt(i).toString();
-            const GdbMi frameMi = stack.childAt(i);
-            StackFrame frame(i);
-            QStringList files;
-            files.append(QFile::decodeName(frameMi.findChild("fullname").data()));
-            files.append(QFile::decodeName(frameMi.findChild("file").data()));
-            frame.file = fullName(files);
-            frame.function = _(frameMi.findChild("func").data());
-            frame.from = _(frameMi.findChild("from").data());
-            frame.line = frameMi.findChild("line").data().toInt();
-            frame.address = _(frameMi.findChild("addr").data());
-
-            stackFrames.append(frame);
+            stackFrames.append(parseStackFrame(stack.childAt(i), i));
+            const StackFrame &frame = stackFrames.back();
 
             #if defined(Q_OS_WIN)
             const bool isBogus =
@@ -3875,18 +3871,18 @@ void GdbEngine::fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
     QTC_ASSERT(agent, return);
     bool ok = true;
     quint64 address = agent->address().toULongLong(&ok, 0);
-    qDebug() << "ADDRESS: " << agent->address() << address;
+    //qDebug() << "ADDRESS: " << agent->address() << address;
     QTC_ASSERT(ok, return);
-    quint64 start = address - 20;
-    quint64 end = address + 100;
+    QString start = QString::number(address - 20, 16);
+    QString end = QString::number(address + 100, 16);
     // -data-disassemble [ -s start-addr -e end-addr ]
     //  | [ -f filename -l linenum [ -n lines ] ] -- mode
     if (useMixedMode) 
-        postCommand(_("-data-disassemble -s %1 -e %2 -- 1").arg(start).arg(end),
+        postCommand(_("-data-disassemble -s 0x%1 -e 0x%2 -- 1").arg(start).arg(end),
             Discardable, CB(handleFetchDisassemblerByAddress1),
             QVariant::fromValue(DisassemblerAgentCookie(agent)));
     else
-        postCommand(_("-data-disassemble -s %1 -e %2 -- 0").arg(start).arg(end),
+        postCommand(_("-data-disassemble -s 0x%1 -e 0x%2 -- 0").arg(start).arg(end),
             Discardable, CB(handleFetchDisassemblerByAddress0),
             QVariant::fromValue(DisassemblerAgentCookie(agent)));
 }
@@ -3957,7 +3953,12 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
 
     if (response.resultClass == GdbResultDone) {
         GdbMi lines = response.data.findChild("asm_insns");
+        if (!lines.children().isEmpty())
+            qDebug() << "LINES: " << lines.childAt(0).findChild("line").data();
         if (lines.children().isEmpty())
+            fetchDisassemblerByAddress(ac.agent, true);
+        else if (lines.children().size() == 1
+                    && lines.childAt(0).findChild("line").data() == "0")
             fetchDisassemblerByAddress(ac.agent, true);
         else
             ac.agent->setContents(parseDisassembler(lines));
@@ -3980,8 +3981,15 @@ void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResponse &response)
         GdbMi lines = response.data.findChild("asm_insns");
         if (lines.children().isEmpty())
             fetchDisassemblerByAddress(ac.agent, false);
-        else
-            ac.agent->setContents(parseDisassembler(lines));
+        else {
+            QString contents = parseDisassembler(lines);
+            if (ac.agent->contentsCoversAddress(contents)) {
+                ac.agent->setContents(parseDisassembler(lines));
+            } else {
+                qDebug() << "FALL BACK TO NON-MIXED";
+                fetchDisassemblerByAddress(ac.agent, false);
+            }
+        }
     } else {
         // 26^error,msg="Cannot access memory at address 0x801ca308"
         QByteArray msg = response.data.findChild("msg").data();

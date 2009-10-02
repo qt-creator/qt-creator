@@ -1634,14 +1634,14 @@ void DebuggerManager::setState(DebuggerState state)
 
     showDebuggerOutput(LogDebug, msg);
 
-    resetLocation();
+    //resetLocation();
     if (state == d->m_state)
         return;
 
     d->m_state = state;
 
-    if (d->m_state == InferiorStopped)
-        resetLocation();
+    //if (d->m_state == InferiorStopped)
+    //    resetLocation();
 
     if (d->m_state == DebuggerNotReady) {
         setBusyCursor(false);

@@ -39,8 +39,8 @@
 
 using namespace Debugger::Internal;
 
-StackFrame::StackFrame(int l)
-  : level(l), line(0)
+StackFrame::StackFrame()
+  : level(0), line(0)
 {}
 
 bool StackFrame::isUsable() const
