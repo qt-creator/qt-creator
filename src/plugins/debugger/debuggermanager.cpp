@@ -378,8 +378,6 @@ void DebuggerManager::init()
     QAbstractItemView *stackView =
         qobject_cast<QAbstractItemView *>(d->m_stackWindow);
     stackView->setModel(d->m_stackHandler->stackModel());
-    connect(stackView, SIGNAL(frameActivated(int)),
-        this, SLOT(activateFrame(int)));
     connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
         this, SLOT(reloadFullStack()));
     connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),

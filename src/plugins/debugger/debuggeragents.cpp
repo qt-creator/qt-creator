@@ -219,6 +219,9 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame)
         QHash<QString, QString>::ConstIterator it =
             d->cache.find(frame.function + frame.file);
         if (it != d->cache.end()) {
+            QString msg = _("Use cache dissassembler for '%1' in '%2'")
+                .arg(frame.function).arg(frame.file);
+            m_manager->showDebuggerOutput(msg);
             setContents(*it);
             return;
         }
