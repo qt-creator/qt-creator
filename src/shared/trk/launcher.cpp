@@ -127,8 +127,6 @@ bool Launcher::startServer(QString *errorMessage)
     d->m_device.sendTrkMessage(TrkSupported, TrkCallback(this, &Launcher::handleSupportMask));
     d->m_device.sendTrkMessage(TrkCpuType, TrkCallback(this, &Launcher::handleCpuType));
     d->m_device.sendTrkMessage(TrkVersions, TrkCallback(this, &Launcher::handleTrkVersion));
-    if (d->m_fileName.isEmpty())
-        return true;
     if (d->m_copyState.sourceFileName.isEmpty() || d->m_copyState.destinationFileName.isEmpty())
         installAndRun();
     else
@@ -144,12 +142,12 @@ void Launcher::setVerbose(int v)
 
 void Launcher::installAndRun()
 {
-    if (!d->m_installFileName.isEmpty()) {
-        installRemotePackageSilently(d->m_installFileName);
-    } else {
+    if (d->m_installFileName.isEmpty())
         startInferiorIfNeeded();
-    }
+    else
+        installRemotePackageSilently(d->m_installFileName);
 }
+
 void Launcher::logMessage(const QString &msg)
 {
     if (d->m_verbose)
@@ -295,7 +293,6 @@ void Launcher::handleTrkVersion(const TrkResult &result)
                 << " float size: " << d->m_session.fpTypeSize
                 << " Trk: v" << trkMajor << '.' << trkMinor << " Protocol: " << protocolMajor << '.' << protocolMinor;
         qWarning("%s", qPrintable(msg));
-        d->m_device.sendTrkMessage(TrkPing, TrkCallback(this, &Launcher::waitForTrkFinished));
     }
 }
 
@@ -497,15 +494,18 @@ void Launcher::installRemotePackageSilently(const QString &fileName)
 
 void Launcher::handleInstallPackageFinished(const TrkResult &)
 {
-    if (d->m_fileName.isEmpty()) {
+    if (d->m_fileName.isEmpty())
         emit finished();
-    } else {
+    else
         startInferiorIfNeeded();
-    }
 }
 
 void Launcher::startInferiorIfNeeded()
 {
+    if (d->m_fileName.isEmpty()) {
+        d->m_device.sendTrkMessage(TrkPing, TrkCallback(this, &Launcher::waitForTrkFinished));
+        return;
+    }
     emit startingApplication();
     if (d->m_session.pid != 0) {
         logMessage("Process already 'started'");
