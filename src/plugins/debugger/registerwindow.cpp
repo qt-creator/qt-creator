@@ -144,8 +144,7 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 RegisterWindow::RegisterWindow(DebuggerManager *manager)
-  : m_manager(manager), m_alwaysResizeColumnsToContents(true),
-    m_alwaysReloadContents(false)
+  : m_manager(manager), m_alwaysResizeColumnsToContents(true)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Registers"));
@@ -167,9 +166,6 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     QMenu menu;
 
     QAction *actReload = menu.addAction(tr("Reload register listing"));
-    QAction *actAlwaysReload = menu.addAction(tr("Always reload register listing"));
-    actAlwaysReload->setCheckable(true);
-    actAlwaysReload->setChecked(m_alwaysReloadContents);
     menu.addSeparator();
 
     QModelIndex idx = indexAt(ev->pos());
@@ -214,9 +210,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == actAlwaysAdjust)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == actReload)
-        reloadContents();
-    else if (act == actAlwaysReload)
-        setAlwaysReloadContents(!m_alwaysReloadContents);
+        m_manager->reloadRegisters();
     else if (act == actShowMemory)
         (void) new MemoryViewAgent(m_manager, address);
     else if (act) {
@@ -238,18 +232,6 @@ void RegisterWindow::setAlwaysResizeColumnsToContents(bool on)
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);
     header()->setResizeMode(1, mode);
-}
-
-void RegisterWindow::setAlwaysReloadContents(bool on)
-{
-    m_alwaysReloadContents = on;
-    if (m_alwaysReloadContents)
-        reloadContents();
-}
-
-void RegisterWindow::reloadContents()
-{
-    emit reloadRegisterRequested();
 }
 
 
