@@ -62,7 +62,7 @@ struct TEXTEDITOR_EXPORT TabSettings
     int columnAt(const QString &text, int position) const;
     int spacesLeftFromPosition(const QString &text, int position) const;
     int indentedColumn(int column, bool doIndent = true) const;
-    QString indentationString(int startColumn, int targetColumn) const;
+    QString indentationString(int startColumn, int targetColumn, const QTextBlock& block = QTextBlock()) const;
     QString indentationString(const QString &text) const;
     int indentationColumn(const QString &text) const;
 
@@ -74,8 +74,10 @@ struct TEXTEDITOR_EXPORT TabSettings
     int trailingWhitespaces(const QString &text) const;
     bool isIndentationClean(const QString &text) const;
     bool tabShouldIndent(const QTextDocument *document, QTextCursor cursor, int *suggestedPosition = 0) const;
+    bool guessSpacesForTabs(const QTextBlock& block) const;
 
     bool m_spacesForTabs;
+    bool m_autoSpacesForTabs;
     bool m_autoIndent;
     bool m_smartBackspace;
     int m_tabSize;

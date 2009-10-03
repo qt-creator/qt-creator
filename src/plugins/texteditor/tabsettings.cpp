@@ -48,6 +48,7 @@ namespace TextEditor {
 
 TabSettings::TabSettings() :
     m_spacesForTabs(true),
+    m_autoSpacesForTabs(false),
     m_autoIndent(true),
     m_smartBackspace(false),
     m_tabSize(8),
@@ -223,10 +224,29 @@ int TabSettings::indentedColumn(int column, bool doIndent) const
     return qMax(0, aligned - m_indentSize);
 }
 
-QString TabSettings::indentationString(int startColumn, int targetColumn) const
+bool TabSettings::guessSpacesForTabs(const QTextBlock& _block) const {
+    if (m_autoSpacesForTabs && _block.isValid()) {
+        QTextBlock block = _block;
+        const QTextDocument* doc = block.document();
+        while (block.isValid() && block != doc->begin()) {
+            block = block.previous();
+            if (block.text().isEmpty())
+                continue;
+            QChar firstChar = block.text().at(0);
+            if (firstChar == QLatin1Char(' ')) {
+                return true;
+            } else if (firstChar == QLatin1Char('\t')) {
+                return false;
+            }
+        }
+    }
+    return m_spacesForTabs;
+}
+
+QString TabSettings::indentationString(int startColumn, int targetColumn, const QTextBlock& block) const
 {
     targetColumn = qMax(startColumn, targetColumn);
-    if (m_spacesForTabs)
+    if (guessSpacesForTabs(block))
         return QString(targetColumn - startColumn, QLatin1Char(' '));
 
     QString s;
@@ -252,7 +272,7 @@ void TabSettings::indentLine(QTextBlock block, int newIndent) const
     if (indentationColumn(text) == newIndent)
         return;
 
-    const QString indentString = indentationString(0, newIndent);
+    const QString indentString = indentationString(0, newIndent, block);
     newIndent = indentString.length();
 
     if (oldBlockLength == indentString.length() && text == indentString)
@@ -278,7 +298,7 @@ void TabSettings::reindentLine(QTextBlock block, int delta) const
     if (oldIndent == newIndent)
         return;
 
-    const QString indentString = indentationString(0, newIndent);
+    const QString indentString = indentationString(0, newIndent, block);
     newIndent = indentString.length();
 
     if (oldBlockLength == indentString.length() && text == indentString)
