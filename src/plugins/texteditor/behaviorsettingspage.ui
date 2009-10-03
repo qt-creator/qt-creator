@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>615</width>
-    <height>421</height>
+    <height>461</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -27,13 +27,46 @@
          </widget>
         </item>
         <item row="1" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>30</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="autoInsertSpaces">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Automatically determine whether to insert spaces or tabs based on the previous line in the file</string>
+            </property>
+            <property name="text">
+             <string>Based on the previous line</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="2" column="0">
          <widget class="QCheckBox" name="autoIndent">
           <property name="text">
            <string>Enable automatic &amp;indentation</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QCheckBox" name="smartBackspace">
           <property name="toolTip">
            <string>Backspace will go back one indentation level instead of one space.</string>
@@ -75,6 +108,42 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="1" rowspan="5">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="4" rowspan="4">
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="4" column="0">
+         <widget class="QCheckBox" name="indentBraces">
+          <property name="toolTip">
+           <string>Braces will be flush with indented block, except first indent level.</string>
+          </property>
+          <property name="text">
+           <string>Indent brace&amp;s</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="2">
          <widget class="QLabel" name="labelIndentSize">
           <property name="sizePolicy">
@@ -104,42 +173,6 @@
           </property>
           <property name="maximum">
            <number>20</number>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" rowspan="4">
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="0" column="4" rowspan="4">
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="3" column="0">
-         <widget class="QCheckBox" name="indentBraces">
-          <property name="toolTip">
-           <string>Braces will be flush with indented block, except first indent level.</string>
-          </property>
-          <property name="text">
-           <string>Indent brace&amp;s</string>
           </property>
          </widget>
         </item>
@@ -328,7 +361,6 @@
   <tabstop>insertSpaces</tabstop>
   <tabstop>tabSize</tabstop>
   <tabstop>autoIndent</tabstop>
-  <tabstop>indentSize</tabstop>
   <tabstop>smartBackspace</tabstop>
   <tabstop>tabKeyBehavior</tabstop>
   <tabstop>cleanWhitespace</tabstop>
@@ -345,12 +377,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>47</x>
-     <y>184</y>
+     <x>67</x>
+     <y>252</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>212</y>
+     <x>148</x>
+     <y>281</y>
     </hint>
    </hints>
   </connection>
@@ -361,12 +393,28 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
+     <x>40</x>
+     <y>251</y>
     </hint>
     <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
+     <x>77</x>
+     <y>310</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>insertSpaces</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>autoInsertSpaces</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>105</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>78</y>
     </hint>
    </hints>
   </connection>
