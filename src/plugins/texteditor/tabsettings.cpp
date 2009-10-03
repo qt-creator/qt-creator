@@ -85,14 +85,14 @@ void TabSettings::fromSettings(const QString &category, const QSettings *s)
 
     *this = TabSettings(); // Assign defaults
 
-    m_spacesForTabs   = s->value(group + QLatin1String(spacesForTabsKey), m_spacesForTabs).toBool();
+    m_spacesForTabs     = s->value(group + QLatin1String(spacesForTabsKey), m_spacesForTabs).toBool();
     m_autoSpacesForTabs = s->value(group + QLatin1String(autoSpacesForTabsKey), m_autoSpacesForTabs).toBool();
-    m_autoIndent      = s->value(group + QLatin1String(autoIndentKey), m_autoIndent).toBool();
-    m_smartBackspace  = s->value(group + QLatin1String(smartBackspaceKey), m_smartBackspace).toBool();
-    m_tabSize         = s->value(group + QLatin1String(tabSizeKey), m_tabSize).toInt();
-    m_indentSize      = s->value(group + QLatin1String(indentSizeKey), m_indentSize).toInt();
-    m_indentBraces    = s->value(group + QLatin1String(indentBracesKey), m_indentBraces).toBool();
-    m_tabKeyBehavior  = (TabKeyBehavior)s->value(group + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior).toInt();
+    m_autoIndent        = s->value(group + QLatin1String(autoIndentKey), m_autoIndent).toBool();
+    m_smartBackspace    = s->value(group + QLatin1String(smartBackspaceKey), m_smartBackspace).toBool();
+    m_tabSize           = s->value(group + QLatin1String(tabSizeKey), m_tabSize).toInt();
+    m_indentSize        = s->value(group + QLatin1String(indentSizeKey), m_indentSize).toInt();
+    m_indentBraces      = s->value(group + QLatin1String(indentBracesKey), m_indentBraces).toBool();
+    m_tabKeyBehavior    = (TabKeyBehavior)s->value(group + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior).toInt();
 }
 
 
