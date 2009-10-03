@@ -231,7 +231,8 @@ bool TabSettings::guessSpacesForTabs(const QTextBlock& _block) const {
     if (m_autoSpacesForTabs && _block.isValid()) {
         QTextBlock block = _block;
         const QTextDocument* doc = block.document();
-        while (block.isValid() && block != doc->begin()) {
+        int maxLookBack = 100;
+        while (block.isValid() && block != doc->begin() && maxLookBack-- > 0) {
             block = block.previous();
             if (block.text().isEmpty())
                 continue;
