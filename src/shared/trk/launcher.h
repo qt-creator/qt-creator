@@ -72,6 +72,7 @@ signals:
     void canNotCreateFile(const QString &filename, const QString &errorMessage);
     void canNotWriteFile(const QString &filename, const QString &errorMessage);
     void installingStarted();
+    void canNotInstall(const QString &packageFilename, const QString &errorMessage);
     void startingApplication();
     void applicationRunning(uint pid);
     void canNotRun(const QString &errorMessage);
@@ -104,7 +105,7 @@ private:
     void waitForTrkFinished(const TrkResult &data);
 
     void copyFileToRemote();
-    void installRemotePackageSilently(const QString &filename);
+    void installRemotePackageSilently();
     void startInferiorIfNeeded();
 
     void logMessage(const QString &msg);

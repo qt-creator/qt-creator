@@ -630,6 +630,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
     connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(printWriteFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
+    connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(printInstallFailed(QString,QString)));
     connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
 
     //TODO sisx destination and file path user definable
@@ -674,6 +675,11 @@ void S60DeviceRunControlBase::printCopyProgress(int progress)
 void S60DeviceRunControlBase::printInstallingNotice()
 {
     emit addToOutputWindow(this, tr("Installing application..."));
+}
+
+void S60DeviceRunControlBase::printInstallFailed(const QString &filename, const QString &errorMessage)
+{
+    emit addToOutputWindow(this, tr("Could not install from package %1 on device: %2").arg(filename, errorMessage));
 }
 
 void S60DeviceRunControlBase::launcherFinished()

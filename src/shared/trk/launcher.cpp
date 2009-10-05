@@ -155,7 +155,7 @@ bool Launcher::startServer(QString *errorMessage)
     if (d->m_startupActions & ActionCopy)
         copyFileToRemote();
     else if (d->m_startupActions & ActionInstall)
-        installRemotePackageSilently(d->m_installFileName);
+        installRemotePackageSilently();
     else if (d->m_startupActions & ActionRun)
         startInferiorIfNeeded();
     return true;
@@ -379,7 +379,7 @@ void Launcher::handleFileCopied(const TrkResult &result)
 {
     Q_UNUSED(result)
     if (d->m_startupActions & ActionInstall)
-        installRemotePackageSilently(d->m_installFileName);
+        installRemotePackageSilently();
     else if (d->m_startupActions & ActionRun)
         startInferiorIfNeeded();
     else
@@ -518,21 +518,25 @@ void Launcher::copyFileToRemote()
     d->m_device.sendTrkMessage(TrkOpenFile, TrkCallback(this, &Launcher::handleFileCreation), ba);
 }
 
-void Launcher::installRemotePackageSilently(const QString &fileName)
+void Launcher::installRemotePackageSilently()
 {
     emit installingStarted();
     QByteArray ba;
     appendByte(&ba, 'C');
-    appendString(&ba, fileName.toLocal8Bit(), TargetByteOrder, false);
+    appendString(&ba, d->m_installFileName.toLocal8Bit(), TargetByteOrder, false);
     d->m_device.sendTrkMessage(TrkInstallFile, TrkCallback(this, &Launcher::handleInstallPackageFinished), ba);
 }
 
-void Launcher::handleInstallPackageFinished(const TrkResult &)
+void Launcher::handleInstallPackageFinished(const TrkResult &result)
 {
-    if (d->m_startupActions & ActionRun)
-        startInferiorIfNeeded();
-    else
+    if (result.errorCode()) {
+        emit canNotInstall(d->m_installFileName, result.errorString());
         emit finished();
+    } else if (d->m_startupActions & ActionRun) {
+        startInferiorIfNeeded();
+    } else {
+        emit finished();
+    }
 }
 
 void Launcher::startInferiorIfNeeded()

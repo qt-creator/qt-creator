@@ -175,6 +175,7 @@ private slots:
     void printWriteFileFailed(const QString &filename, const QString &errorMessage);
     void printCopyProgress(int progress);
     void printInstallingNotice();
+    void printInstallFailed(const QString &filename, const QString &errorMessage);
     void launcherFinished();
 
 private:
