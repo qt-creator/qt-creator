@@ -71,7 +71,10 @@ QString ProcessStep::name()
 
 void ProcessStep::setDisplayName(const QString &name)
 {
-    setValue("ProjectExplorer.ProcessStep.DisplayName", name);
+    if (name.isEmpty())
+        setValue("ProjectExplorer.ProcessStep.DisplayName", QVariant());
+    else
+        setValue("ProjectExplorer.ProcessStep.DisplayName", name);
 }
 
 QString ProcessStep::displayName()
@@ -148,8 +151,12 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
 
 void ProcessStepConfigWidget::updateDetails()
 {
-    m_summaryText = tr("<b>Process Step</b> %1 %2 %3")
-                    .arg(m_step->command(m_buildConfiguration),
+    QString displayName = m_step->displayName();
+    if (displayName.isEmpty())
+        displayName = "Custom Process Step";
+    m_summaryText = tr("<b>%1</b> %2 %3 %4")
+                    .arg(displayName,
+                         m_step->command(m_buildConfiguration),
                          m_step->arguments(m_buildConfiguration).join(" "),
                          m_step->enabled(m_buildConfiguration) ? "" : tr("(disabled)"));
     emit updateSummary();
@@ -186,6 +193,7 @@ QString ProcessStepConfigWidget::summaryText() const
 void ProcessStepConfigWidget::nameLineEditTextEdited()
 {
     m_step->setDisplayName(m_ui.nameLineEdit->text());
+    emit updateDetails();
 }
 
 void ProcessStepConfigWidget::commandLineEditTextEdited()
