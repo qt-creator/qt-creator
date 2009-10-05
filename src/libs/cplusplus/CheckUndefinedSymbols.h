@@ -59,6 +59,8 @@ protected:
     void buildTypeMap(Class *klass);
     void buildMemberTypeMap(Symbol *member);
     void buildTypeMap(NamespaceBinding *binding, QSet<NamespaceBinding *> *processed);
+    void addProtocol(Name *name);
+    bool isProtocol(const QByteArray &name) const;
 
     FunctionDeclaratorAST *currentFunctionDeclarator() const;
     CompoundStatementAST *compoundStatement() const;
@@ -92,6 +94,9 @@ protected:
     virtual bool visit(CastExpressionAST *ast);
     virtual bool visit(SizeofExpressionAST *ast);
 
+    virtual bool visit(ObjCClassDeclarationAST *ast);
+    virtual bool visit(ObjCProtocolRefsAST *ast);
+
 private:
     Document::Ptr _doc;
     NamespaceBindingPtr _globalNamespaceBinding;
@@ -100,6 +105,7 @@ private:
     QList<TemplateDeclarationAST *> _templateDeclarationStack;
     QList<CompoundStatementAST *> _compoundStatementStack;
     QSet<QByteArray> _types;
+    QSet<QByteArray> _protocols;
     QSet<QByteArray> _namespaceNames;
 };
 
