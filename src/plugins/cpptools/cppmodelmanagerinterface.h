@@ -101,7 +101,8 @@ public:
                                   CPlusPlus::Document::Ptr doc,
                                   const CPlusPlus::Snapshot &snapshot) = 0;
 
-    virtual void findReferences(CPlusPlus::Symbol *symbol) = 0;
+    virtual void renameUsages(CPlusPlus::Symbol *symbol) = 0;
+    virtual void findUsages(CPlusPlus::Symbol *symbol) = 0;
 };
 
 class CPPTOOLS_EXPORT AbstractEditorSupport

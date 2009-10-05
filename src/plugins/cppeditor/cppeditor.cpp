@@ -862,7 +862,21 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
     return canonicalSymbol;
 }
 
-void CPPEditor::findReferences()
+
+void CPPEditor::findUsages()
+{
+    updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
+
+    SemanticInfo info = m_lastSemanticInfo;
+
+    if (! info.doc)
+        return;
+
+    if (Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot))
+        m_modelManager->findUsages(canonicalSymbol);
+}
+
+void CPPEditor::renameUsages()
 {
     m_currentRenameSelection = -1;
 
@@ -896,7 +910,7 @@ void CPPEditor::findReferences()
 
             setExtraSelections(CodeSemanticsSelection, selections);
 
-            m_modelManager->findReferences(canonicalSymbol);
+            m_modelManager->renameUsages(canonicalSymbol);
         }
     }
 }
@@ -920,7 +934,7 @@ void CPPEditor::renameSymbolUnderCursor()
     }
 
     if (m_renameSelections.isEmpty())
-        findReferences();
+        renameUsages();
 }
 
 void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded)

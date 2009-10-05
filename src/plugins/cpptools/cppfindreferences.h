@@ -62,12 +62,16 @@ Q_SIGNALS:
     void changed();
 
 public:
-    void findAll(CPlusPlus::Symbol *symbol);
+    void findUsages(CPlusPlus::Symbol *symbol);
+    void renameUsages(CPlusPlus::Symbol *symbol);
 
 private Q_SLOTS:
     void displayResult(int);
     void searchFinished();
     void openEditor(const QString&, int, int);
+
+private:
+    void findAll_helper(CPlusPlus::Symbol *symbol);
 
 private:
     QPointer<CppModelManager> _modelManager;

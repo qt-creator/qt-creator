@@ -197,7 +197,8 @@ public Q_SLOTS:
     void switchDeclarationDefinition();
     void jumpToDefinition();
     void renameSymbolUnderCursor();
-    void findReferences();
+    void renameUsages();
+    void findUsages();
 
     void moveToPreviousToken();
     void moveToNextToken();

@@ -532,10 +532,21 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
     future.setProgressValue(files.size());
 }
 
-void CppFindReferences::findAll(Symbol *symbol)
+void CppFindReferences::findUsages(Symbol *symbol)
+{
+    _resultWindow->clearContents();
+    findAll_helper(symbol);
+}
+
+void CppFindReferences::renameUsages(Symbol *symbol)
 {
     _resultWindow->clearContents();
     _resultWindow->setShowReplaceUI(true);
+    findAll_helper(symbol);
+}
+
+void CppFindReferences::findAll_helper(Symbol *symbol)
+{
     _resultWindow->popup(true);
 
     const Snapshot snapshot = _modelManager->snapshot();
