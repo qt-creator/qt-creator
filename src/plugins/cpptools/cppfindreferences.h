@@ -70,6 +70,7 @@ private Q_SLOTS:
     void displayResult(int);
     void searchFinished();
     void openEditor(const Find::SearchResultItem &item);
+    void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
 
 private:
     void findAll_helper(CPlusPlus::Symbol *symbol);

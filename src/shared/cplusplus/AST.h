@@ -2994,6 +2994,7 @@ public:
     ObjCTypeNameAST *type_name;
     ObjCSelectorAST *selector;
     ObjCMessageArgumentDeclarationListAST *arguments;
+    unsigned dot_dot_dot_token;
     SpecifierAST *attributes;
 
 public: // annotations

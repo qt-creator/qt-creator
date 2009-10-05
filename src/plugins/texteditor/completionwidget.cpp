@@ -87,11 +87,11 @@ QVariant AutoCompletionModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (role == Qt::DisplayRole) {
-        return itemAt(index).m_text;
+        return itemAt(index).text;
     } else if (role == Qt::DecorationRole) {
-        return itemAt(index).m_icon;
+        return itemAt(index).icon;
     } else if (role == Qt::ToolTipRole) {
-        return itemAt(index).m_details;
+        return itemAt(index).details;
     }
 
     return QVariant();
@@ -231,8 +231,8 @@ void CompletionWidget::setCompletionItems(const QList<TextEditor::CompletionItem
     int mostRelevantIndex = 0;
     for (int i = 0; i < completionItems.size(); ++i) {
         const CompletionItem &item = completionItems.at(i);
-        if (item.m_relevance > relevance) {
-            relevance = item.m_relevance;
+        if (item.relevance > relevance) {
+            relevance = item.relevance;
             mostRelevantIndex = i;
         }
     }

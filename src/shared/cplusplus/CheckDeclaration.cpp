@@ -57,6 +57,7 @@
 #include "Control.h"
 #include "Literals.h"
 #include <cassert>
+#include <QtCore/QByteArray>
 
 CPLUSPLUS_BEGIN_NAMESPACE
 
@@ -506,11 +507,25 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
     ObjCProtocol *protocol = control()->newObjCProtocol(sourceLocation, protocolName);
     protocol->setStartOffset(tokenAt(ast->firstToken()).offset);
     protocol->setEndOffset(tokenAt(ast->lastToken()).offset);
-    ast->symbol = protocol;
 
+    if (ast->protocol_refs && ast->protocol_refs->identifier_list) {
+        for (IdentifierListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
+            NameAST* name = iter->name;
+            Name *protocolName = semantic()->check(name, _scope);
+            ObjCBaseProtocol *baseProtocol = control()->newObjCBaseProtocol(name->firstToken(), protocolName);
+            protocol->addProtocol(baseProtocol);
+        }
+    }
+
+    int previousObjCVisibility = semantic()->switchObjCVisibility(Function::Public);
+    for (DeclarationListAST *it = ast->member_declarations; it; it = it->next) {
+        semantic()->check(it->declaration, protocol->members());
+    }
+    (void) semantic()->switchObjCVisibility(previousObjCVisibility);
+
+    ast->symbol = protocol;
     _scope->enterSymbol(protocol);
 
-    // TODO EV: walk protocols and method prototypes
     return false;
 }
 
@@ -562,7 +577,21 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
         klass->setCategoryName(categoryName);
     }
 
-    // TODO: super-class, and protocols (EV)
+    if (ast->superclass) {
+        Name *superClassName = semantic()->check(ast->superclass, _scope);
+        ObjCBaseClass *superKlass = control()->newObjCBaseClass(ast->superclass->firstToken(), superClassName);
+        klass->setBaseClass(superKlass);
+    }
+
+    if (ast->protocol_refs && ast->protocol_refs->identifier_list) {
+        for (IdentifierListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
+            NameAST* name = iter->name;
+            Name *protocolName = semantic()->check(name, _scope);
+            ObjCBaseProtocol *baseProtocol = control()->newObjCBaseProtocol(name->firstToken(), protocolName);
+            klass->addProtocol(baseProtocol);
+        }
+    }
+
     _scope->enterSymbol(klass);
 
     int previousObjCVisibility = semantic()->switchObjCVisibility(Function::Protected);
@@ -624,6 +653,88 @@ bool CheckDeclaration::visit(ObjCVisibilityDeclarationAST *ast)
     int accessSpecifier = tokenKind(ast->visibility_token);
     int visibility = semantic()->visibilityForObjCAccessSpecifier(accessSpecifier);
     semantic()->switchObjCVisibility(visibility);
+    return false;
+}
+
+enum PropertyAttributes {
+    None = 0,
+    Assign = 1 << 0,
+    Retain = 1 << 1,
+    Copy = 1 << 2,
+    ReadOnly = 1 << 3,
+    ReadWrite = 1 << 4,
+    Getter = 1 << 5,
+    Setter = 1 << 6,
+    NonAtomic = 1 << 7,
+
+    WritabilityMask = ReadOnly | ReadWrite,
+    SetterSemanticsMask = Assign | Retain | Copy,
+};
+
+bool CheckDeclaration::checkPropertyAttribute(ObjCPropertyAttributeAST *attrAst,
+                                              int &flags,
+                                              int attr)
+{
+    if (flags & attr) {
+        translationUnit()->warning(attrAst->attribute_identifier_token,
+                                   "duplicate property attribute \"%s\"",
+                                   spell(attrAst->attribute_identifier_token));
+        return false;
+    } else {
+        flags |= attr;
+        return true;
+    }
+}
+
+bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
+{
+    int propAttrs = None;
+
+    for (ObjCPropertyAttributeListAST *iter= ast->property_attributes; iter; iter = iter->next) {
+        ObjCPropertyAttributeAST *attrAst = iter->attr;
+        if (!attrAst)
+            continue;
+
+        const char *attrName = spell(attrAst->attribute_identifier_token);
+        if (!qstrcmp("getter", attrName)) {
+            if (checkPropertyAttribute(attrAst, propAttrs, Getter)) {
+                // TODO: find method declaration for getter
+            }
+        } else if (!qstrcmp("setter", attrName)) {
+            if (checkPropertyAttribute(attrAst, propAttrs, Setter)) {
+                // TODO: find method declaration for setter
+            }
+        } else if (!qstrcmp("readwrite", attrName)) {
+            checkPropertyAttribute(attrAst, propAttrs, ReadWrite);
+        } else if (!qstrcmp("readonly", attrName)) {
+            checkPropertyAttribute(attrAst, propAttrs, ReadOnly);
+        } else if (!qstrcmp("assign", attrName)) {
+            checkPropertyAttribute(attrAst, propAttrs, Assign);
+        } else if (!qstrcmp("retain", attrName)) {
+            checkPropertyAttribute(attrAst, propAttrs, Retain);
+        } else if (!qstrcmp("copy", attrName)) {
+            checkPropertyAttribute(attrAst, propAttrs, Copy);
+        } else if (!qstrcmp("nonatomic", attrName)) {
+            checkPropertyAttribute(attrAst, propAttrs, NonAtomic);
+        }
+    }
+
+    if (propAttrs & ReadOnly && propAttrs & ReadWrite)
+        // Should this be an error instead of only a warning?
+        translationUnit()->warning(ast->property_token,
+                                   "property can have at most one attribute \"readonly\" or \"readwrite\" specified");
+    int setterSemAttrs = propAttrs & SetterSemanticsMask;
+    if (setterSemAttrs
+            && setterSemAttrs != Assign
+            && setterSemAttrs != Retain
+            && setterSemAttrs != Copy) {
+        // Should this be an error instead of only a warning?
+        translationUnit()->warning(ast->property_token,
+                                   "property can have at most one attribute \"assign\", \"retain\", or \"copy\" specified");
+    }
+
+    // TODO: Check if the next line is correct (EV)
+    semantic()->check(ast->simple_declaration, _scope);
     return false;
 }
 

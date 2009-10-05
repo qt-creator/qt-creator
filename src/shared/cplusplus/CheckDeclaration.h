@@ -97,7 +97,12 @@ protected:
     virtual bool visit(ObjCClassForwardDeclarationAST *ast);
     virtual bool visit(ObjCMethodDeclarationAST *ast);
     virtual bool visit(ObjCVisibilityDeclarationAST *ast);
+    virtual bool visit(ObjCPropertyDeclarationAST *ast);
 
+private:
+    bool checkPropertyAttribute(ObjCPropertyAttributeAST *attrAst,
+                                int &flags,
+                                int attr);
 private:
     DeclarationAST *_declaration;
     Scope *_scope;

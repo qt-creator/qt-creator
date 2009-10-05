@@ -265,14 +265,15 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
     method->setReturnType(returnType);
 
     if (ast->selector && ast->selector->asObjCSelectorWithArguments()) {
-        // TODO: check the parameters (EV)
-        //    fun->setVariadic(...);
         // TODO: add arguments (EV)
         for (ObjCMessageArgumentDeclarationListAST *it = ast->arguments; it; it = it->next) {
             ObjCMessageArgumentDeclarationAST *argDecl = it->argument_declaration;
 
             semantic()->check(argDecl, method->arguments());
         }
+
+        if (ast->dot_dot_dot_token)
+            method->setVariadic(true);
     }
 
     _fullySpecifiedType = FullySpecifiedType(method);

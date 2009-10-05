@@ -81,6 +81,8 @@ public:
     virtual bool visit(ForwardClassDeclaration *) { return true; }
 
     // Objective-C
+    virtual bool visit(ObjCBaseClass *) { return true; }
+    virtual bool visit(ObjCBaseProtocol *) { return true; }
     virtual bool visit(ObjCClass *) { return true; }
     virtual bool visit(ObjCForwardClassDeclaration *) { return true; }
     virtual bool visit(ObjCProtocol *) { return true; }

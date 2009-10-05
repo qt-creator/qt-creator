@@ -151,7 +151,7 @@ private:
 
     CppModelManager *m_manager;
     Qt::CaseSensitivity m_caseSensitivity;
-    bool m_autoInsertBrackets;
+    bool awesome;
     bool m_partialCompletionEnabled;
 
     bool m_forcedCompletion;

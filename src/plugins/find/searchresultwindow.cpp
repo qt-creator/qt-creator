@@ -87,6 +87,7 @@ SearchResultWindow::SearchResultWindow()
     connect(m_searchResultTreeView, SIGNAL(jumpToSearchResult(int,bool)),
             this, SLOT(handleJumpToSearchResult(int,bool)));
     connect(m_expandCollapseToolButton, SIGNAL(toggled(bool)), this, SLOT(handleExpandCollapseToolButton(bool)));
+    connect(m_replaceTextEdit, SIGNAL(returnPressed()), this, SLOT(handleReplaceButton()));
     connect(m_replaceButton, SIGNAL(clicked()), this, SLOT(handleReplaceButton()));
 
     readSettings();
