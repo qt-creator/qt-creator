@@ -226,6 +226,8 @@ static inline QString msgGetThreadStateFailed(unsigned long threadId, const QStr
     return QString::fromLatin1("Unable to determine the state of thread %1: %2").arg(threadId).arg(why);
 }
 
+// Determine information about thread. This changes the
+// current thread to thread->id.
 static inline bool getStoppedThreadState(const CdbComInterfaces &cif,
                                          ThreadData *t,
                                          QString *errorMessage)
@@ -314,6 +316,14 @@ bool CdbStackTraceContext::getThreads(const CdbComInterfaces &cif,
             }
         }
         threads->push_back(threadData);
+    }
+    // Restore thread id
+    if (isStopped && threads->back().id != *currentThreadId) {
+        hr = cif.debugSystemObjects->SetCurrentThreadId(*currentThreadId);
+        if (FAILED(hr)) {
+            *errorMessage= msgGetThreadsFailed(msgComFailed("SetCurrentThreadId", hr));
+            return false;
+        }
     }
     return true;
 }
