@@ -142,6 +142,13 @@ QWidget *DetailsWidget::toolWidget() const
     return m_toolWidget;
 }
 
+// This function works around a qt limitation.
+// In a deeply nested widget structure, nested layouts
+// tell their parents per a delayed invocation that they
+// need to repaint. Thus hiding a widget triggers
+// one relayout (and repaint) for each level of widget
+// nesting. We circumvent that, by forcing a update()
+// activate() on the widget after hiding.
 void DetailsWidget::fixUpLayout()
 {
     if (!m_widget)
