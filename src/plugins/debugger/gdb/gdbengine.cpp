@@ -793,24 +793,38 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
         return;
 
     if (!m_cookieForToken.contains(token)) {
-        // In theory this should not happen, in practice it does.
+        // In theory this should not happen (rather the error should be
+        // reported in the "first" response to the command) in practice it
+        // does. We try to handle a few situations we are aware of gracefully.
+        // Ideally, this code should not be present at all.
         debugMessage(_("COOKIE FOR TOKEN %1 ALREADY EATEN. "
             "TWO RESPONSES FOR ONE COMMAND?").arg(token));
         if (response.resultClass == GdbResultError) {
             QByteArray msg = response.data.findChild("msg").data();
-            showMessageBox(QMessageBox::Critical,
-                tr("Executable failed"), QString::fromLocal8Bit(msg));
-            showStatusMessage(tr("Process failed to start."));
-            // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
-            // with helpers enabled. In this case we get a second response with
-            // msg="Cannot find new threads: generic error"
-            if (msg == "Cannot find new threads: generic error")
+            if (msg == "Cannot find new threads: generic error") {
+                // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
+                // with helpers enabled. In this case we get a second response with
+                // msg="Cannot find new threads: generic error"
+                showMessageBox(QMessageBox::Critical,
+                    tr("Executable failed"), QString::fromLocal8Bit(msg));
+                showStatusMessage(tr("Process failed to start."));
                 shutdown();
-            // Handle a case known to appear on gdb 6.4 symbianelf when
-            // the stack is cut due to access to protected memory.
-            if (msg == "\"finish\" not meaningful in the outermost frame.") { 
+            } else if (msg == "\"finish\" not meaningful in the outermost frame.") { 
+                // Handle a case known to appear on gdb 6.4 symbianelf when
+                // the stack is cut due to access to protected memory.
                 setState(InferiorStopping);
                 setState(InferiorStopped);
+            } else if (msg.startsWith("Cannot find bounds of current function")) {
+                // Happens when running "-exec-next" in a function for which
+                // there is no debug information. Divert to "-exec-next-step"
+                setState(InferiorStopping);
+                setState(InferiorStopped);
+                nextIExec();
+            } else {
+                showMessageBox(QMessageBox::Critical,
+                    tr("Executable failed"), QString::fromLocal8Bit(msg));
+                showStatusMessage(tr("Executable failed: %1")
+                    .arg(QString::fromLocal8Bit(msg)));
             }
         }
         return;
@@ -1367,8 +1381,8 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
         QTC_ASSERT(state() == InferiorRunning, /**/);
     } else if (response.resultClass == GdbResultError) {
         QTC_ASSERT(state() == InferiorRunningRequested, /**/);
-        const QByteArray &msg = response.data.findChild("msg").data();
-        if (msg == "Cannot find bounds of current function") {
+        QByteArray msg = response.data.findChild("msg").data();
+        if (msg.startsWith("Cannot find bounds of current function")) {
             setState(InferiorStopped);
             showStatusMessage(tr("Stopped."), 5000);
             //showStatusMessage(tr("No debug information available. "
