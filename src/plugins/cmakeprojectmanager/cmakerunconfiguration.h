@@ -120,7 +120,7 @@ private:
     void updateSummary();
     bool m_ignoreChange;
     CMakeRunConfiguration *m_cmakeRunConfiguration;
-    Core::Utils::PathChooser *m_workingDirectoryEdit;
+    Utils::PathChooser *m_workingDirectoryEdit;
     QComboBox *m_baseEnvironmentComboBox;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     Utils::DetailsWidget *m_detailsContainer;

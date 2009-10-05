@@ -124,7 +124,7 @@ void Qt4Manager::init()
 void Qt4Manager::editorChanged(Core::IEditor *editor)
 {
     // Handle old editor
-    Designer::Internal::FormWindowEditor *lastEditor = qobject_cast<Designer::Internal::FormWindowEditor *>(m_lastEditor);
+    Designer::FormWindowEditor *lastEditor = qobject_cast<Designer::FormWindowEditor *>(m_lastEditor);
     if (lastEditor) {
         disconnect(lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
 
@@ -138,7 +138,7 @@ void Qt4Manager::editorChanged(Core::IEditor *editor)
     m_lastEditor = editor;
 
     // Handle new editor
-    if (Designer::Internal::FormWindowEditor *fw = qobject_cast<Designer::Internal::FormWindowEditor *>(editor))
+    if (Designer::FormWindowEditor *fw = qobject_cast<Designer::FormWindowEditor *>(editor))
         connect(fw, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
 }
 
@@ -147,7 +147,7 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
     if (m_lastEditor == editor) {
         // Oh no our editor is going to be closed
         // get the content first
-        Designer::Internal::FormWindowEditor *lastEditor = qobject_cast<Designer::Internal::FormWindowEditor *>(m_lastEditor);
+        Designer::FormWindowEditor *lastEditor = qobject_cast<Designer::FormWindowEditor *>(m_lastEditor);
         if (lastEditor) {
             disconnect(lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
             if (m_dirty) {
@@ -165,7 +165,7 @@ void Qt4Manager::uiEditorContentsChanged()
     // cast sender, get filename
     if (m_dirty)
         return;
-    Designer::Internal::FormWindowEditor *fw = qobject_cast<Designer::Internal::FormWindowEditor *>(sender());
+    Designer::FormWindowEditor *fw = qobject_cast<Designer::FormWindowEditor *>(sender());
     if (!fw)
         return;
     m_dirty = true;

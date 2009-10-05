@@ -34,7 +34,6 @@
 
 #include <QtGui/QWizardPage>
 
-namespace Core {
 namespace Utils {
 
 struct FileWizardPagePrivate;
@@ -87,6 +86,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // FILEWIZARDPAGE_H

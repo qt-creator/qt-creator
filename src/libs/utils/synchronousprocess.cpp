@@ -44,7 +44,6 @@ enum { debug = 0 };
 
 enum { defaultMaxHangTimerCount = 10 };
 
-namespace Core {
 namespace Utils {
 
 // ----------- SynchronousProcessResponse
@@ -492,6 +491,4 @@ QChar SynchronousProcess::pathSeparator()
     return QLatin1Char(':');
 }
 
-
 } // namespace Utils
-} // namespace Core

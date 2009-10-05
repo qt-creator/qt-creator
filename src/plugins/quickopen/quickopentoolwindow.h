@@ -43,11 +43,10 @@ class QMenu;
 class QTreeView;
 QT_END_NAMESPACE
 
-namespace Core {
-    namespace Utils {
-        class FancyLineEdit;
-    }
+namespace Utils {
+    class FancyLineEdit;
 }
+
 namespace QuickOpen {
 namespace Internal {
 
@@ -89,7 +88,7 @@ private:
     QMenu *m_filterMenu;
     QAction *m_refreshAction;
     QAction *m_configureAction;
-    Core::Utils::FancyLineEdit *m_fileLineEdit;
+    Utils::FancyLineEdit *m_fileLineEdit;
 };
 
 } // namespace Internal

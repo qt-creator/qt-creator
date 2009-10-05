@@ -34,7 +34,6 @@
 
 #include <QtGui/QAction>
 
-namespace Core {
 namespace Utils {
 
 /* ParameterAction: Intended for actions that act on a 'current',
@@ -79,7 +78,6 @@ private:
     EnablingMode m_enablingMode;
 };
 
-}
 }
 
 #endif // PARAMETERACTION_H

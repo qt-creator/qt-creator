@@ -71,12 +71,12 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
     const QString indent = QString(indentation, QLatin1Char(' '));
 
     // 1) Header
-    const QString guard = Core::Utils::headerGuard(headerFileName);
+    const QString guard = Utils::headerGuard(headerFileName);
     headerStr << "#ifndef " << guard
         << "\n#define " <<  guard << '\n' << '\n';
 
     if (!sharedHeader.isEmpty())
-        Core::Utils::writeIncludeFileDirective(sharedHeader, false, headerStr);
+        Utils::writeIncludeFileDirective(sharedHeader, false, headerStr);
 
     // include base class header
     if (!baseClassName.isEmpty()) {
@@ -86,7 +86,7 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
             include += QLatin1Char('/');
         }
         include += baseClassName;
-        Core::Utils::writeIncludeFileDirective(include, true, headerStr);
+        Utils::writeIncludeFileDirective(include, true, headerStr);
         headerStr  << '\n';
     }
 
@@ -98,7 +98,7 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
     const QString unqualifiedClassName = namespaceList.back();
     namespaceList.pop_back();
 
-    const QString namespaceIndent = Core::Utils::writeOpeningNameSpaces(namespaceList, indent, headerStr);
+    const QString namespaceIndent = Utils::writeOpeningNameSpaces(namespaceList, indent, headerStr);
 
     // Class declaraction
     headerStr << '\n' << namespaceIndent << "class ";
@@ -122,15 +122,15 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
         headerStr << namespaceIndent << indent << unqualifiedClassName << "();\n";
     }
     headerStr << namespaceIndent << "};\n\n";
-    Core::Utils::writeClosingNameSpaces(namespaceList, indent, headerStr);
+    Utils::writeClosingNameSpaces(namespaceList, indent, headerStr);
     headerStr <<  "#endif // "<<  guard << '\n';
     /// 2) Source
     QTextStream sourceStr(source);
 
-    Core::Utils::writeIncludeFileDirective(headerName, false, sourceStr);
+    Utils::writeIncludeFileDirective(headerName, false, sourceStr);
     sourceStr << '\n';
 
-    Core::Utils::writeOpeningNameSpaces(namespaceList, indent, sourceStr);
+    Utils::writeOpeningNameSpaces(namespaceList, indent, sourceStr);
     // Constructor
     sourceStr << '\n' << namespaceIndent << unqualifiedClassName << "::" << unqualifiedClassName;
     if (inheritsQObject) {
@@ -141,7 +141,7 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
     }
     sourceStr << namespaceIndent << "{\n" << namespaceIndent <<  "}\n";
 
-    Core::Utils::writeClosingNameSpaces(namespaceList, indent, sourceStr);
+    Utils::writeClosingNameSpaces(namespaceList, indent, sourceStr);
 
     if (t == QtProjectParameters::Qt4Plugin)
         sourceStr << '\n' << "Q_EXPORT_PLUGIN2(" << projectTarget << ", " << className << ")\n";
@@ -152,7 +152,7 @@ QString  LibraryParameters::generateSharedHeader(const QString &globalHeaderFile
                                                  const QString &exportMacro)
 {
     QString contents = QLatin1String(globalHeaderContentsC);
-    contents.replace(QLatin1String(GUARD_VARIABLE), Core::Utils::headerGuard(globalHeaderFileName));
+    contents.replace(QLatin1String(GUARD_VARIABLE), Utils::headerGuard(globalHeaderFileName));
     contents.replace(QLatin1String(EXPORT_MACRO_VARIABLE), exportMacro);
     contents.replace(QLatin1String(LIBRARY_MACRO_VARIABLE), QtProjectParameters::libraryMacro(projectTarget));
     return contents;

@@ -276,7 +276,7 @@ public:
 
 private:
     Ui::CommonOptionsPage m_ui;
-    Core::Utils::SavedActionSet m_group;
+    Utils::SavedActionSet m_group;
 };
 
 QWidget *CommonOptionsPage::createPage(QWidget *parent)
@@ -347,7 +347,7 @@ private:
     friend class DebuggerPlugin;
     Ui::DebuggingHelperOptionPage m_ui;
 
-    Core::Utils::SavedActionSet m_group;
+    Utils::SavedActionSet m_group;
 };
 
 QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
@@ -355,7 +355,7 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
 
-    m_ui.dumperLocationChooser->setExpectedKind(Core::Utils::PathChooser::Command);
+    m_ui.dumperLocationChooser->setExpectedKind(Utils::PathChooser::Command);
     m_ui.dumperLocationChooser->setPromptDialogTitle(tr("Choose DebuggingHelper Location"));
     m_ui.dumperLocationChooser->setInitialBrowsePathBackup(
         Core::ICore::instance()->resourcePath() + "../../lib");
@@ -820,7 +820,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     m_debugMode->setWidget(splitter2);
 
-    Core::Utils::StyledBar *debugToolBar = new Core::Utils::StyledBar;
+    Utils::StyledBar *debugToolBar = new Utils::StyledBar;
     debugToolBar->setProperty("topBorder", true);
     QHBoxLayout *debugToolBarLayout = new QHBoxLayout(debugToolBar);
     debugToolBarLayout->setMargin(0);
@@ -832,10 +832,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEPOUT)->action()));
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::OPERATE_BY_INSTRUCTION)->action()));
 #ifdef USE_REVERSE_DEBUGGING
-    debugToolBarLayout->addWidget(new Core::Utils::StyledSeparator);
+    debugToolBarLayout->addWidget(new Utils::StyledSeparator);
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::REVERSE)->action()));
 #endif
-    debugToolBarLayout->addWidget(new Core::Utils::StyledSeparator);
+    debugToolBarLayout->addWidget(new Utils::StyledSeparator);
     debugToolBarLayout->addWidget(new QLabel(tr("Threads:")));
 
     QComboBox *threadBox = new QComboBox;

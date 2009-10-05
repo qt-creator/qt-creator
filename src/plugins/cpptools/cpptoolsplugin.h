@@ -84,7 +84,7 @@ protected Q_SLOTS:
 private:
     QPointer<CppModelManager> _modelManager;
     Find::SearchResultWindow *_resultWindow;
-    QFutureWatcher<Core::Utils::FileSearchResult> m_watcher;
+    QFutureWatcher<Utils::FileSearchResult> m_watcher;
 };
 
 class FindFunctionCalls: public Find::IFindFilter // ### share code with FindClassDeclarations
@@ -109,7 +109,7 @@ protected Q_SLOTS:
 private:
     QPointer<CppModelManager> _modelManager;
     Find::SearchResultWindow *_resultWindow;
-    QFutureWatcher<Core::Utils::FileSearchResult> m_watcher;
+    QFutureWatcher<Utils::FileSearchResult> m_watcher;
 };
 
 class CppToolsPlugin : public ExtensionSystem::IPlugin

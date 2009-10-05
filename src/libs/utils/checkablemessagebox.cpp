@@ -4,7 +4,6 @@
 #include <QtGui/QPushButton>
 #include <QtCore/QDebug>
 
-namespace Core {
 namespace Utils {
 
 struct CheckableMessageBoxPrivate {
@@ -147,4 +146,3 @@ QMessageBox::StandardButton CheckableMessageBox::dialogButtonBoxToMessageBoxButt
 }
 
 } // namespace Utils
-} // namespace Core

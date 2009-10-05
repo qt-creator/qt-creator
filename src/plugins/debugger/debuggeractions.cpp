@@ -41,7 +41,7 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QLineEdit>
 
-using namespace Core::Utils;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {

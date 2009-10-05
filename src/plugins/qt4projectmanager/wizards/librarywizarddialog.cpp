@@ -100,7 +100,7 @@ static QString pluginDependencies(const PluginBaseClasses *plb)
 }
 
 // A Project intro page with an additional type chooser.
-class LibraryIntroPage : public Core::Utils::ProjectIntroPage
+class LibraryIntroPage : public Utils::ProjectIntroPage
 {
     Q_DISABLE_COPY(LibraryIntroPage)
 public:
@@ -115,7 +115,7 @@ private:
 };
 
 LibraryIntroPage::LibraryIntroPage(QWidget *parent) :
-    Core::Utils::ProjectIntroPage(parent),
+    Utils::ProjectIntroPage(parent),
     m_typeCombo(new QComboBox)
 {
     m_typeCombo->setEditable(false);

@@ -132,7 +132,7 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
         : m_step(step)
 {
     m_ui.setupUi(this);
-    m_ui.command->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui.command->setExpectedKind(Utils::PathChooser::File);
     connect(m_ui.command, SIGNAL(changed(QString)),
             this, SLOT(commandLineEditTextEdited()));
     connect(m_ui.workingDirectory, SIGNAL(changed(QString)),

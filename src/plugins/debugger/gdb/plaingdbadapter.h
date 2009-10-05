@@ -84,7 +84,7 @@ private:
     Q_SLOT void stubError(const QString &msg);
 
     QProcess m_gdbProc;
-    Core::Utils::ConsoleProcess m_stubProc;
+    Utils::ConsoleProcess m_stubProc;
 };
 
 } // namespace Internal

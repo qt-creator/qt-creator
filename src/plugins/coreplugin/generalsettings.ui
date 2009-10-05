@@ -46,7 +46,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="Core::Utils::QtColorButton" name="colorButton">
+         <widget class="Utils::QtColorButton" name="colorButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -228,7 +228,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::QtColorButton</class>
+   <class>Utils::QtColorButton</class>
    <extends>QToolButton</extends>
    <header location="global">utils/qtcolorbutton.h</header>
   </customwidget>

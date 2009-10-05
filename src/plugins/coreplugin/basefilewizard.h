@@ -199,7 +199,7 @@ private:
 };
 
 // StandardFileWizard convenience class for creating one file. It uses
-// Core::Utils::FileWizardDialog and introduces a new virtual to generate the
+// Utils::FileWizardDialog and introduces a new virtual to generate the
 // files from path and name.
 
 class CORE_EXPORT StandardFileWizard : public BaseFileWizard
@@ -210,7 +210,7 @@ class CORE_EXPORT StandardFileWizard : public BaseFileWizard
 protected:
     explicit StandardFileWizard(const BaseFileWizardParameters &parameters, QObject *parent = 0);
 
-    // Implemented to create a Core::Utils::FileWizardDialog
+    // Implemented to create a Utils::FileWizardDialog
     virtual QWizard *createWizardDialog(QWidget *parent,
                                         const QString &defaultPath,
                                         const WizardPageList &extensionPages) const;

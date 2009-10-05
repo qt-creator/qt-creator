@@ -37,7 +37,7 @@
 
 #include <windows.h>
 
-using namespace Core::Utils;
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {

@@ -478,7 +478,7 @@ void HelpPlugin::createRightPaneSideBar()
     hboxLayout->addWidget(rightPaneToolBar);
     hboxLayout->addStretch(5);
     hboxLayout->addWidget(closeButton);
-    Core::Utils::StyledBar *w = new Core::Utils::StyledBar;
+    Utils::StyledBar *w = new Utils::StyledBar;
     w->setLayout(hboxLayout);
     connect(closeButton, SIGNAL(clicked()), this, SLOT(slotHideRightPane()));
 

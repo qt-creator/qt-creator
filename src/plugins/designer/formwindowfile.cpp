@@ -134,17 +134,17 @@ void FormWindowFile::modified(Core::IFile::ReloadBehavior *behavior)
         break;
     }
 
-    switch (Core::Utils::reloadPrompt(m_fileName, isModified(), Core::ICore::instance()->mainWindow())) {
-    case Core::Utils::ReloadCurrent:
+    switch (Utils::reloadPrompt(m_fileName, isModified(), Core::ICore::instance()->mainWindow())) {
+    case Utils::ReloadCurrent:
         emit reload(m_fileName);
         break;
-    case Core::Utils::ReloadAll:
+    case Utils::ReloadAll:
         emit reload(m_fileName);
         *behavior = Core::IFile::ReloadAll;
         break;
-    case Core::Utils::ReloadSkipCurrent:
+    case Utils::ReloadSkipCurrent:
         break;
-    case Core::Utils::ReloadNone:
+    case Utils::ReloadNone:
         *behavior = Core::IFile::ReloadNone;
         break;
     }

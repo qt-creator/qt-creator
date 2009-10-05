@@ -128,7 +128,7 @@ private:
     friend class DebuggerPlugin;
     Ui::FakeVimOptionPage m_ui;
 
-    Core::Utils::SavedActionSet m_group;
+    Utils::SavedActionSet m_group;
 };
 
 QWidget *FakeVimOptionPage::createPage(QWidget *parent)

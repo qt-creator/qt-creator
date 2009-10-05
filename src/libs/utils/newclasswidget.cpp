@@ -41,7 +41,6 @@
 
 enum { debugNewClassWidget = 0 };
 
-namespace Core {
 namespace Utils {
 
 struct NewClassWidgetPrivate {
@@ -485,4 +484,3 @@ QStringList NewClassWidget::files() const
 }
 
 } // namespace Utils
-} // namespace Core

@@ -79,7 +79,7 @@ QString FormWizardDialog::templateContents() const
 FormFileWizardDialog::FormFileWizardDialog(const WizardPageList &extensionPages,
                                            QWidget *parent)
   : FormWizardDialog(extensionPages, parent),
-    m_filePage(new Core::Utils::FileWizardPage)
+    m_filePage(new Utils::FileWizardPage)
 {
     setPage(FilePageId, m_filePage);
     connect(m_filePage, SIGNAL(activated()),

@@ -66,24 +66,24 @@ class FakeVimSettings : public QObject
 public:
     FakeVimSettings();
     ~FakeVimSettings();
-    void insertItem(int code, Core::Utils::SavedAction *item,
+    void insertItem(int code, Utils::SavedAction *item,
         const QString &longname = QString(),
         const QString &shortname = QString());
 
-    Core::Utils::SavedAction *item(int code);
-    Core::Utils::SavedAction *item(const QString &name);
+    Utils::SavedAction *item(int code);
+    Utils::SavedAction *item(const QString &name);
 
     void readSettings(QSettings *settings);
     void writeSettings(QSettings *settings);
 
 private:
-    QHash<int, Core::Utils::SavedAction *> m_items; 
+    QHash<int, Utils::SavedAction *> m_items; 
     QHash<QString, int> m_nameToCode; 
     QHash<int, QString> m_codeToName; 
 };
 
 FakeVimSettings *theFakeVimSettings();
-Core::Utils::SavedAction *theFakeVimSetting(int code);
+Utils::SavedAction *theFakeVimSetting(int code);
 
 } // namespace Internal
 } // namespace FakeVim

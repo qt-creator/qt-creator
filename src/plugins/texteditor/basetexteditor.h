@@ -44,10 +44,8 @@ class QToolBar;
 class QTimeLine;
 QT_END_NAMESPACE
 
-namespace Core {
-    namespace Utils {
-        class LineColumnLabel;
-    }
+namespace Utils {
+    class LineColumnLabel;
 }
 
 namespace TextEditor {
@@ -673,7 +671,7 @@ private:
     BaseTextEditor *e;
     mutable QString m_contextHelpId;
     QToolBar *m_toolBar;
-    Core::Utils::LineColumnLabel *m_cursorPositionLabel;
+    Utils::LineColumnLabel *m_cursorPositionLabel;
 };
 
 } // namespace TextEditor

@@ -37,7 +37,7 @@ using namespace CVS::Internal;
 
 CVSSubmitEditor::CVSSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
                                                QWidget *parentWidget) :
-    VCSBase::VCSBaseSubmitEditor(parameters, new Core::Utils::SubmitEditorWidget(parentWidget)),
+    VCSBase::VCSBaseSubmitEditor(parameters, new Utils::SubmitEditorWidget(parentWidget)),
     m_msgAdded(tr("Added")),
     m_msgRemoved(tr("Removed")),
     m_msgModified(tr("Modified"))

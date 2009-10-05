@@ -33,7 +33,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="Core::Utils::PathChooser" name="pathChooser" native="true"/>
+         <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
         </item>
         <item row="0" column="0" colspan="2">
          <widget class="QLabel" name="noteLabel">
@@ -74,7 +74,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="Core::Utils::PathListEditor" name="sourcePathListEditor" native="true"/>
+       <widget class="Utils::PathListEditor" name="sourcePathListEditor" native="true"/>
       </item>
      </layout>
     </widget>
@@ -122,13 +122,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::PathChooser</class>
+   <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Core::Utils::PathListEditor</class>
+   <class>Utils::PathListEditor</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathlisteditor.h</header>
    <container>1</container>

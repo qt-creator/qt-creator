@@ -236,7 +236,7 @@ ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool chang
                           "This ensures that the source directory remains clean and enables multiple builds "
                           "with different settings."));
     fl->addWidget(label);
-    m_pc = new Core::Utils::PathChooser(this);
+    m_pc = new Utils::PathChooser(this);
     m_pc->setPath(m_cmakeWizard->buildDirectory());
     connect(m_pc, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
     fl->addRow(tr("Build directory:"), m_pc);
@@ -284,8 +284,8 @@ void CMakeRunPage::initWidgets()
 
         fl->addRow(new QLabel(text, this));
         // Show a field for the user to enter
-        m_cmakeExecutable = new Core::Utils::PathChooser(this);
-        m_cmakeExecutable->setExpectedKind(Core::Utils::PathChooser::Command);
+        m_cmakeExecutable = new Utils::PathChooser(this);
+        m_cmakeExecutable->setExpectedKind(Utils::PathChooser::Command);
         fl->addRow("CMake Executable", m_cmakeExecutable);
     }
 

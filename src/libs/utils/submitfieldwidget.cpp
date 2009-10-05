@@ -22,8 +22,7 @@ static void inline setComboBlocked(QComboBox *cb, int index)
     cb->blockSignals(blocked);
 }
 
-namespace Core {
-    namespace Utils {
+namespace Utils {
 
 // Field/Row entry
 struct FieldEntry {
@@ -340,5 +339,4 @@ void SubmitFieldWidget::slotBrowseButtonClicked()
     emit browseButtonClicked(pos, m_d->fieldText(pos));
 }
 
-}
 }

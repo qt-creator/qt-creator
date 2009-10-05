@@ -78,7 +78,7 @@ Q_DECLARE_METATYPE(Core::IEditor*)
 
 using namespace Core;
 using namespace Core::Internal;
-using namespace Core::Utils;
+using namespace Utils;
 
 enum { debugEditorManager=0 };
 

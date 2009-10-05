@@ -33,7 +33,6 @@
 #include "utils_global.h"
 #include <QtGui/QLabel>
 
-namespace Core {
 namespace Utils {
 
 /* A label suitable for displaying cursor positions, etc. with a fixed
@@ -61,6 +60,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // LINECOLUMNLABEL_H

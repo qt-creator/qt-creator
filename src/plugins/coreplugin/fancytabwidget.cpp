@@ -76,7 +76,7 @@ FancyTabBar::~FancyTabBar()
 QSize FancyTabBar::tabSizeHint(bool minimum) const
 {
     QFont boldFont(font());
-    boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
+    boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
     boldFont.setBold(true);
     QFontMetrics fm(boldFont);
     int spacing = 6;
@@ -245,13 +245,13 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     QRect tabTextRect(tabRect(tabIndex));
     QRect tabIconRect(tabTextRect);
     QFont boldFont(painter->font());
-    boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
+    boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
     boldFont.setBold(true);
     painter->setFont(boldFont);
-    painter->setPen(selected ? StyleHelper::panelTextColor() : QColor(30, 30, 30, 80));
+    painter->setPen(selected ? Utils::StyleHelper::panelTextColor() : QColor(30, 30, 30, 80));
     int textFlags = Qt::AlignCenter | Qt::AlignBottom | Qt::ElideRight | Qt::TextWordWrap;
     painter->drawText(tabTextRect, textFlags, tabText);
-    painter->setPen(selected ? QColor(60, 60, 60) : StyleHelper::panelTextColor());
+    painter->setPen(selected ? QColor(60, 60, 60) : Utils::StyleHelper::panelTextColor());
     int textHeight = painter->fontMetrics().boundingRect(QRect(0, 0, width(), height()), Qt::TextWordWrap, tabText).height();
     tabIconRect.adjust(0, 4, 0, -textHeight);
     int iconSize = qMin(tabIconRect.width(), tabIconRect.height());
@@ -285,7 +285,7 @@ public:
     void mousePressEvent(QMouseEvent *ev)
     {
         if (ev->modifiers() & Qt::ShiftModifier) 
-            StyleHelper::setBaseColor(QColorDialog::getColor(StyleHelper::baseColor(), m_parent));
+            Utils::StyleHelper::setBaseColor(QColorDialog::getColor(Utils::StyleHelper::baseColor(), m_parent));
     }
 private:
     QWidget *m_parent;
@@ -305,7 +305,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     selectionLayout->setSpacing(0);
     selectionLayout->setMargin(0);
 
-    Core::Utils::StyledBar *bar = new Core::Utils::StyledBar;
+    Utils::StyledBar *bar = new Utils::StyledBar;
     QHBoxLayout *layout = new QHBoxLayout(bar);
     layout->setMargin(0);
     layout->setSpacing(0);
@@ -377,8 +377,8 @@ void FancyTabWidget::paintEvent(QPaintEvent *event)
 
     QRect rect = m_selectionWidget->rect().adjusted(0, 0, 1, 0);
     rect = style()->visualRect(layoutDirection(), geometry(), rect);
-    StyleHelper::verticalGradient(&p, rect, rect);
-    p.setPen(StyleHelper::borderColor());
+    Utils::StyleHelper::verticalGradient(&p, rect, rect);
+    p.setPen(Utils::StyleHelper::borderColor());
     p.drawLine(rect.topRight(), rect.bottomRight());
 }
 

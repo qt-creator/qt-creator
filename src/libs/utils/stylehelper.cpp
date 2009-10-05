@@ -52,6 +52,8 @@ static int range(float x, int min, int max)
 }
 */
 
+namespace Utils {
+
 QColor StyleHelper::mergedColors(const QColor &colorA, const QColor &colorB, int factor)
 {
     const int maxFactor = 100;
@@ -231,3 +233,5 @@ void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const Q
         QPixmapCache::insert(key, pixmap);
     }
 }
+
+} // namespace Utils

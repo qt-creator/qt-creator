@@ -208,17 +208,17 @@ void ResourceEditorFile::modified(Core::IFile::ReloadBehavior *behavior)
         break;
     }
 
-    switch (Core::Utils::reloadPrompt(fileName, isModified(), Core::ICore::instance()->mainWindow())) {
-    case Core::Utils::ReloadCurrent:
+    switch (Utils::reloadPrompt(fileName, isModified(), Core::ICore::instance()->mainWindow())) {
+    case Utils::ReloadCurrent:
         m_parent->open(fileName);
         break;
-    case Core::Utils::ReloadAll:
+    case Utils::ReloadAll:
         m_parent->open(fileName);
         *behavior = Core::IFile::ReloadAll;
         break;
-    case Core::Utils::ReloadSkipCurrent:
+    case Utils::ReloadSkipCurrent:
         break;
-    case Core::Utils::ReloadNone:
+    case Utils::ReloadNone:
         *behavior = Core::IFile::ReloadNone;
         break;
     }

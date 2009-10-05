@@ -40,10 +40,8 @@
 #include <QtGui/QWizard>
 #include <QtGui/QPlainTextEdit>
 
-namespace Core {
-    namespace Utils {
-        class PathChooser;
-    }
+namespace Utils {
+    class PathChooser;
 }
 
 namespace CMakeProjectManager {
@@ -115,7 +113,7 @@ private slots:
     void buildDirectoryChanged();
 private:
     CMakeOpenProjectWizard *m_cmakeWizard;
-    Core::Utils::PathChooser *m_pc;
+    Utils::PathChooser *m_pc;
 };
 
 class CMakeRunPage : public QWizardPage
@@ -139,7 +137,7 @@ private:
     QPushButton *m_runCMake;
     QProcess *m_cmakeProcess;
     QLineEdit *m_argumentsLineEdit;
-    Core::Utils::PathChooser *m_cmakeExecutable;
+    Utils::PathChooser *m_cmakeExecutable;
     QComboBox *m_generatorComboBox;
     QLabel *m_descriptionLabel;
     bool m_complete;

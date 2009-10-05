@@ -355,12 +355,12 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(S60DeviceRunCon
     QFormLayout *customLayout = new QFormLayout();
     customLayout->setMargin(0);
     customLayout->setLabelAlignment(Qt::AlignRight);
-    Core::Utils::PathChooser *signaturePath = new Core::Utils::PathChooser();
-    signaturePath->setExpectedKind(Core::Utils::PathChooser::File);
+    Utils::PathChooser *signaturePath = new Utils::PathChooser();
+    signaturePath->setExpectedKind(Utils::PathChooser::File);
     signaturePath->setPromptDialogTitle(tr("Choose certificate file (.cer)"));
     customLayout->addRow(new QLabel(tr("Custom certificate:")), signaturePath);
-    Core::Utils::PathChooser *keyPath = new Core::Utils::PathChooser();
-    keyPath->setExpectedKind(Core::Utils::PathChooser::File);
+    Utils::PathChooser *keyPath = new Utils::PathChooser();
+    keyPath->setExpectedKind(Utils::PathChooser::File);
     keyPath->setPromptDialogTitle(tr("Choose key file (.key / .pem)"));
     customLayout->addRow(new QLabel(tr("Key file:")), keyPath);
     customHBox->addLayout(customLayout);

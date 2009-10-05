@@ -107,7 +107,7 @@ QString msgDebugEngineComResult(HRESULT hr)
         return QLatin1String("ERROR_ACCESS_DENIED");;
     if (hr == HRESULT_FROM_NT(STATUS_CONTROL_C_EXIT))
         return QLatin1String("STATUS_CONTROL_C_EXIT");
-    return QLatin1String("E_FAIL ") + Core::Utils::winErrorMessage(HRESULT_CODE(hr));
+    return QLatin1String("E_FAIL ") + Utils::winErrorMessage(HRESULT_CODE(hr));
 }
 
 static QString msgStackIndexOutOfRange(int idx, int size)
@@ -462,7 +462,7 @@ CdbDebugEngine::CdbDebugEngine(DebuggerManager *manager, const QSharedPointer<Cd
     IDebuggerEngine(manager),
     m_d(new CdbDebugEnginePrivate(manager, options, this))
 {
-    m_d->m_consoleStubProc.setMode(Core::Utils::ConsoleProcess::Suspend);
+    m_d->m_consoleStubProc.setMode(Utils::ConsoleProcess::Suspend);
     connect(&m_d->m_consoleStubProc, SIGNAL(processError(QString)),
             this, SLOT(slotConsoleStubError(QString)));
     connect(&m_d->m_consoleStubProc, SIGNAL(processStarted()),
@@ -710,13 +710,13 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
         symbolOptions |= SYMOPT_DEBUG;
     m_d->m_cif.debugSymbols->SetSymbolOptions(symbolOptions);
 
-    const QString cmd = Core::Utils::AbstractProcess::createWinCommandline(filename, sp->processArgs);
+    const QString cmd = Utils::AbstractProcess::createWinCommandline(filename, sp->processArgs);
     if (debugCDB)
         qDebug() << "Starting " << cmd;
     PCWSTR env = 0;
     QByteArray envData;
     if (!sp->environment.empty()) {
-        envData = Core::Utils::AbstractProcess::createWinEnvironment(Core::Utils::AbstractProcess::fixWinEnvironment(sp->environment));
+        envData = Utils::AbstractProcess::createWinEnvironment(Utils::AbstractProcess::fixWinEnvironment(sp->environment));
         env = reinterpret_cast<PCWSTR>(envData.data());
     }
     // The working directory cannot be empty.
@@ -1170,7 +1170,7 @@ bool CdbDebugEnginePrivate::interruptInterferiorProcess(QString *errorMessage)
     }
 
     if (!DebugBreakProcess(m_hDebuggeeProcess)) {
-        *errorMessage = QString::fromLatin1("DebugBreakProcess failed: %1").arg(Core::Utils::winErrorMessage(GetLastError()));
+        *errorMessage = QString::fromLatin1("DebugBreakProcess failed: %1").arg(Utils::winErrorMessage(GetLastError()));
         return false;
     }
 #if 0

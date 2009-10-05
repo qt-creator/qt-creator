@@ -33,27 +33,26 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 
-using namespace Core;
-using namespace Core::Utils;
+using namespace Utils;
 
-QTCREATOR_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
-    Core::Utils::reloadPrompt(const QString &fileName, bool modified, QWidget *parent)
+QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer
+    Utils::reloadPrompt(const QString &fileName, bool modified, QWidget *parent)
 {
 
-    const QString title = QCoreApplication::translate("Core::Utils::reloadPrompt", "File Changed");
+    const QString title = QCoreApplication::translate("Utils::reloadPrompt", "File Changed");
     QString msg;
 
     if (modified)
-        msg = QCoreApplication::translate("Core::Utils::reloadPrompt",
+        msg = QCoreApplication::translate("Utils::reloadPrompt",
                                           "The unsaved file %1 has been changed outside Qt Creator. Do you want to reload it and discard your changes?").arg(QDir::toNativeSeparators(fileName));
     else
-        msg = QCoreApplication::translate("Core::Utils::reloadPrompt",
+        msg = QCoreApplication::translate("Utils::reloadPrompt",
                                           "The file %1 has changed outside Qt Creator. Do you want to reload it?").arg(QDir::toNativeSeparators(fileName));
     return reloadPrompt(title, msg, parent);
 }
 
-QTCREATOR_UTILS_EXPORT Core::Utils::ReloadPromptAnswer
-    Core::Utils::reloadPrompt(const QString &title, const QString &prompt, QWidget *parent)
+QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer
+    Utils::reloadPrompt(const QString &title, const QString &prompt, QWidget *parent)
 {
     switch (QMessageBox::question(parent, title, prompt,
                                   QMessageBox::Yes|QMessageBox::YesToAll|QMessageBox::No|QMessageBox::NoToAll,

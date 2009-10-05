@@ -257,7 +257,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     Core::Command *command;
     QAction *tmpaction;
 
-    m_editAction = new Core::Utils::ParameterAction(tr("Edit"), tr("Edit \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_editAction = new Utils::ParameterAction(tr("Edit"), tr("Edit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_editAction, CMD_ID_EDIT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
 #ifndef Q_WS_MAC
@@ -267,7 +267,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_editAction, SIGNAL(triggered()), this, SLOT(openCurrentFile()));
     mperforce->addAction(command);
 
-    m_addAction = new Core::Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_addAction, CMD_ID_ADD, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
 #ifndef Q_WS_MAC
@@ -277,14 +277,14 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     mperforce->addAction(command);
 
-    m_deleteAction = new Core::Utils::ParameterAction(tr("Delete"), tr("Delete \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Utils::ParameterAction(tr("Delete"), tr("Delete \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_deleteAction, CMD_ID_DELETE_FILE, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultText(tr("Delete File"));
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
     mperforce->addAction(command);
 
-    m_revertAction = new Core::Utils::ParameterAction(tr("Revert"), tr("Revert \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_revertAction = new Utils::ParameterAction(tr("Revert"), tr("Revert \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_revertAction, CMD_ID_REVERT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
 #ifndef Q_WS_MAC
@@ -299,7 +299,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     command = am->registerAction(tmpaction, QLatin1String("Perforce.Sep.Edit"), globalcontext);
     mperforce->addAction(command);
 
-    m_diffCurrentAction = new Core::Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_diffCurrentAction = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_diffCurrentAction, CMD_ID_DIFF_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultText(tr("Diff Current File"));
@@ -307,7 +307,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     mperforce->addAction(command);
 
     const QString diffProjectDefaultText = tr("Diff Current Project/Session");
-    m_diffProjectAction = new Core::Utils::ParameterAction(diffProjectDefaultText, tr("Diff Project \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_diffProjectAction = new Utils::ParameterAction(diffProjectDefaultText, tr("Diff Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = am->registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
 #ifndef Q_WS_MAC
@@ -347,7 +347,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     mperforce->addAction(command);
 
     const QString updateProjectDefaultText = tr("Update Current Project/Session");
-    m_updateProjectAction = new Core::Utils::ParameterAction(updateProjectDefaultText, tr("Update Project \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_updateProjectAction = new Utils::ParameterAction(updateProjectDefaultText, tr("Update Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = am->registerAction(m_updateProjectAction, CMD_ID_UPDATE_PROJECT, globalcontext);
     command->setDefaultText(updateProjectDefaultText);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -364,7 +364,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_describeAction, SIGNAL(triggered()), this, SLOT(describeChange()));
     mperforce->addAction(command);
 
-    m_annotateCurrentAction = new Core::Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_annotateCurrentAction = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_annotateCurrentAction, CMD_ID_ANNOTATE_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultText(tr("Annotate Current File"));
@@ -376,7 +376,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_annotateAction, SIGNAL(triggered()), this, SLOT(annotate()));
     mperforce->addAction(command);
 
-    m_filelogCurrentAction = new Core::Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_filelogCurrentAction = new Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_filelogCurrentAction, CMD_ID_FILELOG_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
 #ifndef Q_WS_MAC
@@ -833,7 +833,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
         outputWindow->appendCommand(formatCommand(m_settings.p4Command(), actualArgs));
 
     // Run, connect stderr to the output window
-    Core::Utils::SynchronousProcess process;
+    Utils::SynchronousProcess process;
     process.setTimeout(p4Timeout);
     process.setStdOutCodec(outputCodec);
     process.setEnvironment(environment());
@@ -850,7 +850,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
         connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
     }
 
-    const Core::Utils::SynchronousProcessResponse sp_resp = process.run(m_settings.p4Command(), actualArgs);
+    const Utils::SynchronousProcessResponse sp_resp = process.run(m_settings.p4Command(), actualArgs);
     if (Perforce::Constants::debug)
         qDebug() << sp_resp;
 
@@ -858,19 +858,19 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QStringList &args,
     response.stdErr = sp_resp.stdErr;
     response.stdOut = sp_resp.stdOut;
     switch (sp_resp.result) {
-    case Core::Utils::SynchronousProcessResponse::Finished:
+    case Utils::SynchronousProcessResponse::Finished:
         response.error = false;
         break;
-    case Core::Utils::SynchronousProcessResponse::FinishedError:
+    case Utils::SynchronousProcessResponse::FinishedError:
         response.message = tr("The process terminated with exit code %1.").arg(sp_resp.exitCode);
         break;
-    case Core::Utils::SynchronousProcessResponse::TerminatedAbnormally:
+    case Utils::SynchronousProcessResponse::TerminatedAbnormally:
         response.message = tr("The process terminated abnormally.");
         break;
-    case Core::Utils::SynchronousProcessResponse::StartFailed:
+    case Utils::SynchronousProcessResponse::StartFailed:
         response.message = tr("Could not start perforce '%1'. Please check your settings in the preferences.").arg(m_settings.p4Command());
         break;
-    case Core::Utils::SynchronousProcessResponse::Hang:
+    case Utils::SynchronousProcessResponse::Hang:
         response.message = tr("Perforce did not respond within timeout limit (%1 ms).").arg(p4Timeout );
         break;
     }

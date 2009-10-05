@@ -275,7 +275,7 @@ struct DebuggerManagerPrivate
     DebuggerStartParametersPtr m_startParameters;
     qint64 m_inferiorPid;
     /// Views
-    Core::Utils::FancyMainWindow *m_mainWindow;
+    Utils::FancyMainWindow *m_mainWindow;
     QLabel *m_statusLabel;
     QDockWidget *m_breakDock;
     QDockWidget *m_modulesDock;
@@ -369,7 +369,7 @@ void DebuggerManager::init()
     d->m_watchersWindow = new WatchWindow(WatchWindow::WatchersType, this);
     d->m_statusTimer = new QTimer(this);
 
-    d->m_mainWindow = new Core::Utils::FancyMainWindow;
+    d->m_mainWindow = new Utils::FancyMainWindow;
     d->m_mainWindow->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
     d->m_mainWindow->setDocumentMode(true);
 
@@ -586,7 +586,7 @@ DebuggerManagerActions DebuggerManager::debuggerManagerActions() const
     return d->m_actions;
 }
 
-Core::Utils::FancyMainWindow *DebuggerManager::mainWindow() const
+Utils::FancyMainWindow *DebuggerManager::mainWindow() const
 {
     return d->m_mainWindow;
 }

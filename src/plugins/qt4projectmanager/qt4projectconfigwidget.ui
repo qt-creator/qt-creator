@@ -99,7 +99,7 @@
     </widget>
    </item>
    <item row="7" column="1">
-    <widget class="Core::Utils::PathChooser" name="shadowBuildDirEdit" native="true">
+    <widget class="Utils::PathChooser" name="shadowBuildDirEdit" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -139,7 +139,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::PathChooser</class>
+   <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>

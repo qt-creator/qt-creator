@@ -130,10 +130,10 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
 
-    m_ui->execFileName->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->execFileName->setExpectedKind(Utils::PathChooser::File);
     m_ui->execFileName->setPromptDialogTitle(tr("Select Executable"));
 
-    m_ui->coreFileName->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->coreFileName->setExpectedKind(Utils::PathChooser::File);
     m_ui->coreFileName->setPromptDialogTitle(tr("Select Core File"));
 
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
@@ -327,7 +327,7 @@ AttachTcfDialog::AttachTcfDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_ui->serverStartScript->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->serverStartScript->setExpectedKind(Utils::PathChooser::File);
     m_ui->serverStartScript->setPromptDialogTitle(tr("Select Executable"));
 
     connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)), 
@@ -414,7 +414,7 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
   : QDialog(parent), m_ui(new Ui::StartExternalDialog)
 {
     m_ui->setupUi(this);
-    m_ui->execFile->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->execFile->setExpectedKind(Utils::PathChooser::File);
     m_ui->execFile->setPromptDialogTitle(tr("Select Executable"));
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
@@ -473,7 +473,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_ui->serverStartScript->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->serverStartScript->setExpectedKind(Utils::PathChooser::File);
     m_ui->serverStartScript->setPromptDialogTitle(tr("Select Executable"));
 
     connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)), 

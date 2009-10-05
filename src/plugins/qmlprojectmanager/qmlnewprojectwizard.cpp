@@ -47,7 +47,7 @@
 #include <QtGui/QTreeView>
 
 using namespace QmlProjectManager::Internal;
-using namespace Core::Utils;
+using namespace Utils;
 
 namespace {
 
@@ -124,7 +124,7 @@ QmlNewProjectWizardDialog::QmlNewProjectWizardDialog(QWidget *parent)
 {
     setWindowTitle(tr("New QML Project"));
 
-    m_introPage = new Core::Utils::ProjectIntroPage();
+    m_introPage = new Utils::ProjectIntroPage();
     m_introPage->setDescription(tr("This wizard generates a QML application project."));
 
     addPage(m_introPage);

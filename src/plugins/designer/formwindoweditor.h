@@ -51,10 +51,10 @@ class NodesWatcher;
 
 namespace Designer {
 namespace Internal {
-
 class FormWindowFile;
 class FormWindowHost;
 class EditorWidget;
+}
 
 // Master class maintaining a form window editor,
 // containing file and widget host
@@ -114,9 +114,9 @@ private:
     QString m_displayName;
     const QList<int> m_context;
     QDesignerFormWindowInterface *m_formWindow;
-    FormWindowFile *m_file;
-    FormWindowHost *m_host;
-    EditorWidget *m_editorWidget;
+    Internal::FormWindowFile *m_file;
+    Internal::FormWindowHost *m_host;
+    Internal::EditorWidget *m_editorWidget;
     QToolBar *m_toolBar;
     QStringList m_originalUiQrcPaths;
     ProjectExplorer::SessionNode *m_sessionNode;
@@ -124,6 +124,5 @@ private:
 };
 
 } // namespace Internal
-} // namespace Designer
 
 #endif // FORMWINDOWEDITOR_H

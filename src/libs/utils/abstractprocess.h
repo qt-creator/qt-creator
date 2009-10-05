@@ -34,7 +34,6 @@
 
 #include <QtCore/QStringList>
 
-namespace Core {
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT AbstractProcess
@@ -75,7 +74,6 @@ private:
 };
 
 } //namespace Utils
-} //namespace Core
 
 #endif // ABSTRACTPROCESS_H
 

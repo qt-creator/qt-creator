@@ -39,7 +39,7 @@ namespace Internal {
 
 FilesPage::FilesPage(QWidget *parent) :
     QWizardPage(parent),
-    m_newClassWidget(new Core::Utils::NewClassWidget)
+    m_newClassWidget(new Utils::NewClassWidget)
 {
     m_newClassWidget->setPathInputVisible(false);
     setTitle(tr("Class Information"));

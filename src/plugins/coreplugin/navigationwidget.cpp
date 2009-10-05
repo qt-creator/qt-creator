@@ -369,7 +369,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget)
     m_navigationComboBox->setMinimumContentsLength(0);
     m_navigationWidget = 0;
 
-    m_toolBar = new Core::Utils::StyledBar(this);
+    m_toolBar = new Utils::StyledBar(this);
     QHBoxLayout *toolBarLayout = new QHBoxLayout;
     toolBarLayout->setMargin(0);
     toolBarLayout->setSpacing(0);

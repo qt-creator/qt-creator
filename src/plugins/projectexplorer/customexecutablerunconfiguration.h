@@ -33,7 +33,6 @@
 #include "applicationrunconfiguration.h"
 #include <QtGui/QWidget>
 
-
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QLineEdit;
@@ -44,11 +43,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class DetailsWidget;
-}
-namespace Core {
-namespace Utils {
 class PathChooser;
-}
 }
 
 namespace ProjectExplorer {
@@ -172,10 +167,10 @@ private slots:
 private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;
-    Core::Utils::PathChooser *m_executableChooser;
+    Utils::PathChooser *m_executableChooser;
     QLineEdit *m_userName;
     QLineEdit *m_commandLineArgumentsLineEdit;
-    Core::Utils::PathChooser *m_workingDirectory;
+    Utils::PathChooser *m_workingDirectory;
     QCheckBox *m_useTerminalCheck;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
     QComboBox *m_baseEnvironmentComboBox;

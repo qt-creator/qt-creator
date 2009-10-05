@@ -32,10 +32,8 @@
 
 #include <QtGui/QWizard>
 
-namespace Core {
 namespace Utils {
     class FileWizardPage;
-}
 }
 
 namespace Designer {
@@ -88,7 +86,7 @@ private slots:
     void slotCurrentIdChanged(int id);
 
 private:
-    Core::Utils::FileWizardPage *m_filePage;
+    Utils::FileWizardPage *m_filePage;
 };
 
 } // namespace Internal

@@ -45,10 +45,8 @@ class QPushButton;
 class QStringListModel;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 class PathChooser;
-}
 }
 
 namespace GenericProjectManager {
@@ -204,7 +202,7 @@ private Q_SLOTS:
 
 private:
     GenericProject *m_project;
-    Core::Utils::PathChooser *m_pathChooser;
+    Utils::PathChooser *m_pathChooser;
     QString m_buildConfiguration;
 };
 

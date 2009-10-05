@@ -587,7 +587,7 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     // build directory
-    m_pathChooser = new Core::Utils::PathChooser(this);
+    m_pathChooser = new Utils::PathChooser(this);
     m_pathChooser->setEnabled(true);
     fl->addRow(tr("Build directory:"), m_pathChooser);
     connect(m_pathChooser, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));

@@ -36,13 +36,11 @@
 #include <QtGui/QWizardPage>
 #include <QtGui/QWizard>
 
-namespace Core {
 namespace Utils {
 
 class NewClassWidget;
 
 } // namespace Utils
-} // namespace Core
 
 namespace CppEditor {
 namespace Internal {
@@ -55,7 +53,7 @@ public:
     explicit ClassNamePage(QWidget *parent = 0);
 
     bool isComplete() const { return m_isValid; }
-    Core::Utils::NewClassWidget *newClassWidget() const { return m_newClassWidget; }
+    Utils::NewClassWidget *newClassWidget() const { return m_newClassWidget; }
 
 private slots:
     void slotValidChanged();
@@ -64,7 +62,7 @@ private slots:
 private:
     void initParameters();
 
-    Core::Utils::NewClassWidget *m_newClassWidget;
+    Utils::NewClassWidget *m_newClassWidget;
     bool m_isValid;
 };
 

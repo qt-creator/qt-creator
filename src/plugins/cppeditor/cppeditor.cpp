@@ -1888,7 +1888,7 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
 void CPPEditor::unCommentSelection()
 {
-    Core::Utils::unCommentSelection(this);
+    Utils::unCommentSelection(this);
 }
 
 CPPEditor::Link CPPEditor::linkToSymbol(CPlusPlus::Symbol *symbol)

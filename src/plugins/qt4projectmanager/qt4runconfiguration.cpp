@@ -138,9 +138,9 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_executableLabel = new QLabel(m_qt4RunConfiguration->executable());
     toplayout->addRow(tr("Executable:"), m_executableLabel);
 
-    m_workingDirectoryEdit = new Core::Utils::PathChooser();
+    m_workingDirectoryEdit = new Utils::PathChooser();
     m_workingDirectoryEdit->setPath(m_qt4RunConfiguration->workingDirectory());
-    m_workingDirectoryEdit->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
     m_workingDirectoryEdit->setPromptDialogTitle(tr("Select the working directory"));
 
     QToolButton *resetButton = new QToolButton();

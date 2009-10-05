@@ -29,7 +29,6 @@
 
 #include "consoleprocess.h"
 
-namespace Core {
 namespace Utils {
 
 QString ConsoleProcess::modeOption(Mode m)
@@ -82,5 +81,4 @@ QString ConsoleProcess::msgCannotExecute(const QString & p, const QString &why)
     return tr("Cannot execute '%1': %2").arg(p, why);
 }
 
-}
 }

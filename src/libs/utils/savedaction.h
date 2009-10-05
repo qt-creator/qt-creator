@@ -42,8 +42,6 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-
-namespace Core {
 namespace Utils {
 
 enum ApplyMode { ImmediateApply, DeferedApply };
@@ -122,6 +120,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // SAVED_ACTION_H

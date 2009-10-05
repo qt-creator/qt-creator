@@ -41,7 +41,7 @@ EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
                                                const QList<QWizardPage*> &extensionPages,
                                                QWidget *parent) :
     QWizard(parent),
-    m_introPage(new Core::Utils::ProjectIntroPage)
+    m_introPage(new Utils::ProjectIntroPage)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);

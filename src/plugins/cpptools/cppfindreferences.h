@@ -72,7 +72,7 @@ private Q_SLOTS:
 private:
     QPointer<CppModelManager> _modelManager;
     Find::SearchResultWindow *_resultWindow;
-    QFutureWatcher<Core::Utils::FileSearchResult> m_watcher;
+    QFutureWatcher<Utils::FileSearchResult> m_watcher;
 };
 
 } // end of namespace Internal

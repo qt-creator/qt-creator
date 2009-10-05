@@ -48,8 +48,8 @@ public:
     DebuggerSettings(QObject *parent = 0);
     ~DebuggerSettings();
 
-    void insertItem(int code, Core::Utils::SavedAction *item);
-    Core::Utils::SavedAction *item(int code) const;
+    void insertItem(int code, Utils::SavedAction *item);
+    Utils::SavedAction *item(int code) const;
 
     QString dump() const;
 
@@ -60,7 +60,7 @@ public slots:
     void writeSettings(QSettings *settings) const;
 
 private:
-    QHash<int, Core::Utils::SavedAction *> m_items; 
+    QHash<int, Utils::SavedAction *> m_items; 
 };
 
 
@@ -126,7 +126,7 @@ enum DebuggerActionCode
 };
 
 // singleton access
-Core::Utils::SavedAction *theDebuggerAction(int code);
+Utils::SavedAction *theDebuggerAction(int code);
 
 // convenience
 bool theDebuggerBoolSetting(int code);

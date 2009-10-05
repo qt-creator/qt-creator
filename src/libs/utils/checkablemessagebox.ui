@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Core::Utils::CheckableMessageBox</class>
- <widget class="QDialog" name="Core::Utils::CheckableMessageBox">
+ <class>Utils::CheckableMessageBox</class>
+ <widget class="QDialog" name="Utils::CheckableMessageBox">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -121,7 +121,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Core::Utils::CheckableMessageBox</receiver>
+   <receiver>Utils::CheckableMessageBox</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -137,7 +137,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Core::Utils::CheckableMessageBox</receiver>
+   <receiver>Utils::CheckableMessageBox</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

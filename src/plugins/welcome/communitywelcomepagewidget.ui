@@ -24,7 +24,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="Core::Utils::WelcomeModeLabel" name="labsTitleLabel">
+       <widget class="Utils::WelcomeModeLabel" name="labsTitleLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
           <horstretch>0</horstretch>
@@ -37,7 +37,7 @@
        </widget>
       </item>
       <item>
-       <widget class="Core::Utils::WelcomeModeTreeWidget" name="newsTreeWidget">
+       <widget class="Utils::WelcomeModeTreeWidget" name="newsTreeWidget">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -108,7 +108,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="Core::Utils::WelcomeModeLabel" name="sitesTitleLabel">
+       <widget class="Utils::WelcomeModeLabel" name="sitesTitleLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
           <horstretch>0</horstretch>
@@ -121,7 +121,7 @@
        </widget>
       </item>
       <item>
-       <widget class="Core::Utils::WelcomeModeTreeWidget" name="sitesTreeWidget">
+       <widget class="Utils::WelcomeModeTreeWidget" name="sitesTreeWidget">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -180,12 +180,12 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::WelcomeModeTreeWidget</class>
+   <class>Utils::WelcomeModeTreeWidget</class>
    <extends>QTreeWidget</extends>
    <header>utils/welcomemodetreewidget.h</header>
   </customwidget>
   <customwidget>
-   <class>Core::Utils::WelcomeModeLabel</class>
+   <class>Utils::WelcomeModeLabel</class>
    <extends>QLabel</extends>
    <header>utils/welcomemodetreewidget.h</header>
   </customwidget>

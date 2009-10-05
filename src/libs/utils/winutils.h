@@ -36,7 +36,6 @@ QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 
 // Helper to format a Windows error message, taking the
@@ -44,5 +43,4 @@ namespace Utils {
 QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error);
 
 } // namespace Utils
-} // namespace Core
 #endif // WINUTILS_H

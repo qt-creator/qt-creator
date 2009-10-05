@@ -69,7 +69,7 @@ struct Process: protected ASTVisitor
 {
 public:
     Process(Document::Ptr doc, const Snapshot &snapshot,
-            QFutureInterface<Core::Utils::FileSearchResult> *future)
+            QFutureInterface<Utils::FileSearchResult> *future)
             : ASTVisitor(doc->control()),
               _future(future),
               _doc(doc),
@@ -129,7 +129,7 @@ protected:
         const int len = tk.f.length;
 
         if (_future)
-            _future->reportResult(Core::Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
+            _future->reportResult(Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
                                                                 line, lineText, col, len));
 
         _references.append(tokenIndex);
@@ -365,7 +365,7 @@ protected:
     }
 
 private:
-    QFutureInterface<Core::Utils::FileSearchResult> *_future;
+    QFutureInterface<Utils::FileSearchResult> *_future;
     Identifier *_id; // ### remove me
     Symbol *_declSymbol;
     Document::Ptr _doc;
@@ -415,7 +415,7 @@ QList<int> CppFindReferences::references(Symbol *symbol,
     return references;
 }
 
-static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
+static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
                         const QMap<QString, QString> wl,
                         Snapshot snapshot,
                         Symbol *symbol)
@@ -502,7 +502,7 @@ void CppFindReferences::findAll(Symbol *symbol)
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
-    QFuture<Core::Utils::FileSearchResult> result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
+    QFuture<Utils::FileSearchResult> result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching..."),
@@ -514,7 +514,7 @@ void CppFindReferences::findAll(Symbol *symbol)
 
 void CppFindReferences::displayResult(int index)
 {
-    Core::Utils::FileSearchResult result = m_watcher.future().resultAt(index);
+    Utils::FileSearchResult result = m_watcher.future().resultAt(index);
     Find::ResultWindowItem *item = _resultWindow->addResult(result.fileName,
                                                             result.lineNumber,
                                                             result.matchingLine,

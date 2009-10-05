@@ -74,7 +74,7 @@ QString CppFileWizard::fileContents(FileType type, const QString &fileName) cons
     str << CppTools::AbstractEditorSupport::licenseTemplate();
     switch (type) {
     case Header: {
-            const QString guard = Core::Utils::headerGuard(fileName);
+            const QString guard = Utils::headerGuard(fileName);
             str << QLatin1String("#ifndef ") << guard
                 << QLatin1String("\n#define ") <<  guard <<  QLatin1String("\n\n#endif // ")
                 << guard << QLatin1String("\n");

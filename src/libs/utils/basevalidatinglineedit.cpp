@@ -33,7 +33,6 @@
 
 enum { debug = 0 };
 
-namespace Core {
 namespace Utils {
 
 struct BaseValidatingLineEditPrivate {
@@ -156,4 +155,3 @@ void BaseValidatingLineEdit::triggerChanged()
 }
 
 } // namespace Utils
-} // namespace Core
