@@ -2157,6 +2157,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
             block = doc->findBlockByLineNumber(block.firstLineNumber());
         }
     }
+    painter.setPen(context.palette.text().color());
 
     if (backgroundVisible() && !block.isValid() && offset.y() <= er.bottom()
         && (centerOnScroll() || verticalScrollBar()->maximum() == verticalScrollBar()->minimum())) {
