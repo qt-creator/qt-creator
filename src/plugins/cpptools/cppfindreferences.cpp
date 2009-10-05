@@ -371,6 +371,34 @@ protected:
         return false;
     }
 
+    virtual bool visit(ParameterDeclarationAST *ast)
+    {
+        for (SpecifierAST *spec = ast->type_specifier; spec; spec = spec->next)
+            accept(spec);
+
+        if (DeclaratorAST *declarator = ast->declarator) {
+            for (SpecifierAST *attr = declarator->attributes; attr; attr = attr->next)
+                accept(attr);
+
+            for (PtrOperatorAST *ptr_op = declarator->ptr_operators; ptr_op; ptr_op = ptr_op->next)
+                accept(ptr_op);
+
+            // ### TODO: well, not exactly. We need to look at qualified-name-ids and nested-declarators.
+            // accept(declarator->core_declarator);
+
+            for (PostfixDeclaratorAST *fx_op = declarator->postfix_declarators; fx_op; fx_op = fx_op->next)
+                accept(fx_op);
+
+            for (SpecifierAST *spec = declarator->post_attributes; spec; spec = spec->next)
+                accept(spec);
+
+            accept(declarator->initializer);
+        }
+
+        accept(ast->expression);
+        return false;
+    }
+
 private:
     QFutureInterface<Core::Utils::FileSearchResult> *_future;
     Identifier *_id; // ### remove me
