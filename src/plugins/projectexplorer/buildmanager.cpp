@@ -189,8 +189,10 @@ void BuildManager::gotoTaskWindow()
 
 void BuildManager::startBuildQueue()
 {
-    if (m_buildQueue.isEmpty())
+    if (m_buildQueue.isEmpty()) {
+        emit buildQueueFinished(true);
         return;
+    }
     if (!m_running) {
         // Progress Reporting
         Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
