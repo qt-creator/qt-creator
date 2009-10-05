@@ -4081,7 +4081,11 @@ void GdbEngine::handleInferiorPrepared()
     //postCommand(_("set print pretty on"));
     //postCommand(_("set confirm off"));
     //postCommand(_("set pagination off"));
-    postCommand(_("set print inferior-events 1"));
+
+    // The following does not work with 6.3.50-20050815 (Apple version gdb-1344)
+    // (Mac OS 10.6), but does so for gdb-966 (10.5):
+    //postCommand(_("set print inferior-events 1"));
+
     postCommand(_("set breakpoint pending on"));
     postCommand(_("set print elements 10000"));
     postCommand(_("-data-list-register-names"), CB(handleRegisterListNames));
