@@ -104,7 +104,7 @@ void PanelsWidget::addWidget(QWidget *widget)
     p.panelWidget = widget;
 
     p.marginLayout = 0;
-    m_layout->insertWidget(m_layout->count() -1, widget);
+    m_layout->insertWidget(m_layout->count() - 1, widget);
     m_panels.append(p);
 }
 

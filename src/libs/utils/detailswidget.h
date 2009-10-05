@@ -47,6 +47,7 @@ private:
 
     QWidget *m_widget;
     QWidget *m_toolWidget;
+    QWidget *m_dummyWidget;
     QGridLayout *m_grid;
 };
 }
