@@ -259,7 +259,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     connect(m_ui->filterClearToolButton, SIGNAL(clicked()),
             m_ui->filterLineEdit, SLOT(clear()));
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)),
-            m_model, SLOT(setFilterFixedString(QString)));
+            this, SLOT(setFilterString(QString)));
 
     rebuildProcessList();
 }
@@ -267,6 +267,17 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
 AttachExternalDialog::~AttachExternalDialog()
 {
     delete m_ui;
+}
+
+void AttachExternalDialog::setFilterString(const QString &filter)
+{
+    m_model->setFilterFixedString(filter);
+    // Activate the line edit if there's a unique filtered process.
+    QString processId;
+    if (m_model->rowCount(QModelIndex()) == 1)
+        processId = m_model->processIdAt(m_model->index(0, 0, QModelIndex()));
+    m_ui->pidLineEdit->setText(processId);
+    pidChanged(processId);
 }
 
 QPushButton *AttachExternalDialog::okButton() const
@@ -284,9 +295,9 @@ void AttachExternalDialog::rebuildProcessList()
 
 void AttachExternalDialog::procSelected(const QModelIndex &proxyIndex)
 {
-    const QString proccessId  = m_model->processIdAt(proxyIndex);
-    if (!proccessId.isEmpty()) {
-        m_ui->pidLineEdit->setText(proccessId);
+    const QString processId  = m_model->processIdAt(proxyIndex);
+    if (!processId.isEmpty()) {
+        m_ui->pidLineEdit->setText(processId);
         if (okButton()->isEnabled())
             okButton()->animateClick();
     }

@@ -95,6 +95,7 @@ private slots:
     void rebuildProcessList();
     void procSelected(const QModelIndex &);
     void pidChanged(const QString &);
+    void setFilterString(const QString &filter);
 
 private:
     inline QPushButton *okButton() const;
