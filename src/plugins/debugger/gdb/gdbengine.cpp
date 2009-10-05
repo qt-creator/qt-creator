@@ -3876,8 +3876,7 @@ void GdbEngine::fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
     QTC_ASSERT(agent, return);
     bool ok = true;
     quint64 address = agent->address().toULongLong(&ok, 0);
-    //qDebug() << "ADDRESS: " << agent->address() << address;
-    QTC_ASSERT(ok, return);
+    QTC_ASSERT(ok, qDebug() << "ADDRESS: " << agent->address() << address; return);
     QString start = QString::number(address - 20, 16);
     QString end = QString::number(address + 100, 16);
     // -data-disassemble [ -s start-addr -e end-addr ]
