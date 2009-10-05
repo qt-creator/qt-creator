@@ -67,8 +67,10 @@ private:
     void interruptInferior();
     void shutdown();
 
+    void handleTargetCore1(const GdbResponse &response);
+    void handleDetach1(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
-    void handleTargetCore(const GdbResponse &response);
+    void handleTargetCore2(const GdbResponse &response);
     void handleExit(const GdbResponse &response);
 
     Q_SLOT void handleGdbStarted();
