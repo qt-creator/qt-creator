@@ -1011,7 +1011,7 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
             ResolveExpression resolveExpression(context);
             ResolveClass resolveClass;
 
-            const QList<Symbol *> candidates = resolveClass(result, context);
+            const QList<Symbol *> candidates = resolveClass(namedTy->name(), result, context);
             foreach (Symbol *classObject, candidates) {
                 const QList<TypeOfExpression::Result> overloads =
                         resolveExpression.resolveArrowOperator(result, namedTy,
@@ -1026,9 +1026,10 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
                     ty = funTy->returnType().simplified();
 
                     if (PointerType *ptrTy = ty->asPointerType()) {
-                        if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
+                        FullySpecifiedType elementTy = ptrTy->elementType().simplified();
+                        if (NamedType *namedTy = elementTy->asNamedType()) {
                             const QList<Symbol *> classes =
-                                    resolveClass(namedTy, result, context);
+                                    resolveClass(namedTy->name(), result, context);
 
                             foreach (Symbol *c, classes) {
                                 if (! classObjectCandidates.contains(c))
@@ -1039,17 +1040,18 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
                 }
             }
         } else if (PointerType *ptrTy = ty->asPointerType()) {
-            if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
+            FullySpecifiedType elementTy = ptrTy->elementType().simplified();
+            if (NamedType *namedTy = elementTy->asNamedType()) {
                 ResolveClass resolveClass;
 
-                const QList<Symbol *> classes = resolveClass(namedTy, result,
+                const QList<Symbol *> classes = resolveClass(namedTy->name(), result,
                                                              context);
 
                 foreach (Symbol *c, classes) {
                     if (! classObjectCandidates.contains(c))
                         classObjectCandidates.append(c);
                 }
-            } else if (Class *classTy = ptrTy->elementType()->asClassType()) {
+            } else if (Class *classTy = elementTy->asClassType()) {
                 // typedef struct { int x } *Ptr;
                 // Ptr p;
                 // p->
@@ -1099,7 +1101,7 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &re
 
         if (namedTy) {
             ResolveClass resolveClass;
-            const QList<Symbol *> symbols = resolveClass(namedTy, result,
+            const QList<Symbol *> symbols = resolveClass(namedTy->name(), result,
                                                          context);
             foreach (Symbol *symbol, symbols) {
                 if (classObjectCandidates.contains(symbol))
@@ -1330,7 +1332,7 @@ bool CppCodeCompletion::completeQtMethod(const QList<TypeOfExpression::Result> &
         FullySpecifiedType ty = p.first.simplified();
 
         if (PointerType *ptrTy = ty->asPointerType())
-            ty = ptrTy->elementType();
+            ty = ptrTy->elementType().simplified();
         else
             continue; // not a pointer or a reference to a pointer.
 
@@ -1339,7 +1341,7 @@ bool CppCodeCompletion::completeQtMethod(const QList<TypeOfExpression::Result> &
             continue;
 
         const QList<Symbol *> classObjects =
-                resolveClass(namedTy, p, context);
+                resolveClass(namedTy->name(), p, context);
 
         if (classObjects.isEmpty())
             continue;

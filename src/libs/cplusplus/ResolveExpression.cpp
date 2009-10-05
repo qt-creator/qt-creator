@@ -194,6 +194,22 @@ protected:
     { Q_ASSERT(false); }
 };
 
+template <typename _Tp>
+static QList<_Tp> removeDuplicates(const QList<_Tp> &results)
+{
+    QList<_Tp> uniqueList;
+    QSet<_Tp> processed;
+    foreach (const _Tp &r, results) {
+        if (processed.contains(r))
+            continue;
+
+        processed.insert(r);
+        uniqueList.append(r);
+    }
+
+    return uniqueList;
+}
+
 } // end of anonymous namespace
 
 /////////////////////////////////////////////////////////////////////
@@ -212,7 +228,7 @@ QList<ResolveExpression::Result> ResolveExpression::operator()(ExpressionAST *as
 {
     const QList<Result> previousResults = switchResults(QList<Result>());
     accept(ast);
-    return switchResults(previousResults);
+    return removeDuplicates(switchResults(previousResults));
 }
 
 QList<ResolveExpression::Result>
@@ -482,7 +498,7 @@ bool ResolveExpression::visit(QualifiedNameAST *ast)
             if (NamedType *namedTy = symbol->type()->asNamedType()) {
                 const Result r(namedTy, symbol);
                 const QList<Symbol *> resolvedClasses =
-                        resolveClass(r, _context);
+                        resolveClass(namedTy->name(), r, _context);
                 if (resolvedClasses.count()) {
                     foreach (Symbol *s, resolvedClasses) {
                         addResult(s->type(), s);
@@ -591,7 +607,7 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
             addResult(arrTy->elementType(), contextSymbol);
         } else if (NamedType *namedTy = ty->asNamedType()) {
             const QList<Symbol *> classObjectCandidates =
-                    symbolsForDotAcccess(p, _context);
+                    symbolsForDotAcccess(namedTy->name(), p, _context);
 
             foreach (Symbol *classObject, classObjectCandidates) {
                 const QList<Result> overloads =
@@ -630,30 +646,38 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
     return false;
 }
 
-QList<Symbol *> ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int accessOp) const
+QList<ResolveExpression::Result>
+ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int accessOp) const
 {
-    QList<Symbol *> classObjectCandidates;
+    QList<Result> results;
 
     if (baseResults.isEmpty())
-        return classObjectCandidates;
+        return results;
 
     Result result = baseResults.first();
+    FullySpecifiedType ty = result.first.simplified();
+    Symbol *lastVisibleSymbol = result.second;
 
     if (accessOp == T_ARROW)  {
-        FullySpecifiedType ty = result.first.simplified();
+        if (lastVisibleSymbol && ty->isClassType() && ! lastVisibleSymbol->isClass()) {
+            // ### remove ! lastVisibleSymbol->isClass() from the condition.
+            results.append(Result(ty, lastVisibleSymbol));
 
-        if (Class *classTy = ty->asClassType()) {
-            Symbol *symbol = result.second;
-            if (symbol && ! symbol->isClass())
-                classObjectCandidates.append(classTy);
         } else if (NamedType *namedTy = ty->asNamedType()) {
             // ### This code is pretty slow.
             const QList<Symbol *> candidates = _context.resolve(namedTy->name());
+
             foreach (Symbol *candidate, candidates) {
                 if (candidate->isTypedef()) {
-                    ty = candidate->type();
-                    const ResolveExpression::Result r(ty, candidate);
+                    FullySpecifiedType declTy = candidate->type().simplified();
+                    const ResolveExpression::Result r(declTy, candidate);
+
+                    // update the result
                     result = r;
+
+                    // refresh the cached ty and lastVisibileSymbol.
+                    ty = result.first.simplified();
+                    lastVisibleSymbol = result.second;
                     break;
                 }
             }
@@ -662,82 +686,49 @@ QList<Symbol *> ResolveExpression::resolveBaseExpression(const QList<Result> &ba
         if (NamedType *namedTy = ty->asNamedType()) {
             ResolveClass resolveClass;
 
-            const QList<Symbol *> candidates = resolveClass(result, _context);
+            const QList<Symbol *> candidates = resolveClass(namedTy->name(), result, _context);
             foreach (Symbol *classObject, candidates) {
                 const QList<Result> overloads = resolveArrowOperator(result, namedTy,
                                                                      classObject->asClass());
 
-                foreach (Result r, overloads) {
-                    FullySpecifiedType ty = r.first;
-                    Function *funTy = ty->asFunctionType();
+                foreach (const Result &r, overloads) {
+                    FullySpecifiedType typeOfOverloadFunction = r.first.simplified();
+                    Symbol *lastVisibleSymbol = r.second;
+                    Function *funTy = typeOfOverloadFunction->asFunctionType();
                     if (! funTy)
                         continue;
 
-                    ty = funTy->returnType().simplified();
+                    typeOfOverloadFunction = funTy->returnType().simplified();
 
-                    if (PointerType *ptrTy = ty->asPointerType()) {
-                        if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
-                            const QList<Symbol *> classes =
-                                    resolveClass(namedTy, result, _context);
+                    if (PointerType *ptrTy = typeOfOverloadFunction->asPointerType()) {
+                        FullySpecifiedType elementTy = ptrTy->elementType().simplified();
 
-                            foreach (Symbol *c, classes) {
-                                if (! classObjectCandidates.contains(c))
-                                    classObjectCandidates.append(c);
-                            }
-                        }
+                        if (elementTy->isNamedType())
+                            results.append(Result(elementTy, lastVisibleSymbol));
                     }
                 }
             }
         } else if (PointerType *ptrTy = ty->asPointerType()) {
-            if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
-                ResolveClass resolveClass;
+            FullySpecifiedType elementTy = ptrTy->elementType().simplified();
 
-                const QList<Symbol *> classes = resolveClass(namedTy, result,
-                                                             _context);
-
-                foreach (Symbol *c, classes) {
-                    if (! classObjectCandidates.contains(c))
-                        classObjectCandidates.append(c);
-                }
-            } else if (Class *classTy = ptrTy->elementType()->asClassType()) {
-                // typedef struct { int x } *Ptr;
-                // Ptr p;
-                // p->
-                classObjectCandidates.append(classTy);
-            }
+            if (elementTy->isNamedType() || elementTy->isClassType())
+                results.append(Result(elementTy, lastVisibleSymbol));
         }
     } else if (accessOp == T_DOT) {
-        FullySpecifiedType ty = result.first.simplified();
+        if (ty->isClassType() || ty->isNamedType())
+            results.append(Result(ty, lastVisibleSymbol));
 
-        NamedType *namedTy = 0;
+        if (Function *fun = ty->asFunctionType()) {
+            Scope *funScope = fun->scope();
 
-        if (Class *classTy = ty->asClassType()) {
-            Symbol *symbol = result.second;
-            if (symbol && ! symbol->isClass())
-                classObjectCandidates.append(classTy);
-        } else {
-            namedTy = ty->asNamedType();
-            if (! namedTy) {
-                Function *fun = ty->asFunctionType();
-                if (fun && fun->scope() && (fun->scope()->isBlockScope() || fun->scope()->isNamespaceScope()))
-                    namedTy = fun->returnType()->asNamedType();
-            }
-        }
-
-        if (namedTy) {
-            ResolveClass resolveClass;
-            const QList<Symbol *> symbols = resolveClass(namedTy, result,
-                                                         _context);
-            foreach (Symbol *symbol, symbols) {
-                if (classObjectCandidates.contains(symbol))
-                    continue;
-                if (Class *klass = symbol->asClass())
-                    classObjectCandidates.append(klass);
+            if (funScope && (funScope->isBlockScope() || funScope->isNamespaceScope())) {
+                FullySpecifiedType retTy = fun->returnType().simplified();
+                results.append(Result(retTy, lastVisibleSymbol));
             }
         }
     }
 
-    return classObjectCandidates;
+    return removeDuplicates(results);
 }
 
 QList<ResolveExpression::Result>
@@ -745,24 +736,41 @@ ResolveExpression::resolveMemberExpression(const QList<Result> &baseResults,
                                            unsigned accessOp,
                                            Name *memberName) const
 {
+    ResolveClass resolveClass;
     QList<Result> results;
 
-    const QList<Symbol *> classObjectCandidates = resolveBaseExpression(baseResults, accessOp);
-    foreach (Symbol *candidate, classObjectCandidates) {
-        Class *klass = candidate->asClass();
-        if (! klass)
-            continue;
+    const QList<Result> classObjectResults = resolveBaseExpression(baseResults, accessOp);
+    foreach (const Result &r, classObjectResults) {
+        FullySpecifiedType ty = r.first;
 
-        results += resolveMember(memberName, klass);
+        if (Class *klass = ty->asClassType())
+            results += resolveMember(memberName, klass);
+
+        else if (NamedType *namedTy = ty->asNamedType()) {
+            Name *className = namedTy->name();
+            const QList<Symbol *> classes = resolveClass(className, r, _context);
+
+            foreach (Symbol *c, classes) {
+                if (Class *klass = c->asClass())
+                    results += resolveMember(memberName, klass, className);
+            }
+        }
     }
 
-    return results;
+    return removeDuplicates(results);
 }
 
 QList<ResolveExpression::Result>
-ResolveExpression::resolveMember(Name *memberName, Class *klass) const
+ResolveExpression::resolveMember(Name *memberName, Class *klass,
+                                 Name *className) const
 {
     QList<Result> results;
+
+    if (! className)
+        className = klass->name();
+
+    if (! className)
+        return results;
 
     QList<Scope *> scopes;
     _context.expand(klass->members(), _context.visibleScopes(), &scopes);
@@ -771,35 +779,30 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass) const
 
     foreach (Symbol *candidate, candidates) {
         FullySpecifiedType ty = candidate->type();
-
-        if (Name *className = klass->name()) {
-            Name *unqualifiedNameId = className;
-
-            if (QualifiedNameId *q = className->asQualifiedNameId())
-                unqualifiedNameId = q->unqualifiedNameId();
-
-            if (TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
-                Substitution subst;
-
-                for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
-                    FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
-
-                    if (i < klass->templateParameterCount())
-                        subst.append(qMakePair(klass->templateParameterAt(i)->name(),
-                                               templArgTy));
-                }
-
-                Instantiation inst(control(), subst);
-                ty = inst(ty);
+        Name *unqualifiedNameId = className;
+        
+        if (QualifiedNameId *q = className->asQualifiedNameId())
+            unqualifiedNameId = q->unqualifiedNameId();
+        
+        if (TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
+            Substitution subst;
+            
+            for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
+                FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
+                
+                if (i < klass->templateParameterCount())
+                    subst.append(qMakePair(klass->templateParameterAt(i)->name(),
+                                           templArgTy));
             }
+            
+            Instantiation inst(control(), subst);
+            ty = inst(ty);
         }
-
-        const Result result(ty, candidate);
-        if (! results.contains(result))
-            results.append(result);
+        
+        results.append(Result(ty, candidate));
     }
 
-    return results;
+    return removeDuplicates(results);
 }
 
 QList<ResolveExpression::Result>
@@ -832,11 +835,10 @@ ResolveExpression::resolveArrowOperator(const Result &,
         }
 
         const Result result(ty, candidate);
-        if (! results.contains(result))
-            results.append(result);
+        results.append(result);
     }
 
-    return results;
+    return removeDuplicates(results);
 }
 
 QList<ResolveExpression::Result>
@@ -870,12 +872,10 @@ ResolveExpression::resolveArrayOperator(const Result &,
             ty = inst(ty);
         }
 
-        const Result result(ty, candidate);
-        if (! results.contains(result))
-            results.append(result);
+        results.append(Result(ty, candidate));
     }
 
-    return results;
+    return removeDuplicates(results);
 }
 
 bool ResolveExpression::visit(PostIncrDecrAST *)
@@ -894,27 +894,18 @@ bool ResolveClass::pointerAccess() const
 void ResolveClass::setPointerAccess(bool pointerAccess)
 { _pointerAccess = pointerAccess; }
 
-QList<Symbol *> ResolveClass::operator()(NamedType *namedTy,
-                                         ResolveExpression::Result p,
+QList<Symbol *> ResolveClass::operator()(Name *name,
+                                         const ResolveExpression::Result &p,
                                          const LookupContext &context)
 {
     const QList<ResolveExpression::Result> previousBlackList = _blackList;
-    const QList<Symbol *> symbols = resolveClass(namedTy, p, context);
+    const QList<Symbol *> symbols = resolveClass(name, p, context);
     _blackList = previousBlackList;
     return symbols;
 }
 
-QList<Symbol *> ResolveClass::operator()(ResolveExpression::Result p,
-                                         const LookupContext &context)
-{
-    const QList<ResolveExpression::Result> previousBlackList = _blackList;
-    const QList<Symbol *> symbols = resolveClass(p, context);
-    _blackList = previousBlackList;
-    return symbols;
-}
-
-QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
-                                           ResolveExpression::Result p,
+QList<Symbol *> ResolveClass::resolveClass(Name *name,
+                                           const ResolveExpression::Result &p,
                                            const LookupContext &context)
 {
     QList<Symbol *> resolvedSymbols;
@@ -925,7 +916,7 @@ QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
     _blackList.append(p);
 
     const QList<Symbol *> candidates =
-            context.resolve(namedTy->name(), context.visibleScopes(p));
+            context.resolve(name, context.visibleScopes(p));
 
     foreach (Symbol *candidate, candidates) {
         if (Class *klass = candidate->asClass()) {
@@ -936,10 +927,13 @@ QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
             if (Declaration *decl = candidate->asDeclaration()) {
                 if (_pointerAccess && decl->type()->isPointerType()) {
                     PointerType *ptrTy = decl->type()->asPointerType();
-                    _pointerAccess = false;
-                    const ResolveExpression::Result r(ptrTy->elementType(), decl);
-                    resolvedSymbols += resolveClass(r, context);
-                    _pointerAccess = true;
+                    FullySpecifiedType elementTy = ptrTy->elementType().simplified();
+                    if (NamedType *namedTy = elementTy->asNamedType()) {
+                        _pointerAccess = false;
+                        const ResolveExpression::Result r(elementTy, decl);
+                        resolvedSymbols += resolveClass(namedTy->name(), r, context);
+                        _pointerAccess = true;
+                    }
                 } else if (Class *asClass = decl->type()->asClassType()) {
                     // typedef struct { } Point;
                     // Point pt;
@@ -949,8 +943,11 @@ QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
                     // typedef Point Boh;
                     // Boh b;
                     // b.
-                    const ResolveExpression::Result r(decl->type(), decl);
-                    resolvedSymbols += resolveClass(r, context);
+                    FullySpecifiedType declType = decl->type().simplified();
+                    if (NamedType *namedTy = declType->asNamedType()) {
+                        const ResolveExpression::Result r(declType, decl);
+                        resolvedSymbols += resolveClass(namedTy->name(), r, context);
+                    }
                 }
             }
         } else if (Declaration *decl = candidate->asDeclaration()) {
@@ -958,8 +955,11 @@ QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
                 // QString foo("ciao");
                 // foo.
                 if (funTy->scope() && (funTy->scope()->isBlockScope() || funTy->scope()->isNamespaceScope())) {
-                    const ResolveExpression::Result r(funTy->returnType(), decl);
-                    resolvedSymbols += resolveClass(r, context);
+                    FullySpecifiedType retTy = funTy->returnType().simplified();
+                    if (NamedType *namedTy = retTy->asNamedType()) {
+                        const ResolveExpression::Result r(retTy, decl);
+                        resolvedSymbols += resolveClass(namedTy->name(), r, context);
+                    }
                 }
             }
         }
@@ -967,19 +967,3 @@ QList<Symbol *> ResolveClass::resolveClass(NamedType *namedTy,
 
     return resolvedSymbols;
 }
-
-QList<Symbol *> ResolveClass::resolveClass(ResolveExpression::Result p,
-                                           const LookupContext &context)
-{
-    FullySpecifiedType ty = p.first;
-
-    if (NamedType *namedTy = ty->asNamedType()) {
-        return resolveClass(namedTy, p, context);
-    } else if (ReferenceType *refTy = ty->asReferenceType()) {
-        const ResolveExpression::Result e(refTy->elementType(), p.second);
-        return resolveClass(e, context);
-    }
-
-    return QList<Symbol *>();
-}
-
