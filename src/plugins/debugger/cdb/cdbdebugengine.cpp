@@ -1701,36 +1701,12 @@ ULONG CdbDebugEnginePrivate::updateThreadList()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << m_hDebuggeeProcess;
 
-    ThreadsHandler* th = manager()->threadsHandler();
     QList<ThreadData> threads;
-    bool success = false;
+    ULONG currentThreadId;
     QString errorMessage;
-    ULONG currentThreadId = 0;
-    do {
-        ULONG threadCount;
-        HRESULT hr= m_cif.debugSystemObjects->GetNumberThreads(&threadCount);
-        if (FAILED(hr)) {
-            errorMessage= msgComFailed("GetNumberThreads", hr);
-            break;
-        }
-        // Get ids and index of current
-        if (threadCount) {
-            m_cif.debugSystemObjects->GetCurrentThreadId(&currentThreadId);
-            QVector<ULONG> threadIds(threadCount);
-            hr = m_cif.debugSystemObjects->GetThreadIdsByIndex(0, threadCount, &(*threadIds.begin()), 0);
-            if (FAILED(hr)) {
-                errorMessage= msgComFailed("GetThreadIdsByIndex", hr);
-                break;
-            }
-            for (ULONG i = 0; i < threadCount; i++)
-                threads.push_back(ThreadData(threadIds.at(i)));
-        }
-
-        th->setThreads(threads);
-        success = true;
-    } while (false);
-    if (!success)
-        m_engine->warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
+    if (!CdbStackTraceContext::getThreads(m_cif, true, &threads, &currentThreadId, &errorMessage))
+        m_engine->warning(errorMessage);
+    manager()->threadsHandler()->setThreads(threads);
     return currentThreadId;
 }
 

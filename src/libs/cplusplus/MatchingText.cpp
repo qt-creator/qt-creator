@@ -104,21 +104,43 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
                                           const QChar &la, int *skippedChars) const
 {
     QTextCursor tc = cursor;
+    QTextDocument *doc = tc.document();
     QString text = textToProcess;
 
     const QString blockText = tc.block().text().mid(tc.columnNumber());
     const int length = qMin(blockText.length(), textToProcess.length());
 
-    for (int i = 0; i < length; ++i) {
-        const QChar ch1 = blockText.at(i);
-        const QChar ch2 = textToProcess.at(i);
+    const QChar previousChar = doc->characterAt(tc.selectionEnd() - 1);
 
-        if (ch1 != ch2)
-            break;
-        else if (! shouldOverrideChar(ch1))
-            break;
+    bool escape = false;
 
-        ++*skippedChars;
+    if (! text.isEmpty() && (text.at(0) == QLatin1Char('"') ||
+                             text.at(0) == QLatin1Char('\''))) {
+        if (previousChar == QLatin1Char('\\')) {
+            int escapeCount = 0;
+            int index = tc.selectionEnd() - 1;
+            do {
+                ++escapeCount;
+                --index;
+            } while (doc->characterAt(index) == QLatin1Char('\\'));
+
+            if ((escapeCount % 2) != 0)
+                escape = true;
+        }
+    }
+
+    if (! escape) {
+        for (int i = 0; i < length; ++i) {
+            const QChar ch1 = blockText.at(i);
+            const QChar ch2 = textToProcess.at(i);
+
+            if (ch1 != ch2)
+                break;
+            else if (! shouldOverrideChar(ch1))
+                break;
+
+            ++*skippedChars;
+        }
     }
 
     if (*skippedChars != 0) {
@@ -141,6 +163,8 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
 
         if (isCompleteStringLiteral(tk, index - 1))
             return QLatin1String("\"");
+
+        qDebug() << "*** here";
 
         return QString();
     } else if (text.at(0) == QLatin1Char('\'') && (token.is(T_CHAR_LITERAL) || token.is(T_WIDE_CHAR_LITERAL))) {

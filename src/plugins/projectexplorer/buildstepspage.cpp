@@ -52,6 +52,7 @@ BuildStepsPage::BuildStepsPage(Project *project, bool clean) :
 {
     m_vbox = new QVBoxLayout(this);
     m_vbox->setContentsMargins(0, 0, 0, 0);
+    m_vbox->setSpacing(0);
     const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
     foreach (BuildStep *bs, steps) {
         addBuildStepWidget(-1, bs);
@@ -163,8 +164,12 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
 
     s.upButton = new QToolButton(this);
     s.upButton->setArrowType(Qt::UpArrow);
+    s.upButton->setMaximumHeight(22);
+    s.upButton->setMaximumWidth(22);
     s.downButton = new QToolButton(this);
     s.downButton->setArrowType(Qt::DownArrow);
+    s.downButton->setMaximumHeight(22);
+    s.downButton->setMaximumWidth(22);
 #ifdef Q_OS_MAC
     s.upButton->setIconSize(QSize(10, 10));
     s.downButton->setIconSize(QSize(10, 10));
@@ -174,6 +179,7 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
     toolWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     s.hbox = new QHBoxLayout(toolWidget);
     s.hbox->setMargin(0);
+    s.hbox->setSpacing(0);
     s.hbox->addWidget(s.upButton);
     s.hbox->addWidget(s.downButton);
     s.detailsWidget->setToolWidget(toolWidget);

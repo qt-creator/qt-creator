@@ -1654,6 +1654,8 @@ void DebuggerManager::setState(DebuggerState state)
         || state == InferiorUnrunnable;
 
     const bool running = state == InferiorRunning;
+    if (running)
+        threadsHandler()->notifyRunning();
     const bool stopped = state == InferiorStopped;
 
     if (stopped)

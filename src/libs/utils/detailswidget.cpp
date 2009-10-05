@@ -18,11 +18,19 @@ DetailsWidget::DetailsWidget(QWidget *parent)
       m_grid(new QGridLayout(this))
 
 {
+    m_grid->setContentsMargins(4, 3, 4, 3);
+
     m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-    m_grid->addWidget(m_summaryLabel, 0, 0, 2, 0);
-    m_grid->addWidget(m_detailsButton, 1, 2);
+    m_grid->addWidget(m_summaryLabel, 0, 0);
+    m_grid->addWidget(m_detailsButton, 0, 2, 1, 1, Qt::AlignBottom);
+
+    m_dummyWidget = new QWidget(this);
+    m_dummyWidget->setMaximumHeight(4);
+    m_dummyWidget->setMaximumHeight(4);
+    m_dummyWidget->setVisible(false);
+    m_grid->addWidget(m_dummyWidget, 2, 0, 1, 1);
 
     connect(m_detailsButton, SIGNAL(clicked()),
             this, SLOT(detailsButtonClicked()));
@@ -77,8 +85,10 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
 
 void DetailsWidget::detailsButtonClicked()
 {
+    bool visible = m_detailsButton->isToggled();
     if (m_widget)
-        m_widget->setVisible(m_detailsButton->isToggled());
+        m_widget->setVisible(visible);
+    m_dummyWidget->setVisible(visible);
     fixUpLayout();
 }
 
@@ -117,9 +127,11 @@ void DetailsWidget::setWidget(QWidget *widget)
         m_widget = 0;
     }
     if (widget) {
-        m_grid->addWidget(widget, 2, 0, 1, 3);
+        m_grid->addWidget(widget, 1, 0, 1, 3);
         m_widget = widget;
-        m_widget->setVisible(m_detailsButton->isToggled());
+        bool visible = m_detailsButton->isToggled();
+        m_widget->setVisible(visible);
+        m_dummyWidget->setVisible(visible);
     }
 }
 
@@ -132,7 +144,7 @@ void DetailsWidget::setToolWidget(QWidget *widget)
         m_toolWidget = 0;
     }
     if (widget) {
-        m_grid->addWidget(widget, 1, 1);
+        m_grid->addWidget(widget, 0, 1, 1, 1, Qt::AlignBottom);
         m_toolWidget = widget;
     }
 }
