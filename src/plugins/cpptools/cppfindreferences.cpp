@@ -115,6 +115,14 @@ protected:
 
     }
 
+    void reportResult(unsigned tokenIndex, const QList<Symbol *> &candidates)
+    {
+        const bool isStrongResult = checkCandidates(candidates);
+
+        if (isStrongResult)
+            reportResult(tokenIndex);
+    }
+
     void reportResult(unsigned tokenIndex)
     {
         const Token &tk = tokenAt(tokenIndex);
@@ -130,7 +138,7 @@ protected:
 
         if (_future)
             _future->reportResult(Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
-                                                                line, lineText, col, len));
+                                                          line, lineText, col, len));
 
         _references.append(tokenIndex);
     }
@@ -197,8 +205,7 @@ protected:
             if (identifier(simple->identifier_token) == _id) {
                 LookupContext context = currentContext(ast);
                 const QList<Symbol *> candidates = context.resolve(simple->name);
-                if (checkCandidates(candidates))
-                    reportResult(simple->identifier_token);
+                reportResult(simple->identifier_token, candidates);
             }
         }
         accept(ast->expression);
@@ -262,8 +269,7 @@ protected:
             candidates.append(lastVisibleSymbol);
         }
 
-        if (checkCandidates(candidates))
-            reportResult(endToken);
+        reportResult(endToken, candidates);
     }
 
     virtual bool visit(QualifiedNameAST *ast)
@@ -331,8 +337,7 @@ protected:
         if (id == _id) {
             LookupContext context = currentContext(ast);
             const QList<Symbol *> candidates = context.resolve(ast->name);
-            if (checkCandidates(candidates))
-                reportResult(ast->identifier_token);
+            reportResult(ast->identifier_token, candidates);
         }
 
         return false;
@@ -344,8 +349,7 @@ protected:
         if (id == _id) {
             LookupContext context = currentContext(ast);
             const QList<Symbol *> candidates = context.resolve(ast->name);
-            if (checkCandidates(candidates))
-                reportResult(ast->identifier_token);
+            reportResult(ast->identifier_token, candidates);
         }
 
         return false;
@@ -357,8 +361,7 @@ protected:
         if (id == _id) {
             LookupContext context = currentContext(ast);
             const QList<Symbol *> candidates = context.resolve(ast->name);
-            if (checkCandidates(candidates))
-                reportResult(ast->identifier_token);
+            reportResult(ast->identifier_token, candidates);
         }
 
         return false;
