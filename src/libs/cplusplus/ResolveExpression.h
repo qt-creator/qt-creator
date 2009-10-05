@@ -53,7 +53,7 @@ public:
                                           unsigned accessOp,
                                           Name *memberName) const;
 
-    QList<Result> resolveMember(Name *memberName, Class *klass) const;
+    QList<Result> resolveMember(Name *memberName, Class *klass, Name *className = 0) const;
 
     QList<Result> resolveArrowOperator(const Result &result,
                                        NamedType *namedTy,
@@ -64,8 +64,8 @@ public:
                                        Class *klass) const;
 
 
-    QList<Symbol *> resolveBaseExpression(const QList<Result> &baseResults,
-                                          int accessOp) const;
+    QList<Result> resolveBaseExpression(const QList<Result> &baseResults,
+                                        int accessOp) const;
 
 protected:
     QList<Result> switchResults(const QList<Result> &symbols);
@@ -131,20 +131,14 @@ public:
     bool pointerAccess() const;
     void setPointerAccess(bool pointerAccess);
 
-    QList<Symbol *> operator()(NamedType *namedTy,
-                               ResolveExpression::Result p,
-                               const LookupContext &context);
-
-    QList<Symbol *> operator()(ResolveExpression::Result p,
+    QList<Symbol *> operator()(Name *name,
+                               const ResolveExpression::Result &p,
                                const LookupContext &context);
 
 private:
-    QList<Symbol *> resolveClass(NamedType *namedTy,
-                                        ResolveExpression::Result p,
-                                        const LookupContext &context);
-
-    QList<Symbol *> resolveClass(ResolveExpression::Result p,
-                                        const LookupContext &context);
+    QList<Symbol *> resolveClass(Name *name,
+                                 const ResolveExpression::Result &p,
+                                 const LookupContext &context);
 
 private:
     QList<ResolveExpression::Result> _blackList;
