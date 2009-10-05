@@ -353,12 +353,16 @@ protected:
 
     virtual bool visit(TemplateIdAST *ast)
     {
-        Identifier *id = identifier(ast->identifier_token);
-        if (id == _id) {
+        if (_id == identifier(ast->identifier_token)) {
             LookupContext context = currentContext(ast);
             const QList<Symbol *> candidates = context.resolve(ast->name);
             if (checkCandidates(candidates))
                 reportResult(ast->identifier_token);
+        }
+
+        for (TemplateArgumentListAST *template_arguments = ast->template_arguments;
+             template_arguments; template_arguments = template_arguments->next) {
+            accept(template_arguments->template_argument);
         }
 
         return false;
