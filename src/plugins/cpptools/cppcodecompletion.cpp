@@ -508,7 +508,7 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
     : ICompletionCollector(manager),
       m_manager(manager),
       m_caseSensitivity(Qt::CaseSensitive),
-      awesome(true),
+      m_autoInsertBrackets(true),
       m_forcedCompletion(false),
       m_completionOperator(T_EOF_SYMBOL)
 {
@@ -531,12 +531,12 @@ void CppCodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
 
 bool CppCodeCompletion::autoInsertBrackets() const
 {
-    return awesome;
+    return m_autoInsertBrackets;
 }
 
 void CppCodeCompletion::setAutoInsertBrackets(bool autoInsertBrackets)
 {
-    awesome = autoInsertBrackets;
+    m_autoInsertBrackets = autoInsertBrackets;
 }
 
 bool CppCodeCompletion::isPartialCompletionEnabled() const
@@ -1491,7 +1491,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
         //qDebug() << "current symbol:" << overview.prettyName(symbol->name())
         //<< overview.prettyType(symbol->type());
 
-        if (awesome && symbol && symbol->type()) {
+        if (m_autoInsertBrackets && symbol && symbol->type()) {
             if (Function *function = symbol->type()->asFunctionType()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.
