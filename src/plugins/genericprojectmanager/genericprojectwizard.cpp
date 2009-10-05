@@ -46,7 +46,7 @@
 #include <QtGui/QTreeView>
 
 using namespace GenericProjectManager::Internal;
-using namespace Core::Utils;
+using namespace Utils;
 
 namespace {
 
@@ -209,7 +209,7 @@ void GenericProjectWizardDialog::initializePage(int id)
     Q_UNUSED(id)
 #if 0
     if (id == m_secondPageId) {
-        using namespace Core::Utils;
+        using namespace Utils;
 
         const QString projectPath = m_pathChooser->path();
 
@@ -221,7 +221,7 @@ void GenericProjectWizardDialog::initializePage(int id)
 
 bool GenericProjectWizardDialog::validateCurrentPage()
 {
-    using namespace Core::Utils;
+    using namespace Utils;
 
 #if 0
     if (currentId() == m_secondPageId) {

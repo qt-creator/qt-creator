@@ -193,7 +193,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     QVBoxLayout *mainlayout = new QVBoxLayout;
     mainlayout->setSpacing(0);
     mainlayout->setMargin(0);
-    m_toolBar = new Core::Utils::StyledBar;
+    m_toolBar = new Utils::StyledBar;
     QHBoxLayout *toolLayout = new QHBoxLayout(m_toolBar);
     toolLayout->setMargin(0);
     toolLayout->setSpacing(0);

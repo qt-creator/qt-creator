@@ -44,7 +44,6 @@ class QModelIndex;
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 
 class SubmitFieldWidget;
@@ -144,6 +143,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // SUBMITEDITORWIDGET_H

@@ -51,7 +51,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="Core::Utils::PathChooser" name="pathChooser"/>
+      <widget class="Utils::PathChooser" name="pathChooser"/>
      </item>
      <item row="1" column="0" colspan="2">
       <widget class="QCheckBox" name="defaultCheckBox">
@@ -161,7 +161,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::PathChooser</class>
+   <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>

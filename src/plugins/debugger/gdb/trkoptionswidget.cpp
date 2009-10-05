@@ -40,8 +40,8 @@ TrkOptionsWidget::TrkOptionsWidget(QWidget *parent) :
     ui(new Ui::TrkOptionsWidget)
 {
     ui->setupUi(this);
-    ui->gdbChooser->setExpectedKind(Core::Utils::PathChooser::Command);
-    ui->cygwinChooser->setExpectedKind(Core::Utils::PathChooser::Directory);
+    ui->gdbChooser->setExpectedKind(Utils::PathChooser::Command);
+    ui->cygwinChooser->setExpectedKind(Utils::PathChooser::Directory);
     ui->blueToothComboBox->addItems(TrkOptions::blueToothDevices());
     ui->serialComboBox->addItems(TrkOptions::serialPorts());
     connect(ui->commComboBox, SIGNAL(currentIndexChanged(int)), ui->commStackedWidget, SLOT(setCurrentIndex(int)));

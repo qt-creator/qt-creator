@@ -273,17 +273,17 @@ void BaseTextDocument::modified(Core::IFile::ReloadBehavior *behavior)
 
 #ifndef TEXTEDITOR_STANDALONE
 
-    switch (Core::Utils::reloadPrompt(m_fileName, isModified(), QApplication::activeWindow())) {
-    case Core::Utils::ReloadCurrent:
+    switch (Utils::reloadPrompt(m_fileName, isModified(), QApplication::activeWindow())) {
+    case Utils::ReloadCurrent:
         reload();
         break;
-    case Core::Utils::ReloadAll:
+    case Utils::ReloadAll:
         reload();
         *behavior = Core::IFile::ReloadAll;
         break;
-    case Core::Utils::ReloadSkipCurrent:
+    case Utils::ReloadSkipCurrent:
         break;
-    case Core::Utils::ReloadNone:
+    case Utils::ReloadNone:
         *behavior = Core::IFile::ReloadNone;
         break;
     }

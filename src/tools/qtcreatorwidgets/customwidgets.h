@@ -61,7 +61,7 @@ QT_END_NAMESPACE
 
 class NewClassCustomWidget :
     public QObject,
-    public CustomWidget<Core::Utils::NewClassWidget>
+    public CustomWidget<Utils::NewClassWidget>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -71,7 +71,7 @@ public:
 
 class ClassNameValidatingLineEdit_CW :
     public QObject,
-    public CustomWidget<Core::Utils::ClassNameValidatingLineEdit>
+    public CustomWidget<Utils::ClassNameValidatingLineEdit>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -81,7 +81,7 @@ public:
 
 class FileNameValidatingLineEdit_CW :
     public QObject,
-    public CustomWidget<Core::Utils::FileNameValidatingLineEdit>
+    public CustomWidget<Utils::FileNameValidatingLineEdit>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -91,7 +91,7 @@ public:
 
 class ProjectNameValidatingLineEdit_CW :
     public QObject,
-    public CustomWidget<Core::Utils::ProjectNameValidatingLineEdit>
+    public CustomWidget<Utils::ProjectNameValidatingLineEdit>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -101,7 +101,7 @@ public:
 
 class LineColumnLabel_CW :
     public QObject,
-    public CustomWidget<Core::Utils::LineColumnLabel>
+    public CustomWidget<Utils::LineColumnLabel>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -111,7 +111,7 @@ public:
 
 class PathChooser_CW :
     public QObject,
-    public CustomWidget<Core::Utils::PathChooser>
+    public CustomWidget<Utils::PathChooser>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -121,7 +121,7 @@ public:
 
 class FancyLineEdit_CW :
     public QObject,
-    public CustomWidget<Core::Utils::FancyLineEdit>
+    public CustomWidget<Utils::FancyLineEdit>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -133,7 +133,7 @@ public:
 
 class QtColorButton_CW :
     public QObject,
-    public CustomWidget<Core::Utils::QtColorButton>
+    public CustomWidget<Utils::QtColorButton>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -143,7 +143,7 @@ public:
 
 class SubmitEditorWidget_CW :
     public QObject,
-    public CustomWidget<Core::Utils::SubmitEditorWidget>
+    public CustomWidget<Utils::SubmitEditorWidget>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -153,7 +153,7 @@ public:
 
 class SubmitFieldWidget_CW :
     public QObject,
-    public CustomWidget<Core::Utils::SubmitFieldWidget>
+    public CustomWidget<Utils::SubmitFieldWidget>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -163,7 +163,7 @@ public:
 
 class PathListEditor_CW :
     public QObject,
-    public CustomWidget<Core::Utils::PathListEditor>
+    public CustomWidget<Utils::PathListEditor>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)

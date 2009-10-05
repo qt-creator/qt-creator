@@ -32,7 +32,6 @@
 
 #include <QtCore/QString>
 
-namespace Core {
 namespace Utils {
 
 QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error)
@@ -53,4 +52,3 @@ QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error)
 }
 
 } // namespace Utils
-} // namespace Core

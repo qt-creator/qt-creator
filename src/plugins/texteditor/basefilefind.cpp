@@ -47,7 +47,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QFileDialog>
 
-using namespace Core::Utils;
+using namespace Utils;
 using namespace Find;
 using namespace TextEditor;
 
@@ -95,9 +95,9 @@ void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlag
     connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
     m_resultWindow->popup(true);
     if (m_useRegExp)
-        m_watcher.setFuture(Core::Utils::findInFilesRegExp(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
+        m_watcher.setFuture(Utils::findInFilesRegExp(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
     else
-        m_watcher.setFuture(Core::Utils::findInFiles(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
+        m_watcher.setFuture(Utils::findInFiles(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
     Core::FutureProgress *progress = 
         Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
                                                                         "Search",
@@ -109,7 +109,7 @@ void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlag
 }
 
 void BaseFileFind::displayResult(int index) {
-    Core::Utils::FileSearchResult result = m_watcher.future().resultAt(index);
+    Utils::FileSearchResult result = m_watcher.future().resultAt(index);
     m_resultWindow->addResult(result.fileName,
                               result.lineNumber,
                               result.matchingLine,

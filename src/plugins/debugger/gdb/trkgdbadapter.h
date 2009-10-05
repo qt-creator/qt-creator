@@ -90,8 +90,6 @@ signals:
     void output(const QString &msg);
 
 private:
-    friend class RunnerGui;
-
     const TrkOptionsPtr m_options;
     QString m_overrideTrkDevice;
 
@@ -115,11 +113,15 @@ public:
     bool isTrkAdapter() const { return true; }
     bool dumpersAvailable() const { return false; }
 
+private:
     void startAdapter();
     void prepareInferior();
     void startInferior();
     void interruptInferior();
     void shutdown();
+    void cleanup();
+    void emitDelayedAdapterStartFailed(const QString &msg);
+    Q_SLOT void slotEmitDelayedAdapterStartFailed();
 
     Q_SLOT void startInferiorEarly();
     void handleKill(const GdbResponse &response);
@@ -192,10 +194,11 @@ public:
     QByteArray trkWriteMemoryMessage(uint add, const QByteArray &date);
     QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
     QByteArray trkStepRangeMessage(byte option);
-    QByteArray trkDeleteProcessMessage();
+    QByteArray trkDeleteProcessMessage();    
     QByteArray trkInterruptMessage();
 
     trk::TrkDevice m_trkDevice;
+    QString m_adapterFailMessage;
 
     //
     // Gdb

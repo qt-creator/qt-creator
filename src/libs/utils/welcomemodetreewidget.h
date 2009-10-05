@@ -35,8 +35,7 @@
 #include <QtGui/QTreeWidget>
 #include <QtGui/QLabel>
 
-namespace Core {
-  namespace Utils {
+namespace Utils {
 
 struct WelcomeModeTreeWidgetPrivate;
 struct WelcomeModeLabelPrivate;
@@ -76,7 +75,6 @@ private:
     WelcomeModeTreeWidgetPrivate *m_d;
 };
 
-}
 }
 
 #endif // WELCOMEMODETREEWIDGET_H

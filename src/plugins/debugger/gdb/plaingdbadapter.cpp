@@ -72,7 +72,7 @@ PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
     connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
         this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
 
-    m_stubProc.setMode(Core::Utils::ConsoleProcess::Debug);
+    m_stubProc.setMode(Utils::ConsoleProcess::Debug);
 #ifdef Q_OS_UNIX
     m_stubProc.setSettings(Core::ICore::instance()->settings());
 #endif
@@ -337,9 +337,9 @@ void PlainGdbAdapter::emitAdapterStartFailed(const QString &msg)
 {
     //  QMessageBox::critical(mainWindow(), tr("Debugger Startup Failure"),
     //    tr("Cannot start debugger: %1").arg(m_gdbAdapter->errorString()));
-    m_stubProc.blockSignals(true);
+    bool blocked = m_stubProc.blockSignals(true);
     m_stubProc.stop();
-    m_stubProc.blockSignals(false);
+    m_stubProc.blockSignals(blocked);
     emit adapterStartFailed(msg);
 }
 

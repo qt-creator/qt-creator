@@ -35,7 +35,6 @@
 #include <QtGui/QDragEnterEvent>
 #include <QtGui/QPainter>
 
-namespace Core {
 namespace Utils {
 
 class QtColorButtonPrivate
@@ -283,6 +282,5 @@ void QtColorButton::dropEvent(QDropEvent *event)
 #endif
 
 } // namespace Utils
-} // namespace Core
 
 #include "moc_qtcolorbutton.cpp"

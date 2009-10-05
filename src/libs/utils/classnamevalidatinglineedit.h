@@ -33,7 +33,6 @@
 #include "utils_global.h"
 #include "basevalidatinglineedit.h"
 
-namespace Core {
 namespace Utils {
 
 struct ClassNameValidatingLineEditPrivate;
@@ -42,7 +41,7 @@ struct ClassNameValidatingLineEditPrivate;
  * to derive suggested file names from it. */
 
 class QTCREATOR_UTILS_EXPORT ClassNameValidatingLineEdit
-  : public Core::Utils::BaseValidatingLineEdit
+  : public Utils::BaseValidatingLineEdit
 {
     Q_DISABLE_COPY(ClassNameValidatingLineEdit)
     Q_PROPERTY(bool namespacesEnabled READ namespacesEnabled WRITE setNamespacesEnabled DESIGNABLE true)
@@ -76,6 +75,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // CLASSNAMEVALIDATINGLINEEDIT_H

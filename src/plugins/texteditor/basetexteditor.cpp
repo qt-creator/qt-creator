@@ -962,6 +962,23 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                 return;
             }
         }
+    } else if (!ro
+               && e == QKeySequence::DeleteStartOfWord
+               && d->m_document->tabSettings().m_autoIndent
+               && !textCursor().hasSelection()){
+        e->accept();
+        QTextCursor c = textCursor();
+        int pos = c.position();
+        c.movePosition(QTextCursor::PreviousWord);
+        int targetpos = c.position();
+        forever {
+            handleBackspaceKey();
+            int cpos = textCursor().position();
+            if (cpos == pos || cpos <= targetpos)
+                break;
+            pos = cpos;
+        }
+        return;
     } else switch (e->key()) {
 
 
@@ -2427,7 +2444,7 @@ static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool e
 
     QRgb b = pal.base().color().rgb();
     QRgb h = pal.highlight().color().rgb();
-    QColor c = StyleHelper::mergedColors(b,h, 50);
+    QColor c = Utils::StyleHelper::mergedColors(b,h, 50);
 
     QLinearGradient grad(rect.topLeft(), rect.topRight());
     grad.setColorAt(0, c.lighter(110));
@@ -3289,7 +3306,7 @@ void BaseTextEditor::handleBackspaceKey()
 
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
 
-    if (autoBackspace(cursor))
+    if (tabSettings.m_autoIndent && autoBackspace(cursor))
         return;
 
     if (!tabSettings.m_smartBackspace) {
@@ -4678,7 +4695,7 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
     aggregate->add(editor);
 #endif
 
-    m_cursorPositionLabel = new Core::Utils::LineColumnLabel;
+    m_cursorPositionLabel = new Utils::LineColumnLabel;
 
     QHBoxLayout *l = new QHBoxLayout;
     QWidget *w = new QWidget;

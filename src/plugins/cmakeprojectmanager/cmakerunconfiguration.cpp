@@ -246,9 +246,9 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
             this, SLOT(setArguments(QString)));
     fl->addRow(tr("Arguments:"), argumentsLineEdit);
 
-    m_workingDirectoryEdit = new Core::Utils::PathChooser();
+    m_workingDirectoryEdit = new Utils::PathChooser();
     m_workingDirectoryEdit->setPath(m_cmakeRunConfiguration->workingDirectory());
-    m_workingDirectoryEdit->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
     m_workingDirectoryEdit->setPromptDialogTitle(tr("Select the working directory"));
 
     QToolButton *resetButton = new QToolButton();

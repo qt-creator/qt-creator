@@ -35,7 +35,7 @@
 #include <climits>
 #include <windows.h>
 
-using Core::Utils::winErrorMessage;
+using Utils::winErrorMessage;
 
 // Create a pointer from base and offset when rummaging around in
 // a memory mapped file

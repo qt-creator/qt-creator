@@ -40,7 +40,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="Core::Utils::FancyLineEdit" name="findEdit"/>
+    <widget class="Utils::FancyLineEdit" name="findEdit"/>
    </item>
    <item row="0" column="2">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -162,7 +162,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::FancyLineEdit</class>
+   <class>Utils::FancyLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">utils/fancylineedit.h</header>
   </customwidget>

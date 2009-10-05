@@ -109,7 +109,7 @@ bool Qt4UiCodeModelSupport::runUic(const QString &ui) const
     return false;
 }
 
-void Qt4UiCodeModelSupport::updateFromEditor(Designer::Internal::FormWindowEditor *fw)
+void Qt4UiCodeModelSupport::updateFromEditor(Designer::FormWindowEditor *fw)
 {
 //    qDebug()<<"Qt4UiCodeModelSupport::updateFromEditor"<<fw;
     if (runUic(fw->contents())) {

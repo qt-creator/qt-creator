@@ -47,7 +47,7 @@ struct GitSubmitEditorPanelData;
  * remaining un-added and untracked files will be added 'unchecked' for the
  * user to click. */
 
-class GitSubmitEditorWidget : public Core::Utils::SubmitEditorWidget
+class GitSubmitEditorWidget : public Utils::SubmitEditorWidget
 {
 
 public:

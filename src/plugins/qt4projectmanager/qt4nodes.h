@@ -53,9 +53,7 @@ class FileWatcher;
 }
 
 namespace Designer {
-namespace Internal {
 class FormWindowEditor;
-}
 }
 
 namespace Qt4ProjectManager {
@@ -197,7 +195,7 @@ public:
     QStringList variableValue(const Qt4Variable var) const;
 
     void updateCodeModelSupportFromBuild(const QStringList &files);
-    void updateCodeModelSupportFromEditor(const QString &uiFileName, Designer::Internal::FormWindowEditor *fw);
+    void updateCodeModelSupportFromEditor(const QString &uiFileName, Designer::FormWindowEditor *fw);
 public slots:
     void scheduleUpdate();
     void update();

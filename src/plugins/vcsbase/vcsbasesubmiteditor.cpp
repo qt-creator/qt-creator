@@ -81,10 +81,10 @@ static inline QString submitMessageCheckScript()
 struct VCSBaseSubmitEditorPrivate
 {
     VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
-                               Core::Utils::SubmitEditorWidget *editorWidget,
+                               Utils::SubmitEditorWidget *editorWidget,
                                QObject *q);
 
-    Core::Utils::SubmitEditorWidget *m_widget;
+    Utils::SubmitEditorWidget *m_widget;
     QToolBar *m_toolWidget;
     const VCSBaseSubmitEditorParameters *m_parameters;
     QString m_displayName;
@@ -98,7 +98,7 @@ struct VCSBaseSubmitEditorPrivate
 };
 
 VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
-                                                       Core::Utils::SubmitEditorWidget *editorWidget,
+                                                       Utils::SubmitEditorWidget *editorWidget,
                                                        QObject *q) :
     m_widget(editorWidget),
     m_toolWidget(0),
@@ -110,7 +110,7 @@ VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditor
 }
 
 VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
-                                         Core::Utils::SubmitEditorWidget *editorWidget) :
+                                         Utils::SubmitEditorWidget *editorWidget) :
     m_d(new VCSBaseSubmitEditorPrivate(parameters, editorWidget, this))
 {
     // Message font according to settings
@@ -202,7 +202,7 @@ void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
     const QStandardItemModel *nickNameModel = Internal::VCSBasePlugin::instance()->nickNameModel();
     QCompleter *completer = new QCompleter(Internal::NickNameDialog::nickNameList(nickNameModel), this);
 
-    Core::Utils::SubmitFieldWidget *fieldWidget = new Core::Utils::SubmitFieldWidget;
+    Utils::SubmitFieldWidget *fieldWidget = new Utils::SubmitFieldWidget;
     connect(fieldWidget, SIGNAL(browseButtonClicked(int,QString)),
             this, SLOT(slotSetFieldNickName(int)));    
     fieldWidget->setCompleter(completer);
@@ -453,11 +453,11 @@ VCSBaseSubmitEditor::PromptSubmitResult
             // Provide check box to turn off prompt ONLY if it was not forced
             if (*promptSetting && !forcePrompt) {
                 const QDialogButtonBox::StandardButton danswer =
-                        Core::Utils::CheckableMessageBox::question(parent, title, question,
+                        Utils::CheckableMessageBox::question(parent, title, question,
                                                                    tr("Prompt to submit"), promptSetting,
                                                                    QDialogButtonBox::Yes|QDialogButtonBox::No|QDialogButtonBox::Cancel,
                                                                    QDialogButtonBox::Yes);
-                answer = Core::Utils::CheckableMessageBox::dialogButtonBoxToMessageBoxButton(danswer);
+                answer = Utils::CheckableMessageBox::dialogButtonBoxToMessageBoxButton(danswer);
             } else {
                 answer = QMessageBox::question(parent, title, question,
                                                QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel,
@@ -502,7 +502,7 @@ void VCSBaseSubmitEditor::slotInsertNickName()
 
 void VCSBaseSubmitEditor::slotSetFieldNickName(int i)
 {
-    if (Core::Utils::SubmitFieldWidget *sfw  =m_d->m_widget->submitFieldWidgets().front()) {
+    if (Utils::SubmitFieldWidget *sfw  =m_d->m_widget->submitFieldWidgets().front()) {
         const QString nick = promptForNickName();
         if (!nick.isEmpty())
             sfw->setFieldValue(i, nick);

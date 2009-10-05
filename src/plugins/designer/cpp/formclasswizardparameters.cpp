@@ -341,7 +341,7 @@ bool FormClassWizardParametersPrivate::generateCpp(const FormClassWizardGenerati
 
     const QString license = CppTools::AbstractEditorSupport::licenseTemplate();
     // Include guards
-    const QString guard = Core::Utils::headerGuard(headerFile);
+    const QString guard = Utils::headerGuard(headerFile);
 
     QString uiInclude = QLatin1String("ui_");
     uiInclude += QFileInfo(uiFile).completeBaseName();
@@ -354,7 +354,7 @@ bool FormClassWizardParametersPrivate::generateCpp(const FormClassWizardGenerati
 
     // Include 'ui_'
     if (embedding != FormClassWizardGenerationParameters::PointerAggregatedUiClass) {
-        Core::Utils::writeIncludeFileDirective(uiInclude, false, headerStr);
+        Utils::writeIncludeFileDirective(uiInclude, false, headerStr);
     } else {
         // Todo: Can we obtain the header from the code model for custom widgets?
         // Alternatively, from Designer.
@@ -362,11 +362,11 @@ bool FormClassWizardParametersPrivate::generateCpp(const FormClassWizardGenerati
             QString baseInclude = formBaseClass;
             if (generationParameters.includeQtModule())
                 baseInclude.insert(0, QLatin1String("QtGui/"));
-            Core::Utils::writeIncludeFileDirective(baseInclude, true, headerStr);
+            Utils::writeIncludeFileDirective(baseInclude, true, headerStr);
         }
     }
 
-    const QString namespaceIndent = Core::Utils::writeOpeningNameSpaces(namespaceList,
+    const QString namespaceIndent = Utils::writeOpeningNameSpaces(namespaceList,
                                                                         generationParameters.indentNamespace() ? indent : QString(),
                                                                         headerStr);
 
@@ -402,17 +402,17 @@ bool FormClassWizardParametersPrivate::generateCpp(const FormClassWizardGenerati
         headerStr << uiMemberC << ";\n";
     }
     headerStr << namespaceIndent << "};\n\n";
-    Core::Utils::writeClosingNameSpaces(namespaceList, generationParameters.indentNamespace() ? indent : QString(), headerStr);
+    Utils::writeClosingNameSpaces(namespaceList, generationParameters.indentNamespace() ? indent : QString(), headerStr);
     headerStr << "#endif // "<<  guard << '\n';
 
     // 2) Source file
     QTextStream sourceStr(source);
     sourceStr << license;
-    Core::Utils::writeIncludeFileDirective(headerFile, false, sourceStr);
+    Utils::writeIncludeFileDirective(headerFile, false, sourceStr);
     if (embedding == FormClassWizardGenerationParameters::PointerAggregatedUiClass)
-        Core::Utils::writeIncludeFileDirective(uiInclude, false, sourceStr);
+        Utils::writeIncludeFileDirective(uiInclude, false, sourceStr);
     // NameSpaces(
-    Core::Utils::writeOpeningNameSpaces(namespaceList, generationParameters.indentNamespace() ? indent : QString(), sourceStr);
+    Utils::writeOpeningNameSpaces(namespaceList, generationParameters.indentNamespace() ? indent : QString(), sourceStr);
     // Constructor with setupUi
     sourceStr << '\n' << namespaceIndent << unqualifiedClassName << "::" << unqualifiedClassName << "(QWidget *parent) :\n"
                << namespaceIndent << indent << formBaseClass << "(parent)";
@@ -443,7 +443,7 @@ bool FormClassWizardParametersPrivate::generateCpp(const FormClassWizardGenerati
                   << namespaceIndent << indent << "}\n"
                   << namespaceIndent << "}\n";
     }
-    Core::Utils::writeClosingNameSpaces(namespaceList, generationParameters.indentNamespace() ? indent : QString(), sourceStr);
+    Utils::writeClosingNameSpaces(namespaceList, generationParameters.indentNamespace() ? indent : QString(), sourceStr);
     return true;
 }
 

@@ -253,7 +253,7 @@ QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
      m_filterMenu(new QMenu(this)),
      m_refreshAction(new QAction(tr("Refresh"), this)),
      m_configureAction(new QAction(tr("Configure..."), this)),
-     m_fileLineEdit(new Core::Utils::FancyLineEdit)
+     m_fileLineEdit(new Utils::FancyLineEdit)
 {
     // Explicitly hide the completion list popup.
     m_completionList->hide();

@@ -60,6 +60,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QDockWidget>
 
+using namespace Designer;
 using namespace Designer::Internal;
 using namespace Designer::Constants;
 using namespace SharedTools;

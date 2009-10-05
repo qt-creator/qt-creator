@@ -80,7 +80,7 @@ SharedSubWindow::~SharedSubWindow()
 QHash<QString, QVariant> EditorWidget::m_globalState = QHash<QString, QVariant>();
 
 EditorWidget::EditorWidget(QWidget *formWindow)
-    : m_mainWindow(new Core::Utils::FancyMainWindow),
+    : m_mainWindow(new Utils::FancyMainWindow),
     m_initialized(false)
 {
     QVBoxLayout *layout = new QVBoxLayout;

@@ -104,7 +104,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
         data->workingDirectory = QFileInfo(project->file()->fileName()).absolutePath();
     } else {
         data->workingDirectory.clear();
-        data->binary = Core::Utils::SynchronousProcess::locateBinary(fallbackBinary);
+        data->binary = Utils::SynchronousProcess::locateBinary(fallbackBinary);
     }
     if (data->binary.isEmpty()) {
         *errorMessage = msgAppNotFound(kind());

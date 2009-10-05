@@ -41,7 +41,6 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT FancyMainWindow : public QMainWindow
@@ -85,6 +84,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // FANCYMAINWINDOW_H

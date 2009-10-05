@@ -863,7 +863,7 @@ QStringList MainWindow::showNewItemDialog(const QString &title,
     if (defaultDir.isEmpty() && !m_coreImpl->fileManager()->currentFile().isEmpty())
         defaultDir = QFileInfo(m_coreImpl->fileManager()->currentFile()).absolutePath();
     if (defaultDir.isEmpty())
-        defaultDir = Core::Utils::PathChooser::homePath();
+        defaultDir = Utils::PathChooser::homePath();
 
     // Scan for wizards matching the filter and pick one. Don't show
     // dialog if there is only one.
@@ -1101,7 +1101,7 @@ void MainWindow::readSettings()
 {
     m_settings->beginGroup(QLatin1String(settingsGroup));
 
-    StyleHelper::setBaseColor(m_settings->value(QLatin1String(colorKey)).value<QColor>());
+    Utils::StyleHelper::setBaseColor(m_settings->value(QLatin1String(colorKey)).value<QColor>());
 
     const QVariant geom = m_settings->value(QLatin1String(geometryKey));
     if (geom.isValid()) {
@@ -1124,7 +1124,7 @@ void MainWindow::writeSettings()
 {
     m_settings->beginGroup(QLatin1String(settingsGroup));
 
-    m_settings->setValue(QLatin1String(colorKey), StyleHelper::baseColor());
+    m_settings->setValue(QLatin1String(colorKey), Utils::StyleHelper::baseColor());
 
     if (windowState() & (Qt::WindowMaximized | Qt::WindowFullScreen)) {
         m_settings->setValue(QLatin1String(maxKey), (bool) (windowState() & Qt::WindowMaximized));

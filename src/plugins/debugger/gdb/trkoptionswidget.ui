@@ -28,7 +28,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="Core::Utils::PathChooser" name="gdbChooser" native="true"/>
+       <widget class="Utils::PathChooser" name="gdbChooser" native="true"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="cygwinLabel">
@@ -38,7 +38,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="Core::Utils::PathChooser" name="cygwinChooser" native="true"/>
+       <widget class="Utils::PathChooser" name="cygwinChooser" native="true"/>
       </item>
      </layout>
     </widget>
@@ -138,7 +138,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::PathChooser</class>
+   <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>

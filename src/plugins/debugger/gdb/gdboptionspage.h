@@ -28,7 +28,7 @@ public:
 
 private:
     Ui::GdbOptionsPage m_ui;
-    Core::Utils::SavedActionSet m_group;
+    Utils::SavedActionSet m_group;
 };
 
 } // namespace Internal

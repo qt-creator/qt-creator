@@ -32,7 +32,6 @@
 
 #include "utils_global.h"
 
-namespace Core {
 namespace Utils {
 
 // Create a usable settings key from a category,
@@ -40,6 +39,5 @@ namespace Utils {
 QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category);
 
 } // namespace Utils
-} // namespace Core
 
 #endif // SETTINGSTUTILS_H

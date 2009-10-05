@@ -37,7 +37,7 @@
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>
 
-using namespace Core::Utils;
+using namespace Utils;
 
 StyledBar::StyledBar(QWidget *parent)
     : QWidget(parent)

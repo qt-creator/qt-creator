@@ -40,7 +40,7 @@
 
 #include <stdlib.h>
 
-using namespace Core::Utils;
+using namespace Utils;
 
 ConsoleProcess::ConsoleProcess(QObject *parent) :
     QObject(parent),

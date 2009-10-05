@@ -38,7 +38,7 @@ namespace Internal {
     
 /* Submit editor widget with additional information pane
  * at the top. */
-class PerforceSubmitEditorWidget : public Core::Utils::SubmitEditorWidget
+class PerforceSubmitEditorWidget : public Utils::SubmitEditorWidget
 {
 
 public:

@@ -119,32 +119,59 @@ void CoreGdbAdapter::prepareInferior()
 void CoreGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    QFileInfo fi2(startParameters().coreFile);
-    // quoting core name below fails in gdb 6.8-debian
-    m_executable.clear();
-    QString coreName = fi2.absoluteFilePath();
-    m_engine->postCommand(_("target core ") + coreName, CB(handleTargetCore));
+    QFileInfo fi(startParameters().coreFile);
+    m_executable = startParameters().executable;
+    if (m_executable.isEmpty()) {
+        // Extra round trip to get executable name from core file.
+        // This is sometimes not the full name, so it can't be used
+        // as the generic solution.
+        // Quoting core name below fails in gdb 6.8-debian.
+        QString coreName = fi.absoluteFilePath();
+        m_engine->postCommand(_("target core ") + coreName, CB(handleTargetCore1));
+    } else {
+        // Directly load symbols.
+        QFileInfo fi(m_executable);
+        m_engine->postCommand(_("-file-exec-and-symbols \"%1\"")
+            .arg(fi.absoluteFilePath()), CB(handleFileExecAndSymbols));
+    }
 }
 
-void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
+void CoreGdbAdapter::handleTargetCore1(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        showStatusMessage(tr("Attached to core."));
-        m_executable = startParameters().executable;
-        if (m_executable.isEmpty()) {
-            GdbMi console = response.data.findChild("consolestreamoutput");
-            int pos1 = console.data().indexOf('`');
-            int pos2 = console.data().indexOf('\'');
-            if (pos1 != -1 && pos2 != -1)
-                m_executable = console.data().mid(pos1 + 1, pos2 - pos1 - 1);
+        showStatusMessage(tr("Attached to core temporarily."));
+        GdbMi console = response.data.findChild("consolestreamoutput");
+        int pos1 = console.data().indexOf('`');
+        int pos2 = console.data().indexOf('\'');
+        if (pos1 == -1 || pos2 == -1) {
+            setState(InferiorStartFailed);
+            emit inferiorStartFailed(tr("No binary found."));
+        } else {
+            m_executable = console.data().mid(pos1 + 1, pos2 - pos1 - 1);
+            QTC_ASSERT(!m_executable.isEmpty(), /**/);
+            // Finish extra round.
+            m_engine->postCommand(_("detach"), CB(handleDetach1));
         }
+    } else {
+        QTC_ASSERT(response.resultClass == GdbResultError, /**/);
+        const QByteArray msg = response.data.findChild("msg").data();
+        setState(InferiorStartFailed);
+        emit inferiorStartFailed(msg);
+    }
+}
+
+void CoreGdbAdapter::handleDetach1(const GdbResponse &response)
+{
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    if (response.resultClass == GdbResultDone) {
+        // Load symbols.
         QFileInfo fi(m_executable);
         m_engine->postCommand(_("-file-exec-and-symbols \"%1\"")
             .arg(fi.absoluteFilePath()), CB(handleFileExecAndSymbols));
     } else {
         QTC_ASSERT(response.resultClass == GdbResultError, /**/);
-        const QByteArray &msg = response.data.findChild("msg").data();
+        const QByteArray msg = response.data.findChild("msg").data();
         setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
     }
@@ -155,8 +182,10 @@ void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         showStatusMessage(tr("Symbols found."));
-        setState(InferiorUnrunnable);
-        m_engine->updateAll();
+        // Quoting core name below fails in gdb 6.8-debian.
+        QFileInfo fi(startParameters().coreFile);
+        QString coreName = fi.absoluteFilePath();
+        m_engine->postCommand(_("target core ") + coreName, CB(handleTargetCore2));
     } else if (response.resultClass == GdbResultError) {
         QString msg = tr("Symbols not found in \"%1\" failed:\n%2")
             .arg(__(response.data.findChild("msg").data()));
@@ -167,6 +196,22 @@ void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
     }
 }
 
+void CoreGdbAdapter::handleTargetCore2(const GdbResponse &response)
+{
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+    if (response.resultClass == GdbResultDone) {
+        showStatusMessage(tr("Attached to core."));
+        setState(InferiorUnrunnable);
+        m_engine->updateAll();
+    } else if (response.resultClass == GdbResultError) {
+        QString msg = tr("Attach to core \"%1\" failed:\n%2")
+            .arg(__(response.data.findChild("msg").data()));
+        setState(InferiorUnrunnable);
+        m_engine->updateAll();
+        //setState(InferiorStartFailed);
+       // emit inferiorStartFailed(msg);
+    }
+}
 void CoreGdbAdapter::interruptInferior()
 {
     // A core should never 'run'

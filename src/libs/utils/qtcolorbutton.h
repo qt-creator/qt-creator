@@ -34,7 +34,6 @@
 
 #include <QtGui/QToolButton>
 
-namespace Core {
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT QtColorButton : public QToolButton
@@ -76,6 +75,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // QTCOLORBUTTON_H

@@ -159,6 +159,7 @@ static inline void addToolAction(QAction *a,
     c1->addAction(command);
 }
 
+using namespace Designer;
 using namespace Designer::Internal;
 using namespace Designer::Constants;
 

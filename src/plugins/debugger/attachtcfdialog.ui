@@ -60,7 +60,7 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="Core::Utils::PathChooser" name="serverStartScript" native="true"/>
+      <widget class="Utils::PathChooser" name="serverStartScript" native="true"/>
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="serverStartScriptLabel">
@@ -85,7 +85,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::PathChooser</class>
+   <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
   </customwidget>

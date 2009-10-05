@@ -74,6 +74,7 @@ private slots:
     void switchDeclarationDefinition();
     void jumpToDefinition();
     void renameSymbolUnderCursor();
+    void findUsages();
 
 private:
     Core::IEditor *createEditor(QWidget *parent);

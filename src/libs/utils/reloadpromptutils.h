@@ -37,7 +37,6 @@ class QString;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 
 enum ReloadPromptAnswer { ReloadCurrent, ReloadAll, ReloadSkipCurrent, ReloadNone };
@@ -46,6 +45,5 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName, 
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title, const QString &prompt, QWidget *parent);
 
 } // namespace Utils
-} // namespace Core
 
 #endif // RELOADPROMPTUTILS_H

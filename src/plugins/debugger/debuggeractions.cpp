@@ -41,7 +41,7 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QLineEdit>
 
-using namespace Core::Utils;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -84,7 +84,7 @@ void DebuggerSettings::writeSettings(QSettings *settings) const
    
 SavedAction *DebuggerSettings::item(int code) const
 {
-    QTC_ASSERT(m_items.value(code, 0), return 0);
+    QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return 0);
     return m_items.value(code, 0);
 }
 

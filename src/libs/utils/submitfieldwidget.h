@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QCompleter;
 QT_END_NAMESPACE
 
-namespace Core {
-    namespace Utils {
+namespace Utils {
 
 struct SubmitFieldWidgetPrivate;
 
@@ -65,7 +64,6 @@ private:
     SubmitFieldWidgetPrivate *m_d;
 };
 
-}
 }
 
 #endif // SUBMITFIELDWIDGET_H

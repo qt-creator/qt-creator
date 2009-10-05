@@ -62,12 +62,12 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow)
 
     // ### TODO this setup should be done by style
     QFont f = this->font();
-    f.setPointSizeF(StyleHelper::sidebarFontSize());
+    f.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
     f.setBold(true);
     m_errorLabel->setFont(f);
     m_warningLabel->setFont(f);
-    m_errorLabel->setPalette(StyleHelper::sidebarFontPalette(m_errorLabel->palette()));
-    m_warningLabel->setPalette(StyleHelper::sidebarFontPalette(m_warningLabel->palette()));
+    m_errorLabel->setPalette(Utils::StyleHelper::sidebarFontPalette(m_errorLabel->palette()));
+    m_warningLabel->setPalette(Utils::StyleHelper::sidebarFontPalette(m_warningLabel->palette()));
 
     m_errorIcon->setAlignment(Qt::AlignRight);
     m_warningIcon->setAlignment(Qt::AlignRight);

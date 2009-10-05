@@ -48,7 +48,7 @@ namespace Internal {
 
 class FindPlugin;
 
-class FindToolBar : public Core::Utils::StyledBar
+class FindToolBar : public Utils::StyledBar
 {
     Q_OBJECT
 

@@ -96,7 +96,7 @@ void FindClassDeclarations::findAll(const QString &text, QTextDocument::FindFlag
 
     SemanticSearchFactory::Ptr factory(new SearchClassDeclarationsFactory(text, findFlags));
 
-    QFuture<Core::Utils::FileSearchResult> result = semanticSearch(_modelManager, factory);
+    QFuture<Utils::FileSearchResult> result = semanticSearch(_modelManager, factory);
 
     m_watcher.setFuture(result);
 
@@ -109,7 +109,7 @@ void FindClassDeclarations::findAll(const QString &text, QTextDocument::FindFlag
 
 void FindClassDeclarations::displayResult(int index)
 {
-    Core::Utils::FileSearchResult result = m_watcher.future().resultAt(index);
+    Utils::FileSearchResult result = m_watcher.future().resultAt(index);
     _resultWindow->addResult(result.fileName,
                              result.lineNumber,
                              result.matchingLine,
@@ -149,7 +149,7 @@ void FindFunctionCalls::findAll(const QString &text, QTextDocument::FindFlags fi
 
     SemanticSearchFactory::Ptr factory(new SearchFunctionCallFactory(text, findFlags));
 
-    QFuture<Core::Utils::FileSearchResult> result = semanticSearch(_modelManager, factory);
+    QFuture<Utils::FileSearchResult> result = semanticSearch(_modelManager, factory);
 
     m_watcher.setFuture(result);
 
@@ -162,7 +162,7 @@ void FindFunctionCalls::findAll(const QString &text, QTextDocument::FindFlags fi
 
 void FindFunctionCalls::displayResult(int index)
 {
-    Core::Utils::FileSearchResult result = m_watcher.future().resultAt(index);
+    Utils::FileSearchResult result = m_watcher.future().resultAt(index);
     _resultWindow->addResult(result.fileName,
                              result.lineNumber,
                              result.matchingLine,

@@ -271,17 +271,17 @@ public:
             break;
         }
 
-        switch (Core::Utils::reloadPrompt(fileName, isModified(), Core::ICore::instance()->mainWindow())) {
-        case Core::Utils::ReloadCurrent:
+        switch (Utils::reloadPrompt(fileName, isModified(), Core::ICore::instance()->mainWindow())) {
+        case Utils::ReloadCurrent:
             open(fileName);
             break;
-        case Core::Utils::ReloadAll:
+        case Utils::ReloadAll:
             open(fileName);
             *behavior = Core::IFile::ReloadAll;
             break;
-        case Core::Utils::ReloadSkipCurrent:
+        case Utils::ReloadSkipCurrent:
             break;
-        case Core::Utils::ReloadNone:
+        case Utils::ReloadNone:
             *behavior = Core::IFile::ReloadNone;
             break;
         }
@@ -305,7 +305,7 @@ public:
         m_file = new BinEditorFile(parent);
         m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_BINARY_EDITOR);
         m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR);
-        m_cursorPositionLabel = new Core::Utils::LineColumnLabel;
+        m_cursorPositionLabel = new Utils::LineColumnLabel;
 
         QHBoxLayout *l = new QHBoxLayout;
         QWidget *w = new QWidget;
@@ -362,7 +362,7 @@ private:
     BinEditorFile *m_file;
     QList<int> m_context;
     QToolBar *m_toolBar;
-    Core::Utils::LineColumnLabel *m_cursorPositionLabel;
+    Utils::LineColumnLabel *m_cursorPositionLabel;
 };
 
 

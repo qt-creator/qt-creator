@@ -40,11 +40,11 @@
 
 #include <qtconcurrent/runextensions.h>
 
-using namespace Core::Utils;
+using namespace Utils;
 
 static inline QString msgCanceled(const QString &searchTerm, int numMatches, int numFilesSearched)
 {
-    return QCoreApplication::translate("Core::Utils::FileSearch",
+    return QCoreApplication::translate("Utils::FileSearch",
                                        "%1: canceled. %n occurrences found in %2 files.",
                                        0, QCoreApplication::CodecForTr, numMatches).
                                        arg(searchTerm).arg(numFilesSearched);
@@ -52,7 +52,7 @@ static inline QString msgCanceled(const QString &searchTerm, int numMatches, int
 
 static inline QString msgFound(const QString &searchTerm, int numMatches, int numFilesSearched)
 {
-    return QCoreApplication::translate("Core::Utils::FileSearch",
+    return QCoreApplication::translate("Utils::FileSearch",
                                        "%1: %n occurrences found in %2 files.",
                                        0, QCoreApplication::CodecForTr, numMatches).
                                        arg(searchTerm).arg(numFilesSearched);
@@ -60,7 +60,7 @@ static inline QString msgFound(const QString &searchTerm, int numMatches, int nu
 
 static inline QString msgFound(const QString &searchTerm, int numMatches, int numFilesSearched, int filesSize)
 {
-    return QCoreApplication::translate("Core::Utils::FileSearch",
+    return QCoreApplication::translate("Utils::FileSearch",
                                        "%1: %n occurrences found in %2 of %3 files.",
                                        0, QCoreApplication::CodecForTr, numMatches).
                                        arg(searchTerm).arg(numFilesSearched).arg(filesSize);
@@ -246,14 +246,14 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
 } // namespace
 
 
-QFuture<FileSearchResult> Core::Utils::findInFiles(const QString &searchTerm, const QStringList &files,
+QFuture<FileSearchResult> Utils::findInFiles(const QString &searchTerm, const QStringList &files,
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
 {
     return QtConcurrent::run<FileSearchResult, QString, QStringList, QTextDocument::FindFlags, QMap<QString, QString> >
             (runFileSearch, searchTerm, files, flags, fileToContentsMap);
 }
 
-QFuture<FileSearchResult> Core::Utils::findInFilesRegExp(const QString &searchTerm, const QStringList &files,
+QFuture<FileSearchResult> Utils::findInFilesRegExp(const QString &searchTerm, const QStringList &files,
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
 {
     return QtConcurrent::run<FileSearchResult, QString, QStringList, QTextDocument::FindFlags, QMap<QString, QString> >

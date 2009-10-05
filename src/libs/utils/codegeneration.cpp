@@ -33,7 +33,6 @@
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
 
-namespace Core {
 namespace Utils {
 
 static QString toAlphaNum(const QString &s)
@@ -101,4 +100,3 @@ void writeClosingNameSpaces(const QStringList &l, const QString &indent,
 }
 
 } // namespace Utils
-} // namespace Core

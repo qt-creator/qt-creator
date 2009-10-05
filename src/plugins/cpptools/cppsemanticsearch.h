@@ -48,14 +48,14 @@ class SemanticSearchFactory;
 
 class SemanticSearch: protected CPlusPlus::ASTVisitor
 {
-    QFutureInterface<Core::Utils::FileSearchResult> &_future;
+    QFutureInterface<Utils::FileSearchResult> &_future;
     CPlusPlus::Document::Ptr _doc;
     CPlusPlus::Snapshot _snapshot;
     CPlusPlus::Document::Ptr _thisDocument;
     QByteArray _source;
 
 public:
-    SemanticSearch(QFutureInterface<Core::Utils::FileSearchResult> &future,
+    SemanticSearch(QFutureInterface<Utils::FileSearchResult> &future,
                    CPlusPlus::Document::Ptr doc,
                    CPlusPlus::Snapshot snapshot);
 
@@ -81,7 +81,7 @@ public:
     SemanticSearchFactory() {}
     virtual ~SemanticSearchFactory() {}
 
-    virtual SemanticSearch *create(QFutureInterface<Core::Utils::FileSearchResult> &future,
+    virtual SemanticSearch *create(QFutureInterface<Utils::FileSearchResult> &future,
                                    CPlusPlus::Document::Ptr doc,
                                    CPlusPlus::Snapshot snapshot) = 0;
 };
@@ -96,7 +96,7 @@ public:
         : _text(text), _findFlags(findFlags)
     { }
 
-    virtual SemanticSearch *create(QFutureInterface<Core::Utils::FileSearchResult> &future,
+    virtual SemanticSearch *create(QFutureInterface<Utils::FileSearchResult> &future,
                                    CPlusPlus::Document::Ptr doc,
                                    CPlusPlus::Snapshot snapshot);
 };
@@ -111,12 +111,12 @@ public:
         : _text(text), _findFlags(findFlags)
     { }
 
-    virtual SemanticSearch *create(QFutureInterface<Core::Utils::FileSearchResult> &future,
+    virtual SemanticSearch *create(QFutureInterface<Utils::FileSearchResult> &future,
                                    CPlusPlus::Document::Ptr doc,
                                    CPlusPlus::Snapshot snapshot);
 };
 
-QFuture<Core::Utils::FileSearchResult> semanticSearch(QPointer<CppModelManager> modelManager,
+QFuture<Utils::FileSearchResult> semanticSearch(QPointer<CppModelManager> modelManager,
                                                       SemanticSearchFactory::Ptr factory);
 
 

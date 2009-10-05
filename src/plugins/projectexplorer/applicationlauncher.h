@@ -39,10 +39,8 @@
 #include <QtCore/QTextCodec>
 #endif
 
-namespace Core {
 namespace Utils {
 class ConsoleProcess;
-}
 }
 
 namespace ProjectExplorer {
@@ -92,7 +90,7 @@ private slots:
 
 private:
     QProcess *m_guiProcess;
-    Core::Utils::ConsoleProcess *m_consoleProcess;
+    Utils::ConsoleProcess *m_consoleProcess;
     Mode m_currentMode;
 
 #ifdef Q_OS_WIN

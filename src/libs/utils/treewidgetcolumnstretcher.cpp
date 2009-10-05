@@ -2,7 +2,7 @@
 #include <QtGui/QTreeWidget>
 #include <QtGui/QHideEvent>
 #include <QtGui/QHeaderView>
-using namespace Core::Utils;
+using namespace Utils;
 
 TreeWidgetColumnStretcher::TreeWidgetColumnStretcher(QTreeWidget *treeWidget, int columnToStretch)
         : QObject(treeWidget->header()), m_columnToStretch(columnToStretch)

@@ -126,16 +126,16 @@ struct ProjectExplorerPluginPrivate {
 #if 0
     QAction *m_loadAction;
 #endif
-    Core::Utils::ParameterAction *m_unloadAction;
+    Utils::ParameterAction *m_unloadAction;
     QAction *m_clearSession;
     QAction *m_buildProjectOnlyAction;
-    Core::Utils::ParameterAction *m_buildAction;
+    Utils::ParameterAction *m_buildAction;
     QAction *m_buildSessionAction;
     QAction *m_rebuildProjectOnlyAction;
-    Core::Utils::ParameterAction *m_rebuildAction;
+    Utils::ParameterAction *m_rebuildAction;
     QAction *m_rebuildSessionAction;
     QAction *m_cleanProjectOnlyAction;
-    Core::Utils::ParameterAction *m_cleanAction;
+    Utils::ParameterAction *m_cleanAction;
     QAction *m_cleanSessionAction;
     QAction *m_runAction;
     QAction *m_runActionContextMenu;
@@ -508,8 +508,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         this, SLOT(updateRecentProjectMenu()));
 
     // unload action
-    d->m_unloadAction = new Core::Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
-                                                      Core::Utils::ParameterAction::EnabledWithParameter, this);
+    d->m_unloadAction = new Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
+                                                      Utils::ParameterAction::EnabledWithParameter, this);
     cmd = am->registerAction(d->m_unloadAction, Constants::UNLOAD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(d->m_unloadAction->text());
@@ -569,8 +569,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
     // build action
-    d->m_buildAction = new Core::Utils::ParameterAction(tr("Build Project"), tr("Build Project \"%1\""),
-                                                     Core::Utils::ParameterAction::EnabledWithParameter, this);
+    d->m_buildAction = new Utils::ParameterAction(tr("Build Project"), tr("Build Project \"%1\""),
+                                                     Utils::ParameterAction::EnabledWithParameter, this);
     cmd = am->registerAction(d->m_buildAction, Constants::BUILD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(d->m_buildAction->text());
@@ -579,8 +579,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // rebuild action
-    d->m_rebuildAction = new Core::Utils::ParameterAction(tr("Rebuild Project"), tr("Rebuild Project \"%1\""),
-                                                       Core::Utils::ParameterAction::EnabledWithParameter, this);
+    d->m_rebuildAction = new Utils::ParameterAction(tr("Rebuild Project"), tr("Rebuild Project \"%1\""),
+                                                       Utils::ParameterAction::EnabledWithParameter, this);
     cmd = am->registerAction(d->m_rebuildAction, Constants::REBUILD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(d->m_rebuildAction->text());
@@ -588,8 +588,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // clean action
-    d->m_cleanAction = new Core::Utils::ParameterAction(tr("Clean Project"), tr("Clean Project \"%1\""),
-                                                     Core::Utils::ParameterAction::EnabledWithParameter, this);
+    d->m_cleanAction = new Utils::ParameterAction(tr("Clean Project"), tr("Clean Project \"%1\""),
+                                                     Utils::ParameterAction::EnabledWithParameter, this);
     cmd = am->registerAction(d->m_cleanAction, Constants::CLEAN, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(d->m_cleanAction->text());

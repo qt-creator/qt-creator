@@ -69,7 +69,7 @@ struct Process: protected ASTVisitor
 {
 public:
     Process(Document::Ptr doc, const Snapshot &snapshot,
-            QFutureInterface<Core::Utils::FileSearchResult> *future)
+            QFutureInterface<Utils::FileSearchResult> *future)
             : ASTVisitor(doc->control()),
               _future(future),
               _doc(doc),
@@ -115,6 +115,14 @@ protected:
 
     }
 
+    void reportResult(unsigned tokenIndex, const QList<Symbol *> &candidates)
+    {
+        const bool isStrongResult = checkCandidates(candidates);
+
+        if (isStrongResult)
+            reportResult(tokenIndex);
+    }
+
     void reportResult(unsigned tokenIndex)
     {
         const Token &tk = tokenAt(tokenIndex);
@@ -129,8 +137,8 @@ protected:
         const int len = tk.f.length;
 
         if (_future)
-            _future->reportResult(Core::Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
-                                                                line, lineText, col, len));
+            _future->reportResult(Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
+                                                          line, lineText, col, len));
 
         _references.append(tokenIndex);
     }
@@ -197,8 +205,7 @@ protected:
             if (identifier(simple->identifier_token) == _id) {
                 LookupContext context = currentContext(ast);
                 const QList<Symbol *> candidates = context.resolve(simple->name);
-                if (checkCandidates(candidates))
-                    reportResult(simple->identifier_token);
+                reportResult(simple->identifier_token, candidates);
             }
         }
         accept(ast->expression);
@@ -262,8 +269,7 @@ protected:
             candidates.append(lastVisibleSymbol);
         }
 
-        if (checkCandidates(candidates))
-            reportResult(endToken);
+        reportResult(endToken, candidates);
     }
 
     virtual bool visit(QualifiedNameAST *ast)
@@ -331,8 +337,7 @@ protected:
         if (id == _id) {
             LookupContext context = currentContext(ast);
             const QList<Symbol *> candidates = context.resolve(ast->name);
-            if (checkCandidates(candidates))
-                reportResult(ast->identifier_token);
+            reportResult(ast->identifier_token, candidates);
         }
 
         return false;
@@ -344,8 +349,7 @@ protected:
         if (id == _id) {
             LookupContext context = currentContext(ast);
             const QList<Symbol *> candidates = context.resolve(ast->name);
-            if (checkCandidates(candidates))
-                reportResult(ast->identifier_token);
+            reportResult(ast->identifier_token, candidates);
         }
 
         return false;
@@ -353,19 +357,50 @@ protected:
 
     virtual bool visit(TemplateIdAST *ast)
     {
-        Identifier *id = identifier(ast->identifier_token);
-        if (id == _id) {
+        if (_id == identifier(ast->identifier_token)) {
             LookupContext context = currentContext(ast);
             const QList<Symbol *> candidates = context.resolve(ast->name);
-            if (checkCandidates(candidates))
-                reportResult(ast->identifier_token);
+            reportResult(ast->identifier_token, candidates);
+        }
+
+        for (TemplateArgumentListAST *template_arguments = ast->template_arguments;
+             template_arguments; template_arguments = template_arguments->next) {
+            accept(template_arguments->template_argument);
         }
 
         return false;
     }
 
+    virtual bool visit(ParameterDeclarationAST *ast)
+    {
+        for (SpecifierAST *spec = ast->type_specifier; spec; spec = spec->next)
+            accept(spec);
+
+        if (DeclaratorAST *declarator = ast->declarator) {
+            for (SpecifierAST *attr = declarator->attributes; attr; attr = attr->next)
+                accept(attr);
+
+            for (PtrOperatorAST *ptr_op = declarator->ptr_operators; ptr_op; ptr_op = ptr_op->next)
+                accept(ptr_op);
+
+            // ### TODO: well, not exactly. We need to look at qualified-name-ids and nested-declarators.
+            // accept(declarator->core_declarator);
+
+            for (PostfixDeclaratorAST *fx_op = declarator->postfix_declarators; fx_op; fx_op = fx_op->next)
+                accept(fx_op);
+
+            for (SpecifierAST *spec = declarator->post_attributes; spec; spec = spec->next)
+                accept(spec);
+
+            accept(declarator->initializer);
+        }
+
+        accept(ast->expression);
+        return false;
+    }
+
 private:
-    QFutureInterface<Core::Utils::FileSearchResult> *_future;
+    QFutureInterface<Utils::FileSearchResult> *_future;
     Identifier *_id; // ### remove me
     Symbol *_declSymbol;
     Document::Ptr _doc;
@@ -415,7 +450,7 @@ QList<int> CppFindReferences::references(Symbol *symbol,
     return references;
 }
 
-static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
+static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
                         const QMap<QString, QString> wl,
                         Snapshot snapshot,
                         Symbol *symbol)
@@ -435,6 +470,12 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
     future.setProgressRange(0, files.size());
 
     for (int i = 0; i < files.size(); ++i) {
+        if (future.isPaused())
+            future.waitForResume();
+
+        if (future.isCanceled())
+            break;
+
         const QString &fileName = files.at(i);
         future.setProgressValueAndText(i, QFileInfo(fileName).fileName());
 
@@ -491,13 +532,24 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
     future.setProgressValue(files.size());
 }
 
-void CppFindReferences::findAll(Symbol *symbol)
+void CppFindReferences::findUsages(Symbol *symbol)
+{
+    _resultWindow->clearContents();
+    findAll_helper(symbol);
+}
+
+void CppFindReferences::renameUsages(Symbol *symbol)
 {
     Find::SearchResult *search = _resultWindow->startNewSearch();
     connect(search, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
 
     _resultWindow->setShowReplaceUI(true);
+    findAll_helper(symbol);
+}
+
+void CppFindReferences::findAll_helper(Symbol *symbol)
+{
     _resultWindow->popup(true);
 
     const Snapshot snapshot = _modelManager->snapshot();
@@ -505,7 +557,7 @@ void CppFindReferences::findAll(Symbol *symbol)
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
-    QFuture<Core::Utils::FileSearchResult> result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
+    QFuture<Utils::FileSearchResult> result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching..."),
@@ -517,7 +569,7 @@ void CppFindReferences::findAll(Symbol *symbol)
 
 void CppFindReferences::displayResult(int index)
 {
-    Core::Utils::FileSearchResult result = m_watcher.future().resultAt(index);
+    Utils::FileSearchResult result = m_watcher.future().resultAt(index);
     _resultWindow->addResult(result.fileName,
                              result.lineNumber,
                              result.matchingLine,

@@ -50,10 +50,10 @@ namespace Core {
 class IEditorFactory;
 class ICore;
 class IVersionControl;
+}
 namespace Utils {
 class ParameterAction;
 }
-} // namespace Core
 
 namespace Git {
 namespace Internal {
@@ -133,18 +133,18 @@ private:
 
     static GitPlugin *m_instance;
     Core::ICore *m_core;
-    Core::Utils::ParameterAction *m_diffAction;
-    Core::Utils::ParameterAction *m_diffProjectAction;
-    Core::Utils::ParameterAction *m_statusAction;
-    Core::Utils::ParameterAction *m_statusProjectAction;
-    Core::Utils::ParameterAction *m_logAction;
-    Core::Utils::ParameterAction *m_blameAction;
-    Core::Utils::ParameterAction *m_logProjectAction;
-    Core::Utils::ParameterAction *m_undoFileAction;
+    Utils::ParameterAction *m_diffAction;
+    Utils::ParameterAction *m_diffProjectAction;
+    Utils::ParameterAction *m_statusAction;
+    Utils::ParameterAction *m_statusProjectAction;
+    Utils::ParameterAction *m_logAction;
+    Utils::ParameterAction *m_blameAction;
+    Utils::ParameterAction *m_logProjectAction;
+    Utils::ParameterAction *m_undoFileAction;
     QAction *m_undoProjectAction;
     QAction *m_showAction;
-    Core::Utils::ParameterAction *m_stageAction;
-    Core::Utils::ParameterAction *m_unstageAction;
+    Utils::ParameterAction *m_stageAction;
+    Utils::ParameterAction *m_unstageAction;
     QAction *m_commitAction;
     QAction *m_pullAction;
     QAction *m_pushAction;

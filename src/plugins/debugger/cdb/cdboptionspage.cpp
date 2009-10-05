@@ -72,7 +72,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
     m_ui.noteLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
     connect(m_ui.noteLabel, SIGNAL(linkActivated(QString)), this, SLOT(downLoadLinkActivated(QString)));
 
-    m_ui.pathChooser->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_ui.pathChooser->setExpectedKind(Utils::PathChooser::Directory);
     m_ui.pathChooser->addButton(tr("Autodetect"), this, SLOT(autoDetect()));
     m_ui.failureLabel->setVisible(false);
 }
