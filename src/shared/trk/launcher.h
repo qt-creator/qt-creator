@@ -58,6 +58,7 @@ public:
 signals:
     void copyingStarted();
     void canNotCreateFile(const QString &filename, const QString &errorMessage);
+    void canNotWriteFile(const QString &filename, const QString &errorMessage);
     void installingStarted();
     void startingApplication();
     void applicationRunning(uint pid);
@@ -78,7 +79,8 @@ private:
 
     void handleFileCreation(const TrkResult &result);
     void handleCopy(const TrkResult &result);
-    void continueCopying();
+    void continueCopying(uint lastCopiedBlockSize = 0);
+    void closeRemoteFile(bool failed = false);
     void handleFileCopied(const TrkResult &result);
     void handleInstallPackageFinished(const TrkResult &result);
     void handleCpuType(const TrkResult &result);

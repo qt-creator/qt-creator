@@ -299,7 +299,7 @@ void Launcher::handleTrkVersion(const TrkResult &result)
 void Launcher::handleFileCreation(const TrkResult &result)
 {
     if (result.errorCode() || result.data.size() < 6) {
-        emit canNotCreateFile(d->m_copyState.destinationFileName, errorMessage(result.errorCode()));
+        emit canNotCreateFile(d->m_copyState.destinationFileName, result.errorString());
         emit finished();
         return;
     }
@@ -315,15 +315,19 @@ void Launcher::handleFileCreation(const TrkResult &result)
 
 void Launcher::handleCopy(const TrkResult &result)
 {
-    Q_UNUSED(result)
-
-    continueCopying();
+    if (result.errorCode() || result.data.size() < 4) {
+        closeRemoteFile(true);
+        emit canNotWriteFile(d->m_copyState.destinationFileName, result.errorString());
+        emit finished();
+    } else {
+        continueCopying(extractShort(result.data.data() + 2));
+    }
 }
 
-void Launcher::continueCopying()
+void Launcher::continueCopying(uint lastCopiedBlockSize)
 {
-    static const int BLOCKSIZE = 1024;
     int size = d->m_copyState.data->length();
+    d->m_copyState.position += lastCopiedBlockSize;
     if (size == 0)
         emit copyProgress(100);
     else {
@@ -333,16 +337,22 @@ void Launcher::continueCopying()
     if (d->m_copyState.position < size) {
         QByteArray ba;
         appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
-        appendString(&ba, d->m_copyState.data->mid(d->m_copyState.position, BLOCKSIZE), TargetByteOrder, false);
-        d->m_copyState.position += BLOCKSIZE;
+        appendString(&ba, d->m_copyState.data->mid(d->m_copyState.position, 2048), TargetByteOrder, false);
         d->m_device.sendTrkMessage(TrkWriteFile, TrkCallback(this, &Launcher::handleCopy), ba);
     } else {
-        QByteArray ba;
-        appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
-        appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
-        d->m_device.sendTrkMessage(TrkCloseFile, TrkCallback(this, &Launcher::handleFileCopied), ba);
-        d->m_copyState.data.reset();
+        closeRemoteFile();
     }
+}
+
+void Launcher::closeRemoteFile(bool failed)
+{
+    QByteArray ba;
+    appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
+    appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
+    d->m_device.sendTrkMessage(TrkCloseFile,
+                               failed ? TrkCallback() : TrkCallback(this, &Launcher::handleFileCopied),
+                               ba);
+    d->m_copyState.data.reset();
 }
 
 void Launcher::handleFileCopied(const TrkResult &result)
@@ -372,7 +382,7 @@ void Launcher::handleCpuType(const TrkResult &result)
 void Launcher::handleCreateProcess(const TrkResult &result)
 {
     if (result.errorCode()) {
-        emit canNotRun(errorMessage(result.errorCode()));
+        emit canNotRun(result.errorString());
         emit finished();
         return;
     }
