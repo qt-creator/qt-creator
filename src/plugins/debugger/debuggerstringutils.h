@@ -40,6 +40,9 @@ typedef QLatin1String __;
 inline QString _(const char *s) { return QString::fromLatin1(s); }
 inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
+#define STRINGIFY_INTERNAL(x) #x
+#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
+
 } // namespace Internal
 } // namespace Debugger
 #endif // DEBUGGERSTRINGUTILS_H

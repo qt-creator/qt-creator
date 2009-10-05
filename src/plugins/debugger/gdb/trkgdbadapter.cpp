@@ -46,8 +46,6 @@
 #include <QtCore/QTimer>
 #include <QtCore/QDir>
 
-#define STRINGIFY_INTERNAL(x) #x
-#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) \
     static_cast<GdbEngine::AdapterCallback>(&TrkGdbAdapter::callback), \
     STRINGIFY(callback)

@@ -66,8 +66,6 @@
 #endif
 # define XSDEBUG(s) qDebug() << s
 
-#define STRINGIFY_INTERNAL(x) #x
-#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) &TcfEngine::callback, STRINGIFY(callback)
 
 //#define USE_CONGESTION_CONTROL

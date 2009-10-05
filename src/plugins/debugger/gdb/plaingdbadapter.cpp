@@ -45,8 +45,6 @@
 namespace Debugger {
 namespace Internal {
 
-#define STRINGIFY_INTERNAL(x) #x
-#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) \
     static_cast<GdbEngine::AdapterCallback>(&PlainGdbAdapter::callback), \
     STRINGIFY(callback)

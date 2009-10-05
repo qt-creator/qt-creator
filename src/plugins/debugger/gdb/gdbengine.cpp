@@ -105,8 +105,6 @@ namespace Internal {
 #   define PENDING_DEBUG(s)
 #endif
 
-#define STRINGIFY_INTERNAL(x) #x
-#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
 
 static bool stateAcceptsGdbCommands(DebuggerState state)
