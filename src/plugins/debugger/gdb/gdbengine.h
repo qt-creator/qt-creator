@@ -287,7 +287,6 @@ private:
     QHash<int, QByteArray> m_customOutputForToken;
 
     QByteArray m_pendingConsoleStreamOutput;
-    QByteArray m_pendingTargetStreamOutput;
     QByteArray m_pendingLogStreamOutput;
 
     // contains the first token number for the current round

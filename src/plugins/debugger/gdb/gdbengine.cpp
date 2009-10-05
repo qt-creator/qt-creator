@@ -284,7 +284,6 @@ void GdbEngine::initializeVariables()
     m_customOutputForToken.clear();
 
     m_pendingConsoleStreamOutput.clear();
-    m_pendingTargetStreamOutput.clear();
     m_pendingLogStreamOutput.clear();
 
     m_inbuffer.clear();
@@ -514,8 +513,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
         }
 
         case '@': {
-            QByteArray data = GdbMi::parseCString(from, to);
-            m_pendingTargetStreamOutput += data;
+            readDebugeeOutput(GdbMi::parseCString(from, to));
             break;
         }
 
@@ -570,12 +568,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             }
 
             //qDebug() << "\nLOG STREAM:" + m_pendingLogStreamOutput;
-            //qDebug() << "\nTARGET STREAM:" + m_pendingTargetStreamOutput;
             //qDebug() << "\nCONSOLE STREAM:" + m_pendingConsoleStreamOutput;
             response.data.setStreamOutput("logstreamoutput",
                 m_pendingLogStreamOutput);
-            response.data.setStreamOutput("targetstreamoutput",
-                m_pendingTargetStreamOutput);
             response.data.setStreamOutput("consolestreamoutput",
                 m_pendingConsoleStreamOutput);
             QByteArray custom = m_customOutputForToken[token];
@@ -584,7 +579,6 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     '{' + custom + '}');
             //m_customOutputForToken.remove(token);
             m_pendingLogStreamOutput.clear();
-            m_pendingTargetStreamOutput.clear();
             m_pendingConsoleStreamOutput.clear();
 
             handleResultRecord(response);
