@@ -143,7 +143,7 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
 
 TrkGdbAdapter::~TrkGdbAdapter()
 {
-    delete m_gdbServer;
+    cleanup();
     logMessage("Shutting down.\n");
 }
 
@@ -281,6 +281,17 @@ QByteArray TrkGdbAdapter::trkInterruptMessage()
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid); // threadID: 4 bytes Variable number of bytes.
     return ba;
+}
+
+void TrkGdbAdapter::emitDelayedAdapterStartFailed(const QString &msg)
+{
+    m_adapterFailMessage = msg;
+    QTimer::singleShot(0, this, SLOT(slotEmitDelayedAdapterStartFailed()));
+}
+
+void TrkGdbAdapter::slotEmitDelayedAdapterStartFailed()
+{
+    emit adapterStartFailed(m_adapterFailMessage);
 }
 
 void TrkGdbAdapter::startInferiorEarly()
@@ -1063,8 +1074,9 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
         logMessage("ERROR: " + result.errorString());
         QString msg = _("Cannot start executable \"%1\" on the device:\n%2")
             .arg(m_remoteExecutable).arg(result.errorString());
-        //m_trkDevice.close();
-        emit adapterStartFailed(msg);
+        // Delay cleanup as not to close a trk device from its read handler,
+        // which blocks.
+        emitDelayedAdapterStartFailed(msg);
         return;
     }
     const char *data = result.data.data();
@@ -1470,7 +1482,7 @@ void TrkGdbAdapter::startAdapter()
     m_remoteExecutable = parameters.executable;
     m_symbolFile = parameters.symbolFileName;
     // FIXME: testing hack, remove!
-    if (parameters.processArgs.at(0) == _("@sym@")) {
+    if (parameters.processArgs.size() == 3 && parameters.processArgs.at(0) == _("@sym@")) {
         m_remoteExecutable = parameters.processArgs.at(1);
         m_symbolFile = parameters.processArgs.at(2);
     }
@@ -1593,7 +1605,9 @@ void TrkGdbAdapter::startGdb()
         QString msg = QString("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer->errorString());
         logMessage(msg);
-        emit adapterStartFailed(msg); 
+        // Delay cleanup as not to close a trk device from its read handler,
+        // which blocks.
+        emitDelayedAdapterStartFailed(msg);
         return;
     }
 
@@ -1908,11 +1922,19 @@ void TrkGdbAdapter::setEnvironment(const QStringList &env)
     m_gdbProc.setEnvironment(env);
 }
 
+void TrkGdbAdapter::cleanup()
+{
+    if (m_trkDevice.isOpen())
+        m_trkDevice.close();
+    if (m_gdbServer)
+        delete m_gdbServer;
+}
+
 void TrkGdbAdapter::shutdown()
 {
     switch (state()) {
-
     case AdapterStarting:
+        cleanup();
         setState(DebuggerNotReady);
         return;
 
@@ -1931,10 +1953,7 @@ void TrkGdbAdapter::shutdown()
 
     case InferiorShutDown:
         setState(AdapterShuttingDown);
-        //sendTrkMessage(0x02, TrkCB(handleDisconnect));
-        m_trkDevice.close();
-        delete m_gdbServer;
-        m_gdbServer = 0;
+        cleanup();
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
         return;
 

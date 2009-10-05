@@ -695,6 +695,11 @@ void S60DeviceRunControlBase::processFailed(const QString &program, QProcess::Pr
     emit finished();
 }
 
+void S60DeviceRunControlBase::printApplicationOutput(const QString &output)
+{
+    emit addToOutputWindowInline(this, output);
+}
+
 // =============== S60DeviceRunControl
 S60DeviceRunControl::S60DeviceRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration) :
     S60DeviceRunControlBase(runConfiguration)
@@ -730,11 +735,6 @@ void S60DeviceRunControl::printRunFailNotice(const QString &errorMessage) {
     emit addToOutputWindow(this, tr("Could not start application: %1").arg(errorMessage));
 }
 
-void S60DeviceRunControl::printApplicationOutput(const QString &output)
-{
-    emit addToOutputWindowInline(this, output);
-}
-
 // ======== S60DeviceDebugRunControl
 
 S60DeviceDebugRunControl::S60DeviceDebugRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration) :
@@ -748,7 +748,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(const QSharedPointer<ProjectE
     connect(dm, SIGNAL(debuggingFinished()),
             this, SLOT(debuggingFinished()), Qt::QueuedConnection);
     connect(dm, SIGNAL(applicationOutputAvailable(QString)),
-            this, SLOT(slotAddToOutputWindow(QString)),
+            this, SLOT(printApplicationOutput(QString)),
             Qt::QueuedConnection);
 
     m_startParams->remoteChannel = rc->serialPortName();

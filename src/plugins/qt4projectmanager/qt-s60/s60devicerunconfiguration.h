@@ -160,6 +160,9 @@ protected:
     virtual void handleLauncherFinished() = 0;
     void processFailed(const QString &program, QProcess::ProcessError errorCode);
 
+protected slots:
+    void printApplicationOutput(const QString &output);
+
 private slots:
     void readStandardError();
     void readStandardOutput();
@@ -208,7 +211,6 @@ private slots:
     void printStartingNotice();
     void printRunNotice(uint pid);
     void printRunFailNotice(const QString &errorMessage);
-    void printApplicationOutput(const QString &output);
 
 private:
 };

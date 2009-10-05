@@ -836,6 +836,8 @@ TrkDevice::~TrkDevice()
 
 bool TrkDevice::open(const QString &port, QString *errorMessage)
 {
+    if (d->verbose)
+        qDebug() << "Opening" << port << "is open: " << isOpen();
     close();
 #ifdef Q_OS_WIN
     d->deviceContext->device = CreateFile(port.toStdWString().c_str(),
@@ -908,6 +910,8 @@ void TrkDevice::close()
 {
     if (!isOpen())
         return;
+    d->readerThread->terminate();
+    d->writerThread->terminate();
 #ifdef Q_OS_WIN
     CloseHandle(d->deviceContext->device);
     d->deviceContext->device = INVALID_HANDLE_VALUE;
@@ -917,8 +921,6 @@ void TrkDevice::close()
 #else
     d->deviceContext->file.close();
 #endif
-    d->readerThread->terminate();
-    d->writerThread->terminate();
     if (d->verbose)
         emitLogMessage("Close");
 }
