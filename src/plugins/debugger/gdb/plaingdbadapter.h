@@ -32,6 +32,7 @@
 
 #include "abstractgdbadapter.h"
 #include "gdbengine.h"
+#include "outputcollector.h"
 
 #include <consoleprocess.h>
 
@@ -82,6 +83,7 @@ private:
 
     QProcess m_gdbProc;
     Utils::ConsoleProcess m_stubProc;
+    OutputCollector m_outputCollector;
 };
 
 } // namespace Internal

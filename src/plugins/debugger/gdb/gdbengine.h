@@ -34,7 +34,6 @@
 #include "debuggermanager.h" // only for StartParameters
 #include "gdbmi.h"
 #include "watchutils.h"
-#include "outputcollector.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
@@ -434,8 +433,6 @@ public:
     void addOptionPages(QList<Core::IOptionsPage*> *opts) const;
     const DebuggerStartParameters &startParameters() const
         { return *m_startParameters; }
-
-    OutputCollector m_outputCollector;
 };
 
 } // namespace Internal

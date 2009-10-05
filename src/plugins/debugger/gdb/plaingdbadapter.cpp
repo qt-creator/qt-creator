@@ -82,6 +82,10 @@ PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
 // FIXME:
 //    connect(&m_stubProc, SIGNAL(wrapperStopped()),
 //        m_manager, SLOT(exitDebugger()));
+
+    // Output
+    connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
+        engine, SLOT(readDebugeeOutput(QByteArray)));
 }
 
 void PlainGdbAdapter::startAdapter()
@@ -106,12 +110,12 @@ void PlainGdbAdapter::startAdapter()
             return;
         }
     } else {
-        if (!m_engine->m_outputCollector.listen()) {
+        if (!m_outputCollector.listen()) {
             emitAdapterStartFailed(tr("Cannot set up communication with child process: %1")
-                    .arg(m_engine->m_outputCollector.errorString()));
+                    .arg(m_outputCollector.errorString()));
             return;
         }
-        gdbArgs.prepend(_("--tty=") + m_engine->m_outputCollector.serverName());
+        gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
 
         if (!startParameters().workingDir.isEmpty())
             m_gdbProc.setWorkingDirectory(startParameters().workingDir);
@@ -202,6 +206,7 @@ void PlainGdbAdapter::interruptInferior()
 void PlainGdbAdapter::shutdown()
 {
     debugMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
+    m_outputCollector.shutdown();
     switch (state()) {
     
     case InferiorRunningRequested:

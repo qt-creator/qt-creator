@@ -183,10 +183,6 @@ GdbEngine::GdbEngine(DebuggerManager *manager) :
     m_trkOptions->fromSettings(Core::ICore::instance()->settings());
     m_gdbAdapter = 0;
 
-    // Output
-    connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
-        this, SLOT(readDebugeeOutput(QByteArray)));
-
     connect(this, SIGNAL(gdbOutputAvailable(int,QString)),
         m_manager, SLOT(showDebuggerOutput(int,QString)),
         Qt::QueuedConnection);
@@ -1392,7 +1388,6 @@ QString GdbEngine::fullName(const QStringList &candidates)
 void GdbEngine::shutdown()
 {
     debugMessage(_("INITIATE GDBENGINE SHUTDOWN"));
-    m_outputCollector.shutdown();
     initializeVariables();
     m_gdbAdapter->shutdown();
 }
@@ -1410,7 +1405,6 @@ void GdbEngine::detachDebugger()
 void GdbEngine::exitDebugger() // called from the manager
 {
     disconnectDebuggingHelperActions();
-    m_outputCollector.shutdown();
     initializeVariables();
     m_gdbAdapter->shutdown();
 }
@@ -1467,43 +1461,6 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     connectAdapter();
 
     m_gdbAdapter->startAdapter();
-
-/*
-    QStringList gdbArgs;
-    gdbArgs.prepend(_("mi"));
-    gdbArgs.prepend(_("-i"));
-
-    if (startMode() == AttachCore || startMode() == AttachExternal
-            || startMode() == AttachCrashedExternal) {
-        // nothing to do
-    } else if (m_startParameters->useTerminal) {
-        m_stubProc.stop(); // We leave the console open, so recycle it now.
-
-        m_stubProc.setWorkingDirectory(m_startParameters->workingDir);
-        m_stubProc.setEnvironment(m_startParameters->environment);
-        if (!m_stubProc.start(m_startParameters->executable,
-                             m_startParameters->processArgs)) {
-            // Error message for user is delivered via a signal.
-            emitStartFailed();
-            return;
-        }
-    } else {
-        if (!m_outputCollector.listen()) {
-            showMessageBox(QMessageBox::Critical, tr("Debugger Startup Failure"),
-                tr("Cannot set up communication with child process: %1")
-                    .arg(m_outputCollector.errorString()));
-            emitStartFailed();
-            return;
-        }
-        gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
-
-        if (!m_startParameters->workingDir.isEmpty())
-            m_gdbAdapter->setWorkingDirectory(m_startParameters->workingDir);
-        if (!m_startParameters->environment.isEmpty())
-            m_gdbAdapter->setEnvironment(m_startParameters->environment);
-    }
-    m_gdbAdapter->start(loc, gdbArgs);
-*/
 }
 
 void GdbEngine::continueInferior()
