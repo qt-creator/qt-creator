@@ -534,17 +534,24 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
 
 void CppFindReferences::findUsages(Symbol *symbol)
 {
-    _resultWindow->clearContents();
+    Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchOnly);
+
+    connect(search, SIGNAL(activated(Find::SearchResultItem)),
+            this, SLOT(openEditor(Find::SearchResultItem)));
+
     findAll_helper(symbol);
 }
 
 void CppFindReferences::renameUsages(Symbol *symbol)
 {
-    Find::SearchResult *search = _resultWindow->startNewSearch();
+    Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchAndReplace);
+
     connect(search, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
 
-    _resultWindow->setShowReplaceUI(true);
+    connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
+            SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+
     findAll_helper(symbol);
 }
 
@@ -565,6 +572,60 @@ void CppFindReferences::findAll_helper(Symbol *symbol)
                                                               Core::ProgressManager::CloseOnSuccess);
 
     connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
+}
+
+void CppFindReferences::onReplaceButtonClicked(const QString &text,
+                                               const QList<Find::SearchResultItem> &items)
+{
+    if (text.isEmpty())
+        return;
+
+    QHash<QString, QList<Find::SearchResultItem> > changes;
+
+    foreach (const Find::SearchResultItem &item, items)
+        changes[item.fileName].append(item);
+
+    QHashIterator<QString, QList<Find::SearchResultItem> > it(changes);
+    while (it.hasNext()) {
+        it.next();
+
+        const QString fileName = it.key();
+        QFile file(fileName);
+
+        if (file.open(QFile::ReadOnly)) {
+            QTextStream stream(&file);
+            // ### set the encoding
+            const QString plainText = stream.readAll();
+            file.close();
+
+            QTextDocument doc;
+            doc.setPlainText(plainText);
+
+            QList<QTextCursor> cursors;
+            const QList<Find::SearchResultItem> items = it.value();
+            foreach (const Find::SearchResultItem &item, items) {
+                const int blockNumber = item.lineNumber - 1;
+                QTextCursor tc(doc.findBlockByNumber(blockNumber));
+                tc.setPosition(tc.position() + item.searchTermStart);
+                tc.setPosition(tc.position() + item.searchTermLength,
+                               QTextCursor::KeepAnchor);
+                cursors.append(tc);
+            }
+
+            foreach (QTextCursor tc, cursors)
+                tc.insertText(text);
+
+            QFile newFile(fileName);
+            if (newFile.open(QFile::WriteOnly)) {
+                QTextStream stream(&newFile);
+                // ### set the encoding
+                stream << doc.toPlainText();
+            }
+        }
+    }
+
+    const QStringList fileNames = changes.keys();
+    _modelManager->updateSourceFiles(fileNames);
 }
 
 void CppFindReferences::displayResult(int index)
