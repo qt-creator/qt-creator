@@ -51,6 +51,7 @@ public:
     AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0)
         : QObject(parent), m_engine(engine)
     {}
+    virtual ~AbstractGdbAdapter() { disconnect(); }
 
     virtual QByteArray readAllStandardError() = 0;
     virtual QByteArray readAllStandardOutput() = 0;

@@ -70,6 +70,7 @@ class CoreGdbAdapter;
 class PlainGdbAdapter;
 class RemoteGdbAdapter;
 class TrkGdbAdapter;
+struct TrkOptions;
 
 enum DebuggingHelperState
 {
@@ -162,7 +163,6 @@ private:
     StackFrame parseStackFrame(const GdbMi &mi, int level);
 
     void connectAdapter();
-    void disconnectAdapter();
     void initializeVariables();
     QString fullName(const QString &fileName);
     // get one usable name out of these, try full names first
@@ -396,7 +396,7 @@ private:
     void setLocals(const QList<GdbMi> &locals);
     void connectDebuggingHelperActions();
     void disconnectDebuggingHelperActions();
-    AbstractGdbAdapter *determineAdapter(const DebuggerStartParametersPtr &dp) const;
+    AbstractGdbAdapter *createAdapter(const DebuggerStartParametersPtr &dp);
 
     bool startModeAllowsDumpers() const;
     QString parseDisassembler(const GdbMi &lines);
@@ -423,13 +423,9 @@ private:
     DebuggerStartParametersPtr m_startParameters;
     // make sure to re-initialize new members in initializeVariables();
 
-    // only one of those is active at a given time, available in m_gdbAdapter
-    AbstractGdbAdapter *m_gdbAdapter;  // pointer to one listed below
-    AttachGdbAdapter *m_attachAdapter; // owned
-    CoreGdbAdapter *m_coreAdapter;     // owned
-    PlainGdbAdapter *m_plainAdapter;   // owned
-    RemoteGdbAdapter *m_remoteAdapter; // owned
-    TrkGdbAdapter *m_trkAdapter;       // owned
+    QSharedPointer<TrkOptions> m_trkOptions;
+
+    AbstractGdbAdapter *m_gdbAdapter;
 
 public:
     QString errorMessage(QProcess::ProcessError error);

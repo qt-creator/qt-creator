@@ -179,14 +179,9 @@ GdbEngine::GdbEngine(DebuggerManager *manager) :
     m_dumperInjectionLoad(false)
 #endif
 {
+    m_trkOptions = QSharedPointer<TrkOptions>(new TrkOptions);
+    m_trkOptions->fromSettings(Core::ICore::instance()->settings());
     m_gdbAdapter = 0;
-    QSharedPointer<TrkOptions> options(new TrkOptions);
-    options->fromSettings(Core::ICore::instance()->settings());
-    m_plainAdapter = new PlainGdbAdapter(this);
-    m_trkAdapter = new TrkGdbAdapter(this, options);
-    m_remoteAdapter = new RemoteGdbAdapter(this);
-    m_coreAdapter = new CoreGdbAdapter(this);
-    m_attachAdapter = new AttachGdbAdapter(this);
 
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
@@ -237,16 +232,7 @@ QMainWindow *GdbEngine::mainWindow() const
 GdbEngine::~GdbEngine()
 {
     // prevent sending error messages afterwards
-    if (m_gdbAdapter) {
-        m_gdbAdapter->disconnect(this);
-        //delete m_gdbAdapter;
-        m_gdbAdapter = 0;
-    }
-    delete m_plainAdapter;
-    delete m_trkAdapter;
-    delete m_remoteAdapter;
-    delete m_coreAdapter;
-    delete m_attachAdapter;
+    delete m_gdbAdapter;
 }
 
 void GdbEngine::connectAdapter()
@@ -280,11 +266,6 @@ void GdbEngine::connectAdapter()
 
     connect(m_gdbAdapter, SIGNAL(adapterCrashed(QString)),
         this, SLOT(handleAdapterCrashed(QString)));
-}
-
-void GdbEngine::disconnectAdapter()
-{
-    disconnect(m_gdbAdapter, 0, this, 0);
 }
 
 void GdbEngine::initializeVariables()
@@ -1439,31 +1420,30 @@ int GdbEngine::currentFrame() const
     return manager()->stackHandler()->currentIndex();
 }
 
-AbstractGdbAdapter *GdbEngine::determineAdapter(const DebuggerStartParametersPtr &sp) const
+AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerStartParametersPtr &sp)
 {
     switch (sp->toolChainType) {
     case ProjectExplorer::ToolChain::WINSCW: // S60
     case ProjectExplorer::ToolChain::GCCE:
     case ProjectExplorer::ToolChain::RVCT_ARMV5:
     case ProjectExplorer::ToolChain::RVCT_ARMV6:
-        return m_trkAdapter;
+        return new TrkGdbAdapter(this, m_trkOptions);
     default:
         break;
     }
     // @todo: remove testing hack
     if (sp->processArgs.size() == 3 && sp->processArgs.at(0) == _("@sym@"))
-        return m_trkAdapter;
+        return new TrkGdbAdapter(this, m_trkOptions);
     switch (sp->startMode) {
     case AttachCore:
-        return m_coreAdapter;
+        return new CoreGdbAdapter(this);
     case StartRemote:
-        return m_remoteAdapter;
+        return new RemoteGdbAdapter(this);
     case AttachExternal:
-        return m_attachAdapter;
+        return new AttachGdbAdapter(this);
     default:
-        break;
+        return new PlainGdbAdapter(this);
     }
-    return m_plainAdapter;
 }
 
 void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
@@ -1477,10 +1457,8 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 
     m_startParameters = sp;
 
-    if (m_gdbAdapter)
-        disconnectAdapter();
-
-    m_gdbAdapter = determineAdapter(sp);
+    delete m_gdbAdapter;
+    m_gdbAdapter = createAdapter(sp);
 
     if (startModeAllowsDumpers())
         connectDebuggingHelperActions();
@@ -4226,9 +4204,7 @@ void GdbEngine::handleAdapterShutdownFailed(const QString &msg)
 void GdbEngine::addOptionPages(QList<Core::IOptionsPage*> *opts) const
 {
     opts->push_back(new GdbOptionsPage);
-#ifdef QTCREATOR_WITH_S60
-        opts->push_back(new TrkOptionsPage(m_trkAdapter->options()));
-#endif
+    opts->push_back(new TrkOptionsPage(m_trkOptions));
 }
 
 void GdbEngine::showMessageBox(int icon, const QString &title, const QString &text)

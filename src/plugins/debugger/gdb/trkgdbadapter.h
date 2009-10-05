@@ -145,7 +145,6 @@ public:
     // Set a device (from the project) to override the settings.
     QString overrideTrkDevice() const;
     void setOverrideTrkDevice(const QString &);
-    const TrkOptionsPtr options() const { return m_options; }
 
 signals:
     void output(const QString &msg);
