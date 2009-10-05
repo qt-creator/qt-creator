@@ -220,7 +220,7 @@ void BuildSettingsWidget::updateBuildSettings()
     // TODO save position, entry from combbox
 
     // Delete old tree items
-    m_buildConfigurationComboBox->blockSignals(true);
+    bool blocked = m_buildConfigurationComboBox->blockSignals(true);
     m_buildConfigurationComboBox->clear();
     m_subWidgets->clear();
 
@@ -245,7 +245,7 @@ void BuildSettingsWidget::updateBuildSettings()
             m_buildConfigurationComboBox->setCurrentIndex(m_buildConfigurationComboBox->count() - 1);
     }
 
-    m_buildConfigurationComboBox->blockSignals(false);
+    m_buildConfigurationComboBox->blockSignals(blocked);
 
     // TODO Restore position, entry from combbox
     // TODO? select entry from combobox ?

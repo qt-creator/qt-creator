@@ -288,9 +288,9 @@ void SideBarWidget::setCurrentItem(const QString &title)
         int idx = m_comboBox->findText(title);
         if (idx < 0)
             idx = 0;
-        m_comboBox->blockSignals(true);
+        bool blocked = m_comboBox->blockSignals(true);
         m_comboBox->setCurrentIndex(idx);
-        m_comboBox->blockSignals(false);
+        m_comboBox->blockSignals(blocked);
     }
 
     SideBarItem *item = m_sideBar->item(title);
@@ -307,7 +307,7 @@ void SideBarWidget::setCurrentItem(const QString &title)
 
 void SideBarWidget::updateAvailableItems()
 {
-    m_comboBox->blockSignals(true);
+    bool blocked = m_comboBox->blockSignals(true);
     QString current = m_comboBox->currentText();
     m_comboBox->clear();
     QStringList itms = m_sideBar->availableItems();
@@ -320,7 +320,7 @@ void SideBarWidget::updateAvailableItems()
         idx = 0;
     m_comboBox->setCurrentIndex(idx);
     m_splitButton->setEnabled(itms.count() > 1);
-    m_comboBox->blockSignals(false);
+    m_comboBox->blockSignals(blocked);
 }
 
 void SideBarWidget::removeCurrentItem()
