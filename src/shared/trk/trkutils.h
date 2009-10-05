@@ -95,25 +95,6 @@ void appendShort(QByteArray *ba, ushort s, Endianness = TargetByteOrder);
 void appendInt(QByteArray *ba, uint i, Endianness = TargetByteOrder);
 void appendString(QByteArray *ba, const QByteArray &str, Endianness = TargetByteOrder, bool appendNullTerminator = true);
 
-enum CodeMode
-{
-    ArmMode = 0,
-    ThumbMode,
-};
-
-enum TargetConstants
-{
-
-    RegisterCount = 17,
-    RegisterSP = 13, // Stack Pointer
-    RegisterLR = 14, // Return address
-    RegisterPC = 15, // Program counter
-    RegisterPSGdb = 25, // gdb's view of the world
-    RegisterPSTrk = 16, // TRK's view of the world
-
-    MemoryChunkSize = 256
-};
-
 struct Library
 {
     Library() {}
@@ -164,29 +145,6 @@ struct Session
     // Gdb request
     uint currentThread;
     QStringList modules;
-};
-
-struct Snapshot
-{
-    void reset();
-
-    uint registers[RegisterCount];
-    typedef QHash<uint, QByteArray> Memory;
-    Memory memory;
-};
-
-
-struct Breakpoint
-{
-    Breakpoint(uint offset_ = 0)
-    {
-        number = 0;
-        offset = offset_;
-        mode = ArmMode;
-    }
-    uint offset;
-    ushort number;
-    CodeMode mode;
 };
 
 struct TrkResult

@@ -49,6 +49,67 @@
 namespace Debugger {
 namespace Internal {
 
+enum CodeMode
+{
+    ArmMode = 0,
+    ThumbMode,
+};
+
+enum TargetConstants
+{
+
+    RegisterCount = 17,
+    RegisterSP = 13, // Stack Pointer
+    RegisterLR = 14, // Return address
+    RegisterPC = 15, // Program counter
+    RegisterPSGdb = 25, // gdb's view of the world
+    RegisterPSTrk = 16, // TRK's view of the world
+
+    MemoryChunkSize = 256
+};
+
+struct MemoryRange
+{
+    MemoryRange() : from(0), to(0) {}
+    MemoryRange(uint f, uint t) : from(f), to(t) {}
+    void operator-=(const MemoryRange &other);
+    bool intersects(const MemoryRange &other) const;
+    quint64 hash() const { return (quint64(from) << 32) + to; }
+    bool operator==(const MemoryRange &other) const { return hash() == other.hash(); }
+    bool operator<(const MemoryRange &other) const { return hash() < other.hash(); }
+    int size() const { return to - from; }
+
+    uint from; // Inclusive.
+    uint to;   // Exclusive.
+};
+
+struct Snapshot
+{
+    void reset();
+    void insertMemory(const MemoryRange &range, const QByteArray &ba);
+
+    uint registers[RegisterCount];
+    typedef QMap<MemoryRange, QByteArray> Memory;
+    Memory memory;
+
+    // Current state.
+    MemoryRange wantedMemory;
+};
+
+
+struct Breakpoint
+{
+    Breakpoint(uint offset_ = 0)
+    {
+        number = 0;
+        offset = offset_;
+        mode = ArmMode;
+    }
+    uint offset;
+    ushort number;
+    CodeMode mode;
+};
+
 struct GdbResult
 {
     QByteArray data;
@@ -155,7 +216,7 @@ private:
     void handleAndReportCreateProcess(const TrkResult &result);
     void handleAndReportReadRegistersAfterStop(const TrkResult &result);
     void reportRegisters();
-    QByteArray memoryReadLogMessage(uint addr, uint len, const QByteArray &ba) const;
+    QByteArray memoryReadLogMessage(uint addr, const QByteArray &ba) const;
     void handleAndReportSetBreakpoint(const TrkResult &result);
     void handleReadMemoryBuffered(const TrkResult &result);
     void handleReadMemoryUnbuffered(const TrkResult &result);
@@ -164,12 +225,12 @@ private:
     void handleStepOver(const TrkResult &result);
     void handleStepOver2(const TrkResult &result);
     void handleReadRegisters(const TrkResult &result);
-    void reportReadMemoryBuffered(const TrkResult &result);
-    void reportReadMemoryBuffered(uint addr, uint len);
     void handleWriteRegister(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
+    //void reportReadMemoryBuffered(const TrkResult &result);
+    //void reportReadMemoryUnbuffered(const TrkResult &result);
 
-    void readMemory(uint addr, uint len);
+    void readMemory(uint addr, uint len, bool buffered);
 
     void handleDirectTrk(const TrkResult &response);
     void directStep(uint addr);
@@ -190,8 +251,9 @@ private:
     QByteArray trkContinueMessage();
     QByteArray trkReadRegistersMessage();
     QByteArray trkWriteRegisterMessage(byte reg, uint value);
+    QByteArray trkReadMemoryMessage(const MemoryRange &range);
     QByteArray trkReadMemoryMessage(uint addr, uint len);
-    QByteArray trkWriteMemoryMessage(uint add, const QByteArray &date);
+    QByteArray trkWriteMemoryMessage(uint addr, const QByteArray &date);
     QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
     QByteArray trkStepRangeMessage(byte option);
     QByteArray trkDeleteProcessMessage();    
@@ -228,6 +290,7 @@ private:
         const QByteArray &logNote = QByteArray());
     void sendGdbServerAck();
     bool sendGdbServerPacket(const QByteArray &packet, bool doFlush);
+    void tryAnswerGdbMemoryRequest(bool buffered);
 
     Q_SLOT void handleGdbError(QProcess::ProcessError error);
     Q_SLOT void handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -259,7 +322,7 @@ private:
     // Debuggee state
     Q_SLOT void executeCommand(const QString &msg);
     trk::Session m_session; // global-ish data (process id, target information)
-    trk::Snapshot m_snapshot; // local-ish data (memory and registers)
+    Snapshot m_snapshot; // local-ish data (memory and registers)
     QString m_remoteExecutable;
     QString m_symbolFile;
     int m_verbose;
@@ -269,5 +332,7 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::MemoryRange);
 
 #endif // DEBUGGER_TRKGDBADAPTER_H

@@ -3852,7 +3852,8 @@ void GdbEngine::handleFetchMemory(const GdbResponse &response)
     GdbMi data = memory0.findChild("data");
     foreach (const GdbMi &child, data.children()) {
         bool ok = true;
-        unsigned char c = child.data().toUInt(&ok, 0);
+        unsigned char c = '?';
+        c = child.data().toUInt(&ok, 0);
         QTC_ASSERT(ok, return);
         ba.append(c);
     }
