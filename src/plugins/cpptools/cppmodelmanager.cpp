@@ -56,6 +56,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/qtcassert.h>
 
 #include <TranslationUnit.h>
@@ -587,6 +589,13 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
     return previousDoc;
 }
 
+
+CppTools::CppModelManagerInterface *CppTools::CppModelManagerInterface::instance()
+{
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    return pluginManager->getObject<CppTools::CppModelManagerInterface>();
+
+}
 
 
 /*!

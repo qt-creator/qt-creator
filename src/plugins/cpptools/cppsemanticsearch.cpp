@@ -272,6 +272,12 @@ static void semanticSearch_helper(QFutureInterface<Core::Utils::FileSearchResult
 
     int progress = 0;
     foreach (Document::Ptr doc, snapshot) {
+        if (future.isPaused())
+            future.waitForResume();
+
+        if (future.isCanceled())
+            break;
+
         const QString fileName = doc->fileName();
 
         QByteArray source;
