@@ -894,18 +894,13 @@ void GdbEngine::updateAll()
 {
     QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
     tryLoadDebuggingHelpers();
-    updateLocals(); 
-    postCommand(_("-stack-list-frames"), WatchUpdate, CB(handleStackListFrames1), false);
+    postCommand(_("-stack-list-frames"), WatchUpdate, CB(handleStackListFrames),
+        QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     manager()->stackHandler()->setCurrentIndex(0);
     if (supportsThreads())
         postCommand(_("-thread-list-ids"), WatchUpdate, CB(handleStackListThreads), 0);
     manager()->reloadRegisters();
-}
-
-void GdbEngine::handleStackListFrames1(const GdbResponse &response)
-{
-    handleStackListFrames(response);
-    manager()->gotoLocation(manager()->stackHandler()->currentFrame(), true);
+    updateLocals(); 
 }
 
 void GdbEngine::handleQuerySources(const GdbResponse &response)
@@ -1182,29 +1177,6 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
 #endif
 }
 
-void GdbEngine::reloadFullStack()
-{
-    QString cmd = _("-stack-list-frames");
-    postCommand(cmd, WatchUpdate, CB(handleStackListFrames), true);
-}
-
-void GdbEngine::reloadStack()
-{
-    QString cmd = _("-stack-list-frames");
-    int stackDepth = theDebuggerAction(MaximalStackDepth)->value().toInt();
-    if (stackDepth && !m_gdbAdapter->isTrkAdapter())
-        cmd += _(" 0 ") + QString::number(stackDepth);
-    postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
-    // FIXME: gdb 6.4 symbianelf likes to be asked twice. The first time it
-    // returns with "^error,msg="Previous frame identical to this frame
-    // (corrupt stack?)". Might be related to the fact that we can't
-    // access the memory belonging to the lower frames. But as we know
-    // this sometimes happens, ask the second time immediately instead
-    // of waiting for the first request to fail.
-    if (m_gdbAdapter->isTrkAdapter())
-        postCommand(cmd, WatchUpdate, CB(handleStackListFrames), false);
-}
-
 void GdbEngine::handleStop1(const GdbResponse &response)
 {
     GdbMi data = response.cookie.value<GdbMi>();
@@ -1307,7 +1279,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
     manager()->stackHandler()->setCurrentIndex(0);
     updateLocals(); // Quick shot
 
-    reloadStack();
+    reloadStack(false);
 
     if (supportsThreads()) {
         int currentId = data.findChild("thread-id").data().toInt();
@@ -2235,13 +2207,52 @@ void GdbEngine::reloadSourceFiles()
 //
 //////////////////////////////////////////////////////////////////////
 
-void GdbEngine::handleStackSelectThread(const GdbResponse &)
+void GdbEngine::selectThread(int index)
 {
-    //qDebug("FIXME: StackHandler::handleOutput: SelectThread");
-    showStatusMessage(tr("Retrieving data for stack view..."), 3000);
-    reloadStack();
+    ThreadsHandler *threadsHandler = manager()->threadsHandler();
+    threadsHandler->setCurrentThread(index);
+
+    QList<ThreadData> threads = threadsHandler->threads();
+    QTC_ASSERT(index < threads.size(), return);
+    int id = threads.at(index).id;
+    showStatusMessage(tr("Retrieving data for stack view..."), 10000);
+    postCommand(_("-thread-select %1").arg(id), CB(handleStackSelectThread));
 }
 
+void GdbEngine::handleStackSelectThread(const GdbResponse &)
+{
+    QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
+    //qDebug("FIXME: StackHandler::handleOutput: SelectThread");
+    showStatusMessage(tr("Retrieving data for stack view..."), 3000);
+    manager()->reloadRegisters();
+    reloadStack(true);
+    updateLocals(); 
+}
+
+void GdbEngine::reloadFullStack()
+{
+    QString cmd = _("-stack-list-frames");
+    postCommand(cmd, WatchUpdate, CB(handleStackListFrames),
+        QVariant::fromValue<StackCookie>(StackCookie(true, true)));
+}
+
+void GdbEngine::reloadStack(bool forceGotoLocation)
+{
+    QString cmd = _("-stack-list-frames");
+    int stackDepth = theDebuggerAction(MaximalStackDepth)->value().toInt();
+    if (stackDepth && !m_gdbAdapter->isTrkAdapter())
+        cmd += _(" 0 ") + QString::number(stackDepth);
+    // FIXME: gdb 6.4 symbianelf likes to be asked twice. The first time it
+    // returns with "^error,msg="Previous frame identical to this frame
+    // (corrupt stack?)". Might be related to the fact that we can't
+    // access the memory belonging to the lower frames. But as we know
+    // this sometimes happens, ask the second time immediately instead
+    // of waiting for the first request to fail.
+    if (m_gdbAdapter->isTrkAdapter())
+        postCommand(cmd, WatchUpdate);
+    postCommand(cmd, WatchUpdate, CB(handleStackListFrames),
+        QVariant::fromValue<StackCookie>(StackCookie(false, forceGotoLocation)));
+}
 
 StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
 {
@@ -2266,94 +2277,94 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
     #else
     bool handleIt = response.resultClass == GdbResultDone;
     #endif
-    if (handleIt) {
-        bool isFull = response.cookie.toBool();
-        QList<StackFrame> stackFrames;
-
-        GdbMi stack = response.data.findChild("stack");
-        if (!stack.isValid()) {
-            qDebug() << "FIXME: stack:" << stack.toString();
-            return;
-        }
-
-        int topFrame = -1;
-
-        int n = stack.childCount();
-        for (int i = 0; i != n; ++i) {
-            stackFrames.append(parseStackFrame(stack.childAt(i), i));
-            const StackFrame &frame = stackFrames.back();
-
-            #if defined(Q_OS_WIN)
-            const bool isBogus =
-                // Assume this is wrong and points to some strange stl_algobase
-                // implementation. Happens on Karsten's XP system with Gdb 5.50
-                (frame.file.endsWith(__("/bits/stl_algobase.h")) && frame.line == 150)
-                // Also wrong. Happens on Vista with Gdb 5.50
-                   || (frame.function == __("operator new") && frame.line == 151);
-
-            // Immediately leave bogus frames.
-            if (topFrame == -1 && isBogus) {
-                postCommand(_("-exec-finish"));
-                return;
-            }
-            #endif
-
-            // Initialize top frame to the first valid frame.
-            // FIXME: Check for QFile(frame.fullname).isReadable()?
-            const bool isValid = !frame.file.isEmpty() && !frame.function.isEmpty();
-            if (isValid && topFrame == -1)
-                topFrame = i;
-        }
-
-        bool canExpand = !isFull 
-            && (n >= theDebuggerAction(MaximalStackDepth)->value().toInt());
-        theDebuggerAction(ExpandStack)->setEnabled(canExpand);
-        manager()->stackHandler()->setFrames(stackFrames, canExpand);
-
-        #ifdef Q_OS_MAC
-        // Mac gdb does not add the location to the "stopped" message,
-        // so the early gotoLocation() was not triggered. Force it here.
-        bool jump = topFrame != -1
-            && !theDebuggerBoolSetting(OperateByInstruction);
-        #else
-        // For topFrame == -1 there is no frame at all, for topFrame == 0
-        // we already issued a 'gotoLocation' when reading the *stopped
-        // message. Also, when OperateByInstruction we always want to
-        // use frame #0.
-        bool jump = topFrame != -1 && topFrame != 0
-            && !theDebuggerBoolSetting(OperateByInstruction);
-        #endif
-        
-        if (jump) {
-            const StackFrame &frame = manager()->stackHandler()->currentFrame();
-            qDebug() << "GOTO, 2nd try" << frame.toString() << topFrame;
-            gotoLocation(frame, true);
-        }
-    } else {
+    if (!handleIt) {
         // That always happens on symbian gdb with
         // ^error,data={msg="Previous frame identical to this frame (corrupt stack?)"
         // logstreamoutput="Previous frame identical to this frame (corrupt stack?)\n"
         //qDebug() << "LISTING STACK FAILED: " << response.toString();
+        return;
     }
-}
 
-void GdbEngine::selectThread(int index)
-{
-    //reset location arrow
-    m_manager->resetLocation();
+    StackCookie cookie = response.cookie.value<StackCookie>();
+    QList<StackFrame> stackFrames;
 
-    ThreadsHandler *threadsHandler = manager()->threadsHandler();
-    threadsHandler->setCurrentThread(index);
+    GdbMi stack = response.data.findChild("stack");
+    if (!stack.isValid()) {
+        qDebug() << "FIXME: stack:" << stack.toString();
+        return;
+    }
 
-    QList<ThreadData> threads = threadsHandler->threads();
-    QTC_ASSERT(index < threads.size(), return);
-    int id = threads.at(index).id;
-    showStatusMessage(tr("Retrieving data for stack view..."), 10000);
-    postCommand(_("-thread-select %1").arg(id), CB(handleStackSelectThread));
+    int targetFrame = -1;
+
+    int n = stack.childCount();
+    for (int i = 0; i != n; ++i) {
+        stackFrames.append(parseStackFrame(stack.childAt(i), i));
+        const StackFrame &frame = stackFrames.back();
+
+        #if defined(Q_OS_WIN)
+        const bool isBogus =
+            // Assume this is wrong and points to some strange stl_algobase
+            // implementation. Happens on Karsten's XP system with Gdb 5.50
+            (frame.file.endsWith(__("/bits/stl_algobase.h")) && frame.line == 150)
+            // Also wrong. Happens on Vista with Gdb 5.50
+               || (frame.function == __("operator new") && frame.line == 151);
+
+        // Immediately leave bogus frames.
+        if (targetFrame == -1 && isBogus) {
+            postCommand(_("-exec-finish"));
+            return;
+        }
+        #endif
+
+        // Initialize top frame to the first valid frame.
+        // FIXME: Check for QFile(frame.fullname).isReadable()?
+        const bool isValid = !frame.file.isEmpty() && !frame.function.isEmpty();
+        if (isValid && targetFrame == -1)
+            targetFrame = i;
+    }
+
+    bool canExpand = !cookie.isFull 
+        && (n >= theDebuggerAction(MaximalStackDepth)->value().toInt());
+    theDebuggerAction(ExpandStack)->setEnabled(canExpand);
+    manager()->stackHandler()->setFrames(stackFrames, canExpand);
+
+    // We can't jump to any file if we don't have any frames.
+    if (stackFrames.isEmpty())
+        return;
+
+    // targetFrame contains the top most frame for which we have source
+    // information. That's typically the frame we'd like to jump to, with
+    // a few exceptions:
+
+    // Always jump to frame #0 when stepping by instruction.
+    if (theDebuggerBoolSetting(OperateByInstruction))
+        targetFrame = 0;
+
+    // If there is no frame with source, jump to frame #0.
+    if (targetFrame == -1)
+        targetFrame = 0;
+
+    #ifdef Q_OS_MAC
+    // Mac gdb does not add the location to the "stopped" message,
+    // so the early gotoLocation() was not triggered. Force it here.
+    bool jump = true;
+    #else
+    // For targetFrame == 0 we already issued a 'gotoLocation'
+    // when reading the *stopped message.
+    bool jump = targetFrame != 0;
+    #endif
+  
+    manager()->stackHandler()->setCurrentIndex(targetFrame);
+    if (jump || cookie.gotoLocation) {
+        const StackFrame &frame = manager()->stackHandler()->currentFrame();
+        //qDebug() << "GOTO, 2ND ATTEMPT: " << frame.toString() << targetFrame;
+        gotoLocation(frame, true);
+    }
 }
 
 void GdbEngine::activateFrame(int frameIndex)
 {
+    m_manager->resetLocation();
     if (state() != InferiorStopped)
         return;
 
@@ -2394,7 +2405,8 @@ void GdbEngine::handleStackListThreads(const GdbResponse &response)
         thread.id = items.at(index).data().toInt();
         threads.append(thread);
         if (thread.id == id) {
-            //qDebug() << "SETTING INDEX TO:" << index << " ID:" << id << " RECOD:" << response.toString();
+            //qDebug() << "SETTING INDEX TO:" << index << " ID:"
+            // << id << " RECOD:" << response.toString();
             currentIndex = index;
         }
     }
@@ -3086,7 +3098,7 @@ void GdbEngine::sendWatchParameters(const QByteArray &params0)
 
 void GdbEngine::handleVarAssign(const GdbResponse &)
 {
-    // everything might have changed, force re-evaluation
+    // Everything might have changed, force re-evaluation.
     // FIXME: Speed this up by re-using variables and only
     // marking values as 'unknown'
     setTokenBarrier();
@@ -3421,7 +3433,8 @@ void GdbEngine::handleStackListArguments(const GdbResponse &response)
         const GdbMi args = frame.findChild("args");
         m_currentFunctionArgs = args.children();
     } else if (response.resultClass == GdbResultError) {
-        qDebug() << "FIXME: GdbEngine::handleStackListArguments: should not happen";
+        qDebug() << "FIXME: GdbEngine::handleStackListArguments: should not happen"
+            << response.toString();
     }
 }
 

@@ -454,6 +454,7 @@ void DebuggerManager::init()
     //QTreeView *tooltipView = qobject_cast<QTreeView *>(d->m_tooltipWindow);
     //tooltipView->setModel(d->m_watchHandler->model(TooltipsWatch));
     qRegisterMetaType<WatchData>("WatchData");
+    qRegisterMetaType<StackCookie>("StackCookie");
 
     d->m_actions.continueAction = new QAction(tr("Continue"), this);
     d->m_actions.continueAction->setIcon(QIcon(":/debugger/images/debugger_continue_small.png"));
@@ -707,7 +708,6 @@ void DebuggerManager::showStatusMessage(const QString &msg, int timeout)
 
 void DebuggerManager::notifyInferiorStopped()
 {
-    resetLocation();
     setState(InferiorStopped);
     showStatusMessage(tr("Stopped."), 5000);
 }
@@ -1349,7 +1349,7 @@ void DebuggerManager::gotoLocation(const Debugger::Internal::StackFrame &frame, 
 {
     if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
         if (setMarker)
-            resetLocation();
+            emit resetLocationRequested();
         d->m_disassemblerViewAgent.setFrame(frame);
     } else {
         // Connected to the plugin.

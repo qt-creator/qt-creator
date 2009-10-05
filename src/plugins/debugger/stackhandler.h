@@ -41,6 +41,14 @@
 namespace Debugger {
 namespace Internal {
 
+struct StackCookie
+{
+    StackCookie() : isFull(true), gotoLocation(false) {}
+    StackCookie(bool full, bool jump) : isFull(full), gotoLocation(jump) {}
+    bool isFull;
+    bool gotoLocation;
+};
+
 ////////////////////////////////////////////////////////////////////////
 //
 // StackModel
@@ -128,5 +136,8 @@ private:
 
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::StackCookie)
+
 
 #endif // DEBUGGER_STACKHANDLER_H
