@@ -28,7 +28,6 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
         <argument name="-disable-cdb">Disable Cdb debugger engine</argument>
         <argument name="-disable-gdb">Disable Gdb debugger engine</argument>
         <argument name="-disable-sdb">Disable Qt Script debugger engine</argument>
-        <argument name="-disable-tcf">Disable Tcf debugger engine</argument>
         <argument name="-debug" parameter="pid-or-corefile">Attach to Process-Id or Core file</argument>
         <argument name="-wincrashevent" parameter="event-handle">Event handle used for attaching to crashed processes</argument>
     </argumentList>

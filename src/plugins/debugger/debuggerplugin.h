@@ -106,7 +106,6 @@ private slots:
     void startRemoteApplication();
     void attachExternalApplication();
     void attachCore();
-    void attachRemoteTcf();
     void attachCmdLinePid();
     void attachCmdLineCore();
 
@@ -143,7 +142,6 @@ private:
     QAction *m_startRemoteAction;
     QAction *m_attachExternalAction;
     QAction *m_attachCoreAction;
-    QAction *m_attachTcfAction;
     QAction *m_detachAction;
 };
 

@@ -42,7 +42,6 @@ class QDialogButtonBox;
 namespace Ui {
 class AttachCoreDialog;
 class AttachExternalDialog;
-class AttachTcfDialog;
 class StartExternalDialog;
 class StartRemoteDialog;
 } // namespace Ui
@@ -111,31 +110,6 @@ private:
 
     Ui::AttachExternalDialog *m_ui;
     ProcessListFilterModel *m_model;
-};
-
-class AttachTcfDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit AttachTcfDialog(QWidget *parent);
-    ~AttachTcfDialog();
-
-    void setRemoteChannel(const QString &host);
-    void setRemoteArchitecture(const QString &arch);
-    void setRemoteArchitectures(const QStringList &arches);
-    QString remoteChannel() const;
-    QString remoteArchitecture() const;
-    void setServerStartScript(const QString &scriptName);
-    QString serverStartScript() const;
-    void setUseServerStartScript(bool on);
-    bool useServerStartScript() const;
-
-private slots:
-    void updateState();
-
-private:
-    Ui::AttachTcfDialog *m_ui;
 };
 
 class StartExternalDialog : public QDialog

@@ -32,7 +32,6 @@
 
 #include "ui_attachcoredialog.h"
 #include "ui_attachexternaldialog.h"
-#include "ui_attachtcfdialog.h"
 #include "ui_startexternaldialog.h"
 #include "ui_startremotedialog.h"
 
@@ -315,95 +314,6 @@ void AttachExternalDialog::pidChanged(const QString &pid)
 {
     bool enabled = !pid.isEmpty() && pid != QLatin1String("0") && pid != m_selfPid;;
     okButton()->setEnabled(enabled);
-}
-
-
-///////////////////////////////////////////////////////////////////////
-//
-// AttachTcfDialog
-//
-///////////////////////////////////////////////////////////////////////
-
-AttachTcfDialog::AttachTcfDialog(QWidget *parent)
-  : QDialog(parent),
-    m_ui(new Ui::AttachTcfDialog)
-{
-    m_ui->setupUi(this);
-    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_ui->serverStartScript->setExpectedKind(Utils::PathChooser::File);
-    m_ui->serverStartScript->setPromptDialogTitle(tr("Select Executable"));
-
-    connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)), 
-        this, SLOT(updateState()));
-    
-    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-    updateState();
-}
-
-AttachTcfDialog::~AttachTcfDialog()
-{
-    delete m_ui;
-}
-
-void AttachTcfDialog::setRemoteChannel(const QString &channel)
-{
-    m_ui->channelLineEdit->setText(channel);
-}
-
-QString AttachTcfDialog::remoteChannel() const
-{
-    return m_ui->channelLineEdit->text();
-}
-
-void AttachTcfDialog::setRemoteArchitectures(const QStringList &list)
-{
-    m_ui->architectureComboBox->clear();
-    if (!list.isEmpty()) {
-        m_ui->architectureComboBox->insertItems(0, list);
-        m_ui->architectureComboBox->setCurrentIndex(0);
-    }
-}
-
-void AttachTcfDialog::setRemoteArchitecture(const QString &arch)
-{
-    int index = m_ui->architectureComboBox->findText(arch);
-    if (index != -1)
-        m_ui->architectureComboBox->setCurrentIndex(index);
-}
-
-QString AttachTcfDialog::remoteArchitecture() const
-{
-    int index = m_ui->architectureComboBox->currentIndex();
-    return m_ui->architectureComboBox->itemText(index);
-}
-
-void AttachTcfDialog::setServerStartScript(const QString &scriptName)
-{
-    m_ui->serverStartScript->setPath(scriptName);
-}
-
-QString AttachTcfDialog::serverStartScript() const
-{
-    return m_ui->serverStartScript->path();
-}
-
-void AttachTcfDialog::setUseServerStartScript(bool on)
-{
-    m_ui->useServerStartScriptCheckBox->setChecked(on);
-}
-
-bool AttachTcfDialog::useServerStartScript() const
-{
-    return m_ui->useServerStartScriptCheckBox->isChecked();
-}
-
-void AttachTcfDialog::updateState()
-{
-    bool enabled = m_ui->useServerStartScriptCheckBox->isChecked();
-    m_ui->serverStartScriptLabel->setEnabled(enabled);
-    m_ui->serverStartScript->setEnabled(enabled);
 }
 
 

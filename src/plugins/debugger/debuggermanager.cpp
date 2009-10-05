@@ -153,7 +153,6 @@ namespace Internal {
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
 IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
-IDebuggerEngine *createTcfEngine(DebuggerManager *parent);
 
 // The createWinEngine function takes a list of options pages it can add to.
 // This allows for having a "enabled" toggle on the page independently
@@ -262,7 +261,6 @@ void DebuggerStartParameters::clear()
 
 static Debugger::Internal::IDebuggerEngine *gdbEngine = 0;
 static Debugger::Internal::IDebuggerEngine *scriptEngine = 0;
-static Debugger::Internal::IDebuggerEngine *tcfEngine = 0;
 static Debugger::Internal::IDebuggerEngine *winEngine = 0;
 
 struct DebuggerManagerPrivate
@@ -335,7 +333,6 @@ DebuggerManager::~DebuggerManager()
     #define doDelete(ptr) delete ptr; ptr = 0
     doDelete(gdbEngine);
     doDelete(scriptEngine);
-    doDelete(tcfEngine);
     doDelete(winEngine);
     #undef doDelete
     DebuggerManagerPrivate::instance = 0;
@@ -572,11 +569,6 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTy
         scriptEngine->addOptionPages(&rc);
     }
 
-    if (enabledTypeFlags & TcfEngineType) {
-        tcfEngine = createTcfEngine(this);
-        tcfEngine->addOptionPages(&rc);
-    }
-
     d->m_engine = 0;
     STATE_DEBUG(gdbEngine << winEngine << scriptEngine << rc.size());
     return rc;
@@ -752,7 +744,6 @@ void DebuggerManager::shutdown()
     doDelete(scriptEngine);
     doDelete(gdbEngine);
     doDelete(winEngine);
-    doDelete(tcfEngine);
 
     // Delete these manually before deleting the manager
     // (who will delete the models for most views)
@@ -988,9 +979,6 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     case AttachCrashedExternal:
         d->m_engine = determineDebuggerEngine(d->m_startParameters->attachPID,
             d->m_startParameters->toolChainType, &errorMessage);
-        break;
-    case AttachTcf:
-        d->m_engine = tcfEngine;
         break;
     default:
         d->m_engine = determineDebuggerEngine(d->m_startParameters->executable, 

@@ -108,7 +108,6 @@ const char * const M_DEBUG_START_DEBUGGING = "QtCreator.Menu.Debug.StartDebuggin
 const char * const STARTEXTERNAL        = "Debugger.StartExternal";
 const char * const ATTACHEXTERNAL       = "Debugger.AttachExternal";
 const char * const ATTACHCORE           = "Debugger.AttachCore";
-const char * const ATTACHTCF            = "Debugger.AttachTcf";
 const char * const ATTACHREMOTE         = "Debugger.AttachRemote";
 const char * const DETACH               = "Debugger.Detach";
 
@@ -516,10 +515,6 @@ bool DebuggerPlugin::parseArgument(QStringList::const_iterator &it,
         m_cmdLineEnabledEngines &= ~ScriptEngineType;
         return true;
     }
-    if (option == QLatin1String("-disable-tcf")) {
-        m_cmdLineEnabledEngines &= ~TcfEngineType;
-        return true;
-    }
 
     *errorMessage = tr("Invalid debugger option: %1").arg(option);
     return false;
@@ -597,13 +592,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     m_attachCoreAction->setText(tr("Attach to Core..."));
     connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
 
-    m_attachTcfAction = new QAction(this);
-    m_attachTcfAction->setText(tr("Attach to Running Tcf Agent..."));
-    m_attachTcfAction->setToolTip(tr("This attaches to a running "
-        "'Target Communication Framework' agent."));
-    connect(m_attachTcfAction, SIGNAL(triggered()),
-        this, SLOT(attachRemoteTcf()));
-
 
     m_startRemoteAction = new QAction(this);
     m_startRemoteAction->setText(tr("Start and Attach to Remote Application..."));
@@ -639,11 +627,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd = am->registerAction(m_attachCoreAction,
         Constants::ATTACHCORE, globalcontext);
     mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
-/*
-    cmd = am->registerAction(m_attachTcfAction,
-        Constants::ATTACHTCF, globalcontext);
-    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
-*/
 
     cmd = am->registerAction(m_startRemoteAction,
         Constants::ATTACHREMOTE, globalcontext);
@@ -1318,42 +1301,6 @@ void DebuggerPlugin::startRemoteApplication()
     sp->remoteChannel = dlg.remoteChannel();
     sp->remoteArchitecture = dlg.remoteArchitecture();
     sp->startMode = StartRemote;
-    if (dlg.useServerStartScript())
-        sp->serverStartScript = dlg.serverStartScript();
-
-    RunConfigurationPtr rc = activeRunConfiguration();
-    if (rc.isNull())
-        rc = DebuggerRunControlFactory::createDefaultRunConfiguration();
-    if (RunControl *runControl = m_debuggerRunControlFactory
-            ->create(rc, ProjectExplorer::Constants::DEBUGMODE, sp))
-        runControl->start();
-}
-
-void DebuggerPlugin::attachRemoteTcf()
-{
-    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
-    AttachTcfDialog dlg(m_manager->mainWindow());
-    QStringList arches;
-    arches.append(_("i386:x86-64:intel"));
-    dlg.setRemoteArchitectures(arches);
-    dlg.setRemoteChannel(
-            configValue(_("LastTcfRemoteChannel")).toString());
-    dlg.setRemoteArchitecture(
-            configValue(_("LastTcfRemoteArchitecture")).toString());
-    dlg.setServerStartScript(
-            configValue(_("LastTcfServerStartScript")).toString());
-    dlg.setUseServerStartScript(
-            configValue(_("LastTcfUseServerStartScript")).toBool());
-    if (dlg.exec() != QDialog::Accepted)
-        return;
-    setConfigValue(_("LastTcfRemoteChannel"), dlg.remoteChannel());
-    setConfigValue(_("LastTcfRemoteArchitecture"), dlg.remoteArchitecture());
-    setConfigValue(_("LastTcfServerStartScript"), dlg.serverStartScript());
-    setConfigValue(_("LastTcfUseServerStartScript"), dlg.useServerStartScript());
-    sp->remoteChannel = dlg.remoteChannel();
-    sp->remoteArchitecture = dlg.remoteArchitecture();
-    sp->serverStartScript = dlg.serverStartScript();
-    sp->startMode = AttachTcf;
     if (dlg.useServerStartScript())
         sp->serverStartScript = dlg.serverStartScript();
 
