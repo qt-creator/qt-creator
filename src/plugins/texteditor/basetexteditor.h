@@ -133,9 +133,11 @@ public:
         TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
         if (!data || data->collapseMode() != CollapseAfter) {
             data = static_cast<TextBlockUserData*>(block.next().userData());
-            if (!data || data->collapseMode() != TextBlockUserData::CollapseThis || data->m_ifdefedOut)
+            if (!data || data->collapseMode() != TextBlockUserData::CollapseThis)
                 data = 0;
         }
+        if (data && data->m_ifdefedOut)
+            data = 0;
         return data;
     }
 
