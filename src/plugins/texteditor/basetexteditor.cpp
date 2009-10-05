@@ -962,6 +962,23 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                 return;
             }
         }
+    } else if (!ro
+               && e == QKeySequence::DeleteStartOfWord
+               && d->m_document->tabSettings().m_autoIndent
+               && !textCursor().hasSelection()){
+        e->accept();
+        QTextCursor c = textCursor();
+        int pos = c.position();
+        c.movePosition(QTextCursor::PreviousWord);
+        int targetpos = c.position();
+        forever {
+            handleBackspaceKey();
+            int cpos = textCursor().position();
+            if (cpos == pos || cpos <= targetpos)
+                break;
+            pos = cpos;
+        }
+        return;
     } else switch (e->key()) {
 
 
@@ -3289,7 +3306,7 @@ void BaseTextEditor::handleBackspaceKey()
 
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
 
-    if (autoBackspace(cursor))
+    if (tabSettings.m_autoIndent && autoBackspace(cursor))
         return;
 
     if (!tabSettings.m_smartBackspace) {
