@@ -1336,7 +1336,9 @@ void ProjectExplorerPlugin::updateActions()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::updateActions";
 
-    bool enableBuildActions = d->m_currentProject && ! (d->m_buildManager->isBuilding(d->m_currentProject));
+    bool enableBuildActions = d->m_currentProject
+                              && ! (d->m_buildManager->isBuilding(d->m_currentProject))
+                              && d->m_currentProject->hasBuildSettings();
     bool hasProjects = !d->m_session->projects().isEmpty();
     bool building = d->m_buildManager->isBuilding();
     QString projectName = d->m_currentProject ? d->m_currentProject->name() : QString();
@@ -1533,7 +1535,7 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro)
     if (!pro)
         return;
 
-    if (d->m_projectExplorerSettings.buildBeforeRun) {
+    if (d->m_projectExplorerSettings.buildBeforeRun && pro->hasBuildSettings()) {
         if (saveModifiedFiles()) {
             d->m_runMode = ProjectExplorer::Constants::RUNMODE;
             d->m_delayedRunConfiguration = pro->activeRunConfiguration();
@@ -1552,7 +1554,7 @@ void ProjectExplorerPlugin::debugProject()
     if (!pro || d->m_debuggingRunControl )
         return;
 
-    if (d->m_projectExplorerSettings.buildBeforeRun) {
+    if (d->m_projectExplorerSettings.buildBeforeRun && pro->hasBuildSettings()) {
         if (saveModifiedFiles()) {
             d->m_runMode = ProjectExplorer::Constants::DEBUGMODE;
             d->m_delayedRunConfiguration = pro->activeRunConfiguration();
