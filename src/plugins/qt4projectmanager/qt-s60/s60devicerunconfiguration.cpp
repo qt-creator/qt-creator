@@ -624,7 +624,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
         emit finished();
         return;
     }
-    m_launcher = new trk::Launcher;
+    m_launcher = new trk::Launcher(trk::Launcher::ActionCopyInstallRun);
     connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
     connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
     connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));

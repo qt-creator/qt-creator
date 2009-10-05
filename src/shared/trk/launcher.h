@@ -44,8 +44,20 @@ class Launcher : public QObject
 public:
     typedef void (Launcher::*TrkCallBack)(const TrkResult &);
 
-    Launcher();
+    enum Actions {
+        ActionPingOnly = 0x0,
+        ActionCopy = 0x1,
+        ActionInstall = 0x2,
+        ActionCopyInstall = ActionCopy | ActionInstall,
+        ActionRun = 0x4,
+        ActionCopyRun = ActionCopy | ActionRun,
+        ActionInstallRun = ActionInstall | ActionRun,
+        ActionCopyInstallRun = ActionCopy | ActionInstall | ActionRun
+    };
+
+    Launcher(trk::Launcher::Actions startupActions = trk::Launcher::ActionPingOnly);
     ~Launcher();
+    void addStartupActions(trk::Launcher::Actions startupActions);
     void setTrkServerName(const QString &name);
     void setFileName(const QString &name);
     void setCopyFileName(const QString &srcName, const QString &dstName);
@@ -93,7 +105,6 @@ private:
 
     void copyFileToRemote();
     void installRemotePackageSilently(const QString &filename);
-    void installAndRun();
     void startInferiorIfNeeded();
 
     void logMessage(const QString &msg);
