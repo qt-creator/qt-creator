@@ -1423,8 +1423,13 @@ void ProjectExplorerPlugin::buildProjectOnly()
 static QStringList configurations(const QList<Project *> &projects)
 {
     QStringList result;
-    foreach (const Project * pro, projects)
-        result << pro->activeBuildConfiguration()->name();
+    foreach (const Project * pro, projects) {
+        if (BuildConfiguration *bc = pro->activeBuildConfiguration()) {
+            result << bc->name();
+        } else {
+            result << QString::null;
+        }
+    }
     return result;
 }
 
