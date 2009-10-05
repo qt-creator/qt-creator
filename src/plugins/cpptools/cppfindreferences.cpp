@@ -466,6 +466,12 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
     future.setProgressRange(0, files.size());
 
     for (int i = 0; i < files.size(); ++i) {
+        if (future.isPaused())
+            future.waitForResume();
+
+        if (future.isCanceled())
+            break;
+
         const QString &fileName = files.at(i);
         future.setProgressValueAndText(i, QFileInfo(fileName).fileName());
 

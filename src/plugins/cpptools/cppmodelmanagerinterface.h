@@ -81,6 +81,8 @@ public:
     CppModelManagerInterface(QObject *parent = 0) : QObject(parent) {}
     virtual ~CppModelManagerInterface() {}
 
+    static CppModelManagerInterface *instance();
+
     virtual void GC() = 0;
     virtual void updateSourceFiles(const QStringList &sourceFiles) = 0;
 
