@@ -633,9 +633,9 @@ void HelpPlugin::extensionsInitialized()
             hc.addCustomFilter(tr("Unfiltered"), QStringList());
             hc.setCustomValue(key, 1);
         }
-        m_helpEngine->blockSignals(true);
+        bool blocked = m_helpEngine->blockSignals(true);
         m_helpEngine->setCurrentFilter(tr("Unfiltered"));
-        m_helpEngine->blockSignals(false);
+        m_helpEngine->blockSignals(blocked);
         needsSetup = true;
     }
 

@@ -337,9 +337,9 @@ void PlainGdbAdapter::emitAdapterStartFailed(const QString &msg)
 {
     //  QMessageBox::critical(mainWindow(), tr("Debugger Startup Failure"),
     //    tr("Cannot start debugger: %1").arg(m_gdbAdapter->errorString()));
-    m_stubProc.blockSignals(true);
+    bool blocked = m_stubProc.blockSignals(true);
     m_stubProc.stop();
-    m_stubProc.blockSignals(false);
+    m_stubProc.blockSignals(blocked);
     emit adapterStartFailed(msg);
 }
 
