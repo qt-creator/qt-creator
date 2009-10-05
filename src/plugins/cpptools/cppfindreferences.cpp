@@ -493,7 +493,10 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
 
 void CppFindReferences::findAll(Symbol *symbol)
 {
-    _resultWindow->clearContents();
+    Find::SearchResult *search = _resultWindow->startNewSearch();
+    connect(search, SIGNAL(activated(Find::SearchResultItem)),
+            this, SLOT(openEditor(Find::SearchResultItem)));
+
     _resultWindow->setShowReplaceUI(true);
     _resultWindow->popup(true);
 
@@ -515,14 +518,11 @@ void CppFindReferences::findAll(Symbol *symbol)
 void CppFindReferences::displayResult(int index)
 {
     Core::Utils::FileSearchResult result = m_watcher.future().resultAt(index);
-    Find::ResultWindowItem *item = _resultWindow->addResult(result.fileName,
-                                                            result.lineNumber,
-                                                            result.matchingLine,
-                                                            result.matchStart,
-                                                            result.matchLength);
-    if (item)
-        connect(item, SIGNAL(activated(const QString&,int,int)),
-                this, SLOT(openEditor(const QString&,int,int)));
+    _resultWindow->addResult(result.fileName,
+                             result.lineNumber,
+                             result.matchingLine,
+                             result.matchStart,
+                             result.matchLength);
 }
 
 void CppFindReferences::searchFinished()
@@ -530,8 +530,8 @@ void CppFindReferences::searchFinished()
     emit changed();
 }
 
-void CppFindReferences::openEditor(const QString &fileName, int line, int column)
+void CppFindReferences::openEditor(const Find::SearchResultItem &item)
 {
-    TextEditor::BaseTextEditor::openEditorAt(fileName, line, column);
+    TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.searchTermStart);
 }
 

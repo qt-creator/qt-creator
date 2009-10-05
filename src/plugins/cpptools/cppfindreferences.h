@@ -39,6 +39,7 @@
 
 namespace Find {
     class SearchResultWindow;
+    struct SearchResultItem;
 } // end of namespace Find
 
 namespace CppTools {
@@ -67,7 +68,7 @@ public:
 private Q_SLOTS:
     void displayResult(int);
     void searchFinished();
-    void openEditor(const QString&, int, int);
+    void openEditor(const Find::SearchResultItem &item);
 
 private:
     QPointer<CppModelManager> _modelManager;
