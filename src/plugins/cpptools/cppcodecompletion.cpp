@@ -161,7 +161,7 @@ public:
         Symbol *previousSymbol = switchSymbol(symbol);
         accept(symbol->identity());
         if (_item)
-            _item.m_data = QVariant::fromValue(symbol);
+            _item.data = QVariant::fromValue(symbol);
         (void) switchSymbol(previousSymbol);
         return switchCompletionItem(previousItem);
     }
@@ -184,8 +184,8 @@ protected:
     TextEditor::CompletionItem newCompletionItem(Name *name)
     {
         TextEditor::CompletionItem item(_collector);
-        item.m_text = overview.prettyName(name);
-        item.m_icon = _collector->iconForSymbol(_symbol);
+        item.text = overview.prettyName(name);
+        item.icon = _collector->iconForSymbol(_symbol);
         return item;
     }
 
@@ -195,7 +195,7 @@ protected:
     virtual void visit(TemplateNameId *name)
     {
         _item = newCompletionItem(name);
-        _item.m_text = QLatin1String(name->identifier()->chars());
+        _item.text = QLatin1String(name->identifier()->chars());
     }
 
     virtual void visit(DestructorNameId *name)
@@ -474,8 +474,8 @@ int CppQuickFixCollector::startCompletion(TextEditor::ITextEditable *editor)
             int i = 0;
             foreach (QuickFixOperationPtr op, quickFixes) {
                 TextEditor::CompletionItem item(this);
-                item.m_text = op->description();
-                item.m_data = QVariant::fromValue(i);
+                item.text = op->description();
+                item.data = QVariant::fromValue(i);
                 _completions.append(item);
                 ++i;
             }
@@ -494,7 +494,7 @@ void CppQuickFixCollector::complete(const TextEditor::CompletionItem &item)
 {
     CppEditorSupport *extra = _modelManager->editorSupport(_editor);
     const QList<QuickFixOperationPtr> quickFixes = extra->quickFixes();
-    QuickFixOperationPtr quickFix = quickFixes.at(item.m_data.toInt());
+    QuickFixOperationPtr quickFix = quickFixes.at(item.data.toInt());
     TextEditor::BaseTextEditor *ed = qobject_cast<TextEditor::BaseTextEditor *>(_editor->widget());
     quickFix->apply(ed->textCursor());
 }
@@ -508,7 +508,7 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
     : ICompletionCollector(manager),
       m_manager(manager),
       m_caseSensitivity(Qt::CaseSensitive),
-      m_autoInsertBrackets(true),
+      awesome(true),
       m_forcedCompletion(false),
       m_completionOperator(T_EOF_SYMBOL)
 {
@@ -531,12 +531,12 @@ void CppCodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
 
 bool CppCodeCompletion::autoInsertBrackets() const
 {
-    return m_autoInsertBrackets;
+    return awesome;
 }
 
 void CppCodeCompletion::setAutoInsertBrackets(bool autoInsertBrackets)
 {
-    m_autoInsertBrackets = autoInsertBrackets;
+    awesome = autoInsertBrackets;
 }
 
 bool CppCodeCompletion::isPartialCompletionEnabled() const
@@ -757,8 +757,8 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (m_completionOperator == T_DOXY_COMMENT) {
         for (int i = 1; i < T_DOXY_LAST_TAG; ++i) {
             TextEditor::CompletionItem item(this);
-            item.m_text.append(QString::fromLatin1(doxygenTagSpell(i)));
-            item.m_icon = m_icons.keywordIcon();
+            item.text.append(QString::fromLatin1(doxygenTagSpell(i)));
+            item.icon = m_icons.keywordIcon();
             m_completions.append(item);
         }
 
@@ -1148,8 +1148,8 @@ void CppCodeCompletion::addKeywords()
     // keyword completion items.
     for (int i = T_FIRST_KEYWORD; i < T_FIRST_OBJC_AT_KEYWORD; ++i) {
         TextEditor::CompletionItem item(this);
-        item.m_text = QLatin1String(Token::name(i));
-        item.m_icon = m_icons.keywordIcon();
+        item.text = QLatin1String(Token::name(i));
+        item.icon = m_icons.keywordIcon();
         m_completions.append(item);
     }
 }
@@ -1164,8 +1164,8 @@ void CppCodeCompletion::addMacros(const LookupContext &context)
 
     foreach (const QString &macroName, definedMacros) {
         TextEditor::CompletionItem item(this);
-        item.m_text = macroName;
-        item.m_icon = m_icons.macroIcon();
+        item.text = macroName;
+        item.icon = m_icons.macroIcon();
         m_completions.append(item);
     }
 }
@@ -1235,9 +1235,9 @@ bool CppCodeCompletion::completeInclude(const QTextCursor &cursor)
             }
             foreach (const QString &itemText, m_manager->includesInPath(realPath)) {
                 TextEditor::CompletionItem item(this);
-                item.m_text += itemText;
+                item.text += itemText;
                 // TODO: Icon for include files
-                item.m_icon = m_icons.keywordIcon();
+                item.icon = m_icons.keywordIcon();
                 m_completions.append(item);
             }
         }
@@ -1252,9 +1252,9 @@ bool CppCodeCompletion::completeInclude(const QTextCursor &cursor)
             }
             foreach (const QString &itemText, m_manager->includesInPath(realPath)) {
                 TextEditor::CompletionItem item(this);
-                item.m_text += itemText;
+                item.text += itemText;
                 // TODO: Icon for include files
-                item.m_icon = m_icons.keywordIcon();
+                item.icon = m_icons.keywordIcon();
                 m_completions.append(item);
             }
         }
@@ -1389,7 +1389,7 @@ bool CppCodeCompletion::completeQtMethod(const QList<TypeOfExpression::Result> &
                         if (! signatures.contains(signature)) {
                             signatures.insert(signature);
 
-                            ci.m_text = signature; // fix the completion item.
+                            ci.text = signature; // fix the completion item.
                             m_completions.append(ci);
                         }
 
@@ -1446,9 +1446,9 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
             const QRegExp regExp(keyRegExp, m_caseSensitivity);
 
             foreach (TextEditor::CompletionItem item, m_completions) {
-                if (regExp.indexIn(item.m_text) == 0) {
-                    item.m_relevance = (key.length() > 0 &&
-                                         item.m_text.startsWith(key, Qt::CaseInsensitive)) ? 1 : 0;
+                if (regExp.indexIn(item.text) == 0) {
+                    item.relevance = (key.length() > 0 &&
+                                         item.text.startsWith(key, Qt::CaseInsensitive)) ? 1 : 0;
                     (*completions) << item;
                 }
             }
@@ -1456,7 +1456,7 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
                    m_completionOperator == T_SIGNAL ||
                    m_completionOperator == T_SLOT) {
             foreach (TextEditor::CompletionItem item, m_completions) {
-                if (item.m_text.startsWith(key, Qt::CaseInsensitive)) {
+                if (item.text.startsWith(key, Qt::CaseInsensitive)) {
                     (*completions) << item;
                 }
             }
@@ -1468,8 +1468,8 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
 {
     Symbol *symbol = 0;
 
-    if (item.m_data.isValid())
-        symbol = item.m_data.value<Symbol *>();
+    if (item.data.isValid())
+        symbol = item.data.value<Symbol *>();
 
     QString toInsert;
     QString extraChars;
@@ -1479,19 +1479,19 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
     bool autoParenthesesEnabled = true;
 
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
-        toInsert = item.m_text;
+        toInsert = item.text;
         extraChars += QLatin1Char(')');
     } else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL) {
-        toInsert = item.m_text;
+        toInsert = item.text;
         if (!toInsert.endsWith(QLatin1Char('/')))
             extraChars += QLatin1Char((m_completionOperator == T_ANGLE_STRING_LITERAL) ? '>' : '"');
     } else {
-        toInsert = item.m_text;
+        toInsert = item.text;
 
         //qDebug() << "current symbol:" << overview.prettyName(symbol->name())
         //<< overview.prettyType(symbol->type());
 
-        if (m_autoInsertBrackets && symbol && symbol->type()) {
+        if (awesome && symbol && symbol->type()) {
             if (Function *function = symbol->type()->asFunctionType()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.
@@ -1511,7 +1511,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                     bool endWithSemicolon = function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON;
 
                     // If the function takes no arguments, automatically place the closing parenthesis
-                    if (item.m_duplicateCount == 0 && ! function->hasArguments()) {
+                    if (item.duplicateCount == 0 && ! function->hasArguments()) {
                         extraChars += QLatin1Char(')');
                         if (endWithSemicolon)
                             extraChars += QLatin1Char(';');
@@ -1560,8 +1560,8 @@ bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
         return true;
     } else if (m_partialCompletionEnabled && m_completionOperator != T_LPAREN) {
         // Compute common prefix
-        QString firstKey = completionItems.first().m_text;
-        QString lastKey = completionItems.last().m_text;
+        QString firstKey = completionItems.first().text;
+        QString lastKey = completionItems.last().text;
         const int length = qMin(firstKey.length(), lastKey.length());
         firstKey.truncate(length);
         lastKey.truncate(length);
