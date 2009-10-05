@@ -2209,9 +2209,14 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         QTextBlock nextBlock = block.next();
         QTextBlock nextVisibleBlock = nextBlock;
 
-        if (!nextVisibleBlock.isVisible())
+        if (!nextVisibleBlock.isVisible()) {
             // invisible blocks do have zero line count
             nextVisibleBlock = doc->findBlockByLineNumber(nextVisibleBlock.firstLineNumber());
+            // paranoia in case our code somewhere did not set the line count
+            // of the invisible block to 0
+            while (nextVisibleBlock.isValid() && !nextVisibleBlock.isVisible())
+                nextVisibleBlock = nextVisibleBlock.next();
+        }
         if (block.isVisible() && bottom >= e->rect().top()) {
             if (d->m_displaySettings.m_visualizeWhitespace) {
                 QTextLayout *layout = block.layout();
@@ -2330,6 +2335,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
             blockHeight += r.height();
 
             b.setVisible(false); // restore previous state
+            b.setLineCount(0); // restore 0 line count for invisible block
             b = b.next();
         }
 
