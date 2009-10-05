@@ -289,13 +289,13 @@ void GdbEngine::initializeVariables()
 
     m_inbuffer.clear();
 
+    // ConverterState has no reset() function.
+    m_outputCodecState.~ConverterState();
+    new (&m_outputCodecState) QTextCodec::ConverterState();
+
     m_currentFunctionArgs.clear();
     m_currentFrame.clear();
     m_dumperHelper.clear();
-
-    // FIXME: unhandled:
-    //m_outputCodecState = QTextCodec::ConverterState();
-    //m_gdbAdapter;
 }
 
 QString GdbEngine::errorMessage(QProcess::ProcessError error)
