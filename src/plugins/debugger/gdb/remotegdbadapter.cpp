@@ -54,17 +54,7 @@ namespace Internal {
 RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
-    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
-        this, SIGNAL(readyReadStandardOutput()));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
-        this, SIGNAL(readyReadStandardError()));
-    connect(&m_gdbProc, SIGNAL(started()),
-        this, SLOT(handleGdbStarted()));
-    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
-        this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
+    commonInit();
 
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(uploadProcError(QProcess::ProcessError)));

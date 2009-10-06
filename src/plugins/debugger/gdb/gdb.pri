@@ -26,6 +26,7 @@ SOURCES += \
     $$PWD/trkoptions.cpp \
     $$PWD/trkoptionswidget.cpp \
     $$PWD/trkoptionspage.cpp \
+    $$PWD/abstractgdbadapter.cpp \
     $$PWD/attachgdbadapter.cpp \
     $$PWD/coregdbadapter.cpp \
     $$PWD/plaingdbadapter.cpp \

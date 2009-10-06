@@ -155,7 +155,6 @@ private:
 
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
 
-    QProcess m_gdbProc;
     QProcess m_rfcommProc;
     bool m_running;
 

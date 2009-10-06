@@ -52,11 +52,6 @@ class RemoteGdbAdapter : public AbstractGdbAdapter
 public:
     RemoteGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-private:
-    QByteArray readAllStandardError() { return m_gdbProc.readAllStandardError(); }
-    QByteArray readAllStandardOutput() { return m_gdbProc.readAllStandardOutput(); }
-    void write(const QByteArray &data) { m_gdbProc.write(data, data.size()); }
-    bool isTrkAdapter() const { return false; }
     bool dumpersAvailable() const { return true; }
 
     void startAdapter();
@@ -65,6 +60,7 @@ private:
     void interruptInferior();
     void shutdown();
 
+private:
     Q_SLOT void readUploadStandardOutput();
     Q_SLOT void readUploadStandardError();
     Q_SLOT void uploadProcError(QProcess::ProcessError error);
@@ -79,7 +75,6 @@ private:
     Q_SLOT void handleGdbError(QProcess::ProcessError error);
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
 
-    QProcess m_gdbProc;
     QProcess m_uploadProc;
 };
 

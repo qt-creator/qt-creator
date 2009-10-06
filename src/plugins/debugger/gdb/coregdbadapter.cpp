@@ -53,17 +53,7 @@ namespace Internal {
 CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
-    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
-        this, SIGNAL(readyReadStandardOutput()));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
-        this, SIGNAL(readyReadStandardError()));
-    connect(&m_gdbProc, SIGNAL(started()),
-        this, SLOT(handleGdbStarted()));
-    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
-        this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
+    commonInit();
 }
 
 void CoreGdbAdapter::startAdapter()

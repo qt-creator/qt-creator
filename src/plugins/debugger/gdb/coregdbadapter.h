@@ -52,11 +52,6 @@ class CoreGdbAdapter : public AbstractGdbAdapter
 public:
     CoreGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-private:
-    QByteArray readAllStandardError() { return m_gdbProc.readAllStandardError(); }
-    QByteArray readAllStandardOutput() { return m_gdbProc.readAllStandardOutput(); }
-    void write(const QByteArray &data) { m_gdbProc.write(data, data.size()); }
-    bool isTrkAdapter() const { return false; }
     bool dumpersAvailable() const { return false; }
 
     void startAdapter();
@@ -65,6 +60,7 @@ private:
     void interruptInferior();
     void shutdown();
 
+private:
     void handleTargetCore1(const GdbResponse &response);
     void handleDetach1(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
@@ -75,7 +71,6 @@ private:
     Q_SLOT void handleGdbError(QProcess::ProcessError error);
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
 
-    QProcess m_gdbProc;
     QString m_executable;
 };
 

@@ -27,61 +27,61 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_PLAINGDBADAPTER_H
-#define DEBUGGER_PLAINGDBADAPTER_H
-
 #include "abstractgdbadapter.h"
-#include "gdbengine.h"
-#include "outputcollector.h"
 
-#include <consoleprocess.h>
+#include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
+#include <QtCore/QObject>
 #include <QtCore/QProcess>
 
 namespace Debugger {
 namespace Internal {
 
-///////////////////////////////////////////////////////////////////////
-//
-// PlainGdbAdapter
-//
-///////////////////////////////////////////////////////////////////////
-
-class PlainGdbAdapter : public AbstractGdbAdapter
+AbstractGdbAdapter::AbstractGdbAdapter(GdbEngine *engine, QObject *parent)
+        : QObject(parent), m_engine(engine)
 {
-    Q_OBJECT
+}
 
-public:
-    PlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+AbstractGdbAdapter::~AbstractGdbAdapter()
+{
+    disconnect();
+}
 
-    bool dumpersAvailable() const { return true; }
+// This cannot be in the c'tor, as it would not connect the "virtual" slots
+void AbstractGdbAdapter::commonInit()
+{
+    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
+    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
+        this, SLOT(handleGdbError(QProcess::ProcessError)));
+    connect(&m_gdbProc, SIGNAL(started()),
+        this, SLOT(handleGdbStarted()));
+    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
+        this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
+    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
+        this, SIGNAL(readyReadStandardOutput()));
+    connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
+        this, SIGNAL(readyReadStandardError()));
+}
 
-    void startAdapter();
-    void prepareInferior();
-    void startInferior();
-    void interruptInferior();
-    void shutdown();
+QByteArray AbstractGdbAdapter::readAllStandardOutput()
+{
+    return m_gdbProc.readAllStandardOutput();
+}
 
-private:
-    void handleFileExecAndSymbols(const GdbResponse &response);
-    void handleKill(const GdbResponse &response);
-    void handleExit(const GdbResponse &response);
-    void handleStubAttached(const GdbResponse &response);
-    void handleExecRun(const GdbResponse &response);
+QByteArray AbstractGdbAdapter::readAllStandardError()
+{
+    return m_gdbProc.readAllStandardError();
+}
 
-    void emitAdapterStartFailed(const QString &msg);
-    Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus status);
-    Q_SLOT void handleGdbError(QProcess::ProcessError error);
-    Q_SLOT void handleGdbStarted();
-    Q_SLOT void stubStarted();
-    Q_SLOT void stubError(const QString &msg);
+void AbstractGdbAdapter::write(const QByteArray &data)
+{
+    m_gdbProc.write(data);
+}
 
-    Utils::ConsoleProcess m_stubProc;
-    OutputCollector m_outputCollector;
-};
+bool AbstractGdbAdapter::isTrkAdapter() const
+{
+    return false;
+}
 
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_PLAINGDBADAPTER_H

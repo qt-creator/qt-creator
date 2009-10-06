@@ -203,16 +203,8 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     const uid_t portOffset = getuid();
 #endif
     m_gdbServerName = _("127.0.0.1:%1").arg(2222 + portOffset);
-    connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
-        this, SIGNAL(readyReadStandardError()));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
-        this, SIGNAL(readyReadStandardOutput()));
-    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
-        this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
-    connect(&m_gdbProc, SIGNAL(started()),
-        this, SLOT(handleGdbStarted()));
+
+    commonInit();
     connect(&m_gdbProc, SIGNAL(stateChanged(QProcess::ProcessState)),
         this, SLOT(handleGdbStateChanged(QProcess::ProcessState)));
 
@@ -1830,16 +1822,6 @@ void TrkGdbAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
 // AbstractGdbAdapter interface implementation
 //
 
-QByteArray TrkGdbAdapter::readAllStandardError()
-{
-    return m_gdbProc.readAllStandardError();
-}
-
-QByteArray TrkGdbAdapter::readAllStandardOutput()
-{
-    return m_gdbProc.readAllStandardOutput();
-}
-
 void TrkGdbAdapter::write(const QByteArray &data)
 {
     // Write magic packets directly to TRK.
@@ -1870,7 +1852,7 @@ void TrkGdbAdapter::write(const QByteArray &data)
            trkReadMemoryMessage(m_session.dataseg, 12));
         return;
     }
-    m_gdbProc.write(data, data.size());
+    m_gdbProc.write(data);
 }
 
 uint oldPC;
