@@ -164,8 +164,6 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
         if (isCompleteStringLiteral(tk, index - 1))
             return QLatin1String("\"");
 
-        qDebug() << "*** here";
-
         return QString();
     } else if (text.at(0) == QLatin1Char('\'') && (token.is(T_CHAR_LITERAL) || token.is(T_WIDE_CHAR_LITERAL))) {
         if (text.length() != 1)
