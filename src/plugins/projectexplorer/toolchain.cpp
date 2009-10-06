@@ -518,10 +518,10 @@ void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 
     path += "/";
 
-//        qDebug()<<"MSVC path"<<msvcPath;
+//        qDebug()<<"MSVC path"<<path;
 //        qDebug()<<"looking for platform name in"<< path() + "/mkspecs/" + mkspec() +"/qmake.conf";
     // Find Platform name
-//        qDebug()<<"Platform Name"<<platformName;
+//        qDebug()<<"Platform Name"<<m_platform;
 
     CeSdkHandler cesdkhandler;
     cesdkhandler.parse(path);
