@@ -624,7 +624,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
         emit finished();
         return;
     }
-    m_launcher = new trk::Launcher(trk::Launcher::ActionCopyInstallRun);
+    m_launcher = new trk::Launcher();
     connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
     connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
     connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
@@ -723,6 +723,7 @@ void S60DeviceRunControl::initLauncher(const QString &executable, trk::Launcher 
      connect(launcher, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
      connect(launcher, SIGNAL(canNotRun(QString)), this, SLOT(printRunFailNotice(QString)));
      connect(launcher, SIGNAL(applicationOutputReceived(QString)), this, SLOT(printApplicationOutput(QString)));
+     launcher->addStartupActions(trk::Launcher::ActionCopyInstallRun);
      launcher->setFileName(executable);
 }
 
@@ -780,7 +781,7 @@ S60DeviceDebugRunControl::~S60DeviceDebugRunControl()
 {
 }
 
-void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Launcher *)
+void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Launcher *launcher)
 {
     // No setting an executable on the launcher causes it to deploy only
     m_startParams->executable = executable;
@@ -796,6 +797,7 @@ void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Laun
             emit addToOutputWindow(this, tr("Warning: Cannot locate the symbol file belonging to %1.").arg(localExecutableFileName));
         }
     }
+    launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
 }
 
 void S60DeviceDebugRunControl::handleLauncherFinished()
