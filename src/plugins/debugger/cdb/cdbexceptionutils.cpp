@@ -41,7 +41,11 @@ enum { debugExc = 0 };
 // Special exception codes.
 enum { cppExceptionCode = 0xe06d7363, startupCompleteTrap = 0x406d1388,
        rpcServerUnavailableExceptionCode = 0x6ba,
-       dllNotFoundExceptionCode = 0xc0000135 };
+       dllNotFoundExceptionCode = 0xc0000135,
+       dllInitFailed = 0xc0000142,
+       missingSystemFile = 0xc0000143,
+       appInitFailed = 0xc0000143
+   };
 
 namespace Debugger {
 namespace Internal {
@@ -171,6 +175,12 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
         break;
     case dllNotFoundExceptionCode:
         str << "DLL not found";
+        break;
+    case dllInitFailed:
+        str << "DLL failed to initialize";
+        break;
+    case missingSystemFile:
+        str << "System file is missing";
         break;
     case EXCEPTION_ACCESS_VIOLATION: {
             const bool writeOperation = e->ExceptionInformation[0];

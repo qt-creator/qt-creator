@@ -55,7 +55,17 @@ struct CdbComInterfaces;
  * dumpType() is the main query function to obtain a list  of WatchData from
  * WatchData item produced by the smbol context.
  * Call disable(), should the debuggee crash (as performing debuggee
- * calls is no longer possible, then).*/
+ * calls is no longer possible, then).
+ *
+ * dumperCallThread specifies the thread to use when making the calls.
+ * As of Debugging Tools v 6.11.1.404 (6.10.2009), calls cannot be executed
+ * when the current thread is in some WaitFor...() function. The call will
+ * then hang (regardless whether that thread or some other, non-blocking thread
+ * is used), and the debuggee will be in running state afterwards (causing errors
+ * from ReadVirtual, etc).
+ * The current thread can be used when stepping or a breakpoint was
+ * hit. When interrupting the inferior, an artifical thread is created,
+ * that is not usable, either. */
 
 class CdbDumperHelper
 {
@@ -93,6 +103,10 @@ public:
 
     inline CdbComInterfaces *comInterfaces() const { return m_cif; }
 
+    enum { InvalidDumperCallThread = 0xFFFFFFFF };
+    unsigned long dumperCallThread();
+    void setDumperCallThread(unsigned long t);
+
 private:
     enum CallLoadResult { CallLoadOk, CallLoadError, CallLoadNoQtApp, CallLoadAlreadyLoaded };
 
@@ -102,6 +116,9 @@ private:
     CallLoadResult initCallLoad(QString *errorMessage);
     bool initResolveSymbols(QString *errorMessage);
     bool initKnownTypes(QString *errorMessage);
+
+    inline DumpResult dumpTypeI(const WatchData &d, bool dumpChildren,
+                                QList<WatchData> *result, QString *errorMessage);
 
     bool getTypeSize(const QString &typeName, int *size, QString *errorMessage);
     bool runTypeSizeQuery(const QString &typeName, int *size, QString *errorMessage);
@@ -134,6 +151,8 @@ private:
     QStringList m_failedTypes;
 
     QtDumperHelper m_helper;
+    unsigned long m_dumperCallThread;
+    QString m_goCommand;
 };
 
 } // namespace Internal

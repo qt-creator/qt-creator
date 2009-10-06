@@ -156,6 +156,7 @@ struct CdbDebugEnginePrivate
     const QSharedPointer<CdbOptions>  m_options;
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
+    bool                    m_interrupted;
     int                     m_currentThreadId;
     int                     m_eventThreadId;
     HandleBreakEventMode    m_breakEventMode;
