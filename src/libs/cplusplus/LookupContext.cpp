@@ -504,10 +504,29 @@ void LookupContext::expand(Scope *scope,
 Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
 {
     Symbol *canonical = symbol;
+    Class *canonicalClass = 0;
 
     for (; symbol; symbol = symbol->next()) {
-        if (symbol->name() == canonical->name())
+        if (symbol->identifier() == canonical->identifier()) {
             canonical = symbol;
+
+            if (Class *klass = symbol->asClass())
+                canonicalClass = klass;
+        }
+    }
+
+    if (canonicalClass) {
+        Q_ASSERT(canonical != 0);
+
+        if (canonical->isForwardClassDeclaration())
+            return canonicalClass; // prefer class declarations when available.
+    }
+
+    if (canonical && canonical->scope()->isClassScope()) {
+        Class *enclosingClass = canonical->scope()->owner()->asClass();
+
+        if (enclosingClass->identifier() == canonical->identifier())
+            return enclosingClass;
     }
 
     return canonical;

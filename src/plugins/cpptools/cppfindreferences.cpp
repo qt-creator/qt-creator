@@ -303,14 +303,22 @@ protected:
             }
         }
 
-        if (ast->unqualified_name) {
-            SimpleNameAST *simple_name = ast->unqualified_name->asSimpleName();
+        if (NameAST *unqualified_name = ast->unqualified_name) {
+            unsigned identifier_token = 0;
+
+            if (SimpleNameAST *simple_name = unqualified_name->asSimpleName())
+                identifier_token = simple_name->identifier_token;
+
+            else if (DestructorNameAST *dtor_name = unqualified_name->asDestructorName())
+                identifier_token = dtor_name->identifier_token;
 
             TemplateIdAST *template_id = 0;
-            if (! simple_name) {
-                template_id = ast->unqualified_name->asTemplateId();
+            if (! identifier_token) {
+                template_id = unqualified_name->asTemplateId();
 
                 if (template_id) {
+                    identifier_token = template_id->identifier_token;
+
                     for (TemplateArgumentListAST *template_arguments = template_id->template_arguments;
                          template_arguments; template_arguments = template_arguments->next) {
                         accept(template_arguments->template_argument);
@@ -318,14 +326,8 @@ protected:
                 }
             }
 
-            if (simple_name || template_id) {
-                const unsigned identifier_token = simple_name
-                        ? simple_name->identifier_token
-                        : template_id->identifier_token;
-
-                if (identifier(identifier_token) == _id)
-                    checkExpression(ast->firstToken(), identifier_token);
-            }
+            if (identifier_token && identifier(identifier_token) == _id)
+                checkExpression(ast->firstToken(), identifier_token);
         }
 
         return false;
