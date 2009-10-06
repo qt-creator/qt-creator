@@ -149,6 +149,9 @@ void CoreGdbAdapter::handleTargetCore1(const GdbResponse &response)
             emit inferiorStartFailed(tr("No binary found."));
         } else {
             m_executable = console.data().mid(pos1 + 1, pos2 - pos1 - 1);
+            // Strip off command line arguments. FIXME: make robust.
+            if (m_executable.contains(' '))
+                m_executable = m_executable.section(' ', 0, 0);
             QTC_ASSERT(!m_executable.isEmpty(), /**/);
             // Finish extra round.
             m_engine->postCommand(_("detach"), CB(handleDetach1));

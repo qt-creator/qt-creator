@@ -2368,7 +2368,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
 void GdbEngine::activateFrame(int frameIndex)
 {
     m_manager->resetLocation();
-    if (state() != InferiorStopped)
+    if (state() != InferiorStopped && state() != InferiorUnrunnable)
         return;
 
     StackHandler *stackHandler = manager()->stackHandler();
