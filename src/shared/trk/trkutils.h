@@ -78,8 +78,6 @@ uint extractInt(const char *data);
 
 QString quoteUnprintableLatin1(const QByteArray &ba);
 
-// produces "xx "
-QString stringFromByte(byte c);
 // produces "xx xx xx "
 QString stringFromArray(const QByteArray &ba, int maxLen = - 1);
 
