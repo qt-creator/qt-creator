@@ -45,7 +45,7 @@ BaseCheckoutWizardPage::BaseCheckoutWizardPage(QWidget *parent) :
     d(new BaseCheckoutWizardPagePrivate)
 {
     d->ui.setupUi(this);
-    d->ui.pathChooser->setExpectedKind(Core::Utils::PathChooser::Directory);
+    d->ui.pathChooser->setExpectedKind(Utils::PathChooser::Directory);
     connect(d->ui.pathChooser, SIGNAL(validChanged()), this, SLOT(slotChanged()));
     connect(d->ui.checkoutDirectoryLineEdit, SIGNAL(validChanged()),
             this, SLOT(slotChanged()));

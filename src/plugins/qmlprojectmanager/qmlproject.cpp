@@ -338,7 +338,7 @@ QmlRunConfiguration::QmlRunConfiguration(QmlProject *pro)
 {
     setName(tr("QML Viewer"));
 
-    m_qmlViewer = Core::Utils::SynchronousProcess::locateBinary(QLatin1String("qmlviewer"));
+    m_qmlViewer = Utils::SynchronousProcess::locateBinary(QLatin1String("qmlviewer"));
 }
 
 QmlRunConfiguration::~QmlRunConfiguration()
@@ -428,8 +428,8 @@ QWidget *QmlRunConfiguration::configurationWidget()
 
     connect(combo, SIGNAL(activated(QString)), this, SLOT(setMainScript(QString)));
 
-    Core::Utils::PathChooser *qmlViewer = new Core::Utils::PathChooser;
-    qmlViewer->setExpectedKind(Core::Utils::PathChooser::Command);
+    Utils::PathChooser *qmlViewer = new Utils::PathChooser;
+    qmlViewer->setExpectedKind(Utils::PathChooser::Command);
     qmlViewer->setPath(executable());
     connect(qmlViewer, SIGNAL(changed(QString)), this, SLOT(onQmlViewerChanged()));
 
@@ -463,7 +463,7 @@ void QmlRunConfiguration::setMainScript(const QString &scriptFile)
 
 void QmlRunConfiguration::onQmlViewerChanged()
 {
-    if (Core::Utils::PathChooser *chooser = qobject_cast<Core::Utils::PathChooser *>(sender())) {
+    if (Utils::PathChooser *chooser = qobject_cast<Utils::PathChooser *>(sender())) {
         m_qmlViewer = chooser->path();
     }
 }
@@ -492,7 +492,7 @@ void QmlRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReade
     m_scriptFile = reader.restoreValue(QLatin1String("mainscript")).toString();
 
     if (m_qmlViewer.isEmpty())
-        m_qmlViewer = Core::Utils::SynchronousProcess::locateBinary(QLatin1String("qmlviewer"));
+        m_qmlViewer = Utils::SynchronousProcess::locateBinary(QLatin1String("qmlviewer"));
 
     if (m_scriptFile.isEmpty())
         m_scriptFile = tr("<Current File>");

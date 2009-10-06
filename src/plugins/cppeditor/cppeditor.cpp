@@ -862,7 +862,21 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
     return canonicalSymbol;
 }
 
-void CPPEditor::findReferences()
+
+void CPPEditor::findUsages()
+{
+    updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
+
+    SemanticInfo info = m_lastSemanticInfo;
+
+    if (! info.doc)
+        return;
+
+    if (Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot))
+        m_modelManager->findUsages(canonicalSymbol);
+}
+
+void CPPEditor::renameUsages()
 {
     m_currentRenameSelection = -1;
 
@@ -896,7 +910,7 @@ void CPPEditor::findReferences()
 
             setExtraSelections(CodeSemanticsSelection, selections);
 
-            m_modelManager->findReferences(canonicalSymbol);
+            m_modelManager->renameUsages(canonicalSymbol);
         }
     }
 }
@@ -908,7 +922,6 @@ void CPPEditor::renameSymbolUnderCursor()
     QTextCursor c = textCursor();
     m_currentRenameSelection = -1;
 
-    m_renameSelections = extraSelections(CodeSemanticsSelection);
     for (int i = 0; i < m_renameSelections.size(); ++i) {
         QTextEdit::ExtraSelection s = m_renameSelections.at(i);
         if (c.position() >= s.cursor.anchor()
@@ -921,7 +934,7 @@ void CPPEditor::renameSymbolUnderCursor()
     }
 
     if (m_renameSelections.isEmpty())
-        findReferences();
+        renameUsages();
 }
 
 void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded)
@@ -980,10 +993,9 @@ void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
                               QList<QTextEdit::ExtraSelection> *selections)
 {
     bool isUnused = false;
-    if (uses.size() == 1) {
+
+    if (uses.size() == 1)
         isUnused = true;
-        return; // ###
-    }
 
     foreach (const SemanticInfo::Use &use, uses) {
         QTextEdit::ExtraSelection sel;
@@ -1882,13 +1894,12 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
     m_occurrencesFormat.clearForeground();
-    m_occurrencesUnusedFormat.clearForeground();
     m_occurrenceRenameFormat.clearForeground();
 }
 
 void CPPEditor::unCommentSelection()
 {
-    Core::Utils::unCommentSelection(this);
+    Utils::unCommentSelection(this);
 }
 
 CPPEditor::Link CPPEditor::linkToSymbol(CPlusPlus::Symbol *symbol)
@@ -1944,7 +1955,9 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
 
-    QList<QTextEdit::ExtraSelection> selections;
+    QList<QTextEdit::ExtraSelection> allSelections;
+
+    m_renameSelections.clear();
 
     SemanticInfo::LocalUseIterator it(semanticInfo.localUses);
     while (it.hasNext()) {
@@ -1961,11 +1974,18 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
             }
         }
 
-        if (uses.size() == 1 || good)
+        if (uses.size() == 1) {
+            // it's an unused declaration
+            highlightUses(uses, &allSelections);
+        } else if (good) {
+            QList<QTextEdit::ExtraSelection> selections;
             highlightUses(uses, &selections);
+            m_renameSelections += selections;
+            allSelections += selections;
+        }
     }
 
-    setExtraSelections(CodeSemanticsSelection, selections);
+    setExtraSelections(CodeSemanticsSelection, allSelections);
 }
 
 SemanticHighlighter::Source CPPEditor::currentSource()

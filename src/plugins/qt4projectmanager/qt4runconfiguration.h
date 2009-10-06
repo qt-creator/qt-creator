@@ -174,7 +174,7 @@ private:
     Qt4RunConfiguration *m_qt4RunConfiguration;
     bool m_ignoreChange;
     QLabel *m_executableLabel;
-    Core::Utils::PathChooser *m_workingDirectoryEdit;
+    Utils::PathChooser *m_workingDirectoryEdit;
     QLineEdit *m_nameLineEdit;
     QLineEdit *m_argumentsLineEdit;
     QCheckBox *m_useTerminalCheck;

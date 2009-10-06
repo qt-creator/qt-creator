@@ -38,7 +38,6 @@ QT_BEGIN_NAMESPACE
 class QStringList;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 
 struct NewClassWidgetPrivate;
@@ -157,6 +156,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // NEWCLASSWIDGET_H

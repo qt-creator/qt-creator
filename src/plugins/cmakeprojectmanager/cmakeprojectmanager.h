@@ -107,7 +107,7 @@ private:
     QString findCmakeExecutable() const;
     void updateInfo();
 
-    Core::Utils::PathChooser *m_pathchooser;
+    Utils::PathChooser *m_pathchooser;
     QString m_cmakeExecutable;
     enum STATE { VALID, INVALID, RUNNING } m_state;
     QProcess *m_process;

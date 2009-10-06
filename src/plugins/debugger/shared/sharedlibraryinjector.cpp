@@ -66,7 +66,7 @@ enum { debug = 0 };
 
 static QString msgFuncFailed(const char *f, unsigned long error)
 {
-    return QString::fromLatin1("%1 failed: %2").arg(QLatin1String(f), Core::Utils::winErrorMessage(error));
+    return QString::fromLatin1("%1 failed: %2").arg(QLatin1String(f), Utils::winErrorMessage(error));
 }
 
 // Resolve a symbol from a library handle

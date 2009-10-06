@@ -91,7 +91,6 @@ public:
 
 private:
     DisassemblerViewAgentPrivate *d;
-    DebuggerManager *m_manager;
 };
 
 

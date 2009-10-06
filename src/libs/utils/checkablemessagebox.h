@@ -7,7 +7,6 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QDialog>
 
-namespace Core {
 namespace Utils {
 
 struct CheckableMessageBoxPrivate;
@@ -72,6 +71,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // CHECKABLEMESSAGEBOX_H

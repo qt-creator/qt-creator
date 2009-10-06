@@ -42,7 +42,6 @@ class QDebug;
 class QByteArray;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 
 struct SynchronousProcessPrivate;
@@ -146,6 +145,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif

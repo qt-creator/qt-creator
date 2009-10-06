@@ -38,9 +38,9 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
-    m_ui.gdbLocationChooser->setExpectedKind(Core::Utils::PathChooser::Command);
+    m_ui.gdbLocationChooser->setExpectedKind(Utils::PathChooser::Command);
     m_ui.gdbLocationChooser->setPromptDialogTitle(tr("Choose Gdb Location"));
-    m_ui.scriptFileChooser->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui.scriptFileChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui.scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
 
     m_group.clear();

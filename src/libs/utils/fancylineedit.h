@@ -34,7 +34,6 @@
 
 #include <QtGui/QLineEdit>
 
-namespace Core {
 namespace Utils {
 
 class FancyLineEditPrivate;
@@ -107,6 +106,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // FANCYLINEEDIT_H

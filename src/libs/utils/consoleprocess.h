@@ -51,7 +51,6 @@ class QSettings;
 class QTemporaryFile;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT ConsoleProcess : public QObject, public AbstractProcess
@@ -138,6 +137,5 @@ private:
 };
 
 } //namespace Utils
-} //namespace Core
 
 #endif

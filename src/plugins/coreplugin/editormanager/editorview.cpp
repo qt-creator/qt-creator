@@ -137,7 +137,7 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
         toplayout->addWidget(m_lockButton);
         toplayout->addWidget(m_closeButton);
 
-        Core::Utils::StyledBar *top = new Core::Utils::StyledBar;
+        Utils::StyledBar *top = new Utils::StyledBar;
         top->setLayout(toplayout);
         tl->addWidget(top);
 

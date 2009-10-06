@@ -34,7 +34,6 @@
 
 #include <QtGui/QWizardPage>
 
-namespace Core {
 namespace Utils {
 
 struct ProjectIntroPagePrivate;
@@ -101,6 +100,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // PROJECTINTROPAGE_H

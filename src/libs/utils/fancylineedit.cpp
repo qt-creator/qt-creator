@@ -39,7 +39,6 @@
 
 enum { margin = 6 };
 
-namespace Core {
 namespace Utils {
 
 static inline QString sideToStyleSheetString(FancyLineEdit::Side side)
@@ -311,4 +310,3 @@ QString FancyLineEdit::typedText() const
 }
 
 } // namespace Utils
-} // namespace Core

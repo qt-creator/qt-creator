@@ -212,6 +212,12 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     contextMenu->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
+    QAction *findUsagesAction = new QAction(tr("Find Usages"), this);
+    cmd = am->registerAction(findUsagesAction, Constants::FIND_USAGES, context);
+    connect(findUsagesAction, SIGNAL(triggered()), this, SLOT(findUsages()));
+    contextMenu->addAction(cmd);
+    am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
+
     QAction *renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol under Cursor"), this);
     cmd = am->registerAction(renameSymbolUnderCursorAction,
         Constants::RENAME_SYMBOL_UNDER_CURSOR, context);
@@ -284,6 +290,14 @@ void CppPlugin::renameSymbolUnderCursor()
     CPPEditor *editor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
     if (editor)
         editor->renameSymbolUnderCursor();
+}
+
+void CppPlugin::findUsages()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    CPPEditor *editor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
+    if (editor)
+        editor->findUsages();
 }
 
 Q_EXPORT_PLUGIN(CppPlugin)

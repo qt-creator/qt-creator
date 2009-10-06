@@ -287,7 +287,7 @@ void ManhattanStyle::unpolish(QApplication *app)
 
 QPalette panelPalette(const QPalette &oldPalette)
 {
-    QColor color = StyleHelper::panelTextColor();
+    QColor color = Utils::StyleHelper::panelTextColor();
     QPalette pal = oldPalette;
     pal.setBrush(QPalette::All, QPalette::WindowText, color);
     pal.setBrush(QPalette::All, QPalette::ButtonText, color);
@@ -312,20 +312,20 @@ void ManhattanStyle::polish(QWidget *widget)
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
         if (qobject_cast<QToolButton*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
-            widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
+            widget->setMaximumHeight(Utils::StyleHelper::navigationWidgetHeight() - 2);
         }
         else if (qobject_cast<QLineEdit*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
-            widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
+            widget->setMaximumHeight(Utils::StyleHelper::navigationWidgetHeight() - 2);
         }
         else if (qobject_cast<QLabel*>(widget))
             widget->setPalette(panelPalette(widget->palette()));
         else if (qobject_cast<QToolBar*>(widget) || widget->property("panelwidget_singlerow").toBool())
-            widget->setFixedHeight(StyleHelper::navigationWidgetHeight());
+            widget->setFixedHeight(Utils::StyleHelper::navigationWidgetHeight());
         else if (qobject_cast<QStatusBar*>(widget))
-            widget->setFixedHeight(StyleHelper::navigationWidgetHeight() + 2);
+            widget->setFixedHeight(Utils::StyleHelper::navigationWidgetHeight() + 2);
         else if (qobject_cast<QComboBox*>(widget)) {
-            widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
+            widget->setMaximumHeight(Utils::StyleHelper::navigationWidgetHeight() - 2);
             widget->setAttribute(Qt::WA_Hover);
         }
     }
@@ -486,7 +486,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 drawCornerImage(d->lineeditImage_disabled, painter, option->rect, 2, 2, 2, 2);
 
             if (option->state & State_HasFocus || option->state & State_MouseOver) {
-                QColor hover = StyleHelper::baseColor();
+                QColor hover = Utils::StyleHelper::baseColor();
                 if (state & State_HasFocus)
                     hover.setAlpha(100);
                 else
@@ -533,15 +533,15 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
         {
             painter->save();
             QLinearGradient grad(option->rect.topLeft(), QPoint(rect.center().x(), rect.bottom()));
-            QColor startColor = StyleHelper::shadowColor().darker(164);
-            QColor endColor = StyleHelper::baseColor().darker(130);
+            QColor startColor = Utils::StyleHelper::shadowColor().darker(164);
+            QColor endColor = Utils::StyleHelper::baseColor().darker(130);
             grad.setColorAt(0, startColor);
             grad.setColorAt(1, endColor);
             painter->fillRect(option->rect, grad);
             painter->setPen(QColor(255, 255, 255, 60));
             painter->drawLine(rect.topLeft() + QPoint(0,1),
                               rect.topRight()+ QPoint(0,1));
-            painter->setPen(StyleHelper::borderColor().darker(110));
+            painter->setPen(Utils::StyleHelper::borderColor().darker(110));
             painter->drawLine(rect.topLeft(), rect.topRight());
             painter->restore();
         }
@@ -549,7 +549,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 
     case PE_IndicatorToolBarSeparator:
         {
-            QColor separatorColor = StyleHelper::borderColor();
+            QColor separatorColor = Utils::StyleHelper::borderColor();
             separatorColor.setAlpha(100);
             painter->setPen(separatorColor);
             const int margin = 6;
@@ -593,10 +593,10 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             }
 
             painter->setPen(Qt::NoPen);
-            QColor dark = StyleHelper::borderColor();
+            QColor dark = Utils::StyleHelper::borderColor();
             dark.setAlphaF(0.4);
 
-            QColor light = StyleHelper::baseColor();
+            QColor light = Utils::StyleHelper::baseColor();
             light.setAlphaF(0.4);
 
             painter->fillPath(path, light);
@@ -709,10 +709,10 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
     case CE_MenuBarItem:
         painter->save();
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
-            QColor highlightOutline = StyleHelper::borderColor().lighter(120);
+            QColor highlightOutline = Utils::StyleHelper::borderColor().lighter(120);
             bool act = mbi->state & State_Selected && mbi->state & State_Sunken;
             bool dis = !(mbi->state & State_Enabled);
-            StyleHelper::menuGradient(painter, option->rect, option->rect);
+            Utils::StyleHelper::menuGradient(painter, option->rect, option->rect);
             QStyleOptionMenuItem item = *mbi;
             item.rect = mbi->rect;
             QPalette pal = mbi->palette;
@@ -723,7 +723,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
             if (act) {
                 // Fill|
-                QColor baseColor = StyleHelper::baseColor();
+                QColor baseColor = Utils::StyleHelper::baseColor();
                 QLinearGradient grad(option->rect.topLeft(), option->rect.bottomLeft());
                 grad.setColorAt(0, baseColor.lighter(120));
                 grad.setColorAt(1, baseColor.lighter(130));
@@ -786,7 +786,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 drawItemText(painter, editRect.translated(0, 1),
                              visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
                              customPal, cb->state & State_Enabled, text, QPalette::ButtonText);
-                customPal.setBrush(QPalette::All, QPalette::ButtonText, StyleHelper::panelTextColor());
+                customPal.setBrush(QPalette::All, QPalette::ButtonText, Utils::StyleHelper::panelTextColor());
                 drawItemText(painter, editRect,
                              visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
                              customPal, cb->state & State_Enabled, text, QPalette::ButtonText);
@@ -830,9 +830,9 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         break;
 
     case CE_MenuBarEmptyArea: {
-            StyleHelper::menuGradient(painter, option->rect, option->rect);
+            Utils::StyleHelper::menuGradient(painter, option->rect, option->rect);
             painter->save();
-            painter->setPen(StyleHelper::borderColor());
+            painter->setPen(Utils::StyleHelper::borderColor());
             painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
             painter->restore();
         }
@@ -841,12 +841,12 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
     case CE_ToolBar:
         {
             QString key;
-            key.sprintf("mh_toolbar %d %d %d", option->rect.width(), option->rect.height(), StyleHelper::baseColor().rgb());;
+            key.sprintf("mh_toolbar %d %d %d", option->rect.width(), option->rect.height(), Utils::StyleHelper::baseColor().rgb());;
 
             QPixmap pixmap;
             QPainter *p = painter;
             QRect rect = option->rect;
-            if (StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
+            if (Utils::StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
                 pixmap = QPixmap(option->rect.size());
                 p = new QPainter(&pixmap);
                 rect = QRect(0, 0, option->rect.width(), option->rect.height());
@@ -861,11 +861,11 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 gradientSpan = QRect(offset, widget->window()->size());
             }
             if (horizontal)
-                StyleHelper::horizontalGradient(p, gradientSpan, rect);
+                Utils::StyleHelper::horizontalGradient(p, gradientSpan, rect);
             else
-                StyleHelper::verticalGradient(p, gradientSpan, rect);
+                Utils::StyleHelper::verticalGradient(p, gradientSpan, rect);
 
-            painter->setPen(StyleHelper::borderColor());
+            painter->setPen(Utils::StyleHelper::borderColor());
 
             if (horizontal) {
                 // Note: This is a hack to determine if the
@@ -886,7 +886,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 p->drawLine(rect.topRight(), rect.bottomRight());
             }
 
-            if (StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
+            if (Utils::StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
                 painter->drawPixmap(rect.topLeft(), pixmap);
                 p->end();
                 delete p;
@@ -946,7 +946,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                     fr.rect.adjust(0, 0, -pixelMetric(QStyle::PM_MenuButtonIndicator,
                                                       toolbutton, widget), 0);
                 QPen oldPen = painter->pen();
-                QColor focusColor = StyleHelper::panelTextColor();
+                QColor focusColor = Utils::StyleHelper::panelTextColor();
                 focusColor.setAlpha(120);
                 QPen outline(focusColor, 1);
                 outline.setStyle(Qt::DotLine);

@@ -35,7 +35,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
-namespace Core {
 namespace Utils {
 
 struct ProjectIntroPagePrivate
@@ -210,4 +209,3 @@ void ProjectIntroPage::hideStatusLabel()
 }
 
 } // namespace Utils
-} // namespace Core

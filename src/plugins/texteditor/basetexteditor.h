@@ -44,10 +44,8 @@ class QToolBar;
 class QTimeLine;
 QT_END_NAMESPACE
 
-namespace Core {
-    namespace Utils {
-        class LineColumnLabel;
-    }
+namespace Utils {
+    class LineColumnLabel;
 }
 
 namespace TextEditor {
@@ -135,9 +133,11 @@ public:
         TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
         if (!data || data->collapseMode() != CollapseAfter) {
             data = static_cast<TextBlockUserData*>(block.next().userData());
-            if (!data || data->collapseMode() != TextBlockUserData::CollapseThis || data->m_ifdefedOut)
+            if (!data || data->collapseMode() != TextBlockUserData::CollapseThis)
                 data = 0;
         }
+        if (data && data->m_ifdefedOut)
+            data = 0;
         return data;
     }
 
@@ -673,7 +673,7 @@ private:
     BaseTextEditor *e;
     mutable QString m_contextHelpId;
     QToolBar *m_toolBar;
-    Core::Utils::LineColumnLabel *m_cursorPositionLabel;
+    Utils::LineColumnLabel *m_cursorPositionLabel;
 };
 
 } // namespace TextEditor

@@ -49,6 +49,7 @@ QT_END_NAMESPACE
 
 namespace Find {
 class SearchResultWindow;
+struct SearchResultItem;
 }
 
 namespace TextEditor {
@@ -76,14 +77,14 @@ protected:
 private slots:
     void displayResult(int index);
     void searchFinished();
-    void openEditor(const QString &fileName, int line, int column);
+    void openEditor(const Find::SearchResultItem &item);
     void syncRegExpSetting(bool useRegExp);
 
 private:
     QWidget *createProgressWidget();
 
     Find::SearchResultWindow *m_resultWindow;
-    QFutureWatcher<Core::Utils::FileSearchResult> m_watcher;
+    QFutureWatcher<Utils::FileSearchResult> m_watcher;
     bool m_isSearching;
     QLabel *m_resultLabel;
     QStringListModel m_filterStrings;

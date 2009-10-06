@@ -35,11 +35,6 @@
 #include "eventfilteringmainwindow.h"
 
 #include <QtCore/QMap>
-#include <QtCore/QList>
-#include <QtCore/QSet>
-#include <QtCore/QPointer>
-#include <QtGui/QPrinter>
-#include <QtGui/QToolButton>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

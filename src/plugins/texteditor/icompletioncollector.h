@@ -44,24 +44,24 @@ class ITextEditable;
 struct CompletionItem
 {
     CompletionItem(ICompletionCollector *collector = 0)
-        : m_relevance(0),
-          m_duplicateCount(0),
-          m_collector(collector)
+        : relevance(0),
+          duplicateCount(0),
+          collector(collector)
     { }
 
     bool isValid() const
-    { return m_collector != 0; }
+    { return collector != 0; }
 
     operator bool() const
-    { return m_collector != 0; }
+    { return collector != 0; }
 
-    QString m_text;
-    QString m_details;
-    QIcon m_icon;
-    QVariant m_data;
-    int m_relevance;
-    int m_duplicateCount;
-    ICompletionCollector *m_collector;
+    QString text;
+    QString details;
+    QIcon icon;
+    QVariant data;
+    int relevance;
+    int duplicateCount;
+    ICompletionCollector *collector;
 };
 
 /* Defines the interface to completion collectors. A completion collector tells

@@ -67,7 +67,7 @@ QWizard *ConsoleAppWizard::createWizardDialog(QWidget *parent,
                                               const WizardPageList &extensionPages) const
 {
     ConsoleAppWizardDialog *dialog = new ConsoleAppWizardDialog(name(), icon(), extensionPages, parent);
-    dialog->setPath(defaultPath.isEmpty() ? Core::Utils::PathChooser::homePath() : defaultPath);
+    dialog->setPath(defaultPath.isEmpty() ? Utils::PathChooser::homePath() : defaultPath);
     return dialog;
 }
 

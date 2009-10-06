@@ -189,8 +189,10 @@ void BuildManager::gotoTaskWindow()
 
 void BuildManager::startBuildQueue()
 {
-    if (m_buildQueue.isEmpty())
+    if (m_buildQueue.isEmpty()) {
+        emit buildQueueFinished(true);
         return;
+    }
     if (!m_running) {
         // Progress Reporting
         Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
@@ -332,9 +334,11 @@ void BuildManager::buildProjects(const QList<Project *> &projects, const QList<Q
     end = projects.constEnd();
 
     for (it = projects.constBegin(); it != end; ++it, ++cit) {
-        QList<BuildStep *> buildSteps = (*it)->buildSteps();
-        foreach (BuildStep *bs, buildSteps) {
-            buildQueueAppend(bs, *cit);
+        if (*cit != QString::null) {
+            QList<BuildStep *> buildSteps = (*it)->buildSteps();
+            foreach (BuildStep *bs, buildSteps) {
+                buildQueueAppend(bs, *cit);
+            }
         }
     }
     startBuildQueue();

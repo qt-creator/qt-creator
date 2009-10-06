@@ -166,6 +166,9 @@ public:
     /// Creates a new ForwardClassDeclaration symbol.
     ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, Name *name = 0);
 
+    ObjCBaseClass *newObjCBaseClass(unsigned sourceLocation, Name *name);
+    ObjCBaseProtocol *newObjCBaseProtocol(unsigned sourceLocation, Name *name);
+
     /// Creates a new Objective-C class symbol.
     ObjCClass *newObjCClass(unsigned sourceLocation, Name *name = 0);
 

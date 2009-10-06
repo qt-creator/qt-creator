@@ -32,7 +32,6 @@
 
 #include <QtGui/QAbstractButton>
 
-namespace Core {
 namespace Utils {
 
 FileWizardDialog::FileWizardDialog(QWidget *parent) :
@@ -69,4 +68,3 @@ void FileWizardDialog::setName(const QString &name)
 }
 
 } // namespace Utils
-} // namespace Core

@@ -31,7 +31,6 @@
 
 #include <windows.h>
 
-namespace Core {
 namespace Utils {  
 
 QStringList AbstractProcess::fixWinEnvironment(const QStringList &env)
@@ -114,4 +113,3 @@ QByteArray AbstractProcess::createWinEnvironment(const QStringList &env)
 }
 
 } //namespace Utils
-} //namespace Core

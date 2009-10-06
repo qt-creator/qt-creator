@@ -81,13 +81,10 @@ void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
     if (model()->data(index, ItemDataRoles::TypeRole).toString().compare("row") != 0)
         return;
 
-    QString fileName = model()->data(index, ItemDataRoles::FileNameRole).toString();
     int position = model()->data(index, ItemDataRoles::ResultIndexRole).toInt();
-    int lineNumber = model()->data(index, ItemDataRoles::ResultLineNumberRole).toInt();
-    int searchTermStart = model()->data(index, ItemDataRoles::SearchTermStartRole).toInt();
-    int searchTermLength = model()->data(index, ItemDataRoles::SearchTermLengthRole).toInt();
+    int checked = model()->data(index, Qt::CheckStateRole).toBool();
 
-    emit jumpToSearchResult(position, fileName, lineNumber, searchTermStart, searchTermLength);
+    emit jumpToSearchResult(position, checked);
 }
 
 void SearchResultTreeView::keyPressEvent(QKeyEvent *e)

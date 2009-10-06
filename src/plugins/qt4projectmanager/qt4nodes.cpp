@@ -1236,7 +1236,7 @@ void Qt4ProFileNode::updateCodeModelSupportFromBuild(const QStringList &files)
     }
 }
 
-void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName, Designer::Internal::FormWindowEditor *fw)
+void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName, Designer::FormWindowEditor *fw)
 {
     QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it;
     it = m_uiCodeModelSupport.constFind(uiFileName);

@@ -160,6 +160,9 @@ protected:
     virtual void handleLauncherFinished() = 0;
     void processFailed(const QString &program, QProcess::ProcessError errorCode);
 
+protected slots:
+    void printApplicationOutput(const QString &output);
+
 private slots:
     void readStandardError();
     void readStandardOutput();
@@ -169,8 +172,10 @@ private slots:
     void signsisProcessFinished();
     void printCopyingNotice();
     void printCreateFileFailed(const QString &filename, const QString &errorMessage);
+    void printWriteFileFailed(const QString &filename, const QString &errorMessage);
     void printCopyProgress(int progress);
     void printInstallingNotice();
+    void printInstallFailed(const QString &filename, const QString &errorMessage);
     void launcherFinished();
 
 private:
@@ -208,7 +213,6 @@ private slots:
     void printStartingNotice();
     void printRunNotice(uint pid);
     void printRunFailNotice(const QString &errorMessage);
-    void printApplicationOutput(const QString &output);
 
 private:
 };

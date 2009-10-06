@@ -45,9 +45,10 @@ namespace Core {
 class IContext;
 class IMode;
 class IFileFactory;
-    namespace Utils {
-        class ParameterAction;
-    }
+}
+
+namespace Utils {
+class ParameterAction;
 }
 
 namespace ProjectExplorer {

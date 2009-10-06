@@ -37,7 +37,7 @@ using namespace Subversion::Internal;
 
 SubversionSubmitEditor::SubversionSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *parameters,
                                                QWidget *parentWidget) :
-    VCSBase::VCSBaseSubmitEditor(parameters, new Core::Utils::SubmitEditorWidget(parentWidget))
+    VCSBase::VCSBaseSubmitEditor(parameters, new Utils::SubmitEditorWidget(parentWidget))
 {
     setDisplayName(tr("Subversion Submit"));
 }

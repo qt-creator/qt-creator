@@ -116,17 +116,17 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
         m_versions.push_back(QSharedPointerQtVersion(new QtVersion(*version)));
 
     m_ui->setupUi(this);
-    m_ui->qmakePath->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->qmakePath->setExpectedKind(Utils::PathChooser::File);
     m_ui->qmakePath->setPromptDialogTitle(tr("Select QMake Executable"));
-    m_ui->mingwPath->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_ui->mingwPath->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->mingwPath->setPromptDialogTitle(tr("Select the MinGW Directory"));
-    m_ui->mwcPath->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_ui->mwcPath->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->mwcPath->setPromptDialogTitle(tr("Select \"x86build\" Directory from Carbide Install"));
 
     m_ui->addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_ui->delButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
 
-    new Core::Utils::TreeWidgetColumnStretcher(m_ui->qtdirList, 1);
+    new Utils::TreeWidgetColumnStretcher(m_ui->qtdirList, 1);
 
     // setup parent items for auto-detected and manual versions
     m_ui->qtdirList->header()->setResizeMode(QHeaderView::ResizeToContents);

@@ -56,6 +56,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/qtcassert.h>
 
 #include <TranslationUnit.h>
@@ -588,6 +590,13 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
 }
 
 
+CppTools::CppModelManagerInterface *CppTools::CppModelManagerInterface::instance()
+{
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    return pluginManager->getObject<CppTools::CppModelManagerInterface>();
+
+}
+
 
 /*!
     \class CppTools::CppModelManager
@@ -746,10 +755,16 @@ QList<int> CppModelManager::references(CPlusPlus::Symbol *symbol,
     return m_findReferences->references(LookupContext::canonicalSymbol(symbol), doc, snapshot);
 }
 
-void CppModelManager::findReferences(CPlusPlus::Symbol *symbol)
+void CppModelManager::findUsages(CPlusPlus::Symbol *symbol)
 {
     if (symbol->identifier())
-        m_findReferences->findAll(symbol);
+        m_findReferences->findUsages(symbol);
+}
+
+void CppModelManager::renameUsages(CPlusPlus::Symbol *symbol)
+{
+    if (symbol->identifier())
+        m_findReferences->renameUsages(symbol);
 }
 
 QMap<QString, QString> CppModelManager::buildWorkingCopyList()

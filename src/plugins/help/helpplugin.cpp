@@ -478,7 +478,7 @@ void HelpPlugin::createRightPaneSideBar()
     hboxLayout->addWidget(rightPaneToolBar);
     hboxLayout->addStretch(5);
     hboxLayout->addWidget(closeButton);
-    Core::Utils::StyledBar *w = new Core::Utils::StyledBar;
+    Utils::StyledBar *w = new Utils::StyledBar;
     w->setLayout(hboxLayout);
     connect(closeButton, SIGNAL(clicked()), this, SLOT(slotHideRightPane()));
 
@@ -633,9 +633,9 @@ void HelpPlugin::extensionsInitialized()
             hc.addCustomFilter(tr("Unfiltered"), QStringList());
             hc.setCustomValue(key, 1);
         }
-        m_helpEngine->blockSignals(true);
+        bool blocked = m_helpEngine->blockSignals(true);
         m_helpEngine->setCurrentFilter(tr("Unfiltered"));
-        m_helpEngine->blockSignals(false);
+        m_helpEngine->blockSignals(blocked);
         needsSetup = true;
     }
 

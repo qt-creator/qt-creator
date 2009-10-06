@@ -32,7 +32,6 @@
 
 #include <QtCore/QList>
 
-namespace Core {
 namespace Utils {
 
 template <class T1, class T2>
@@ -46,6 +45,5 @@ QList<T1> qwConvertList(const QList<T2> &list)
 }
 
 } // namespace Utils
-} // namespace Core
 
 #endif // LISTUTILS_H

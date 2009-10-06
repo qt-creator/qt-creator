@@ -1,6 +1,5 @@
 #include "parameteraction.h"
 
-namespace Core {
 namespace Utils {
 
 ParameterAction::ParameterAction(const QString &emptyText,
@@ -57,5 +56,3 @@ void ParameterAction::setParameter(const QString &p)
 }
 
 }
-}
-

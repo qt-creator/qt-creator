@@ -44,7 +44,6 @@
 enum { debug = 0 };
 enum { defaultLineWidth = 72 };
 
-namespace Core {
 namespace Utils {
 
 // QActionPushButton: A push button tied to an action
@@ -505,6 +504,5 @@ void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
 }
 
 } // namespace Utils
-} // namespace Core
 
 #include "submiteditorwidget.moc"

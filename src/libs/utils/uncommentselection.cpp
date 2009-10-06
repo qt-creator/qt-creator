@@ -33,7 +33,7 @@
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextDocument>
 
-void Core::Utils::unCommentSelection(QPlainTextEdit *edit)
+void Utils::unCommentSelection(QPlainTextEdit *edit)
 {
     QTextCursor cursor = edit->textCursor();
     QTextDocument *doc = cursor.document();

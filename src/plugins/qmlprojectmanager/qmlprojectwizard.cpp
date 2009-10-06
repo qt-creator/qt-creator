@@ -46,7 +46,7 @@
 #include <QtGui/QTreeView>
 
 using namespace QmlProjectManager::Internal;
-using namespace Core::Utils;
+using namespace Utils;
 
 namespace {
 

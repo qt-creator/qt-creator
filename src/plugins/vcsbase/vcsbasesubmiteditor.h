@@ -43,10 +43,8 @@ class QAbstractItemModel;
 class QAction;
 QT_END_NAMESPACE
 
-namespace Core {
-    namespace Utils {
-        class SubmitEditorWidget;
-    }
+namespace Utils {
+    class SubmitEditorWidget;
 }
 
 namespace VCSBase {
@@ -62,7 +60,7 @@ struct VCSBASE_EXPORT VCSBaseSubmitEditorParameters {
     const char *context;
 };
 
-/* Base class for a submit editor based on the Core::Utils::SubmitEditorWidget
+/* Base class for a submit editor based on the Utils::SubmitEditorWidget
  * that presents the commit message in a text editor and an
  * checkable list of modified files in a list window. The user can delete
  * files from the list by pressing unchecking them or diff the selection
@@ -97,7 +95,7 @@ public:
 
 protected:
     explicit VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *parameters,
-                                 Core::Utils::SubmitEditorWidget *editorWidget);
+                                 Utils::SubmitEditorWidget *editorWidget);
 
 public:
     // Register the actions with the submit editor widget.

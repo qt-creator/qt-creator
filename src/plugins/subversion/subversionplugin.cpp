@@ -289,7 +289,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     globalcontext << core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);
 
     Core::Command *command;
-    m_addAction = new Core::Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_addAction, CMD_ID_ADD,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -299,14 +299,14 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     subversionMenu->addAction(command);
 
-    m_deleteAction = new Core::Utils::ParameterAction(tr("Delete"), tr("Delete \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Utils::ParameterAction(tr("Delete"), tr("Delete \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
     subversionMenu->addAction(command);
 
-    m_revertAction = new Core::Utils::ParameterAction(tr("Revert"), tr("Revert \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_revertAction = new Utils::ParameterAction(tr("Revert"), tr("Revert \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_revertAction, CMD_ID_REVERT,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -321,7 +321,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffProject()));
     subversionMenu->addAction(command);
 
-    m_diffCurrentAction = new Core::Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_diffCurrentAction = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_diffCurrentAction,
         CMD_ID_DIFF_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -339,7 +339,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_commitAllAction, SIGNAL(triggered()), this, SLOT(startCommitAll()));
     subversionMenu->addAction(command);
 
-    m_commitCurrentAction = new Core::Utils::ParameterAction(tr("Commit Current File"), tr("Commit \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_commitCurrentAction = new Utils::ParameterAction(tr("Commit Current File"), tr("Commit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_commitCurrentAction,
         CMD_ID_COMMIT_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -351,7 +351,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     subversionMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR2, globalcontext));
 
-    m_filelogCurrentAction = new Core::Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_filelogCurrentAction = new Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_filelogCurrentAction,
         CMD_ID_FILELOG_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -359,7 +359,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
         SLOT(filelogCurrentFile()));
     subversionMenu->addAction(command);
 
-    m_annotateCurrentAction = new Core::Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Core::Utils::ParameterAction::EnabledWithParameter, this);
+    m_annotateCurrentAction = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_annotateCurrentAction,
         CMD_ID_ANNOTATE_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -935,7 +935,7 @@ SubversionResponse SubversionPlugin::runSvn(const QStringList &arguments,
         qDebug() << "runSvn" << timeOut << outputText;
 
     // Run, connect stderr to the output window
-    Core::Utils::SynchronousProcess process;
+    Utils::SynchronousProcess process;
     process.setTimeout(timeOut);
     process.setStdOutCodec(outputCodec);
 
@@ -948,24 +948,24 @@ SubversionResponse SubversionPlugin::runSvn(const QStringList &arguments,
         connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
     }
 
-    const Core::Utils::SynchronousProcessResponse sp_resp = process.run(executable, allArgs);
+    const Utils::SynchronousProcessResponse sp_resp = process.run(executable, allArgs);
     response.error = true;
     response.stdErr = sp_resp.stdErr;
     response.stdOut = sp_resp.stdOut;
     switch (sp_resp.result) {
-    case Core::Utils::SynchronousProcessResponse::Finished:
+    case Utils::SynchronousProcessResponse::Finished:
         response.error = false;
         break;
-    case Core::Utils::SynchronousProcessResponse::FinishedError:
+    case Utils::SynchronousProcessResponse::FinishedError:
         response.message = tr("The process terminated with exit code %1.").arg(sp_resp.exitCode);
         break;
-    case Core::Utils::SynchronousProcessResponse::TerminatedAbnormally:
+    case Utils::SynchronousProcessResponse::TerminatedAbnormally:
         response.message = tr("The process terminated abnormally.");
         break;
-    case Core::Utils::SynchronousProcessResponse::StartFailed:
+    case Utils::SynchronousProcessResponse::StartFailed:
         response.message = tr("Could not start subversion '%1'. Please check your settings in the preferences.").arg(executable);
         break;
-    case Core::Utils::SynchronousProcessResponse::Hang:
+    case Utils::SynchronousProcessResponse::Hang:
         response.message = tr("Subversion did not respond within timeout limit (%1 ms).").arg(timeOut);
         break;
     }

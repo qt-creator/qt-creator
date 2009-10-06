@@ -44,7 +44,7 @@
 #include <QtGui/QSpinBox>
 
 
-using namespace Core::Utils;
+using namespace Utils;
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ using namespace Core::Utils;
 //////////////////////////////////////////////////////////////////////////
 
 /*!
-    \class Core::Utils::SavedAction
+    \class Utils::SavedAction
     
     \brief The SavedAction class is a helper class for actions with persistent
     state.

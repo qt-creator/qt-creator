@@ -4544,7 +4544,13 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *a
                 last->comma_token = consumeToken();
                 last->next = new (_pool) ObjCPropertyAttributeListAST;
                 last = last->next;
-                parseObjCPropertyAttribute(last->attr);
+                if (!parseObjCPropertyAttribute(last->attr)) {
+                    _translationUnit->error(_tokenIndex, "expected token `%s' got `%s'",
+                                            Token::name(T_IDENTIFIER), tok().spell());
+                    while (LA() != T_RPAREN)
+                        consumeToken();
+                    break;
+                }
             }
         }
 
@@ -4597,15 +4603,15 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
             lastArg->argument_declaration = declaration;
         }
 
-        // TODO EV: get this in the ast
         while (LA() == T_COMMA) {
             consumeToken();
 
             if (LA() == T_DOT_DOT_DOT) {
-                consumeToken();
+                ast->dot_dot_dot_token = consumeToken();
                 break;
             }
 
+            // TODO: Is this still valid, and if so, should it be stored in the AST? (EV)
             DeclarationAST *parameter_declaration = 0;
             parseParameterDeclaration(parameter_declaration);
         }
@@ -4639,28 +4645,43 @@ bool Parser::parseObjCPropertyAttribute(ObjCPropertyAttributeAST *&node)
         return false;
 
     node = new (_pool) ObjCPropertyAttributeAST;
-    match(T_IDENTIFIER, &(node->attribute_identifier_token));
-    if (LA() == T_EQUAL) {
-        node->equals_token = consumeToken();
 
-        unsigned identifier_token = 0;
-        match(T_IDENTIFIER, &identifier_token);
+    Identifier *id = tok().identifier;
+    const int k = classifyObjectiveCTypeQualifiers(id->chars(), id->size());
+    switch (k) {
+    case Token_copy:
+    case Token_assign:
+    case Token_retain:
+    case Token_readonly:
+    case Token_readwrite:
+    case Token_nonatomic:
+        node->attribute_identifier_token = consumeToken();
+        return true;
 
-        if (LA() == T_COLON) {
-            ObjCSelectorWithArgumentsAST *selector = new (_pool) ObjCSelectorWithArgumentsAST;
-            selector->selector_arguments = new (_pool) ObjCSelectorArgumentListAST;
-            selector->selector_arguments->argument = new (_pool) ObjCSelectorArgumentAST;
-            selector->selector_arguments->argument->name_token = identifier_token;
-            selector->selector_arguments->argument->colon_token = consumeToken();
-            node->method_selector = selector;
-        } else {
-            ObjCSelectorWithoutArgumentsAST *selector = new (_pool) ObjCSelectorWithoutArgumentsAST;
-            selector->name_token = identifier_token;
-            node->method_selector = selector;
-        }
+    case Token_getter: {
+        node->attribute_identifier_token = consumeToken();
+        match(T_EQUAL, &(node->equals_token));
+        ObjCSelectorWithoutArgumentsAST *selector = new (_pool) ObjCSelectorWithoutArgumentsAST;
+        match(T_IDENTIFIER, &(selector->name_token));
+        node->method_selector = selector;
+        return true;
     }
 
-    return true;
+    case Token_setter: {
+        node->attribute_identifier_token = consumeToken();
+        match(T_EQUAL, &(node->equals_token));
+        ObjCSelectorWithArgumentsAST *selector = new (_pool) ObjCSelectorWithArgumentsAST;
+        selector->selector_arguments = new (_pool) ObjCSelectorArgumentListAST;
+        selector->selector_arguments->argument = new (_pool) ObjCSelectorArgumentAST;
+        match(T_IDENTIFIER, &(selector->selector_arguments->argument->name_token));
+        match(T_COLON, &(selector->selector_arguments->argument->colon_token));
+        node->method_selector = selector;
+        return true;
+    }
+
+    default:
+        return false;
+    }
 }
 
 // objc-type-name ::= T_LPAREN objc-type-qualifiers-opt type-id T_RPAREN

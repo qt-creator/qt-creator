@@ -139,8 +139,8 @@ public:
     /////////////// Reading pro file
 
     bool read(ProFile *pro);
-    bool read(ProFile *pro, const QString &content);
-    bool read(ProFile *pro, QTextStream *ts);
+    bool read(ProBlock *pro, const QString &content);
+    bool read(ProBlock *pro, QTextStream *ts);
 
     ProBlock *currentBlock();
     void updateItem(ushort *ptr);
@@ -288,22 +288,23 @@ bool ProFileEvaluator::Private::read(ProFile *pro)
     }
 
     QTextStream ts(&file);
+    m_lineNo = 1;
     return read(pro, &ts);
 }
 
-bool ProFileEvaluator::Private::read(ProFile *pro, const QString &content)
+bool ProFileEvaluator::Private::read(ProBlock *pro, const QString &content)
 {
     QString str(content);
     QTextStream ts(&str, QIODevice::ReadOnly | QIODevice::Text);
+    m_lineNo = 1;
     return read(pro, &ts);
 }
 
-bool ProFileEvaluator::Private::read(ProFile *pro, QTextStream *ts)
+bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
 {
     // Parser state
     m_block = 0;
     m_commentItem = 0;
-    m_lineNo = 1;
     m_blockstack.clear();
     m_blockstack.push(pro);
 
@@ -2253,8 +2254,17 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             return ProItem::ReturnFalse;
 #if 0
         case T_REQUIRES:
-        case T_EVAL:
 #endif
+        case T_EVAL: {
+                ProBlock *pro = new ProBlock(0);
+                if (!read(pro, args.join(QLatin1String(" ")))) {
+                    delete pro;
+                    return ProItem::ReturnFalse;
+                }
+                bool ret = pro->Accept(this);
+                pro->deref();
+                return returnBool(ret);
+            }
         case T_FOR: {
             if (m_cumulative) // This is a no-win situation, so just pretend it's no loop
                 return ProItem::ReturnTrue;

@@ -102,7 +102,7 @@ QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
     if (!adoptPath)
         return binary;
     // Search in path?
-    const QString pathBinary = Core::Utils::SynchronousProcess::locateBinary(path, binary);
+    const QString pathBinary = Utils::SynchronousProcess::locateBinary(path, binary);
     if (pathBinary.isEmpty()) {
         if (ok)
             *ok = false;

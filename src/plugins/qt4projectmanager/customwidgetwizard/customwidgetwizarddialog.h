@@ -35,10 +35,8 @@
 #include <QtGui/QWizard>
 #include <QtGui/QWizardPage>
 
-namespace Core {
-    namespace Utils {
-        class ProjectIntroPage;
-    }
+namespace Utils {
+    class ProjectIntroPage;
 }
 
 namespace Qt4ProjectManager {
@@ -73,7 +71,7 @@ private slots:
     void slotCurrentIdChanged (int id);
 
 private:
-    Core::Utils::ProjectIntroPage *m_introPage;
+    Utils::ProjectIntroPage *m_introPage;
     CustomWidgetWidgetsWizardPage *m_widgetsPage;
     CustomWidgetPluginWizardPage *m_pluginPage;
 };

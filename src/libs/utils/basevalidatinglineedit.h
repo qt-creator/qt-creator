@@ -34,7 +34,6 @@
 
 #include <QtGui/QLineEdit>
 
-namespace Core {
 namespace Utils {
 
 struct BaseValidatingLineEditPrivate;
@@ -98,6 +97,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // BASEVALIDATINGLINEEDIT_H

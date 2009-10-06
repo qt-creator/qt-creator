@@ -48,7 +48,7 @@ QWizard *EmptyProjectWizard::createWizardDialog(QWidget *parent,
                                               const WizardPageList &extensionPages) const
 {
     EmptyProjectWizardDialog *dialog = new EmptyProjectWizardDialog(name(), icon(), extensionPages, parent);
-    dialog->setPath(defaultPath.isEmpty() ? Core::Utils::PathChooser::homePath() : defaultPath);
+    dialog->setPath(defaultPath.isEmpty() ? Utils::PathChooser::homePath() : defaultPath);
     return dialog;
 }
 

@@ -51,7 +51,7 @@ QWizard *CustomWidgetWizard::createWizardDialog(QWidget *parent,
                                                 const WizardPageList &extensionPages) const
 {
     CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(name(), icon(), extensionPages, parent);
-    rc->setPath(defaultPath.isEmpty() ? Core::Utils::PathChooser::homePath() : defaultPath);
+    rc->setPath(defaultPath.isEmpty() ? Utils::PathChooser::homePath() : defaultPath);
     rc->setFileNamingParameters(FileNamingParameters(headerSuffix(), sourceSuffix(), QtWizard::lowerCaseFiles()));
     return rc;
 }

@@ -37,7 +37,6 @@
 #include <QtCore/QMap>
 #include <QtGui/QTextDocument>
 
-namespace Core {
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT FileSearchResult
@@ -62,6 +61,5 @@ QTCREATOR_UTILS_EXPORT QFuture<FileSearchResult> findInFilesRegExp(const QString
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap = QMap<QString, QString>());
 
 } // namespace Utils
-} // namespace Core
 
 #endif // FILESEARCH_H

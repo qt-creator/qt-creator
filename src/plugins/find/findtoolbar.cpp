@@ -91,7 +91,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_findCompleter->popup()->installEventFilter(this);
     m_ui.replaceEdit->setCompleter(m_replaceCompleter);
 
-    m_ui.findEdit->setSide(qApp->layoutDirection() == Qt::LeftToRight ? Core::Utils::FancyLineEdit::Right : Core::Utils::FancyLineEdit::Left);
+    m_ui.findEdit->setSide(qApp->layoutDirection() == Qt::LeftToRight ? Utils::FancyLineEdit::Right : Utils::FancyLineEdit::Left);
     QMenu *lineEditMenu = new QMenu(m_ui.findEdit);
     m_ui.findEdit->setMenu(lineEditMenu);
 
@@ -278,7 +278,7 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
             m_currentDocumentFind->clearFindScope();
         }
     }
-    return Core::Utils::StyledBar::eventFilter(obj, event);
+    return Utils::StyledBar::eventFilter(obj, event);
 }
 
 void FindToolBar::adaptToCandidate()
@@ -598,7 +598,7 @@ bool FindToolBar::focusNextPrevChild(bool next)
     else if (!next && m_ui.findEdit->hasFocus())
         m_ui.replaceAllButton->setFocus(Qt::TabFocusReason);
     else
-        return Core::Utils::StyledBar::focusNextPrevChild(next);
+        return Utils::StyledBar::focusNextPrevChild(next);
     return true;
 }
 

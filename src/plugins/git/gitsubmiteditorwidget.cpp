@@ -110,7 +110,7 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
 
 // ------------------
 GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
-    Core::Utils::SubmitEditorWidget(parent),
+    Utils::SubmitEditorWidget(parent),
     m_gitSubmitPanel(new QWidget)
 {
     m_gitSubmitPanelUi.setupUi(m_gitSubmitPanel);

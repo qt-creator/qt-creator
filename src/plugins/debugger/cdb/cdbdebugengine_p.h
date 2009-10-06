@@ -175,7 +175,7 @@ struct CdbDebugEnginePrivate
     bool m_firstActivatedFrame;
 
     DebuggerStartMode m_mode;
-    Core::Utils::ConsoleProcess m_consoleStubProc;
+    Utils::ConsoleProcess m_consoleStubProc;
 };
 
 // helper functions

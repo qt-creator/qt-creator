@@ -238,7 +238,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     Core::Command *command;
 
-    m_diffAction = new Core::Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_diffAction = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_diffAction, "Git.Diff", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
 #ifndef Q_WS_MAC
@@ -247,7 +247,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_diffAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     gitContainer->addAction(command);
 
-    m_statusAction = new Core::Utils::ParameterAction(tr("File Status"), tr("Status Related to \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_statusAction = new Utils::ParameterAction(tr("File Status"), tr("Status Related to \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_statusAction, "Git.Status", globalcontext);
 #ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+S")));
@@ -256,7 +256,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_statusAction, SIGNAL(triggered()), this, SLOT(statusFile()));
     gitContainer->addAction(command);
 
-    m_logAction = new Core::Utils::ParameterAction(tr("Log File"), tr("Log of \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_logAction = new Utils::ParameterAction(tr("Log File"), tr("Log of \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_logAction, "Git.Log", globalcontext);
 #ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+L")));
@@ -265,7 +265,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_logAction, SIGNAL(triggered()), this, SLOT(logFile()));
     gitContainer->addAction(command);
 
-    m_blameAction = new Core::Utils::ParameterAction(tr("Blame"), tr("Blame for \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_blameAction = new Utils::ParameterAction(tr("Blame"), tr("Blame for \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_blameAction, "Git.Blame", globalcontext);
 #ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+B")));
@@ -274,7 +274,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_blameAction, SIGNAL(triggered()), this, SLOT(blameFile()));
     gitContainer->addAction(command);
 
-    m_undoFileAction = new Core::Utils::ParameterAction(tr("Undo Changes"), tr("Undo Changes for \"%1\""),  Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_undoFileAction = new Utils::ParameterAction(tr("Undo Changes"), tr("Undo Changes for \"%1\""),  Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_undoFileAction, "Git.Undo", globalcontext);
 #ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+U")));
@@ -283,7 +283,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_undoFileAction, SIGNAL(triggered()), this, SLOT(undoFileChanges()));
     gitContainer->addAction(command);
 
-    m_stageAction = new Core::Utils::ParameterAction(tr("Stage File for Commit"), tr("Stage \"%1\" for Commit"), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_stageAction = new Utils::ParameterAction(tr("Stage File for Commit"), tr("Stage \"%1\" for Commit"), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_stageAction, "Git.Stage", globalcontext);
 #ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+A")));
@@ -292,7 +292,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_stageAction, SIGNAL(triggered()), this, SLOT(stageFile()));
     gitContainer->addAction(command);
 
-    m_unstageAction = new Core::Utils::ParameterAction(tr("Unstage File from Commit"), tr("Unstage \"%1\" from Commit"), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_unstageAction = new Utils::ParameterAction(tr("Unstage File from Commit"), tr("Unstage \"%1\" from Commit"), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_unstageAction, "Git.Unstage", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_unstageAction, SIGNAL(triggered()), this, SLOT(unstageFile()));
@@ -300,7 +300,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Project"), this));
 
-    m_diffProjectAction = new Core::Utils::ParameterAction(tr("Diff Current Project"), tr("Diff Project \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_diffProjectAction = new Utils::ParameterAction(tr("Diff Current Project"), tr("Diff Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_diffProjectAction, "Git.DiffProject", globalcontext);
 #ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence("Alt+G,Alt+Shift+D"));
@@ -309,13 +309,13 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffCurrentProject()));
     gitContainer->addAction(command);
 
-    m_statusProjectAction = new Core::Utils::ParameterAction(tr("Project Status"), tr("Status Project \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_statusProjectAction = new Utils::ParameterAction(tr("Project Status"), tr("Status Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_statusProjectAction, "Git.StatusProject", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_statusProjectAction, SIGNAL(triggered()), this, SLOT(statusProject()));
     gitContainer->addAction(command);
 
-    m_logProjectAction = new Core::Utils::ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    m_logProjectAction = new Utils::ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_logProjectAction, "Git.LogProject", globalcontext);
 #ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+K")));

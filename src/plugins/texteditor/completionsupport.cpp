@@ -67,7 +67,7 @@ CompletionSupport::CompletionSupport()
 
 void CompletionSupport::performCompletion(const CompletionItem &item)
 {
-    item.m_collector->complete(item);
+    item.collector->complete(item);
     m_checkCompletionTrigger = true;
 }
 
@@ -189,10 +189,10 @@ static bool lessThan(const QString &l, const QString &r)
 static bool completionItemLessThan(const CompletionItem &i1, const CompletionItem &i2)
 {
     // The order is case-insensitive in principle, but case-sensitive when this would otherwise mean equality
-    const QString lower1 = i1.m_text.toLower();
-    const QString lower2 = i2.m_text.toLower();
+    const QString lower1 = i1.text.toLower();
+    const QString lower2 = i2.text.toLower();
     if (lower1 == lower2)
-        return lessThan(i1.m_text, i2.m_text);
+        return lessThan(i1.text, i2.text);
     else
         return lessThan(lower1, lower2);
 }
@@ -210,11 +210,11 @@ QList<CompletionItem> CompletionSupport::getCompletions() const
     QList<CompletionItem> uniquelist;
 
     foreach (const CompletionItem &item, completionItems) {
-        if (item.m_text != lastKey) {
+        if (item.text != lastKey) {
             uniquelist.append(item);
-            lastKey = item.m_text;
+            lastKey = item.text;
         } else {
-            uniquelist.last().m_duplicateCount++;
+            uniquelist.last().duplicateCount++;
         }
     }
 

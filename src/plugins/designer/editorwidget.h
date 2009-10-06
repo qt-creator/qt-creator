@@ -95,7 +95,7 @@ protected:
 private:
     SharedSubWindow* m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];
     QDockWidget *m_designerDockWidgets[Designer::Constants::DesignerSubWindowCount];
-    Core::Utils::FancyMainWindow *m_mainWindow;
+    Utils::FancyMainWindow *m_mainWindow;
     bool m_initialized;
 
     static QHash<QString, QVariant> m_globalState;

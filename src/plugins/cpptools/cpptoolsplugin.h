@@ -53,6 +53,7 @@ class Snapshot;
 
 namespace Find {
 class SearchResultWindow;
+struct SearchResultItem;
 }
 
 namespace CppTools {
@@ -79,12 +80,12 @@ public:
 protected Q_SLOTS:
     void displayResult(int);
     void searchFinished();
-    void openEditor(const QString&, int, int);
+    void openEditor(const Find::SearchResultItem &item);
 
 private:
     QPointer<CppModelManager> _modelManager;
     Find::SearchResultWindow *_resultWindow;
-    QFutureWatcher<Core::Utils::FileSearchResult> m_watcher;
+    QFutureWatcher<Utils::FileSearchResult> m_watcher;
 };
 
 class FindFunctionCalls: public Find::IFindFilter // ### share code with FindClassDeclarations
@@ -104,12 +105,12 @@ public:
 protected Q_SLOTS:
     void displayResult(int);
     void searchFinished();
-    void openEditor(const QString&, int, int);
+    void openEditor(const Find::SearchResultItem &item);
 
 private:
     QPointer<CppModelManager> _modelManager;
     Find::SearchResultWindow *_resultWindow;
-    QFutureWatcher<Core::Utils::FileSearchResult> m_watcher;
+    QFutureWatcher<Utils::FileSearchResult> m_watcher;
 };
 
 class CppToolsPlugin : public ExtensionSystem::IPlugin

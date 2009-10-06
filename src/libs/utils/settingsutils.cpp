@@ -31,7 +31,6 @@
 
 #include <QtCore/QString>
 
-namespace Core {
 namespace Utils {
 
 QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category)
@@ -48,4 +47,3 @@ QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category)
 }
 
 } // namespace Utils
-} // namespace Core

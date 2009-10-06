@@ -44,13 +44,11 @@ class QStringList;
 class QTreeView;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 
 class FileWizardPage;
 
 } // namespace Utils
-} // namespace Core
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -79,7 +77,7 @@ protected:
 private:
     int m_secondPageId;
 
-    Core::Utils::FileWizardPage *m_firstPage;
+    Utils::FileWizardPage *m_firstPage;
 
     QTreeView *m_dirView;
     QDirModel *m_dirModel;

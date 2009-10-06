@@ -34,7 +34,6 @@
 
 #include <QtGui/QWizard>
 
-namespace Core {
 namespace Utils {
 
 class FileWizardPage;
@@ -62,6 +61,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // FILEWIZARDDIALOG_H

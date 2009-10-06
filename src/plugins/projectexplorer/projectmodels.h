@@ -98,8 +98,6 @@ private:
 
     SessionNode *m_rootNode;
     mutable QHash<FolderNode*, QList<Node*> > m_childNodes;
-    bool m_isStartupProject;
-
     FolderNode *m_folderToAddTo;
 
     friend class DetailedModelManager;

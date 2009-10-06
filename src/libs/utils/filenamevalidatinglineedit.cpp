@@ -33,7 +33,6 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
 
-namespace Core {
 namespace Utils {
 
 #define WINDOWS_DEVICES "CON|AUX|PRN|COM1|COM2|LPT1|LPT2|NUL"
@@ -133,4 +132,3 @@ bool  FileNameValidatingLineEdit::validate(const QString &value, QString *errorM
 }
 
 } // namespace Utils
-} // namespace Core

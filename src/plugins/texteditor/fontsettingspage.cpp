@@ -177,7 +177,7 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
                                                  const QString &category,
                                                  const QString &trCategory) :
     m_name(name),
-    m_settingsGroup(Core::Utils::settingsKey(category)),
+    m_settingsGroup(Utils::settingsKey(category)),
     m_category(category),
     m_trCategory(trCategory),
     m_descriptions(fd),

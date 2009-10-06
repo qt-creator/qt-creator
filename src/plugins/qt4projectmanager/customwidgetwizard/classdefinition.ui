@@ -158,7 +158,7 @@
        </widget>
       </item>
       <item row="9" column="1">
-       <widget class="Core::Utils::PathChooser" name="iconPathChooser"/>
+       <widget class="Utils::PathChooser" name="iconPathChooser"/>
       </item>
       <item row="0" column="1">
        <layout class="QGridLayout" name="gridLayout">
@@ -296,7 +296,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::PathChooser</class>
+   <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
   </customwidget>

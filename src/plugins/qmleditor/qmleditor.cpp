@@ -784,7 +784,7 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
 
 void ScriptEditor::unCommentSelection()
 {
-    Core::Utils::unCommentSelection(this);
+    Utils::unCommentSelection(this);
 }
 
 } // namespace Internal

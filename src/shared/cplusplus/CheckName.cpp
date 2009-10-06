@@ -394,8 +394,11 @@ bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
 
         names.push_back(name);
     }
-    _name = control()->selectorNameId(&names[0], names.size(), true);
-    ast->selector_name = _name;
+
+    if (!names.empty()) {
+        _name = control()->selectorNameId(&names[0], names.size(), true);
+        ast->selector_name = _name;
+    }
 
     return false;
 }

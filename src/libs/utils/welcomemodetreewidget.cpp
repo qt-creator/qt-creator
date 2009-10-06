@@ -33,8 +33,7 @@
 #include <QtGui/QBoxLayout>
 #include <QtGui/QHeaderView>
 
-namespace Core {
-    namespace Utils {
+namespace Utils {
 
 void WelcomeModeLabel::setStyledText(const QString &text)
 {
@@ -114,5 +113,4 @@ void WelcomeModeTreeWidget::slotItemClicked(QTreeWidgetItem *item)
     emit activated(item->data(0, Qt::UserRole).toString());
 }
 
-}
 }

@@ -65,8 +65,15 @@ struct TrkOptions
     QString cygwin; // ignored on Linux
 };
 
-inline bool operator==(const TrkOptions &o1, const TrkOptions &o2) { return o1.equals(o2); }
-inline bool operator!=(const TrkOptions &o1, const TrkOptions &o2) { return !o1.equals(o2); }
+inline bool operator==(const TrkOptions &o1, const TrkOptions &o2)
+{
+    return o1.equals(o2);
+}
+
+inline bool operator!=(const TrkOptions &o1, const TrkOptions &o2)
+{
+    return !o1.equals(o2);
+}
 
 } // namespace Internal
 } // namespace Debugger

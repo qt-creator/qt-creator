@@ -35,7 +35,7 @@
 namespace Debugger {
 namespace Internal {
 
-class CdbSymbolPathListEditor : public Core::Utils::PathListEditor
+class CdbSymbolPathListEditor : public Utils::PathListEditor
 {
     Q_OBJECT
 public:

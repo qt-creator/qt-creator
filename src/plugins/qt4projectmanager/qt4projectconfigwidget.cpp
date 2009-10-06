@@ -69,7 +69,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     // TODO refix the layout
 
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
-    m_ui->shadowBuildDirEdit->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->invalidQtWarningLabel->setVisible(false);
 
     connect(m_ui->nameLineEdit, SIGNAL(textEdited(QString)),

@@ -32,7 +32,6 @@
 
 #include "basevalidatinglineedit.h"
 
-namespace Core {
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT ProjectNameValidatingLineEdit : public BaseValidatingLineEdit
@@ -50,6 +49,5 @@ protected:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // PROJECTNAMEVALIDATINGLINEEDIT_H

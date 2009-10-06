@@ -139,7 +139,7 @@ void FolderNavigationWidget::setCurrentFile(const QString &filePath)
 
     QString dir = QFileInfo(filePath).path();
     if (dir.isEmpty())
-        dir = Core::Utils::PathChooser::homePath();
+        dir = Utils::PathChooser::homePath();
 
     QModelIndex dirIndex = m_dirModel->index(dir);
     QModelIndex fileIndex = m_dirModel->index(filePath);

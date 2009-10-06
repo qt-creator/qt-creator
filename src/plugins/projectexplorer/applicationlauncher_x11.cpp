@@ -35,7 +35,7 @@
 #include <QtCore/QTimer>
 
 using namespace ProjectExplorer;
-using namespace Core::Utils;
+using namespace Utils;
 
 ApplicationLauncher::ApplicationLauncher(QObject *parent)
     : QObject(parent)

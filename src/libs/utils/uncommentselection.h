@@ -36,12 +36,10 @@ QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 
 QTCREATOR_UTILS_EXPORT void unCommentSelection(QPlainTextEdit *edit);
 
 } // end of namespace Utils
-} // end of namespace Core
 
 #endif // UNCOMMENTSELECTION_H

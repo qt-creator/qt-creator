@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Core::Utils::NewClassWidget</class>
- <widget class="QWidget" name="Core::Utils::NewClassWidget">
+ <class>Utils::NewClassWidget</class>
+ <widget class="QWidget" name="Utils::NewClassWidget">
   <layout class="QFormLayout" name="formLayout">
    <property name="fieldGrowthPolicy">
     <enum>QFormLayout::ExpandingFieldsGrow</enum>
@@ -17,7 +17,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="Core::Utils::ClassNameValidatingLineEdit" name="classLineEdit"/>
+    <widget class="Utils::ClassNameValidatingLineEdit" name="classLineEdit"/>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="baseClassLabel">
@@ -76,7 +76,7 @@
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="Core::Utils::FileNameValidatingLineEdit" name="headerFileLineEdit"/>
+    <widget class="Utils::FileNameValidatingLineEdit" name="headerFileLineEdit"/>
    </item>
    <item row="4" column="0">
     <widget class="QLabel" name="sourceLabel">
@@ -86,7 +86,7 @@
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="Core::Utils::FileNameValidatingLineEdit" name="sourceFileLineEdit"/>
+    <widget class="Utils::FileNameValidatingLineEdit" name="sourceFileLineEdit"/>
    </item>
    <item row="5" column="0">
     <widget class="QLabel" name="generateFormLabel">
@@ -103,7 +103,7 @@
     </widget>
    </item>
    <item row="6" column="1">
-    <widget class="Core::Utils::FileNameValidatingLineEdit" name="formFileLineEdit"/>
+    <widget class="Utils::FileNameValidatingLineEdit" name="formFileLineEdit"/>
    </item>
    <item row="7" column="0">
     <widget class="QLabel" name="pathLabel">
@@ -113,7 +113,7 @@
     </widget>
    </item>
    <item row="7" column="1">
-    <widget class="Core::Utils::PathChooser" name="pathChooser" native="true"/>
+    <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
    </item>
    <item row="5" column="1">
     <widget class="QCheckBox" name="generateFormCheckBox">
@@ -126,18 +126,18 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::PathChooser</class>
+   <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">pathchooser.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Core::Utils::ClassNameValidatingLineEdit</class>
+   <class>Utils::ClassNameValidatingLineEdit</class>
    <extends>QLineEdit</extends>
    <header>classnamevalidatinglineedit.h</header>
   </customwidget>
   <customwidget>
-   <class>Core::Utils::FileNameValidatingLineEdit</class>
+   <class>Utils::FileNameValidatingLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">utils/filenamevalidatinglineedit.h</header>
   </customwidget>

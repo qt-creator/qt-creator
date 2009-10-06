@@ -36,7 +36,7 @@ namespace Debugger {
 namespace Internal {
 
 CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
-    Core::Utils::PathListEditor(parent)
+    Utils::PathListEditor(parent)
 {
     //! Add Microsoft Symbol server connection
     QAction *action = insertAction(lastAddActionIndex() + 1, tr("Symbol Server..."), this, SLOT(addSymbolServer()));

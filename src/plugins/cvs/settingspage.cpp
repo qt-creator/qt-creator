@@ -40,7 +40,7 @@
 #include <QtGui/QFileDialog>
 
 using namespace CVS::Internal;
-using namespace Core::Utils;
+using namespace Utils;
 
 SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)

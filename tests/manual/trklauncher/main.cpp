@@ -50,9 +50,11 @@ static bool parseArguments(const QStringList &arguments, trk::Launcher &launcher
             break;verbosity++;
         case 'i':
             install = true;
+            launcher.addStartupActions(trk::Launcher::ActionInstall);
             break;
         case 'I':
             customInstall = true;
+            launcher.addStartupActions(trk::Launcher::ActionCopyInstall);
             break;
         default:
             return false;
@@ -68,23 +70,28 @@ static bool parseArguments(const QStringList &arguments, trk::Launcher &launcher
     }
     if (remainingArgsCount == 2 && !install && !customInstall) {
         // remote exec
-        launcher.setTrkServerName(arguments.at(a)); // ping
+        launcher.addStartupActions(trk::Launcher::ActionRun);
+        launcher.setTrkServerName(arguments.at(a));
         launcher.setFileName(arguments.at(a + 1));
         return true;
     }
     if ((remainingArgsCount == 3 || remainingArgsCount == 2) && install && !customInstall) {
         launcher.setTrkServerName(arguments.at(a)); // ping
         launcher.setInstallFileName(arguments.at(a + 1));
-        if (remainingArgsCount == 3)
+        if (remainingArgsCount == 3) {
+            launcher.addStartupActions(trk::Launcher::ActionRun);
             launcher.setFileName(arguments.at(a + 2));
+        }
         return true;
     }
     if ((remainingArgsCount == 4 || remainingArgsCount == 3) && !install && customInstall) {
         launcher.setTrkServerName(arguments.at(a)); // ping
         launcher.setCopyFileName(arguments.at(a + 1), arguments.at(a + 2));
         launcher.setInstallFileName(arguments.at(a + 2));
-        if (remainingArgsCount == 4)
+        if (remainingArgsCount == 4) {
+            launcher.addStartupActions(trk::Launcher::ActionRun);
             launcher.setFileName(arguments.at(a + 3));
+        }
         return true;
     }
     return false;

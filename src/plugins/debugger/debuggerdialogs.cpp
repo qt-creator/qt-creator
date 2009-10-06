@@ -130,10 +130,10 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
 
-    m_ui->execFileName->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->execFileName->setExpectedKind(Utils::PathChooser::File);
     m_ui->execFileName->setPromptDialogTitle(tr("Select Executable"));
 
-    m_ui->coreFileName->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->coreFileName->setExpectedKind(Utils::PathChooser::File);
     m_ui->coreFileName->setPromptDialogTitle(tr("Select Core File"));
 
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
@@ -259,7 +259,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     connect(m_ui->filterClearToolButton, SIGNAL(clicked()),
             m_ui->filterLineEdit, SLOT(clear()));
     connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)),
-            m_model, SLOT(setFilterFixedString(QString)));
+            this, SLOT(setFilterString(QString)));
 
     rebuildProcessList();
 }
@@ -267,6 +267,17 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
 AttachExternalDialog::~AttachExternalDialog()
 {
     delete m_ui;
+}
+
+void AttachExternalDialog::setFilterString(const QString &filter)
+{
+    m_model->setFilterFixedString(filter);
+    // Activate the line edit if there's a unique filtered process.
+    QString processId;
+    if (m_model->rowCount(QModelIndex()) == 1)
+        processId = m_model->processIdAt(m_model->index(0, 0, QModelIndex()));
+    m_ui->pidLineEdit->setText(processId);
+    pidChanged(processId);
 }
 
 QPushButton *AttachExternalDialog::okButton() const
@@ -284,9 +295,9 @@ void AttachExternalDialog::rebuildProcessList()
 
 void AttachExternalDialog::procSelected(const QModelIndex &proxyIndex)
 {
-    const QString proccessId  = m_model->processIdAt(proxyIndex);
-    if (!proccessId.isEmpty()) {
-        m_ui->pidLineEdit->setText(proccessId);
+    const QString processId  = m_model->processIdAt(proxyIndex);
+    if (!processId.isEmpty()) {
+        m_ui->pidLineEdit->setText(processId);
         if (okButton()->isEnabled())
             okButton()->animateClick();
     }
@@ -316,7 +327,7 @@ AttachTcfDialog::AttachTcfDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_ui->serverStartScript->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->serverStartScript->setExpectedKind(Utils::PathChooser::File);
     m_ui->serverStartScript->setPromptDialogTitle(tr("Select Executable"));
 
     connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)), 
@@ -403,7 +414,7 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
   : QDialog(parent), m_ui(new Ui::StartExternalDialog)
 {
     m_ui->setupUi(this);
-    m_ui->execFile->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->execFile->setExpectedKind(Utils::PathChooser::File);
     m_ui->execFile->setPromptDialogTitle(tr("Select Executable"));
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
@@ -462,7 +473,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    m_ui->serverStartScript->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->serverStartScript->setExpectedKind(Utils::PathChooser::File);
     m_ui->serverStartScript->setPromptDialogTitle(tr("Select Executable"));
 
     connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)), 
