@@ -70,28 +70,21 @@ public:
         unsigned column;
         unsigned length;
 
-        Use()
-                : line(0), column(0), length(0) {}
-
-        Use(unsigned line, unsigned column, unsigned length)
-                : line(line), column(column), length(length) {}
+        Use(unsigned line = 0, unsigned column = 0, unsigned length = 0)
+            : line(line), column(column), length(length) {}
     };
 
     typedef QHash<CPlusPlus::Symbol *, QList<Use> > LocalUseMap;
     typedef QHashIterator<CPlusPlus::Symbol *, QList<Use> > LocalUseIterator;
 
-    typedef QHash<CPlusPlus::Identifier *, QList<Use> > ExternalUseMap;
-    typedef QHashIterator<CPlusPlus::Identifier *, QList<Use> > ExternalUseIterator;
-
     SemanticInfo()
-            : revision(-1)
+        : revision(-1)
     { }
 
     int revision;
     CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr doc;
     LocalUseMap localUses;
-    ExternalUseMap externalUses;
 };
 
 class SemanticHighlighter: public QThread
@@ -199,6 +192,7 @@ public Q_SLOTS:
     void renameSymbolUnderCursor();
     void renameUsages();
     void findUsages();
+    void renameUsagesNow();
 
     void moveToPreviousToken();
     void moveToNextToken();

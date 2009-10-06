@@ -146,7 +146,6 @@ void ProjectLoadWizard::done(int result)
     // This normally happens on showing the final page, but since we
     // don't show it anymore, do it here
 
-    QString directory = QFileInfo(m_project->file()->fileName()).absolutePath();
     if (m_importVersion && importCheckbox->isChecked()) {
         // Importing
         if (m_temporaryVersion)

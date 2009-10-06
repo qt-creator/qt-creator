@@ -106,6 +106,9 @@ public:
     void setShowReplaceUI(bool show);
     bool isShowingReplaceUI() const;
 
+    void setTextToReplace(const QString &textToReplace);
+    QString textToReplace() const;
+
     // search result object only lives till next startnewsearch call
     SearchResult *startNewSearch(SearchMode searchOrSearchAndReplace = SearchOnly);
 

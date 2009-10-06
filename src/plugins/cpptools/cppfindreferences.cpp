@@ -36,6 +36,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filesearch.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
 #include <ASTVisitor.h>
@@ -57,7 +58,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QDir>
-
+#include <QtGui/QApplication>
 #include <qtconcurrent/runextensions.h>
 
 using namespace CppTools::Internal;
@@ -163,12 +164,20 @@ protected:
         if (! symbol)
             return false;
 
-        else if (symbol == _declSymbol)
+        else if (symbol == _declSymbol) {
             return true;
 
-        else if (symbol->line() == _declSymbol->line() && symbol->column() == _declSymbol->column()) {
+        } else if (symbol->line() == _declSymbol->line() && symbol->column() == _declSymbol->column()) {
             if (! qstrcmp(symbol->fileName(), _declSymbol->fileName()))
                 return true;
+
+        } else if (symbol->isForwardClassDeclaration() && (_declSymbol->isClass() ||
+                                                           _declSymbol->isForwardClassDeclaration())) {
+            return true;
+
+        } else if (_declSymbol->isForwardClassDeclaration() && (symbol->isClass() ||
+                                                                symbol->isForwardClassDeclaration())) {
+            return true;
         }
 
         return false;
@@ -303,14 +312,22 @@ protected:
             }
         }
 
-        if (ast->unqualified_name) {
-            SimpleNameAST *simple_name = ast->unqualified_name->asSimpleName();
+        if (NameAST *unqualified_name = ast->unqualified_name) {
+            unsigned identifier_token = 0;
+
+            if (SimpleNameAST *simple_name = unqualified_name->asSimpleName())
+                identifier_token = simple_name->identifier_token;
+
+            else if (DestructorNameAST *dtor_name = unqualified_name->asDestructorName())
+                identifier_token = dtor_name->identifier_token;
 
             TemplateIdAST *template_id = 0;
-            if (! simple_name) {
-                template_id = ast->unqualified_name->asTemplateId();
+            if (! identifier_token) {
+                template_id = unqualified_name->asTemplateId();
 
                 if (template_id) {
+                    identifier_token = template_id->identifier_token;
+
                     for (TemplateArgumentListAST *template_arguments = template_id->template_arguments;
                          template_arguments; template_arguments = template_arguments->next) {
                         accept(template_arguments->template_argument);
@@ -318,14 +335,8 @@ protected:
                 }
             }
 
-            if (simple_name || template_id) {
-                const unsigned identifier_token = simple_name
-                        ? simple_name->identifier_token
-                        : template_id->identifier_token;
-
-                if (identifier(identifier_token) == _id)
-                    checkExpression(ast->firstToken(), identifier_token);
-            }
+            if (identifier_token && identifier(identifier_token) == _id)
+                checkExpression(ast->firstToken(), identifier_token);
         }
 
         return false;
@@ -464,7 +475,21 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
     const QString sourceFile = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
 
     QStringList files(sourceFile);
-    files += snapshot.dependsOn(sourceFile);
+
+    if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
+        foreach (const Document::Ptr &doc, snapshot) {
+            if (doc->fileName() == sourceFile)
+                continue;
+
+            Control *control = doc->control();
+
+            if (control->findIdentifier(symbolId->chars(), symbolId->size()))
+                files.append(doc->fileName());
+        }
+    } else {
+        files += snapshot.dependsOn(sourceFile);
+    }
+
     qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
 
     future.setProgressRange(0, files.size());
@@ -544,15 +569,20 @@ void CppFindReferences::findUsages(Symbol *symbol)
 
 void CppFindReferences::renameUsages(Symbol *symbol)
 {
-    Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchAndReplace);
+    if (Identifier *id = symbol->identifier()) {
+        const QString textToReplace = QString::fromUtf8(id->chars(), id->size());
 
-    connect(search, SIGNAL(activated(Find::SearchResultItem)),
-            this, SLOT(openEditor(Find::SearchResultItem)));
+        Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchAndReplace);
+        _resultWindow->setTextToReplace(textToReplace);
 
-    connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
-            SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+        connect(search, SIGNAL(activated(Find::SearchResultItem)),
+                this, SLOT(openEditor(Find::SearchResultItem)));
 
-    findAll_helper(symbol);
+        connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
+                SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+
+        findAll_helper(symbol);
+    }
 }
 
 void CppFindReferences::findAll_helper(Symbol *symbol)
@@ -574,6 +604,23 @@ void CppFindReferences::findAll_helper(Symbol *symbol)
     connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
 }
 
+static void applyChanges(QTextDocument *doc, const QString &text, const QList<Find::SearchResultItem> &items)
+{
+    QList<QTextCursor> cursors;
+
+    foreach (const Find::SearchResultItem &item, items) {
+        const int blockNumber = item.lineNumber - 1;
+        QTextCursor tc(doc->findBlockByNumber(blockNumber));
+        tc.setPosition(tc.position() + item.searchTermStart);
+        tc.setPosition(tc.position() + item.searchTermLength,
+                       QTextCursor::KeepAnchor);
+        cursors.append(tc);
+    }
+
+    foreach (QTextCursor tc, cursors)
+        tc.insertText(text);
+}
+
 void CppFindReferences::onReplaceButtonClicked(const QString &text,
                                                const QList<Find::SearchResultItem> &items)
 {
@@ -585,47 +632,55 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
     foreach (const Find::SearchResultItem &item, items)
         changes[item.fileName].append(item);
 
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+
     QHashIterator<QString, QList<Find::SearchResultItem> > it(changes);
     while (it.hasNext()) {
         it.next();
 
         const QString fileName = it.key();
-        QFile file(fileName);
+        const QList<Find::SearchResultItem> items = it.value();
 
-        if (file.open(QFile::ReadOnly)) {
-            QTextStream stream(&file);
-            // ### set the encoding
-            const QString plainText = stream.readAll();
-            file.close();
+        const QList<Core::IEditor *> editors = editorManager->editorsForFileName(fileName);
+        TextEditor::BaseTextEditor *textEditor = 0;
+        foreach (Core::IEditor *editor, editors) {
+            textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
+            if (textEditor != 0)
+                break;
+        }
 
-            QTextDocument doc;
-            doc.setPlainText(plainText);
+        if (textEditor != 0) {
+            QTextCursor tc = textEditor->textCursor();
+            tc.beginEditBlock();
+            applyChanges(textEditor->document(), text, items);
+            tc.endEditBlock();
+        } else {
+            QFile file(fileName);
 
-            QList<QTextCursor> cursors;
-            const QList<Find::SearchResultItem> items = it.value();
-            foreach (const Find::SearchResultItem &item, items) {
-                const int blockNumber = item.lineNumber - 1;
-                QTextCursor tc(doc.findBlockByNumber(blockNumber));
-                tc.setPosition(tc.position() + item.searchTermStart);
-                tc.setPosition(tc.position() + item.searchTermLength,
-                               QTextCursor::KeepAnchor);
-                cursors.append(tc);
-            }
-
-            foreach (QTextCursor tc, cursors)
-                tc.insertText(text);
-
-            QFile newFile(fileName);
-            if (newFile.open(QFile::WriteOnly)) {
-                QTextStream stream(&newFile);
+            if (file.open(QFile::ReadOnly)) {
+                QTextStream stream(&file);
                 // ### set the encoding
-                stream << doc.toPlainText();
+                const QString plainText = stream.readAll();
+                file.close();
+
+                QTextDocument doc;
+                doc.setPlainText(plainText);
+
+                applyChanges(&doc, text, items);
+
+                QFile newFile(fileName);
+                if (newFile.open(QFile::WriteOnly)) {
+                    QTextStream stream(&newFile);
+                    // ### set the encoding
+                    stream << doc.toPlainText();
+                }
             }
         }
     }
 
     const QStringList fileNames = changes.keys();
     _modelManager->updateSourceFiles(fileNames);
+    _resultWindow->hide();
 }
 
 void CppFindReferences::displayResult(int index)

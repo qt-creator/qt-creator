@@ -4227,8 +4227,9 @@ void GdbEngine::handleAdapterShutdownFailed(const QString &msg)
 void GdbEngine::addOptionPages(QList<Core::IOptionsPage*> *opts) const
 {
     opts->push_back(new GdbOptionsPage);
-    if (!qgetenv("QTCREATOR_WITH_S60").isEmpty())
+#ifdef QTCREATOR_WITH_S60
         opts->push_back(new TrkOptionsPage(m_trkAdapter->options()));
+#endif
 }
 
 void GdbEngine::showMessageBox(int icon, const QString &title, const QString &text)

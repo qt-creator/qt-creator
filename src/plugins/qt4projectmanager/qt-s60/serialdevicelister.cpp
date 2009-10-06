@@ -42,33 +42,15 @@ namespace {
     const char * const USBSER = "Services/usbser/Enum";
 }
 
-//#ifdef Q_OS_WIN
-//GUID WceusbshGUID = { 0x25dbce51, 0x6c8f, 0x4a72,
-//                      0x8a,0x6d,0xb5,0x4c,0x2b,0x4f,0xc8,0x35 };
-//#endif
-
 SerialDeviceLister::SerialDeviceLister(QObject *parent)
         : QObject(parent),
         m_initialized(false)
-//        , m_devNotifyHandle(0)
 {
-//#ifdef Q_OS_WIN
-//    // register for events
-//    DEV_BROADCAST_DEVICEINTERFACE NotificationFilter;
-//    ZeroMemory( &NotificationFilter, sizeof(NotificationFilter) );
-//    NotificationFilter.dbcc_size = sizeof(DEV_BROADCAST_DEVICEINTERFACE);
-//    NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
-//    NotificationFilter.dbcc_classguid  = WceusbshGUID;
-//    m_devNotifyHandle = RegisterDeviceNotification(QApplication::topLevelWidgets().at(0)->winId(), &NotificationFilter, DEVICE_NOTIFY_WINDOW_HANDLE);
-//#endif
+
 }
 
 SerialDeviceLister::~SerialDeviceLister()
 {
-//#ifdef Q_OS_WIN
-//    if (m_devNotifyHandle)
-//        UnregisterDeviceNotification(m_devNotifyHandle);
-//#endif
 }
 
 QList<SerialDeviceLister::SerialDevice> SerialDeviceLister::serialDevices() const

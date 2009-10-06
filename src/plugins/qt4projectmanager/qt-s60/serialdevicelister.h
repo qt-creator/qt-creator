@@ -69,11 +69,6 @@ private:
 
     mutable bool m_initialized;
     mutable QList<SerialDevice> m_devices;
-
-//#ifdef Q_OS_WIN
-//private:
-//    HDEVNOTIFY m_devNotifyHandle;
-//#endif
 };
 
 } // Internal

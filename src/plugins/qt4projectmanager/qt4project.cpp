@@ -358,6 +358,7 @@ bool Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
 
     // Ensure that the qt version and tool chain in each build configuration is valid
     // or if not, is reset to the default
+
     foreach (BuildConfiguration *bc, buildConfigurations()) {
         qtVersionId(bc);
         toolChainType(bc);

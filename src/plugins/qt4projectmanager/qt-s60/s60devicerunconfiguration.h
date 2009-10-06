@@ -173,6 +173,7 @@ private slots:
     void printCopyingNotice();
     void printCreateFileFailed(const QString &filename, const QString &errorMessage);
     void printWriteFileFailed(const QString &filename, const QString &errorMessage);
+    void printCloseFileFailed(const QString &filename, const QString &errorMessage);
     void printCopyProgress(int progress);
     void printInstallingNotice();
     void printInstallFailed(const QString &filename, const QString &errorMessage);

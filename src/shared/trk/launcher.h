@@ -71,6 +71,7 @@ signals:
     void copyingStarted();
     void canNotCreateFile(const QString &filename, const QString &errorMessage);
     void canNotWriteFile(const QString &filename, const QString &errorMessage);
+    void canNotCloseFile(const QString &filename, const QString &errorMessage);
     void installingStarted();
     void canNotInstall(const QString &packageFilename, const QString &errorMessage);
     void startingApplication();

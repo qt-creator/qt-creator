@@ -341,9 +341,9 @@ void BuildManager::buildProjects(const QList<Project *> &projects, const QList<Q
             }
         }
     }
-    startBuildQueue();
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
         m_outputWindow->popup(false);
+    startBuildQueue();
 }
 
 void BuildManager::cleanProjects(const QList<Project *> &projects, const QList<QString> &configurations)
@@ -359,9 +359,9 @@ void BuildManager::cleanProjects(const QList<Project *> &projects, const QList<Q
             buildQueueAppend(bs, *cit);
         }
     }
-    startBuildQueue();
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
         m_outputWindow->popup(false);
+    startBuildQueue();
 }
 
 void BuildManager::buildProject(Project *p, const QString &configuration)

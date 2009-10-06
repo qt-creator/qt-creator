@@ -209,9 +209,18 @@ static QString localExecutableFromPkgFile(const QString &pkgFileName, QString *e
     // "<SDK>/foo.exe"    - "!:\device_bin\foo.exe"
     const QRegExp exePattern = QRegExp(QLatin1String("^\"([^\"]+\\.exe)\" +-.*$"));
     Q_ASSERT(exePattern.isValid());
-    foreach(const QString &line, QString::fromLocal8Bit(pkgFile.readAll()).split(QLatin1Char('\n')))
-        if (exePattern.exactMatch(line))
-            return exePattern.cap(1);
+
+    foreach(const QString &line, QString::fromLocal8Bit(pkgFile.readAll()).split(QLatin1Char('\n'))) {
+        if (exePattern.exactMatch(line)) {
+            QString rc = exePattern.cap(1);
+#ifdef Q_OS_WIN
+            // Sometimes, the drive letter is missing. Use that of the pkg file
+            if (rc.at(0) == QLatin1Char('/'))
+                rc.insert(0, pkgFileName.left(2));
+#endif
+            return rc;
+        }
+    }
     *errorMessage = S60DeviceRunConfiguration::tr("Unable to find the executable in the package file %1.").arg(pkgFileName);
     return QString();
 }
@@ -629,6 +638,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
     connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
     connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(printWriteFileFailed(QString,QString)));
+    connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(printCloseFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
     connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(printInstallFailed(QString,QString)));
     connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
@@ -660,6 +670,12 @@ void S60DeviceRunControlBase::printCreateFileFailed(const QString &filename, con
 void S60DeviceRunControlBase::printWriteFileFailed(const QString &filename, const QString &errorMessage)
 {
     emit addToOutputWindow(this, tr("Could not write to file %1 on device: %2").arg(filename, errorMessage));
+}
+
+void S60DeviceRunControlBase::printCloseFileFailed(const QString &filename, const QString &errorMessage)
+{
+    const QString msg = tr("Could not close file %1 on device: %2. It will be closed when App TRK is closed.");
+    emit addToOutputWindow(this, msg.arg(filename, errorMessage));
 }
 
 void S60DeviceRunControlBase::printCopyingNotice()

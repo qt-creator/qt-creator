@@ -41,8 +41,10 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextStream>
+#include <QtCore/QTime>
 
 enum { loadDebug = 0 };
+enum { dumpDebug = 0 };
 
 static const char *dumperModuleNameC = "gdbmacros";
 static const char *qtCoreModuleNameC = "QtCore";
@@ -158,24 +160,25 @@ static bool debuggeeLoadLibrary(DebuggerManager *manager,
     // We want to call "HMODULE LoadLibraryA(LPCTSTR lpFileName)"
     // (void* LoadLibraryA(char*)). However, despite providing a symbol
     // server, the debugger refuses to recognize it as a function.
-    // Set up the call stack with a function of same signature (qstrdup)
-    // and change the call register to LoadLibraryA() before executing "g".
+    // Call with a prototype of 'qstrdup', as it is the same
     // Prepare call: Locate 'qstrdup' in the (potentially namespaced) corelib. For some
     // reason, the symbol is present in QtGui as well without type information.
     QString dummyFunc = QLatin1String("*qstrdup");
     if (resolveSymbol(cif->debugSymbols, QLatin1String("QtCore[d]*4!"), &dummyFunc, errorMessage) != ResolveSymbolOk)
         return false;
-    QString callCmd = QLatin1String(".call ");
-    callCmd += dummyFunc;
-    callCmd += QLatin1String("(0x");
-    callCmd += QString::number(nameAddress, 16);
-    callCmd += QLatin1Char(')');
+
+    QString callCmd; {
+        QTextStream str(&callCmd);
+        str.setIntegerBase(16);
+        str << ".call /s " << dummyFunc << " Kernel32!LoadLibraryA(0x" << nameAddress << ')';
+    }
+    if (loadDebug)
+        qDebug() << "Calling" << callCmd;
+
     if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, callCmd, errorMessage))
         return false;
-    if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, QLatin1String("r eip=Kernel32!LoadLibraryA"), errorMessage))
-        return false;
-    // This will hit a breakpoint.
-    if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, QString(QLatin1Char('g')), errorMessage))
+    // Execute current thread. This will hit a breakpoint.
+    if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, QLatin1String("~. g"), errorMessage))
         return false;
     const HRESULT hr = cif->debugControl->WaitForEvent(0, waitTimeOutMS);
     if (FAILED(hr)) {
@@ -183,6 +186,14 @@ static bool debuggeeLoadLibrary(DebuggerManager *manager,
         return false;
     }
     return true;
+}
+
+// Format a "go" in a thread
+static inline QString goCommand(unsigned long threadId)
+{
+    QString rc;
+    QTextStream(&rc) << '~' << threadId << " g";
+    return rc;
 }
 
 // ---- Load messages
@@ -226,7 +237,9 @@ CdbDumperHelper::CdbDumperHelper(DebuggerManager *manager,
     m_inBufferSize(0),
     m_outBufferAddress(0),
     m_outBufferSize(0),
-    m_buffer(0)
+    m_buffer(0),
+    m_dumperCallThread(0),
+    m_goCommand(goCommand(m_dumperCallThread))
 {
 }
 
@@ -324,7 +337,7 @@ CdbDumperHelper::CallLoadResult CdbDumperHelper::initCallLoad(QString *errorMess
 bool CdbDumperHelper::ensureInitialized(QString *errorMessage)
 {
     if (loadDebug)
-        qDebug() << Q_FUNC_INFO << '\n' << m_state;
+        qDebug() << "ensureInitialized thread: " << m_dumperCallThread << " state: " << m_state;
 
     switch (m_state) {
     case Disabled:
@@ -372,6 +385,9 @@ bool CdbDumperHelper::ensureInitialized(QString *errorMessage)
         m_manager->showDebuggerOutput(LogMisc, *errorMessage);
         m_manager->showQtDumperLibraryWarning(*errorMessage);
     }
+    if (loadDebug)
+        qDebug() << Q_FUNC_INFO << '\n' << ok;
+
     return ok;
 }
 
@@ -451,7 +467,7 @@ bool CdbDumperHelper::initKnownTypes(QString *errorMessage)
         *errorMessage = QtDumperHelper::msgDumperOutdated(dumperVersionRequired, m_helper.dumperVersion());
         return false;
     }
-    if (loadDebug)
+    if (loadDebug || dumpDebug)
         qDebug() << Q_FUNC_INFO << m_helper.toString(true);
     return true;
 }
@@ -492,8 +508,11 @@ bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuf
     // by using 'gN' (go not handled -> pass handling to dumper __try/__catch block)
     for (int i = 0; i < 10; i++) {
         const int oldExceptionCount = exLogger.exceptionCount();
-        // Go. If an exception occurs in loop 2, let the dumper handle it.
-        const QString goCmd = i ? QString(QLatin1String("gN")) : QString(QLatin1Char('g'));
+        // Go in current thread. If an exception occurs in loop 2,
+        // let the dumper handle it.
+        QString goCmd = m_goCommand;
+        if (i)
+            goCmd = QLatin1Char('N');
         if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, goCmd, errorMessage))
             return false;
         HRESULT hr = m_cif->debugControl->WaitForEvent(0, waitTimeOutMS);
@@ -556,6 +575,18 @@ static inline QString msgNotHandled(const QString &type)
 CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool dumpChildren,
                                                       QList<WatchData> *result, QString *errorMessage)
 {
+    if (dumpDebug)
+        qDebug() << ">dumpType() thread: " << m_dumperCallThread << " state: " << m_state << wd.type << QTime::currentTime().toString();
+    const CdbDumperHelper::DumpResult rc = dumpTypeI(wd, dumpChildren, result, errorMessage);
+    if (dumpDebug)
+        qDebug() << "<dumpType() state: " << m_state << wd.type << " returns " << rc << *errorMessage << QTime::currentTime().toString();
+    return rc;
+}
+
+CdbDumperHelper::DumpResult CdbDumperHelper::dumpTypeI(const WatchData &wd, bool dumpChildren,
+                                                      QList<WatchData> *result, QString *errorMessage)
+{
+    errorMessage->clear();
     // Check failure cache and supported types
     if (m_state == Disabled) {
         *errorMessage = QLatin1String("Dumpers are disabled");
@@ -567,6 +598,20 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
     }
     if (wd.addr.isEmpty()) {
         *errorMessage = QString::fromLatin1("Adress is missing for '%1' (%2).").arg(wd.exp, wd.type);
+        return DumpNotHandled;
+    }
+
+    // Do we have a thread
+    if (m_dumperCallThread == InvalidDumperCallThread) {
+        *errorMessage = QString::fromLatin1("No thread to call.");
+        if (loadDebug)
+            qDebug() << *errorMessage;
+        return DumpNotHandled;
+    }
+
+    // Delay initialization as much as possible
+    if (isIntOrFloatType(wd.type)) {
+        *errorMessage = QString::fromLatin1("Unhandled POD: " ) + wd.type;
         return DumpNotHandled;
     }
 
@@ -720,6 +765,19 @@ bool CdbDumperHelper::runTypeSizeQuery(const QString &typeName, int *size, QStri
     }
     *size = static_cast<int>(size64);
     return true;
+}
+
+unsigned long CdbDumperHelper::dumperCallThread()
+{
+    return m_dumperCallThread;
+}
+
+void CdbDumperHelper::setDumperCallThread(unsigned long t)
+{
+    if (m_dumperCallThread != t) {
+        m_dumperCallThread = t;
+        m_goCommand = goCommand(m_dumperCallThread);
+    }
 }
 
 } // namespace Internal

@@ -159,6 +159,7 @@ QtVersionManager *QtVersionManager::instance()
 void QtVersionManager::addVersion(QtVersion *version)
 {
     m_versions.append(version);
+    m_uniqueIdToIndex.insert(version->uniqueId(), m_versions.count() - 1);
     emit qtVersionsChanged();
     writeVersionsIntoSettings();
 }
@@ -528,7 +529,7 @@ void QtVersion::setName(const QString &name)
 
 void QtVersion::setQMakeCommand(const QString& qmakeCommand)
 {
-    m_qmakeCommand = qmakeCommand;
+    m_qmakeCommand = QDir::fromNativeSeparators(qmakeCommand);
 #ifdef Q_OS_WIN
     m_qmakeCommand = m_qmakeCommand.toLower();
 #endif
@@ -823,6 +824,7 @@ void QtVersion::updateVersionInfo() const
 {
     if (m_versionInfoUpToDate)
         return;
+
     // extract data from qmake executable
     m_versionInfo.clear();
     m_notInstalled = false;
@@ -937,7 +939,7 @@ void QtVersion::updateMkSpec() const
         mkspecPath = versionInfo().value("QT_INSTALL_DATA") + "/mkspecs/default";
     else
         mkspecPath = mkspecPath + "/default";
-//        qDebug() << "default mkspec is located at" << mkspecPath;
+//     qDebug() << "default mkspec is located at" << mkspecPath;
 #ifdef Q_OS_WIN
     QFile f2(mkspecPath + "/qmake.conf");
     if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
