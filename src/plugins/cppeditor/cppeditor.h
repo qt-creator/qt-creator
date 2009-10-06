@@ -192,6 +192,7 @@ public Q_SLOTS:
     void renameSymbolUnderCursor();
     void renameUsages();
     void findUsages();
+    void renameUsagesNow();
 
     void moveToPreviousToken();
     void moveToNextToken();
