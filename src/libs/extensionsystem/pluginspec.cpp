@@ -34,6 +34,7 @@
 #include "iplugin_p.h"
 #include "pluginmanager.h"
 
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QXmlStreamReader>
@@ -787,7 +788,8 @@ bool PluginSpecPrivate::loadLibrary()
     PluginLoader loader(libName);
     if (!loader.load()) {
         hasError = true;
-        errorString = libName + QString::fromLatin1(": ") + loader.errorString();
+        errorString = QDir::toNativeSeparators(libName)
+            + QString::fromLatin1(": ") + loader.errorString();
         return false;
     }
     IPlugin *pluginObject = qobject_cast<IPlugin*>(loader.instance());
