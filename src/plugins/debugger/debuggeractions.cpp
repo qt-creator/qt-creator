@@ -162,6 +162,16 @@ DebuggerSettings *DebuggerSettings::instance()
         "disassembled instructions."));
     instance->insertItem(OperateByInstruction, item);
 
+    item = new SavedAction(instance);
+    item->setText(tr("Dereference pointers automatically"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setToolTip(tr("This switches the Locals&Watchers view to "
+        "automatically derefence pointers. This saves a level in the "
+        "tree view, but also loses data for the now-missing intermediate "
+        "level."));
+    instance->insertItem(AutoDerefPointers, item);
+
     //
     // Locals & Watchers
     //

@@ -116,6 +116,7 @@ public:
         { Q_UNUSED(regnr); Q_UNUSED(value); }
 
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const {}
+    virtual bool isGdbEngine() const { return false; }
 
 protected:
     void showStatusMessage(const QString &msg, int timeout = -1);

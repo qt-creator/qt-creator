@@ -295,6 +295,7 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
         m_ui.checkBoxSkipKnownFrames);
     m_group.insert(theDebuggerAction(UseToolTipsInMainEditor), 
         m_ui.checkBoxUseToolTipsInMainEditor);
+    m_group.insert(theDebuggerAction(AutoDerefPointers), 0);
     m_group.insert(theDebuggerAction(UseToolTipsInLocalsView), 0);
     m_group.insert(theDebuggerAction(UseToolTipsInBreakpointsView), 0);
     m_group.insert(theDebuggerAction(UseAddressInBreakpointsView), 0);

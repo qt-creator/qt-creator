@@ -78,6 +78,7 @@ enum DebuggerActionCode
     LockView,
     LogTimeStamps,
     OperateByInstruction,
+    AutoDerefPointers,
 
     RecheckDebuggingHelpers,
     UseDebuggingHelpers,

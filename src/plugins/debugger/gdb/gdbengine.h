@@ -147,6 +147,8 @@ private:
 
     Q_SLOT void setDebugDebuggingHelpers(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
+    Q_SLOT void setAutoDerefPointers(const QVariant &on);
+    virtual bool isGdbEngine() const { return true; }
 
     //
     // Own stuff

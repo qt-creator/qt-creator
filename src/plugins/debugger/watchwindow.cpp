@@ -34,6 +34,7 @@
 #include "debuggeragents.h"
 #include "debuggerdialogs.h"
 #include "debuggermanager.h"
+#include "idebuggerengine.h"
 
 #include <utils/qtcassert.h>
 
@@ -274,6 +275,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
     menu.addAction(theDebuggerAction(UseToolTipsInLocalsView));
+    
+    menu.addAction(theDebuggerAction(AutoDerefPointers));
+    theDebuggerAction(AutoDerefPointers)->
+        setEnabled(m_manager->currentEngine()->isGdbEngine());
     QAction *actAdjustColumnWidths =
         menu.addAction(tr("Adjust column widths to contents"));
     QAction *actAlwaysAdjustColumnWidth =
