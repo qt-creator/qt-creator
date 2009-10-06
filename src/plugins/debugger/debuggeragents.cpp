@@ -183,7 +183,7 @@ private:
 */
 
 DisassemblerViewAgent::DisassemblerViewAgent(DebuggerManager *manager)
-    : QObject(0), d(new DisassemblerViewAgentPrivate), m_manager(manager)
+    : QObject(0), d(new DisassemblerViewAgentPrivate)
 {
     d->editor = 0;
     d->locationMark = new LocationMark2();
@@ -226,7 +226,7 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame)
         if (it != d->cache.end()) {
             QString msg = _("Use cache dissassembler for '%1' in '%2'")
                 .arg(frame.function).arg(frame.file);
-            m_manager->showDebuggerOutput(msg);
+            d->manager->showDebuggerOutput(msg);
             setContents(*it);
             return;
         }
