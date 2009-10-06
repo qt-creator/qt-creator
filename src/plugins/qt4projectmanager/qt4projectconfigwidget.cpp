@@ -145,7 +145,7 @@ QString Qt4ProjectConfigWidget::displayName() const
 void Qt4ProjectConfigWidget::init(const QString &buildConfiguration)
 {
     if (debug)
-        qDebug() << "Qt4ProjectConfigWidget::init()";
+        qDebug() << "Qt4ProjectConfigWidget::init() for"<<buildConfiguration;
 
     m_buildConfiguration = buildConfiguration;
     ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(buildConfiguration);
@@ -183,6 +183,7 @@ void Qt4ProjectConfigWidget::setupQtVersionsComboBox()
     m_ui->qtVersionComboBox->addItem(tr("Default Qt Version (%1)").arg(vm->defaultVersion()->name()), 0);
 
     int qtVersionId = m_pro->qtVersionId(m_pro->buildConfiguration(m_buildConfiguration));
+
     if (qtVersionId == 0) {
         m_ui->qtVersionComboBox->setCurrentIndex(0);
         m_ui->invalidQtWarningLabel->setVisible(false);
