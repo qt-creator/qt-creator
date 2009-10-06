@@ -1146,10 +1146,12 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
         return 0;
     }
     addEditor(editor);
-    restoreEditorState(editor);
-    QApplication::restoreOverrideCursor();
 
-    return activateEditor(view, editor, flags);
+    IEditor *result= activateEditor(view, editor, flags);
+    if (editor == result)
+        restoreEditorState(editor);
+    QApplication::restoreOverrideCursor();
+    return result;
 }
 
 bool EditorManager::openExternalEditor(const QString &fileName, const QString &editorKind)
