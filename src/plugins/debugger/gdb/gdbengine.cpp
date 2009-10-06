@@ -2388,6 +2388,7 @@ void GdbEngine::activateFrame(int frameIndex)
 
         stackHandler->setCurrentIndex(frameIndex);
         updateLocals();
+        reloadRegisters();
     }
 
     gotoLocation(stackHandler->currentFrame(), true);
