@@ -164,12 +164,20 @@ protected:
         if (! symbol)
             return false;
 
-        else if (symbol == _declSymbol)
+        else if (symbol == _declSymbol) {
             return true;
 
-        else if (symbol->line() == _declSymbol->line() && symbol->column() == _declSymbol->column()) {
+        } else if (symbol->line() == _declSymbol->line() && symbol->column() == _declSymbol->column()) {
             if (! qstrcmp(symbol->fileName(), _declSymbol->fileName()))
                 return true;
+
+        } else if (symbol->isForwardClassDeclaration() && (_declSymbol->isClass() ||
+                                                           _declSymbol->isForwardClassDeclaration())) {
+            return true;
+
+        } else if (_declSymbol->isForwardClassDeclaration() && (symbol->isClass() ||
+                                                                symbol->isForwardClassDeclaration())) {
+            return true;
         }
 
         return false;
@@ -467,7 +475,21 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
     const QString sourceFile = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
 
     QStringList files(sourceFile);
-    files += snapshot.dependsOn(sourceFile);
+
+    if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
+        foreach (const Document::Ptr &doc, snapshot) {
+            if (doc->fileName() == sourceFile)
+                continue;
+
+            Control *control = doc->control();
+
+            if (control->findIdentifier(symbolId->chars(), symbolId->size()))
+                files.append(doc->fileName());
+        }
+    } else {
+        files += snapshot.dependsOn(sourceFile);
+    }
+
     qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
 
     future.setProgressRange(0, files.size());
