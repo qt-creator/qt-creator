@@ -297,8 +297,11 @@ void Launcher::handleResult(const TrkResult &result)
 
 void Launcher::handleTrkVersion(const TrkResult &result)
 {
-    if (result.errorCode() || result.data.size() < 5)
+    if (result.errorCode() || result.data.size() < 5) {
+        if (d->m_startupActions == ActionPingOnly)
+            emit finished();
         return;
+    }
     const int trkMajor = result.data.at(1);
     const int trkMinor = result.data.at(2);
     const int protocolMajor = result.data.at(3);
@@ -377,7 +380,8 @@ void Launcher::closeRemoteFile(bool failed)
 
 void Launcher::handleFileCopied(const TrkResult &result)
 {
-    Q_UNUSED(result)
+    if (result.errorCode())
+        emit canNotCloseFile(d->m_copyState.destinationFileName, result.errorString());
     if (d->m_startupActions & ActionInstall)
         installRemotePackageSilently();
     else if (d->m_startupActions & ActionRun)

@@ -629,6 +629,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
     connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
     connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(printWriteFileFailed(QString,QString)));
+    connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(printCloseFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
     connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(printInstallFailed(QString,QString)));
     connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
@@ -660,6 +661,12 @@ void S60DeviceRunControlBase::printCreateFileFailed(const QString &filename, con
 void S60DeviceRunControlBase::printWriteFileFailed(const QString &filename, const QString &errorMessage)
 {
     emit addToOutputWindow(this, tr("Could not write to file %1 on device: %2").arg(filename, errorMessage));
+}
+
+void S60DeviceRunControlBase::printCloseFileFailed(const QString &filename, const QString &errorMessage)
+{
+    const QString msg = tr("Could not close file %1 on device: %2. It will be closed when App TRK is closed.");
+    emit addToOutputWindow(this, msg.arg(filename, errorMessage));
 }
 
 void S60DeviceRunControlBase::printCopyingNotice()
