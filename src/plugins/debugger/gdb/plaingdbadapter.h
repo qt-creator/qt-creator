@@ -34,8 +34,6 @@
 #include "gdbengine.h"
 #include "outputcollector.h"
 
-#include <consoleprocess.h>
-
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
 
@@ -67,17 +65,12 @@ private:
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleKill(const GdbResponse &response);
     void handleExit(const GdbResponse &response);
-    void handleStubAttached(const GdbResponse &response);
     void handleExecRun(const GdbResponse &response);
 
-    void emitAdapterStartFailed(const QString &msg);
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus status);
     Q_SLOT void handleGdbError(QProcess::ProcessError error);
     Q_SLOT void handleGdbStarted();
-    Q_SLOT void stubStarted();
-    Q_SLOT void stubError(const QString &msg);
 
-    Utils::ConsoleProcess m_stubProc;
     OutputCollector m_outputCollector;
 };
 

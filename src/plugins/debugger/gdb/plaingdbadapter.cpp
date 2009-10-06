@@ -60,19 +60,6 @@ PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
 {
     commonInit();
 
-    m_stubProc.setMode(Utils::ConsoleProcess::Debug);
-#ifdef Q_OS_UNIX
-    m_stubProc.setSettings(Core::ICore::instance()->settings());
-#endif
-
-    connect(&m_stubProc, SIGNAL(processError(QString)),
-        this, SLOT(stubError(QString)));
-    connect(&m_stubProc, SIGNAL(processStarted()),
-        this, SLOT(stubStarted()));
-// FIXME:
-//    connect(&m_stubProc, SIGNAL(wrapperStopped()),
-//        m_manager, SLOT(exitDebugger()));
-
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
         engine, SLOT(readDebugeeOutput(QByteArray)));
@@ -88,30 +75,17 @@ void PlainGdbAdapter::startAdapter()
     gdbArgs.prepend(_("mi"));
     gdbArgs.prepend(_("-i"));
 
-    if (startParameters().useTerminal) {
-        m_stubProc.stop(); // We leave the console open, so recycle it now.
-
-        m_stubProc.setWorkingDirectory(startParameters().workingDir);
-        m_stubProc.setEnvironment(startParameters().environment);
-        if (!m_stubProc.start(startParameters().executable,
-                             startParameters().processArgs)) {
-            // Error message for user is delivered via a signal.
-            emitAdapterStartFailed(QString());
-            return;
-        }
-    } else {
-        if (!m_outputCollector.listen()) {
-            emitAdapterStartFailed(tr("Cannot set up communication with child process: %1")
-                    .arg(m_outputCollector.errorString()));
-            return;
-        }
-        gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
-
-        if (!startParameters().workingDir.isEmpty())
-            m_gdbProc.setWorkingDirectory(startParameters().workingDir);
-        if (!startParameters().environment.isEmpty())
-            m_gdbProc.setEnvironment(startParameters().environment);
+    if (!m_outputCollector.listen()) {
+        emit adapterStartFailed(tr("Cannot set up communication with child process: %1")
+                .arg(m_outputCollector.errorString()));
+        return;
     }
+    gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
+
+    if (!startParameters().workingDir.isEmpty())
+        m_gdbProc.setWorkingDirectory(startParameters().workingDir);
+    if (!startParameters().environment.isEmpty())
+        m_gdbProc.setEnvironment(startParameters().environment);
 
     m_gdbProc.start(theDebuggerStringSetting(GdbLocation), gdbArgs);
 }
@@ -267,35 +241,6 @@ void PlainGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
 {
     debugMessage(_("GDB PROCESS FINISHED"));
     emit adapterShutDown();
-}
-
-void PlainGdbAdapter::stubStarted()
-{
-    const qint64 attachedPID = m_stubProc.applicationPID();
-    emit inferiorPidChanged(attachedPID);
-    m_engine->postCommand(_("attach %1").arg(attachedPID), CB(handleStubAttached));
-}
-
-void PlainGdbAdapter::handleStubAttached(const GdbResponse &)
-{
-    qDebug() << "STUB ATTACHED, FIXME";
-    //qq->notifyInferiorStopped();
-    //handleAqcuiredInferior();
-}
-
-void PlainGdbAdapter::stubError(const QString &msg)
-{
-    QMessageBox::critical(m_engine->mainWindow(), tr("Debugger Error"), msg);
-}
-
-void PlainGdbAdapter::emitAdapterStartFailed(const QString &msg)
-{
-    //  QMessageBox::critical(mainWindow(), tr("Debugger Startup Failure"),
-    //    tr("Cannot start debugger: %1").arg(m_gdbAdapter->errorString()));
-    bool blocked = m_stubProc.blockSignals(true);
-    m_stubProc.stop();
-    m_stubProc.blockSignals(blocked);
-    emit adapterStartFailed(msg, QString());
 }
 
 } // namespace Internal
