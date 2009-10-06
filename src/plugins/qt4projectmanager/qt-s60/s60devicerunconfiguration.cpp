@@ -209,9 +209,18 @@ static QString localExecutableFromPkgFile(const QString &pkgFileName, QString *e
     // "<SDK>/foo.exe"    - "!:\device_bin\foo.exe"
     const QRegExp exePattern = QRegExp(QLatin1String("^\"([^\"]+\\.exe)\" +-.*$"));
     Q_ASSERT(exePattern.isValid());
-    foreach(const QString &line, QString::fromLocal8Bit(pkgFile.readAll()).split(QLatin1Char('\n')))
-        if (exePattern.exactMatch(line))
-            return exePattern.cap(1);
+
+    foreach(const QString &line, QString::fromLocal8Bit(pkgFile.readAll()).split(QLatin1Char('\n'))) {
+        if (exePattern.exactMatch(line)) {
+            QString rc = exePattern.cap(1);
+#ifdef Q_OS_WIN
+            // Sometimes, the drive letter is missing. Use that of the pkg file
+            if (rc.at(0) == QLatin1Char('/'))
+                rc.insert(0, pkgFileName.left(2));
+#endif
+            return rc;
+        }
+    }
     *errorMessage = S60DeviceRunConfiguration::tr("Unable to find the executable in the package file %1.").arg(pkgFileName);
     return QString();
 }
