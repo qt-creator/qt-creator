@@ -29,7 +29,6 @@
 
 #include "linecolumnlabel.h"
 
-namespace Core {
 namespace Utils {
 
 LineColumnLabel::LineColumnLabel(QWidget *parent)
@@ -62,4 +61,3 @@ void LineColumnLabel::setMaxText(const QString &maxText)
 }
 
 } // namespace Utils
-} // namespace Core

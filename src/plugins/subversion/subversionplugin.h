@@ -43,9 +43,9 @@ QT_END_NAMESPACE
 
 namespace Core {
     class IVersionControl;
-    namespace Utils {
-        class ParameterAction;
-    }
+}
+namespace Utils {
+    class ParameterAction;
 }
 
 namespace ProjectExplorer {
@@ -136,15 +136,15 @@ private:
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 
-    Core::Utils::ParameterAction *m_addAction;
-    Core::Utils::ParameterAction *m_deleteAction;
-    Core::Utils::ParameterAction *m_revertAction;
+    Utils::ParameterAction *m_addAction;
+    Utils::ParameterAction *m_deleteAction;
+    Utils::ParameterAction *m_revertAction;
     QAction *m_diffProjectAction;
-    Core::Utils::ParameterAction *m_diffCurrentAction;
+    Utils::ParameterAction *m_diffCurrentAction;
     QAction *m_commitAllAction;
-    Core::Utils::ParameterAction *m_commitCurrentAction;
-    Core::Utils::ParameterAction *m_filelogCurrentAction;
-    Core::Utils::ParameterAction *m_annotateCurrentAction;
+    Utils::ParameterAction *m_commitCurrentAction;
+    Utils::ParameterAction *m_filelogCurrentAction;
+    Utils::ParameterAction *m_annotateCurrentAction;
     QAction *m_statusAction;
     QAction *m_updateProjectAction;
     QAction *m_describeAction;

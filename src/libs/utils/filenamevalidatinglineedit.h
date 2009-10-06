@@ -32,7 +32,6 @@
 
 #include "basevalidatinglineedit.h"
 
-namespace Core {
 namespace Utils {
 
 /**
@@ -67,6 +66,5 @@ private:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // FILENAMEVALIDATINGLINEEDIT_H

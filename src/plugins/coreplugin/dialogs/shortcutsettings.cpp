@@ -113,7 +113,7 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
         this, SLOT(commandChanged(QTreeWidgetItem *)));
     connect(m_page->shortcutEdit, SIGNAL(textChanged(QString)), this, SLOT(keyChanged()));
 
-    new Core::Utils::TreeWidgetColumnStretcher(m_page->commandList, 1);
+    new Utils::TreeWidgetColumnStretcher(m_page->commandList, 1);
 
     commandChanged(0);
 

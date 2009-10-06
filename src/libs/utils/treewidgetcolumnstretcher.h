@@ -37,7 +37,6 @@ QT_BEGIN_NAMESPACE
 class QTreeWidget;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 
 /*
@@ -58,6 +57,5 @@ public:
 };
 
 } // namespace Utils
-} // namespace Core
 
 #endif // TREEWIDGETCOLUMNSTRETCHER_H

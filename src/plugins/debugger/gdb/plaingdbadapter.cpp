@@ -72,7 +72,7 @@ PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
     connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
         this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
 
-    m_stubProc.setMode(Core::Utils::ConsoleProcess::Debug);
+    m_stubProc.setMode(Utils::ConsoleProcess::Debug);
 #ifdef Q_OS_UNIX
     m_stubProc.setSettings(Core::ICore::instance()->settings());
 #endif

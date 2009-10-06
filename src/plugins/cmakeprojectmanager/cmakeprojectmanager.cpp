@@ -262,8 +262,8 @@ QWidget *CMakeSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     QFormLayout *fl = new QFormLayout(w);
-    m_pathchooser = new Core::Utils::PathChooser(w);
-    m_pathchooser->setExpectedKind(Core::Utils::PathChooser::Command);
+    m_pathchooser = new Utils::PathChooser(w);
+    m_pathchooser->setExpectedKind(Utils::PathChooser::Command);
     fl->addRow(tr("CMake executable"), m_pathchooser);
     m_pathchooser->setPath(cmakeExecutable());
     return w;

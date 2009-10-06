@@ -137,6 +137,8 @@ class ForwardClassDeclaration;
 class Token;
 
 // Objective-C symbols
+class ObjCBaseClass;
+class ObjCBaseProtocol;
 class ObjCClass;
 class ObjCForwardClassDeclaration;
 class ObjCProtocol;

@@ -42,7 +42,7 @@ ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
                                                const QList<QWizardPage*> &extensionPages,
                                                QWidget *parent) :
     QWizard(parent),
-    m_introPage(new  Core::Utils::ProjectIntroPage),
+    m_introPage(new  Utils::ProjectIntroPage),
     m_modulesPage(new ModulesPage)
 {
     setWindowIcon(icon);

@@ -34,7 +34,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
 
-namespace Core {
 namespace Utils {
 
 struct ClassNameValidatingLineEditPrivate {
@@ -58,7 +57,7 @@ ClassNameValidatingLineEditPrivate:: ClassNameValidatingLineEditPrivate() :
 
 // --------------------- ClassNameValidatingLineEdit
 ClassNameValidatingLineEdit::ClassNameValidatingLineEdit(QWidget *parent) :
-    Core::Utils::BaseValidatingLineEdit(parent),
+    Utils::BaseValidatingLineEdit(parent),
     m_d(new ClassNameValidatingLineEditPrivate)
 {
 }
@@ -98,7 +97,7 @@ bool ClassNameValidatingLineEdit::validate(const QString &value, QString *errorM
 
 void ClassNameValidatingLineEdit::slotChanged(const QString &t)
 {
-    Core::Utils::BaseValidatingLineEdit::slotChanged(t);
+    Utils::BaseValidatingLineEdit::slotChanged(t);
     if (isValid()) {
         // Suggest file names, strip namespaces
         QString fileName = m_d->m_lowerCaseFileName ? t.toLower() : t;
@@ -148,4 +147,3 @@ void ClassNameValidatingLineEdit::setLowerCaseFileName(bool v)
 }
 
 } // namespace Utils
-} // namespace Core

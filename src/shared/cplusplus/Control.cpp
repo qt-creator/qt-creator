@@ -128,6 +128,8 @@ public:
         delete_array_entries(enums);
         delete_array_entries(usingDeclarations);
         delete_array_entries(classForwardDeclarations);
+        delete_array_entries(objcBaseClasses);
+        delete_array_entries(objcBaseProtocols);
         delete_array_entries(objcClasses);
         delete_array_entries(objcProtocols);
         delete_array_entries(objcForwardClassDeclarations);
@@ -348,6 +350,20 @@ public:
         return c;
     }
 
+    ObjCBaseClass *newObjCBaseClass(unsigned sourceLocation, Name *name)
+    {
+        ObjCBaseClass *c = new ObjCBaseClass(translationUnit, sourceLocation, name);
+        objcBaseClasses.push_back(c);
+        return c;
+    }
+
+    ObjCBaseProtocol *newObjCBaseProtocol(unsigned sourceLocation, Name *name)
+    {
+        ObjCBaseProtocol *p = new ObjCBaseProtocol(translationUnit, sourceLocation, name);
+        objcBaseProtocols.push_back(p);
+        return p;
+    }
+
     ObjCClass *newObjCClass(unsigned sourceLocation, Name *name)
     {
         ObjCClass *c = new ObjCClass(translationUnit, sourceLocation, name);
@@ -561,6 +577,8 @@ public:
     std::vector<Enum *> enums;
     std::vector<UsingDeclaration *> usingDeclarations;
     std::vector<ForwardClassDeclaration *> classForwardDeclarations;
+    std::vector<ObjCBaseClass *> objcBaseClasses;
+    std::vector<ObjCBaseProtocol *> objcBaseProtocols;
     std::vector<ObjCClass *> objcClasses;
     std::vector<ObjCProtocol *> objcProtocols;
     std::vector<ObjCForwardClassDeclaration *> objcForwardClassDeclarations;
@@ -739,6 +757,12 @@ UsingDeclaration *Control::newUsingDeclaration(unsigned sourceLocation, Name *na
 ForwardClassDeclaration *Control::newForwardClassDeclaration(unsigned sourceLocation,
                                                              Name *name)
 { return d->newForwardClassDeclaration(sourceLocation, name); }
+
+ObjCBaseClass *Control::newObjCBaseClass(unsigned sourceLocation, Name *name)
+{ return d->newObjCBaseClass(sourceLocation, name); }
+
+ObjCBaseProtocol *Control::newObjCBaseProtocol(unsigned sourceLocation, Name *name)
+{ return d->newObjCBaseProtocol(sourceLocation, name); }
 
 ObjCClass *Control::newObjCClass(unsigned sourceLocation, Name *name)
 { return d->newObjCClass(sourceLocation, name); }

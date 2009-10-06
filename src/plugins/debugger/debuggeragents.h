@@ -86,6 +86,7 @@ public:
     void resetLocation();
     Q_SLOT void setContents(const QString &contents);
     QString address() const;
+    bool contentsCoversAddress(const QString &contents) const;
     void cleanup();
 
 private:

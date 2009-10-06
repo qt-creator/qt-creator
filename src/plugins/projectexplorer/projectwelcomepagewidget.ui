@@ -39,7 +39,7 @@
        <number>3</number>
       </property>
       <item row="0" column="0" colspan="3">
-       <widget class="Core::Utils::WelcomeModeLabel" name="recentSessionsTitleLabel">
+       <widget class="Utils::WelcomeModeLabel" name="recentSessionsTitleLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
           <horstretch>0</horstretch>
@@ -52,7 +52,7 @@
        </widget>
       </item>
       <item row="1" column="0" colspan="3">
-       <widget class="Core::Utils::WelcomeModeTreeWidget" name="sessTreeWidget">
+       <widget class="Utils::WelcomeModeTreeWidget" name="sessTreeWidget">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -146,7 +146,7 @@
        <number>9</number>
       </property>
       <item row="0" column="0" colspan="3">
-       <widget class="Core::Utils::WelcomeModeLabel" name="projTitleLabel">
+       <widget class="Utils::WelcomeModeLabel" name="projTitleLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
           <horstretch>0</horstretch>
@@ -159,7 +159,7 @@
        </widget>
       </item>
       <item row="1" column="0" colspan="3">
-       <widget class="Core::Utils::WelcomeModeTreeWidget" name="projTreeWidget">
+       <widget class="Utils::WelcomeModeTreeWidget" name="projTreeWidget">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -244,12 +244,12 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::WelcomeModeTreeWidget</class>
+   <class>Utils::WelcomeModeTreeWidget</class>
    <extends>QTreeWidget</extends>
    <header>utils/welcomemodetreewidget.h</header>
   </customwidget>
   <customwidget>
-   <class>Core::Utils::WelcomeModeLabel</class>
+   <class>Utils::WelcomeModeLabel</class>
    <extends>QLabel</extends>
    <header>utils/welcomemodetreewidget.h</header>
   </customwidget>

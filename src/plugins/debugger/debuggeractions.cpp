@@ -41,7 +41,7 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QLineEdit>
 
-using namespace Core::Utils;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -84,7 +84,7 @@ void DebuggerSettings::writeSettings(QSettings *settings) const
    
 SavedAction *DebuggerSettings::item(int code) const
 {
-    QTC_ASSERT(m_items.value(code, 0), return 0);
+    QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return 0);
     return m_items.value(code, 0);
 }
 
@@ -161,6 +161,16 @@ DebuggerSettings *DebuggerSettings::instance()
         "instructions and the source location view also shows the "
         "disassembled instructions."));
     instance->insertItem(OperateByInstruction, item);
+
+    item = new SavedAction(instance);
+    item->setText(tr("Dereference pointers automatically"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setToolTip(tr("This switches the Locals&Watchers view to "
+        "automatically derefence pointers. This saves a level in the "
+        "tree view, but also loses data for the now-missing intermediate "
+        "level."));
+    instance->insertItem(AutoDerefPointers, item);
 
     //
     // Locals & Watchers

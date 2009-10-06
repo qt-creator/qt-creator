@@ -39,8 +39,8 @@
 
 using namespace Debugger::Internal;
 
-StackFrame::StackFrame(int l)
-  : level(l), line(0)
+StackFrame::StackFrame()
+  : level(0), line(0)
 {}
 
 bool StackFrame::isUsable() const
@@ -238,11 +238,28 @@ bool StackHandler::isDebuggingDebuggingHelpers() const
 //
 ////////////////////////////////////////////////////////////////////////
 
-ThreadsHandler::ThreadsHandler(QObject *parent)
-  : QAbstractTableModel(parent), m_currentIndex(0)
+ThreadData::ThreadData(int threadId) :
+    id(threadId),
+    line(-1)
 {
-    m_emptyIcon = QIcon(":/debugger/images/empty.svg");
-    m_positionIcon = QIcon(":/debugger/images/location.svg");
+}
+
+void ThreadData::notifyRunning()
+{
+    address = 0;
+    function.clear();
+    file.clear();
+    line = -1;
+}
+
+enum { IdColumn, AddressColumn, FunctionColumn, FileColumn, LineColumn, ColumnCount };
+
+ThreadsHandler::ThreadsHandler(QObject *parent)  :
+    QAbstractTableModel(parent),
+    m_currentIndex(0),
+    m_positionIcon(QLatin1String(":/debugger/images/location.svg")),
+    m_emptyIcon(QLatin1String(":/debugger/images/empty.svg"))
+{
 }
 
 int ThreadsHandler::rowCount(const QModelIndex &parent) const
@@ -253,23 +270,39 @@ int ThreadsHandler::rowCount(const QModelIndex &parent) const
 
 int ThreadsHandler::columnCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : 1;
+    return parent.isValid() ? 0 : int(ColumnCount);
 }
 
 QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_threads.size())
+    if (!index.isValid())
         return QVariant();
+    const int row = index.row();
+    if (row  >= m_threads.size())
+        return QVariant();
+    const ThreadData &thread = m_threads.at(row);
 
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
-        case 0: // Thread ID
-            return m_threads.at(index.row()).id;
-        case 1: // Function name
-            return "???";
+        case IdColumn:
+            return thread.id;
+        case FunctionColumn:
+            return thread.function;
+        case FileColumn:
+            return thread.file;
+        case LineColumn:
+            return thread.line >= 0 ? QString::number(thread.line) : QString();
+        case AddressColumn:
+            return thread.address > 0 ? QLatin1String("0x") + QString::number(thread.address, 16) : QString();
         }
     } else if (role == Qt::ToolTipRole) {
-        return tr("Thread: %1").arg(m_threads.at(index.row()).id);
+        if (thread.address == 0)
+            return tr("Thread: %1").arg(thread.id);
+        // Stopped
+        if (thread.file.isEmpty())
+            return tr("Thread: %1 at %2 (0x%3)").arg(thread.id).arg(thread.function).arg(thread.address, 0, 16);
+        return tr("Thread: %1 at %2, %3:%4 (0x%5)").
+                arg(thread.id).arg(thread.function, thread.file).arg(thread.line).arg(thread.address, 0, 16);
     } else if (role == Qt::DecorationRole && index.column() == 0) {
         // Return icon that indicates whether this is the active stack frame
         return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
@@ -280,9 +313,19 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
 
 QVariant ThreadsHandler::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        if (section < 1)
-            return tr("Thread ID");
+    if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
+        return QVariant();
+    switch (section) {
+    case IdColumn:
+        return tr("Thread ID");
+    case FunctionColumn:
+        return tr("Function");
+    case FileColumn:
+        return tr("File");
+    case LineColumn:
+        return tr("Line");
+    case AddressColumn:
+        return tr("Address");
     }
     return QVariant();
 }
@@ -321,4 +364,17 @@ void ThreadsHandler::removeAll()
     m_threads.clear();
     m_currentIndex = 0;
     reset();
+}
+
+void ThreadsHandler::notifyRunning()
+{
+    // Threads stopped (that is, address != 0 showing)?
+    if (m_threads.empty())
+        return;
+    if (m_threads.front().address == 0)
+        return;
+    const QList<ThreadData>::iterator end = m_threads.end();
+    for (QList<ThreadData>::iterator it = m_threads.begin(); it != end; ++it)
+        it->notifyRunning();
+    emit dataChanged(index(0, 1), index(m_threads.size()- 1, ColumnCount - 1));
 }

@@ -32,10 +32,8 @@
 
 #include <QtGui/QWizard>
 
-namespace Core {
-    namespace Utils {
-        class ProjectIntroPage;
-    }
+namespace Utils {
+    class ProjectIntroPage;
 }
 
 namespace Qt4ProjectManager {
@@ -61,7 +59,7 @@ public slots:
     void setName(const QString &name);
 
 private:
-    Core::Utils::ProjectIntroPage *m_introPage;
+    Utils::ProjectIntroPage *m_introPage;
     ModulesPage *m_modulesPage;
 };
 

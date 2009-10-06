@@ -50,10 +50,10 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IOptionsPage;
+}
 namespace Utils {
 class FancyMainWindow;
 }
-} // namespace Core
 
 namespace TextEditor {
 class ITextEditor;
@@ -166,7 +166,7 @@ public:
     DebuggerState state() const;
     QList<Core::IOptionsPage*> initializeEngines(unsigned enabledTypeFlags);
 
-    Core::Utils::FancyMainWindow *mainWindow() const;
+    Utils::FancyMainWindow *mainWindow() const;
     QLabel *statusLabel() const;
     Internal::IDebuggerEngine *currentEngine() const;
 
@@ -228,9 +228,10 @@ public slots:
 
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
 
-private slots:
+public slots: // FIXME
     void showDebuggerOutput(const QString &msg)
         { showDebuggerOutput(LogDebug, msg); }
+//private slots:  // FIXME
     void showDebuggerOutput(int channel, const QString &msg);
     void showDebuggerInput(int channel, const QString &msg);
     void showApplicationOutput(const QString &data);

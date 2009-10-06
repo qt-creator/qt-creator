@@ -78,7 +78,7 @@ Q_DECLARE_METATYPE(Core::IEditor*)
 
 using namespace Core;
 using namespace Core::Internal;
-using namespace Core::Utils;
+using namespace Utils;
 
 enum { debugEditorManager=0 };
 
@@ -1146,10 +1146,12 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
         return 0;
     }
     addEditor(editor);
-    restoreEditorState(editor);
-    QApplication::restoreOverrideCursor();
 
-    return activateEditor(view, editor, flags);
+    IEditor *result= activateEditor(view, editor, flags);
+    if (editor == result)
+        restoreEditorState(editor);
+    QApplication::restoreOverrideCursor();
+    return result;
 }
 
 bool EditorManager::openExternalEditor(const QString &fileName, const QString &editorKind)

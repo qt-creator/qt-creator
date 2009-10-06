@@ -55,7 +55,7 @@ int QtScriptCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     foreach (const QString &word, edit->words()) {
         TextEditor::CompletionItem item(this);
-        item.m_text = word;
+        item.text = word;
         m_completions.append(item);
     }
 
@@ -102,9 +102,9 @@ void QtScriptCodeCompletion::completions(QList<TextEditor::CompletionItem> *comp
         const QRegExp regExp(keyRegExp, Qt::CaseSensitive);
 
         foreach (TextEditor::CompletionItem item, m_completions) {
-            if (regExp.indexIn(item.m_text) == 0) {
-                item.m_relevance = (key.length() > 0 &&
-                                    item.m_text.startsWith(key, Qt::CaseInsensitive)) ? 1 : 0;
+            if (regExp.indexIn(item.text) == 0) {
+                item.relevance = (key.length() > 0 &&
+                                    item.text.startsWith(key, Qt::CaseInsensitive)) ? 1 : 0;
                 (*completions) << item;
             }
         }
@@ -113,7 +113,7 @@ void QtScriptCodeCompletion::completions(QList<TextEditor::CompletionItem> *comp
 
 void QtScriptCodeCompletion::complete(const TextEditor::CompletionItem &item)
 {
-    const QString toInsert = item.m_text;
+    const QString toInsert = item.text;
     const int length = m_editor->position() - m_startPosition;
     m_editor->setCurPos(m_startPosition);
     m_editor->replace(length, toInsert);
@@ -126,8 +126,8 @@ bool QtScriptCodeCompletion::partiallyComplete(const QList<TextEditor::Completio
         return true;
     } else {
         // Compute common prefix
-        QString firstKey = completionItems.first().m_text;
-        QString lastKey = completionItems.last().m_text;
+        QString firstKey = completionItems.first().text;
+        QString lastKey = completionItems.last().text;
         const int length = qMin(firstKey.length(), lastKey.length());
         firstKey.truncate(length);
         lastKey.truncate(length);

@@ -355,12 +355,12 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(S60DeviceRunCon
     QFormLayout *customLayout = new QFormLayout();
     customLayout->setMargin(0);
     customLayout->setLabelAlignment(Qt::AlignRight);
-    Core::Utils::PathChooser *signaturePath = new Core::Utils::PathChooser();
-    signaturePath->setExpectedKind(Core::Utils::PathChooser::File);
+    Utils::PathChooser *signaturePath = new Utils::PathChooser();
+    signaturePath->setExpectedKind(Utils::PathChooser::File);
     signaturePath->setPromptDialogTitle(tr("Choose certificate file (.cer)"));
     customLayout->addRow(new QLabel(tr("Custom certificate:")), signaturePath);
-    Core::Utils::PathChooser *keyPath = new Core::Utils::PathChooser();
-    keyPath->setExpectedKind(Core::Utils::PathChooser::File);
+    Utils::PathChooser *keyPath = new Utils::PathChooser();
+    keyPath->setExpectedKind(Utils::PathChooser::File);
     keyPath->setPromptDialogTitle(tr("Choose key file (.key / .pem)"));
     customLayout->addRow(new QLabel(tr("Key file:")), keyPath);
     customHBox->addLayout(customLayout);
@@ -624,11 +624,14 @@ void S60DeviceRunControlBase::signsisProcessFinished()
         emit finished();
         return;
     }
-    m_launcher = new trk::Launcher;
+    m_launcher = new trk::Launcher();
     connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
     connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
     connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
+    connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(printWriteFileFailed(QString,QString)));
+    connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(printCloseFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
+    connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(printInstallFailed(QString,QString)));
     connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
 
     //TODO sisx destination and file path user definable
@@ -655,10 +658,20 @@ void S60DeviceRunControlBase::printCreateFileFailed(const QString &filename, con
     emit addToOutputWindow(this, tr("Could not create file %1 on device: %2").arg(filename, errorMessage));
 }
 
+void S60DeviceRunControlBase::printWriteFileFailed(const QString &filename, const QString &errorMessage)
+{
+    emit addToOutputWindow(this, tr("Could not write to file %1 on device: %2").arg(filename, errorMessage));
+}
+
+void S60DeviceRunControlBase::printCloseFileFailed(const QString &filename, const QString &errorMessage)
+{
+    const QString msg = tr("Could not close file %1 on device: %2. It will be closed when App TRK is closed.");
+    emit addToOutputWindow(this, msg.arg(filename, errorMessage));
+}
+
 void S60DeviceRunControlBase::printCopyingNotice()
 {
     emit addToOutputWindow(this, tr("Copying install file..."));
-    emit addToOutputWindow(this, tr("0% copied."));
 }
 
 void S60DeviceRunControlBase::printCopyProgress(int progress)
@@ -669,6 +682,11 @@ void S60DeviceRunControlBase::printCopyProgress(int progress)
 void S60DeviceRunControlBase::printInstallingNotice()
 {
     emit addToOutputWindow(this, tr("Installing application..."));
+}
+
+void S60DeviceRunControlBase::printInstallFailed(const QString &filename, const QString &errorMessage)
+{
+    emit addToOutputWindow(this, tr("Could not install from package %1 on device: %2").arg(filename, errorMessage));
 }
 
 void S60DeviceRunControlBase::launcherFinished()
@@ -695,6 +713,11 @@ void S60DeviceRunControlBase::processFailed(const QString &program, QProcess::Pr
     emit finished();
 }
 
+void S60DeviceRunControlBase::printApplicationOutput(const QString &output)
+{
+    emit addToOutputWindowInline(this, output);
+}
+
 // =============== S60DeviceRunControl
 S60DeviceRunControl::S60DeviceRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration) :
     S60DeviceRunControlBase(runConfiguration)
@@ -707,6 +730,7 @@ void S60DeviceRunControl::initLauncher(const QString &executable, trk::Launcher 
      connect(launcher, SIGNAL(applicationRunning(uint)), this, SLOT(printRunNotice(uint)));
      connect(launcher, SIGNAL(canNotRun(QString)), this, SLOT(printRunFailNotice(QString)));
      connect(launcher, SIGNAL(applicationOutputReceived(QString)), this, SLOT(printApplicationOutput(QString)));
+     launcher->addStartupActions(trk::Launcher::ActionCopyInstallRun);
      launcher->setFileName(executable);
 }
 
@@ -730,11 +754,6 @@ void S60DeviceRunControl::printRunFailNotice(const QString &errorMessage) {
     emit addToOutputWindow(this, tr("Could not start application: %1").arg(errorMessage));
 }
 
-void S60DeviceRunControl::printApplicationOutput(const QString &output)
-{
-    emit addToOutputWindowInline(this, output);
-}
-
 // ======== S60DeviceDebugRunControl
 
 S60DeviceDebugRunControl::S60DeviceDebugRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration) :
@@ -748,7 +767,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(const QSharedPointer<ProjectE
     connect(dm, SIGNAL(debuggingFinished()),
             this, SLOT(debuggingFinished()), Qt::QueuedConnection);
     connect(dm, SIGNAL(applicationOutputAvailable(QString)),
-            this, SLOT(slotAddToOutputWindow(QString)),
+            this, SLOT(printApplicationOutput(QString)),
             Qt::QueuedConnection);
 
     m_startParams->remoteChannel = rc->serialPortName();
@@ -769,7 +788,7 @@ S60DeviceDebugRunControl::~S60DeviceDebugRunControl()
 {
 }
 
-void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Launcher *)
+void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Launcher *launcher)
 {
     // No setting an executable on the launcher causes it to deploy only
     m_startParams->executable = executable;
@@ -785,6 +804,7 @@ void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Laun
             emit addToOutputWindow(this, tr("Warning: Cannot locate the symbol file belonging to %1.").arg(localExecutableFileName));
         }
     }
+    launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
 }
 
 void S60DeviceDebugRunControl::handleLauncherFinished()

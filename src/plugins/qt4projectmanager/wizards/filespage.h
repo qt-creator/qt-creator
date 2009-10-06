@@ -36,11 +36,9 @@ QT_BEGIN_NAMESPACE
 class QLabel;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 class NewClassWidget;
 } // namespace Utils
-} // namespace Core
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -83,7 +81,7 @@ public slots:
     void setLowerCaseFiles(bool l);
 
 private:
-    Core::Utils::NewClassWidget *m_newClassWidget;
+    Utils::NewClassWidget *m_newClassWidget;
     QLabel *m_errorLabel;
 };
 

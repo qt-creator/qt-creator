@@ -35,7 +35,7 @@
 #include <QtCore/QSettings>
 
 
-using namespace Core::Utils;
+using namespace Utils;
 
 FancyMainWindow::FancyMainWindow(QWidget *parent)
     : QMainWindow(parent),

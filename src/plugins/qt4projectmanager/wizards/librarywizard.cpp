@@ -60,7 +60,7 @@ QWizard *LibraryWizard::createWizardDialog(QWidget *parent,
 {
     LibraryWizardDialog *dialog = new  LibraryWizardDialog(name(), icon(), extensionPages, parent);
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
-    dialog->setPath(defaultPath.isEmpty() ? Core::Utils::PathChooser::homePath() : defaultPath);
+    dialog->setPath(defaultPath.isEmpty() ? Utils::PathChooser::homePath() : defaultPath);
     dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());    
     return dialog;
 }

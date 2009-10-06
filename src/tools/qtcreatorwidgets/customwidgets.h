@@ -43,17 +43,25 @@
 #include <utils/submiteditorwidget.h>
 #include <utils/submitfieldwidget.h>
 #include <utils/pathlisteditor.h>
+#include <utils/detailsbutton.h>
+#include <utils/detailswidget.h>
 
 #include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
+#include <QtDesigner/QDesignerContainerExtension>
+#include <QtDesigner/QExtensionFactory>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QList>
+
+QT_BEGIN_NAMESPACE
+class QExtensionManager;
+QT_END_NAMESPACE
 
 // Custom Widgets
 
 class NewClassCustomWidget :
     public QObject,
-    public CustomWidget<Core::Utils::NewClassWidget>
+    public CustomWidget<Utils::NewClassWidget>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -63,7 +71,7 @@ public:
 
 class ClassNameValidatingLineEdit_CW :
     public QObject,
-    public CustomWidget<Core::Utils::ClassNameValidatingLineEdit>
+    public CustomWidget<Utils::ClassNameValidatingLineEdit>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -73,7 +81,7 @@ public:
 
 class FileNameValidatingLineEdit_CW :
     public QObject,
-    public CustomWidget<Core::Utils::FileNameValidatingLineEdit>
+    public CustomWidget<Utils::FileNameValidatingLineEdit>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -83,7 +91,7 @@ public:
 
 class ProjectNameValidatingLineEdit_CW :
     public QObject,
-    public CustomWidget<Core::Utils::ProjectNameValidatingLineEdit>
+    public CustomWidget<Utils::ProjectNameValidatingLineEdit>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -93,7 +101,7 @@ public:
 
 class LineColumnLabel_CW :
     public QObject,
-    public CustomWidget<Core::Utils::LineColumnLabel>
+    public CustomWidget<Utils::LineColumnLabel>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -103,7 +111,7 @@ public:
 
 class PathChooser_CW :
     public QObject,
-    public CustomWidget<Core::Utils::PathChooser>
+    public CustomWidget<Utils::PathChooser>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -113,7 +121,7 @@ public:
 
 class FancyLineEdit_CW :
     public QObject,
-    public CustomWidget<Core::Utils::FancyLineEdit>
+    public CustomWidget<Utils::FancyLineEdit>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -125,7 +133,7 @@ public:
 
 class QtColorButton_CW :
     public QObject,
-    public CustomWidget<Core::Utils::QtColorButton>
+    public CustomWidget<Utils::QtColorButton>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -135,7 +143,7 @@ public:
 
 class SubmitEditorWidget_CW :
     public QObject,
-    public CustomWidget<Core::Utils::SubmitEditorWidget>
+    public CustomWidget<Utils::SubmitEditorWidget>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -145,7 +153,7 @@ public:
 
 class SubmitFieldWidget_CW :
     public QObject,
-    public CustomWidget<Core::Utils::SubmitFieldWidget>
+    public CustomWidget<Utils::SubmitFieldWidget>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -155,7 +163,7 @@ public:
 
 class PathListEditor_CW :
     public QObject,
-    public CustomWidget<Core::Utils::PathListEditor>
+    public CustomWidget<Utils::PathListEditor>
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -163,7 +171,62 @@ public:
     explicit PathListEditor_CW(QObject *parent = 0);
 };
 
-// Collection
+class DetailsButton_CW :
+    public QObject,
+    public CustomWidget<Utils::DetailsButton>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit DetailsButton_CW(QObject *parent = 0);
+};
+
+// Details Widget: plugin + simple, hacky container extension that
+// accepts only one page.
+
+class DetailsWidget_CW :
+    public QObject,
+    public CustomWidget<Utils::DetailsWidget>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit DetailsWidget_CW(QObject *parent = 0);
+    QString domXml() const;
+    void initialize(QDesignerFormEditorInterface *core);
+};
+
+class DetailsWidgetContainerExtension: public QObject,
+                                         public QDesignerContainerExtension
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerContainerExtension)
+public:
+    explicit DetailsWidgetContainerExtension(Utils::DetailsWidget *widget, QObject *parent);
+
+    void addWidget(QWidget *widget);
+    int count() const;
+    int currentIndex() const;
+    void insertWidget(int index, QWidget *widget);
+    void remove(int index);
+    void setCurrentIndex(int index);
+    QWidget *widget(int index) const;
+
+private:
+    Utils::DetailsWidget *m_detailsWidget;
+};
+
+class DetailsWidgetExtensionFactory: public QExtensionFactory
+{
+    Q_OBJECT
+public:
+    explicit DetailsWidgetExtensionFactory(QExtensionManager *parent = 0);
+
+protected:
+    QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
+};
+
+// ------------ Collection
 
 class WidgetCollection : public QObject, public QDesignerCustomWidgetCollectionInterface
 {
@@ -175,7 +238,7 @@ public:
     virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const;
 
 private:
-    QList<QDesignerCustomWidgetInterface*> m_plugins;
+    QList<QDesignerCustomWidgetInterface*> m_plugins;    
 };
 
 #endif // CUSTOMWIDGETS_H

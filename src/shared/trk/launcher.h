@@ -44,8 +44,20 @@ class Launcher : public QObject
 public:
     typedef void (Launcher::*TrkCallBack)(const TrkResult &);
 
-    Launcher();
+    enum Actions {
+        ActionPingOnly = 0x0,
+        ActionCopy = 0x1,
+        ActionInstall = 0x2,
+        ActionCopyInstall = ActionCopy | ActionInstall,
+        ActionRun = 0x4,
+        ActionCopyRun = ActionCopy | ActionRun,
+        ActionInstallRun = ActionInstall | ActionRun,
+        ActionCopyInstallRun = ActionCopy | ActionInstall | ActionRun
+    };
+
+    Launcher(trk::Launcher::Actions startupActions = trk::Launcher::ActionPingOnly);
     ~Launcher();
+    void addStartupActions(trk::Launcher::Actions startupActions);
     void setTrkServerName(const QString &name);
     void setFileName(const QString &name);
     void setCopyFileName(const QString &srcName, const QString &dstName);
@@ -58,7 +70,10 @@ public:
 signals:
     void copyingStarted();
     void canNotCreateFile(const QString &filename, const QString &errorMessage);
+    void canNotWriteFile(const QString &filename, const QString &errorMessage);
+    void canNotCloseFile(const QString &filename, const QString &errorMessage);
     void installingStarted();
+    void canNotInstall(const QString &packageFilename, const QString &errorMessage);
     void startingApplication();
     void applicationRunning(uint pid);
     void canNotRun(const QString &errorMessage);
@@ -78,7 +93,8 @@ private:
 
     void handleFileCreation(const TrkResult &result);
     void handleCopy(const TrkResult &result);
-    void continueCopying();
+    void continueCopying(uint lastCopiedBlockSize = 0);
+    void closeRemoteFile(bool failed = false);
     void handleFileCopied(const TrkResult &result);
     void handleInstallPackageFinished(const TrkResult &result);
     void handleCpuType(const TrkResult &result);
@@ -90,8 +106,7 @@ private:
     void waitForTrkFinished(const TrkResult &data);
 
     void copyFileToRemote();
-    void installRemotePackageSilently(const QString &filename);
-    void installAndRun();
+    void installRemotePackageSilently();
     void startInferiorIfNeeded();
 
     void logMessage(const QString &msg);

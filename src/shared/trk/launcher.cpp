@@ -63,6 +63,7 @@ struct LauncherPrivate {
     QString m_fileName;
     QString m_installFileName;
     int m_verbose;
+    Launcher::Actions m_startupActions;
 };
 
 LauncherPrivate::LauncherPrivate() :
@@ -70,9 +71,10 @@ LauncherPrivate::LauncherPrivate() :
 {
 }
 
-Launcher::Launcher() :
+Launcher::Launcher(Actions startupActions) :
     d(new LauncherPrivate)
 {
+    d->m_startupActions = startupActions;
     connect(&d->m_device, SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));
 }
 
@@ -80,6 +82,11 @@ Launcher::~Launcher()
 {
     logMessage("Shutting down.\n");
     delete d;
+}
+
+void Launcher::addStartupActions(trk::Launcher::Actions startupActions)
+{
+    d->m_startupActions = Actions(d->m_startupActions | startupActions);
 }
 
 void Launcher::setTrkServerName(const QString &name)
@@ -120,6 +127,23 @@ bool Launcher::startServer(QString *errorMessage)
                             .arg(d->m_trkServerName, d->m_fileName, d->m_copyState.sourceFileName, d->m_copyState.destinationFileName, d->m_installFileName);
         logMessage(msg);
     }
+    if (d->m_startupActions & ActionCopy) {
+        if (d->m_copyState.sourceFileName.isEmpty()) {
+            qWarning("No local filename given for copying package.");
+            return false;
+        } else if (d->m_copyState.destinationFileName.isEmpty()) {
+            qWarning("No remote filename given for copying package.");
+            return false;
+        }
+    }
+    if (d->m_startupActions & ActionInstall && d->m_installFileName.isEmpty()) {
+        qWarning("No package name given for installing.");
+        return false;
+    }
+    if (d->m_startupActions & ActionRun && d->m_fileName.isEmpty()) {
+        qWarning("No remote executable given for running.");
+        return false;
+    }
     if (!d->m_device.open(d->m_trkServerName, errorMessage))
         return false;
     d->m_device.sendTrkInitialPing();
@@ -127,12 +151,13 @@ bool Launcher::startServer(QString *errorMessage)
     d->m_device.sendTrkMessage(TrkSupported, TrkCallback(this, &Launcher::handleSupportMask));
     d->m_device.sendTrkMessage(TrkCpuType, TrkCallback(this, &Launcher::handleCpuType));
     d->m_device.sendTrkMessage(TrkVersions, TrkCallback(this, &Launcher::handleTrkVersion));
-    if (d->m_fileName.isEmpty())
-        return true;
-    if (d->m_copyState.sourceFileName.isEmpty() || d->m_copyState.destinationFileName.isEmpty())
-        installAndRun();
-    else
+
+    if (d->m_startupActions & ActionCopy)
         copyFileToRemote();
+    else if (d->m_startupActions & ActionInstall)
+        installRemotePackageSilently();
+    else if (d->m_startupActions & ActionRun)
+        startInferiorIfNeeded();
     return true;
 }
 
@@ -142,14 +167,6 @@ void Launcher::setVerbose(int v)
     d->m_device.setVerbose(v);
 }
 
-void Launcher::installAndRun()
-{
-    if (!d->m_installFileName.isEmpty()) {
-        installRemotePackageSilently(d->m_installFileName);
-    } else {
-        startInferiorIfNeeded();
-    }
-}
 void Launcher::logMessage(const QString &msg)
 {
     if (d->m_verbose)
@@ -280,14 +297,17 @@ void Launcher::handleResult(const TrkResult &result)
 
 void Launcher::handleTrkVersion(const TrkResult &result)
 {
-    if (result.errorCode() || result.data.size() < 5)
+    if (result.errorCode() || result.data.size() < 5) {
+        if (d->m_startupActions == ActionPingOnly)
+            emit finished();
         return;
+    }
     const int trkMajor = result.data.at(1);
     const int trkMinor = result.data.at(2);
     const int protocolMajor = result.data.at(3);
     const int protocolMinor = result.data.at(4);
     // Ping mode: Log & Terminate
-    if (d->m_fileName.isEmpty()) {
+    if (d->m_startupActions == ActionPingOnly) {
         QString msg;
         QTextStream(&msg) << "CPU: " << d->m_session.cpuMajor << '.' << d->m_session.cpuMinor << ' '
                 << (d->m_session.bigEndian ? "big endian" : "little endian")
@@ -295,14 +315,14 @@ void Launcher::handleTrkVersion(const TrkResult &result)
                 << " float size: " << d->m_session.fpTypeSize
                 << " Trk: v" << trkMajor << '.' << trkMinor << " Protocol: " << protocolMajor << '.' << protocolMinor;
         qWarning("%s", qPrintable(msg));
-        d->m_device.sendTrkMessage(TrkPing, TrkCallback(this, &Launcher::waitForTrkFinished));
+        emit finished();
     }
 }
 
 void Launcher::handleFileCreation(const TrkResult &result)
 {
     if (result.errorCode() || result.data.size() < 6) {
-        emit canNotCreateFile(d->m_copyState.destinationFileName, errorMessage(result.errorCode()));
+        emit canNotCreateFile(d->m_copyState.destinationFileName, result.errorString());
         emit finished();
         return;
     }
@@ -318,15 +338,19 @@ void Launcher::handleFileCreation(const TrkResult &result)
 
 void Launcher::handleCopy(const TrkResult &result)
 {
-    Q_UNUSED(result)
-
-    continueCopying();
+    if (result.errorCode() || result.data.size() < 4) {
+        closeRemoteFile(true);
+        emit canNotWriteFile(d->m_copyState.destinationFileName, result.errorString());
+        emit finished();
+    } else {
+        continueCopying(extractShort(result.data.data() + 2));
+    }
 }
 
-void Launcher::continueCopying()
+void Launcher::continueCopying(uint lastCopiedBlockSize)
 {
-    static const int BLOCKSIZE = 1024;
     int size = d->m_copyState.data->length();
+    d->m_copyState.position += lastCopiedBlockSize;
     if (size == 0)
         emit copyProgress(100);
     else {
@@ -336,22 +360,34 @@ void Launcher::continueCopying()
     if (d->m_copyState.position < size) {
         QByteArray ba;
         appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
-        appendString(&ba, d->m_copyState.data->mid(d->m_copyState.position, BLOCKSIZE), TargetByteOrder, false);
-        d->m_copyState.position += BLOCKSIZE;
+        appendString(&ba, d->m_copyState.data->mid(d->m_copyState.position, 2048), TargetByteOrder, false);
         d->m_device.sendTrkMessage(TrkWriteFile, TrkCallback(this, &Launcher::handleCopy), ba);
     } else {
-        QByteArray ba;
-        appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
-        appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
-        d->m_device.sendTrkMessage(TrkCloseFile, TrkCallback(this, &Launcher::handleFileCopied), ba);
-        d->m_copyState.data.reset();
+        closeRemoteFile();
     }
+}
+
+void Launcher::closeRemoteFile(bool failed)
+{
+    QByteArray ba;
+    appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
+    appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
+    d->m_device.sendTrkMessage(TrkCloseFile,
+                               failed ? TrkCallback() : TrkCallback(this, &Launcher::handleFileCopied),
+                               ba);
+    d->m_copyState.data.reset();
 }
 
 void Launcher::handleFileCopied(const TrkResult &result)
 {
-    Q_UNUSED(result)
-    installAndRun();
+    if (result.errorCode())
+        emit canNotCloseFile(d->m_copyState.destinationFileName, result.errorString());
+    if (d->m_startupActions & ActionInstall)
+        installRemotePackageSilently();
+    else if (d->m_startupActions & ActionRun)
+        startInferiorIfNeeded();
+    else
+        emit finished();
 }
 
 void Launcher::handleCpuType(const TrkResult &result)
@@ -375,7 +411,7 @@ void Launcher::handleCpuType(const TrkResult &result)
 void Launcher::handleCreateProcess(const TrkResult &result)
 {
     if (result.errorCode()) {
-        emit canNotRun(errorMessage(result.errorCode()));
+        emit canNotRun(result.errorString());
         emit finished();
         return;
     }
@@ -486,21 +522,24 @@ void Launcher::copyFileToRemote()
     d->m_device.sendTrkMessage(TrkOpenFile, TrkCallback(this, &Launcher::handleFileCreation), ba);
 }
 
-void Launcher::installRemotePackageSilently(const QString &fileName)
+void Launcher::installRemotePackageSilently()
 {
     emit installingStarted();
     QByteArray ba;
     appendByte(&ba, 'C');
-    appendString(&ba, fileName.toLocal8Bit(), TargetByteOrder, false);
+    appendString(&ba, d->m_installFileName.toLocal8Bit(), TargetByteOrder, false);
     d->m_device.sendTrkMessage(TrkInstallFile, TrkCallback(this, &Launcher::handleInstallPackageFinished), ba);
 }
 
-void Launcher::handleInstallPackageFinished(const TrkResult &)
+void Launcher::handleInstallPackageFinished(const TrkResult &result)
 {
-    if (d->m_fileName.isEmpty()) {
+    if (result.errorCode()) {
+        emit canNotInstall(d->m_installFileName, result.errorString());
         emit finished();
-    } else {
+    } else if (d->m_startupActions & ActionRun) {
         startInferiorIfNeeded();
+    } else {
+        emit finished();
     }
 }
 

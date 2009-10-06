@@ -104,7 +104,7 @@ void PanelsWidget::addWidget(QWidget *widget)
     p.panelWidget = widget;
 
     p.marginLayout = 0;
-    m_layout->insertWidget(m_layout->count() -1, widget);
+    m_layout->insertWidget(m_layout->count() - 1, widget);
     m_panels.append(p);
 }
 
@@ -653,7 +653,7 @@ public:
     void paintEvent(QPaintEvent *e)
     {
         QPainter p(this);
-        p.fillRect(e->rect(), QBrush(StyleHelper::borderColor()));
+        p.fillRect(e->rect(), QBrush(Utils::StyleHelper::borderColor()));
     }
 };
 
@@ -704,7 +704,7 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     QVBoxLayout *topLevelLayout = new QVBoxLayout(this);
     topLevelLayout->setMargin(0);
     topLevelLayout->setSpacing(0);
-    topLevelLayout->addWidget(new Core::Utils::StyledBar(this));
+    topLevelLayout->addWidget(new Utils::StyledBar(this));
 
     topLevelLayout->addWidget(m_panelsWidget);
 

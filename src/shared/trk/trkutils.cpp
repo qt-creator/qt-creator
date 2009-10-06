@@ -36,6 +36,32 @@
 
 namespace trk {
 
+// FIXME: Use the QByteArray based version below?
+QString stringFromByte(byte c)
+{
+    return QString("%1 ").arg(c, 2, 16, QChar('0'));
+}
+
+QString stringFromArray(const QByteArray &ba, int maxLen)
+{
+    QString str;
+    QString ascii;
+    const int size = maxLen == -1 ? ba.size() : qMin(ba.size(), maxLen);
+    for (int i = 0; i < size; ++i) {
+        //if (i == 5 || i == ba.size() - 2)
+        //    str += "  ";
+        int c = byte(ba.at(i));
+        str += QString("%1 ").arg(c, 2, 16, QChar('0'));
+        if (i >= 8 && i < ba.size() - 2)
+            ascii += QChar(c).isPrint() ? QChar(c) : QChar('.');
+    }
+    if (size != ba.size()) {
+        str += "...";
+        ascii += "...";
+    }
+    return str + "  " + ascii;
+}
+
 QByteArray hexNumber(uint n, int digits)
 {
     QByteArray ba = QByteArray::number(n, 16);
@@ -235,32 +261,6 @@ QByteArray encode7d(const QByteArray &ba)
     return res;
 }
 
-// FIXME: Use the QByteArray based version below?
-QString stringFromByte(byte c)
-{
-    return QString("%1 ").arg(c, 2, 16, QChar('0'));
-}
-
-QString stringFromArray(const QByteArray &ba, int maxLen)
-{
-    QString str;
-    QString ascii;
-    const int size = maxLen == -1 ? ba.size() : qMin(ba.size(), maxLen);
-    for (int i = 0; i < size; ++i) {
-        //if (i == 5 || i == ba.size() - 2)
-        //    str += "  ";
-        int c = byte(ba.at(i));
-        str += QString("%1 ").arg(c, 2, 16, QChar('0'));
-        if (i >= 8 && i < ba.size() - 2)
-            ascii += QChar(c).isPrint() ? QChar(c) : QChar('.');
-    }
-    if (size != ba.size()) {
-        str += "...";
-        ascii += "...";
-    }
-    return str + "  " + ascii;
-}
-
 void appendByte(QByteArray *ba, byte b)
 {
     ba->append(b);
@@ -360,13 +360,6 @@ QString TrkResult::errorString() const
     if (data.size() < 1)
         return "Unknown error packet";
     return errorMessage(data.at(0));
-}
-
-void Snapshot::reset()
-{
-    memory.clear();
-    for (int i = 0; i < RegisterCount; ++i)
-        registers[i] = 0;
 }
 
 } // namespace trk

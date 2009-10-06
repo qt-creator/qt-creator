@@ -44,14 +44,9 @@ public:
     explicit RegisterWindow(DebuggerManager *manager);
     void setModel(QAbstractItemModel *model);
 
-signals:
-    void reloadRegisterRequested();
-
 public slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on);
-    void reloadContents();
-    void setAlwaysReloadContents(bool on);
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 private:
@@ -61,7 +56,6 @@ private:
     DebuggerManager *m_manager;
 
     bool m_alwaysResizeColumnsToContents;
-    bool m_alwaysReloadContents;
 };
 
 } // namespace Internal

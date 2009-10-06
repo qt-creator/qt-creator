@@ -962,6 +962,23 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                 return;
             }
         }
+    } else if (!ro
+               && e == QKeySequence::DeleteStartOfWord
+               && d->m_document->tabSettings().m_autoIndent
+               && !textCursor().hasSelection()){
+        e->accept();
+        QTextCursor c = textCursor();
+        int pos = c.position();
+        c.movePosition(QTextCursor::PreviousWord);
+        int targetpos = c.position();
+        forever {
+            handleBackspaceKey();
+            int cpos = textCursor().position();
+            if (cpos == pos || cpos <= targetpos)
+                break;
+            pos = cpos;
+        }
+        return;
     } else switch (e->key()) {
 
 
@@ -1511,9 +1528,13 @@ int Parenthesis::closeCollapseAtPos(const Parentheses &parentheses)
     int depth = 0;
     for (int i = 0; i < parentheses.size(); ++i) {
         const Parenthesis &p = parentheses.at(i);
-        if (p.chr == QLatin1Char('{') || p.chr == QLatin1Char('+')) {
+        if (p.chr == QLatin1Char('{')
+            || p.chr == QLatin1Char('+')
+            || p.chr == QLatin1Char('[')) {
             ++depth;
-        } else if (p.chr == QLatin1Char('}') || p.chr == QLatin1Char('-')) {
+        } else if (p.chr == QLatin1Char('}')
+            || p.chr == QLatin1Char('-')
+            || p.chr == QLatin1Char(']')) {
             if (--depth < 0)
                 return p.pos;
         }
@@ -1529,13 +1550,17 @@ int Parenthesis::collapseAtPos(const Parentheses &parentheses, QChar *character)
     int depth = 0;
     for (int i = 0; i < parentheses.size(); ++i) {
         const Parenthesis &p = parentheses.at(i);
-        if (p.chr == QLatin1Char('{') || p.chr == QLatin1Char('+')) {
+        if (p.chr == QLatin1Char('{')
+            || p.chr == QLatin1Char('+')
+            || p.chr == QLatin1Char('[')) {
             if (depth == 0) {
                 result = p.pos;
                 c = p.chr;
             }
             ++depth;
-        } else if (p.chr == QLatin1Char('}') || p.chr == QLatin1Char('-')) {
+        } else if (p.chr == QLatin1Char('}')
+            || p.chr == QLatin1Char('-')
+            || p.chr == QLatin1Char(']')) {
             if (--depth < 0)
                 depth = 0;
             result = -1;
@@ -1557,8 +1582,8 @@ int TextBlockUserData::braceDepthDelta() const
     int delta = 0;
     for (int i = 0; i < m_parentheses.size(); ++i) {
         switch (m_parentheses.at(i).chr.unicode()) {
-        case '{': case '+': ++delta; break;
-        case '}': case '-': --delta; break;
+        case '{': case '+': case '[': ++delta; break;
+        case '}': case '-': case ']': --delta; break;
         default: break;
         }
     }
@@ -2299,13 +2324,13 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         qreal blockHeight = 0;
         QTextBlock b = visibleCollapsedBlock;
 
-        while (!b.isVisible() && visibleCollapsedBlockOffset.y() + blockHeight <= e->rect().bottom()) {
+        while (!b.isVisible()) {
             b.setVisible(true); // make sure block bounding rect works
             QRectF r = blockBoundingRect(b).translated(visibleCollapsedBlockOffset);
 
             QTextLayout *layout = b.layout();
             for (int i = layout->lineCount()-1; i >= 0; --i)
-                maxWidth = qMax(maxWidth, layout->lineAt(i).naturalTextWidth() + margin);
+                maxWidth = qMax(maxWidth, layout->lineAt(i).naturalTextWidth() + 2*margin);
 
             blockHeight += r.height();
 
@@ -2426,7 +2451,7 @@ static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool e
 
     QRgb b = pal.base().color().rgb();
     QRgb h = pal.highlight().color().rgb();
-    QColor c = StyleHelper::mergedColors(b,h, 50);
+    QColor c = Utils::StyleHelper::mergedColors(b,h, 50);
 
     QLinearGradient grad(rect.topLeft(), rect.topRight());
     grad.setColorAt(0, c.lighter(110));
@@ -3288,7 +3313,7 @@ void BaseTextEditor::handleBackspaceKey()
 
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
 
-    if (autoBackspace(cursor))
+    if (tabSettings.m_autoIndent && autoBackspace(cursor))
         return;
 
     if (!tabSettings.m_smartBackspace) {
@@ -3683,7 +3708,8 @@ bool TextBlockUserData::findPreviousBlockOpenParenthesis(QTextCursor *cursor, bo
             for (int i = parenList.count()-1; i >= 0; --i) {
                 Parenthesis paren = parenList.at(i);
                 if (paren.chr != QLatin1Char('{') && paren.chr != QLatin1Char('}')
-                    && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-'))
+                    && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-')
+                    && paren.chr != QLatin1Char('[') && paren.chr != QLatin1Char(']'))
                     continue;
                 if (block == cursor->block()) {
                     if (position - block.position() <= paren.pos + (paren.type == Parenthesis::Closed ? 1 : 0))
@@ -3746,7 +3772,8 @@ bool TextBlockUserData::findNextBlockClosingParenthesis(QTextCursor *cursor)
             for (int i = 0; i < parenList.count(); ++i) {
                 Parenthesis paren = parenList.at(i);
                 if (paren.chr != QLatin1Char('{') && paren.chr != QLatin1Char('}')
-                    && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-'))
+                    && paren.chr != QLatin1Char('+') && paren.chr != QLatin1Char('-')
+                    && paren.chr != QLatin1Char('[') && paren.chr != QLatin1Char(']'))
                     continue;
                 if (block == cursor->block() &&
                     (position - block.position() > paren.pos - (paren.type == Parenthesis::Opened ? 1 : 0)))
@@ -4675,7 +4702,7 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
     aggregate->add(editor);
 #endif
 
-    m_cursorPositionLabel = new Core::Utils::LineColumnLabel;
+    m_cursorPositionLabel = new Utils::LineColumnLabel;
 
     QHBoxLayout *l = new QHBoxLayout;
     QWidget *w = new QWidget;

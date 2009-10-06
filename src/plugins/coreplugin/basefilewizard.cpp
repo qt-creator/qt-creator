@@ -647,7 +647,7 @@ QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
                                                 const QString &defaultPath,
                                                 const WizardPageList &extensionPages) const
 {
-    Core::Utils::FileWizardDialog *standardWizardDialog = new Core::Utils::FileWizardDialog(parent);
+    Utils::FileWizardDialog *standardWizardDialog = new Utils::FileWizardDialog(parent);
     standardWizardDialog->setWindowTitle(tr("New %1").arg(name()));
     setupWizard(standardWizardDialog);
     standardWizardDialog->setPath(defaultPath);
@@ -659,7 +659,7 @@ QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
 GeneratedFiles StandardFileWizard::generateFiles(const QWizard *w,
                                                  QString *errorMessage) const
 {
-    const Core::Utils::FileWizardDialog *standardWizardDialog = qobject_cast<const Core::Utils::FileWizardDialog *>(w);
+    const Utils::FileWizardDialog *standardWizardDialog = qobject_cast<const Utils::FileWizardDialog *>(w);
     return generateFilesFromPath(standardWizardDialog->path(),
                                  standardWizardDialog->name(),
                                  errorMessage);

@@ -68,9 +68,10 @@ class IEditor;
 }
 
 namespace Designer {
+class FormWindowEditor;
+
 namespace Internal {
 
-class FormWindowEditor;
 class SettingsPage;
 
 class ProxyAction : public QAction

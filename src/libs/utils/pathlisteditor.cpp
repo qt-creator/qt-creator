@@ -46,7 +46,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
-namespace Core {
 namespace Utils {
 
 // ------------ PathListPlainTextEdit:
@@ -310,4 +309,3 @@ void PathListEditor::deletePathAtCursor()
 }
 
 } // namespace Utils
-} // namespace Core

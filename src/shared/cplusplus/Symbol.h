@@ -210,6 +210,9 @@ public:
     /// Returns true if this Symbol is a ForwardClassDeclaration.
     bool isForwardClassDeclaration() const;
 
+    bool isObjCBaseClass() const;
+    bool isObjCBaseProtocol() const;
+
     /// Returns true if this Symbol is an Objective-C Class declaration.
     bool isObjCClass() const;
 
@@ -237,6 +240,8 @@ public:
     virtual const Argument *asArgument() const { return 0; }
     virtual const BaseClass *asBaseClass() const { return 0; }
     virtual const ForwardClassDeclaration *asForwardClassDeclaration() const { return 0; }
+    virtual const ObjCBaseClass *asObjCBaseClass() const { return 0; }
+    virtual const ObjCBaseProtocol *asObjCBaseProtocol() const { return 0; }
     virtual const ObjCClass *asObjCClass() const { return 0; }
     virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const { return 0; }
     virtual const ObjCProtocol *asObjCProtocol() const { return 0; }
@@ -255,6 +260,8 @@ public:
     virtual Argument *asArgument() { return 0; }
     virtual BaseClass *asBaseClass() { return 0; }
     virtual ForwardClassDeclaration *asForwardClassDeclaration() { return 0; }
+    virtual ObjCBaseClass *asObjCBaseClass() { return 0; }
+    virtual ObjCBaseProtocol *asObjCBaseProtocol() { return 0; }
     virtual ObjCClass *asObjCClass() { return 0; }
     virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() { return 0; }
     virtual ObjCProtocol *asObjCProtocol() { return 0; }

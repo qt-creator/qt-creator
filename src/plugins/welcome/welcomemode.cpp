@@ -83,7 +83,7 @@ WelcomeMode::WelcomeMode() :
     QVBoxLayout *l = new QVBoxLayout(m_d->m_widget);
     l->setMargin(0);
     l->setSpacing(0);
-    l->addWidget(new Core::Utils::StyledBar(m_d->m_widget));
+    l->addWidget(new Utils::StyledBar(m_d->m_widget));
     m_d->m_welcomePage = new QWidget(m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
     m_d->ui.helpUsLabel->setAttribute(Qt::WA_LayoutUsesWidgetRect);

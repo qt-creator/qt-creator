@@ -195,12 +195,10 @@ public:
 
     // local and external uses.
     SemanticInfo::LocalUseMap localUses;
-    SemanticInfo::ExternalUseMap externalUses;
 
     void operator()(FunctionDefinitionAST *ast)
     {
         localUses.clear();
-        externalUses.clear();
 
         if (ast && ast->symbol) {
             _functionScope = ast->symbol->members();
@@ -232,6 +230,18 @@ protected:
         return false;
     }
 
+    void searchUsesInTemplateArguments(NameAST *name)
+    {
+        if (! name)
+            return;
+
+        else if (TemplateIdAST *template_id = name->asTemplateId()) {
+            for (TemplateArgumentListAST *it = template_id->template_arguments; it; it = it->next) {
+                accept(it->template_argument);
+            }
+        }
+    }
+
     virtual bool visit(SimpleNameAST *ast)
     {
         unsigned line, column;
@@ -258,14 +268,14 @@ protected:
             scope = scope->enclosingScope();
         }
 
-        Identifier *id = identifier(ast->identifier_token);
-        externalUses[id].append(SemanticInfo::Use(line, column, id->size()));
-
         return false;
     }
 
     virtual bool visit(TemplateIdAST *ast)
     {
+        for (TemplateArgumentListAST *arg = ast->template_arguments; arg; arg = arg->next)
+            accept(arg->template_argument);
+
         unsigned line, column;
         getTokenStartPosition(ast->firstToken(), &line, &column);
 
@@ -290,34 +300,15 @@ protected:
             scope = scope->enclosingScope();
         }
 
-        Identifier *id = identifier(ast->identifier_token);
-        externalUses[id].append(SemanticInfo::Use(line, column, id->size()));
-
-        for (TemplateArgumentListAST *arg = ast->template_arguments; arg; arg = arg->next)
-            accept(arg);
-
         return false;
     }
 
     virtual bool visit(QualifiedNameAST *ast)
     {
-        if (! ast->global_scope_token) {
-            if (ast->nested_name_specifier) {
-                accept(ast->nested_name_specifier->class_or_namespace_name);
+        for (NestedNameSpecifierAST *it = ast->nested_name_specifier; it; it = it->next)
+            searchUsesInTemplateArguments(it->class_or_namespace_name);
 
-                for (NestedNameSpecifierAST *it = ast->nested_name_specifier->next; it; it = it->next) {
-                    if (NameAST *class_or_namespace_name = it->class_or_namespace_name) {
-                        if (TemplateIdAST *template_id = class_or_namespace_name->asTemplateId()) {
-                            for (TemplateArgumentListAST *arg = template_id->template_arguments; arg; arg = arg->next)
-                                accept(arg);
-                        }
-                    }
-                }
-            }
-
-            accept(ast->unqualified_name);
-        }
-
+        searchUsesInTemplateArguments(ast->unqualified_name);
         return false;
     }
 
@@ -862,7 +853,21 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
     return canonicalSymbol;
 }
 
-void CPPEditor::findReferences()
+
+void CPPEditor::findUsages()
+{
+    updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
+
+    SemanticInfo info = m_lastSemanticInfo;
+
+    if (! info.doc)
+        return;
+
+    if (Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot))
+        m_modelManager->findUsages(canonicalSymbol);
+}
+
+void CPPEditor::renameUsages()
 {
     m_currentRenameSelection = -1;
 
@@ -896,7 +901,7 @@ void CPPEditor::findReferences()
 
             setExtraSelections(CodeSemanticsSelection, selections);
 
-            m_modelManager->findReferences(canonicalSymbol);
+            m_modelManager->renameUsages(canonicalSymbol);
         }
     }
 }
@@ -920,7 +925,7 @@ void CPPEditor::renameSymbolUnderCursor()
     }
 
     if (m_renameSelections.isEmpty())
-        findReferences();
+        renameUsages();
 }
 
 void CPPEditor::onContentsChanged(int position, int charsRemoved, int charsAdded)
@@ -1885,7 +1890,7 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
 void CPPEditor::unCommentSelection()
 {
-    Core::Utils::unCommentSelection(this);
+    Utils::unCommentSelection(this);
 }
 
 CPPEditor::Link CPPEditor::linkToSymbol(CPlusPlus::Symbol *symbol)
@@ -2097,7 +2102,6 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     semanticInfo.snapshot = snapshot;
     semanticInfo.doc = doc;
     semanticInfo.localUses = useTable.localUses;
-    semanticInfo.externalUses = useTable.externalUses;
 
     return semanticInfo;
 }

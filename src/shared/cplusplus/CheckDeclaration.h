@@ -90,6 +90,7 @@ protected:
     virtual bool visit(TemplateTypeParameterAST *ast);
     virtual bool visit(UsingAST *ast);
     virtual bool visit(UsingDirectiveAST *ast);
+    virtual bool visit(MemInitializerAST *ast);
 
     virtual bool visit(ObjCProtocolDeclarationAST *ast);
     virtual bool visit(ObjCProtocolForwardDeclarationAST *ast);
@@ -97,7 +98,12 @@ protected:
     virtual bool visit(ObjCClassForwardDeclarationAST *ast);
     virtual bool visit(ObjCMethodDeclarationAST *ast);
     virtual bool visit(ObjCVisibilityDeclarationAST *ast);
+    virtual bool visit(ObjCPropertyDeclarationAST *ast);
 
+private:
+    bool checkPropertyAttribute(ObjCPropertyAttributeAST *attrAst,
+                                int &flags,
+                                int attr);
 private:
     DeclarationAST *_declaration;
     Scope *_scope;

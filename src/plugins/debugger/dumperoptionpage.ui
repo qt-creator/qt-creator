@@ -83,7 +83,7 @@
          </widget>
         </item>
         <item>
-         <widget class="Core::Utils::PathChooser" name="dumperLocationChooser" native="true"/>
+         <widget class="Utils::PathChooser" name="dumperLocationChooser" native="true"/>
         </item>
        </layout>
       </item>
@@ -117,7 +117,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::PathChooser</class>
+   <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>

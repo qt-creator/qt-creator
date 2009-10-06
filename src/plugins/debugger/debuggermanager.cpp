@@ -275,7 +275,7 @@ struct DebuggerManagerPrivate
     DebuggerStartParametersPtr m_startParameters;
     qint64 m_inferiorPid;
     /// Views
-    Core::Utils::FancyMainWindow *m_mainWindow;
+    Utils::FancyMainWindow *m_mainWindow;
     QLabel *m_statusLabel;
     QDockWidget *m_breakDock;
     QDockWidget *m_modulesDock;
@@ -369,7 +369,7 @@ void DebuggerManager::init()
     d->m_watchersWindow = new WatchWindow(WatchWindow::WatchersType, this);
     d->m_statusTimer = new QTimer(this);
 
-    d->m_mainWindow = new Core::Utils::FancyMainWindow;
+    d->m_mainWindow = new Utils::FancyMainWindow;
     d->m_mainWindow->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
     d->m_mainWindow->setDocumentMode(true);
 
@@ -454,6 +454,7 @@ void DebuggerManager::init()
     //QTreeView *tooltipView = qobject_cast<QTreeView *>(d->m_tooltipWindow);
     //tooltipView->setModel(d->m_watchHandler->model(TooltipsWatch));
     qRegisterMetaType<WatchData>("WatchData");
+    qRegisterMetaType<StackCookie>("StackCookie");
 
     d->m_actions.continueAction = new QAction(tr("Continue"), this);
     d->m_actions.continueAction->setIcon(QIcon(":/debugger/images/debugger_continue_small.png"));
@@ -586,7 +587,7 @@ DebuggerManagerActions DebuggerManager::debuggerManagerActions() const
     return d->m_actions;
 }
 
-Core::Utils::FancyMainWindow *DebuggerManager::mainWindow() const
+Utils::FancyMainWindow *DebuggerManager::mainWindow() const
 {
     return d->m_mainWindow;
 }
@@ -707,7 +708,6 @@ void DebuggerManager::showStatusMessage(const QString &msg, int timeout)
 
 void DebuggerManager::notifyInferiorStopped()
 {
-    resetLocation();
     setState(InferiorStopped);
     showStatusMessage(tr("Stopped."), 5000);
 }
@@ -1349,7 +1349,7 @@ void DebuggerManager::gotoLocation(const Debugger::Internal::StackFrame &frame, 
 {
     if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
         if (setMarker)
-            resetLocation();
+            emit resetLocationRequested();
         d->m_disassemblerViewAgent.setFrame(frame);
     } else {
         // Connected to the plugin.
@@ -1632,14 +1632,14 @@ void DebuggerManager::setState(DebuggerState state)
 
     showDebuggerOutput(LogDebug, msg);
 
-    resetLocation();
+    //resetLocation();
     if (state == d->m_state)
         return;
 
     d->m_state = state;
 
-    if (d->m_state == InferiorStopped)
-        resetLocation();
+    //if (d->m_state == InferiorStopped)
+    //    resetLocation();
 
     if (d->m_state == DebuggerNotReady) {
         setBusyCursor(false);
@@ -1654,6 +1654,8 @@ void DebuggerManager::setState(DebuggerState state)
         || state == InferiorUnrunnable;
 
     const bool running = state == InferiorRunning;
+    if (running)
+        threadsHandler()->notifyRunning();
     const bool stopped = state == InferiorStopped;
 
     if (stopped)

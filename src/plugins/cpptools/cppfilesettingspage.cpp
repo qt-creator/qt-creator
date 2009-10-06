@@ -208,7 +208,7 @@ CppFileSettingsWidget::CppFileSettingsWidget(QWidget *parent) :
     if (const Core::MimeType headerMt = mdb->findByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)))
         foreach (const QString &suffix, headerMt.suffixes())
             m_ui->headerSuffixComboBox->addItem(suffix);
-    m_ui->licenseTemplatePathChooser->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->licenseTemplatePathChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui->licenseTemplatePathChooser->addButton(tr("Edit..."), this, SLOT(slotEdit()));
 }
 

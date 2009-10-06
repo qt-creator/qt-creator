@@ -35,7 +35,7 @@
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
-using namespace Core::Utils;
+using namespace Utils;
 
 ApplicationLauncher::ApplicationLauncher(QObject *parent)
     : QObject(parent)

@@ -560,7 +560,7 @@ QString QtDumperHelper::toString(bool debug) const
         str << "\nSize cache: ";
         const SizeCache::const_iterator scend = m_sizeCache.constEnd();
         for (SizeCache::const_iterator it = m_sizeCache.constBegin(); it != scend; ++it) {
-            str << ' ' << it.key() << '=' << it.value();
+            str << ' ' << it.key() << '=' << it.value() << '\n';
         }
         str << "\nExpression cache: (" << m_expressionCache.size() << ")\n";
         const QMap<QString, QString>::const_iterator excend = m_expressionCache.constEnd();
@@ -888,6 +888,7 @@ void QtDumperHelper::setQClassPrefixes(const QString &qNamespace)
     m_qListPrefix = qClassName(qNamespace, "QList");
     m_qLinkedListPrefix = qClassName(qNamespace, "QLinkedList");
     m_qVectorPrefix = qClassName(qNamespace, "QVector");
+    m_qQueuePrefix = qClassName(qNamespace, "QQueue");
 }
 
 static inline double getDumperVersion(const GdbMi &contents)

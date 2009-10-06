@@ -86,14 +86,17 @@ FindClassDeclarations::FindClassDeclarations(CppModelManager *modelManager)
 
 void FindClassDeclarations::findAll(const QString &text, QTextDocument::FindFlags findFlags)
 {
-    _resultWindow->clearContents();
+    Find::SearchResult *search = _resultWindow->startNewSearch();
+    connect(search, SIGNAL(activated(Find::SearchResultItem)),
+            this, SLOT(openEditor(Find::SearchResultItem)));
+
     _resultWindow->popup(true);
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
     SemanticSearchFactory::Ptr factory(new SearchClassDeclarationsFactory(text, findFlags));
 
-    QFuture<Core::Utils::FileSearchResult> result = semanticSearch(_modelManager, factory);
+    QFuture<Utils::FileSearchResult> result = semanticSearch(_modelManager, factory);
 
     m_watcher.setFuture(result);
 
@@ -106,15 +109,12 @@ void FindClassDeclarations::findAll(const QString &text, QTextDocument::FindFlag
 
 void FindClassDeclarations::displayResult(int index)
 {
-    Core::Utils::FileSearchResult result = m_watcher.future().resultAt(index);
-    Find::ResultWindowItem *item = _resultWindow->addResult(result.fileName,
-                                                            result.lineNumber,
-                                                            result.matchingLine,
-                                                            result.matchStart,
-                                                            result.matchLength);
-    if (item)
-        connect(item, SIGNAL(activated(const QString&,int,int)),
-                this, SLOT(openEditor(const QString&,int,int)));
+    Utils::FileSearchResult result = m_watcher.future().resultAt(index);
+    _resultWindow->addResult(result.fileName,
+                             result.lineNumber,
+                             result.matchingLine,
+                             result.matchStart,
+                             result.matchLength);
 }
 
 void FindClassDeclarations::searchFinished()
@@ -122,9 +122,9 @@ void FindClassDeclarations::searchFinished()
     emit changed();
 }
 
-void FindClassDeclarations::openEditor(const QString &fileName, int line, int column)
+void FindClassDeclarations::openEditor(const Find::SearchResultItem &item)
 {
-    TextEditor::BaseTextEditor::openEditorAt(fileName, line, column);
+    TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.searchTermStart);
 }
 
 //////
@@ -139,14 +139,17 @@ FindFunctionCalls::FindFunctionCalls(CppModelManager *modelManager)
 
 void FindFunctionCalls::findAll(const QString &text, QTextDocument::FindFlags findFlags)
 {
-    _resultWindow->clearContents();
+    Find::SearchResult *search = _resultWindow->startNewSearch();
+    connect(search, SIGNAL(activated(Find::SearchResultItem)),
+            this, SLOT(openEditor(Find::SearchResultItem)));
+
     _resultWindow->popup(true);
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
     SemanticSearchFactory::Ptr factory(new SearchFunctionCallFactory(text, findFlags));
 
-    QFuture<Core::Utils::FileSearchResult> result = semanticSearch(_modelManager, factory);
+    QFuture<Utils::FileSearchResult> result = semanticSearch(_modelManager, factory);
 
     m_watcher.setFuture(result);
 
@@ -159,15 +162,12 @@ void FindFunctionCalls::findAll(const QString &text, QTextDocument::FindFlags fi
 
 void FindFunctionCalls::displayResult(int index)
 {
-    Core::Utils::FileSearchResult result = m_watcher.future().resultAt(index);
-    Find::ResultWindowItem *item = _resultWindow->addResult(result.fileName,
-                                                            result.lineNumber,
-                                                            result.matchingLine,
-                                                            result.matchStart,
-                                                            result.matchLength);
-    if (item)
-        connect(item, SIGNAL(activated(const QString&,int,int)),
-                this, SLOT(openEditor(const QString&,int,int)));
+    Utils::FileSearchResult result = m_watcher.future().resultAt(index);
+    _resultWindow->addResult(result.fileName,
+                             result.lineNumber,
+                             result.matchingLine,
+                             result.matchStart,
+                             result.matchLength);
 }
 
 void FindFunctionCalls::searchFinished()
@@ -175,9 +175,9 @@ void FindFunctionCalls::searchFinished()
     emit changed();
 }
 
-void FindFunctionCalls::openEditor(const QString &fileName, int line, int column)
+void FindFunctionCalls::openEditor(const Find::SearchResultItem &item)
 {
-    TextEditor::BaseTextEditor::openEditorAt(fileName, line, column);
+    TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.searchTermStart);
 }
 
 

@@ -41,6 +41,14 @@
 namespace Debugger {
 namespace Internal {
 
+struct StackCookie
+{
+    StackCookie() : isFull(true), gotoLocation(false) {}
+    StackCookie(bool full, bool jump) : isFull(full), gotoLocation(jump) {}
+    bool isFull;
+    bool gotoLocation;
+};
+
 ////////////////////////////////////////////////////////////////////////
 //
 // StackModel
@@ -92,8 +100,15 @@ private:
 
 struct ThreadData
 {
-    ThreadData(int threadId = 0) : id(threadId) {}
+    ThreadData(int threadId = 0);
+    void notifyRunning(); // Clear state information
+
     int id;
+    // State information when stopped
+    quint64 address;
+    QString function;
+    QString file;
+    int line;
 };
 
 /*! A model to represent the running threads in a QTreeView or ComboBox */
@@ -111,6 +126,9 @@ public:
     QList<ThreadData> threads() const;
     QAbstractItemModel *threadsModel() { return this; }
 
+    // Clear out all frame information
+    void notifyRunning();
+
 private:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -118,15 +136,17 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
 private:
-    friend class StackHandler;
     QList<ThreadData> m_threads;
     int m_currentIndex;
-    QIcon m_positionIcon;
-    QIcon m_emptyIcon;
+    const QIcon m_positionIcon;
+    const QIcon m_emptyIcon;
 };
 
 
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::StackCookie)
+
 
 #endif // DEBUGGER_STACKHANDLER_H

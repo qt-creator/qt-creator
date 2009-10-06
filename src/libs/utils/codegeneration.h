@@ -38,7 +38,6 @@ class QTextStream;
 class QStringList;
 QT_END_NAMESPACE
 
-namespace Core {
 namespace Utils {
 
 QTCREATOR_UTILS_EXPORT QString headerGuard(const QString &file);
@@ -62,6 +61,5 @@ void writeClosingNameSpaces(const QStringList &namespaces,
                             QTextStream &str);
 
 } // namespace Utils
-} // namespace Core
 
 #endif // CODEGENERATION_H

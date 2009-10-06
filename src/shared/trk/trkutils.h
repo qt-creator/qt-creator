@@ -78,8 +78,6 @@ uint extractInt(const char *data);
 
 QString quoteUnprintableLatin1(const QByteArray &ba);
 
-// produces "xx "
-QString stringFromByte(byte c);
 // produces "xx xx xx "
 QString stringFromArray(const QByteArray &ba, int maxLen = - 1);
 
@@ -95,28 +93,20 @@ void appendShort(QByteArray *ba, ushort s, Endianness = TargetByteOrder);
 void appendInt(QByteArray *ba, uint i, Endianness = TargetByteOrder);
 void appendString(QByteArray *ba, const QByteArray &str, Endianness = TargetByteOrder, bool appendNullTerminator = true);
 
-enum CodeMode
+struct Library
 {
-    ArmMode = 0,
-    ThumbMode,
-};
+    Library() {}
 
-enum TargetConstants
-{
-
-    RegisterCount = 17,
-    RegisterSP = 13, // Stack Pointer
-    RegisterLR = 14, // Return address
-    RegisterPC = 15, // Program counter
-    RegisterPSGdb = 25, // gdb's view of the world
-    RegisterPSTrk = 16, // TRK's view of the world
-
-    MemoryChunkSize = 256
+    QString name;
+    uint codeseg;
+    uint dataseg;
 };
 
 struct Session
 {
-    Session() {
+    Session() { reset(); }
+
+    void reset() {
         cpuMajor = 0;
         cpuMinor = 0;
         bigEndian = 0;
@@ -130,6 +120,7 @@ struct Session
         dataseg = 0;
 
         currentThread = 0;
+        libraries.clear();
     }
 
     // Trk feedback
@@ -146,31 +137,12 @@ struct Session
     uint dataseg;
     QHash<uint, uint> addressToBP;
 
+    typedef QList<Library> Libraries;
+    Libraries libraries;
+
     // Gdb request
     uint currentThread;
     QStringList modules;
-};
-
-struct Snapshot
-{
-    void reset();
-
-    uint registers[RegisterCount];
-    typedef QHash<uint, QByteArray> Memory;
-    Memory memory;
-};
-
-struct Breakpoint
-{
-    Breakpoint(uint offset_ = 0)
-    {
-        number = 0;
-        offset = offset_;
-        mode = ArmMode;
-    }
-    uint offset;
-    ushort number;
-    CodeMode mode;
 };
 
 struct TrkResult

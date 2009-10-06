@@ -243,10 +243,6 @@ QVariant DetailedModel::data(const QModelIndex &index, int role) const
         }
         case Qt::FontRole: {
             QFont font;
-            if (qobject_cast<ProjectNode*>(folderNode)) {
-                if (index == this->index(0,0) && m_isStartupProject)
-                    font.setBold(true);
-            }
             result = font;
             break;
         }

@@ -37,10 +37,18 @@ CPLUSPLUS_BEGIN_NAMESPACE
 enum {
   Token_in,
   Token_out,
+  Token_copy,
   Token_byref,
   Token_inout,
+  Token_assign,
   Token_bycopy,
+  Token_getter,
+  Token_retain,
+  Token_setter,
   Token_oneway,
+  Token_readonly,
+  Token_nonatomic,
+  Token_readwrite,
   Token_identifier
 };
 

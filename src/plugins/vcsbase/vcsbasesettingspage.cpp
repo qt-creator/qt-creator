@@ -50,9 +50,9 @@ VCSBaseSettingsWidget::VCSBaseSettingsWidget(QWidget *parent) :
     m_ui(new Ui::VCSBaseSettingsPage)
 {
     m_ui->setupUi(this);
-    m_ui->submitMessageCheckScriptChooser->setExpectedKind(Core::Utils::PathChooser::Command);
-    m_ui->nickNameFieldsFileChooser->setExpectedKind(Core::Utils::PathChooser::File);
-    m_ui->nickNameMailMapChooser->setExpectedKind(Core::Utils::PathChooser::File);
+    m_ui->submitMessageCheckScriptChooser->setExpectedKind(Utils::PathChooser::Command);
+    m_ui->nickNameFieldsFileChooser->setExpectedKind(Utils::PathChooser::File);
+    m_ui->nickNameMailMapChooser->setExpectedKind(Utils::PathChooser::File);
 }
 
 VCSBaseSettingsWidget::~VCSBaseSettingsWidget()

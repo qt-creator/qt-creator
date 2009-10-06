@@ -51,7 +51,7 @@ class SearchClass: public SemanticSearch
     QTextDocument::FindFlags _findFlags;
 
 public:
-    SearchClass(QFutureInterface<Core::Utils::FileSearchResult> &future,
+    SearchClass(QFutureInterface<Utils::FileSearchResult> &future,
                 Document::Ptr doc, Snapshot snapshot)
         : SemanticSearch(future, doc, snapshot)
     { }
@@ -118,7 +118,7 @@ class SearchFunctionCall: public SemanticSearch
     QTextDocument::FindFlags _findFlags;
 
 public:
-    SearchFunctionCall(QFutureInterface<Core::Utils::FileSearchResult> &future,
+    SearchFunctionCall(QFutureInterface<Utils::FileSearchResult> &future,
                        Document::Ptr doc, Snapshot snapshot)
         : SemanticSearch(future, doc, snapshot)
     { }
@@ -184,7 +184,7 @@ protected:
 
 } // end of anonymous namespace
 
-SemanticSearch::SemanticSearch(QFutureInterface<Core::Utils::FileSearchResult> &future,
+SemanticSearch::SemanticSearch(QFutureInterface<Utils::FileSearchResult> &future,
                                Document::Ptr doc,
                                Snapshot snapshot)
     : ASTVisitor(doc->control()),
@@ -236,11 +236,11 @@ void SemanticSearch::reportResult(unsigned tokenIndex, int offset, int len)
     if (col)
         --col;  // adjust the column position.
 
-    _future.reportResult(Core::Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
+    _future.reportResult(Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
                                                        line, lineText, col + offset, len));
 }
 
-SemanticSearch *SearchClassDeclarationsFactory::create(QFutureInterface<Core::Utils::FileSearchResult> &future,
+SemanticSearch *SearchClassDeclarationsFactory::create(QFutureInterface<Utils::FileSearchResult> &future,
                                                        Document::Ptr doc,
                                                        Snapshot snapshot)
 {
@@ -250,7 +250,7 @@ SemanticSearch *SearchClassDeclarationsFactory::create(QFutureInterface<Core::Ut
     return search;
 }
 
-SemanticSearch *SearchFunctionCallFactory::create(QFutureInterface<Core::Utils::FileSearchResult> &future,
+SemanticSearch *SearchFunctionCallFactory::create(QFutureInterface<Utils::FileSearchResult> &future,
                                                   Document::Ptr doc,
                                                   Snapshot snapshot)
 {
@@ -260,7 +260,7 @@ SemanticSearch *SearchFunctionCallFactory::create(QFutureInterface<Core::Utils::
     return search;
 }
 
-static void semanticSearch_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
+static void semanticSearch_helper(QFutureInterface<Utils::FileSearchResult> &future,
                                   QPointer<CppModelManager> modelManager,
                                   QMap<QString, QString> wl,
                                   SemanticSearchFactory::Ptr factory)
@@ -306,7 +306,7 @@ static void semanticSearch_helper(QFutureInterface<Core::Utils::FileSearchResult
     }
 }
 
-QFuture<Core::Utils::FileSearchResult> CppTools::Internal::semanticSearch(QPointer<CppModelManager> modelManager,
+QFuture<Utils::FileSearchResult> CppTools::Internal::semanticSearch(QPointer<CppModelManager> modelManager,
                                                                           SemanticSearchFactory::Ptr factory)
 {
     return QtConcurrent::run(&semanticSearch_helper, modelManager,

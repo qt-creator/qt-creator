@@ -35,7 +35,6 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/debugginghelper.h>
-#include <utils/detailsbutton.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 
@@ -54,11 +53,11 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-class CustomDirectoryPathChooser : public Core::Utils::PathChooser
+class CustomDirectoryPathChooser : public Utils::PathChooser
 {
 public:
     CustomDirectoryPathChooser(QWidget *parent)
-        : Core::Utils::PathChooser(parent)
+        : Utils::PathChooser(parent)
     {
     }
     virtual bool validatePath(const QString &path, QString *errorMessage = 0)
@@ -79,8 +78,8 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_userName = new QLineEdit(this);
     layout->addRow(tr("Name:"), m_userName);
 
-    m_executableChooser = new Core::Utils::PathChooser(this);
-    m_executableChooser->setExpectedKind(Core::Utils::PathChooser::Command);
+    m_executableChooser = new Utils::PathChooser(this);
+    m_executableChooser->setExpectedKind(Utils::PathChooser::Command);
     layout->addRow(tr("Executable:"), m_executableChooser);
 
     m_commandLineArgumentsLineEdit = new QLineEdit(this);
@@ -88,7 +87,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     layout->addRow(tr("Arguments:"), m_commandLineArgumentsLineEdit);
 
     m_workingDirectory = new CustomDirectoryPathChooser(this);
-    m_workingDirectory->setExpectedKind(Core::Utils::PathChooser::Directory);
+    m_workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
     layout->addRow(tr("Working Directory:"), m_workingDirectory);
 
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);

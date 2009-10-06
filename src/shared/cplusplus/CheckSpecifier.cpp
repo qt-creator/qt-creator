@@ -416,8 +416,8 @@ bool CheckSpecifier::visit(AttributeSpecifierAST *ast)
 bool CheckSpecifier::visit(ObjCTypeNameAST * /*ast*/)
 {
     // TODO: implement this (EV)
-    _fullySpecifiedType = FullySpecifiedType();
-    return false;
+//    _fullySpecifiedType = FullySpecifiedType();
+    return true;
 }
 
 CPLUSPLUS_END_NAMESPACE

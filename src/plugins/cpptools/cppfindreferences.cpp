@@ -69,7 +69,7 @@ struct Process: protected ASTVisitor
 {
 public:
     Process(Document::Ptr doc, const Snapshot &snapshot,
-            QFutureInterface<Core::Utils::FileSearchResult> *future)
+            QFutureInterface<Utils::FileSearchResult> *future)
             : ASTVisitor(doc->control()),
               _future(future),
               _doc(doc),
@@ -137,7 +137,7 @@ protected:
         const int len = tk.f.length;
 
         if (_future)
-            _future->reportResult(Core::Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
+            _future->reportResult(Utils::FileSearchResult(QDir::toNativeSeparators(_doc->fileName()),
                                                           line, lineText, col, len));
 
         _references.append(tokenIndex);
@@ -400,7 +400,7 @@ protected:
     }
 
 private:
-    QFutureInterface<Core::Utils::FileSearchResult> *_future;
+    QFutureInterface<Utils::FileSearchResult> *_future;
     Identifier *_id; // ### remove me
     Symbol *_declSymbol;
     Document::Ptr _doc;
@@ -450,7 +450,7 @@ QList<int> CppFindReferences::references(Symbol *symbol,
     return references;
 }
 
-static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
+static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
                         const QMap<QString, QString> wl,
                         Snapshot snapshot,
                         Symbol *symbol)
@@ -532,10 +532,31 @@ static void find_helper(QFutureInterface<Core::Utils::FileSearchResult> &future,
     future.setProgressValue(files.size());
 }
 
-void CppFindReferences::findAll(Symbol *symbol)
+void CppFindReferences::findUsages(Symbol *symbol)
 {
-    _resultWindow->clearContents();
-    _resultWindow->setShowReplaceUI(true);
+    Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchOnly);
+
+    connect(search, SIGNAL(activated(Find::SearchResultItem)),
+            this, SLOT(openEditor(Find::SearchResultItem)));
+
+    findAll_helper(symbol);
+}
+
+void CppFindReferences::renameUsages(Symbol *symbol)
+{
+    Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchAndReplace);
+
+    connect(search, SIGNAL(activated(Find::SearchResultItem)),
+            this, SLOT(openEditor(Find::SearchResultItem)));
+
+    connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
+            SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+
+    findAll_helper(symbol);
+}
+
+void CppFindReferences::findAll_helper(Symbol *symbol)
+{
     _resultWindow->popup(true);
 
     const Snapshot snapshot = _modelManager->snapshot();
@@ -543,7 +564,7 @@ void CppFindReferences::findAll(Symbol *symbol)
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
-    QFuture<Core::Utils::FileSearchResult> result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
+    QFuture<Utils::FileSearchResult> result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching..."),
@@ -553,17 +574,68 @@ void CppFindReferences::findAll(Symbol *symbol)
     connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
 }
 
+void CppFindReferences::onReplaceButtonClicked(const QString &text,
+                                               const QList<Find::SearchResultItem> &items)
+{
+    if (text.isEmpty())
+        return;
+
+    QHash<QString, QList<Find::SearchResultItem> > changes;
+
+    foreach (const Find::SearchResultItem &item, items)
+        changes[item.fileName].append(item);
+
+    QHashIterator<QString, QList<Find::SearchResultItem> > it(changes);
+    while (it.hasNext()) {
+        it.next();
+
+        const QString fileName = it.key();
+        QFile file(fileName);
+
+        if (file.open(QFile::ReadOnly)) {
+            QTextStream stream(&file);
+            // ### set the encoding
+            const QString plainText = stream.readAll();
+            file.close();
+
+            QTextDocument doc;
+            doc.setPlainText(plainText);
+
+            QList<QTextCursor> cursors;
+            const QList<Find::SearchResultItem> items = it.value();
+            foreach (const Find::SearchResultItem &item, items) {
+                const int blockNumber = item.lineNumber - 1;
+                QTextCursor tc(doc.findBlockByNumber(blockNumber));
+                tc.setPosition(tc.position() + item.searchTermStart);
+                tc.setPosition(tc.position() + item.searchTermLength,
+                               QTextCursor::KeepAnchor);
+                cursors.append(tc);
+            }
+
+            foreach (QTextCursor tc, cursors)
+                tc.insertText(text);
+
+            QFile newFile(fileName);
+            if (newFile.open(QFile::WriteOnly)) {
+                QTextStream stream(&newFile);
+                // ### set the encoding
+                stream << doc.toPlainText();
+            }
+        }
+    }
+
+    const QStringList fileNames = changes.keys();
+    _modelManager->updateSourceFiles(fileNames);
+}
+
 void CppFindReferences::displayResult(int index)
 {
-    Core::Utils::FileSearchResult result = m_watcher.future().resultAt(index);
-    Find::ResultWindowItem *item = _resultWindow->addResult(result.fileName,
-                                                            result.lineNumber,
-                                                            result.matchingLine,
-                                                            result.matchStart,
-                                                            result.matchLength);
-    if (item)
-        connect(item, SIGNAL(activated(const QString&,int,int)),
-                this, SLOT(openEditor(const QString&,int,int)));
+    Utils::FileSearchResult result = m_watcher.future().resultAt(index);
+    _resultWindow->addResult(result.fileName,
+                             result.lineNumber,
+                             result.matchingLine,
+                             result.matchStart,
+                             result.matchLength);
 }
 
 void CppFindReferences::searchFinished()
@@ -571,8 +643,8 @@ void CppFindReferences::searchFinished()
     emit changed();
 }
 
-void CppFindReferences::openEditor(const QString &fileName, int line, int column)
+void CppFindReferences::openEditor(const Find::SearchResultItem &item)
 {
-    TextEditor::BaseTextEditor::openEditorAt(fileName, line, column);
+    TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.searchTermStart);
 }
 

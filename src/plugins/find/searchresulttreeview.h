@@ -51,8 +51,7 @@ public:
     SearchResultTreeModel *model() const;
 
 signals:
-    void jumpToSearchResult(int index, const QString &fileName, int lineNumber,
-                            int searchTermStart, int searchTermLength);
+    void jumpToSearchResult(int index, bool checked);
 
 public slots:
     void clear();

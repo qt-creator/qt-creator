@@ -40,7 +40,7 @@ ClassDefinition::ClassDefinition(QWidget *parent) :
     m_domXmlChanged(false)
 {
     setupUi(this);
-    iconPathChooser->setExpectedKind(Core::Utils::PathChooser::File);
+    iconPathChooser->setExpectedKind(Utils::PathChooser::File);
     iconPathChooser->setPromptDialogTitle(tr("Select Icon"));
     iconPathChooser->setPromptDialogFilter(tr("Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)"));
 }

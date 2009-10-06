@@ -30,7 +30,6 @@
 #include "filewizardpage.h"
 #include "ui_filewizardpage.h"
 
-namespace Core {
 namespace Utils {
 
 struct FileWizardPagePrivate
@@ -130,4 +129,3 @@ bool FileWizardPage::validateBaseName(const QString &name, QString *errorMessage
 }
 
 } // namespace Utils
-} // namespace Core

@@ -561,6 +561,32 @@ void Class::visitSymbol0(SymbolVisitor *visitor)
     }
 }
 
+ObjCBaseClass::ObjCBaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+    : Symbol(translationUnit, sourceLocation, name)
+{ }
+
+ObjCBaseClass::~ObjCBaseClass()
+{ }
+
+FullySpecifiedType ObjCBaseClass::type() const
+{ return FullySpecifiedType(); }
+
+void ObjCBaseClass::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
+ObjCBaseProtocol::ObjCBaseProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+    : Symbol(translationUnit, sourceLocation, name)
+{ }
+
+ObjCBaseProtocol::~ObjCBaseProtocol()
+{ }
+
+FullySpecifiedType ObjCBaseProtocol::type() const
+{ return FullySpecifiedType(); }
+
+void ObjCBaseProtocol::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
 ObjCClass::ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
         ScopedSymbol(translationUnit, sourceLocation, name),
         _categoryName(0),

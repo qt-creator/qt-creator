@@ -63,14 +63,16 @@ int QmlHighlighter::onBlockStart()
 
 void QmlHighlighter::onOpeningParenthesis(QChar parenthesis, int pos)
 {
-    if (parenthesis == QLatin1Char('{'))
+    if (parenthesis == QLatin1Char('{')
+        || parenthesis == QLatin1Char('['))
         ++m_braceDepth;
      m_currentBlockParentheses.push_back(Parenthesis(Parenthesis::Opened, parenthesis, pos));
 }
 
 void QmlHighlighter::onClosingParenthesis(QChar parenthesis, int pos)
 {
-    if (parenthesis == QLatin1Char('}'))
+    if (parenthesis == QLatin1Char('}')
+        || parenthesis == QLatin1Char(']'))
         --m_braceDepth;
     m_currentBlockParentheses.push_back(Parenthesis(Parenthesis::Closed, parenthesis, pos));
 }

@@ -19,7 +19,6 @@ linux-* {
   QTC_LIBS=$$dirname(QTC_LIBS)
   QTC_LIBS=$$dirname(QTC_LIBS)
   QTC_LIBS=$$QTC_LIBS/$$IDE_LIBRARY_BASENAME/qtcreator
-  QTC_LIBS=$$QTC_LIBS/$$IDE_LIBRARY_BASENAME/qtcreator
   QMAKE_RPATHDIR *= $$QTC_LIBS
 }
 
@@ -29,6 +28,7 @@ macx {
     CONFIG(debug, debug|release):LIBS += -lUtils_debug
     else:LIBS += -lUtils
 } else {
+    message($$QTC_LIBS)
     LIBS += -L$$QTC_LIBS -lUtils
 }
 

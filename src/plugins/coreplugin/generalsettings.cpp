@@ -38,7 +38,7 @@
 
 #include "ui_generalsettings.h"
 
-using namespace Core::Utils;
+using namespace Utils;
 using namespace Core::Internal;
 
 GeneralSettings::GeneralSettings():

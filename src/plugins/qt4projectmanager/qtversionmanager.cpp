@@ -90,8 +90,8 @@ QtVersionManager::QtVersionManager()
         int id = s->value("Id", -1).toInt();
         if (id == -1)
             id = getUniqueId();
-        else if (id > m_idcount)
-            m_idcount = id;
+        else if (m_idcount < id)
+            m_idcount = id + 1;
         bool isAutodetected;
         QString autodetectionSource;
         if (s->contains("isAutodetected")) {
@@ -749,7 +749,6 @@ void QtVersionManager::parseParts(const QStringList &parts, QList<QMakeAssignmen
             after = true;
         } else if(part.contains('=')) {
             if (regExp.exactMatch(part)) {
-                qDebug()<<regExp.cap(1)<<"|"<<regExp.cap(2)<<"|"<<regExp.cap(3);
                 QMakeAssignment qa;
                 qa.variable = regExp.cap(1);
                 qa.op = regExp.cap(2);

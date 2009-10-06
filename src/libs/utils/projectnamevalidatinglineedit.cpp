@@ -30,7 +30,6 @@
 #include "projectnamevalidatinglineedit.h"
 #include "filenamevalidatinglineedit.h"
 
-namespace Core {
 namespace Utils {
 
 ProjectNameValidatingLineEdit::ProjectNameValidatingLineEdit(QWidget *parent)
@@ -60,4 +59,3 @@ bool ProjectNameValidatingLineEdit::validate(const QString &value, QString *erro
 }
 
 } // namespace Utils
-} // namespace Core

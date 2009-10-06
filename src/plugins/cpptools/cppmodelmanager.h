@@ -106,7 +106,8 @@ public:
                                   CPlusPlus::Document::Ptr doc,
                                   const CPlusPlus::Snapshot &snapshot);
 
-    virtual void findReferences(CPlusPlus::Symbol *symbol);
+    virtual void findUsages(CPlusPlus::Symbol *symbol);
+    virtual void renameUsages(CPlusPlus::Symbol *symbol);
 
     void setHeaderSuffixes(const QStringList &suffixes)
     { m_headerSuffixes = suffixes; }

@@ -476,6 +476,48 @@ private:
     Array<BaseClass *> _baseClasses;
 };
 
+class CPLUSPLUS_EXPORT ObjCBaseClass: public Symbol
+{
+public:
+    ObjCBaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    virtual ~ObjCBaseClass();
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    virtual const ObjCBaseClass *asObjCBaseClass() const
+    { return this; }
+
+    virtual ObjCBaseClass *asObjCBaseClass()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+
+private:
+};
+
+class CPLUSPLUS_EXPORT ObjCBaseProtocol: public Symbol
+{
+public:
+    ObjCBaseProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    virtual ~ObjCBaseProtocol();
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    virtual const ObjCBaseProtocol *asObjCBaseProtocol() const
+    { return this; }
+
+    virtual ObjCBaseProtocol *asObjCBaseProtocol()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+
+private:
+};
+
 class CPLUSPLUS_EXPORT ObjCForwardProtocolDeclaration: public Symbol, public Type
 {
 public:
@@ -511,6 +553,15 @@ public:
     ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
     virtual ~ObjCProtocol();
 
+    unsigned protocolCount() const
+    { return _protocols.count(); }
+
+    ObjCBaseProtocol *protocolAt(unsigned index) const
+    { return _protocols.at(index); }
+
+    void addProtocol(ObjCBaseProtocol *protocol)
+    { _protocols.push_back(protocol); }
+
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
@@ -534,7 +585,7 @@ protected:
     virtual void accept0(TypeVisitor *visitor);
 
 private:
-    Array<ObjCProtocol *> _protocols;
+    Array<ObjCBaseProtocol *> _protocols;
 };
 
 class CPLUSPLUS_EXPORT ObjCForwardClassDeclaration: public Symbol, public Type
@@ -579,18 +630,18 @@ public:
     Name *categoryName() const { return _categoryName; }
     void setCategoryName(Name *categoryName) { _categoryName = categoryName; }
 
-    ObjCClass *baseClass() const
+    ObjCBaseClass *baseClass() const
     { return _baseClass; }
-    void setBaseClass(ObjCClass *baseClass)
+    void setBaseClass(ObjCBaseClass *baseClass)
     { _baseClass = baseClass; }
 
     unsigned protocolCount() const
     { return _protocols.count(); }
 
-    ObjCProtocol *protocolAt(unsigned index) const
+    ObjCBaseProtocol *protocolAt(unsigned index) const
     { return _protocols.at(index); }
 
-    void addProtocol(ObjCProtocol *protocol)
+    void addProtocol(ObjCBaseProtocol *protocol)
     { _protocols.push_back(protocol); }
 
     // Symbol's interface
@@ -618,8 +669,8 @@ protected:
 private:
     bool _isInterface;
     Name *_categoryName;
-    ObjCClass * _baseClass;
-    Array<ObjCProtocol *> _protocols;
+    ObjCBaseClass * _baseClass;
+    Array<ObjCBaseProtocol *> _protocols;
 };
 
 class CPLUSPLUS_EXPORT ObjCMethod: public ScopedSymbol, public Type

@@ -174,7 +174,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="Core::Utils::PathChooser" name="qmakePath" native="true"/>
+       <widget class="Utils::PathChooser" name="qmakePath" native="true"/>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="mingwLabel">
@@ -184,7 +184,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="Core::Utils::PathChooser" name="mingwPath" native="true"/>
+       <widget class="Utils::PathChooser" name="mingwPath" native="true"/>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="msvcLabel">
@@ -215,7 +215,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="Core::Utils::PathChooser" name="mwcPath" native="true"/>
+       <widget class="Utils::PathChooser" name="mwcPath" native="true"/>
       </item>
      </layout>
     </widget>
@@ -245,7 +245,7 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::PathChooser</class>
+   <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>

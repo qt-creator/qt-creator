@@ -43,6 +43,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <QtCore/QDebug>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextCursor>
 #include <QtGui/QSyntaxHighlighter>
@@ -182,7 +183,7 @@ private:
 */
 
 DisassemblerViewAgent::DisassemblerViewAgent(DebuggerManager *manager)
-    : QObject(manager), d(new DisassemblerViewAgentPrivate)
+    : QObject(0), d(new DisassemblerViewAgentPrivate)
 {
     d->editor = 0;
     d->locationMark = new LocationMark2();
@@ -212,16 +213,20 @@ void DisassemblerViewAgent::resetLocation()
         d->editor->markableInterface()->removeMark(d->locationMark);
 }
 
+QString frameKey(const StackFrame &frame)
+{
+    return _("%1:%2:%3").arg(frame.function).arg(frame.file).arg(frame.from);
+}
+
 void DisassemblerViewAgent::setFrame(const StackFrame &frame)
 {
     d->frame = frame;
-    if (!frame.function.isEmpty()) {
-        QHash<QString, QString>::ConstIterator it =
-            d->cache.find(frame.function + frame.file);
+    if (!frame.function.isEmpty() && frame.function != _("??")) {
+        QHash<QString, QString>::ConstIterator it = d->cache.find(frameKey(frame));
         if (it != d->cache.end()) {
             QString msg = _("Use cache dissassembler for '%1' in '%2'")
                 .arg(frame.function).arg(frame.file);
-            m_manager->showDebuggerOutput(msg);
+            d->manager->showDebuggerOutput(msg);
             setContents(*it);
             return;
         }
@@ -237,7 +242,7 @@ void DisassemblerViewAgent::setContents(const QString &contents)
     using namespace Core;
     using namespace TextEditor;
 
-    d->cache.insert(d->frame.function + d->frame.file, contents);
+    d->cache.insert(frameKey(d->frame), contents);
     QPlainTextEdit *plainTextEdit = 0;
     EditorManager *editorManager = EditorManager::instance();
     if (!d->editor) {
@@ -274,6 +279,19 @@ void DisassemblerViewAgent::setContents(const QString &contents)
         if (pos == -1)
             break;
     }
+}
+
+bool DisassemblerViewAgent::contentsCoversAddress(const QString &contents) const
+{
+    QTC_ASSERT(d, return false);
+    for (int pos = 0, line = 0; ; ++line, ++pos) { 
+        if (contents.midRef(pos, d->frame.address.size()) == d->frame.address)
+            return true;
+        pos = contents.indexOf('\n', pos + 1);
+        if (pos == -1)
+            break;
+    }
+    return false;
 }
 
 QString DisassemblerViewAgent::address() const
