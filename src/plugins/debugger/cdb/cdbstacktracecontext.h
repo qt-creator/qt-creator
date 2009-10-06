@@ -63,6 +63,13 @@ class CdbStackTraceContext
 public:
     enum { maxFrames = 100 };
 
+    // Some well known-functions
+    static const char *winFuncFastSystemCallRet;
+    // WaitFor...
+    static const char *winFuncWaitForPrefix;
+    // Dummy function used for interrupting a debuggee
+    static const char *winFuncDebugBreakPoint;
+
     ~CdbStackTraceContext();
     static CdbStackTraceContext *create(const QSharedPointer<CdbDumperHelper> &dumper,
                                         unsigned long threadid,

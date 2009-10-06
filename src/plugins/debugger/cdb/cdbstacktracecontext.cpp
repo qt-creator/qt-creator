@@ -40,6 +40,10 @@
 namespace Debugger {
 namespace Internal {
 
+const char *CdbStackTraceContext::winFuncFastSystemCallRet = "ntdll!KiFastSystemCallRet";
+const char *CdbStackTraceContext::winFuncDebugBreakPoint = "ntdll!DbgBreakPoint";
+const char *CdbStackTraceContext::winFuncWaitForPrefix = "kernel32!WaitFor";
+
 CdbStackTraceContext::CdbStackTraceContext(const QSharedPointer<CdbDumperHelper> &dumper) :
         m_dumper(dumper),
         m_cif(dumper->comInterfaces()),
@@ -232,6 +236,7 @@ static inline bool getStoppedThreadState(const CdbComInterfaces &cif,
                                          ThreadData *t,
                                          QString *errorMessage)
 {
+    enum { MaxFrames = 2 };
     ULONG currentThread;
     HRESULT hr = cif.debugSystemObjects->GetCurrentThreadId(&currentThread);
     if (FAILED(hr)) {
@@ -246,29 +251,38 @@ static inline bool getStoppedThreadState(const CdbComInterfaces &cif,
         }
     }
     ULONG frameCount;
-    DEBUG_STACK_FRAME topFrame[1];
-    hr = cif.debugControl->GetStackTrace(0, 0, 0, topFrame, 1, &frameCount);
+    // Ignore the top frame if it is "ntdll!KiFastSystemCallRet", which is
+    // not interesting for display.    
+    DEBUG_STACK_FRAME frames[MaxFrames];
+    hr = cif.debugControl->GetStackTrace(0, 0, 0, frames, MaxFrames, &frameCount);
     if (FAILED(hr)) {
         *errorMessage = msgGetThreadStateFailed(t->id, msgComFailed("GetStackTrace", hr));
         return false;
     }
-
-    t->address = topFrame[0].InstructionOffset;
+    // Ignore the top frame if it is "ntdll!KiFastSystemCallRet", which is
+    // not interesting for display.
     WCHAR wszBuf[MAX_PATH];
-
-    cif.debugSymbols->GetNameByOffsetWide(topFrame[0].InstructionOffset, wszBuf, MAX_PATH, 0, 0);
-    t->function = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
-    ULONG ulLine;
-    hr = cif.debugSymbols->GetLineByOffsetWide(topFrame[0].InstructionOffset, &ulLine, wszBuf, MAX_PATH, 0, 0);
-    if (SUCCEEDED(hr)) {
-        t->line = ulLine;
-        // Just display base name
-        t->file = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
-        if (!t->file.isEmpty()) {
-            const int slashPos = t->file.lastIndexOf(QLatin1Char('\\'));
-            if (slashPos != -1)
-                t->file.remove(0, slashPos + 1);
-        }
+    for (int frame = 0; frame < MaxFrames; frame++) {
+        cif.debugSymbols->GetNameByOffsetWide(frames[frame].InstructionOffset, wszBuf, MAX_PATH, 0, 0);
+        t->function = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
+        if (frame != 0  || t->function != QLatin1String(CdbStackTraceContext::winFuncFastSystemCallRet)) {
+            t->address = frames[frame].InstructionOffset;
+            cif.debugSymbols->GetNameByOffsetWide(frames[frame].InstructionOffset, wszBuf, MAX_PATH, 0, 0);
+            t->function = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
+            ULONG ulLine;
+            hr = cif.debugSymbols->GetLineByOffsetWide(frames[frame].InstructionOffset, &ulLine, wszBuf, MAX_PATH, 0, 0);
+            if (SUCCEEDED(hr)) {
+                t->line = ulLine;
+                // Just display base name
+                t->file = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
+                if (!t->file.isEmpty()) {
+                    const int slashPos = t->file.lastIndexOf(QLatin1Char('\\'));
+                    if (slashPos != -1)
+                        t->file.remove(0, slashPos + 1);
+                }
+            }
+            break;
+        } // was not "ntdll!KiFastSystemCallRet"
     }
     return true;
 }

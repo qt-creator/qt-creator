@@ -302,6 +302,7 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *manager,
     m_dumper(new CdbDumperHelper(manager, &m_cif)),
     m_currentThreadId(-1),
     m_eventThreadId(-1),
+    m_interrupted(false),
     m_watchTimer(-1),
     m_debugEventCallBack(engine),
     m_engine(engine),
@@ -445,6 +446,7 @@ void CdbDebugEnginePrivate::clearForRun()
 
     m_breakEventMode = BreakEventHandle;
     m_eventThreadId = -1;
+    m_interrupted = false;
     cleanStackTrace();
 }
 
@@ -1026,6 +1028,9 @@ bool CdbDebugEngine::step(unsigned long executionStatus)
             warning(msgStepFailed(executionStatus, m_d->m_currentThreadId, msgDebuggerCommandFailed(command, hr)));
     }
     if (success) {
+        // Oddity: Step into will first break at the calling function. Ignore
+        if (executionStatus == DEBUG_STATUS_STEP_INTO || executionStatus == DEBUG_STATUS_REVERSE_STEP_INTO)
+            m_d->m_breakEventMode = CdbDebugEnginePrivate::BreakEventIgnoreOnce;
         startWatchTimer();
         setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
     } else {
@@ -1169,7 +1174,9 @@ bool CdbDebugEnginePrivate::interruptInterferiorProcess(QString *errorMessage)
         qDebug() << Q_FUNC_INFO << "\n    ex=" << executionStatus;
     }
 
-    if (!DebugBreakProcess(m_hDebuggeeProcess)) {
+    if (DebugBreakProcess(m_hDebuggeeProcess)) {
+        m_interrupted = true;
+    } else {
         *errorMessage = QString::fromLatin1("DebugBreakProcess failed: %1").arg(Utils::winErrorMessage(GetLastError()));
         return false;
     }
@@ -1704,10 +1711,32 @@ ULONG CdbDebugEnginePrivate::updateThreadList()
     QList<ThreadData> threads;
     ULONG currentThreadId;
     QString errorMessage;
+    // When interrupting, an artifical thread with a breakpoint is created.
     if (!CdbStackTraceContext::getThreads(m_cif, true, &threads, &currentThreadId, &errorMessage))
         m_engine->warning(errorMessage);
     manager()->threadsHandler()->setThreads(threads);
     return currentThreadId;
+}
+
+// Figure out the thread to run the dumpers in (see notes on.
+// CdbDumperHelper). Avoid the artifical threads created by interrupt
+// and threads that are in waitFor().
+// A stricter version could only use the thread if it is the event
+// thread of a step or breakpoint hit (see CdbDebugEnginePrivate::m_interrupted).
+
+static inline unsigned long dumperThreadId(const QList<StackFrame> &frames,
+                                           unsigned long currentThread)
+{
+    if (frames.empty())
+        return CdbDumperHelper::InvalidDumperCallThread;
+    if (frames.at(0).function == QLatin1String(CdbStackTraceContext::winFuncDebugBreakPoint))
+        return CdbDumperHelper::InvalidDumperCallThread;
+    const int waitCheckDepth = qMin(frames.size(), 5);
+    static const QString waitForPrefix = QLatin1String(CdbStackTraceContext::winFuncWaitForPrefix);
+    for (int f = 0; f < waitCheckDepth; f++)
+        if (frames.at(f).function.startsWith(waitForPrefix))
+            return CdbDumperHelper::InvalidDumperCallThread;
+    return currentThread;
 }
 
 void CdbDebugEnginePrivate::updateStackTrace()
@@ -1750,11 +1779,19 @@ void CdbDebugEnginePrivate::updateStackTrace()
                             CdbDebugEngine::tr("Thread %1: No debug information available (%2).").arg(m_currentThreadId).arg(topFunction);
         m_engine->warning(msg);
     }
-
+    // Set up dumper with a thread (or invalid)
+    const unsigned long dumperThread = dumperThreadId(stackFrames, m_currentThreadId);
+    if (debugCDB)
+        qDebug() << "updateStackTrace() current: " << m_currentThreadId << " dumper=" << dumperThread;
+    m_dumper->setDumperCallThread(dumperThread);
+    // Display frames
     manager()->stackHandler()->setFrames(stackFrames);
     m_firstActivatedFrame = true;
     if (current >= 0) {
         manager()->stackHandler()->setCurrentIndex(current);
+        // First time : repaint
+        if (m_dumper->isEnabled() && m_dumper->state() != CdbDumperHelper::Initialized)
+            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         m_engine->activateFrame(current);
     }
     manager()->watchHandler()->updateWatchers();
