@@ -529,7 +529,7 @@ void QtVersion::setName(const QString &name)
 
 void QtVersion::setQMakeCommand(const QString& qmakeCommand)
 {
-    m_qmakeCommand = qmakeCommand;
+    m_qmakeCommand = QDir::fromNativeSeparators(qmakeCommand);
 #ifdef Q_OS_WIN
     m_qmakeCommand = m_qmakeCommand.toLower();
 #endif
