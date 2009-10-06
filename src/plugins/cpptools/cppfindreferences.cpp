@@ -36,6 +36,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filesearch.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
 #include <ASTVisitor.h>
@@ -581,6 +582,23 @@ void CppFindReferences::findAll_helper(Symbol *symbol)
     connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
 }
 
+static void applyChanges(QTextDocument *doc, const QString &text, const QList<Find::SearchResultItem> &items)
+{
+    QList<QTextCursor> cursors;
+
+    foreach (const Find::SearchResultItem &item, items) {
+        const int blockNumber = item.lineNumber - 1;
+        QTextCursor tc(doc->findBlockByNumber(blockNumber));
+        tc.setPosition(tc.position() + item.searchTermStart);
+        tc.setPosition(tc.position() + item.searchTermLength,
+                       QTextCursor::KeepAnchor);
+        cursors.append(tc);
+    }
+
+    foreach (QTextCursor tc, cursors)
+        tc.insertText(text);
+}
+
 void CppFindReferences::onReplaceButtonClicked(const QString &text,
                                                const QList<Find::SearchResultItem> &items)
 {
@@ -592,41 +610,48 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
     foreach (const Find::SearchResultItem &item, items)
         changes[item.fileName].append(item);
 
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+
     QHashIterator<QString, QList<Find::SearchResultItem> > it(changes);
     while (it.hasNext()) {
         it.next();
 
         const QString fileName = it.key();
-        QFile file(fileName);
+        const QList<Find::SearchResultItem> items = it.value();
 
-        if (file.open(QFile::ReadOnly)) {
-            QTextStream stream(&file);
-            // ### set the encoding
-            const QString plainText = stream.readAll();
-            file.close();
+        const QList<Core::IEditor *> editors = editorManager->editorsForFileName(fileName);
+        TextEditor::BaseTextEditor *textEditor = 0;
+        foreach (Core::IEditor *editor, editors) {
+            textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
+            if (textEditor != 0)
+                break;
+        }
 
-            QTextDocument doc;
-            doc.setPlainText(plainText);
+        if (textEditor != 0) {
+            QTextCursor tc = textEditor->textCursor();
+            tc.beginEditBlock();
+            applyChanges(textEditor->document(), text, items);
+            tc.endEditBlock();
+        } else {
+            QFile file(fileName);
 
-            QList<QTextCursor> cursors;
-            const QList<Find::SearchResultItem> items = it.value();
-            foreach (const Find::SearchResultItem &item, items) {
-                const int blockNumber = item.lineNumber - 1;
-                QTextCursor tc(doc.findBlockByNumber(blockNumber));
-                tc.setPosition(tc.position() + item.searchTermStart);
-                tc.setPosition(tc.position() + item.searchTermLength,
-                               QTextCursor::KeepAnchor);
-                cursors.append(tc);
-            }
-
-            foreach (QTextCursor tc, cursors)
-                tc.insertText(text);
-
-            QFile newFile(fileName);
-            if (newFile.open(QFile::WriteOnly)) {
-                QTextStream stream(&newFile);
+            if (file.open(QFile::ReadOnly)) {
+                QTextStream stream(&file);
                 // ### set the encoding
-                stream << doc.toPlainText();
+                const QString plainText = stream.readAll();
+                file.close();
+
+                QTextDocument doc;
+                doc.setPlainText(plainText);
+
+                applyChanges(&doc, text, items);
+
+                QFile newFile(fileName);
+                if (newFile.open(QFile::WriteOnly)) {
+                    QTextStream stream(&newFile);
+                    // ### set the encoding
+                    stream << doc.toPlainText();
+                }
             }
         }
     }
