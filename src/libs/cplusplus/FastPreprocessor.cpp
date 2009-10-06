@@ -34,7 +34,6 @@
 
 using namespace CPlusPlus;
 
-    TranslationUnit *_previousUnit;
 FastMacroResolver::FastMacroResolver(TranslationUnit *unit, const Snapshot &snapshot)
     : _unit(unit), _snapshot(snapshot)
 {
