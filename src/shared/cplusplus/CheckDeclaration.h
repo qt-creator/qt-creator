@@ -90,6 +90,7 @@ protected:
     virtual bool visit(TemplateTypeParameterAST *ast);
     virtual bool visit(UsingAST *ast);
     virtual bool visit(UsingDirectiveAST *ast);
+    virtual bool visit(MemInitializerAST *ast);
 
     virtual bool visit(ObjCProtocolDeclarationAST *ast);
     virtual bool visit(ObjCProtocolForwardDeclarationAST *ast);

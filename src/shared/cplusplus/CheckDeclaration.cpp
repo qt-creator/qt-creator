@@ -332,6 +332,13 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     return false;
 }
 
+bool CheckDeclaration::visit(MemInitializerAST *ast)
+{
+    (void) semantic()->check(ast->name, _scope);
+    FullySpecifiedType ty = semantic()->check(ast->expression, _scope);
+    return false;
+}
+
 bool CheckDeclaration::visit(LinkageBodyAST *ast)
 {
     for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
