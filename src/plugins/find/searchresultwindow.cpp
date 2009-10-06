@@ -104,6 +104,17 @@ SearchResultWindow::~SearchResultWindow()
     m_items.clear();
 }
 
+void SearchResultWindow::setTextToReplace(const QString &textToReplace)
+{
+    m_replaceTextEdit->setText(textToReplace);
+    m_replaceTextEdit->selectAll();
+}
+
+QString SearchResultWindow::textToReplace() const
+{
+    return m_replaceTextEdit->text();
+}
+
 void SearchResultWindow::setShowReplaceUI(bool show)
 {
     m_searchResultTreeView->model()->setShowReplaceUI(show);
@@ -169,6 +180,7 @@ SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndRep
 void SearchResultWindow::clearContents()
 {
     setReplaceUIEnabled(false);
+    m_replaceTextEdit->clear();
     m_searchResultTreeView->clear();
     m_items.clear();
     m_widget->setCurrentWidget(m_searchResultTreeView);

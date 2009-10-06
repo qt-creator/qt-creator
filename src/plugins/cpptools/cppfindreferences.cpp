@@ -58,7 +58,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QDir>
-
+#include <QtGui/QApplication>
 #include <qtconcurrent/runextensions.h>
 
 using namespace CppTools::Internal;
@@ -545,15 +545,20 @@ void CppFindReferences::findUsages(Symbol *symbol)
 
 void CppFindReferences::renameUsages(Symbol *symbol)
 {
-    Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchAndReplace);
+    if (Identifier *id = symbol->identifier()) {
+        const QString textToReplace = QString::fromUtf8(id->chars(), id->size());
 
-    connect(search, SIGNAL(activated(Find::SearchResultItem)),
-            this, SLOT(openEditor(Find::SearchResultItem)));
+        Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchAndReplace);
+        _resultWindow->setTextToReplace(textToReplace);
 
-    connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
-            SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+        connect(search, SIGNAL(activated(Find::SearchResultItem)),
+                this, SLOT(openEditor(Find::SearchResultItem)));
 
-    findAll_helper(symbol);
+        connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
+                SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+
+        findAll_helper(symbol);
+    }
 }
 
 void CppFindReferences::findAll_helper(Symbol *symbol)
@@ -651,6 +656,7 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
 
     const QStringList fileNames = changes.keys();
     _modelManager->updateSourceFiles(fileNames);
+    _resultWindow->hide();
 }
 
 void CppFindReferences::displayResult(int index)

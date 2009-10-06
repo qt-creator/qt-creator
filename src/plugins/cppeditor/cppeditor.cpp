@@ -869,6 +869,16 @@ void CPPEditor::findUsages()
 
 void CPPEditor::renameUsages()
 {
+    Core::EditorManager::instance()->showEditorInfoBar(QLatin1String("CppEditor.Rename"),
+                                                       tr("This change cannot be undone."),
+                                                       tr("Yes, I know what I am doing."),
+                                                       this, SLOT(renameUsagesNow()));
+}
+
+void CPPEditor::renameUsagesNow()
+{
+    Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+
     m_currentRenameSelection = -1;
 
     QList<QTextEdit::ExtraSelection> selections;
