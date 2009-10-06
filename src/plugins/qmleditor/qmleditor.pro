@@ -26,8 +26,7 @@ HEADERS += qmleditor.h \
     qmllookupcontext.h \
     qmlresolveexpression.h \
     qmlsymbol.h \
-    qmlfilewizard.h \
-    qmlscope.h
+    qmlfilewizard.h
 SOURCES += qmleditor.cpp \
     qmleditorfactory.cpp \
     qmleditorplugin.cpp \
@@ -44,6 +43,5 @@ SOURCES += qmleditor.cpp \
     qmllookupcontext.cpp \
     qmlresolveexpression.cpp \
     qmlsymbol.cpp \
-    qmlfilewizard.cpp \
-    qmlscope.cpp
+    qmlfilewizard.cpp
 RESOURCES += qmleditor.qrc
