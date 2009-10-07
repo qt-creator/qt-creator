@@ -74,6 +74,9 @@ public:
     void setSerialPortName(const QString &name);
     QString targetName() const;
     QString basePackageFilePath() const;
+    QString symbianPlatform() const;
+    QString symbianTarget() const;
+    QString packageTemplateFileName() const;
     SigningMode signingMode() const;
     void setSigningMode(SigningMode mode);
     QString customSignaturePath() const;
@@ -97,7 +100,10 @@ private:
 
     QString m_proFilePath;
     QString m_targetName;
+    QString m_platform;
+    QString m_target;
     QString m_baseFileName;
+    QString m_packageTemplateFileName;
     bool m_cachedTargetInformationValid;
     QString m_serialPortName;
     SigningMode m_signingMode;
@@ -180,10 +186,16 @@ private slots:
     void launcherFinished();
 
 private:
+    bool createPackageFileFromTemplate();
+
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
     QString m_targetName;
     QString m_baseFileName;
+    QString m_symbianPlatform;
+    QString m_symbianTarget;
+    QString m_packageTemplateFile;
+    QString m_packageFilePath;
     QString m_workingDirectory;
     QString m_toolsDirectory;
     QString m_executableFileName;

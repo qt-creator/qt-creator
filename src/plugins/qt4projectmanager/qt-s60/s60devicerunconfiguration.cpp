@@ -156,6 +156,24 @@ QString S60DeviceRunConfiguration::basePackageFilePath() const
     return m_baseFileName;
 }
 
+QString S60DeviceRunConfiguration::symbianPlatform() const
+{
+    const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
+    return m_platform;
+}
+
+QString S60DeviceRunConfiguration::symbianTarget() const
+{
+    const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
+    return m_target;
+}
+
+QString S60DeviceRunConfiguration::packageTemplateFileName() const
+{
+    const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
+    return m_packageTemplateFileName;
+}
+
 S60DeviceRunConfiguration::SigningMode S60DeviceRunConfiguration::signingMode() const
 {
     return m_signingMode;
@@ -194,48 +212,17 @@ QString S60DeviceRunConfiguration::packageFileName() const
     return rc;
 }
 
-/* Grep the pkg file for \code
-; Executable and default resource files
-"/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/gcce/udeb/foo.exe"    - "!:\sys\bin\foo.exe"
-\endcode */
-
-static QString localExecutableFromPkgFile(const QString &pkgFileName, QString *errorMessage)
-{
-    QFile pkgFile(pkgFileName);
-    if (!pkgFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        *errorMessage = S60DeviceRunConfiguration::tr("Cannot open %1: %2").arg(pkgFileName, pkgFile.errorString());
-        return QString();
-    }
-    // "<SDK>/foo.exe"    - "!:\device_bin\foo.exe"
-    const QRegExp exePattern = QRegExp(QLatin1String("^\"([^\"]+\\.exe)\" +-.*$"));
-    Q_ASSERT(exePattern.isValid());
-
-    foreach(const QString &line, QString::fromLocal8Bit(pkgFile.readAll()).split(QLatin1Char('\n'))) {
-        if (exePattern.exactMatch(line)) {
-            QString rc = exePattern.cap(1);
-#ifdef Q_OS_WIN
-            // Sometimes, the drive letter is missing. Use that of the pkg file
-            if (rc.at(0) == QLatin1Char('/'))
-                rc.insert(0, pkgFileName.left(2));
-#endif
-            return rc;
-        }
-    }
-    *errorMessage = S60DeviceRunConfiguration::tr("Unable to find the executable in the package file %1.").arg(pkgFileName);
-    return QString();
-}
-
 QString S60DeviceRunConfiguration::localExecutableFileName() const
 {
-    const QString pkg = packageFileName();
-    if (!pkg.isEmpty()) {
-        QString errorMessage;
-        const QString rc = localExecutableFromPkgFile(pkg, &errorMessage);
-        if (rc.isEmpty())
-            qWarning("%s\n", qPrintable(errorMessage));
-        return rc;
-    }
-    return QString();
+    Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
+    S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(
+            qt4project->qtVersion(qt4project->activeBuildConfiguration()));
+
+    QString localExecutable = device.epocRoot;
+    localExecutable += QString::fromLatin1("/epoc32/release/%1/%2/%3.exe")
+                       .arg(symbianPlatform()).arg(symbianTarget()).arg(targetName());
+    qDebug() << localExecutable;
+    return QDir::toNativeSeparators(localExecutable);
 }
 
 void S60DeviceRunConfiguration::updateTarget()
@@ -300,16 +287,21 @@ void S60DeviceRunConfiguration::updateTarget()
         m_targetName = QFileInfo(m_proFilePath).baseName();
 
     m_baseFileName = QDir::cleanPath(m_workingDir + QLatin1Char('/') + m_targetName);
+    m_packageTemplateFileName = QDir::cleanPath(
+            m_workingDir + QLatin1Char('/') + m_targetName + QLatin1String("_template.pkg"));
 
-    if (pro->toolChainType(pro->activeBuildConfiguration()) == ToolChain::GCCE)
-        m_baseFileName += "_gcce";
+    ToolChain::ToolChainType toolchain = pro->toolChainType(pro->activeBuildConfiguration());
+    if (toolchain == ToolChain::GCCE)
+        m_platform = QLatin1String("gcce");
+    else if (toolchain == ToolChain::RVCT_ARMV5)
+        m_platform = QLatin1String("armv5");
     else
-        m_baseFileName += "_armv5";
+        m_platform = QLatin1String("armv6");
     if (projectBuildConfiguration & QtVersion::DebugBuild)
-        m_baseFileName += "_udeb";
+        m_target = QLatin1String("udeb");
     else
-        m_baseFileName += "_urel";
-
+        m_target = QLatin1String("urel");
+    m_baseFileName += QLatin1Char('_') + m_platform + QLatin1Char('_') + m_target;
     delete reader;
     m_cachedTargetInformationValid = true;
     emit targetInformationChanged();
@@ -323,8 +315,9 @@ void S60DeviceRunConfiguration::invalidateCachedTargetInformation()
 
 // ======== S60DeviceRunConfigurationWidget
 
-S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(S60DeviceRunConfiguration *runConfiguration,
-                                                                     QWidget *parent)
+S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
+        S60DeviceRunConfiguration *runConfiguration,
+        QWidget *parent)
     : QWidget(parent),
     m_runConfiguration(runConfiguration)
 {
@@ -345,7 +338,8 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(S60DeviceRunCon
 
     m_serialPorts = new QComboBox;
     updateSerialDevices();
-    connect(S60Manager::instance()->serialDeviceLister(), SIGNAL(updated()), this, SLOT(updateSerialDevices()));
+    connect(S60Manager::instance()->serialDeviceLister(), SIGNAL(updated()),
+            this, SLOT(updateSerialDevices()));
     connect(m_serialPorts, SIGNAL(activated(int)), this, SLOT(setSerialPort(int)));
     formLayout->addRow(tr("Device on Serial Port:"), m_serialPorts);
 
@@ -540,6 +534,9 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfigu
     m_serialPortFriendlyName = S60Manager::instance()->serialDeviceLister()->friendlyNameForPort(m_serialPortName);
     m_targetName = s60runConfig->targetName();
     m_baseFileName = s60runConfig->basePackageFilePath();
+    m_symbianPlatform = s60runConfig->symbianPlatform();
+    m_symbianTarget = s60runConfig->symbianTarget();
+    m_packageTemplateFile = s60runConfig->packageTemplateFileName();
     m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
     m_qtDir = project->qtVersion(project->activeBuildConfiguration())->versionInfo().value("QT_INSTALL_DATA");
     m_useCustomSignature = (s60runConfig->signingMode() == S60DeviceRunConfiguration::SignCustom);
@@ -550,7 +547,8 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfigu
             + "/epoc32/tools";
     m_executableFileName = lsFile(s60runConfig->localExecutableFileName());
     m_makesisTool = m_toolsDirectory + "/makesis.exe";
-    m_packageFile = QFileInfo(s60runConfig->packageFileName()).fileName();
+    m_packageFilePath = s60runConfig->packageFileName();
+    m_packageFile = QFileInfo(m_packageFilePath).fileName();
 }
 
 void S60DeviceRunControlBase::start()
@@ -560,7 +558,8 @@ void S60DeviceRunControlBase::start()
     emit addToOutputWindow(this, tr("Creating %1.sisx ...").arg(QDir::toNativeSeparators(m_baseFileName)));
     emit addToOutputWindow(this, tr("Executable file: %1").arg(m_executableFileName));
 
-
+    if (!createPackageFileFromTemplate())
+        return;
     m_makesis->setWorkingDirectory(m_workingDirectory);
     emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(m_makesisTool), m_packageFile));
     m_makesis->start(m_makesisTool, QStringList(m_packageFile), QIODevice::ReadOnly);
@@ -593,6 +592,29 @@ void S60DeviceRunControlBase::readStandardOutput()
     emit addToOutputWindowInline(this, QString::fromLocal8Bit(data.constData(), data.length()));
 }
 
+bool S60DeviceRunControlBase::createPackageFileFromTemplate()
+{
+    QFile packageTemplate(m_packageTemplateFile);
+    if (!packageTemplate.open(QIODevice::ReadOnly)) {
+        error(this, tr("Could not read template package file '%1'").arg(QDir::toNativeSeparators(m_packageTemplateFile)));
+        emit finished();
+        return false;
+    }
+    QString contents = packageTemplate.readAll();
+    packageTemplate.close();
+    contents.replace(QLatin1String("$(PLATFORM)"), m_symbianPlatform);
+    contents.replace(QLatin1String("$(TARGET)"), m_symbianTarget);
+    QFile packageFile(m_packageFilePath);
+    if (!packageFile.open(QIODevice::WriteOnly)) {
+        error(this, tr("Could not write package file '%1'").arg(QDir::toNativeSeparators(m_packageFilePath)));
+        emit finished();
+        return false;
+    }
+    packageFile.write(contents.toLocal8Bit());
+    packageFile.close();
+    return true;
+}
+
 void S60DeviceRunControlBase::makesisProcessFailed()
 {
     processFailed("makesis.exe", m_makesis->error());
@@ -605,13 +627,13 @@ void S60DeviceRunControlBase::makesisProcessFinished()
         emit finished();
         return;
     }
-    QString signsisTool = m_toolsDirectory + "/signsis.exe";
-    QString sisFile = QFileInfo(m_baseFileName + ".sis").fileName();
-    QString sisxFile = QFileInfo(m_baseFileName + ".sisx").fileName();
+    QString signsisTool = m_toolsDirectory + QLatin1String("/signsis.exe");
+    QString sisFile = QFileInfo(m_baseFileName + QLatin1String(".sis")).fileName();
+    QString sisxFile = QFileInfo(m_baseFileName + QLatin1String(".sisx")).fileName();
     QString signature = (m_useCustomSignature ? m_customSignaturePath
-                         : m_qtDir + "/selfsigned.cer");
+                         : m_qtDir + QLatin1String("/src/s60installs/selfsigned.cer"));
     QString key = (m_useCustomSignature ? m_customKeyPath
-                         : m_qtDir + "/selfsigned.key");
+                         : m_qtDir + QLatin1String("/src/s60installs/selfsigned.key"));
     QStringList arguments;
     arguments << sisFile
             << sisxFile << QDir::toNativeSeparators(signature)
