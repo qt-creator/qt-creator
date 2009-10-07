@@ -63,19 +63,25 @@ Debugging
    * CDB: Added more types to the dumpers (QSharedPointer, QVector, common
      QMap/QSet types), dereference reference and pointer parameters
    * CDB: Simplified display of STL types in the locals window
-   * CDB: Fixed thread handling
+   * CDB: Fixed thread handling, display thread position
    * CDB: Added internal dumpers for string types for debuggee crashes
+   * CDB: Set symbol paths correctly
    * Improved QObject dumping, print out QRect/QSize, enumerations and flags
    * Made it possible to use the BinEditor plugin for displaying raw memory
    * Replace disassembler window by a real text editor enabling "mixed" output
+   * Improved dumper building on options page, run in background
 
 Designer
    * Added support for rearranging and floating form editor tools
 
 Version control plugins
    * Added CVS support
+   * Display diff/annotation with correct encoding
    * Added "sync" menu item to the Perforce plugin
-
+   * Fixed locking of temporary submit message files on Windows
+   * Use a single, colored output pane for all version control systems
+   * Position annotation view of file at current line of editor
+   
 Wizards
    * Fixed GUI project and form class wizards to use the same settings.
    * Added version control checkout wizards
