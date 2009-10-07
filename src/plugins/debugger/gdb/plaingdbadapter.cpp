@@ -257,6 +257,11 @@ void PlainGdbAdapter::shutdown()
         m_engine->postCommand(_("kill"), CB(handleKill));
         return;
 
+    case InferiorShuttingDown:
+        // FIXME: How can we end up here?
+        QTC_ASSERT(false, qDebug() << state());
+        // Fall through.
+
     case InferiorShutDown:
         setState(AdapterShuttingDown);
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
