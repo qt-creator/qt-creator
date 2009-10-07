@@ -177,6 +177,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else {
         actShowMemory->setText(tr("Open memory editor at %1").arg(address));
     }
+    actShowMemory->setEnabled(m_manager->debuggerActionsEnabled());
     menu.addSeparator();
 
     int base = model()->data(QModelIndex(), RegisterNumberBaseRole).toInt();

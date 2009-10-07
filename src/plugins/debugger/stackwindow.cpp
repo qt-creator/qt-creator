@@ -102,7 +102,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         actShowMemory->setEnabled(false);
     } else {
         actShowMemory->setText(tr("Open memory editor at %1").arg(address));
-    }
+    }    
 
     QAction *actShowDisassembler = menu.addAction(QString());
     if (address.isEmpty()) {
@@ -113,8 +113,9 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     menu.addSeparator();
-
+#if 0 // @TODO: not implemented
     menu.addAction(theDebuggerAction(UseToolTipsInStackView));
+#endif
     menu.addAction(theDebuggerAction(UseAddressInStackView));
 
     QAction *actAdjust = menu.addAction(tr("Adjust column widths to contents"));
