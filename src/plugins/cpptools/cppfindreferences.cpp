@@ -531,13 +531,7 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
         if (Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size())) {
             QTime tm;
             tm.start();
-            TranslationUnit *unit = doc->translationUnit();
-            Control *control = doc->control();
-
-            FastMacroResolver fastMacroResolver(unit, snapshot);
-            control->setMacroResolver(&fastMacroResolver);
             doc->parse();
-            control->setMacroResolver(0);
 
             //qDebug() << "***" << unit->fileName() << "parsed in:" << tm.elapsed();
 
@@ -548,6 +542,8 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
             tm.start();
 
             Process process(doc, snapshot, &future);
+
+            TranslationUnit *unit = doc->translationUnit();
             process(symbol, id, unit->ast());
 
             //qDebug() << "***" << unit->fileName() << "processed in:" << tm.elapsed();
