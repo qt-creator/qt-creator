@@ -37,6 +37,7 @@
 #include "attachgdbadapter.h"
 #include "coregdbadapter.h"
 #include "plaingdbadapter.h"
+#include "termgdbadapter.h"
 #include "remotegdbadapter.h"
 #include "trkgdbadapter.h"
 
@@ -1498,6 +1499,8 @@ AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerStartParametersPtr &s
     case AttachExternal:
         return new AttachGdbAdapter(this);
     default:
+        if (sp->useTerminal)
+            return new TermGdbAdapter(this);
         return new PlainGdbAdapter(this);
     }
 }
@@ -4369,7 +4372,8 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
     // No point in being friendly here ...
     m_gdbProc.terminate();
 
-    showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), msg);
+    if (!msg.isEmpty())
+        showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), msg);
 }
 
 void GdbEngine::addOptionPages(QList<Core::IOptionsPage*> *opts) const

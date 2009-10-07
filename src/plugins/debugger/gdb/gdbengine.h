@@ -92,6 +92,7 @@ private:
     friend class AttachGdbAdapter;
     friend class CoreGdbAdapter;
     friend class PlainGdbAdapter;
+    friend class TermGdbAdapter;
     friend class RemoteGdbAdapter;
     friend class TrkGdbAdapter;
 

@@ -16,6 +16,7 @@ HEADERS += \
     $$PWD/attachgdbadapter.h \
     $$PWD/coregdbadapter.h \
     $$PWD/plaingdbadapter.h \
+    $$PWD/termgdbadapter.h \
     $$PWD/remotegdbadapter.h \
     $$PWD/trkgdbadapter.h \
 
@@ -30,6 +31,7 @@ SOURCES += \
     $$PWD/attachgdbadapter.cpp \
     $$PWD/coregdbadapter.cpp \
     $$PWD/plaingdbadapter.cpp \
+    $$PWD/termgdbadapter.cpp \
     $$PWD/remotegdbadapter.cpp \
     $$PWD/trkgdbadapter.cpp \
 
