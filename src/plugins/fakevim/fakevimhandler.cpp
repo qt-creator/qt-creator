@@ -240,6 +240,11 @@ QString quoteUnprintable(const QString &ba)
     return res;
 }
 
+inline QString msgE20MarkNotSet(const QString &text)
+{
+    return FakeVimHandler::tr("E20: Mark '%1' not set").arg(text);
+}
+
 class FakeVimHandler::Private
 {
 public:
@@ -905,14 +910,12 @@ void FakeVimHandler::Private::updateMiniBuffer()
     int linesInDoc = linesInDocument();
     int l = cursorLineInDocument();
     QString status;
-    QString pos = tr("%1,%2").arg(l + 1).arg(cursorColumnInDocument() + 1);
-    status += tr("%1").arg(pos, -10);
+    const QString pos = QString::fromLatin1("%1,%2").arg(l + 1).arg(cursorColumnInDocument() + 1);
     // FIXME: physical "-" logical
     if (linesInDoc != 0) {
-        status += tr("%1").arg(l * 100 / linesInDoc, 4);
-        status += "%";
+	status = FakeVimHandler::tr("%1%2%").arg(pos, -10).arg(l * 100 / linesInDoc, 4);
     } else {
-        status += "All";
+	status = FakeVimHandler::tr("%1All").arg(pos, -10);
     }
     emit q->statusDataChanged(status);
 }
@@ -934,7 +937,7 @@ void FakeVimHandler::Private::showBlackMessage(const QString &msg)
 void FakeVimHandler::Private::notImplementedYet()
 {
     qDebug() << "Not implemented in FakeVim";
-    showRedMessage(tr("Not implemented in FakeVim"));
+    showRedMessage(FakeVimHandler::tr("Not implemented in FakeVim"));
     updateMiniBuffer();
 }
 
@@ -1060,7 +1063,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
                 moveToFirstNonBlankOnLine();
             finishMovement();
         } else {
-            showRedMessage(tr("E20: Mark '%1' not set").arg(text));
+            showRedMessage(msgE20MarkNotSet(text));
         }
         m_subsubmode = NoSubSubMode;
     } else if (key >= '0' && key <= '9') {
@@ -1802,7 +1805,7 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
     if (c == '\'' && !cmd.isEmpty()) {
         int mark = m_marks.value(cmd.at(0).unicode());
         if (!mark) {
-            showRedMessage(tr("E20: Mark '%1' not set").arg(cmd.at(0)));
+            showRedMessage(msgE20MarkNotSet(cmd.at(0)));
             cmd = cmd.mid(1);
             return -1;
         }
@@ -1821,7 +1824,7 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
         int pos = m_marks.value(cmd.at(0).unicode(), -1);
         //qDebug() << " MARK: " << cmd.at(0) << pos << lineForPosition(pos);
         if (pos == -1) {
-            showRedMessage(tr("E20: Mark '%1' not set").arg(cmd.at(0)));
+            showRedMessage(msgE20MarkNotSet(cmd.at(0)));
             cmd = cmd.mid(1);
             return -1;
         }
@@ -1935,7 +1938,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         QFile file1(fileName);
         bool exists = file1.exists();
         if (exists && !forced && !noArgs) {
-            showRedMessage(tr("File '%1' exists (add ! to override)").arg(fileName));
+            showRedMessage(FakeVimHandler::tr("File '%1' exists (add ! to override)").arg(fileName));
         } else if (file1.open(QIODevice::ReadWrite)) {
             file1.close();
             QTextCursor tc = m_tc;
@@ -1955,14 +1958,14 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
                     QTextStream ts(&file2);
                     ts << contents;
                 } else {
-                    showRedMessage(tr("Cannot open file '%1' for writing").arg(fileName));
+                    showRedMessage(FakeVimHandler::tr("Cannot open file '%1' for writing").arg(fileName));
                 }
             }
             // check result by reading back
             QFile file3(fileName);
             file3.open(QIODevice::ReadOnly);
             QByteArray ba = file3.readAll();
-            showBlackMessage(tr("\"%1\" %2 %3L, %4C written")
+            showBlackMessage(FakeVimHandler::tr("\"%1\" %2 %3L, %4C written")
                 .arg(fileName).arg(exists ? " " : " [New] ")
                 .arg(ba.count('\n')).arg(ba.size()));
             if (quitAll)
@@ -1970,7 +1973,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             else if (quit)
                 passUnknownExCommand(forced ? "q!" : "q");
         } else {
-            showRedMessage(tr("Cannot open file '%1' for reading").arg(fileName));
+            showRedMessage(FakeVimHandler::tr("Cannot open file '%1' for reading").arg(fileName));
         }
     } else if (cmd.startsWith("r ")) { // :r
         m_currentFileName = cmd.mid(2);
@@ -1979,7 +1982,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         QTextStream ts(&file);
         QString data = ts.readAll();
         EDITOR(setPlainText(data));
-        showBlackMessage(tr("\"%1\" %2L, %3C")
+        showBlackMessage(FakeVimHandler::tr("\"%1\" %2L, %3C")
             .arg(m_currentFileName).arg(data.count('\n')).arg(data.size()));
     } else if (cmd.startsWith(QLatin1Char('!'))) {
         selectRange(beginLine, endLine);
@@ -1997,13 +2000,13 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         leaveVisualMode();
         setPosition(firstPositionInLine(beginLine));
         //qDebug() << "FILTER: " << command;
-        showBlackMessage(tr("%n lines filtered", 0, text.count('\n')));
+        showBlackMessage(FakeVimHandler::tr("%n lines filtered", 0, text.count('\n')));
     } else if (cmd.startsWith(QLatin1Char('>'))) {
         m_anchor = firstPositionInLine(beginLine);
         setPosition(firstPositionInLine(endLine));
         shiftRegionRight(1);
         leaveVisualMode();
-        showBlackMessage(tr("%n lines >ed %1 time", 0, (endLine - beginLine + 1)).arg(1));
+        showBlackMessage(FakeVimHandler::tr("%n lines >ed %1 time", 0, (endLine - beginLine + 1)).arg(1));
     } else if (cmd == "red" || cmd == "redo") { // :redo
         redo();
         updateMiniBuffer();
@@ -2081,7 +2084,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             if (act)
                 act->setValue(arg.mid(p + 1));
         } else {
-            showRedMessage(tr("E512: Unknown option: ") + arg);
+            showRedMessage(FakeVimHandler::tr("E512: Unknown option: ") + arg);
         }
         updateMiniBuffer();
     } else if (reHistory.indexIn(cmd) != -1) { // :history
@@ -2152,14 +2155,14 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
             if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
                 scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
             if (forward)
-                showRedMessage(tr("search hit BOTTOM, continuing at TOP"));
+                showRedMessage(FakeVimHandler::tr("search hit BOTTOM, continuing at TOP"));
             else
-                showRedMessage(tr("search hit TOP, continuing at BOTTOM"));
+                showRedMessage(FakeVimHandler::tr("search hit TOP, continuing at BOTTOM"));
             highlightMatches(needle);
         } else {
             highlightMatches(QString());
             setCursorPosition(origPosition);
-            showRedMessage(tr("Pattern not found: ") + needle);
+            showRedMessage(FakeVimHandler::tr("Pattern not found: ") + needle);
         }
     }
 }
@@ -2729,7 +2732,7 @@ void FakeVimHandler::Private::undo()
     //beginEditBlock();
     int rev = m_tc.document()->revision();
     if (current == rev)
-        showBlackMessage(tr("Already at oldest change"));
+        showBlackMessage(FakeVimHandler::tr("Already at oldest change"));
     else
         showBlackMessage(QString());
     if (m_undoCursorPosition.contains(rev))
@@ -2744,7 +2747,7 @@ void FakeVimHandler::Private::redo()
     //beginEditBlock();
     int rev = m_tc.document()->revision();
     if (rev == current)
-        showBlackMessage(tr("Already at newest change"));
+        showBlackMessage(FakeVimHandler::tr("Already at newest change"));
     else
         showBlackMessage(QString());
     if (m_undoCursorPosition.contains(rev))
