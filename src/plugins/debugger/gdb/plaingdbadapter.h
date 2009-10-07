@@ -57,8 +57,6 @@ public:
     QByteArray readAllStandardError() { return m_gdbProc.readAllStandardError(); }
     QByteArray readAllStandardOutput() { return m_gdbProc.readAllStandardOutput(); }
     void write(const QByteArray &data) { m_gdbProc.write(data, data.size()); }
-    void setWorkingDirectory(const QString &dir) { m_gdbProc.setWorkingDirectory(dir); }
-    void setEnvironment(const QStringList &env) { m_gdbProc.setEnvironment(env); }
     bool isTrkAdapter() const { return false; }
     bool dumpersAvailable() const { return true; }
 
@@ -74,7 +72,6 @@ private:
     void handleExit(const GdbResponse &response);
     void handleStubAttached(const GdbResponse &response);
     void handleExecRun(const GdbResponse &response);
-    void handleInfoTarget(const GdbResponse &response);
 
     void emitAdapterStartFailed(const QString &msg);
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus status);

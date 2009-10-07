@@ -169,8 +169,6 @@ public:
     QByteArray readAllStandardError();
     QByteArray readAllStandardOutput();
     void write(const QByteArray &data);
-    void setWorkingDirectory(const QString &dir);
-    void setEnvironment(const QStringList &env);
     bool isTrkAdapter() const { return true; }
     bool dumpersAvailable() const { return false; }
 

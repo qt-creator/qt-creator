@@ -128,21 +128,6 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
     }
 }
 
-void AttachGdbAdapter::handleContinue(const GdbResponse &response)
-{
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    if (response.resultClass == GdbResultRunning) {
-        setState(InferiorRunning);
-        debugMessage(_("INFERIOR STARTED"));
-        showStatusMessage(tr("Inferior running."));
-    } else {
-        QTC_ASSERT(response.resultClass == GdbResultError, /**/);
-        const QByteArray &msg = response.data.findChild("msg").data();
-        setState(InferiorStartFailed);
-        emit inferiorStartFailed(msg);
-    }
-}
-
 void AttachGdbAdapter::interruptInferior()
 {
     debugMessage(_("TRYING TO INTERUPT INFERIOR"));

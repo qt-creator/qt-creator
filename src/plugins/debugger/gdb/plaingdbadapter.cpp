@@ -116,9 +116,9 @@ void PlainGdbAdapter::startAdapter()
         gdbArgs.prepend(_("--tty=") + m_engine->m_outputCollector.serverName());
 
         if (!startParameters().workingDir.isEmpty())
-            setWorkingDirectory(startParameters().workingDir);
+            m_gdbProc.setWorkingDirectory(startParameters().workingDir);
         if (!startParameters().environment.isEmpty())
-            setEnvironment(startParameters().environment);
+            m_gdbProc.setEnvironment(startParameters().environment);
     }
 
     m_gdbProc.start(theDebuggerStringSetting(GdbLocation), gdbArgs);
@@ -162,49 +162,6 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
         setState(InferiorPreparationFailed);
         emit inferiorPreparationFailed(msg);
     }
-}
-
-void PlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
-{
-    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
-#if defined(Q_OS_MAC)
-    Q_UNUSED(response)
-#else
-/*
-    #ifdef Q_OS_MAC        
-    m_engine->postCommand(_("sharedlibrary apply-load-rules all"));
-    // On MacOS, breaking in at the entry point wreaks havoc.
-    m_engine->postCommand(_("tbreak main"));
-    m_waitingForFirstBreakpointToBeHit = true;
-    m_engine->postCommand(_("-exec-run"), CB(handleExecRun));
-    #else
-// FIXME:
-//    if (!m_dumperInjectionLoad)
-//        m_engine->postCommand(_("set auto-solib-add off"));
-    m_engine->postCommand(_("info target"), CB(handleInfoTarget));
-    #endif
-*/
-    if (response.resultClass == GdbResultDone) {
-        // [some leading stdout here]
-        // >&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
-        // [some trailing stdout here]
-        QString msg = _(response.data.findChild("consolestreamoutput").data());
-        QRegExp needle(_("\\bEntry point: (0x[0-9a-f]+)\\b"));
-        if (needle.indexIn(msg) != -1) {
-            //debugMessage(_("STREAM: ") + msg + " " + needle.cap(1));
-            m_engine->postCommand(_("tbreak *") + needle.cap(1));
-// FIXME:            m_waitingForFirstBreakpointToBeHit = true;
-            setState(InferiorRunningRequested);
-            m_engine->postCommand(_("-exec-run"), CB(handleExecRun));
-        } else {
-            debugMessage(_("PARSING START ADDRESS FAILED: ") + msg);
-            emit inferiorStartFailed(_("Parsing start address failed"));
-        }
-    } else if (response.resultClass == GdbResultError) {
-        debugMessage(_("FETCHING START ADDRESS FAILED: " + response.toString()));
-        emit inferiorStartFailed(_("Fetching start address failed"));
-    }
-#endif
 }
 
 void PlainGdbAdapter::handleExecRun(const GdbResponse &response)

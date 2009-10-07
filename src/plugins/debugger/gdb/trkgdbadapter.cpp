@@ -2061,16 +2061,6 @@ void TrkGdbAdapter::handleDirectStep3(const TrkResult &result)
     logMessage("HANDLE DIRECT STEP2: " + stringFromArray(result.data));
 }
 
-void TrkGdbAdapter::setWorkingDirectory(const QString &dir)
-{
-    m_gdbProc.setWorkingDirectory(dir);
-}
-
-void TrkGdbAdapter::setEnvironment(const QStringList &env)
-{
-    m_gdbProc.setEnvironment(env);
-}
-
 void TrkGdbAdapter::cleanup()
 {
     if (m_trkDevice.isOpen())
