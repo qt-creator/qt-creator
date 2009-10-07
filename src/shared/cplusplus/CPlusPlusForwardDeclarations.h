@@ -83,7 +83,6 @@ class Semantic;
 class Control;
 class MemoryPool;
 class DiagnosticClient;
-class MacroResolver;
 
 class Identifier;
 class Literal;

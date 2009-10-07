@@ -2090,11 +2090,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
 
         snapshot = source.snapshot;
         doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
-
-        FastMacroResolver fastMacroResolver(doc->translationUnit(), snapshot);
-        doc->control()->setMacroResolver(&fastMacroResolver);
         doc->check();
-        doc->control()->setMacroResolver(0);
     }
 
     Control *control = doc->control();

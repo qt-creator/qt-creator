@@ -244,14 +244,6 @@ void Parser::match(int kind, unsigned *token)
     }
 }
 
-bool Parser::isMacro(unsigned tokenIndex) const
-{
-    if (MacroResolver *r = _control->macroResolver())
-        return r->isMacro(_translationUnit, tokenIndex);
-
-    return false;
-}
-
 bool Parser::parseClassOrNamespaceName(NameAST *&node)
 {
     if (LA() == T_IDENTIFIER) {
@@ -2561,10 +2553,6 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierAST *&node)
 bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
                                     bool acceptStructDeclarator)
 {
-    if (LA() == T_IDENTIFIER && isMacro(cursor())) {
-        // printf("***** found macro reference `%s'\n", tok().identifier->chars());
-    }
-
     unsigned qt_invokable_token = 0;
     if (acceptStructDeclarator && (LA() == T_Q_SIGNAL || LA() == T_Q_SLOT))
         qt_invokable_token = consumeToken();

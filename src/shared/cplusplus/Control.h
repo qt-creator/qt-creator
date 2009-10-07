@@ -55,18 +55,6 @@
 CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE
 
-class CPLUSPLUS_EXPORT MacroResolver
-{
-    MacroResolver(const MacroResolver &other);
-    void operator = (const MacroResolver &other);
-
-public:
-    MacroResolver();
-    virtual ~MacroResolver();
-
-    virtual bool isMacro(TranslationUnit *unit, unsigned tokenIndex) const = 0;
-};
-
 class CPLUSPLUS_EXPORT Control
 {
 public:
@@ -75,9 +63,6 @@ public:
 
     TranslationUnit *translationUnit() const;
     TranslationUnit *switchTranslationUnit(TranslationUnit *unit);
-
-    MacroResolver *macroResolver() const;
-    void setMacroResolver(MacroResolver *macroResolver);
 
     DiagnosticClient *diagnosticClient() const;
     void setDiagnosticClient(DiagnosticClient *diagnosticClient);
