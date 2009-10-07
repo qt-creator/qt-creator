@@ -662,13 +662,15 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     }
 
     foreach (QDockWidget *dockWidget, dockWidgets) {
-        d->m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+        if (dockWidget == d->m_outputDock) 
+            d->m_mainWindow->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
+        else
+            d->m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
         dockWidget->show();
     }
 
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_breakDock);
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_modulesDock);
-    d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_outputDock);
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_registerDock);
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_threadsDock);
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_sourceFilesDock);
