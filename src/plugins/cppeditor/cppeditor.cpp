@@ -58,6 +58,7 @@
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FastPreprocessor.h>
+#include <cplusplus/CppBindings.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 
@@ -838,8 +839,6 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
     const QString code = expressionUnderCursor(tc);
     // qDebug() << "code:" << code;
 
-    const QString fileName = const_cast<CPPEditor *>(this)->file()->fileName();
-
     TypeOfExpression typeOfExpression;
     typeOfExpression.setSnapshot(snapshot);
 
@@ -849,7 +848,8 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
                                                                      lastVisibleSymbol,
                                                                      TypeOfExpression::Preprocess);
 
-    Symbol *canonicalSymbol = LookupContext::canonicalSymbol(results);
+    NamespaceBindingPtr glo = bind(doc, snapshot);
+    Symbol *canonicalSymbol = LookupContext::canonicalSymbol(results, glo.data());
     return canonicalSymbol;
 }
 
