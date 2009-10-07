@@ -214,6 +214,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     QAction *findUsagesAction = new QAction(tr("Find Usages"), this);
     cmd = am->registerAction(findUsagesAction, Constants::FIND_USAGES, context);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
     connect(findUsagesAction, SIGNAL(triggered()), this, SLOT(findUsages()));
     contextMenu->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
