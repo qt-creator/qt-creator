@@ -171,7 +171,8 @@
     to the \gui{Help} mode. To obtain context sensitive help, move your text
     cursor to a Qt class or function and press \key{F1}. The documentation
     will be displayed within a panel on the right, as shown in the screenshot
-    below.
+    below. If there is enough vertical space, it will be shown in the 
+    fullscreen help mode.
 
     External Documentation provided by the user can be used to augment or
     replace the documentation shipped with Qt Creator and Qt.
@@ -417,14 +418,58 @@
     not need to manually configure your Qt version.
 
     Otherwise, you can add your Qt version in
-    \gui{Tools -> Options... -> Qt Versions}. If you are on the Windows
-    platform and use MinGW to compile Qt, you need to tell Qt Creator where
-    MinGW is installed. This is done by setting the \gui{MinGW Directory}
-    under \gui{Tools -> Options... -> Qt4 -> Qt Versions -> MinGw Directory}.
-    If your Qt version is compiled with Microsoft Visual C++'s compiler, Qt
-    Creator will automatically set the correct environment variables for
-    compilation.
-
+    \gui{Tools -> Options... -> Qt Versions} on Windows and Linux or
+    in \gui{Qt Creator -> Preferences... -> Qt Versions} on Mac OS X.
+    
+    The detailed settings depend on your Operating system and on the targeted
+    tool chain
+    
+        \table
+        \row
+            \i \image qtcreator-qt4-qtversions.png
+               On Linux and Mac OS X, simply set the \gui{Path to QMake}
+               to the \c qmake binary of the Qt installation. If a Qt is
+               found in the \c PATH environment variable, it will show up.
+               
+               On both platforms, the platforms Gnu Compiler Collection (GCC)
+               is used to compile Qt. On Mac OS, the GCC compiler is part of XCode.
+               On Linux, the Intel Compiler (ICC) is supported as a drop-in replacement
+               for GCC.
+               
+        \row
+            \i \image qtcreator-qt4-qtversions-win-mingw.png
+               If you are on the Windows platform and used MinGW 
+               to compile Qt, you need to additionally tell Qt Creator
+               where MinGW is installed.  This is done by setting the 
+               \gui{MinGW Directory}.
+        \row
+            \i \image qtcreator-qt4-qtversions-win-msvc.png
+               If your Qt version is compiled with Microsoft Visual C++'s
+               compiler, Qt Creator will automatically set the correct 
+               environment variables for compilation. The \gui{MSVC}
+               dropdown box indicates the internal Version Number of the 
+               installed Microsoft Visual C++ tool chains:
+               
+               \list
+                   \o  \bold{7.1}: Visual Studio 2003
+                   \o  \bold{8.0}: Visual Studio 2005
+                   \o  \bold{9.0}: Visual Studio 2008
+               \endlist
+               
+               If you are using the \c{Windows SDK for Windows Server 2008}
+               instead of Visual Studio, it will identify as version 9.0.
+        \row
+            \i \image qtcreator-qt4-qtversions-win-symbian.png
+               If you are using Qt for Symbian and your S60 SDK is registered
+               with \c devices.exe, Qt Creator will detect the Qt version automatically.
+               If this does not work, point Creator to \c qmake.exe of Qt for Symbian.
+               You can add the path to the Metrowerks Compiler (\gui {MWC Directory})
+               if you want to use to build for the emulator. This requires Carbide 2.0
+               to be installed. the MWC directory should then point to the directory 
+               of your Carbide installation. However, this not needed for compiling for
+               the device.
+        \endtable
+    
     \note By default projects are compiled with the
     \l{glossary-default-qt}{default Qt version}. You can override this in the
     \gui{Build Configuration}.
@@ -700,6 +745,10 @@
             \i  \bold{Perforce}
             \i  \l{http://www.perforce.com}
             \i  Server version 2006.1 and later
+        \row
+            \i  \bold{CVS}
+            \i  \l{http://www.cvshome.org}
+            \i
     \endtable
 
 
@@ -867,11 +916,11 @@
     \image qtcreator-locator.png
 
     Suppose you would like to open your project's \c{main.cpp} file, click on
-    \gui Locator or use \key{Ctrl+K}, type in the file name and then press
-    \key Return. The file will be opened in the editor. You can also type
-    part of a file name and use the wildcard characters \c{*} and \c{?} to
-    match \e{any} number of \e{any} characters. A list of all files matching
-    your criteria will be displayed.
+    \gui Locator or use \key{Ctrl+K} (Mac OS X: \key{Cmd+K}), type in the file 
+    name and then press \key Return. The file will be opened in the editor.
+    You can also type part of a file name and use the wildcard characters
+    \c{*} and \c{?} to match \e{any} number of \e{any} characters. A list 
+    of all files matching  your criteria will be displayed.
 
     \gui Locator not only allows you to navigate files on disk but also other
     "locations", which are organized with \bold{Filters}. Currently there are
@@ -894,8 +943,8 @@
     \e prefix. This prefix is usually a single character followed by
     \key{Space}. For example, to jump to the definition of the class
     \l{http://doc.trolltech.com/qdatastream.html}{QDataStream}, type:
-    \key{Ctrl+K} to activate \gui Locator. Then type colon (\key{:}) followed
-    by \key{Space} and the class name.
+    \key{Ctrl+K} (Mac OS X: \key{Cmd+K}) to activate \gui Locator. 
+    Then type colon (\key{:}) followed by \key{Space} and the class name.
 
 
     Below is a full list of \l{http://doc.trolltech.com/qdatastream.html}
@@ -972,6 +1021,8 @@
 
     \note By default, if you press \key{Ctrl+K} and do not use a prefix to
     specify a filter, three filters will be enabled: \c{o}, \c{l}, and \c{a}.
+    
+    \note On Mac OS X, use \key{Cmd+K} instead of \key{Ctrl+K}.
 
 */
 
@@ -1588,7 +1639,8 @@
     \bold{Show and Hide the Sidebar}
 
     You can show and hide the the sidebar in \gui Edit and \gui Debug mode by
-    clicking on the corresponding icon, or by pressing \key{Alt+0}.
+    clicking on the corresponding icon, or by pressing \key{Alt+0} (Mac OS X:
+    \key{Cmd+0}).
 
     \bold{Display Signals and Slots}
 
@@ -1676,19 +1728,19 @@
             \o F4
         \row
             \o Toggle Side Bar
-            \o Alt + 0
+            \o Alt + 0 / Cmd + 0
         \row
             \o Toggle \gui{Build Issues} pane
-            \o Alt + 1
+            \o Alt + 1 / Cmd + 1
         \row
             \o Toggle \gui{Search Results} pane
-            \o Alt + 2
+            \o Alt + 2 / Cmd + 2
         \row
             \o Toggle \gui{Application Output} pane
-            \o Alt + 3
+            \o Alt + 3 / Cmd + 3
         \row
             \o Toggle \gui{Compile Output} pane
-            \o Alt + 4
+            \o Alt + 4 / Cmd + 4
     \endtable
 */
 
