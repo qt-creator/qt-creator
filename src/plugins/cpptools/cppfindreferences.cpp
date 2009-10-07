@@ -152,7 +152,8 @@ protected:
 
     bool checkCandidates(const QList<Symbol *> &candidates) const
     {
-        if (Symbol *canonicalSymbol = LookupContext::canonicalSymbol(candidates)) {
+        if (Symbol *canonicalSymbol = LookupContext::canonicalSymbol(candidates, _globalNamespaceBinding.data())) {
+
 #if 0
             qDebug() << "*** canonical symbol:" << canonicalSymbol->fileName()
                     << canonicalSymbol->line() << canonicalSymbol->column()
@@ -498,7 +499,7 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
         files += snapshot.dependsOn(sourceFile);
     }
 
-    qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
+    //qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
 
     future.setProgressRange(0, files.size());
 
