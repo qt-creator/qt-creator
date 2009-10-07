@@ -93,6 +93,7 @@ signals:
     void applicationOutputAvailable(const QString &output);
 
 private:
+    friend class AbstractGdbAdapter;
     friend class AttachGdbAdapter;
     friend class CoreGdbAdapter;
     friend class PlainGdbAdapter;
@@ -430,8 +431,6 @@ private:
     PlainGdbAdapter *m_plainAdapter;   // owned
     RemoteGdbAdapter *m_remoteAdapter; // owned
     TrkGdbAdapter *m_trkAdapter;       // owned
-
-    friend class AbstractGdbAdapter;
 
 public:
     void showMessageBox(int icon, const QString &title, const QString &text);
