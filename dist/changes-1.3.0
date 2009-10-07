@@ -36,6 +36,7 @@ Editing
    * Handle block selection in fakevim
    * Added Copy full path to the editors combobox
    * Added left/right arrow buttons for "Go back/forward" in navigation history
+   * Added smart indentation for pasted text blocks
 
 Project support
    * Added support for adding and removing files from a generic Makefile-based
