@@ -49,6 +49,7 @@
 #include <Scope.h>
 
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/CppBindings.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/Overview.h>
@@ -79,6 +80,11 @@ public:
               _sem(doc->control())
     {
         _snapshot.insert(_doc);
+    }
+
+    void setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding)
+    {
+        _globalNamespaceBinding = globalNamespaceBinding;
     }
 
     QList<int> operator()(Symbol *symbol, Identifier *id, AST *ast)
@@ -419,6 +425,7 @@ private:
     QByteArray _source;
     Document::Ptr _exprDoc;
     Semantic _sem;
+    NamespaceBindingPtr _globalNamespaceBinding;
     QList<PostfixExpressionAST *> _postfixExpressionStack;
     QList<QualifiedNameAST *> _qualifiedNameStack;
     QList<int> _references;
@@ -456,6 +463,7 @@ QList<int> CppFindReferences::references(Symbol *symbol,
     Q_ASSERT(translationUnit != 0);
 
     Process process(doc, snapshot, /*future = */ 0);
+    process.setGlobalNamespaceBinding(bind(doc, snapshot));
     references = process(symbol, id, translationUnit->ast());
 
     return references;
@@ -542,6 +550,7 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
             tm.start();
 
             Process process(doc, snapshot, &future);
+            process.setGlobalNamespaceBinding(bind(doc, snapshot));
 
             TranslationUnit *unit = doc->translationUnit();
             process(symbol, id, unit->ast());
