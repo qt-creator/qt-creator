@@ -180,19 +180,17 @@ private slots:
     void showProperties(ProjectExplorer::Project *project);
     void restoreStatus();
     void saveStatus();
+    void projectAdded();
+    void projectRemoved();
 
 private:
     void updateRunConfigurationsComboBox();
-    SessionManager *m_session;
-    ProjectExplorerPlugin *m_projectExplorer;
 
     ActiveConfigurationWidget *m_activeConfigurationWidget;
     QWidget *m_spacerBetween;
     QWidget *m_projectChooser;
+    QLabel *m_noprojectLabel;
     PanelsWidget *m_panelsWidget;
-
-    Project *findProject(const QString &path) const;
-    bool m_currentItemChanged;
 };
 
 
