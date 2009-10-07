@@ -300,6 +300,11 @@ void QtOptionsPageWidget::addQtDir()
     m_ui->defaultCombo->addItem(newVersion->name());
     m_ui->nameEdit->setFocus();
     m_ui->nameEdit->selectAll();
+
+    if (!m_versions.at(m_defaultVersion)->isValid()) {
+        m_defaultVersion = m_versions.count() - 1;
+        m_ui->defaultCombo->setCurrentIndex(m_versions.count() - 1);
+    }
 }
 
 void QtOptionsPageWidget::removeQtDir()
