@@ -29,6 +29,7 @@
 
 #include "sourcefileswindow.h"
 #include "debuggeractions.h"
+#include "debuggermanager.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
@@ -199,6 +200,7 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QMenu menu;
     QAction *act1 = new QAction(tr("Reload data"), &menu);
+    act1->setEnabled(Debugger::DebuggerManager::instance()->debuggerActionsEnabled());
     //act1->setCheckable(true);
     QAction *act2 = 0;
     if (name.isEmpty()) {

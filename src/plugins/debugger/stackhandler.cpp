@@ -240,6 +240,7 @@ bool StackHandler::isDebuggingDebuggingHelpers() const
 
 ThreadData::ThreadData(int threadId) :
     id(threadId),
+    address(0),
     line(-1)
 {
 }
