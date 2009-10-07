@@ -233,7 +233,6 @@ private:
     void updateLocals();
 
 private slots:
-    QString errorMessage(QProcess::ProcessError error);
     void readGdbStandardOutput();
     void readGdbStandardError();
     void readDebugeeOutput(const QByteArray &data);
@@ -433,6 +432,7 @@ private:
     TrkGdbAdapter *m_trkAdapter;       // owned
 
 public:
+    QString errorMessage(QProcess::ProcessError error);
     void showMessageBox(int icon, const QString &title, const QString &text);
     void debugMessage(const QString &msg);
     void addOptionPages(QList<Core::IOptionsPage*> *opts) const;
