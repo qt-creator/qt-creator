@@ -169,7 +169,7 @@ p, li { white-space: pre-wrap; }
       <item row="2" column="0">
        <widget class="QLabel" name="pathLabel">
         <property name="text">
-         <string>Path to QMake:</string>
+         <string>QMake Location:</string>
         </property>
        </widget>
       </item>
