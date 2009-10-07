@@ -183,6 +183,7 @@ protected:
     virtual bool restoreSettingsImpl(PersistentSettingsReader &reader);
 
 private:
+    static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
     QMap<QString, QVariant> m_values;
