@@ -155,7 +155,6 @@ public:
         m_clearContentsAction = new QAction(this);
         m_clearContentsAction->setText(tr("Clear contents"));
         m_clearContentsAction->setEnabled(true);
-        m_clearContentsAction->setShortcut(Qt::ControlModifier + Qt::Key_R);
         connect(m_clearContentsAction, SIGNAL(triggered(bool)),
             parent, SLOT(clearContents()));
 
