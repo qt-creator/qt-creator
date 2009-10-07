@@ -237,6 +237,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
             individualFormatMenu.addAction(act);
             individualFormatActions.append(act);
         }
+        if (alternativeFormats.isEmpty()) {
+            typeFormatMenu.setEnabled(false);
+            individualFormatMenu.setEnabled(false);
+        }
     } else {
         typeFormatMenu.setTitle(tr("Change format for type"));
         typeFormatMenu.setEnabled(false);
