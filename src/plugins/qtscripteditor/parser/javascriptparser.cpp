@@ -1122,7 +1122,7 @@ case 266: {
         token_buffer[1].dval  = yylval  = lexer->dval();
         token_buffer[1].loc   = yylloc  = location(lexer);
 
-        if (t_action(errorState, yytoken)) {
+        if (token_buffer[0].token != -1 && t_action(errorState, yytoken)) {
             QString msg = QString::fromUtf8("Removed token");
             if (const char *tokenSpell = spell[token_buffer[0].token]) {
                 msg += QLatin1String(": `");

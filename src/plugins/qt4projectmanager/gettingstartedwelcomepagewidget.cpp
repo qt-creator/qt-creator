@@ -215,6 +215,15 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
 #else
             tr("Alt", "Shortcut key");
 #endif
+
+        QString ctrlShortcut =
+#ifdef Q_WS_MAC
+            tr("Cmd", "Shortcut key");
+#else
+            tr("Ctrl", "Shortcut key");
+#endif
+
+
         tips.append(tr("You can switch between Qt Creator's modes using <tt>Ctrl+number</tt>:<ul>"
                        "<li>1 - Welcome</li><li>2 - Edit</li><li>3 - Debug</li><li>4 - Projects</li><li>5 - Help</li>"
                        "<li></li><li>6 - Output</li></ul>"));
@@ -236,7 +245,7 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
                        "<ul><li>1 - Build Issues</li><li>2 - Search Results</li><li>3 - Application Output</li>"
                        "<li>4 - Compile Output</li></ul>").arg(altShortcut));
         tips.append(tr("You can quickly search methods, classes, help and more using the "
-                       "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-navigation.html\">Locator bar</a> (<tt>Ctrl+K</tt>)."));
+                       "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-navigation.html\">Locator bar</a> (<tt>%1+K</tt>).").arg(ctrlShortcut));
         tips.append(tr("You can add custom build steps in the "
                        "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-build-settings.html\">build settings</a>."));
         tips.append(tr("Within a session, you can add "

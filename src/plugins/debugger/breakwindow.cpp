@@ -30,6 +30,7 @@
 #include "breakwindow.h"
 
 #include "debuggeractions.h"
+#include "debuggermanager.h"
 #include "ui_breakcondition.h"
 #include "ui_breakbyfunction.h"
 
@@ -179,6 +180,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     editConditionAction->setEnabled(si.size() > 0);
 
     QAction *synchronizeAction = new QAction(tr("Synchronize breakpoints"), &menu);
+    synchronizeAction->setEnabled(Debugger::DebuggerManager::instance()->debuggerActionsEnabled());
 
     QModelIndex idx0 = (si.size() ? si.front() : QModelIndex());
     QModelIndex idx2 = idx0.sibling(idx0.row(), 2);
