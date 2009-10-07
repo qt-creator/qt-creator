@@ -104,6 +104,18 @@ void Project::moveCleanStepUp(int position)
     m_cleanSteps.insert(position - 1, bs);
 }
 
+QString Project::makeUnique(const QString &preferedName, const QStringList &usedNames)
+{
+    if (!usedNames.contains(preferedName))
+        return preferedName;
+    int i = 2;
+    QString tryName = preferedName + QString::number(i);
+    while (usedNames.contains(tryName))
+        tryName = preferedName + QString::number(++i);
+    return tryName;
+}
+
+
 void Project::addBuildConfiguration(BuildConfiguration *configuration)
 {
     QStringList buildConfigurationNames;
@@ -112,12 +124,7 @@ void Project::addBuildConfiguration(BuildConfiguration *configuration)
 
     // Check that the internal name is not taken and use a different one otherwise
     QString configurationName = configuration->name();
-    if (buildConfigurationNames.contains(configurationName)) {
-        int i = 2;
-        while (buildConfigurationNames.contains(configurationName + QString::number(i)))
-            ++i;
-        configurationName += QString::number(i);
-    }
+    configurationName = makeUnique(configurationName, buildConfigurationNames);
     configuration->setName(configurationName);
 
     // Check that we don't have a configuration with the same displayName
@@ -125,12 +132,7 @@ void Project::addBuildConfiguration(BuildConfiguration *configuration)
     QStringList displayNames;
     foreach (const BuildConfiguration *bc, m_buildConfigurationValues)
         displayNames << bc->displayName();
-    if (displayNames.contains(configurationDisplayName)) {
-        int i = 2;
-        while (displayNames.contains(configurationDisplayName + QString::number(i)))
-            ++i;
-        configurationDisplayName += QString::number(i);
-    }
+    configurationDisplayName = makeUnique(configurationDisplayName, displayNames);
     configuration->setDisplayName(configurationDisplayName);
 
     // add it
@@ -511,19 +513,18 @@ EditorConfiguration *Project::editorConfiguration() const
 
 void Project::setDisplayNameFor(BuildConfiguration *configuration, const QString &displayName)
 {
+    if (configuration->displayName() == displayName)
+        return;
+    QString dn = displayName;
     QStringList displayNames;
     foreach (BuildConfiguration *bc, m_buildConfigurationValues) {
         if (bc != configuration)
             displayNames << bc->displayName();
     }
-    if (displayNames.contains(displayName)) {
-        int i = 2;
-        while (displayNames.contains(displayName + QString::number(i)))
-            ++i;
-        configuration->setDisplayName(displayName + QString::number(i));
-    } else {
-        configuration->setDisplayName(displayName);
-    }
+    dn = makeUnique(displayName, displayNames);
+
+    configuration->setDisplayName(displayName);
+
     emit buildConfigurationDisplayNameChanged(configuration->name());
 }
 
