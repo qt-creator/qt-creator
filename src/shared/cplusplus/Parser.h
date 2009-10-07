@@ -286,8 +286,6 @@ private:
     inline void rewind(unsigned cursor)
     { _tokenIndex = cursor; }
 
-    bool isMacro(unsigned tokenIndex) const;
-
 private:
     TranslationUnit *_translationUnit;
     Control *_control;

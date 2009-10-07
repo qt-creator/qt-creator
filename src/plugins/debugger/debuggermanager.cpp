@@ -662,13 +662,15 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     }
 
     foreach (QDockWidget *dockWidget, dockWidgets) {
-        d->m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+        if (dockWidget == d->m_outputDock) 
+            d->m_mainWindow->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
+        else
+            d->m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
         dockWidget->show();
     }
 
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_breakDock);
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_modulesDock);
-    d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_outputDock);
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_registerDock);
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_threadsDock);
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_sourceFilesDock);
@@ -1684,11 +1686,51 @@ void DebuggerManager::setState(DebuggerState state)
     d->m_actions.runToFunctionAction->setEnabled(stopped);
     d->m_actions.jumpToLineAction->setEnabled(stopped);
     d->m_actions.nextAction->setEnabled(stopped);
+
+    const bool actionsEnabled = debuggerActionsEnabled();
+    theDebuggerAction(RecheckDebuggingHelpers)->setEnabled(actionsEnabled);
+    theDebuggerAction(AutoDerefPointers)->setEnabled(actionsEnabled && d->m_engine->isGdbEngine());
+    theDebuggerAction(ExpandStack)->setEnabled(actionsEnabled);
+    theDebuggerAction(ExecuteCommand)->setEnabled(d->m_state != DebuggerNotReady);
+
     emit stateChanged(d->m_state);
     const bool notbusy = state == InferiorStopped
         || state == DebuggerNotReady
         || state == InferiorUnrunnable;
     setBusyCursor(!notbusy);
+
+}
+
+bool DebuggerManager::debuggerActionsEnabled() const
+{
+    if (!d->m_engine)
+        return false;
+    switch (state()) {
+    case InferiorPrepared:
+    case InferiorStarting:
+    case InferiorRunningRequested:
+    case InferiorRunning:
+    case InferiorUnrunnable:
+    case InferiorStopping:
+    case InferiorStopped:
+        return true;
+    case DebuggerNotReady:
+    case EngineStarting:
+    case AdapterStarting:
+    case AdapterStarted:
+    case AdapterStartFailed:
+    case InferiorPreparing:
+    case InferiorPreparationFailed:
+    case InferiorStartFailed:
+    case InferiorStopFailed:
+    case InferiorShuttingDown:
+    case InferiorShutDown:
+    case InferiorShutdownFailed:
+    case AdapterShuttingDown:
+    case AdapterShutdownFailed:
+        break;
+    }
+    return false;
 }
 
 QDebug operator<<(QDebug d, DebuggerState state)

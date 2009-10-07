@@ -662,14 +662,25 @@ public:
 ///
 
 ProjectWindow::ProjectWindow(QWidget *parent)
-    : QWidget(parent), m_currentItemChanged(false)
+    : QWidget(parent)
 {
-    m_projectExplorer = ProjectExplorerPlugin::instance();
-    m_session = m_projectExplorer->session();
+    ProjectExplorer::SessionManager *session = ProjectExplorerPlugin::instance()->session();
 
     m_panelsWidget = new PanelsWidget(this);
 
     m_activeConfigurationWidget = new ActiveConfigurationWidget(m_panelsWidget);
+
+    m_panelsWidget->addWidget(tr("Active Build and Run Configurations"), m_activeConfigurationWidget);
+
+    m_spacerBetween = new QWidget(this);
+    QVBoxLayout *vbox = new QVBoxLayout(m_spacerBetween);
+    vbox->setMargin(0);
+    m_spacerBetween->setLayout(vbox);
+    vbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
+    vbox->addWidget(new OnePixelBlackLine(m_spacerBetween));
+    vbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
+
+    m_panelsWidget->addWidget(m_spacerBetween);
 
     m_projectChooser = new QWidget(m_panelsWidget);
     QHBoxLayout *hbox = new QHBoxLayout(m_projectChooser);
@@ -687,18 +698,6 @@ ProjectWindow::ProjectWindow(QWidget *parent)
             label, SLOT(setProject(ProjectExplorer::Project*)));
     hbox->addWidget(changeProject);
 
-    m_panelsWidget->addWidget(tr("Active Build and Run Configurations"), m_activeConfigurationWidget);
-
-    m_spacerBetween = new QWidget(this);
-    QVBoxLayout *vbox = new QVBoxLayout(m_spacerBetween);
-    vbox->setMargin(0);
-    m_spacerBetween->setLayout(vbox);
-    vbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
-    vbox->addWidget(new OnePixelBlackLine(m_spacerBetween));
-    vbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
-
-    m_panelsWidget->addWidget(m_spacerBetween);
-
     m_panelsWidget->addWidget(m_projectChooser);
 
     QVBoxLayout *topLevelLayout = new QVBoxLayout(this);
@@ -708,15 +707,50 @@ ProjectWindow::ProjectWindow(QWidget *parent)
 
     topLevelLayout->addWidget(m_panelsWidget);
 
+    m_noprojectLabel = new QLabel(this);
+    m_noprojectLabel->setText(tr("No project loaded."));
+    {
+        QFont f = m_noprojectLabel->font();
+        f.setPointSizeF(f.pointSizeF() * 1.4);
+        f.setBold(true);
+        m_noprojectLabel->setFont(f);
+    }
+    m_noprojectLabel->setMargin(10);
+    m_noprojectLabel->setAlignment(Qt::AlignTop);
+    topLevelLayout->addWidget(m_noprojectLabel);
+
+    bool noProjects = session->projects().isEmpty();
+    m_panelsWidget->setVisible(!noProjects);
+    m_noprojectLabel->setVisible(noProjects);
+
     connect(changeProject, SIGNAL(projectChanged(ProjectExplorer::Project*)),
             this, SLOT(showProperties(ProjectExplorer::Project*)));
 
-    connect(m_session, SIGNAL(sessionLoaded()), this, SLOT(restoreStatus()));
-    connect(m_session, SIGNAL(aboutToSaveSession()), this, SLOT(saveStatus()));
+    connect(session, SIGNAL(sessionLoaded()), this, SLOT(restoreStatus()));
+    connect(session, SIGNAL(aboutToSaveSession()), this, SLOT(saveStatus()));
+
+    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(projectAdded()));
+    connect(session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(projectRemoved()));
 }
 
 ProjectWindow::~ProjectWindow()
 {
+}
+
+void ProjectWindow::projectAdded()
+{
+    m_panelsWidget->setVisible(true);
+    m_noprojectLabel->setVisible(false);
+}
+
+void ProjectWindow::projectRemoved()
+{
+    if (ProjectExplorerPlugin::instance()->session()->projects().isEmpty()) {
+        m_panelsWidget->setVisible(false);
+        m_noprojectLabel->setVisible(true);
+    }
 }
 
 void ProjectWindow::restoreStatus()
@@ -757,13 +791,4 @@ void ProjectWindow::showProperties(Project *project)
             }
         }
     }
-}
-
-Project *ProjectWindow::findProject(const QString &path) const
-{
-    QList<Project*> projects = m_session->projects();
-    foreach (Project* project, projects)
-        if (QFileInfo(project->file()->fileName()).filePath() == path)
-            return project;
-    return 0;
 }

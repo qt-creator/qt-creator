@@ -40,7 +40,7 @@ static const char * const showWrapColumnKey = "ShowWrapColumn";
 static const char * const wrapColumnKey = "WrapColumn";
 static const char * const visualizeWhitespaceKey = "VisualizeWhitespace";
 static const char * const displayFoldingMarkersKey = "DisplayFoldingMarkers";
-static const char * const highlightCurrentLineKey = "HighlightCurrentLineKeyV2";
+static const char * const highlightCurrentLineKey = "HighlightCurrentLineKey";
 static const char * const highlightBlocksKey = "HighlightBlocksKey";
 static const char * const animateMatchingParenthesesKey= "AnimateMatchingParenthesesKey";
 static const char * const mouseNavigationKey = "MouseNavigation";
@@ -56,7 +56,7 @@ DisplaySettings::DisplaySettings() :
     m_wrapColumn(80),
     m_visualizeWhitespace(false),
     m_displayFoldingMarkers(true),
-    m_highlightCurrentLine(false),
+    m_highlightCurrentLine(true),
     m_highlightBlocks(false),
     m_animateMatchingParentheses(true),
     m_mouseNavigation(true),

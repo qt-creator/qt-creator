@@ -59,6 +59,7 @@ public:
 
     QMap<QString, QVariant> toMap() const;
     void setValuesFromMap(QMap<QString, QVariant> map);
+
 private:
     void setName(const QString &name);
 

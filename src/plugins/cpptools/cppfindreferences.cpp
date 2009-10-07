@@ -49,6 +49,7 @@
 #include <Scope.h>
 
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/CppBindings.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/Overview.h>
@@ -79,6 +80,11 @@ public:
               _sem(doc->control())
     {
         _snapshot.insert(_doc);
+    }
+
+    void setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding)
+    {
+        _globalNamespaceBinding = globalNamespaceBinding;
     }
 
     QList<int> operator()(Symbol *symbol, Identifier *id, AST *ast)
@@ -146,7 +152,8 @@ protected:
 
     bool checkCandidates(const QList<Symbol *> &candidates) const
     {
-        if (Symbol *canonicalSymbol = LookupContext::canonicalSymbol(candidates)) {
+        if (Symbol *canonicalSymbol = LookupContext::canonicalSymbol(candidates, _globalNamespaceBinding.data())) {
+
 #if 0
             qDebug() << "*** canonical symbol:" << canonicalSymbol->fileName()
                     << canonicalSymbol->line() << canonicalSymbol->column()
@@ -419,6 +426,7 @@ private:
     QByteArray _source;
     Document::Ptr _exprDoc;
     Semantic _sem;
+    NamespaceBindingPtr _globalNamespaceBinding;
     QList<PostfixExpressionAST *> _postfixExpressionStack;
     QList<QualifiedNameAST *> _qualifiedNameStack;
     QList<int> _references;
@@ -456,6 +464,7 @@ QList<int> CppFindReferences::references(Symbol *symbol,
     Q_ASSERT(translationUnit != 0);
 
     Process process(doc, snapshot, /*future = */ 0);
+    process.setGlobalNamespaceBinding(bind(doc, snapshot));
     references = process(symbol, id, translationUnit->ast());
 
     return references;
@@ -490,7 +499,7 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
         files += snapshot.dependsOn(sourceFile);
     }
 
-    qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
+    //qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
 
     future.setProgressRange(0, files.size());
 
@@ -531,13 +540,7 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
         if (Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size())) {
             QTime tm;
             tm.start();
-            TranslationUnit *unit = doc->translationUnit();
-            Control *control = doc->control();
-
-            FastMacroResolver fastMacroResolver(unit, snapshot);
-            control->setMacroResolver(&fastMacroResolver);
             doc->parse();
-            control->setMacroResolver(0);
 
             //qDebug() << "***" << unit->fileName() << "parsed in:" << tm.elapsed();
 
@@ -548,6 +551,9 @@ static void find_helper(QFutureInterface<Utils::FileSearchResult> &future,
             tm.start();
 
             Process process(doc, snapshot, &future);
+            process.setGlobalNamespaceBinding(bind(doc, snapshot));
+
+            TranslationUnit *unit = doc->translationUnit();
             process(symbol, id, unit->ast());
 
             //qDebug() << "***" << unit->fileName() << "processed in:" << tm.elapsed();

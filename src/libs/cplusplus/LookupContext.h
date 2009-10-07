@@ -54,9 +54,14 @@ public:
     Document::Ptr document(const QString &fileName) const;
     Snapshot snapshot() const;
 
-    static Symbol *canonicalSymbol(Symbol *symbol);
-    static Symbol *canonicalSymbol(const QList<Symbol *> &candidates);
-    static Symbol *canonicalSymbol(const QList<QPair<FullySpecifiedType, Symbol *> > &candidates); // ### FIXME
+    static Symbol *canonicalSymbol(const QList<Symbol *> &candidates,
+                                   NamespaceBinding *globalNamespaceBinding);
+
+    static Symbol *canonicalSymbol(Symbol *symbol,
+                                   NamespaceBinding *globalNamespaceBinding);
+
+    static Symbol *canonicalSymbol(const QList<QPair<FullySpecifiedType, Symbol *> > &candidates,
+                                   NamespaceBinding *globalNamespaceBinding);
 
     QList<Symbol *> resolve(Name *name) const
     { return resolve(name, visibleScopes()); }
@@ -126,6 +131,8 @@ public:
                                      QList<Scope *> *expandedScopes) const;
 
 private:
+    static Symbol *canonicalSymbol(Symbol *symbol);
+
     QList<Symbol *> resolveQualifiedNameId(QualifiedNameId *q,
                                            const QList<Scope *> &visibleScopes,
                                            ResolveMode mode) const;

@@ -30,6 +30,7 @@
 #include "LookupContext.h"
 #include "ResolveExpression.h"
 #include "Overview.h"
+#include "CppBindings.h"
 
 #include <CoreTypes.h>
 #include <Symbols.h>
@@ -501,6 +502,97 @@ void LookupContext::expand(Scope *scope,
     }
 }
 
+static void visibleClassBindings_helper(ClassBinding *classBinding,
+                                        QList<ClassBinding *> *allClassBindings,
+                                        QSet<ClassBinding *> *processed)
+{
+    if (! classBinding)
+        return;
+
+    else if (processed->contains(classBinding))
+        return;
+
+    processed->insert(classBinding);
+
+    foreach (ClassBinding *baseClassBinding, classBinding->baseClassBindings)
+        visibleClassBindings_helper(baseClassBinding, allClassBindings, processed);
+
+    allClassBindings->append(classBinding);
+}
+
+static QList<ClassBinding *> visibleClassBindings(Symbol *symbol, NamespaceBinding *globalNamespace)
+{
+    QList<ClassBinding *> classBindings;
+
+    if (! symbol)
+        return classBindings;
+
+    else if (Class *klass = symbol->asClass()) {
+        QSet<ClassBinding *> processed;
+
+        visibleClassBindings_helper(NamespaceBinding::find(klass, globalNamespace),
+                                    &classBindings, &processed);
+    }
+
+    return classBindings;
+}
+
+Symbol *LookupContext::canonicalSymbol(Symbol *symbol,
+                                       NamespaceBinding *globalNamespace)
+{
+    Symbol *canonicalSymbol = LookupContext::canonicalSymbol(symbol);
+
+    if (Identifier *symbolId = canonicalSymbol->identifier()) {
+        if (symbolId && canonicalSymbol->type()->isFunctionType()) {
+            Class *enclosingClass = canonicalSymbol->scope()->owner()->asClass();
+            const QList<ClassBinding *> classBindings = visibleClassBindings(enclosingClass, globalNamespace);
+
+            foreach (ClassBinding *baseClassBinding, classBindings) {
+                if (! baseClassBinding)
+                    continue;
+
+                foreach (Class *baseClass, baseClassBinding->symbols) {
+                    if (! baseClass)
+                        continue;
+
+                    for (Symbol *c = baseClass->members()->lookat(symbolId); c; c = c->next()) {
+                        if (! symbolId->isEqualTo(c->identifier()))
+                            continue;
+                        else if (Function *f = c->type()->asFunctionType()) {
+                            if (f->isVirtual())
+                                return LookupContext::canonicalSymbol(f);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return canonicalSymbol;
+}
+
+Symbol *LookupContext::canonicalSymbol(const QList<Symbol *> &candidates,
+                                       NamespaceBinding *globalNamespaceBinding)
+{
+    if (candidates.isEmpty())
+        return 0;
+
+    return canonicalSymbol(candidates.first(), globalNamespaceBinding);
+}
+
+Symbol *LookupContext::canonicalSymbol(const QList<QPair<FullySpecifiedType, Symbol *> > &results,
+                                       NamespaceBinding *globalNamespaceBinding)
+{
+    QList<Symbol *> candidates;
+    QPair<FullySpecifiedType, Symbol *> result;
+
+    foreach (result, results)
+        candidates.append(result.second); // ### not exacly.
+
+    return canonicalSymbol(candidates, globalNamespaceBinding);
+}
+
+
 Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
 {
     Symbol *canonical = symbol;
@@ -530,23 +622,4 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
     }
 
     return canonical;
-}
-
-Symbol *LookupContext::canonicalSymbol(const QList<Symbol *> &candidates)
-{
-    if (candidates.isEmpty())
-        return 0;
-
-    return canonicalSymbol(candidates.first());
-}
-
-Symbol *LookupContext::canonicalSymbol(const QList<QPair<FullySpecifiedType, Symbol *> > &results)
-{
-    QList<Symbol *> candidates;
-    QPair<FullySpecifiedType, Symbol *> result;
-
-    foreach (result, results)
-        candidates.append(result.second); // ### not exacly.
-
-    return canonicalSymbol(candidates);
 }

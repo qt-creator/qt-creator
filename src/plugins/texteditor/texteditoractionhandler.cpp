@@ -251,7 +251,6 @@ void TextEditorActionHandler::createActions()
 
     m_selectBlockDownAction= new QAction(tr("Select Block Down"), this);
     command = am->registerAction(m_selectBlockDownAction, Constants::SELECT_BLOCK_DOWN, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
     connect(m_selectBlockDownAction, SIGNAL(triggered()), this, SLOT(selectBlockDown()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 

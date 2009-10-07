@@ -34,55 +34,6 @@
 
 using namespace CPlusPlus;
 
-FastMacroResolver::FastMacroResolver(TranslationUnit *unit, const Snapshot &snapshot)
-    : _unit(unit), _snapshot(snapshot)
-{
-    const QString fileName = QString::fromUtf8(unit->fileName(), unit->fileNameLength());
-
-    QSet<QString> processed;
-    updateCache(fileName, &processed);
-}
-
-bool FastMacroResolver::isMacro(TranslationUnit *unit, unsigned tokenIndex) const
-{
-    if (unit != _unit){
-        qWarning() << Q_FUNC_INFO << "unexpected translation unit:" << unit->fileName();
-        return false;
-    }
-
-    const Token &tk = unit->tokenAt(tokenIndex);
-    if (tk.isNot(T_IDENTIFIER))
-        return false;
-
-    Identifier *id = tk.identifier;
-    const QByteArray macroName = QByteArray::fromRawData(id->chars(), id->size());
-    return _cachedMacros.contains(macroName);
-}
-
-void FastMacroResolver::updateCache(const QString &fileName, QSet<QString> *processed)
-{
-    if (processed->contains(fileName))
-        return;
-
-    processed->insert(fileName);
-
-    if (Document::Ptr doc = _snapshot.value(fileName)) {
-        const QList<Macro> definedMacros = doc->definedMacros();
-
-        for (int i = definedMacros.size() - 1; i != -1; --i) {
-            const Macro &macro = definedMacros.at(i);
-
-            if (macro.isHidden())
-                _cachedMacros.remove(macro.name());
-            else
-                _cachedMacros.insert(macro.name());
-        }
-
-        foreach (const Document::Include &incl, doc->includes())
-            updateCache(incl.fileName(), processed);
-    }
-}
-
 FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
     : _snapshot(snapshot),
       _preproc(this, &_env)

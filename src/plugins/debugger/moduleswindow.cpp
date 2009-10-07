@@ -105,11 +105,15 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (index.isValid())
         name = model()->data(index).toString();
 
+
     QMenu menu;
+    const bool enabled = Debugger::DebuggerManager::instance()->debuggerActionsEnabled();
     QAction *act0 = new QAction(tr("Update module list"), &menu);
-    QAction *act3 = new QAction(tr("Show source files for module \"%1\"").arg(name),
-         &menu);
+    act0->setEnabled(enabled);
+    QAction *act3 = new QAction(tr("Show source files for module \"%1\"").arg(name), &menu);
+    act3->setEnabled(enabled);
     QAction *act4 = new QAction(tr("Load symbols for all modules"), &menu);
+    act4->setEnabled(enabled);
     QAction *act5 = 0;
     QAction *act6 = 0;
     QAction *act7 = 0;

@@ -237,6 +237,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
             individualFormatMenu.addAction(act);
             individualFormatActions.append(act);
         }
+        if (alternativeFormats.isEmpty()) {
+            typeFormatMenu.setEnabled(false);
+            individualFormatMenu.setEnabled(false);
+        }
     } else {
         typeFormatMenu.setTitle(tr("Change format for type"));
         typeFormatMenu.setEnabled(false);
@@ -245,16 +249,15 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     QMenu menu;
-    //QAction *actWatchExpressionInWindow
-    // = theDebuggerAction(WatchExpressionInWindow);
-    //menu.addAction(actWatchExpressionInWindow);
 
     QAction *actInsertNewWatchItem = menu.addAction(tr("Insert new watch item"));
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select widget to watch"));
 
     const QString address = model()->data(mi0, AddressRole).toString();
     QAction *actWatchKnownMemory = 0;
-    QAction *actWatchUnknownMemory = new QAction(tr("Open memory editor..."), &menu);;
+    QAction *actWatchUnknownMemory = new QAction(tr("Open memory editor..."), &menu);
+    actWatchUnknownMemory->setEnabled(m_manager->debuggerActionsEnabled());
+
     if (!address.isEmpty())
         actWatchKnownMemory = new QAction(tr("Open memory editor at %1").arg(address), &menu);
     menu.addSeparator();
@@ -270,6 +273,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         menu.addAction(actWatchKnownMemory);
     menu.addAction(actWatchUnknownMemory);
     menu.addSeparator();
+
     menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
     menu.addAction(theDebuggerAction(UseDebuggingHelpers));
 
@@ -277,8 +281,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(theDebuggerAction(UseToolTipsInLocalsView));
     
     menu.addAction(theDebuggerAction(AutoDerefPointers));
-    theDebuggerAction(AutoDerefPointers)->
-        setEnabled(m_manager->currentEngine()->isGdbEngine());
+
     QAction *actAdjustColumnWidths =
         menu.addAction(tr("Adjust column widths to contents"));
     QAction *actAlwaysAdjustColumnWidth =

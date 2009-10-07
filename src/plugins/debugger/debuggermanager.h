@@ -175,6 +175,8 @@ public:
 
     void showMessageBox(int icon, const QString &title, const QString &text);
 
+    bool debuggerActionsEnabled() const;
+
     static DebuggerManager *instance();
 
 public slots:
