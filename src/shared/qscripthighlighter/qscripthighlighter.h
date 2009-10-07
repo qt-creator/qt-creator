@@ -54,12 +54,11 @@ public:
 
     // MS VC 6 compatible, still.
     void setFormats(const QVector<QTextCharFormat> &s);
-    static const QVector<QTextCharFormat> &defaultFormats();
 
     QTextCharFormat labelTextCharFormat() const
     { return m_formats[LabelFormat]; }
 
-    static QSet<QString> keywords();
+    QSet<QString> keywords();
 
 protected:
     // The functions are notified whenever parentheses are encountered.
@@ -74,7 +73,6 @@ protected:
     QScriptIncrementalScanner m_scanner;
 
 private:
-    static QSet<QString> m_keywords;
     bool m_duiEnabled;
     QTextCharFormat m_formats[NumFormats];
 };

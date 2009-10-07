@@ -4,8 +4,7 @@
 
 using namespace SharedTools;
 
-QScriptIncrementalScanner::QScriptIncrementalScanner(bool duiEnabled):
-        m_duiEnabled(duiEnabled)
+QScriptIncrementalScanner::QScriptIncrementalScanner()
 {
     reset();
 }
@@ -30,9 +29,7 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
         InputNumber,
         InputAsterix,
         InputSlash,
-        InputParen,
         InputSpace,
-        InputHash,
         InputQuotation,
         InputApostrophe,
         InputSep,
@@ -42,13 +39,13 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
     // states
     enum {
         StateStandard,
-        StateCommentStart1,
-        StateCCommentStart2,
-        StateCppCommentStart2,
-        StateCComment,
-        StateCppComment,
-        StateCCommentEnd1,
-        StateCCommentEnd2,
+        StateCommentStart1,    // '/'
+        StateCCommentStart2,   // '*' after a '/'
+        StateCppCommentStart2, // '/' after a '/'
+        StateCComment,         // after a "/*"
+        StateCppComment,       // after a "//"
+        StateCCommentEnd1,     // '*' in a CppComment
+        StateCCommentEnd2,     // '/' after a '*' in a CppComment
         StateStringStart,
         StateString,
         StateStringEnd,
@@ -56,31 +53,27 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
         StateString2,
         StateString2End,
         StateNumber,
-        StatePreProcessor,
         NumStates
     };
 
     static const uchar table[NumStates][NumInputs] = {
-        { StateStandard,      StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard   }, // StateStandard
-        { StateStandard,      StateNumber,     StateCCommentStart2, StateCppCommentStart2, StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard   }, // StateCommentStart1
-        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCComment,         StateCComment,   StateCComment,   StateCComment,     StateCComment,    StateCComment,     StateCComment   }, // StateCCommentStart2
-        { StateCppComment,    StateCppComment, StateCppComment,     StateCppComment,       StateCppComment, StateCppComment, StateCppComment,   StateCppComment,  StateCppComment,   StateCppComment }, // CppCommentStart2
-        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCComment,         StateCComment,   StateCComment,   StateCComment,     StateCComment,    StateCComment,     StateCComment   }, // StateCComment
-        { StateCppComment,    StateCppComment, StateCppComment,     StateCppComment,       StateCppComment, StateCppComment, StateCppComment,   StateCppComment,  StateCppComment,   StateCppComment }, // StateCppComment
-        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCCommentEnd2,     StateCComment,   StateCComment,   StateCComment,     StateCComment,    StateCComment,     StateCComment   }, // StateCCommentEnd1
-        { StateStandard,      StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard   }, // StateCCommentEnd2
-        { StateString,        StateString,     StateString,         StateString,           StateString,     StateString,     StateString,       StateStringEnd,   StateString,       StateString     }, // StateStringStart
-        { StateString,        StateString,     StateString,         StateString,           StateString,     StateString,     StateString,       StateStringEnd,   StateString,       StateString     }, // StateString
-        { StateStandard,      StateStandard,   StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard   }, // StateStringEnd
-        { StateString2,       StateString2,    StateString2,        StateString2,          StateString2,    StateString2,    StateString2,      StateString2,     StateString2End,   StateString2    }, // StateString2Start
-        { StateString2,       StateString2,    StateString2,        StateString2,          StateString2,    StateString2,    StateString2,      StateString2,     StateString2End,   StateString2    }, // StateString2
-        { StateStandard,      StateStandard,   StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard   }, // StateString2End
-        { StateNumber,        StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard   }, // StateNumber
-        { StatePreProcessor,  StateStandard,   StateStandard,       StateCommentStart1,    StateStandard,   StateStandard,   StatePreProcessor, StateStringStart, StateString2Start, StateStandard   }  // StatePreProcessor
+       // InputAlpha          InputNumber      InputAsterix         InputSlash             InputSpace       InputQuotation    InputApostrophe    InputSep
+        { StateStandard,      StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStringStart, StateString2Start, StateStandard   }, // StateStandard
+        { StateStandard,      StateNumber,     StateCCommentStart2, StateCppCommentStart2, StateStandard,   StateStringStart, StateString2Start, StateStandard   }, // StateCommentStart1
+        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCComment,         StateCComment,   StateCComment,    StateCComment,     StateCComment   }, // StateCCommentStart2
+        { StateCppComment,    StateCppComment, StateCppComment,     StateCppComment,       StateCppComment, StateCppComment,  StateCppComment,   StateCppComment }, // StateCppCommentStart2
+        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCComment,         StateCComment,   StateCComment,    StateCComment,     StateCComment   }, // StateCComment
+        { StateCppComment,    StateCppComment, StateCppComment,     StateCppComment,       StateCppComment, StateCppComment,  StateCppComment,   StateCppComment }, // StateCppComment
+        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCCommentEnd2,     StateCComment,   StateCComment,    StateCComment,     StateCComment   }, // StateCCommentEnd1
+        { StateStandard,      StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStringStart, StateString2Start, StateStandard   }, // StateCCommentEnd2
+        { StateString,        StateString,     StateString,         StateString,           StateString,     StateStringEnd,   StateString,       StateString     }, // StateStringStart
+        { StateString,        StateString,     StateString,         StateString,           StateString,     StateStringEnd,   StateString,       StateString     }, // StateString
+        { StateStandard,      StateStandard,   StateStandard,       StateCommentStart1,    StateStandard,   StateStringStart, StateString2Start, StateStandard   }, // StateStringEnd
+        { StateString2,       StateString2,    StateString2,        StateString2,          StateString2,    StateString2,     StateString2End,   StateString2    }, // StateString2Start
+        { StateString2,       StateString2,    StateString2,        StateString2,          StateString2,    StateString2,     StateString2End,   StateString2    }, // StateString2
+        { StateStandard,      StateStandard,   StateStandard,       StateCommentStart1,    StateStandard,   StateStringStart, StateString2Start, StateStandard   }, // StateString2End
+        { StateNumber,        StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStringStart, StateString2Start, StateStandard   }  // StateNumber
     };
-
-    QString buffer;
-    buffer.reserve(text.length());
 
     int state = startState;
     if (text.isEmpty()) {
@@ -96,7 +89,6 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
     static const QString alphabeth = QLatin1String("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
     static const QString mathChars = QString::fromLatin1("xXeE");
     static const QString numbers = QString::fromLatin1("0123456789");
-    bool questionMark = false;
     QChar lastChar;
 
     int firstNonSpace = -1;
@@ -104,47 +96,17 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
 
     forever {
         const QChar qc = text.at(i);
-
-        bool lookAtBinding = false;
+        const char c = qc.toLatin1();
 
         if (lastWasBackSlash) {
             input = InputSep;
         } else {
-            const char c = qc.toLatin1();
             switch (c) {
                 case '*':
                     input = InputAsterix;
                     break;
                 case '/':
                     input = InputSlash;
-                    break;
-                case '(': case '[': case '{':
-                    input = InputParen;
-                    if (state == StateStandard
-                        || state == StateNumber
-                        || state == StatePreProcessor
-                        || state == StateCCommentEnd2
-                        || state == StateCCommentEnd1
-                        || state == StateString2End
-                        || state == StateStringEnd
-                       )
-                    openingParenthesis(c, i);
-                    break;
-                case ')': case ']': case '}':
-                    input = InputParen;
-                    if (state == StateStandard
-                        || state == StateNumber
-                        || state == StatePreProcessor
-                        || state == StateCCommentEnd2
-                        || state == StateCCommentEnd1
-                        || state == StateString2End
-                        || state == StateStringEnd
-                       ) {
-                        closingParenthesis(c, i);
-                    }
-                    break;
-                case '#':
-                    input = InputHash;
                     break;
                 case '"':
                     input = InputQuotation;
@@ -166,45 +128,14 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
                             input = InputNumber;
                     }
                     break;
-                case ':': {
-                    input = InputSep;
-                    QChar nextChar = ' ';
-                    if (i < text.length() - 1)
-                        nextChar = text.at(i + 1);
-
-                    if (state == StateStandard && !questionMark && lastChar != ':' && nextChar != ':') {
-                        int start = i - 1;
-
-                        // skip white spaces
-                        for (; start != -1; --start) {
-                            if (! text.at(start).isSpace())
-                                break;
-                        }
-
-                        int lastNonSpace = start + 1;
-
-                        for (; start != -1; --start) {
-                            const QChar ch = text.at(start);
-                            if (! (ch.isLetterOrNumber() || ch == QLatin1Char('_') || ch == QLatin1Char('.')))
-                                break;
-                        }
-
-                        ++start;
-
-                        lookAtBinding = true;
-
-                        if (m_duiEnabled && text.midRef(start, lastNonSpace - start) == QLatin1String("id")) {
-                            setFormat(start, i - start, Token::Keyword);
-                        } else {
-                            setFormat(start, i - start, Token::Label);
-                        }
-                    }
+                case '.':
+                    if (state == StateNumber)
+                        input = InputNumber;
+                    else
+                        input = InputSep;
                     break;
-                }
                 default: {
-                    if (!questionMark && qc == QLatin1Char('?'))
-                        questionMark = true;
-                    if (qc.isLetter() || qc == QLatin1Char('_'))
+                    if (qc.isLetter() || c == '_')
                         input = InputAlpha;
                     else
                         input = InputSep;
@@ -219,23 +150,20 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
             lastNonSpace = i;
         }
 
-        lastWasBackSlash = !lastWasBackSlash && qc == QLatin1Char('\\');
-
-        if (input == InputAlpha)
-            buffer += qc;
+        lastWasBackSlash = !lastWasBackSlash && c == '\\';
 
         state = table[state][input];
 
         switch (state) {
             case StateStandard: {
-                setFormat(i, 1, Token::Empty);
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                if (!buffer.isEmpty() && input != InputAlpha ) {
-                    if (! lookAtBinding)
-                        highlightKeyword(i, buffer);
-                    buffer.clear();
+
+                if (input == InputAlpha ) {
+                    insertIdentifier(i);
+                } else if (input == InputSep || input == InputAsterix) {
+                    insertCharToken(i, c);
                 }
 
                 break;
@@ -243,103 +171,82 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
 
             case StateCommentStart1:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = true;
-                buffer.resize(0);
                 break;
             case StateCCommentStart2:
-                setFormat(i - 1, 2, Token::Comment);
                 makeLastStandard = false;
-                buffer.resize(0);
+                insertComment(i - 1, 2);
                 break;
             case StateCppCommentStart2:
-                setFormat(i - 1, 2, Token::Comment);
+                insertComment(i - 1, 2);
                 makeLastStandard = false;
-                buffer.resize(0);
                 break;
             case StateCComment:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                setFormat(i, 1, Token::Comment);
-                buffer.resize(0);
+                insertComment(i, 1);
                 break;
             case StateCppComment:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                setFormat(i, 1, Token::Comment);
-                buffer.resize(0);
+                insertComment(i, 1);
                 break;
             case StateCCommentEnd1:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                setFormat(i, 1, Token::Comment);
-                buffer.resize(0);
+                insertComment(i, 1);
                 break;
             case StateCCommentEnd2:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                setFormat(i, 1, Token::Comment);
-                buffer.resize(0);
+                insertComment(i, 1);
                 break;
             case StateStringStart:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                setFormat(i, 1, Token::Empty);
-                buffer.resize(0);
+                insertString(i);
                 break;
             case StateString:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                setFormat(i, 1, Token::String);
-                buffer.resize(0);
+                insertString(i);
                 break;
             case StateStringEnd:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                setFormat(i, 1, Token::Empty);
-                buffer.resize(0);
+                insertString(i);
                 break;
             case StateString2Start:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                setFormat(i, 1, Token::Empty);
-                buffer.resize(0);
+                insertString(i);
                 break;
             case StateString2:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                setFormat(i, 1, Token::String);
-                buffer.resize(0);
+                insertString(i);
                 break;
             case StateString2End:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                setFormat(i, 1, Token::Empty);
-                buffer.resize(0);
+                insertString(i);
                 break;
             case StateNumber:
                 if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
+                    insertCharToken(i - 1, text.at(i - 1).toAscii());
                 makeLastStandard = false;
-                setFormat( i, 1, Token::Number);
-                buffer.resize(0);
-                break;
-            case StatePreProcessor:
-                if (makeLastStandard)
-                    setFormat(i - 1, 1, Token::Empty);
-                makeLastStandard = false;
-                setFormat(i, 1, Token::PreProcessor);
-                buffer.resize(0);
+                insertNumber(i);
                 break;
         }
 
@@ -349,7 +256,7 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
             break;
     }
 
-    highlightKeyword(text.length(), buffer);
+    scanForKeywords(text);
 
     if (state == StateCComment
         || state == StateCCommentEnd1
@@ -363,63 +270,63 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
     blockEnd(state, firstNonSpace);
 }
 
-void QScriptIncrementalScanner::highlightKeyword(int currentPos, const QString &buffer)
+void QScriptIncrementalScanner::insertToken(int start, int length, Token::Kind kind, bool forceNewToken)
 {
-    if (buffer.isEmpty())
-        return;
-
-    if ((m_duiEnabled && buffer.at(0).isUpper()) || (! m_duiEnabled && buffer.at(0) == QLatin1Char('Q'))) {
-        setFormat(currentPos - buffer.length(), buffer.length(), Token::Type);
+    if (m_tokens.isEmpty() || forceNewToken) {
+        m_tokens.append(Token(start, length, kind));
     } else {
-        if (m_keywords.contains(buffer))
-            setFormat(currentPos - buffer.length(), buffer.length(), Token::Keyword);
+        Token &lastToken(m_tokens.last());
+
+        if (lastToken.kind == kind && lastToken.end() == start) {
+            lastToken.length += 1;
+        } else {
+            m_tokens.append(Token(start, length, kind));
+        }
     }
 }
 
-void QScriptIncrementalScanner::openingParenthesis(char c, int i)
+void QScriptIncrementalScanner::insertCharToken(int start, const char c)
 {
     Token::Kind kind;
 
     switch (c) {
-        case '(':
-            kind = Token::LeftParenthesis;
-            break;
+    case '!':
+    case '<':
+    case '>':
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+    case '%': kind = Token::Operator; break;
 
-        case '[':
-            kind = Token::LeftBracket;
-            break;
+    case ';': kind = Token::Semicolon; break;
+    case ':': kind = Token::Colon; break;
+    case ',': kind = Token::Comma; break;
+    case '.': kind = Token::Dot; break;
 
-        case '{':
-            kind = Token::LeftBrace;
-            break;
+    case '(': kind = Token::LeftParenthesis; break;
+    case ')': kind = Token::RightParenthesis; break;
+    case '{': kind = Token::LeftBrace; break;
+    case '}': kind = Token::RightBrace; break;
+    case '[': kind = Token::LeftBracket; break;
+    case ']': kind = Token::RightBracket; break;
 
-        default:
-            return;
+    default: kind = Token::Identifier; break;
     }
 
-    m_tokens.append(Token(i, 1, kind));
+    insertToken(start, 1, kind, true);
 }
 
-void QScriptIncrementalScanner::closingParenthesis(char c, int i)
+void QScriptIncrementalScanner::scanForKeywords(const QString &text)
 {
-    Token::Kind kind;
+    for (int i = 0; i < m_tokens.length(); ++i) {
+        Token &t(m_tokens[i]);
 
-    switch (c) {
-        case ')':
-            kind = Token::RightParenthesis;
-            break;
+        if (t.kind != Token::Identifier)
+            continue;
 
-        case ']':
-            kind = Token::RightBracket;
-            break;
-
-        case '}':
-            kind = Token::RightBrace;
-            break;
-
-        default:
-            return;
+        const QString id = text.mid(t.offset, t.length);
+        if (m_keywords.contains(id))
+            t.kind = Token::Keyword;
     }
-
-    m_tokens.append(Token(i, 1, kind));
 }

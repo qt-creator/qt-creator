@@ -15,10 +15,8 @@ public:
         int offset;
         int length;
         enum Kind {
-            Empty,
             Keyword,
-            Type,
-            Label,
+            Identifier,
             String,
             Comment,
             Number,
@@ -28,18 +26,23 @@ public:
             RightBrace,
             LeftBracket,
             RightBracket,
-            PreProcessor
+            Operator,
+            Semicolon,
+            Colon,
+            Comma,
+            Dot
         } kind;
 
-        Token(int o, int l, Kind k): offset(o), length(l), kind(k) {}
+        inline Token(int o, int l, Kind k): offset(o), length(l), kind(k) {}
+        inline int end() const { return offset + length; }
     };
 
 public:
-    QScriptIncrementalScanner(bool duiEnabled = false);
+    QScriptIncrementalScanner();
     virtual ~QScriptIncrementalScanner();
 
-    void setKeywords(const QSet<QString> &keywords)
-    { m_keywords = keywords; }
+    void setKeywords(const QSet<QString> keywords)
+    { m_keywords = keywords;; }
 
     void reset();
 
@@ -57,15 +60,20 @@ public:
 private:
     void blockEnd(int state, int firstNonSpace)
     { m_endState = state; m_firstNonSpace = firstNonSpace; }
-    void setFormat(int start, int count, Token::Kind kind)
-    { m_tokens.append(Token(start, count, kind)); }
-    void highlightKeyword(int currentPos, const QString &buffer);
-    void openingParenthesis(char c, int i);
-    void closingParenthesis(char c, int i);
+    void insertString(int start)
+    { insertToken(start, 1, Token::String, false); }
+    void insertComment(int start, int length)
+    { insertToken(start, length, Token::Comment, false); }
+    void insertCharToken(int start, const char c);
+    void insertIdentifier(int start)
+    { insertToken(start, 1, Token::Identifier, false); }
+    void insertNumber(int start)
+    { insertToken(start, 1, Token::Number, false); }
+    void insertToken(int start, int length, Token::Kind kind, bool forceNewToken);
+    void scanForKeywords(const QString &text);
 
 private:
     QSet<QString> m_keywords;
-    bool m_duiEnabled;
     int m_endState;
     int m_firstNonSpace;
     QList<QScriptIncrementalScanner::Token> m_tokens;

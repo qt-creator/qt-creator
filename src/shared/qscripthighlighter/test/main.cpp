@@ -33,13 +33,22 @@
 #include <QMainWindow>
 #include <QApplication>
 
+QString presetText = "import Qt 4.6\n"
+    "\n"
+    "Item {\n"
+    "    id: Zoo\n"
+    "    width: 1 + -1*3\n"
+    "}\n";
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QMainWindow mw;
 
     QTextEdit *textEdit = new QTextEdit;
-    new SharedTools::QScriptHighlighter(textEdit->document());
+    if (!presetText.isEmpty())
+        textEdit->setText(presetText);
+    new SharedTools::QScriptHighlighter(true, textEdit->document());
     mw.setCentralWidget(textEdit);
     mw.show();
     return app.exec();
