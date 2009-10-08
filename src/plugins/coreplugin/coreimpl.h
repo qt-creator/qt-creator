@@ -50,6 +50,11 @@ public:
     bool showOptionsDialog(const QString &group = QString(),
                            const QString &page = QString(),
                            QWidget *parent = 0);
+    bool showWarningWithOptions(const QString &title, const QString &text,
+                                const QString &details = QString(),
+                                const QString &settingsCategory = QString(),
+                                const QString &settingsId = QString(),
+                                QWidget *parent = 0);
 
     ActionManager *actionManager() const;
     FileManager *fileManager() const ;

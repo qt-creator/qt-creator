@@ -54,6 +54,8 @@ struct TrkOptions
     void toSettings(QSettings *s) const;
     bool equals(const  TrkOptions &o) const;
 
+    bool check(QString *errorMessage) const;
+
     // Lists of choices for the devices
     static QStringList serialPorts();
     static QStringList blueToothDevices();

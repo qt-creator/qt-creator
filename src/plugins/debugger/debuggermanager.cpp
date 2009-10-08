@@ -925,11 +925,8 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
 
     // We need the CDB debugger in order to be able to debug VS
     // executables
-    if (!winEngine) {
-        *errorMessage = DebuggerManager::tr("Debugging VS executables is currently not enabled.");
-        *settingsIdHint = QLatin1String("Cdb");
+    if (!DebuggerManager::instance()->checkDebugConfiguration(ProjectExplorer::ToolChain::MSVC, errorMessage, 0 , settingsIdHint))
         return 0;
-    }
     return winEngine;
 #endif
 }
@@ -991,7 +988,9 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
         // Create Message box with possibility to go to settings
         const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3").
                             arg(d->m_startParameters->executable, toolChainName, errorMessage);
-        warningWithSettings(tr("Warning"),  msg, QString(), settingsIdHint);
+        Core::ICore::instance()->showWarningWithOptions(tr("Warning"),  msg, QString(),
+                                            QLatin1String(DEBUGGER_SETTINGS_CATEGORY),
+                                            settingsIdHint);
         return;
     }
 
@@ -1711,6 +1710,49 @@ bool DebuggerManager::debuggerActionsEnabled() const
         break;
     }
     return false;
+}
+
+bool DebuggerManager::checkDebugConfiguration(int toolChain,
+                                              QString *errorMessage,
+                                              QString *settingsCategory /* = 0 */,
+                                              QString *settingsPage /* = 0 */) const
+{
+    errorMessage->clear();
+    if (settingsCategory)
+        settingsCategory->clear();
+    if (settingsPage)
+        settingsPage->clear();
+    bool success = true;
+    switch(toolChain) {
+    case ProjectExplorer::ToolChain::GCC:
+    case ProjectExplorer::ToolChain::LinuxICC:
+    case ProjectExplorer::ToolChain::MinGW:
+    case ProjectExplorer::ToolChain::WINCE: // S60
+    case ProjectExplorer::ToolChain::WINSCW:
+    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        if (gdbEngine) {
+            success = gdbEngine->checkConfiguration(toolChain, errorMessage, settingsPage);
+        } else {
+            success = false;
+            *errorMessage = msgEngineNotAvailable("Gdb");
+        }
+        break;
+    case ProjectExplorer::ToolChain::MSVC:
+        if (winEngine) {
+            success = winEngine->checkConfiguration(toolChain, errorMessage, settingsPage);
+        } else {
+            success = false;
+            *errorMessage = msgEngineNotAvailable("Cdb");
+            if (settingsPage)
+                *settingsPage = QLatin1String("Cdb");
+        }
+        break;
+    }
+    if (!success && settingsCategory && settingsPage && !settingsPage->isEmpty())
+        *settingsCategory = QLatin1String(DEBUGGER_SETTINGS_CATEGORY);
+    return success;
 }
 
 QDebug operator<<(QDebug d, DebuggerState state)

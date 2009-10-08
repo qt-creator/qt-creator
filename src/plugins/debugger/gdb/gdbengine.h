@@ -151,6 +151,8 @@ private:
     Q_SLOT void setAutoDerefPointers(const QVariant &on);
     virtual bool isGdbEngine() const { return true; }
 
+    virtual bool checkConfiguration(int toolChain, QString *errorMessage, QString *settingsPage= 0) const;
+
     //
     // Own stuff
     //
