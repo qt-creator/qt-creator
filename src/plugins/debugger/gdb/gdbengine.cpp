@@ -278,7 +278,7 @@ void GdbEngine::initializeVariables()
     m_oldestAcceptableToken = -1;
     m_outputCodec = QTextCodec::codecForLocale();
     m_pendingRequests = 0;
-    m_continuationAfterDone = 0;
+    m_commandsDoneCallback = 0;
     m_commandsToRunOnTemporaryBreak.clear();
     m_cookieForToken.clear();
     m_customOutputForToken.clear();
@@ -841,9 +841,9 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
     // An optimization would be requesting the continue immediately when the
     // event loop is entered, and let individual commands have a flag to suppress
     // that behavior.
-    if (m_continuationAfterDone && m_cookieForToken.isEmpty()) {
-        Continuation cont = m_continuationAfterDone;
-        m_continuationAfterDone = 0;
+    if (m_commandsDoneCallback && m_cookieForToken.isEmpty()) {
+        CommandsDoneCallback cont = m_commandsDoneCallback;
+        m_commandsDoneCallback = 0;
         (this->*cont)();
         showStatusMessage(tr("Continuing after temporary stop."), 1000);
     } else {
@@ -1045,8 +1045,8 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             flushCommand(cmd);
         }
         showStatusMessage(tr("Processing queued commands."), 1000);
-        QTC_ASSERT(m_continuationAfterDone == 0, /**/);
-        m_continuationAfterDone = &GdbEngine::continueInferior;
+        QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
+        m_commandsDoneCallback = &GdbEngine::continueInferior;
         return;
     }
 
@@ -4089,9 +4089,9 @@ void GdbEngine::handleInferiorPrepared()
     }
 
     // Initial attempt to set breakpoints
-    QTC_ASSERT(m_continuationAfterDone == 0, /**/);
+    QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
     showStatusMessage(tr("Setting breakpoints..."));
-    m_continuationAfterDone = &GdbEngine::startInferior;
+    m_commandsDoneCallback = &GdbEngine::startInferior;
     attemptBreakpointSynchronization();
 }
 

@@ -409,9 +409,9 @@ private:
     QString m_currentFrame;
     QMap<QString, QString> m_varToType;
 
-    typedef void (GdbEngine::*Continuation)();
+    typedef void (GdbEngine::*CommandsDoneCallback)();
     // function called after all previous responses have been received
-    Continuation m_continuationAfterDone;
+    CommandsDoneCallback m_commandsDoneCallback;
     void startInferior();
 
     bool m_modulesListOutdated;
