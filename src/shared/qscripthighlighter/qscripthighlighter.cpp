@@ -75,15 +75,15 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                 break;
 
             case QScriptIncrementalScanner::Token::String:
-                setFormat(token.offset, token.length, m_formats[StringFormat]);
+                highlightWhitespace(token, text, StringFormat);
                 break;
 
             case QScriptIncrementalScanner::Token::Comment:
-                setFormat(token.offset, token.length, m_formats[CommentFormat]);
+                highlightWhitespace(token, text, CommentFormat);
                 break;
 
             case QScriptIncrementalScanner::Token::Number:
-                setFormat(token.offset, token.length, m_formats[NumberFormat]);
+                highlightWhitespace(token, text, NumberFormat);
                 break;
 
             case QScriptIncrementalScanner::Token::LeftParenthesis:
@@ -238,3 +238,23 @@ int QScriptHighlighter::onBlockStart()
 void QScriptHighlighter::onOpeningParenthesis(QChar, int) {}
 void QScriptHighlighter::onClosingParenthesis(QChar, int) {}
 void QScriptHighlighter::onBlockEnd(int state, int) { return setCurrentBlockState(state); }
+
+void QScriptHighlighter::highlightWhitespace(const QScriptIncrementalScanner::Token &token, const QString &text, int nonWhitespaceFormat)
+{
+    const QTextCharFormat normalFormat = m_formats[nonWhitespaceFormat];
+    const QTextCharFormat visualSpaceFormat = m_formats[VisualWhitespace];
+
+    const int end = token.end();
+    int index = token.offset;
+
+    while (index != end) {
+        const bool isSpace = text.at(index).isSpace();
+        const int start = index;
+
+        do { ++index; }
+        while (index != end && text.at(index).isSpace() == isSpace);
+
+        const int tokenLength = index - start;
+        setFormat(start, tokenLength, isSpace ? visualSpaceFormat : normalFormat);
+    }
+}

@@ -69,6 +69,8 @@ protected:
     // sets the enriched user state, or simply calls setCurrentBlockState(state);
     virtual void onBlockEnd(int state, int firstNonSpace);
 
+    virtual void highlightWhitespace(const QScriptIncrementalScanner::Token &token, const QString &text, int nonWhitespaceFormat);
+
 protected:
     QScriptIncrementalScanner m_scanner;
 
