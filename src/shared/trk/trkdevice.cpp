@@ -893,7 +893,7 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
             Qt::QueuedConnection);
     connect(d->readerThread.data(), SIGNAL(messageReceived(trk::TrkResult,QByteArray)),
             this, SLOT(slotMessageReceived(trk::TrkResult,QByteArray)),
-            Qt::BlockingQueuedConnection);
+            Qt::QueuedConnection);
     d->readerThread->start();
 
     d->writerThread = QSharedPointer<WriterThread>(new WriterThread(d->deviceContext));
