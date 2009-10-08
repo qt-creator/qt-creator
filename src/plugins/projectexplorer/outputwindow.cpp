@@ -212,7 +212,11 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
         agg->add(ow);
         agg->add(new Find::BaseTextFind(ow));
         m_outputWindows.insert(rc, ow);
-        m_tabWidget->addTab(ow, rc->runConfiguration()->name());
+        // TODO add a displayName to RunControl, can't rely on there always beeing a runconfiguration
+        QString name = "External Application";
+        if (rc->runConfiguration())
+            name = rc->runConfiguration()->name();
+        m_tabWidget->addTab(ow, name);
     }
 }
 
@@ -244,7 +248,7 @@ void OutputPane::insertLine()
 void OutputPane::reRunRunControl()
 {
     RunControl *rc = runControlForTab(m_tabWidget->currentIndex());
-    if (rc->runConfiguration()->project() != 0)
+    if (rc->runConfiguration() && rc->runConfiguration()->project() != 0)
         rc->start();
 }
 
@@ -283,7 +287,7 @@ void OutputPane::tabChanged(int i)
     } else {
         RunControl *rc = runControlForTab(i);
         m_stopAction->setEnabled(rc->isRunning());
-        m_reRunButton->setEnabled(!rc->isRunning() && rc->runConfiguration()->project());
+        m_reRunButton->setEnabled(!rc->isRunning() && rc->runConfiguration() && rc->runConfiguration()->project());
     }
 }
 
@@ -300,7 +304,7 @@ void OutputPane::runControlFinished()
 {
     RunControl *rc = runControlForTab(m_tabWidget->currentIndex());
     if (rc == qobject_cast<RunControl *>(sender())) {
-        m_reRunButton->setEnabled(rc->runConfiguration()->project());
+        m_reRunButton->setEnabled(rc->runConfiguration() && rc->runConfiguration()->project());
         m_stopAction->setEnabled(false);
     }
 }

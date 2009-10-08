@@ -67,11 +67,7 @@ public:
 
     virtual QWidget *configurationWidget(const RunConfigurationPtr &runConfiguration);
 
-    virtual ProjectExplorer::RunControl *create(const RunConfigurationPtr &runConfiguration,
-                                                const QString &mode,
-                                                const DebuggerStartParametersPtr &sp);
-
-    static RunConfigurationPtr createDefaultRunConfiguration(const QString &executable = QString());
+    ProjectExplorer::RunControl *create(const DebuggerStartParametersPtr &sp, const QString &mode);
 
 private:
     DebuggerStartParametersPtr m_startParameters;
@@ -86,8 +82,8 @@ class DebuggerRunControl
 
 public:
     DebuggerRunControl(DebuggerManager *manager,
-                       const DebuggerStartParametersPtr &startParamters,
                        LocalApplicationRunConfigurationPtr runConfiguration);
+    DebuggerRunControl(DebuggerManager *manager, const DebuggerStartParametersPtr &startParameters);
 
     // ProjectExplorer::RunControl
     virtual void start();
@@ -104,34 +100,10 @@ private slots:
     void slotAddToOutputWindowInline(const QString &output);
 
 private:
+    void init();
     DebuggerStartParametersPtr m_startParameters;
     DebuggerManager *m_manager;
     bool m_running;
-};
-
-// A default run configuration for external executables or attaching to
-// running processes by id.
-class DefaultLocalApplicationRunConfiguration
-    : public ProjectExplorer::LocalApplicationRunConfiguration
-{
-    Q_OBJECT
-public:
-    explicit DefaultLocalApplicationRunConfiguration(const QString &executable = QString());
-
-    virtual QString executable() const { return m_executable; }
-    virtual RunMode runMode() const { return Gui; }
-    virtual QString workingDirectory() const { return QString(); }
-    virtual QStringList commandLineArguments() const  { return QStringList(); }
-    virtual ProjectExplorer::Environment environment() const
-        { return ProjectExplorer::Environment(); }
-    virtual QString dumperLibrary() const { return QString(); }
-    virtual QStringList dumperLibraryLocations() const { return QStringList(); }
-    virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const
-        { return ProjectExplorer::ToolChain::UNKNOWN; }
-    virtual QWidget *configurationWidget() { return 0; }
-
-private:
-    const QString m_executable;
 };
 
 } // namespace Internal

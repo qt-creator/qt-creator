@@ -106,6 +106,8 @@ public:
     void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
     Internal::ProjectExplorerSettings projectExplorerSettings() const;
 
+    void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QString &mode);
+
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);
@@ -183,8 +185,6 @@ private slots:
 
     void loadProject(const QString &project) { openProject(project); }
     void currentModeChanged(Core::IMode *mode);
-
-    void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QString &mode);
 
 private:
     void runProjectImpl(Project *pro);
