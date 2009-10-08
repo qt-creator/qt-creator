@@ -55,6 +55,7 @@ public:
 
 private:
     int startOfExpression(BackwardsScanner &tk, int index);
+    int startOfExpression_helper(BackwardsScanner &tk, int index);
     int previousBlockState(const QTextBlock &block);
     bool isAccessToken(const SimpleToken &tk);
 
