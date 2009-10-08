@@ -2,6 +2,7 @@ VPATH += $$PWD
 QT += xml
 
 INCLUDEPATH *= $$PWD $$PWD/..
+DEPENDPATH *= $$PWD $$PWD/..
 
 # Input
 HEADERS += \
