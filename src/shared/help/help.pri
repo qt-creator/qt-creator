@@ -1,6 +1,7 @@
 VPATH += $$PWD
 
 INCLUDEPATH *= $$PWD $$PWD/..
+DEPENDPATH *= $$PWD $$PWD/..
 
 # Input
 HEADERS += \
