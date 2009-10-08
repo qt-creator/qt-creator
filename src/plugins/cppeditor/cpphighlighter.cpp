@@ -118,7 +118,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             highlightAsPreprocessor = false;
 
         if (i == 0 && tk.is(T_POUND)) {
-            setFormat(tk.position(), tk.length(), m_formats[CppPreprocessorFormat]);
+            highightLine(text, tk.position(), tk.length(), m_formats[CppPreprocessorFormat]);
             highlightAsPreprocessor = true;
 
         } else if (highlightCurrentWordAsPreprocessor &&
@@ -130,15 +130,15 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         else if (tk.is(T_STRING_LITERAL) || tk.is(T_CHAR_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL) ||
                  tk.is(T_AT_STRING_LITERAL))
-            setFormat(tk.position(), tk.length(), m_formats[CppStringFormat]);
+            highightLine(text, tk.position(), tk.length(), m_formats[CppStringFormat]);
 
         else if (tk.is(T_WIDE_STRING_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL))
-            setFormat(tk.position(), tk.length(), m_formats[CppStringFormat]);
+            highightLine(text, tk.position(), tk.length(), m_formats[CppStringFormat]);
 
         else if (tk.isComment()) {
 
             if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT))
-                setFormat(tk.position(), tk.length(), m_formats[CppCommentFormat]);
+                highightLine(text, tk.position(), tk.length(), m_formats[CppCommentFormat]);
 
             else // a doxygen comment
                 highlightDoxygenComment(text, tk.position(), tk.length());
@@ -328,6 +328,26 @@ bool CppHighlighter::isQtKeyword(const QStringRef &text) const
     return false;
 }
 
+void CppHighlighter::highightLine(const QString &text, int position, int length,
+                                  const QTextCharFormat &format)
+{
+    const QTextCharFormat visualSpaceFormat = m_formats[CppVisualWhitespace];
+
+    const int end = position + length;
+    int index = position;
+
+    while (index != end) {
+        const bool isSpace = text.at(index).isSpace();
+        const int start = index;
+
+        do { ++index; }
+        while (index != end && text.at(index).isSpace() == isSpace);
+
+        const int tokenLength = index - start;
+        setFormat(start, tokenLength, isSpace ? visualSpaceFormat : format);
+    }
+}
+
 void CppHighlighter::highlightWord(QStringRef word, int position, int length)
 {
     // try to highlight Qt 'identifiers' like QObject and Q_PROPERTY
@@ -362,7 +382,7 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
 
             int k = CppTools::classifyDoxygenTag(start, it - start);
             if (k != CppTools::T_DOXY_IDENTIFIER) {
-                setFormat(initial, start - uc - initial, format);
+                highightLine(text, initial, start - uc - initial, format);
                 setFormat(start - uc - 1, it - start + 1, kwFormat);
                 initial = it - uc;
             }
@@ -370,6 +390,6 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
             ++it;
     }
 
-    setFormat(initial, it - uc - initial, format);
+    highightLine(text, initial, it - uc - initial, format);
 }
 
