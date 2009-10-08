@@ -193,7 +193,14 @@ void RemoteGdbAdapter::prepareInferior()
         m_engine->postCommand(_("-exec-arguments ")
             + startParameters().processArgs.join(_(" ")));
 
+#if 0
     m_engine->postCommand(_("set target-async on"), CB(handleSetTargetAsync));
+#else
+    QFileInfo fi(startParameters().executable);
+    QString fileName = fi.absoluteFilePath();
+    m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName),
+        CB(handleFileExecAndSymbols));
+#endif
 }
 
 void RemoteGdbAdapter::handleSetTargetAsync(const GdbResponse &response)
@@ -234,12 +241,14 @@ void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
         // gdb server will stop the remote application itself.
         debugMessage(_("INFERIOR STARTED"));
         showStatusMessage(tr("Attached to stopped inferior."));
+        setState(InferiorStopped);
+        m_engine->continueInferior();
     } else if (record.resultClass == GdbResultError) {
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = tr("Connecting to remote server failed:\n");
         msg += __(record.data.findChild("msg").data());
         setState(InferiorPreparationFailed);
-        emit inferiorPreparationFailed(msg);
+        emit inferiorStartFailed(msg);
     }
 }
 
@@ -286,6 +295,7 @@ void RemoteGdbAdapter::shutdown()
 
 void RemoteGdbAdapter::handleKill(const GdbResponse &response)
 {
+    QTC_ASSERT(state() == InferiorShuttingDown, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         setState(InferiorShutDown);
         emit inferiorShutDown();
