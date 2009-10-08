@@ -184,9 +184,12 @@ private slots:
     void loadProject(const QString &project) { openProject(project); }
     void currentModeChanged(Core::IMode *mode);
 
+    void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QString &mode);
+
 private:
     void runProjectImpl(Project *pro);
     void executeRunConfiguration(const QSharedPointer<RunConfiguration> &, const QString &mode);
+
     void setCurrent(Project *project, QString filePath, Node *node);
 
     QStringList allFilesWithDependencies(Project *pro);

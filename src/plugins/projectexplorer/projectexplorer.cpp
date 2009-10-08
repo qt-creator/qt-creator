@@ -1230,27 +1230,32 @@ void ProjectExplorerPlugin::executeRunConfiguration(const QSharedPointer<RunConf
         emit aboutToExecuteProject(runConfiguration->project());
 
         RunControl *control = runControlFactory->create(runConfiguration, runMode);
-        d->m_outputPane->createNewOutputWindow(control);
-        if (runMode == ProjectExplorer::Constants::RUNMODE)
-            d->m_outputPane->popup(false);
-        d->m_outputPane->showTabFor(control);
-
-        connect(control, SIGNAL(addToOutputWindow(RunControl *, const QString &)),
-                this, SLOT(addToApplicationOutputWindow(RunControl *, const QString &)));
-        connect(control, SIGNAL(addToOutputWindowInline(RunControl *, const QString &)),
-                this, SLOT(addToApplicationOutputWindowInline(RunControl *, const QString &)));
-        connect(control, SIGNAL(error(RunControl *, const QString &)),
-                this, SLOT(addErrorToApplicationOutputWindow(RunControl *, const QString &)));
-        connect(control, SIGNAL(finished()),
-                this, SLOT(runControlFinished()));
-
-        if (runMode == ProjectExplorer::Constants::DEBUGMODE)
-            d->m_debuggingRunControl = control;
-
-        control->start();
-        updateRunAction();
+        startRunControl(control, runMode);
     }
 
+}
+
+void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QString &runMode)
+{
+    d->m_outputPane->createNewOutputWindow(runControl);
+    if (runMode == ProjectExplorer::Constants::RUNMODE)
+        d->m_outputPane->popup(false);
+    d->m_outputPane->showTabFor(runControl);
+
+    connect(runControl, SIGNAL(addToOutputWindow(RunControl *, const QString &)),
+            this, SLOT(addToApplicationOutputWindow(RunControl *, const QString &)));
+    connect(runControl, SIGNAL(addToOutputWindowInline(RunControl *, const QString &)),
+            this, SLOT(addToApplicationOutputWindowInline(RunControl *, const QString &)));
+    connect(runControl, SIGNAL(error(RunControl *, const QString &)),
+            this, SLOT(addErrorToApplicationOutputWindow(RunControl *, const QString &)));
+    connect(runControl, SIGNAL(finished()),
+            this, SLOT(runControlFinished()));
+
+    if (runMode == ProjectExplorer::Constants::DEBUGMODE)
+        d->m_debuggingRunControl = runControl;
+
+    runControl->start();
+    updateRunAction();
 }
 
 void ProjectExplorerPlugin::buildQueueFinished(bool success)
