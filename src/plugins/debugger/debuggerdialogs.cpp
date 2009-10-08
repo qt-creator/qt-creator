@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "debuggerdialogs.h"
+#include "debuggerconstants.h"
 
 #include "ui_attachcoredialog.h"
 #include "ui_attachexternaldialog.h"
@@ -39,6 +40,8 @@
 #  include "shared/dbgwinutils.h"
 #endif
 
+#include <coreplugin/icore.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -49,7 +52,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QProxyModel>
 #include <QtGui/QSortFilterProxyModel>
-
+#include <QtGui/QMessageBox>
 
 namespace Debugger {
 namespace Internal {
@@ -604,6 +607,29 @@ bool AddressDialog::isValid() const
     bool ok = false;
     text.toULongLong(&ok, 16);
     return ok;
+}
+
+int warningWithSettings(const QString &title,
+                        const QString &text,
+                        const QString &details,
+                        const QString &settingsId,
+                        QWidget *parent)
+{
+    QMessageBox msgBox(QMessageBox::Warning, title, text,
+                       QMessageBox::Ok, parent);
+    if (details.isEmpty())
+        msgBox.setDetailedText(details);
+    QAbstractButton *settingsButton = 0;
+    if (!settingsId.isEmpty())
+        settingsButton = msgBox.addButton(QCoreApplication::translate("Debugger::MessageBox", "Settings..."),
+                                          QMessageBox::AcceptRole);
+    const int dialogCode = msgBox.exec();
+    if (settingsButton && msgBox.clickedButton() == settingsButton) {
+        Core::ICore::instance()->showOptionsDialog(QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY),
+                                                   settingsId);
+        return 2;
+    }
+    return dialogCode;
 }
 
 } // namespace Internal

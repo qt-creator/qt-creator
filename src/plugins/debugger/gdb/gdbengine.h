@@ -238,7 +238,7 @@ private slots:
     void readDebugeeOutput(const QByteArray &data);
 
     void handleAdapterStarted();
-    void handleAdapterStartFailed(const QString &msg);
+    void handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint = QString());
 
     void handleInferiorPrepared();
     void handleInferiorPreparationFailed(const QString &msg);
