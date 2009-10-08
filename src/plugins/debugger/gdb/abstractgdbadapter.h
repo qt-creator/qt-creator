@@ -69,7 +69,7 @@ public:
 
 signals:
     void adapterStarted();
-    void adapterStartFailed(const QString &msg);
+    void adapterStartFailed(const QString &msg, const QString &settingsIdHint);
     void adapterShutDown();
     void adapterShutdownFailed(const QString &msg);
     void adapterCrashed(const QString &msg);

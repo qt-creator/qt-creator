@@ -999,17 +999,9 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     if (!d->m_engine) {
         emit debuggingFinished();
         // Create Message box with possibility to go to settings
-        QAbstractButton *settingsButton = 0;
-        QMessageBox msgBox(QMessageBox::Warning, tr("Warning"),
-            tr("Cannot debug '%1' (tool chain: '%2'): %3").
-            arg(d->m_startParameters->executable, toolChainName, errorMessage),
-            QMessageBox::Ok);
-        if (!settingsIdHint.isEmpty())
-            settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
-        msgBox.exec();
-        if (msgBox.clickedButton() == settingsButton)
-            Core::ICore::instance()->showOptionsDialog(
-                _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
+        const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3").
+                            arg(d->m_startParameters->executable, toolChainName, errorMessage);
+        warningWithSettings(tr("Warning"),  msg, QString(), settingsIdHint);
         return;
     }
 

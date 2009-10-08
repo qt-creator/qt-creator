@@ -345,7 +345,7 @@ void PlainGdbAdapter::emitAdapterStartFailed(const QString &msg)
     bool blocked = m_stubProc.blockSignals(true);
     m_stubProc.stop();
     m_stubProc.blockSignals(blocked);
-    emit adapterStartFailed(msg);
+    emit adapterStartFailed(msg, QString());
 }
 
 } // namespace Internal

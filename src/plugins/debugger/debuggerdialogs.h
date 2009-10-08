@@ -63,6 +63,14 @@ struct ProcData
     QString state;
 };
 
+// Display a warning with an additional button to open
+// the debugger settings dialog if settingsId is nonempty.
+int warningWithSettings(const QString &title,
+                        const QString &text,
+                        const QString &details = QString(),
+                        const QString &settingsId = QString(),
+                        QWidget *parent = 0);
+
 class AttachCoreDialog : public QDialog
 {
     Q_OBJECT

@@ -261,8 +261,8 @@ void GdbEngine::connectAdapter()
 
     connect(m_gdbAdapter, SIGNAL(adapterStarted()),
         this, SLOT(handleAdapterStarted()));
-    connect(m_gdbAdapter, SIGNAL(adapterStartFailed(QString)),
-        this, SLOT(handleAdapterStartFailed(QString)));
+    connect(m_gdbAdapter, SIGNAL(adapterStartFailed(QString,QString)),
+        this, SLOT(handleAdapterStartFailed(QString,QString)));
     connect(m_gdbAdapter, SIGNAL(adapterShutDown()),
         this, SLOT(handleAdapterShutDown()));
     connect(m_gdbAdapter, SIGNAL(adapterShutdownFailed(QString)),
@@ -4051,10 +4051,11 @@ void GdbEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 // Starting up & shutting down
 //
 
-void GdbEngine::handleAdapterStartFailed(const QString &msg)
+void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint)
 {
+    setState(AdapterStartFailed);
     debugMessage(_("ADAPTER START FAILED"));
-    showMessageBox(QMessageBox::Critical, tr("Adapter start failed"), msg);
+    warningWithSettings(tr("Adapter start failed"), msg, QString(), settingsIdHint);
     shutdown();
 }
 
