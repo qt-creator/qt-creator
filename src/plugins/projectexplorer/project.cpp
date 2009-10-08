@@ -150,15 +150,10 @@ void Project::addBuildConfiguration(BuildConfiguration *configuration)
 void Project::removeBuildConfiguration(BuildConfiguration *configuration)
 {
     //todo: this might be error prone
-    if (!buildConfigurations().contains(configuration))
+    if (!m_buildConfigurationValues.contains(configuration))
         return;
 
-    for (int i = 0; i != m_buildConfigurationValues.size(); ++i)
-        if (m_buildConfigurationValues.at(i)->name() == configuration->name()) {
-            delete m_buildConfigurationValues.at(i);
-            m_buildConfigurationValues.removeAt(i);
-            break;
-        }
+    m_buildConfigurationValues.removeOne(configuration);
 
     for (int i = 0; i != m_buildSteps.size(); ++i)
         m_buildSteps.at(i)->removeBuildConfiguration(configuration->name());
@@ -166,6 +161,7 @@ void Project::removeBuildConfiguration(BuildConfiguration *configuration)
         m_cleanSteps.at(i)->removeBuildConfiguration(configuration->name());
 
     emit removedBuildConfiguration(this, configuration->name());
+    delete configuration;
 }
 
 void Project::copyBuildConfiguration(const QString &source, const QString &dest)
