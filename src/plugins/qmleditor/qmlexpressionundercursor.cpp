@@ -230,9 +230,6 @@ void QmlExpressionUnderCursor::parseExpression(const QTextBlock &block)
     } else if (Statement *stmt = tryStatement(text)) {
 //        qDebug() << "**** statement";
         node = stmt;
-    } else if (ExpressionNode *expr = tryExpression(text)) {
-//        qDebug() << "**** expression";
-        node = expr;
     } else {
 //        qDebug() << "**** none";
     }
@@ -243,20 +240,6 @@ void QmlExpressionUnderCursor::parseExpression(const QTextBlock &block)
         _expressionOffset = calculator.offset() + block.position();
         _expressionLength = calculator.length();
     }
-}
-
-ExpressionNode *QmlExpressionUnderCursor::tryExpression(const QString &text)
-{
-    _engine = new Engine();
-    _nodePool = new NodePool("", _engine);
-    Lexer lexer(_engine);
-    Parser parser(_engine);
-    lexer.setCode(text, /*line = */ 1);
-
-    if (parser.parseExpression())
-        return parser.expression();
-    else
-        return 0;
 }
 
 Statement *QmlExpressionUnderCursor::tryStatement(const QString &text)
