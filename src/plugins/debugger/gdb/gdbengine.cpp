@@ -445,6 +445,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // Archer has "{id="28902"}" 
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Thread group %1 created.").arg(_(id)));
+                int pid = id.toInt();
+                if (pid != inferiorPid())
+                    handleInferiorPidChanged(pid);
             } else if (asyncClass == "thread-created") {
                 //"{id="1",group-id="28902"}" 
                 QByteArray id = result.findChild("id").data();
