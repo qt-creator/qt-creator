@@ -77,7 +77,7 @@ void PlainGdbAdapter::startAdapter()
 
     if (!m_outputCollector.listen()) {
         emit adapterStartFailed(tr("Cannot set up communication with child process: %1")
-                .arg(m_outputCollector.errorString()));
+                .arg(m_outputCollector.errorString()), QString());
         return;
     }
     gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
