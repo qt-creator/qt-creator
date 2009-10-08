@@ -32,6 +32,7 @@ public:
 private:
     QmlSymbol *resolveType(const QString &name, const QString &fileName);
     QmlSymbol *resolveProperty(const QString &name, QmlSymbol *scope, const QString &fileName);
+    QmlSymbol *resolveBuildinType(const QString &name);
 
     static QString toString(QmlJS::AST::UiQualifiedId *id);
 

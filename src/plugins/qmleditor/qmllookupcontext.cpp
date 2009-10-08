@@ -1,3 +1,4 @@
+#include <QDebug>
 #include "qmljsast_p.h"
 #include "qmljsengine_p.h"
 
@@ -70,7 +71,7 @@ QmlSymbol *QmlLookupContext::resolve(const QString &name)
     if (ids.contains(name))
         return ids[name];
     else
-        return 0;
+        return resolveType(name);
 }
 
 QmlSymbol *QmlLookupContext::resolveType(const QString &name, const QString &fileName)
@@ -106,7 +107,28 @@ QmlSymbol *QmlLookupContext::resolveType(const QString &name, const QString &fil
         }
     }
 
-    return 0;
+    return resolveBuildinType(name);
+}
+
+QmlSymbol *QmlLookupContext::resolveBuildinType(const QString &name)
+{
+    // FIXME: use a mete-type system here!
+
+    if (name == "Rectangle") {
+        QmlBuildInSymbol *rectSymbol = new QmlBuildInSymbol(name);
+        rectSymbol->addMember(new QmlBuildInSymbol("x"));
+        rectSymbol->addMember(new QmlBuildInSymbol("y"));
+        rectSymbol->addMember(new QmlBuildInSymbol("height"));
+        rectSymbol->addMember(new QmlBuildInSymbol("width"));
+        return rectSymbol;
+    } else if (name == "Item") {
+        return new QmlBuildInSymbol(name);
+    } else if (name == "Text") {
+        QmlBuildInSymbol *textSymbol = new QmlBuildInSymbol(name);
+        return textSymbol;
+    } else {
+        return 0;
+    }
 }
 
 QmlSymbol *QmlLookupContext::resolveProperty(const QString &name, QmlSymbol *scope, const QString &fileName)

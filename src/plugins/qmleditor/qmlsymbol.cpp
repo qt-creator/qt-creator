@@ -44,6 +44,7 @@ QmlBuildInSymbol::~QmlBuildInSymbol()
 QmlBuildInSymbol *QmlBuildInSymbol::asBuildInSymbol()
 { return this; }
 
+
 QmlSymbolFromFile::QmlSymbolFromFile(const QString &fileName, QmlJS::AST::UiObjectMember *node):
         _fileName(fileName),
         _node(node)

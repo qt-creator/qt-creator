@@ -4,6 +4,7 @@ include(../../qtcreatorplugin.pri)
 include(qmleditor_dependencies.pri)
 include(parser/parser.pri)
 include(rewriter/rewriter.pri)
+CONFIG += help
 DEFINES += QMLEDITOR_LIBRARY \
     QT_CREATOR
 INCLUDEPATH += parser \

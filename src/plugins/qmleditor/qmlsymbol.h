@@ -44,8 +44,8 @@ public:
     virtual const QString name() const
     { return _name; }
 
-    // TODO:
-//    virtual const List members();
+    void addMember(QmlBuildInSymbol *symbol)
+    { _members.append(symbol); }
 
 private:
     QString _name;

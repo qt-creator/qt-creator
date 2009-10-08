@@ -40,7 +40,6 @@ public:
 private:
     void parseExpression(const QTextBlock &block);
 
-    QmlJS::AST::ExpressionNode *tryExpression(const QString &text);
     QmlJS::AST::Statement *tryStatement(const QString &text);
     QmlJS::AST::UiObjectMember *tryBinding(const QString &text);
 

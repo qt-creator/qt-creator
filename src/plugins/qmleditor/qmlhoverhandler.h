@@ -30,9 +30,12 @@
 #ifndef QMLHOVERHANDLER_H
 #define QMLHOVERHANDLER_H
 
+#include "qmlmodelmanagerinterface.h"
+
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
+class QHelpEngineCore;
 class QPoint;
 QT_END_NAMESPACE
 
@@ -62,7 +65,14 @@ private slots:
     void editorOpened(Core::IEditor *editor);
 
 private:
+    void updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos);
+
+private:
+    QmlModelManagerInterface *m_modelManager;
+    QHelpEngineCore *m_helpEngine;
+    QString m_helpId;
     QString m_toolTip;
+    bool m_helpEngineNeedsSetup;
 };
 
 } // namespace Internal

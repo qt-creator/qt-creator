@@ -27,8 +27,12 @@
 **
 **************************************************************************/
 
-#include "qmlhoverhandler.h"
 #include "qmleditor.h"
+#include "qmlexpressionundercursor.h"
+#include "qmlhoverhandler.h"
+#include "qmllookupcontext.h"
+#include "qmlresolveexpression.h"
+#include "qmlsymbol.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -38,7 +42,6 @@
 #include <texteditor/basetexteditor.h>
 #include <debugger/debuggerconstants.h>
 
-#include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
@@ -47,13 +50,30 @@
 #include <QtGui/QTextBlock>
 #include <QtHelp/QHelpEngineCore>
 
-using namespace QmlEditor::Internal;
 using namespace Core;
+using namespace QmlEditor;
+using namespace QmlEditor::Internal;
 
 QmlHoverHandler::QmlHoverHandler(QObject *parent)
     : QObject(parent)
+    , m_helpEngineNeedsSetup(false)
 {
+    m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<QmlModelManagerInterface>();
+
     ICore *core = ICore::instance();
+    QFileInfo fi(core->settings()->fileName());
+    // FIXME shouldn't the help engine create the directory if it doesn't exist?
+    QDir directory(fi.absolutePath()+"/qtcreator");
+    if (!directory.exists())
+        directory.mkpath(directory.absolutePath());
+
+    m_helpEngine = new QHelpEngineCore(directory.absolutePath()
+                                       + QLatin1String("/helpcollection.qhc"), this);
+    //m_helpEngine->setAutoSaveFilter(false);
+    if (!m_helpEngine->setupData())
+        qWarning() << "Could not initialize help engine:" << m_helpEngine->error();
+    m_helpEngine->setCurrentFilter(tr("Unfiltered"));
+    m_helpEngineNeedsSetup = m_helpEngine->registeredDocumentations().count() == 0;
 
     // Listen for editor opened events in order to connect to tooltip/helpid requests
     connect(core->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
@@ -78,26 +98,13 @@ void QmlHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
     if (! editor)
         return;
 
-    ScriptEditor *ed = qobject_cast<ScriptEditor *>(editor->widget());
-
     ICore *core = ICore::instance();
     const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_GDBDEBUGGER);
 
     if (core->hasContext(dbgcontext))
         return;
 
-    m_toolTip.clear();
-
-    QTextCursor tc = ed->textCursor();
-    tc.setPosition(pos);
-    const unsigned line = tc.block().blockNumber() + 1;
-
-    foreach (const QmlJS::DiagnosticMessage &m, ed->diagnosticMessages()) {
-        if (m.loc.startLine == line) {
-            m_toolTip.append(m.message);
-            break;
-        }
-    }
+    updateHelpIdAndTooltip(editor, pos);
 
     if (m_toolTip.isEmpty())
         QToolTip::hideText();
@@ -114,7 +121,97 @@ void QmlHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
     }
 }
 
-void QmlHoverHandler::updateContextHelpId(TextEditor::ITextEditor *, int)
+void QmlHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)
 {
+    updateHelpIdAndTooltip(editor, pos);
 }
 
+static QString buildHelpId(QmlSymbol *symbol)
+{
+    if (!symbol)
+        return QString();
+
+    const QString idTemplate(QLatin1String("QML %1 Element Reference"));
+
+    return idTemplate.arg(symbol->name());
+}
+
+void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos)
+{
+    m_helpId.clear();
+    m_toolTip.clear();
+
+    if (!m_modelManager)
+        return;
+
+    ScriptEditor *scriptEditor = qobject_cast<ScriptEditor *>(editor->widget());
+    if (!scriptEditor)
+        return;
+
+    const Snapshot documents = m_modelManager->snapshot();
+    const QString fileName = editor->file()->fileName();
+    QmlDocument::Ptr doc = documents.value(fileName);
+    if (!doc)
+        return; // nothing to do
+
+    QTextCursor tc(scriptEditor->document());
+    tc.setPosition(pos);
+    const unsigned lineNumber = tc.block().blockNumber() + 1;
+
+    // We only want to show F1 if the tooltip matches the help id
+    bool showF1 = true;
+
+    foreach (const QmlJS::DiagnosticMessage &m, scriptEditor->diagnosticMessages()) {
+        if (m.loc.startLine == lineNumber) {
+            m_toolTip = m.message;
+            showF1 = false;
+            break;
+        }
+    }
+
+    if (m_helpId.isEmpty()) {
+        // Move to the end of a qualified name
+        bool stop = false;
+        while (!stop) {
+            const QChar ch = editor->characterAt(tc.position());
+            if (ch.isLetterOrNumber() || ch == QLatin1Char('_') || ch == QLatin1Char('.')) {
+                tc.setPosition(tc.position() + 1);
+            } else {
+                stop = true;
+            }
+        }
+
+        // Fetch the expression's code
+        QmlExpressionUnderCursor expressionUnderCursor;
+        expressionUnderCursor(tc, doc);
+
+        QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, m_modelManager->snapshot());
+        QmlResolveExpression resolver(context);
+        QmlSymbol *resolvedSymbol = resolver.typeOf(expressionUnderCursor.expressionNode());
+
+        if (resolvedSymbol) {
+            m_helpId = buildHelpId(resolvedSymbol);
+        }
+    }
+
+    if (m_helpEngineNeedsSetup && m_helpEngine->registeredDocumentations().count() > 0) {
+        m_helpEngine->setupData();
+        m_helpEngineNeedsSetup = false;
+    }
+
+    if (!m_toolTip.isEmpty())
+        m_toolTip = Qt::escape(m_toolTip);
+
+    if (!m_helpId.isEmpty() && !m_helpEngine->linksForIdentifier(m_helpId).isEmpty()) {
+        if (showF1) {
+            m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
+                                              "<td><img src=\":/cppeditor/images/f1.svg\"></td></tr></table>"))
+                    .arg(m_toolTip);
+        }
+        editor->setContextHelpId(m_helpId);
+    } else if (!m_toolTip.isEmpty()) {
+        m_toolTip = QString(QLatin1String("<nobr>%1")).arg(m_toolTip);
+    } else if (!m_helpId.isEmpty()) {
+        m_toolTip = QString(QLatin1String("<nobr>No help available for \"%1\"")).arg(m_helpId);
+    }
+}
