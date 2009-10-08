@@ -115,6 +115,8 @@ private:
     void exitDebugger();
     void detachDebugger();
 
+    void continueInferiorInternal();
+    void autoContinueInferior();
     void continueInferior();
     void interruptInferior();
 

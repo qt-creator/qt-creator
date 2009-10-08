@@ -843,10 +843,10 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
     // event loop is entered, and let individual commands have a flag to suppress
     // that behavior.
     if (m_commandsDoneCallback && m_cookieForToken.isEmpty()) {
+        debugMessage(_("ALL COMMANDS DONE; INVOKING CALLBACK"));
         CommandsDoneCallback cont = m_commandsDoneCallback;
         m_commandsDoneCallback = 0;
         (this->*cont)();
-        showStatusMessage(tr("Continuing after temporary stop."), 1000);
     } else {
         PENDING_DEBUG("MISSING TOKENS: " << m_cookieForToken.keys());
     }
@@ -1047,7 +1047,7 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
         }
         showStatusMessage(tr("Processing queued commands."), 1000);
         QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
-        m_commandsDoneCallback = &GdbEngine::continueInferior;
+        m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
         return;
     }
 
@@ -1476,14 +1476,25 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     m_gdbAdapter->startAdapter();
 }
 
-void GdbEngine::continueInferior()
+void GdbEngine::continueInferiorInternal()
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
     m_manager->resetLocation();
     setTokenBarrier();
     setState(InferiorRunningRequested);
-    showStatusMessage(tr("Running requested..."), 5000);
     postCommand(_("-exec-continue"), CB(handleExecContinue));
+}
+
+void GdbEngine::autoContinueInferior()
+{
+    continueInferiorInternal();
+    showStatusMessage(tr("Continuing after temporary stop..."), 1000);
+}
+
+void GdbEngine::continueInferior()
+{
+    continueInferiorInternal();
+    showStatusMessage(tr("Running requested..."), 5000);
 }
 
 void GdbEngine::stepExec()
