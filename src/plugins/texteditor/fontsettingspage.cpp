@@ -298,6 +298,8 @@ QColor FormatDescription::background() const
         return QColor(220, 220, 220);
     } else if (m_name == QLatin1String(Constants::C_OCCURRENCES_RENAME)) {
         return QColor(255, 200, 200);
+    } else if (m_name == QLatin1String(Constants::C_DISABLED_CODE)) {
+        return QColor(239, 239, 239);
     }
     return QColor(); // invalid color
 }

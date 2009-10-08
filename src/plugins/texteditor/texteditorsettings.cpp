@@ -93,7 +93,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescriptions.append(FormatDescription(QLatin1String(C_DOXYGEN_COMMENT), tr("Doxygen Comment"), Qt::darkBlue));
     formatDescriptions.append(FormatDescription(QLatin1String(C_DOXYGEN_TAG), tr("Doxygen Tag"), Qt::blue));
     formatDescriptions.append(FormatDescription(QLatin1String(C_VISUAL_WHITESPACE), tr("Visual Whitespace"), Qt::lightGray));
-    formatDescriptions.append(FormatDescription(QLatin1String(C_DISABLED_CODE), tr("Disabled Code"), Qt::gray));
+    formatDescriptions.append(FormatDescription(QLatin1String(C_DISABLED_CODE), tr("Disabled Code")));
 
     // Diff categories
     formatDescriptions.append(FormatDescription(QLatin1String(C_ADDED_LINE), tr("Added Line"), QColor(0, 170, 0)));
