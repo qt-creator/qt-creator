@@ -517,8 +517,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 static QRegExp re1(_("New .hread 0x[0-9a-f]+ \\(LWP ([0-9]*)\\)"));
                 // MinGW 6.8: [New thread 2437.0x435345]
                 static QRegExp re2(_("New .hread ([0-9]+)\\.0x[0-9a-f]*"));
-                // Mac: [Switching to process 9294 local thread 0x2e03]
-                static QRegExp re3(_("Switching to process ([0-9]+) local thread"));
+                // Mac: [Switching to process 9294 local thread 0x2e03] or
+                // [Switching to process 31773]
+                static QRegExp re3(_("Switching to process ([0-9]+)"));
                 QTC_ASSERT(re1.isValid() && re2.isValid(), return);
                 if (re1.indexIn(_(data)) != -1)
                     maybeHandleInferiorPidChanged(re1.cap(1));
