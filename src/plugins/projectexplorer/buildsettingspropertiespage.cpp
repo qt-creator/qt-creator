@@ -306,13 +306,18 @@ void BuildSettingsWidget::cloneConfiguration(const QString &sourceConfiguration)
         return;
 
     QString newDisplayName = newBuildConfiguration;
-    // Check that the internal name is not taken and use a different one otherwise
-    if (m_project->buildConfiguration(newBuildConfiguration)) {
-        int i = 2;
-        while (m_project->buildConfiguration(newBuildConfiguration + QString::number(i)))
-            ++i;
-        newBuildConfiguration += QString::number(i);
-    }
+    QStringList buildConfigurationDisplayNames;
+    foreach(BuildConfiguration *bc, m_project->buildConfigurations())
+        buildConfigurationDisplayNames << bc->displayName();
+    newDisplayName = Project::makeUnique(newDisplayName, buildConfigurationDisplayNames);
+
+    QStringList buildConfigurationNames;
+    foreach(BuildConfiguration *bc, m_project->buildConfigurations())
+        buildConfigurationNames << bc->name();
+
+    newBuildConfiguration = Project::makeUnique(newBuildConfiguration, buildConfigurationNames);
+
+    qDebug()<<"BuildSettingsWidget::cloneConfiguration source:"<<sourceConfiguration<<"to: "<<newBuildConfiguration;
 
     m_project->copyBuildConfiguration(sourceConfiguration, newBuildConfiguration);
     m_project->setDisplayNameFor(m_project->buildConfiguration(newBuildConfiguration), newDisplayName);

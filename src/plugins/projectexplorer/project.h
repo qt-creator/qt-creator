@@ -141,6 +141,7 @@ public:
     virtual QStringList includePaths(const QString &fileName) const;
     virtual QStringList frameworkPaths(const QString &fileName) const;
 
+    static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
 signals:
     void fileListChanged();
 
@@ -183,7 +184,6 @@ protected:
     virtual bool restoreSettingsImpl(PersistentSettingsReader &reader);
 
 private:
-    static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
     QMap<QString, QVariant> m_values;
