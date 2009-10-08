@@ -4,7 +4,7 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../../../src/app/main.cpp" line="+133"/>
+        <location filename="../../../src/app/main.cpp" line="+147"/>
         <source>Failed to load core: %1</source>
         <translation>coreプラグインの読込に失敗しました: %1</translation>
     </message>
@@ -14,9 +14,18 @@
         <translation>実行中のインスタンスにコマンドライン引数を送信する事ができませんでした。応答がないようです。</translation>
     </message>
     <message>
-        <location line="+134"/>
+        <location line="+135"/>
+        <source>Could not find &apos;Core.pluginspec&apos; in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>Qt Creator - Plugin loader messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Couldn&apos;t find &apos;Core.pluginspec&apos; in %1</source>
-        <translation>%1 に &apos;Core.pluginspec&apos; が見つかりませんでした</translation>
+        <translation type="obsolete">%1 に &apos;Core.pluginspec&apos; が見つかりませんでした</translation>
     </message>
 </context>
 <context>
@@ -63,35 +72,30 @@
 <context>
     <name>AttachTcfDialog</name>
     <message>
-        <location filename="../../../src/plugins/debugger/attachtcfdialog.ui"/>
         <source>Start Debugger</source>
-        <translation>デバッガの起動時の設定</translation>
+        <translation type="obsolete">デバッガの起動時の設定</translation>
     </message>
     <message>
-        <location/>
         <source>Host and port:</source>
-        <translation>ホストおよびポート番号:</translation>
+        <translation type="obsolete">ホストおよびポート番号:</translation>
     </message>
     <message>
-        <location/>
         <source>Architecture:</source>
-        <translation>アーキテクチャ:</translation>
+        <translation type="obsolete">アーキテクチャ:</translation>
     </message>
     <message>
-        <location/>
         <source>Use server start script:</source>
-        <translation>サーバのスタートアップスクリプトを使用:</translation>
+        <translation type="obsolete">サーバのスタートアップスクリプトを使用:</translation>
     </message>
     <message>
-        <location/>
         <source>Server start script:</source>
-        <translation>サーバのスタートアップスクリプト:</translation>
+        <translation type="obsolete">サーバのスタートアップスクリプト:</translation>
     </message>
 </context>
 <context>
     <name>BINEditor::Internal::BinEditorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/bineditor/bineditorplugin.cpp" line="+379"/>
+        <location filename="../../../src/plugins/bineditor/bineditorplugin.cpp" line="+446"/>
         <source>&amp;Undo</source>
         <translation>元に戻す(&amp;U)</translation>
     </message>
@@ -129,16 +133,16 @@
         <translation>新しいフォルダ</translation>
     </message>
     <message>
-        <location filename="../../../src/shared/help/bookmarkmanager.cpp" line="+172"/>
+        <location filename="../../../src/shared/help/bookmarkmanager.cpp" line="+171"/>
         <location line="+18"/>
-        <location line="+36"/>
-        <location line="+24"/>
-        <location line="+32"/>
+        <location line="+39"/>
+        <location line="+18"/>
+        <location line="+30"/>
         <source>Bookmarks</source>
         <translation>ブックマーク</translation>
     </message>
     <message>
-        <location line="-69"/>
+        <location line="-61"/>
         <source>Delete Folder</source>
         <translation>フォルダを削除</translation>
     </message>
@@ -151,29 +155,27 @@
 <context>
     <name>BookmarkManager</name>
     <message>
-        <location line="+402"/>
-        <location line="+1"/>
         <source>Bookmark</source>
-        <translation>ブックマーク</translation>
+        <translation type="obsolete">ブックマーク</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+429"/>
         <source>Bookmarks</source>
         <translation>ブックマーク</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+38"/>
         <source>Remove</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location line="+110"/>
+        <location line="+112"/>
         <location line="+9"/>
         <source>New Folder</source>
         <translation>新しいフォルダ</translation>
     </message>
     <message>
-        <location line="-118"/>
+        <location line="-120"/>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
         <translation>フォルダを削除すると中身も削除されますが、続けてよろしいですか?</translation>
     </message>
@@ -181,7 +183,7 @@
 <context>
     <name>BookmarkWidget</name>
     <message>
-        <location line="-317"/>
+        <location line="-306"/>
         <source>Delete Folder</source>
         <translation>フォルダを削除</translation>
     </message>
@@ -229,12 +231,13 @@
 <context>
     <name>Bookmarks::Internal::BookmarkView</name>
     <message>
-        <location filename="../../../src/plugins/bookmarks/bookmarkmanager.cpp" line="+206"/>
+        <location filename="../../../src/plugins/bookmarks/bookmarkmanager.cpp" line="+207"/>
+        <location line="+565"/>
         <source>Bookmarks</source>
         <translation>ブックマーク</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="-542"/>
         <source>&amp;Remove Bookmark</source>
         <translation>ブックマークの削除(&amp;R)</translation>
     </message>
@@ -347,15 +350,38 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakebuildenvironmentwidget.cpp" line="+61"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakebuildenvironmentwidget.cpp" line="+49"/>
+        <source>Clear system environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>Build Environment</source>
         <translation>ビルド時の環境変数</translation>
     </message>
 </context>
 <context>
+    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
+    <message>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeproject.cpp" line="+89"/>
+        <source>Create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>New configuration</source>
+        <translation type="unfinished">新しい構成</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>New Configuration Name:</source>
+        <translation type="unfinished">新しい構成名:</translation>
+    </message>
+</context>
+<context>
     <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeproject.cpp" line="+686"/>
+        <location line="+699"/>
         <source>&amp;Change</source>
         <translation>変更(&amp;C)</translation>
     </message>
@@ -363,7 +389,7 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+116"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+125"/>
         <source>CMake Wizard</source>
         <translation>CMake ウィザード</translation>
     </message>
@@ -371,30 +397,112 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakerunconfiguration.cpp" line="+187"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakerunconfiguration.cpp" line="+247"/>
         <source>Arguments:</source>
         <translation>引数:</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Select the working directory</source>
+        <translation type="unfinished">作業ディレクトリの選択</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Reset to default</source>
+        <translation type="unfinished">デフォルトに戻す</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Working Directory:</source>
+        <translation type="unfinished">作業ディレクトリ:</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Run Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Base environment for this runconfiguration:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Clean Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>System Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Build Environment</source>
+        <translation type="unfinished">ビルド時の環境変数</translation>
+    </message>
+    <message>
+        <location line="+91"/>
+        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
+    <message>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+91"/>
+        <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Qt Creator has detected an in-source-build which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
+        <translation type="obsolete">ソースツリー内でビルドを実行しようとしています。ソースツリー内でビルドを行なうとシャドウビルドが不可能になり、ビルドディレクトリの変更が行なえません。シャドウビルドを行なう場合にはソースディレクトリのクリーンを行い、プロジェクトを再度開いてください。</translation>
     </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::CMakeRunPage</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+155"/>
+        <location line="+57"/>
+        <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source> The cmake executable (%1) does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source> The path %1 is not a executable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source> The path %1 is not a valid cmake.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
         <source>Run CMake</source>
         <translation>CMake を実行</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Arguments</source>
         <translation>引数</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+19"/>
+        <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments or change the used toolchain here and rerun cmake. Or simply finish the wizard directly</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running cmake. Some projects require command line arguments to the initial cmake call.</source>
         <translation>ディレクトリ %1 に cbp ファイルが存在しません。cmake を実行してこのファイルを作成してください。プロジェクトによっては最初の cmake の実行にコマンドライン引数が必要になります。</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>The directory %1 contains an outdated .cbp file. Qt Creator needs to update this file by running cmake. If you want to add additional command line arguments, add them below. Note that cmake remembers command line arguments from the previous runs.</source>
         <translation>ディレクトリ %1 の cbp ファイルのバージョンが古すぎます。cmake を実行してファイルを更新してください。cmake 実行時にコマンドライン引数を追加したい場合には下の欄に記述してください。注意: cmake は以前に実行した際のコマンドライン引数を記憶しています。</translation>
     </message>
@@ -408,11 +516,31 @@
         <source>Qt Creator needs to run cmake in the new build directory. Some projects require command line arguments to the initial cmake call.</source>
         <translation>新しいビルドディレクトリで cmake を実行してください。プロジェクトによっては最初の cmake の実行にコマンドライン引数が必要になります。</translation>
     </message>
+    <message>
+        <location line="+31"/>
+        <source>NMake Generator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>NMake Generator (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>MinGW Generator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+55"/>
+        <source>No valid cmake executable specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeprojectmanager.cpp" line="+265"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeprojectmanager.cpp" line="+248"/>
         <location line="+10"/>
         <source>CMake</source>
         <translation>CMake</translation>
@@ -424,30 +552,27 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
-    <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="-108"/>
-        <source>Qt Creator has detected an in-source-build which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
-        <translation>ソースツリー内でビルドを実行しようとしています。ソースツリー内でビルドを行なうとシャドウビルドが不可能になり、ビルドディレクトリの変更が行なえません。シャドウビルドを行なう場合にはソースディレクトリのクリーンを行い、プロジェクトを再度開いてください。</translation>
-    </message>
-</context>
-<context>
     <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/makestep.cpp" line="+158"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/makestep.cpp" line="+163"/>
         <source>Additional arguments:</source>
         <translation>追加の引数:</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Targets:</source>
         <translation>ターゲット:</translation>
+    </message>
+    <message>
+        <location line="+59"/>
+        <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+28"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="-212"/>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>プロジェクトをビルドするディレクトリを指定してください。</translation>
     </message>
@@ -465,9 +590,8 @@
 <context>
     <name>CMakeProjectManager::Internal::XmlFileUpToDatePage</name>
     <message>
-        <location line="-25"/>
         <source>Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. You can change the command line arguments used to create this file in the project mode. Click finish to load the project.</source>
-        <translation>最新の cbp ファイルが見つかりました。ファイルを解析してプロジェクトに関する情報を取得します。このプロジェクトの cbp ファイル作成時とはコマンドライン引数を変更することも可能です。「完了」をクリックしてプロジェクトを読み込んでください。</translation>
+        <translation type="obsolete">最新の cbp ファイルが見つかりました。ファイルを解析してプロジェクトに関する情報を取得します。このプロジェクトの cbp ファイル作成時とはコマンドライン引数を変更することも可能です。「完了」をクリックしてプロジェクトを読み込んでください。</translation>
     </message>
 </context>
 <context>
@@ -491,15 +615,14 @@
         <translation>これらのオプションは次回の Qt Creator の起動時から有効になります。</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../src/plugins/debugger/cdb/cdboptionspage.cpp" line="+58"/>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%n bit-version) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Label text for path configuration. Singular form is not very likely to occur ;-)</extracomment>
-        <translation>
+        <translation type="obsolete">
             <numerusform>&lt;html&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;%1&quot;&gt;Windows 用デバッグツール&lt;/a&gt; (%n bit版)のパスを指定してください。&lt;/p&gt;&lt;p&gt;&lt;b&gt;注意:&lt;/b&gt;この設定を反映させるためには Qt Creator の再起動が必要です。&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/debugger/cdb/cdboptionspagewidget.ui"/>
+        <location/>
         <source>Cdb</source>
         <extracomment>Placeholder</extracomment>
         <translation>Cdb</translation>
@@ -508,12 +631,6 @@
         <location/>
         <source>Path:</source>
         <translation>パス:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>ote: bla, blah</source>
-        <extracomment>Placeholder</extracomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -529,6 +646,32 @@
         <location/>
         <source>Source paths:</source>
         <translation>ソースのパス:</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/debugger/cdb/cdboptionspage.cpp" line="+58"/>
+        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>64-bit version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>32-bit version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/debugger/cdb/cdboptionspagewidget.ui"/>
+        <source>Other options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Verbose Symbol Loading</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -552,7 +695,7 @@
 <context>
     <name>CodePaster::CodepasterPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/cpasterplugin.cpp" line="+96"/>
+        <location filename="../../../src/plugins/cpaster/cpasterplugin.cpp" line="+109"/>
         <source>&amp;CodePaster</source>
         <translation>コード ペースター(&amp;C)</translation>
     </message>
@@ -577,7 +720,12 @@
         <translation>Alt+C,Alt+F</translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location line="+88"/>
+        <source>This protocol supports no listing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
         <source>Waiting for items</source>
         <translation>リスト取得中</translation>
     </message>
@@ -585,27 +733,23 @@
 <context>
     <name>CodePaster::CustomFetcher</name>
     <message>
-        <location line="+37"/>
         <source>CodePaster Error</source>
-        <translation>コード ペースター エラー</translation>
+        <translation type="obsolete">コード ペースター エラー</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Could not fetch code</source>
-        <translation>コードを取得できませんでした</translation>
+        <translation type="obsolete">コードを取得できませんでした</translation>
     </message>
 </context>
 <context>
     <name>CodePaster::CustomPoster</name>
     <message>
-        <location line="+49"/>
         <source>CodePaster Error</source>
-        <translation>コード ペースター エラー</translation>
+        <translation type="obsolete">コード ペースター エラー</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Some error occured while posting</source>
-        <translation>ポスト中にエラーが発生しました</translation>
+        <translation type="obsolete">ポスト中にエラーが発生しました</translation>
     </message>
 </context>
 <context>
@@ -615,16 +759,20 @@
         <source>Paste:</source>
         <translation>貼り付け:</translation>
     </message>
+    <message>
+        <location/>
+        <source>Protocol:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CodePaster::SettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/settingspage.ui"/>
         <source>CodePaster Server:</source>
-        <translation>コード ペースター サーバ:</translation>
+        <translation type="obsolete">コード ペースター サーバ:</translation>
     </message>
     <message>
-        <location/>
+        <location filename="../../../src/plugins/cpaster/settingspage.ui"/>
         <source>Username:</source>
         <translation>ユーザー名:</translation>
     </message>
@@ -645,9 +793,25 @@
         <translation>概要</translation>
     </message>
     <message>
+        <location/>
         <location filename="../../../src/plugins/cpaster/settingspage.cpp" line="+10"/>
         <source>CodePaster</source>
         <translation>コード ペースター</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Default Protocol:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pastebin.ca</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pastebin.com</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -682,9 +846,8 @@
         <translation>ステップ実行時は既知のフレームをスキップする</translation>
     </message>
     <message>
-        <location/>
         <source>Use tooltips while debugging</source>
-        <translation>デバッグ中にツールチップを使用する</translation>
+        <translation type="obsolete">デバッグ中にツールチップを使用する</translation>
     </message>
     <message>
         <location/>
@@ -702,14 +865,23 @@
         <translation>デバッガウィンドウで行ごとに色を変える</translation>
     </message>
     <message>
-        <location/>
         <source>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translation>デバッグ中に変数の値をツールチップで表示します。&lt;br&gt;しかしデバッグ実行の速度が低下する上に、スコープを無視した不確かな情報しか表示しない為&lt;br&gt;デフォルトではチェックOFFとなっています。</translation>
+        <translation type="obsolete">デバッグ中に変数の値をツールチップで表示します。&lt;br&gt;しかしデバッグ実行の速度が低下する上に、スコープを無視した不確かな情報しか表示しない為&lt;br&gt;デフォルトではチェックOFFとなっています。</translation>
     </message>
     <message>
         <location/>
         <source>Enable reverse debugging</source>
         <translation>デバッグ時の逆実行を可能にする</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show a message box when receiving a signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use tooltips in main editor while debugging</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -766,12 +938,12 @@
 <context>
     <name>Core::BaseFileWizard</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/basefilewizard.cpp" line="+136"/>
+        <location filename="../../../src/plugins/coreplugin/basefilewizard.cpp" line="+158"/>
         <source>Unable to create the directory %1.</source>
         <translation>ディレクトリ %1 を作成できません。</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+12"/>
         <source>Unable to open %1 for writing: %2</source>
         <translation>%1 を書込可能な状態で開けません: %2</translation>
     </message>
@@ -834,13 +1006,14 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::EditorManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/editormanager.cpp" line="+192"/>
-        <location line="+1560"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/editormanager.cpp" line="+187"/>
+        <location line="+1495"/>
         <source>Revert to Saved</source>
         <translation>保存時の状態に戻す</translation>
     </message>
     <message>
-        <location line="-1557"/>
+        <location line="-1492"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="+531"/>
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
@@ -851,22 +1024,20 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+1277"/>
+        <location line="+1294"/>
         <source>Close Others</source>
         <translation>他を閉じる</translation>
     </message>
     <message>
-        <location line="-1276"/>
         <source>Next Document in History</source>
-        <translation>履歴内の次のドキュメントに移動</translation>
+        <translation type="obsolete">履歴内の次のドキュメントに移動</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Previous Document in History</source>
-        <translation>履歴内の前のドキュメントに移動</translation>
+        <translation type="obsolete">履歴内の前のドキュメントに移動</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-1289"/>
         <source>Open in External Editor</source>
         <translation>外部エディタで開く</translation>
     </message>
@@ -876,7 +1047,7 @@ Would you like to overwrite them?</source>
         <translation>ファイルを保存時の状態に戻す</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+28"/>
         <source>Ctrl+W</source>
         <translation>Ctrl+W</translation>
     </message>
@@ -976,28 +1147,33 @@ Would you like to overwrite them?</source>
         <translation>Ctrl+E,o</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+8"/>
         <source>&amp;Advanced</source>
         <translation>拡張(&amp;A)</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+18"/>
         <source>Alt+V,Alt+I</source>
         <translation>Alt+V,Alt+I</translation>
     </message>
     <message>
-        <location line="+727"/>
-        <location line="+23"/>
+        <location line="+720"/>
+        <source>All Files (*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+34"/>
+        <location line="+24"/>
         <source>Opening File</source>
         <translation>ファイルを開く</translation>
     </message>
     <message>
-        <location line="-23"/>
+        <location line="-24"/>
         <source>Cannot open file %1!</source>
         <translation>ファイル %1 を開けません!</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+40"/>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
     </message>
@@ -1033,18 +1209,28 @@ Would you like to overwrite them?</source>
         <translation>書込可能なパーミッションに設定できませんでした。</translation>
     </message>
     <message>
-        <location line="+90"/>
+        <location line="+92"/>
         <source>&lt;b&gt;Warning:&lt;/b&gt; You are changing a read-only file.</source>
         <translation>&lt;b&gt;警告:&lt;/b&gt; 読み取り専用ファイルを変更しています。</translation>
     </message>
     <message>
-        <location line="-129"/>
-        <location line="+130"/>
+        <location line="-131"/>
+        <location line="+132"/>
         <source>Make writable</source>
         <translation>書込可能にする</translation>
     </message>
     <message>
-        <location line="-1251"/>
+        <location line="-1270"/>
+        <source>Next Open Document in History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Previous Open Document in History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Go Back</source>
         <translation>戻る</translation>
     </message>
@@ -1054,12 +1240,12 @@ Would you like to overwrite them?</source>
         <translation>進む</translation>
     </message>
     <message>
-        <location line="+1151"/>
+        <location line="+1166"/>
         <source>Could not open the file for editing with SCC.</source>
         <translation>ファイルを SCC で編集用に開けませんでした。</translation>
     </message>
     <message>
-        <location line="+113"/>
+        <location line="+115"/>
         <source>Save %1 As...</source>
         <translation>%1 に名前をつけて保存...</translation>
     </message>
@@ -1084,7 +1270,7 @@ Would you like to overwrite them?</source>
         <translation>%1 以外のすべてを閉じる</translation>
     </message>
     <message>
-        <location line="+279"/>
+        <location line="+197"/>
         <source>You will lose your current changes if you proceed reverting %1.</source>
         <translation>元に戻すと %1 への変更内容が失われます。</translation>
     </message>
@@ -1099,7 +1285,7 @@ Would you like to overwrite them?</source>
         <translation>キャンセル</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+44"/>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;変数&lt;/th&gt;&lt;th&gt;説明&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;ファイル名&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;カーソルのある行番号&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;カーソルのある列位置&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;スクリーン上のエディタのX座標&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;スクリーン上のエディタのY座標&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;エディタの幅(pixel)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;エディタの高さ(pixel)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;エディタの幅(文字数)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;エディタの高さ(文字数)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
@@ -1107,14 +1293,22 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::FileManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/filemanager.cpp" line="+305"/>
         <source>Can&apos;t save file</source>
-        <translation>ファイルの保存に失敗</translation>
+        <translation type="obsolete">ファイルの保存に失敗</translation>
+    </message>
+    <message>
+        <source>Can&apos;t save changes to &apos;%1&apos;. Do you want to continue and loose your changes?</source>
+        <translation type="obsolete">&apos;%1&apos; の変更を保存できません。変更が失われますが、続行しますか?</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/coreplugin/filemanager.cpp" line="+306"/>
+        <source>Cannot save file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Can&apos;t save changes to &apos;%1&apos;. Do you want to continue and loose your changes?</source>
-        <translation>&apos;%1&apos; の変更を保存できません。変更が失われますが、続行しますか?</translation>
+        <source>Cannot save changes to &apos;%1&apos;. Do you want to continue and lose your changes?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+113"/>
@@ -1135,7 +1329,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::ComboBox</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="+362"/>
+        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="+371"/>
         <source>Activate %1</source>
         <translation>%1 をアクティブにします</translation>
     </message>
@@ -1143,7 +1337,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::EditMode</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/editmode.cpp" line="+94"/>
+        <location filename="../../../src/plugins/coreplugin/editmode.cpp" line="+95"/>
         <source>Edit</source>
         <translation>編集</translation>
     </message>
@@ -1223,19 +1417,29 @@ Would you like to overwrite them?</source>
 </context>
 <context>
     <name>Core::Internal::EditorView</name>
+    <message id="===============EditorView====================">
+        <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="-442"/>
+        <source>Go Back</source>
+        <translation type="unfinished">戻る</translation>
+    </message>
     <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="+404"/>
-        <location line="+35"/>
+        <location line="+2"/>
+        <source>Go Forward</source>
+        <translation type="unfinished">進む</translation>
+    </message>
+    <message>
+        <location line="+73"/>
+        <location line="+37"/>
         <source>Placeholder</source>
         <translation>プレースホルダ</translation>
     </message>
     <message>
-        <location line="-29"/>
+        <location line="-31"/>
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
     <message>
-        <location line="+198"/>
+        <location line="+213"/>
         <source>Make writable</source>
         <translation>書込可能にする</translation>
     </message>
@@ -1243,6 +1447,11 @@ Would you like to overwrite them?</source>
         <location line="+4"/>
         <source>File is writable</source>
         <translation>ファイルは書込可能です</translation>
+    </message>
+    <message>
+        <location line="+57"/>
+        <source>Copy full path to clipboard</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1258,7 +1467,7 @@ Would you like to overwrite them?</source>
         <translation>環境</translation>
     </message>
     <message>
-        <location line="+75"/>
+        <location line="+77"/>
         <source>Variables</source>
         <translation>変数</translation>
     </message>
@@ -1297,21 +1506,41 @@ Would you like to overwrite them?</source>
         <source>?</source>
         <translation>?</translation>
     </message>
+    <message>
+        <location/>
+        <source>When files are externally modified:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Always ask</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Reload all modified files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Ignore modifications</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Core::Internal::MainWindow</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/mainwindow.cpp" line="+155"/>
+        <location filename="../../../src/plugins/coreplugin/mainwindow.cpp" line="+156"/>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+143"/>
         <source>Output</source>
         <translation>アウトプット</translation>
     </message>
     <message>
-        <location line="+162"/>
+        <location line="+161"/>
         <source>&amp;File</source>
         <translation>ファイル(&amp;F)</translation>
     </message>
@@ -1331,24 +1560,36 @@ Would you like to overwrite them?</source>
         <translation>ウィンドウ(&amp;W)</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+10"/>
         <source>&amp;Help</source>
         <translation>ヘルプ(&amp;H)</translation>
     </message>
     <message>
-        <location line="+62"/>
         <source>&amp;New...</source>
-        <translation>新規作成(&amp;N)...</translation>
+        <translation type="obsolete">新規作成(&amp;N)...</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>&amp;Open...</source>
-        <translation>開く(&amp;O)...</translation>
+        <translation type="obsolete">開く(&amp;O)...</translation>
+    </message>
+    <message>
+        <source>&amp;Open With...</source>
+        <translation type="obsolete">指定したエディタで開く(&amp;O)...</translation>
+    </message>
+    <message>
+        <location line="+62"/>
+        <source>&amp;New File or Project...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>&amp;Open With...</source>
-        <translation>指定したエディタで開く(&amp;O)...</translation>
+        <source>&amp;Open File or Project...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>&amp;Open File With...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+8"/>
@@ -1441,7 +1682,7 @@ Would you like to overwrite them?</source>
         <translation>オプション(&amp;O)...</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+11"/>
         <source>Minimize</source>
         <translation>最小化</translation>
     </message>
@@ -1471,12 +1712,12 @@ Would you like to overwrite them?</source>
         <translation>Qt Creator について(&amp;Q)...</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+11"/>
         <source>About &amp;Plugins...</source>
         <translation>プラグインについて(&amp;P)...</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+25"/>
         <source>New...</source>
         <comment>Title of dialog</comment>
         <translation>新規...</translation>
@@ -1493,7 +1734,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::NavComboBox</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/navigationwidget.cpp" line="+525"/>
+        <location filename="../../../src/plugins/coreplugin/navigationwidget.cpp" line="+527"/>
         <source>Activate %1</source>
         <translation>%1 をアクティブにします</translation>
     </message>
@@ -1501,12 +1742,12 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::NavigationSubWidget</name>
     <message>
-        <location line="-149"/>
+        <location line="-146"/>
         <source>Split</source>
         <translation>上下に分割</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
@@ -1514,7 +1755,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::NavigationWidget</name>
     <message>
-        <location line="-35"/>
+        <location line="-40"/>
         <source>Activate %1 Pane</source>
         <translation>%1 ペインをアクティブにします</translation>
     </message>
@@ -1535,15 +1776,42 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::OpenEditorsWidget</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/openeditorsview.cpp" line="+94"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/openeditorsview.cpp" line="+100"/>
+        <location line="+147"/>
         <source>Open Documents</source>
         <translation>ドキュメントを開く</translation>
+    </message>
+    <message>
+        <location line="-39"/>
+        <source>Close %1</source>
+        <translation type="unfinished">%1 を閉じる</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Close Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Close All Except %1</source>
+        <translation type="unfinished">%1 以外のすべてを閉じる</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Close Other Editors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Close All Editors</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Core::Internal::OpenEditorsWindow</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/openeditorswindow.cpp" line="+211"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/openeditorswindow.cpp" line="+210"/>
+        <location line="+27"/>
         <source>*</source>
         <translation>*</translation>
     </message>
@@ -1559,7 +1827,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::OutputPaneManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/outputpane.cpp" line="+171"/>
+        <location filename="../../../src/plugins/coreplugin/outputpane.cpp" line="+173"/>
         <source>Output</source>
         <translation>アウトプット</translation>
     </message>
@@ -1569,17 +1837,17 @@ Would you like to overwrite them?</source>
         <translation>クリア</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+5"/>
         <source>Next Item</source>
         <translation>次の項目</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+5"/>
         <source>Previous Item</source>
         <translation>前の項目</translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+62"/>
         <source>Output &amp;Panes</source>
         <translation>出力ペイン(&amp;P)</translation>
     </message>
@@ -1628,9 +1896,13 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::SaveItemsDialog</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/dialogs/saveitemsdialog.cpp" line="+55"/>
         <source>Don&apos;t Save</source>
-        <translation>保存しない</translation>
+        <translation type="obsolete">保存しない</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/coreplugin/dialogs/saveitemsdialog.cpp" line="+55"/>
+        <source>Do not Save</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+44"/>
@@ -1680,12 +1952,12 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::SideBarWidget</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="-131"/>
+        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="-130"/>
         <source>Split</source>
         <translation>上下に分割</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+5"/>
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
@@ -1712,285 +1984,234 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::WelcomeMode</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/welcomemode.cpp" line="+128"/>
         <source>Tutorials</source>
-        <translation>チュートリアル</translation>
+        <translation type="obsolete">チュートリアル</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Explore Qt Examples</source>
-        <translation>Qt のサンプルプログラムを参照</translation>
+        <translation type="obsolete">Qt のサンプルプログラムを参照</translation>
     </message>
     <message>
-        <location line="-3"/>
         <source>Open Recent Project</source>
-        <translation>最近使ったプロジェクトを開く</translation>
+        <translation type="obsolete">最近使ったプロジェクトを開く</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Resume Session</source>
-        <translation>セッションを復元</translation>
+        <translation type="obsolete">セッションを復元</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Did You Know?</source>
-        <translation>ご存じですか?</translation>
+        <translation type="obsolete">ご存じですか?</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>News From the Qt Labs</source>
-        <translation>Qt Labsからのニュース</translation>
+        <translation type="obsolete">Qt Labsからのニュース</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Qt Websites</source>
-        <translation>Qt の Web サイト</translation>
+        <translation type="obsolete">Qt の Web サイト</translation>
     </message>
     <message>
-        <location line="+38"/>
         <source>http://labs.trolltech.com/blogs/feed</source>
         <extracomment>Add localized feed here only if one exists</extracomment>
-        <translation>http://labs.trolltech.com/blogs/feed</translation>
+        <translation type="obsolete">http://labs.trolltech.com/blogs/feed</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Qt Home</source>
-        <translation>Qt Home</translation>
+        <translation type="obsolete">Qt Home</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Qt Labs</source>
-        <translation>Qt Labs</translation>
+        <translation type="obsolete">Qt Labs</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Qt Git Hosting</source>
-        <translation>Qt Git ホスティング</translation>
+        <translation type="obsolete">Qt Git ホスティング</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Qt Centre</source>
-        <translation>Qt Centre</translation>
+        <translation type="obsolete">Qt Centre</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Qt for S60 at Forum Nokia</source>
-        <translation>Forum Nokia の Qt for S60</translation>
+        <translation type="obsolete">Forum Nokia の Qt for S60</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>&lt;b&gt;Qt Creator - A quick tour&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Qt Creator - 簡易ガイド&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Qt Creator - 簡易ガイド&lt;/b&gt;</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Creating an address book</source>
-        <translation>アドレス帳アプリの作成</translation>
+        <translation type="obsolete">アドレス帳アプリの作成</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Understanding widgets</source>
-        <translation>ウィジェットを理解する</translation>
+        <translation type="obsolete">ウィジェットを理解する</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Building with qmake</source>
-        <translation>qmake でビルドする</translation>
+        <translation type="obsolete">qmake でビルドする</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Writing test cases</source>
-        <translation>テストケースを作成する</translation>
+        <translation type="obsolete">テストケースを作成する</translation>
     </message>
     <message>
-        <location line="+31"/>
         <source>Welcome</source>
-        <translation>ようこそ</translation>
+        <translation type="obsolete">ようこそ</translation>
     </message>
     <message>
-        <location line="+45"/>
         <source>%1 (last session)</source>
-        <translation>%1 (最後のセッション)</translation>
+        <translation type="obsolete">%1 (最後のセッション)</translation>
     </message>
     <message>
-        <location line="+60"/>
         <source>Choose an example...</source>
-        <translation>サンプルプログラムを選ぶ...</translation>
+        <translation type="obsolete">サンプルプログラムを選ぶ...</translation>
     </message>
     <message>
-        <location line="+73"/>
         <source>New Project...</source>
-        <translation>新しいプロジェクト...</translation>
+        <translation type="obsolete">新しいプロジェクト...</translation>
     </message>
     <message>
-        <location line="+24"/>
         <source>Cmd</source>
         <comment>Shortcut key</comment>
-        <translation>Cmd</translation>
+        <translation type="obsolete">Cmd</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Alt</source>
         <comment>Shortcut key</comment>
-        <translation>Alt</translation>
+        <translation type="obsolete">Alt</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Welcome&lt;/li&gt;&lt;li&gt;2 - Edit&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projects&lt;/li&gt;&lt;li&gt;5 - Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Output&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>Qt Creator のモードは&lt;tt&gt;Ctrl+数字&lt;/tt&gt;キーで変更できます:&lt;ul&gt;&lt;li&gt;1 - ようこそ&lt;/li&gt;&lt;li&gt;2 - 編集&lt;/li&gt;&lt;li&gt;3 - デバッグ&lt;/li&gt;&lt;li&gt;4 - プロジェクト&lt;/li&gt;&lt;li&gt;5 - ヘルプ&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - アウトプット&lt;/li&gt;&lt;/ul&gt;</translation>
+        <translation type="obsolete">Qt Creator のモードは&lt;tt&gt;Ctrl+数字&lt;/tt&gt;キーで変更できます:&lt;ul&gt;&lt;li&gt;1 - ようこそ&lt;/li&gt;&lt;li&gt;2 - 編集&lt;/li&gt;&lt;li&gt;3 - デバッグ&lt;/li&gt;&lt;li&gt;4 - プロジェクト&lt;/li&gt;&lt;li&gt;5 - ヘルプ&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - アウトプット&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>You can show and hide the side bar using &lt;tt&gt;%1+0&lt;tt&gt;.</source>
         <extracomment>%1 gets replaced by Alt (Win/Unix) or Cmd (Mac)</extracomment>
-        <translation>&lt;tt&gt;%1+0&lt;/tt&gt;キーでサイドバーの表示/非表示を切り替えられます。</translation>
+        <translation type="obsolete">&lt;tt&gt;%1+0&lt;/tt&gt;キーでサイドバーの表示/非表示を切り替えられます。</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>You can start Qt Creator with a session by calling &lt;tt&gt;qtcreator &amp;lt;sessionname&amp;gt;&lt;/tt&gt;.</source>
-        <translation>Qt Creator の起動時にセッション名を渡す(&lt;tt&gt;qtcreator &amp;lt;セッション名&amp;gt;)とそのセッションを開始できます。</translation>
+        <translation type="obsolete">Qt Creator の起動時にセッション名を渡す(&lt;tt&gt;qtcreator &amp;lt;セッション名&amp;gt;)とそのセッションを開始できます。</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>You can return to edit mode from any other mode at any time by hitting &lt;tt&gt;Escape&lt;/tt&gt;.</source>
-        <translation>&lt;tt&gt;エスケープ&lt;/tt&gt;キーでいつでもほかのモードから編集モードに戻れます。</translation>
+        <translation type="obsolete">&lt;tt&gt;エスケープ&lt;/tt&gt;キーでいつでもほかのモードから編集モードに戻れます。</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>You can switch between the output pane by hitting &lt;tt&gt;%1+n&lt;/tt&gt; where n is the number denoted on the buttons at the window bottom:&lt;ul&gt;&lt;li&gt;1 - Build Issues&lt;/li&gt;&lt;li&gt;2 - Search Results&lt;/li&gt;&lt;li&gt;3 - Application Output&lt;/li&gt;&lt;li&gt;4 - Compile Output&lt;/li&gt;&lt;/ul&gt;</source>
         <extracomment>%1 gets replaced by Alt (Win/Unix) or Cmd (Mac)</extracomment>
-        <translation>アウトプット欄は&lt;tt&gt;%1+数字&lt;/tt&gt;キーで変更できます。使用する数字はウィンドウの下部のボタンに記述されています:&lt;ul&gt;&lt;li&gt;1 - ビルドの問題点&lt;/li&gt;&lt;li&gt;2 - 検索結果&lt;/li&gt;&lt;li&gt;3 - アプリケーション出力&lt;/li&gt;&lt;li&gt;4 - コンパイル出力&lt;/li&gt;&lt;/ul&gt;</translation>
+        <translation type="obsolete">アウトプット欄は&lt;tt&gt;%1+数字&lt;/tt&gt;キーで変更できます。使用する数字はウィンドウの下部のボタンに記述されています:&lt;ul&gt;&lt;li&gt;1 - ビルドの問題点&lt;/li&gt;&lt;li&gt;2 - 検索結果&lt;/li&gt;&lt;li&gt;3 - アプリケーション出力&lt;/li&gt;&lt;li&gt;4 - コンパイル出力&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;).</source>
-        <translation>メソッドやクラス、ヘルプなどを素早く検索するには&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;クイックアクセス&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;)を使用します。</translation>
+        <translation type="obsolete">メソッドやクラス、ヘルプなどを素早く検索するには&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;クイックアクセス&lt;/a&gt; (&lt;tt&gt;Ctrl+K&lt;/tt&gt;)を使用します。</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;ビルド設定&lt;/a&gt;を変更して独自のビルドステップを追加できます。</translation>
+        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;ビルド設定&lt;/a&gt;を変更して独自のビルドステップを追加できます。</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <translation>セッションではプロジェクト間の&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;依存関係&lt;/a&gt;を定義できます。</translation>
+        <translation type="obsolete">セッションではプロジェクト間の&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;依存関係&lt;/a&gt;を定義できます。</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>You can set the preferred editor encoding for every project in &lt;tt&gt;Projects -&gt; Editor Settings -&gt; Default Encoding&lt;/tt&gt;.</source>
-        <translation>各プロジェクトの編集時の文字コードは&lt;tt&gt;プロジェクト -&gt; エディタの設定 -&gt; デフォルトの文字コード&lt;/tt&gt;で指定できます。</translation>
+        <translation type="obsolete">各プロジェクトの編集時の文字コードは&lt;tt&gt;プロジェクト -&gt; エディタの設定 -&gt; デフォルトの文字コード&lt;/tt&gt;で指定できます。</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>You can modify the binary that is being executed when you press the &lt;tt&gt;Run&lt;/tt&gt; button: Add a &lt;tt&gt;Custom Executable&lt;/tt&gt; by clicking the &lt;tt&gt;+&lt;/tt&gt; button in &lt;tt&gt;Projects -&gt; Run Settings -&gt; Run Configuration&lt;/tt&gt; and then select the new target in the combo box.</source>
-        <translation>&lt;tt&gt;実行&lt;/tt&gt;ボタンを押したときに実行されるファイルは&lt;tt&gt;プロジェクト -&gt; 実行時の設定 -&gt; 実行時の条件&lt;/tt&gt;の&lt;tt&gt;+&lt;/tt&gt;ボタンで&lt;tt&gt;カスタム実行ファイル&lt;/tt&gt;を選択することで追加できます。追加した後に&lt;tt&gt;実行時の条件&lt;/tt&gt;のコンボボックスから作成した条件を選択してください。</translation>
+        <translation type="obsolete">&lt;tt&gt;実行&lt;/tt&gt;ボタンを押したときに実行されるファイルは&lt;tt&gt;プロジェクト -&gt; 実行時の設定 -&gt; 実行時の条件&lt;/tt&gt;の&lt;tt&gt;+&lt;/tt&gt;ボタンで&lt;tt&gt;カスタム実行ファイル&lt;/tt&gt;を選択することで追加できます。追加した後に&lt;tt&gt;実行時の条件&lt;/tt&gt;のコンボボックスから作成した条件を選択してください。</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce and Git.</source>
-        <translation>Qt Creator では Subversion や Perforce、Git 等のさまざまな&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;バージョン管理システム&lt;/a&gt;を使用できます。</translation>
+        <translation type="obsolete">Qt Creator では Subversion や Perforce、Git 等のさまざまな&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;バージョン管理システム&lt;/a&gt;を使用できます。</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
-        <translation>編集モードでは&lt;tt&gt;F2&lt;/tt&gt;キーで宣言と定義を、&lt;tt&gt;F4&lt;/tt&gt;キーでヘッダファイルとソースファイルを切り替えできます。</translation>
+        <translation type="obsolete">編集モードでは&lt;tt&gt;F2&lt;/tt&gt;キーで宣言と定義を、&lt;tt&gt;F4&lt;/tt&gt;キーでヘッダファイルとソースファイルを切り替えできます。</translation>
     </message>
     <message>
-        <location line="-27"/>
         <source>You can fine tune the &lt;tt&gt;Find&lt;/tt&gt; function by selecting &amp;quot;Whole Words&amp;quot; or &amp;quot;Case Sensitive&amp;quot;. Simply click on the icons on the right end of the line edit.</source>
-        <translation>&lt;tt&gt;検索&lt;/tt&gt;機能は&amp;quot;単語単位で検索する&amp;quot;や&amp;quot;大文字/小文字を区別する&amp;quot;を選択することで目的に合わせて検索結果を調整できます。検索文字列を入力する欄の右端にあるアイコンをクリックすることで機能を選択できます。</translation>
+        <translation type="obsolete">&lt;tt&gt;検索&lt;/tt&gt;機能は&amp;quot;単語単位で検索する&amp;quot;や&amp;quot;大文字/小文字を区別する&amp;quot;を選択することで目的に合わせて検索結果を調整できます。検索文字列を入力する欄の右端にあるアイコンをクリックすることで機能を選択できます。</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;外部のライブラリ&lt;/a&gt;をプロジェクトに追加した場合、Qt Creator は自動的にシンタックスハイライトやコード補完を行います。</translation>
+        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;外部のライブラリ&lt;/a&gt;をプロジェクトに追加した場合、Qt Creator は自動的にシンタックスハイライトやコード補完を行います。</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>The code completion is CamelCase-aware. For example, to complete &lt;tt&gt;namespaceUri&lt;/tt&gt; you can just type &lt;tt&gt;nU&lt;/tt&gt; and hit &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
-        <translation>コード補完はキャメルケースに対応しています。たとえば&lt;tt&gt;namespaceUrl&lt;/tt&gt;を補完したい場合、&lt;tt&gt;nU&lt;/tt&gt;と入力して&lt;tt&gt;Ctrl+Space&lt;/tt&gt;を押してください。</translation>
+        <translation type="obsolete">コード補完はキャメルケースに対応しています。たとえば&lt;tt&gt;namespaceUrl&lt;/tt&gt;を補完したい場合、&lt;tt&gt;nU&lt;/tt&gt;と入力して&lt;tt&gt;Ctrl+Space&lt;/tt&gt;を押してください。</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>You can force code completion at any time using &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
-        <translation>&lt;tt&gt;Ctrl+Space&lt;/tt&gt;を押せば任意のタイミングでコード補完を開始することができます。</translation>
+        <translation type="obsolete">&lt;tt&gt;Ctrl+Space&lt;/tt&gt;を押せば任意のタイミングでコード補完を開始することができます。</translation>
     </message>
 </context>
 <context>
     <name>Core::Internal::WelcomePage</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/welcomemode.ui"/>
         <source>#gradientWidget {
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
 }</source>
-        <translation>#gradientWidget {
+        <translation type="obsolete">#gradientWidget {
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
 }</translation>
     </message>
     <message>
-        <location/>
         <source>#headerFrame {
     border-image: url(:/core/images/welcomemode/center_frame_header.png) 0;
     border-width: 0;
 }
 </source>
-        <translation>#headerFrame {
+        <translation type="obsolete">#headerFrame {
     border-image: url(:/core/images/welcomemode/center_frame_header.png) 0;
     border-width: 0;
 }
 </translation>
     </message>
     <message>
-        <location/>
         <source>Getting Started</source>
-        <translation>Qt Creator を始めよう</translation>
+        <translation type="obsolete">Qt Creator を始めよう</translation>
     </message>
     <message>
-        <location/>
         <source>Develop</source>
-        <translation>開発</translation>
+        <translation type="obsolete">開発</translation>
     </message>
     <message>
-        <location/>
         <source>Community</source>
-        <translation>コミュニティ</translation>
+        <translation type="obsolete">コミュニティ</translation>
     </message>
     <message>
-        <location/>
         <source>Examples not installed</source>
-        <translation>サンプルプログラムがインストールされていません</translation>
+        <translation type="obsolete">サンプルプログラムがインストールされていません</translation>
     </message>
     <message>
-        <location/>
         <source>Open</source>
-        <translation>開く</translation>
+        <translation type="obsolete">開く</translation>
     </message>
     <message>
-        <location/>
         <source>Manage Sessions...</source>
-        <translation>セッション管理...</translation>
+        <translation type="obsolete">セッション管理...</translation>
     </message>
     <message>
-        <location/>
         <source>Create New Project...</source>
-        <translation>新しいプロジェクトの作成...</translation>
+        <translation type="obsolete">新しいプロジェクトの作成...</translation>
     </message>
     <message>
-        <location/>
         <source>Help us make Qt Creator even better</source>
-        <translation>Qt Creator の改善にご協力ください</translation>
+        <translation type="obsolete">Qt Creator の改善にご協力ください</translation>
     </message>
     <message>
-        <location/>
         <source>Feedback</source>
-        <translation>フィードバック</translation>
+        <translation type="obsolete">フィードバック</translation>
     </message>
 </context>
 <context>
     <name>Core::ModeManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/modemanager.cpp" line="+144"/>
+        <location filename="../../../src/plugins/coreplugin/modemanager.cpp" line="+145"/>
         <source>Switch to %1 mode</source>
         <translation>%1 モードに切り替える</translation>
     </message>
@@ -1998,14 +2219,14 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::ScriptManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/scriptmanager/scriptmanager.cpp" line="+237"/>
+        <location filename="../../../src/plugins/coreplugin/scriptmanager/scriptmanager.cpp" line="+228"/>
         <source>Exception at line %1: %2
 %3</source>
         <translation>%1 行目で例外発生: %2
 %3</translation>
     </message>
     <message>
-        <location line="+67"/>
+        <location line="+66"/>
         <source>Unknown error</source>
         <translation>未知のエラー</translation>
     </message>
@@ -2019,9 +2240,9 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Utils::ClassNameValidatingLineEdit</name>
+    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
-        <location filename="../../../src/libs/utils/classnamevalidatinglineedit.cpp" line="+85"/>
+        <location filename="../../../src/libs/utils/classnamevalidatinglineedit.cpp" line="+84"/>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>クラス名にはネームスペースの区切り文字を含めないでください。</translation>
     </message>
@@ -2037,9 +2258,9 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Utils::ConsoleProcess</name>
+    <name>Utils::ConsoleProcess</name>
     <message>
-        <location filename="../../../src/libs/utils/consoleprocess.cpp" line="+50"/>
+        <location filename="../../../src/libs/utils/consoleprocess.cpp" line="+49"/>
         <source>Cannot set up communication channel: %1</source>
         <translation>通信チャンネルを用意できません: %1</translation>
     </message>
@@ -2100,9 +2321,9 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Utils::FileNameValidatingLineEdit</name>
+    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
-        <location filename="../../../src/libs/utils/filenamevalidatinglineedit.cpp" line="+96"/>
+        <location filename="../../../src/libs/utils/filenamevalidatinglineedit.cpp" line="+95"/>
         <source>The name must not be empty</source>
         <translation>ファイル名を空にはできません</translation>
     </message>
@@ -2123,9 +2344,9 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Utils::FileSearch</name>
+    <name>Utils::FileSearch</name>
     <message numerus="yes">
-        <location filename="../../../src/libs/utils/filesearch.cpp" line="+46"/>
+        <location filename="../../../src/libs/utils/filesearch.cpp" line="+47"/>
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
             <numerusform>%1: 中止しました。%2 個のファイルに %n 件見つかりました。</numerusform>
@@ -2147,9 +2368,9 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Utils::NewClassWidget</name>
+    <name>Utils::NewClassWidget</name>
     <message>
-        <location filename="../../../src/libs/utils/newclasswidget.cpp" line="+393"/>
+        <location filename="../../../src/libs/utils/newclasswidget.cpp" line="+392"/>
         <source>Invalid base class name</source>
         <translation>無効な基底クラス名</translation>
     </message>
@@ -2205,7 +2426,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Utils::PathChooser</name>
+    <name>Utils::PathChooser</name>
     <message>
         <location filename="../../../src/libs/utils/pathchooser.cpp" line="+49"/>
         <source>Choose...</source>
@@ -2217,7 +2438,7 @@ Would you like to overwrite them?</source>
         <translation>参照...</translation>
     </message>
     <message>
-        <location line="+117"/>
+        <location line="+122"/>
         <source>Choose a directory</source>
         <translation>ディレクトリを選択してください</translation>
     </message>
@@ -2227,7 +2448,7 @@ Would you like to overwrite them?</source>
         <translation>ファイルを選択してください</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+33"/>
         <source>The path must not be empty.</source>
         <translation>パスは空にはできません。</translation>
     </message>
@@ -2253,9 +2474,9 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Utils::PathListEditor</name>
+    <name>Utils::PathListEditor</name>
     <message>
-        <location filename="../../../src/libs/utils/pathlisteditor.cpp" line="+120"/>
+        <location filename="../../../src/libs/utils/pathlisteditor.cpp" line="+119"/>
         <source>Insert...</source>
         <translation>挿入...</translation>
     </message>
@@ -2281,9 +2502,9 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Utils::ProjectIntroPage</name>
+    <name>Utils::ProjectIntroPage</name>
     <message>
-        <location filename="../../../src/libs/utils/projectintropage.cpp" line="+66"/>
+        <location filename="../../../src/libs/utils/projectintropage.cpp" line="+65"/>
         <source>&lt;Enter_Name&gt;</source>
         <translation>&lt;プロジェクト名を入力してください&gt;</translation>
     </message>
@@ -2314,15 +2535,15 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Utils::ProjectNameValidatingLineEdit</name>
+    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
-        <location filename="../../../src/libs/utils/projectnamevalidatinglineedit.cpp" line="+51"/>
+        <location filename="../../../src/libs/utils/projectnamevalidatinglineedit.cpp" line="+50"/>
         <source>The name must not contain the &apos;.&apos;-character.</source>
         <translation>プロジェクト名に &apos;.&apos; 文字を含めることはできません。</translation>
     </message>
 </context>
 <context>
-    <name>Core::Utils::SubmitEditorWidget</name>
+    <name>Utils::SubmitEditorWidget</name>
     <message>
         <location filename="../../../src/libs/utils/submiteditorwidget.ui"/>
         <source>Subversion Submit</source>
@@ -2340,7 +2561,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Utils::WizardPage</name>
+    <name>Utils::WizardPage</name>
     <message>
         <location filename="../../../src/libs/utils/filewizardpage.ui"/>
         <source>Choose the location</source>
@@ -2358,14 +2579,19 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Utils::reloadPrompt</name>
+    <name>Utils::reloadPrompt</name>
     <message>
-        <location filename="../../../src/libs/utils/reloadpromptutils.cpp" line="+41"/>
+        <location filename="../../../src/libs/utils/reloadpromptutils.cpp" line="+42"/>
         <source>File Changed</source>
         <translation>ファイルは変更されています</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+4"/>
+        <source>The unsaved file %1 has been changed outside Qt Creator. Do you want to reload it and discard your changes?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>The file %1 has changed outside Qt Creator. Do you want to reload it?</source>
         <translation>ファイル %1 は Qt Creator以外で変更されています。再読込しますか?</translation>
     </message>
@@ -2373,15 +2599,25 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppEditor::Internal::CPPEditor</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+264"/>
+        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+608"/>
         <source>Sort alphabetically</source>
         <translation>アルファベット順にソート</translation>
+    </message>
+    <message>
+        <location line="+265"/>
+        <source>This change cannot be undone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Yes, I know what I am doing.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Internal::ClassNamePage</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppclasswizard.cpp" line="+62"/>
+        <location filename="../../../src/plugins/cppeditor/cppclasswizard.cpp" line="+63"/>
         <source>Enter class name</source>
         <translation>クラス名を入力してください</translation>
     </message>
@@ -2423,7 +2659,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppEditor::Internal::CppPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppplugin.cpp" line="+167"/>
+        <location filename="../../../src/plugins/cppeditor/cppplugin.cpp" line="+175"/>
         <source>C++</source>
         <translation>C++</translation>
     </message>
@@ -2467,6 +2703,21 @@ Would you like to overwrite them?</source>
         <source>Switch between Method Declaration/Definition</source>
         <translation>メソッドの宣言/定義を切り替えて表示</translation>
     </message>
+    <message>
+        <location line="+9"/>
+        <source>Find Usages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ctrl+Shift+U</source>
+        <translation type="unfinished">Ctrl+Shift+U</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Rename Symbol under Cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CppFileSettingsPage</name>
@@ -2490,19 +2741,37 @@ Would you like to overwrite them?</source>
         <source>Lower case file names</source>
         <translation>ファイル名を小文字にする</translation>
     </message>
+    <message>
+        <location/>
+        <source>License Template:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CppPreprocessor</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+474"/>
+        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+542"/>
         <source>%1: No such file or directory</source>
         <translation>%1: そのようなファイルもしくはディレクトリはありません</translation>
     </message>
 </context>
 <context>
+    <name>CppTools::Internal::CppModelManager</name>
+    <message>
+        <location line="+290"/>
+        <source>Scanning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+42"/>
+        <source>Indexing</source>
+        <translation>解析中</translation>
+    </message>
+</context>
+<context>
     <name>CppTools</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+52"/>
+        <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+53"/>
         <source>File Naming Conventions</source>
         <translation>ファイル命名規則</translation>
     </message>
@@ -2542,14 +2811,6 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppModelManager</name>
-    <message>
-        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+269"/>
-        <source>Indexing</source>
-        <translation>解析中</translation>
-    </message>
-</context>
-<context>
     <name>CppTools::Internal::CppQuickOpenFilter</name>
     <message>
         <location filename="../../../src/plugins/cpptools/cppquickopenfilter.h" line="+53"/>
@@ -2558,9 +2819,35 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
+    <name>CppTools::Internal::FindClassDeclarations</name>
+    <message>
+        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+103"/>
+        <source>Search class</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.h" line="+75"/>
+        <source>Class Declarations</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CppTools::Internal::FindFunctionCalls</name>
+    <message>
+        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+53"/>
+        <source>Search functions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.h" line="+25"/>
+        <source>Function calls</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+102"/>
+        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+75"/>
         <source>&amp;C++</source>
         <translation>C++(&amp;C)</translation>
     </message>
@@ -2573,7 +2860,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppcodecompletion.cpp" line="+403"/>
+        <location filename="../../../src/plugins/cpptools/cppcodecompletion.cpp" line="+433"/>
         <source>%1 of %2</source>
         <translation>%1/%2</translation>
     </message>
@@ -2581,7 +2868,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerconstants.h" line="+57"/>
+        <location filename="../../../src/plugins/debugger/debuggerconstants.h" line="+55"/>
         <source>Common</source>
         <translation>共通</translation>
     </message>
@@ -2591,15 +2878,41 @@ Would you like to overwrite them?</source>
         <translation>デバッガ</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+380"/>
+        <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+432"/>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;エンコーディングエラー&gt;</translation>
     </message>
 </context>
 <context>
+    <name>QtDumperHelper</name>
+    <message>
+        <location line="+103"/>
+        <source>Found a too-old version of the debugging helper library (%1); version %2 is required.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+37"/>
+        <source>%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location line="-1"/>
+        <source>&lt;none&gt;</source>
+        <translation>&lt;なし&gt;</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n known types, Qt version: %1, Qt namespace: %2</source>
+        <translation type="obsolete">
+            <numerusform>既知の型: %n, Qt バージョン: %1, Qt ネームスペース: %2</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::AttachCoreDialog</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+134"/>
+        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+136"/>
         <source>Select Executable</source>
         <translation>実行ファイルを選択</translation>
     </message>
@@ -2627,43 +2940,63 @@ Would you like to overwrite them?</source>
         <translation>状態</translation>
     </message>
     <message>
-        <location line="+165"/>
+        <location line="+167"/>
         <source>Refresh</source>
         <translation>更新</translation>
     </message>
 </context>
 <context>
+    <name>Debugger::Internal::AddressDialog</name>
+    <message>
+        <location line="+220"/>
+        <source>Select start address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Enter an address: </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::MessageBox</name>
+    <message>
+        <location line="+61"/>
+        <source>Settings...</source>
+        <translation type="unfinished">設定...</translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::AttachTcfDialog</name>
     <message>
-        <location line="+71"/>
         <source>Select Executable</source>
-        <translation>実行ファイルを選択</translation>
+        <translation type="obsolete">実行ファイルを選択</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::BreakHandler</name>
     <message>
-        <location filename="../../../src/plugins/debugger/breakhandler.cpp" line="+198"/>
+        <location filename="../../../src/plugins/debugger/breakhandler.cpp" line="+200"/>
         <source>Marker File:</source>
         <translation>マークされたファイル:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Marker Line:</source>
         <translation>マークされた行:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Breakpoint Number:</source>
         <translation>ブレークポイントの番号:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Breakpoint Address:</source>
         <translation>ブレークポイントのアドレス:</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Property</source>
         <translation>プロパティ</translation>
     </message>
@@ -2683,32 +3016,32 @@ Would you like to overwrite them?</source>
         <translation>内部番号:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>File Name:</source>
         <translation>ファイル名:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Function Name:</source>
         <translation>関数名:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Line Number:</source>
         <translation>行番号:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Condition:</source>
         <translation>条件:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Ignore Count:</source>
         <translation>無視する回数:</translation>
     </message>
     <message>
-        <location line="+192"/>
+        <location line="+215"/>
         <source>Function</source>
         <translation>関数</translation>
     </message>
@@ -2738,6 +3071,11 @@ Would you like to overwrite them?</source>
         <translation>無視</translation>
     </message>
     <message>
+        <location line="+0"/>
+        <source>Address</source>
+        <translation type="unfinished">アドレス</translation>
+    </message>
+    <message>
         <location line="+62"/>
         <source>Breakpoint will only be hit if this condition is met.</source>
         <translation>この条件を満たした時だけ有効なブレークポイントです。</translation>
@@ -2751,37 +3089,52 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::BreakWindow</name>
     <message>
-        <location filename="../../../src/plugins/debugger/breakwindow.cpp" line="+82"/>
+        <location filename="../../../src/plugins/debugger/breakwindow.cpp" line="+86"/>
         <source>Breakpoints</source>
         <translation>ブレークポイント</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+61"/>
         <source>Delete breakpoint</source>
         <translation>ブレークポイントの削除</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
+        <source>Delete all breakpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Delete breakpoints of &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Delete breakpoints of file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Adjust column widths to contents</source>
         <translation>内容に合わせて列幅を調整</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Always adjust column widths to contents</source>
         <translation>常に内容に合わせて列幅を調整</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Edit condition...</source>
         <translation>条件の編集...</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Synchronize breakpoints</source>
         <translation>ブレークポイントの同期</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+6"/>
         <source>Disable breakpoint</source>
         <translation>ブレークポイントの無効化</translation>
     </message>
@@ -2791,7 +3144,7 @@ Would you like to overwrite them?</source>
         <translation>ブレークポイントの有効化</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+5"/>
         <source>Use short path</source>
         <translation>短いパスを使用</translation>
     </message>
@@ -2806,12 +3159,12 @@ Would you like to overwrite them?</source>
         <translation>関数をブレークポイントに設定...</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+1"/>
         <source>Set Breakpoint at Function &quot;main&quot;</source>
         <translation>&quot;main&quot;関数をブレークポイントに設定</translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+101"/>
         <source>Conditions on Breakpoint %1</source>
         <translation>ブレークポイント(%1)の条件指定</translation>
     </message>
@@ -2819,7 +3172,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::CdbDebugEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/cdb/cdbdebugengine.cpp" line="+126"/>
+        <location filename="../../../src/plugins/debugger/cdb/cdbdebugengine.cpp" line="+132"/>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation>デバッガエンジンライブラリ &apos;%1&apos; の読込に失敗しました: %2</translation>
     </message>
@@ -2835,12 +3188,16 @@ Would you like to overwrite them?</source>
         <translation>デバッガエンジンライブラリ &apos;%2&apos; に関数 &apos;%1&apos; が見つかりません</translation>
     </message>
     <message>
-        <location line="+291"/>
         <source>The dumper library &apos;%1&apos; does not exist.</source>
-        <translation>ダンパライブラリ &apos;%1&apos; は存在しません。</translation>
+        <translation type="obsolete">ダンパライブラリ &apos;%1&apos; は存在しません。</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+355"/>
+        <source>The dumper library was not found at %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+31"/>
         <source>The console stub process was unable to start &apos;%1&apos;.</source>
         <translation>コンソールスタブプロセス &apos;%1&apos; が開始できません。</translation>
     </message>
@@ -2855,36 +3212,116 @@ Would you like to overwrite them?</source>
         <translation>デバッガ実行中</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+20"/>
         <source>Attaching to a process failed for process id %1: %2</source>
         <translation>プロセスID %1 のプロセスへアタッチできません: %2</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+27"/>
+        <source>Unable to set the image path to %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+31"/>
         <source>Unable to create a process &apos;%1&apos;: %2</source>
         <translation>プロセス &apos;%1&apos; が実行できません: %2</translation>
     </message>
     <message>
-        <location line="+494"/>
+        <location line="+40"/>
+        <source>The process exited with exit code %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+191"/>
+        <source>Continuing with &apos;%1&apos;...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Unable to continue: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Reverse stepping is not implemented.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Stepping %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+61"/>
+        <source>Running to 0x%1...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+67"/>
+        <source>Running requested...</source>
+        <translation type="unfinished">実行しようとしています...</translation>
+    </message>
+    <message>
+        <location line="+57"/>
+        <source>Running up to %1:%2...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Running up to function &apos;%1()&apos;...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Jump to line is not implemented</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
         <source>Unable to assign the value &apos;%1&apos; to &apos;%2&apos;: %3</source>
         <translation>&apos;%2&apos; へ値 &apos;%1&apos; を割り当てられません: %3</translation>
     </message>
     <message>
-        <location line="+218"/>
+        <location line="+239"/>
+        <source>Unable to retrieve %1 bytes of memory at 0x%2: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
         <source>Cannot retrieve symbols while the debuggee is running.</source>
         <translation>デバッガの実行中にはシンボルの解決はできません。</translation>
     </message>
     <message>
-        <location line="+84"/>
+        <location line="+64"/>
         <location line="+6"/>
         <source>Debugger Error</source>
         <translation>デバッガエラー</translation>
+    </message>
+    <message>
+        <location line="+48"/>
+        <source>Stopped, current thread: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+49"/>
+        <source>Changing threads: %1 -&gt; %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+77"/>
+        <source>Thread %1: Missing debug information for top stack frame (%2).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Thread %1: No debug information available (%2).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::CdbDumperHelper</name>
     <message>
-        <location filename="../../../src/plugins/debugger/cdb/cdbdumperhelper.cpp" line="+192"/>
+        <location filename="../../../src/plugins/debugger/cdb/cdbdumperhelper.cpp" line="+203"/>
         <source>injection</source>
         <translation>injection</translation>
     </message>
@@ -2914,7 +3351,7 @@ Would you like to overwrite them?</source>
         <translation>デバッグ対象がクラッシュしたためダンパの使用を禁止します...</translation>
     </message>
     <message>
-        <location line="+111"/>
+        <location line="+112"/>
         <source>The debuggee does not appear to be Qt application.</source>
         <translation>デバッグ対象は Qt のアプリケーションではありません。</translation>
     </message>
@@ -2934,7 +3371,7 @@ Would you like to overwrite them?</source>
         <translation>カスタムダンパライブラリが初期化できませんでした: %1</translation>
     </message>
     <message>
-        <location line="+197"/>
+        <location line="+251"/>
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
         <translation>ダンパの確認中 &apos;%1&apos;/&apos;%2&apos; (%3)</translation>
     </message>
@@ -2942,17 +3379,17 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::CdbOptionsPageWidget</name>
     <message>
-        <location filename="../../../src/plugins/debugger/cdb/cdboptionspage.cpp" line="-17"/>
+        <location filename="../../../src/plugins/debugger/cdb/cdboptionspage.cpp" line="-23"/>
         <source>Cdb</source>
         <translation>Cdb</translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+35"/>
         <source>Autodetect</source>
         <translation>自動検出</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+35"/>
         <source>&quot;Debugging Tools for Windows&quot; could not be found.</source>
         <translation>&quot;Windows用デバッグツール&quot;が見つかりません。</translation>
     </message>
@@ -2990,99 +3427,94 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebugMode</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="+186"/>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="+195"/>
         <source>Debug</source>
         <translation>デバッグ</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerManager</name>
+    <name>Debugger::DebuggerManager</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+340"/>
+        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+456"/>
         <source>Continue</source>
         <translation>続行</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <location line="+833"/>
+        <location line="+3"/>
+        <location line="+1198"/>
         <source>Interrupt</source>
         <translation>割り込み</translation>
     </message>
     <message>
-        <location line="-829"/>
+        <location line="-1195"/>
         <source>Reset Debugger</source>
         <translation>デバッガをリセット</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+2"/>
         <source>Step Over</source>
         <translation>ステップ オーバー</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+3"/>
         <source>Step Into</source>
         <translation>ステップ イン</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Step Over Instruction</source>
-        <translation>ステップ飛ばし</translation>
+        <translation type="obsolete">ステップ飛ばし</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Step One Instruction</source>
-        <translation>ステップ実行</translation>
+        <translation type="obsolete">ステップ実行</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+3"/>
         <source>Step Out</source>
         <translation>ステップ アウト</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+3"/>
         <source>Run to Line</source>
         <translation>この行まで実行</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+2"/>
         <source>Run to Outermost Function</source>
         <translation>最上位の関数まで実行</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+2"/>
         <source>Jump to Line</source>
         <translation>指定行にジャンプ</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+2"/>
         <source>Toggle Breakpoint</source>
         <translation>ブレークポイントの切り替え</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+2"/>
         <source>Add to Watch Window</source>
         <translation>監視ウィンドウに追加</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+2"/>
         <source>Reverse Direction</source>
         <translation>逆方向</translation>
     </message>
     <message>
-        <location line="+249"/>
         <source>Stop requested...</source>
-        <translation>停止させようとしています...</translation>
+        <translation type="obsolete">停止させようとしています...</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <location line="+18"/>
+        <location line="+223"/>
         <source>Stopped.</source>
         <translation>停止しました。</translation>
     </message>
     <message>
-        <location line="-12"/>
         <source>Running requested...</source>
-        <translation>実行しようとしています...</translation>
+        <translation type="obsolete">実行しようとしています...</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -3090,63 +3522,90 @@ Would you like to overwrite them?</source>
         <translation>実行しています...</translation>
     </message>
     <message>
-        <location line="+91"/>
-        <location line="+23"/>
+        <location line="+83"/>
+        <location line="+21"/>
         <source>Changing breakpoint state requires either a fully running or fully stopped application.</source>
         <translation>ブレークポイントの状態を変更するには、アプリケーションが完全に起動しているか停止している必要があります。</translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+113"/>
         <source>Debugging VS executables is currently not enabled.</source>
         <translation>Visual Studioで作成した実行ファイルのデバッグは現在許可されていません。</translation>
     </message>
     <message>
-        <location line="+621"/>
         <source>The debugging helper is used to nicely format the values of Qt data types and some STL data types. It must be compiled for each Qt version which you can do in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; for the debugging helper.</source>
-        <translation>デバッグヘルパはQtのデータ型やSTLデータ型の値を読みやすく整形するために使用されています。ヘルパは各 Qt のバージョンごとにコンパイルする必要があります。デバッグヘルパのコンパイルは Qt の設定ページでインストールされている Qt を選択し、&apos;リビルド&apos;ボタンを押して行います。</translation>
+        <translation type="obsolete">デバッグヘルパはQtのデータ型やSTLデータ型の値を読みやすく整形するために使用されています。ヘルパは各 Qt のバージョンごとにコンパイルする必要があります。デバッグヘルパのコンパイルは Qt の設定ページでインストールされている Qt を選択し、&apos;リビルド&apos;ボタンを押して行います。</translation>
     </message>
     <message>
-        <location line="-571"/>
+        <location line="+65"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Cannot debug &apos;%1&apos;: %2</source>
-        <translation>%1 をデバッグできません: %2</translation>
+        <translation type="obsolete">%1 をデバッグできません: %2</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Settings...</source>
-        <translation>設定...</translation>
+        <translation type="obsolete">設定...</translation>
     </message>
     <message>
-        <location line="+193"/>
+        <location line="+173"/>
         <source>Save Debugger Log</source>
         <translation>デバッガ ログを保存</translation>
     </message>
     <message>
-        <location line="+97"/>
+        <location line="+315"/>
+        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each Qt version which you can do in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; for the debugging helper.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+171"/>
         <source>Stop Debugger</source>
         <translation>デバッガを停止</translation>
     </message>
     <message>
-        <location line="+273"/>
+        <location line="-180"/>
         <source>Open Qt preferences</source>
         <translation>Qt の設定画面を開く</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-755"/>
+        <source>Exited.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+128"/>
+        <source>The application requires the debugger engine &apos;%1&apos;, which is disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+126"/>
+        <source>Starting debugger for tool chain &apos;%1&apos;...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Cannot debug &apos;%1&apos; (tool chain: &apos;%2&apos;): %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+472"/>
+        <source>%1 (explicitly set in the Debugger Options)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
         <source>Turn helper usage off</source>
         <translation>デバッグヘルパを使用しない</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Continue anyway</source>
         <translation>無視して続行</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Debugging helper missing</source>
         <translation>デバッグヘルパが見つかりません</translation>
     </message>
@@ -3159,7 +3618,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebuggerOutputWindow</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="+210"/>
+        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="+296"/>
         <source>Debugger</source>
         <translation>デバッガ</translation>
     </message>
@@ -3167,7 +3626,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebuggerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="+260"/>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="+265"/>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>オプション %1 に必要なパラメータが不足しています。</translation>
     </message>
@@ -3177,17 +3636,17 @@ Would you like to overwrite them?</source>
         <translation>オプション &apos;%2&apos; のパラメータ &apos;%1&apos; が数字ではありません。</translation>
     </message>
     <message>
-        <location line="+58"/>
+        <location line="+54"/>
         <source>Invalid debugger option: %1</source>
         <translation>無効なデバッグオプション: %1</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+22"/>
         <source>Error evaluating command line arguments: %1</source>
         <translation>コマンドライン引数の評価中にエラーが発生しました: %1</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+41"/>
         <source>Start and Debug External Application...</source>
         <translation>外部アプリケーションをデバッグ実行...</translation>
     </message>
@@ -3202,22 +3661,20 @@ Would you like to overwrite them?</source>
         <translation>コアファイルへアタッチ...</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Attach to Running Tcf Agent...</source>
-        <translation>実行中の TCF エージェントにアタッチします...</translation>
+        <translation type="obsolete">実行中の TCF エージェントにアタッチします...</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>This attaches to a running &apos;Target Communication Framework&apos; agent.</source>
-        <translation>実行中の &apos;Target Communication Framework&apos; のエージェントにアタッチします。</translation>
+        <translation type="obsolete">実行中の &apos;Target Communication Framework&apos; のエージェントにアタッチします。</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+5"/>
         <source>Start and Attach to Remote Application...</source>
         <translation>リモートアプリケーションを実行してアタッチ...</translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+129"/>
         <source>&amp;Views</source>
         <translation>表示(&amp;V)</translation>
     </message>
@@ -3232,17 +3689,17 @@ Would you like to overwrite them?</source>
         <translation>デフォルト レイアウトに戻す</translation>
     </message>
     <message>
-        <location line="+91"/>
+        <location line="+79"/>
         <source>Threads:</source>
         <translation>スレッド:</translation>
     </message>
     <message>
-        <location line="+88"/>
+        <location line="+84"/>
         <source>Attaching to PID %1.</source>
         <translation>PID %1 にアタッチしています。</translation>
     </message>
     <message>
-        <location line="+74"/>
+        <location line="+75"/>
         <source>Remove Breakpoint</source>
         <translation>ブレークポイントの削除</translation>
     </message>
@@ -3262,7 +3719,7 @@ Would you like to overwrite them?</source>
         <translation>ブレークポイントのセット</translation>
     </message>
     <message>
-        <location line="+212"/>
+        <location line="+229"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
@@ -3272,17 +3729,22 @@ Would you like to overwrite them?</source>
         <translation>PID 0 にアタッチできません</translation>
     </message>
     <message>
-        <location line="-593"/>
+        <location line="+17"/>
+        <source>Attaching to core %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-601"/>
         <source>Stop Debugger/Interrupt Debugger</source>
         <translation>デバッグ停止/デバッガに割り込み</translation>
     </message>
     <message>
-        <location line="-45"/>
+        <location line="-41"/>
         <source>Detach Debugger</source>
         <translation>デバッガのデタッチ</translation>
     </message>
     <message>
-        <location line="+52"/>
+        <location line="+48"/>
         <source>Reset Debugger</source>
         <translation>デバッガをリセット</translation>
     </message>
@@ -3290,20 +3752,19 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebuggerRunner</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerrunner.cpp" line="+73"/>
         <source>Debug</source>
-        <translation>デバッグ</translation>
+        <translation type="obsolete">デバッグ</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::DebuggerSettings</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggeractions.cpp" line="+112"/>
+        <location filename="../../../src/plugins/debugger/debuggeractions.cpp" line="+118"/>
         <source>Debugger properties...</source>
         <translation>デバッガプロパティ...</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+6"/>
         <source>Adjust column widths to contents</source>
         <translation>内容に合わせて列幅を調整</translation>
     </message>
@@ -3313,9 +3774,39 @@ Would you like to overwrite them?</source>
         <translation>常に内容に合わせて列幅を調整</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>Use alternating row colors</source>
         <translation>行ごとに色を変える</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Show a message box when receiving a signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Log time stamps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Operate by instruction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Dereference pointers automatically</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>This switches the Locals&amp;Watchers view to automatically derefence pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+10"/>
@@ -3333,27 +3824,75 @@ Would you like to overwrite them?</source>
         <translation>別ウィンドウで式 &quot;%1&quot; を監視</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Expand item</source>
-        <translation>項目を展開</translation>
+        <location line="+84"/>
+        <source>Use tooltips in main editor when debugging</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Collapse item</source>
-        <translation>項目を折りたたむ</translation>
+        <location line="+1"/>
+        <source>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
+        <translation type="unfinished">デバッグ中に変数の値をツールチップで表示します。&lt;br&gt;しかしデバッグ実行の速度が低下する上に、スコープを無視した不確かな情報しか表示しない為&lt;br&gt;デフォルトではチェックOFFとなっています。</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Use tooltips in locals view when debugging</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Checking this will enable tooltips in the locals view during debugging.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Use tooltips in breakpoints view when debugging</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Checking this will enable tooltips in the breakpoints view during debugging.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Show address data in breakpoints view when debugging</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Checking this will show a column with address information in the breakpoint view during debugging.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+9"/>
+        <source>Show address data in stack view when debugging</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Checking this will show a column with address information in the stack view during debugging.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expand item</source>
+        <translation type="obsolete">項目を展開</translation>
+    </message>
+    <message>
+        <source>Collapse item</source>
+        <translation type="obsolete">項目を折りたたむ</translation>
+    </message>
+    <message>
+        <location line="-107"/>
         <source>Use debugging helper</source>
         <translation>デバッグヘルパを使用する</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+22"/>
         <source>Debug debugging helper</source>
         <translation>デバッグヘルパをデバッグする</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+8"/>
         <source>Recheck debugging helper availability</source>
         <translation>デバッグヘルパが利用可能か再チェックする</translation>
     </message>
@@ -3363,62 +3902,55 @@ Would you like to overwrite them?</source>
         <translation>ブレークポイントの同期</translation>
     </message>
     <message>
-        <location line="+12"/>
         <source>Hexadecimal</source>
-        <translation>16進数</translation>
+        <translation type="obsolete">16進数</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>Decimal</source>
-        <translation>10進数</translation>
+        <translation type="obsolete">10進数</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Octal</source>
-        <translation>8進数</translation>
+        <translation type="obsolete">8進数</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Binary</source>
-        <translation>2進数</translation>
+        <translation type="obsolete">2進数</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Raw</source>
-        <translation>バイナリ</translation>
+        <translation type="obsolete">バイナリ</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Natural</source>
-        <translation>自動</translation>
+        <translation type="obsolete">自動</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+23"/>
         <source>Automatically quit debugger</source>
         <translation>デバッガを自動的に終了</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Use tooltips when debugging</source>
-        <translation>デバッグ中にツールチップを使う</translation>
+        <translation type="obsolete">デバッグ中にツールチップを使う</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+55"/>
         <source>List source files</source>
         <translation>ソーフファイルの一覧を表示</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Skip known frames</source>
         <translation>既知のフレームをスキップ</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Enable reverse debugging</source>
         <translation>デバッグ時の逆実行を可能にする</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+31"/>
         <source>Reload full stack</source>
         <translation>すべてのスタックを再読込</translation>
     </message>
@@ -3431,7 +3963,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebuggingHelperOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-322"/>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-315"/>
         <source>Debugging Helper</source>
         <translation>デバッグヘルパ</translation>
     </message>
@@ -3441,7 +3973,7 @@ Would you like to overwrite them?</source>
         <translation>デバッグヘルパの位置を選択</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+32"/>
         <source>Ctrl+Shift+F11</source>
         <translation>Ctrl+Shift+F11</translation>
     </message>
@@ -3449,139 +3981,189 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DisassemblerHandler</name>
     <message>
-        <location filename="../../../src/plugins/debugger/disassemblerhandler.cpp" line="+135"/>
         <source>Address</source>
-        <translation>アドレス</translation>
+        <translation type="obsolete">アドレス</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Symbol</source>
-        <translation>シンボル</translation>
+        <translation type="obsolete">シンボル</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Mnemonic</source>
-        <translation>ニーモニック</translation>
+        <translation type="obsolete">ニーモニック</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::DisassemblerWindow</name>
     <message>
-        <location filename="../../../src/plugins/debugger/disassemblerwindow.cpp" line="+46"/>
         <source>Disassembler</source>
-        <translation>逆アセンブラ</translation>
+        <translation type="obsolete">逆アセンブラ</translation>
     </message>
     <message>
-        <location line="+24"/>
         <source>Adjust column widths to contents</source>
-        <translation>内容に合わせて列幅を調整</translation>
+        <translation type="obsolete">内容に合わせて列幅を調整</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Always adjust column widths to contents</source>
-        <translation>常に内容に合わせて列幅を調整</translation>
+        <translation type="obsolete">常に内容に合わせて列幅を調整</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Reload disassembler listing</source>
-        <translation>逆アセンブルのリストを再読込</translation>
+        <translation type="obsolete">逆アセンブルのリストを再読込</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Always reload disassembler listing</source>
-        <translation>常に逆アセンブルのリストを再読込</translation>
+        <translation type="obsolete">常に逆アセンブルのリストを再読込</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::GdbEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+212"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+304"/>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>gdb プロセスの開始に失敗しました。gdb コマンド &apos;%1&apos; が見つからないか、コマンドを起動する為のパーミッションがない可能性があります。</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+5"/>
         <source>The Gdb process crashed some time after starting successfully.</source>
         <translation>gdb プロセスは起動に成功した後、クラッシュしました。</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <location line="+40"/>
+        <location line="+3"/>
         <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
         <translation>直前のwaitFor...() 関数はタイムアウトしました。QProcessの状態に変化がありませんので、再度 waitFor...() を呼び出せます。</translation>
     </message>
     <message>
-        <location line="-35"/>
+        <location line="+4"/>
         <source>An error occurred when attempting to write to the Gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
         <translation>gdb プロセスへの要求送信時にエラーが発生しました。プロセスが既に終了しているか、入力チャネルが閉じられてしまっている可能性があります。</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+4"/>
         <source>An error occurred when attempting to read from the Gdb process. For example, the process may not be running.</source>
         <translation>gdb プロセスからの応答待機中にエラーが発生しました。プロセスが既に終了している可能性があります。</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>An unknown error in the Gdb process occurred. This is the default return value of error().</source>
-        <translation>gdb プロセス起動時に不明なエラーが発生しました。これは、error()のデフォルトの戻り値です。</translation>
+        <translation type="obsolete">gdb プロセス起動時に不明なエラーが発生しました。これは、error()のデフォルトの戻り値です。</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <location line="+40"/>
-        <location line="+959"/>
-        <location line="+19"/>
-        <location line="+401"/>
+        <location line="+1016"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location line="-1102"/>
         <source>Debugger Error</source>
-        <translation>デバッガエラー</translation>
+        <translation type="obsolete">デバッガエラー</translation>
     </message>
     <message>
-        <location line="+115"/>
+        <location line="-610"/>
         <source>Stopping temporarily.</source>
         <translation>一時停止中です。</translation>
     </message>
     <message>
-        <location line="+74"/>
+        <location line="+122"/>
         <source>Continuing after temporary stop.</source>
         <translation>一時停止後の継続中です。</translation>
     </message>
     <message>
-        <location line="+17"/>
         <source>Core file loaded.</source>
-        <translation>コアファイルを読み込みました。</translation>
+        <translation type="obsolete">コアファイルを読み込みました。</translation>
     </message>
     <message>
-        <location line="+100"/>
+        <location line="+75"/>
         <source>Jumped. Stopped.</source>
         <translation>ジャンプして停止しました。</translation>
     </message>
     <message>
-        <location line="+25"/>
-        <location line="+244"/>
+        <location line="+223"/>
         <source>Run to Function finished. Stopped.</source>
         <translation>指定された関数まで実行し、停止しました。</translation>
     </message>
     <message>
-        <location line="-107"/>
+        <location line="-84"/>
         <source>Loading %1...</source>
         <translation>%1 を読み込んでいます...</translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="-739"/>
+        <source>An unknown error in the Gdb process occurred. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+221"/>
+        <source>Running...</source>
+        <translation type="unfinished">実行しています...</translation>
+    </message>
+    <message>
+        <location line="+96"/>
+        <source>Stop requested...</source>
+        <translation type="unfinished">停止させようとしています...</translation>
+    </message>
+    <message>
+        <location line="+141"/>
+        <location line="+16"/>
+        <source>Executable failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-15"/>
+        <source>Process failed to start.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Executable failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+151"/>
+        <source>Function reached. Stopped.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+72"/>
+        <source>Program exited with exit code %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Program exited after receiving signal %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Program exited normally.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+135"/>
         <source>Stopped at breakpoint.</source>
         <translation>ブレークポイントで停止。</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+33"/>
+        <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <location line="+1"/>
+        <source> &lt;Unknown&gt; </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Signal received</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Stopped: &quot;%1&quot;</source>
         <translation>停止: &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location line="+74"/>
         <source>The debugger you are using identifies itself as:</source>
         <translation>使用中のデバッガ:</translation>
     </message>
@@ -3596,39 +4178,137 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
     </message>
     <message>
         <location line="+29"/>
-        <location line="+19"/>
+        <source>Starting executable failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>Starting executable failed:
 </source>
         <translation>実行ファイルの開始に失敗しました:
 </translation>
     </message>
     <message>
-        <location line="-1008"/>
-        <source>The upload process failed to start. Either the invoked script &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation>アップロードに失敗しました。実行するスクリプト &apos;%1&apos; が存在しないか、実行する権限がないため、プロセスが開始できません。</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>The upload process crashed some time after starting successfully.</source>
-        <translation>アップロードの開始後にプロセスがクラッシュしました。</translation>
+        <location line="+129"/>
+        <source>Running requested...</source>
+        <translation type="unfinished">実行しようとしています...</translation>
     </message>
     <message>
         <location line="+9"/>
+        <source>Step requested...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Step by instruction requested...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Finish function requested...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Step next requested...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Step next instruction requested...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Run to line %1 requested...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Run to function %1 requested...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1445"/>
+        <source>Dumper version %1, %n custom dumpers found.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location line="+932"/>
+        <location line="+25"/>
+        <location line="+14"/>
+        <source>Disassembler failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Adapter start failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Inferior start preparation failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Inferior prepared for startup.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+85"/>
+        <source>Setting breakpoints...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Starting inferior...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Inferior start failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Inferior shutdown failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Adapter crashed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Adapter shutdown failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The upload process failed to start. Either the invoked script &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
+        <translation type="obsolete">アップロードに失敗しました。実行するスクリプト &apos;%1&apos; が存在しないか、実行する権限がないため、プロセスが開始できません。</translation>
+    </message>
+    <message>
+        <source>The upload process crashed some time after starting successfully.</source>
+        <translation type="obsolete">アップロードの開始後にプロセスがクラッシュしました。</translation>
+    </message>
+    <message>
         <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation>アップロードプロセスへの書き込み時にエラーが発生しました。プロセスが動作していないか、入力チャネルが閉じられている可能性があります。</translation>
+        <translation type="obsolete">アップロードプロセスへの書き込み時にエラーが発生しました。プロセスが動作していないか、入力チャネルが閉じられている可能性があります。</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
-        <translation>アップロードプロセスからの読み込み時にエラーが発生しました。アップロードプロセスが動作していない可能性があります。</translation>
+        <translation type="obsolete">アップロードプロセスからの読み込み時にエラーが発生しました。アップロードプロセスが動作していない可能性があります。</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
-        <translation>アップロードプロセスで不明なエラーが発生しました。error()がデフォルト値で呼び出されている場合などに生じるエラーです。</translation>
+        <translation type="obsolete">アップロードプロセスで不明なエラーが発生しました。error()がデフォルト値で呼び出されている場合などに生じるエラーです。</translation>
     </message>
     <message>
-        <location line="+129"/>
+        <location line="-3714"/>
         <source>Library %1 loaded.</source>
         <translation>ライブラリ &apos;%1&apos; を読み込みました。</translation>
     </message>
@@ -3663,63 +4343,57 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>スレッド %1 を選択しました。</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+43"/>
         <source>Reading %1...</source>
         <translation>%1 を読み込み中...</translation>
     </message>
     <message>
-        <location line="+516"/>
         <source>Program exited with exit code %1</source>
-        <translation>プログラムは終了コード %1 で終了しました</translation>
+        <translation type="obsolete">プログラムは終了コード %1 で終了しました</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Program exited after receiving signal %1</source>
-        <translation>シグナル %1 を受けてプログラムが終了しました。</translation>
+        <translation type="obsolete">シグナル %1 を受けてプログラムが終了しました。</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Program exited normally</source>
-        <translation>プログラムは正常に終了しました。</translation>
+        <translation type="obsolete">プログラムは正常に終了しました。</translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+540"/>
         <source>Processing queued commands.</source>
         <translation>キューイングされたコマンドを処理しています。</translation>
     </message>
     <message>
-        <location line="+97"/>
+        <location line="-8"/>
+        <location line="+168"/>
+        <location line="+20"/>
+        <location line="+104"/>
         <source>Stopped.</source>
         <translation>停止しました。</translation>
     </message>
     <message>
-        <location line="+292"/>
-        <location line="+27"/>
         <source>Debugger Startup Failure</source>
-        <translation>デバッガの起動に失敗</translation>
+        <translation type="obsolete">デバッガの起動に失敗</translation>
     </message>
     <message>
-        <location line="-26"/>
         <source>Cannot set up communication with child process: %1</source>
-        <translation>子プロセスと通信できません: %1</translation>
+        <translation type="obsolete">子プロセスと通信できません: %1</translation>
     </message>
     <message>
-        <location line="+23"/>
         <source>Starting Debugger: </source>
-        <translation>デバッガを起動中: </translation>
+        <translation type="obsolete">デバッガを起動中: </translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Cannot start debugger: %1</source>
-        <translation>デバッガの起動に失敗: %1</translation>
+        <translation type="obsolete">デバッガの起動に失敗: %1</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Gdb Running...</source>
-        <translation>Gdb 実行中...</translation>
+        <translation type="obsolete">Gdb 実行中...</translation>
     </message>
     <message>
-        <location line="+71"/>
+        <location line="+2752"/>
         <source>Cannot find debugger initialization script</source>
         <translation>デバッガ初期化スクリプトが見つかりません</translation>
     </message>
@@ -3729,27 +4403,23 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>デバッガに設定されたスクリプトファイル &apos;%1&apos; にアクセスできません。もしスクリプトファイルが不要でしたら、スクリプトファイルの設定を消去してみてください。そうすればこの警告が出るのを回避できます。 </translation>
     </message>
     <message>
-        <location line="+94"/>
         <source>Attached to running process. Stopped.</source>
-        <translation>実行中のプロセスにアタッチしました。停止中です。</translation>
+        <translation type="obsolete">実行中のプロセスにアタッチしました。停止中です。</translation>
     </message>
     <message>
-        <location line="+55"/>
         <source>Connecting to remote server failed:</source>
-        <translation>リモートサーバへの接続に失敗しました。</translation>
+        <translation type="obsolete">リモートサーバへの接続に失敗しました。</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>Debugger exited.</source>
-        <translation>デバッガを終了しました。</translation>
+        <translation type="obsolete">デバッガを終了しました。</translation>
     </message>
     <message>
-        <location line="+635"/>
         <source>&lt;could not retreive module information&gt;</source>
-        <translation>&lt;モジュール情報を取得できません&gt;</translation>
+        <translation type="obsolete">&lt;モジュール情報を取得できません&gt;</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="-2032"/>
         <source>Unable to run &apos;%1&apos;: %2</source>
         <translation>&apos;%1&apos; を実行できません: %2</translation>
     </message>
@@ -3760,48 +4430,44 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>&lt;不明&gt;</translation>
     </message>
     <message>
-        <location line="+30"/>
-        <location line="+83"/>
+        <location line="+35"/>
+        <location line="+8"/>
         <source>Retrieving data for stack view...</source>
         <translation>スタック ビュー用のデータを受信しています...</translation>
     </message>
     <message>
-        <location line="+188"/>
         <source>&apos;%1&apos; contains no identifier</source>
-        <translation>&apos;%1&apos; に識別子が見つかりません</translation>
+        <translation type="obsolete">&apos;%1&apos; に識別子が見つかりません</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>String literal %1</source>
-        <translation>文字列リテラル %1</translation>
+        <translation type="obsolete">文字列リテラル %1</translation>
     </message>
     <message>
-        <location line="+15"/>
         <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
-        <translation>副作用の可能性があるため、式 &apos;%1&apos; の評価を行いません</translation>
+        <translation type="obsolete">副作用の可能性があるため、式 &apos;%1&apos; の評価を行いません</translation>
     </message>
     <message>
-        <location line="+46"/>
+        <location line="+402"/>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Variable</extracomment>
         <translation>&lt;スコープ範囲外&gt;</translation>
     </message>
     <message numerus="yes">
-        <location line="+99"/>
+        <location line="+109"/>
         <source>Retrieving data for watch view (%n requests pending)...</source>
         <translation>
             <numerusform>監視ビュー用のデータを受信しています (%n 件の要求が保留中です)...</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+331"/>
         <source>%n custom dumpers found.</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>%n 個のカスタムダンパが見つかりました。</numerusform>
         </translation>
     </message>
     <message>
-        <location line="+280"/>
+        <location line="+613"/>
         <source>&lt;0 items&gt;</source>
         <translation>&lt;項目なし&gt;</translation>
     </message>
@@ -3814,7 +4480,12 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         </translation>
     </message>
     <message>
-        <location line="+461"/>
+        <location line="+374"/>
+        <source>The dumper library was not found at %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
         <source>Dumper injection loading triggered (%1)...</source>
         <translation>ダンパ (%1) をインジェクションで読み込んでいます...</translation>
     </message>
@@ -3829,39 +4500,38 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>ダンパ (%1) をデバッグ呼び出しで読み込んでいます...</translation>
     </message>
     <message>
-        <location line="-821"/>
+        <location line="-726"/>
         <source>Finished retrieving data.</source>
         <translation>データの受信が完了しました。</translation>
     </message>
     <message>
-        <location line="+11"/>
         <source>Cannot evaluate expression: %1</source>
-        <translation>式が評価できません: %1</translation>
+        <translation type="obsolete">式が評価できません: %1</translation>
     </message>
     <message>
-        <location line="+42"/>
+        <location line="+43"/>
         <source>Debugging helpers not found.</source>
         <translation>デバッグヘルパが見つかりません。</translation>
     </message>
     <message>
-        <location line="+124"/>
+        <location line="+131"/>
         <source>Custom dumper setup: %1</source>
         <translation>カスタム ダンパー 設定: %1</translation>
     </message>
     <message>
-        <location line="+303"/>
+        <location line="+290"/>
         <source>%1 &lt;shadowed %2&gt;</source>
-        <extracomment>Variable %1 &lt;FIXME: does something - bug Andre about it&gt;</extracomment>
+        <extracomment>Variable %1 is the variable name, %2 is a simple count</extracomment>
         <translation>%1 &lt;%2 個の隠された変数&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>&lt;shadowed&gt;</source>
-        <extracomment>Type of variable &lt;FIXME: what? bug Andre about it&gt;</extracomment>
+        <extracomment>Type of local variable or parameter shadowed by another</extracomment>
         <translation>&lt;隠された変数&gt;</translation>
     </message>
     <message>
-        <location line="+159"/>
+        <location line="+131"/>
         <source>&lt;n/a&gt;</source>
         <translation>&lt;N/A&gt;</translation>
     </message>
@@ -3871,7 +4541,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>&lt;無名の共用体&gt;</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+37"/>
         <source>&lt;no information&gt;</source>
         <extracomment>About variable&apos;s value</extracomment>
         <translation>&lt;不明&gt;</translation>
@@ -3882,19 +4552,16 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>未知のエラー:</translation>
     </message>
     <message>
-        <location line="+19"/>
         <source>%1 is a typedef.</source>
-        <translation>%1 は typedef です。</translation>
+        <translation type="obsolete">%1 は typedef です。</translation>
     </message>
     <message>
-        <location line="+11"/>
         <source>Retrieving data for tooltip...</source>
-        <translation>ツールチップ用のデータを受信しています...</translation>
+        <translation type="obsolete">ツールチップ用のデータを受信しています...</translation>
     </message>
     <message>
-        <location line="+70"/>
         <source>The dumper library &apos;%1&apos; does not exist.</source>
-        <translation>ダンパライブラリ &apos;%1&apos; は存在しません。</translation>
+        <translation type="obsolete">ダンパライブラリ &apos;%1&apos; は存在しません。</translation>
     </message>
 </context>
 <context>
@@ -3946,22 +4613,22 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>モジュール</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+47"/>
         <source>Update module list</source>
         <translation>モジュールリストをアップデート</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+29"/>
         <source>Adjust column widths to contents</source>
         <translation>内容に合わせて列幅を調整</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Always adjust column widths to contents</source>
         <translation>常に内容に合わせて列幅を調整</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-29"/>
         <source>Show source files for module &quot;%1&quot;</source>
         <translation>モジュール &quot;%1&quot; のソースファイルを表示</translation>
     </message>
@@ -3971,7 +4638,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>すべてのモジュールのシンボルを読み込む</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Load symbols for module</source>
         <translation>モジュールのシンボルを読み込む</translation>
     </message>
@@ -4001,7 +4668,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>ファイル &quot;%1&quot; のシンボルを表示</translation>
     </message>
     <message>
-        <location line="+73"/>
+        <location line="+79"/>
         <source>Address</source>
         <translation>アドレス</translation>
     </message>
@@ -4024,9 +4691,13 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Debugger::Internal::OutputCollector</name>
     <message>
-        <location filename="../../../src/plugins/debugger/outputcollector.cpp" line="+92"/>
         <source>Cannot create temporary file: %2</source>
-        <translation>一時ファイルを作成できません: %2</translation>
+        <translation type="obsolete">一時ファイルを作成できません: %2</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/debugger/outputcollector.cpp" line="+95"/>
+        <source>Cannot create temporary file: %1</source>
+        <translation type="unfinished">一時ファイルを作成できません: %1</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -4042,25 +4713,59 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Debugger::Internal::RegisterHandler</name>
     <message>
-        <location filename="../../../src/plugins/debugger/registerhandler.cpp" line="+90"/>
+        <location filename="../../../src/plugins/debugger/registerhandler.cpp" line="+112"/>
         <source>Name</source>
         <translation>名前</translation>
     </message>
     <message>
         <location line="+1"/>
+        <source>Value (base %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Value</source>
-        <translation>値</translation>
+        <translation type="obsolete">値</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::RegisterWindow</name>
     <message>
-        <location filename="../../../src/plugins/debugger/registerwindow.cpp" line="+54"/>
+        <location filename="../../../src/plugins/debugger/registerwindow.cpp" line="+150"/>
         <source>Registers</source>
         <translation>レジスタ</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+25"/>
+        <source>Open memory editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Open memory editor at %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Hexadecimal</source>
+        <translation type="unfinished">16進数</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Decimal</source>
+        <translation type="unfinished">10進数</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Octal</source>
+        <translation type="unfinished">8進数</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Binary</source>
+        <translation type="unfinished">2進数</translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Adjust column widths to contents</source>
         <translation>内容に合わせて列幅を調整</translation>
     </message>
@@ -4070,20 +4775,24 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>常に内容に合わせて列幅を調整</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="-32"/>
         <source>Reload register listing</source>
         <translation>レジスタのリストを再読込</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Always reload register listing</source>
-        <translation>常にレジスタのリストを再読込</translation>
+        <translation type="obsolete">常にレジスタのリストを再読込</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::ScriptEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/script/scriptengine.cpp" line="+467"/>
+        <location filename="../../../src/plugins/debugger/script/scriptengine.cpp" line="+244"/>
+        <source>Running requested...</source>
+        <translation type="unfinished">実行しようとしています...</translation>
+    </message>
+    <message>
+        <location line="+228"/>
         <source>&apos;%1&apos; contains no identifier</source>
         <translation>&apos;%1&apos; に識別子が見つかりません</translation>
     </message>
@@ -4098,7 +4807,8 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>副作用の可能性があるため、式 &apos;%1&apos; の評価を行いません</translation>
     </message>
     <message>
-        <location line="+142"/>
+        <location line="+81"/>
+        <location line="+50"/>
         <source>Stopped.</source>
         <translation>停止しました。</translation>
     </message>
@@ -4106,14 +4816,25 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Debugger::Internal::SourceFilesModel</name>
     <message>
-        <location filename="../../../src/plugins/debugger/sourcefileswindow.cpp" line="+97"/>
         <source>Internal name</source>
-        <translation>内部名</translation>
+        <translation type="obsolete">内部名</translation>
+    </message>
+    <message>
+        <source>Full name</source>
+        <translation type="obsolete">完全名</translation>
+    </message>
+</context>
+<context>
+    <name>SourceFilesModel</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/sourcefileswindow.cpp" line="+98"/>
+        <source>Internal name</source>
+        <translation type="unfinished">内部名</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Full name</source>
-        <translation>完全名</translation>
+        <translation type="unfinished">完全名</translation>
     </message>
 </context>
 <context>
@@ -4129,7 +4850,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>データを再読込</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>Open file</source>
         <translation>ファイルを開く</translation>
     </message>
@@ -4142,7 +4863,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Debugger::Internal::StackHandler</name>
     <message>
-        <location filename="../../../src/plugins/debugger/stackhandler.cpp" line="+97"/>
+        <location filename="../../../src/plugins/debugger/stackhandler.cpp" line="+114"/>
         <source>...</source>
         <translation>...</translation>
     </message>
@@ -4152,37 +4873,43 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>&lt;さらに&gt;</translation>
     </message>
     <message>
-        <location line="-45"/>
+        <location line="-61"/>
+        <location line="+14"/>
         <source>Address:</source>
         <translation>アドレス:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-13"/>
+        <location line="+14"/>
         <source>Function:</source>
         <translation>関数:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-13"/>
+        <location line="+14"/>
         <source>File:</source>
         <translation>ファイル:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-13"/>
+        <location line="+14"/>
         <source>Line:</source>
         <translation>行番号:</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-13"/>
+        <location line="+14"/>
         <source>From:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-13"/>
+        <location line="+14"/>
         <source>To:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+76"/>
+        <location line="+86"/>
         <source>Level</source>
         <translation>階層</translation>
     </message>
@@ -4208,24 +4935,87 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
     </message>
 </context>
 <context>
+    <name>Debugger::Internal::ThreadsHandler</name>
+    <message>
+        <location line="+159"/>
+        <source>Function</source>
+        <translation type="unfinished">関数</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>File</source>
+        <translation type="unfinished">ファイル</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Line</source>
+        <translation type="unfinished">行番号</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Address</source>
+        <translation type="unfinished">アドレス</translation>
+    </message>
+    <message>
+        <location line="-28"/>
+        <source>Thread: %1</source>
+        <translation>スレッド: %1</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Thread: %1 at %2 (0x%3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Thread: %1 at %2, %3:%4 (0x%5)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Thread ID</source>
+        <translation>スレッドID</translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::StackWindow</name>
     <message>
-        <location filename="../../../src/plugins/debugger/stackwindow.cpp" line="+55"/>
+        <location filename="../../../src/plugins/debugger/stackwindow.cpp" line="+60"/>
         <source>Stack</source>
         <translation>スタック</translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+36"/>
         <source>Copy contents to clipboard</source>
         <translation>内容をクリップボードにコピー</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <source>Open memory editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+3"/>
+        <source>Open memory editor at %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Open disassembler</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Open disassembler at %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Adjust column widths to contents</source>
         <translation>内容に合わせて列幅を調整</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Always adjust column widths to contents</source>
         <translation>常に内容に合わせて列幅を調整</translation>
     </message>
@@ -4233,7 +5023,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Debugger::Internal::StartExternalDialog</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+87"/>
+        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="-203"/>
         <source>Select Executable</source>
         <translation>実行ファイルを選択</translation>
     </message>
@@ -4259,27 +5049,12 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Debugger::Internal::TcfEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/tcf/tcfengine.cpp" line="+189"/>
         <source>%1.</source>
-        <translation>%1.</translation>
+        <translation type="obsolete">%1.</translation>
     </message>
     <message>
-        <location line="+381"/>
         <source>Stopped.</source>
-        <translation>停止しました。</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ThreadsHandler</name>
-    <message>
-        <location filename="../../../src/plugins/debugger/stackhandler.cpp" line="+107"/>
-        <source>Thread: %1</source>
-        <translation>スレッド: %1</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Thread ID</source>
-        <translation>スレッドID</translation>
+        <translation type="obsolete">停止しました。</translation>
     </message>
 </context>
 <context>
@@ -4303,7 +5078,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Debugger::Internal::WatchData</name>
     <message>
-        <location filename="../../../src/plugins/debugger/watchhandler.cpp" line="+68"/>
+        <location filename="../../../src/plugins/debugger/watchhandler.cpp" line="+70"/>
         <source>&lt;not in scope&gt;</source>
         <translation>&lt;スコープ範囲外&gt;</translation>
     </message>
@@ -4311,7 +5086,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Debugger::Internal::WatchHandler</name>
     <message>
-        <location line="+187"/>
+        <location line="+224"/>
         <source>Expression</source>
         <translation>式</translation>
     </message>
@@ -4332,99 +5107,179 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>iname</source>
-        <translation>内部名</translation>
+        <source>Internal ID</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+1"/>
+        <source>Generation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1074"/>
+        <source>&lt;Edit&gt;</source>
+        <translation type="unfinished">&lt;編集&gt;</translation>
+    </message>
+    <message>
+        <source>iname</source>
+        <translation type="obsolete">内部名</translation>
+    </message>
+    <message>
+        <location line="-1056"/>
         <source>Root</source>
         <translation>ルート</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+7"/>
         <source>Locals</source>
         <translation>ローカル</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+8"/>
         <source>Tooltip</source>
         <translation>ツールチップ</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="-4"/>
         <source>Watchers</source>
         <translation>監視式</translation>
     </message>
     <message>
-        <location line="+242"/>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation type="obsolete">名前</translation>
     </message>
     <message>
-        <location line="-338"/>
-        <location line="+339"/>
+        <location line="-33"/>
         <source>Value</source>
         <translation>値</translation>
     </message>
     <message>
-        <location line="-345"/>
-        <location line="+346"/>
+        <location line="-6"/>
         <source>Type</source>
         <translation>型</translation>
     </message>
     <message>
-        <location line="+166"/>
         <source>&lt;No Locals&gt;</source>
-        <translation>&lt;ローカル変数なし&gt;</translation>
+        <translation type="obsolete">&lt;ローカル変数なし&gt;</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>&lt;No Tooltip&gt;</source>
-        <translation>&lt;ツールチップなし&gt;</translation>
+        <translation type="obsolete">&lt;ツールチップなし&gt;</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>&lt;No Watchers&gt;</source>
-        <translation>&lt;監視式なし&gt;</translation>
+        <translation type="obsolete">&lt;監視式なし&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::WatchModel</name>
+    <message>
+        <location line="+443"/>
+        <source>decimal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>hexadecimal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>binary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>octal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+83"/>
+        <source>Name</source>
+        <translation type="unfinished">名前</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Value</source>
+        <translation type="unfinished">値</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Type</source>
+        <translation type="unfinished">型</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::WatchWindow</name>
     <message>
-        <location filename="../../../src/plugins/debugger/watchwindow.cpp" line="+121"/>
+        <location filename="../../../src/plugins/debugger/watchwindow.cpp" line="+128"/>
         <source>Locals and Watchers</source>
         <translation>ローカル変数と監視式</translation>
     </message>
     <message>
-        <location line="+81"/>
+        <location line="+95"/>
+        <source>Change format for type &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Change format for expression &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Change format for type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Change format for expression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Select widget to watch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Open memory editor...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Open memory editor at %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
         <source>Adjust column widths to contents</source>
         <translation>内容に合わせて列幅を調整</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Always adjust column widths to contents</source>
         <translation>常に内容に合わせて列幅を調整</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="-35"/>
         <source>Insert new watch item</source>
         <translation>新しい監視式を挿入</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>&lt;Edit&gt;</source>
-        <translation>&lt;編集&gt;</translation>
+        <translation type="obsolete">&lt;編集&gt;</translation>
     </message>
 </context>
 <context>
     <name>DebuggerPane</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="-138"/>
+        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="-140"/>
         <source>Clear contents</source>
         <translation>内容をクリア</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+6"/>
         <source>Save contents</source>
         <translation>内容を保存</translation>
     </message>
@@ -4470,7 +5325,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>DependenciesModel</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/dependenciespanel.cpp" line="+118"/>
+        <location filename="../../../src/plugins/projectexplorer/dependenciespanel.cpp" line="+121"/>
         <source>Unable to add dependency</source>
         <translation>依存関係の追加不可</translation>
     </message>
@@ -4478,6 +5333,32 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <location line="+1"/>
         <source>This would create a circular dependency.</source>
         <translation>循環依存を作り出してしまいます。</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::DependenciesWidget</name>
+    <message>
+        <location line="+143"/>
+        <source>%1 has no dependencies.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>%1 depends on %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>%1 depends on: %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Project Dependencies</source>
+        <translation type="obsolete">プロジェクトの依存関係</translation>
+    </message>
+    <message>
+        <source>Project Dependencies:</source>
+        <translation type="obsolete">プロジェクトの依存関係:</translation>
     </message>
 </context>
 <context>
@@ -4497,24 +5378,32 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <source>The &lt;RCC&gt; root element is missing.</source>
         <translation>&lt;RCC&gt; にルート要素がありません。</translation>
     </message>
+    <message>
+        <location filename="../../../src/plugins/designer/designerconstants.h" line="+38"/>
+        <source>Designer</source>
+        <translation type="unfinished">デザイナ</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Class Generation</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Designer::Internal::EditorWidget</name>
     <message>
-        <location filename="../../../src/plugins/designer/editorwidget.cpp" line="+174"/>
         <source>Action editor</source>
-        <translation>アクション エディタ</translation>
+        <translation type="obsolete">アクション エディタ</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Signals and slots editor</source>
-        <translation>シグナル/スロット エディタ</translation>
+        <translation type="obsolete">シグナル/スロット エディタ</translation>
     </message>
 </context>
 <context>
     <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
-        <location filename="../../../src/plugins/designer/cpp/formclasswizarddialog.cpp" line="+52"/>
+        <location filename="../../../src/plugins/designer/cpp/formclasswizarddialog.cpp" line="+50"/>
         <source>Qt Designer Form Class</source>
         <translation>Qt デザイナ フォーム クラス</translation>
     </message>
@@ -4522,7 +5411,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Designer::Internal::FormClassWizardPage</name>
     <message>
-        <location filename="../../../src/plugins/designer/cpp/formclasswizardpage.cpp" line="+194"/>
+        <location filename="../../../src/plugins/designer/cpp/formclasswizardpage.cpp" line="+148"/>
         <source>%1 - Error</source>
         <translation>%1 - エラー</translation>
     </message>
@@ -4537,34 +5426,28 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>クラス</translation>
     </message>
     <message>
-        <location/>
         <source>More</source>
-        <translation>さらに</translation>
+        <translation type="obsolete">さらに</translation>
     </message>
     <message>
-        <location/>
         <source>Embedding of the UI class</source>
-        <translation>UIクラスの埋め込み方法</translation>
+        <translation type="obsolete">UIクラスの埋め込み方法</translation>
     </message>
     <message>
-        <location/>
         <source>Aggregation as a pointer member</source>
-        <translation>個々のメンバとして集合体</translation>
+        <translation type="obsolete">個々のメンバとして集合体</translation>
     </message>
     <message>
-        <location/>
         <source>Aggregation</source>
-        <translation>集合体</translation>
+        <translation type="obsolete">集合体</translation>
     </message>
     <message>
-        <location/>
         <source>Multiple Inheritance</source>
-        <translation>複合継承</translation>
+        <translation type="obsolete">複合継承</translation>
     </message>
     <message>
-        <location/>
         <source>Support for changing languages at runtime</source>
-        <translation>実行時の言語変更をサポートする</translation>
+        <translation type="obsolete">実行時の言語変更をサポートする</translation>
     </message>
     <message>
         <location/>
@@ -4575,7 +5458,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Designer::Internal::FormEditorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/designer/formeditorplugin.cpp" line="+151"/>
+        <location filename="../../../src/plugins/designer/formeditorplugin.cpp" line="+137"/>
         <source>Qt</source>
         <translation>Qt</translation>
     </message>
@@ -4590,7 +5473,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>Qt デザイナ フォーム ファイル(.ui)を作成します(フォームのみを作成)。</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+6"/>
         <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
         <translation>Qt デザイナ フォーム ファイル(.ui)とそのフォームに対応するクラスを作成します。</translation>
     </message>
@@ -4603,37 +5486,61 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Designer::Internal::FormEditorW</name>
     <message>
-        <location filename="../../../src/plugins/designer/formeditorw.cpp" line="+272"/>
         <source>Designer widgetbox</source>
-        <translation>デザイナ ウィジェット ボックス</translation>
+        <translation type="obsolete">デザイナ ウィジェット ボックス</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Object inspector</source>
-        <translation>オブジェクト インスペクタ</translation>
+        <translation type="obsolete">オブジェクト インスペクタ</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Property editor</source>
-        <translation>プロパティ エディタ</translation>
+        <translation type="obsolete">プロパティ エディタ</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Signals and slots editor</source>
-        <translation>シグナル/スロット エディタ</translation>
+        <translation type="obsolete">シグナル/スロット エディタ</translation>
+    </message>
+    <message>
+        <source>Action editor</source>
+        <translation type="obsolete">アクション エディタ</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/designer/formeditorw.cpp" line="+335"/>
+        <location line="+170"/>
+        <source>Widget Box</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-165"/>
+        <location line="+169"/>
+        <source>Object Inspector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-164"/>
+        <location line="+168"/>
+        <source>Property Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-163"/>
+        <source>Signals &amp; Slots Editor</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>Action editor</source>
-        <translation>アクション エディタ</translation>
+        <location line="+167"/>
+        <source>Action Editor</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+42"/>
+        <location line="-125"/>
         <source>For&amp;m editor</source>
         <translation>フォーム エディタ(&amp;M)</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+35"/>
         <source>Edit widgets</source>
         <translation>ウィジェットの編集</translation>
     </message>
@@ -4703,7 +5610,27 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>Ctrl+J</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+20"/>
+        <source>Views</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Signals &amp;&amp; Slots Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Locked</source>
+        <translation type="unfinished">固定する</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Reset to Default Layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>Ctrl+Alt+R</source>
         <translation>Ctrl+Alt+R</translation>
     </message>
@@ -4718,12 +5645,12 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>プレビュー</translation>
     </message>
     <message>
-        <location line="+53"/>
+        <location line="+48"/>
         <source>Designer</source>
         <translation>デザイナ</translation>
     </message>
     <message>
-        <location line="+131"/>
+        <location line="+161"/>
         <source>The image could not be created: %1</source>
         <translation>画像を作成できません: %1</translation>
     </message>
@@ -4744,20 +5671,19 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
 <context>
     <name>Designer::Internal::FormWindowEditor</name>
     <message>
-        <location filename="../../../src/plugins/designer/formwindoweditor.cpp" line="+163"/>
         <source>untitled</source>
-        <translation>無題</translation>
+        <translation type="obsolete">無題</translation>
     </message>
 </context>
 <context>
     <name>Designer::Internal::FormWindowFile</name>
     <message>
-        <location filename="../../../src/plugins/designer/formwindowfile.cpp" line="+76"/>
+        <location filename="../../../src/plugins/designer/formwindowfile.cpp" line="+77"/>
         <source>Error saving %1</source>
         <translation>%1 の保存中にエラーが発生</translation>
     </message>
     <message>
-        <location line="+100"/>
+        <location line="+106"/>
         <source>Unable to open %1: %2</source>
         <translation>%1 を開けません: %2</translation>
     </message>
@@ -4783,7 +5709,7 @@ gdb 6.7以降をお使いになる事を強く推奨します。</translation>
         <translation>%2 に &apos;%1&apos; のクラス定義が見つかりませんでした。</translation>
     </message>
     <message>
-        <location line="+462"/>
+        <location line="+475"/>
         <source>Error finding/adding a slot.</source>
         <translation>スロットの検索中または追加中にエラーが発生しました。</translation>
     </message>
@@ -4802,9 +5728,8 @@ Rebuilding the project might help.</source>
 <context>
     <name>Designer::Internal::SettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/designer/settingspage.cpp" line="+63"/>
         <source>Designer</source>
-        <translation>デザイナ</translation>
+        <translation type="obsolete">デザイナ</translation>
     </message>
 </context>
 <context>
@@ -4828,42 +5753,35 @@ Rebuilding the project might help.</source>
 <context>
     <name>DuiEditor::Internal::DuiEditorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/duieditor/duieditorplugin.cpp" line="+98"/>
         <source>Creates a Qt QML file.</source>
-        <translation>Qt QML ファイルを作成します。</translation>
+        <translation type="obsolete">Qt QML ファイルを作成します。</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Qt QML File</source>
-        <translation>Qt QML ファイル</translation>
+        <translation type="obsolete">Qt QML ファイル</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Qt</source>
-        <translation>Qt</translation>
+        <translation type="obsolete">Qt</translation>
     </message>
 </context>
 <context>
     <name>DuiEditor::Internal::ScriptEditor</name>
     <message>
-        <location filename="../../../src/plugins/duieditor/duieditor.cpp" line="+448"/>
         <source>&lt;Select Symbol&gt;</source>
-        <translation>&lt;シンボルを選択&gt;</translation>
+        <translation type="obsolete">&lt;シンボルを選択&gt;</translation>
     </message>
     <message>
-        <location line="+101"/>
         <source>Rename...</source>
-        <translation>名前を変更...</translation>
+        <translation type="obsolete">名前を変更...</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>New id:</source>
-        <translation>新しい ID:</translation>
+        <translation type="obsolete">新しい ID:</translation>
     </message>
     <message>
-        <location line="+148"/>
         <source>Rename id &apos;%1&apos;...</source>
-        <translation>ID &apos;%1&apos; の名前を変更...</translation>
+        <translation type="obsolete">ID &apos;%1&apos; の名前を変更...</translation>
     </message>
 </context>
 <context>
@@ -4998,7 +5916,7 @@ It also automatically sets the correct Qt version.</source>
 <context>
     <name>ExtensionSystem::PluginErrorView</name>
     <message>
-        <location filename="../../../src/libs/extensionsystem/pluginerrorview.cpp" line="+78"/>
+        <location filename="../../../src/libs/extensionsystem/pluginerrorview.cpp" line="+79"/>
         <source>Invalid</source>
         <translation>無効</translation>
     </message>
@@ -5128,35 +6046,40 @@ Reason: %3</source>
 <context>
     <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
-        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+819"/>
         <source>%1,%2</source>
-        <translation>%1,%2</translation>
+        <translation type="obsolete">%1,%2</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <location line="+3"/>
         <source>%1</source>
-        <translation>%1</translation>
+        <translation type="obsolete">%1</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+940"/>
         <source>Not implemented in FakeVim</source>
         <translation>FakeVim では実装していません</translation>
     </message>
     <message>
-        <location line="+128"/>
-        <location line="+711"/>
-        <location line="+19"/>
+        <location line="-695"/>
         <source>E20: Mark &apos;%1&apos; not set</source>
         <translation>E20: マーク &apos;%1&apos; はセットされていません</translation>
     </message>
     <message>
-        <location line="+115"/>
+        <location line="+671"/>
+        <source>%1%2%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>%1All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1023"/>
         <source>File &apos;%1&apos; exists (add ! to override)</source>
         <translation>ファイル &apos;%1&apos; は既に存在します ( ! を付け加えれば上書き)</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+20"/>
         <source>Cannot open file &apos;%1&apos; for writing</source>
         <translation>書き込み用にファイル &apos;%1&apos; を開けません</translation>
     </message>
@@ -5171,7 +6094,7 @@ Reason: %3</source>
         <translation>読み込み用にファイル &apos;%1&apos; を開けません</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+9"/>
         <source>&quot;%1&quot; %2L, %3C</source>
         <translation>&quot;%1&quot; %2L, %3C</translation>
     </message>
@@ -5183,24 +6106,28 @@ Reason: %3</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+7"/>
+        <location line="+6"/>
         <source>%n lines &gt;ed %1 time</source>
         <translation>
             <numerusform>%n 行を %1 回右シフト(&gt;)しました</numerusform>
         </translation>
     </message>
     <message>
-        <location line="+81"/>
+        <location line="+78"/>
         <source>E512: Unknown option: </source>
         <translation>E512: 不明なプション: </translation>
     </message>
     <message>
-        <location line="+22"/>
-        <source>E492: Not an editor command: </source>
-        <translation>E492: エディタのコマンドではありません: </translation>
+        <location line="+78"/>
+        <source>Pattern not found: </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+47"/>
+        <source>E492: Not an editor command: </source>
+        <translation type="obsolete">E492: エディタのコマンドではありません: </translation>
+    </message>
+    <message>
+        <location line="-7"/>
         <source>search hit BOTTOM, continuing at TOP</source>
         <translation>末尾まで到達したため、先頭から検索しました</translation>
     </message>
@@ -5210,12 +6137,11 @@ Reason: %3</source>
         <translation>先頭まで到達したため、末尾から検索しました</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>E486: Pattern not found: </source>
-        <translation>E486: パターンが見つかりません: </translation>
+        <translation type="obsolete">E486: パターンが見つかりません: </translation>
     </message>
     <message>
-        <location line="+371"/>
+        <location line="+575"/>
         <source>Already at oldest change</source>
         <translation>これ以上、元に戻せません</translation>
     </message>
@@ -5241,13 +6167,30 @@ Reason: %3</source>
 <context>
     <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
-        <location line="+336"/>
-        <location line="+146"/>
+        <location line="+347"/>
+        <location line="+188"/>
         <source>Quit FakeVim</source>
         <translation>FakeVim を終了する</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="-117"/>
+        <source>Saving succeeded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>%n files not saved</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Not an editor command: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+112"/>
         <source>FakeVim Information</source>
         <translation>FakeVim 情報</translation>
     </message>
@@ -5422,14 +6365,18 @@ Reason: %3</source>
 <context>
     <name>Find::Internal::FindPlugin</name>
     <message>
-        <location filename="../../../src/plugins/find/findplugin.cpp" line="+149"/>
+        <location filename="../../../src/plugins/find/findplugin.cpp" line="+150"/>
         <source>&amp;Find/Replace</source>
         <translation>検索/置換(&amp;F)</translation>
     </message>
     <message>
         <location line="+17"/>
+        <source>Find...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Find Dialog</source>
-        <translation>検索ダイアログ</translation>
+        <translation type="obsolete">検索ダイアログ</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -5440,7 +6387,7 @@ Reason: %3</source>
 <context>
     <name>Find::Internal::FindToolBar</name>
     <message>
-        <location filename="../../../src/plugins/find/findtoolbar.cpp" line="+152"/>
+        <location filename="../../../src/plugins/find/findtoolbar.cpp" line="+139"/>
         <source>Current Document</source>
         <translation>現在のドキュメント</translation>
     </message>
@@ -5522,16 +6469,21 @@ Reason: %3</source>
         <source>All</source>
         <translation>すべて</translation>
     </message>
+    <message>
+        <location/>
+        <source>...</source>
+        <translation type="unfinished">...</translation>
+    </message>
 </context>
 <context>
     <name>Find::SearchResultWindow</name>
     <message>
-        <location filename="../../../src/plugins/find/searchresultwindow.h" line="+69"/>
+        <location filename="../../../src/plugins/find/searchresultwindow.h" line="+89"/>
         <source>Search Results</source>
         <translation>検索結果</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/find/searchresultwindow.cpp" line="+60"/>
+        <location filename="../../../src/plugins/find/searchresultwindow.cpp" line="+67"/>
         <source>No matches found!</source>
         <translation>見つかりませんでした!</translation>
     </message>
@@ -5539,6 +6491,21 @@ Reason: %3</source>
         <location line="+8"/>
         <source>Expand All</source>
         <translation>すべて展開</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Replace with:</source>
+        <translation type="unfinished">置換文字列:</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Replace all occurances</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Replace</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5625,22 +6592,44 @@ Reason: %3</source>
 <context>
     <name>GenericProject</name>
     <message>
-        <location filename="../../../src/plugins/genericprojectmanager/genericproject.cpp" line="+90"/>
+        <location filename="../../../src/plugins/genericprojectmanager/genericproject.cpp" line="+93"/>
         <source>&lt;new&gt;</source>
         <translation>&lt;新規&gt;</translation>
     </message>
 </context>
 <context>
+    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
+    <message>
+        <location line="+38"/>
+        <source>Create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>New configuration</source>
+        <translation type="unfinished">新しい構成</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>New Configuration Name:</source>
+        <translation type="unfinished">新しい構成名:</translation>
+    </message>
+</context>
+<context>
     <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
-        <location line="+398"/>
+        <location line="+450"/>
         <source>Build directory:</source>
         <translation>ビルド ディレクトリ:</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+17"/>
+        <source>Tool Chain:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Toolchain:</source>
-        <translation>ツールチェイン:</translation>
+        <translation type="obsolete">ツールチェイン:</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -5651,9 +6640,14 @@ Reason: %3</source>
 <context>
     <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
-        <location filename="../../../src/plugins/genericprojectmanager/genericmakestep.cpp" line="+164"/>
+        <location filename="../../../src/plugins/genericprojectmanager/genericmakestep.cpp" line="+189"/>
         <source>Override %1:</source>
         <translation>%1 の代わりに使用するコマンド:</translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5811,7 +6805,7 @@ Reason: %3</source>
 <context>
     <name>Git::Internal::GitClient</name>
     <message>
-        <location filename="../../../src/plugins/git/gitclient.cpp" line="+65"/>
+        <location filename="../../../src/plugins/git/gitclient.cpp" line="+71"/>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translation>Qt Creator 用 git プラグイン はサーバとうまく連携できない点にご注意下さい。手動でのssh認証もうまく動きません。</translation>
     </message>
@@ -5826,12 +6820,18 @@ Reason: %3</source>
         <translation>ファイル出力がパースできません。</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>%1 Executing: %2 %3
 </source>
         <extracomment>&lt;timestamp&gt; Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
-        <translation>%1 実行中: %2 %3
+        <translation type="obsolete">%1 実行中: %2 %3
 </translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Executing: %1 %2
+</source>
+        <extracomment>Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
@@ -5871,7 +6871,7 @@ Reason: %3</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+37"/>
+        <location line="+33"/>
         <source>Unable to reset %n file(s) in %1: %2</source>
         <translation>
             <numerusform>%1 内の %n 個のファイルがリセットできません: %2</numerusform>
@@ -5900,7 +6900,7 @@ Reason: %3</source>
         <translation>%1 で show コマンドを実行できません: %2</translation>
     </message>
     <message>
-        <location line="+143"/>
+        <location line="+148"/>
         <source>Changes</source>
         <translation>変更あり</translation>
     </message>
@@ -5915,7 +6915,7 @@ Reason: %3</source>
         <translation>状態が不明です: %1</translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+31"/>
         <source>The repository %1 is not initialized yet.</source>
         <translation>リポジトリ %1 は、まだ初期化されていません。</translation>
     </message>
@@ -5929,7 +6929,7 @@ Reason: %3</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Unable to commit %n file(s): %1
 </source>
         <translation>
@@ -5938,7 +6938,7 @@ Reason: %3</source>
         </translation>
     </message>
     <message>
-        <location line="+81"/>
+        <location line="+79"/>
         <source>Revert</source>
         <translation>元に戻す</translation>
     </message>
@@ -5953,7 +6953,7 @@ Reason: %3</source>
         <translation>ファイルは変更されていません。</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+22"/>
         <source>There are no modified files.</source>
         <translation>変更されたファイルはありません。</translation>
     </message>
@@ -5961,20 +6961,18 @@ Reason: %3</source>
 <context>
     <name>Git::Internal::GitOutputWindow</name>
     <message>
-        <location filename="../../../src/plugins/git/gitoutputwindow.cpp" line="+48"/>
         <source>Git Output</source>
-        <translation>Git 出力</translation>
+        <translation type="obsolete">Git 出力</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>Git</source>
-        <translation>Git</translation>
+        <translation type="obsolete">Git</translation>
     </message>
 </context>
 <context>
     <name>Git::Internal::GitPlugin</name>
     <message>
-        <location filename="../../../src/plugins/git/gitplugin.cpp" line="+270"/>
+        <location filename="../../../src/plugins/git/gitplugin.cpp" line="+232"/>
         <source>&amp;Git</source>
         <translation>Git(&amp;G)</translation>
     </message>
@@ -6079,14 +7077,12 @@ Reason: %3</source>
         <translation>&quot;%1&quot; をコミット予定から削除</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Revert...</source>
-        <translation>元に戻す...</translation>
+        <translation type="obsolete">元に戻す...</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Revert &quot;%1&quot;...</source>
-        <translation>&quot;%1&quot; を元に戻す...</translation>
+        <translation type="obsolete">&quot;%1&quot; を元に戻す...</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -6209,12 +7205,26 @@ Reason: %3</source>
         <translation>作業ディレクトリが見つかりませんでした</translation>
     </message>
     <message>
-        <location line="+87"/>
-        <source>Another submit is currently beeing executed.</source>
-        <translation>別のサブミットが実行中です。</translation>
+        <location line="+61"/>
+        <source>Revert</source>
+        <translation type="unfinished">元に戻す</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+1"/>
+        <source>Would you like to revert all pending changes to the project?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Another submit is currently being executed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Another submit is currently beeing executed.</source>
+        <translation type="obsolete">別のサブミットが実行中です。</translation>
+    </message>
+    <message>
+        <location line="+30"/>
         <source>Cannot create temporary file: %1</source>
         <translation>一時ファイルを作成できません: %1</translation>
     </message>
@@ -6237,7 +7247,7 @@ Reason: %3</source>
 <context>
     <name>Git::Internal::GitSettings</name>
     <message>
-        <location filename="../../../src/plugins/git/gitsettings.cpp" line="+100"/>
+        <location filename="../../../src/plugins/git/gitsettings.cpp" line="+110"/>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>パス &apos;%2&apos; から実行ファイル &apos;%1&apos; が見つかりませんでした</translation>
     </message>
@@ -6344,7 +7354,7 @@ Reason: %3</source>
         <translation>コミットログの表示件数:</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/git/settingspage.cpp" line="+85"/>
+        <location filename="../../../src/plugins/git/settingspage.cpp" line="+90"/>
         <source>Git</source>
         <translation>Git</translation>
     </message>
@@ -6358,11 +7368,21 @@ Reason: %3</source>
         <source>Timeout (seconds):</source>
         <translation>タイムアウト時間 (秒):</translation>
     </message>
+    <message>
+        <location/>
+        <source>Prompt to submit</source>
+        <translation type="unfinished">コミット前に確認する</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Omit date from annotation output</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GitCommand</name>
     <message>
-        <location filename="../../../src/plugins/git/gitcommand.cpp" line="+64"/>
+        <location filename="../../../src/plugins/git/gitcommand.cpp" line="+57"/>
         <source>
 &apos;%1&apos; failed (exit code %2).
 </source>
@@ -6403,7 +7423,7 @@ Reason: %3</source>
         <translation>こんにちは世界 ボタン!</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+31"/>
         <source>Hello World!</source>
         <translation>こんにちは世界!</translation>
     </message>
@@ -6429,38 +7449,38 @@ Reason: %3</source>
 <context>
     <name>Help::Internal::CentralWidget</name>
     <message>
-        <location filename="../../../src/plugins/help/centralwidget.cpp" line="+102"/>
+        <location filename="../../../src/plugins/help/centralwidget.cpp" line="+97"/>
         <source>Add new page</source>
         <translation>新しいページの追加</translation>
     </message>
     <message>
-        <location line="+202"/>
+        <location line="+238"/>
         <source>Print Document</source>
         <translation>ドキュメントを印刷</translation>
     </message>
     <message>
-        <location line="+110"/>
+        <location line="+120"/>
         <location line="+2"/>
         <source>unknown</source>
         <translation>不明</translation>
     </message>
     <message>
-        <location line="+96"/>
+        <location line="+87"/>
         <source>Add New Page</source>
         <translation>新しいページの追加</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Close This Page</source>
         <translation>このページを閉じる</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Close Other Pages</source>
         <translation>他のページを閉じる</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+5"/>
         <source>Add Bookmark for this Page...</source>
         <translation>このページをブックマークに追加...</translation>
     </message>
@@ -6524,7 +7544,7 @@ Reason: %3</source>
 <context>
     <name>Help::Internal::HelpMode</name>
     <message>
-        <location filename="../../../src/plugins/help/helpmode.cpp" line="+43"/>
+        <location filename="../../../src/plugins/help/helpmode.cpp" line="+46"/>
         <source>Help</source>
         <translation>ヘルプ</translation>
     </message>
@@ -6532,7 +7552,7 @@ Reason: %3</source>
 <context>
     <name>Help::Internal::HelpPlugin</name>
     <message>
-        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+186"/>
+        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+209"/>
         <location line="+46"/>
         <source>Contents</source>
         <translation>コンテンツ</translation>
@@ -6560,24 +7580,32 @@ Reason: %3</source>
         <translation>ホーム</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <location line="+190"/>
+        <location line="+231"/>
         <source>Previous</source>
         <translation>戻る</translation>
     </message>
     <message>
-        <location line="-184"/>
-        <location line="+186"/>
+        <location line="+2"/>
         <source>Next</source>
         <translation>進む</translation>
     </message>
     <message>
-        <location line="-179"/>
+        <location line="-214"/>
         <source>Add Bookmark</source>
         <translation>ブックマークの追加</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="-13"/>
+        <source>Previous Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Next Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+31"/>
         <source>Context Help</source>
         <translation>コンテキスト ヘルプ</translation>
     </message>
@@ -6597,19 +7625,49 @@ Reason: %3</source>
         <translation>ヘルプモードの検索をアクティブにします</translation>
     </message>
     <message>
-        <location line="+235"/>
+        <location line="+74"/>
+        <source>Increase Font Size</source>
+        <translation type="unfinished">フォントを大きく</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Ctrl++</source>
+        <translation type="unfinished">Ctrl++</translation>
+    </message>
+    <message>
         <location line="+4"/>
-        <location line="+88"/>
+        <source>Decrease Font Size</source>
+        <translation type="unfinished">フォントを小さく</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Ctrl+-</source>
+        <translation type="unfinished">Ctrl+-</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Reset Font Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Ctrl+0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+201"/>
+        <location line="+4"/>
+        <location line="+146"/>
         <source>Unfiltered</source>
         <translation>フィルタなし</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+12"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;No documentation available.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head&gt;&lt;title&gt;ドキュメントがありません&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;使用可能なドキュメントがありません。&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+54"/>
         <source>Filtered by:</source>
         <translation>フィルタ条件:</translation>
     </message>
@@ -6640,12 +7698,12 @@ Reason: %3</source>
 <context>
     <name>HelpViewer</name>
     <message>
-        <location filename="../../../src/shared/help/helpviewer.cpp" line="+246"/>
+        <location filename="../../../src/shared/help/helpviewer.cpp" line="+247"/>
         <source>Open Link in New Tab</source>
         <translation>リンクを新しいタブで開く</translation>
     </message>
     <message>
-        <location line="+134"/>
+        <location line="+166"/>
         <source>&lt;title&gt;Error 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</source>
         <translation>&lt;title&gt;Error 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;ページが見つかりませんでした&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</translation>
     </message>
@@ -6698,7 +7756,7 @@ Reason: %3</source>
 <context>
     <name>InputPane</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="+75"/>
+        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="+76"/>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Ctrl+&lt;リターン&gt;キーを押して一行実行してください。</translation>
     </message>
@@ -6912,7 +7970,7 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
 <context>
     <name>Perforce::Internal</name>
     <message>
-        <location filename="../../../src/plugins/perforce/perforcesettings.cpp" line="+97"/>
+        <location filename="../../../src/plugins/perforce/perforcesettings.cpp" line="+100"/>
         <source>No executable specified</source>
         <translation>実行ファイルが指定されていません</translation>
     </message>
@@ -6981,25 +8039,22 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
 <context>
     <name>Perforce::Internal::PerforceOutputWindow</name>
     <message>
-        <location filename="../../../src/plugins/perforce/perforceoutputwindow.cpp" line="+48"/>
         <source>Perforce Output</source>
-        <translation>Perforce 出力</translation>
+        <translation type="obsolete">Perforce 出力</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Diff</source>
-        <translation>差分表示</translation>
+        <translation type="obsolete">差分表示</translation>
     </message>
     <message>
-        <location line="+34"/>
         <source>Perforce</source>
-        <translation>Perforce</translation>
+        <translation type="obsolete">Perforce</translation>
     </message>
 </context>
 <context>
     <name>Perforce::Internal::PerforcePlugin</name>
     <message>
-        <location filename="../../../src/plugins/perforce/perforceplugin.cpp" line="+250"/>
+        <location filename="../../../src/plugins/perforce/perforceplugin.cpp" line="+243"/>
         <source>&amp;Perforce</source>
         <translation>Perforce(&amp;P)</translation>
     </message>
@@ -7014,12 +8069,12 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>&quot;%1&quot; を編集</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Alt+P,Alt+E</source>
         <translation>Alt+P,Alt+E</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Edit File</source>
         <translation>ファイルを編集</translation>
     </message>
@@ -7034,12 +8089,12 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>&quot;%1&quot; を追加</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Alt+P,Alt+A</source>
         <translation>Alt+P,Alt+A</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Add File</source>
         <translation>ファイルを追加</translation>
     </message>
@@ -7069,12 +8124,12 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>&quot;%1&quot; を元に戻す</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Alt+P,Alt+R</source>
         <translation>Alt+P,Alt+R</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Revert File</source>
         <translation>ファイルを元に戻す</translation>
     </message>
@@ -7091,22 +8146,21 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
     </message>
     <message>
         <location line="+7"/>
-        <location line="+4"/>
         <source>Diff Current Project/Session</source>
         <translation>現在のプロジェクト/セッションの差分表示</translation>
     </message>
     <message>
-        <location line="-4"/>
+        <location line="+1"/>
         <source>Diff Project &quot;%1&quot;</source>
         <translation>プロジェクト &quot;%1&quot; の差分表示</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Alt+P,Alt+D</source>
         <translation>Alt+P,Alt+D</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Diff Opened Files</source>
         <translation>開いているファイルの差分表示</translation>
     </message>
@@ -7116,12 +8170,12 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>Opened</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Alt+P,Alt+O</source>
         <translation>Alt+P,Alt+O</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>Submit Project</source>
         <translation>プロジェクトのサブミット</translation>
     </message>
@@ -7136,7 +8190,17 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>保留中の変更...</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+5"/>
+        <source>Update Current Project/Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Update Project &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
         <source>Describe...</source>
         <translation>説明...</translation>
     </message>
@@ -7158,24 +8222,29 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
     </message>
     <message>
         <location line="+5"/>
-        <location line="+4"/>
+        <location line="+6"/>
         <source>Filelog Current File</source>
         <translation>現在のファイルログ</translation>
     </message>
     <message>
-        <location line="-4"/>
+        <location line="-6"/>
         <source>Filelog &quot;%1&quot;</source>
         <translation>&quot;%1&quot; のファイルログ</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Alt+P,Alt+F</source>
         <translation>Alt+P,Alt+F</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Filelog...</source>
         <translation>ファイルログ...</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Update All</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
@@ -7208,7 +8277,7 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>ファイルは変更されていますが、元にもどしますか?</translation>
     </message>
     <message>
-        <location line="+58"/>
+        <location line="+93"/>
         <source>Another submit is currently executed.</source>
         <translation>別のサブミットが実行中です。</translation>
     </message>
@@ -7218,22 +8287,22 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>一時ファイルを作成できません。</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+33"/>
         <source>Project has no files</source>
         <translation>プロジェクトにファイルがありません</translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+49"/>
         <source>p4 annotate</source>
         <translation>p4 アノテーション</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>p4 annotate %1</source>
         <translation>p4 アノテーション %1</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>p4 filelog</source>
         <translation>p4 ファイルログ</translation>
     </message>
@@ -7243,14 +8312,19 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>p4 ファイルログ %1</translation>
     </message>
     <message>
-        <location line="+131"/>
+        <location line="+110"/>
+        <source>Executing: %1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%1 Executing: %2
 </source>
-        <translation>%1 実行中: %2
+        <translation type="obsolete">%1 実行中: %2
 </translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+70"/>
         <source>The process terminated with exit code %1.</source>
         <translation>プロセスは終了コード %1 で終了しました。</translation>
     </message>
@@ -7270,7 +8344,7 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>Perforce がタイムアウト制限時間 (%1 ミリ秒) 内に応答を返しませんでした。</translation>
     </message>
     <message>
-        <location line="+85"/>
+        <location line="+84"/>
         <source>p4 diff %1</source>
         <translation>p4 差分表示 %1</translation>
     </message>
@@ -7280,7 +8354,7 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>p4 説明 %1</translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+41"/>
         <source>Closing p4 Editor</source>
         <translation>P4 エディタを閉じようとしています</translation>
     </message>
@@ -7295,10 +8369,20 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>コミットメッセージが確認できませんでした。変更をコミットしますか?</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+18"/>
+        <source>Cannot open temporary file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
         <location line="+8"/>
         <source>Cannot execute p4 submit.</source>
         <translation>p4 サブミットを実行できません。</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>p4 submit failed (exit code %1).</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
@@ -7316,7 +8400,7 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>無効な構成: %1</translation>
     </message>
     <message>
-        <location line="+104"/>
+        <location line="+63"/>
         <source>Timeout waiting for &quot;where&quot; (%1).</source>
         <translation>&quot;where&quot; (%1) がタイムアウトするのを待機中です。</translation>
     </message>
@@ -7380,7 +8464,7 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>P4 ポート:</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/perforce/settingspage.cpp" line="+104"/>
+        <location filename="../../../src/plugins/perforce/settingspage.cpp" line="+106"/>
         <source>Perforce</source>
         <translation>Perforce</translation>
     </message>
@@ -7390,15 +8474,19 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>テスト</translation>
     </message>
     <message>
-        <location/>
         <source>TextLabel</source>
-        <translation>TextLabel</translation>
+        <translation type="obsolete">TextLabel</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Prompt to submit</source>
+        <translation type="unfinished">コミット前に確認する</translation>
     </message>
 </context>
 <context>
     <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
-        <location filename="../../../src/plugins/perforce/settingspage.cpp" line="-48"/>
+        <location filename="../../../src/plugins/perforce/settingspage.cpp" line="-50"/>
         <source>Testing...</source>
         <translation>テスト中...</translation>
     </message>
@@ -7531,15 +8619,18 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
         <translation>解決済み状態でない為、ライブラリの読込に失敗しました</translation>
     </message>
     <message>
-        <location line="+30"/>
-        <source>
-Library base name: %1</source>
-        <translation>ライブラリ名: %1</translation>
+        <location line="+35"/>
+        <source>Plugin is not valid (does not derive from IPlugin)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <source>
+Library base name: %1</source>
+        <translation type="obsolete">ライブラリ名: %1</translation>
+    </message>
+    <message>
         <source>Plugin is not valid (doesn&apos;t derive from IPlugin)</source>
-        <translation>無効なプラグインです (IPlugin から派生していません)</translation>
+        <translation type="obsolete">無効なプラグインです (IPlugin から派生していません)</translation>
     </message>
     <message>
         <location line="+21"/>
@@ -7570,7 +8661,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::AbstractProcessStep</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/abstractprocessstep.cpp" line="+170"/>
+        <location filename="../../../src/plugins/projectexplorer/abstractprocessstep.cpp" line="+188"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
         <translation>&lt;font color=&quot;#0000ff&quot;&gt;%1 %2 を起動中です。&lt;/font&gt;
@@ -7595,24 +8686,24 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::BuildManager</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/buildmanager.cpp" line="+136"/>
+        <location filename="../../../src/plugins/projectexplorer/buildmanager.cpp" line="+141"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Canceled build.&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;ビルドを中止しました。&lt;/font&gt;</translation>
     </message>
     <message>
-        <location line="+58"/>
+        <location line="+61"/>
         <source>Build</source>
         <translation>ビルド</translation>
     </message>
     <message numerus="yes">
-        <location line="-138"/>
+        <location line="-141"/>
         <source>Finished %n of %1 build steps</source>
         <translation>
             <numerusform>%n/%1 ビルド ステップが完了しました</numerusform>
         </translation>
     </message>
     <message>
-        <location line="+193"/>
+        <location line="+196"/>
         <location line="+39"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Error while building project %1&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;プロジェクト %1 をビルド中にエラーが発生しました&lt;/font&gt;</translation>
@@ -7637,7 +8728,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/customexecutablerunconfiguration.cpp" line="+189"/>
+        <location filename="../../../src/plugins/projectexplorer/customexecutablerunconfiguration.cpp" line="+249"/>
         <source>Custom Executable</source>
         <translation>カスタム実行ファイル</translation>
     </message>
@@ -7647,7 +8738,7 @@ Library base name: %1</source>
         <translation>実行ファイルが見つかりません。実行ファイルを指定してください。</translation>
     </message>
     <message>
-        <location line="+107"/>
+        <location line="+124"/>
         <location line="+32"/>
         <source>Run %1</source>
         <translation>%1 を実行</translation>
@@ -7656,7 +8747,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
     <message>
-        <location line="+37"/>
+        <location line="+49"/>
         <location line="+16"/>
         <source>Custom Executable</source>
         <translation>カスタム実行ファイル</translation>
@@ -7665,7 +8756,13 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::EnvironmentModel</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/environmenteditmodel.cpp" line="+169"/>
+        <location filename="../../../src/plugins/projectexplorer/environmenteditmodel.cpp" line="+68"/>
+        <location line="+72"/>
+        <source>&lt;UNSET&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
         <source>Value</source>
         <translation>値</translation>
     </message>
@@ -7673,6 +8770,55 @@ Library base name: %1</source>
         <location line="+0"/>
         <source>Variable</source>
         <translation>変数</translation>
+    </message>
+    <message>
+        <location line="+119"/>
+        <location line="+254"/>
+        <source>&lt;VARIABLE&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-243"/>
+        <source>&lt;VALUE&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::EnvironmentWidget</name>
+    <message>
+        <location line="+163"/>
+        <source>&amp;Edit</source>
+        <translation type="unfinished">編集(&amp;E)</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&amp;Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&amp;Reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&amp;Unset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+68"/>
+        <source>Unset &lt;b&gt;%1&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Set &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Summary: No changes to Environment</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7686,7 +8832,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/allprojectsfind.cpp" line="+61"/>
+        <location filename="../../../src/plugins/projectexplorer/allprojectsfind.cpp" line="+64"/>
         <source>All Projects</source>
         <translation>すべてのプロジェクト</translation>
     </message>
@@ -7699,46 +8845,40 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::ApplicationLauncher</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/applicationlauncher_x11.cpp" line="+123"/>
         <source>Failed to start program. Path or permissions wrong?</source>
-        <translation>プログラムを開始できませんでした。パスかパーミッションに誤りはありませんか?</translation>
+        <translation type="obsolete">プログラムを開始できませんでした。パスかパーミッションに誤りはありませんか?</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>The program has unexpectedly finished.</source>
-        <translation>プログラムが突然終了しました。</translation>
+        <translation type="obsolete">プログラムが突然終了しました。</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Some error has occurred while running the program.</source>
-        <translation>プログラムを実行中にいくつかエラーが発生しました。</translation>
+        <translation type="obsolete">プログラムを実行中にいくつかエラーが発生しました。</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ApplicationRunConfigurationRunner</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/applicationrunconfiguration.cpp" line="+89"/>
         <source>Run</source>
-        <translation>実行</translation>
+        <translation type="obsolete">実行</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ApplicationRunControl</name>
     <message>
-        <location line="+52"/>
         <source>Starting %1...</source>
-        <translation>%1 を起動中...</translation>
+        <translation type="obsolete">%1 を起動中...</translation>
     </message>
     <message>
-        <location line="+26"/>
         <source>%1 exited with code %2</source>
-        <translation>%1 はコード %2 で終了しました</translation>
+        <translation type="obsolete">%1 はコード %2 で終了しました</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.cpp" line="+79"/>
+        <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.cpp" line="+80"/>
         <source>Build Settings</source>
         <translation>ビルド設定</translation>
     </message>
@@ -7746,72 +8886,80 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::BuildSettingsPropertiesPage</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.ui"/>
         <source>Configurations</source>
-        <translation>構成</translation>
+        <translation type="obsolete">構成</translation>
     </message>
     <message>
-        <location/>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="obsolete">+</translation>
     </message>
     <message>
-        <location/>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="obsolete">-</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.cpp" line="+29"/>
         <source>Create &amp;New</source>
-        <translation>新規作成(&amp;N)</translation>
+        <translation type="obsolete">新規作成(&amp;N)</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+116"/>
         <source>&amp;Clone Selected</source>
         <translation>選択済みの構成を複製(&amp;C)</translation>
     </message>
     <message>
-        <location line="+41"/>
-        <location line="+135"/>
         <source>%1 - %2</source>
-        <translation>%1 - %2</translation>
+        <translation type="obsolete">%1 - %2</translation>
     </message>
     <message>
-        <location line="-65"/>
         <source>General</source>
-        <translation>概要</translation>
+        <translation type="obsolete">概要</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+38"/>
         <source>Build Steps</source>
         <translation>ビルド ステップ</translation>
     </message>
     <message>
-        <location line="+66"/>
         <source>Set as Active</source>
-        <translation>アクティブにする</translation>
+        <translation type="obsolete">アクティブにする</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Clone</source>
-        <translation>複製</translation>
+        <translation type="obsolete">複製</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Delete</source>
-        <translation>削除</translation>
+        <translation type="obsolete">削除</translation>
     </message>
     <message>
-        <location line="+32"/>
         <source>New configuration</source>
-        <translation>新しい構成</translation>
+        <translation type="obsolete">新しい構成</translation>
     </message>
     <message>
-        <location line="+0"/>
-        <location line="+75"/>
+        <location line="-81"/>
+        <source>Edit Build Configuration:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Add</source>
+        <translation type="unfinished">追加</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Remove</source>
+        <translation type="unfinished">削除</translation>
+    </message>
+    <message>
+        <location line="+71"/>
+        <source>Clean Steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+69"/>
         <source>New Configuration Name:</source>
         <translation>新しい構成名:</translation>
     </message>
@@ -7824,34 +8972,59 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/buildstepspage.ui"/>
         <source>1</source>
-        <translation>1</translation>
+        <translation type="obsolete">1</translation>
     </message>
     <message>
-        <location/>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="obsolete">+</translation>
     </message>
     <message>
-        <location/>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="obsolete">-</translation>
     </message>
     <message>
-        <location/>
         <source>^</source>
-        <translation>^</translation>
+        <translation type="obsolete">^</translation>
     </message>
     <message>
-        <location/>
         <source>v</source>
-        <translation>v</translation>
+        <translation type="obsolete">v</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/buildstepspage.cpp" line="+103"/>
+        <location filename="../../../src/plugins/projectexplorer/buildstepspage.cpp" line="+61"/>
+        <source>No Build Steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Add clean step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Add build step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Remove clean step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Remove build step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+41"/>
         <source>Build Steps</source>
         <translation>ビルド ステップ</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Clean Steps</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7866,17 +9039,16 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+117"/>
+        <location filename="../../../src/plugins/projectexplorer/corelistenercheckingforrunningbuild.cpp" line="+48"/>
         <source>Cancel Build &amp;&amp; Close</source>
         <translation>ビルドを中止して閉じる</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Don&apos;t Close</source>
-        <translation>閉じない</translation>
+        <translation type="obsolete">閉じない</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>A project is currently being built.</source>
         <translation>プロジェクトは現在ビルド中です。</translation>
     </message>
@@ -7886,7 +9058,12 @@ Library base name: %1</source>
         <translation>Qt Creator を閉じますか?</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-2"/>
+        <source>Do not Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
         <translation>進行中のビルドをキャンセルして Qt Creator を閉じますか?</translation>
     </message>
@@ -7902,7 +9079,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/currentprojectfind.cpp" line="+62"/>
+        <location filename="../../../src/plugins/projectexplorer/currentprojectfind.cpp" line="+64"/>
         <source>Current Project</source>
         <translation>現在のプロジェクト</translation>
     </message>
@@ -7915,7 +9092,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/customexecutablerunconfiguration.cpp" line="-353"/>
+        <location filename="../../../src/plugins/projectexplorer/customexecutablerunconfiguration.cpp" line="-435"/>
         <source>Name:</source>
         <translation>名前:</translation>
     </message>
@@ -7939,37 +9116,59 @@ Library base name: %1</source>
         <source>Run in &amp;Terminal</source>
         <translation>端末内で実行(&amp;T)</translation>
     </message>
+    <message>
+        <location line="+14"/>
+        <source>Run Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Base environment for this runconfiguration:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Clean Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>System Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Build Environment</source>
+        <translation type="unfinished">ビルド時の環境変数</translation>
+    </message>
+    <message>
+        <location line="+102"/>
+        <source>No Executable specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::DependenciesPanel</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/dependenciespanel.cpp" line="+66"/>
+        <location filename="../../../src/plugins/projectexplorer/dependenciespanel.cpp" line="+22"/>
         <source>Dependencies</source>
         <translation>依存関係</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
-    <message>
-        <location filename="../../../src/plugins/projectexplorer/dependenciespanel.ui"/>
-        <source>Project Dependencies</source>
-        <translation>プロジェクトの依存関係</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Project Dependencies:</source>
-        <translation>プロジェクトの依存関係:</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::Internal::DetailedModel</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectmodels.cpp" line="+231"/>
+        <location filename="../../../src/plugins/projectexplorer/projectmodels.cpp" line="+232"/>
         <source>%1 of project %2</source>
         <translation>プロジェクト: %2 の %1</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+37"/>
         <source>Could not rename file</source>
         <translation>ファイル名をリネームできませんでした</translation>
     </message>
@@ -7982,7 +9181,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::EditorSettingsPanel</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/editorsettingspropertiespage.cpp" line="+62"/>
+        <location filename="../../../src/plugins/projectexplorer/editorsettingspropertiespage.cpp" line="+63"/>
         <source>Editor Settings</source>
         <translation>エディタの設定</translation>
     </message>
@@ -7998,12 +9197,12 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::FolderNavigationWidgetFactory</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/foldernavigationwidget.cpp" line="+193"/>
+        <location filename="../../../src/plugins/projectexplorer/foldernavigationwidget.cpp" line="+194"/>
         <source>File System</source>
         <translation>ファイル システム</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+17"/>
         <source>Synchronize with Editor</source>
         <translation>エディタと同期</translation>
     </message>
@@ -8022,9 +9221,42 @@ Library base name: %1</source>
     </message>
 </context>
 <context>
+    <name>ProjectExplorer::Internal::SessionDialog</name>
+    <message>
+        <location line="+22"/>
+        <source>Switch to session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/sessiondialog.ui"/>
+        <source>Session Manager</source>
+        <translation>セッション マネージャ</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Create New Session</source>
+        <translation>新しいセッションの作成</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Clone Session</source>
+        <translation>セッションの複製</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Delete Session</source>
+        <translation>セッションの削除</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;セッションとは?&lt;/a&gt;</translation>
+    </message>
+</context>
+<context>
     <name>ProjectExplorer::Internal::OutputPane</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/outputwindow.cpp" line="+70"/>
+        <location filename="../../../src/plugins/projectexplorer/outputwindow.cpp" line="+75"/>
         <source>Re-run this run-configuration</source>
         <translation>この実行構成で最実行</translation>
     </message>
@@ -8058,7 +9290,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::OutputWindow</name>
     <message>
-        <location line="+82"/>
+        <location line="+84"/>
         <source>Application Output Window</source>
         <translation>アプリケーション出力ウィンドウ</translation>
     </message>
@@ -8066,20 +9298,38 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::ProcessStep</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/processstep.cpp" line="+83"/>
+        <location filename="../../../src/plugins/projectexplorer/processstep.cpp" line="+86"/>
         <source>Custom Process Step</source>
         <translation>独自プロセス ステップ</translation>
+    </message>
+    <message>
+        <location line="+41"/>
+        <source>Custom Process Step</source>
+        <comment>item in combobox</comment>
+        <translation type="unfinished">独自プロセス ステップ</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
+    <message>
+        <location line="+30"/>
+        <source>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>(disabled)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/processstep.ui"/>
         <source>Enable custom process step</source>
-        <translation>独自 プロセス ステップを有効にする</translation>
+        <translation type="obsolete">独自 プロセス ステップを有効にする</translation>
     </message>
     <message>
-        <location/>
+        <location filename="../../../src/plugins/projectexplorer/processstep.ui"/>
         <source>Name:</source>
         <translation>名前:</translation>
     </message>
@@ -8098,24 +9348,33 @@ Library base name: %1</source>
         <source>Command Arguments:</source>
         <translation>コマンド引数:</translation>
     </message>
+    <message>
+        <location/>
+        <source>Enable Custom Process Step</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorersettingspage.cpp" line="+55"/>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorersettingspage.cpp" line="+56"/>
         <source>Build and Run</source>
         <translation>ビルドして実行</translation>
     </message>
     <message>
         <location line="+10"/>
+        <source>Projects</source>
+        <translation type="unfinished">プロジェクト</translation>
+    </message>
+    <message>
         <source>Projectexplorer</source>
-        <translation>プロジェクト エクスプローラー</translation>
+        <translation type="obsolete">プロジェクト エクスプローラー</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/pluginfilefactory.cpp" line="+68"/>
+        <location filename="../../../src/plugins/projectexplorer/pluginfilefactory.cpp" line="+70"/>
         <source>Could not open the following project: &apos;%1&apos;</source>
         <translation>以下のプロジェクトを開けませんでした: &apos;%1&apos;</translation>
     </message>
@@ -8123,7 +9382,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectfilewizardextension.cpp" line="+179"/>
+        <location filename="../../../src/plugins/projectexplorer/projectfilewizardextension.cpp" line="+168"/>
         <source>Failed to add one or more files to project
 &apos;%1&apos; (%2).</source>
         <translation>1つ以上のファイルをプロジェクト &apos;%1&apos; に追加できませんでした
@@ -8138,7 +9397,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projecttreewidget.cpp" line="+140"/>
+        <location filename="../../../src/plugins/projectexplorer/projecttreewidget.cpp" line="+144"/>
         <source>Simplify tree</source>
         <translation>簡易ツリー</translation>
     </message>
@@ -8148,7 +9407,7 @@ Library base name: %1</source>
         <translation>生成されたファイルを隠す</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+23"/>
         <source>Synchronize with Editor</source>
         <translation>エディタと同期</translation>
     </message>
@@ -8156,12 +9415,12 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
-        <location line="+187"/>
+        <location line="+191"/>
         <source>Projects</source>
         <translation>プロジェクト</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+16"/>
         <source>Filter tree</source>
         <translation>フィルタ ツリー</translation>
     </message>
@@ -8169,30 +9428,37 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectwindow.cpp" line="+63"/>
         <source>Project Explorer</source>
-        <translation>プロジェクト エクスプローラー</translation>
+        <translation type="obsolete">プロジェクト エクスプローラー</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Projects</source>
-        <translation>プロジェクト</translation>
+        <translation type="obsolete">プロジェクト</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Startup</source>
-        <translation>スタートアップ</translation>
+        <translation type="obsolete">スタートアップ</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Path</source>
-        <translation>パス</translation>
+        <translation type="obsolete">パス</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/projectwindow.cpp" line="+673"/>
+        <location line="+105"/>
+        <source>Active Build and Run Configurations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-67"/>
+        <source>No project loaded.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectwizardpage.cpp" line="+110"/>
+        <location filename="../../../src/plugins/projectexplorer/projectwizardpage.cpp" line="+131"/>
         <source>Add to &amp;VCS (%1)</source>
         <translation>バージョン管理システム(%1)に追加(&amp;V)</translation>
     </message>
@@ -8205,19 +9471,16 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::ProjetExplorerSettingsPageUi</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorersettingspage.ui"/>
         <source>Build and Run</source>
-        <translation>ビルドして実行</translation>
+        <translation type="obsolete">ビルドして実行</translation>
     </message>
     <message>
-        <location/>
         <source>Save all files before Build</source>
-        <translation>ビルド前にすべてのファイルを保存する</translation>
+        <translation type="obsolete">ビルド前にすべてのファイルを保存する</translation>
     </message>
     <message>
-        <location/>
         <source>Always build Project before Running</source>
-        <translation>実行前に必ずプロジェクトをビルドする</translation>
+        <translation type="obsolete">実行前に必ずプロジェクトをビルドする</translation>
     </message>
 </context>
 <context>
@@ -8246,20 +9509,32 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::RunSettingsPanel</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/runsettingspropertiespage.cpp" line="+116"/>
+        <location filename="../../../src/plugins/projectexplorer/runsettingspropertiespage.cpp" line="+119"/>
         <source>Run Settings</source>
         <translation>実行時の設定</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
+    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/runsettingspropertiespage.ui"/>
-        <source>Run &amp;configuration:</source>
-        <translation>実行時の条件(&amp;C):</translation>
+        <location line="+65"/>
+        <source>Add</source>
+        <translation type="unfinished">追加</translation>
     </message>
     <message>
-        <location/>
+        <location line="+1"/>
+        <source>Remove</source>
+        <translation type="unfinished">削除</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
+    <message>
+        <source>Run &amp;configuration:</source>
+        <translation type="obsolete">実行時の条件(&amp;C):</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/runsettingspropertiespage.ui"/>
         <source>+</source>
         <translation>+</translation>
     </message>
@@ -8269,43 +9544,19 @@ Library base name: %1</source>
         <translation>-</translation>
     </message>
     <message>
-        <location/>
         <source>Settings</source>
-        <translation>設定</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
-    <message>
-        <location filename="../../../src/plugins/projectexplorer/sessiondialog.ui"/>
-        <source>Session Manager</source>
-        <translation>セッション マネージャ</translation>
+        <translation type="obsolete">設定</translation>
     </message>
     <message>
         <location/>
-        <source>Create New Session</source>
-        <translation>新しいセッションの作成</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Clone Session</source>
-        <translation>セッションの複製</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Delete Session</source>
-        <translation>セッションの削除</translation>
-    </message>
-    <message>
-        <location/>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;セッションとは?&lt;/a&gt;</translation>
+        <source>Edit run configuration:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::SessionFile</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/session.cpp" line="+156"/>
+        <location filename="../../../src/plugins/projectexplorer/session.cpp" line="+157"/>
         <source>Session</source>
         <translation>セッション</translation>
     </message>
@@ -8319,7 +9570,7 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/taskwindow.cpp" line="+597"/>
+        <location filename="../../../src/plugins/projectexplorer/taskwindow.cpp" line="+688"/>
         <source>File not found: %1</source>
         <translation>ファイルが見つかりません: %1</translation>
     </message>
@@ -8327,8 +9578,8 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
-        <location line="-340"/>
-        <location filename="../../../src/plugins/projectexplorer/taskwindow.h" line="+61"/>
+        <location line="-352"/>
+        <location filename="../../../src/plugins/projectexplorer/taskwindow.h" line="+62"/>
         <source>Build Issues</source>
         <translation>ビルドの問題点</translation>
     </message>
@@ -8336,6 +9587,11 @@ Library base name: %1</source>
         <location line="+11"/>
         <source>&amp;Copy</source>
         <translation>コピー(&amp;C)</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Show Warnings</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8390,12 +9646,12 @@ Library base name: %1</source>
 <context>
     <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+63"/>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+256"/>
         <source>Projects</source>
         <translation>プロジェクト</translation>
     </message>
     <message>
-        <location line="+88"/>
+        <location line="+86"/>
         <source>&amp;Build</source>
         <translation>ビルド(&amp;B)</translation>
     </message>
@@ -8410,12 +9666,12 @@ Library base name: %1</source>
         <translation>デバッグ開始(&amp;S)</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+43"/>
         <source>Open With</source>
         <translation>エディタを指定して開く</translation>
     </message>
     <message>
-        <location line="+76"/>
+        <location line="+66"/>
         <source>Session Manager...</source>
         <translation>セッション マネージャ...</translation>
     </message>
@@ -8445,12 +9701,22 @@ Library base name: %1</source>
         <translation>ファイルを開く</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+6"/>
+        <source>Show in Explorer...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Show in Finder...</source>
         <translation>Finder で表示...</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+2"/>
+        <source>Show containing folder...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
         <source>Recent Projects</source>
         <translation>最近使ったプロジェクト</translation>
     </message>
@@ -8550,7 +9816,7 @@ Library base name: %1</source>
         <translation>依存関係を無視してクリーン</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+10"/>
         <location line="+18"/>
         <source>Run</source>
         <translation>実行</translation>
@@ -8566,12 +9832,11 @@ Library base name: %1</source>
         <translation>実行構成の設定</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>Go to Task Window</source>
-        <translation>タスク ウィンドウに切り替える</translation>
+        <translation type="obsolete">タスク ウィンドウに切り替える</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+16"/>
         <source>Cancel Build</source>
         <translation>ビルドの中止</translation>
     </message>
@@ -8592,12 +9857,12 @@ Library base name: %1</source>
         <translation>新しいファイルを追加...</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Add Existing Files...</source>
         <translation>既存のファイルを追加...</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Remove File...</source>
         <translation>ファイルの削除...</translation>
     </message>
@@ -8607,7 +9872,7 @@ Library base name: %1</source>
         <translation>名前を変更</translation>
     </message>
     <message>
-        <location line="+129"/>
+        <location line="+126"/>
         <source>Load Project</source>
         <translation>プロジェクトを読込</translation>
     </message>
@@ -8618,13 +9883,13 @@ Library base name: %1</source>
         <translation>新しいプロジェクト</translation>
     </message>
     <message>
-        <location line="+860"/>
+        <location line="+867"/>
         <source>New File</source>
         <comment>Title of dialog</comment>
         <translation>新しいファイル</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+14"/>
         <source>Add Existing Files</source>
         <translation>既存のファイルを追加</translation>
     </message>
@@ -8667,7 +9932,27 @@ to version control (%2)?</source>
         <translation>バージョン管理システムへの追加に失敗</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+22"/>
+        <source>Launching Windows Explorer failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Launching a file explorer failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Could not find xdg-open to launch the native file explorer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
         <source>Remove file failed</source>
         <translation>ファイル削除に失敗</translation>
     </message>
@@ -8690,7 +9975,7 @@ to version control (%2)?</source>
 <context>
     <name>ProjectExplorer::SessionManager</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/session.cpp" line="+299"/>
+        <location filename="../../../src/plugins/projectexplorer/session.cpp" line="+300"/>
         <source>Error while restoring session</source>
         <translation>セッションの保存中にエラーが発生しました</translation>
     </message>
@@ -8729,73 +10014,56 @@ to version control (%2)?</source>
 <context>
     <name>QLibrary</name>
     <message>
-        <location filename="../../../src/libs/extensionsystem/patchedpluginloader.cpp" line="+360"/>
         <source>Could not mmap &apos;%1&apos;: %2</source>
-        <translation>&apos;%1&apos; を mmap できません: %2</translation>
+        <translation type="obsolete">&apos;%1&apos; を mmap できません: %2</translation>
     </message>
     <message>
-        <location line="+22"/>
         <source>Plugin verification data mismatch in &apos;%1&apos;</source>
-        <translation>プラグイン &apos;%1&apos; の検証データが合いません</translation>
+        <translation type="obsolete">プラグイン &apos;%1&apos; の検証データが合いません</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Could not unmap &apos;%1&apos;: %2</source>
-        <translation>&apos;%1&apos; を unmap できません: %2</translation>
+        <translation type="obsolete">&apos;%1&apos; を unmap できません: %2</translation>
     </message>
     <message>
-        <location line="+281"/>
-        <location line="+141"/>
         <source>The shared library was not found.</source>
-        <translation>共有ライブラリが見つかりません。</translation>
+        <translation type="obsolete">共有ライブラリが見つかりません。</translation>
     </message>
     <message>
-        <location line="-139"/>
         <source>The file &apos;%1&apos; is not a valid Qt plugin.</source>
-        <translation>ファイル &apos;%1&apos; は有効な Qt プラグインではありません。</translation>
+        <translation type="obsolete">ファイル &apos;%1&apos; は有効な Qt プラグインではありません。</translation>
     </message>
     <message>
-        <location line="+15"/>
         <source>The plugin &apos;%1&apos; uses incompatible Qt library. (%2.%3.%4) [%5]</source>
-        <translation>プラグイン &apos;%1&apos; は互換性のない Qt ライブラリ(%2.%3.%4 [%5])を使用しています。</translation>
+        <translation type="obsolete">プラグイン &apos;%1&apos; は互換性のない Qt ライブラリ(%2.%3.%4 [%5])を使用しています。</translation>
     </message>
     <message>
-        <location line="+20"/>
         <source>The plugin &apos;%1&apos; uses incompatible Qt library. Expected build key &quot;%2&quot;, got &quot;%3&quot;</source>
-        <translation>プラグイン &apos;%1&apos; は互換性のない Qt ライブラリを使用しています。要求されるビルドキー &quot;%2&quot; に対してライブラリのビルドキーは &quot;%3&quot; です。</translation>
+        <translation type="obsolete">プラグイン &apos;%1&apos; は互換性のない Qt ライブラリを使用しています。要求されるビルドキー &quot;%2&quot; に対してライブラリのビルドキーは &quot;%3&quot; です。</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>The plugin &apos;%1&apos; uses incompatible Qt library. (Cannot mix debug and release libraries.)</source>
-        <translation>プラグイン &apos;%1&apos; は互換性のない Qt ライブラリを使用しています。デバッグライブラリとリリースライブラリを混在して使用することはできません。</translation>
+        <translation type="obsolete">プラグイン &apos;%1&apos; は互換性のない Qt ライブラリを使用しています。デバッグライブラリとリリースライブラリを混在して使用することはできません。</translation>
     </message>
     <message>
-        <location line="+73"/>
         <source>The plugin was not loaded.</source>
-        <translation>プラグインは読み込めませんでした。</translation>
+        <translation type="obsolete">プラグインは読み込めませんでした。</translation>
     </message>
     <message>
-        <location line="+42"/>
         <source>Unknown error</source>
-        <translation>未知のエラー</translation>
+        <translation type="obsolete">未知のエラー</translation>
     </message>
     <message>
-        <location line="+171"/>
-        <location line="+97"/>
         <source>Cannot load library %1: %2</source>
-        <translation>ライブラリ %1 を読み込めません: %2</translation>
+        <translation type="obsolete">ライブラリ %1 を読み込めません: %2</translation>
     </message>
     <message>
-        <location line="-81"/>
-        <location line="+107"/>
         <source>Cannot unload library %1: %2</source>
-        <translation>ライブラリ %1 を解放できません: %2</translation>
+        <translation type="obsolete">ライブラリ %1 を解放できません: %2</translation>
     </message>
     <message>
-        <location line="-83"/>
-        <location line="+98"/>
         <source>Cannot resolve symbol &quot;%1&quot; in %2: %3</source>
-        <translation>%2 内でシンボル &quot;%1&quot; を解決できません: %3</translation>
+        <translation type="obsolete">%2 内でシンボル &quot;%1&quot; を解決できません: %3</translation>
     </message>
 </context>
 <context>
@@ -8933,7 +10201,7 @@ to version control (%2)?</source>
         <translation>プロジェクト</translation>
     </message>
     <message>
-        <location line="+68"/>
+        <location line="+70"/>
         <source>The project %1 could not be opened.</source>
         <translation>プロジェクト %1 を開けませんでした。</translation>
     </message>
@@ -8941,7 +10209,7 @@ to version control (%2)?</source>
 <context>
     <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
     <message>
-        <location line="-134"/>
+        <location line="-136"/>
         <source>New QML Project</source>
         <translation>新しい QML プロジェクト</translation>
     </message>
@@ -9000,26 +10268,29 @@ to version control (%2)?</source>
 <context>
     <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
     <message>
-        <location filename="../../../src/plugins/qmlprojectmanager/qmlproject.cpp" line="+326"/>
-        <location line="+18"/>
-        <location line="+76"/>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlproject.cpp" line="+339"/>
+        <location line="+101"/>
         <source>QML Viewer</source>
         <translation>QML ビューア</translation>
     </message>
     <message>
-        <location line="-75"/>
         <source>Could not find the qmlviewer executable, please specify one.</source>
-        <translation>qmlviewer の実行ファイルが見つかりません。実行ファイルを指定してください。</translation>
+        <translation type="obsolete">qmlviewer の実行ファイルが見つかりません。実行ファイルを指定してください。</translation>
     </message>
     <message>
-        <location line="+48"/>
-        <location line="+35"/>
-        <location line="+41"/>
+        <location line="-31"/>
+        <location line="+40"/>
+        <location line="+49"/>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;現在のファイル&gt;</translation>
     </message>
     <message>
-        <location line="-48"/>
+        <location line="-57"/>
+        <source>QML Viewer arguments:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Main QML File:</source>
         <translation>メイン QML ファイル:</translation>
     </message>
@@ -9060,7 +10331,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::ConsoleAppWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizard.cpp" line="+58"/>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizard.cpp" line="+59"/>
         <source>Qt4 Console Application</source>
         <translation>Qt4 コンソール アプリケーション</translation>
     </message>
@@ -9149,7 +10420,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::GuiAppWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizard.cpp" line="+72"/>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizard.cpp" line="+76"/>
         <source>Qt4 Gui Application</source>
         <translation>Qt4 GUI アプリケーション</translation>
     </message>
@@ -9159,7 +10430,7 @@ to version control (%2)?</source>
         <translation>1個のフォームで構成された Qt4 GUI アプリケーションを作成します。</translation>
     </message>
     <message>
-        <location line="+92"/>
+        <location line="+125"/>
         <source>The template file &apos;%1&apos; could not be opened for reading: %2</source>
         <translation>テンプレートファイル &apos;%1&apos; を開けませんでした: %2</translation>
     </message>
@@ -9175,7 +10446,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::LibraryWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizard.cpp" line="+50"/>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizard.cpp" line="+51"/>
         <source>C++ Library</source>
         <translation>C++ ライブラリ</translation>
     </message>
@@ -9345,30 +10616,43 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::ProjectLoadWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/projectloadwizard.cpp" line="+189"/>
+        <location filename="../../../src/plugins/qt4projectmanager/projectloadwizard.cpp" line="+202"/>
         <source>Import existing settings</source>
         <translation>既存の設定をインポート</translation>
     </message>
     <message>
         <location line="+8"/>
-        <source>Qt Creator has found an already existing build in the source directory.&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt Version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Build configuration:&lt;/b&gt; %2&lt;br&gt;</source>
-        <translation>Qt Creator はソース ディレクトリに既に存在するビルド構成を見つけました。&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt バージョン:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;ビルド構成:&lt;/b&gt; %2&lt;br&gt;</translation>
+        <source>Qt Creator has found an already existing build in the source directory.&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt Version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Build configuration:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Additional QMake Arguments:&lt;/b&gt;%3</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+18"/>
+        <source>&lt;b&gt;Note:&lt;/b&gt; Importing the settings will automatically add the Qt Version identified by &lt;br&gt;&lt;b&gt;%1&lt;/b&gt; to the list of Qt versions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Qt Creator has found an already existing build in the source directory.&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt Version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Build configuration:&lt;/b&gt; %2&lt;br&gt;</source>
+        <translation type="obsolete">Qt Creator はソース ディレクトリに既に存在するビルド構成を見つけました。&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt バージョン:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;ビルド構成:&lt;/b&gt; %2&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location line="-6"/>
         <source>Import existing build settings.</source>
         <translation>既存のビルド設定をインポートする。</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>&lt;b&gt;Note:&lt;/b&gt; Importing the settings will automatically add the Qt Version from:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; to the list of Qt versions.</source>
-        <translation>&lt;b&gt;注意:&lt;/b&gt; 設定をインポートすることによって&lt;b&gt;%1&lt;/br&gt;の Qt のバージョンを&lt;br&gt;自動的に Qt のバージョンリストに追加します。</translation>
+        <translation type="obsolete">&lt;b&gt;注意:&lt;/b&gt; 設定をインポートすることによって&lt;b&gt;%1&lt;/br&gt;の Qt のバージョンを&lt;br&gt;自動的に Qt のバージョンリストに追加します。</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4buildenvironmentwidget.cpp" line="+63"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4buildenvironmentwidget.cpp" line="+51"/>
+        <source>Clear system environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>Build Environment</source>
         <translation>ビルド時の環境変数</translation>
     </message>
@@ -9376,7 +10660,32 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4PriFileNode</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+281"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+352"/>
+        <source>Headers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Sources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Forms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Resources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Other files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+155"/>
         <location line="+7"/>
         <source>Failed!</source>
         <translation>エラー発生!</translation>
@@ -9410,12 +10719,12 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4ProFileNode</name>
     <message>
-        <location line="+236"/>
+        <location line="+240"/>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>プロジェクトファイル &apos;%1&apos; の解析中にエラーが発生しました。中止します。</translation>
     </message>
     <message>
-        <location line="+374"/>
+        <location line="+364"/>
         <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
         <translation>&apos;%2&apos; 内のサブディレクトリ &apos;%1&apos; に .pro ファイルが見つかりませんでした</translation>
     </message>
@@ -9433,9 +10742,8 @@ to version control (%2)?</source>
         <translation>Qt バージョン:</translation>
     </message>
     <message>
-        <location/>
         <source>Manage Qt Versions</source>
-        <translation>Qt のバージョンを管理する</translation>
+        <translation type="obsolete">Qt のバージョンを管理する</translation>
     </message>
     <message>
         <location/>
@@ -9458,25 +10766,50 @@ to version control (%2)?</source>
         <translation>&lt;a href=&quot;import&quot;&gt;既存ビルド構成のインポート&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectconfigwidget.cpp" line="+59"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectconfigwidget.cpp" line="+71"/>
         <source>Shadow Build Directory</source>
         <translation>シャドウビルド ディレクトリ</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+47"/>
+        <location line="+65"/>
+        <source>Default Qt Version (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-61"/>
+        <source>No Qt Version set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>using Qt version: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;with tool chain &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;building in &lt;b&gt;%3&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
         <source>General</source>
         <translation>概要</translation>
     </message>
     <message>
-        <location line="+35"/>
         <source>Default Qt Version</source>
-        <translation>デフォルト Qt バージョン</translation>
+        <translation type="obsolete">デフォルト Qt バージョン</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectconfigwidget.ui"/>
+        <source>Manage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Tool Chain:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4ProjectManagerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerplugin.cpp" line="+160"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerplugin.cpp" line="+181"/>
         <location line="+5"/>
         <source>Run qmake</source>
         <translation>qmake 実行</translation>
@@ -9485,13 +10818,13 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4RunConfiguration</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4runconfiguration.cpp" line="+70"/>
-        <location line="+376"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4runconfiguration.cpp" line="+72"/>
+        <location line="+458"/>
         <source>Qt4RunConfiguration</source>
         <translation>Qt4 実行構成</translation>
     </message>
     <message>
-        <location line="+52"/>
+        <location line="+50"/>
         <source>Could not parse %1. The Qt4 run configuration %2 can not be started.</source>
         <translation>%1 をパースできません。Qt4 の実行時の条件設定 %2 を開始できません。</translation>
     </message>
@@ -9499,7 +10832,52 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget</name>
     <message>
-        <location line="-392"/>
+        <location line="-424"/>
+        <source>Arguments:</source>
+        <translation type="unfinished">引数:</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Run in Terminal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Run Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Base environment for this runconfiguration:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Clean Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>System Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Build Environment</source>
+        <translation type="unfinished">ビルド時の環境変数</translation>
+    </message>
+    <message>
+        <location line="+54"/>
+        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2 %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>(in terminal)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-114"/>
         <source>Name:</source>
         <translation>名前:</translation>
     </message>
@@ -9519,22 +10897,20 @@ to version control (%2)?</source>
         <translation>デフォルトに戻す</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Working Directory:</source>
         <translation>作業ディレクトリ:</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>&amp;Arguments:</source>
-        <translation>引数(&amp;A):</translation>
+        <translation type="obsolete">引数(&amp;A):</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Run in &amp;Terminal</source>
-        <translation>端末内で実行(&amp;T)</translation>
+        <translation type="obsolete">端末内で実行(&amp;T)</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+12"/>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
         <translation>デバッグバージョンのフレームワークを使用する (DYLD_IMAGE_SUFFIX=_debug)</translation>
     </message>
@@ -9542,37 +10918,83 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::QtOptionsPageWidget</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtoptionspage.cpp" line="+69"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtoptionspage.cpp" line="+109"/>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;名前を入力&gt;</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>&lt;specify a path&gt;</source>
-        <translation>&lt;パスを入力&gt;</translation>
+        <source>&lt;specify a qmake location&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
-        <source>Select QTDIR</source>
-        <translation>QTDIR を選択してください</translation>
+        <location line="+10"/>
+        <source>Select QMake Executable</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Select the Qt Directory</source>
-        <translation>Qt のディレクトリの選択</translation>
+        <source>Select the MinGW Directory</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+220"/>
-        <source>The Qt Version %1 is not installed. Run make install</source>
-        <translation>Qt バージョン %1 はインストールされていません。make install を実行してください</translation>
+        <location line="+2"/>
+        <source>Select &quot;x86build&quot; Directory from Carbide Install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Auto-detected</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>%1 is not a valid Qt directory</source>
-        <translation>%1 は有効な Qt ディレクトリではありません</translation>
+        <source>Manual</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+120"/>
+        <source>Building helpers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+77"/>
+        <source>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <extracomment>Tooltip showing the debugging helper library file.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+112"/>
+        <source>The Qt Version identified by %1 is not installed. Run make install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>%1 does not specify a valid Qt installation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;specify a path&gt;</source>
+        <translation type="obsolete">&lt;パスを入力&gt;</translation>
+    </message>
+    <message>
+        <source>Select QTDIR</source>
+        <translation type="obsolete">QTDIR を選択してください</translation>
+    </message>
+    <message>
+        <source>Select the Qt Directory</source>
+        <translation type="obsolete">Qt のディレクトリの選択</translation>
+    </message>
+    <message>
+        <source>The Qt Version %1 is not installed. Run make install</source>
+        <translation type="obsolete">Qt バージョン %1 はインストールされていません。make install を実行してください</translation>
+    </message>
+    <message>
+        <source>%1 is not a valid Qt directory</source>
+        <translation type="obsolete">%1 は有効な Qt ディレクトリではありません</translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Found Qt version %1, using mkspec %2</source>
         <translation>Qt バージョン %1 mkspec %2 が見つかりました</translation>
     </message>
@@ -9590,9 +11012,8 @@ to version control (%2)?</source>
         <translation>名前</translation>
     </message>
     <message>
-        <location/>
         <source>Path</source>
-        <translation>パス</translation>
+        <translation type="obsolete">パス</translation>
     </message>
     <message>
         <location/>
@@ -9615,9 +11036,8 @@ to version control (%2)?</source>
         <translation>バージョン名:</translation>
     </message>
     <message>
-        <location/>
         <source>Path:</source>
-        <translation>パス:</translation>
+        <translation type="obsolete">パス:</translation>
     </message>
     <message>
         <location/>
@@ -9662,11 +11082,26 @@ p, li { white-space: pre-wrap; }
         <source>Default Qt Version:</source>
         <translation>デフォルト Qt バージョン:</translation>
     </message>
+    <message>
+        <location/>
+        <source>QMake Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>QMake Location:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>MWC Directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::QtWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/qtwizard.cpp" line="+91"/>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/qtwizard.cpp" line="+94"/>
         <source>The project %1 could not be opened.</source>
         <translation>プロジェクト %1 を開けませんでした。</translation>
     </message>
@@ -9772,12 +11207,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::MakeStep</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/makestep.cpp" line="+78"/>
+        <location filename="../../../src/plugins/qt4projectmanager/makestep.cpp" line="+80"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;ビルド環境に make コマンド:%1 が見つかりませんでした&lt;/font&gt;</translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+57"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;No Makefile found, assuming project is clean.&lt;/b&gt;&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;Makefile が見つかりませんでした、プロジェクトがクリーン状態の可能性があります。&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
@@ -9785,15 +11220,33 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::MakeStepConfigWidget</name>
     <message>
-        <location line="+52"/>
+        <location line="+54"/>
         <source>Override %1:</source>
         <translation>%1 の代わりに使用するコマンド:</translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>&lt;b&gt;Make Step:&lt;/b&gt; %1 not found in the environment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2 in %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MakeStepFactory</name>
+    <message>
+        <location line="+93"/>
+        <source>Make</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::QMakeStep</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="+107"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="+104"/>
         <source>
 &lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Preferences &lt;/b&gt;&lt;/font&gt;
 </source>
@@ -9811,15 +11264,41 @@ p, li { white-space: pre-wrap; }
 </translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+40"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration unchanged, skipping QMake step.&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#0000ff&quot;&gt;構成が変更されていないので QMake ステップはスキップします。&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
+    <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
+    <message>
+        <location line="+78"/>
+        <source>&lt;b&gt;QMake:&lt;/b&gt; No Qt version set. QMake can not be run.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>&lt;b&gt;QMake:&lt;/b&gt; %1 %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+61"/>
+        <source>No valid Qt version set.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::QMakeStepFactory</name>
+    <message>
+        <location line="+38"/>
+        <source>QMake</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Qt4ProjectManager::Qt4Manager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanager.cpp" line="+191"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanager.cpp" line="+192"/>
         <source>Loading project %1 ...</source>
         <translation>プロジェクト %1 を読み込んでいます...</translation>
     </message>
@@ -9853,30 +11332,19 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::QtVersionManager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+278"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+326"/>
         <source>&lt;not found&gt;</source>
         <translation>&lt;見つかりません&gt;</translation>
     </message>
     <message>
-        <location line="+10"/>
         <location line="+6"/>
-        <source>Auto-detected Qt</source>
-        <translation>自動検出した Qt</translation>
+        <location line="+6"/>
+        <source>Qt in PATH</source>
+        <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
-        <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+225"/>
-        <source>&lt;none&gt;</source>
-        <translation>&lt;なし&gt;</translation>
-    </message>
-    <message numerus="yes">
-        <location line="+1"/>
-        <source>%n known types, Qt version: %1, Qt namespace: %2</source>
-        <translation>
-            <numerusform>既知の型: %n, Qt バージョン: %1, Qt ネームスペース: %2</numerusform>
-        </translation>
+        <source>Auto-detected Qt</source>
+        <translation type="obsolete">自動検出した Qt</translation>
     </message>
 </context>
 <context>
@@ -9943,6 +11411,16 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location line="+3"/>
+        <source>QtScriptTools Module</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Additional Qt Script components</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>QtSvg Module</source>
         <translation>QtSvg モジュール</translation>
     </message>
@@ -9990,6 +11468,16 @@ p, li { white-space: pre-wrap; }
         <location line="+1"/>
         <source>Multimedia framework classes</source>
         <translation>マルチメディア フレームワーク クラス</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>QtMultimedia Module</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Classes for low-level multimedia functionality</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
@@ -10061,7 +11549,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>QtScriptEditor::Internal::ScriptEditor</name>
     <message>
-        <location filename="../../../src/plugins/qtscripteditor/qtscripteditor.cpp" line="+226"/>
+        <location filename="../../../src/plugins/qtscripteditor/qtscripteditor.cpp" line="+228"/>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;シンボルを選択&gt;</translation>
     </message>
@@ -10230,7 +11718,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>QuickOpen::Internal::QuickOpenPlugin</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/quickopenplugin.cpp" line="+281"/>
+        <location filename="../../../src/plugins/quickopen/quickopenplugin.cpp" line="+247"/>
         <source>Indexing</source>
         <translation>解析中</translation>
     </message>
@@ -10258,7 +11746,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>キーを入力してください</translation>
     </message>
     <message>
-        <location line="+176"/>
+        <location line="+178"/>
         <source>&lt;type here&gt;</source>
         <translation>&lt;入力してください&gt;</translation>
     </message>
@@ -10476,7 +11964,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>ResourceEditor::Internal::ResourceEditorW</name>
     <message>
-        <location filename="../../../src/plugins/resourceeditor/resourceeditorw.cpp" line="+116"/>
+        <location filename="../../../src/plugins/resourceeditor/resourceeditorw.cpp" line="+117"/>
         <source>untitled</source>
         <translation>無題</translation>
     </message>
@@ -10809,15 +12297,20 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>パスワード:</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/subversion/settingspage.cpp" line="+84"/>
+        <location filename="../../../src/plugins/subversion/settingspage.cpp" line="+86"/>
         <source>Subversion</source>
         <translation>Subversion</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/subversion/settingspage.ui"/>
+        <source>Prompt to submit</source>
+        <translation type="unfinished">コミット前に確認する</translation>
     </message>
 </context>
 <context>
     <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
-        <location line="-34"/>
+        <location filename="../../../src/plugins/subversion/settingspage.cpp" line="-36"/>
         <source>Subversion Command</source>
         <translation>Subversion コマンド</translation>
     </message>
@@ -10825,20 +12318,18 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>Subversion::Internal::SubversionOutputWindow</name>
     <message>
-        <location filename="../../../src/plugins/subversion/subversionoutputwindow.cpp" line="+43"/>
         <source>Subversion Output</source>
-        <translation>Subversion 出力</translation>
+        <translation type="obsolete">Subversion 出力</translation>
     </message>
     <message>
-        <location line="+17"/>
         <source>Subversion</source>
-        <translation>Subversion</translation>
+        <translation type="obsolete">Subversion</translation>
     </message>
 </context>
 <context>
     <name>Subversion::Internal::SubversionPlugin</name>
     <message>
-        <location filename="../../../src/plugins/subversion/subversionplugin.cpp" line="+324"/>
+        <location filename="../../../src/plugins/subversion/subversionplugin.cpp" line="+281"/>
         <source>&amp;Subversion</source>
         <translation>Subversion(&amp;S)</translation>
     </message>
@@ -10973,7 +12464,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>やり直す(&amp;R)</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+40"/>
         <source>Closing Subversion Editor</source>
         <translation>Subversion エディタを閉じようとしています</translation>
     </message>
@@ -10993,12 +12484,23 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>ファイルは変更されていますが、元にもどしますか?</translation>
     </message>
     <message>
-        <location line="+90"/>
-        <source>The commit list spans several respositories (%1). Please commit them one by one.</source>
-        <translation>複数のリポジトリ (%1) に対するコミットリストです。1つずつコミットしてください。</translation>
+        <location line="+80"/>
+        <source>The commit list spans several repositories (%1). Please commit them one by one.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+283"/>
+        <source>Executing: %1 %2
+</source>
+        <extracomment>Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The commit list spans several respositories (%1). Please commit them one by one.</source>
+        <translation type="obsolete">複数のリポジトリ (%1) に対するコミットリストです。1つずつコミットしてください。</translation>
+    </message>
+    <message>
+        <location line="-265"/>
         <source>Another commit is currently being executed.</source>
         <translation>別のコミットが実行中です。</translation>
     </message>
@@ -11013,7 +12515,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>一時ファイルを作成できません: %1</translation>
     </message>
     <message>
-        <location line="+184"/>
+        <location line="+186"/>
         <source>Describe</source>
         <translation>説明</translation>
     </message>
@@ -11028,15 +12530,14 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>subvesion 実行可能ファイルが指定されていません!</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>%1 Executing: %2 %3
 </source>
         <extracomment>&lt;timestamp&gt; Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
-        <translation>%1 実行中: %2 %3
+        <translation type="obsolete">%1 実行中: %2 %3
 </translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+37"/>
         <source>The process terminated with exit code %1.</source>
         <translation>プロセスは終了コード %1 で終了しました。</translation>
     </message>
@@ -11067,7 +12568,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>TextEditor::BaseFileFind</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basefilefind.cpp" line="+114"/>
+        <location filename="../../../src/plugins/texteditor/basefilefind.cpp" line="+119"/>
         <location line="+20"/>
         <source>%1 found</source>
         <translation>一致 %1 件</translation>
@@ -11086,12 +12587,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>TextEditor::BaseTextDocument</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basetextdocument.cpp" line="+158"/>
+        <location filename="../../../src/plugins/texteditor/basetextdocument.cpp" line="+159"/>
         <source>untitled</source>
         <translation>無題</translation>
     </message>
     <message>
-        <location line="+68"/>
+        <location line="+67"/>
         <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
         <translation>&lt;em&gt;バイナリ データ&lt;/em&gt;</translation>
     </message>
@@ -11099,7 +12600,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>TextEditor::BaseTextEditor</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+229"/>
+        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+252"/>
         <source>Print Document</source>
         <translation>ドキュメントを印刷</translation>
     </message>
@@ -11117,7 +12618,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>TextEditor::BaseTextEditorEditable</name>
     <message>
-        <location line="+3686"/>
+        <location line="+4283"/>
         <source>Line: %1, Col: %2</source>
         <translation>行番号: %1, 列位置: %2</translation>
     </message>
@@ -11292,19 +12793,68 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Enable &amp;mouse navigation</source>
         <translation>マウスナビゲーションを有効にする(&amp;M)</translation>
     </message>
+    <message>
+        <location/>
+        <source>Mark text changes</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TextEditor::FontSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/fontsettingspage.cpp" line="+199"/>
+        <location filename="../../../src/plugins/texteditor/fontsettingspage.cpp" line="+312"/>
         <source>Font &amp; Colors</source>
         <translation>フォント &amp; 色</translation>
     </message>
     <message>
-        <location line="+209"/>
+        <location line="+124"/>
+        <source>Copy Color Scheme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Color Scheme name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 (copy)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Delete Color Scheme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Are you sure you want to delete this color scheme permanently?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Delete</source>
+        <translation type="unfinished">削除</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Color Scheme Changed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The color scheme &quot;%1&quot; was modified, do you want to save the changes?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Discard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>
 	This is only an example.</source>
-        <translation>
+        <translation type="obsolete">
 	This is only an example.</translation>
     </message>
 </context>
@@ -11340,7 +12890,7 @@ The following encodings are likely to fit:</source>
 <context>
     <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/findincurrentfile.cpp" line="+57"/>
+        <location filename="../../../src/plugins/texteditor/findincurrentfile.cpp" line="+62"/>
         <source>Current File</source>
         <translation>現在のファイル</translation>
     </message>
@@ -11348,7 +12898,7 @@ The following encodings are likely to fit:</source>
 <context>
     <name>TextEditor::Internal::FindInFiles</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/findinfiles.cpp" line="+55"/>
+        <location filename="../../../src/plugins/texteditor/findinfiles.cpp" line="+56"/>
         <source>Files on Disk</source>
         <translation>ディスク上のファイル</translation>
     </message>
@@ -11386,39 +12936,32 @@ The following encodings are likely to fit:</source>
         <translation>サイズ:</translation>
     </message>
     <message>
-        <location/>
         <source>Bold</source>
-        <translation>太字</translation>
+        <translation type="obsolete">太字</translation>
     </message>
     <message>
-        <location/>
         <source>Italic</source>
-        <translation>斜体</translation>
+        <translation type="obsolete">斜体</translation>
     </message>
     <message>
-        <location/>
         <source>Background:</source>
-        <translation>背景色:</translation>
+        <translation type="obsolete">背景色:</translation>
     </message>
     <message>
-        <location/>
         <source>Foreground:</source>
-        <translation>前景色:</translation>
+        <translation type="obsolete">前景色:</translation>
     </message>
     <message>
-        <location/>
         <source>Erase background</source>
-        <translation>背景色をクリア</translation>
+        <translation type="obsolete">背景色をクリア</translation>
     </message>
     <message>
-        <location/>
         <source>x</source>
-        <translation>x</translation>
+        <translation type="obsolete">x</translation>
     </message>
     <message>
-        <location/>
         <source>Preview:</source>
-        <translation>プレビュー:</translation>
+        <translation type="obsolete">プレビュー:</translation>
     </message>
     <message>
         <location/>
@@ -11434,6 +12977,16 @@ The following encodings are likely to fit:</source>
         <location/>
         <source>Antialias</source>
         <translation>アンチエイリアス</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Copy...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Delete</source>
+        <translation type="unfinished">削除</translation>
     </message>
 </context>
 <context>
@@ -11481,6 +13034,16 @@ The following encodings are likely to fit:</source>
         <source>Meta+Space</source>
         <translation>Meta+Space</translation>
     </message>
+    <message>
+        <location line="+6"/>
+        <source>Triggers a quick fix in this scope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Alt+Return</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TextEditor::TextEditorActionHandler</name>
@@ -11510,7 +13073,7 @@ The following encodings are likely to fit:</source>
         <translation>Ctrl+I</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+13"/>
         <source>&amp;Visualize Whitespace</source>
         <translation>空白の可視化(&amp;V)</translation>
     </message>
@@ -11555,7 +13118,17 @@ The following encodings are likely to fit:</source>
         <translation>Shift+Del</translation>
     </message>
     <message>
-        <location line="-2"/>
+        <location line="-44"/>
+        <source>&amp;Rewrap Paragraph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Ctrl+E, R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
         <source>Cut &amp;Line</source>
         <translation>一行切り取り(&amp;L)</translation>
     </message>
@@ -11615,7 +13188,7 @@ The following encodings are likely to fit:</source>
         <translation>Ctrl+[</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Goto Block End</source>
         <translation>ブロックの終了位置に移動</translation>
     </message>
@@ -11625,7 +13198,7 @@ The following encodings are likely to fit:</source>
         <translation>Ctrl+]</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Goto Block Start With Selection</source>
         <translation>選択範囲内のブロックの開始位置に移動</translation>
     </message>
@@ -11655,17 +13228,16 @@ The following encodings are likely to fit:</source>
         <translation>Ctrl+U</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Select Block Down</source>
         <translation>選択したブロックを下へ</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Ctrl+Shift+U</source>
-        <translation>Ctrl+Shift+U</translation>
+        <translation type="obsolete">Ctrl+Shift+U</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+5"/>
         <source>Move Line Up</source>
         <translation>行を上に移動</translation>
     </message>
@@ -11705,7 +13277,7 @@ The following encodings are likely to fit:</source>
         <translation>Ctrl+Alt+Down</translation>
     </message>
     <message>
-        <location line="+93"/>
+        <location line="+92"/>
         <source> &lt;line number&gt;</source>
         <translation>&lt;行番号&gt;</translation>
     </message>
@@ -11758,7 +13330,22 @@ The following encodings are likely to fit:</source>
         <translation>現在の行番号</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+4"/>
+        <source>Occurrences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Unused Occurrence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Renaming Occurrence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Number</source>
         <translation>番号</translation>
     </message>
@@ -11806,6 +13393,11 @@ The following encodings are likely to fit:</source>
         <location line="+1"/>
         <source>Doxygen Tag</source>
         <translation>Doxygen 用タグ</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Visual Whitespace</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11882,11 +13474,12 @@ The following encodings are likely to fit:</source>
     <name>VCSBase</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseconstants.h" line="+38"/>
+        <location line="+3"/>
         <source>Version Control</source>
         <translation>バージョン管理システム</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-2"/>
         <source>Common</source>
         <translation>共通</translation>
     </message>
@@ -11935,7 +13528,7 @@ The following encodings are likely to fit:</source>
 <context>
     <name>VCSBase::VCSBaseEditor</name>
     <message>
-        <location filename="../../../src/plugins/vcsbase/vcsbaseeditor.cpp" line="+325"/>
+        <location filename="../../../src/plugins/vcsbase/vcsbaseeditor.cpp" line="+327"/>
         <source>Describe change %1</source>
         <translation>%1 の変更点についての説明</translation>
     </message>
@@ -11943,7 +13536,7 @@ The following encodings are likely to fit:</source>
 <context>
     <name>VCSBase::VCSBaseSubmitEditor</name>
     <message>
-        <location filename="../../../src/plugins/vcsbase/vcsbasesubmiteditor.cpp" line="+135"/>
+        <location filename="../../../src/plugins/vcsbase/vcsbasesubmiteditor.cpp" line="+138"/>
         <source>Check message</source>
         <translation>メッセージをチェック</translation>
     </message>
@@ -11953,7 +13546,12 @@ The following encodings are likely to fit:</source>
         <translation>名前を挿入...</translation>
     </message>
     <message>
-        <location line="+361"/>
+        <location line="+313"/>
+        <source>Prompt to submit</source>
+        <translation type="unfinished">コミット前に確認する</translation>
+    </message>
+    <message>
+        <location line="+59"/>
         <source>Submit Message Check failed</source>
         <translation>メッセージチェックのサブミットに失敗しました</translation>
     </message>
@@ -11986,9 +13584,8 @@ The following encodings are likely to fit:</source>
         <translation>共通</translation>
     </message>
     <message>
-        <location/>
         <source>Prompt to submit</source>
-        <translation>コミット前に確認する</translation>
+        <translation type="obsolete">コミット前に確認する</translation>
     </message>
     <message>
         <location/>
@@ -12046,33 +13643,26 @@ Note: This might remove the local file.</source>
 <context>
     <name>View</name>
     <message>
-        <location filename="../../../src/shared/cpaster/view.cpp" line="+89"/>
         <source>Paste</source>
-        <translation>貼り付け</translation>
+        <translation type="obsolete">貼り付け</translation>
     </message>
     <message>
-        <location line="+11"/>
-        <location line="+41"/>
         <source>&lt;Username&gt;</source>
-        <translation>&lt;ユーザ名&gt;</translation>
+        <translation type="obsolete">&lt;ユーザ名&gt;</translation>
     </message>
     <message>
-        <location line="-33"/>
-        <location line="+38"/>
         <source>&lt;Description&gt;</source>
-        <translation>&lt;説明&gt;</translation>
+        <translation type="obsolete">&lt;説明&gt;</translation>
     </message>
     <message>
-        <location line="-30"/>
-        <location line="+35"/>
         <source>&lt;Comment&gt;</source>
-        <translation>&lt;コメント&gt;</translation>
+        <translation type="obsolete">&lt;コメント&gt;</translation>
     </message>
 </context>
 <context>
     <name>ViewDialog</name>
     <message>
-        <location filename="../../../src/shared/cpaster/view.ui"/>
+        <location filename="../../../src/plugins/cpaster/pasteview.ui"/>
         <source>Send to Codepaster</source>
         <translation>コード ペースターに送る</translation>
     </message>
@@ -12097,20 +13687,18 @@ Note: This might remove the local file.</source>
         <translation>&lt;説明&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;lt;Comment&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+        <translation type="obsolete">&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;lt;コメント&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Parts to send to codepaster</source>
-        <translation>コード ペースターに送る部品</translation>
+        <translation type="obsolete">コード ペースターに送る部品</translation>
     </message>
     <message>
         <location/>
@@ -12121,6 +13709,25 @@ p, li { white-space: pre-wrap; }
         <location/>
         <source>Patch 2</source>
         <translation>Patch 2</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Protocol:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&amp;lt;Comment&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Parts to send to server</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12149,6 +13756,2952 @@ p, li { white-space: pre-wrap; }
         <location/>
         <source>Text3:</source>
         <translation>Text3:</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::CheckableMessageBox</name>
+    <message>
+        <location filename="../../../src/libs/utils/checkablemessagebox.ui"/>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>TextLabel</source>
+        <translation type="unfinished">TextLabel</translation>
+    </message>
+    <message>
+        <location/>
+        <source>CheckBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PasteBinComSettingsWidget</name>
+    <message>
+        <location filename="../../../src/plugins/cpaster/pastebindotcomsettings.ui"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Server Prefix:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;pastebin.com&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; allows to send posts to custom subdomains (eg. qtcreator.pastebin.com). Fill in the desired prefix.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note that the plugin will use this for posting as well as fetching.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CVS::Internal::SettingsPage</name>
+    <message>
+        <location filename="../../../src/plugins/cvs/settingspage.ui"/>
+        <source>Prompt to submit</source>
+        <translation type="unfinished">コミット前に確認する</translation>
+    </message>
+    <message>
+        <location/>
+        <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit id). Otherwise, only the respective file will be displayed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Describe all files matching commit id:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>CVS Command:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>CVS Root:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Diff Options:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/cvs/settingspage.cpp" line="+84"/>
+        <source>CVS</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::TrkOptionsWidget</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/gdb/trkoptionswidget.ui"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Gdb</source>
+        <translation type="unfinished">gdb</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Symbian ARM gdb location:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Cygwin location:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Communication</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Serial Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Bluetooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Port:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Device:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Designer::Internal::CppSettingsPageWidget</name>
+    <message>
+        <location filename="../../../src/plugins/designer/cpp/cppsettingspagewidget.ui"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Embedding of the UI Class</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Aggregation as a pointer member</source>
+        <translation type="unfinished">個々のメンバとして集合体</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Aggregation</source>
+        <translation type="unfinished">集合体</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Multiple Inheritance</source>
+        <translation type="unfinished">複合継承</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Code Generation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Support for changing languages at runtime</source>
+        <translation type="unfinished">実行時の言語変更をサポートする</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use Qt module name in #include-directive</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Gitorious::Internal::GitoriousHostWidget</name>
+    <message>
+        <location filename="../../../src/plugins/git/gitorious/gitorioushostwidget.ui"/>
+        <source>...</source>
+        <translation type="unfinished">...</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/git/gitorious/gitorioushostwidget.cpp" line="+86"/>
+        <source>&lt;New Host&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Host</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Projects</source>
+        <translation type="unfinished">プロジェクト</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Gitorious::Internal::GitoriousProjectWidget</name>
+    <message>
+        <location filename="../../../src/plugins/git/gitorious/gitoriousprojectwidget.ui"/>
+        <source>WizardPage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Filter:</source>
+        <translation type="unfinished">フィルタ:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>...</source>
+        <translation type="unfinished">...</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Keep updating</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/git/gitorious/gitoriousprojectwidget.cpp" line="+84"/>
+        <source>Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Gitorious::Internal::GitoriousRepositoryWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/git/gitorious/gitoriousrepositorywizardpage.ui"/>
+        <source>WizardPage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Filter:</source>
+        <translation type="unfinished">フィルタ:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>...</source>
+        <translation type="unfinished">...</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/git/gitorious/gitoriousrepositorywizardpage.cpp" line="+83"/>
+        <source>Name</source>
+        <translation type="unfinished">名前</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Owner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+74"/>
+        <source>Choose a repository of the project &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Mainline Repositories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Clones</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Baseline Repositories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Shared Project Repositories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Personal Repositories</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GeneralSettingsPage</name>
+    <message>
+        <location filename="../../../src/plugins/help/generalsettingspage.ui"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Font</source>
+        <translation type="unfinished">フォント</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Family:</source>
+        <translation type="unfinished">フォント名:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Size:</source>
+        <translation type="unfinished">サイズ:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Startup</source>
+        <translation type="unfinished">スタートアップ</translation>
+    </message>
+    <message>
+        <location/>
+        <source>On context help:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show side-by-side if possible</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Always show side-by-side</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Always start full help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>On help start:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show my home page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show a blank page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show my tabs from last session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Home Page:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use &amp;Current Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use &amp;Blank Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Restore to Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Help Bookmarks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Import...</source>
+        <translation type="unfinished">インポート...</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Export...</source>
+        <translation type="unfinished">エクスポート...</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorersettingspage.ui"/>
+        <source>Build and Run</source>
+        <translation type="unfinished">ビルドして実行</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Save all files before Build</source>
+        <translation type="unfinished">ビルド前にすべてのファイルを保存する</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Always build Project before Running</source>
+        <translation type="unfinished">実行前に必ずプロジェクトをビルドする</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show Compiler Output on building</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use jom instead of nmake</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. For more details, see the &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Homepage&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::ProjectWelcomePageWidget</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/projectwelcomepagewidget.ui"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Manage Sessions...</source>
+        <translation type="unfinished">セッション管理...</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Create New Project...</source>
+        <translation type="unfinished">新しいプロジェクトの作成...</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/projectwelcomepagewidget.cpp" line="+79"/>
+        <source>Open Recent Project</source>
+        <translation type="unfinished">最近使ったプロジェクトを開く</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Resume Session</source>
+        <translation type="unfinished">セッションを復元</translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>%1 (last session)</source>
+        <translation type="unfinished">%1 (最後のセッション)</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>New Project...</source>
+        <translation type="unfinished">新しいプロジェクト...</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectWelcomePage</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/projectwelcomeplugin.ui"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::ClassDefinition</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/classdefinition.ui"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>The header file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Sources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Widget librar&amp;y:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Widget project &amp;file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Widget h&amp;eader file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>The header file has to be specified in source code.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Widge&amp;t source file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Widget &amp;base class:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>QWidget</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Plugin class &amp;name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Plugin &amp;header file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Plugin sou&amp;rce file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Icon file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Link library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Create s&amp;keleton</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Include pro&amp;ject</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>G&amp;roup:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Tooltip:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>W&amp;hat&apos;s this:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>The widget is a &amp;container</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Property defa&amp;ults</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>dom&amp;XML:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/classdefinition.cpp" line="+44"/>
+        <source>Select Icon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::CustomWidgetPluginWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetpluginwizardpage.ui"/>
+        <source>WizardPage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Plugin and Collection Class Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Specify the properties of the plugin library and the collection class.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Collection class:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Collection header file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Collection source file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Plugin name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Resource file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>icons.qrc</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwidgetswizardpage.ui"/>
+        <source>Custom Qt Widget Wizard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Custom Widget List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Widget &amp;Classes:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Specify the list of custom widgets and their properties.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/gettingstartedwelcomepagewidget.ui"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Examples not installed</source>
+        <translation type="unfinished">サンプルプログラムがインストールされていません</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Open</source>
+        <translation type="unfinished">開く</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/gettingstartedwelcomepagewidget.cpp" line="+56"/>
+        <source>Tutorials</source>
+        <translation type="unfinished">チュートリアル</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Explore Qt Examples</source>
+        <translation type="unfinished">Qt のサンプルプログラムを参照</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Did You Know?</source>
+        <translation type="unfinished">ご存じですか?</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>&lt;b&gt;Qt Creator - A quick tour&lt;/b&gt;</source>
+        <translation type="unfinished">&lt;b&gt;Qt Creator - 簡易ガイド&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Creating an address book</source>
+        <translation type="unfinished">アドレス帳アプリの作成</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Understanding widgets</source>
+        <translation type="unfinished">ウィジェットを理解する</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Building with qmake</source>
+        <translation type="unfinished">qmake でビルドする</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Writing test cases</source>
+        <translation type="unfinished">テストケースを作成する</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Choose an example...</source>
+        <translation type="unfinished">サンプルプログラムを選ぶ...</translation>
+    </message>
+    <message>
+        <location line="+103"/>
+        <location line="+7"/>
+        <source>Cmd</source>
+        <comment>Shortcut key</comment>
+        <translation type="unfinished">Cmd</translation>
+    </message>
+    <message>
+        <location line="-5"/>
+        <source>Alt</source>
+        <comment>Shortcut key</comment>
+        <translation type="unfinished">Alt</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Ctrl</source>
+        <comment>Shortcut key</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Welcome&lt;/li&gt;&lt;li&gt;2 - Edit&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projects&lt;/li&gt;&lt;li&gt;5 - Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Output&lt;/li&gt;&lt;/ul&gt;</source>
+        <translation type="unfinished">Qt Creator のモードは&lt;tt&gt;Ctrl+数字&lt;/tt&gt;キーで変更できます:&lt;ul&gt;&lt;li&gt;1 - ようこそ&lt;/li&gt;&lt;li&gt;2 - 編集&lt;/li&gt;&lt;li&gt;3 - デバッグ&lt;/li&gt;&lt;li&gt;4 - プロジェクト&lt;/li&gt;&lt;li&gt;5 - ヘルプ&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - アウトプット&lt;/li&gt;&lt;/ul&gt;</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>You can show and hide the side bar using &lt;tt&gt;%1+0&lt;tt&gt;.</source>
+        <extracomment>%1 gets replaced by Alt (Win/Unix) or Cmd (Mac)</extracomment>
+        <translation type="unfinished">&lt;tt&gt;%1+0&lt;/tt&gt;キーでサイドバーの表示/非表示を切り替えられます。</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You can fine tune the &lt;tt&gt;Find&lt;/tt&gt; function by selecting &amp;quot;Whole Words&amp;quot; or &amp;quot;Case Sensitive&amp;quot;. Simply click on the icons on the right end of the line edit.</source>
+        <translation type="unfinished">&lt;tt&gt;検索&lt;/tt&gt;機能は&amp;quot;単語単位で検索する&amp;quot;や&amp;quot;大文字/小文字を区別する&amp;quot;を選択することで目的に合わせて検索結果を調整できます。検索文字列を入力する欄の右端にあるアイコンをクリックすることで機能を選択できます。</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
+        <translation type="unfinished">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;外部のライブラリ&lt;/a&gt;をプロジェクトに追加した場合、Qt Creator は自動的にシンタックスハイライトやコード補完を行います。</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>The code completion is CamelCase-aware. For example, to complete &lt;tt&gt;namespaceUri&lt;/tt&gt; you can just type &lt;tt&gt;nU&lt;/tt&gt; and hit &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
+        <translation type="unfinished">コード補完はキャメルケースに対応しています。たとえば&lt;tt&gt;namespaceUrl&lt;/tt&gt;を補完したい場合、&lt;tt&gt;nU&lt;/tt&gt;と入力して&lt;tt&gt;Ctrl+Space&lt;/tt&gt;を押してください。</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>You can force code completion at any time using &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
+        <translation type="unfinished">&lt;tt&gt;Ctrl+Space&lt;/tt&gt;を押せば任意のタイミングでコード補完を開始することができます。</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You can start Qt Creator with a session by calling &lt;tt&gt;qtcreator &amp;lt;sessionname&amp;gt;&lt;/tt&gt;.</source>
+        <translation type="unfinished">Qt Creator の起動時にセッション名を渡す(&lt;tt&gt;qtcreator &amp;lt;セッション名&amp;gt;)とそのセッションを開始できます。</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You can return to edit mode from any other mode at any time by hitting &lt;tt&gt;Escape&lt;/tt&gt;.</source>
+        <translation type="unfinished">&lt;tt&gt;エスケープ&lt;/tt&gt;キーでいつでもほかのモードから編集モードに戻れます。</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>You can switch between the output pane by hitting &lt;tt&gt;%1+n&lt;/tt&gt; where n is the number denoted on the buttons at the window bottom:&lt;ul&gt;&lt;li&gt;1 - Build Issues&lt;/li&gt;&lt;li&gt;2 - Search Results&lt;/li&gt;&lt;li&gt;3 - Application Output&lt;/li&gt;&lt;li&gt;4 - Compile Output&lt;/li&gt;&lt;/ul&gt;</source>
+        <extracomment>%1 gets replaced by Alt (Win/Unix) or Cmd (Mac)</extracomment>
+        <translation type="unfinished">アウトプット欄は&lt;tt&gt;%1+数字&lt;/tt&gt;キーで変更できます。使用する数字はウィンドウの下部のボタンに記述されています:&lt;ul&gt;&lt;li&gt;1 - ビルドの問題点&lt;/li&gt;&lt;li&gt;2 - 検索結果&lt;/li&gt;&lt;li&gt;3 - アプリケーション出力&lt;/li&gt;&lt;li&gt;4 - コンパイル出力&lt;/li&gt;&lt;/ul&gt;</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
+        <translation type="unfinished">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;ビルド設定&lt;/a&gt;を変更して独自のビルドステップを追加できます。</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
+        <translation type="unfinished">セッションではプロジェクト間の&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;依存関係&lt;/a&gt;を定義できます。</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>You can set the preferred editor encoding for every project in &lt;tt&gt;Projects -&gt; Editor Settings -&gt; Default Encoding&lt;/tt&gt;.</source>
+        <translation type="unfinished">各プロジェクトの編集時の文字コードは&lt;tt&gt;プロジェクト -&gt; エディタの設定 -&gt; デフォルトの文字コード&lt;/tt&gt;で指定できます。</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You can modify the binary that is being executed when you press the &lt;tt&gt;Run&lt;/tt&gt; button: Add a &lt;tt&gt;Custom Executable&lt;/tt&gt; by clicking the &lt;tt&gt;+&lt;/tt&gt; button in &lt;tt&gt;Projects -&gt; Run Settings -&gt; Run Configuration&lt;/tt&gt; and then select the new target in the combo box.</source>
+        <translation type="unfinished">&lt;tt&gt;実行&lt;/tt&gt;ボタンを押したときに実行されるファイルは&lt;tt&gt;プロジェクト -&gt; 実行時の設定 -&gt; 実行時の条件&lt;/tt&gt;の&lt;tt&gt;+&lt;/tt&gt;ボタンで&lt;tt&gt;カスタム実行ファイル&lt;/tt&gt;を選択することで追加できます。追加した後に&lt;tt&gt;実行時の条件&lt;/tt&gt;のコンボボックスから作成した条件を選択してください。</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
+        <translation type="unfinished">編集モードでは&lt;tt&gt;F2&lt;/tt&gt;キーで宣言と定義を、&lt;tt&gt;F4&lt;/tt&gt;キーでヘッダファイルとソースファイルを切り替えできます。</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60DevicesPreferencePane</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicespreferencepane.ui"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Installed S60 SDKs:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>SDK Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Qt Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Refresh</source>
+        <translation type="unfinished">更新</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicespreferencepane.cpp" line="+91"/>
+        <source>S60 SDKs</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <message>
+        <location filename="../../../src/plugins/texteditor/colorschemeedit.ui"/>
+        <source>Bold</source>
+        <translation type="unfinished">太字</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Italic</source>
+        <translation type="unfinished">斜体</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Background:</source>
+        <translation type="unfinished">背景色:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Foreground:</source>
+        <translation type="unfinished">前景色:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Erase background</source>
+        <translation type="unfinished">背景色をクリア</translation>
+    </message>
+    <message>
+        <location/>
+        <source>x</source>
+        <translation type="unfinished">x</translation>
+    </message>
+</context>
+<context>
+    <name>VCSBase::BaseCheckoutWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/vcsbase/basecheckoutwizardpage.ui"/>
+        <source>WizardPage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Checkout Directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Path:</source>
+        <translation type="unfinished">パス:</translation>
+    </message>
+</context>
+<context>
+    <name>Welcome::Internal::CommunityWelcomePageWidget</name>
+    <message>
+        <location filename="../../../src/plugins/welcome/communitywelcomepagewidget.ui"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/welcome/communitywelcomepagewidget.cpp" line="+46"/>
+        <source>News From the Qt Labs</source>
+        <translation type="unfinished">Qt Labsからのニュース</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Websites</source>
+        <translation type="unfinished">Qt の Web サイト</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>http://labs.trolltech.com/blogs/feed</source>
+        <extracomment>Add localized feed here only if one exists</extracomment>
+        <translation type="unfinished">http://labs.trolltech.com/blogs/feed</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Qt Home</source>
+        <translation type="unfinished">Qt Home</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Labs</source>
+        <translation type="unfinished">Qt Labs</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Git Hosting</source>
+        <translation type="unfinished">Qt Git ホスティング</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Centre</source>
+        <translation type="unfinished">Qt Centre</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt for S60 at Forum Nokia</source>
+        <translation type="unfinished">Forum Nokia の Qt for S60</translation>
+    </message>
+</context>
+<context>
+    <name>Welcome::WelcomeMode</name>
+    <message>
+        <location filename="../../../src/plugins/welcome/welcomemode.ui"/>
+        <source>#gradientWidget {
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
+}</source>
+        <translation type="unfinished">#gradientWidget {
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
+}</translation>
+    </message>
+    <message>
+        <location/>
+        <source>#headerFrame {
+    border-image: url(:/welcome/images/center_frame_header.png) 0;
+    border-width: 0;
+}
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Help us make Qt Creator even better</source>
+        <translation type="unfinished">Qt Creator の改善にご協力ください</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Feedback</source>
+        <translation type="unfinished">フィードバック</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/welcome/welcomemode.cpp" line="+115"/>
+        <source>Welcome</source>
+        <translation type="unfinished">ようこそ</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::DetailsButton</name>
+    <message>
+        <location filename="../../../src/libs/utils/detailsbutton.cpp" line="+19"/>
+        <source>Show Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>OpenWith::Editors</name>
+    <message>
+        <location filename="../../../src/plugins/coreplugin/coreconstants.h" line="+94"/>
+        <source>Plain Text Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Binary Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/cppeditor/cppeditorconstants.h" line="+39"/>
+        <source>C++ Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerconstants.h" line="+42"/>
+        <source>.pro File Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::SettingsDialog</name>
+    <message>
+        <location filename="../../../src/plugins/coreplugin/dialogs/settingsdialog.cpp" line="+58"/>
+        <source>Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Options</source>
+        <translation type="unfinished">オプション</translation>
+    </message>
+</context>
+<context>
+    <name>CodePaster::CodePasterProtocol</name>
+    <message>
+        <location filename="../../../src/plugins/cpaster/codepasterprotocol.cpp" line="+129"/>
+        <source>No such paste</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CodePaster::CodePasterSettingsPage</name>
+    <message>
+        <location filename="../../../src/plugins/cpaster/codepastersettings.cpp" line="+59"/>
+        <location line="+10"/>
+        <source>CodePaster</source>
+        <translation type="unfinished">コード ペースター</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Server:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PasteBinDotComProtocol</name>
+    <message>
+        <location filename="../../../src/plugins/cpaster/pastebindotcomprotocol.cpp" line="+106"/>
+        <source>Error during paste</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PasteBinDotComSettings</name>
+    <message>
+        <location filename="../../../src/plugins/cpaster/pastebindotcomsettings.cpp" line="+53"/>
+        <source>Pastebin.com</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>CodePaster</source>
+        <translation type="unfinished">コード ペースター</translation>
+    </message>
+</context>
+<context>
+    <name>PasteView</name>
+    <message>
+        <location filename="../../../src/plugins/cpaster/pasteview.cpp" line="+89"/>
+        <source>Paste</source>
+        <translation type="unfinished">貼り付け</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <location line="+46"/>
+        <source>&lt;Username&gt;</source>
+        <translation type="unfinished">&lt;ユーザ名&gt;</translation>
+    </message>
+    <message>
+        <location line="-38"/>
+        <location line="+43"/>
+        <source>&lt;Description&gt;</source>
+        <translation type="unfinished">&lt;説明&gt;</translation>
+    </message>
+    <message>
+        <location line="-35"/>
+        <location line="+40"/>
+        <source>&lt;Comment&gt;</source>
+        <translation type="unfinished">&lt;コメント&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
+    <message>
+        <location filename="../../../src/plugins/cpptools/cppcurrentdocumentfilter.h" line="+53"/>
+        <source>Methods in current Document</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CppTools::Internal::CppFileSettingsWidget</name>
+    <message>
+        <location filename="../../../src/plugins/cpptools/cppfilesettingspage.cpp" line="+55"/>
+        <source>/**************************************************************************
+** Qt Creator license header template
+**   Special keywords: %USER% %DATE% %YEAR%
+**   Environment variables: %$VARIABLE%
+**   To protect a percent sign, use &apos;%%&apos;.
+**************************************************************************/
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+157"/>
+        <source>Edit...</source>
+        <translation type="unfinished">編集...</translation>
+    </message>
+    <message>
+        <location line="+51"/>
+        <source>Choose a location for the new license template file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Template write error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Cannot write to %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CppTools::Internal::CppFindReferences</name>
+    <message>
+        <location filename="../../../src/plugins/cpptools/cppfindreferences.cpp" line="+606"/>
+        <source>Searching...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CVS::Internal::CheckoutWizard</name>
+    <message>
+        <location filename="../../../src/plugins/cvs/checkoutwizard.cpp" line="+54"/>
+        <source>Checks out a project from a CVS repository.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>CVS Checkout</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CVS::Internal::CheckoutWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/cvs/checkoutwizardpage.cpp" line="+38"/>
+        <source>Specify repository and path.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Repository:</source>
+        <translation type="unfinished">リポジトリ:</translation>
+    </message>
+</context>
+<context>
+    <name>CVSPlugin</name>
+    <message>
+        <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="+78"/>
+        <source>Cannot find repository for &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CVS::Internal::CVSPlugin</name>
+    <message>
+        <location line="+5"/>
+        <source>Parsing of the log output failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+169"/>
+        <source>&amp;CVS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Add</source>
+        <translation type="unfinished">追加</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Add &quot;%1&quot;</source>
+        <translation type="unfinished">&quot;%1&quot; を追加</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Alt+C,Alt+A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Delete</source>
+        <translation type="unfinished">削除</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Delete &quot;%1&quot;</source>
+        <translation type="unfinished">&quot;%1&quot; を削除</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Revert</source>
+        <translation type="unfinished">元に戻す</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Revert &quot;%1&quot;</source>
+        <translation type="unfinished">&quot;%1&quot; を元に戻す</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Diff Project</source>
+        <translation type="unfinished">プロジェクトの差分表示</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Diff Current File</source>
+        <translation type="unfinished">現在のファイルの差分表示</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Diff &quot;%1&quot;</source>
+        <translation type="unfinished">&quot;%1&quot; の差分表示</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Alt+C,Alt+D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Commit All Files</source>
+        <translation type="unfinished">すべてのファイルをコミット</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Commit Current File</source>
+        <translation type="unfinished">現在のファイルをコミット</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Commit &quot;%1&quot;</source>
+        <translation type="unfinished">&quot;%1&quot; をコミット</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Alt+C,Alt+C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Filelog Current File</source>
+        <translation type="unfinished">現在のファイルログ</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Filelog &quot;%1&quot;</source>
+        <translation type="unfinished">&quot;%1&quot; のファイルログ</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Annotate Current File</source>
+        <translation type="unfinished">現在のファイルのアノテーション</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Annotate &quot;%1&quot;</source>
+        <translation type="unfinished">&quot;%1&quot; のアノテーション</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Project Status</source>
+        <translation type="unfinished">プロジェクトの状態</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Update Project</source>
+        <translation type="unfinished">プロジェクトをアップデート</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Commit</source>
+        <translation type="unfinished">コミット</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Diff Selected Files</source>
+        <translation type="unfinished">選択済みファイルの差分表示</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&amp;Undo</source>
+        <translation type="unfinished">元に戻す(&amp;U)</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&amp;Redo</source>
+        <translation type="unfinished">やり直す(&amp;R)</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Closing CVS Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Do you want to commit the change?</source>
+        <translation type="unfinished">変更内容をコミットしますか?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The commit message check failed. Do you want to commit the change?</source>
+        <translation type="unfinished">コミットメッセージが確認できませんでした。変更をコミットしますか?</translation>
+    </message>
+    <message>
+        <location line="+58"/>
+        <source>The files do not differ.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+61"/>
+        <source>The file &apos;%1&apos; could not be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>The file has been changed. Do you want to revert it?</source>
+        <translation type="unfinished">ファイルは変更されていますが、元にもどしますか?</translation>
+    </message>
+    <message>
+        <location line="+78"/>
+        <source>The commit list spans several repositories (%1). Please commit them one by one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Another commit is currently being executed.</source>
+        <translation type="unfinished">別のコミットが実行中です。</translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>There are no modified files.</source>
+        <translation type="unfinished">変更されたファイルはありません。</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Cannot create temporary file: %1</source>
+        <translation type="unfinished">一時ファイルを作成できません: %1</translation>
+    </message>
+    <message>
+        <location line="+105"/>
+        <source>Project status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+43"/>
+        <source>The initial revision %1 cannot be described.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+34"/>
+        <source>Could not find commits of id &apos;%1&apos; on %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+176"/>
+        <source>Executing: %1 %2
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Executing in %1: %2 %3
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>No cvs executable specified!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+44"/>
+        <source>The process terminated with exit code %1.</source>
+        <translation type="unfinished">プロセスは終了コード %1 で終了しました。</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>The process terminated abnormally.</source>
+        <translation type="unfinished">プロセスは異常終了しました。</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Could not start cvs &apos;%1&apos;. Please check your settings in the preferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>CVS did not respond within timeout limit (%1 ms).</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CVS::Internal::CVSSubmitEditor</name>
+    <message>
+        <location filename="../../../src/plugins/cvs/cvssubmiteditor.cpp" line="+41"/>
+        <source>Added</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Removed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Modified</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>CVS Submit</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CVS::Internal::SettingsPageWidget</name>
+    <message>
+        <location filename="../../../src/plugins/cvs/settingspage.cpp" line="-34"/>
+        <source>CVS Command</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CdbStackFrameContext</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/cdb/cdbstackframecontext.cpp" line="+136"/>
+        <source>&lt;Unknown Type&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>&lt;Unknown Value&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+219"/>
+        <source>&lt;Unknown&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SymbolGroup</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/cdb/cdbsymbolgroupcontext.cpp" line="+49"/>
+        <source>Out of scope</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::MemoryViewAgent</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/debuggeragents.cpp" line="+93"/>
+        <source>Memory $</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::DebuggerRunControlFactory</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/debuggerrunner.cpp" line="+78"/>
+        <source>Debug</source>
+        <translation type="unfinished">デバッグ</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::AttachGdbAdapter</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/gdb/attachgdbadapter.cpp" line="+110"/>
+        <source>Attached to stopped inferior.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+48"/>
+        <source>Inferior process could not be stopped:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Gdb process could not be stopped:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::CoreGdbAdapter</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/gdb/coregdbadapter.cpp" line="+119"/>
+        <source>Attached to core temporarily.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>No binary found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Symbols found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Symbols not found in &quot;%1&quot; failed:
+%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Attached to core.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Attach to core &quot;%1&quot; failed:
+%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Gdb process could not be stopped:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::PlainGdbAdapter</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/gdb/plaingdbadapter.cpp" line="+79"/>
+        <source>Cannot set up communication with child process: %1</source>
+        <translation type="unfinished">子プロセスと通信できません: %1</translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Starting executable failed:
+</source>
+        <translation type="unfinished">実行ファイルの開始に失敗しました:
+</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Inferior started.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+84"/>
+        <source>Inferior process could not be stopped:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Gdb process could not be stopped:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::RemoteGdbAdapter</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/gdb/remotegdbadapter.cpp" line="+112"/>
+        <source>The upload process failed to start. Either the invoked script &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
+        <translation type="unfinished">アップロードに失敗しました。実行するスクリプト &apos;%1&apos; が存在しないか、実行する権限がないため、プロセスが開始できません。</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>The upload process crashed some time after starting successfully.</source>
+        <translation type="unfinished">アップロードの開始後にプロセスがクラッシュしました。</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
+        <translation type="unfinished">直前のwaitFor...() 関数はタイムアウトしました。QProcessの状態に変化がありませんので、再度 waitFor...() を呼び出せます。</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>An error occurred when attempting to write to the upload process. For example, the process may not be running, or it may have closed its input channel.</source>
+        <translation type="unfinished">アップロードプロセスへの書き込み時にエラーが発生しました。プロセスが動作していないか、入力チャネルが閉じられている可能性があります。</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>An error occurred when attempting to read from the upload process. For example, the process may not be running.</source>
+        <translation type="unfinished">アップロードプロセスからの読み込み時にエラーが発生しました。アップロードプロセスが動作していない可能性があります。</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>An unknown error in the upload process occurred. This is the default return value of error().</source>
+        <translation type="unfinished">アップロードプロセスで不明なエラーが発生しました。error()がデフォルト値で呼び出されている場合などに生じるエラーです。</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Error</source>
+        <translation type="unfinished">エラー</translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Adapter too old: does not support asynchronous mode.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Starting remote executable failed:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Attached to stopped inferior.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Connecting to remote server failed:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+56"/>
+        <source>Inferior process could not be stopped:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Gdb process could not be stopped:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::TrkGdbAdapter</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/gdb/trkgdbadapter.cpp" line="+1687"/>
+        <source>Connecting to trk server adapter failed:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Inferior running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Connecting to remote server failed:</source>
+        <translation type="unfinished">リモートサーバへの接続に失敗しました。</translation>
+    </message>
+    <message>
+        <location line="+404"/>
+        <source>Inferior process could not be stopped:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Gdb process could not be stopped:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::TrkOptionsPage</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/gdb/trkoptionspage.cpp" line="+43"/>
+        <source>S60 / Trk</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>NameDemanglerPrivate</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/name_demangler.cpp" line="+310"/>
+        <source>Premature end of input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+90"/>
+        <source>Invalid encoding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <source>Invalid name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <location line="+9"/>
+        <source>Invalid nested-name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+111"/>
+        <location line="+8"/>
+        <source>Invalid template args</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <location line="+8"/>
+        <source>Invalid template-param</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Invalid qualifiers: unexpected &apos;volatile&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Invalid qualifiers: &apos;const&apos; appears twice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+43"/>
+        <source>Invalid non-negative number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+58"/>
+        <location line="+9"/>
+        <location line="+2"/>
+        <source>Invalid template-arg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+64"/>
+        <location line="+15"/>
+        <location line="+43"/>
+        <source>Invalid expression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Invalid primary expression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <location line="+5"/>
+        <location line="+3"/>
+        <source>Invalid expr-primary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+135"/>
+        <location line="+5"/>
+        <location line="+67"/>
+        <source>Invalid type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+138"/>
+        <source>Invalid built-in type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Invalid builtin-type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <location line="+8"/>
+        <source>Invalid function type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+79"/>
+        <location line="+320"/>
+        <source>Invalid unqualified-name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-232"/>
+        <source>Invalid operator-name &apos;%s&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <location line="+10"/>
+        <source>Invalid array-type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Invalid pointer-to-member-type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <location line="+10"/>
+        <location line="+35"/>
+        <source>Invalid substitution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-41"/>
+        <source>Invalid substitution: element %1 was requested, but there are only %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Invalid substitution: There are no elements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+101"/>
+        <source>Invalid special-name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+43"/>
+        <location line="+4"/>
+        <location line="+11"/>
+        <source>Invalid local-name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Invalid discriminator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <location line="+11"/>
+        <location line="+4"/>
+        <source>Invalid ctor-dtor-name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+48"/>
+        <location line="+3"/>
+        <source>Invalid call-offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Invalid v-offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Invalid digit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>At position %1: </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Designer::FormWindowEditor</name>
+    <message>
+        <location filename="../../../src/plugins/designer/formwindoweditor.cpp" line="+167"/>
+        <source>untitled</source>
+        <translation type="unfinished">無題</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::CloneWizard</name>
+    <message>
+        <location filename="../../../src/plugins/git/clonewizard.cpp" line="+53"/>
+        <source>Clones a project from a git repository.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Git Repository Clone</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Git::CloneWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/git/clonewizardpage.cpp" line="+58"/>
+        <source>Specify repository URL, checkout directory and path.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Clone URL:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Gitorious::Internal::Gitorious</name>
+    <message>
+        <location filename="../../../src/plugins/git/gitorious/gitorious.cpp" line="+471"/>
+        <source>Error parsing reply from &apos;%1&apos;: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Request failed for &apos;%1&apos;: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+80"/>
+        <source>Open source projects that use Git.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Gitorious::Internal::GitoriousCloneWizard</name>
+    <message>
+        <location filename="../../../src/plugins/git/gitorious/gitoriousclonewizard.cpp" line="+81"/>
+        <source>Clones a project from a Gitorious repository.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Gitorious Repository Clone</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Gitorious::Internal::GitoriousHostWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/git/gitorious/gitorioushostwizardpage.cpp" line="+76"/>
+        <source>Select a host.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Gitorious::Internal::GitoriousProjectWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/git/gitorious/gitoriousprojectwizardpage.cpp" line="+57"/>
+        <source>Choose a project from &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Help::Internal::GeneralSettingsPage</name>
+    <message>
+        <location filename="../../../src/plugins/help/generalsettingspage.cpp" line="+74"/>
+        <source>General settings</source>
+        <translation type="unfinished">基本設定</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Help</source>
+        <translation type="unfinished">ヘルプ</translation>
+    </message>
+    <message>
+        <location line="+122"/>
+        <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <location line="+22"/>
+        <source>Files (*.xbel)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-8"/>
+        <source>There was an error while importing bookmarks!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Save File</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Help::Internal::XbelReader</name>
+    <message>
+        <location filename="../../../src/plugins/help/xbelsupport.cpp" line="+119"/>
+        <source>The file is not an XBEL version 1.0 file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+73"/>
+        <source>Unknown title</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::ApplicationLauncher</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/applicationlauncher_x11.cpp" line="+123"/>
+        <source>Failed to start program. Path or permissions wrong?</source>
+        <translation type="unfinished">プログラムを開始できませんでした。パスかパーミッションに誤りはありませんか?</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>The program has unexpectedly finished.</source>
+        <translation type="unfinished">プログラムが突然終了しました。</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Some error has occurred while running the program.</source>
+        <translation type="unfinished">プログラムを実行中にいくつかエラーが発生しました。</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/applicationrunconfiguration.cpp" line="+89"/>
+        <source>Run</source>
+        <translation type="unfinished">実行</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
+    <message>
+        <location line="+48"/>
+        <source>Starting %1...</source>
+        <translation type="unfinished">%1 を起動中...</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>%1 exited with code %2</source>
+        <translation type="unfinished">%1 はコード %2 で終了しました</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::DebuggingHelperLibrary</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/debugginghelper.cpp" line="+131"/>
+        <source>The target directory %1 could not be created.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>The existing file %1 could not be removed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>The file %1 could not be copied to %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>The debugger helpers could not be built in any of the directories:
+- %1
+
+Reason: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Building debugging helper library in %1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Running %1 %2...
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <location line="+21"/>
+        <source>%1 not found in PATH
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-16"/>
+        <location line="+11"/>
+        <source>Running %1 ...
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/projectwelcomepage.h" line="+47"/>
+        <source>Develop</source>
+        <translation type="unfinished">開発</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/projectwindow.cpp" line="-530"/>
+        <source>Active run configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::ProjectLabel</name>
+    <message>
+        <location line="+375"/>
+        <source>Edit Project Settings for Project &lt;b&gt;%1&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>No Project loaded</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::ProjectPushButton</name>
+    <message>
+        <location line="+11"/>
+        <source>Select Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ToolChain</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/toolchain.cpp" line="+113"/>
+        <source>GCC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Intel C++ Compiler (Linux)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>MinGW</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Microsoft Visual C++</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Windows CE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>WINSCW</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>GCCE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>RVCT (ARMV5)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>RVCT (ARMV6)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Other</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;Invalid&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>&lt;Unknown&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QmlEditor::Internal::ScriptEditor</name>
+    <message>
+        <location filename="../../../src/plugins/qmleditor/qmleditor.cpp" line="+468"/>
+        <source>&lt;Select Symbol&gt;</source>
+        <translation type="unfinished">&lt;シンボルを選択&gt;</translation>
+    </message>
+    <message>
+        <location line="+101"/>
+        <source>Rename...</source>
+        <translation type="unfinished">名前を変更...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>New id:</source>
+        <translation type="unfinished">新しい ID:</translation>
+    </message>
+    <message>
+        <location line="+191"/>
+        <source>Rename id &apos;%1&apos;...</source>
+        <translation type="unfinished">ID &apos;%1&apos; の名前を変更...</translation>
+    </message>
+</context>
+<context>
+    <name>QmlEditor::Internal::QmlEditorPlugin</name>
+    <message>
+        <location filename="../../../src/plugins/qmleditor/qmleditorplugin.cpp" line="+103"/>
+        <source>Qt</source>
+        <translation type="unfinished">Qt</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Creates a Qt QML file.</source>
+        <translation type="unfinished">Qt QML ファイルを作成します。</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt QML File</source>
+        <translation type="unfinished">Qt QML ファイル</translation>
+    </message>
+</context>
+<context>
+    <name>QmlEditor::Internal::QmlModelManager</name>
+    <message>
+        <location filename="../../../src/plugins/qmleditor/qmlmodelmanager.cpp" line="+98"/>
+        <source>Indexing</source>
+        <translation type="unfinished">解析中</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlMakeStepConfigWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlmakestep.cpp" line="+134"/>
+        <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::ClassList</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/classlist.cpp" line="+48"/>
+        <location line="+11"/>
+        <source>&lt;New class&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Confirm Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Delete class %1 from list?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::CustomWidgetWizard</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwizard.cpp" line="+43"/>
+        <source>Qt4 Designer Custom Widget</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Creates a Qt4 Designer Custom Widget or a Custom Widget Collection.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::CustomWidgetWizardDialog</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwizarddialog.cpp" line="+56"/>
+        <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::PluginGenerator</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/plugingenerator.cpp" line="+60"/>
+        <source>Cannot open icon file %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+102"/>
+        <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+133"/>
+        <source>Cannot open %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::GettingStartedWelcomePage</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/gettingstartedwelcomepage.h" line="+47"/>
+        <source>Getting Started</source>
+        <translation type="unfinished">Qt Creator を始めよう</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60DeviceRunConfiguration</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfiguration.cpp" line="+77"/>
+        <source>%1 on Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>QtS60DeviceRunConfiguration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+185"/>
+        <source>Could not parse %1. The QtS60 Device run configuration %2 can not be started.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
+    <message>
+        <location line="+67"/>
+        <source>Name:</source>
+        <translation type="unfinished">名前:</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Install File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Device on Serial Port:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Self-signed certificate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Choose certificate file (.cer)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Custom certificate:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Choose key file (.key / .pem)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Key file:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
+    <message>
+        <location line="+116"/>
+        <source>%1 on Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60DeviceRunControlBase</name>
+    <message>
+        <location line="+74"/>
+        <source>Creating %1.sisx ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Executable file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <location line="+78"/>
+        <source>%1 %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-43"/>
+        <source>Could not read template package file &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Could not write package file &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <location line="+28"/>
+        <source>An error occurred while creating the package.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Package: %1
+Deploying application to &apos;%2&apos;...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Could not connect to phone on port &apos;%1&apos;: %2
+Check if the phone is connected and the TRK application is running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Could not create file %1 on device: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Could not write to file %1 on device: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Could not close file %1 on device: %2. It will be closed when App TRK is closed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Copying install file...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>%1% copied.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Installing application...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Could not install from package %1 on device: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Failed to start %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>%1 has unexpectedly finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>An error has occurred while running %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60DeviceRunControl</name>
+    <message>
+        <location line="+30"/>
+        <source>Finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Starting application...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Application running with pid %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Could not start application: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60DeviceDebugRunControl</name>
+    <message>
+        <location line="+50"/>
+        <source>Warning: Cannot locate the symbol file belonging to %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Launching debugger...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Debugging finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60DevicesWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicespreferencepane.cpp" line="-23"/>
+        <source>No Qt installed</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfiguration</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60emulatorrunconfiguration.cpp" line="+55"/>
+        <source>%1 in Emulator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>QtS60EmulatorRunConfiguration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+87"/>
+        <source>Could not parse %1. The QtS60 emulator run configuration %2 can not be started.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
+    <message>
+        <location line="+40"/>
+        <source>Name:</source>
+        <translation type="unfinished">名前:</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Executable:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
+    <message>
+        <location line="+52"/>
+        <source>%1 in Emulator</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60EmulatorRunControl</name>
+    <message>
+        <location line="+48"/>
+        <source>Starting %1...</source>
+        <translation type="unfinished">%1 を起動中...</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>[Qt Message]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>%1 exited with code %2</source>
+        <translation type="unfinished">%1 はコード %2 で終了しました</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::S60Manager</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60manager.cpp" line="+111"/>
+        <source>Run in Emulator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Run on Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Debug on Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Qt4BuildConfigurationFactory</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4project.cpp" line="+252"/>
+        <source>Using Default Qt Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Using Qt Version &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>New configuration</source>
+        <translation type="unfinished">新しい構成</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>New Configuration Name:</source>
+        <translation type="unfinished">新しい構成名:</translation>
+    </message>
+</context>
+<context>
+    <name>Subversion::Internal::CheckoutWizard</name>
+    <message>
+        <location filename="../../../src/plugins/subversion/checkoutwizard.cpp" line="+54"/>
+        <source>Checks out a project from a Subversion repository.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Subversion Checkout</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Subversion::Internal::CheckoutWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/subversion/checkoutwizardpage.cpp" line="+38"/>
+        <source>Specify repository, checkout directory and path.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Repository:</source>
+        <translation type="unfinished">リポジトリ:</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::ColorScheme</name>
+    <message>
+        <location filename="../../../src/plugins/texteditor/colorscheme.cpp" line="+210"/>
+        <source>Not a color scheme file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::Internal::FontSettings</name>
+    <message>
+        <location filename="../../../src/plugins/texteditor/fontsettings.cpp" line="+136"/>
+        <source>Customized</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VCSBase::BaseCheckoutWizard</name>
+    <message>
+        <location filename="../../../src/plugins/vcsbase/basecheckoutwizard.cpp" line="+103"/>
+        <source>Cannot Open Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Failed to open project in &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Could not find any project files matching (%1) in the directory &apos;%2&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>The Project Explorer is not available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>&apos;%1&apos; does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Unable to open the project &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VCSBase::ProcessCheckoutJob</name>
+    <message>
+        <location filename="../../../src/plugins/vcsbase/checkoutjobs.cpp" line="+109"/>
+        <source>The process terminated with exit code %1.</source>
+        <translation type="unfinished">プロセスは終了コード %1 で終了しました。</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>The process returned exit code %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>The process terminated in an abnormal way.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Stopping...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VCSBase::Internal::CheckoutProgressWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/vcsbase/checkoutprogresswizardpage.cpp" line="+66"/>
+        <source>Checkout started...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Succeeded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VCSBase::VCSBaseOutputWindow</name>
+    <message>
+        <location filename="../../../src/plugins/vcsbase/vcsbaseoutputwindow.cpp" line="+90"/>
+        <source>Clear</source>
+        <translation type="unfinished">クリア</translation>
+    </message>
+    <message>
+        <location line="+78"/>
+        <source>Version Control</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Welcome::Internal::CommunityWelcomePage</name>
+    <message>
+        <location filename="../../../src/plugins/welcome/communitywelcomepage.h" line="+49"/>
+        <source>Community</source>
+        <translation type="unfinished">コミュニティ</translation>
+    </message>
+</context>
+<context>
+    <name>MimeType</name>
+    <message>
+        <location filename="mime_tr.h" line="+1"/>
+        <source>unknown</source>
+        <translation type="unfinished">不明</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>CMake Project file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>C Source file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>C Header file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>C++ Header file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>C++ header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>C++ Source file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>C++ source code</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Objective-C source code</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>CVS submit template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Designer file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Generic Qt Creator Project file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Generic Project Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Generic Project Include Paths</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Generic Project Configuration File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Perforce submit template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>QML file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qml Project file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Project file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Project include file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>message catalog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Script file</source>
+        <translation type="unfinished">Qt スクリプト ファイル</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Resource file</source>
+        <translation type="unfinished">Qt リソースファイル</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Subversion submit template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Plain text document</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>XML document</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Differences between files</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
