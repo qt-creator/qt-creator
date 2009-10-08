@@ -640,6 +640,14 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         }
     }
 
+    if (k == T_COMMA) {
+        ExpressionUnderCursor expressionUnderCursor;
+        if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
+            k = T_EOF_SYMBOL;
+            start = pos;
+        }
+    }
+
     static CPlusPlus::TokenUnderCursor tokenUnderCursor;
     const SimpleToken tk = tokenUnderCursor(tc);
 
@@ -783,11 +791,14 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (m_completionOperator == T_COMMA) {
         tc.setPosition(endOfExpression);
         const int start = expressionUnderCursor.startOfFunctionCall(tc);
-        if (start != -1) {
-            endOfExpression = start;
-            m_startPosition = start + 1;
-            m_completionOperator = T_LPAREN;
+        if (start == -1) {
+            m_completionOperator = T_EOF_SYMBOL;
+            return -1;
         }
+
+        endOfExpression = start;
+        m_startPosition = start + 1;
+        m_completionOperator = T_LPAREN;
     }
 
     QString expression;
