@@ -109,6 +109,7 @@ void BuildSettingsSubWidgets::addWidget(const QString &name, QWidget *widget)
     layout()->addWidget(label);
     layout()->addWidget(widget);
 
+    m_spacerItems.append(item);
     m_labels.append(label);
     m_widgets.append(widget);
 }
@@ -122,6 +123,7 @@ void BuildSettingsSubWidgets::clear()
     qDeleteAll(m_labels);
     m_widgets.clear();
     m_labels.clear();
+    m_spacerItems.clear();
 }
 
 QList<QWidget *> BuildSettingsSubWidgets::widgets() const
