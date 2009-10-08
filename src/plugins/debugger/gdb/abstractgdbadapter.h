@@ -48,16 +48,13 @@ class AbstractGdbAdapter : public QObject
     Q_OBJECT
 
 public:
-    AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0)
-        : QObject(parent), m_engine(engine)
-    {}
+    AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    virtual ~AbstractGdbAdapter();
 
-    virtual QByteArray readAllStandardError() = 0;
-    virtual QByteArray readAllStandardOutput() = 0;
-    virtual void write(const QByteArray &data) = 0;
-    virtual void setWorkingDirectory(const QString &dir) = 0;
-    virtual void setEnvironment(const QStringList &env) = 0;
-    virtual bool isTrkAdapter() const = 0;
+    QByteArray readAllStandardOutput();
+    QByteArray readAllStandardError();
+    virtual void write(const QByteArray &data);
+    virtual bool isTrkAdapter() const; // isUtterlyBrokenAdapter
 
     virtual void startAdapter() = 0;
     virtual void prepareInferior() = 0;
@@ -69,7 +66,7 @@ public:
 
 signals:
     void adapterStarted();
-    void adapterStartFailed(const QString &msg);
+    void adapterStartFailed(const QString &msg, const QString &settingsIdHint);
     void adapterShutDown();
     void adapterShutdownFailed(const QString &msg);
     void adapterCrashed(const QString &msg);
@@ -80,12 +77,11 @@ signals:
     void inferiorShutDown();
     void inferiorShutdownFailed(const QString &msg);
     
-    void inferiorPidChanged(qint64 pid);
-
     void readyReadStandardOutput();
     void readyReadStandardError();
 
 protected:
+    void commonInit();
     DebuggerState state() const
         { return m_engine->state(); }
     void setState(DebuggerState state)
@@ -98,6 +94,8 @@ protected:
         { m_engine->showStatusMessage(msg); }
 
     GdbEngine * const m_engine;
+
+    QProcess m_gdbProc;
 };
 
 } // namespace Internal

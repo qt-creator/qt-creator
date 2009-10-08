@@ -76,6 +76,7 @@ Launcher::Launcher(Actions startupActions) :
 {
     d->m_startupActions = startupActions;
     connect(&d->m_device, SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));
+    connect(this, SIGNAL(finished()), &d->m_device, SLOT(close()));
 }
 
 Launcher::~Launcher()

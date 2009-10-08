@@ -74,7 +74,7 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
     m_signingMode(SignSelf)
 {
     if (!m_proFilePath.isEmpty())
-        setName(tr("%1 on Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
+        setName(tr("%1 on S60 Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
         setName(tr("QtS60DeviceRunConfiguration"));
 
@@ -481,7 +481,7 @@ QStringList S60DeviceRunConfigurationFactory::availableCreationTypes(Project *pr
 QString S60DeviceRunConfigurationFactory::displayNameForType(const QString &type) const
 {
     QString fileName = type.mid(QString("QtS60DeviceRunConfiguration.").size());
-    return tr("%1 on Device").arg(QFileInfo(fileName).completeBaseName());
+    return tr("%1 on S60 Device").arg(QFileInfo(fileName).completeBaseName());
 }
 
 QSharedPointer<RunConfiguration> S60DeviceRunConfigurationFactory::create(Project *project, const QString &type)
@@ -558,8 +558,22 @@ void S60DeviceRunControlBase::start()
     emit addToOutputWindow(this, tr("Creating %1.sisx ...").arg(QDir::toNativeSeparators(m_baseFileName)));
     emit addToOutputWindow(this, tr("Executable file: %1").arg(m_executableFileName));
 
-    if (!createPackageFileFromTemplate())
+    QString errorMessage;
+    QString settingsCategory;
+    QString settingsPage;
+    if (!checkConfiguration(&errorMessage, &settingsCategory, &settingsPage)) {
+        error(this, errorMessage);
+        emit finished();
+        Core::ICore::instance()->showWarningWithOptions(tr("S60 Debugger"), errorMessage, QString(),
+                                                        settingsCategory, settingsPage);
         return;
+    }
+
+    if (!createPackageFileFromTemplate(&errorMessage)) {
+        error(this, errorMessage);
+        emit finished();
+        return;
+    }
     m_makesis->setWorkingDirectory(m_workingDirectory);
     emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(m_makesisTool), m_packageFile));
     m_makesis->start(m_makesisTool, QStringList(m_packageFile), QIODevice::ReadOnly);
@@ -592,12 +606,11 @@ void S60DeviceRunControlBase::readStandardOutput()
     emit addToOutputWindowInline(this, QString::fromLocal8Bit(data.constData(), data.length()));
 }
 
-bool S60DeviceRunControlBase::createPackageFileFromTemplate()
+bool S60DeviceRunControlBase::createPackageFileFromTemplate(QString *errorMessage)
 {
     QFile packageTemplate(m_packageTemplateFile);
     if (!packageTemplate.open(QIODevice::ReadOnly)) {
-        error(this, tr("Could not read template package file '%1'").arg(QDir::toNativeSeparators(m_packageTemplateFile)));
-        emit finished();
+        *errorMessage = tr("Could not read template package file '%1'").arg(QDir::toNativeSeparators(m_packageTemplateFile));
         return false;
     }
     QString contents = packageTemplate.readAll();
@@ -606,8 +619,7 @@ bool S60DeviceRunControlBase::createPackageFileFromTemplate()
     contents.replace(QLatin1String("$(TARGET)"), m_symbianTarget);
     QFile packageFile(m_packageFilePath);
     if (!packageFile.open(QIODevice::WriteOnly)) {
-        error(this, tr("Could not write package file '%1'").arg(QDir::toNativeSeparators(m_packageFilePath)));
-        emit finished();
+        *errorMessage = tr("Could not write package file '%1'").arg(QDir::toNativeSeparators(m_packageFilePath));
         return false;
     }
     packageFile.write(contents.toLocal8Bit());
@@ -749,6 +761,13 @@ void S60DeviceRunControlBase::printApplicationOutput(const QString &output)
     emit addToOutputWindowInline(this, output);
 }
 
+bool S60DeviceRunControlBase::checkConfiguration(QString * /* errorMessage */,
+                                                 QString * /* settingsCategory */,
+                                                 QString * /* settingsPage */) const
+{
+    return true;
+}
+
 // =============== S60DeviceRunControl
 S60DeviceRunControl::S60DeviceRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration) :
     S60DeviceRunControlBase(runConfiguration)
@@ -848,4 +867,14 @@ void S60DeviceDebugRunControl::debuggingFinished()
 {
     emit addToOutputWindow(this, tr("Debugging finished."));
     emit finished();
+}
+
+bool S60DeviceDebugRunControl::checkConfiguration(QString *errorMessage,
+                                                  QString *settingsCategory,
+                                                  QString *settingsPage) const
+{
+    return Debugger::DebuggerManager::instance()->checkDebugConfiguration(m_startParams->toolChainType,
+                                                                          errorMessage,
+                                                                          settingsCategory,
+                                                                          settingsPage);
 }

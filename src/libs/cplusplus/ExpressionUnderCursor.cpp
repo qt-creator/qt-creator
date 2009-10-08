@@ -45,8 +45,33 @@ ExpressionUnderCursor::~ExpressionUnderCursor()
 
 int ExpressionUnderCursor::startOfExpression(BackwardsScanner &tk, int index)
 {
-    // tk is a reference to a const QList. So, don't worry about [] access.
-    // ### TODO implement multiline support. It should be pretty easy.
+    index = startOfExpression_helper(tk, index);
+
+    if (_jumpedComma) {
+        const SimpleToken &tok = tk[index - 1];
+
+        switch (tok.kind()) {
+        case T_LPAREN:
+        case T_LBRACKET:
+        case T_LBRACE:
+        case T_SEMICOLON:
+        case T_COLON:
+        case T_QUESTION:
+            break;
+
+        default:
+            if (tok.isOperator())
+                return startOfExpression(tk, index - 1);
+
+            break;
+        }
+    }
+
+    return index;
+}
+
+int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int index)
+{
     if (tk[index - 1].isLiteral()) {
         return index - 1;
     } else if (tk[index - 1].is(T_THIS)) {

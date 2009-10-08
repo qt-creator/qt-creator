@@ -32,8 +32,7 @@
 
 #include "abstractgdbadapter.h"
 #include "gdbengine.h"
-
-#include <consoleprocess.h>
+#include "outputcollector.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
@@ -54,12 +53,6 @@ class PlainGdbAdapter : public AbstractGdbAdapter
 public:
     PlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    QByteArray readAllStandardError() { return m_gdbProc.readAllStandardError(); }
-    QByteArray readAllStandardOutput() { return m_gdbProc.readAllStandardOutput(); }
-    void write(const QByteArray &data) { m_gdbProc.write(data, data.size()); }
-    void setWorkingDirectory(const QString &dir) { m_gdbProc.setWorkingDirectory(dir); }
-    void setEnvironment(const QStringList &env) { m_gdbProc.setEnvironment(env); }
-    bool isTrkAdapter() const { return false; }
     bool dumpersAvailable() const { return true; }
 
     void startAdapter();
@@ -72,19 +65,13 @@ private:
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleKill(const GdbResponse &response);
     void handleExit(const GdbResponse &response);
-    void handleStubAttached(const GdbResponse &response);
     void handleExecRun(const GdbResponse &response);
-    void handleInfoTarget(const GdbResponse &response);
 
-    void emitAdapterStartFailed(const QString &msg);
     Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus status);
     Q_SLOT void handleGdbError(QProcess::ProcessError error);
     Q_SLOT void handleGdbStarted();
-    Q_SLOT void stubStarted();
-    Q_SLOT void stubError(const QString &msg);
 
-    QProcess m_gdbProc;
-    Utils::ConsoleProcess m_stubProc;
+    OutputCollector m_outputCollector;
 };
 
 } // namespace Internal

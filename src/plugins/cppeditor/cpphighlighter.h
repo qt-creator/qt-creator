@@ -57,6 +57,8 @@ public:
 
 private:
     void highlightWord(QStringRef word, int position, int length);
+    void highightLine(const QString &line, int position, int length,
+                      const QTextCharFormat &format);
 
     void highlightDoxygenComment(const QString &text, int position,
                                  int length);

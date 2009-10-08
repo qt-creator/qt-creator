@@ -831,9 +831,13 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
     QTextCursor tc = cursor;
     int line, col;
     convertPosition(tc.position(), &line, &col);
-    ++col;
+    ++col; // 1-based line and 1-based column
 
-    tc.movePosition(QTextCursor::EndOfWord);
+    int pos = tc.position();
+    while (document()->characterAt(pos).isLetterOrNumber() ||
+           document()->characterAt(pos) == QLatin1Char('_'))
+        ++pos;
+    tc.setPosition(pos);
 
     ExpressionUnderCursor expressionUnderCursor;
     const QString code = expressionUnderCursor(tc);

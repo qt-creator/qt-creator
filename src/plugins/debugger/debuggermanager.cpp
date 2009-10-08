@@ -153,7 +153,6 @@ namespace Internal {
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
 IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
-IDebuggerEngine *createTcfEngine(DebuggerManager *parent);
 
 // The createWinEngine function takes a list of options pages it can add to.
 // This allows for having a "enabled" toggle on the page independently
@@ -262,7 +261,6 @@ void DebuggerStartParameters::clear()
 
 static Debugger::Internal::IDebuggerEngine *gdbEngine = 0;
 static Debugger::Internal::IDebuggerEngine *scriptEngine = 0;
-static Debugger::Internal::IDebuggerEngine *tcfEngine = 0;
 static Debugger::Internal::IDebuggerEngine *winEngine = 0;
 
 struct DebuggerManagerPrivate
@@ -335,7 +333,6 @@ DebuggerManager::~DebuggerManager()
     #define doDelete(ptr) delete ptr; ptr = 0
     doDelete(gdbEngine);
     doDelete(scriptEngine);
-    doDelete(tcfEngine);
     doDelete(winEngine);
     #undef doDelete
     DebuggerManagerPrivate::instance = 0;
@@ -572,11 +569,6 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTy
         scriptEngine->addOptionPages(&rc);
     }
 
-    if (enabledTypeFlags & TcfEngineType) {
-        tcfEngine = createTcfEngine(this);
-        tcfEngine->addOptionPages(&rc);
-    }
-
     d->m_engine = 0;
     STATE_DEBUG(gdbEngine << winEngine << scriptEngine << rc.size());
     return rc;
@@ -752,7 +744,6 @@ void DebuggerManager::shutdown()
     doDelete(scriptEngine);
     doDelete(gdbEngine);
     doDelete(winEngine);
-    doDelete(tcfEngine);
 
     // Delete these manually before deleting the manager
     // (who will delete the models for most views)
@@ -934,11 +925,8 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
 
     // We need the CDB debugger in order to be able to debug VS
     // executables
-    if (!winEngine) {
-        *errorMessage = DebuggerManager::tr("Debugging VS executables is currently not enabled.");
-        *settingsIdHint = QLatin1String("Cdb");
+    if (!DebuggerManager::instance()->checkDebugConfiguration(ProjectExplorer::ToolChain::MSVC, errorMessage, 0 , settingsIdHint))
         return 0;
-    }
     return winEngine;
 #endif
 }
@@ -989,9 +977,6 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
         d->m_engine = determineDebuggerEngine(d->m_startParameters->attachPID,
             d->m_startParameters->toolChainType, &errorMessage);
         break;
-    case AttachTcf:
-        d->m_engine = tcfEngine;
-        break;
     default:
         d->m_engine = determineDebuggerEngine(d->m_startParameters->executable, 
             d->m_startParameters->toolChainType, &errorMessage, &settingsIdHint);
@@ -1001,17 +986,11 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     if (!d->m_engine) {
         emit debuggingFinished();
         // Create Message box with possibility to go to settings
-        QAbstractButton *settingsButton = 0;
-        QMessageBox msgBox(QMessageBox::Warning, tr("Warning"),
-            tr("Cannot debug '%1' (tool chain: '%2'): %3").
-            arg(d->m_startParameters->executable, toolChainName, errorMessage),
-            QMessageBox::Ok);
-        if (!settingsIdHint.isEmpty())
-            settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
-        msgBox.exec();
-        if (msgBox.clickedButton() == settingsButton)
-            Core::ICore::instance()->showOptionsDialog(
-                _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
+        const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3").
+                            arg(d->m_startParameters->executable, toolChainName, errorMessage);
+        Core::ICore::instance()->showWarningWithOptions(tr("Warning"),  msg, QString(),
+                                            QLatin1String(DEBUGGER_SETTINGS_CATEGORY),
+                                            settingsIdHint);
         return;
     }
 
@@ -1731,6 +1710,49 @@ bool DebuggerManager::debuggerActionsEnabled() const
         break;
     }
     return false;
+}
+
+bool DebuggerManager::checkDebugConfiguration(int toolChain,
+                                              QString *errorMessage,
+                                              QString *settingsCategory /* = 0 */,
+                                              QString *settingsPage /* = 0 */) const
+{
+    errorMessage->clear();
+    if (settingsCategory)
+        settingsCategory->clear();
+    if (settingsPage)
+        settingsPage->clear();
+    bool success = true;
+    switch(toolChain) {
+    case ProjectExplorer::ToolChain::GCC:
+    case ProjectExplorer::ToolChain::LinuxICC:
+    case ProjectExplorer::ToolChain::MinGW:
+    case ProjectExplorer::ToolChain::WINCE: // S60
+    case ProjectExplorer::ToolChain::WINSCW:
+    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        if (gdbEngine) {
+            success = gdbEngine->checkConfiguration(toolChain, errorMessage, settingsPage);
+        } else {
+            success = false;
+            *errorMessage = msgEngineNotAvailable("Gdb");
+        }
+        break;
+    case ProjectExplorer::ToolChain::MSVC:
+        if (winEngine) {
+            success = winEngine->checkConfiguration(toolChain, errorMessage, settingsPage);
+        } else {
+            success = false;
+            *errorMessage = msgEngineNotAvailable("Cdb");
+            if (settingsPage)
+                *settingsPage = QLatin1String("Cdb");
+        }
+        break;
+    }
+    if (!success && settingsCategory && settingsPage && !settingsPage->isEmpty())
+        *settingsCategory = QLatin1String(DEBUGGER_SETTINGS_CATEGORY);
+    return success;
 }
 
 QDebug operator<<(QDebug d, DebuggerState state)

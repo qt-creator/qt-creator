@@ -87,6 +87,7 @@
 #include <QtGui/QWizard>
 #include <QtGui/QPrinter>
 #include <QtGui/QToolButton>
+#include <QtGui/QMessageBox>
 
 /*
 #ifdef Q_OS_UNIX
@@ -1262,3 +1263,28 @@ void MainWindow::setFullScreen(bool on)
     }
 }
 
+// Display a warning with an additional button to open
+// the debugger settings dialog if settingsId is nonempty.
+
+bool MainWindow::showWarningWithOptions(const QString &title,
+                                        const QString &text,
+                                        const QString &details,
+                                        const QString &settingsCategory,
+                                        const QString &settingsId,
+                                        QWidget *parent)
+{
+    if (parent == 0)
+        parent = this;
+    QMessageBox msgBox(QMessageBox::Warning, title, text,
+                       QMessageBox::Ok, parent);
+    if (details.isEmpty())
+        msgBox.setDetailedText(details);
+    QAbstractButton *settingsButton = 0;
+    if (!settingsId.isEmpty() || !settingsCategory.isEmpty())
+        settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
+    msgBox.exec();
+    if (settingsButton && msgBox.clickedButton() == settingsButton) {
+        return showOptionsDialog(settingsCategory, settingsId);
+    }
+    return false;
+}

@@ -45,8 +45,6 @@
 namespace Debugger {
 namespace Internal {
 
-#define STRINGIFY_INTERNAL(x) #x
-#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) \
     static_cast<GdbEngine::AdapterCallback>(&PlainGdbAdapter::callback), \
     STRINGIFY(callback)
@@ -60,30 +58,11 @@ namespace Internal {
 PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
-    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
-        this, SIGNAL(readyReadStandardOutput()));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
-        this, SIGNAL(readyReadStandardError()));
-    connect(&m_gdbProc, SIGNAL(started()),
-        this, SLOT(handleGdbStarted()));
-    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
-        this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
+    commonInit();
 
-    m_stubProc.setMode(Utils::ConsoleProcess::Debug);
-#ifdef Q_OS_UNIX
-    m_stubProc.setSettings(Core::ICore::instance()->settings());
-#endif
-
-    connect(&m_stubProc, SIGNAL(processError(QString)),
-        this, SLOT(stubError(QString)));
-    connect(&m_stubProc, SIGNAL(processStarted()),
-        this, SLOT(stubStarted()));
-// FIXME:
-//    connect(&m_stubProc, SIGNAL(wrapperStopped()),
-//        m_manager, SLOT(exitDebugger()));
+    // Output
+    connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
+        engine, SLOT(readDebugeeOutput(QByteArray)));
 }
 
 void PlainGdbAdapter::startAdapter()
@@ -96,30 +75,17 @@ void PlainGdbAdapter::startAdapter()
     gdbArgs.prepend(_("mi"));
     gdbArgs.prepend(_("-i"));
 
-    if (startParameters().useTerminal) {
-        m_stubProc.stop(); // We leave the console open, so recycle it now.
-
-        m_stubProc.setWorkingDirectory(startParameters().workingDir);
-        m_stubProc.setEnvironment(startParameters().environment);
-        if (!m_stubProc.start(startParameters().executable,
-                             startParameters().processArgs)) {
-            // Error message for user is delivered via a signal.
-            emitAdapterStartFailed(QString());
-            return;
-        }
-    } else {
-        if (!m_engine->m_outputCollector.listen()) {
-            emitAdapterStartFailed(tr("Cannot set up communication with child process: %1")
-                    .arg(m_engine->m_outputCollector.errorString()));
-            return;
-        }
-        gdbArgs.prepend(_("--tty=") + m_engine->m_outputCollector.serverName());
-
-        if (!startParameters().workingDir.isEmpty())
-            setWorkingDirectory(startParameters().workingDir);
-        if (!startParameters().environment.isEmpty())
-            setEnvironment(startParameters().environment);
+    if (!m_outputCollector.listen()) {
+        emit adapterStartFailed(tr("Cannot set up communication with child process: %1")
+                .arg(m_outputCollector.errorString()), QString());
+        return;
     }
+    gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
+
+    if (!startParameters().workingDir.isEmpty())
+        m_gdbProc.setWorkingDirectory(startParameters().workingDir);
+    if (!startParameters().environment.isEmpty())
+        m_gdbProc.setEnvironment(startParameters().environment);
 
     m_gdbProc.start(theDebuggerStringSetting(GdbLocation), gdbArgs);
 }
@@ -164,49 +130,6 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
     }
 }
 
-void PlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
-{
-    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
-#if defined(Q_OS_MAC)
-    Q_UNUSED(response)
-#else
-/*
-    #ifdef Q_OS_MAC        
-    m_engine->postCommand(_("sharedlibrary apply-load-rules all"));
-    // On MacOS, breaking in at the entry point wreaks havoc.
-    m_engine->postCommand(_("tbreak main"));
-    m_waitingForFirstBreakpointToBeHit = true;
-    m_engine->postCommand(_("-exec-run"), CB(handleExecRun));
-    #else
-// FIXME:
-//    if (!m_dumperInjectionLoad)
-//        m_engine->postCommand(_("set auto-solib-add off"));
-    m_engine->postCommand(_("info target"), CB(handleInfoTarget));
-    #endif
-*/
-    if (response.resultClass == GdbResultDone) {
-        // [some leading stdout here]
-        // >&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
-        // [some trailing stdout here]
-        QString msg = _(response.data.findChild("consolestreamoutput").data());
-        QRegExp needle(_("\\bEntry point: (0x[0-9a-f]+)\\b"));
-        if (needle.indexIn(msg) != -1) {
-            //debugMessage(_("STREAM: ") + msg + " " + needle.cap(1));
-            m_engine->postCommand(_("tbreak *") + needle.cap(1));
-// FIXME:            m_waitingForFirstBreakpointToBeHit = true;
-            setState(InferiorRunningRequested);
-            m_engine->postCommand(_("-exec-run"), CB(handleExecRun));
-        } else {
-            debugMessage(_("PARSING START ADDRESS FAILED: ") + msg);
-            emit inferiorStartFailed(_("Parsing start address failed"));
-        }
-    } else if (response.resultClass == GdbResultError) {
-        debugMessage(_("FETCHING START ADDRESS FAILED: " + response.toString()));
-        emit inferiorStartFailed(_("Fetching start address failed"));
-    }
-#endif
-}
-
 void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
@@ -247,6 +170,7 @@ void PlainGdbAdapter::interruptInferior()
 void PlainGdbAdapter::shutdown()
 {
     debugMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
+    m_outputCollector.shutdown();
     switch (state()) {
     
     case InferiorRunningRequested:
@@ -317,35 +241,6 @@ void PlainGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
 {
     debugMessage(_("GDB PROCESS FINISHED"));
     emit adapterShutDown();
-}
-
-void PlainGdbAdapter::stubStarted()
-{
-    const qint64 attachedPID = m_stubProc.applicationPID();
-    emit inferiorPidChanged(attachedPID);
-    m_engine->postCommand(_("attach %1").arg(attachedPID), CB(handleStubAttached));
-}
-
-void PlainGdbAdapter::handleStubAttached(const GdbResponse &)
-{
-    qDebug() << "STUB ATTACHED, FIXME";
-    //qq->notifyInferiorStopped();
-    //handleAqcuiredInferior();
-}
-
-void PlainGdbAdapter::stubError(const QString &msg)
-{
-    QMessageBox::critical(m_engine->mainWindow(), tr("Debugger Error"), msg);
-}
-
-void PlainGdbAdapter::emitAdapterStartFailed(const QString &msg)
-{
-    //  QMessageBox::critical(mainWindow(), tr("Debugger Startup Failure"),
-    //    tr("Cannot start debugger: %1").arg(m_gdbAdapter->errorString()));
-    bool blocked = m_stubProc.blockSignals(true);
-    m_stubProc.stop();
-    m_stubProc.blockSignals(blocked);
-    emit adapterStartFailed(msg);
 }
 
 } // namespace Internal

@@ -34,7 +34,6 @@
 #include "debuggermanager.h" // only for StartParameters
 #include "gdbmi.h"
 #include "watchutils.h"
-#include "outputcollector.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QHash>
@@ -70,6 +69,7 @@ class CoreGdbAdapter;
 class PlainGdbAdapter;
 class RemoteGdbAdapter;
 class TrkGdbAdapter;
+struct TrkOptions;
 
 enum DebuggingHelperState
 {
@@ -93,6 +93,7 @@ signals:
     void applicationOutputAvailable(const QString &output);
 
 private:
+    friend class AbstractGdbAdapter;
     friend class AttachGdbAdapter;
     friend class CoreGdbAdapter;
     friend class PlainGdbAdapter;
@@ -150,6 +151,8 @@ private:
     Q_SLOT void setAutoDerefPointers(const QVariant &on);
     virtual bool isGdbEngine() const { return true; }
 
+    virtual bool checkConfiguration(int toolChain, QString *errorMessage, QString *settingsPage= 0) const;
+
     //
     // Own stuff
     //
@@ -161,7 +164,6 @@ private:
     StackFrame parseStackFrame(const GdbMi &mi, int level);
 
     void connectAdapter();
-    void disconnectAdapter();
     void initializeVariables();
     QString fullName(const QString &fileName);
     // get one usable name out of these, try full names first
@@ -232,13 +234,12 @@ private:
     void updateLocals();
 
 private slots:
-    QString errorMessage(QProcess::ProcessError error);
     void readGdbStandardOutput();
     void readGdbStandardError();
     void readDebugeeOutput(const QByteArray &data);
 
     void handleAdapterStarted();
-    void handleAdapterStartFailed(const QString &msg);
+    void handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint = QString());
 
     void handleInferiorPrepared();
     void handleInferiorPreparationFailed(const QString &msg);
@@ -288,7 +289,6 @@ private:
     QHash<int, QByteArray> m_customOutputForToken;
 
     QByteArray m_pendingConsoleStreamOutput;
-    QByteArray m_pendingTargetStreamOutput;
     QByteArray m_pendingLogStreamOutput;
 
     // contains the first token number for the current round
@@ -396,7 +396,7 @@ private:
     void setLocals(const QList<GdbMi> &locals);
     void connectDebuggingHelperActions();
     void disconnectDebuggingHelperActions();
-    AbstractGdbAdapter *determineAdapter(const DebuggerStartParametersPtr &dp) const;
+    AbstractGdbAdapter *createAdapter(const DebuggerStartParametersPtr &dp);
 
     bool startModeAllowsDumpers() const;
     QString parseDisassembler(const GdbMi &lines);
@@ -411,9 +411,9 @@ private:
     QString m_currentFrame;
     QMap<QString, QString> m_varToType;
 
-    typedef void (GdbEngine::*Continuation)();
+    typedef void (GdbEngine::*CommandsDoneCallback)();
     // function called after all previous responses have been received
-    Continuation m_continuationAfterDone;
+    CommandsDoneCallback m_commandsDoneCallback;
     void startInferior();
 
     bool m_modulesListOutdated;
@@ -423,24 +423,17 @@ private:
     DebuggerStartParametersPtr m_startParameters;
     // make sure to re-initialize new members in initializeVariables();
 
-    // only one of those is active at a given time, available in m_gdbAdapter
-    AbstractGdbAdapter *m_gdbAdapter;  // pointer to one listed below
-    AttachGdbAdapter *m_attachAdapter; // owned
-    CoreGdbAdapter *m_coreAdapter;     // owned
-    PlainGdbAdapter *m_plainAdapter;   // owned
-    RemoteGdbAdapter *m_remoteAdapter; // owned
-    TrkGdbAdapter *m_trkAdapter;       // owned
+    QSharedPointer<TrkOptions> m_trkOptions;
 
-    friend class AbstractGdbAdapter;
+    AbstractGdbAdapter *m_gdbAdapter;
 
 public:
+    QString errorMessage(QProcess::ProcessError error);
     void showMessageBox(int icon, const QString &title, const QString &text);
     void debugMessage(const QString &msg);
     void addOptionPages(QList<Core::IOptionsPage*> *opts) const;
     const DebuggerStartParameters &startParameters() const
         { return *m_startParameters; }
-
-    OutputCollector m_outputCollector;
 };
 
 } // namespace Internal

@@ -68,13 +68,27 @@
 */
 
 /*!
-    \fn void ICore::showOptionsDialog(const QString &group = QString(),
+    \fn bool ICore::showOptionsDialog(const QString &group = QString(),
                                const QString &page = QString())
     \brief Opens the application options/preferences dialog with preselected
     \a page in a specified \a group.
 
     The arguments refer to the string IDs of the corresponding IOptionsPage.
 */
+
+/*!
+    \fn bool ICore::showWarningWithOptions(const QString &title, const QString &text,
+                                   const QString &details = QString(),
+                                   const QString &settingsCategory = QString(),
+                                   const QString &settingsId = QString(),
+                                   QWidget *parent = 0);
+
+    \brief Show a warning message with a button that opens a settings page.
+
+    Should be used to display configuration errors and point users to the setting.
+    Returns true if the settings dialog was accepted.
+*/
+
 
 /*!
     \fn ActionManager *ICore::actionManager() const

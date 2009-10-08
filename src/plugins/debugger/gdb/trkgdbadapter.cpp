@@ -29,6 +29,7 @@
 
 #include "trkgdbadapter.h"
 #include "trkoptions.h"
+#include "trkoptionspage.h"
 #include "debuggerstringutils.h"
 #ifndef STANDALONE_RUNNER
 #include "gdbengine.h"
@@ -45,8 +46,6 @@
 #include <QtCore/QTimer>
 #include <QtCore/QDir>
 
-#define STRINGIFY_INTERNAL(x) #x
-#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) \
     static_cast<GdbEngine::AdapterCallback>(&TrkGdbAdapter::callback), \
     STRINGIFY(callback)
@@ -204,16 +203,8 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     const uid_t portOffset = getuid();
 #endif
     m_gdbServerName = _("127.0.0.1:%1").arg(2222 + portOffset);
-    connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
-        this, SIGNAL(readyReadStandardError()));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
-        this, SIGNAL(readyReadStandardOutput()));
-    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
-        this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
-    connect(&m_gdbProc, SIGNAL(started()),
-        this, SLOT(handleGdbStarted()));
+
+    commonInit();
     connect(&m_gdbProc, SIGNAL(stateChanged(QProcess::ProcessState)),
         this, SLOT(handleGdbStateChanged(QProcess::ProcessState)));
 
@@ -397,7 +388,7 @@ void TrkGdbAdapter::emitDelayedAdapterStartFailed(const QString &msg)
 
 void TrkGdbAdapter::slotEmitDelayedAdapterStartFailed()
 {
-    emit adapterStartFailed(m_adapterFailMessage);
+    emit adapterStartFailed(m_adapterFailMessage, TrkOptionsPage::settingsId());
 }
 
 void TrkGdbAdapter::startInferiorEarly()
@@ -420,7 +411,7 @@ void TrkGdbAdapter::startInferiorEarly()
             QString msg = _("Failed to connect to %1 after "
                 "%2 attempts").arg(device).arg(m_waitCount);
             logMessage(msg);
-            emit adapterStartFailed(msg);
+            emit adapterStartFailed(msg, TrkOptionsPage::settingsId());
         }
         return;
     }
@@ -1585,16 +1576,28 @@ void TrkGdbAdapter::interruptInferior()
 
 void TrkGdbAdapter::handleGdbError(QProcess::ProcessError error)
 {
-    logMessage(QString("GDB: Process Error %1: %2")
-        .arg(error).arg(m_gdbProc.errorString()));
+    if (error == QProcess::FailedToStart) {
+        const QString msg = QString::fromLatin1("GDB: Cannot start '%1': %2. Please check the settings.").arg(m_options->gdb).arg(m_gdbProc.errorString());
+        emitDelayedAdapterStartFailed(msg); // Emitted from QProcess::start() on Windows
+    } else {
+        // Others should trigger handleGdbFinished
+        const QString msg = QString::fromLatin1("GDB: Process error %1: %2").arg(error).arg(m_gdbProc.errorString());
+        logMessage(msg);
+    }
 }
 
 void TrkGdbAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    logMessage(QString("GDB: ProcessFinished %1 %2")
-        .arg(exitCode).arg(exitStatus));
-    setState(DebuggerNotReady);
-    emit adapterShutDown();
+    const QString msg = exitStatus == QProcess::NormalExit ?
+                        QString::fromLatin1("GDB: Process finished (exit code: %1).").arg(exitCode) :
+                        QString::fromLatin1("GDB: Process crashed: %1").arg(m_gdbProc.errorString());
+    if (state() == AdapterStarting) {
+        emitDelayedAdapterStartFailed(msg);// Potentially emitted from QProcess::start() on Windows
+    } else {
+        logMessage(msg);
+        setState(DebuggerNotReady);
+        emit adapterShutDown();
+    }
 }
 
 void TrkGdbAdapter::handleGdbStarted()
@@ -1647,7 +1650,7 @@ void TrkGdbAdapter::startAdapter()
                 "listener %1 on %2: %3\n");
             msg = msg.arg(blueToothListener, device, m_rfcommProc.errorString());
             msg += QString::fromLocal8Bit(m_rfcommProc.readAllStandardError());
-            emit adapterStartFailed(msg);
+            emit adapterStartFailed(msg, TrkOptionsPage::settingsId());
             return;
         }
     }
@@ -1819,16 +1822,6 @@ void TrkGdbAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
 // AbstractGdbAdapter interface implementation
 //
 
-QByteArray TrkGdbAdapter::readAllStandardError()
-{
-    return m_gdbProc.readAllStandardError();
-}
-
-QByteArray TrkGdbAdapter::readAllStandardOutput()
-{
-    return m_gdbProc.readAllStandardOutput();
-}
-
 void TrkGdbAdapter::write(const QByteArray &data)
 {
     // Write magic packets directly to TRK.
@@ -1859,7 +1852,7 @@ void TrkGdbAdapter::write(const QByteArray &data)
            trkReadMemoryMessage(m_session.dataseg, 12));
         return;
     }
-    m_gdbProc.write(data, data.size());
+    m_gdbProc.write(data);
 }
 
 uint oldPC;
@@ -2048,16 +2041,6 @@ void TrkGdbAdapter::handleDirectStep3(const TrkResult &result)
     logMessage("HANDLE DIRECT STEP2: " + stringFromArray(result.data));
 }
 
-void TrkGdbAdapter::setWorkingDirectory(const QString &dir)
-{
-    m_gdbProc.setWorkingDirectory(dir);
-}
-
-void TrkGdbAdapter::setEnvironment(const QStringList &env)
-{
-    m_gdbProc.setEnvironment(env);
-}
-
 void TrkGdbAdapter::cleanup()
 {
     if (m_trkDevice.isOpen())
@@ -2070,6 +2053,7 @@ void TrkGdbAdapter::shutdown()
 {
     switch (state()) {
     case AdapterStarting:
+    case AdapterStartFailed:
         cleanup();
         setState(DebuggerNotReady);
         return;

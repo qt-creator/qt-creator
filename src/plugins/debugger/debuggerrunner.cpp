@@ -36,6 +36,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -174,7 +175,19 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
 void DebuggerRunControl::start()
 {
     m_running = true;
-    m_manager->startNewDebugger(m_startParameters);
+    QString errorMessage;
+    QString settingsCategory;
+    QString settingsPage;
+    if (m_manager->checkDebugConfiguration(startParameters()->toolChainType, &errorMessage,
+                                           &settingsCategory, &settingsPage)) {
+        m_manager->startNewDebugger(m_startParameters);
+    } else {
+        error(this, errorMessage);
+        emit finished();
+        Core::ICore::instance()->showWarningWithOptions(tr("Debugger"), errorMessage,
+                                                        QString(),
+                                                        settingsCategory, settingsPage);
+    }
 }
 
 void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data)

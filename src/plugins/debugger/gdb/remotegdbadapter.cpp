@@ -41,8 +41,6 @@
 namespace Debugger {
 namespace Internal {
 
-#define STRINGIFY_INTERNAL(x) #x
-#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) \
     static_cast<GdbEngine::AdapterCallback>(&RemoteGdbAdapter::callback), \
     STRINGIFY(callback)
@@ -56,17 +54,7 @@ namespace Internal {
 RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
-    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
-        this, SIGNAL(readyReadStandardOutput()));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
-        this, SIGNAL(readyReadStandardError()));
-    connect(&m_gdbProc, SIGNAL(started()),
-        this, SLOT(handleGdbStarted()));
-    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
-        this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
+    commonInit();
 
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(uploadProcError(QProcess::ProcessError)));
@@ -86,18 +74,6 @@ void RemoteGdbAdapter::startAdapter()
     gdbArgs.prepend(_("mi"));
     gdbArgs.prepend(_("-i"));
 
-    if (!m_engine->m_outputCollector.listen()) {
-        emit adapterStartFailed(tr("Cannot set up communication with child process: %1")
-                .arg(m_engine->m_outputCollector.errorString()));
-        return;
-    }
-    gdbArgs.prepend(_("--tty=") + m_engine->m_outputCollector.serverName());
-
-    if (!startParameters().workingDir.isEmpty())
-        setWorkingDirectory(startParameters().workingDir);
-    if (!startParameters().environment.isEmpty())
-        setEnvironment(startParameters().environment);
-
     QString location = theDebuggerStringSetting(GdbLocation);
 
     // FIXME: make asynchroneous
@@ -106,10 +82,6 @@ void RemoteGdbAdapter::startAdapter()
         m_engine->showStatusMessage(_("No server start script given. "
             "Assuming server runs already."));
     } else {
-        if (!startParameters().workingDir.isEmpty())
-            m_uploadProc.setWorkingDirectory(startParameters().workingDir);
-        if (!startParameters().environment.isEmpty())
-            m_uploadProc.setEnvironment(startParameters().environment);
         m_uploadProc.start(_("/bin/sh ") + startParameters().serverStartScript);
         m_uploadProc.waitForStarted();
     }
@@ -193,20 +165,30 @@ void RemoteGdbAdapter::prepareInferior()
         m_engine->postCommand(_("-exec-arguments ")
             + startParameters().processArgs.join(_(" ")));
 
-    //qq->breakHandler()->setAllPending();
+#if 0
+    m_engine->postCommand(_("set target-async on"), CB(handleSetTargetAsync));
+#else
     QFileInfo fi(startParameters().executable);
     QString fileName = fi.absoluteFilePath();
     m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName),
         CB(handleFileExecAndSymbols));
+#endif
+}
 
-    // works only for > 6.8
-    //postCommand(_("set target-async on"), CB(handleSetTargetAsync));
-    // a typical response on "old" gdb is:
-    // &"set target-async on\n"
-    //&"No symbol table is loaded.  Use the \"file\" command.\n"
-    //^error,msg="No symbol table is loaded.  Use the \"file\" command."
-    //postCommand(_("detach"));
-    //emit inferiorPreparationFailed(msg);
+void RemoteGdbAdapter::handleSetTargetAsync(const GdbResponse &response)
+{
+    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
+    if (response.resultClass == GdbResultDone) {
+        //qq->breakHandler()->setAllPending();
+        QFileInfo fi(startParameters().executable);
+        QString fileName = fi.absoluteFilePath();
+        m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName),
+            CB(handleFileExecAndSymbols));
+    } else if (response.resultClass == GdbResultError) {
+        QString msg = tr("Adapter too old: does not support asynchronous mode.");
+        setState(InferiorPreparationFailed);
+        emit inferiorPreparationFailed(msg);
+    }
 }
 
 void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
@@ -214,9 +196,8 @@ void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         //m_breakHandler->clearBreakMarkers();
-        QString channel = startParameters().remoteChannel;
-        m_engine->postCommand(_("target remote %1").arg(channel),
-            CB(handleTargetRemote));
+        m_engine->setState(InferiorPrepared);
+        emit inferiorPrepared();
     } else if (response.resultClass == GdbResultError) {
         QString msg = tr("Starting remote executable failed:\n");
         msg += __(response.data.findChild("msg").data());
@@ -227,37 +208,33 @@ void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 
 void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
-    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        setState(InferiorPrepared);
-        emit inferiorPrepared();
+        // gdb server will stop the remote application itself.
+        debugMessage(_("INFERIOR STARTED"));
+        showStatusMessage(tr("Attached to stopped inferior."));
+        setState(InferiorStopped);
+        m_engine->continueInferior();
     } else if (record.resultClass == GdbResultError) {
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = tr("Connecting to remote server failed:\n");
         msg += __(record.data.findChild("msg").data());
         setState(InferiorPreparationFailed);
-        emit inferiorPreparationFailed(msg);
+        emit inferiorStartFailed(msg);
     }
 }
 
 void RemoteGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    m_engine->postCommand(_("attach"), CB(handleFirstContinue));
-}
+    QString channel = startParameters().remoteChannel;
 
-void RemoteGdbAdapter::handleFirstContinue(const GdbResponse &record)
-{
-    QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
-    if (record.resultClass == GdbResultDone) {
-        setState(InferiorStopped);
-        debugMessage(_("INFERIOR STARTED"));
-        showStatusMessage(tr("Attached to stopped inferior."));
-    } else if (record.resultClass == GdbResultError) {
-        //QString msg = __(record.data.findChild("msg").data());
-        QString msg1 = tr("Connecting to remote server failed:\n");
-        emit inferiorStartFailed(msg1 + record.toString());
-    }
+    // "target remote" does three things:
+    //     (1) connects to the gdb server
+    //     (2) starts the remote application
+    //     (3) stops the remote application (early, e.g. in the dynamic linker)
+    m_engine->postCommand(_("target remote %1").arg(channel),
+        CB(handleTargetRemote));
 }
 
 void RemoteGdbAdapter::interruptInferior()
@@ -290,6 +267,7 @@ void RemoteGdbAdapter::shutdown()
 
 void RemoteGdbAdapter::handleKill(const GdbResponse &response)
 {
+    QTC_ASSERT(state() == InferiorShuttingDown, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         setState(InferiorShutDown);
         emit inferiorShutDown();

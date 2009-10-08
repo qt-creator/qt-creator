@@ -87,7 +87,6 @@ class CdbDebugEventCallback;
 class CdbDumperHelper;
 class CdbExceptionLoggerEventCallback;
 class GdbEngine;
-class TcfEngine;
 class CdbDebugEngine;
 struct CdbDebugEnginePrivate;
 } // namespace Internal
@@ -129,11 +128,9 @@ enum DebuggerEngineTypeFlags
     GdbEngineType     = 0x01,
     ScriptEngineType  = 0x02,
     CdbEngineType     = 0x04,
-    TcfEngineType     = 0x08,
     AllEngineTypes = GdbEngineType
         | ScriptEngineType 
         | CdbEngineType 
-        | TcfEngineType
 };
 
 QDebug operator<<(QDebug d, DebuggerState state);
@@ -159,7 +156,6 @@ public:
     friend class Internal::CdbExceptionLoggerEventCallback;
     friend class Internal::GdbEngine;
     friend class Internal::ScriptEngine;
-    friend class Internal::TcfEngine;
     friend class Internal::CdbDebugEngine;
     friend struct Internal::CdbDebugEnginePrivate;
 
@@ -176,6 +172,11 @@ public:
     void showMessageBox(int icon, const QString &title, const QString &text);
 
     bool debuggerActionsEnabled() const;
+
+    bool checkDebugConfiguration(int toolChain,
+                                 QString *errorMessage,
+                                 QString *settingsCategory = 0,
+                                 QString *settingsPage = 0) const;
 
     static DebuggerManager *instance();
 

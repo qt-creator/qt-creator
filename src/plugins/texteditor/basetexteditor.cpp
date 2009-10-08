@@ -1918,23 +1918,6 @@ void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
         q->ensureCursorVisible();
 }
 
-static QColor calcBlendColor(const QColor &baseColor, int factor = 1)
-{
-    const int blendBase = (baseColor.value() > 128) ? 0 : 255;
-    // Darker backgrounds may need a bit more contrast
-    const int blendFactor = (baseColor.value() > 128) ? 16 : 32;
-    QColor blendColor = baseColor;
-
-    while (factor--) {
-        blendColor = QColor(
-                (blendBase * blendFactor + blendColor.red() * (256 - blendFactor)) / 256,
-                (blendBase * blendFactor + blendColor.green() * (256 - blendFactor)) / 256,
-                (blendBase * blendFactor + blendColor.blue() * (256 - blendFactor)) / 256);
-    }
-    return blendColor;
-}
-
-
 static QColor calcBlendColor(const QColor &baseColor, int level, int count)
 {
     QColor color80;
@@ -1997,13 +1980,13 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QRect viewportRect = viewport()->rect();
 
     const QColor baseColor = palette().base().color();
-    const QColor blendColor = calcBlendColor(baseColor);
 
     qreal lineX = 0;
 
     if (d->m_visibleWrapColumn > 0) {
         lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
-        painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()), blendColor);
+        painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()),
+                         d->m_ifdefedOutFormat.background());
     }
 
 //    // keep right margin clean from full-width selection
@@ -2051,6 +2034,15 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
         QRectF r = blockBoundingRect(block).translated(offset);
 
+        if (TextEditDocumentLayout::ifdefedOut(block)) {
+            QRectF rr = r;
+            rr.setWidth(viewport()->width());
+            if (lineX > 0)
+                rr.setRight(qMin(lineX, rr.right()));
+            painter.fillRect(rr, d->m_ifdefedOutFormat.background());
+        }
+
+
         if (!d->m_highlightBlocksInfo.isEmpty()) {
 
             int n = block.blockNumber();
@@ -2077,15 +2069,17 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
         QTextLayout *layout = block.layout();
 
+#if 0
         QTextOption option = layout->textOption();
         if (TextEditDocumentLayout::ifdefedOut(block)) {
-            option.setFlags(option.flags() | QTextOption::SuppressColors);
+            option.setFlags(option.flags() /*| QTextOption::SuppressColors*/);
             painter.setPen(d->m_ifdefedOutFormat.foreground().color());
         } else {
             option.setFlags(option.flags() & ~QTextOption::SuppressColors);
             painter.setPen(context.palette.text().color());
         }
         layout->setTextOption(option);
+#endif
 
         if (r.bottom() >= er.top() && r.top() <= er.bottom()) {
 
@@ -2342,9 +2336,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         painter.save();
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.translate(.5, .5);
-        QColor color = blendColor;
-//        color.setAlpha(240); // someone thinks alpha blending looks messy
-        painter.setBrush(color);
+        painter.setBrush(d->m_ifdefedOutFormat.background());
         painter.drawRoundedRect(QRectF(visibleCollapsedBlockOffset.x(),
                                        visibleCollapsedBlockOffset.y(),
                                        maxWidth, blockHeight).adjusted(0, 0, 0, 0), 3, 3);
@@ -4159,8 +4151,7 @@ void BaseTextEditor::setIfdefedOutBlocks(const QList<BaseTextEditor::BlockRange>
         bool set = false;
         if (rangeNumber < blocks.size()) {
             const BlockRange &range = blocks.at(rangeNumber);
-
-            if (block.position() >= range.first && (block.position() <= range.last || !range.last)) {
+            if (block.position() >= range.first && ((block.position() + block.length() - 1) <= range.last || !range.last)) {
                 set = TextEditDocumentLayout::setIfdefedOut(block);
             } else {
                 cleared = TextEditDocumentLayout::clearIfdefedOut(block);

@@ -640,6 +640,14 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         }
     }
 
+    if (k == T_COMMA) {
+        ExpressionUnderCursor expressionUnderCursor;
+        if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
+            k = T_EOF_SYMBOL;
+            start = pos;
+        }
+    }
+
     static CPlusPlus::TokenUnderCursor tokenUnderCursor;
     const SimpleToken tk = tokenUnderCursor(tc);
 
@@ -682,21 +690,16 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     }
     // Check for include preprocessor directive
     else if (k == T_STRING_LITERAL || k == T_ANGLE_STRING_LITERAL || k == T_SLASH) {
-        const QList<SimpleToken> &tokens = tokenUnderCursor.tokens();
-        int i = 0;
         bool include = false;
-        for (; i < tokens.size(); ++i) {
-            const SimpleToken &token = tokens.at(i);
-            if (token.position() == tk.position()) {
-                if (i == 0) // no token on the left, but might be on a previous line
-                    break;
-                const SimpleToken &previousToken = tokens.at(i - 1);
-                if (previousToken.is(T_IDENTIFIER)) {
-                    if (previousToken.text() == QLatin1String("include") ||
-                        previousToken.text() == QLatin1String("import")) {
-                        include = true;
-                        break;
-                    }
+        const QList<SimpleToken> &tokens = tokenUnderCursor.tokens();
+        if (tokens.size() >= 3) {
+            if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
+                                                                              tokens.at(2).is(T_ANGLE_STRING_LITERAL))) {
+                QStringRef directive = tokens.at(1).text();
+                if (directive == QLatin1String("include") ||
+                    directive == QLatin1String("include_next") ||
+                    directive == QLatin1String("import")) {
+                    include = true;
                 }
             }
         }
@@ -783,11 +786,14 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (m_completionOperator == T_COMMA) {
         tc.setPosition(endOfExpression);
         const int start = expressionUnderCursor.startOfFunctionCall(tc);
-        if (start != -1) {
-            endOfExpression = start;
-            m_startPosition = start + 1;
-            m_completionOperator = T_LPAREN;
+        if (start == -1) {
+            m_completionOperator = T_EOF_SYMBOL;
+            return -1;
         }
+
+        endOfExpression = start;
+        m_startPosition = start + 1;
+        m_completionOperator = T_LPAREN;
     }
 
     QString expression;

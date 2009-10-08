@@ -105,8 +105,6 @@ namespace Internal {
 #   define PENDING_DEBUG(s)
 #endif
 
-#define STRINGIFY_INTERNAL(x) #x
-#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
 
 static bool stateAcceptsGdbCommands(DebuggerState state)
@@ -181,18 +179,9 @@ GdbEngine::GdbEngine(DebuggerManager *manager) :
     m_dumperInjectionLoad(false)
 #endif
 {
+    m_trkOptions = QSharedPointer<TrkOptions>(new TrkOptions);
+    m_trkOptions->fromSettings(Core::ICore::instance()->settings());
     m_gdbAdapter = 0;
-    QSharedPointer<TrkOptions> options(new TrkOptions);
-    options->fromSettings(Core::ICore::instance()->settings());
-    m_plainAdapter = new PlainGdbAdapter(this);
-    m_trkAdapter = new TrkGdbAdapter(this, options);
-    m_remoteAdapter = new RemoteGdbAdapter(this);
-    m_coreAdapter = new CoreGdbAdapter(this);
-    m_attachAdapter = new AttachGdbAdapter(this);
-
-    // Output
-    connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
-        this, SLOT(readDebugeeOutput(QByteArray)));
 
     connect(this, SIGNAL(gdbOutputAvailable(int,QString)),
         m_manager, SLOT(showDebuggerOutput(int,QString)),
@@ -239,16 +228,7 @@ QMainWindow *GdbEngine::mainWindow() const
 GdbEngine::~GdbEngine()
 {
     // prevent sending error messages afterwards
-    if (m_gdbAdapter) {
-        m_gdbAdapter->disconnect(this);
-        //delete m_gdbAdapter;
-        m_gdbAdapter = 0;
-    }
-    delete m_plainAdapter;
-    delete m_trkAdapter;
-    delete m_remoteAdapter;
-    delete m_coreAdapter;
-    delete m_attachAdapter;
+    delete m_gdbAdapter;
 }
 
 void GdbEngine::connectAdapter()
@@ -261,8 +241,8 @@ void GdbEngine::connectAdapter()
 
     connect(m_gdbAdapter, SIGNAL(adapterStarted()),
         this, SLOT(handleAdapterStarted()));
-    connect(m_gdbAdapter, SIGNAL(adapterStartFailed(QString)),
-        this, SLOT(handleAdapterStartFailed(QString)));
+    connect(m_gdbAdapter, SIGNAL(adapterStartFailed(QString,QString)),
+        this, SLOT(handleAdapterStartFailed(QString,QString)));
     connect(m_gdbAdapter, SIGNAL(adapterShutDown()),
         this, SLOT(handleAdapterShutDown()));
     connect(m_gdbAdapter, SIGNAL(adapterShutdownFailed(QString)),
@@ -284,11 +264,6 @@ void GdbEngine::connectAdapter()
         this, SLOT(handleAdapterCrashed(QString)));
 }
 
-void GdbEngine::disconnectAdapter()
-{
-    disconnect(m_gdbAdapter, 0, this, 0);
-}
-
 void GdbEngine::initializeVariables()
 {
     m_debuggingHelperState = DebuggingHelperUninitialized;
@@ -303,24 +278,23 @@ void GdbEngine::initializeVariables()
     m_oldestAcceptableToken = -1;
     m_outputCodec = QTextCodec::codecForLocale();
     m_pendingRequests = 0;
-    m_continuationAfterDone = 0;
+    m_commandsDoneCallback = 0;
     m_commandsToRunOnTemporaryBreak.clear();
     m_cookieForToken.clear();
     m_customOutputForToken.clear();
 
     m_pendingConsoleStreamOutput.clear();
-    m_pendingTargetStreamOutput.clear();
     m_pendingLogStreamOutput.clear();
 
     m_inbuffer.clear();
 
+    // ConverterState has no reset() function.
+    m_outputCodecState.~ConverterState();
+    new (&m_outputCodecState) QTextCodec::ConverterState();
+
     m_currentFunctionArgs.clear();
     m_currentFrame.clear();
     m_dumperHelper.clear();
-
-    // FIXME: unhandled:
-    //m_outputCodecState = QTextCodec::ConverterState();
-    //m_gdbAdapter;
 }
 
 QString GdbEngine::errorMessage(QProcess::ProcessError error)
@@ -517,8 +491,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 static QRegExp re1(_("New .hread 0x[0-9a-f]+ \\(LWP ([0-9]*)\\)"));
                 // MinGW 6.8: [New thread 2437.0x435345]
                 static QRegExp re2(_("New .hread ([0-9]+)\\.0x[0-9a-f]*"));
-                // Mac: [Switching to process 9294 local thread 0x2e03]
-                static QRegExp re3(_("Switching to process ([0-9]+) local thread"));
+                // Mac: [Switching to process 9294 local thread 0x2e03] or
+                // [Switching to process 31773]
+                static QRegExp re3(_("Switching to process ([0-9]+)"));
                 QTC_ASSERT(re1.isValid() && re2.isValid(), return);
                 if (re1.indexIn(_(data)) != -1)
                     maybeHandleInferiorPidChanged(re1.cap(1));
@@ -539,8 +514,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
         }
 
         case '@': {
-            QByteArray data = GdbMi::parseCString(from, to);
-            m_pendingTargetStreamOutput += data;
+            readDebugeeOutput(GdbMi::parseCString(from, to));
             break;
         }
 
@@ -595,12 +569,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             }
 
             //qDebug() << "\nLOG STREAM:" + m_pendingLogStreamOutput;
-            //qDebug() << "\nTARGET STREAM:" + m_pendingTargetStreamOutput;
             //qDebug() << "\nCONSOLE STREAM:" + m_pendingConsoleStreamOutput;
             response.data.setStreamOutput("logstreamoutput",
                 m_pendingLogStreamOutput);
-            response.data.setStreamOutput("targetstreamoutput",
-                m_pendingTargetStreamOutput);
             response.data.setStreamOutput("consolestreamoutput",
                 m_pendingConsoleStreamOutput);
             QByteArray custom = m_customOutputForToken[token];
@@ -609,7 +580,6 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     '{' + custom + '}');
             //m_customOutputForToken.remove(token);
             m_pendingLogStreamOutput.clear();
-            m_pendingTargetStreamOutput.clear();
             m_pendingConsoleStreamOutput.clear();
 
             handleResultRecord(response);
@@ -872,9 +842,9 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
     // An optimization would be requesting the continue immediately when the
     // event loop is entered, and let individual commands have a flag to suppress
     // that behavior.
-    if (m_continuationAfterDone && m_cookieForToken.isEmpty()) {
-        Continuation cont = m_continuationAfterDone;
-        m_continuationAfterDone = 0;
+    if (m_commandsDoneCallback && m_cookieForToken.isEmpty()) {
+        CommandsDoneCallback cont = m_commandsDoneCallback;
+        m_commandsDoneCallback = 0;
         (this->*cont)();
         showStatusMessage(tr("Continuing after temporary stop."), 1000);
     } else {
@@ -1076,8 +1046,8 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
             flushCommand(cmd);
         }
         showStatusMessage(tr("Processing queued commands."), 1000);
-        QTC_ASSERT(m_continuationAfterDone == 0, /**/);
-        m_continuationAfterDone = &GdbEngine::continueInferior;
+        QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
+        m_commandsDoneCallback = &GdbEngine::continueInferior;
         return;
     }
 
@@ -1413,7 +1383,6 @@ QString GdbEngine::fullName(const QStringList &candidates)
 void GdbEngine::shutdown()
 {
     debugMessage(_("INITIATE GDBENGINE SHUTDOWN"));
-    m_outputCollector.shutdown();
     initializeVariables();
     m_gdbAdapter->shutdown();
 }
@@ -1431,7 +1400,6 @@ void GdbEngine::detachDebugger()
 void GdbEngine::exitDebugger() // called from the manager
 {
     disconnectDebuggingHelperActions();
-    m_outputCollector.shutdown();
     initializeVariables();
     m_gdbAdapter->shutdown();
 }
@@ -1441,31 +1409,48 @@ int GdbEngine::currentFrame() const
     return manager()->stackHandler()->currentIndex();
 }
 
-AbstractGdbAdapter *GdbEngine::determineAdapter(const DebuggerStartParametersPtr &sp) const
+bool GdbEngine::checkConfiguration(int toolChain, QString *errorMessage, QString *settingsPage) const
+{
+    switch (toolChain) {
+    case ProjectExplorer::ToolChain::WINSCW: // S60
+    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        if (!m_trkOptions->check(errorMessage)) {
+            if (settingsPage)
+                *settingsPage = TrkOptionsPage::settingsId();
+            return false;
+        }
+    default:
+        break;
+    }
+    return true;
+}
+
+AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerStartParametersPtr &sp)
 {
     switch (sp->toolChainType) {
     case ProjectExplorer::ToolChain::WINSCW: // S60
     case ProjectExplorer::ToolChain::GCCE:
     case ProjectExplorer::ToolChain::RVCT_ARMV5:
     case ProjectExplorer::ToolChain::RVCT_ARMV6:
-        return m_trkAdapter;
+        return new TrkGdbAdapter(this, m_trkOptions);
     default:
         break;
     }
     // @todo: remove testing hack
     if (sp->processArgs.size() == 3 && sp->processArgs.at(0) == _("@sym@"))
-        return m_trkAdapter;
+        return new TrkGdbAdapter(this, m_trkOptions);
     switch (sp->startMode) {
     case AttachCore:
-        return m_coreAdapter;
+        return new CoreGdbAdapter(this);
     case StartRemote:
-        return m_remoteAdapter;
+        return new RemoteGdbAdapter(this);
     case AttachExternal:
-        return m_attachAdapter;
+        return new AttachGdbAdapter(this);
     default:
-        break;
+        return new PlainGdbAdapter(this);
     }
-    return m_plainAdapter;
 }
 
 void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
@@ -1479,10 +1464,8 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 
     m_startParameters = sp;
 
-    if (m_gdbAdapter)
-        disconnectAdapter();
-
-    m_gdbAdapter = determineAdapter(sp);
+    delete m_gdbAdapter;
+    m_gdbAdapter = createAdapter(sp);
 
     if (startModeAllowsDumpers())
         connectDebuggingHelperActions();
@@ -1491,43 +1474,6 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     connectAdapter();
 
     m_gdbAdapter->startAdapter();
-
-/*
-    QStringList gdbArgs;
-    gdbArgs.prepend(_("mi"));
-    gdbArgs.prepend(_("-i"));
-
-    if (startMode() == AttachCore || startMode() == AttachExternal
-            || startMode() == AttachCrashedExternal) {
-        // nothing to do
-    } else if (m_startParameters->useTerminal) {
-        m_stubProc.stop(); // We leave the console open, so recycle it now.
-
-        m_stubProc.setWorkingDirectory(m_startParameters->workingDir);
-        m_stubProc.setEnvironment(m_startParameters->environment);
-        if (!m_stubProc.start(m_startParameters->executable,
-                             m_startParameters->processArgs)) {
-            // Error message for user is delivered via a signal.
-            emitStartFailed();
-            return;
-        }
-    } else {
-        if (!m_outputCollector.listen()) {
-            showMessageBox(QMessageBox::Critical, tr("Debugger Startup Failure"),
-                tr("Cannot set up communication with child process: %1")
-                    .arg(m_outputCollector.errorString()));
-            emitStartFailed();
-            return;
-        }
-        gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
-
-        if (!m_startParameters->workingDir.isEmpty())
-            m_gdbAdapter->setWorkingDirectory(m_startParameters->workingDir);
-        if (!m_startParameters->environment.isEmpty())
-            m_gdbAdapter->setEnvironment(m_startParameters->environment);
-    }
-    m_gdbAdapter->start(loc, gdbArgs);
-*/
 }
 
 void GdbEngine::continueInferior()
@@ -4051,10 +3997,12 @@ void GdbEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 // Starting up & shutting down
 //
 
-void GdbEngine::handleAdapterStartFailed(const QString &msg)
+void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint)
 {
+    setState(AdapterStartFailed);
     debugMessage(_("ADAPTER START FAILED"));
-    showMessageBox(QMessageBox::Critical, tr("Adapter start failed"), msg);
+    Core::ICore::instance()->showWarningWithOptions(tr("Adapter start failed"), msg, QString(),
+						    QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
     shutdown();
 }
 
@@ -4161,9 +4109,9 @@ void GdbEngine::handleInferiorPrepared()
     }
 
     // Initial attempt to set breakpoints
-    QTC_ASSERT(m_continuationAfterDone == 0, /**/);
+    QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
     showStatusMessage(tr("Setting breakpoints..."));
-    m_continuationAfterDone = &GdbEngine::startInferior;
+    m_commandsDoneCallback = &GdbEngine::startInferior;
     attemptBreakpointSynchronization();
 }
 
@@ -4227,9 +4175,7 @@ void GdbEngine::handleAdapterShutdownFailed(const QString &msg)
 void GdbEngine::addOptionPages(QList<Core::IOptionsPage*> *opts) const
 {
     opts->push_back(new GdbOptionsPage);
-#ifdef QTCREATOR_WITH_S60
-        opts->push_back(new TrkOptionsPage(m_trkAdapter->options()));
-#endif
+    opts->push_back(new TrkOptionsPage(m_trkOptions));
 }
 
 void GdbEngine::showMessageBox(int icon, const QString &title, const QString &text)

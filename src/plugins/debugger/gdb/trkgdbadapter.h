@@ -145,7 +145,6 @@ public:
     // Set a device (from the project) to override the settings.
     QString overrideTrkDevice() const;
     void setOverrideTrkDevice(const QString &);
-    const TrkOptionsPtr options() const { return m_options; }
 
 signals:
     void output(const QString &msg);
@@ -156,7 +155,6 @@ private:
 
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
 
-    QProcess m_gdbProc;
     QProcess m_rfcommProc;
     bool m_running;
 
@@ -169,8 +167,6 @@ public:
     QByteArray readAllStandardError();
     QByteArray readAllStandardOutput();
     void write(const QByteArray &data);
-    void setWorkingDirectory(const QString &dir);
-    void setEnvironment(const QStringList &env);
     bool isTrkAdapter() const { return true; }
     bool dumpersAvailable() const { return false; }
 
