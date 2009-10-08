@@ -74,7 +74,7 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
     m_signingMode(SignSelf)
 {
     if (!m_proFilePath.isEmpty())
-        setName(tr("%1 on Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
+        setName(tr("%1 on S60 Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
         setName(tr("QtS60DeviceRunConfiguration"));
 
@@ -481,7 +481,7 @@ QStringList S60DeviceRunConfigurationFactory::availableCreationTypes(Project *pr
 QString S60DeviceRunConfigurationFactory::displayNameForType(const QString &type) const
 {
     QString fileName = type.mid(QString("QtS60DeviceRunConfiguration.").size());
-    return tr("%1 on Device").arg(QFileInfo(fileName).completeBaseName());
+    return tr("%1 on S60 Device").arg(QFileInfo(fileName).completeBaseName());
 }
 
 QSharedPointer<RunConfiguration> S60DeviceRunConfigurationFactory::create(Project *project, const QString &type)
