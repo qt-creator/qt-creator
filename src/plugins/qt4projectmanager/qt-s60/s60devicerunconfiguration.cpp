@@ -385,23 +385,23 @@ QString S60DeviceRunConfigurationFactory::displayNameForType(const QString &type
     return tr("%1 on Symbian Device").arg(QFileInfo(fileName).completeBaseName());
 }
 
-QSharedPointer<RunConfiguration> S60DeviceRunConfigurationFactory::create(Project *project, const QString &type)
+RunConfiguration *S60DeviceRunConfigurationFactory::create(Project *project, const QString &type)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(p);
     if (type.startsWith("QtSymbianDeviceRunConfiguration.")) {
         QString fileName = type.mid(QString("QtSymbianDeviceRunConfiguration.").size());
-        return QSharedPointer<RunConfiguration>(new S60DeviceRunConfiguration(p, fileName));
+        return new S60DeviceRunConfiguration(p, fileName);
     }
     Q_ASSERT(type == "Qt4ProjectManager.DeviceRunConfiguration");
     // The right path is set in restoreSettings
-    QSharedPointer<RunConfiguration> rc(new S60DeviceRunConfiguration(p, QString::null));
+    RunConfiguration *rc = new S60DeviceRunConfiguration(p, QString::null);
     return rc;
 }
 
 // ======== S60DeviceRunControlBase
 
-S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfiguration> &runConfiguration) :
+S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfiguration) :
     RunControl(runConfiguration),    
     m_toolChain(ProjectExplorer::ToolChain::INVALID),
     m_makesis(new QProcess(this)),
@@ -420,7 +420,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfigu
     Qt4Project *project = qobject_cast<Qt4Project *>(runConfiguration->project());
     QTC_ASSERT(project, return);
 
-    QSharedPointer<S60DeviceRunConfiguration> s60runConfig = runConfiguration.objectCast<S60DeviceRunConfiguration>();
+    S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
     QTC_ASSERT(s60runConfig, return);
     m_toolChain = s60runConfig->toolChainType();
     m_serialPortName = s60runConfig->serialPortName();
@@ -809,7 +809,7 @@ bool S60DeviceRunControlBase::checkConfiguration(QString * /* errorMessage */,
 }
 
 // =============== S60DeviceRunControl
-S60DeviceRunControl::S60DeviceRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration) :
+S60DeviceRunControl::S60DeviceRunControl(ProjectExplorer::RunConfiguration *runConfiguration) :
     S60DeviceRunControlBase(runConfiguration)
 {
 }
@@ -846,13 +846,13 @@ void S60DeviceRunControl::printRunFailNotice(const QString &errorMessage) {
 
 // ======== S60DeviceDebugRunControl
 
-S60DeviceDebugRunControl::S60DeviceDebugRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration) :
+S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration) :
     S60DeviceRunControlBase(runConfiguration),
     m_startParams(new Debugger::DebuggerStartParameters)
 {
     Debugger::DebuggerManager *dm = Debugger::DebuggerManager::instance();
-    const QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration.objectCast<S60DeviceRunConfiguration>();
-    QTC_ASSERT(dm && !rc.isNull(), return);
+    S60DeviceRunConfiguration *rc = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
+    QTC_ASSERT(dm && rc, return);
 
     connect(dm, SIGNAL(debuggingFinished()),
             this, SLOT(debuggingFinished()), Qt::QueuedConnection);
@@ -864,6 +864,12 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(const QSharedPointer<ProjectE
     m_startParams->remoteChannelType = rc->communicationType();
     m_startParams->startMode = Debugger::StartInternal;
     m_startParams->toolChainType = rc->toolChainType();
+
+    m_localExecutableFileName = rc->localExecutableFileName();
+    const int lastDotPos = m_localExecutableFileName.lastIndexOf(QLatin1Char('.'));
+    if (lastDotPos != -1) {
+        m_startParams->symbolFileName = m_localExecutableFileName.mid(0, lastDotPos) + QLatin1String(".sym");
+    }
 }
 
 void S60DeviceDebugRunControl::stop()
@@ -885,16 +891,12 @@ void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Laun
     m_startParams->executable = executable;
     // Prefer the '*.sym' file over the '.exe', which should exist at the same
     // location in debug builds
-    const QSharedPointer<S60DeviceRunConfiguration> rc = runConfiguration().objectCast<S60DeviceRunConfiguration>();
-    const QString localExecutableFileName = rc->localExecutableFileName();
-    const int lastDotPos = localExecutableFileName.lastIndexOf(QLatin1Char('.'));
-    if (lastDotPos != -1) {
-        m_startParams->symbolFileName = localExecutableFileName.mid(0, lastDotPos) + QLatin1String(".sym");
-        if (!QFileInfo(m_startParams->symbolFileName).isFile()) {
-            m_startParams->symbolFileName.clear();
-            emit addToOutputWindow(this, tr("Warning: Cannot locate the symbol file belonging to %1.").arg(localExecutableFileName));
-        }
+
+    if (!QFileInfo(m_startParams->symbolFileName).isFile()) {
+        m_startParams->symbolFileName.clear();
+        emit addToOutputWindow(this, tr("Warning: Cannot locate the symbol file belonging to %1.").arg(m_localExecutableFileName));
     }
+
     launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
 }
 

@@ -45,7 +45,6 @@ namespace Internal {
 class MaemoManager;
 class MaemoToolChain;
 using namespace ProjectExplorer;
-typedef QSharedPointer<RunConfiguration> RunConfig;
 
 #define USE_SSL_PASSWORD 0
 
@@ -198,7 +197,7 @@ public:
     bool canRestore(const QString &type) const;
     QStringList availableCreationTypes(Project *project) const;
     QString displayNameForType(const QString &type) const;
-    RunConfig create(Project *project, const QString &type);
+    RunConfiguration *create(Project *project, const QString &type);
 
 private slots:
     void addedRunConfiguration(ProjectExplorer::Project* project);
@@ -215,10 +214,10 @@ class MaemoRunControlFactory : public IRunControlFactory
     Q_OBJECT
 public:
     MaemoRunControlFactory(QObject *parent = 0);
-    bool canRun(const RunConfig &runConfiguration, const QString &mode) const;
-    RunControl* create(const RunConfig &runConfiguration, const QString &mode);
+    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
+    RunControl* create(RunConfiguration *runConfiguration, const QString &mode);
     QString displayName() const;
-    QWidget *configurationWidget(const RunConfig &runConfiguration);
+    QWidget *configurationWidget(RunConfiguration *runConfiguration);
 };
 
 } // namespace Internal

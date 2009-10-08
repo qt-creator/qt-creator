@@ -708,19 +708,17 @@ bool Qt4RunConfigurationFactory::canRestore(const QString &type) const
     return type == "Qt4ProjectManager.Qt4RunConfiguration";
 }
 
-QSharedPointer<ProjectExplorer::RunConfiguration> Qt4RunConfigurationFactory::create
-    (ProjectExplorer::Project *project, const QString &type)
+ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &type)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(p);
     if (type.startsWith("Qt4RunConfiguration.")) {
         QString fileName = type.mid(QString("Qt4RunConfiguration.").size());
-        return QSharedPointer<ProjectExplorer::RunConfiguration>(new Qt4RunConfiguration(p, fileName));
+        return new Qt4RunConfiguration(p, fileName);
     }
     Q_ASSERT(type == "Qt4ProjectManager.Qt4RunConfiguration");
     // The right path is set in restoreSettings
-    QSharedPointer<ProjectExplorer::RunConfiguration> rc(new Qt4RunConfiguration(p, QString::null));
-    return rc;
+    return new Qt4RunConfiguration(p, QString::null);
 }
 
 QStringList Qt4RunConfigurationFactory::availableCreationTypes(ProjectExplorer::Project *pro) const

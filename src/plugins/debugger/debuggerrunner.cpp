@@ -63,10 +63,10 @@ DebuggerRunControlFactory::DebuggerRunControlFactory(DebuggerManager *manager)
     : m_manager(manager)
 {}
 
-bool DebuggerRunControlFactory::canRun(const RunConfigurationPtr &runConfiguration, const QString &mode) const
+bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
     return mode == ProjectExplorer::Constants::DEBUGMODE
-       && !runConfiguration.objectCast<LocalApplicationRunConfiguration>().isNull();
+            && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
 }
 
 QString DebuggerRunControlFactory::displayName() const
@@ -74,22 +74,21 @@ QString DebuggerRunControlFactory::displayName() const
     return tr("Debug");
 }
 
-RunControl *DebuggerRunControlFactory::create(const DebuggerStartParametersPtr &sp, const QString &mode)
+RunControl *DebuggerRunControlFactory::create(const DebuggerStartParametersPtr &sp)
 {
     return new DebuggerRunControl(m_manager, sp);
 }
 
-RunControl *DebuggerRunControlFactory::create(const RunConfigurationPtr &runConfiguration,
+RunControl *DebuggerRunControlFactory::create(RunConfiguration *runConfiguration,
                                               const QString &mode)
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
-    LocalApplicationRunConfigurationPtr rc =
-        runConfiguration.objectCast<LocalApplicationRunConfiguration>();
-    QTC_ASSERT(!rc.isNull(), return 0);
+    LocalApplicationRunConfiguration *rc = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
+    QTC_ASSERT(rc, return 0);
     return new DebuggerRunControl(m_manager, rc);
 }
 
-QWidget *DebuggerRunControlFactory::configurationWidget(const RunConfigurationPtr &runConfiguration)
+QWidget *DebuggerRunControlFactory::configurationWidget(RunConfiguration *runConfiguration)
 {
     // NBS TODO: Add GDB-specific configuration widget
     Q_UNUSED(runConfiguration)
@@ -106,7 +105,7 @@ QWidget *DebuggerRunControlFactory::configurationWidget(const RunConfigurationPt
 
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
-       QSharedPointer<LocalApplicationRunConfiguration> runConfiguration)
+       LocalApplicationRunConfiguration *runConfiguration)
   : RunControl(runConfiguration),
     m_startParameters(new DebuggerStartParameters()),
     m_manager(manager),
@@ -158,7 +157,7 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
 }
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager, const DebuggerStartParametersPtr &startParameters)
-    : RunControl(RunConfigurationPtr(0)),
+    : RunControl(0),
       m_startParameters(startParameters),
       m_manager(manager),
       m_running(false)

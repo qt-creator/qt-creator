@@ -1258,7 +1258,7 @@ void DebuggerPlugin::startExternalApplication()
     if (dlg.breakAtMain())
         m_manager->breakByFunctionMain();
 
-    if (RunControl *runControl = m_debuggerRunControlFactory->create(sp, ProjectExplorer::Constants::DEBUGMODE))
+    if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
         ProjectExplorerPlugin::instance()->startRunControl(runControl, ProjectExplorer::Constants::DEBUGMODE);
 }
 
@@ -1279,7 +1279,7 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashP
     sp->attachPID = pid;
     sp->crashParameter = crashParameter;
     sp->startMode = crashParameter.isEmpty() ? AttachExternal : AttachCrashedExternal;
-    if (RunControl *runControl = m_debuggerRunControlFactory->create(sp, ProjectExplorer::Constants::DEBUGMODE))
+    if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
         ProjectExplorerPlugin::instance()->startRunControl(runControl, ProjectExplorer::Constants::DEBUGMODE);
 }
 
@@ -1311,8 +1311,7 @@ void DebuggerPlugin::attachCore(const QString &core, const QString &exe)
     sp->executable = exe;
     sp->coreFile = core;
     sp->startMode = AttachCore;
-    if (RunControl *runControl = m_debuggerRunControlFactory
-            ->create(sp, ProjectExplorer::Constants::DEBUGMODE))
+    if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
         ProjectExplorerPlugin::instance()->startRunControl(runControl, ProjectExplorer::Constants::DEBUGMODE);
 }
 
@@ -1347,7 +1346,7 @@ void DebuggerPlugin::startRemoteApplication()
         sp->serverStartScript = dlg.serverStartScript();
     sp->sysRoot = dlg.sysroot();
 
-    if (RunControl *runControl = m_debuggerRunControlFactory->create(sp, ProjectExplorer::Constants::DEBUGMODE))
+    if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
         ProjectExplorerPlugin::instance()->startRunControl(runControl, ProjectExplorer::Constants::DEBUGMODE);
 }
 

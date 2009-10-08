@@ -124,7 +124,7 @@ public:
     QStringList availableCreationTypes(ProjectExplorer::Project *pro) const;
     // used to translate the types to names to display to the user
     QString displayNameForType(const QString &type) const;
-    QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project, const QString &type);
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &type);
 };
 
 /* S60DeviceRunControlBase: Builds the package and starts launcher
@@ -137,7 +137,7 @@ class S60DeviceRunControlBase : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    explicit S60DeviceRunControlBase(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
+    explicit S60DeviceRunControlBase(ProjectExplorer::RunConfiguration *runConfiguration);
     ~S60DeviceRunControlBase();
     virtual void start();
     virtual void stop();
@@ -211,7 +211,7 @@ class S60DeviceRunControl : public S60DeviceRunControlBase
 {
     Q_OBJECT
 public:
-    explicit S60DeviceRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
+    explicit S60DeviceRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
 
 protected:
     virtual void initLauncher(const QString &executable, trk::Launcher *);
@@ -230,7 +230,7 @@ class S60DeviceDebugRunControl : public S60DeviceRunControlBase
     Q_DISABLE_COPY(S60DeviceDebugRunControl)
     Q_OBJECT
 public:
-    explicit S60DeviceDebugRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
+    explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration);
     virtual ~S60DeviceDebugRunControl();
 
     virtual void stop();
@@ -246,6 +246,7 @@ private slots:
     void debuggingFinished();
 private:
     QSharedPointer<Debugger::DebuggerStartParameters> m_startParams;
+    QString m_localExecutableFileName;
 };
 
 } // namespace Internal

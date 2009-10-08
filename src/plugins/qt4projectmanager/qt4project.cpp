@@ -388,12 +388,12 @@ bool Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
 
         if (!list.isEmpty()) {
             foreach (Qt4ProFileNode *node, list) {
-                QSharedPointer<RunConfiguration> rc(new Qt4RunConfiguration(this, node->path()));
+                RunConfiguration *rc(new Qt4RunConfiguration(this, node->path()));
                 addRunConfiguration(rc);
             }
             setActiveRunConfiguration(runConfigurations().first());
         } else {
-            QSharedPointer<RunConfiguration> rc(new ProjectExplorer::CustomExecutableRunConfiguration(this));
+            RunConfiguration  *rc(new ProjectExplorer::CustomExecutableRunConfiguration(this));
             addRunConfiguration(rc);
             setActiveRunConfiguration(rc);
             m_isApplication = false;
@@ -1116,15 +1116,15 @@ void Qt4Project::checkForNewApplicationProjects()
 
     foreach (Qt4ProFileNode *qt4proFile, m_applicationProFileChange) {
         bool found = false;
-        foreach (QSharedPointer<RunConfiguration> rc, runConfigurations()) {
-            QSharedPointer<Qt4RunConfiguration> qtrc = rc.objectCast<Qt4RunConfiguration>();
+        foreach (RunConfiguration *rc, runConfigurations()) {
+            Qt4RunConfiguration *qtrc = qobject_cast<Qt4RunConfiguration *>(rc);
             if (qtrc && qtrc->proFilePath() == qt4proFile->path()) {
                 found = true;
                 break;
             }
         }
         if (!found) {
-            QSharedPointer<Qt4RunConfiguration> newRc(new Qt4RunConfiguration(this, qt4proFile->path()));
+            Qt4RunConfiguration *newRc = new Qt4RunConfiguration(this, qt4proFile->path());
             addRunConfiguration(newRc);
             m_isApplication = true;
         }
@@ -1139,9 +1139,9 @@ void Qt4Project::checkForDeletedApplicationProjects()
 
 //    qDebug()<<"Still existing paths :"<<paths;
 
-    QList<QSharedPointer<Qt4RunConfiguration> > removeList;
-    foreach (QSharedPointer<RunConfiguration> rc, runConfigurations()) {
-        if (QSharedPointer<Qt4RunConfiguration> qt4rc = rc.objectCast<Qt4RunConfiguration>()) {
+    QList<Qt4RunConfiguration *> removeList;
+    foreach (RunConfiguration *rc, runConfigurations()) {
+        if (Qt4RunConfiguration *qt4rc = qobject_cast<Qt4RunConfiguration *>(rc)) {
             if (!paths.contains(qt4rc->proFilePath())) {
                 removeList.append(qt4rc);
 //                qDebug()<<"Removing runConfiguration for "<<qt4rc->proFilePath();
@@ -1150,15 +1150,14 @@ void Qt4Project::checkForDeletedApplicationProjects()
     }
 
     bool resetActiveRunConfiguration = false;
-    QSharedPointer<RunConfiguration> rc(new ProjectExplorer::CustomExecutableRunConfiguration(this));
-    foreach (QSharedPointer<Qt4RunConfiguration> qt4rc, removeList) {
+    foreach (Qt4RunConfiguration *qt4rc, removeList) {
         removeRunConfiguration(qt4rc);
         if (activeRunConfiguration() == qt4rc)
             resetActiveRunConfiguration = true;
     }
 
     if (runConfigurations().isEmpty()) {
-        QSharedPointer<RunConfiguration> rc(new ProjectExplorer::CustomExecutableRunConfiguration(this));
+        RunConfiguration *rc = new ProjectExplorer::CustomExecutableRunConfiguration(this);
         addRunConfiguration(rc);
         setActiveRunConfiguration(rc);
         m_isApplication = false;
@@ -1193,8 +1192,8 @@ void Qt4Project::projectTypeChanged(Qt4ProFileNode *node, const Qt4ProjectType o
 
 void Qt4Project::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node)
 {
-    foreach (QSharedPointer<RunConfiguration> rc, runConfigurations()) {
-        if (QSharedPointer<Qt4RunConfiguration> qt4rc = rc.objectCast<Qt4RunConfiguration>()) {
+    foreach (RunConfiguration *rc, runConfigurations()) {
+        if (Qt4RunConfiguration *qt4rc = qobject_cast<Qt4RunConfiguration *>(rc)) {
             if (qt4rc->proFilePath() == node->path()) {
                 qt4rc->invalidateCachedTargetInformation();
             }

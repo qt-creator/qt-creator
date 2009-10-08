@@ -491,14 +491,14 @@ bool CustomExecutableRunConfigurationFactory::canRestore(const QString &type) co
     return type == "ProjectExplorer.CustomExecutableRunConfiguration";
 }
 
-QSharedPointer<RunConfiguration> CustomExecutableRunConfigurationFactory::create(Project *project, const QString &type)
+RunConfiguration* CustomExecutableRunConfigurationFactory::create(Project *project, const QString &type)
 {
     if (type == "ProjectExplorer.CustomExecutableRunConfiguration") {
-        QSharedPointer<RunConfiguration> rc(new CustomExecutableRunConfiguration(project));
+        RunConfiguration* rc = new CustomExecutableRunConfiguration(project);
         rc->setName(tr("Custom Executable"));
         return rc;
     } else {
-        return QSharedPointer<RunConfiguration>(0);
+        return 0;
     }
 }
 

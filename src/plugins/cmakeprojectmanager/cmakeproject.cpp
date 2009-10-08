@@ -330,9 +330,9 @@ bool CMakeProject::parseCMakeLists()
 
         // Create run configurations for m_targets
         //qDebug()<<"Create run configurations of m_targets";
-        QMultiMap<QString, QSharedPointer<CMakeRunConfiguration> > existingRunConfigurations;
-        foreach(QSharedPointer<ProjectExplorer::RunConfiguration> cmakeRunConfiguration, runConfigurations()) {
-            if (QSharedPointer<CMakeRunConfiguration> rc = cmakeRunConfiguration.objectCast<CMakeRunConfiguration>()) {
+        QMultiMap<QString, CMakeRunConfiguration* > existingRunConfigurations;
+        foreach(ProjectExplorer::RunConfiguration* cmakeRunConfiguration, runConfigurations()) {
+            if (CMakeRunConfiguration* rc = qobject_cast<CMakeRunConfiguration *>(cmakeRunConfiguration)) {
                 existingRunConfigurations.insert(rc->title(), rc);
             }
         }
@@ -343,10 +343,10 @@ bool CMakeProject::parseCMakeLists()
                 continue;
             if (ct.title.endsWith("/fast"))
                 continue;
-            QList<QSharedPointer<CMakeRunConfiguration> > list = existingRunConfigurations.values(ct.title);
+            QList<CMakeRunConfiguration *> list = existingRunConfigurations.values(ct.title);
             if (!list.isEmpty()) {
                 // Already exists, so override the settings...
-                foreach (QSharedPointer<CMakeRunConfiguration> rc, list) {
+                foreach (CMakeRunConfiguration *rc, list) {
                     //qDebug()<<"Updating Run Configuration with title"<<ct.title;
                     //qDebug()<<"  Executable new:"<<ct.executable<< "old:"<<rc->executable();
                     //qDebug()<<"  WD new:"<<ct.workingDirectory<<"old:"<<rc->workingDirectory();
@@ -358,7 +358,7 @@ bool CMakeProject::parseCMakeLists()
                 // Does not exist yet
                 //qDebug()<<"Adding new run configuration with title"<<ct.title;
                 //qDebug()<<"  Executable:"<<ct.executable<<"WD:"<<ct.workingDirectory;
-                QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(this, ct.executable, ct.workingDirectory, ct.title));
+                ProjectExplorer::RunConfiguration *rc(new CMakeRunConfiguration(this, ct.executable, ct.workingDirectory, ct.title));
                 addRunConfiguration(rc);
                 // The first one gets the honour of beeing the active one
                 if (setActive) {
@@ -367,10 +367,10 @@ bool CMakeProject::parseCMakeLists()
                 }
             }
         }
-        QMultiMap<QString, QSharedPointer<CMakeRunConfiguration> >::const_iterator it =
+        QMultiMap<QString, CMakeRunConfiguration *>::const_iterator it =
                 existingRunConfigurations.constBegin();
         for( ; it != existingRunConfigurations.constEnd(); ++it) {
-            QSharedPointer<CMakeRunConfiguration> rc = it.value();
+            CMakeRunConfiguration *rc = it.value();
             //qDebug()<<"Removing old RunConfiguration with title:"<<rc->title();
             //qDebug()<<"  Executable:"<<rc->executable()<<rc->workingDirectory();
             removeRunConfiguration(rc);

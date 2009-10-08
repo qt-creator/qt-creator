@@ -72,17 +72,17 @@ class LocalApplicationRunControlFactory : public IRunControlFactory
 public:
     LocalApplicationRunControlFactory ();
     virtual ~LocalApplicationRunControlFactory();
-    virtual bool canRun(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode) const;
+    virtual bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
     virtual QString displayName() const;
-    virtual RunControl* create(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &mode);
-    virtual QWidget *configurationWidget(const QSharedPointer<RunConfiguration> &runConfiguration);
+    virtual RunControl* create(RunConfiguration *runConfiguration, const QString &mode);
+    virtual QWidget *configurationWidget(RunConfiguration  *runConfiguration);
 };
 
 class LocalApplicationRunControl : public RunControl
 {
     Q_OBJECT
 public:
-    LocalApplicationRunControl(const QSharedPointer<LocalApplicationRunConfiguration> &runConfiguration);
+    LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration);
     virtual ~LocalApplicationRunControl();
     virtual void start();
     virtual void stop();
@@ -92,8 +92,10 @@ private slots:
     void slotAddToOutputWindow(const QString &line);
     void slotError(const QString & error);
 private:
-    ApplicationLauncher m_applicationLauncher;
+    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
     QString m_executable;
+    QStringList m_commandLineArguments;
+    ProjectExplorer::ApplicationLauncher::Mode m_runMode;
 };
 
 } // namespace Internal

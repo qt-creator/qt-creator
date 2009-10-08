@@ -49,7 +49,6 @@
 #include <help/helpplugin.h>
 #include <utils/qtcassert.h>
 
-
 #include <QtCore/QProcess>
 #include <QtCore/QSettings>
 #include <QtCore/QTime>

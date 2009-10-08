@@ -33,8 +33,8 @@
 #include <projectexplorer/environment.h>
 #include <projectexplorer/toolchain.h>
 
-#include <QtCore/QSharedPointer>
 #include <QtCore/QHash>
+#include <QtCore/QSharedPointer>
 
 namespace ProjectExplorer {
     class ToolChain;

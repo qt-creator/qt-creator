@@ -261,25 +261,32 @@ QString S60EmulatorRunConfigurationFactory::displayNameForType(const QString &ty
     return tr("%1 in Symbian Emulator").arg(QFileInfo(fileName).completeBaseName());
 }
 
-QSharedPointer<RunConfiguration> S60EmulatorRunConfigurationFactory::create(Project *project, const QString &type)
+RunConfiguration *S60EmulatorRunConfigurationFactory::create(Project *project, const QString &type)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(p);
     if (type.startsWith("QtSymbianEmulatorRunConfiguration.")) {
         QString fileName = type.mid(QString("QtSymbianEmulatorRunConfiguration.").size());
-        return QSharedPointer<RunConfiguration>(new S60EmulatorRunConfiguration(p, fileName));
+        return new S60EmulatorRunConfiguration(p, fileName);
     }
     Q_ASSERT(type == "Qt4ProjectManager.EmulatorRunConfiguration");
     // The right path is set in restoreSettings
-    QSharedPointer<RunConfiguration> rc(new S60EmulatorRunConfiguration(p, QString::null));
+    RunConfiguration *rc = new S60EmulatorRunConfiguration(p, QString::null);
     return rc;
 }
 
 // ======== S60EmulatorRunControl
 
-S60EmulatorRunControl::S60EmulatorRunControl(const QSharedPointer<RunConfiguration> &runConfiguration)
+S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runConfiguration)
     : RunControl(runConfiguration)
 {
+    // stuff like the EPOCROOT and EPOCDEVICE env variable
+    Environment env = Environment::systemEnvironment();
+    Project *project = runConfiguration->project();
+    static_cast<Qt4Project *>(project)->toolChain(project->activeBuildConfiguration())->addToEnvironment(env);
+    m_applicationLauncher.setEnvironment(env.toStringList());
+
+    m_executable = runConfiguration->executable();
     connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
             this, SLOT(slotError(QString)));
     connect(&m_applicationLauncher, SIGNAL(appendOutput(QString)),
@@ -292,18 +299,7 @@ S60EmulatorRunControl::S60EmulatorRunControl(const QSharedPointer<RunConfigurati
 
 void S60EmulatorRunControl::start()
 {
-    QSharedPointer<S60EmulatorRunConfiguration> rc = runConfiguration().objectCast<S60EmulatorRunConfiguration>();
-    Q_ASSERT(!rc.isNull());
-
-    // stuff like the EPOCROOT and EPOCDEVICE env variable
-    Environment env = Environment::systemEnvironment();
-    static_cast<Qt4Project *>(rc->project())->toolChain(rc->project()->activeBuildConfiguration())->addToEnvironment(env);
-    m_applicationLauncher.setEnvironment(env.toStringList());
-
-    m_executable = rc->executable();
-
-    m_applicationLauncher.start(ApplicationLauncher::Gui,
-                                m_executable, QStringList());
+    m_applicationLauncher.start(ApplicationLauncher::Gui, m_executable, QStringList());
     emit started();
 
     emit addToOutputWindow(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)));

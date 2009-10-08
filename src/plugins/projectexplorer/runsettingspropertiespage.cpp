@@ -70,12 +70,12 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    void setRunConfigurations(const QList<QSharedPointer<RunConfiguration> > &runConfigurations);
-    QList<QSharedPointer<RunConfiguration> > runConfigurations() const { return m_runConfigurations; }
+    void setRunConfigurations(const QList<RunConfiguration *> &runConfigurations);
+    QList<RunConfiguration *> runConfigurations() const { return m_runConfigurations; }
     void nameChanged(RunConfiguration *rc);
 
 private:
-    QList<QSharedPointer<RunConfiguration> > m_runConfigurations;
+    QList<RunConfiguration *> m_runConfigurations;
 };
 
 } // namespace Internal
@@ -141,7 +141,7 @@ int RunConfigurationsModel::columnCount(const QModelIndex &parent) const
 void RunConfigurationsModel::nameChanged(RunConfiguration *rc)
 {
     for (int i = 0; i<m_runConfigurations.size(); ++i) {
-        if (m_runConfigurations.at(i).data() == rc) {
+        if (m_runConfigurations.at(i) == rc) {
             emit dataChanged(index(i, 0), index(i,0));
             break;
         }
@@ -153,15 +153,14 @@ QVariant RunConfigurationsModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         const int row = index.row();
         if (row < m_runConfigurations.size()) {
-            QSharedPointer<RunConfiguration> c = m_runConfigurations.at(row);
-            return c->name();
+            return m_runConfigurations.at(row)->name();
         }
     }
 
     return QVariant();
 }
 
-void RunConfigurationsModel::setRunConfigurations(const QList<QSharedPointer<RunConfiguration> > &runConfigurations)
+void RunConfigurationsModel::setRunConfigurations(const QList<RunConfiguration *> &runConfigurations)
 {
     m_runConfigurations = runConfigurations;
     reset();
@@ -208,9 +207,9 @@ RunSettingsWidget::RunSettingsWidget(Project *project)
             this, SLOT(makeActive()));
 
     initRunConfigurationComboBox();
-    const QList<QSharedPointer<RunConfiguration> > runConfigurations = m_project->runConfigurations();
+    const QList<RunConfiguration *> runConfigurations = m_project->runConfigurations();
     for (int i=0; i<runConfigurations.size(); ++i) {
-        connect(runConfigurations.at(i).data(), SIGNAL(nameChanged()),
+        connect(runConfigurations.at(i), SIGNAL(nameChanged()),
                 this, SLOT(nameChanged()));
     }
 
@@ -256,33 +255,33 @@ void RunSettingsWidget::addRunConfiguration()
     if (!act)
         return;
     FactoryAndType fat = act->data().value<FactoryAndType>();
-    QSharedPointer<RunConfiguration> newRC = fat.factory->create(m_project, fat.type);
+    RunConfiguration *newRC = fat.factory->create(m_project, fat.type);
     if (!newRC)
         return;
     m_project->addRunConfiguration(newRC);
     initRunConfigurationComboBox();
     m_ui->runConfigurationCombo->setCurrentIndex(
             m_runConfigurationsModel->runConfigurations().indexOf(newRC));
-    connect(newRC.data(), SIGNAL(nameChanged()), this, SLOT(nameChanged()));
+    connect(newRC, SIGNAL(nameChanged()), this, SLOT(nameChanged()));
 }
 
 void RunSettingsWidget::removeRunConfiguration()
 {
     int index = m_ui->runConfigurationCombo->currentIndex();
-    QSharedPointer<RunConfiguration> rc = m_runConfigurationsModel->runConfigurations().at(index);
-    disconnect(rc.data(), SIGNAL(nameChanged()), this, SLOT(nameChanged()));
+    RunConfiguration *rc = m_runConfigurationsModel->runConfigurations().at(index);
+    disconnect(rc, SIGNAL(nameChanged()), this, SLOT(nameChanged()));
     m_project->removeRunConfiguration(rc);
     initRunConfigurationComboBox();
 }
 
 void RunSettingsWidget::initRunConfigurationComboBox()
 {
-    const QList<QSharedPointer<RunConfiguration> > runConfigurations = m_project->runConfigurations();
-    const QSharedPointer<RunConfiguration> activeRunConfiguration = m_project->activeRunConfiguration();
-    const QSharedPointer<RunConfiguration> currentSelection =
-        (m_ui->runConfigurationCombo->currentIndex() >= 0) ?
-            m_runConfigurationsModel->runConfigurations().at(m_ui->runConfigurationCombo->currentIndex())
-            : QSharedPointer<RunConfiguration>(0);
+    const QList<RunConfiguration *> &runConfigurations = m_project->runConfigurations();
+    RunConfiguration *activeRunConfiguration = m_project->activeRunConfiguration();
+    RunConfiguration *currentSelection = 0;
+    if (m_ui->runConfigurationCombo->currentIndex() >= 0)
+        currentSelection = m_runConfigurationsModel->runConfigurations().at(m_ui->runConfigurationCombo->currentIndex());
+
     m_runConfigurationsModel->setRunConfigurations(runConfigurations);
     if (runConfigurations.contains(currentSelection))
         m_ui->runConfigurationCombo->setCurrentIndex(runConfigurations.indexOf(currentSelection));
@@ -300,7 +299,7 @@ void RunSettingsWidget::showRunConfigurationWidget(int index)
         m_runConfigurationWidget = 0;
         return;
     }
-    QSharedPointer<RunConfiguration> selectedRunConfiguration =
+    RunConfiguration *selectedRunConfiguration =
             m_runConfigurationsModel->runConfigurations().at(index);
 
     // Update the run configuration configuration widget
@@ -313,7 +312,7 @@ void RunSettingsWidget::showRunConfigurationWidget(int index)
 void RunSettingsWidget::updateMakeActiveLabel()
 {
     m_makeActiveLabel->setVisible(false);
-    QSharedPointer<RunConfiguration> rc = QSharedPointer<RunConfiguration>(0);
+    RunConfiguration *rc = 0;
     int index = m_ui->runConfigurationCombo->currentIndex();
     if (index != -1) {
         rc = m_runConfigurationsModel->runConfigurations().at(index);
@@ -328,7 +327,7 @@ void RunSettingsWidget::updateMakeActiveLabel()
 
 void RunSettingsWidget::makeActive()
 {
-    QSharedPointer<RunConfiguration> rc = QSharedPointer<RunConfiguration>(0);
+    RunConfiguration *rc = 0;
     int index = m_ui->runConfigurationCombo->currentIndex();
     if (index != -1) {
         rc = m_runConfigurationsModel->runConfigurations().at(index);

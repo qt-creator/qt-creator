@@ -105,14 +105,14 @@ public:
     QStringList availableCreationTypes(ProjectExplorer::Project *pro) const;
     // used to translate the types to names to display to the user
     QString displayNameForType(const QString &type) const;
-    QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project, const QString &type);
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &type);
 };
 
 class S60EmulatorRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    explicit S60EmulatorRunControl(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
+    explicit S60EmulatorRunControl(S60EmulatorRunConfiguration *runConfiguration);
     ~S60EmulatorRunControl() {}
     void start();
     void stop();

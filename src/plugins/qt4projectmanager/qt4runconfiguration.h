@@ -194,7 +194,7 @@ public:
     Qt4RunConfigurationFactory();
     virtual ~Qt4RunConfigurationFactory();
     virtual bool canRestore(const QString &type) const;
-    virtual QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project, const QString &type);
+    virtual ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &type);
     QStringList availableCreationTypes(ProjectExplorer::Project *pro) const;
     QString displayNameForType(const QString &type) const;
 };

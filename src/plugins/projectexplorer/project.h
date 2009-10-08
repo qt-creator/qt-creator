@@ -32,7 +32,6 @@
 
 #include "projectexplorer_export.h"
 
-#include <QtCore/QSharedPointer>
 #include <QtCore/QObject>
 #include <QtGui/QFileSystemModel>
 
@@ -112,12 +111,12 @@ public:
     QVariant value(const QString &name) const;
 
     // Running
-    QList<QSharedPointer<RunConfiguration> > runConfigurations() const;
-    void addRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration);
-    void removeRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration);
+    QList<RunConfiguration *> runConfigurations() const;
+    void addRunConfiguration(RunConfiguration* runConfiguration);
+    void removeRunConfiguration(RunConfiguration* runConfiguration);
 
-    QSharedPointer<RunConfiguration> activeRunConfiguration() const;
-    void setActiveRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration);
+    RunConfiguration* activeRunConfiguration() const;
+    void setActiveRunConfiguration(RunConfiguration* runConfiguration);
 
     EditorConfiguration *editorConfiguration() const;
 
@@ -190,8 +189,8 @@ private:
     QMap<QString, QVariant> m_values;
     QList<BuildConfiguration *> m_buildConfigurationValues;
     QString m_activeBuildConfiguration;
-    QList<QSharedPointer<RunConfiguration> > m_runConfigurations;
-    QSharedPointer<RunConfiguration> m_activeRunConfiguration;
+    QList<RunConfiguration *> m_runConfigurations;
+    RunConfiguration* m_activeRunConfiguration;
     EditorConfiguration *m_editorConfiguration;
 };
 

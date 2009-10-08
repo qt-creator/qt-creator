@@ -429,19 +429,19 @@ QString CMakeRunConfigurationFactory::displayNameForType(const QString &type) co
         return type.mid(QString(Constants::CMAKERUNCONFIGURATION).length());
 }
 
-QSharedPointer<ProjectExplorer::RunConfiguration> CMakeRunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &type)
+ProjectExplorer::RunConfiguration* CMakeRunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &type)
 {
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
     Q_ASSERT(pro);
     if (type == Constants::CMAKERUNCONFIGURATION) {
         // Restoring, filename will be added by restoreSettings
-        QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(pro, QString::null, QString::null, QString::null));
+        ProjectExplorer::RunConfiguration* rc = new CMakeRunConfiguration(pro, QString::null, QString::null, QString::null);
         return rc;
     } else {
         // Adding new
         const QString title = type.mid(QString(Constants::CMAKERUNCONFIGURATION).length());
         const CMakeTarget &ct = pro->targetForTitle(title);
-        QSharedPointer<ProjectExplorer::RunConfiguration> rc(new CMakeRunConfiguration(pro, ct.executable, ct.workingDirectory, ct.title));
+        ProjectExplorer::RunConfiguration * rc = new CMakeRunConfiguration(pro, ct.executable, ct.workingDirectory, ct.title);
         return rc;
     }
 }

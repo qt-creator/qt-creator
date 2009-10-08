@@ -112,7 +112,7 @@ class AbstractMaemoRunControl : public ProjectExplorer::RunControl
     Q_OBJECT
 
 public:
-    AbstractMaemoRunControl(RunConfig runConfig);
+    AbstractMaemoRunControl(RunConfiguration *runConfig);
     virtual ~AbstractMaemoRunControl() {}
 
 protected:
@@ -146,7 +146,7 @@ class MaemoRunControl : public AbstractMaemoRunControl
 {
     Q_OBJECT
 public:
-    MaemoRunControl(RunConfig runConfiguration);
+    MaemoRunControl(RunConfiguration *runConfiguration);
     ~MaemoRunControl();
     void start();
     void stop();
@@ -168,7 +168,7 @@ class MaemoDebugRunControl : public AbstractMaemoRunControl
 {
     Q_OBJECT
 public:
-    MaemoDebugRunControl(RunConfig runConfiguration);
+    MaemoDebugRunControl(RunConfiguration *runConfiguration);
     ~MaemoDebugRunControl();
     void start();
     void stop();
@@ -1071,7 +1071,7 @@ QString MaemoRunConfigurationFactory::displayNameForType(
         .completeBaseName());
 }
 
-RunConfig MaemoRunConfigurationFactory::create(Project *project,
+RunConfiguration *MaemoRunConfigurationFactory::create(Project *project,
     const QString &type)
 {
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(project);
@@ -1082,23 +1082,21 @@ RunConfig MaemoRunConfigurationFactory::create(Project *project,
     connect(project, SIGNAL(removedRunConfiguration(ProjectExplorer::Project*,
         QString)), this, SLOT(removedRunConfiguration(ProjectExplorer::Project*)));
 
-    RunConfig rc;
+    RunConfiguration *rc = 0;
     const QLatin1String prefix("MaemoRunConfiguration.");
     if (type.startsWith(prefix)) {
-        rc = RunConfig(new MaemoRunConfiguration(qt4project,
-            type.mid(QString(prefix).size())));
+        rc = new MaemoRunConfiguration(qt4project, type.mid(QString(prefix).size()));
     } else {
         Q_ASSERT(type == "Qt4ProjectManager.MaemoRunConfiguration");
-        rc = RunConfig(new MaemoRunConfiguration(qt4project,
-            QString::null));
+        rc = new MaemoRunConfiguration(qt4project, QString::null);
     }
 
-    if (rc.data()) {
+    if (rc) {
         connect(project, SIGNAL(runConfigurationsEnabledStateChanged()),
-            rc.data(), SLOT(enabledStateChanged()));
-        connect(MaemoManager::instance(), SIGNAL(startStopQemu()), rc.data(),
+            rc, SLOT(enabledStateChanged()));
+        connect(MaemoManager::instance(), SIGNAL(startStopQemu()), rc,
             SLOT(startStopQemu()));
-        connect(rc.data(), SIGNAL(qemuProcessStatus(bool)),
+        connect(rc, SIGNAL(qemuProcessStatus(bool)),
             MaemoManager::instance(), SLOT(updateQemuSimulatorStarter(bool)));
     }
 
@@ -1116,9 +1114,9 @@ RunConfig MaemoRunConfigurationFactory::create(Project *project,
 bool hasMaemoRunConfig(ProjectExplorer::Project* project)
 {
     if (Qt4Project *qt4Project = qobject_cast<Qt4Project *>(project)) {
-        QList<RunConfig> list = qt4Project->runConfigurations();
-        foreach (const RunConfig &rc, list) {
-            if (!rc.dynamicCast<MaemoRunConfiguration>().isNull())
+        QList<RunConfiguration *> list = qt4Project->runConfigurations();
+        foreach (RunConfiguration *rc, list) {
+            if (qobject_cast<MaemoRunConfiguration *>(rc))
                 return true;
         }
     }
@@ -1161,9 +1159,9 @@ void MaemoRunConfigurationFactory::currentProjectChanged(
 
     bool isRunning = false;
     if (Qt4Project *qt4Project = qobject_cast<Qt4Project *>(project)) {
-        const RunConfig &rc = qt4Project->activeRunConfiguration();
-        if (!rc.dynamicCast<MaemoRunConfiguration>().isNull())
-            isRunning = rc.dynamicCast<MaemoRunConfiguration>()->isQemuRunning();
+        RunConfiguration *rc = qt4Project->activeRunConfiguration();
+        if (MaemoRunConfiguration *mrc = qobject_cast<MaemoRunConfiguration *>(rc))
+            isRunning = mrc->isQemuRunning();
     }
     MaemoManager::instance()->updateQemuSimulatorStarter(isRunning);
 }
@@ -1177,20 +1175,19 @@ MaemoRunControlFactory::MaemoRunControlFactory(QObject *parent)
 {
 }
 
-bool MaemoRunControlFactory::canRun(const RunConfig &runConfiguration,
+bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
     const QString &mode) const
 {
-    return !runConfiguration.dynamicCast<MaemoRunConfiguration>().isNull()
+    return qobject_cast<MaemoRunConfiguration *>(runConfiguration)
         && (mode == ProjectExplorer::Constants::RUNMODE
         || mode == ProjectExplorer::Constants::DEBUGMODE);
 }
 
-RunControl* MaemoRunControlFactory::create(const RunConfig &runConfig,
+RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
     const QString &mode)
 {
-    QSharedPointer<MaemoRunConfiguration> rc = runConfig
-        .dynamicCast<MaemoRunConfiguration>();
-    Q_ASSERT(!rc.isNull());
+    MaemoRunConfiguration* rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
+    Q_ASSERT(rc);
     Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE
         || mode == ProjectExplorer::Constants::DEBUGMODE);
     if (mode == ProjectExplorer::Constants::RUNMODE)
@@ -1203,7 +1200,7 @@ QString MaemoRunControlFactory::displayName() const
     return tr("Run on device");
 }
 
-QWidget* MaemoRunControlFactory::configurationWidget(const RunConfig &config)
+QWidget* MaemoRunControlFactory::configurationWidget(RunConfiguration *config)
 {
     Q_UNUSED(config)
     return 0;
@@ -1213,9 +1210,9 @@ QWidget* MaemoRunControlFactory::configurationWidget(const RunConfig &config)
 // #pragma mark -- AbstractMaemoRunControl
 
 
-AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfig rc)
+AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc)
     : RunControl(rc)
-    , runConfig(rc.objectCast<MaemoRunConfiguration>())
+    , runConfig(qobject_cast<MaemoRunConfiguration *>(rc))
 {
     setProcessEnvironment(deployProcess);
 
@@ -1351,7 +1348,7 @@ void AbstractMaemoRunControl::readStandardOutput()
 // #pragma mark -- MaemoRunControl
 
 
-MaemoRunControl::MaemoRunControl(RunConfig runConfiguration)
+MaemoRunControl::MaemoRunControl(RunConfiguration *runConfiguration)
     : AbstractMaemoRunControl(runConfiguration)
 {
     setProcessEnvironment(sshProcess);
@@ -1444,7 +1441,7 @@ bool MaemoRunControl::isRunning() const
 // #pragma mark -- MaemoDebugRunControl
 
 
-MaemoDebugRunControl::MaemoDebugRunControl(RunConfig runConfiguration)
+MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     : AbstractMaemoRunControl(runConfiguration)
     , gdbServerPort("10000"), debuggerManager(0)
     , startParams(new Debugger::DebuggerStartParameters)

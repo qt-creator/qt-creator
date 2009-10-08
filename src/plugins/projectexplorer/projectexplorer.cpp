@@ -100,7 +100,6 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QVBoxLayout>
 
-Q_DECLARE_METATYPE(QSharedPointer<ProjectExplorer::RunConfiguration>);
 Q_DECLARE_METATYPE(Core::IEditorFactory*);
 Q_DECLARE_METATYPE(Core::IExternalEditor*);
 
@@ -171,7 +170,7 @@ struct ProjectExplorerPluginPrivate {
     static const int m_maxRecentProjects = 7;
 
     QString m_lastOpenDirectory;
-    QSharedPointer<RunConfiguration> m_delayedRunConfiguration;
+    RunConfiguration *m_delayedRunConfiguration; // TODO this is not right
     RunControl *m_debuggingRunControl;
     QString m_runMode;
     QString m_projectFilterString;
@@ -1227,7 +1226,7 @@ void ProjectExplorerPlugin::buildStateChanged(Project * pro)
     updateActions();
 }
 
-void ProjectExplorerPlugin::executeRunConfiguration(const QSharedPointer<RunConfiguration> &runConfiguration, const QString &runMode)
+void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfiguration, const QString &runMode)
 {
     if (IRunControlFactory *runControlFactory = findRunControlFactory(runConfiguration, runMode)) {
         emit aboutToExecuteProject(runConfiguration->project());
@@ -1274,7 +1273,7 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
         if (d->m_buildManager->tasksAvailable())
             d->m_buildManager->showTaskWindow();
     }
-    d->m_delayedRunConfiguration = QSharedPointer<RunConfiguration>(0);
+    d->m_delayedRunConfiguration = 0;
     d->m_runMode = QString::null;
 }
 
@@ -1665,7 +1664,7 @@ void ProjectExplorerPlugin::startupProjectChanged()
 }
 
 // NBS TODO implement more than one runner
-IRunControlFactory *ProjectExplorerPlugin::findRunControlFactory(const QSharedPointer<RunConfiguration> &config, const QString &mode)
+IRunControlFactory *ProjectExplorerPlugin::findRunControlFactory(RunConfiguration *config, const QString &mode)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     const QList<IRunControlFactory *> factories = pm->getObjects<IRunControlFactory>();
@@ -2001,11 +2000,12 @@ void ProjectExplorerPlugin::populateRunConfigurationMenu()
     d->m_runConfigurationMenu->clear();
 
     const Project *startupProject = d->m_session->startupProject();
-    QSharedPointer<RunConfiguration> activeRunConfiguration
-            = (startupProject) ? startupProject->activeRunConfiguration() : QSharedPointer<RunConfiguration>(0);
+    RunConfiguration *activeRunConfiguration = 0;
+        if (startupProject)
+            activeRunConfiguration = startupProject->activeRunConfiguration();
 
     foreach (const Project *pro, d->m_session->projects()) {
-        foreach (QSharedPointer<RunConfiguration> runConfiguration, pro->runConfigurations()) {
+        foreach (RunConfiguration *runConfiguration, pro->runConfigurations()) {
             if (runConfiguration->isEnabled()) {
                 const QString title = QString("%1 (%2)").arg(pro->name(), runConfiguration->name());
                 QAction *act = new QAction(title, d->m_runConfigurationActionGroup);
@@ -2028,7 +2028,7 @@ void ProjectExplorerPlugin::runConfigurationMenuTriggered(QAction *action)
     if (debug)
         qDebug() << "ProjectExplorerPlugin::runConfigurationMenuTriggered" << action;
 
-        QSharedPointer<RunConfiguration> runConfiguration = qVariantValue<QSharedPointer<RunConfiguration> >(action->data());
+        RunConfiguration *runConfiguration = action->data().value<RunConfiguration *>();
         runConfiguration->project()->setActiveRunConfiguration(runConfiguration);
         setStartupProject(runConfiguration->project());
 }
@@ -2171,7 +2171,7 @@ BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
     descriptiveText->setWordWrap(true);
     vlayout->addWidget(descriptiveText);
     m_configCombo = new QComboBox;
-    QSharedPointer<RunConfiguration> activeRun = m_project->activeRunConfiguration();
+    RunConfiguration *activeRun = m_project->activeRunConfiguration();
     foreach (BuildConfiguration *config, m_project->buildConfigurations()) {
         if (activeRun->isEnabled(config)) {
             m_configCombo->addItem(config->name(), qVariantFromValue(config));

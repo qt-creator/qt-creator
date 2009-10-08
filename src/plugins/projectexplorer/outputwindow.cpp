@@ -195,7 +195,7 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
     bool found = false;
     for (int i = 0; i < m_tabWidget->count(); ++i) {
         RunControl *old = runControlForTab(i);
-        if (old->runConfiguration() == rc->runConfiguration() && !old->isRunning()) {
+        if (old->sameRunConfiguration(rc) && !old->isRunning()) {
             // Reuse this tab
             delete old;
             m_outputWindows.remove(old);
@@ -212,11 +212,7 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
         agg->add(ow);
         agg->add(new Find::BaseTextFind(ow));
         m_outputWindows.insert(rc, ow);
-        // TODO add a displayName to RunControl, can't rely on there always beeing a runconfiguration
-        QString name = "External Application";
-        if (rc->runConfiguration())
-            name = rc->runConfiguration()->name();
-        m_tabWidget->addTab(ow, name);
+        m_tabWidget->addTab(ow, rc->displayName());
     }
 }
 
@@ -248,8 +244,7 @@ void OutputPane::insertLine()
 void OutputPane::reRunRunControl()
 {
     RunControl *rc = runControlForTab(m_tabWidget->currentIndex());
-    if (rc->runConfiguration() && rc->runConfiguration()->project() != 0)
-        rc->start();
+    rc->start(); //TODO check for rerun
 }
 
 void OutputPane::stopRunControl()
@@ -287,7 +282,7 @@ void OutputPane::tabChanged(int i)
     } else {
         RunControl *rc = runControlForTab(i);
         m_stopAction->setEnabled(rc->isRunning());
-        m_reRunButton->setEnabled(!rc->isRunning() && rc->runConfiguration() && rc->runConfiguration()->project());
+        m_reRunButton->setEnabled(!rc->isRunning()); // Check for rerun?
     }
 }
 
@@ -304,7 +299,7 @@ void OutputPane::runControlFinished()
 {
     RunControl *rc = runControlForTab(m_tabWidget->currentIndex());
     if (rc == qobject_cast<RunControl *>(sender())) {
-        m_reRunButton->setEnabled(rc->runConfiguration() && rc->runConfiguration()->project());
+        m_reRunButton->setEnabled(rc); // TODO check for rerun?
         m_stopAction->setEnabled(false);
     }
 }

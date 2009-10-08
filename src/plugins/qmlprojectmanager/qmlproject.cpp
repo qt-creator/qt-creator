@@ -256,7 +256,7 @@ bool QmlProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &
     Project::restoreSettingsImpl(reader);
 
     if (runConfigurations().isEmpty()) {
-        QSharedPointer<QmlRunConfiguration> runConf(new QmlRunConfiguration(this));
+        QmlRunConfiguration *runConf = new QmlRunConfiguration(this);
         addRunConfiguration(runConf);
     }
 
@@ -528,12 +528,11 @@ QString QmlRunConfigurationFactory::displayNameForType(const QString &type) cons
     return type;
 }
 
-QSharedPointer<ProjectExplorer::RunConfiguration> QmlRunConfigurationFactory::create(ProjectExplorer::Project *project,
+ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::create(ProjectExplorer::Project *project,
                                                                                      const QString &)
 {
     QmlProject *pro = qobject_cast<QmlProject *>(project);
-    QSharedPointer<ProjectExplorer::RunConfiguration> rc(new QmlRunConfiguration(pro));
-    return rc;
+    return new QmlRunConfiguration(pro);
 }
 
 

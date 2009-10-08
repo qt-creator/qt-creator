@@ -292,7 +292,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     // Running
     int i = 0;
     int activeId = 0;
-    foreach (QSharedPointer<RunConfiguration> rc, m_runConfigurations) {
+    foreach (RunConfiguration* rc, m_runConfigurations) {
         writer.setPrefix("RunConfiguration" + QString().setNum(i) + "-");
         writer.saveValue("type", rc->type());
         rc->save(writer);
@@ -397,7 +397,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
         const QString &type = typeVariant.toString();
         foreach (IRunConfigurationFactory *factory, factories) {
             if (factory->canRestore(type)) {
-                QSharedPointer<RunConfiguration> rc = factory->create(this, type);
+                RunConfiguration* rc = factory->create(this, type);
                 rc->restore(reader);
                 addRunConfiguration(rc);
                 if (i == activeId)
@@ -453,12 +453,12 @@ void Project::setActiveBuildConfiguration(BuildConfiguration *configuration)
     }
 }
 
-QList<QSharedPointer<RunConfiguration> > Project::runConfigurations() const
+QList<RunConfiguration *> Project::runConfigurations() const
 {
     return m_runConfigurations;
 }
 
-void Project::addRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration)
+void Project::addRunConfiguration(RunConfiguration* runConfiguration)
 {
     if (m_runConfigurations.contains(runConfiguration)) {
         qWarning()<<"Not adding already existing runConfiguration"<<runConfiguration->name();
@@ -468,7 +468,7 @@ void Project::addRunConfiguration(QSharedPointer<RunConfiguration> runConfigurat
     emit addedRunConfiguration(this, runConfiguration->name());
 }
 
-void Project::removeRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration)
+void Project::removeRunConfiguration(RunConfiguration* runConfiguration)
 {
     if(!m_runConfigurations.contains(runConfiguration)) {
         qWarning()<<"Not removing runConfiguration"<<runConfiguration->name()<<"becasue it doesn't exist";
@@ -477,7 +477,7 @@ void Project::removeRunConfiguration(QSharedPointer<RunConfiguration> runConfigu
 
     if (m_activeRunConfiguration == runConfiguration) {
         if (m_runConfigurations.size() <= 1)
-            setActiveRunConfiguration(QSharedPointer<RunConfiguration>(0));
+            setActiveRunConfiguration(0);
         else if (m_runConfigurations.at(0) == m_activeRunConfiguration)
             setActiveRunConfiguration(m_runConfigurations.at(1));
         else
@@ -488,12 +488,12 @@ void Project::removeRunConfiguration(QSharedPointer<RunConfiguration> runConfigu
     emit removedRunConfiguration(this, runConfiguration->name());
 }
 
-QSharedPointer<RunConfiguration> Project::activeRunConfiguration() const
+RunConfiguration* Project::activeRunConfiguration() const
 {
     return m_activeRunConfiguration;
 }
 
-void Project::setActiveRunConfiguration(QSharedPointer<RunConfiguration> runConfiguration)
+void Project::setActiveRunConfiguration(RunConfiguration* runConfiguration)
 {
     if (runConfiguration == m_activeRunConfiguration)
         return;

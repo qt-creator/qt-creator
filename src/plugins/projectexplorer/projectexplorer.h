@@ -216,12 +216,13 @@ private slots:
 
 private:
     void runProjectImpl(Project *pro);
-    void executeRunConfiguration(const QSharedPointer<RunConfiguration> &, const QString &mode);
+    void executeRunConfiguration(RunConfiguration *, const QString &mode);
     bool showBuildConfigDialog();
+
     void setCurrent(Project *project, QString filePath, Node *node);
 
     QStringList allFilesWithDependencies(Project *pro);
-    IRunControlFactory *findRunControlFactory(const QSharedPointer<RunConfiguration> &config, const QString &mode);
+    IRunControlFactory *findRunControlFactory(RunConfiguration *config, const QString &mode);
 
     void updateActions();
     void addToRecentProjects(const QString &fileName, const QString &displayName);

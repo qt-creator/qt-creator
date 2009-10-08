@@ -69,14 +69,14 @@ public:
                                QObject *parent = 0) :
     IRunControlFactory(parent), m_mode(mode), m_name(name) {}
 
-    bool canRun(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode) const {
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const {
         return (mode == m_mode)
-                && (!runConfiguration.objectCast<RunConfiguration>().isNull());
+                && (qobject_cast<RunConfiguration *>(runConfiguration) != 0);
     }
 
-    ProjectExplorer::RunControl* create(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration, const QString &mode) {
-        const QSharedPointer<RunConfiguration> rc = runConfiguration.objectCast<RunConfiguration>();
-        QTC_ASSERT(!rc.isNull() && mode == m_mode, return 0);
+    ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) {
+        RunConfiguration *rc = qobject_cast<RunConfiguration *>(runConfiguration);
+        QTC_ASSERT(rc && mode == m_mode, return 0);
         return new RunControl(rc);
     }
 
@@ -84,7 +84,7 @@ public:
         return m_name;
     }
 
-    QWidget *configurationWidget(const QSharedPointer<ProjectExplorer::RunConfiguration> & /*runConfiguration */) {
+    QWidget *configurationWidget(ProjectExplorer::RunConfiguration * /*runConfiguration */) {
         return 0;
     }
 

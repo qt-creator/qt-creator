@@ -109,18 +109,26 @@ IRunControlFactory::~IRunControlFactory()
 {
 }
 
-RunControl::RunControl(const QSharedPointer<RunConfiguration> &runConfiguration)
+RunControl::RunControl(RunConfiguration *runConfiguration)
     : m_runConfiguration(runConfiguration)
 {
-}
-
-QSharedPointer<RunConfiguration> RunControl::runConfiguration() const
-{
-    return m_runConfiguration;
+    if (runConfiguration)
+        m_displayName  = runConfiguration->name();
 }
 
 RunControl::~RunControl()
 {
+
+}
+
+QString RunControl::displayName() const
+{
+    return m_displayName;
+}
+
+bool RunControl::sameRunConfiguration(RunControl *other)
+{
+    return other->m_runConfiguration.data() == m_runConfiguration.data();
 }
 
 void RunControl::bringApplicationToForeground(qint64 pid)

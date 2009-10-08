@@ -198,7 +198,7 @@ public:
     // used to translate the types to names to display to the user
     virtual QString displayNameForType(const QString &type) const;
 
-    virtual QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project,
+    virtual ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project,
                                                                      const QString &type);
 
 private:

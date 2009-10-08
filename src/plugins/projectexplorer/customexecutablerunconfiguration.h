@@ -137,7 +137,7 @@ public:
     virtual ~CustomExecutableRunConfigurationFactory();
     // used to recreate the runConfigurations when restoring settings
     virtual bool canRestore(const QString &type) const;
-    virtual QSharedPointer<RunConfiguration> create(Project *project, const QString &type);
+    virtual RunConfiguration* create(Project *project, const QString &type);
     QStringList availableCreationTypes(Project *pro) const;
     QString displayNameForType(const QString &type) const;
 };

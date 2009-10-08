@@ -244,8 +244,8 @@ RunConfigurationComboBox::RunConfigurationComboBox(QWidget *parent)
 
     // Connect
     foreach(Project *p, session->projects()) {
-        foreach(const QSharedPointer<RunConfiguration> &rc, p->runConfigurations()) {
-            connect(rc.data(), SIGNAL(nameChanged()), this, SLOT(rebuildTree()));
+        foreach(RunConfiguration *rc, p->runConfigurations()) {
+            connect(rc, SIGNAL(nameChanged()), this, SLOT(rebuildTree()));
         }
         connectToProject(p);
     }
@@ -314,7 +314,7 @@ void RunConfigurationComboBox::activeItemChanged(int index)
         QList<Project *> projects = session->projects();
         if (pair.first < projects.count()) {
             Project *p = projects.at(pair.first);
-            QList<QSharedPointer<RunConfiguration> > runconfigurations = p->runConfigurations();
+            QList<RunConfiguration *> runconfigurations = p->runConfigurations();
             if (pair.second < runconfigurations.count()) {
                 session->setStartupProject(p);
                 p->setActiveRunConfiguration(runconfigurations.at(pair.second));
@@ -345,15 +345,15 @@ void RunConfigurationComboBox::activeRunConfigurationChanged()
 
 void RunConfigurationComboBox::addedRunConfiguration(ProjectExplorer::Project *p, const QString &name)
 {
-    QSharedPointer<RunConfiguration> runConfiguration = QSharedPointer<RunConfiguration>(0);
-    foreach(QSharedPointer<RunConfiguration> rc, p->runConfigurations()) {
+    RunConfiguration *runConfiguration = 0;
+    foreach(RunConfiguration *rc, p->runConfigurations()) {
         if (rc->name() == name) {
             runConfiguration = rc;
             break;
         }
     }
     if (runConfiguration) {
-        connect(runConfiguration.data(), SIGNAL(nameChanged()),
+        connect(runConfiguration, SIGNAL(nameChanged()),
                 this, SLOT(rebuildTree()));
     }
     rebuildTree();
@@ -361,15 +361,15 @@ void RunConfigurationComboBox::addedRunConfiguration(ProjectExplorer::Project *p
 
 void RunConfigurationComboBox::removedRunConfiguration(ProjectExplorer::Project *p, const QString &name)
 {
-    QSharedPointer<RunConfiguration> runConfiguration = QSharedPointer<RunConfiguration>(0);
-    foreach(QSharedPointer<RunConfiguration> rc, p->runConfigurations()) {
+    RunConfiguration *runConfiguration = 0;
+    foreach(RunConfiguration *rc, p->runConfigurations()) {
         if (rc->name() == name) {
             runConfiguration = rc;
             break;
         }
     }
     if (runConfiguration) {
-        disconnect(runConfiguration.data(), SIGNAL(nameChanged()),
+        disconnect(runConfiguration, SIGNAL(nameChanged()),
                 this, SLOT(rebuildTree()));
     }
 
@@ -379,8 +379,8 @@ void RunConfigurationComboBox::removedRunConfiguration(ProjectExplorer::Project 
 void RunConfigurationComboBox::projectAdded(ProjectExplorer::Project *p)
 {
     rebuildTree();
-    foreach(const QSharedPointer<RunConfiguration> &rc, p->runConfigurations())
-        connect(rc.data(), SIGNAL(nameChanged()), this, SLOT(rebuildTree()));
+    foreach(RunConfiguration *rc, p->runConfigurations())
+        connect(rc, SIGNAL(nameChanged()), this, SLOT(rebuildTree()));
     connectToProject(p);
 }
 
@@ -419,7 +419,7 @@ void RunConfigurationComboBox::rebuildTree()
     Project *startupProject = session->startupProject();
     foreach(Project *p, session->projects()) {
         addItem(p->name(), QVariant(0));
-        foreach(QSharedPointer<RunConfiguration> rc, p->runConfigurations()) {
+        foreach(RunConfiguration *rc, p->runConfigurations()) {
             addItem("  " + rc->name(), QVariant(1));
             if ((startupProject == p) && (p->activeRunConfiguration() == rc)){
                 setCurrentIndex(count() - 1);

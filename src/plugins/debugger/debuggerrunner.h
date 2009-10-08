@@ -35,21 +35,11 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 
-namespace ProjectExplorer {
-class LocalApplicationRunConfiguration;
-}
-
 namespace Debugger {
 class DebuggerManager;
 
 namespace Internal {
 class StartData;
-
-typedef QSharedPointer<ProjectExplorer::RunConfiguration>
-    RunConfigurationPtr;
-
-typedef QSharedPointer<ProjectExplorer::LocalApplicationRunConfiguration>
-    LocalApplicationRunConfigurationPtr;
 
 class DebuggerRunControlFactory
     : public ProjectExplorer::IRunControlFactory
@@ -60,14 +50,15 @@ public:
     explicit DebuggerRunControlFactory(DebuggerManager *manager);
 
     // ProjectExplorer::IRunControlFactory
-    bool canRun(const RunConfigurationPtr &runConfiguration, const QString &mode) const;
-    virtual ProjectExplorer::RunControl *create(const RunConfigurationPtr &runConfiguration,
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
+    virtual ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
                                                 const QString &mode);
     virtual QString displayName() const;
 
-    virtual QWidget *configurationWidget(const RunConfigurationPtr &runConfiguration);
+    virtual QWidget *configurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 
-    ProjectExplorer::RunControl *create(const DebuggerStartParametersPtr &sp, const QString &mode);
+
+    ProjectExplorer::RunControl *create(const DebuggerStartParametersPtr &sp);
 
 private:
     DebuggerStartParametersPtr m_startParameters;
@@ -82,8 +73,9 @@ class DebuggerRunControl
 
 public:
     DebuggerRunControl(DebuggerManager *manager,
-                       LocalApplicationRunConfigurationPtr runConfiguration);
+                       ProjectExplorer::LocalApplicationRunConfiguration *runConfiguration);
     DebuggerRunControl(DebuggerManager *manager, const DebuggerStartParametersPtr &startParameters);
+
 
     // ProjectExplorer::RunControl
     virtual void start();
