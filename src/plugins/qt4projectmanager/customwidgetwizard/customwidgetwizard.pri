@@ -1,4 +1,5 @@
 INCLUDEPATH *= $$PWD
+DEPENDPATH *= $$PWD
 SOURCES += \
  $$PWD/plugingenerator.cpp \
  $$PWD/classlist.cpp \
