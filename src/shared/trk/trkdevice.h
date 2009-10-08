@@ -73,7 +73,6 @@ public:
 
     bool open(const QString &port, QString *errorMessage);
     bool isOpen() const;
-    void close();
 
     QString errorString() const;
 
@@ -108,6 +107,9 @@ private slots:
 protected slots:
     void emitError(const QString &msg);
     void emitLogMessage(const QString &msg);
+
+public slots:
+    void close();
 
 private:
     void readMessages();
