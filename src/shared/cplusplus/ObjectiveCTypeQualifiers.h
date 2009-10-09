@@ -35,11 +35,22 @@ CPLUSPLUS_BEGIN_HEADER
 CPLUSPLUS_BEGIN_NAMESPACE
 
 enum {
+  Token_NO,
+  Token_id,
   Token_in,
+  Token_YES,
+  Token_IMP,
+  Token_Nil,
+  Token_SEL,
+  Token_nil,
   Token_out,
+  Token__cmd,
+  Token_BOOL,
   Token_copy,
+  Token_self,
   Token_byref,
   Token_inout,
+  Token_super,
   Token_assign,
   Token_bycopy,
   Token_getter,

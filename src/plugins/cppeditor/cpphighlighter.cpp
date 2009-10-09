@@ -61,6 +61,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     SimpleLexer tokenize;
     tokenize.setQtMocRunEnabled(false);
+    tokenize.setObjCEnabled(true);
 
     int initialState = state;
     const QList<SimpleToken> tokens = tokenize(text, initialState);
@@ -157,7 +158,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 initialState = 0;
             }
 
-        } else if (tk.isKeyword() || isQtKeyword(tk.text()) || tk.isObjCAtKeyword())
+        } else if (tk.isKeyword() || isQtKeyword(tk.text()) || tk.isObjCAtKeyword() || tk.isObjCTypeQualifier())
             setFormat(tk.position(), tk.length(), m_formats[CppKeywordFormat]);
 
         else if (tk.isOperator())

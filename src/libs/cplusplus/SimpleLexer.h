@@ -83,6 +83,7 @@ public:
     bool isKeyword() const;
     bool isComment() const;
     bool isObjCAtKeyword() const;
+    bool isObjCTypeQualifier() const { return f._objcTypeQualifier; }
 
     const char *name() const;
 
@@ -102,6 +103,7 @@ public:
         struct {
             short _newline: 1;
             short _whitespace: 1;
+            short _objcTypeQualifier: 1;
         } f;
     };
 

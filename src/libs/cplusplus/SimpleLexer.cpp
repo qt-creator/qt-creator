@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 
+#include "ObjectiveCTypeQualifiers.h"
 #include "SimpleLexer.h"
 
 #include <Lexer.h>
@@ -83,7 +84,6 @@ SimpleLexer::SimpleLexer()
       _qtMocRunEnabled(true),
       _objCEnabled(false)
 {
-    setObjCEnabled(true);
 }
 
 SimpleLexer::~SimpleLexer()
@@ -155,6 +155,9 @@ QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
         else if (inPreproc && tokens.size() == 1 && simpleTk.is(T_IDENTIFIER) &&
                  simpleTk.text() == QLatin1String("include"))
             lex.setScanAngleStringLiteralTokens(true);
+
+        if (_objCEnabled && tk.is(T_IDENTIFIER))
+            simpleTk.f._objcTypeQualifier = (classifyObjectiveCTypeQualifiers(firstChar + tk.offset, tk.f.length) != Token_identifier);
 
         tokens.append(simpleTk);
     }
