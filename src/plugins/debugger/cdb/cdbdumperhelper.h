@@ -122,12 +122,11 @@ private:
 
     bool getTypeSize(const QString &typeName, int *size, QString *errorMessage);
     bool runTypeSizeQuery(const QString &typeName, int *size, QString *errorMessage);
-    bool callDumper(const QString &call, const QByteArray &inBuffer, const char **outputPtr,
-                    bool ignoreAccessViolation, QString *errorMessage);
+    enum CallResult { CallOk, CallSyntaxError, CallFailed };
+    CallResult callDumper(const QString &call, const QByteArray &inBuffer, const char **outputPtr,
+                          bool ignoreAccessViolation, QString *errorMessage);
 
-    enum DumpExecuteResult { DumpExecuteOk, DumpExecuteSizeFailed,
-                             DumpComplexExpressionEncountered,
-                             DumpExecuteCallFailed };
+    enum DumpExecuteResult { DumpExecuteOk, DumpExpressionFailed, DumpExecuteCallFailed };
     DumpExecuteResult executeDump(const WatchData &wd,
                                   const QtDumperHelper::TypeData& td, bool dumpChildren,
                                   QList<WatchData> *result, QString *errorMessage);
