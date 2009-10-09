@@ -488,7 +488,7 @@ QSharedPointer<RunConfiguration> S60DeviceRunConfigurationFactory::create(Projec
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(p);
-    if (type.startsWith("QtS60DeviceRunConfiguration.")) {
+    if (type.startsWith("QtSymbianDeviceRunConfiguration.")) {
         QString fileName = type.mid(QString("QtSymbianDeviceRunConfiguration.").size());
         return QSharedPointer<RunConfiguration>(new S60DeviceRunConfiguration(p, fileName));
     }
