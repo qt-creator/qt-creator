@@ -1,5 +1,4 @@
 #include "gdb/gdbmi.h"
-#include "tcf/json.h"
 #include "gdbmacros.h"
 #include "gdbmacros_p.h"
 
@@ -87,10 +86,6 @@ static const char gdbmi12[] =
      "numchild=\"0\"}]";
 
 
-static const char jsont1[] =
-    "{\"Size\":100564,\"UID\":0,\"GID\":0,\"Permissions\":33261,"
-     "\"ATime\":1242370878000,\"MTime\":1239154689000}";
-
 struct Int3 {
     Int3() { i1 = 42; i2 = 43; i3 = 44; }
     int i1, i2, i3;
@@ -114,12 +109,6 @@ public:
             '\n' + QString(input));
     }
 
-    void testJson(const char* input)
-    {
-        QCOMPARE('\n' + QString::fromLatin1(JsonValue(input).toString(false)),
-            '\n' + QString(input));
-    }
-
 private slots:
     void mi1()  { testMi(gdbmi1);  }
     void mi2()  { testMi(gdbmi2);  }
@@ -131,8 +120,6 @@ private slots:
     void mi10() { testMi(gdbmi10); }
     void mi11() { testMi(gdbmi11); }
     //void mi12() { testMi(gdbmi12); }
-
-    void json1() { testJson(jsont1); }
 
     void infoBreak();
     void niceType();
