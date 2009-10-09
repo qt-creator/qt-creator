@@ -278,6 +278,7 @@ private:
     QMainWindow *mainWindow() const;
     DebuggerStartMode startMode() const;
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
+    void handleInferiorPidChanged(qint64 pid) { manager()->notifyInferiorPidChanged(pid); }
 
     void handleChildren(const WatchData &parent, const GdbMi &child,
         QList<WatchData> *insertions);

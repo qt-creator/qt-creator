@@ -658,7 +658,7 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
         return;
     debugMessage(_("FOUND PID %1").arg(pid));    
 
-    manager()->notifyInferiorPidChanged(pid);
+    handleInferiorPidChanged(pid);
     if (m_dumperInjectionLoad)
         tryLoadDebuggingHelpers();
 }
