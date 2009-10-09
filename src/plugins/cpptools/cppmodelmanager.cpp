@@ -70,7 +70,6 @@
 #include <NameVisitor.h>
 #include <TypeVisitor.h>
 #include <ASTVisitor.h>
-#include <PrettyPrinter.h>
 #include <Lexer.h>
 #include <Token.h>
 

@@ -43,8 +43,8 @@
 #include <Control.h>
 #include <CoreTypes.h>
 #include <Literals.h>
-#include <PrettyPrinter.h>
 #include <Semantic.h>
+#include <ASTVisitor.h>
 #include <SymbolVisitor.h>
 #include <TranslationUnit.h>
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -703,34 +703,6 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
     OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_methodCombo->view());
     treeView->sync();
     updateMethodBoxIndexNow();
-}
-
-void CPPEditor::reformatDocument()
-{
-    using namespace CPlusPlus;
-
-    QByteArray source = toPlainText().toUtf8();
-
-    Control control;
-    StringLiteral *fileId = control.findOrInsertStringLiteral("<file>");
-    TranslationUnit unit(&control, fileId);
-    unit.setQtMocRunEnabled(true);
-    unit.setSource(source.constData(), source.length());
-    unit.parse();
-    if (! unit.ast())
-        return;
-
-    std::ostringstream s;
-
-    TranslationUnitAST *ast = unit.ast()->asTranslationUnit();
-    PrettyPrinter pp(&control, s);
-    pp(ast, source);
-
-    const std::string str = s.str();
-    QTextCursor c = textCursor();
-    c.setPosition(0);
-    c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    c.insertText(QString::fromUtf8(str.c_str(), str.length()));
 }
 
 CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,

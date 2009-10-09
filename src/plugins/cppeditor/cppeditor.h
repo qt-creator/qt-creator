@@ -225,7 +225,6 @@ private Q_SLOTS:
     void updateUses();
     void updateUsesNow();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
-    void reformatDocument();
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
 
     void semanticRehighlight();

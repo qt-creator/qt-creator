@@ -36,7 +36,6 @@ HEADERS += \
     $$PWD/TranslationUnit.h \
     $$PWD/Type.h \
     $$PWD/TypeVisitor.h \
-    $$PWD/PrettyPrinter.h \
     $$PWD/ObjectiveCTypeQualifiers.h
 
 SOURCES += \
@@ -75,6 +74,6 @@ SOURCES += \
     $$PWD/Token.cpp \
     $$PWD/TranslationUnit.cpp \
     $$PWD/Type.cpp \
-    $$PWD/TypeVisitor.cpp \
-    $$PWD/PrettyPrinter.cpp
+    $$PWD/TypeVisitor.cpp
+
 
