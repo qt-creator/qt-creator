@@ -94,6 +94,8 @@ QmlSymbol *QmlLookupContext::resolveType(const QString &name, const QString &fil
         if (!import)
             continue;
 
+        // TODO: handle Qt imports
+
         if (!(import->fileName))
             continue;
 
@@ -107,6 +109,7 @@ QmlSymbol *QmlLookupContext::resolveType(const QString &name, const QString &fil
         }
     }
 
+    // TODO: handle Qt imports, hack for now:
     return resolveBuildinType(name);
 }
 
@@ -296,6 +299,10 @@ QList<QmlSymbol*> QmlLookupContext::visibleTypes()
             result.append(typeDoc->symbols().at(0));
         }
     }
+
+    // TODO: handle Qt imports, hack for now:
+    foreach (const QString &name, qmlMetaTypes)
+        result.append(resolveBuildinType(name));
 
     return result;
 }

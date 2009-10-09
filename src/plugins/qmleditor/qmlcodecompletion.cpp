@@ -78,9 +78,10 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (!qmlDocument->program())
         qmlDocument = m_modelManager->snapshot().value(qmlDocument->fileName());
 
-    if (qmlDocument->program()) {
+    // FIXME: this completion strategy is not going to work when the document was never parsed correctly.
+    if (qmlDocument && qmlDocument->program()) {
          QmlJS::AST::UiProgram *program = qmlDocument->program();
-//        qDebug() << "*** program:" << program;
+//         qDebug() << "*** program:" << program;
  
          if (program) {
             QmlExpressionUnderCursor expressionUnderCursor;
@@ -90,7 +91,9 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             QmlLookupContext context(expressionUnderCursor.expressionScopes(), qmlDocument, m_modelManager->snapshot());
             QmlResolveExpression resolver(context);
+//            qDebug()<<"*** expression under cursor:"<<expressionUnderCursor.expressionNode();
             QList<QmlSymbol*> symbols = resolver.visibleSymbols(expressionUnderCursor.expressionNode());
+//            qDebug()<<"***"<<symbols.size()<<"visible symbols";
 
             foreach (QmlSymbol *symbol, symbols) {
                 QString word;
