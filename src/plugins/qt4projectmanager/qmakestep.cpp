@@ -269,6 +269,9 @@ void QMakeStepConfigWidget::buildConfigurationChanged()
     static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
     updateTitleLabel();
     updateEffectiveQMakeCall();
+    // TODO if exact parsing is the default, we need to update the code model
+    // and all the Qt4ProFileNodes
+    //static_cast<Qt4Project *>(m_step->project())->update();
 }
 
 QString QMakeStepConfigWidget::displayName() const
