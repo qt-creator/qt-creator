@@ -283,9 +283,15 @@ bool Qt4BuildConfigurationFactory::create(const QString &type) const
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-    BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
-    bc->setValue(KEY_QT_VERSION_ID, info.versionId);
-    m_project->addBuildConfiguration(bc);
+
+    QtVersion *version = QtVersionManager::instance()->version(info.versionId);
+
+    m_project->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
+                                     version,
+                                     (QtVersion::QmakeBuildConfig)(version->defaultBuildConfig() | QtVersion::DebugBuild));
+    m_project->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
+                                     version,
+                                     (QtVersion::QmakeBuildConfig)(version->defaultBuildConfig() & ~QtVersion::DebugBuild));
     return true;
 }
 
@@ -428,6 +434,36 @@ void Qt4Project::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &wri
 ProjectExplorer::IBuildConfigurationFactory *Qt4Project::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
+}
+
+void Qt4Project::addQt4BuildConfiguration(QString buildConfigurationName, QtVersion *qtversion,
+                                          QtVersion::QmakeBuildConfig qmakeBuildConfiguration,
+                                          QStringList additionalArguments)
+{
+    QMakeStep *qmake = qmakeStep();
+    MakeStep *make = makeStep();
+
+    bool debug = qmakeBuildConfiguration & QtVersion::DebugBuild;
+
+    // Add the buildconfiguration
+    ProjectExplorer::BuildConfiguration *bc = new ProjectExplorer::BuildConfiguration(buildConfigurationName);
+    addBuildConfiguration(bc);
+    const QString &finalBuildConfigurationName = bc->name();
+    if (!additionalArguments.isEmpty())
+        qmake->setValue(finalBuildConfigurationName, "qmakeArgs", additionalArguments);
+
+    // set some options for qmake and make
+    if (qmakeBuildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
+        make->setValue(finalBuildConfigurationName, "makeargs", QStringList() << (debug ? "debug" : "release"));
+
+    bc->setValue("buildConfiguration", int(qmakeBuildConfiguration));
+
+    // Finally set the qt version
+    bool defaultQtVersion = (qtversion == 0);
+    if (defaultQtVersion)
+        setQtVersion(bc, 0);
+    else
+        setQtVersion(bc, qtversion->uniqueId());
 }
 
 namespace {
