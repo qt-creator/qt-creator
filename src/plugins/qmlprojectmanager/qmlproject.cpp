@@ -491,8 +491,19 @@ void QmlRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReade
     m_qmlViewerArgs = reader.restoreValue(QLatin1String("qmlviewerargs")).toString();
     m_scriptFile = reader.restoreValue(QLatin1String("mainscript")).toString();
 
-    if (m_qmlViewer.isEmpty())
-        m_qmlViewer = Utils::SynchronousProcess::locateBinary(QLatin1String("qmlviewer"));
+    if (m_qmlViewer.isEmpty()) {
+        // first see if there is a bundled qmlviewer
+#ifdef Q_OS_WIN32
+        const QLatin1String qmlViewerExe("qmlviewer.exe");
+#else
+        const QLatin1String qmlViewerExe("qmlviewer");
+#endif
+        const QFileInfo info(QCoreApplication::applicationDirPath(), qmlViewerExe);
+        if (info.exists() && info.isExecutable())
+            m_qmlViewer = info.absoluteFilePath();
+        else // if not, then try to locate it elsewhere
+            m_qmlViewer = Utils::SynchronousProcess::locateBinary(QLatin1String("qmlviewer"));
+    }
 
     if (m_scriptFile.isEmpty())
         m_scriptFile = tr("<Current File>");
