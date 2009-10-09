@@ -37,7 +37,6 @@
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "cppquickopenfilter.h"
-#include "cppsemanticsearch.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -74,113 +73,6 @@ using namespace CPlusPlus;
 enum { debug = 0 };
 
 CppToolsPlugin *CppToolsPlugin::m_instance = 0;
-
-FindClassDeclarations::FindClassDeclarations(CppModelManager *modelManager)
-    : _modelManager(modelManager),
-      _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
-{
-    m_watcher.setPendingResultsLimit(1);
-    connect(&m_watcher, SIGNAL(resultReadyAt(int)), this, SLOT(displayResult(int)));
-    connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
-}
-
-void FindClassDeclarations::findAll(const QString &text, QTextDocument::FindFlags findFlags)
-{
-    Find::SearchResult *search = _resultWindow->startNewSearch();
-    connect(search, SIGNAL(activated(Find::SearchResultItem)),
-            this, SLOT(openEditor(Find::SearchResultItem)));
-
-    _resultWindow->popup(true);
-
-    Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
-
-    SemanticSearchFactory::Ptr factory(new SearchClassDeclarationsFactory(text, findFlags));
-
-    QFuture<Utils::FileSearchResult> result = semanticSearch(_modelManager, factory);
-
-    m_watcher.setFuture(result);
-
-    Core::FutureProgress *progress = progressManager->addTask(result, tr("Search class"),
-                                                              CppTools::Constants::TASK_INDEX,
-                                                              Core::ProgressManager::CloseOnSuccess);
-
-    connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
-}
-
-void FindClassDeclarations::displayResult(int index)
-{
-    Utils::FileSearchResult result = m_watcher.future().resultAt(index);
-    _resultWindow->addResult(result.fileName,
-                             result.lineNumber,
-                             result.matchingLine,
-                             result.matchStart,
-                             result.matchLength);
-}
-
-void FindClassDeclarations::searchFinished()
-{
-    emit changed();
-}
-
-void FindClassDeclarations::openEditor(const Find::SearchResultItem &item)
-{
-    TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.searchTermStart);
-}
-
-//////
-FindFunctionCalls::FindFunctionCalls(CppModelManager *modelManager)
-    : _modelManager(modelManager),
-      _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
-{
-    m_watcher.setPendingResultsLimit(1);
-    connect(&m_watcher, SIGNAL(resultReadyAt(int)), this, SLOT(displayResult(int)));
-    connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
-}
-
-void FindFunctionCalls::findAll(const QString &text, QTextDocument::FindFlags findFlags)
-{
-    Find::SearchResult *search = _resultWindow->startNewSearch();
-    connect(search, SIGNAL(activated(Find::SearchResultItem)),
-            this, SLOT(openEditor(Find::SearchResultItem)));
-
-    _resultWindow->popup(true);
-
-    Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
-
-    SemanticSearchFactory::Ptr factory(new SearchFunctionCallFactory(text, findFlags));
-
-    QFuture<Utils::FileSearchResult> result = semanticSearch(_modelManager, factory);
-
-    m_watcher.setFuture(result);
-
-    Core::FutureProgress *progress = progressManager->addTask(result, tr("Search functions"),
-                                                              CppTools::Constants::TASK_INDEX,
-                                                              Core::ProgressManager::CloseOnSuccess);
-
-    connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
-}
-
-void FindFunctionCalls::displayResult(int index)
-{
-    Utils::FileSearchResult result = m_watcher.future().resultAt(index);
-    _resultWindow->addResult(result.fileName,
-                             result.lineNumber,
-                             result.matchingLine,
-                             result.matchStart,
-                             result.matchLength);
-}
-
-void FindFunctionCalls::searchFinished()
-{
-    emit changed();
-}
-
-void FindFunctionCalls::openEditor(const Find::SearchResultItem &item)
-{
-    TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.searchTermStart);
-}
-
-
 
 CppToolsPlugin::CppToolsPlugin() :
     m_context(-1),
@@ -220,9 +112,6 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppCurrentDocumentFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CompletionSettingsPage(m_completion));
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
-
-    addAutoReleasedObject(new FindClassDeclarations(m_modelManager));
-    addAutoReleasedObject(new FindFunctionCalls(m_modelManager));
 
     // Menus
     Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
