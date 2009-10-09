@@ -361,18 +361,6 @@ void RunConfigurationComboBox::addedRunConfiguration(ProjectExplorer::Project *p
 
 void RunConfigurationComboBox::removedRunConfiguration(ProjectExplorer::Project *p, const QString &name)
 {
-    RunConfiguration *runConfiguration = 0;
-    foreach(RunConfiguration *rc, p->runConfigurations()) {
-        if (rc->name() == name) {
-            runConfiguration = rc;
-            break;
-        }
-    }
-    if (runConfiguration) {
-        disconnect(runConfiguration, SIGNAL(nameChanged()),
-                this, SLOT(rebuildTree()));
-    }
-
     rebuildTree();
 }
 
