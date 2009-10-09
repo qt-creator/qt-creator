@@ -1464,7 +1464,7 @@
     specified in the \c CMake project file.
 
     Known issues for the current version can be found
-    \l{Known Issues of Version 1.1.0}{here}.
+    \l{Known Issues of Version 1.2.93}{here}.
 */
 
 
@@ -1957,6 +1957,20 @@
     The development team is aware of those, there is no need to report them as bug.
 
     \section1 Known Issues of Version 1.2.92
+
+    \list
+        \o Debugging Helper do not work while doing On Device Debugging.
+
+        \o QML Preview (Run Project) only works if build against Qt with
+           Declarative UI.
+
+        \o Setting breakpoints in code that is compiled into the binary more
+           than once does not work.
+
+           \endlist
+
+
+    \section1 Known Issues of Version 1.2.0 and 1.2.1
 
     \list
         \o Gdb on Windows may not work if the 'Embassy \reg Security Center' software
