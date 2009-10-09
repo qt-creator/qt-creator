@@ -366,11 +366,11 @@ GuessChildrenResult guessChildren(const QString &type)
     return HasPossiblyChildren;
 }
 
-QString sizeofTypeExpression(const QString &type)
+QString sizeofTypeExpression(const QString &type, QtDumperHelper::Debugger debugger)
 {
     if (type.endsWith(QLatin1Char('*')))
         return QLatin1String("sizeof(void*)");
-    if (type.endsWith(QLatin1Char('>')))
+    if (debugger != QtDumperHelper::GdbDebugger || type.endsWith(QLatin1Char('>')))
         return QLatin1String("sizeof(") + type + QLatin1Char(')');
     return QLatin1String("sizeof(") + gdbQuoteTypes(type) + QLatin1Char(')');
 }
@@ -838,7 +838,7 @@ QtDumperHelper::TypeData QtDumperHelper::typeData(const QString &typeName) const
 // Format an expression to have the debugger query the
 // size. Use size cache if possible
 QString QtDumperHelper::evaluationSizeofTypeExpression(const QString &typeName,
-                                                       Debugger /* debugger */) const
+                                                       Debugger debugger) const
 {
     // Look up special size types
     const SpecialSizeType st = specialSizeType(typeName);
@@ -851,7 +851,7 @@ QString QtDumperHelper::evaluationSizeofTypeExpression(const QString &typeName,
     if (sit != m_sizeCache.constEnd())
         return QString::number(sit.value());
     // Finally have the debugger evaluate
-    return sizeofTypeExpression(typeName);
+    return sizeofTypeExpression(typeName, debugger);
 }
 
 QtDumperHelper::SpecialSizeType QtDumperHelper::specialSizeType(const QString &typeName) const
@@ -962,24 +962,17 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
             //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype
             //    << "QT VERSION" << m_qtVersion << ((4 << 16) + (5 << 8) + 0);
             extraArgs[2] = evaluationSizeofTypeExpression(nodetype, debugger);
-            extraArgs[3] = QLatin1String("(size_t)&(('");
-            extraArgs[3] += nodetype;
-            extraArgs[3] += QLatin1String("'*)0)->value");
+            extraArgs[3] = qMapNodeValueOffsetExpression(nodetype, data.addr, debugger);
         }
         break;
     case QMapNodeType:
         extraArgs[2] = evaluationSizeofTypeExpression(data.type, debugger);
-        extraArgs[3] = QLatin1String("(size_t)&(('");
-        extraArgs[3] += data.type;
-        extraArgs[3] += QLatin1String("'*)0)->value");
+        extraArgs[3] = qMapNodeValueOffsetExpression(data.type, data.addr, debugger);
         break;
     case StdVectorType:
         //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
         if (inners.at(0) == QLatin1String("bool")) {
             outertype = QLatin1String("std::vector::bool");
-        } else {
-            //extraArgs[extraArgCount++] = evaluationSizeofTypeExpression(data.type, debugger);
-            //extraArgs[extraArgCount++] = "(size_t)&(('" + data.type + "'*)0)->value";
         }
         break;
     case StdDequeType:
@@ -995,27 +988,40 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         extraArgs[2] = zero;
         break;
     case StdMapType: {
-            // We don't want the comparator and the allocator confuse gdb.
-            // But we need the offset of the second item in the value pair.
+            // We need the offset of the second item in the value pair.
             // We read the type of the pair from the allocator argument because
-            // that gets the constness "right" (in the sense that gdb can
+            // that gets the constness "right" (in the sense that gdb/cdb can
             // read it back: "std::allocator<std::pair<Key,Value> >"
             // -> "std::pair<Key,Value>". Different debuggers have varying
             // amounts of terminating blanks...
+            extraArgs[2].clear();
+            extraArgs[3] = zero;
             QString pairType = inners.at(3);
             int bracketPos = pairType.indexOf(QLatin1Char('<'));
             if (bracketPos != -1)
                 pairType.remove(0, bracketPos + 1);
+            // We don't want the comparator and the allocator confuse gdb.
             const QChar closingBracket = QLatin1Char('>');
             bracketPos = pairType.lastIndexOf(closingBracket);
             if (bracketPos != -1)
                 bracketPos = pairType.lastIndexOf(closingBracket, bracketPos - pairType.size() - 1);
             if (bracketPos != -1)
                 pairType.truncate(bracketPos + 1);
-            extraArgs[2] = QLatin1String("(size_t)&(('");
-            extraArgs[2] += pairType;
-            extraArgs[2] += QLatin1String("'*)0)->second");
-            extraArgs[3] = zero;
+            if (debugger == GdbDebugger) {
+                extraArgs[2] = QLatin1String("(size_t)&(('");
+                extraArgs[2] += pairType;
+                extraArgs[2] += QLatin1String("'*)0)->second");
+            } else {
+                // Cdb: The std::pair is usually in scope. Still, this expression
+                // occasionally fails for complex types (std::string).
+                // We need an address as CDB cannot do the 0-trick.
+                // Use data address or try at least cache if missing.
+                const QString address = data.addr.isEmpty() ? QString::fromLatin1("DUMMY_ADDRESS") : data.addr;
+                QString offsetExpr;
+                QTextStream str(&offsetExpr);
+                str << "(size_t)&(((" << pairType << " *)" << address << ")->second)" << '-' << address;
+                extraArgs[2] = lookupCdbDummyAddressExpression(offsetExpr, address);
+            }
         }
         break;
     case StdStringType:
@@ -1066,6 +1072,45 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
 
     if (debug)
         qDebug() << '\n' << Q_FUNC_INFO << '\n' << data.toString() << "\n-->" << outertype << td.type << extraArgs;
+}
+
+// Return debugger expression to get the offset of a map node.
+QString QtDumperHelper::qMapNodeValueOffsetExpression(const QString &type,
+                                                      const QString &addressIn,
+                                                      Debugger debugger) const
+{
+    switch (debugger) {
+    case GdbDebugger:
+        return QLatin1String("(size_t)&(('") + type + QLatin1String("'*)0)->value");
+    case CdbDebugger: {
+            // Cdb: This will only work if a QMapNode is in scope.
+            // We need an address as CDB cannot do the 0-trick.
+            // Use data address or try at least cache if missing.
+            const QString address = addressIn.isEmpty() ? QString::fromLatin1("DUMMY_ADDRESS") : addressIn;
+            QString offsetExpression;
+            QTextStream(&offsetExpression) << "(size_t)&(((" << type
+                    << " *)" << address << ")->value)-" << address;
+            return lookupCdbDummyAddressExpression(offsetExpression, address);
+        }
+    }
+    return QString();
+}
+
+/* Cdb cannot do tricks like ( "&(std::pair<int,int>*)(0)->second)",
+ * that is, use a null pointer to determine the offset of a member.
+ * It tries to dereference the address at some point and fails with
+ * "memory access error". As a trick, use the address of the watch item
+ * to do this. However, in the expression cache, 0 is still used, so,
+ * for cache lookups,  use '0' as address. */
+QString QtDumperHelper::lookupCdbDummyAddressExpression(const QString &expr,
+                                                        const QString &address) const
+{
+    QString nullExpr = expr;
+    nullExpr.replace(address, QString(QLatin1Char('0')));
+    const QString rc = m_expressionCache.value(nullExpr, expr);
+    if (debug)
+        qDebug() << "lookupCdbDummyAddressExpression" << expr << rc;
+    return rc;
 }
 
 // GdbMi parsing helpers for parsing dumper value results

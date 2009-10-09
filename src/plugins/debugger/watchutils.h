@@ -79,7 +79,6 @@ bool isSymbianIntType(const QString &type);
 enum GuessChildrenResult { HasChildren, HasNoChildren, HasPossiblyChildren };
 GuessChildrenResult guessChildren(const QString &type);
 
-QString sizeofTypeExpression(const QString &type);
 QString quoteUnprintableLatin1(const QByteArray &ba);
 
 // Editor tooltip support
@@ -193,6 +192,11 @@ private:
     static Type specialType(QString s);
     QString evaluationSizeofTypeExpression(const QString &typeName, Debugger d) const;
     void parseQueryTypes(const QStringList &l, Debugger debugger);
+    QString qMapNodeValueOffsetExpression(const QString &type,
+                                          const QString &addressIn,
+                                          Debugger debugger) const;
+
+    inline QString lookupCdbDummyAddressExpression(const QString &expr, const QString &address) const;
 
     NameTypeMap m_nameTypeMap;
     SizeCache m_sizeCache;

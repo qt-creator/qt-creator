@@ -210,7 +210,7 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     toggleSync->setChecked(ptw->autoSynchronization());
     toggleSync->setToolTip(tr("Synchronize with Editor"));
     connect(toggleSync, SIGNAL(clicked(bool)), ptw, SLOT(toggleAutoSynchronization()));
-    n.doockToolBarWidgets << toggleSync;
+    n.dockToolBarWidgets << toggleSync;
     return n;
 }
 

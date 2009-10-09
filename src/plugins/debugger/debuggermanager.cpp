@@ -447,6 +447,12 @@ void DebuggerManager::init()
     connect(theDebuggerAction(AssignValue), SIGNAL(triggered()),
         this, SLOT(assignValueInDebugger()), Qt::QueuedConnection);
 
+    // Log
+    connect(this, SIGNAL(emitShowInput(int, QString)),
+            d->m_outputWindow, SLOT(showInput(int, QString)), Qt::QueuedConnection);
+    connect(this, SIGNAL(emitShowOutput(int, QString)),
+            d->m_outputWindow, SLOT(showOutput(int, QString)), Qt::QueuedConnection);
+
     // Tooltip
     //QTreeView *tooltipView = qobject_cast<QTreeView *>(d->m_tooltipWindow);
     //tooltipView->setModel(d->m_watchHandler->model(TooltipsWatch));
@@ -1401,7 +1407,7 @@ void DebuggerManager::modulesDockToggled(bool on)
 void DebuggerManager::showDebuggerOutput(int channel, const QString &msg)
 {
     if (d->m_outputWindow)
-        d->m_outputWindow->showOutput(channel, msg);
+        emit emitShowOutput(channel, msg);
     else 
         qDebug() << "OUTPUT: " << channel << msg;
 }
@@ -1409,7 +1415,7 @@ void DebuggerManager::showDebuggerOutput(int channel, const QString &msg)
 void DebuggerManager::showDebuggerInput(int channel, const QString &msg)
 {
     if (d->m_outputWindow)
-        d->m_outputWindow->showInput(channel, msg);
+        emit emitShowInput(channel, msg);
     else 
         qDebug() << "INPUT: " << channel << msg;
 }

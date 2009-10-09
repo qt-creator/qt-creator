@@ -52,9 +52,9 @@ S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Project *project, const
     m_cachedTargetInformationValid(false)
 {
     if (!m_proFilePath.isEmpty())
-        setName(tr("%1 in S60 Emulator").arg(QFileInfo(m_proFilePath).completeBaseName()));
+        setName(tr("%1 in Symbian Emulator").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
-        setName(tr("QtS60EmulatorRunConfiguration"));
+        setName(tr("QtSymbianEmulatorRunConfiguration"));
 
     connect(project, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
@@ -141,7 +141,7 @@ void S60EmulatorRunConfiguration::updateTarget()
 
     if (!reader->readProFile(m_proFilePath)) {
         delete reader;
-        Core::ICore::instance()->messageManager()->printToOutputPane(tr("Could not parse %1. The QtS60 emulator run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));
+        Core::ICore::instance()->messageManager()->printToOutputPane(tr("Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));
         return;
     }
 
@@ -228,7 +228,7 @@ QStringList S60EmulatorRunConfigurationFactory::availableCreationTypes(Project *
         QStringList applicationProFiles;
         QList<Qt4ProFileNode *> list = qt4project->applicationProFiles();
         foreach (Qt4ProFileNode * node, list) {
-            applicationProFiles.append("QtS60EmulatorRunConfiguration." + node->path());
+            applicationProFiles.append("QtSymbianEmulatorRunConfiguration." + node->path());
         }
         return applicationProFiles;
     } else {
@@ -238,16 +238,16 @@ QStringList S60EmulatorRunConfigurationFactory::availableCreationTypes(Project *
 
 QString S60EmulatorRunConfigurationFactory::displayNameForType(const QString &type) const
 {
-    QString fileName = type.mid(QString("QtS60EmulatorRunConfiguration.").size());
-    return tr("%1 in S60 Emulator").arg(QFileInfo(fileName).completeBaseName());
+    QString fileName = type.mid(QString("QtSymbianEmulatorRunConfiguration.").size());
+    return tr("%1 in Symbian Emulator").arg(QFileInfo(fileName).completeBaseName());
 }
 
 QSharedPointer<RunConfiguration> S60EmulatorRunConfigurationFactory::create(Project *project, const QString &type)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(p);
-    if (type.startsWith("QtS60EmulatorRunConfiguration.")) {
-        QString fileName = type.mid(QString("QtS60EmulatorRunConfiguration.").size());
+    if (type.startsWith("QtSymbianEmulatorRunConfiguration.")) {
+        QString fileName = type.mid(QString("QtSymbianEmulatorRunConfiguration.").size());
         return QSharedPointer<RunConfiguration>(new S60EmulatorRunConfiguration(p, fileName));
     }
     Q_ASSERT(type == "Qt4ProjectManager.EmulatorRunConfiguration");

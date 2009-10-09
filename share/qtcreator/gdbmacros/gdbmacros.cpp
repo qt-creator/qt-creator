@@ -3561,8 +3561,7 @@ void *watchPoint(int x, int y)
 // Helpers to write out common expression values for CDB
 #ifdef Q_CC_MSVC
 // Offsets of a map node value which looks like
-// "(size_t)&(('QMapNode<QString,QString >'*)0)->value")" in gdb syntax
-
+// "(size_t)&(((QMapNode<int,int> *)0)->value)-0"
 template <class Key, class Value>
         inline QDumper & putQMapNodeOffsetExpression(const char *keyType,
                                                      const char *valueType,
@@ -3570,13 +3569,13 @@ template <class Key, class Value>
 {
     QMapNode<Key, Value> *mn = 0;
     const int valueOffset = (char *)&(mn->value) - (char*)mn;
-    d.put("[\"(size_t)&(('"NS"QMapNode<");
+    d.put("[\"(size_t)&((("NS"QMapNode<");
     d.put(keyType);
     d.put(',');
     d.put(valueType);
     if (valueType[qstrlen(valueType) - 1] == '>')
         d.put(' ');
-    d.put(">'*)0)->value\",\"");
+    d.put("> *)0)->value)-0\",\"");
     d.put(valueOffset);
     d.put("\"]");
     return d;
@@ -3584,7 +3583,7 @@ template <class Key, class Value>
 
 // Helper to write out common expression values for CDB:
 // Offsets of a std::pair for dumping std::map node value which look like
-// "(size_t)&(('std::pair<int const ,unsigned int>'*)0)->second"
+// "(size_t)&(((std::pair<int const ,int> *)0)->second)-0"
 
 template <class Key, class Value>
         inline QDumper & putStdPairValueOffsetExpression(const char *keyType,
@@ -3593,13 +3592,13 @@ template <class Key, class Value>
 {
     std::pair<Key, Value> *p = 0;
     const int valueOffset = (char *)&(p->second) - (char*)p;
-    d.put("[\"(size_t)&(('std::pair<");
+    d.put("[\"(size_t)&(((std::pair<");
     d.put(keyType);
     d.put(" const ,");
     d.put(valueType);
     if (valueType[qstrlen(valueType) - 1] == '>')
         d.put(' ');
-    d.put(">'*)0)->second\",\"");
+    d.put("> *)0)->second)-0\",\"");
     d.put(valueOffset);
     d.put("\"]");
     return  d;

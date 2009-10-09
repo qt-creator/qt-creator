@@ -50,7 +50,7 @@ AbstractGdbAdapter::~AbstractGdbAdapter()
 // This cannot be in the c'tor, as it would not connect the "virtual" slots
 void AbstractGdbAdapter::commonInit()
 {
-    QTC_ASSERT(state() == DebuggerNotReady, qDebug() << state());
+    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(handleGdbError(QProcess::ProcessError)));
     connect(&m_gdbProc, SIGNAL(started()),

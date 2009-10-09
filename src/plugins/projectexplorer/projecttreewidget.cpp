@@ -383,7 +383,7 @@ Core::NavigationView ProjectTreeWidgetFactory::createWidget()
     filterMenu->addAction(ptw->m_filterGeneratedFilesAction);
     filter->setMenu(filterMenu);
 
-    n.doockToolBarWidgets << filter << ptw->toggleSync();
+    n.dockToolBarWidgets << filter << ptw->toggleSync();
     return n;
 }
 

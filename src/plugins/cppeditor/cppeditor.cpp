@@ -43,8 +43,8 @@
 #include <Control.h>
 #include <CoreTypes.h>
 #include <Literals.h>
-#include <PrettyPrinter.h>
 #include <Semantic.h>
+#include <ASTVisitor.h>
 #include <SymbolVisitor.h>
 #include <TranslationUnit.h>
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -352,6 +352,24 @@ protected:
         accept(ast->name);
         return false;
     }
+
+    virtual bool visit(ExpressionOrDeclarationStatementAST *ast)
+    {
+        accept(ast->declaration);
+        return false;
+    }
+
+    virtual bool visit(FunctionDeclaratorAST *ast)
+    {
+        accept(ast->parameters);
+
+        for (SpecifierAST *spec = ast->cv_qualifier_seq; spec; spec = spec->next)
+            accept(spec);
+
+        accept(ast->exception_specification);
+
+        return false;
+    }
 };
 
 
@@ -541,22 +559,7 @@ CPPEditor::CPPEditor(QWidget *parent)
     setCodeFoldingVisible(true);
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
 
-#ifdef WITH_TOKEN_MOVE_POSITION
-    new QShortcut(QKeySequence::MoveToPreviousWord, this, SLOT(moveToPreviousToken()),
-                  /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
-
-    new QShortcut(QKeySequence::MoveToNextWord, this, SLOT(moveToNextToken()),
-                  /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
-
-    new QShortcut(QKeySequence::DeleteStartOfWord, this, SLOT(deleteStartOfToken()),
-                  /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
-
-    new QShortcut(QKeySequence::DeleteEndOfWord, this, SLOT(deleteEndOfToken()),
-                  /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
-#endif
-
-    m_modelManager = ExtensionSystem::PluginManager::instance()
-        ->getObject<CppTools::CppModelManagerInterface>();
+    m_modelManager = CppTools::CppModelManagerInterface::instance();
 
     if (m_modelManager) {
         connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
@@ -691,100 +694,6 @@ void CPPEditor::abortRename()
     setExtraSelections(CodeSemanticsSelection, m_renameSelections);
 }
 
-int CPPEditor::previousBlockState(QTextBlock block) const
-{
-    block = block.previous();
-    if (block.isValid()) {
-        int state = block.userState();
-
-        if (state != -1)
-            return state;
-    }
-    return 0;
-}
-
-QTextCursor CPPEditor::moveToPreviousToken(QTextCursor::MoveMode mode) const
-{
-    SimpleLexer tokenize;
-    QTextCursor c(textCursor());
-    QTextBlock block = c.block();
-    int column = c.columnNumber();
-
-    for (; block.isValid(); block = block.previous()) {
-        const QString textBlock = block.text();
-        QList<SimpleToken> tokens = tokenize(textBlock, previousBlockState(block));
-
-        if (! tokens.isEmpty()) {
-            tokens.prepend(SimpleToken());
-
-            for (int index = tokens.size() - 1; index != -1; --index) {
-                const SimpleToken &tk = tokens.at(index);
-                if (tk.position() < column) {
-                    c.setPosition(block.position() + tk.position(), mode);
-                    return c;
-                }
-            }
-        }
-
-        column = INT_MAX;
-    }
-
-    c.movePosition(QTextCursor::Start, mode);
-    return c;
-}
-
-QTextCursor CPPEditor::moveToNextToken(QTextCursor::MoveMode mode) const
-{
-    SimpleLexer tokenize;
-    QTextCursor c(textCursor());
-    QTextBlock block = c.block();
-    int column = c.columnNumber();
-
-    for (; block.isValid(); block = block.next()) {
-        const QString textBlock = block.text();
-        QList<SimpleToken> tokens = tokenize(textBlock, previousBlockState(block));
-
-        if (! tokens.isEmpty()) {
-            for (int index = 0; index < tokens.size(); ++index) {
-                const SimpleToken &tk = tokens.at(index);
-                if (tk.position() > column) {
-                    c.setPosition(block.position() + tk.position(), mode);
-                    return c;
-                }
-            }
-        }
-
-        column = -1;
-    }
-
-    c.movePosition(QTextCursor::End, mode);
-    return c;
-}
-
-void CPPEditor::moveToPreviousToken()
-{
-    setTextCursor(moveToPreviousToken(QTextCursor::MoveAnchor));
-}
-
-void CPPEditor::moveToNextToken()
-{
-    setTextCursor(moveToNextToken(QTextCursor::MoveAnchor));
-}
-
-void CPPEditor::deleteStartOfToken()
-{
-    QTextCursor c = moveToPreviousToken(QTextCursor::KeepAnchor);
-    c.removeSelectedText();
-    setTextCursor(c);
-}
-
-void CPPEditor::deleteEndOfToken()
-{
-    QTextCursor c = moveToNextToken(QTextCursor::KeepAnchor);
-    c.removeSelectedText();
-    setTextCursor(c);
-}
-
 void CPPEditor::onDocumentUpdated(Document::Ptr doc)
 {
     if (doc->fileName() != file()->fileName())
@@ -796,38 +705,13 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
     updateMethodBoxIndexNow();
 }
 
-void CPPEditor::reformatDocument()
-{
-    using namespace CPlusPlus;
-
-    QByteArray source = toPlainText().toUtf8();
-
-    Control control;
-    StringLiteral *fileId = control.findOrInsertStringLiteral("<file>");
-    TranslationUnit unit(&control, fileId);
-    unit.setQtMocRunEnabled(true);
-    unit.setSource(source.constData(), source.length());
-    unit.parse();
-    if (! unit.ast())
-        return;
-
-    std::ostringstream s;
-
-    TranslationUnitAST *ast = unit.ast()->asTranslationUnit();
-    PrettyPrinter pp(&control, s);
-    pp(ast, source);
-
-    const std::string str = s.str();
-    QTextCursor c = textCursor();
-    c.setPosition(0);
-    c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    c.insertText(QString::fromUtf8(str.c_str(), str.length()));
-}
-
 CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
                                                   Document::Ptr doc,
                                                   const Snapshot &snapshot) const
 {
+    if (! doc)
+        return 0;
+
     QTextCursor tc = cursor;
     int line, col;
     convertPosition(tc.position(), &line, &col);
@@ -859,16 +743,10 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
 
 
 void CPPEditor::findUsages()
-{
-    updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
-
-    SemanticInfo info = m_lastSemanticInfo;
-
-    if (! info.doc)
-        return;
-
-    if (Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot))
+{    
+    if (Symbol *canonicalSymbol = markSymbols()) {
         m_modelManager->findUsages(canonicalSymbol);
+    }
 }
 
 void CPPEditor::renameUsages()
@@ -881,7 +759,15 @@ void CPPEditor::renameUsages()
 
 void CPPEditor::renameUsagesNow()
 {
-    Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+    if (Symbol *canonicalSymbol = markSymbols()) {
+        Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+        m_modelManager->renameUsages(canonicalSymbol);
+    }
+}
+
+Symbol *CPPEditor::markSymbols()
+{
+    updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
     m_currentRenameSelection = -1;
 
@@ -889,35 +775,33 @@ void CPPEditor::renameUsagesNow()
 
     SemanticInfo info = m_lastSemanticInfo;
 
-    if (info.doc) {
-        if (Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot)) {
-            TranslationUnit *unit = info.doc->translationUnit();
+    Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot);
+    if (canonicalSymbol) {
+        TranslationUnit *unit = info.doc->translationUnit();
 
-            const QList<int> references = m_modelManager->references(canonicalSymbol, info.doc, info.snapshot);
-            foreach (int index, references) {
-                unsigned line, column;
-                unit->getTokenPosition(index, &line, &column);
+        const QList<int> references = m_modelManager->references(canonicalSymbol, info.doc, info.snapshot);
+        foreach (int index, references) {
+            unsigned line, column;
+            unit->getTokenPosition(index, &line, &column);
 
-                if (column)
-                    --column;  // adjust the column position.
+            if (column)
+                --column;  // adjust the column position.
 
-                const int len = unit->tokenAt(index).f.length;
+            const int len = unit->tokenAt(index).f.length;
 
-                QTextCursor cursor(document()->findBlockByNumber(line - 1));
-                cursor.setPosition(cursor.position() + column);
-                cursor.setPosition(cursor.position() + len, QTextCursor::KeepAnchor);
+            QTextCursor cursor(document()->findBlockByNumber(line - 1));
+            cursor.setPosition(cursor.position() + column);
+            cursor.setPosition(cursor.position() + len, QTextCursor::KeepAnchor);
 
-                QTextEdit::ExtraSelection sel;
-                sel.format = m_occurrencesFormat;
-                sel.cursor = cursor;
-                selections.append(sel);
-            }
-
-            setExtraSelections(CodeSemanticsSelection, selections);
-
-            m_modelManager->renameUsages(canonicalSymbol);
+            QTextEdit::ExtraSelection sel;
+            sel.format = m_occurrencesFormat;
+            sel.cursor = cursor;
+            selections.append(sel);
         }
     }
+
+    setExtraSelections(CodeSemanticsSelection, selections);
+    return canonicalSymbol;
 }
 
 void CPPEditor::renameSymbolUnderCursor()

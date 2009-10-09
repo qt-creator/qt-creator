@@ -145,7 +145,7 @@ public:
     void queueTrkInitialPing();
 
     // Call this from the device read notification with the results.
-    void slotHandleResult(const TrkResult &result);
+    void slotHandleResult(const TrkResult &result, QMutex *mutex = 0);
 
     // pendingMessage() can be called periodically in a timer to retrieve
     // the pending messages to be sent.
@@ -252,30 +252,37 @@ void TrkWriteQueue::notifyWriteResult(WriteResult wr)
     }
 }
 
-void TrkWriteQueue::slotHandleResult(const TrkResult &result)
+void TrkWriteQueue::slotHandleResult(const TrkResult &result, QMutex *mutex)
 {
-    m_trkWriteBusy = false;
-    //if (result.code != TrkNotifyAck && result.code != TrkNotifyNak)
-    //    return;
     // Find which request the message belongs to and invoke callback
     // if ACK or on NAK if desired.
+    if (mutex)
+        mutex->lock();
+    m_trkWriteBusy = false;
     const TokenMessageMap::iterator it = m_writtenTrkMessages.find(result.token);
-    if (it == m_writtenTrkMessages.end())
+    if (it == m_writtenTrkMessages.end()) {
+        if (mutex)
+            mutex->unlock();
         return;
-    const bool invokeCB = it.value().callback;
-    if (invokeCB) {
-        TrkResult result1 = result;
-        result1.cookie = it.value().cookie;
-        it.value().callback(result1);
     }
+    TrkCallback callback = it.value().callback;
+    const QVariant cookie = it.value().cookie;
     m_writtenTrkMessages.erase(it);
+    if (mutex)
+        mutex->unlock();
+    // Invoke callback
+    if (callback) {
+        TrkResult result1 = result;
+        result1.cookie = cookie;
+        callback(result1);
+    }
 }
 
 void TrkWriteQueue::queueTrkInitialPing()
 {
     // Ping, reset sequence count
     m_trkWriteToken = 0;
-    m_trkWriteQueue.append(TrkMessage(0, 0));
+    m_trkWriteQueue.append(TrkMessage(TrkPing, 0));
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -496,7 +503,7 @@ void WriterThread::queueTrkInitialPing()
 // Call this from the device read notification with the results.
 void WriterThread::slotHandleResult(const TrkResult &result)
 {
-    m_queue.slotHandleResult(result);
+    m_queue.slotHandleResult(result, &m_dataMutex);
     tryWrite(); // Have messages been enqueued in-between?
 }
 

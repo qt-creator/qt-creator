@@ -41,16 +41,12 @@ TrkOptionsWidget::TrkOptionsWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->gdbChooser->setExpectedKind(Utils::PathChooser::Command);
-    ui->cygwinChooser->setExpectedKind(Utils::PathChooser::Directory);
     ui->blueToothComboBox->addItems(TrkOptions::blueToothDevices());
     ui->serialComboBox->addItems(TrkOptions::serialPorts());
     connect(ui->commComboBox, SIGNAL(currentIndexChanged(int)), ui->commStackedWidget, SLOT(setCurrentIndex(int)));
     // No bluetooth on Windows yet...
 #ifdef Q_OS_WIN
-    ui->commComboBox->setEnabled(false);
-#else
-    ui->cygwinChooser->setVisible(false);
-    ui->cygwinLabel->setVisible(false);
+    ui->commGroupBox->setVisible(false);
 #endif
 }
 
@@ -78,7 +74,6 @@ void TrkOptionsWidget::setTrkOptions(const TrkOptions &o)
     const int serialPortIndex = qMax(0, ui->serialComboBox->findText(o.serialPort));
     ui->serialComboBox->setCurrentIndex(serialPortIndex);
     ui->gdbChooser->setPath(o.gdb);
-    ui->cygwinChooser->setPath(o.cygwin);
     const int blueToothIndex = qMax(0, ui->blueToothComboBox->findText(o.blueToothDevice));
     ui->blueToothComboBox->setCurrentIndex(blueToothIndex);
 }
@@ -88,7 +83,6 @@ TrkOptions TrkOptionsWidget::trkOptions() const
     TrkOptions rc;
     rc.mode = ui->commComboBox->currentIndex();
     rc.gdb = ui->gdbChooser->path();
-    rc.cygwin = ui->cygwinChooser->path();
     rc.blueToothDevice = ui->blueToothComboBox->currentText();
     rc.serialPort = ui->serialComboBox->currentText();
     return rc;

@@ -457,7 +457,7 @@ bool CdbDumperHelper::initKnownTypes(QString *errorMessage)
     QString callCmd;
     QTextStream(&callCmd) << ".call " << m_dumpObjectSymbol << "(1,0,0,0,0,0,0,0)";
     const char *outData;
-    if (!callDumper(callCmd, QByteArray(), &outData, false, errorMessage)) {
+    if (callDumper(callCmd, QByteArray(), &outData, false, errorMessage) != CallOk) {
         return false;
     }
     if (!m_helper.parseQuery(outData, QtDumperHelper::CdbDebugger)) {
@@ -490,8 +490,9 @@ bool CdbDumperHelper::writeToDebuggee(CIDebugDataSpaces *ds, const QByteArray &b
     return true;
 }
 
-bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuffer, const char **outDataPtr,
-                                 bool ignoreAccessViolation, QString *errorMessage)
+CdbDumperHelper::CallResult
+    CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuffer, const char **outDataPtr,
+                                bool ignoreAccessViolation, QString *errorMessage)
 {
     *outDataPtr = 0;
     CdbExceptionLoggerEventCallback exLogger(LogWarning, m_manager);
@@ -499,10 +500,10 @@ bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuf
     // write input buffer
     if (!inBuffer.isEmpty()) {
         if (!writeToDebuggee(m_cif->debugDataSpaces, inBuffer, m_inBufferAddress, errorMessage))
-            return false;
+            return CallFailed;
     }
     if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, callCmd, errorMessage))
-        return false;
+        return CallSyntaxError;
     // Set up call and a temporary breakpoint after it.
     // Try to skip debuggee crash exceptions and dumper exceptions
     // by using 'gN' (go not handled -> pass handling to dumper __try/__catch block)
@@ -514,11 +515,11 @@ bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuf
         if (i)
             goCmd = QLatin1Char('N');
         if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, goCmd, errorMessage))
-            return false;
+            return CallFailed;
         HRESULT hr = m_cif->debugControl->WaitForEvent(0, waitTimeOutMS);
         if (FAILED(hr)) {
             *errorMessage = msgComFailed("WaitForEvent", hr);
-            return false;
+            return CallFailed;
         }
         const int newExceptionCount = exLogger.exceptionCount();
         // no new exceptions? -> break
@@ -535,13 +536,13 @@ bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuf
     if (exLogger.exceptionCount()) {
         const QString exMsgs = exLogger.exceptionMessages().join(QString(QLatin1Char(',')));
         *errorMessage = QString::fromLatin1("Exceptions occurred during the dumper call: %1").arg(exMsgs);
-        return false;
+        return CallFailed;
     }
     // Read output
     const HRESULT hr = m_cif->debugDataSpaces->ReadVirtual(m_outBufferAddress, m_buffer, m_outBufferSize, 0);
     if (FAILED(hr)) {
         *errorMessage = msgComFailed("ReadVirtual", hr);
-        return false;
+        return CallFailed;
     }
     // see QDumper implementation
     const char result = m_buffer[0];
@@ -550,16 +551,16 @@ bool CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuf
         break;
     case '+':
         *errorMessage = QString::fromLatin1("Dumper call '%1' resulted in output overflow.").arg(callCmd);
-        return false;
+        return CallFailed;
     case 'f':
         *errorMessage = QString::fromLatin1("Dumper call '%1' failed.").arg(callCmd);
-        return false;
+        return CallFailed;
     default:
         *errorMessage = QString::fromLatin1("Dumper call '%1' failed ('%2').").arg(callCmd).arg(QLatin1Char(result));
-        return false;
+        return CallFailed;
     }
     *outDataPtr = m_buffer + 1;
-    return true;
+    return CallOk;
 }
 
 static inline QString msgDumpFailed(const WatchData &wd, const QString *why)
@@ -640,12 +641,11 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpTypeI(const WatchData &wd, bool
     const DumpExecuteResult der = executeDump(wd, td, dumpChildren, result, errorMessage);
     if (der == DumpExecuteOk)
         return DumpOk;
-    // Cache types that fail due to complicated template size expressions.
-    // Exceptions OTOH might occur when accessing variables that are not
-    // yet initialized in a particular breakpoint. That should be ignored.
-    // Also fail for complex expression that were not cached/replaced by the helper.
-    if (der == DumpExecuteSizeFailed || der == DumpComplexExpressionEncountered)
+    if (der == CallSyntaxError) {
         m_failedTypes.push_back(wd.type);
+        if (dumpDebug)
+            qDebug() << "Caching failing type/expression evaluation failed for " << wd.type;
+       }
     // log error
     *errorMessage = msgDumpFailed(wd, errorMessage);
     m_manager->showDebuggerOutput(LogWarning, *errorMessage);
@@ -661,37 +661,13 @@ CdbDumperHelper::DumpExecuteResult
     QStringList extraParameters;
     // Build parameter list.
     m_helper.evaluationParameters(wd, td, QtDumperHelper::CdbDebugger, &inBuffer, &extraParameters);
-    // If the parameter list contains sizeof-expressions, execute them separately
-    // and replace them by the resulting numbers
-    const QString sizeOfExpr = QLatin1String("sizeof");
-    const QStringList::iterator eend = extraParameters.end();
-    for (QStringList::iterator it = extraParameters.begin() ; it != eend; ++it) {
-        // Strip 'sizeof(X)' to 'X' and query size
-        QString &ep = *it;
-        if (ep.startsWith(sizeOfExpr)) {
-            int size;
-            ep.truncate(ep.lastIndexOf(QLatin1Char(')')));
-            ep.remove(0, ep.indexOf(QLatin1Char('(')) + 1);
-            const bool sizeOk = getTypeSize(ep, &size, errorMessage);
-            if (loadDebug)
-                qDebug() << "Size" << sizeOk << size << ep;
-            if (!sizeOk)
-                return DumpExecuteSizeFailed;
-            ep = QString::number(size);
-            continue;
-        }
-        // We cannot evaluate any other expressions than 'sizeof()' ;-(
-        if (!ep.isEmpty() && !ep.at(0).isDigit()) {
-            *errorMessage = QString::fromLatin1("Unable to evaluate: '%1'").arg(ep);
-            return DumpComplexExpressionEncountered;
-        }
-    }
-    // Execute call
     QString callCmd;
-    QTextStream(&callCmd) << ".call " << m_dumpObjectSymbol
-            << "(2,0," << wd.addr << ','
-            << (dumpChildren ? 1 : 0) << ',' << extraParameters.join(QString(QLatin1Char(','))) << ')';
-    if (loadDebug)
+    QTextStream str(&callCmd);
+    str << ".call " << m_dumpObjectSymbol << "(2,0," << wd.addr << ',' << (dumpChildren ? 1 : 0);
+    foreach(const QString &e, extraParameters)
+        str << ',' << e;
+    str << ')';
+    if (dumpDebug)
         qDebug() << "Query: " << wd.toString() << "\nwith: " << callCmd << '\n';
     const char *outputData;
     // Completely ignore EXCEPTION_ACCESS_VIOLATION crashes in the dumpers.
@@ -700,8 +676,14 @@ CdbDumperHelper::DumpExecuteResult
         *errorMessage = eb.errorString();
         return DumpExecuteCallFailed;
     }
-    if (!callDumper(callCmd, inBuffer, &outputData, true, errorMessage))
+    switch (callDumper(callCmd, inBuffer, &outputData, true, errorMessage)) {
+    case CallFailed:
         return DumpExecuteCallFailed;
+    case CallSyntaxError:
+        return DumpExpressionFailed;
+    case CallOk:
+        break;
+    }
     if (!QtDumperHelper::parseValue(outputData, result)) {
         *errorMessage = QLatin1String("Parsing of value query output failed.");
         return DumpExecuteCallFailed;

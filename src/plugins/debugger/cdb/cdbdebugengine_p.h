@@ -57,7 +57,7 @@ class DebuggerEngineLibrary
 {
 public:
     DebuggerEngineLibrary();
-    bool init(const QString &path, QString *errorMessage);
+    bool init(const QString &path, QString *dbgEngDLL, QString *errorMessage);
 
     inline HRESULT debugCreate(REFIID interfaceId, PVOID *interfaceHandle) const
         { return m_debugCreate(interfaceId, interfaceHandle); }
@@ -108,8 +108,9 @@ struct CdbDebugEnginePrivate
                                    const QSharedPointer<CdbOptions> &options,
                                    CdbDebugEngine* engine);
     bool init(QString *errorMessage);
-    ~CdbDebugEnginePrivate();
+        ~CdbDebugEnginePrivate();
 
+    void checkVersion();
     void processCreatedAttached(ULONG64 processHandle, ULONG64 initialThreadHandle);
     void setDebuggeeHandles(HANDLE hDebuggeeProcess,  HANDLE hDebuggeeThread);
 
@@ -177,6 +178,7 @@ struct CdbDebugEnginePrivate
 
     DebuggerStartMode m_mode;
     Utils::ConsoleProcess m_consoleStubProc;
+    QString m_dbengDLL;
 };
 
 // helper functions

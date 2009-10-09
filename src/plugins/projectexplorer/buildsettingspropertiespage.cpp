@@ -109,6 +109,7 @@ void BuildSettingsSubWidgets::addWidget(const QString &name, QWidget *widget)
     layout()->addWidget(label);
     layout()->addWidget(widget);
 
+    m_spacerItems.append(item);
     m_labels.append(label);
     m_widgets.append(widget);
 }
@@ -122,6 +123,7 @@ void BuildSettingsSubWidgets::clear()
     qDeleteAll(m_labels);
     m_widgets.clear();
     m_labels.clear();
+    m_spacerItems.clear();
 }
 
 QList<QWidget *> BuildSettingsSubWidgets::widgets() const
@@ -306,13 +308,16 @@ void BuildSettingsWidget::cloneConfiguration(const QString &sourceConfiguration)
         return;
 
     QString newDisplayName = newBuildConfiguration;
-    // Check that the internal name is not taken and use a different one otherwise
-    if (m_project->buildConfiguration(newBuildConfiguration)) {
-        int i = 2;
-        while (m_project->buildConfiguration(newBuildConfiguration + QString::number(i)))
-            ++i;
-        newBuildConfiguration += QString::number(i);
-    }
+    QStringList buildConfigurationDisplayNames;
+    foreach(BuildConfiguration *bc, m_project->buildConfigurations())
+        buildConfigurationDisplayNames << bc->displayName();
+    newDisplayName = Project::makeUnique(newDisplayName, buildConfigurationDisplayNames);
+
+    QStringList buildConfigurationNames;
+    foreach(BuildConfiguration *bc, m_project->buildConfigurations())
+        buildConfigurationNames << bc->name();
+
+    newBuildConfiguration = Project::makeUnique(newBuildConfiguration, buildConfigurationNames);
 
     m_project->copyBuildConfiguration(sourceConfiguration, newBuildConfiguration);
     m_project->setDisplayNameFor(m_project->buildConfiguration(newBuildConfiguration), newDisplayName);

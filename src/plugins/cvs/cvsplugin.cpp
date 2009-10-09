@@ -264,9 +264,7 @@ bool CVSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ami->registerAction(m_addAction, CMD_ID_ADD,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
-#ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+A")));
-#endif
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     cvsMenu->addAction(command);
 
@@ -296,9 +294,7 @@ bool CVSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ami->registerAction(m_diffCurrentAction,
         CMD_ID_DIFF_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
-#ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+D")));
-#endif
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     cvsMenu->addAction(command);
 
@@ -314,9 +310,7 @@ bool CVSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ami->registerAction(m_commitCurrentAction,
         CMD_ID_COMMIT_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
-#ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+C")));
-#endif
     connect(m_commitCurrentAction, SIGNAL(triggered()), this, SLOT(startCommitCurrentFile()));
     cvsMenu->addAction(command);
 

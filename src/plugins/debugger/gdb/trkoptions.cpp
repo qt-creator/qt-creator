@@ -54,24 +54,6 @@ static const char *modeKeyC = "Mode";
 static const char *blueToothDeviceKeyC = "BlueToothDevice";
 static const char *blueToothDeviceDefaultC = "/dev/rfcomm0";
 static const char *gdbKeyC = "gdb";
-static const char *cygwinKeyC = "Cygwin";
-
-static inline QString cygwinDefault()
-{
-#ifdef Q_OS_WIN
-    // Some smartness to check for Cygwin
-    static bool firstTime = true;
-    static QString rc = QLatin1String("C:/cygwin");
-    if (firstTime) {
-        if (!QFileInfo(rc).isDir())
-            rc.clear();
-        firstTime = false;
-    }
-    return rc;
-#else
-    return QString();
-#endif
-}
 
 namespace Debugger {
 namespace Internal {
@@ -80,8 +62,7 @@ TrkOptions::TrkOptions() :
         mode(modeDefault),
         serialPort(QLatin1String(serialPortDefaultC)),
         blueToothDevice(QLatin1String(blueToothDeviceDefaultC)),
-        gdb(QLatin1String(gdbDefaultC)),
-        cygwin(cygwinDefault())
+        gdb(QLatin1String(gdbDefaultC))
 {
 }
 
@@ -91,7 +72,6 @@ void TrkOptions::fromSettings(const QSettings *s)
     mode = s->value(keyRoot + QLatin1String(modeKeyC), modeDefault).toInt();
     serialPort = s->value(keyRoot + QLatin1String(serialPortKeyC), QLatin1String(serialPortDefaultC)).toString();
     gdb =  s->value(keyRoot + QLatin1String(gdbKeyC),QLatin1String(gdbDefaultC)).toString();
-    cygwin = s->value(keyRoot + QLatin1String(cygwinKeyC), cygwinDefault()).toString();
     blueToothDevice = s->value(keyRoot + QLatin1String(blueToothDeviceKeyC), QLatin1String(blueToothDeviceDefaultC)).toString();
 }
 
@@ -102,7 +82,6 @@ void TrkOptions::toSettings(QSettings *s) const
     s->setValue(QLatin1String(serialPortKeyC), serialPort);
     s->setValue(QLatin1String(blueToothDeviceKeyC), blueToothDevice);
     s->setValue(QLatin1String(gdbKeyC), gdb);
-    s->setValue(QLatin1String(cygwinKeyC), cygwin);
     s->endGroup();
 }
 
@@ -117,10 +96,6 @@ bool TrkOptions::check(QString *errorMessage) const
         *errorMessage = QCoreApplication::translate("TrkOptions", "The Symbian gdb executable '%1' could not be found in the search path.").arg(gdb);
         return false;
     }
-    if (!cygwin.isEmpty() && !QFileInfo(cygwin).isDir()) {
-        *errorMessage = QCoreApplication::translate("TrkOptions", "The Cygwin directory '%1' does not exist.").arg(cygwin);
-        return false;
-    }
     return true;
 }
 
@@ -129,8 +104,7 @@ bool TrkOptions::equals(const  TrkOptions &o) const
     return mode == o.mode
             && serialPort == o.serialPort
             && blueToothDevice == o.blueToothDevice
-            && gdb == o.gdb
-            && cygwin == o.cygwin;
+            && gdb == o.gdb;
 }
 
 QStringList TrkOptions::serialPorts()

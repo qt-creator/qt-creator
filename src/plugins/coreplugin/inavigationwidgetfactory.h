@@ -45,7 +45,7 @@ namespace Core {
 struct NavigationView
 {
     QWidget *widget;
-    QList<QToolButton *> doockToolBarWidgets;
+    QList<QToolButton *> dockToolBarWidgets;
 };
 
 class CORE_EXPORT INavigationWidgetFactory : public QObject

@@ -325,43 +325,39 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(m_d->m_goForwardAction, SIGNAL(triggered()), this, SLOT(goForwardInNavigationHistory()));
 
+#ifdef Q_WS_MAC
+    QString prefix = tr("Meta+E");
+#else
+    QString prefix = tr("Ctrl+E");
+#endif
+
     m_d->m_splitAction = new QAction(tr("Split"), this);
     cmd = am->registerAction(m_d->m_splitAction, Constants::SPLIT, editManagerContext);
-#ifndef Q_WS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,2")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(tr("%1,2").arg(prefix)));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_d->m_splitAction, SIGNAL(triggered()), this, SLOT(split()));
 
     m_d->m_splitSideBySideAction = new QAction(tr("Split Side by Side"), this);
     cmd = am->registerAction(m_d->m_splitSideBySideAction, Constants::SPLIT_SIDE_BY_SIDE, editManagerContext);
-#ifndef Q_WS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,3")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(tr("%1,3").arg(prefix)));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_d->m_splitSideBySideAction, SIGNAL(triggered()), this, SLOT(splitSideBySide()));
 
     m_d->m_removeCurrentSplitAction = new QAction(tr("Remove Current Split"), this);
     cmd = am->registerAction(m_d->m_removeCurrentSplitAction, Constants::REMOVE_CURRENT_SPLIT, editManagerContext);
-#ifndef Q_WS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,0")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(tr("%1,0").arg(prefix)));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_d->m_removeCurrentSplitAction, SIGNAL(triggered()), this, SLOT(removeCurrentSplit()));
 
     m_d->m_removeAllSplitsAction = new QAction(tr("Remove All Splits"), this);
     cmd = am->registerAction(m_d->m_removeAllSplitsAction, Constants::REMOVE_ALL_SPLITS, editManagerContext);
-#ifndef Q_WS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,1")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(tr("%1,1").arg(prefix)));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_d->m_removeAllSplitsAction, SIGNAL(triggered()), this, SLOT(removeAllSplits()));
 
     m_d->m_gotoOtherSplitAction = new QAction(tr("Goto Other Split"), this);
     cmd = am->registerAction(m_d->m_gotoOtherSplitAction, Constants::GOTO_OTHER_SPLIT, editManagerContext);
-#ifndef Q_WS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+E,o")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(tr("%1,o").arg(prefix)));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_d->m_gotoOtherSplitAction, SIGNAL(triggered()), this, SLOT(gotoOtherSplit()));
 

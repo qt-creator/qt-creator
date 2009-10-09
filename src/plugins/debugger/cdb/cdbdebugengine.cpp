@@ -236,7 +236,9 @@ static inline QString libPath(const QString &libName, const QString &path = QStr
     return rc;
 }
 
-bool DebuggerEngineLibrary::init(const QString &path, QString *errorMessage)
+bool DebuggerEngineLibrary::init(const QString &path,
+                                 QString *dbgEngDLL,
+                                 QString *errorMessage)
 {
     // Load the dependent help lib first
     const QString helpLibPath = libPath(QLatin1String(dbgHelpDllC), path);
@@ -252,6 +254,7 @@ bool DebuggerEngineLibrary::init(const QString &path, QString *errorMessage)
         *errorMessage = msgLibLoadFailed(engineLibPath, lib.errorString());
         return false;
     }
+    *dbgEngDLL = engineLibPath;
     // Locate symbols
     void *createFunc = lib.resolve(debugCreateFuncC);
     if (!createFunc) {
@@ -317,9 +320,8 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
     enum {  bufLen = 10240 };
     // Load the DLL
     DebuggerEngineLibrary lib;
-    if (!lib.init(m_options->path, errorMessage))
+    if (!lib.init(m_options->path, &m_dbengDLL, errorMessage))
         return false;
-
     // Initialize the COM interfaces
     HRESULT hr;
     hr = lib.debugCreate( __uuidof(IDebugClient5), reinterpret_cast<void**>(&m_cif.debugClient));
@@ -587,9 +589,38 @@ void CdbDebugEnginePrivate::clearDisplay()
     manager()->registerHandler()->removeAll();
 }
 
+void CdbDebugEnginePrivate::checkVersion()
+{
+    static bool versionNotChecked = true;
+    // Check for version 6.11 (extended expression syntax)
+    if (versionNotChecked) {
+        versionNotChecked = false;
+        // Get engine DLL version
+        QString errorMessage;
+        const QString version = Utils::winGetDLLVersion(Utils::WinDLLProductVersion, m_dbengDLL, &errorMessage);
+        if (version.isEmpty()) {
+            qWarning("%s\n", qPrintable(errorMessage));
+            return;
+        }
+        // Compare
+        const double minVersion = 6.11;
+        manager()->showDebuggerOutput(LogMisc, CdbDebugEngine::tr("Version: %1").arg(version));
+        if (version.toDouble() <  minVersion) {
+            const QString msg = CdbDebugEngine::tr(
+                    "<html>The installed version of the <i>Debugging Tools for Windows</i> (%1) "
+                    "is rather old. Upgrading to version %2 is recommended "
+                    "for the proper display of Qt's data types.</html>").arg(version).arg(minVersion);
+            Core::ICore::instance()->showWarningWithOptions(CdbDebugEngine::tr("Debugger"), msg, QString(),
+                                                            QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY),
+                                                            CdbOptionsPage::settingsId());
+        }
+    }
+}
+
 void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
-{    
+{
     setState(AdapterStarting, Q_FUNC_INFO, __LINE__);
+    m_d->checkVersion();
     if (m_d->m_hDebuggeeProcess) {
         warning(QLatin1String("Internal error: Attempt to start debugger while another process is being debugged."));
         setState(AdapterStartFailed, Q_FUNC_INFO, __LINE__);

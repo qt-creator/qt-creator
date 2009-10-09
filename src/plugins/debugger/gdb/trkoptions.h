@@ -40,8 +40,7 @@ namespace Debugger {
 namespace Internal {
 
 /* Parameter to be used for debugging S60 via TRK.
- * GDB is a Symbian-ARM Gdb. It is Cygwin-built on Windows; the cygwin
- * location 'x/bin' will prepended to the execution path.
+ * GDB is a Symbian-ARM Gdb.
  * Communication happens either via BlueTooth (Linux only) or
  * serial ports. */
 
@@ -64,7 +63,6 @@ struct TrkOptions
     QString serialPort;
     QString blueToothDevice;
     QString gdb;
-    QString cygwin; // ignored on Linux
 };
 
 inline bool operator==(const TrkOptions &o1, const TrkOptions &o2)

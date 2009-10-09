@@ -87,11 +87,6 @@ public:
     explicit GdbEngine(DebuggerManager *manager);
     ~GdbEngine();
 
-signals:
-    void gdbInputAvailable(int channel, const QString &msg);
-    void gdbOutputAvailable(int channel, const QString &msg);
-    void applicationOutputAvailable(const QString &output);
-
 private:
     friend class AbstractGdbAdapter;
     friend class AttachGdbAdapter;
@@ -115,6 +110,8 @@ private:
     void exitDebugger();
     void detachDebugger();
 
+    void continueInferiorInternal();
+    void autoContinueInferior();
     void continueInferior();
     void interruptInferior();
 
@@ -233,6 +230,11 @@ private:
     void updateAll();
     void updateLocals();
 
+    void gdbInputAvailable(int channel, const QString &msg)
+    { m_manager->showDebuggerInput(channel, msg); }
+    void gdbOutputAvailable(int channel, const QString &msg)
+    { m_manager->showDebuggerOutput(channel, msg); }
+
 private slots:
     void readGdbStandardOutput();
     void readGdbStandardError();
@@ -255,8 +257,9 @@ private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
     void handleStart(const GdbResponse &response);
-    void handleAsyncOutput(const GdbMi &data);
+    void handleStopResponse(const GdbMi &data);
     void handleStop1(const GdbResponse &response);
+    void handleStop1(const GdbMi &data);
     void handleStop2(const GdbResponse &response);
     void handleStop2(const GdbMi &data);
     void handleResultRecord(const GdbResponse &response);
@@ -275,6 +278,7 @@ private:
     QMainWindow *mainWindow() const;
     DebuggerStartMode startMode() const;
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
+    void handleInferiorPidChanged(qint64 pid) { manager()->notifyInferiorPidChanged(pid); }
 
     void handleChildren(const WatchData &parent, const GdbMi &child,
         QList<WatchData> *insertions);

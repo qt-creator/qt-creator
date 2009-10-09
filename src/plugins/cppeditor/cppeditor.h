@@ -194,12 +194,6 @@ public Q_SLOTS:
     void findUsages();
     void renameUsagesNow();
 
-    void moveToPreviousToken();
-    void moveToNextToken();
-
-    void deleteStartOfToken();
-    void deleteEndOfToken();
-
 protected:
     bool event(QEvent *e);
     void contextMenuEvent(QContextMenuEvent *);
@@ -231,23 +225,19 @@ private Q_SLOTS:
     void updateUses();
     void updateUsesNow();
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
-    void reformatDocument();
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
 
     void semanticRehighlight();
     void updateSemanticInfo(const SemanticInfo &semanticInfo);
 
 private:
+    CPlusPlus::Symbol *markSymbols();
     bool sortedMethodOverview() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol);
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
 
     TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
                                              int column = 0);
-
-    int previousBlockState(QTextBlock block) const;
-    QTextCursor moveToPreviousToken(QTextCursor::MoveMode mode) const;
-    QTextCursor moveToNextToken(QTextCursor::MoveMode mode) const;
 
     SemanticHighlighter::Source currentSource();
 

@@ -74,7 +74,7 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
     m_signingMode(SignSelf)
 {
     if (!m_proFilePath.isEmpty())
-        setName(tr("%1 on S60 Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
+        setName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
         setName(tr("QtS60DeviceRunConfiguration"));
 
@@ -470,7 +470,7 @@ QStringList S60DeviceRunConfigurationFactory::availableCreationTypes(Project *pr
         QStringList applicationProFiles;
         QList<Qt4ProFileNode *> list = qt4project->applicationProFiles();
         foreach (Qt4ProFileNode * node, list) {
-            applicationProFiles.append("QtS60DeviceRunConfiguration." + node->path());
+            applicationProFiles.append("QtSymbianDeviceRunConfiguration." + node->path());
         }
         return applicationProFiles;
     } else {
@@ -480,16 +480,16 @@ QStringList S60DeviceRunConfigurationFactory::availableCreationTypes(Project *pr
 
 QString S60DeviceRunConfigurationFactory::displayNameForType(const QString &type) const
 {
-    QString fileName = type.mid(QString("QtS60DeviceRunConfiguration.").size());
-    return tr("%1 on S60 Device").arg(QFileInfo(fileName).completeBaseName());
+    QString fileName = type.mid(QString("QtSymbianDeviceRunConfiguration.").size());
+    return tr("%1 on Symbian Device").arg(QFileInfo(fileName).completeBaseName());
 }
 
 QSharedPointer<RunConfiguration> S60DeviceRunConfigurationFactory::create(Project *project, const QString &type)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(p);
-    if (type.startsWith("QtS60DeviceRunConfiguration.")) {
-        QString fileName = type.mid(QString("QtS60DeviceRunConfiguration.").size());
+    if (type.startsWith("QtSymbianDeviceRunConfiguration.")) {
+        QString fileName = type.mid(QString("QtSymbianDeviceRunConfiguration.").size());
         return QSharedPointer<RunConfiguration>(new S60DeviceRunConfiguration(p, fileName));
     }
     Q_ASSERT(type == "Qt4ProjectManager.DeviceRunConfiguration");
@@ -564,7 +564,8 @@ void S60DeviceRunControlBase::start()
     if (!checkConfiguration(&errorMessage, &settingsCategory, &settingsPage)) {
         error(this, errorMessage);
         emit finished();
-        Core::ICore::instance()->showWarningWithOptions(tr("S60 Debugger"), errorMessage, QString(),
+        Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
+                                                        errorMessage, QString(),
                                                         settingsCategory, settingsPage);
         return;
     }

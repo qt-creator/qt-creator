@@ -160,6 +160,11 @@ public:
     Qt4Manager *qt4ProjectManager() const;
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
+    void addQt4BuildConfiguration(QString buildConfigurationName,
+                               QtVersion *qtversion,
+                               QtVersion::QmakeBuildConfig qmakeBuildConfiguration,
+                               QStringList additionalArguments = QStringList());
+
     QList<Core::IFile *> dependencies();     //NBS remove
     QList<ProjectExplorer::Project *>dependsOn();
 

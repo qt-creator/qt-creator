@@ -168,11 +168,11 @@ void S60Manager::updateQtVersions()
             }
         }
         if (deviceVersion) {
-            deviceVersion->setName(QString("%1 (Qt %2)").arg(device.id, deviceVersion->qtVersionString()));
             deviceVersion->setQMakeCommand(device.qt+"/bin/qmake.exe");
+            deviceVersion->setName(QString("%1 (Qt %2)").arg(device.id, deviceVersion->qtVersionString()));
             handledVersions.append(deviceVersion);
         } else {
-            deviceVersion = new QtVersion(QString("%1 (Qt %2)").arg(device.id), device.qt,
+            deviceVersion = new QtVersion(QString("%1 (Qt %2)").arg(device.id), device.qt+"/bin/qmake.exe",
                                           true, QString("%1.%2").arg(S60_AUTODETECTION_SOURCE, device.id));
             deviceVersion->setName(deviceVersion->name().arg(deviceVersion->qtVersionString()));
             versionsToAdd.append(deviceVersion);
