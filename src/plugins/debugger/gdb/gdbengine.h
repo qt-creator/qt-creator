@@ -259,6 +259,7 @@ private:
     void handleStart(const GdbResponse &response);
     void handleStopResponse(const GdbMi &data);
     void handleStop1(const GdbResponse &response);
+    void handleStop1(const GdbMi &data);
     void handleStop2(const GdbResponse &response);
     void handleStop2(const GdbMi &data);
     void handleResultRecord(const GdbResponse &response);

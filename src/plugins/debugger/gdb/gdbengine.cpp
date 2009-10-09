@@ -1110,8 +1110,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 
     if (isStoppedReason(reason) || reason.isEmpty()) {
-        QVariant var = QVariant::fromValue<GdbMi>(data);
-
         // Don't load helpers on stops triggered by signals unless it's
         // an intentional trap.
         bool initHelpers = m_debuggingHelperState == DebuggingHelperUninitialized;
@@ -1121,11 +1119,10 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             
         if (initHelpers) {
             tryLoadDebuggingHelpers();
+            QVariant var = QVariant::fromValue<GdbMi>(data);
             postCommand(_("p 4"), CB(handleStop1), var);  // dummy
         } else {
-            GdbResponse response;
-            response.cookie = var;
-            handleStop1(response);
+            handleStop1(data);
         }
         return;
     }
@@ -1153,7 +1150,11 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
 void GdbEngine::handleStop1(const GdbResponse &response)
 {
-    GdbMi data = response.cookie.value<GdbMi>();
+    handleStop1(response.cookie.value<GdbMi>());
+}
+
+void GdbEngine::handleStop1(const GdbMi &data)
+{
     QByteArray reason = data.findChild("reason").data();
     if (m_modulesListOutdated) {
         reloadModules();
