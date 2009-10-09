@@ -179,7 +179,6 @@ private:
     QQueue<TrkMessage> m_trkWriteQueue;
     TokenMessageMap m_writtenTrkMessages;
     bool m_trkWriteBusy;
-    QMutex m_dataMutex;
 };
 
 TrkWriteQueue::TrkWriteQueue() :
@@ -199,7 +198,6 @@ byte TrkWriteQueue::nextTrkWriteToken()
 void TrkWriteQueue::queueTrkMessage(byte code, TrkCallback callback,
     const QByteArray &data, const QVariant &cookie)
 {
-    QMutexLocker locker(&m_dataMutex);
     const byte token = code == TRK_WRITE_QUEUE_NOOP_CODE ?
                                 byte(0) : nextTrkWriteToken();
     TrkMessage msg(code, token, callback);
@@ -210,7 +208,6 @@ void TrkWriteQueue::queueTrkMessage(byte code, TrkCallback callback,
 
 TrkWriteQueue::PendingMessageResult TrkWriteQueue::pendingMessage(TrkMessage *message)
 {
-    QMutexLocker locker(&m_dataMutex);
     // Invoked from timer, try to flush out message queue
     if (m_trkWriteBusy || m_trkWriteQueue.isEmpty())
         return NoMessage;
@@ -239,7 +236,6 @@ void TrkWriteQueue::invokeNoopMessage(trk::TrkMessage noopMessage)
 
 void TrkWriteQueue::notifyWriteResult(WriteResult wr)
 {
-    QMutexLocker locker(&m_dataMutex);
     // On success, dequeue message and await result
     const byte token = m_trkWriteQueue.front().token;
     switch (wr) {
@@ -258,7 +254,6 @@ void TrkWriteQueue::notifyWriteResult(WriteResult wr)
 
 void TrkWriteQueue::slotHandleResult(const TrkResult &result)
 {
-    QMutexLocker locker(&m_dataMutex);
     m_trkWriteBusy = false;
     //if (result.code != TrkNotifyAck && result.code != TrkNotifyNak)
     //    return;
@@ -267,22 +262,18 @@ void TrkWriteQueue::slotHandleResult(const TrkResult &result)
     const TokenMessageMap::iterator it = m_writtenTrkMessages.find(result.token);
     if (it == m_writtenTrkMessages.end())
         return;
-    TrkCallback callback = it.value().callback;
-    if (callback) {
+    const bool invokeCB = it.value().callback;
+    if (invokeCB) {
         TrkResult result1 = result;
         result1.cookie = it.value().cookie;
-        m_writtenTrkMessages.erase(it);
-        locker.unlock();
-        callback(result1);
-    } else {
-        m_writtenTrkMessages.erase(it);
+        it.value().callback(result1);
     }
+    m_writtenTrkMessages.erase(it);
 }
 
 void TrkWriteQueue::queueTrkInitialPing()
 {
     // Ping, reset sequence count
-    QMutexLocker locker(&m_dataMutex);
     m_trkWriteToken = 0;
     m_trkWriteQueue.append(TrkMessage(0, 0));
 }
@@ -357,6 +348,7 @@ private:
     inline int writePendingMessage();
 
     const QSharedPointer<DeviceContext> m_context;
+    QMutex m_dataMutex;
     QMutex m_waitMutex;
     QWaitCondition m_waitCondition;
     TrkWriteQueue m_queue;
@@ -390,8 +382,10 @@ int WriterThread::writePendingMessage()
     if (m_terminate)
         return 1;
     // Send off message
+    m_dataMutex.lock();
     TrkMessage message;
     const TrkWriteQueue::PendingMessageResult pr = m_queue.pendingMessage(&message);
+    m_dataMutex.unlock();
     switch (pr) {
     case TrkWriteQueue::NoMessage:
         break;
@@ -408,7 +402,9 @@ int WriterThread::writePendingMessage()
                 }
             }
             // Notify queue. If still failed, give up.
+            m_dataMutex.lock();
             m_queue.notifyWriteResult(success ? TrkWriteQueue::WriteOk : TrkWriteQueue::WriteFailedDiscard);
+            m_dataMutex.unlock();
         }
         break;
     case TrkWriteQueue::NoopMessageDequeued:
@@ -483,13 +479,17 @@ void WriterThread::tryWrite()
 void WriterThread::queueTrkMessage(byte code, TrkCallback callback,
                                    const QByteArray &data, const QVariant &cookie)
 {
+    m_dataMutex.lock();
     m_queue.queueTrkMessage(code, callback, data, cookie);
+    m_dataMutex.unlock();
     tryWrite();
 }
 
 void WriterThread::queueTrkInitialPing()
 {
+    m_dataMutex.lock();
     m_queue.queueTrkInitialPing();
+    m_dataMutex.unlock();
     tryWrite();
 }
 
