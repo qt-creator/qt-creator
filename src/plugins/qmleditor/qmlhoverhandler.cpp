@@ -132,7 +132,7 @@ static QString buildHelpId(QmlSymbol *symbol)
     if (!symbol)
         return QString();
 
-    const QString idTemplate(QLatin1String("QML %1 Element Reference"));
+    const QString idTemplate(QLatin1String("QML.%1"));
 
     return idTemplate.arg(symbol->name());
 }
