@@ -1037,15 +1037,13 @@ void GdbEngine::handleAsyncOutput(const GdbMi &data)
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         QTC_ASSERT(state() == InferiorStopping, qDebug() << state())
         setState(InferiorStopped);
-        showStatusMessage(tr("Stopped."), 5000);
-        // FIXME: racy
+        showStatusMessage(tr("Processing queued commands."), 1000);
         while (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
             GdbCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
             debugMessage(_("RUNNING QUEUED COMMAND %1 %2")
                 .arg(cmd.command).arg(_(cmd.callbackName)));
             flushCommand(cmd);
         }
-        showStatusMessage(tr("Processing queued commands."), 1000);
         QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
         m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
         return;
