@@ -232,6 +232,7 @@ private Q_SLOTS:
     void updateSemanticInfo(const SemanticInfo &semanticInfo);
 
 private:
+    CPlusPlus::Symbol *markSymbols();
     bool sortedMethodOverview() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol);
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);

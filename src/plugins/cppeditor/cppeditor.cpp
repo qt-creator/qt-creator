@@ -737,6 +737,9 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
                                                   Document::Ptr doc,
                                                   const Snapshot &snapshot) const
 {
+    if (! doc)
+        return 0;
+
     QTextCursor tc = cursor;
     int line, col;
     convertPosition(tc.position(), &line, &col);
@@ -768,16 +771,10 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
 
 
 void CPPEditor::findUsages()
-{
-    updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
-
-    SemanticInfo info = m_lastSemanticInfo;
-
-    if (! info.doc)
-        return;
-
-    if (Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot))
+{    
+    if (Symbol *canonicalSymbol = markSymbols()) {
         m_modelManager->findUsages(canonicalSymbol);
+    }
 }
 
 void CPPEditor::renameUsages()
@@ -790,7 +787,15 @@ void CPPEditor::renameUsages()
 
 void CPPEditor::renameUsagesNow()
 {
-    Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+    if (Symbol *canonicalSymbol = markSymbols()) {
+        Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+        m_modelManager->renameUsages(canonicalSymbol);
+    }
+}
+
+Symbol *CPPEditor::markSymbols()
+{
+    updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
     m_currentRenameSelection = -1;
 
@@ -798,35 +803,33 @@ void CPPEditor::renameUsagesNow()
 
     SemanticInfo info = m_lastSemanticInfo;
 
-    if (info.doc) {
-        if (Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot)) {
-            TranslationUnit *unit = info.doc->translationUnit();
+    Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot);
+    if (canonicalSymbol) {
+        TranslationUnit *unit = info.doc->translationUnit();
 
-            const QList<int> references = m_modelManager->references(canonicalSymbol, info.doc, info.snapshot);
-            foreach (int index, references) {
-                unsigned line, column;
-                unit->getTokenPosition(index, &line, &column);
+        const QList<int> references = m_modelManager->references(canonicalSymbol, info.doc, info.snapshot);
+        foreach (int index, references) {
+            unsigned line, column;
+            unit->getTokenPosition(index, &line, &column);
 
-                if (column)
-                    --column;  // adjust the column position.
+            if (column)
+                --column;  // adjust the column position.
 
-                const int len = unit->tokenAt(index).f.length;
+            const int len = unit->tokenAt(index).f.length;
 
-                QTextCursor cursor(document()->findBlockByNumber(line - 1));
-                cursor.setPosition(cursor.position() + column);
-                cursor.setPosition(cursor.position() + len, QTextCursor::KeepAnchor);
+            QTextCursor cursor(document()->findBlockByNumber(line - 1));
+            cursor.setPosition(cursor.position() + column);
+            cursor.setPosition(cursor.position() + len, QTextCursor::KeepAnchor);
 
-                QTextEdit::ExtraSelection sel;
-                sel.format = m_occurrencesFormat;
-                sel.cursor = cursor;
-                selections.append(sel);
-            }
-
-            setExtraSelections(CodeSemanticsSelection, selections);
-
-            m_modelManager->renameUsages(canonicalSymbol);
+            QTextEdit::ExtraSelection sel;
+            sel.format = m_occurrencesFormat;
+            sel.cursor = cursor;
+            selections.append(sel);
         }
     }
+
+    setExtraSelections(CodeSemanticsSelection, selections);
+    return canonicalSymbol;
 }
 
 void CPPEditor::renameSymbolUnderCursor()
