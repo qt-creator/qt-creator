@@ -177,6 +177,11 @@ public:
 
     bool debuggerActionsEnabled() const;
 
+    bool checkDebugConfiguration(int toolChain,
+                                 QString *errorMessage,
+                                 QString *settingsCategory = 0,
+                                 QString *settingsPage = 0) const;
+
     static DebuggerManager *instance();
 
 public slots:

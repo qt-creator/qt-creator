@@ -1442,6 +1442,24 @@ int GdbEngine::currentFrame() const
     return manager()->stackHandler()->currentIndex();
 }
 
+bool GdbEngine::checkConfiguration(int toolChain, QString *errorMessage, QString *settingsPage) const
+{
+    switch (toolChain) {
+    case ProjectExplorer::ToolChain::WINSCW: // S60
+    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        if (!m_trkAdapter->options()->check(errorMessage)) {
+            if (settingsPage)
+                *settingsPage = TrkOptionsPage::settingsId();
+            return false;
+        }
+    default:
+        break;
+    }
+    return true;
+}
+
 AbstractGdbAdapter *GdbEngine::determineAdapter(const DebuggerStartParametersPtr &sp) const
 {
     switch (sp->toolChainType) {
@@ -4056,7 +4074,8 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
 {
     setState(AdapterStartFailed);
     debugMessage(_("ADAPTER START FAILED"));
-    warningWithSettings(tr("Adapter start failed"), msg, QString(), settingsIdHint);
+    Core::ICore::instance()->showWarningWithOptions(tr("Adapter start failed"), msg, QString(),
+						    QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
     shutdown();
 }
 

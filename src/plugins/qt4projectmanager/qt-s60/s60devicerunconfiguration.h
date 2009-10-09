@@ -166,6 +166,10 @@ protected:
     virtual void handleLauncherFinished() = 0;
     void processFailed(const QString &program, QProcess::ProcessError errorCode);
 
+    virtual bool checkConfiguration(QString *errorMessage,
+                                    QString *settingsCategory,
+                                    QString *settingsPage) const;
+
 protected slots:
     void printApplicationOutput(const QString &output);
 
@@ -185,8 +189,8 @@ private slots:
     void printInstallFailed(const QString &filename, const QString &errorMessage);
     void launcherFinished();
 
-private:
-    bool createPackageFileFromTemplate();
+private:    
+    bool createPackageFileFromTemplate(QString *errorMessage);
 
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
@@ -240,9 +244,12 @@ public:
 
     virtual void stop();
 
-protected:
+protected:    
     virtual void initLauncher(const QString &executable, trk::Launcher *);
     virtual void handleLauncherFinished();
+    virtual bool checkConfiguration(QString *errorMessage,
+                                    QString *settingsCategory,
+                                    QString *settingsPage) const;
 
 private slots:
     void debuggingFinished();

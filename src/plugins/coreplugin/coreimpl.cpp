@@ -69,6 +69,17 @@ bool CoreImpl::showOptionsDialog(const QString &group, const QString &page, QWid
     return m_mainwindow->showOptionsDialog(group, page, parent);
 }
 
+bool CoreImpl::showWarningWithOptions(const QString &title, const QString &text,
+                                      const QString &details,
+                                      const QString &settingsCategory,
+                                      const QString &settingsId,
+                                      QWidget *parent)
+{
+    return m_mainwindow->showWarningWithOptions(title, text,
+                                                details, settingsCategory,
+                                                settingsId, parent);
+}
+
 ActionManager *CoreImpl::actionManager() const
 {
     return m_mainwindow->actionManager();

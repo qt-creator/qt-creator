@@ -117,6 +117,7 @@ public:
 
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const {}
     virtual bool isGdbEngine() const { return false; }
+    virtual bool checkConfiguration(int /* toolChain */, QString * /* errorMessage */, QString * /* settingsPage */ = 0) const { return true; }
 
 protected:
     void showStatusMessage(const QString &msg, int timeout = -1);

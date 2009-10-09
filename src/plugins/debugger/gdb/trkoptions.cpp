@@ -28,9 +28,11 @@
 **************************************************************************/
 
 #include "trkoptions.h"
+#include <utils/synchronousprocess.h>
 
 #include <QtCore/QSettings>
 #include <QtCore/QFileInfo>
+#include <QtCore/QCoreApplication>
 
 #ifdef Q_OS_WIN
 #    define SERIALPORT_ROOT "COM"
@@ -102,6 +104,24 @@ void TrkOptions::toSettings(QSettings *s) const
     s->setValue(QLatin1String(gdbKeyC), gdb);
     s->setValue(QLatin1String(cygwinKeyC), cygwin);
     s->endGroup();
+}
+
+bool TrkOptions::check(QString *errorMessage) const
+{
+    if (gdb.isEmpty()) {
+        *errorMessage = QCoreApplication::translate("TrkOptions", "No Symbian gdb executable specified.");
+        return false;
+    }
+    const QString expanded = Utils::SynchronousProcess::locateBinary(gdb);
+    if (expanded.isEmpty()) {
+        *errorMessage = QCoreApplication::translate("TrkOptions", "The Symbian gdb executable '%1' could not be found in the search path.").arg(gdb);
+        return false;
+    }
+    if (!cygwin.isEmpty() && !QFileInfo(cygwin).isDir()) {
+        *errorMessage = QCoreApplication::translate("TrkOptions", "The Cygwin directory '%1' does not exist.").arg(cygwin);
+        return false;
+    }
+    return true;
 }
 
 bool TrkOptions::equals(const  TrkOptions &o) const

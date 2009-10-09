@@ -75,6 +75,12 @@ public:
                                    const QString &page = QString(),
                                    QWidget *parent = 0) = 0;
 
+    virtual bool showWarningWithOptions(const QString &title, const QString &text,
+                                       const QString &details = QString(),
+                                       const QString &settingsCategory = QString(),
+                                       const QString &settingsId = QString(),
+                                       QWidget *parent = 0) = 0;
+
     virtual ActionManager *actionManager() const = 0;
     virtual FileManager *fileManager() const = 0;
     virtual UniqueIDManager *uniqueIDManager() const = 0;
