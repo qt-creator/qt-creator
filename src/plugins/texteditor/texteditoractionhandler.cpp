@@ -141,11 +141,15 @@ void TextEditorActionHandler::createActions()
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_formatAction, SIGNAL(triggered(bool)), this, SLOT(formatAction()));
 
+#ifdef Q_WS_MAC
+    QString modifier = tr("Meta");
+#else
+    QString modifier = tr("Ctrl");
+#endif
+
     m_rewrapParagraphAction = new QAction(tr("&Rewrap Paragraph"), this);
     command = am->registerAction(m_rewrapParagraphAction, TextEditor::Constants::REWRAP_PARAGRAPH, m_contextId);
-#ifndef Q_WS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+E, R")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(tr("%1+E, R").arg(modifier)));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_rewrapParagraphAction, SIGNAL(triggered(bool)), this, SLOT(rewrapParagraphAction()));
 
@@ -154,9 +158,7 @@ void TextEditorActionHandler::createActions()
     m_visualizeWhitespaceAction->setCheckable(true);
     command = am->registerAction(m_visualizeWhitespaceAction,
                                  TextEditor::Constants::VISUALIZE_WHITESPACE, m_contextId);
-#ifndef Q_WS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+E, Ctrl+V")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(tr("%1+E, %2+V").arg(modifier, modifier)));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_visualizeWhitespaceAction, SIGNAL(triggered(bool)), this, SLOT(setVisualizeWhitespace(bool)));
 
@@ -170,9 +172,7 @@ void TextEditorActionHandler::createActions()
     m_textWrappingAction = new QAction(tr("Enable Text &Wrapping"), this);
     m_textWrappingAction->setCheckable(true);
     command = am->registerAction(m_textWrappingAction, TextEditor::Constants::TEXT_WRAPPING, m_contextId);
-#ifndef Q_WS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+E, Ctrl+W")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(tr("%1+E, %2+W").arg(modifier, modifier)));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_textWrappingAction, SIGNAL(triggered(bool)), this, SLOT(setTextWrapping(bool)));
 
