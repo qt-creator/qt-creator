@@ -426,7 +426,7 @@ void NavigationSubWidget::setCurrentIndex(int index)
     layout()->addWidget(m_navigationWidget);
 
     // Add Toolbutton
-    m_additionalToolBarWidgets = n.doockToolBarWidgets;
+    m_additionalToolBarWidgets = n.dockToolBarWidgets;
     QHBoxLayout *layout = qobject_cast<QHBoxLayout *>(m_toolBar->layout());
     foreach (QToolButton *w, m_additionalToolBarWidgets) {
         layout->insertWidget(layout->count()-2, w);
