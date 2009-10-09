@@ -112,33 +112,6 @@ ProjectLoadWizard::~ProjectLoadWizard()
 
 }
 
-void ProjectLoadWizard::addBuildConfiguration(QString buildConfigurationName, QtVersion *qtversion, QtVersion::QmakeBuildConfig qmakeBuildConfiguration, QStringList additionalArguments)
-{
-    QMakeStep *qmakeStep = m_project->qmakeStep();
-    MakeStep *makeStep = m_project->makeStep();
-
-    bool debug = qmakeBuildConfiguration & QtVersion::DebugBuild;
-
-    // Add the buildconfiguration
-    ProjectExplorer::BuildConfiguration *bc = new ProjectExplorer::BuildConfiguration(buildConfigurationName);
-    m_project->addBuildConfiguration(bc);
-    const QString &finalBuildConfigurationName = bc->name();
-    qmakeStep->setValue(finalBuildConfigurationName, "qmakeArgs", additionalArguments);
-
-    // set some options for qmake and make
-    if (qmakeBuildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
-        makeStep->setValue(finalBuildConfigurationName, "makeargs", QStringList() << (debug ? "debug" : "release"));
-
-    bc->setValue("buildConfiguration", int(qmakeBuildConfiguration));
-
-    // Finally set the qt version
-    bool defaultQtVersion = (qtversion == 0);
-    if (defaultQtVersion)
-        m_project->setQtVersion(bc, 0);
-    else
-        m_project->setQtVersion(bc, qtversion->uniqueId());
-}
-
 void ProjectLoadWizard::done(int result)
 {
     QtVersionManager *vm = QtVersionManager::instance();
@@ -154,7 +127,7 @@ void ProjectLoadWizard::done(int result)
         // qDebug()<<"Creating m_buildconfiguration entry from imported stuff";
         // qDebug()<<((m_importBuildConfig& QtVersion::BuildAll)? "debug_and_release" : "")<<((m_importBuildConfig & QtVersion::DebugBuild)? "debug" : "release");
         bool debug = m_importBuildConfig & QtVersion::DebugBuild;
-        addBuildConfiguration(debug ? "Debug" : "Release", m_importVersion, m_importBuildConfig, m_additionalArguments);
+        m_project->addQt4BuildConfiguration(debug ? "Debug" : "Release", m_importVersion, m_importBuildConfig, m_additionalArguments);
 
         if (m_importBuildConfig & QtVersion::BuildAll) {
             // Also create the other configuration
@@ -164,7 +137,7 @@ void ProjectLoadWizard::done(int result)
             else
                 otherBuildConfiguration = QtVersion::QmakeBuildConfig(otherBuildConfiguration | QtVersion::DebugBuild);
 
-            addBuildConfiguration(debug ? "Release" : "Debug", m_importVersion, otherBuildConfiguration, m_additionalArguments);
+            m_project->addQt4BuildConfiguration(debug ? "Release" : "Debug", m_importVersion, otherBuildConfiguration, m_additionalArguments);
         }
     } else {
         // Not importing
@@ -176,11 +149,11 @@ void ProjectLoadWizard::done(int result)
         if (defaultVersion && defaultVersion->isValid() && (defaultVersion->defaultBuildConfig() & QtVersion::BuildAll))
             buildAll = true;
         if (buildAll) {
-            addBuildConfiguration("Debug", 0, QtVersion::QmakeBuildConfig(QtVersion::BuildAll | QtVersion::DebugBuild), m_additionalArguments);
-            addBuildConfiguration("Release", 0, QtVersion::BuildAll, m_additionalArguments);
+            m_project->addQt4BuildConfiguration("Debug", 0, QtVersion::QmakeBuildConfig(QtVersion::BuildAll | QtVersion::DebugBuild), m_additionalArguments);
+            m_project->addQt4BuildConfiguration("Release", 0, QtVersion::BuildAll, m_additionalArguments);
         } else {
-            addBuildConfiguration("Debug", 0, QtVersion::DebugBuild, m_additionalArguments);
-            addBuildConfiguration("Release", 0, QtVersion::QmakeBuildConfig(0), m_additionalArguments);
+            m_project->addQt4BuildConfiguration("Debug", 0, QtVersion::DebugBuild, m_additionalArguments);
+            m_project->addQt4BuildConfiguration("Release", 0, QtVersion::QmakeBuildConfig(0), m_additionalArguments);
         }
     }
 

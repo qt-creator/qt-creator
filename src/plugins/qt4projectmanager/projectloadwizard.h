@@ -57,7 +57,6 @@ public:
     void execDialog();
 
 private:
-    void addBuildConfiguration(QString name, QtVersion *qtversion, QtVersion::QmakeBuildConfig buildConfiguration, QStringList additionalArguments);
     void setupImportPage(QtVersion *version, QtVersion::QmakeBuildConfig buildConfig, QStringList addtionalArguments);
 
     Qt4Project *m_project;
