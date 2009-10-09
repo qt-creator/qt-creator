@@ -1710,29 +1710,6 @@ void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)
     }
 }
 
-#ifdef Q_OS_WIN
-
-// Prepend environment of the Symbian Gdb by Cygwin '/bin'
-static void setGdbCygwinEnvironment(const QString &cygwin, QProcess *process)
-{
-    if (cygwin.isEmpty() || !QFileInfo(cygwin).isDir())
-        return;
-    const QString cygwinBinPath = QDir::toNativeSeparators(cygwin) + QLatin1String("\\bin");
-    QStringList env = process->environment();
-    if (env.isEmpty())
-        env = QProcess::systemEnvironment();
-    const QRegExp pathPattern(QLatin1String("^PATH=.*"), Qt::CaseInsensitive);
-    const int index = env.indexOf(pathPattern);
-    if (index == -1)
-        return;
-    QString pathValue = env.at(index).mid(5);
-    if (pathValue.startsWith(cygwinBinPath))
-        return;
-    env[index] = QLatin1String("PATH=") + cygwinBinPath + QLatin1Char(';');
-    process->setEnvironment(env);
-}
-#endif
-
 void TrkGdbAdapter::startGdb()
 {
     QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
@@ -1762,9 +1739,6 @@ void TrkGdbAdapter::startGdb()
     gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
     gdbArgs.append(QLatin1String("-i"));
     gdbArgs.append(QLatin1String("mi"));
-#ifdef Q_OS_WIN
-    setGdbCygwinEnvironment(m_options->cygwin, &m_gdbProc);
-#endif
     m_gdbProc.start(m_options->gdb, gdbArgs);
 }
 
