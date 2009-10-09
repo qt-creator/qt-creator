@@ -541,22 +541,7 @@ CPPEditor::CPPEditor(QWidget *parent)
     setCodeFoldingVisible(true);
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
 
-#ifdef WITH_TOKEN_MOVE_POSITION
-    new QShortcut(QKeySequence::MoveToPreviousWord, this, SLOT(moveToPreviousToken()),
-                  /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
-
-    new QShortcut(QKeySequence::MoveToNextWord, this, SLOT(moveToNextToken()),
-                  /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
-
-    new QShortcut(QKeySequence::DeleteStartOfWord, this, SLOT(deleteStartOfToken()),
-                  /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
-
-    new QShortcut(QKeySequence::DeleteEndOfWord, this, SLOT(deleteEndOfToken()),
-                  /*ambiguousMember=*/ 0, Qt::WidgetShortcut);
-#endif
-
-    m_modelManager = ExtensionSystem::PluginManager::instance()
-        ->getObject<CppTools::CppModelManagerInterface>();
+    m_modelManager = CppTools::CppModelManagerInterface::instance();
 
     if (m_modelManager) {
         connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
@@ -689,100 +674,6 @@ void CPPEditor::abortRename()
     m_currentRenameSelection = -1;
     m_renameSelections.clear();
     setExtraSelections(CodeSemanticsSelection, m_renameSelections);
-}
-
-int CPPEditor::previousBlockState(QTextBlock block) const
-{
-    block = block.previous();
-    if (block.isValid()) {
-        int state = block.userState();
-
-        if (state != -1)
-            return state;
-    }
-    return 0;
-}
-
-QTextCursor CPPEditor::moveToPreviousToken(QTextCursor::MoveMode mode) const
-{
-    SimpleLexer tokenize;
-    QTextCursor c(textCursor());
-    QTextBlock block = c.block();
-    int column = c.columnNumber();
-
-    for (; block.isValid(); block = block.previous()) {
-        const QString textBlock = block.text();
-        QList<SimpleToken> tokens = tokenize(textBlock, previousBlockState(block));
-
-        if (! tokens.isEmpty()) {
-            tokens.prepend(SimpleToken());
-
-            for (int index = tokens.size() - 1; index != -1; --index) {
-                const SimpleToken &tk = tokens.at(index);
-                if (tk.position() < column) {
-                    c.setPosition(block.position() + tk.position(), mode);
-                    return c;
-                }
-            }
-        }
-
-        column = INT_MAX;
-    }
-
-    c.movePosition(QTextCursor::Start, mode);
-    return c;
-}
-
-QTextCursor CPPEditor::moveToNextToken(QTextCursor::MoveMode mode) const
-{
-    SimpleLexer tokenize;
-    QTextCursor c(textCursor());
-    QTextBlock block = c.block();
-    int column = c.columnNumber();
-
-    for (; block.isValid(); block = block.next()) {
-        const QString textBlock = block.text();
-        QList<SimpleToken> tokens = tokenize(textBlock, previousBlockState(block));
-
-        if (! tokens.isEmpty()) {
-            for (int index = 0; index < tokens.size(); ++index) {
-                const SimpleToken &tk = tokens.at(index);
-                if (tk.position() > column) {
-                    c.setPosition(block.position() + tk.position(), mode);
-                    return c;
-                }
-            }
-        }
-
-        column = -1;
-    }
-
-    c.movePosition(QTextCursor::End, mode);
-    return c;
-}
-
-void CPPEditor::moveToPreviousToken()
-{
-    setTextCursor(moveToPreviousToken(QTextCursor::MoveAnchor));
-}
-
-void CPPEditor::moveToNextToken()
-{
-    setTextCursor(moveToNextToken(QTextCursor::MoveAnchor));
-}
-
-void CPPEditor::deleteStartOfToken()
-{
-    QTextCursor c = moveToPreviousToken(QTextCursor::KeepAnchor);
-    c.removeSelectedText();
-    setTextCursor(c);
-}
-
-void CPPEditor::deleteEndOfToken()
-{
-    QTextCursor c = moveToNextToken(QTextCursor::KeepAnchor);
-    c.removeSelectedText();
-    setTextCursor(c);
 }
 
 void CPPEditor::onDocumentUpdated(Document::Ptr doc)

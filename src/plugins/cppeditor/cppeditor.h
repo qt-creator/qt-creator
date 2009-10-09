@@ -194,12 +194,6 @@ public Q_SLOTS:
     void findUsages();
     void renameUsagesNow();
 
-    void moveToPreviousToken();
-    void moveToNextToken();
-
-    void deleteStartOfToken();
-    void deleteEndOfToken();
-
 protected:
     bool event(QEvent *e);
     void contextMenuEvent(QContextMenuEvent *);
@@ -244,10 +238,6 @@ private:
 
     TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
                                              int column = 0);
-
-    int previousBlockState(QTextBlock block) const;
-    QTextCursor moveToPreviousToken(QTextCursor::MoveMode mode) const;
-    QTextCursor moveToNextToken(QTextCursor::MoveMode mode) const;
 
     SemanticHighlighter::Source currentSource();
 
