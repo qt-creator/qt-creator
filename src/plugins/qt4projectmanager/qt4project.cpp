@@ -577,7 +577,6 @@ void Qt4Project::updateCodeModel()
 
     const QHash<QString, QString> versionInfo = qtVersion(activeBuildConfiguration())->versionInfo();
     const QString newQtIncludePath = versionInfo.value(QLatin1String("QT_INSTALL_HEADERS"));
-    const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
 
     predefinedIncludePaths.append(newQtIncludePath);
     QDir dir(newQtIncludePath);
@@ -597,6 +596,7 @@ void Qt4Project::updateCodeModel()
     QStringList allFrameworkPaths = predefinedFrameworkPaths;
 
 #ifdef Q_OS_MAC
+    const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
     allFrameworkPaths.append(newQtLibsPath);
     // put QtXXX.framework/Headers directories in include path since that qmake's behavior
     QDir frameworkDir(newQtLibsPath);
