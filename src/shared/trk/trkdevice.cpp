@@ -40,7 +40,6 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QMetaType>
-#include <QtCore/QScopedPointer>
 
 #ifdef Q_OS_WIN
 #  include <windows.h>
