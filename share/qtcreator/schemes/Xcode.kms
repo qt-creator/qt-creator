@@ -303,48 +303,6 @@
  <shortcut id="FormEditor.FormSettings" >
   <key value="" />
  </shortcut>
- <shortcut id="Git.Diff" >
-  <key value="Alt+G, Alt+D" />
- </shortcut>
- <shortcut id="Git.Status" >
-  <key value="Alt+G, Alt+S" />
- </shortcut>
- <shortcut id="Git.Log" >
-  <key value="Alt+G, Alt+L" />
- </shortcut>
- <shortcut id="Git.Blame" >
-  <key value="" />
- </shortcut>
- <shortcut id="Git.Undo" >
-  <key value="Alt+G, Alt+U" />
- </shortcut>
- <shortcut id="Git.Add" >
-  <key value="Alt+G, Alt+A" />
- </shortcut>
- <shortcut id="Git.DiffProject" >
-  <key value="" />
- </shortcut>
- <shortcut id="Git.StatusProject" >
-  <key value="" />
- </shortcut>
- <shortcut id="Git.LogProject" >
-  <key value="Alt+G, Alt+K" />
- </shortcut>
- <shortcut id="Git.UndoProject" >
-  <key value="" />
- </shortcut>
- <shortcut id="Git.ShowCommit" >
-  <key value="" />
- </shortcut>
- <shortcut id="Git.Commit" >
-  <key value="Alt+G, Alt+C" />
- </shortcut>
- <shortcut id="Git.Pull" >
-  <key value="" />
- </shortcut>
- <shortcut id="Git.Push" >
-  <key value="" />
- </shortcut>
  <shortcut id="Help.Home" >
   <key value="" />
  </shortcut>
@@ -389,12 +347,6 @@
  </shortcut>
  <shortcut id="QtScriptEditor.Run" >
   <key value="Ctrl+R" />
- </shortcut>
- <shortcut id="CodePaster.Post" >
-  <key value="Alt+C, Alt+P" />
- </shortcut>
- <shortcut id="CodePaster.Fetch" >
-  <key value="Alt+C, Alt+F" />
  </shortcut>
  <shortcut id="Debugger.StartExternal" >
   <key value="" />
@@ -459,57 +411,6 @@
  <shortcut id="QtCreator.Mode.Debug" >
   <key value="Meta+3" />
  </shortcut>
- <shortcut id="Perforce.Edit" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.Add" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.Delete" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.Revert" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.DiffCurrent" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.DiffProject" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.DiffAll" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.Opened" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.Submit" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.PendingChanges" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.Describe" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.AnnotateCurrent" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.Annotate" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.FilelogCurrent" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.Filelog" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.SubmitCurrentLog" >
-  <key value="" />
- </shortcut>
- <shortcut id="Perforce.DiffSelectedFilesInLog" >
-  <key value="" />
- </shortcut>
  <shortcut id="Bookmarks.Toggle" >
   <key value="Ctrl+D" />
  </shortcut>
@@ -530,36 +431,6 @@
  </shortcut>
  <shortcut id="Bookmarks.NextDocument" >
   <key value="" />
- </shortcut>
- <shortcut id="TextEditor.SelectEncoding" >
-  <key value="" />
- </shortcut>
- <shortcut id="TextEditor.AutoIndentSelection" >
-  <key value="Ctrl+I" />
- </shortcut>
- <shortcut id="TextEditor.VisualizeWhitespace" >
-  <key value="" />
- </shortcut>
- <shortcut id="TextEditor.TextWrapping" >
-  <key value="" />
- </shortcut>
- <shortcut id="TextEditor.UnCommentSelection" >
-  <key value="Ctrl+/" />
- </shortcut>
- <shortcut id="TextEditor.DeleteLine" >
-  <key value="Shift+Del" />
- </shortcut>
- <shortcut id="TextEditor.UnCollapseAll" >
-  <key value="" />
- </shortcut>
- <shortcut id="FindFilter.Files on Disk" >
-  <key value="" />
- </shortcut>
- <shortcut id="FindFilter.All Projects" >
-  <key value="Ctrl+Shift+F" />
- </shortcut>
- <shortcut id="FindFilter.Current Project" >
-  <key value="Ctrl+Alt+F" />
  </shortcut>
  <shortcut id="QtCreator.Pane.Problems" >
   <key value="Ctrl+1" />
