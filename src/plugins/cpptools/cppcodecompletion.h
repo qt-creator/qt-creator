@@ -82,6 +82,9 @@ class CppCodeCompletion : public TextEditor::ICompletionCollector
 public:
     explicit CppCodeCompletion(CppModelManager *manager);
 
+    void setObjcEnabled(bool objcEnabled)
+    { m_objcEnabled = objcEnabled; }
+
     bool supportsEditor(TextEditor::ITextEditable *editor);
     bool triggersCompletion(TextEditor::ITextEditable *editor);
     int startCompletion(TextEditor::ITextEditable *editor);
@@ -163,6 +166,9 @@ private:
     unsigned m_completionOperator;
 
     QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
+
+    bool objcKeywordsWanted() const;
+    bool m_objcEnabled;
 };
 
 } // namespace Internal

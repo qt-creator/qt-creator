@@ -30,6 +30,7 @@
 #include "cppcodecompletion.h"
 #include "cppmodelmanager.h"
 #include "cppdoxygen.h"
+#include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
 
 #include <Control.h>
@@ -52,6 +53,7 @@
 #include <cplusplus/TokenUnderCursor.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/itexteditable.h>
@@ -510,7 +512,8 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
       m_caseSensitivity(Qt::CaseSensitive),
       m_autoInsertBrackets(true),
       m_forcedCompletion(false),
-      m_completionOperator(T_EOF_SYMBOL)
+      m_completionOperator(T_EOF_SYMBOL),
+      m_objcEnabled(true)
 {
 }
 
@@ -1151,8 +1154,12 @@ bool CppCodeCompletion::completeScope(const QList<TypeOfExpression::Result> &res
 
 void CppCodeCompletion::addKeywords()
 {
+    int keywordLimit = T_FIRST_OBJC_AT_KEYWORD;
+    if (objcKeywordsWanted())
+        keywordLimit = T_LAST_OBJC_AT_KEYWORD + 1;
+
     // keyword completion items.
-    for (int i = T_FIRST_KEYWORD; i < T_FIRST_OBJC_AT_KEYWORD; ++i) {
+    for (int i = T_FIRST_KEYWORD; i < keywordLimit; ++i) {
         TextEditor::CompletionItem item(this);
         item.text = QLatin1String(Token::name(i));
         item.icon = m_icons.keywordIcon();
@@ -1608,6 +1615,18 @@ int CppCodeCompletion::findStartOfName(int pos) const
     } while (chr.isLetterOrNumber() || chr == QLatin1Char('_'));
 
     return pos + 1;
+}
+
+bool CppCodeCompletion::objcKeywordsWanted() const
+{
+    if (!m_objcEnabled)
+        return false;
+
+    Core::IFile *file = m_editor->file();
+    QString fileName = file->fileName();
+
+    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+    return mdb->findByFile(fileName).type() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
 }
 
 #include "cppcodecompletion.moc"
