@@ -352,6 +352,24 @@ protected:
         accept(ast->name);
         return false;
     }
+
+    virtual bool visit(ExpressionOrDeclarationStatementAST *ast)
+    {
+        accept(ast->declaration);
+        return false;
+    }
+
+    virtual bool visit(FunctionDeclaratorAST *ast)
+    {
+        accept(ast->parameters);
+
+        for (SpecifierAST *spec = ast->cv_qualifier_seq; spec; spec = spec->next)
+            accept(spec);
+
+        accept(ast->exception_specification);
+
+        return false;
+    }
 };
 
 
