@@ -42,5 +42,10 @@ namespace Utils {
 // code as returned by the GetLastError()-API.
 QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error);
 
+// Determine a DLL version
+enum WinDLLVersionType { WinDLLFileVersion, WinDLLProductVersion };
+QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
+                                                const QString &name,
+                                                QString *errorMessage);
 } // namespace Utils
 #endif // WINUTILS_H
