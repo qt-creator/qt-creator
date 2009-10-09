@@ -74,7 +74,7 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
     m_signingMode(SignSelf)
 {
     if (!m_proFilePath.isEmpty())
-        setName(tr("%1 on S60 Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
+        setName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
         setName(tr("QtS60DeviceRunConfiguration"));
 

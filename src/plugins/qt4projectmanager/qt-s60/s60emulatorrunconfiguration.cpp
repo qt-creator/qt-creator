@@ -239,7 +239,7 @@ QStringList S60EmulatorRunConfigurationFactory::availableCreationTypes(Project *
 QString S60EmulatorRunConfigurationFactory::displayNameForType(const QString &type) const
 {
     QString fileName = type.mid(QString("QtSymbianEmulatorRunConfiguration.").size());
-    return tr("%1 in S60 Emulator").arg(QFileInfo(fileName).completeBaseName());
+    return tr("%1 in Symbian Emulator").arg(QFileInfo(fileName).completeBaseName());
 }
 
 QSharedPointer<RunConfiguration> S60EmulatorRunConfigurationFactory::create(Project *project, const QString &type)
