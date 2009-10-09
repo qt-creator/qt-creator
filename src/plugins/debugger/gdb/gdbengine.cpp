@@ -1115,7 +1115,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // Don't load helpers on stops triggered by signals unless it's
         // an intentional trap.
         bool initHelpers = m_debuggingHelperState == DebuggingHelperUninitialized;
-        if (reason == "signal-received"
+        if (initHelpers && reason == "signal-received"
                 && data.findChild("signal-name").data() != "SIGTRAP")
             initHelpers = false;
             
