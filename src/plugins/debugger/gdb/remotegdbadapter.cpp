@@ -213,12 +213,11 @@ void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 
 void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
+        QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
         // gdb server will stop the remote application itself.
         debugMessage(_("INFERIOR STARTED"));
         showStatusMessage(msgAttachedToStoppedInferior());
-        setState(InferiorStopped);
         m_engine->continueInferior();
     } else {
         // 16^error,msg="hd:5555: Connection timed out."

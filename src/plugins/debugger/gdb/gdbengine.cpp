@@ -1007,7 +1007,13 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     const QByteArray reason = data.findChild("reason").data();
 
     if (isExitedReason(reason)) {
-        QTC_ASSERT(state() == InferiorRunning, /**/);
+        if (state() == InferiorRunning) {
+            setState(InferiorStopping);
+        } else {
+            // The user triggered a stop, but meanwhile the app simply exited ...
+            QTC_ASSERT(state() == InferiorStopping, qDebug() << state());
+        }
+        setState(InferiorStopped);
         QString msg;
         if (reason == "exited") {
             msg = tr("Program exited with exit code %1.")
@@ -1039,6 +1045,16 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
         return;
     }
+
+    if (state() == InferiorRunning) {
+        // Stop triggered by a breakpoint or otherwise not directly
+        // initiated by the user.
+        setState(InferiorStopping);
+    } else {
+        QTC_ASSERT(state() == InferiorStopping || state() == InferiorStarting,
+                   qDebug() << state());
+    }
+    setState(InferiorStopped);
 
     const QByteArray &msg = data.findChild("consolestreamoutput").data();
     if (msg.contains("Stopped due to shared library event") || reason.isEmpty()) {
@@ -1129,7 +1145,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     // MAC yields sometimes:
     // >3661*stopped,time={wallclock="0.00658",user="0.00142",
     // system="0.00136",start="1218810678.805432",end="1218810678.812011"}
-    setState(InferiorStopped);
     showStatusMessage(tr("Run to Function finished. Stopped."));
     StackFrame f = parseStackFrame(data.findChild("frame"), 0);
     gotoLocation(f, true);
@@ -1171,6 +1186,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
             GdbMi frameData = data.findChild("frame");
             if (frameData.findChild("func").data() == "_start"
                 && frameData.findChild("from").data() == "/lib/ld-linux.so.2") {
+                setState(InferiorRunningRequested);
                 postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
                 return;
             }
@@ -1209,14 +1225,6 @@ void GdbEngine::handleStop2(const GdbResponse &response)
 
 void GdbEngine::handleStop2(const GdbMi &data)
 {
-    if (state() == InferiorRunning) {
-        // Stop triggered by a breakpoint or otherwise not directly
-        // initiated by the user.
-        setState(InferiorStopping);
-    }
-    setState(InferiorStopped);
-    showStatusMessage(tr("Stopped."), 5000);
-
     // Sometimes we get some interesting extra information. Grab it.
     GdbMi frame = data.findChild("frame");
     GdbMi shortName = frame.findChild("file");

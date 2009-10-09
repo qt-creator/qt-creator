@@ -95,10 +95,9 @@ void AttachGdbAdapter::startInferior()
 
 void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        setState(InferiorStopped);
-        debugMessage(_("INFERIOR STARTED"));
+        QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+        debugMessage(_("INFERIOR ATTACHED"));
         showStatusMessage(msgAttachedToStoppedInferior());
         m_engine->updateAll();
     } else {
