@@ -58,7 +58,7 @@ CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
     ui->sitesTreeWidget->addItem(tr("Qt Labs"), QLatin1String("http://labs.trolltech.com"));
     ui->sitesTreeWidget->addItem(tr("Qt Git Hosting"), QLatin1String("http://qt.gitorious.org"));
     ui->sitesTreeWidget->addItem(tr("Qt Centre"), QLatin1String("http://www.qtcentre.org"));
-    ui->sitesTreeWidget->addItem(tr("Qt for S60 at Forum Nokia"), QLatin1String("http://discussion.forum.nokia.com/forum/forumdisplay.php?f=196"));
+    ui->sitesTreeWidget->addItem(tr("Qt for Symbian at Forum Nokia"), QLatin1String("http://discussion.forum.nokia.com/forum/forumdisplay.php?f=196"));
 }
 
 CommunityWelcomePageWidget::~CommunityWelcomePageWidget()
