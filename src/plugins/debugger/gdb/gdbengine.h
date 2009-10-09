@@ -257,7 +257,7 @@ private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
     void handleStart(const GdbResponse &response);
-    void handleAsyncOutput(const GdbMi &data);
+    void handleStopResponse(const GdbMi &data);
     void handleStop1(const GdbResponse &response);
     void handleStop2(const GdbResponse &response);
     void handleStop2(const GdbMi &data);

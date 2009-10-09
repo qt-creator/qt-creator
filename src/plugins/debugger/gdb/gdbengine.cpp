@@ -424,7 +424,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 }
             }
             if (asyncClass == "stopped") {
-                handleAsyncOutput(result);
+                handleStopResponse(result);
             } else if (asyncClass == "running") {
                 // Archer has 'thread-id="all"' here
             } else if (asyncClass == "library-loaded") {
@@ -1014,7 +1014,7 @@ void GdbEngine::handleAqcuiredInferior()
 }
 #endif
 
-void GdbEngine::handleAsyncOutput(const GdbMi &data)
+void GdbEngine::handleStopResponse(const GdbMi &data)
 {
     const QByteArray reason = data.findChild("reason").data();
 
