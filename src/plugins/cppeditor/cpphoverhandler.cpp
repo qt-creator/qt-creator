@@ -337,6 +337,14 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             firstType = resolve(firstType, typeOfExpression.lookupContext(),
                                 &resolvedSymbol, &resolvedName);
 
+            if (resolvedSymbol && resolvedSymbol->scope()->isClassScope()) {
+                Class *enclosingClass = resolvedSymbol->scope()->owner()->asClass();
+                if (Identifier *id = enclosingClass->identifier()) {
+                    if (id->isEqualTo(resolvedSymbol->identifier()))
+                        resolvedSymbol = enclosingClass;
+                }
+            }
+
             m_helpId = buildHelpId(resolvedSymbol, resolvedName);
 
             if (m_toolTip.isEmpty()) {
@@ -349,7 +357,10 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
                 overview.setShowReturnTypes(true);
                 overview.setShowFullyQualifiedNamed(true);
 
-                if (lookupSymbol && (lookupSymbol->isDeclaration() || lookupSymbol->isArgument())) {
+                if (symbol == resolvedSymbol && symbol->isClass()) {
+                    m_toolTip = m_helpId;
+
+                } else if (lookupSymbol && (lookupSymbol->isDeclaration() || lookupSymbol->isArgument())) {
                     m_toolTip = overview.prettyType(firstType, buildHelpId(lookupSymbol, lookupSymbol->name()));
 
                 } else if (firstType->isClassType() || firstType->isEnumType() ||
