@@ -59,6 +59,7 @@ Project::~Project()
     qDeleteAll(m_buildSteps);
     qDeleteAll(m_cleanSteps);
     qDeleteAll(m_buildConfigurationValues);
+    qDeleteAll(m_runConfigurations);
     delete m_editorConfiguration;
 }
 
@@ -486,6 +487,7 @@ void Project::removeRunConfiguration(RunConfiguration* runConfiguration)
 
     m_runConfigurations.removeOne(runConfiguration);
     emit removedRunConfiguration(this, runConfiguration->name());
+    delete runConfiguration;
 }
 
 RunConfiguration* Project::activeRunConfiguration() const
