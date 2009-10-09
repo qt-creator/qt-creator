@@ -309,6 +309,8 @@ signals:
     void configValueRequested(const QString &name, QVariant *value);
     void setConfigValueRequested(const QString &name, const QVariant &value);
     void applicationOutputAvailable(const QString &output);
+    void emitShowOutput(int channel, const QString &output);
+    void emitShowInput(int channel, const QString &input);
 
 private:
     void init();

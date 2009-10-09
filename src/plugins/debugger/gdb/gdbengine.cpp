@@ -183,16 +183,6 @@ GdbEngine::GdbEngine(DebuggerManager *manager) :
     m_trkOptions->fromSettings(Core::ICore::instance()->settings());
     m_gdbAdapter = 0;
 
-    connect(this, SIGNAL(gdbOutputAvailable(int,QString)),
-        m_manager, SLOT(showDebuggerOutput(int,QString)),
-        Qt::QueuedConnection);
-    connect(this, SIGNAL(gdbInputAvailable(int,QString)),
-        m_manager, SLOT(showDebuggerInput(int,QString)),
-        Qt::QueuedConnection);
-    connect(this, SIGNAL(applicationOutputAvailable(QString)),
-        m_manager, SLOT(showApplicationOutput(QString)),
-        Qt::QueuedConnection);
-
     connect(theDebuggerAction(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
             this, SLOT(setAutoDerefPointers(QVariant)));
 }
@@ -342,13 +332,13 @@ static void dump(const char *first, const char *middle, const QString & to)
 
 void GdbEngine::readDebugeeOutput(const QByteArray &data)
 {
-    emit applicationOutputAvailable(m_outputCodec->toUnicode(
+    m_manager->showApplicationOutput(m_outputCodec->toUnicode(
             data.constData(), data.length(), &m_outputCodecState));
 }
 
 void GdbEngine::debugMessage(const QString &msg)
 {
-    emit gdbOutputAvailable(LogDebug, msg);
+    gdbOutputAvailable(LogDebug, msg);
 }
 
 void GdbEngine::handleResponse(const QByteArray &buff)
@@ -356,8 +346,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
     static QTime lastTime;
 
     if (theDebuggerBoolSetting(LogTimeStamps))
-        emit gdbOutputAvailable(LogTime, currentTime());
-    emit gdbOutputAvailable(LogOutput, QString::fromLocal8Bit(buff, buff.length()));
+        gdbOutputAvailable(LogTime, currentTime());
+    gdbOutputAvailable(LogOutput, QString::fromLocal8Bit(buff, buff.length()));
 
 #if 0
     qDebug() // << "#### start response handling #### "
@@ -742,7 +732,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
 {
     GdbCommand cmd = cmd0;
     if (state() == DebuggerNotReady) {
-        emit gdbInputAvailable(LogInput, cmd.command);
+        gdbInputAvailable(LogInput, cmd.command);
         debugMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: ") + cmd.command);
         return;
     }
@@ -753,7 +743,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
     cmd.command = QString::number(currentToken()) + cmd.command;
     if (cmd.flags & EmbedToken)
         cmd.command = cmd.command.arg(currentToken());
-    emit gdbInputAvailable(LogInput, cmd.command);
+    gdbInputAvailable(LogInput, cmd.command);
 
     m_gdbAdapter->write(cmd.command.toLatin1() + "\r\n");
 }
@@ -808,7 +798,7 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
 
     GdbCommand cmd = m_cookieForToken.take(token);
     if (theDebuggerBoolSetting(LogTimeStamps)) {
-        emit gdbOutputAvailable(LogTime, _("Response time: %1: %2 s")
+        gdbOutputAvailable(LogTime, _("Response time: %1: %2 s")
             .arg(cmd.command)
             .arg(cmd.postTime.msecsTo(QTime::currentTime()) / 1000.));
     }
@@ -1631,7 +1621,7 @@ void GdbEngine::setTokenBarrier()
         );
     }
     PENDING_DEBUG("\n--- token barrier ---\n");
-    emit gdbInputAvailable(LogMisc, _("--- token barrier ---"));
+    gdbInputAvailable(LogMisc, _("--- token barrier ---"));
     m_oldestAcceptableToken = currentToken();
 }
 
@@ -1767,7 +1757,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
     //    cmd += _("-c ") + data->condition + ' ';
 #endif
     cmd += where;
-    emit gdbOutputAvailable(LogStatus, _("Current state: %1").arg(state()));
+    gdbOutputAvailable(LogStatus, _("Current state: %1").arg(state()));
     postCommand(cmd, NeedsStop, CB(handleBreakInsert), index);
 }
 
@@ -2728,7 +2718,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
     // Avoid endless loops created by faulty dumpers.
     QString processedName = QString(_("%1-%2").arg(dumpChildren).arg(data.iname));
     if (m_processedNames.contains(processedName)) {
-        emit gdbInputAvailable(LogStatus,
+        gdbInputAvailable(LogStatus,
             _("<Breaking endless loop for %1>").arg(data.iname));
         data.setAllUnneeded();
         data.setValue(_("<unavailable>"));
@@ -2985,7 +2975,7 @@ void GdbEngine::rebuildModel()
     ++count;
     m_processedNames.clear();
     PENDING_DEBUG("REBUILDING MODEL" << count);
-    emit gdbInputAvailable(LogStatus, _("<Rebuild Watchmodel %1>").arg(count));
+    gdbInputAvailable(LogStatus, _("<Rebuild Watchmodel %1>").arg(count));
     showStatusMessage(tr("Finished retrieving data."), 400);
     manager()->watchHandler()->endCycle();
     showToolTip();
@@ -3057,7 +3047,7 @@ void GdbEngine::sendWatchParameters(const QByteArray &params0)
     const QString inBufferCmd = arrayFillCommand("qDumpInBuffer", params);
 
     params.replace('\0','!');
-    emit gdbInputAvailable(LogMisc, QString::fromUtf8(params));
+    gdbInputAvailable(LogMisc, QString::fromUtf8(params));
 
     params.clear();
     params.append('\0');

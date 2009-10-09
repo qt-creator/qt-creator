@@ -87,11 +87,6 @@ public:
     explicit GdbEngine(DebuggerManager *manager);
     ~GdbEngine();
 
-signals:
-    void gdbInputAvailable(int channel, const QString &msg);
-    void gdbOutputAvailable(int channel, const QString &msg);
-    void applicationOutputAvailable(const QString &output);
-
 private:
     friend class AbstractGdbAdapter;
     friend class AttachGdbAdapter;
@@ -234,6 +229,11 @@ private:
 
     void updateAll();
     void updateLocals();
+
+    void gdbInputAvailable(int channel, const QString &msg)
+    { m_manager->showDebuggerInput(channel, msg); }
+    void gdbOutputAvailable(int channel, const QString &msg)
+    { m_manager->showDebuggerOutput(channel, msg); }
 
 private slots:
     void readGdbStandardOutput();
