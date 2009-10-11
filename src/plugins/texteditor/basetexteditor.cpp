@@ -3656,11 +3656,10 @@ void BaseTextEditor::indentOrUnindent(bool doIndent)
         int spaces = tabSettings.spacesLeftFromPosition(text, indentPosition);
         int startColumn = tabSettings.columnAt(text, indentPosition - spaces);
         int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
-
         cursor.setPosition(block.position() + indentPosition);
         cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
         cursor.removeSelectedText();
-        cursor.insertText(tabSettings.indentationString(startColumn, targetColumn));
+        cursor.insertText(tabSettings.indentationString(startColumn, targetColumn, block));
     } else {
         // Indent or unindent the selected lines
         int anchor = cursor.anchor();
@@ -3677,7 +3676,7 @@ void BaseTextEditor::indentOrUnindent(bool doIndent)
                 indentPosition = tabSettings.firstNonSpace(text);
             int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
             cursor.setPosition(block.position() + indentPosition);
-            cursor.insertText(tabSettings.indentationString(0, targetColumn));
+            cursor.insertText(tabSettings.indentationString(0, targetColumn, block));
             cursor.setPosition(block.position());
             cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
@@ -5006,7 +5005,7 @@ void BaseTextEditor::rewrapParagraph()
     QString spacing;
 
     if (commonPrefix.isEmpty()) {
-        spacing = tabSettings().indentationString(0, indentLevel);
+        spacing = tabSettings().indentationString(0, indentLevel, textCursor().block());
     } else {
         spacing = commonPrefix;
         indentLevel = commonPrefix.length();
