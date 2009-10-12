@@ -1,3 +1,5 @@
+#include <QFileDialog>
+
 #include "addressbook.h"
 #include "ui_addressbook.h"
 
@@ -31,6 +33,12 @@ AddressBook::AddressBook(QWidget *parent)
                 SLOT(removeContact()));
     connect(ui->findButton, SIGNAL(clicked()), this,
                 SLOT(findContact()));
+    //! [connectSlots]
+    connect(ui->loadButton, SIGNAL(clicked()), this,
+                SLOT(loadFromFile()));
+    connect(ui->saveButton, SIGNAL(clicked()), this,
+                SLOT(saveToFile()));
+    //! [connectSlots]
 
     setWindowTitle(tr("Simple Address Book"));
 }
@@ -292,7 +300,7 @@ void AddressBook::loadFromFile()
 
 //! [loadFromFile part3]
         if (contacts.isEmpty()) {
-            QMessagebox::information(this, tr("No contacts in file"),
+            QMessageBox::information(this, tr("No contacts in file"),
                 tr("The file you are attempting to open contains no contacts."));
         } else {
             QMap<QString, QString>::iterator i = contacts.begin();
