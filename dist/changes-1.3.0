@@ -103,6 +103,9 @@ Platform Specific
 Mac
    * Make use of system's language settings
 
+Symbian Target
+   * Preliminary support for targeting Qt for Symbian applications
+
 Additional credits go to:
    * Christian Hoenig (Locator filter for symbols in current document)
    * Henrik Abelsson (Configure what to do with externally modified files)
