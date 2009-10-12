@@ -176,7 +176,8 @@ public: // otherwise the Qt flag macros are unhappy
         Discardable = 2,
         RebuildModel = 4,
         WatchUpdate = Discardable | RebuildModel,
-        EmbedToken = 8
+        EmbedToken = 8,
+        RunRequest = 16
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 

@@ -160,6 +160,7 @@ class GdbResponse
 public:
     GdbResponse() : token(-1), resultClass(GdbResultUnknown) {}
     QByteArray toString() const;
+    static QByteArray stringFromResultClass(GdbResultClass resultClass);
 
     int            token;
     GdbResultClass resultClass;

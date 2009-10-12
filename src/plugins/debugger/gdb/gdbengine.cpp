@@ -811,10 +811,17 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
     GdbResponse responseWithCookie = response;
     responseWithCookie.cookie = cmd.cookie;
 
-    if (cmd.callback)
-        (this->*cmd.callback)(responseWithCookie);
-    if (cmd.adapterCallback)
-        (m_gdbAdapter->*cmd.adapterCallback)(responseWithCookie);
+    if (response.resultClass != GdbResultError &&
+        response.resultClass != ((cmd.flags & RunRequest) ? GdbResultRunning : GdbResultDone)) {
+        debugMessage(_("UNEXPECTED RESPONSE %1 TO COMMAND %2")
+                     .arg(_(GdbResponse::stringFromResultClass(response.resultClass)))
+                     .arg(cmd.command));
+    } else {
+        if (cmd.callback)
+            (this->*cmd.callback)(responseWithCookie);
+        else if (cmd.adapterCallback)
+            (m_gdbAdapter->*cmd.adapterCallback)(responseWithCookie);
+    }
 
     if (cmd.flags & RebuildModel) {
         --m_pendingRequests;
@@ -1173,7 +1180,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
             GdbMi frameData = data.findChild("frame");
             if (frameData.findChild("func").data() == "_start"
                 && frameData.findChild("from").data() == "/lib/ld-linux.so.2") {
-                postCommand(_("-exec-continue"), CB(handleExecContinue));
+                postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
                 return;
             }
         }
@@ -1302,7 +1309,7 @@ void GdbEngine::handleFileExecAndSymbols(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         //m_breakHandler->clearBreakMarkers();
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         QString msg = __(response.data.findChild("msg").data());
         showMessageBox(QMessageBox::Critical, tr("Starting executable failed"), msg);
         QTC_ASSERT(state() == InferiorRunning, /**/);
@@ -1316,7 +1323,7 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
     if (response.resultClass == GdbResultRunning) {
         // The "running" state is picked up in handleResponse()
         QTC_ASSERT(state() == InferiorRunning, /**/);
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         QTC_ASSERT(state() == InferiorRunningRequested, /**/);
         QByteArray msg = response.data.findChild("msg").data();
         if (msg.startsWith("Cannot find bounds of current function")) {
@@ -1331,8 +1338,6 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
             QTC_ASSERT(state() == InferiorRunning, /**/);
             shutdown();
         }
-    } else {
-        QTC_ASSERT(false, /**/);
     }
 }
 
@@ -1474,7 +1479,7 @@ void GdbEngine::continueInferiorInternal()
     m_manager->resetLocation();
     setTokenBarrier();
     setState(InferiorRunningRequested);
-    postCommand(_("-exec-continue"), CB(handleExecContinue));
+    postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
 }
 
 void GdbEngine::autoContinueInferior()
@@ -1496,9 +1501,9 @@ void GdbEngine::stepExec()
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step requested..."), 5000);
     if (manager()->isReverseDebugging())
-        postCommand(_("-reverse-step"), CB(handleExecContinue));
+        postCommand(_("-reverse-step"), RunRequest, CB(handleExecContinue));
     else
-        postCommand(_("-exec-step"), CB(handleExecContinue));
+        postCommand(_("-exec-step"), RunRequest, CB(handleExecContinue));
 }
 
 void GdbEngine::stepIExec()
@@ -1508,9 +1513,9 @@ void GdbEngine::stepIExec()
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step by instruction requested..."), 5000);
     if (manager()->isReverseDebugging())
-        postCommand(_("-reverse-stepi"), CB(handleExecContinue));
+        postCommand(_("-reverse-stepi"), RunRequest, CB(handleExecContinue));
     else
-        postCommand(_("-exec-step-instruction"), CB(handleExecContinue));
+        postCommand(_("-exec-step-instruction"), RunRequest, CB(handleExecContinue));
 }
 
 void GdbEngine::stepOutExec()
@@ -1519,7 +1524,7 @@ void GdbEngine::stepOutExec()
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Finish function requested..."), 5000);
-    postCommand(_("-exec-finish"), CB(handleExecContinue));
+    postCommand(_("-exec-finish"), RunRequest, CB(handleExecContinue));
 }
 
 void GdbEngine::nextExec()
@@ -1529,14 +1534,14 @@ void GdbEngine::nextExec()
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step next requested..."), 5000);
     if (manager()->isReverseDebugging())
-        postCommand(_("-reverse-next"), CB(handleExecContinue));
+        postCommand(_("-reverse-next"), RunRequest, CB(handleExecContinue));
     else {
 #if 1
-        postCommand(_("-exec-next"), CB(handleExecContinue));
+        postCommand(_("-exec-next"), RunRequest, CB(handleExecContinue));
 #else
         postCommand(_("tbreak %1:%2").arg(QFileInfo(lastFile).fileName())
             .arg(lastLine + 1));
-        postCommand(_("-exec-continue"), CB(handleExecContinue));
+        postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
 #endif
     }
 }
@@ -1548,9 +1553,9 @@ void GdbEngine::nextIExec()
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step next instruction requested..."), 5000);
     if (manager()->isReverseDebugging())
-        postCommand(_("-reverse-nexti"), CB(handleExecContinue));
+        postCommand(_("-reverse-nexti"), RunRequest, CB(handleExecContinue));
     else
-        postCommand(_("-exec-next-instruction"), CB(handleExecContinue));
+        postCommand(_("-exec-next-instruction"), RunRequest, CB(handleExecContinue));
 }
 
 void GdbEngine::runToLineExec(const QString &fileName, int lineNumber)
@@ -1571,7 +1576,7 @@ void GdbEngine::runToFunctionExec(const QString &functionName)
     showStatusMessage(tr("Run to function %1 requested...").arg(functionName), 5000);
     // that should be "^running". We need to handle the resulting
     // "Stopped"
-    postCommand(_("-exec-continue"), CB(handleExecContinue));
+    postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
     //postCommand(_("-exec-continue"), handleExecRunToFunction);
 }
 
@@ -1851,7 +1856,7 @@ void GdbEngine::handleBreakCondition(const GdbResponse &response)
         BreakpointData *data = handler->at(index);
         //qDebug() << "HANDLE BREAK CONDITION" << index << data->condition;
         data->bpCondition = data->condition;
-    } else { // GdbResultError
+    } else {
         QByteArray msg = response.data.findChild("msg").data();
         // happens on Mac
         if (1 || msg.startsWith("Error parsing breakpoint condition. "
@@ -1877,7 +1882,7 @@ void GdbEngine::handleBreakInsert(const GdbResponse &response)
 //#endif
         attemptBreakpointSynchronization();
         handler->updateMarkers();
-    } else { // GdbResultError
+    } else {
         const BreakpointData *data = handler->at(index);
         // Note that it is perfectly correct that the file name is put
         // in quotes but not escaped. GDB simply is like that.
@@ -1967,7 +1972,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         BreakpointData *data = handler->at(index);
         GdbMi bkpt = response.data.findChild("bkpt");
         breakpointDataFromOutput(data, bkpt);
-    } else { // GdbResultError
+    } else {
         qDebug() << "INSERTING BREAKPOINT WITH BASE NAME FAILED. GIVING UP";
         BreakpointData *data = handler->at(index);
         data->bpNumber = _("<unavailable>");
@@ -3128,7 +3133,7 @@ void GdbEngine::handleVarCreate(const GdbResponse &response)
             //    data.setValue(QString());
             insertData(data);
         }
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
         if (data.isWatcher()) {
             data.value = strNotInScope;
@@ -3151,7 +3156,7 @@ void GdbEngine::handleEvaluateExpression(const GdbResponse &response)
         //    data.name = response.data.findChild("value").data();
         //else
             setWatchDataValue(data, response.data.findChild("value"));
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
     }
     //qDebug() << "HANDLE EVALUATE EXPRESSION:" << data.toString();
@@ -3163,7 +3168,7 @@ void GdbEngine::handleDebuggingHelperSetup(const GdbResponse &response)
 {
     //qDebug() << "CUSTOM SETUP RESULT:" << response.toString();
     if (response.resultClass == GdbResultDone) {
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
         //qDebug() << "CUSTOM DUMPER SETUP ERROR MESSAGE:" << msg;
         showStatusMessage(tr("Custom dumper setup: %1").arg(msg), 10000);
@@ -3176,7 +3181,7 @@ void GdbEngine::handleDebuggingHelperValue1(const GdbResponse &response)
     QTC_ASSERT(data.isValid(), return);
     if (response.resultClass == GdbResultDone) {
         // ignore this case, data will follow
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
 #ifdef QT_DEBUG
         // Make debugging of dumpers easier
@@ -3347,7 +3352,7 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResponse &response)
             data.setAllUnneeded();
             insertData(data);
         }
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         WatchData data = response.cookie.value<WatchData>();
         data.setError(strNotInScope);
         data.setAllUnneeded();
@@ -3460,7 +3465,7 @@ void GdbEngine::handleStackListArguments(const GdbResponse &response)
         const GdbMi frame = list.findChild("frame");
         const GdbMi args = frame.findChild("args");
         m_currentFunctionArgs = args.children();
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         qDebug() << "FIXME: GdbEngine::handleStackListArguments: should not happen"
             << response.toString();
     }
@@ -3705,10 +3710,8 @@ void GdbEngine::handleVarListChildren(const GdbResponse &response)
             // this skips the spurious "public", "private" etc levels
             // gdb produces
         }
-    } else if (response.resultClass == GdbResultError) {
-        data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
     } else {
-        data.setError(tr("Unknown error: ") + QString::fromLocal8Bit(response.toString()));
+        data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
     }
 }
 
@@ -4024,7 +4027,7 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
             fetchDisassemblerByAddress(ac.agent, true);
         else
             ac.agent->setContents(parseDisassembler(lines));
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         // 536^error,msg="mi_cmd_disassemble: Invalid line number"
         QByteArray msg = response.data.findChild("msg").data();
         if (msg == "mi_cmd_disassemble: Invalid line number")

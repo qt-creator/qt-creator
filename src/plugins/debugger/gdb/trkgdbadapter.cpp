@@ -1679,7 +1679,7 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
     if (record.resultClass == GdbResultDone) {
         setState(InferiorPrepared);
         emit inferiorPrepared();
-    } else if (record.resultClass == GdbResultError) {
+    } else {
         QString msg = tr("Connecting to trk server adapter failed:\n")
             + _(record.data.findChild("msg").data());
         emit inferiorPreparationFailed(msg);
@@ -1699,7 +1699,7 @@ void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)
     if (record.resultClass == GdbResultDone) {
         debugMessage(_("INFERIOR STARTED"));
         showStatusMessage(msgInferiorRunning());
-    } else if (record.resultClass == GdbResultError) {
+    } else {
         emit inferiorStartFailed(msgConnectRemoteServerFailed(record.toString()));
     }
 }
@@ -2076,7 +2076,7 @@ void TrkGdbAdapter::handleKill(const GdbResponse &response)
         setState(InferiorShutDown);
         emit inferiorShutDown();
         shutdown(); // re-iterate...
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         const QString msg = msgInferiorStopFailed(__(response.data.findChild("msg").data()));
         setState(InferiorShutdownFailed);
         emit inferiorShutdownFailed(msg);
@@ -2088,7 +2088,7 @@ void TrkGdbAdapter::handleExit(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         qDebug() << "EXITED, NO MESSAGE...";
         // don't set state here, this will be handled in handleGdbFinished()
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         const QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
         emit adapterShutdownFailed(msg);
     }
