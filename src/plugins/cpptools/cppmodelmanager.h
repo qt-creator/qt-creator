@@ -73,6 +73,7 @@ public:
     virtual ~CppModelManager();
 
     virtual void updateSourceFiles(const QStringList &sourceFiles);
+    virtual QMap<QString, QString> workingCopy() const;
 
     virtual QList<ProjectInfo> projectInfos() const;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
@@ -91,8 +92,6 @@ public:
 
     CppEditorSupport *editorSupport(TextEditor::ITextEditor *editor) const
     { return m_editorSupport.value(editor); }
-
-    QMap<QString, QString> buildWorkingCopyList();
 
     void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
 
@@ -132,6 +131,8 @@ private Q_SLOTS:
     void updateEditorSelections();
 
 private:
+    QMap<QString, QString> buildWorkingCopyList();
+
     QStringList projectFiles()
     {
         ensureUpdated();

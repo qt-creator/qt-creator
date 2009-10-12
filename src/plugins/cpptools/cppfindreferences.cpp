@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "cppfindreferences.h"
-#include "cppmodelmanager.h"
+#include "cppmodelmanagerinterface.h"
 #include "cpptoolsconstants.h"
 
 #include <texteditor/basetexteditor.h>
@@ -452,7 +452,7 @@ private:
 
 } // end of anonymous namespace
 
-CppFindReferences::CppFindReferences(CppModelManager *modelManager)
+CppFindReferences::CppFindReferences(CppTools::CppModelManagerInterface *modelManager)
     : _modelManager(modelManager),
       _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
 {
@@ -614,7 +614,7 @@ void CppFindReferences::findAll_helper(Symbol *symbol)
     _resultWindow->popup(true);
 
     const Snapshot snapshot = _modelManager->snapshot();
-    const QMap<QString, QString> wl = _modelManager->buildWorkingCopyList();
+    const QMap<QString, QString> wl = _modelManager->workingCopy();
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 

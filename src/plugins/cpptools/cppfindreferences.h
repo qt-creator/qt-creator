@@ -43,16 +43,16 @@ namespace Find {
 } // end of namespace Find
 
 namespace CppTools {
-namespace Internal {
+class CppModelManagerInterface;
 
-class CppModelManager;
+namespace Internal {
 
 class CppFindReferences: public QObject
 {
     Q_OBJECT
 
 public:
-    CppFindReferences(CppModelManager *modelManager);
+    CppFindReferences(CppModelManagerInterface *modelManager);
     virtual ~CppFindReferences();
 
     QList<int> references(CPlusPlus::Symbol *symbol,
@@ -76,7 +76,7 @@ private:
     void findAll_helper(CPlusPlus::Symbol *symbol);
 
 private:
-    QPointer<CppModelManager> _modelManager;
+    QPointer<CppModelManagerInterface> _modelManager;
     Find::SearchResultWindow *_resultWindow;
     QFutureWatcher<Utils::FileSearchResult> m_watcher;
 };

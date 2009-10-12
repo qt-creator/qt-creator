@@ -793,6 +793,11 @@ QMap<QString, QString> CppModelManager::buildWorkingCopyList()
     return workingCopy;
 }
 
+QMap<QString, QString> CppModelManager::workingCopy() const
+{
+    return const_cast<CppModelManager *>(this)->buildWorkingCopyList();
+}
+
 void CppModelManager::updateSourceFiles(const QStringList &sourceFiles)
 { (void) refreshSourceFiles(sourceFiles); }
 
