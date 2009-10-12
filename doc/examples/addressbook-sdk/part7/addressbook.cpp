@@ -1,3 +1,6 @@
+#include <QFileDialog>
+#include <QTextStream>
+
 #include "addressbook.h"
 #include "ui_addressbook.h"
 
@@ -348,5 +351,5 @@ void AddressBook::exportAsVCard()
     out << "END;VCARD" << "\n";
 
     QMessageBox::information(this, tr("Export Successful"),
-        tr("\%1\" has been exported as a vCard.").arg(name));
+        tr("\"%1\" has been exported as a vCard.").arg(name));
 }
