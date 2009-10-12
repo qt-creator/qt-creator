@@ -132,62 +132,64 @@ QList<Symbol *> LookupContext::resolveQualifiedNameId(QualifiedNameId *q,
 {
     QList<Symbol *> candidates;
 
-    for (int i = 0; i < visibleScopes.size(); ++i) {
-        Scope *scope = visibleScopes.at(i);
+    if (true || mode & ResolveClass) {
+        for (int i = 0; i < visibleScopes.size(); ++i) {
+            Scope *scope = visibleScopes.at(i);
 
-        for (Symbol *symbol = scope->lookat(q); symbol; symbol = symbol->next()) {
-            if (! symbol->name())
-                continue;
+            for (Symbol *symbol = scope->lookat(q); symbol; symbol = symbol->next()) {
+                if (! symbol->name())
+                    continue;
+                else if (! symbol->isClass())
+                    continue;
 
-            QualifiedNameId *qq = symbol->name()->asQualifiedNameId();
+                QualifiedNameId *qq = symbol->name()->asQualifiedNameId();
 
-            if (! qq)
-                continue;
-            else if (! maybeValidSymbol(symbol, mode, candidates))
-                continue;
+                if (! qq)
+                    continue;
+                else if (! maybeValidSymbol(symbol, mode, candidates))
+                    continue;
 
-            if (! q->unqualifiedNameId()->isEqualTo(qq->unqualifiedNameId()))
-                continue;
+                if (! q->unqualifiedNameId()->isEqualTo(qq->unqualifiedNameId()))
+                    continue;
 
-            else if (qq->nameCount() == q->nameCount()) {
-                unsigned j = 0;
+                else if (qq->nameCount() == q->nameCount()) {
+                    unsigned j = 0;
 
-                for (; j < q->nameCount(); ++j) {
-                    Name *classOrNamespaceName1 = q->nameAt(j);
-                    Name *classOrNamespaceName2 = qq->nameAt(j);
+                    for (; j < q->nameCount(); ++j) {
+                        Name *classOrNamespaceName1 = q->nameAt(j);
+                        Name *classOrNamespaceName2 = qq->nameAt(j);
 
-                    if (! classOrNamespaceName1->isEqualTo(classOrNamespaceName2))
-                        break;
+                        if (! classOrNamespaceName1->isEqualTo(classOrNamespaceName2))
+                            break;
+                    }
+
+                    if (j == q->nameCount())
+                        candidates.append(symbol);
                 }
-
-                if (j == q->nameCount())
-                    candidates.append(symbol);
             }
         }
     }
 
-    if (candidates.isEmpty()) {
-        QList<Scope *> scopes;
+    QList<Scope *> scopes;
 
-        if (q->nameCount() == 1)
-            scopes = visibleScopes;     // ### handle global scope lookup
-        else
-            scopes = resolveNestedNameSpecifier(q, visibleScopes);
+    if (q->nameCount() == 1)
+        scopes = visibleScopes;     // ### handle global scope lookup
+    else
+        scopes = resolveNestedNameSpecifier(q, visibleScopes);
 
-        QList<Scope *> expanded;
-        foreach (Scope *scope, scopes) {
-            expanded.append(scope);
+    QList<Scope *> expanded;
+    foreach (Scope *scope, scopes) {
+        expanded.append(scope);
 
-            for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-                Symbol *member = scope->symbolAt(i);
+        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+            Symbol *member = scope->symbolAt(i);
 
-                if (ScopedSymbol *scopedSymbol = member->asScopedSymbol())
-                    expandEnumOrAnonymousSymbol(scopedSymbol, &expanded);
-            }
+            if (ScopedSymbol *scopedSymbol = member->asScopedSymbol())
+                expandEnumOrAnonymousSymbol(scopedSymbol, &expanded);
         }
-
-        candidates += resolve(q->unqualifiedNameId(), expanded, mode);
     }
+
+    candidates += resolve(q->unqualifiedNameId(), expanded, mode);
 
     return candidates;
 }
