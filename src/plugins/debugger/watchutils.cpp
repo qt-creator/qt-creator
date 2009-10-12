@@ -433,7 +433,7 @@ QString decodeData(const QByteArray &ba, int encoding)
         }
         case 7: { //  %04x endoded 16 bit data
             const QByteArray decodedBa = QByteArray::fromHex(ba);
-            qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
+            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
             return QString::fromUtf16(reinterpret_cast<const ushort *>
                 (decodedBa.data()), decodedBa.size() / 2);
         }
