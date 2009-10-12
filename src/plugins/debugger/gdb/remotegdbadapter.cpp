@@ -175,6 +175,7 @@ void RemoteGdbAdapter::prepareInferior()
 #endif
 }
 
+#if 0
 void RemoteGdbAdapter::handleSetTargetAsync(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
@@ -190,6 +191,7 @@ void RemoteGdbAdapter::handleSetTargetAsync(const GdbResponse &response)
         emit inferiorPreparationFailed(msg);
     }
 }
+#endif
 
 void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
