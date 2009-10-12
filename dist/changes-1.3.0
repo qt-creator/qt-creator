@@ -38,6 +38,10 @@ Editing
    * Added left/right arrow buttons for "Go back/forward" in navigation history
    * Added smart indentation for pasted text blocks
 
+Refactoring
+   * Added rename symbol under cursor
+   * Find usages of a symbol
+
 Project support
    * Added support for adding and removing files from a generic Makefile-based
      project
