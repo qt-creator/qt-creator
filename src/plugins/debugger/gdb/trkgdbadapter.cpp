@@ -2011,10 +2011,9 @@ void TrkGdbAdapter::handleDirectStep3(const TrkResult &result)
 
 void TrkGdbAdapter::cleanup()
 {
-    if (m_trkDevice.isOpen())
-        m_trkDevice.close();
-    if (m_gdbServer)
-        delete m_gdbServer;
+    m_trkDevice.close();
+    delete m_gdbServer;
+    m_gdbServer = 0;
 }
 
 void TrkGdbAdapter::shutdown()
