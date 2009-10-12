@@ -208,6 +208,21 @@ void Scope::enterSymbol(Symbol *symbol)
     }
 }
 
+Symbol *Scope::lookat(Name *name) const
+{
+    if (! name)
+        return 0;
+
+    else if (OperatorNameId *opId = name->asOperatorNameId())
+        return lookat(opId->kind());
+
+    else if (Identifier *id = name->identifier())
+        return lookat(id);
+
+    else
+        return 0;
+}
+
 Symbol *Scope::lookat(Identifier *id) const
 {
     if (! _hash || ! id)
