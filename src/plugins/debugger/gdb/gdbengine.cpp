@@ -4218,6 +4218,7 @@ void GdbEngine::handleInferiorStartFailed(const QString &msg)
 {
     debugMessage(_("INFERIOR START FAILED"));
     showMessageBox(QMessageBox::Critical, tr("Inferior start failed"), msg);
+    setState(InferiorStartFailed);
     shutdown();
 }
 

@@ -111,7 +111,6 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
         m_engine->updateAll();
     } else {
         QString msg = __(response.data.findChild("msg").data());
-        setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
     }
 }

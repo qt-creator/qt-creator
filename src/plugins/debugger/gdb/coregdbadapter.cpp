@@ -121,7 +121,6 @@ void CoreGdbAdapter::handleTargetCore1(const GdbResponse &response)
         int pos1 = console.data().indexOf('`');
         int pos2 = console.data().indexOf('\'');
         if (pos1 == -1 || pos2 == -1) {
-            setState(InferiorStartFailed);
             emit inferiorStartFailed(tr("No binary found."));
         } else {
             m_executable = console.data().mid(pos1 + 1, pos2 - pos1 - 1);
@@ -134,7 +133,6 @@ void CoreGdbAdapter::handleTargetCore1(const GdbResponse &response)
         }
     } else {
         const QByteArray msg = response.data.findChild("msg").data();
-        setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
     }
 }
@@ -149,7 +147,6 @@ void CoreGdbAdapter::handleDetach1(const GdbResponse &response)
             .arg(fi.absoluteFilePath()), CB(handleFileExecAndSymbols));
     } else {
         const QByteArray msg = response.data.findChild("msg").data();
-        setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
     }
 }
@@ -168,7 +165,6 @@ void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
             .arg(__(response.data.findChild("msg").data()));
         setState(InferiorUnrunnable);
         m_engine->updateAll();
-        //setState(InferiorStartFailed);
        // emit inferiorStartFailed(msg);
     }
 }
@@ -185,7 +181,6 @@ void CoreGdbAdapter::handleTargetCore2(const GdbResponse &response)
             .arg(__(response.data.findChild("msg").data()));
         setState(InferiorUnrunnable);
         m_engine->updateAll();
-        //setState(InferiorStartFailed);
        // emit inferiorStartFailed(msg);
     }
 }

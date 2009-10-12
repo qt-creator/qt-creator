@@ -141,7 +141,6 @@ void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
         const QByteArray &msg = response.data.findChild("msg").data();
         //QTC_ASSERT(status() == InferiorRunning, /**/);
         //interruptInferior();
-        setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
     }
 }
