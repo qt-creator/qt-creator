@@ -1187,10 +1187,6 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
     logMessage("COD: " + hexxNumber(m_session.codeseg));
     logMessage("DAT: " + hexxNumber(m_session.dataseg));
 
-    QByteArray ba;
-    appendInt(&ba, m_session.pid);
-    appendInt(&ba, m_session.tid);
-
     startGdb();
 }
 

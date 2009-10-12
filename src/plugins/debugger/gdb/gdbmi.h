@@ -149,7 +149,6 @@ enum GdbResultClass
     // "done" | "running" | "connected" | "error" | "exit" 
     GdbResultUnknown,
     GdbResultDone,
-    GdbResultCustomDone,
     GdbResultRunning,
     GdbResultConnected,
     GdbResultError,
