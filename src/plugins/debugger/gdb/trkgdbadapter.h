@@ -273,9 +273,6 @@ private:
         //QTime postTime;
     };
 
-    void sendGdbMessage(const QString &msg,
-        GdbCallback callback = GdbCallback(),
-        const QVariant &cookie = QVariant());
     Q_SLOT void handleGdbConnection();
     Q_SLOT void readGdbServerCommand();
     void readGdbResponse();
@@ -316,7 +313,6 @@ private:
     QString effectiveTrkDevice() const;
 
     // Debuggee state
-    Q_SLOT void executeCommand(const QString &msg);
     trk::Session m_session; // global-ish data (process id, target information)
     Snapshot m_snapshot; // local-ish data (memory and registers)
     QString m_remoteExecutable;

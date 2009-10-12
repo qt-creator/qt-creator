@@ -969,24 +969,6 @@ i        */
     }
 }
 
-void TrkGdbAdapter::executeCommand(const QString &msg)
-{
-    if (msg == "EI") {
-        sendGdbMessage("-exec-interrupt");
-    } else if (msg == "C") {
-        sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
-    } else if (msg == "S") {
-        sendTrkMessage(0x19, TrkCallback(), trkStepRangeMessage(0x01), "STEP");
-    } else if (msg == "N") {
-        sendTrkMessage(0x19, TrkCallback(), trkStepRangeMessage(0x11), "NEXT");
-    } else if (msg == "I") {
-        interruptInferior();
-    } else {
-        logMessage("EXECUTING GDB COMMAND " + msg);
-        sendGdbMessage(msg);
-    }
-}
-
 void TrkGdbAdapter::sendTrkMessage(byte code, TrkCallback callback,
     const QByteArray &data, const QVariant &cookie)
 {
@@ -1734,17 +1716,6 @@ void TrkGdbAdapter::startGdb()
     gdbArgs.append(QLatin1String("-i"));
     gdbArgs.append(QLatin1String("mi"));
     m_gdbProc.start(m_options->gdb, gdbArgs);
-}
-
-void TrkGdbAdapter::sendGdbMessage(const QString &msg, GdbCallback callback,
-    const QVariant &cookie)
-{
-    GdbCommand data;
-    data.command = msg;
-    data.callback = callback;
-    data.cookie = cookie;
-    logMessage(QString("<- ADAPTER TO GDB: %2").arg(msg));
-    m_gdbProc.write(msg.toLatin1() + "\n");
 }
 
 //
