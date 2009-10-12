@@ -83,5 +83,35 @@ bool AbstractGdbAdapter::isTrkAdapter() const
     return false;
 }
 
+QString AbstractGdbAdapter::msgGdbStopFailed(const QString &why)
+{
+    return tr("The Gdb process could not be stopped:\n%1").arg(why);
+}
+
+QString AbstractGdbAdapter::msgInferiorStopFailed(const QString &why)
+{
+    return tr("Inferior process could not be stopped:\n%1").arg(why);
+}
+
+QString AbstractGdbAdapter::msgInferiorStarted()
+{
+    return tr("Inferior started.");
+}
+
+QString AbstractGdbAdapter::msgInferiorRunning()
+{
+    return tr("Inferior running.");
+}
+
+QString AbstractGdbAdapter::msgAttachedToStoppedInferior()
+{
+    return tr("Attached to stopped inferior.");
+}
+
+QString AbstractGdbAdapter::msgConnectRemoteServerFailed(const QString &why)
+{
+    return tr("Connecting to remote server failed:\n%1").arg(why);
+}
+
 } // namespace Internal
 } // namespace Debugger

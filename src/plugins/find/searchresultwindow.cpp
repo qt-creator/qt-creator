@@ -78,7 +78,7 @@ SearchResultWindow::SearchResultWindow()
     m_replaceLabel->setContentsMargins(12, 0, 5, 0);
     m_replaceTextEdit = new QLineEdit(m_widget);
     m_replaceButton = new QToolButton(m_widget);
-    m_replaceButton->setToolTip(tr("Replace all occurances"));
+    m_replaceButton->setToolTip(tr("Replace all occurrences"));
     m_replaceButton->setText(tr("Replace"));
     m_replaceButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     m_replaceButton->setAutoRaise(true);
@@ -234,7 +234,7 @@ void SearchResultWindow::setTextEditorFont(const QFont &font)
     m_searchResultTreeView->setTextEditorFont(font);
 }
 
-void SearchResultWindow::handleJumpToSearchResult(int index, bool checked)
+void SearchResultWindow::handleJumpToSearchResult(int index, bool /* checked */)
 {
     QTC_ASSERT(m_currentSearch, return);
     m_currentSearch->activated(m_items.at(index));

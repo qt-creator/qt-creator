@@ -107,7 +107,7 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         setState(InferiorStopped);
         debugMessage(_("INFERIOR STARTED"));
-        showStatusMessage(tr("Attached to stopped inferior."));
+        showStatusMessage(msgAttachedToStoppedInferior());
         m_engine->updateAll();
     } else if (response.resultClass == GdbResultError) {
         QString msg = __(response.data.findChild("msg").data());
@@ -155,8 +155,7 @@ void AttachGdbAdapter::handleDetach(const GdbResponse &response)
         emit inferiorShutDown();
         shutdown(); // re-iterate...
     } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Inferior process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+        const QString msg = msgInferiorStopFailed(__(response.data.findChild("msg").data()));
         setState(InferiorShutdownFailed);
         emit inferiorShutdownFailed(msg);
     }
@@ -167,8 +166,7 @@ void AttachGdbAdapter::handleExit(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         // don't set state here, this will be handled in handleGdbFinished()
     } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Gdb process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+        const QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
         emit adapterShutdownFailed(msg);
     }
 }

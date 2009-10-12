@@ -59,7 +59,7 @@
             <height>0</height>
            </size>
           </property>
-          <property name="alphaAllowed" stdset="0">
+          <property name="alphaAllowed">
            <bool>false</bool>
           </property>
          </widget>
@@ -163,6 +163,9 @@
           <property name="text">
            <string>When files are externally modified:</string>
           </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
@@ -192,19 +195,6 @@
            </property>
           </item>
          </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>

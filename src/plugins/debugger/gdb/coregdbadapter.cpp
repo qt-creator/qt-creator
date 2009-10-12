@@ -221,8 +221,7 @@ void CoreGdbAdapter::handleExit(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         // don't set state here, this will be handled in handleGdbFinished()
     } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Gdb process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+        const QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
         emit adapterShutdownFailed(msg);
     }
 }

@@ -212,13 +212,12 @@ void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
     if (record.resultClass == GdbResultDone) {
         // gdb server will stop the remote application itself.
         debugMessage(_("INFERIOR STARTED"));
-        showStatusMessage(tr("Attached to stopped inferior."));
+        showStatusMessage(msgAttachedToStoppedInferior());
         setState(InferiorStopped);
         m_engine->continueInferior();
     } else if (record.resultClass == GdbResultError) {
         // 16^error,msg="hd:5555: Connection timed out."
-        QString msg = tr("Connecting to remote server failed:\n");
-        msg += __(record.data.findChild("msg").data());
+        QString msg = msgConnectRemoteServerFailed(__(record.data.findChild("msg").data()));
         setState(InferiorPreparationFailed);
         emit inferiorStartFailed(msg);
     }
@@ -273,8 +272,7 @@ void RemoteGdbAdapter::handleKill(const GdbResponse &response)
         emit inferiorShutDown();
         shutdown(); // re-iterate...
     } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Inferior process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+        QString msg = msgInferiorStopFailed(__(response.data.findChild("msg").data()));
         setState(InferiorShutdownFailed);
         emit inferiorShutdownFailed(msg);
     }
@@ -285,8 +283,7 @@ void RemoteGdbAdapter::handleExit(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         // don't set state here, this will be handled in handleGdbFinished()
     } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Gdb process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+        QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
         emit adapterShutdownFailed(msg);
     }
 }

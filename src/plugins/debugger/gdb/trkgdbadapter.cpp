@@ -1702,11 +1702,9 @@ void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)
     QTC_ASSERT(state() == InferiorRunning, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
         debugMessage(_("INFERIOR STARTED"));
-        showStatusMessage(tr("Inferior running."));
+        showStatusMessage(msgInferiorRunning());
     } else if (record.resultClass == GdbResultError) {
-        //QString msg = __(record.data.findChild("msg").data());
-        QString msg1 = tr("Connecting to remote server failed:");
-        emit inferiorStartFailed(msg1 + record.toString());
+        emit inferiorStartFailed(msgConnectRemoteServerFailed(record.toString()));
     }
 }
 
@@ -2083,8 +2081,7 @@ void TrkGdbAdapter::handleKill(const GdbResponse &response)
         emit inferiorShutDown();
         shutdown(); // re-iterate...
     } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Inferior process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+        const QString msg = msgInferiorStopFailed(__(response.data.findChild("msg").data()));
         setState(InferiorShutdownFailed);
         emit inferiorShutdownFailed(msg);
     }
@@ -2096,8 +2093,7 @@ void TrkGdbAdapter::handleExit(const GdbResponse &response)
         qDebug() << "EXITED, NO MESSAGE...";
         // don't set state here, this will be handled in handleGdbFinished()
     } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Gdb process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+        const QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
         emit adapterShutdownFailed(msg);
     }
 }
