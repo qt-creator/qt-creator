@@ -172,12 +172,12 @@ private:
 public: // otherwise the Qt flag macros are unhappy
     enum GdbCommandFlag {
         NoFlags = 0,
-        NeedsStop = 1,
-        Discardable = 2,
-        RebuildModel = 4,
+        NeedsStop = 1,    // The command needs a stopped inferior
+        Discardable = 2,  // No need to wait for the reply before continuing inferior
+        RebuildModel = 4, // Trigger model rebuild when no such commands are pending any more
         WatchUpdate = Discardable | RebuildModel,
-        EmbedToken = 8,
-        RunRequest = 16
+        EmbedToken = 8,   // Expand %1 in the command to the command token
+        RunRequest = 16   // Callback expect GdbResultRunning instead of GdbResultDone
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 
