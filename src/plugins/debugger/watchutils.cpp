@@ -409,7 +409,8 @@ QString decodeData(const QByteArray &ba, int encoding)
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromBase64(ba);
             QString rc = doubleQuote;
-            rc += QString::fromUtf16(reinterpret_cast<const ushort *>(decodedBa.data()), decodedBa.size() / 2);
+            rc += QString::fromUtf16(reinterpret_cast<const ushort *>
+                (decodedBa.data()), decodedBa.size() / 2);
             rc += doubleQuote;
             return rc;
         }
@@ -417,16 +418,24 @@ QString decodeData(const QByteArray &ba, int encoding)
             const QByteArray decodedBa = QByteArray::fromBase64(ba);
             const QChar doubleQuote(QLatin1Char('"'));
             QString rc = doubleQuote;
-            rc += QString::fromUcs4(reinterpret_cast<const uint *>(decodedBa.data()), decodedBa.size() / 4);
+            rc += QString::fromUcs4(reinterpret_cast<const uint *>
+                (decodedBa.data()), decodedBa.size() / 4);
             rc += doubleQuote;
             return rc;
         }
         case 4: { //  base64 encoded 16 bit data, without quotes (see 2)
             const QByteArray decodedBa = QByteArray::fromBase64(ba);
-            return QString::fromUtf16(reinterpret_cast<const ushort *>(decodedBa.data()), decodedBa.size() / 2);
+            return QString::fromUtf16(reinterpret_cast<const ushort *>
+                (decodedBa.data()), decodedBa.size() / 2);
         }
         case 5: { //  base64 encoded 8 bit data, without quotes (see 1)
             return quoteUnprintableLatin1(QByteArray::fromBase64(ba));
+        }
+        case 7: { //  %04x endoded 16 bit data
+            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
+            return QString::fromUtf16(reinterpret_cast<const ushort *>
+                (decodedBa.data()), decodedBa.size() / 2);
         }
     }
     return QCoreApplication::translate("Debugger", "<Encoding error>");
