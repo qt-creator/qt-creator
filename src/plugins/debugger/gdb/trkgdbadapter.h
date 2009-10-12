@@ -140,7 +140,6 @@ public:
     void setVerbose(int verbose) { m_verbose = verbose; }
     void setBufferedMemoryRead(bool b) { m_bufferedMemoryRead = b; }
     trk::Session &session() { return m_session; }
-    void startGdb();
 
     // Set a device (from the project) to override the settings.
     QString overrideTrkDevice() const;
@@ -180,7 +179,7 @@ private:
     void emitDelayedAdapterStartFailed(const QString &msg);
     Q_SLOT void slotEmitDelayedAdapterStartFailed();
 
-    Q_SLOT void startInferiorEarly();
+    Q_SLOT void waitForTrkConnect();
     void handleKill(const GdbResponse &response);
     void handleExit(const GdbResponse &response);
     void handleTargetRemote(const GdbResponse &response);
@@ -289,6 +288,8 @@ private:
     Q_SLOT void handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus);
     Q_SLOT void handleGdbStarted();
     Q_SLOT void handleGdbStateChanged(QProcess::ProcessState newState);
+
+    void maybeAdapterStarted();
 
     void logMessage(const QString &msg);  // triggers output() if m_verbose
     Q_SLOT void trkLogMessage(const QString &msg);

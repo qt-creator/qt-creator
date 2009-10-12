@@ -391,7 +391,7 @@ void TrkGdbAdapter::slotEmitDelayedAdapterStartFailed()
     emit adapterStartFailed(m_adapterFailMessage, TrkOptionsPage::settingsId());
 }
 
-void TrkGdbAdapter::startInferiorEarly()
+void TrkGdbAdapter::waitForTrkConnect()
 {
     QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     QString errorMessage;
@@ -406,7 +406,7 @@ void TrkGdbAdapter::startInferiorEarly()
         }
         // Do not loop forever
         if (m_waitCount++ < (m_options->mode == TrkOptions::BlueTooth ? 60 : 5)) {
-            QTimer::singleShot(1000, this, SLOT(startInferiorEarly()));
+            QTimer::singleShot(1000, this, SLOT(waitForTrkConnect()));
         } else {
             QString msg = _("Failed to connect to %1 after "
                 "%2 attempts").arg(device).arg(m_waitCount);
@@ -426,14 +426,7 @@ void TrkGdbAdapter::startInferiorEarly()
     //    "10 " + formatString("C:\\data\\usingdlls.sisx")); // Open File
     //sendTrkMessage(0x4B, 0, "00 00 00 01 73 1C 3A C8"); // Close File
 
-    QByteArray ba;
-    appendByte(&ba, 0); // ?
-    appendByte(&ba, 0); // ?
-    appendByte(&ba, 0); // ?
-
-    appendString(&ba, m_remoteExecutable.toLatin1(), TargetByteOrder);
-    sendTrkMessage(0x40, TrkCB(handleCreateProcess), ba); // Create Item
-    //sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(startGdbServer));
+    maybeAdapterStarted();
 }
 
 void TrkGdbAdapter::logMessage(const QString &msg)
@@ -1143,35 +1136,6 @@ void TrkGdbAdapter::handleCpuType(const TrkResult &result)
     logMessage(logMsg);
 }
 
-void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
-{
-    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
-    //  40 00 00]
-    //logMessage("       RESULT: " + result.toString());
-    // [80 08 00   00 00 01 B5   00 00 01 B6   78 67 40 00   00 40 00 00]
-    if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString());
-        QString msg = _("Cannot start executable \"%1\" on the device:\n%2")
-            .arg(m_remoteExecutable).arg(result.errorString());
-        // Delay cleanup as not to close a trk device from its read handler,
-        // which blocks.
-        emitDelayedAdapterStartFailed(msg);
-        return;
-    }
-    const char *data = result.data.data();
-    m_session.pid = extractInt(data + 1);
-    m_session.tid = extractInt(data + 5);
-    m_session.codeseg = extractInt(data + 9);
-    m_session.dataseg = extractInt(data + 13);
-
-    logMessage("PID: " + hexxNumber(m_session.pid));
-    logMessage("TID: " + hexxNumber(m_session.tid));
-    logMessage("COD: " + hexxNumber(m_session.codeseg));
-    logMessage("DAT: " + hexxNumber(m_session.dataseg));
-
-    startGdb();
-}
-
 void TrkGdbAdapter::handleDeleteProcess(const TrkResult &result)
 {
     Q_UNUSED(result);
@@ -1580,10 +1544,17 @@ void TrkGdbAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitSta
 
 void TrkGdbAdapter::handleGdbStarted()
 {
-    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     logMessage(QString("GDB: Process Started"));
-    setState(AdapterStarted);
-    emit adapterStarted();
+    maybeAdapterStarted();
+}
+
+void TrkGdbAdapter::maybeAdapterStarted()
+{
+    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
+    if (m_gdbProc.state() == QProcess::Running && m_trkDevice.isOpen()) {
+        setState(AdapterStarted);
+        emit adapterStarted();
+    }
 }
 
 void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
@@ -1634,15 +1605,76 @@ void TrkGdbAdapter::startAdapter()
     }
     m_waitCount = 0;
 
-    startInferiorEarly();
+    QTC_ASSERT(m_gdbServer == 0, delete m_gdbServer);
+    QTC_ASSERT(m_gdbConnection == 0, m_gdbConnection = 0);
+    m_gdbServer = new QTcpServer(this);
+
+    if (!m_gdbServer->listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
+        QString msg = QString("Unable to start the gdb server at %1: %2.")
+            .arg(m_gdbServerName).arg(m_gdbServer->errorString());
+        logMessage(msg);
+        emit adapterStartFailed(msg, TrkOptionsPage::settingsId());
+        return;
+    }
+
+    logMessage(QString("Gdb server running on %1.\nLittle endian assumed.")
+        .arg(m_gdbServerName));
+
+    connect(m_gdbServer, SIGNAL(newConnection()),
+        this, SLOT(handleGdbConnection()));
+
+    logMessage("STARTING GDB");
+    logMessage(_("### Starting gdb %1").arg(m_options->gdb));
+    QStringList gdbArgs;
+    gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
+    gdbArgs.append(QLatin1String("-i"));
+    gdbArgs.append(QLatin1String("mi"));
+    m_gdbProc.start(m_options->gdb, gdbArgs);
+
+    waitForTrkConnect();
 }
 
 void TrkGdbAdapter::prepareInferior()
 {
     QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
-    // We already started the inferior process during the adapter start.
-    // Now make gdb aware of it.
     setState(InferiorPreparing);
+
+    QByteArray ba;
+    appendByte(&ba, 0); // ?
+    appendByte(&ba, 0); // ?
+    appendByte(&ba, 0); // ?
+
+    appendString(&ba, m_remoteExecutable.toLatin1(), TargetByteOrder);
+    sendTrkMessage(0x40, TrkCB(handleCreateProcess), ba); // Create Item
+    //sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(startGdbServer));
+}
+
+void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
+{
+    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
+    //  40 00 00]
+    //logMessage("       RESULT: " + result.toString());
+    // [80 08 00   00 00 01 B5   00 00 01 B6   78 67 40 00   00 40 00 00]
+    if (result.errorCode()) {
+        logMessage("ERROR: " + result.errorString());
+        QString msg = _("Cannot start executable \"%1\" on the device:\n%2")
+            .arg(m_remoteExecutable).arg(result.errorString());
+        // Delay cleanup as not to close a trk device from its read handler,
+        // which blocks.
+        emitDelayedAdapterStartFailed(msg);
+        return;
+    }
+    const char *data = result.data.data();
+    m_session.pid = extractInt(data + 1);
+    m_session.tid = extractInt(data + 5);
+    m_session.codeseg = extractInt(data + 9);
+    m_session.dataseg = extractInt(data + 13);
+
+    logMessage("PID: " + hexxNumber(m_session.pid));
+    logMessage("TID: " + hexxNumber(m_session.tid));
+    logMessage("COD: " + hexxNumber(m_session.codeseg));
+    logMessage("DAT: " + hexxNumber(m_session.dataseg));
+
     const QString fileName = m_symbolFile;
     if (m_symbolFile.isEmpty()) {
         logMessage(_("WARNING: No symbol file available."));
@@ -1684,38 +1716,6 @@ void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)
     } else {
         emit inferiorStartFailed(msgConnectRemoteServerFailed(record.toString()));
     }
-}
-
-void TrkGdbAdapter::startGdb()
-{
-    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
-    QTC_ASSERT(m_gdbServer == 0, delete m_gdbServer);
-    QTC_ASSERT(m_gdbConnection == 0, m_gdbConnection = 0);
-    m_gdbServer = new QTcpServer(this);
-    
-    if (!m_gdbServer->listen(QHostAddress(gdbServerIP()), gdbServerPort())) {
-        QString msg = QString("Unable to start the gdb server at %1: %2.")
-            .arg(m_gdbServerName).arg(m_gdbServer->errorString());
-        logMessage(msg);
-        // Delay cleanup as not to close a trk device from its read handler,
-        // which blocks.
-        emitDelayedAdapterStartFailed(msg);
-        return;
-    }
-
-    logMessage(QString("Gdb server running on %1.\nLittle endian assumed.")
-        .arg(m_gdbServerName));
-
-    connect(m_gdbServer, SIGNAL(newConnection()),
-        this, SLOT(handleGdbConnection()));
-
-    logMessage("STARTING GDB");
-    logMessage(_("### Starting gdb %1").arg(m_options->gdb));
-    QStringList gdbArgs;
-    gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
-    gdbArgs.append(QLatin1String("-i"));
-    gdbArgs.append(QLatin1String("mi"));
-    m_gdbProc.start(m_options->gdb, gdbArgs);
 }
 
 //
