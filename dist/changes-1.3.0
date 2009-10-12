@@ -22,6 +22,7 @@ General
    * Reworked the projects pane
    * Made the welcome screen tabs into plugins, reimplement IWelcomePage 
      to add your own welcome screen page
+   * Overhauled the project pane.
 
 Editing
    * Added support for text editor color schemes
@@ -36,14 +37,19 @@ Editing
    * Handle block selection in fakevim
    * Added Copy full path to the editors combobox
    * Added left/right arrow buttons for "Go back/forward" in navigation history
+   * Added smart indentation for pasted text blocks
+
+Refactoring
+   * Added rename symbol under cursor
+   * Find usages of a symbol
 
 Project support
    * Added support for adding and removing files from a generic Makefile-based
      project
    * Added better control over the environment used for running.
-   * Add all cmake files to the project tree (only works with a cvs cmake)
-   * Support cmake with Microsoft Visual Studio Compiler (only works with cvs
-     cmake)
+   * Add all cmake files to the project tree (only works with a  cmake 2.8)
+   * Support cmake with Microsoft Visual Studio Compiler (only works with 
+     cmake 2.8 )
    * Fix a few cmake wizard bugs, where canceling left creator in a strange
      state
    * The qmake and make steps can now be removed.
@@ -53,6 +59,9 @@ Project support
    * Show subdirectory structure below .pro/.pri files in project tree
    * Add "Show file in Finder/Explorer" (Mac/Windows) to context menu.
      On Linux it opens the containing directory.
+   * The qmake step and make step can be removed from qt projects now.
+   * Made importing build settings for qt projects more robust
+   * Only run qmake, if it needs to be run.
 
 Compilation
    * Support multi-core compilation on Windows/MSVC via jom
@@ -93,6 +102,9 @@ Platform Specific
 
 Mac
    * Make use of system's language settings
+
+Symbian Target
+   * Preliminary support for targeting Qt for Symbian applications
 
 Additional credits go to:
    * Christian Hoenig (Locator filter for symbols in current document)
