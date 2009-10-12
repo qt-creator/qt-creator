@@ -146,9 +146,10 @@ private:
     Q_SLOT void setDebugDebuggingHelpers(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
     Q_SLOT void setAutoDerefPointers(const QVariant &on);
-    virtual bool isGdbEngine() const { return true; }
+    bool isGdbEngine() const { return true; }
+    bool isSynchroneous() const;
 
-    virtual bool checkConfiguration(int toolChain, QString *errorMessage, QString *settingsPage= 0) const;
+    bool checkConfiguration(int toolChain, QString *errorMessage, QString *settingsPage= 0) const;
 
     //
     // Own stuff
@@ -347,6 +348,9 @@ private:
     void handleStackListFrames(const GdbResponse &response);
     void handleStackSelectThread(const GdbResponse &response);
     void handleStackListThreads(const GdbResponse &response);
+    void handleStackFrame1(const GdbResponse &response);
+    void handleStackFrame2(const GdbResponse &response);
+    QByteArray m_firstChunk;
     Q_SLOT void reloadStack(bool forceGotoLocation);
     Q_SLOT void reloadFullStack();
 

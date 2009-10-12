@@ -89,7 +89,7 @@
 #endif
 #include <ctype.h>
 
-// FIXME: temporary hack to evalute tbreak based step-over behaviour
+// FIXME: temporary hack to evalaute tbreak based step-over behaviour
 static QString lastFile;
 static int lastLine;
 
@@ -2648,8 +2648,6 @@ static void setWatchDataSAddress(WatchData &data, const GdbMi &mi)
 void GdbEngine::setUseDebuggingHelpers(const QVariant &on)
 {
     //qDebug() << "SWITCHING ON/OFF DUMPER DEBUGGING:" << on;
-    // FIXME: a bit too harsh, but otherwise the treeview sometimes look funny
-    //m_expandedINames.clear();
     Q_UNUSED(on)
     setTokenBarrier();
     updateLocals();
@@ -2916,6 +2914,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         return;
     }
 
+//#if !X
     if (data.isHasChildrenNeeded() && data.variable.isEmpty()) {
         #if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: VARIABLE NEEDED FOR CHILDCOUNT";
@@ -2925,6 +2924,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
         // item, with childrenNeeded() set.
         return;
     }
+//#endif
 
     if (data.isHasChildrenNeeded()) {
         QTC_ASSERT(!data.variable.isEmpty(), return); // tested above
@@ -2939,16 +2939,32 @@ void GdbEngine::updateSubItem(const WatchData &data0)
 
 void GdbEngine::updateWatchData(const WatchData &data)
 {
-    // Bump requests to avoid model rebuilding during the nested
-    // updateWatchModel runs.
-    ++m_pendingRequests;
-    PENDING_DEBUG("UPDATE WATCH BUMPS PENDING UP TO " << m_pendingRequests);
-#if 1
-    QMetaObject::invokeMethod(this, "updateWatchDataHelper",
-        Qt::QueuedConnection, Q_ARG(WatchData, data));
+    if (isSynchroneous()) {
+        // This should only be called for fresh expanded items, not for
+        // items that had their children retrieved earlier.
+        qDebug() << "\nUPDATE WATCH DATA: " << data.toString() << "\n";
+#if 0
+        WatchData data1 = data;
+        data1.setAllUnneeded();
+        insertData(data1);
+        rebuildModel();
 #else
-    updateWatchDataHelper(data);
+        if (data.iname.endsWith(_(".")))
+            return;
+        updateLocals();
 #endif
+    } else {
+        // Bump requests to avoid model rebuilding during the nested
+        // updateWatchModel runs.
+        ++m_pendingRequests;
+        PENDING_DEBUG("UPDATE WATCH BUMPS PENDING UP TO " << m_pendingRequests);
+#if 1
+        QMetaObject::invokeMethod(this, "updateWatchDataHelper",
+            Qt::QueuedConnection, Q_ARG(WatchData, data));
+#else
+        updateWatchDataHelper(data);
+#endif
+    }
 }
 
 void GdbEngine::updateWatchDataHelper(const WatchData &data)
@@ -3341,12 +3357,6 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResponse &response)
 
 void GdbEngine::updateLocals()
 {
-    // Asynchronous load of injected library, initialize in first stop
-    if (m_dumperInjectionLoad && m_debuggingHelperState == DebuggingHelperLoadTried
-            && m_dumperHelper.typeCount() == 0
-            && inferiorPid() > 0)
-        tryQueryDebuggingHelpers();
-
     m_pendingRequests = 0;
     m_processedNames.clear();
 
@@ -3355,13 +3365,70 @@ void GdbEngine::updateLocals()
     m_toolTipExpression.clear();
     manager()->watchHandler()->beginCycle();
 
-    QString level = QString::number(currentFrame());
-    // '2' is 'list with type and value'
-    QString cmd = _("-stack-list-arguments 2 ") + level + _c(' ') + level;
-    postCommand(cmd, WatchUpdate, CB(handleStackListArguments));
-    // '2' is 'list with type and value'
-    postCommand(_("-stack-list-locals 2"), WatchUpdate,
-        CB(handleStackListLocals)); // stage 2/2
+    // Asynchronous load of injected library, initialize in first stop
+    if (m_dumperInjectionLoad && m_debuggingHelperState == DebuggingHelperLoadTried
+            && m_dumperHelper.typeCount() == 0
+            && inferiorPid() > 0)
+        tryQueryDebuggingHelpers();
+
+    if (isSynchroneous()) {
+        QStringList expanded = m_manager->watchHandler()->expandedINames().toList();
+        qDebug() << "EXPANDED: " << expanded;
+        postCommand(_("bb %1").arg(expanded.join(_(","))),
+            WatchUpdate, CB(handleStackFrame1));
+        postCommand(_("p 0"), WatchUpdate, CB(handleStackFrame2));
+    } else {
+        QString level = QString::number(currentFrame());
+        // '2' is 'list with type and value'
+        QString cmd = _("-stack-list-arguments 2 ") + level + _c(' ') + level;
+        postCommand(cmd, WatchUpdate, CB(handleStackListArguments));
+        // '2' is 'list with type and value'
+        postCommand(_("-stack-list-locals 2"), WatchUpdate,
+            CB(handleStackListLocals)); // stage 2/2
+    }
+}
+
+void GdbEngine::handleStackFrame1(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        QByteArray out = response.data.findChild("consolestreamoutput").data();
+        while (out.endsWith(' ') || out.endsWith('\n'))
+            out.chop(1);
+        //qDebug() << "FIRST CHUNK: " << out;
+        m_firstChunk = out;
+    } else if (response.resultClass == GdbResultError) {
+        QTC_ASSERT(false, /**/);
+    }
+}
+
+void GdbEngine::handleStackFrame2(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        QByteArray out = response.data.findChild("consolestreamoutput").data();
+        while (out.endsWith(' ') || out.endsWith('\n'))
+            out.chop(1);
+        //qDebug() << "SECOND CHUNK: " << out;
+        out = m_firstChunk + out;
+        // FIXME: Hack, make sure dumper does not return "{}"
+        out.replace(",{}", "");
+        GdbMi all("[" + out + "]");
+        qDebug() << "ALL: " << all.toString();
+        QList<GdbMi> locals = all.children();
+        //manager()->watchHandler()->insertBulkData(locals);
+        //setLocals(locals);
+        WatchData *data = manager()->watchHandler()->findItem(_("local"));
+        QTC_ASSERT(data, return);
+
+        QList<WatchData> list;
+        foreach (const GdbMi &local, locals)
+            handleChildren(*data, local, &list);
+        
+        manager()->watchHandler()->insertBulkData(list);
+
+        manager()->watchHandler()->updateWatchers();
+    } else if (response.resultClass == GdbResultError) {
+        QTC_ASSERT(false, /**/);
+    }
 }
 
 void GdbEngine::handleStackListArguments(const GdbResponse &response)
@@ -3456,14 +3523,23 @@ void GdbEngine::setLocals(const QList<GdbMi> &locals)
             data.exp = nam;
             data.framekey = m_currentFrame + data.name;
             setWatchDataType(data, item.findChild("type"));
-            // set value only directly if it is simple enough, otherwise
-            // pass through the insertData() machinery
-            if (isIntOrFloatType(data.type) || isPointerType(data.type))
-                setWatchDataValue(data, item.findChild("value"));
-            if (isSymbianIntType(data.type)) {
-                setWatchDataValue(data, item.findChild("value"));
-                data.setHasChildren(false);
+            if (isSynchroneous()) {
+                setWatchDataValue(data, item.findChild("value"),
+                    item.findChild("valueencoded").data().toInt());
+                // We know that the complete list of children is 
+                // somewhere in the response.
+                data.setChildrenUnneeded();
+            } else {
+                // set value only directly if it is simple enough, otherwise
+                // pass through the insertData() machinery
+                if (isIntOrFloatType(data.type) || isPointerType(data.type))
+                    setWatchDataValue(data, item.findChild("value"));
+                if (isSymbianIntType(data.type)) {
+                    setWatchDataValue(data, item.findChild("value"));
+                    data.setHasChildren(false);
+                }
             }
+
             // Let's be a bit more bold:
             //if (!hasDebuggingHelperForType(data.type)) {
             //    QByteArray value = item.findChild("value").data();
@@ -3515,7 +3591,8 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         //qDebug() << "DATA" << data.toString();
         QString cmd = _("-var-list-children --all-values \"") + data.variable + _c('"');
         //iname += '.' + exp;
-        postCommand(cmd, WatchUpdate, CB(handleVarListChildren), QVariant::fromValue(data));
+        postCommand(cmd, WatchUpdate,
+            CB(handleVarListChildren), QVariant::fromValue(data));
     } else if (item.findChild("numchild").data() == "0") {
         // happens for structs without data, e.g. interfaces.
         WatchData data;
@@ -3533,7 +3610,8 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         WatchData data;
         data.iname = _(name);
         QString cmd = _("-var-list-children --all-values \"") + data.variable + _c('"');
-        postCommand(cmd, WatchUpdate, CB(handleVarListChildren), QVariant::fromValue(data));
+        postCommand(cmd, WatchUpdate,
+            CB(handleVarListChildren), QVariant::fromValue(data));
     } else if (exp == "staticMetaObject") {
         //    && item.findChild("type").data() == "const QMetaObject")
         // FIXME: Namespaces?
@@ -3655,6 +3733,9 @@ void GdbEngine::assignValueInDebugger(const QString &expression, const QString &
 
 void GdbEngine::tryLoadDebuggingHelpers()
 {
+    if (isSynchroneous())
+        return;
+
     if (m_debuggingHelperState != DebuggingHelperUninitialized)
         return;
     if (!startModeAllowsDumpers()) {
@@ -3735,9 +3816,13 @@ void GdbEngine::tryLoadDebuggingHelpers()
 
 void GdbEngine::tryQueryDebuggingHelpers()
 {
+#if !X
     // retrieve list of dumpable classes
     postCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
     postCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
+#else
+    m_debuggingHelperState = DebuggingHelperUnavailable;
+#endif
 }
 
 void GdbEngine::recheckDebuggingHelperAvailability()
@@ -4186,6 +4271,10 @@ void GdbEngine::showMessageBox(int icon, const QString &title, const QString &te
     m_manager->showMessageBox(icon, title, text);
 }
 
+bool GdbEngine::isSynchroneous() const
+{
+    return false;
+}
 
 //
 // Factory
