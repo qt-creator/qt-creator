@@ -163,7 +163,7 @@ private:
     QStringList internalFrameworkPaths() const;
     QByteArray internalDefinedMacros() const;
 
-    void setIncludesInPaths(const QMap<QString, QStringList> includesInPaths);
+    void setIncludesInPaths(const QMap<QString, QStringList> &includesInPaths);
 
     static void updateIncludesInPaths(QFutureInterface<void> &future,
                                       CppModelManager *manager,
