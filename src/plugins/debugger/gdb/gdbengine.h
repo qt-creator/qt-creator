@@ -245,8 +245,6 @@ private slots:
     void handleAdapterStarted();
     void handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint = QString());
 
-    void handleInferiorPrepared();
-    void handleInferiorPreparationFailed(const QString &msg);
     void handleInferiorStartFailed(const QString &msg);
     void handleInferiorShutDown();
     void handleInferiorShutdownFailed(const QString &msg);

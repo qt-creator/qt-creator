@@ -111,8 +111,6 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
 {
     return state == AdapterStarted
         || state == InferiorUnrunnable
-        || state == InferiorPreparing
-        || state == InferiorPrepared
         || state == InferiorStarting
         || state == InferiorRunningRequested
         || state == InferiorRunning
@@ -237,11 +235,6 @@ void GdbEngine::connectAdapter()
         this, SLOT(handleAdapterShutDown()));
     connect(m_gdbAdapter, SIGNAL(adapterShutdownFailed(QString)),
         this, SLOT(handleAdapterShutdownFailed(QString)));
-
-    connect(m_gdbAdapter, SIGNAL(inferiorPrepared()),
-        this, SLOT(handleInferiorPrepared()));
-    connect(m_gdbAdapter, SIGNAL(inferiorPreparationFailed(QString)),
-        this, SLOT(handleInferiorPreparationFailed(QString)));
 
     connect(m_gdbAdapter, SIGNAL(inferiorStartFailed(QString)),
         this, SLOT(handleInferiorStartFailed(QString)));
@@ -710,9 +703,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
     }
 
     if (cmd.flags & NeedsStop) {
-        if (state() == InferiorStopped
-            || state() == EngineStarting
-            || state() == InferiorPrepared) {
+        if (state() == InferiorStopped || state() == AdapterStarted) {
             // Can be safely sent now.
             flushCommand(cmd);
         } else {
@@ -4086,24 +4077,7 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
 
 void GdbEngine::handleAdapterStarted()
 {
-    debugMessage(_("ADAPTER SUCCESSFULLY STARTED, PREPARING INFERIOR"));
-    m_gdbAdapter->prepareInferior();
-}
-
-void GdbEngine::handleInferiorPreparationFailed(const QString &msg)
-{
-    debugMessage(_("INFERIOR PREPARATION FAILED"));
-    showMessageBox(QMessageBox::Critical,
-        tr("Inferior start preparation failed"), msg);
-    shutdown();
-}
-
-void GdbEngine::handleInferiorPrepared()
-{
-    QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
-    debugMessage(_("INFERIOR PREPARED"));
-    // FIXME: Check that inferior is in "stopped" state
-    showStatusMessage(tr("Inferior prepared for startup."));
+    debugMessage(_("ADAPTER SUCCESSFULLY STARTED, INITIALIZING GDB"));
 
     postCommand(_("show version"), CB(handleShowVersion));
     //postCommand(_("-enable-timings");
@@ -4196,7 +4170,7 @@ void GdbEngine::handleInferiorPrepared()
 
 void GdbEngine::startInferior()
 {
-    QTC_ASSERT(state() == InferiorPrepared, qDebug() << state());
+    QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
     showStatusMessage(tr("Starting inferior..."));
     setState(InferiorStarting);
     m_gdbAdapter->startInferior();

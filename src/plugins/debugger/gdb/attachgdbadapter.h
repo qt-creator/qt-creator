@@ -55,7 +55,6 @@ public:
     bool dumpersAvailable() const { return false; }
 
     void startAdapter();
-    void prepareInferior();
     void startInferior();
     void interruptInferior();
     void shutdown();

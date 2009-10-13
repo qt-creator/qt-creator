@@ -103,10 +103,9 @@ void PlainGdbAdapter::handleGdbError(QProcess::ProcessError error)
     emit adapterCrashed(m_engine->errorMessage(error));
 }
 
-void PlainGdbAdapter::prepareInferior()
+void PlainGdbAdapter::startInferior()
 {
-    QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
-    setState(InferiorPreparing);
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (!startParameters().processArgs.isEmpty())
         m_engine->postCommand(_("-exec-arguments ")
             + startParameters().processArgs.join(_(" ")));
@@ -117,16 +116,15 @@ void PlainGdbAdapter::prepareInferior()
 
 void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         //m_breakHandler->clearBreakMarkers();
-        setState(InferiorPrepared);
-        emit inferiorPrepared();
+        setState(InferiorRunningRequested);
+        m_engine->postCommand(_("-exec-run"), GdbEngine::RunRequest, CB(handleExecRun));
     } else {
         QString msg = tr("Starting executable failed:\n") +
             __(response.data.findChild("msg").data());
-        setState(InferiorPreparationFailed);
-        emit inferiorPreparationFailed(msg);
+        emit inferiorStartFailed(msg);
     }
 }
 
@@ -143,13 +141,6 @@ void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
         //interruptInferior();
         emit inferiorStartFailed(msg);
     }
-}
-
-void PlainGdbAdapter::startInferior()
-{
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    setState(InferiorRunningRequested);
-    m_engine->postCommand(_("-exec-run"), GdbEngine::RunRequest, CB(handleExecRun));
 }
 
 void PlainGdbAdapter::interruptInferior()

@@ -84,14 +84,6 @@ void AttachGdbAdapter::handleGdbError(QProcess::ProcessError error)
     shutdown();
 }
 
-void AttachGdbAdapter::prepareInferior()
-{
-    QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
-    setState(InferiorPreparing);
-    setState(InferiorPrepared);
-    emit inferiorPrepared();
-}
-
 void AttachGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());

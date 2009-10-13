@@ -69,9 +69,6 @@ enum DebuggerState
     AdapterStarting,
     AdapterStarted,
     AdapterStartFailed,
-    InferiorPreparing,
-    InferiorPrepared,
-    InferiorPreparationFailed,
     InferiorUnrunnable,         // Used in the core dump adapter
     InferiorStarting,
     // InferiorStarted,         // Use InferiorRunningRequested or InferiorStopped

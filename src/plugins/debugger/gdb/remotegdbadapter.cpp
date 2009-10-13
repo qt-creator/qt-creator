@@ -153,10 +153,9 @@ void RemoteGdbAdapter::readUploadStandardError()
     m_engine->gdbOutputAvailable(LogError, QString::fromLocal8Bit(ba, ba.length()));
 }
 
-void RemoteGdbAdapter::prepareInferior()
+void RemoteGdbAdapter::startInferior()
 {
-    QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
-    setState(InferiorPreparing);
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
 
     m_engine->postCommand(_("set architecture %1")
         .arg(startParameters().remoteArchitecture));
@@ -178,7 +177,7 @@ void RemoteGdbAdapter::prepareInferior()
 #if 0
 void RemoteGdbAdapter::handleSetTargetAsync(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         //qq->breakHandler()->setAllPending();
         QFileInfo fi(startParameters().executable);
@@ -187,24 +186,28 @@ void RemoteGdbAdapter::handleSetTargetAsync(const GdbResponse &response)
             CB(handleFileExecAndSymbols));
     } else {
         QString msg = tr("Adapter too old: does not support asynchronous mode.");
-        setState(InferiorPreparationFailed);
-        emit inferiorPreparationFailed(msg);
+        emit inferiorStartFailed(msg);
     }
 }
 #endif
 
 void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
-    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         //m_breakHandler->clearBreakMarkers();
-        m_engine->setState(InferiorPrepared);
-        emit inferiorPrepared();
+
+        // "target remote" does three things:
+        //     (1) connects to the gdb server
+        //     (2) starts the remote application
+        //     (3) stops the remote application (early, e.g. in the dynamic linker)
+        QString channel = startParameters().remoteChannel;
+        m_engine->postCommand(_("target remote %1").arg(channel),
+            CB(handleTargetRemote));
     } else {
         QString msg = tr("Starting remote executable failed:\n");
         msg += __(response.data.findChild("msg").data());
-        setState(InferiorPreparationFailed);
-        emit inferiorPreparationFailed(msg);
+        emit inferiorStartFailed(msg);
     }
 }
 
@@ -220,22 +223,8 @@ void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = msgConnectRemoteServerFailed(__(record.data.findChild("msg").data()));
-        setState(InferiorPreparationFailed);
         emit inferiorStartFailed(msg);
     }
-}
-
-void RemoteGdbAdapter::startInferior()
-{
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    QString channel = startParameters().remoteChannel;
-
-    // "target remote" does three things:
-    //     (1) connects to the gdb server
-    //     (2) starts the remote application
-    //     (3) stops the remote application (early, e.g. in the dynamic linker)
-    m_engine->postCommand(_("target remote %1").arg(channel),
-        CB(handleTargetRemote));
 }
 
 void RemoteGdbAdapter::interruptInferior()
@@ -257,7 +246,7 @@ void RemoteGdbAdapter::shutdown()
         QTC_ASSERT(false, qDebug() << state());
         // fall through
 
-    case InferiorPreparationFailed:
+    case InferiorStartFailed:
     case InferiorShutDown:
         setState(AdapterShuttingDown);
         m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
