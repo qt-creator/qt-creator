@@ -4187,10 +4187,11 @@ void GdbEngine::handleInferiorPrepared()
     }
 
     // Initial attempt to set breakpoints
-    QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
     showStatusMessage(tr("Setting breakpoints..."));
-    m_commandsDoneCallback = &GdbEngine::startInferior;
     attemptBreakpointSynchronization();
+
+    QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
+    m_commandsDoneCallback = &GdbEngine::startInferior;
 }
 
 void GdbEngine::startInferior()
