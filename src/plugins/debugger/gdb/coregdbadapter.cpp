@@ -192,7 +192,7 @@ void CoreGdbAdapter::shutdown()
     case InferiorUnrunnable:
     case InferiorShutDown:
         setState(AdapterShuttingDown);
-        m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
+        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
         return;
 
     default:

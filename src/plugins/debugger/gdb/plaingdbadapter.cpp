@@ -177,7 +177,7 @@ void PlainGdbAdapter::shutdown()
 
     case InferiorShutDown:
         setState(AdapterShuttingDown);
-        m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
+        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
         return;
 
 /*
@@ -192,7 +192,7 @@ void PlainGdbAdapter::shutdown()
                 .arg(state()));
             m_gdbProc.kill();
         }
-        m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
+        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
         return;
 */
     default:

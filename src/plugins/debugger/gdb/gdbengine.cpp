@@ -803,10 +803,12 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
     responseWithCookie.cookie = cmd.cookie;
 
     if (response.resultClass != GdbResultError &&
-        response.resultClass != ((cmd.flags & RunRequest) ? GdbResultRunning : GdbResultDone)) {
-        debugMessage(_("UNEXPECTED RESPONSE %1 TO COMMAND %2")
-                     .arg(_(GdbResponse::stringFromResultClass(response.resultClass)))
-                     .arg(cmd.command));
+        response.resultClass != ((cmd.flags & RunRequest) ? GdbResultRunning :
+                                 (cmd.flags & ExitRequest) ? GdbResultExit :
+                                 GdbResultDone)) {
+        QString rsp = _(GdbResponse::stringFromResultClass(response.resultClass));
+        qWarning() << "UNEXPECTED RESPONSE " << rsp << " TO COMMAND" << cmd.command << " AT " __FILE__ ":" STRINGIFY(__LINE__);
+        debugMessage(_("UNEXPECTED RESPONSE %1 TO COMMAND %2").arg(rsp).arg(cmd.command));
     } else {
         if (cmd.callback)
             (this->*cmd.callback)(responseWithCookie);

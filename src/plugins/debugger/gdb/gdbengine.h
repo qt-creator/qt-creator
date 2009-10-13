@@ -177,7 +177,8 @@ public: // otherwise the Qt flag macros are unhappy
         RebuildModel = 4, // Trigger model rebuild when no such commands are pending any more
         WatchUpdate = Discardable | RebuildModel,
         EmbedToken = 8,   // Expand %1 in the command to the command token
-        RunRequest = 16   // Callback expect GdbResultRunning instead of GdbResultDone
+        RunRequest = 16,  // Callback expect GdbResultRunning instead of GdbResultDone
+        ExitRequest = 32  // Callback expect GdbResultExit instead of GdbResultDone
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 

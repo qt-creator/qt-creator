@@ -248,7 +248,7 @@ void RemoteGdbAdapter::shutdown()
     case InferiorStartFailed:
     case InferiorShutDown:
         setState(AdapterShuttingDown);
-        m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
+        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
         return;
 
     }
