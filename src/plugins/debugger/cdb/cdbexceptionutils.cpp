@@ -38,15 +38,6 @@
 
 enum { debugExc = 0 };
 
-// Special exception codes.
-enum { cppExceptionCode = 0xe06d7363, startupCompleteTrap = 0x406d1388,
-       rpcServerUnavailableExceptionCode = 0x6ba,
-       dllNotFoundExceptionCode = 0xc0000135,
-       dllInitFailed = 0xc0000142,
-       missingSystemFile = 0xc0000143,
-       appInitFailed = 0xc0000143
-   };
-
 namespace Debugger {
 namespace Internal {
 
@@ -167,19 +158,19 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
     str << "\nException at 0x"  << e->ExceptionAddress
             <<  ", code: 0x" << e->ExceptionCode << ": ";
     switch (e->ExceptionCode) {
-    case cppExceptionCode:
+    case winExceptionCppException:
         str << "C++ exception";
         break;
-    case startupCompleteTrap:
+    case winExceptionStartupCompleteTrap:
         str << "Startup complete";
         break;
-    case dllNotFoundExceptionCode:
+    case winExceptionDllNotFound:
         str << "DLL not found";
         break;
-    case dllInitFailed:
+    case winExceptionDllInitFailed:
         str << "DLL failed to initialize";
         break;
-    case missingSystemFile:
+    case winExceptionMissingSystemFile:
         str << "System file is missing";
         break;
     case EXCEPTION_ACCESS_VIOLATION: {
@@ -260,7 +251,7 @@ void formatException(const EXCEPTION_RECORD64 *e,
                      QTextStream &str)
 {
     formatException(e, str);
-    if (e->ExceptionCode == cppExceptionCode) {
+    if (e->ExceptionCode == winExceptionCppException) {
         QString errorMessage;
         ULONG currentThreadId = 0;
         dumper->comInterfaces()->debugSystemObjects->GetCurrentThreadId(&currentThreadId);
@@ -278,10 +269,10 @@ bool isFatalException(LONG code)
     switch (code) {
     case EXCEPTION_BREAKPOINT:
     case EXCEPTION_SINGLE_STEP:
-    case startupCompleteTrap: // Mysterious exception at start of application
-    case rpcServerUnavailableExceptionCode:
-    case dllNotFoundExceptionCode:
-    case cppExceptionCode:
+    case winExceptionStartupCompleteTrap: // Mysterious exception at start of application
+    case winExceptionRpcServerUnavailable:
+    case winExceptionDllNotFound:
+    case winExceptionCppException:
         return false;
     default:
         break;
