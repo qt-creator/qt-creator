@@ -67,6 +67,8 @@ public:
     static const char *winFuncFastSystemCallRet;
     // WaitFor...
     static const char *winFuncWaitForPrefix;
+    static const char *winFuncMsgWaitForPrefix;
+
     // Dummy function used for interrupting a debuggee
     static const char *winFuncDebugBreakPoint;
 

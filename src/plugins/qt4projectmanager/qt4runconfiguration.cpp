@@ -241,10 +241,10 @@ void Qt4RunConfigurationWidget::updateSummary()
 {
     const QString &filename = QFileInfo(m_qt4RunConfiguration->executable()).fileName();
     const QString &arguments = ProjectExplorer::Environment::joinArgumentList(m_qt4RunConfiguration->commandLineArguments());
-    QString text = tr("Running executable: <b>%1</b> %2 %3").arg(
-            filename,
-            arguments,
-            m_qt4RunConfiguration->runMode() == LocalApplicationRunConfiguration::Console ? tr("(in terminal)") : "");
+    const bool terminal = m_qt4RunConfiguration->runMode() == LocalApplicationRunConfiguration::Console;
+    const QString text = terminal ?
+                         tr("Running executable: <b>%1</b> %2 (in terminal)").arg(filename, arguments) :
+                         tr("Running executable: <b>%1</b> %2").arg(filename, arguments);
     m_detailsContainer->setSummaryText(text);
 }
 

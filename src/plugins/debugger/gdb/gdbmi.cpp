@@ -362,7 +362,7 @@ GdbMi GdbMi::findChild(const char *name) const
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-QByteArray stringFromResultClass(GdbResultClass resultClass)
+QByteArray GdbResponse::stringFromResultClass(GdbResultClass resultClass)
 {
     switch (resultClass) {
         case GdbResultDone: return "done";

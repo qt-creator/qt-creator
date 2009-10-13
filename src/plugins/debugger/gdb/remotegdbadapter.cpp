@@ -175,6 +175,7 @@ void RemoteGdbAdapter::prepareInferior()
 #endif
 }
 
+#if 0
 void RemoteGdbAdapter::handleSetTargetAsync(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
@@ -184,12 +185,13 @@ void RemoteGdbAdapter::handleSetTargetAsync(const GdbResponse &response)
         QString fileName = fi.absoluteFilePath();
         m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName),
             CB(handleFileExecAndSymbols));
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         QString msg = tr("Adapter too old: does not support asynchronous mode.");
         setState(InferiorPreparationFailed);
         emit inferiorPreparationFailed(msg);
     }
 }
+#endif
 
 void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
@@ -198,7 +200,7 @@ void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
         //m_breakHandler->clearBreakMarkers();
         m_engine->setState(InferiorPrepared);
         emit inferiorPrepared();
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         QString msg = tr("Starting remote executable failed:\n");
         msg += __(response.data.findChild("msg").data());
         setState(InferiorPreparationFailed);
@@ -212,13 +214,12 @@ void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
     if (record.resultClass == GdbResultDone) {
         // gdb server will stop the remote application itself.
         debugMessage(_("INFERIOR STARTED"));
-        showStatusMessage(tr("Attached to stopped inferior."));
+        showStatusMessage(msgAttachedToStoppedInferior());
         setState(InferiorStopped);
         m_engine->continueInferior();
-    } else if (record.resultClass == GdbResultError) {
+    } else {
         // 16^error,msg="hd:5555: Connection timed out."
-        QString msg = tr("Connecting to remote server failed:\n");
-        msg += __(record.data.findChild("msg").data());
+        QString msg = msgConnectRemoteServerFailed(__(record.data.findChild("msg").data()));
         setState(InferiorPreparationFailed);
         emit inferiorStartFailed(msg);
     }
@@ -272,9 +273,8 @@ void RemoteGdbAdapter::handleKill(const GdbResponse &response)
         setState(InferiorShutDown);
         emit inferiorShutDown();
         shutdown(); // re-iterate...
-    } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Inferior process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+    } else {
+        QString msg = msgInferiorStopFailed(__(response.data.findChild("msg").data()));
         setState(InferiorShutdownFailed);
         emit inferiorShutdownFailed(msg);
     }
@@ -284,9 +284,8 @@ void RemoteGdbAdapter::handleExit(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         // don't set state here, this will be handled in handleGdbFinished()
-    } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Gdb process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+    } else {
+        QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
         emit adapterShutdownFailed(msg);
     }
 }

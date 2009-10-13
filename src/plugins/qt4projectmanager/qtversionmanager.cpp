@@ -158,6 +158,7 @@ QtVersionManager *QtVersionManager::instance()
 
 void QtVersionManager::addVersion(QtVersion *version)
 {
+    QTC_ASSERT(version != 0, return);
     m_versions.append(version);
     m_uniqueIdToIndex.insert(version->uniqueId(), m_versions.count() - 1);
     emit qtVersionsChanged();
@@ -166,7 +167,9 @@ void QtVersionManager::addVersion(QtVersion *version)
 
 void QtVersionManager::removeVersion(QtVersion *version)
 {
+    QTC_ASSERT(version != 0, return);
     m_versions.removeAll(version);
+    m_uniqueIdToIndex.remove(version->uniqueId());
     emit qtVersionsChanged();
     writeVersionsIntoSettings();
     delete version;

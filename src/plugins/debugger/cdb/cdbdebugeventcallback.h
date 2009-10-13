@@ -242,7 +242,9 @@ private:
 class CdbExceptionLoggerEventCallback : public CdbDebugEventCallbackBase
 {
 public:
-    CdbExceptionLoggerEventCallback(int logChannel, DebuggerManager *access);
+    CdbExceptionLoggerEventCallback(int logChannel,
+                                    bool skipNonFatalExceptions,
+                                    DebuggerManager *access);
 
     STDMETHOD(GetInterestMask)(
         THIS_
@@ -261,6 +263,7 @@ public:
 
 private:
     const int m_logChannel;
+    const bool m_skipNonFatalExceptions;
     DebuggerManager *m_manager;
     QList<ULONG> m_exceptionCodes;
     QStringList m_exceptionMessages;

@@ -177,7 +177,7 @@ void WatchData::setValueToolTip(const QString &tooltip)
     valuetooltip = tooltip;
 }
 
-void WatchData::setType(const QString &str)
+void WatchData::setType(const QString &str, bool guessChildrenFromType)
 {
     type = str.trimmed();
     bool changed = true;
@@ -202,7 +202,8 @@ void WatchData::setType(const QString &str)
             changed = false;
     }
     setTypeUnneeded();
-    switch (guessChildren(type)) {
+    if (guessChildrenFromType) {
+        switch (guessChildren(type)) {
         case HasChildren:
             setHasChildren(true);
             break;
@@ -212,6 +213,7 @@ void WatchData::setType(const QString &str)
         case HasPossiblyChildren:
             setHasChildren(true); // FIXME: bold assumption
             break;
+        }
     }
 }
 
@@ -1091,7 +1093,10 @@ void WatchHandler::cleanup()
 void WatchHandler::insertData(const WatchData &data)
 {
     MODEL_DEBUG("INSERTDATA: " << data.toString());
-    QTC_ASSERT(data.isValid(), return);
+    if (!data.isValid()) {
+        qWarning("%s:%d: Attempt to insert invalid watch item: %s", __FILE__, __LINE__, qPrintable(data.toString()));
+        return;
+    }
     if (data.isSomethingNeeded()) {
         m_manager->updateWatchData(data);
     } else {
@@ -1117,7 +1122,11 @@ void WatchHandler::insertBulkData(const QList<WatchData> &list)
     foreach (const WatchData &data, list) {
         // we insert everything, including incomplete stuff
         // to reduce the number of row add operations in the model.
-        hash[parentName(data.iname)].append(data);
+        if (data.isValid()) {
+            hash[parentName(data.iname)].append(data);
+        } else {
+            qWarning("%s:%d: Attempt to bulk-insert invalid watch item: %s", __FILE__, __LINE__, qPrintable(data.toString()));
+        }
     }
     foreach (const QString &parentIName, hash.keys()) {
         WatchModel *model = modelForIName(parentIName);

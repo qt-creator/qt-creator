@@ -35,6 +35,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
 
 namespace Debugger {
 namespace Internal {
@@ -249,8 +250,7 @@ STDMETHODIMP CdbDebugEventCallback::Exception(
         qDebug() << Q_FUNC_INFO << "\nex=" << Exception->ExceptionCode << " fatal=" << fatal << msg;
     m_pEngine->manager()->showApplicationOutput(msg);
     m_pEngine->manager()->showDebuggerOutput(LogMisc, msg);
-    if (fatal)
-        m_pEngine->m_d->notifyCrashed();
+    m_pEngine->m_d->notifyException(Exception->ExceptionCode, fatal);
     return S_OK;
 }
 
@@ -373,8 +373,11 @@ STDMETHODIMP CdbDebugEventCallback::SystemError(
 }
 
 // -----------ExceptionLoggerEventCallback
-CdbExceptionLoggerEventCallback::CdbExceptionLoggerEventCallback(int logChannel, DebuggerManager *manager) :
+CdbExceptionLoggerEventCallback::CdbExceptionLoggerEventCallback(int logChannel,
+                                                                 bool skipNonFatalExceptions,
+                                                                 DebuggerManager *manager) :
     m_logChannel(logChannel),
+    m_skipNonFatalExceptions(skipNonFatalExceptions),
     m_manager(manager)
 {
 }
@@ -391,15 +394,18 @@ STDMETHODIMP CdbExceptionLoggerEventCallback::Exception(
     __in ULONG /* FirstChance */
     )
 {
-    m_exceptionCodes.push_back(Exception->ExceptionCode);
-    m_exceptionMessages.push_back(QString());
-    {
-        QTextStream str(&m_exceptionMessages.back());
-        formatException(Exception, str);
+    const bool recordException = !m_skipNonFatalExceptions || isFatalException(Exception->ExceptionCode);
+    QString message;
+    formatException(Exception, QTextStream(&message));
+    if (recordException) {
+        m_exceptionCodes.push_back(Exception->ExceptionCode);
+        m_exceptionMessages.push_back(message);
     }
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << '\n' << m_exceptionMessages.back();
-    m_manager->showDebuggerOutput(m_logChannel, m_exceptionMessages.back());
+        qDebug() << Q_FUNC_INFO << '\n' << message;
+    m_manager->showDebuggerOutput(m_logChannel, message);
+    if (recordException)
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     return S_OK;
 }
 

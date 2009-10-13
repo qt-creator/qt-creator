@@ -149,7 +149,6 @@ enum GdbResultClass
     // "done" | "running" | "connected" | "error" | "exit" 
     GdbResultUnknown,
     GdbResultDone,
-    GdbResultCustomDone,
     GdbResultRunning,
     GdbResultConnected,
     GdbResultError,
@@ -161,6 +160,7 @@ class GdbResponse
 public:
     GdbResponse() : token(-1), resultClass(GdbResultUnknown) {}
     QByteArray toString() const;
+    static QByteArray stringFromResultClass(GdbResultClass resultClass);
 
     int            token;
     GdbResultClass resultClass;

@@ -93,6 +93,13 @@ protected:
     void showStatusMessage(const QString &msg) const
         { m_engine->showStatusMessage(msg); }
 
+    static QString msgGdbStopFailed(const QString &why);
+    static QString msgInferiorStopFailed(const QString &why);
+    static QString msgAttachedToStoppedInferior();
+    static QString msgInferiorStarted();
+    static QString msgInferiorRunning();
+    static QString msgConnectRemoteServerFailed(const QString &why);
+
     GdbEngine * const m_engine;
 
     QProcess m_gdbProc;

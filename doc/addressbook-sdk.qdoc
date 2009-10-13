@@ -348,7 +348,7 @@
     \snippet examples/addressbook-sdk/part2/addressbook.h members
 
     We also declare two private QString objects, \c oldName and \c oldAddress.
-    These objects are needed to hold the name and address of hte contact that
+    These objects are needed to hold the name and address of the contact that
     was last displayed, before the user clicked \gui Add. So, when the user
     clicks \gui Cancel, we can revert to displaying the details of the last
     contact.
@@ -529,7 +529,7 @@
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp enable navigation
 
-    We also include these lins of code in the \c cancel() function.
+    We also include these lines of code in the \c cancel() function.
 
     Recall that we intend to emulate a circularly-linked list with our QMap
     object, \c contacts. So in the \c next() function, we obtain an iterator
@@ -735,7 +735,7 @@
     In this chapter, we look at ways to locate contacts and addresses in the
     address book application.
 
-    # image
+    \image addressbook-tutorial-part5-screenshot.png
 
     As we keep adding contacts to our address book, it becomes tedious to
     navigate them with the \gui Next and \gui Previous buttons. In this case,
@@ -750,13 +750,14 @@
 
     \section1 Designing The FindDialog
 
-    #image
+    \image addressbook-tutorial-part5-finddialog-in-designer.png
 
-    We begin by adding a new \c{.ui} file to our project. Right click on your
+    We begin by adding a new \c{.ui} file and a corresponding class to our project. Right click on your
     project and select \gui{Add New...}. In the \gui{New File} dialog, select
-    \gui{Qt Designer Form}. In the \gui{Qt Designer Form} dialog, select
-    \e{Dialog without buttons}. Name it \c{finddialog.ui} and add it to your
-    project. The \QD plugin within Qt Creator will now display your new form.
+    \gui{Qt Designer Form Class}. In the \gui{Qt Designer Form Class} dialog, select
+    \e{Dialog without buttons}. Name the class \c{FindDialog} and add the files it to your
+    project. Open your new form in the \QD form editor within Qt Creator by
+    double-clicking on the \c{finddialog.ui} file in the \gui{Project Sidebar}.
 
     To replicate the screenshot above, we need a label, a line edit, and a push
     button. Drag these onto your form. Set their text accordingly and name them
@@ -781,17 +782,6 @@
 
     \snippet examples/addressbook-sdk/part5/finddialog.cpp constructor
 
-    We connect our signals to their respective slots. Notice that
-    \c{findButton}'s \l{QPushButton:}{clicked()} signal is connected to
-    \c findClicked() and \l{QDialog::}{accept()}. The \l{QDialog::}{accept()}
-    slot provided by QDialog hides the dialog and sets the result code to
-    \l{QDialog::}{Accepted}. We use this function to help \c{AddressBook}'s
-    \c findContact() function know when the \c FindDialog object has been
-    closed. We will explain this logic in further detail when discussing the
-    \c findContact() function.
-
-    \image addressbook-tutorial-part5-signals-and-slots.png
-
     In \c findClicked(), we validate to ensure that the user did not click the
     \gui Find button without entering a contact's name. Then, we set
     \c findText to the search string, extracted from \c lineEdit. After that,
@@ -799,14 +789,23 @@
 
     \snippet examples/addressbook-sdk/part5/finddialog.cpp findClicked
 
-    The \c findText variable has a public getter function, \c getFindText(),
-    associated with it. Since we only ever set \c findText directly in both
-    the constructor and in hte \c findClicked() function, we do not create a
-    setter function to accompany \c getFindText(). Because \c getFindText() is
-    public, classes instantiating and using \c FindDialog can always access the
-    search string that the user has entered and accepted.
+    \c findText() is public, which makes it easy for classes instantiating
+    and using \c FindDialog to access the search string that the user has entered
+    and accepted.
 
     \snippet examples/addressbook-sdk/part5/finddialog.cpp findText
+
+    Finally, we connect our signals to their respective slots. Notice that
+    \c{findButton}'s \l{QPushButton::}{clicked()} signal is connected to
+    \c findClicked(), which calls \l{QDialog::}{accept()} or \l{QDialog::}{reject()}.
+    The \l{QDialog::}{accept()} slot provided by QDialog hides the dialog
+    and sets the result code to \l{QDialog::}{Accepted}, while \l{QDialog::}{reject()}
+    sets it to \l{QDialog::}{Rejected} accordingly.  We use this function to help
+    \c{AddressBook}'s \c findContact() function know when the \c FindDialog object has been
+    closed. We will explain this logic in further detail when discussing the
+    \c findContact() function.
+
+    \image addressbook-tutorial-part5-signals-and-slots.png
 
 
     \section1 The AddressBook Class
@@ -818,7 +817,7 @@
 
     So far, all our address book features have a QPushButton and a
     corresponding slot. Similarly, for the \gui Find feature, we have
-    \c findButton and \c findContact().
+    \c{ui->findButton} and \c findContact().
 
     \snippet examples/addressbook-sdk/part5/addressbook.h slot definition
 
@@ -838,15 +837,17 @@
     We start out by displaying the \c FindDialog instance, \c dialog. This is
     when the user enters a contact name to look up. Once the user clicks the
     dialog's \c findButton, the dialog is hidden and the result code is set to
-    QDialog::Accepted. THis ensures that our \c if statement is always true.
+    either QDialog::Accepted or QDialog::Rejected by the FindDialog's
+    \c findClicked() method. This ensures that we only search for a contact
+    if the user typed something in the FindDialog's line edit.
 
     We then proceed to extract the search string, which in this case is
-    \c contactName, using \c{FindDialog}'s \c getFindText() function. If the
+    \c contactName, using \c{FindDialog}'s \c findText() function. If the
     contact exists in our address book, we display it immediately. Otherwise,
     we display the QMessageBox shown below to indicate that their search
     failed.
 
-    # image
+    \image addressbook-tutorial-part5-dialogbox.png
 
     The concept behind finding a contact only applies for cases where we have
     more than two contacts in our address book. Hence, we implement this
@@ -870,7 +871,7 @@
     This chapter covers the file handling features of Qt that we used to write
     loading and saving routines for the address book application.
 
-    # screenshot
+    \image addressbook-tutorial-part6-screenshot.png
 
     Although browsing and searching for contacts are useful features, our
     address book is not really ready for use until we can save existing
@@ -910,7 +911,7 @@
     the push buttons.
 
 
-    # screenshot of property editor
+    \image addressbook-tutorial-part6-propertyeditor.png
 
 
     \section1 The AddressBook Class
@@ -935,7 +936,7 @@
 
     The file dialog that pops up is displayed in the screenshot below:
 
-    #screenshot
+    \image addressbook-tutorial-part6-savedialog.png
 
     If \c fileName is not empty, we create a QFile object, \c file, with
     \c fileName. The QFile object works with QDataStream as QFile is a
@@ -967,7 +968,7 @@
     On Windows, for example, this function pops up a native file dialog, as
     shown in the following screenshot.
 
-    # screenshot
+    \image addressbook-tutorial-part6-opendialog.png
 
     If \c fileName is not empty, again, we use a QFile object, \c file, and
     attempt to open it in \l{QIODevice::}{ReadOnly} mode. Similar to our
@@ -989,8 +990,10 @@
     validate the data obtained to ensure that the file we read from actually
     contains address book contacts. If it does, we display the first contact;
     otherwise, we display a QMessageBox to inform the user about the problem.
-    Lastly, we update the interface to enable and disable the push buttons
-    accordingly.
+    Lastly, we connect the \c clicked() signal of the push buttons
+    with the \c loadFromFile() and \c saveToFile():
+
+    \snippet examples/addressbook-sdk/part6/addressbook.cpp connectSlots
 
 */
 
@@ -1014,7 +1017,7 @@
     \c exportButton as its \c objectName. The \c toolTip property is set to
     \gui{Export as vCard}.
 
-    # screenshot
+    \image addressbook-tutorial-part7-screenshot.png
 
     \section1 The AddressBook Class
 

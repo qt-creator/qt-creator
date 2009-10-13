@@ -130,6 +130,46 @@ QList<Symbol *> LookupContext::resolveQualifiedNameId(QualifiedNameId *q,
                                                       const QList<Scope *> &visibleScopes,
                                                       ResolveMode mode) const
 {
+    QList<Symbol *> candidates;
+
+    if (true || mode & ResolveClass) {
+        for (int i = 0; i < visibleScopes.size(); ++i) {
+            Scope *scope = visibleScopes.at(i);
+
+            for (Symbol *symbol = scope->lookat(q); symbol; symbol = symbol->next()) {
+                if (! symbol->name())
+                    continue;
+                else if (! symbol->isClass())
+                    continue;
+
+                QualifiedNameId *qq = symbol->name()->asQualifiedNameId();
+
+                if (! qq)
+                    continue;
+                else if (! maybeValidSymbol(symbol, mode, candidates))
+                    continue;
+
+                if (! q->unqualifiedNameId()->isEqualTo(qq->unqualifiedNameId()))
+                    continue;
+
+                else if (qq->nameCount() == q->nameCount()) {
+                    unsigned j = 0;
+
+                    for (; j < q->nameCount(); ++j) {
+                        Name *classOrNamespaceName1 = q->nameAt(j);
+                        Name *classOrNamespaceName2 = qq->nameAt(j);
+
+                        if (! classOrNamespaceName1->isEqualTo(classOrNamespaceName2))
+                            break;
+                    }
+
+                    if (j == q->nameCount())
+                        candidates.append(symbol);
+                }
+            }
+        }
+    }
+
     QList<Scope *> scopes;
 
     if (q->nameCount() == 1)
@@ -149,7 +189,9 @@ QList<Symbol *> LookupContext::resolveQualifiedNameId(QualifiedNameId *q,
         }
     }
 
-    return resolve(q->unqualifiedNameId(), expanded, mode);
+    candidates += resolve(q->unqualifiedNameId(), expanded, mode);
+
+    return candidates;
 }
 
 QList<Symbol *> LookupContext::resolveOperatorNameId(OperatorNameId *opId,
@@ -198,12 +240,10 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
                 else if (! maybeValidSymbol(symbol, mode, candidates))
                     continue; // skip it, we're not looking for this kind of symbols
 
-
                 else if (Identifier *symbolId = symbol->identifier()) {
                     if (! symbolId->isEqualTo(id))
                         continue; // skip it, the symbol's id is not compatible with this lookup.
                 }
-
 
                 if (QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
 

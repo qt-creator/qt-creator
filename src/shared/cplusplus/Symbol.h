@@ -281,6 +281,8 @@ public:
 
     bool isGenerated() const;
 
+    Symbol *enclosingSymbol() const;
+
     /// Returns the eclosing namespace scope.
     Scope *enclosingNamespaceScope() const;
 

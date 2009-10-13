@@ -67,6 +67,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/mimedatabase.h>
 #include <utils/uncommentselection.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -1749,6 +1750,13 @@ Core::IEditor *CPPEditorEditable::duplicate(QWidget *parent)
 const char *CPPEditorEditable::kind() const
 {
     return CppEditor::Constants::CPPEDITOR_KIND;
+}
+
+bool CPPEditorEditable::open(const QString & fileName)
+{
+    bool b = TextEditor::BaseTextEditorEditable::open(fileName);    
+    editor()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
+    return b;
 }
 
 void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)

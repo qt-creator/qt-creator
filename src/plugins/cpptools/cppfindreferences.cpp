@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "cppfindreferences.h"
-#include "cppmodelmanager.h"
+#include "cppmodelmanagerinterface.h"
 #include "cpptoolsconstants.h"
 
 #include <texteditor/basetexteditor.h>
@@ -166,12 +166,32 @@ protected:
         return false;
     }
 
-    bool isDeclSymbol(Symbol *symbol) const
+    bool checkScope(Symbol *symbol, Symbol *otherSymbol) const
     {
-        if (! symbol)
+        if (! (symbol && otherSymbol))
             return false;
 
-        else if (symbol == _declSymbol) {
+        else if (symbol->scope() == otherSymbol->scope())
+            return true;
+
+        else if (symbol->name() && otherSymbol->name()) {
+
+            if (! symbol->name()->isEqualTo(otherSymbol->name()))
+                return false;
+
+        } else if (symbol->name() != otherSymbol->name()) {
+            return false;
+        }
+
+        return checkScope(symbol->enclosingSymbol(), otherSymbol->enclosingSymbol());
+    }
+
+    bool isDeclSymbol(Symbol *symbol) const
+    {
+        if (! symbol) {
+            return false;
+
+        } else if (symbol == _declSymbol) {
             return true;
 
         } else if (symbol->line() == _declSymbol->line() && symbol->column() == _declSymbol->column()) {
@@ -180,11 +200,11 @@ protected:
 
         } else if (symbol->isForwardClassDeclaration() && (_declSymbol->isClass() ||
                                                            _declSymbol->isForwardClassDeclaration())) {
-            return true;
+            return checkScope(symbol, _declSymbol);
 
         } else if (_declSymbol->isForwardClassDeclaration() && (symbol->isClass() ||
                                                                 symbol->isForwardClassDeclaration())) {
-            return true;
+            return checkScope(symbol, _declSymbol);
         }
 
         return false;
@@ -349,6 +369,20 @@ protected:
         return false;
     }
 
+    virtual bool visit(EnumeratorAST *ast)
+    {
+        Identifier *id = identifier(ast->identifier_token);
+        if (id == _id) {
+            LookupContext context = currentContext(ast);
+            const QList<Symbol *> candidates = context.resolve(control()->nameId(id));
+            reportResult(ast->identifier_token, candidates);
+        }
+
+        accept(ast->expression);
+
+        return false;
+    }
+
     virtual bool visit(SimpleNameAST *ast)
     {
         Identifier *id = identifier(ast->identifier_token);
@@ -452,7 +486,7 @@ private:
 
 } // end of anonymous namespace
 
-CppFindReferences::CppFindReferences(CppModelManager *modelManager)
+CppFindReferences::CppFindReferences(CppTools::CppModelManagerInterface *modelManager)
     : _modelManager(modelManager),
       _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
 {
@@ -614,7 +648,7 @@ void CppFindReferences::findAll_helper(Symbol *symbol)
     _resultWindow->popup(true);
 
     const Snapshot snapshot = _modelManager->snapshot();
-    const QMap<QString, QString> wl = _modelManager->buildWorkingCopyList();
+    const QMap<QString, QString> wl = _modelManager->workingCopy();
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 

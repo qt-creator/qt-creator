@@ -78,7 +78,7 @@ public:
     };
 
     void setValue(const QString &);
-    void setType(const QString &);
+    void setType(const QString &, bool guessChildrenFromType = true);
     void setValueToolTip(const QString &);
     void setError(const QString &);
     void setAddress(const QString &address);

@@ -86,6 +86,7 @@ public:
     virtual void GC() = 0;
     virtual void updateSourceFiles(const QStringList &sourceFiles) = 0;
 
+    virtual QMap<QString, QString> workingCopy() const = 0;
     virtual CPlusPlus::Snapshot snapshot() const = 0;
 
     virtual QList<ProjectInfo> projectInfos() const = 0;

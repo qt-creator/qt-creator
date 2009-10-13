@@ -146,9 +146,10 @@ private:
     Q_SLOT void setDebugDebuggingHelpers(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
     Q_SLOT void setAutoDerefPointers(const QVariant &on);
-    virtual bool isGdbEngine() const { return true; }
+    bool isGdbEngine() const { return true; }
+    bool isSynchroneous() const;
 
-    virtual bool checkConfiguration(int toolChain, QString *errorMessage, QString *settingsPage= 0) const;
+    bool checkConfiguration(int toolChain, QString *errorMessage, QString *settingsPage= 0) const;
 
     //
     // Own stuff
@@ -171,11 +172,12 @@ private:
 public: // otherwise the Qt flag macros are unhappy
     enum GdbCommandFlag {
         NoFlags = 0,
-        NeedsStop = 1,
-        Discardable = 2,
-        RebuildModel = 4,
+        NeedsStop = 1,    // The command needs a stopped inferior
+        Discardable = 2,  // No need to wait for the reply before continuing inferior
+        RebuildModel = 4, // Trigger model rebuild when no such commands are pending any more
         WatchUpdate = Discardable | RebuildModel,
-        EmbedToken = 8
+        EmbedToken = 8,   // Expand %1 in the command to the command token
+        RunRequest = 16   // Callback expect GdbResultRunning instead of GdbResultDone
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 
@@ -347,6 +349,9 @@ private:
     void handleStackListFrames(const GdbResponse &response);
     void handleStackSelectThread(const GdbResponse &response);
     void handleStackListThreads(const GdbResponse &response);
+    void handleStackFrame1(const GdbResponse &response);
+    void handleStackFrame2(const GdbResponse &response);
+    QByteArray m_firstChunk;
     Q_SLOT void reloadStack(bool forceGotoLocation);
     Q_SLOT void reloadFullStack();
 

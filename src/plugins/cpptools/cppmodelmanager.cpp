@@ -727,7 +727,7 @@ QByteArray CppModelManager::internalDefinedMacros() const
     return macros;
 }
 
-void CppModelManager::setIncludesInPaths(const QMap<QString, QStringList> includesInPaths)
+void CppModelManager::setIncludesInPaths(const QMap<QString, QStringList> &includesInPaths)
 {
     QMutexLocker locker(&mutex);
     QMapIterator<QString, QStringList> i(includesInPaths);
@@ -791,6 +791,11 @@ QMap<QString, QString> CppModelManager::buildWorkingCopyList()
     workingCopy[pp_configuration_file] = conf;
 
     return workingCopy;
+}
+
+QMap<QString, QString> CppModelManager::workingCopy() const
+{
+    return const_cast<CppModelManager *>(this)->buildWorkingCopyList();
 }
 
 void CppModelManager::updateSourceFiles(const QStringList &sourceFiles)
@@ -1177,7 +1182,7 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
             future.waitForResume();
 
         if (future.isCanceled())
-            break;
+            return;
 
         const QString path = paths.takeFirst();
 

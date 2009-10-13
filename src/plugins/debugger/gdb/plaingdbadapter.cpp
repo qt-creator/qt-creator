@@ -122,7 +122,7 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
         //m_breakHandler->clearBreakMarkers();
         setState(InferiorPrepared);
         emit inferiorPrepared();
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         QString msg = tr("Starting executable failed:\n") +
             __(response.data.findChild("msg").data());
         setState(InferiorPreparationFailed);
@@ -135,14 +135,12 @@ void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
     if (response.resultClass == GdbResultRunning) {
         QTC_ASSERT(state() == InferiorRunning, qDebug() << state());
         debugMessage(_("INFERIOR STARTED"));
-        showStatusMessage(tr("Inferior started."));
+        showStatusMessage(msgInferiorStarted());
     } else {
         QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
-        QTC_ASSERT(response.resultClass == GdbResultError, /**/);
         const QByteArray &msg = response.data.findChild("msg").data();
         //QTC_ASSERT(status() == InferiorRunning, /**/);
         //interruptInferior();
-        setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
     }
 }
@@ -151,7 +149,7 @@ void PlainGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     setState(InferiorRunningRequested);
-    m_engine->postCommand(_("-exec-run"), CB(handleExecRun));
+    m_engine->postCommand(_("-exec-run"), GdbEngine::RunRequest, CB(handleExecRun));
 }
 
 void PlainGdbAdapter::interruptInferior()
@@ -218,9 +216,8 @@ void PlainGdbAdapter::handleKill(const GdbResponse &response)
         setState(InferiorShutDown);
         emit inferiorShutDown();
         shutdown(); // re-iterate...
-    } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Inferior process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+    } else {
+        const QString msg = msgInferiorStopFailed(__(response.data.findChild("msg").data()));
         setState(InferiorShutdownFailed);
         emit inferiorShutdownFailed(msg);
     }
@@ -230,9 +227,8 @@ void PlainGdbAdapter::handleExit(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         // don't set state here, this will be handled in handleGdbFinished()
-    } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Gdb process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+    } else {
+        const QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
         emit adapterShutdownFailed(msg);
     }
 }

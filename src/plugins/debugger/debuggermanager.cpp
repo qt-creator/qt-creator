@@ -1406,10 +1406,14 @@ void DebuggerManager::modulesDockToggled(bool on)
 
 void DebuggerManager::showDebuggerOutput(int channel, const QString &msg)
 {
-    if (d->m_outputWindow)
+    if (d->m_outputWindow) {
         emit emitShowOutput(channel, msg);
-    else 
+        if (channel == LogError)
+            ensureLogVisible();
+    } else  {
         qDebug() << "OUTPUT: " << channel << msg;
+
+    }
 }
 
 void DebuggerManager::showDebuggerInput(int channel, const QString &msg)
@@ -1759,6 +1763,13 @@ bool DebuggerManager::checkDebugConfiguration(int toolChain,
     if (!success && settingsCategory && settingsPage && !settingsPage->isEmpty())
         *settingsCategory = QLatin1String(DEBUGGER_SETTINGS_CATEGORY);
     return success;
+}
+
+void DebuggerManager::ensureLogVisible()
+{
+    QAction *action = d->m_outputDock->toggleViewAction();
+    if (!action->isChecked())
+        action->trigger();
 }
 
 QDebug operator<<(QDebug d, DebuggerState state)

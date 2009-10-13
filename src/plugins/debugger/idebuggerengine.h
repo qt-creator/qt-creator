@@ -119,6 +119,7 @@ public:
     virtual bool isGdbEngine() const { return false; }
     virtual bool checkConfiguration(int /* toolChain */, QString * /* errorMessage */, QString * /* settingsPage */ = 0) const { return true; }
 
+    virtual bool isSynchroneous() const { return false; }
 protected:
     void showStatusMessage(const QString &msg, int timeout = -1);
     DebuggerState state() const;

@@ -144,13 +144,14 @@ static bool createDebuggeeAscIIString(CdbComInterfaces *cif,
 // make sense for Qt apps.
 static bool debuggeeLoadLibrary(DebuggerManager *manager,
                                 CdbComInterfaces *cif,
+                                unsigned long threadId,
                                 const QString &moduleName,
                                 QString *errorMessage)
 {
     if (loadDebug > 1)
         qDebug() << Q_FUNC_INFO << moduleName;
-    // Try to ignore the breakpoints
-    CdbExceptionLoggerEventCallback exLogger(LogWarning, manager);
+    // Try to ignore the breakpoints, skip stray startup-complete trap exceptions
+    CdbExceptionLoggerEventCallback exLogger(LogWarning, true, manager);
     EventCallbackRedirector eventRedir(cif->debugClient, &exLogger);
     // Make a call to LoadLibraryA. First, reserve memory in debugger
     // and copy name over.
@@ -178,7 +179,9 @@ static bool debuggeeLoadLibrary(DebuggerManager *manager,
     if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, callCmd, errorMessage))
         return false;
     // Execute current thread. This will hit a breakpoint.
-    if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, QLatin1String("~. g"), errorMessage))
+    QString goCmd;
+    QTextStream(&goCmd) << '~' << threadId << " g";
+    if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, goCmd, errorMessage))
         return false;
     const HRESULT hr = cif->debugControl->WaitForEvent(0, waitTimeOutMS);
     if (FAILED(hr)) {
@@ -329,7 +332,7 @@ CdbDumperHelper::CallLoadResult CdbDumperHelper::initCallLoad(QString *errorMess
     if (modules.filter(QLatin1String(qtCoreModuleNameC), Qt::CaseInsensitive).isEmpty())
         return CallLoadNoQtApp;
     // Try to load
-    if (!debuggeeLoadLibrary(m_manager, m_cif, m_library, errorMessage))
+    if (!debuggeeLoadLibrary(m_manager, m_cif, m_dumperCallThread, m_library, errorMessage))
         return CallLoadError;
     return CallLoadOk;
 }
@@ -495,7 +498,8 @@ CdbDumperHelper::CallResult
                                 bool ignoreAccessViolation, QString *errorMessage)
 {
     *outDataPtr = 0;
-    CdbExceptionLoggerEventCallback exLogger(LogWarning, m_manager);
+    // Skip stray startup-complete trap exceptions.
+    CdbExceptionLoggerEventCallback exLogger(LogWarning, true, m_manager);
     EventCallbackRedirector eventRedir(m_cif->debugClient, &exLogger);
     // write input buffer
     if (!inBuffer.isEmpty()) {
@@ -576,7 +580,7 @@ static inline QString msgNotHandled(const QString &type)
 CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool dumpChildren,
                                                       QList<WatchData> *result, QString *errorMessage)
 {
-    if (dumpDebug)
+    if (dumpDebug || debugCDBExecution)
         qDebug() << ">dumpType() thread: " << m_dumperCallThread << " state: " << m_state << wd.type << QTime::currentTime().toString();
     const CdbDumperHelper::DumpResult rc = dumpTypeI(wd, dumpChildren, result, errorMessage);
     if (dumpDebug)

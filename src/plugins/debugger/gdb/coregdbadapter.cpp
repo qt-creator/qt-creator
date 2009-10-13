@@ -121,7 +121,6 @@ void CoreGdbAdapter::handleTargetCore1(const GdbResponse &response)
         int pos1 = console.data().indexOf('`');
         int pos2 = console.data().indexOf('\'');
         if (pos1 == -1 || pos2 == -1) {
-            setState(InferiorStartFailed);
             emit inferiorStartFailed(tr("No binary found."));
         } else {
             m_executable = console.data().mid(pos1 + 1, pos2 - pos1 - 1);
@@ -133,9 +132,7 @@ void CoreGdbAdapter::handleTargetCore1(const GdbResponse &response)
             m_engine->postCommand(_("detach"), CB(handleDetach1));
         }
     } else {
-        QTC_ASSERT(response.resultClass == GdbResultError, /**/);
         const QByteArray msg = response.data.findChild("msg").data();
-        setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
     }
 }
@@ -149,9 +146,7 @@ void CoreGdbAdapter::handleDetach1(const GdbResponse &response)
         m_engine->postCommand(_("-file-exec-and-symbols \"%1\"")
             .arg(fi.absoluteFilePath()), CB(handleFileExecAndSymbols));
     } else {
-        QTC_ASSERT(response.resultClass == GdbResultError, /**/);
         const QByteArray msg = response.data.findChild("msg").data();
-        setState(InferiorStartFailed);
         emit inferiorStartFailed(msg);
     }
 }
@@ -165,12 +160,11 @@ void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
         QFileInfo fi(startParameters().coreFile);
         QString coreName = fi.absoluteFilePath();
         m_engine->postCommand(_("target core ") + coreName, CB(handleTargetCore2));
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         QString msg = tr("Symbols not found in \"%1\" failed:\n%2")
             .arg(__(response.data.findChild("msg").data()));
         setState(InferiorUnrunnable);
         m_engine->updateAll();
-        //setState(InferiorStartFailed);
        // emit inferiorStartFailed(msg);
     }
 }
@@ -182,12 +176,11 @@ void CoreGdbAdapter::handleTargetCore2(const GdbResponse &response)
         showStatusMessage(tr("Attached to core."));
         setState(InferiorUnrunnable);
         m_engine->updateAll();
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         QString msg = tr("Attach to core \"%1\" failed:\n%2")
             .arg(__(response.data.findChild("msg").data()));
         setState(InferiorUnrunnable);
         m_engine->updateAll();
-        //setState(InferiorStartFailed);
        // emit inferiorStartFailed(msg);
     }
 }
@@ -220,9 +213,8 @@ void CoreGdbAdapter::handleExit(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         // don't set state here, this will be handled in handleGdbFinished()
-    } else if (response.resultClass == GdbResultError) {
-        QString msg = tr("Gdb process could not be stopped:\n") +
-            __(response.data.findChild("msg").data());
+    } else {
+        const QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
         emit adapterShutdownFailed(msg);
     }
 }

@@ -51,6 +51,7 @@ int ExpressionUnderCursor::startOfExpression(BackwardsScanner &tk, int index)
         const SimpleToken &tok = tk[index - 1];
 
         switch (tok.kind()) {
+        case T_COMMA:
         case T_LPAREN:
         case T_LBRACKET:
         case T_LBRACE:

@@ -97,7 +97,6 @@ Core::IEditor *CppEditorFactory::createEditor(QWidget *parent)
 {
     CPPEditor *editor = new CPPEditor(parent);
     editor->setRevisionsVisible(true);
-    editor->setMimeType(CppEditor::Constants::CPP_SOURCE_MIMETYPE);
     m_owner->initializeEditor(editor);
     return editor->editableInterface();
 }

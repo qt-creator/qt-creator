@@ -43,6 +43,7 @@ namespace Internal {
 const char *CdbStackTraceContext::winFuncFastSystemCallRet = "ntdll!KiFastSystemCallRet";
 const char *CdbStackTraceContext::winFuncDebugBreakPoint = "ntdll!DbgBreakPoint";
 const char *CdbStackTraceContext::winFuncWaitForPrefix = "kernel32!WaitFor";
+const char *CdbStackTraceContext::winFuncMsgWaitForPrefix = "kernel32!MsgWaitForMultipleObjects";
 
 CdbStackTraceContext::CdbStackTraceContext(const QSharedPointer<CdbDumperHelper> &dumper) :
         m_dumper(dumper),
