@@ -1195,7 +1195,7 @@ template <typename T>
     const QString &sizeStr = N(size);
     const QByteArray elemTypeStr = typeToString<T>();
     QByteArray expected = QByteArray("value='<").append(sizeStr).
-        append(" items>',valuedisabled='true',numchild='").append(sizeStr).
+        append(" items>',valueeditable='false',numchild='").append(sizeStr).
         append("',childtype='").append(elemTypeStr).append("',childnumchild='").
         append(typeToNumchild<T>()).append("',children=[");
     typename QLinkedList<T>::const_iterator iter = l.constBegin();
@@ -1277,13 +1277,13 @@ void tst_Debugger::dumpQLinkedList()
         QLinkedList<int> l;
 
         // Case 1.1: Empty list.
-        testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+        testDumper("value='<0 items>',valueeditable='false',numchild='0',"
             "childtype='int',childnumchild='0',children=[]",
             &l, NS"QLinkedList", true, "int");
 
         // Case 1.2: One element.
         l.append(2);
-        testDumper("value='<1 items>',valuedisabled='true',numchild='1',"
+        testDumper("value='<1 items>',valueeditable='false',numchild='1',"
             "childtype='int',childnumchild='0',children=[{addr='%',value='2'}]"
                 << ptrToBa(l.constBegin().operator->()),
             &l, NS"QLinkedList", true, "int");
@@ -1292,7 +1292,7 @@ void tst_Debugger::dumpQLinkedList()
         l.append(3);
         QByteArray it0 = ptrToBa(l.constBegin().operator->());
         QByteArray it1 = ptrToBa(l.constBegin().operator++().operator->());
-        testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+        testDumper("value='<2 items>',valueeditable='false',numchild='2',"
             "childtype='int',childnumchild='0',children=[{addr='%',value='2'},"
             "{addr='%',value='3'}]" << it0 << it1,
             &l, NS"QLinkedList", true, "int");
@@ -1302,7 +1302,7 @@ void tst_Debugger::dumpQLinkedList()
         QLinkedList<QString>::const_iterator iter;
 
         // Case 2.1: Empty list.
-        testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+        testDumper("value='<0 items>',valueeditable='false',numchild='0',"
             "childtype='"NS"QString',childnumchild='0',children=[]",
             &l2, NS"QLinkedList", true, NS"QString");
 
@@ -1310,13 +1310,13 @@ void tst_Debugger::dumpQLinkedList()
         l2.append("Teststring 1");
         iter = l2.constBegin();
         qDebug() << *iter;
-        testDumper("value='<1 items>',valuedisabled='true',numchild='1',"
+        testDumper("value='<1 items>',valueeditable='false',numchild='1',"
             "childtype='"NS"QString',childnumchild='0',children=[{addr='%',value='%',}]"
                 << ptrToBa(iter.operator->()) << utfToBase64(*iter),
             &l2, NS"QLinkedList", true, NS"QString");
 
         // Case 2.3: Two elements.
-        QByteArray expected = "value='<2 items>',valuedisabled='true',numchild='2',"
+        QByteArray expected = "value='<2 items>',valueeditable='false',numchild='2',"
             "childtype='int',childnumchild='0',children=[";
         iter = l2.constBegin();
         expected.append("{addr='%',%},"
@@ -1331,7 +1331,7 @@ void tst_Debugger::dumpQLinkedList()
         for (int i = 3; i <= 1002; ++i)
             l2.append("Test " + N(i));
 
-        expected = "value='<1002 items>',valuedisabled='true',"
+        expected = "value='<1002 items>',valueeditable='false',"
             "numchild='1002',childtype='"NS"QString',childnumchild='0',children=['";
         iter = l2.constBegin();
         for (int i = 0; i < 1002; ++i, ++iter)
@@ -1354,12 +1354,12 @@ void tst_Debugger::dumpQLinkedList()
 void tst_Debugger::dumpQList_int()
 {
     QList<int> ilist;
-    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+    testDumper("value='<0 items>',valueeditable='false',numchild='0',"
         "internal='1',children=[]",
         &ilist, NS"QList", true, "int");
     ilist.append(1);
     ilist.append(2);
-    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+    testDumper("value='<2 items>',valueeditable='false',numchild='2',"
         "internal='1',childtype='int',childnumchild='0',children=["
         "{addr='" + str(&ilist.at(0)) + "',value='1'},"
         "{addr='" + str(&ilist.at(1)) + "',value='2'}]",
@@ -1369,12 +1369,12 @@ void tst_Debugger::dumpQList_int()
 void tst_Debugger::dumpQList_char()
 {
     QList<char> clist;
-    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+    testDumper("value='<0 items>',valueeditable='false',numchild='0',"
         "internal='1',children=[]",
         &clist, NS"QList", true, "char");
     clist.append('a');
     clist.append('b');
-    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+    testDumper("value='<2 items>',valueeditable='false',numchild='2',"
         "internal='1',childtype='char',childnumchild='0',children=["
         "{addr='" + str(&clist.at(0)) + "',value=''a', ascii=97'},"
         "{addr='" + str(&clist.at(1)) + "',value=''b', ascii=98'}]",
@@ -1384,12 +1384,12 @@ void tst_Debugger::dumpQList_char()
 void tst_Debugger::dumpQList_QString()
 {
     QList<QString> slist;
-    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+    testDumper("value='<0 items>',valueeditable='false',numchild='0',"
         "internal='1',children=[]",
         &slist, NS"QList", true, NS"QString");
     slist.append("a");
     slist.append("b");
-    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+    testDumper("value='<2 items>',valueeditable='false',numchild='2',"
         "internal='1',childtype='"NS"QString',childnumchild='0',children=["
         "{addr='" + str(&slist.at(0)) + "',value='YQA=',valueencoded='2'},"
         "{addr='" + str(&slist.at(1)) + "',value='YgA=',valueencoded='2'}]",
@@ -1399,12 +1399,12 @@ void tst_Debugger::dumpQList_QString()
 void tst_Debugger::dumpQList_Int3()
 {
     QList<Int3> i3list;
-    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+    testDumper("value='<0 items>',valueeditable='false',numchild='0',"
         "internal='0',children=[]",
         &i3list, NS"QList", true, "Int3");
     i3list.append(Int3());
     i3list.append(Int3());
-    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+    testDumper("value='<2 items>',valueeditable='false',numchild='2',"
         "internal='0',childtype='Int3',children=["
         "{addr='" + str(&i3list.at(0)) + "'},"
         "{addr='" + str(&i3list.at(1)) + "'}]",
@@ -1414,12 +1414,12 @@ void tst_Debugger::dumpQList_Int3()
 void tst_Debugger::dumpQList_QString3()
 {
     QList<QString3> s3list;
-    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
+    testDumper("value='<0 items>',valueeditable='false',numchild='0',"
         "internal='0',children=[]",
         &s3list, NS"QList", true, "QString3");
     s3list.append(QString3());
     s3list.append(QString3());
-    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+    testDumper("value='<2 items>',valueeditable='false',numchild='2',"
         "internal='0',childtype='QString3',children=["
         "{addr='" + str(&s3list.at(0)) + "'},"
         "{addr='" + str(&s3list.at(1)) + "'}]",
@@ -1819,6 +1819,7 @@ void tst_Debugger::dumpQObjectSignalHelper(QObject &o, int sigNum)
         connLists != 0 && connLists->size() > sigNum ?
         connLists->at(sigNum) : QObjectPrivate::ConnectionList();
     int i = 0;
+    // FIXME: 4.6 only
     for (QObjectPrivate::Connection *conn = connList.first; conn != 0;
          ++i, conn = conn->nextConnectionList) {
         const QString iStr = N(i);
@@ -2137,7 +2138,7 @@ void tst_Debugger::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
         weakAddr = strongAddr = 0;
         weakValue = strongValue = 0;
     }
-    expected.append(val2).append("',valuedisabled='true',numchild='1',children=[").
+    expected.append(val2).append("',valueeditable='false',numchild='1',children=[").
         append("{name='data',addr='").append(ptrToBa(ptr.data())).
         append("',type='").append(typeToString<T>()).append("',value='").append(val1).
         append("'},{name='weakref',value='").append(N(weakValue)).
@@ -2236,18 +2237,18 @@ void tst_Debugger::dumpStdVector()
     std::vector<std::list<int> *> vector;
     QByteArray inner = "std::list<int> *";
     QByteArray innerp = "std::list<int>";
-    testDumper("value='<0 items>',valuedisabled='true',numchild='0'",
+    testDumper("value='<0 items>',valueeditable='false',numchild='0'",
         &vector, "std::vector", false, inner, "", sizeof(std::list<int> *));
     std::list<int> list;
     vector.push_back(new std::list<int>(list));
-    testDumper("value='<1 items>',valuedisabled='true',numchild='1',"
+    testDumper("value='<1 items>',valueeditable='false',numchild='1',"
         "childtype='" + inner + "',childnumchild='1',"
         "children=[{addr='" + str(deref(&vector[0])) + "',"
             "saddr='" + str(deref(&vector[0])) + "',type='" + innerp + "'}]",
         &vector, "std::vector", true, inner, "", sizeof(std::list<int> *));
     vector.push_back(0);
     list.push_back(45);
-    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
+    testDumper("value='<2 items>',valueeditable='false',numchild='2',"
         "childtype='" + inner + "',childnumchild='1',"
         "children=[{addr='" + str(deref(&vector[0])) + "',"
             "saddr='" + str(deref(&vector[0])) + "',type='" + innerp + "'},"
@@ -2297,7 +2298,7 @@ void tst_Debugger::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
     QByteArray expected("value='");
     if (isSimpleType<T>())
         expected.append(dataStr);
-    expected.append("',valuedisabled='true',numchild='1',children=[{name='data',addr='").
+    expected.append("',valueeditable='false',numchild='1',children=[{name='data',addr='").
         append(ptrToBa(data)).append("',type='").append(typeToString<T>()).
         append("',value='").append(dataStr).append("'},{name='weakref',value='").
         append(valToString(*weakRefPtr)).append("',type='int',addr='").
@@ -2316,7 +2317,7 @@ void tst_Debugger::dumpQWeakPointer()
     // Case 1.1: Null pointer.
     QSharedPointer<int> spNull;
     QWeakPointer<int> wp = spNull.toWeakRef();
-    testDumper("value='<null>',valuedisabled='true',numchild='0'",
+    testDumper("value='<null>',valueeditable='false',numchild='0'",
         &wp, NS"QWeakPointer", true, "int");
 
     // Case 1.2: Weak pointer is unique.
