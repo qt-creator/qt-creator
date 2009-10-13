@@ -1048,13 +1048,16 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
+    bool initHelpers = true;
     if (state() == InferiorRunning) {
         // Stop triggered by a breakpoint or otherwise not directly
         // initiated by the user.
         setState(InferiorStopping);
     } else {
-        QTC_ASSERT(state() == InferiorStopping || state() == InferiorStarting,
-                   qDebug() << state());
+        if (state() == InferiorStarting)
+            initHelpers = false;
+        else
+            QTC_ASSERT(state() == InferiorStopping, qDebug() << state());
     }
     setState(InferiorStopped);
 
@@ -1116,9 +1119,10 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 
     if (isStoppedReason(reason) || reason.isEmpty()) {
+        if (initHelpers && m_debuggingHelperState != DebuggingHelperUninitialized)
+            initHelpers = false;
         // Don't load helpers on stops triggered by signals unless it's
         // an intentional trap.
-        bool initHelpers = m_debuggingHelperState == DebuggingHelperUninitialized;
         if (initHelpers && reason == "signal-received"
                 && data.findChild("signal-name").data() != "SIGTRAP")
             initHelpers = false;
