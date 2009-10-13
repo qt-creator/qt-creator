@@ -166,6 +166,26 @@ protected:
         return false;
     }
 
+    bool checkScope(Symbol *symbol, Symbol *otherSymbol) const
+    {
+        if (! (symbol && otherSymbol))
+            return false;
+
+        else if (symbol->scope() == otherSymbol->scope())
+            return true;
+
+        else if (symbol->name() && otherSymbol->name()) {
+
+            if (! symbol->name()->isEqualTo(otherSymbol->name()))
+                return false;
+
+        } else if (symbol->name() != otherSymbol->name()) {
+            return false;
+        }
+
+        return checkScope(symbol->enclosingSymbol(), otherSymbol->enclosingSymbol());
+    }
+
     bool isDeclSymbol(Symbol *symbol) const
     {
         if (! symbol)
@@ -180,11 +200,11 @@ protected:
 
         } else if (symbol->isForwardClassDeclaration() && (_declSymbol->isClass() ||
                                                            _declSymbol->isForwardClassDeclaration())) {
-            return true;
+            return checkScope(symbol, _declSymbol);
 
         } else if (_declSymbol->isForwardClassDeclaration() && (symbol->isClass() ||
                                                                 symbol->isForwardClassDeclaration())) {
-            return true;
+            return checkScope(symbol, _declSymbol);
         }
 
         return false;
