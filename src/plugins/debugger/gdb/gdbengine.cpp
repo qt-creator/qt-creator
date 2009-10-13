@@ -937,21 +937,21 @@ void GdbEngine::handleExecJumpToLine(const GdbResponse &response)
 }
 #endif
 
-void GdbEngine::handleExecRunToFunction(const GdbResponse &response)
-{
-    // FIXME: remove this special case as soon as there's a real
-    // reason given when the temporary breakpoint is hit.
-    // reight now we get:
-    // 14*stopped,thread-id="1",frame={addr="0x0000000000403ce4",
-    // func="foo",args=[{name="str",value="@0x7fff0f450460"}],
-    // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
-    QTC_ASSERT(state() == InferiorStopping, qDebug() << state())
-    setState(InferiorStopped);
-    showStatusMessage(tr("Function reached. Stopped."));
-    GdbMi frame = response.data.findChild("frame");
-    StackFrame f = parseStackFrame(frame, 0);
-    gotoLocation(f, true);
-}
+//void GdbEngine::handleExecRunToFunction(const GdbResponse &response)
+//{
+//    // FIXME: remove this special case as soon as there's a real
+//    // reason given when the temporary breakpoint is hit.
+//    // reight now we get:
+//    // 14*stopped,thread-id="1",frame={addr="0x0000000000403ce4",
+//    // func="foo",args=[{name="str",value="@0x7fff0f450460"}],
+//    // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
+//    QTC_ASSERT(state() == InferiorStopping, qDebug() << state())
+//    setState(InferiorStopped);
+//    showStatusMessage(tr("Function reached. Stopped."));
+//    GdbMi frame = response.data.findChild("frame");
+//    StackFrame f = parseStackFrame(frame, 0);
+//    gotoLocation(f, true);
+//}
 
 static bool isExitedReason(const QByteArray &reason)
 {

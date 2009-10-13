@@ -268,7 +268,7 @@ private:
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleExecContinue(const GdbResponse &response);
     void handleExecJumpToLine(const GdbResponse &response);
-    void handleExecRunToFunction(const GdbResponse &response);
+//    void handleExecRunToFunction(const GdbResponse &response);
     void handleInfoShared(const GdbResponse &response);
     void handleShowVersion(const GdbResponse &response);
     void handleQueryPwd(const GdbResponse &response);
