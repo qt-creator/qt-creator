@@ -164,6 +164,7 @@ public:
     const char *kind() const;
 
     bool isTemporary() const { return false; }
+    virtual bool open(const QString & fileName);
 
 private:
     QList<int> m_context;
