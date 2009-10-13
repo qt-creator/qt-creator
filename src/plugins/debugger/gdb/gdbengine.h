@@ -258,20 +258,16 @@ private slots:
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
-    void handleStart(const GdbResponse &response);
     void handleStopResponse(const GdbMi &data);
     void handleStop1(const GdbResponse &response);
     void handleStop1(const GdbMi &data);
     void handleStop2(const GdbResponse &response);
     void handleStop2(const GdbMi &data);
     void handleResultRecord(const GdbResponse &response);
-    void handleFileExecAndSymbols(const GdbResponse &response);
     void handleExecContinue(const GdbResponse &response);
-    void handleExecJumpToLine(const GdbResponse &response);
 //    void handleExecRunToFunction(const GdbResponse &response);
     void handleInfoShared(const GdbResponse &response);
     void handleShowVersion(const GdbResponse &response);
-    void handleQueryPwd(const GdbResponse &response);
     void handleQuerySources(const GdbResponse &response);
     void handleWatchPoint(const GdbResponse &response);
     bool showToolTip();

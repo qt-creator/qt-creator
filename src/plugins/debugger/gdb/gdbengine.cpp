@@ -1305,19 +1305,6 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleFileExecAndSymbols(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        //m_breakHandler->clearBreakMarkers();
-    } else {
-        QString msg = __(response.data.findChild("msg").data());
-        showMessageBox(QMessageBox::Critical, tr("Starting executable failed"), msg);
-        QTC_ASSERT(state() == InferiorRunning, /**/);
-        //interruptInferior();
-        shutdown();
-    }
-}
-
 void GdbEngine::handleExecContinue(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
