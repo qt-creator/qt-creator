@@ -728,7 +728,7 @@ QByteArray CppModelManager::internalDefinedMacros() const
     return macros;
 }
 
-void CppModelManager::setIncludesInPaths(const QMap<QString, QStringList> includesInPaths)
+void CppModelManager::setIncludesInPaths(const QMap<QString, QStringList> &includesInPaths)
 {
     QMutexLocker locker(&mutex);
     QMapIterator<QString, QStringList> i(includesInPaths);
@@ -1178,7 +1178,7 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
             future.waitForResume();
 
         if (future.isCanceled())
-            break;
+            return;
 
         const QString path = paths.takeFirst();
 
