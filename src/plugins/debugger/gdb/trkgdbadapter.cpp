@@ -1702,7 +1702,7 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
         setState(InferiorRunningRequested);
-        m_engine->postCommand(_("-exec-continue"), CB(handleFirstContinue));
+        m_engine->postCommand(_("-exec-continue"), GdbEngine::RunRequest, CB(handleFirstContinue));
     } else {
         QString msg = tr("Connecting to trk server adapter failed:\n")
             + _(record.data.findChild("msg").data());
