@@ -1618,9 +1618,11 @@ static void qDumpQList(QDumper &d)
     const QListData &ldata = *reinterpret_cast<const QListData*>(d.data);
     const QListData::Data *pdata =
         *reinterpret_cast<const QListData::Data* const*>(d.data);
-    int nn = ldata.size();
+    const int nn = ldata.size();
     if (nn < 0)
         return;
+    const bool innerTypeIsPointer = isPointerType(d.innerType);
+    const int n = qMin(nn, 1000);
     if (nn > 0) {
         if (ldata.d->begin < 0)
             return;
@@ -1631,18 +1633,19 @@ static void qDumpQList(QDumper &d)
             return;
 #endif
         qCheckAccess(ldata.d->array);
-        //qCheckAccess(ldata.d->array[0]);
-        //qCheckAccess(ldata.d->array[nn - 1]);
+        // Additional checks on pointer arrays
+        if (innerTypeIsPointer)
+            for (int i = 0; i != n; ++i)
+                if (const void *p = ldata.d->array + i + pdata->begin)
+                    qCheckAccess(deref(p));
     }
     qCheckAccess(pdata);
 
-    int n = nn;
     d.putItemCount("value", n);
     d.putItem("valueeditable", "false");
     d.putItem("numchild", n);
     if (d.dumpChildren) {
-        unsigned innerSize = d.extraInt[0];
-        bool innerTypeIsPointer = isPointerType(d.innerType);
+        const unsigned innerSize = d.extraInt[0];
         QByteArray strippedInnerType = stripPointerType(d.innerType);
 
         // The exact condition here is:
@@ -1653,8 +1656,6 @@ static void qDumpQList(QDumper &d)
         bool isInternal = innerSize <= int(sizeof(void*))
             && isMovableType(d.innerType);
         d.putItem("internal", (int)isInternal);
-        if (n > 1000)
-            n = 1000;
         d.beginChildren(n ? d.innerType : 0);
         for (int i = 0; i != n; ++i) {
             d.beginHash();
@@ -2917,23 +2918,21 @@ static void qDumpQVector(QDumper &d)
     int nn = v->size;
     if (nn < 0)
         return;
-    if (nn > 0) {
-        //qCheckAccess(&vec.front());
-        //qCheckAccess(&vec.back());
-    }
-
+    const bool innerIsPointerType = isPointerType(d.innerType);
     const unsigned innersize = d.extraInt[0];
+    const int n = qMin(nn, 1000);
+    // Check pointers
+    if (innerIsPointerType && nn > 0)
+        for (int i = 0; i != n; ++i)
+            if (const void *p = addOffset(v, i * innersize + typeddatasize))
+                qCheckAccess(deref(p));
 
-    int n = nn;
     d.putItemCount("value", n);
     d.putItem("valueeditable", "false");
     d.putItem("numchild", n);
     if (d.dumpChildren) {
         QByteArray strippedInnerType = stripPointerType(d.innerType);
-        const char *stripped =
-            isPointerType(d.innerType) ? strippedInnerType.data() : 0;
-        if (n > 1000)
-            n = 1000;
+        const char *stripped = innerIsPointerType ? strippedInnerType.data() : 0;
         d.beginChildren(d.innerType);
         for (int i = 0; i != n; ++i) {
             d.beginHash();

@@ -42,6 +42,17 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
+// Special exception codes.
+enum { winExceptionCppException = 0xe06d7363,
+       winExceptionStartupCompleteTrap = 0x406d1388,
+       winExceptionRpcServerUnavailable = 0x6ba,
+       winExceptionDllNotFound = 0xc0000135,
+       winExceptionDllInitFailed = 0xc0000142,
+       winExceptionMissingSystemFile = 0xc0000143,
+       winExceptionAppInitFailed = 0xc0000143
+};
+
+
 class CdbDumperHelper;
 
 // Utility class that blocks out exception handling (breaking)

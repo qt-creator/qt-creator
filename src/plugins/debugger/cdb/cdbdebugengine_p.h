@@ -135,7 +135,7 @@ struct CdbDebugEnginePrivate
     bool executeContinueCommand(const QString &command);
 
     bool attemptBreakpointSynchronization(QString *errorMessage);
-    void notifyCrashed();
+    void notifyException(long code, bool fatal);
 
     enum EndInferiorAction { DetachInferior, TerminateInferior };
     bool endInferior(EndInferiorAction a, QString *errorMessage);
@@ -157,9 +157,10 @@ struct CdbDebugEnginePrivate
     const QSharedPointer<CdbOptions>  m_options;
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
-    bool                    m_interrupted;
+    bool                    m_interrupted;    
     int                     m_currentThreadId;
     int                     m_eventThreadId;
+    int                     m_interruptArticifialThreadId;
     HandleBreakEventMode    m_breakEventMode;
 
     int                     m_watchTimer;
@@ -175,6 +176,7 @@ struct CdbDebugEnginePrivate
     EditorToolTipCache m_editorToolTipCache;
 
     bool m_firstActivatedFrame;
+    bool m_inferiorStartupComplete;
 
     DebuggerStartMode m_mode;
     Utils::ConsoleProcess m_consoleStubProc;
@@ -192,6 +194,7 @@ QString msgDebugEngineComResult(HRESULT hr);
 QString msgComFailed(const char *func, HRESULT hr);
 
 enum { debugCDB = 0 };
+enum { debugCDBExecution = 0 };
 enum { debugCDBWatchHandling = 0 };
 
 } // namespace Internal

@@ -134,7 +134,7 @@ static inline bool fixDumperType(WatchData *wd, const WatchData *source = 0)
     const bool missing = wd->isTypeNeeded() || wd->type.isEmpty();
     if (missing) {
         static const QString unknownType = QCoreApplication::translate("CdbStackFrameContext", "<Unknown Type>");
-        wd->setType(source ? source->type : unknownType);
+        wd->setType(source ? source->type : unknownType, false);
     }
     return missing;
 }

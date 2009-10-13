@@ -314,6 +314,14 @@ void Symbol::setScope(Scope *scope)
     _scope = scope;
 }
 
+Symbol *Symbol::enclosingSymbol() const
+{
+    if (! _scope)
+        return 0;
+
+    return _scope->owner();
+}
+
 Scope *Symbol::enclosingNamespaceScope() const
 {
     if (! _scope)
