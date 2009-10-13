@@ -568,8 +568,8 @@ void Qt4RunConfiguration::updateTarget()
     reader->setQtVersion(pro->qtVersion(pro->activeBuildConfiguration()));
 
     // Find out what flags we pass on to qmake, this code is duplicated in the qmake step
-    QtVersion::QmakeBuildConfig defaultBuildConfiguration = pro->qtVersion(pro->activeBuildConfiguration())->defaultBuildConfig();
-    QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(pro->activeBuildConfiguration()->value("buildConfiguration").toInt());
+    QtVersion::QmakeBuildConfigs defaultBuildConfiguration = pro->qtVersion(pro->activeBuildConfiguration())->defaultBuildConfig();
+    QtVersion::QmakeBuildConfigs projectBuildConfiguration = QtVersion::QmakeBuildConfig(pro->activeBuildConfiguration()->value("buildConfiguration").toInt());
     QStringList addedUserConfigArguments;
     QStringList removedUserConfigArguments;
     if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))

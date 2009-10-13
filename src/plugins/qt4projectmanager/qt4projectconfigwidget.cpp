@@ -285,9 +285,9 @@ void Qt4ProjectConfigWidget::importLabelClicked()
                 vm->addVersion(version);
             }
 
-            QPair<QtVersion::QmakeBuildConfig, QStringList> result =
+            QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
                     QtVersionManager::scanMakeFile(directory, version->defaultBuildConfig());
-            QtVersion::QmakeBuildConfig qmakeBuildConfig = result.first;
+            QtVersion::QmakeBuildConfigs qmakeBuildConfig = result.first;
             QStringList additionalArguments = Qt4Project::removeSpecFromArgumentList(result.second);
             QString parsedSpec = Qt4Project::extractSpecFromArgumentList(result.second, directory, version);
             QString versionSpec = version->mkspec();

@@ -2171,6 +2171,7 @@ BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
     descriptiveText->setWordWrap(true);
     vlayout->addWidget(descriptiveText);
     m_configCombo = new QComboBox;
+
     RunConfiguration *activeRun = m_project->activeRunConfiguration();
     foreach (BuildConfiguration *config, m_project->buildConfigurations()) {
         if (activeRun->isEnabled(config)) {

@@ -57,13 +57,13 @@ public:
     void execDialog();
 
 private:
-    void setupImportPage(QtVersion *version, QtVersion::QmakeBuildConfig buildConfig, QStringList addtionalArguments);
+    void setupImportPage(QtVersion *version, QtVersion::QmakeBuildConfigs buildConfig, QStringList addtionalArguments);
 
     Qt4Project *m_project;
 
     // Only used for imported stuff
     QtVersion *m_importVersion;
-    QtVersion::QmakeBuildConfig m_importBuildConfig;
+    QtVersion::QmakeBuildConfigs m_importBuildConfig;
     QStringList m_additionalArguments;
     // Those that we might add
     bool m_temporaryVersion;

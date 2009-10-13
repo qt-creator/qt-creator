@@ -127,8 +127,8 @@ void S60EmulatorRunConfiguration::updateTarget()
     reader->setQtVersion(qtVersion);
 
     // Find out what flags we pass on to qmake, this code is duplicated in the qmake step
-    QtVersion::QmakeBuildConfig defaultBuildConfiguration = qtVersion->defaultBuildConfig();
-    QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(pro->activeBuildConfiguration()
+    QtVersion::QmakeBuildConfigs defaultBuildConfiguration = qtVersion->defaultBuildConfig();
+    QtVersion::QmakeBuildConfigs projectBuildConfiguration = QtVersion::QmakeBuildConfig(pro->activeBuildConfiguration()
                                                                                         ->value("buildConfiguration").toInt());
     QStringList addedUserConfigArguments;
     QStringList removedUserConfigArguments;

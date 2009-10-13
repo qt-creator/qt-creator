@@ -163,7 +163,7 @@ public:
 
     void addQt4BuildConfiguration(QString buildConfigurationName,
                                QtVersion *qtversion,
-                               QtVersion::QmakeBuildConfig qmakeBuildConfiguration,
+                               QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                QStringList additionalArguments = QStringList());
 
     QList<Core::IFile *> dependencies();     //NBS remove

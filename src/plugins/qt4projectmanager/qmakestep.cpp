@@ -77,8 +77,8 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
 
     if (bc->value("buildConfiguration").isValid()) {
         QStringList configarguments;
-        QtVersion::QmakeBuildConfig defaultBuildConfiguration = m_pro->qtVersion(bc)->defaultBuildConfig();
-        QtVersion::QmakeBuildConfig projectBuildConfiguration = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt());
+        QtVersion::QmakeBuildConfigs defaultBuildConfiguration = m_pro->qtVersion(bc)->defaultBuildConfig();
+        QtVersion::QmakeBuildConfigs projectBuildConfiguration = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt());
         if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))
             configarguments << "CONFIG-=debug_and_release";
         if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (projectBuildConfiguration & QtVersion::BuildAll))
@@ -271,12 +271,12 @@ void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
 void QMakeStepConfigWidget::buildConfigurationChanged()
 {
     ProjectExplorer::BuildConfiguration *bc = m_step->project()->buildConfiguration(m_buildConfiguration);
-    QtVersion::QmakeBuildConfig buildConfiguration = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt());
+    QtVersion::QmakeBuildConfigs buildConfiguration = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt());
     if (m_ui.buildConfigurationComboBox->currentIndex() == 0) {
         // debug
-        buildConfiguration = QtVersion::QmakeBuildConfig(buildConfiguration | QtVersion::DebugBuild);
+        buildConfiguration = buildConfiguration | QtVersion::DebugBuild;
     } else {
-        buildConfiguration = QtVersion::QmakeBuildConfig(buildConfiguration & ~QtVersion::DebugBuild);
+        buildConfiguration = buildConfiguration & ~QtVersion::DebugBuild;
     }
     bc->setValue("buildConfiguration", int(buildConfiguration));
     static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();

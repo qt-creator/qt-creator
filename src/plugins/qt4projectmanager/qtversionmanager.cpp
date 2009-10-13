@@ -671,11 +671,11 @@ void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
     }
 }
 
-QPair<QtVersion::QmakeBuildConfig, QStringList> QtVersionManager::scanMakeFile(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig)
+QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(const QString &directory, QtVersion::QmakeBuildConfigs defaultBuildConfig)
 {
     if (debug)
         qDebug()<<"ScanMakeFile, the gory details:";
-    QtVersion::QmakeBuildConfig result = QtVersion::NoBuild;
+    QtVersion::QmakeBuildConfigs result = QtVersion::NoBuild;
     QStringList result2;
 
     QString line = findQMakeLine(directory);
@@ -829,9 +829,9 @@ void QtVersionManager::parseParts(const QStringList &parts, QList<QMakeAssignmen
 }
 
 /// This function extracts all the CONFIG+=debug, CONFIG+=release
-QtVersion::QmakeBuildConfig QtVersionManager::qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments, QtVersion::QmakeBuildConfig defaultBuildConfig)
+QtVersion::QmakeBuildConfigs QtVersionManager::qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments, QtVersion::QmakeBuildConfigs defaultBuildConfig)
 {
-    QtVersion::QmakeBuildConfig result = defaultBuildConfig;
+    QtVersion::QmakeBuildConfigs result = defaultBuildConfig;
     QList<QMakeAssignment> oldAssignments = *assignments;
     assignments->clear();
     foreach(QMakeAssignment qa, oldAssignments) {
@@ -841,19 +841,19 @@ QtVersion::QmakeBuildConfig QtVersionManager::qmakeBuildConfigFromCmdArgs(QList<
             foreach(const QString &value, values) {
                 if (value == "debug") {
                     if (qa.op == "+=")
-                        result = QtVersion::QmakeBuildConfig(result  | QtVersion::DebugBuild);
+                        result = result  | QtVersion::DebugBuild;
                     else
-                        result = QtVersion::QmakeBuildConfig(result  & ~QtVersion::DebugBuild);
+                        result = result  & ~QtVersion::DebugBuild;
                 } else if (value == "release") {
                     if (qa.op == "+=")
-                        result = QtVersion::QmakeBuildConfig(result & ~QtVersion::DebugBuild);
+                        result = result & ~QtVersion::DebugBuild;
                     else
-                        result = QtVersion::QmakeBuildConfig(result | QtVersion::DebugBuild);
+                        result = result | QtVersion::DebugBuild;
                 } else if (value == "debug_and_release") {
                     if (qa.op == "+=")
-                        result = QtVersion::QmakeBuildConfig(result | QtVersion::BuildAll);
+                        result = result | QtVersion::BuildAll;
                     else
-                        result = QtVersion::QmakeBuildConfig(result & ~QtVersion::BuildAll);
+                        result = result & ~QtVersion::BuildAll;
                 } else {
                     newValues.append(value);
                 }
@@ -1294,14 +1294,15 @@ bool QtVersion::isValid() const
         || name() == QString::null) && !m_notInstalled);
 }
 
-QtVersion::QmakeBuildConfig QtVersion::defaultBuildConfig() const
+QtVersion::QmakeBuildConfigs QtVersion::defaultBuildConfig() const
 {
     updateToolChainAndMkspec();
-    QtVersion::QmakeBuildConfig result = QtVersion::QmakeBuildConfig(0);
+    QtVersion::QmakeBuildConfigs result = QtVersion::QmakeBuildConfig(0);
+
     if (m_defaultConfigIsDebugAndRelease)
         result = QtVersion::BuildAll;
     if (m_defaultConfigIsDebug)
-        result = QtVersion::QmakeBuildConfig(result | QtVersion::DebugBuild);
+        result = result | QtVersion::DebugBuild;
     return result;
 }
 

@@ -361,6 +361,8 @@ void RunConfigurationComboBox::addedRunConfiguration(ProjectExplorer::Project *p
 
 void RunConfigurationComboBox::removedRunConfiguration(ProjectExplorer::Project *p, const QString &name)
 {
+    Q_UNUSED(p)
+    Q_UNUSED(name)
     rebuildTree();
 }
 

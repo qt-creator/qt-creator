@@ -289,10 +289,10 @@ bool Qt4BuildConfigurationFactory::create(const QString &type) const
 
     m_project->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
                                      version,
-                                     (QtVersion::QmakeBuildConfig)(version->defaultBuildConfig() | QtVersion::DebugBuild));
+                                     (version->defaultBuildConfig() | QtVersion::DebugBuild));
     m_project->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
                                      version,
-                                     (QtVersion::QmakeBuildConfig)(version->defaultBuildConfig() & ~QtVersion::DebugBuild));
+                                     (version->defaultBuildConfig() & ~QtVersion::DebugBuild));
     return true;
 }
 
@@ -437,7 +437,7 @@ ProjectExplorer::IBuildConfigurationFactory *Qt4Project::buildConfigurationFacto
 }
 
 void Qt4Project::addQt4BuildConfiguration(QString buildConfigurationName, QtVersion *qtversion,
-                                          QtVersion::QmakeBuildConfig qmakeBuildConfiguration,
+                                          QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                           QStringList additionalArguments)
 {
     QMakeStep *qmake = qmakeStep();
@@ -851,7 +851,7 @@ void Qt4Project::addDefaultBuild()
                 bc->setValue("buildConfiguration", v);
             } else if (!bc->value("buildConfiguration").isValid()) {
                 if (QtVersion *version = qtVersion(bc))
-                    bc->setValue("buildConfiguration", version->defaultBuildConfig());
+                    bc->setValue("buildConfiguration", int(version->defaultBuildConfig()));
                 else
                     bc->setValue("buildConfiguration", int(QtVersion::BuildAll & QtVersion::DebugBuild));
             }
@@ -1299,7 +1299,7 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(BuildConfiguration *confi
         QtVersion *version = qtVersion(configuration);
         if (version->qmakeCommand() == qmakePath) {
             // same qtversion
-            QPair<QtVersion::QmakeBuildConfig, QStringList> result =
+            QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
                     QtVersionManager::scanMakeFile(workingDirectory, version->defaultBuildConfig());
             if (QtVersion::QmakeBuildConfig(configuration->value("buildConfiguration").toInt()) == result.first) {
                 // The QMake Build Configuration are the same,

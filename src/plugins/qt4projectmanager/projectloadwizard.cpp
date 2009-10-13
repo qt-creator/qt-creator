@@ -63,7 +63,7 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
             m_temporaryVersion = true;
         }
 
-        QPair<QtVersion::QmakeBuildConfig, QStringList> result =
+        QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
                 QtVersionManager::scanMakeFile(directory, m_importVersion->defaultBuildConfig());
         m_importBuildConfig = result.first;
         m_additionalArguments = Qt4Project::removeSpecFromArgumentList(result.second);
@@ -126,11 +126,11 @@ void ProjectLoadWizard::done(int result)
 
         if (m_importBuildConfig & QtVersion::BuildAll) {
             // Also create the other configuration
-            QtVersion::QmakeBuildConfig otherBuildConfiguration = m_importBuildConfig;
+            QtVersion::QmakeBuildConfigs otherBuildConfiguration = m_importBuildConfig;
             if (debug)
-                otherBuildConfiguration = QtVersion::QmakeBuildConfig(otherBuildConfiguration & ~ QtVersion::DebugBuild);
+                otherBuildConfiguration = otherBuildConfiguration & ~ QtVersion::DebugBuild;
             else
-                otherBuildConfiguration = QtVersion::QmakeBuildConfig(otherBuildConfiguration | QtVersion::DebugBuild);
+                otherBuildConfiguration = otherBuildConfiguration | QtVersion::DebugBuild;
 
             m_project->addQt4BuildConfiguration(debug ? "Release" : "Debug", m_importVersion, otherBuildConfiguration, m_additionalArguments);
         }
@@ -144,7 +144,7 @@ void ProjectLoadWizard::done(int result)
         if (defaultVersion && defaultVersion->isValid() && (defaultVersion->defaultBuildConfig() & QtVersion::BuildAll))
             buildAll = true;
         if (buildAll) {
-            m_project->addQt4BuildConfiguration("Debug", 0, QtVersion::QmakeBuildConfig(QtVersion::BuildAll | QtVersion::DebugBuild), m_additionalArguments);
+            m_project->addQt4BuildConfiguration("Debug", 0, QtVersion::BuildAll | QtVersion::DebugBuild, m_additionalArguments);
             m_project->addQt4BuildConfiguration("Release", 0, QtVersion::BuildAll, m_additionalArguments);
         } else {
             m_project->addQt4BuildConfiguration("Debug", 0, QtVersion::DebugBuild, m_additionalArguments);
@@ -162,7 +162,7 @@ int ProjectLoadWizard::nextId() const
     return -1;
 }
 
-void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuildConfig buildConfig, QStringList addtionalArguments)
+void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuildConfigs buildConfig, QStringList addtionalArguments)
 {
     resize(605, 490);
     // Import Page

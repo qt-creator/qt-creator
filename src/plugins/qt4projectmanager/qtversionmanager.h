@@ -132,10 +132,10 @@ public:
         BuildAll = 8
     };
 
-    QmakeBuildConfig defaultBuildConfig() const;
+    Q_DECLARE_FLAGS(QmakeBuildConfigs, QmakeBuildConfig)
 
+    QmakeBuildConfigs defaultBuildConfig() const;
     QString toHtml() const;
-
 private:
     QList<QSharedPointer<ProjectExplorer::ToolChain> > toolChains() const;
     static int getUniqueId();
@@ -178,6 +178,8 @@ private:
     mutable QString m_linguistCommand;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QtVersion::QmakeBuildConfigs)
+
 struct QMakeAssignment
 {
     QString variable;
@@ -207,7 +209,7 @@ public:
     void removeVersion(QtVersion *version);
 
     // Static Methods
-    static QPair<QtVersion::QmakeBuildConfig, QStringList> scanMakeFile(const QString &directory, QtVersion::QmakeBuildConfig defaultBuildConfig);
+    static QPair<QtVersion::QmakeBuildConfigs, QStringList> scanMakeFile(const QString &directory, QtVersion::QmakeBuildConfigs defaultBuildConfig);
     static QString findQMakeBinaryFromMakefile(const QString &directory);
 signals:
     void defaultQtVersionChanged();
@@ -221,7 +223,7 @@ private:
     static QString trimLine(const QString line);
     static QStringList splitLine(const QString &line);
     static void parseParts(const QStringList &parts, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments, QStringList *additionalArguments);
-    static QtVersion::QmakeBuildConfig qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments, QtVersion::QmakeBuildConfig defaultBuildConfig);
+    static QtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments, QtVersion::QmakeBuildConfigs defaultBuildConfig);
     // Used by QtOptionsPage
     void setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion);
     // Used by QtVersion
