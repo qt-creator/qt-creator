@@ -168,10 +168,10 @@ protected:
 
     bool isDeclSymbol(Symbol *symbol) const
     {
-        if (! symbol)
+        if (! symbol) {
             return false;
 
-        else if (symbol == _declSymbol) {
+        } else if (symbol == _declSymbol) {
             return true;
 
         } else if (symbol->line() == _declSymbol->line() && symbol->column() == _declSymbol->column()) {
@@ -345,6 +345,20 @@ protected:
             if (identifier_token && identifier(identifier_token) == _id)
                 checkExpression(ast->firstToken(), identifier_token);
         }
+
+        return false;
+    }
+
+    virtual bool visit(EnumeratorAST *ast)
+    {
+        Identifier *id = identifier(ast->identifier_token);
+        if (id == _id) {
+            LookupContext context = currentContext(ast);
+            const QList<Symbol *> candidates = context.resolve(control()->nameId(id));
+            reportResult(ast->identifier_token, candidates);
+        }
+
+        accept(ast->expression);
 
         return false;
     }
