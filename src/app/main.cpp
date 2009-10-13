@@ -46,24 +46,6 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 
-#ifdef Q_OS_MAC
-#  include <sys/resource.h>
-#  include <CoreFoundation/CoreFoundation.h>
-
-// Helper function CoreFoundation -> Qt
-static QString stringFromCFString(CFStringRef value) {
-    QString retVal;
-    CFIndex maxLength = 2 * CFStringGetLength(value) + 1/*zero term*/; // max UTF8
-    char *cstring = new char[maxLength];
-    if (CFStringGetCString(CFStringRef(value), cstring, maxLength, kCFStringEncodingUTF8)) {
-         retVal = QString::fromUtf8(cstring);
-    }
-    delete cstring;
-    return retVal;
-}
-
-#endif
-
 enum { OptionIndent = 4, DescriptionIndent = 24 };
 
 static const char *appNameC = "Qt Creator";
