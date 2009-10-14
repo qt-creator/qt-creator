@@ -605,19 +605,22 @@ void tst_Debugger::dumpQAbstractItemHelper(QModelIndex &index)
     QByteArray expected = QByteArray("tiname='iname',addr='").append(ptrToBa(&index)).
         append("',type='"NS"QAbstractItem',addr='$").append(indexSpecSymbolic).
         append("',value='").append(valToString(model->data(index).toString())).
-        append("',numchild='1',children=[");
+        append("',numchild='%',children=[");
     int rowCount = model->rowCount(index);
     int columnCount = model->columnCount(index);
+    expected <<= N(rowCount * columnCount);
     for (int row = 0; row < rowCount; ++row) {
         for (int col = 0; col < columnCount; ++col) {
             const QModelIndex &childIndex = model->index(row, col, index);
             expected.append("{name='[").append(valToString(row)).append(",").
-                append(N(col)).append("]',numchild='1',addr='$").
+                append(N(col)).append("]',numchild='%',addr='$").
                 append(N(childIndex.row())).append(",").
                 append(N(childIndex.column())).append(",").
                 append(ptrToBa(childIndex.internalPointer())).append(",").
                 append(modelPtrStr).append("',type='"NS"QAbstractItem',value='").
                 append(valToString(model->data(childIndex).toString())).append("'}");
+            expected <<= N(model->rowCount(childIndex)
+                           * model->columnCount(childIndex));
             if (col < columnCount - 1 || row < rowCount - 1)
                 expected.append(",");
         }
@@ -792,11 +795,12 @@ void tst_Debugger::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
         for (int column = 0; column < m.columnCount(); ++column) {
             QModelIndex mi = m.index(row, column);
             expected.append(QByteArray(",{name='[%,%]',value='%',"
-                "valueencoded='2',numchild='1',addr='$%,%,%,%',"
+                "valueencoded='2',numchild='%',addr='$%,%,%,%',"
                 "type='"NS"QAbstractItem'}")
                 << N(row)
                 << N(column)
                 << utfToBase64(m.data(mi).toString())
+                << N(row * column)
                 << N(mi.row())
                 << N(mi.column())
                 << ptrToBa(mi.internalPointer())
