@@ -29,6 +29,7 @@
 
 #include <QtCore/QChar>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QLatin1String>
 #include <QtCore/QMap>
 #include <QtCore/QRegExp>
 #include <QtCore/QSet>
@@ -41,15 +42,16 @@
 //#define DO_TRACE
 #ifdef DO_TRACE
 #define FUNC_START()                                                           \
-    qDebug("Function %s has started, input is at position %d.", __func__, pos)
+    qDebug("Function %s has started, input is at position %d.", Q_FUNC_INFO, pos)
 #define FUNC_END(result)                                                       \
-    qDebug("Function %s has finished, result is '%s'.", __func__, qPrintable(result))
+    qDebug("Function %s has finished, result is '%s'.", Q_FUNC_INFO, qPrintable(result))
 #else
 #define FUNC_START()
 #define FUNC_END(result)
 #endif // DO_TRACE
 
-QT_BEGIN_NAMESPACE
+namespace Debugger {
+namespace Internal {    
 
 class NameDemanglerPrivate
 {
@@ -93,11 +95,12 @@ private:
     class FunctionCallOperator : public UnaryOperator
     {
     public:
-        FunctionCallOperator() : UnaryOperator("cl", "") { }
+        FunctionCallOperator() : UnaryOperator(QLatin1String("cl"),
+                                               QLatin1String("")) { }
         const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 1);
-            return exprs.first() + "()";
+            return QString::fromLocal8Bit("%1()").arg(exprs.first());
         }
     };
 
@@ -109,7 +112,8 @@ private:
         const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 1);
-            return repr + "(" + exprs.first() + ")";
+            return QString::fromLocal8Bit("%1(%2)").
+                arg(repr).arg(exprs.first());
         }
     };
 
@@ -121,7 +125,8 @@ private:
         virtual const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 2);
-            return exprs.first() + " " + repr + " " + exprs.at(1);
+            return QString::fromLocal8Bit("%1 %2 %3").
+                arg(exprs.first()).arg(repr).arg(exprs.at(1));
         }
         OpType type() const { return BinaryOp; }
     };
@@ -129,11 +134,16 @@ private:
     class ArrayNewOperator : public BinaryOperator
     {
     public:
-        ArrayNewOperator() : BinaryOperator("na", "") { }
+        ArrayNewOperator() : BinaryOperator(QLatin1String("na"),
+                                            QLatin1String(""))
+        {
+        }
+        
         const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 2);
-            return "new " + exprs.first() + "[" + exprs.at(1) + "]";
+            return QString::fromLocal8Bit("new %1[%2]").
+                arg(exprs.first()).arg(exprs.at(1));
         }
     };
 
@@ -152,22 +162,32 @@ private:
     class ArrayAccessOperator : public BinaryOperator
     {
     public:
-        ArrayAccessOperator() : BinaryOperator("ix", "") { }
+        ArrayAccessOperator() : BinaryOperator(QLatin1String("ix"),
+                                               QLatin1String(""))
+        {
+        }
+        
         const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 2);
-            return exprs.first() + "[" + exprs.at(1) + "]";
+            return QString::fromLocal8Bit("%1[%2]").
+                arg(exprs.first()).arg(exprs.at(1));
         }
     };
 
     class QuestionMarkOperator : public Operator
     {
     public:
-        QuestionMarkOperator() : Operator("qu", "") { }
+        QuestionMarkOperator() : Operator(QLatin1String("qu"),
+                                          QLatin1String(""))
+        {
+        }
+        
         virtual const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 3);
-            return exprs.first() + " ? " + exprs.at(1) + " : " + exprs.at(2);
+            return QString::fromLocal8Bit("%1 ? %2 : %3").
+                arg(exprs.first()).arg(exprs.at(1)).arg(exprs.at(2));
         }
         OpType type() const { return TernaryOp; }
     };
@@ -303,8 +323,9 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
     substitutions.clear();
     templateParams.clear();
     m_demangledName = parseMangledName();
-    m_demangledName.replace(QRegExp("([^a-zA-Z\\d>)])::"), "\\1");
-    if (m_demangledName.startsWith("::"))
+    m_demangledName.replace(
+        QRegExp(QLatin1String("([^a-zA-Z\\d>)])::")), QLatin1String("\\1"));
+    if (m_demangledName.startsWith(QLatin1String("::")))
         m_demangledName.remove(0, 2);
     if (!parseError && pos != mangledName.size())
         error(tr("Premature end of input"));
@@ -327,7 +348,7 @@ const QString NameDemanglerPrivate::parseMangledName()
 {
     FUNC_START();
     QString name;
-    if (readAhead(2) != "_Z") {
+    if (readAhead(2) != QLatin1String("_Z")) {
         name = mangledName;
         advance(mangledName.size());
     } else {
@@ -375,19 +396,19 @@ const QString NameDemanglerPrivate::parseEncoding()
             int start;
             if (encoding.endsWith('>')) { // Template instantiation.
                 start = 1;
-                encoding.prepend(signature.first() + " ");
+                encoding.prepend(signature.first() + QLatin1String(" "));
             } else {                              // Normal function.
                 start = 0;
             }
-            encoding += "(";
+            encoding += QLatin1String("(");
             for (int i = start; i < signature.size(); ++i) {
                 if (i > start)
-                    encoding += ", ";
+                    encoding += QLatin1String(", ");
                 const QString &type = signature.at(i);
-                if (type != "void")
+                if (type != QLatin1String("void"))
                     encoding += type;
             }
-            encoding += ")";
+            encoding += QLatin1String(")");
             encoding += qualifiers;
             addSubstitution(encoding);
         } else {
@@ -431,7 +452,8 @@ const QString NameDemanglerPrivate::parseName()
     Q_ASSERT((firstSetSubstitution & firstSetLocalName).isEmpty());
 
     QString name;
-    if ((readAhead(2) == "St" && firstSetUnqualifiedName.contains(peek(2)))
+    if ((readAhead(2) == QLatin1String("St")
+         && firstSetUnqualifiedName.contains(peek(2)))
         || firstSetUnscopedName.contains(peek())) {
         name = parseUnscopedName();
         if (!parseError && firstSetTemplateArgs.contains(peek())) {
@@ -508,7 +530,7 @@ const QString NameDemanglerPrivate::parseNestedName()
              * spot them.
              */
             if (!cvQualifiers.isEmpty())
-                name += "@" + cvQualifiers;
+                name += QLatin1String("@") + cvQualifiers;
         }
     }
 
@@ -608,13 +630,13 @@ const QString NameDemanglerPrivate::parseTemplateArgs()
     FUNC_START();
     Q_ASSERT(!firstSetTemplateArg.contains('E'));
 
-    QString args = "<";
+    QString args = QLatin1String("<");
     if (advance() != 'I') {
         error(tr("Invalid template args"));
     } else {
         do {
             if (args.length() > 1)
-                args += ", ";
+                args += QLatin1String(", ");
             args += parseTemplateArg();
         } while (!parseError && firstSetTemplateArg.contains(peek()));
         if (!parseError && advance() != 'E')
@@ -667,7 +689,7 @@ const QString NameDemanglerPrivate::parseCvQualifiers()
                 break;
             } else {
                 volatileFound = true;
-                qualifiers += " volatile";
+                qualifiers += QLatin1String(" volatile");
                 advance();
             }
         } else if (peek() == 'K') {
@@ -676,7 +698,7 @@ const QString NameDemanglerPrivate::parseCvQualifiers()
                 break;
             } else {
                 constFound = true;
-                qualifiers += " const";
+                qualifiers += QLatin1String(" const");
                 advance();
             }
         } else {
@@ -762,7 +784,7 @@ const QString NameDemanglerPrivate::parseTemplateArg()
 
     QString arg;
     QChar next = peek();
-    if (readAhead(2) == "sp") {
+    if (readAhead(2) == QLatin1String("sp")) {
         advance(2);
         arg = parseExpression();
     } else if (firstSetType.contains(next)) {
@@ -778,7 +800,7 @@ const QString NameDemanglerPrivate::parseTemplateArg()
         advance();
         while (!parseError && firstSetTemplateArg.contains(peek())) {
             if (!arg.isEmpty())
-                arg += ", ";  // TODO: is this correct?
+                arg += QLatin1String(", ");  // TODO: is this correct?
             arg += parseTemplateArg();
         }
         if (!parseError && advance() != 'E')
@@ -843,15 +865,15 @@ const QString NameDemanglerPrivate::parseExpression()
     * them being parsed by parseOperatorName().
     */
     QString str = readAhead(2);
-    if (str == "cl") {
+    if (str == QLatin1String("cl")) {
         advance(2);
         while (!parseError && firstSetExpression.contains(peek()))
             expr += parseExpression();
         if (!parseError && advance() != 'E')
             error(tr("Invalid expression"));
-    } else if (str == "cv") {
+    } else if (str == QLatin1String("cv")) {
         advance(2);
-        expr = parseType() + "(";
+        expr = parseType() + QLatin1String("(");
         if (!parseError) {
             if (peek() == '_') {
                 advance();
@@ -859,7 +881,7 @@ const QString NameDemanglerPrivate::parseExpression()
                      !parseError && firstSetExpression.contains(peek());
                      ++numArgs) {
                     if (numArgs > 0)
-                        expr += ", ";
+                        expr += QLatin1String(", ");
                     expr += parseExpression();
                 }
                 if (!parseError && advance() != 'E')
@@ -868,21 +890,21 @@ const QString NameDemanglerPrivate::parseExpression()
                 expr += parseExpression();
             }
         }
-        expr += ")";
-    } else if (str == "st") {
+        expr += QLatin1String(")");
+    } else if (str == QLatin1String("st")) {
         advance(2);
-        expr = "sizeof(" + parseType() + ")";
-    } else if (str == "at") {
+        expr = QString::fromLocal8Bit("sizeof(%1)").arg(parseType());
+    } else if (str == QLatin1String("at")) {
         advance(2);
-        expr = "alignof(" + parseType() + ")";
-    } else if (str == "sr") { // TODO: Which syntax to use here?
+        expr = QString::fromLocal8Bit("alignof(%1)").arg(parseType());
+    } else if (str == QLatin1String("sr")) { // TODO: Which syntax to use here?
         advance(2);
         expr = parseType();
         if (!parseError)
             expr += parseUnqualifiedName();
         if (!parseError && firstSetTemplateArgs.contains(peek()))
             parseTemplateArgs();
-    } else if (str == "sZ") {
+    } else if (str == QLatin1String("sZ")) {
         expr = parseTemplateParam(); // TODO: Syntax?
     } else {
         QChar next = peek();
@@ -1073,23 +1095,24 @@ const QString NameDemanglerPrivate::parseType()
 
     QString type;
     QString str = readAhead(2);
-    if (str == "Dp") {
+    if (str == QLatin1String("Dp")) {
         advance(2);
         type = parseType(); // TODO: Probably needs augmentation
-    } else if (str == "Dt") {
+    } else if (str == QLatin1String("Dt")) {
         advance(2);
         type = parseExpression();  // TODO: See above
         if (!parseError && advance() != 'E')
             error(tr("Invalid type"));
-    } else if (str == "DT") {
+    } else if (str == QLatin1String("DT")) {
         advance(2);
         type = parseExpression(); // TODO: See above
         if (!parseError && advance() != 'E')
             error(tr("Invalid type"));
     } else {
         QChar next = peek();
-        if (str == "Dd" || str == "De" || str == "Df" || str == "Dh"
-            || str == "Di" || str == "Ds"
+        if (str == QLatin1String("Dd") || str == QLatin1String("De")
+            || str == QLatin1String("Df") || str == QLatin1String("Dh")
+            || str == QLatin1String("Di") || str == QLatin1String("Ds")
             || (next != 'D' && firstSetBuiltinType.contains(next))) {
             type = parseBuiltinType();
         } else if (firstSetFunctionType.contains(next)) {
@@ -1127,16 +1150,16 @@ const QString NameDemanglerPrivate::parseType()
         } else if (next == 'P') {
             advance();
             type = parseType();
-            insertQualifier(type, "*");
+            insertQualifier(type, QLatin1String("*"));
             addSubstitution(type);
         } else if (next == 'R') {
             advance();
             type = parseType();
-            insertQualifier(type, "&");
+            insertQualifier(type, QLatin1String("&"));
             addSubstitution(type);
         } else if (next == 'O') {
             advance();
-            type = parseType() + "&&"; // TODO: Correct notation?
+            type = parseType() + QLatin1String("&&"); // TODO: Correct notation?
             addSubstitution(type);
         } else if (next == 'C') {
             advance();
@@ -1212,67 +1235,67 @@ const QString NameDemanglerPrivate::parseBuiltinType()
     QString type;
     switch (advance().toAscii()) {
         case 'v':
-            type = "void";
+            type = QLatin1String("void");
             break;
         case 'w':
-            type = "wchar_t";
+            type = QLatin1String("wchar_t");
             break;
         case 'b':
-            type = "bool";
+            type = QLatin1String("bool");
             break;
         case 'c':
-            type = "char";
+            type = QLatin1String("char");
             break;
         case 'a':
-            type = "signed char";
+            type = QLatin1String("signed char");
             break;
         case 'h':
-            type = "unsigned char";
+            type = QLatin1String("unsigned char");
             break;
         case 's':
-            type = "short";
+            type = QLatin1String("short");
             break;
         case 't':
-            type = "unsigned short";
+            type = QLatin1String("unsigned short");
             break;
         case 'i':
-            type = "int";
+            type = QLatin1String("int");
             break;
         case 'j':
-            type = "unsigned int";
+            type = QLatin1String("unsigned int");
             break;
         case 'l':
-            type = "long";
+            type = QLatin1String("long");
             break;
         case 'm':
-            type = "unsigned long";
+            type = QLatin1String("unsigned long");
             break;
         case 'x':
-            type = "long long";
+            type = QLatin1String("long long");
             break;
         case 'y':
-            type = "unsigned long long";
+            type = QLatin1String("unsigned long long");
             break;
         case 'n':
-            type = "__int128";
+            type = QLatin1String("__int128");
             break;
         case 'o':
-            type = "unsigned __int128";
+            type = QLatin1String("unsigned __int128");
             break;
         case 'f':
-            type = "float";
+            type = QLatin1String("float");
             break;
         case 'd':
-            type = "double";
+            type = QLatin1String("double");
             break;
         case 'e':
-            type = "long double";
+            type = QLatin1String("long double");
             break;
         case 'g':
-            type = "__float128";
+            type = QLatin1String("__float128");
             break;
         case 'z':
-            type = "...";
+            type = QLatin1String("...");
             break;
         case 'D':
             switch (advance().toAscii()) {
@@ -1280,13 +1303,13 @@ const QString NameDemanglerPrivate::parseBuiltinType()
                 case 'e':
                 case 'f':
                 case 'h':
-                    type = "IEEE_special_float";
+                    type = QLatin1String("IEEE_special_float");
                     break;
                 case 'i':
-                    type = "char32_t";
+                    type = QLatin1String("char32_t");
                     break;
                 case 's':
-                    type = "char16_t";
+                    type = QLatin1String("char16_t");
                     break;
                     break;
                 default:
@@ -1324,15 +1347,15 @@ const QString NameDemanglerPrivate::parseFunctionType()
             error(tr("Invalid function type"));
         if (!parseError) {
             QString returnType = signature.first();
-            QString argList = "(";
+            QString argList = QLatin1String("(");
             for (int i = 1; i < signature.size(); ++i) {
                 if (i > 1)
-                    argList.append(", ");
+                    argList.append(QLatin1String(", "));
                 const QString &type = signature.at(i);
-                if (type != "void")
+                if (type != QLatin1String("void"))
                     argList.append(type);
             }
-            argList.append(")");
+            argList.append(QLatin1String(")"));
             bool retTypeIsFuncPtr = false;
             const int firstClosingParenIndex = returnType.indexOf(')');
             if (firstClosingParenIndex != -1) {
@@ -1346,12 +1369,13 @@ const QString NameDemanglerPrivate::parseFunctionType()
                 }
             }
             if (!retTypeIsFuncPtr)
-                funcType = returnType + " " + argList;
+                funcType = QString::fromLocal8Bit("%1 %2").
+                    arg(returnType).arg(argList);
         }
     }
 
     if (externC)
-        funcType.prepend("extern \"C\" ");
+        funcType.prepend(QLatin1String("extern \"C\" "));
     FUNC_END(funcType);
     return funcType;
 }
@@ -1366,7 +1390,7 @@ const QStringList NameDemanglerPrivate::parseBareFunctionType()
         signature.append(parseType());
     while (!parseError && firstSetType.contains(peek()));
 
-    FUNC_END(signature.join(":"));
+    FUNC_END(signature.join(QLatin1String(":")));
     return signature;
 }
 
@@ -1394,11 +1418,11 @@ const QString NameDemanglerPrivate::parseUnqualifiedName()
     QString name;
     QChar next = peek();
     if (firstSetOperatorName.contains(next))
-        name = "::operator" + parseOperatorName().repr;
+        name = QLatin1String("::operator") + parseOperatorName().repr;
     else if (firstSetCtorDtorName.contains(next))
-        name = "::" + parseCtorDtorName();
+        name = QLatin1String("::") + parseCtorDtorName();
     else if (firstSetSourceName.contains(next))
-        name = "::" + parseSourceName();
+        name = QLatin1String("::") + parseSourceName();
     else
         error(tr("Invalid unqualified-name"));
 
@@ -1468,7 +1492,8 @@ const NameDemanglerPrivate::Operator &NameDemanglerPrivate::parseOperatorName()
     const Operator *op;
     if (peek() == 'v') {
         // TODO: Implement vendor-extended operators.
-        static const UnaryOperator vendorOp("v", "[unimplemented]");
+        static const UnaryOperator vendorOp(QLatin1String("v"),
+                                            QLatin1String("[unimplemented]"));
         advance();
         int numExprs = parseDigit();
         Q_UNUSED(numExprs);
@@ -1478,15 +1503,17 @@ const NameDemanglerPrivate::Operator &NameDemanglerPrivate::parseOperatorName()
     } else {
         const QString id = readAhead(2);
         advance(2);
-        if (id == "cv") {
-            static UnaryOperator castOp("cv", "");
+        if (id == QLatin1String("cv")) {
+            static UnaryOperator castOp(QLatin1String("cv"),
+                                        QLatin1String(""));
             QString type = parseType();
-            castOp.repr = "(" + type + ")";
+            castOp.repr = QString::fromLocal8Bit("(%1)").arg(type);
             op = &castOp;
         } else {
             op = ops.value(id);
             if (op == 0) {
-                static const UnaryOperator pseudoOp("invalid", "invalid");
+                static const UnaryOperator pseudoOp(QLatin1String("invalid"),
+                                                    QLatin1String("invalid"));
                 op = &pseudoOp;
                 error(tr("Invalid operator-name '%s'").arg(id));
             }
@@ -1522,7 +1549,8 @@ const QString NameDemanglerPrivate::parseArrayType()
         if (!parseError && advance() != '_')
             error(tr("Invalid array-type"));
         if (!parseError)
-            type = parseType() + "[" + dimension + "]";
+            type = QString::fromLocal8Bit("%1[%2]").
+                arg(parseType()).arg(dimension);
     }
 
     FUNC_END(type);
@@ -1547,9 +1575,11 @@ const QString NameDemanglerPrivate::parsePointerToMemberType()
                 int parenIndex = memberType.indexOf('(');
                 QString returnType = memberType.left(parenIndex);
                 memberType.remove(0, parenIndex);
-                type = returnType + "(" + classType + "::*)" + memberType;
+                type = QString::fromLocal8Bit("%1(%2::*)%3").
+                    arg(returnType).arg(classType).arg(memberType);
             } else {
-                type = memberType + " " + classType + "::*";
+                type = QString::fromLocal8Bit("%1 %2::*").
+                    arg(memberType).arg(classType);
             }
         }
     }
@@ -1601,29 +1631,30 @@ const QString NameDemanglerPrivate::parseSubstitution()
                     substitution = substitutions.first();
                 break;
             case 't':
-                substitution = "::std::";
+                substitution = QLatin1String("::std::");
                 break;
             case 'a':
-                substitution = "::std::allocator";
+                substitution = QLatin1String("::std::allocator");
                 break;
             case 'b':
-                substitution = "::std::basic_string";
+                substitution = QLatin1String("::std::basic_string");
                 break;
             case 's':
-                substitution = "::std::basic_string<char, "
-                    "::std::char_traits<char>, ::std::allocator<char> >";
+                substitution = QLatin1String(
+                    "::std::basic_string<char, "
+                    "::std::char_traits<char>, ::std::allocator<char> >");
                 break;
             case 'i':
-                substitution =
-                    "::std::basic_istream<char, std::char_traits<char> >";
+                substitution = QLatin1String(
+                    "::std::basic_istream<char, std::char_traits<char> >");
                 break;
             case 'o':
-                substitution =
-                    "::std::basic_ostream<char, std::char_traits<char> >";
+                substitution = QLatin1String(
+                    "::std::basic_ostream<char, std::char_traits<char> >");
                 break;
             case 'd':
-                substitution =
-                    "::std::basic_iostream<char, std::char_traits<char> >";
+                substitution = QLatin1String(
+                    "::std::basic_iostream<char, std::char_traits<char> >");
                 break;
             default:
                 error(tr("Invalid substitution"));
@@ -1670,22 +1701,23 @@ const QString NameDemanglerPrivate::parseSpecialName()
 
     QString name;
     QString str = readAhead(2);
-    if (str == "TV") {
+    if (str == QLatin1String("TV")) {
         advance(2);
-        name = "[virtual table of " + parseType() + "]";
-    } else if (str == "TT") {
+        name = QString::fromLocal8Bit("[virtual table of %1]").arg(parseType());
+    } else if (str == QLatin1String("TT")) {
         advance(2);
-        name = "[VTT struct of " + parseType() + "]";
-    } else if (str == "TI") {
+        name = QString::fromLocal8Bit("[VTT struct of %1]").arg(parseType());
+    } else if (str == QLatin1String("TI")) {
         advance(2);
-        name = "typeid(" + parseType() + ")";
-    } else if (str == "TS") {
+        name = QString::fromLocal8Bit("typeid(%1)").arg(parseType());
+    } else if (str == QLatin1String("TS")) {
         advance(2);
-        name = "typeid(" + parseType() + ").name()";
-    } else if (str == "GV") {
+        name = QString::fromLocal8Bit("typeid(%1).name()").arg(parseType());
+    } else if (str == QLatin1String("GV")) {
         advance(2);
-        name = "guard variable of " + parseName() + "]";
-    } else if (str == "Tc") {
+        name = QString::fromLocal8Bit("[guard variable of %1]").
+            arg(parseName());
+    } else if (str == QLatin1String("Tc")) {
         advance(2);
         parseCallOffset();
         if (!parseError)
@@ -1714,9 +1746,9 @@ const QString NameDemanglerPrivate::parseUnscopedName()
     Q_ASSERT(!firstSetUnqualifiedName.contains('S'));
 
     QString name;
-    if (readAhead(2) == "St") {
+    if (readAhead(2) == QLatin1String("St")) {
         advance(2);
-        name = "::std" + parseUnqualifiedName();
+        name = QLatin1String("::std") + parseUnqualifiedName();
     } else if (firstSetUnqualifiedName.contains(peek())) {
         name = parseUnqualifiedName();
     } else {
@@ -1748,12 +1780,14 @@ const QString NameDemanglerPrivate::parseLocalName()
         } else {
             QString str = readAhead(2);
             QChar next = peek();
-            if (str == "sp" || str == "sr" || str == "st" || str == "sz"
-                || str == "sZ" || (next != 's' && firstSetName.contains(next)))
+            if (str == QLatin1String("sp") || str == QLatin1String("sr")
+                || str == QLatin1String("st") || str == QLatin1String("sz")
+                || str == QLatin1String("sZ")
+                || (next != 's' && firstSetName.contains(next)))
                 name +=  parseName();
             else if (next == 's') {
                 advance();
-                name += "::\"string literal\"";
+                name += QLatin1String("::\"string literal\"");
             } else {
                 error(tr("Invalid local-name"));
             }
@@ -1827,7 +1861,7 @@ const QString NameDemanglerPrivate::parseCtorDtorName()
         if (templateArgsStart != -1)
             name.remove(templateArgsStart,
                         name.indexOf('>') - templateArgsStart + 1);
-        int lastComponentStart = name.lastIndexOf("::");
+        int lastComponentStart = name.lastIndexOf(QLatin1String("::"));
         if (lastComponentStart != -1)
             name.remove(0, lastComponentStart + 2);
         if (destructor)
@@ -2018,59 +2052,106 @@ void NameDemanglerPrivate::setupFirstSets()
 #endif
 }
 
-void NameDemanglerPrivate::setupOps()
-{
-    ops["nw"] = new UnaryOperator("nw", "new ");
-    ops["na"] = new ArrayNewOperator;
-    ops["dl"] = new UnaryOperator("dl", "delete ");
-    ops["da"] = new UnaryOperator("da", "delete[] ");
-    ops["ps"] = new UnaryOperator("ps", "+");
-    ops["ng"] = new UnaryOperator("ng", "-");
-    ops["ad"] = new UnaryOperator("ad", "&");
-    ops["de"] = new UnaryOperator("de", "*");
-    ops["co"] = new UnaryOperator("co", "~");
-    ops["pl"] = new BinaryOperator("pl", "+");
-    ops["mi"] = new BinaryOperator("mi", "-");
-    ops["ml"] = new BinaryOperator("ml", "*");
-    ops["dv"] = new BinaryOperator("dv", "/");
-    ops["rm"] = new BinaryOperator("rm", "%");
-    ops["an"] = new BinaryOperator("an", "&");
-    ops["or"] = new BinaryOperator("or", "|");
-    ops["eo"] = new BinaryOperator("eo", "^");
-    ops["aS"] = new BinaryOperator("aS", "=");
-    ops["pL"] = new BinaryOperator("pl", "+=");
-    ops["mI"] = new BinaryOperator("mI", "-=");
-    ops["mL"] = new BinaryOperator("mL", "*=");
-    ops["dV"] = new BinaryOperator("dV", "/=");
-    ops["rM"] = new BinaryOperator("rM", "%=");
-    ops["aN"] = new BinaryOperator("aN", "&=");
-    ops["oR"] = new BinaryOperator("oR", "|=");
-    ops["eO"] = new BinaryOperator("eO", "^=");
-    ops["ls"] = new BinaryOperator("ls", "<<");
-    ops["rs"] = new BinaryOperator("rs", ">>");
-    ops["lS"] = new BinaryOperator("lS", "<<=");
-    ops["rS"] = new BinaryOperator("rS", ">>=");
-    ops["eq"] = new BinaryOperator("eq", "==");
-    ops["ne"] = new BinaryOperator("ne", "!=");
-    ops["lt"] = new BinaryOperator("lt", "<");
-    ops["gt"] = new BinaryOperator("gt", ">");
-    ops["le"] = new BinaryOperator("le", "<=");
-    ops["ge"] = new BinaryOperator("ge", ">=");
-    ops["nt"] = new UnaryOperator("nt", "!");
-    ops["aa"] = new BinaryOperator("aa", "&&");
-    ops["oo"] = new BinaryOperator("oo", "||");
-    ops["pp"] = new UnaryOperator("pp", "++"); // Prefix?
-    ops["mm"] = new UnaryOperator("mm", "--"); // Prefix?
-    ops["cm"] = new BinaryOperator("cm", ",");
-    ops["pm"] = new BinOpWithNoSpaces("pm", "->*");
-    ops["pt"] = new BinOpWithNoSpaces("pm", "->");
-    ops["cl"] = new FunctionCallOperator;
-    ops["ix"] = new ArrayAccessOperator;
-    ops["qu"] = new QuestionMarkOperator;
-    ops["st"] = new SizeAlignOfOperator("st", "sizeof");
-    ops["sz"] = new SizeAlignOfOperator("sz", "sizeof");
-    ops["at"] = new SizeAlignOfOperator("at", "alignof");
-    ops["az"] = new SizeAlignOfOperator("az", "alignof");
+void NameDemanglerPrivate::setupOps(){
+
+    ops[QLatin1String("nw")] =
+        new UnaryOperator(QLatin1String("nw"), QLatin1String("new "));
+    ops[QLatin1String("na")] = new ArrayNewOperator;
+    ops[QLatin1String("dl")] =
+        new UnaryOperator(QLatin1String("dl"), QLatin1String("delete "));
+    ops[QLatin1String("da")] =
+        new UnaryOperator(QLatin1String("da"), QLatin1String("delete[] "));
+    ops[QLatin1String("ps")] =
+        new UnaryOperator(QLatin1String("ps"), QLatin1String("+"));
+    ops[QLatin1String("ng")] =
+        new UnaryOperator(QLatin1String("ng"), QLatin1String("-"));
+    ops[QLatin1String("ad")] =
+        new UnaryOperator(QLatin1String("ad"), QLatin1String("&"));
+    ops[QLatin1String("de")] =
+        new UnaryOperator(QLatin1String("de"), QLatin1String("*"));
+    ops[QLatin1String("co")] =
+        new UnaryOperator(QLatin1String("co"), QLatin1String("~"));
+    ops[QLatin1String("pl")] =
+        new BinaryOperator(QLatin1String("pl"), QLatin1String("+"));
+    ops[QLatin1String("mi")] =
+        new BinaryOperator(QLatin1String("mi"), QLatin1String("-"));
+    ops[QLatin1String("ml")] =
+        new BinaryOperator(QLatin1String("ml"), QLatin1String("*"));
+    ops[QLatin1String("dv")] =
+        new BinaryOperator(QLatin1String("dv"), QLatin1String("/"));
+    ops[QLatin1String("rm")] =
+        new BinaryOperator(QLatin1String("rm"), QLatin1String("%"));
+    ops[QLatin1String("an")] =
+        new BinaryOperator(QLatin1String("an"), QLatin1String("&"));
+    ops[QLatin1String("or")] =
+        new BinaryOperator(QLatin1String("or"), QLatin1String("|"));
+    ops[QLatin1String("eo")] =
+        new BinaryOperator(QLatin1String("eo"), QLatin1String("^"));
+    ops[QLatin1String("aS")] =
+        new BinaryOperator(QLatin1String("aS"), QLatin1String("="));
+    ops[QLatin1String("pL")] =
+        new BinaryOperator(QLatin1String("pl"), QLatin1String("+="));
+    ops[QLatin1String("mI")] =
+        new BinaryOperator(QLatin1String("mI"), QLatin1String("-="));
+    ops[QLatin1String("mL")] =
+        new BinaryOperator(QLatin1String("mL"), QLatin1String("*="));
+    ops[QLatin1String("dV")] =
+        new BinaryOperator(QLatin1String("dV"), QLatin1String("/="));
+    ops[QLatin1String("rM")] =
+        new BinaryOperator(QLatin1String("rM"), QLatin1String("%="));
+    ops[QLatin1String("aN")] =
+        new BinaryOperator(QLatin1String("aN"), QLatin1String("&="));
+    ops[QLatin1String("oR")] =
+        new BinaryOperator(QLatin1String("oR"), QLatin1String("|="));
+    ops[QLatin1String("eO")] =
+        new BinaryOperator(QLatin1String("eO"), QLatin1String("^="));
+    ops[QLatin1String("ls")] =
+        new BinaryOperator(QLatin1String("ls"), QLatin1String("<<"));
+    ops[QLatin1String("rs")] =
+        new BinaryOperator(QLatin1String("rs"), QLatin1String(">>"));
+    ops[QLatin1String("lS")] =
+        new BinaryOperator(QLatin1String("lS"), QLatin1String("<<="));
+    ops[QLatin1String("rS")] =
+        new BinaryOperator(QLatin1String("rS"), QLatin1String(">>="));
+    ops[QLatin1String("eq")] =
+        new BinaryOperator(QLatin1String("eq"), QLatin1String("=="));
+    ops[QLatin1String("ne")] =
+        new BinaryOperator(QLatin1String("ne"), QLatin1String("!="));
+    ops[QLatin1String("lt")] =
+        new BinaryOperator(QLatin1String("lt"), QLatin1String("<"));
+    ops[QLatin1String("gt")] =
+        new BinaryOperator(QLatin1String("gt"), QLatin1String(">"));
+    ops[QLatin1String("le")] =
+        new BinaryOperator(QLatin1String("le"), QLatin1String("<="));
+    ops[QLatin1String("ge")] =
+        new BinaryOperator(QLatin1String("ge"), QLatin1String(">="));
+    ops[QLatin1String("nt")] =
+        new UnaryOperator(QLatin1String("nt"), QLatin1String("!"));
+    ops[QLatin1String("aa")] =
+        new BinaryOperator(QLatin1String("aa"), QLatin1String("&&"));
+    ops[QLatin1String("oo")] =
+        new BinaryOperator(QLatin1String("oo"), QLatin1String("||"));
+    ops[QLatin1String("pp")] =
+        new UnaryOperator(QLatin1String("pp"), QLatin1String("++")); // Prefix?
+    ops[QLatin1String("mm")] =
+        new UnaryOperator(QLatin1String("mm"), QLatin1String("--")); // Prefix?
+    ops[QLatin1String("cm")] =
+        new BinaryOperator(QLatin1String("cm"), QLatin1String(","));
+    ops[QLatin1String("pm")] =
+        new BinOpWithNoSpaces(QLatin1String("pm"), QLatin1String("->*"));
+    ops[QLatin1String("pt")] =
+        new BinOpWithNoSpaces(QLatin1String("pm"), QLatin1String("->"));
+    ops[QLatin1String("cl")] = new FunctionCallOperator;
+    ops[QLatin1String("ix")] = new ArrayAccessOperator;
+    ops[QLatin1String("qu")] = new QuestionMarkOperator;
+    ops[QLatin1String("st")] =
+        new SizeAlignOfOperator(QLatin1String("st"), QLatin1String("sizeof"));
+    ops[QLatin1String("sz")] =
+        new SizeAlignOfOperator(QLatin1String("sz"), QLatin1String("sizeof"));
+    ops[QLatin1String("at")] =
+        new SizeAlignOfOperator(QLatin1String("at"), QLatin1String("alignof"));
+    ops[QLatin1String("az")] =
+        new SizeAlignOfOperator(QLatin1String("az"), QLatin1String("alignof"));
 }
 
 void NameDemanglerPrivate::addSubstitution(const QString &symbol)
@@ -2082,8 +2163,9 @@ void NameDemanglerPrivate::addSubstitution(const QString &symbol)
 void NameDemanglerPrivate::insertQualifier(QString &type,
                                            const QString &qualifier)
 {
-    const int funcAnchor = type.indexOf(QRegExp("\\([^*&]"));
-    const int qualAnchor = type.indexOf(QRegExp("(\\*|\\&|const|volatile)\\)"));
+    const int funcAnchor = type.indexOf(QRegExp(QLatin1String("\\([^*&]")));
+    const int qualAnchor =
+        type.indexOf(QRegExp(QLatin1String("(\\*|\\&|const|volatile)\\)")));
     int insertionPos;
     QString insertionString = qualifier;
     if (funcAnchor == -1) {
@@ -2093,16 +2175,18 @@ void NameDemanglerPrivate::insertQualifier(QString &type,
             insertionPos = type.indexOf(')', qualAnchor);;
         }
     } else if (qualAnchor == -1 || funcAnchor < qualAnchor) {
-        if (qualifier == "*" || qualifier == "&") {
+        if (qualifier == QLatin1String("*")
+            || qualifier == QLatin1String("&")) {
             insertionPos = funcAnchor;
-            insertionString = "(" + qualifier + ")";
+            insertionString = QString::fromLocal8Bit("(%1)").arg(qualifier);
         } else {
             insertionPos = type.size(); // Qualifier for pointer to member.
         }
     } else  {
         insertionPos = type.indexOf(')', qualAnchor);;
     }
-    if ((insertionString == "*" || insertionString == "&")
+    if ((insertionString == QLatin1String("*")
+         || insertionString == QLatin1String("&"))
         && (type[insertionPos - 1] != '*' && type[insertionPos - 1] != '&'))
         insertionString.prepend(' ');
     type.insert(insertionPos, insertionString);
@@ -2130,4 +2214,6 @@ const QString &NameDemangler::demangledName() const
     return pImpl->demangledName();
 }
 
-QT_END_NAMESPACE
+} // namespace Internal
+} // namespace Debugger
+
