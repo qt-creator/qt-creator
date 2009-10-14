@@ -1022,7 +1022,12 @@ void tst_Debugger::dumpQFileInfo()
         "{name='path',%},"
         "{name='groupid',%},"
         "{name='ownerid',%},"
-        "{name='permissions',%},"
+        "{name='permissions',value=' ',type='%',numchild='10',"
+        "children=[{name='ReadOwner',%},{name='WriteOwner',%},"
+        "{name='ExeOwner',%},{name='ReadUser',%},{name='WriteUser',%},"
+        "{name='ExeUser',%},{name='ReadGroup',%},{name='WriteGroup',%},"
+        "{name='ExeGroup',%},{name='ReadOther',%},{name='WriteOther',%},"
+        "{name='ExeOther',%}]},"
         "{name='caching',%},"
         "{name='exists',%},"
         "{name='isAbsolute',%},"
@@ -1041,7 +1046,6 @@ void tst_Debugger::dumpQFileInfo()
             "type='"NS"QDateTime',numchild='1'},"
         "{name='lastRead',value='%',valueencoded='2',%,"
             "type='"NS"QDateTime',numchild='1'}]");
-
     expected <<= utfToBase64(fi.filePath());
     expected <<= generateQStringSpec(fi.absolutePath());
     expected <<= generateQStringSpec(fi.absoluteFilePath());
@@ -1061,7 +1065,20 @@ void tst_Debugger::dumpQFileInfo()
     expected <<= generateQStringSpec(fi.path());
     expected <<= generateLongSpec(fi.groupId());
     expected <<= generateLongSpec(fi.ownerId());
-    expected <<= generateLongSpec(fi.permissions());
+    QFile::Permissions perms = fi.permissions();
+    expected <<= QByteArray(NS"QFile::Permissions");
+    expected <<= generateBoolSpec((perms & QFile::ReadOwner) != 0);
+    expected <<= generateBoolSpec((perms & QFile::WriteOwner) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ExeOwner) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ReadUser) != 0);
+    expected <<= generateBoolSpec((perms & QFile::WriteUser) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ExeUser) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ReadGroup) != 0);
+    expected <<= generateBoolSpec((perms & QFile::WriteGroup) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ExeGroup) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ReadOther) != 0);
+    expected <<= generateBoolSpec((perms & QFile::WriteOther) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ExeOther) != 0);
     expected <<= generateBoolSpec(fi.caching());
     expected <<= generateBoolSpec(fi.exists());
     expected <<= generateBoolSpec(fi.isAbsolute());
