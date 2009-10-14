@@ -1749,7 +1749,7 @@ void tst_Debugger::dumpQObjectChildList()
 void tst_Debugger::dumpQObjectMethodList()
 {
     QStringListModel m;
-    testDumper("addr='<synthetic>',type='$T',numchild='20',"
+    testDumper("addr='<synthetic>',type='$T',numchild='24',"
         "childtype='"NS"QMetaMethod::Method',childnumchild='0',children=["
         "{name='0 0 destroyed(QObject*)',value='<Signal> (1)'},"
         "{name='1 1 destroyed()',value='<Signal> (1)'},"
@@ -1769,8 +1769,12 @@ void tst_Debugger::dumpQObjectMethodList()
         "{name='15 15 columnsRemoved(QModelIndex,int,int)',value='<Signal> (1)'},"
         "{name='16 16 modelAboutToBeReset()',value='<Signal> (1)'},"
         "{name='17 17 modelReset()',value='<Signal> (1)'},"
-        "{name='18 18 submit()',value='<Slot> (2)'},"
-        "{name='19 19 revert()',value='<Slot> (2)'}]",
+        "{name='18 18 rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)',value='<Signal> (1)'},"
+        "{name='19 19 rowsMoved(QModelIndex,int,int,QModelIndex,int)',value='<Signal> (1)'},"
+        "{name='20 20 columnsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)',value='<Signal> (1)'},"
+        "{name='21 21 columnsMoved(QModelIndex,int,int,QModelIndex,int)',value='<Signal> (1)'},"
+        "{name='22 22 submit()',value='<Slot> (2)'},"
+        "{name='23 23 revert()',value='<Slot> (2)'}]",
     &m, NS"QObjectMethodList", true);
 }
 
@@ -1923,8 +1927,8 @@ void tst_Debugger::dumpQObjectSignalList()
 
     // Case 2: QAbstractItemModel with no connections.
     QStringListModel m(QStringList() << "Test1" << "Test2");
-    QByteArray expected = "type='"NS"QObjectSignalList',value='<16 items>',"
-        "addr='$A',numchild='16',children=["
+    QByteArray expected = "type='"NS"QObjectSignalList',value='<20 items>',"
+        "addr='$A',numchild='20',children=["
         "{name='0',value='destroyed(QObject*)',numchild='0',"
             "addr='$A',type='"NS"QObjectSignal'},"
         "{name='1',value='destroyed()',numchild='0',"
@@ -1956,7 +1960,16 @@ void tst_Debugger::dumpQObjectSignalList()
         "{name='16',value='modelAboutToBeReset()',"
             "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
         "{name='17',value='modelReset()',"
+            "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+        "{name='18',value='rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)',"
+             "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+        "{name='19',value='rowsMoved(QModelIndex,int,int,QModelIndex,int)',"
+             "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+        "{name='20',value='columnsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)',"
+             "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+        "{name='21',value='columnsMoved(QModelIndex,int,int,QModelIndex,int)',"
             "numchild='0',addr='$A',type='"NS"QObjectSignal'}]";
+        
 
     testDumper(expected << "0" << "0" << "0" << "0" << "0" << "0",
         &m, NS"QObjectSignalList", true);
@@ -2072,9 +2085,9 @@ void tst_Debugger::dumpQObjectSlotList()
             "addr='$A',type='"NS"QObjectSlot'},"
         "{name='3',value='_q_reregisterTimers(void*)',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'},"
-        "{name='18',value='submit()',numchild='0',"
+        "{name='22',value='submit()',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'},"
-        "{name='19',value='revert()',numchild='0',"
+        "{name='23',value='revert()',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'}]",
         &m, NS"QObjectSlotList", true);
 
@@ -2097,9 +2110,9 @@ void tst_Debugger::dumpQObjectSlotList()
             "addr='$A',type='"NS"QObjectSlot'},"
         "{name='3',value='_q_reregisterTimers(void*)',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'},"
-        "{name='18',value='submit()',numchild='0',"
+        "{name='22',value='submit()',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'},"
-        "{name='19',value='revert()',numchild='0',"
+        "{name='23',value='revert()',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'}]",
         &m, NS"QObjectSlotList", true);
 }
