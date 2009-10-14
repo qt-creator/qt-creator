@@ -107,6 +107,7 @@ QByteArray frameMessage(byte command, byte token, const QByteArray &data, bool s
     //logMessage("check: " << s << checksum << x;
 
     QByteArray response;
+    response.reserve(data.size() + 3);
     response.append(char(command));
     response.append(char(token));
     response.append(data);
@@ -115,12 +116,12 @@ QByteArray frameMessage(byte command, byte token, const QByteArray &data, bool s
     QByteArray encodedData = encode7d(response);
 
     QByteArray ba;
+    ba.reserve(encodedData.size() + 6);
     if (serialFrame) {
         ba.append(char(0x01));
         ba.append(char(0x90));
         const ushort encodedSize = encodedData.size() + 2; // 2 x 0x7e
-        ba.append(char(encodedSize / 256));
-        ba.append(char(encodedSize % 256));
+        appendShort(&ba, encodedSize, BigEndian);
     }
     ba.append(char(0x7e));
     ba.append(encodedData);
@@ -227,7 +228,7 @@ QString quoteUnprintableLatin1(const QByteArray &ba)
 QByteArray decode7d(const QByteArray &ba)
 {
     QByteArray res;
-    res.reserve(ba.size() + 2);
+    res.reserve(ba.size());
     for (int i = 0; i < ba.size(); ++i) {
         byte c = byte(ba.at(i));
         if (c == 0x7d) {
@@ -279,10 +280,11 @@ void appendShort(QByteArray *ba, ushort s, Endianness endian)
 
 void appendInt(QByteArray *ba, uint i, Endianness endian)
 {
-    int b3 = i % 256; i -= b3; i /= 256;
-    int b2 = i % 256; i -= b2; i /= 256;
-    int b1 = i % 256; i -= b1; i /= 256;
-    int b0 = i % 256; i -= b0; i /= 256;
+    const uchar b3 = i % 256; i /= 256;
+    const uchar b2 = i % 256; i /= 256;
+    const uchar b1 = i % 256; i /= 256;
+    const uchar b0 = i;
+    ba->reserve(ba->size() + 4);
     if (endian == BigEndian) {
         ba->append(b0);
         ba->append(b1);
@@ -298,11 +300,9 @@ void appendInt(QByteArray *ba, uint i, Endianness endian)
 
 void appendString(QByteArray *ba, const QByteArray &str, Endianness endian, bool appendNullTerminator)
 {
-    const int n = str.size();
-    const int fullSize = n + (appendNullTerminator ? 1 : 0);
+    const int fullSize = str.size() + (appendNullTerminator ? 1 : 0);
     appendShort(ba, fullSize, endian); // count the terminating \0
-    for (int i = 0; i != n; ++i)
-        ba->append(str.at(i));
+    ba->append(str);
     if (appendNullTerminator)
         ba->append('\0');
 }

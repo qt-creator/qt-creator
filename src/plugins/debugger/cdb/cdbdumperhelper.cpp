@@ -42,6 +42,9 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextStream>
 #include <QtCore/QTime>
+#include <QtCore/QThread>
+#include <QtCore/QEventLoop>
+#include <QtGui/QApplication>
 
 enum { loadDebug = 0 };
 enum { dumpDebug = 0 };
@@ -228,6 +231,111 @@ static QString msgLoadSucceeded(const QString &library, bool injectOrCall)
                                        arg(library, msgMethod(injectOrCall));
 }
 
+// Dumper initialization as a background thread.
+// Befriends CdbDumperHelper and calls its methods
+class CdbDumperInitThread : public QThread {
+    Q_OBJECT
+public:
+    static inline bool ensureDumperInitialized(CdbDumperHelper &h, QString *errorMessage);
+
+    virtual void run();
+
+signals:
+    void logMessage(int channel, const QString &m);
+    void statusMessage(const QString &m, int timeOut);
+
+private:
+    explicit CdbDumperInitThread(CdbDumperHelper &h, QString *errorMessage);
+
+    CdbDumperHelper &m_helper;
+    bool m_ok;
+    QString *m_errorMessage;
+};
+
+CdbDumperInitThread::CdbDumperInitThread(CdbDumperHelper &h, QString *errorMessage) :
+        m_helper(h),
+        m_ok(false),
+        m_errorMessage(errorMessage)
+{
+}
+
+bool CdbDumperInitThread::ensureDumperInitialized(CdbDumperHelper &h, QString *errorMessage)
+{
+    // Quick state check
+    switch (h.state()) {
+    case CdbDumperHelper::Disabled:
+        *errorMessage = QLatin1String("Internal error, attempt to call disabled dumper");
+        return false;
+    case CdbDumperHelper::Initialized:
+        return true;
+    default:
+        break;
+    }
+    // Need a thread to do initialization work. Typically
+    // takes several seconds depending on debuggee size.
+    QApplication::setOverrideCursor(Qt::BusyCursor);
+    CdbDumperInitThread thread(h, errorMessage);
+    connect(&thread, SIGNAL(statusMessage(QString,int)),
+            h.m_manager, SLOT(showStatusMessage(QString,int)),
+            Qt::QueuedConnection);
+    connect(&thread, SIGNAL(logMessage(int,QString)),
+            h.m_manager, SLOT(showDebuggerOutput(int,QString)),
+            Qt::QueuedConnection);
+    QEventLoop eventLoop;
+    connect(&thread, SIGNAL(finished()), &eventLoop, SLOT(quit()), Qt::QueuedConnection);
+    thread.start();
+    if (thread.isRunning())
+        eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+    QApplication::restoreOverrideCursor();
+    if (thread.m_ok) {
+        h.m_manager->showStatusMessage(QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Stopped / Custom dumper library initialized."), -1);
+        h.m_manager->showDebuggerOutput(LogMisc, h.m_helper.toString());
+        h.m_state = CdbDumperHelper::Initialized;
+    } else {
+        h.m_state = CdbDumperHelper::Disabled; // No message here
+        *errorMessage = QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The custom dumper library could not be initialized: %1").arg(*errorMessage);
+        h.m_manager->showStatusMessage(*errorMessage, -1);
+        h.m_manager->showQtDumperLibraryWarning(*errorMessage);
+    }
+    if (loadDebug)
+        qDebug() << Q_FUNC_INFO << '\n' << thread.m_ok;
+    return thread.m_ok;
+}
+
+void CdbDumperInitThread ::run()
+{
+    switch (m_helper.state()) {
+    // Injection load failed or disabled: Try a call load.
+    case CdbDumperHelper::NotLoaded:
+    case CdbDumperHelper::InjectLoading:
+    case CdbDumperHelper::InjectLoadFailed:
+        // Also shows up in the log window.
+        emit statusMessage(msgLoading(m_helper.m_library, false), -1);
+        switch (m_helper.initCallLoad(m_errorMessage)) {
+        case CdbDumperHelper::CallLoadOk:
+        case CdbDumperHelper::CallLoadAlreadyLoaded:
+            emit logMessage(LogMisc, msgLoadSucceeded(m_helper.m_library, false));
+            m_helper.m_state = CdbDumperHelper::Loaded;
+            break;
+        case CdbDumperHelper::CallLoadError:
+            *m_errorMessage = msgLoadFailed(m_helper.m_library, false, *m_errorMessage);
+            m_ok = false;
+            return;
+        case CdbDumperHelper::CallLoadNoQtApp:
+            emit logMessage(LogMisc, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The debuggee does not appear to be Qt application."));
+            m_helper.m_state = CdbDumperHelper::Disabled; // No message here
+            m_ok = true;
+            return;
+        }
+        break;
+    case CdbDumperHelper::Loaded: // Injection load succeeded, ideally
+        break;
+    }
+    // Perform remaining initialization    
+    emit statusMessage(QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Initializing dumpers..."), -1);
+    m_ok = m_helper.initResolveSymbols(m_errorMessage) && m_helper.initKnownTypes(m_errorMessage);
+}
+
 // ------------------- CdbDumperHelper
 
 CdbDumperHelper::CdbDumperHelper(DebuggerManager *manager,
@@ -337,63 +445,6 @@ CdbDumperHelper::CallLoadResult CdbDumperHelper::initCallLoad(QString *errorMess
     return CallLoadOk;
 }
 
-bool CdbDumperHelper::ensureInitialized(QString *errorMessage)
-{
-    if (loadDebug)
-        qDebug() << "ensureInitialized thread: " << m_dumperCallThread << " state: " << m_state;
-
-    switch (m_state) {
-    case Disabled:
-        *errorMessage = QLatin1String("Internal error, attempt to call disabled dumper");
-        return false;
-    case Initialized:
-        return true;
-        // Injection load failed or disabled: Try a call load.
-    case NotLoaded:
-    case InjectLoading:
-    case InjectLoadFailed:
-        // Also shows up in the log window.
-        m_manager->showStatusMessage(msgLoading(m_library, false), 10000);
-        switch (initCallLoad(errorMessage)) {
-            case CallLoadOk:
-            case CallLoadAlreadyLoaded:
-                m_manager->showDebuggerOutput(LogMisc, msgLoadSucceeded(m_library, false));
-                m_state = Loaded;
-                break;
-            case CallLoadError:
-                *errorMessage = msgLoadFailed(m_library, false, *errorMessage);
-                m_manager->showDebuggerOutput(LogError, *errorMessage);
-                m_manager->showQtDumperLibraryWarning(*errorMessage);
-                m_state = Disabled; // No message here, no point in retrying
-                return false;
-            case CallLoadNoQtApp:
-                m_manager->showDebuggerOutput(LogMisc, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The debuggee does not appear to be Qt application."));
-                m_state = Disabled; // No message here
-                return true;
-            }
-        break;
-    case Loaded: // Injection load succeeded, ideally
-        break;
-    }
-    // Perform remaining initialization
-    m_manager->showStatusMessage(QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Initializing dumpers..."), 10000);
-    const bool ok = initResolveSymbols(errorMessage) && initKnownTypes(errorMessage);
-    if (ok) {
-        m_manager->showDebuggerOutput(LogMisc, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Custom dumper library initialized."));
-        m_manager->showDebuggerOutput(LogMisc, m_helper.toString());
-        m_state = Initialized;
-    } else {
-        m_state = Disabled; // No message here
-        *errorMessage = QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The custom dumper library could not be initialized: %1").arg(*errorMessage);
-        m_manager->showDebuggerOutput(LogMisc, *errorMessage);
-        m_manager->showQtDumperLibraryWarning(*errorMessage);
-    }
-    if (loadDebug)
-        qDebug() << Q_FUNC_INFO << '\n' << ok;
-
-    return ok;
-}
-
 // Retrieve address and optionally size of a symbol.
 static inline bool getSymbolAddress(CIDebugSymbols *sg,
                                     const QString &name,
@@ -429,6 +480,8 @@ bool CdbDumperHelper::initResolveSymbols(QString *errorMessage)
 {
     // Resolve the symbols we need (potentially namespaced).
     // There is a 'qDumpInBuffer' in QtCore as well.
+    if (loadDebug)
+        qDebug() << Q_FUNC_INFO;
     m_dumpObjectSymbol = QLatin1String("*qDumpObjectData440");
     QString inBufferSymbol = QLatin1String("*qDumpInBuffer");
     QString outBufferSymbol = QLatin1String("*qDumpOutBuffer");
@@ -455,6 +508,8 @@ bool CdbDumperHelper::initResolveSymbols(QString *errorMessage)
 // Call query protocol to retrieve known types and sizes
 bool CdbDumperHelper::initKnownTypes(QString *errorMessage)
 {
+    if (loadDebug)
+        qDebug() << Q_FUNC_INFO;
     const double dumperVersionRequired = 1.3;
     QByteArray output;
     QString callCmd;
@@ -471,7 +526,7 @@ bool CdbDumperHelper::initKnownTypes(QString *errorMessage)
         return false;
     }
     if (loadDebug || dumpDebug)
-        qDebug() << Q_FUNC_INFO << m_helper.toString(true);
+        qDebug() << Q_FUNC_INFO << '\n' << m_helper.toString(true);
     return true;
 }
 
@@ -621,7 +676,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpTypeI(const WatchData &wd, bool
     }
 
     // Ensure types are parsed and known.
-    if (!ensureInitialized(errorMessage)) {
+    if (!CdbDumperInitThread::ensureDumperInitialized(*this, errorMessage)) {
         *errorMessage = msgDumpFailed(wd, errorMessage);
         m_manager->showDebuggerOutput(LogError, *errorMessage);
         return DumpError;
@@ -768,3 +823,5 @@ void CdbDumperHelper::setDumperCallThread(unsigned long t)
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "cdbdumperhelper.moc"

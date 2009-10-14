@@ -605,19 +605,22 @@ void tst_Debugger::dumpQAbstractItemHelper(QModelIndex &index)
     QByteArray expected = QByteArray("tiname='iname',addr='").append(ptrToBa(&index)).
         append("',type='"NS"QAbstractItem',addr='$").append(indexSpecSymbolic).
         append("',value='").append(valToString(model->data(index).toString())).
-        append("',numchild='1',children=[");
+        append("',numchild='%',children=[");
     int rowCount = model->rowCount(index);
     int columnCount = model->columnCount(index);
+    expected <<= N(rowCount * columnCount);
     for (int row = 0; row < rowCount; ++row) {
         for (int col = 0; col < columnCount; ++col) {
             const QModelIndex &childIndex = model->index(row, col, index);
             expected.append("{name='[").append(valToString(row)).append(",").
-                append(N(col)).append("]',numchild='1',addr='$").
+                append(N(col)).append("]',numchild='%',addr='$").
                 append(N(childIndex.row())).append(",").
                 append(N(childIndex.column())).append(",").
                 append(ptrToBa(childIndex.internalPointer())).append(",").
                 append(modelPtrStr).append("',type='"NS"QAbstractItem',value='").
                 append(valToString(model->data(childIndex).toString())).append("'}");
+            expected <<= N(model->rowCount(childIndex)
+                           * model->columnCount(childIndex));
             if (col < columnCount - 1 || row < rowCount - 1)
                 expected.append(",");
         }
@@ -792,11 +795,12 @@ void tst_Debugger::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
         for (int column = 0; column < m.columnCount(); ++column) {
             QModelIndex mi = m.index(row, column);
             expected.append(QByteArray(",{name='[%,%]',value='%',"
-                "valueencoded='2',numchild='1',addr='$%,%,%,%',"
+                "valueencoded='2',numchild='%',addr='$%,%,%,%',"
                 "type='"NS"QAbstractItem'}")
                 << N(row)
                 << N(column)
                 << utfToBase64(m.data(mi).toString())
+                << N(row * column)
                 << N(mi.row())
                 << N(mi.column())
                 << ptrToBa(mi.internalPointer())
@@ -1022,7 +1026,12 @@ void tst_Debugger::dumpQFileInfo()
         "{name='path',%},"
         "{name='groupid',%},"
         "{name='ownerid',%},"
-        "{name='permissions',%},"
+        "{name='permissions',value=' ',type='%',numchild='10',"
+        "children=[{name='ReadOwner',%},{name='WriteOwner',%},"
+        "{name='ExeOwner',%},{name='ReadUser',%},{name='WriteUser',%},"
+        "{name='ExeUser',%},{name='ReadGroup',%},{name='WriteGroup',%},"
+        "{name='ExeGroup',%},{name='ReadOther',%},{name='WriteOther',%},"
+        "{name='ExeOther',%}]},"
         "{name='caching',%},"
         "{name='exists',%},"
         "{name='isAbsolute',%},"
@@ -1041,7 +1050,6 @@ void tst_Debugger::dumpQFileInfo()
             "type='"NS"QDateTime',numchild='1'},"
         "{name='lastRead',value='%',valueencoded='2',%,"
             "type='"NS"QDateTime',numchild='1'}]");
-
     expected <<= utfToBase64(fi.filePath());
     expected <<= generateQStringSpec(fi.absolutePath());
     expected <<= generateQStringSpec(fi.absoluteFilePath());
@@ -1061,7 +1069,20 @@ void tst_Debugger::dumpQFileInfo()
     expected <<= generateQStringSpec(fi.path());
     expected <<= generateLongSpec(fi.groupId());
     expected <<= generateLongSpec(fi.ownerId());
-    expected <<= generateLongSpec(fi.permissions());
+    QFile::Permissions perms = fi.permissions();
+    expected <<= QByteArray(NS"QFile::Permissions");
+    expected <<= generateBoolSpec((perms & QFile::ReadOwner) != 0);
+    expected <<= generateBoolSpec((perms & QFile::WriteOwner) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ExeOwner) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ReadUser) != 0);
+    expected <<= generateBoolSpec((perms & QFile::WriteUser) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ExeUser) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ReadGroup) != 0);
+    expected <<= generateBoolSpec((perms & QFile::WriteGroup) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ExeGroup) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ReadOther) != 0);
+    expected <<= generateBoolSpec((perms & QFile::WriteOther) != 0);
+    expected <<= generateBoolSpec((perms & QFile::ExeOther) != 0);
     expected <<= generateBoolSpec(fi.caching());
     expected <<= generateBoolSpec(fi.exists());
     expected <<= generateBoolSpec(fi.isAbsolute());
@@ -1728,7 +1749,7 @@ void tst_Debugger::dumpQObjectChildList()
 void tst_Debugger::dumpQObjectMethodList()
 {
     QStringListModel m;
-    testDumper("addr='<synthetic>',type='$T',numchild='20',"
+    testDumper("addr='<synthetic>',type='$T',numchild='24',"
         "childtype='"NS"QMetaMethod::Method',childnumchild='0',children=["
         "{name='0 0 destroyed(QObject*)',value='<Signal> (1)'},"
         "{name='1 1 destroyed()',value='<Signal> (1)'},"
@@ -1748,8 +1769,12 @@ void tst_Debugger::dumpQObjectMethodList()
         "{name='15 15 columnsRemoved(QModelIndex,int,int)',value='<Signal> (1)'},"
         "{name='16 16 modelAboutToBeReset()',value='<Signal> (1)'},"
         "{name='17 17 modelReset()',value='<Signal> (1)'},"
-        "{name='18 18 submit()',value='<Slot> (2)'},"
-        "{name='19 19 revert()',value='<Slot> (2)'}]",
+        "{name='18 18 rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)',value='<Signal> (1)'},"
+        "{name='19 19 rowsMoved(QModelIndex,int,int,QModelIndex,int)',value='<Signal> (1)'},"
+        "{name='20 20 columnsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)',value='<Signal> (1)'},"
+        "{name='21 21 columnsMoved(QModelIndex,int,int,QModelIndex,int)',value='<Signal> (1)'},"
+        "{name='22 22 submit()',value='<Slot> (2)'},"
+        "{name='23 23 revert()',value='<Slot> (2)'}]",
     &m, NS"QObjectMethodList", true);
 }
 
@@ -1902,8 +1927,8 @@ void tst_Debugger::dumpQObjectSignalList()
 
     // Case 2: QAbstractItemModel with no connections.
     QStringListModel m(QStringList() << "Test1" << "Test2");
-    QByteArray expected = "type='"NS"QObjectSignalList',value='<16 items>',"
-        "addr='$A',numchild='16',children=["
+    QByteArray expected = "type='"NS"QObjectSignalList',value='<20 items>',"
+        "addr='$A',numchild='20',children=["
         "{name='0',value='destroyed(QObject*)',numchild='0',"
             "addr='$A',type='"NS"QObjectSignal'},"
         "{name='1',value='destroyed()',numchild='0',"
@@ -1935,7 +1960,16 @@ void tst_Debugger::dumpQObjectSignalList()
         "{name='16',value='modelAboutToBeReset()',"
             "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
         "{name='17',value='modelReset()',"
+            "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+        "{name='18',value='rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)',"
+             "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+        "{name='19',value='rowsMoved(QModelIndex,int,int,QModelIndex,int)',"
+             "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+        "{name='20',value='columnsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)',"
+             "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
+        "{name='21',value='columnsMoved(QModelIndex,int,int,QModelIndex,int)',"
             "numchild='0',addr='$A',type='"NS"QObjectSignal'}]";
+        
 
     testDumper(expected << "0" << "0" << "0" << "0" << "0" << "0",
         &m, NS"QObjectSignalList", true);
@@ -2051,9 +2085,9 @@ void tst_Debugger::dumpQObjectSlotList()
             "addr='$A',type='"NS"QObjectSlot'},"
         "{name='3',value='_q_reregisterTimers(void*)',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'},"
-        "{name='18',value='submit()',numchild='0',"
+        "{name='22',value='submit()',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'},"
-        "{name='19',value='revert()',numchild='0',"
+        "{name='23',value='revert()',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'}]",
         &m, NS"QObjectSlotList", true);
 
@@ -2076,9 +2110,9 @@ void tst_Debugger::dumpQObjectSlotList()
             "addr='$A',type='"NS"QObjectSlot'},"
         "{name='3',value='_q_reregisterTimers(void*)',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'},"
-        "{name='18',value='submit()',numchild='0',"
+        "{name='22',value='submit()',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'},"
-        "{name='19',value='revert()',numchild='0',"
+        "{name='23',value='revert()',numchild='0',"
             "addr='$A',type='"NS"QObjectSlot'}]",
         &m, NS"QObjectSlotList", true);
 }
@@ -2226,7 +2260,7 @@ void tst_Debugger::dumpQVariant_QStringList()
 {
     QVariant v = QStringList() << "Hi";
     testDumper("value='(QStringList) ',type='$T',numchild='1',"
-        "children=[{name='value',exp='(*('myns::QStringList'*)%)',"
+        "children=[{name='value',exp='(*('"NS"QStringList'*)%)',"
         "type='QStringList',numchild='1'}]"
             << QByteArray::number(quintptr(&v)),
         &v, NS"QVariant", true);

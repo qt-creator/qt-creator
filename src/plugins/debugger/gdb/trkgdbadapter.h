@@ -171,13 +171,14 @@ public:
 
 private:
     void startAdapter();
-    void prepareInferior();
     void startInferior();
     void interruptInferior();
     void shutdown();
     void cleanup();
     void emitDelayedAdapterStartFailed(const QString &msg);
     Q_SLOT void slotEmitDelayedAdapterStartFailed();
+    void emitDelayedInferiorStartFailed(const QString &msg);
+    Q_SLOT void slotEmitDelayedInferiorStartFailed();
 
     Q_SLOT void waitForTrkConnect();
     void handleKill(const GdbResponse &response);

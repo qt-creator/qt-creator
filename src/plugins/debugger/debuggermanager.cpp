@@ -107,10 +107,6 @@
 //                          |
 //                     AdapterStarted
 //                          |
-//                     InferiorPreparing --> InferiorPreparationFailed --> 0
-//                          |
-//                     InferiorPrepared
-//                          |
 //                     InferiorStarting --> InferiorStartFailed --> 0
 //                          |
 //         (core)           |     (attach) (remote)
@@ -199,9 +195,6 @@ static const char *stateName(int s)
         SN(AdapterStarting)
         SN(AdapterStarted)
         SN(AdapterStartFailed)
-        SN(InferiorPreparing)
-        SN(InferiorPrepared)
-        SN(InferiorPreparationFailed)
         SN(InferiorStarting)
         SN(InferiorStartFailed)
         SN(InferiorRunningRequested)
@@ -1564,15 +1557,8 @@ static bool isAllowedTransition(int from, int to)
     case AdapterStarting:
         return to == AdapterStarted || to == AdapterStartFailed;
     case AdapterStarted:
-        return to == InferiorPreparing;
-    case AdapterStartFailed:
-        return to == DebuggerNotReady;
-
-    case InferiorPreparing:
-        return to == InferiorPrepared || to == InferiorPreparationFailed;
-    case InferiorPrepared:
         return to == InferiorStarting;
-    case InferiorPreparationFailed:
+    case AdapterStartFailed:
         return to == DebuggerNotReady;
 
     case InferiorStarting:
@@ -1695,7 +1681,6 @@ bool DebuggerManager::debuggerActionsEnabled() const
     if (!d->m_engine)
         return false;
     switch (state()) {
-    case InferiorPrepared:
     case InferiorStarting:
     case InferiorRunningRequested:
     case InferiorRunning:
@@ -1708,8 +1693,6 @@ bool DebuggerManager::debuggerActionsEnabled() const
     case AdapterStarting:
     case AdapterStarted:
     case AdapterStartFailed:
-    case InferiorPreparing:
-    case InferiorPreparationFailed:
     case InferiorStartFailed:
     case InferiorStopFailed:
     case InferiorShuttingDown:

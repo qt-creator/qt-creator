@@ -85,6 +85,7 @@ struct DebuggerManagerActions;
 class DebuggerPlugin;
 class CdbDebugEventCallback;
 class CdbDumperHelper;
+class CdbDumperInitThread;
 class CdbExceptionLoggerEventCallback;
 class GdbEngine;
 class CdbDebugEngine;
@@ -153,6 +154,7 @@ public:
     friend class Internal::DebuggerPlugin;
     friend class Internal::CdbDebugEventCallback;
     friend class Internal::CdbDumperHelper;
+    friend class Internal::CdbDumperInitThread;
     friend class Internal::CdbExceptionLoggerEventCallback;
     friend class Internal::GdbEngine;
     friend class Internal::ScriptEngine;

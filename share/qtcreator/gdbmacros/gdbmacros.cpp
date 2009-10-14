@@ -100,8 +100,8 @@
 #ifdef QT_BOOTSTRAPPED
 
 #   define NS ""
-#   define NSX ""
-#   define NSY ""
+#   define NSX "'"
+#   define NSY "'"
 
 #else
 

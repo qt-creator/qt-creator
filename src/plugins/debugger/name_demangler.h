@@ -31,8 +31,11 @@
 #define NAME_DEMANGLER_H
 
 QT_BEGIN_NAMESPACE
-
 class QString;
+QT_END_NAMESPACE
+
+namespace Debugger {
+namespace Internal {
 
 class NameDemanglerPrivate;
 
@@ -67,6 +70,7 @@ private:
     NameDemanglerPrivate *pImpl;
 };
 
-QT_END_NAMESPACE
+} // namespace Internal
+} // namespace Debugger
 
 #endif // Include guard.

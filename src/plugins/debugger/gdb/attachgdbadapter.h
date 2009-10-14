@@ -52,10 +52,9 @@ class AttachGdbAdapter : public AbstractGdbAdapter
 public:
     AttachGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    bool dumpersAvailable() const { return false; }
+    bool dumpersAvailable() const { return true; }
 
     void startAdapter();
-    void prepareInferior();
     void startInferior();
     void interruptInferior();
     void shutdown();

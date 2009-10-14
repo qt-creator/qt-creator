@@ -84,14 +84,6 @@ void CoreGdbAdapter::handleGdbError(QProcess::ProcessError error)
     shutdown();
 }
 
-void CoreGdbAdapter::prepareInferior()
-{
-    QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
-    setState(InferiorPreparing);
-    setState(InferiorPrepared);
-    emit inferiorPrepared();
-}
-
 void CoreGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
@@ -199,9 +191,8 @@ void CoreGdbAdapter::shutdown()
 
     case InferiorUnrunnable:
     case InferiorShutDown:
-    case InferiorPreparationFailed:
         setState(AdapterShuttingDown);
-        m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
+        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
         return;
 
     default:

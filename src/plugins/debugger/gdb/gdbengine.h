@@ -177,7 +177,8 @@ public: // otherwise the Qt flag macros are unhappy
         RebuildModel = 4, // Trigger model rebuild when no such commands are pending any more
         WatchUpdate = Discardable | RebuildModel,
         EmbedToken = 8,   // Expand %1 in the command to the command token
-        RunRequest = 16   // Callback expect GdbResultRunning instead of GdbResultDone
+        RunRequest = 16,  // Callback expect GdbResultRunning instead of GdbResultDone
+        ExitRequest = 32  // Callback expect GdbResultExit instead of GdbResultDone
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
 
@@ -245,8 +246,6 @@ private slots:
     void handleAdapterStarted();
     void handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint = QString());
 
-    void handleInferiorPrepared();
-    void handleInferiorPreparationFailed(const QString &msg);
     void handleInferiorStartFailed(const QString &msg);
     void handleInferiorShutDown();
     void handleInferiorShutdownFailed(const QString &msg);
@@ -258,22 +257,19 @@ private slots:
 private:
     int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
-    void handleStart(const GdbResponse &response);
     void handleStopResponse(const GdbMi &data);
     void handleStop1(const GdbResponse &response);
     void handleStop1(const GdbMi &data);
     void handleStop2(const GdbResponse &response);
     void handleStop2(const GdbMi &data);
     void handleResultRecord(const GdbResponse &response);
-    void handleFileExecAndSymbols(const GdbResponse &response);
     void handleExecContinue(const GdbResponse &response);
-    void handleExecJumpToLine(const GdbResponse &response);
-    void handleExecRunToFunction(const GdbResponse &response);
+//    void handleExecRunToFunction(const GdbResponse &response);
     void handleInfoShared(const GdbResponse &response);
     void handleShowVersion(const GdbResponse &response);
-    void handleQueryPwd(const GdbResponse &response);
     void handleQuerySources(const GdbResponse &response);
     void handleWatchPoint(const GdbResponse &response);
+    void handleIsSynchroneous(const GdbResponse &response);
     bool showToolTip();
 
     // Convenience
@@ -304,6 +300,7 @@ private:
 
     int m_gdbVersion; // 6.8.0 is 680
     int m_gdbBuildVersion; // MAC only?
+    bool m_isSynchroneous; // Can act synchroneously?
 
     // awful hack to keep track of used files
     QMap<QString, QString> m_shortToFullName;

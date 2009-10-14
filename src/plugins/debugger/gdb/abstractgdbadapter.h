@@ -57,7 +57,6 @@ public:
     virtual bool isTrkAdapter() const; // isUtterlyBrokenAdapter
 
     virtual void startAdapter() = 0;
-    virtual void prepareInferior() = 0;
     virtual void startInferior() = 0;
     virtual void interruptInferior() = 0;
     virtual void shutdown() = 0;
@@ -71,8 +70,6 @@ signals:
     void adapterShutdownFailed(const QString &msg);
     void adapterCrashed(const QString &msg);
 
-    void inferiorPrepared();
-    void inferiorPreparationFailed(const QString &msg);
     void inferiorStartFailed(const QString &msg);
     void inferiorShutDown();
     void inferiorShutdownFailed(const QString &msg);

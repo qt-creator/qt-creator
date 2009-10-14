@@ -391,6 +391,17 @@ void TrkGdbAdapter::slotEmitDelayedAdapterStartFailed()
     emit adapterStartFailed(m_adapterFailMessage, TrkOptionsPage::settingsId());
 }
 
+void TrkGdbAdapter::emitDelayedInferiorStartFailed(const QString &msg)
+{
+    m_adapterFailMessage = msg;
+    QTimer::singleShot(0, this, SLOT(slotEmitDelayedInferiorStartFailed()));
+}
+
+void TrkGdbAdapter::slotEmitDelayedInferiorStartFailed()
+{
+    emit inferiorStartFailed(m_adapterFailMessage);
+}
+
 void TrkGdbAdapter::waitForTrkConnect()
 {
     QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
@@ -1634,10 +1645,9 @@ void TrkGdbAdapter::startAdapter()
     waitForTrkConnect();
 }
 
-void TrkGdbAdapter::prepareInferior()
+void TrkGdbAdapter::startInferior()
 {
-    QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
-    setState(InferiorPreparing);
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
 
     QByteArray ba;
     appendByte(&ba, 0); // ?
@@ -1651,7 +1661,7 @@ void TrkGdbAdapter::prepareInferior()
 
 void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 {
-    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     //  40 00 00]
     //logMessage("       RESULT: " + result.toString());
     // [80 08 00   00 00 01 B5   00 00 01 B6   78 67 40 00   00 40 00 00]
@@ -1661,7 +1671,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
             .arg(m_remoteExecutable).arg(result.errorString());
         // Delay cleanup as not to close a trk device from its read handler,
         // which blocks.
-        emitDelayedAdapterStartFailed(msg);
+        emitDelayedInferiorStartFailed(msg);
         return;
     }
     const char *data = result.data.data();
@@ -1689,22 +1699,15 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 
 void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
-    QTC_ASSERT(state() == InferiorPreparing, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        setState(InferiorPrepared);
-        emit inferiorPrepared();
+        setState(InferiorRunningRequested);
+        m_engine->postCommand(_("-exec-continue"), GdbEngine::RunRequest, CB(handleFirstContinue));
     } else {
         QString msg = tr("Connecting to trk server adapter failed:\n")
             + _(record.data.findChild("msg").data());
-        emit inferiorPreparationFailed(msg);
+        emit inferiorStartFailed(msg);
     }
-}
-
-void TrkGdbAdapter::startInferior()
-{
-    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    setState(InferiorRunningRequested);
-    m_engine->postCommand(_("-exec-continue"), CB(handleFirstContinue));
 }
 
 void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)
@@ -2012,7 +2015,7 @@ void TrkGdbAdapter::shutdown()
     case InferiorShutDown:
         setState(AdapterShuttingDown);
         cleanup();
-        m_engine->postCommand(_("-gdb-exit"), CB(handleExit));
+        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
         return;
 
 /*

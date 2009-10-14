@@ -635,7 +635,6 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     m_d->m_inferiorStartupComplete = false;
     setState(AdapterStarted, Q_FUNC_INFO, __LINE__);
 
-    setState(InferiorPreparing, Q_FUNC_INFO, __LINE__);
     const DebuggerStartMode mode = sp->startMode;
     // Figure out dumper. @TODO: same in gdb...
     const QString dumperLibName = QDir::toNativeSeparators(manager()->qtDumperLibraryName());
@@ -654,7 +653,6 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     }
     m_d->m_dumper->reset(dumperLibName, dumperEnabled);
 
-    setState(InferiorPrepared, Q_FUNC_INFO, __LINE__);
     setState(InferiorStarting, Q_FUNC_INFO, __LINE__);
     manager()->showStatusMessage("Starting Debugger", -1);
 
@@ -1880,9 +1878,6 @@ void CdbDebugEnginePrivate::updateStackTrace()
     m_firstActivatedFrame = true;
     if (current >= 0) {
         manager()->stackHandler()->setCurrentIndex(current);
-        // First time : repaint
-        if (m_dumper->isEnabled() && m_dumper->state() != CdbDumperHelper::Initialized)
-            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         m_engine->activateFrame(current);
     } else {
         // Clean out variables

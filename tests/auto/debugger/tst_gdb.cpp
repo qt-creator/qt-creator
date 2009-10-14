@@ -5,8 +5,8 @@
 
 #include <QtCore/private/qobject_p.h>
 
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QStringListModel>
+//#include <QtGui/QStandardItemModel>
+//#include <QtGui/QStringListModel>
 
 #include <QtTest/QtTest>
 
@@ -29,6 +29,15 @@
 #   define NSY ""
 #endif
 
+//#define DO_DEBUG 1
+#undef DEBUG
+#if DO_DEBUG
+#   define DEBUG(s) qDebug() << s
+#else
+#   define DEBUG(s)
+#endif
+#define DEBUGX(s) qDebug() << s
+
 #define gettid()  QString("0x%1").arg((qulonglong)(void *)currentThread(), 0, 16)
 
 using namespace Debugger;
@@ -36,6 +45,7 @@ using namespace Debugger::Internal;
 
 typedef QList<QByteArray> QByteArrayList;
 
+#if 0
 static QByteArray operator<<(QByteArray ba, const QByteArray &replacement)
 {
     int pos = ba.indexOf('%');
@@ -53,6 +63,7 @@ static QByteArray &operator<<=(QByteArray &ba, const QByteArray &replacement)
 
 template <typename T> 
 inline QByteArray N(T t) { return QByteArray::number(t); }
+#endif
 
 
 
@@ -84,7 +95,7 @@ public slots:
     void handleGdbFinished(int, QProcess::ExitStatus);
     void writeToGdbRequested(const QByteArray &ba)
     {
-        //qDebug() << "THREAD GDB IN: " << ba;
+        DEBUG("THREAD GDB IN: " << ba);
         m_proc->write(ba);
         m_proc->write("\n");
     }
@@ -92,7 +103,8 @@ public slots:
 
 public:
     QByteArray m_output;
-    QByteArray m_error;
+    QByteArray m_lastStopped; // last seen "*stopped" message
+    int m_line; // line extracted from last "*stopped" message
     QProcess *m_proc; // owned
     tst_Gdb *m_test; // not owned
 };
@@ -102,10 +114,25 @@ class tst_Gdb : public QObject
     Q_OBJECT
 
 public:
-    tst_Gdb() : m_thread(this) {}
+    tst_Gdb();
+
+    void initTestCase() {}
+    void cleanupTestCase();
+    void prepare(const QByteArray &function);
+    void run(const QByteArray &label, const QByteArray &expected,
+        const QByteArray &expanded = QByteArray());
+    void next(int n = 1);
+
+signals:
+    void writeToGdb(const QByteArray &ba);
+
+private slots:
+    void dumpQString();
+    void dumpQStringList();
 
 public slots:
     void dumperCompatibility();
+#if 0
     void dumpQAbstractItemAndModelIndex();
     void dumpQAbstractItemModel();
     void dumpQByteArray();
@@ -143,20 +170,10 @@ public slots:
     void dumpQVariant_QStringList();
     void dumpStdVector();
     void dumpQWeakPointer();
-    void initTestCase();
-    void cleanupTestCase();
-    void runTestCase(const QByteArray &name,
-        const QByteArray &type,
-        const QByteArrayList &expexted);
-
-signals:
-    void writeToGdb(const QByteArray &ba);
-
-private slots:
-    void dumpQString();
-    void dumpQStringList();
+#endif
 
 private:
+#if 0
     void dumpQAbstractItemHelper(QModelIndex &index);
     void dumpQAbstractItemModelHelper(QAbstractItemModel &m);
     void dumpQDateTimeHelper(const QDateTime &d);
@@ -177,8 +194,11 @@ private:
     void dumpQWeakPointerHelper(QWeakPointer<T> &ptr);
 #endif
     void dumpQTextCodecHelper(QTextCodec *codec);
+#endif
 
 private:
+    QHash<QByteArray, int> m_lineForLabel;
+    QByteArray m_function;
     Thread m_thread;
 };
 
@@ -189,37 +209,6 @@ QWaitCondition m_waitCondition;
 // Dumpers
 //
 
-static void testDumper(QByteArray expected, const void *data, QByteArray outertype,
-    bool dumpChildren, QByteArray actual____ = QByteArray(), 
-    QByteArray = QByteArray(), int = 0, int = 0, int = 0, int = 0)
-{
-    Q_UNUSED(dumpChildren);
-    expected = "locals={iname='local',name='Locals',value=' ',type=' ',"
-        "children=[" + expected + "],arg=''}";
-    char buf[100];
-    sprintf(buf, "%p", data);
-    //if ((!expected.startsWith('t') && !expected.startsWith('f'))
-    //        || expected.startsWith("type"))
-    //    expected = "tiname='$I',addr='$A'," + expected;
-    expected.replace("$I", "iname");
-    expected.replace("$T", QByteArray(outertype));
-    expected.replace("$A", QByteArray(buf));
-    if (actual____ != expected) {
-        QByteArrayList l1 = actual____.split(',');
-        QByteArrayList l2 = expected.split(',');
-        for (int i = 0; i < l1.size() && i < l2.size(); ++i) {
-            if (l1.at(i) == l2.at(i))
-                qWarning() << "== " << l1.at(i);
-            else 
-                //qWarning() << "!= " << l1.at(i).right(30) << l2.at(i).right(30);
-                qWarning() << "!= " << l1.at(i) << l2.at(i);
-        }
-        if (l1.size() != l2.size())
-            qWarning() << "!= size: " << l1.size() << l2.size();
-    }
-    QCOMPARE(actual____, expected);
-}
-
 QByteArray str(const void *p)
 {
     char buf[100];
@@ -227,10 +216,12 @@ QByteArray str(const void *p)
     return buf;
 }
 
+#if 0
 static const void *deref(const void *p)
 {
     return *reinterpret_cast<const char* const*>(p);
 }
+#endif
 
 void tst_Gdb::dumperCompatibility()
 {
@@ -241,6 +232,7 @@ void tst_Gdb::dumperCompatibility()
     QCOMPARE(size_t(&v->array), qVectorDataSize);
 }
 
+#if 0
 static const QByteArray utfToBase64(const QString &string)
 {
     return QByteArray(reinterpret_cast<const char *>(string.utf16()), 2 * string.size()).toBase64();
@@ -396,6 +388,8 @@ void getMapNodeParams(size_t &nodeSize, size_t &valOffset)
 #endif
 }
 
+#endif
+#if 0
 void tst_Gdb::dumpQAbstractItemHelper(QModelIndex &index)
 {
     const QAbstractItemModel *model = index.model();
@@ -995,7 +989,7 @@ void tst_Gdb::dumpQImageData()
 }
 
 template <typename T>
-        void tst_Gdb::dumpQLinkedListHelper(QLinkedList<T> &l)
+void tst_Gdb::dumpQLinkedListHelper(QLinkedList<T> &l)
 {
     const int size = qMin(l.size(), 1000);
     const QString &sizeStr = N(size);
@@ -2134,6 +2128,7 @@ void tst_Gdb::dumpQWeakPointer()
     dumpQWeakPointerHelper(wpS);
 #endif
 }
+#endif // #if 0
 
 #define VERIFY_OFFSETOF(member)                           \
 do {                                                      \
@@ -2179,16 +2174,42 @@ void Thread::handleGdbFinished(int, QProcess::ExitStatus)
 void Thread::readStandardOutput()
 {
     QByteArray ba = m_proc->readAllStandardOutput();
-    if (ba.isEmpty())
-        return;
+    //DEBUGX("THREAD GDB OUT: " << ba);
     // =library-loaded...
     if (ba.startsWith("=")) 
         return;
-    //if (ba.startsWith("~"))
-    //    return;
+    if (ba.startsWith("*stopped")) {
+        m_lastStopped = ba;
+        //qDebug() << "THREAD GDB OUT: " << ba;
+        if (!ba.contains("func=\"main\"")) {
+            int pos1 = ba.indexOf(",line=\"") + 7;
+            int pos2 = ba.indexOf("\"", pos1);
+            m_line = ba.mid(pos1, pos2 - pos1).toInt();
+            DEBUG(" LINE 1: " << m_line);
+        }
+    }
+
+    // The "call" is always aborted with a message like:
+    //  "~"2321\t    /* A */ QString s;\n" " 
+    //  "&"The program being debugged stopped while in a function called ..."
+    //  "^error,msg="The program being debugged stopped ..."
+    // Extract the "2321" from this
+    static QByteArray lastText;
+    if (ba.startsWith("~"))
+        lastText = ba;
+    if (ba.startsWith("&\"The program being debugged")) {
+        int pos1 = 2;
+        int pos2 = lastText.indexOf("\\", pos1);
+        m_line = lastText.mid(pos1, pos2 - pos1).toInt();
+        DEBUG(" LINE 2: " << m_line);
+    }
+
+    if (ba.startsWith("~\"XXX: ")) {
+        QByteArray ba1 = ba.mid(7, ba.size() - 11);
+        qWarning() << "MESSAGE: " << ba.mid(7, ba.size() - 11);
+    }
     if (!ba.startsWith("~\"locals="))
         return;
-    //qDebug() << "THREAD GDB OUT: " << ba;
     //m_output += ba;
     ba = ba.mid(2, ba.size() - 4);
     ba = ba.replace("\\\"", "\"");
@@ -2198,11 +2219,8 @@ void Thread::readStandardOutput()
 
 void Thread::readStandardError()
 {
-    return;
     QByteArray ba = m_proc->readAllStandardOutput();
     qDebug() << "THREAD GDB ERR: " << ba;
-    m_error += ba;
-    m_waitCondition.wakeAll();
 }
 
 void Thread::handleGdbStarted()
@@ -2215,44 +2233,114 @@ void Thread::run()
     //qDebug() << "\nTHREAD RUN" << getpid() << gettid();
     m_proc->start("./gdb -i mi --args ./tst_gdb run");
     m_proc->waitForStarted();
-    m_proc->write("b main\n");
+    m_proc->write("break main\n");
     m_proc->write("run\n");
     m_proc->write("handle SIGSTOP stop pass\n");
     //qDebug() << "\nTHREAD RUNNING";
     exec();
 }
 
-void tst_Gdb::initTestCase()
+tst_Gdb::tst_Gdb()
+    : m_thread(this)
 {
     // FIXME: Wait until gdb proc is running.
-    QTest::qWait(1000);
+    QTest::qWait(300);
+
+    QFile file("tst_gdb.cpp");
+    Q_ASSERT(file.open(QIODevice::ReadOnly));
+    QByteArray funcName;
+    const QByteArrayList bal = file.readAll().split('\n');
+    Q_ASSERT(bal.size() > 100);
+    for (int i = 0; i != bal.size(); ++i) {
+        const QByteArray &ba = bal.at(i);
+        if (ba.startsWith("void dump")) {
+            int pos = ba.indexOf('(');
+            funcName = ba.mid(5, pos - 5) + '@';
+        } else if (ba.startsWith("    /*")) {
+            int pos = ba.indexOf('*', 7);
+            m_lineForLabel[funcName + ba.mid(7, pos - 8)] = i + 1;
+        }
+    }
 }
 
 
-void tst_Gdb::runTestCase(const QByteArray &name, const QByteArray &type,
-    const QByteArrayList &expected)
+void tst_Gdb::prepare(const QByteArray &function)
 {
-    //qDebug() << "\nABOUT TO RUN TEST: " << name << m_thread.m_proc;
+    m_function = function;
+    writeToGdb("b " + function);
+    writeToGdb("call " + function + "()");
+}
 
-    writeToGdb("b " + name);
+void tst_Gdb::run(const QByteArray &label,
+    const QByteArray &expected0, const QByteArray &expanded)
+{
+    //qDebug() << "\nABOUT TO RUN TEST: " << function << m_thread.m_proc;
+    writeToGdb("bb " + expanded);
+    m_mutex.lock();
+    m_waitCondition.wait(&m_mutex);
+    QByteArray ba = m_thread.m_output;
+    m_mutex.unlock();
+    //GdbMi locals;
+    //locals.fromString("{" + ba + "}");
+    QByteArray received = ba.replace("\"", "'");
+    //qDebug() << "OUTPUT: " << ba << "\n\n";
+    //qDebug() << "OUTPUT: " << locals.toString() << "\n\n";
 
-    for (int i = 0; i != expected.size(); ++i) {
-        if (i == 0)
-            writeToGdb("call " + name + "()");
-        else
-            writeToGdb("next");
-        writeToGdb("bb");
-        m_mutex.lock();
-        m_waitCondition.wait(&m_mutex);
-        QByteArray ba = m_thread.m_output;
-        m_mutex.unlock();
-        //GdbMi locals;
-        //locals.fromString("{" + ba + "}");
-        QByteArray received = ba.replace("\"", "'");
-        //qDebug() << "OUTPUT: " << ba << "\n\n";
-        //qDebug() << "OUTPUT: " << locals.toString() << "\n\n";
-        testDumper(expected.at(i), 0, type, false, received);
+    QByteArray actual____ = received;
+    QByteArray expected = "locals={iname='local',name='Locals',value=' ',type=' ',"
+        "children=[" + expected0 + "]}";
+    int line = m_thread.m_line;
+
+    QByteArrayList l1 = actual____.split(',');
+    QByteArrayList l2 = expected.split(',');
+
+    bool ok = l1.size() == l2.size();
+    if (ok) {
+        for (int i = 0 ; i < l1.size(); ++i) {
+            if (l1.at(i) != l2.at(i))
+                if (!l1.at(i).startsWith("addr") || !l2.at(i).startsWith("addr"))
+                    ok = false;
+        }
     }
+    
+    if (!ok) {
+        int i = 0;
+        for ( ; i < l1.size() && i < l2.size(); ++i) {
+            if (l1.at(i) == l2.at(i)
+                    || (l1.at(i).startsWith("addr") && l2.at(i).startsWith("addr"))) {
+                qWarning() << "== " << l1.at(i);
+            } else {
+                //qWarning() << "!= " << l1.at(i).right(30) << l2.at(i).right(30);
+                qWarning() << "!= " << l1.at(i) << l2.at(i);
+                ok = false;
+            }
+        }
+        for ( ; i < l2.size(); ++i) 
+            qWarning() << "!= " << "-----" << l2.at(i);
+        for ( ; i < l1.size(); ++i) 
+            qWarning() << "!= " << l1.at(i) << "-----";
+        if (l1.size() != l2.size()) {
+            ok = false;
+            qWarning() << "!= size: " << l1.size() << l2.size();
+        }
+    }
+    QCOMPARE(ok, true);
+    qWarning() << "LINE: " << line << "ACT/EXP" << m_function + '@' + label;
+    //QCOMPARE(actual____, expected);
+
+
+    int expline = m_lineForLabel.value(m_function + '@' + label);
+    int actline = line;
+    if (actline != expline) {
+        qWarning() << "LAST STOPPED: " << m_thread.m_lastStopped;
+    }
+    QCOMPARE(actline, expline);
+}
+
+void tst_Gdb::next(int n)
+{
+    for (int i = 0; i != n; ++i)
+        writeToGdb("next");
 }
 
 void tst_Gdb::cleanupTestCase()
@@ -2264,47 +2352,53 @@ void tst_Gdb::cleanupTestCase()
 
 void dumpQStringTest()
 {
-    QString s;
-    s = "hallo";
-    s += "x";
-    s += "y";
-}
+    /* A */ QString s;
+    /* B */ s = "hallo"; 
+    /* C */ s += "x";
+    /* D */ }
 
 void tst_Gdb::dumpQString()
 {
-    QByteArrayList bal;
-
-    bal.append("{iname='local.s',addr='0xbffff19c',name='S',"
-        "type='"NS"QString',value='<not in scope>',numchild='0'}");
-
-    //bal.append("xxx");
-    //bal.append("xxx");
-    runTestCase("dumpQStringTest", NS"QString", bal);
-/*
-    testDumper("value='',valueencoded='2',type='$T',numchild='0'",
-        &s, NS"QString", false);
-    s = "abc";
-    testDumper("value='YQBiAGMA',valueencoded='2',type='$T',numchild='0'",
-        &s, NS"QString", false);
-*/
+    prepare("dumpQStringTest");
+    run("A", "{iname='local.s',addr='-',name='s',type='"NS"QString',"
+             "value='<not in scope>',numchild='0'}");
+    next();
+    run("B", "{iname='local.s',addr='-',name='s',type='"NS"QString',"
+             "valueencoded='7',value='',numchild='0'}");
+    next();
+    run("C", "{iname='local.s',addr='-',name='s',type='"NS"QString',"
+             "valueencoded='7',value='680061006c006c006f00',numchild='0'}");
+    next();
+    run("D", "{iname='local.s',addr='-',name='s',type='"NS"QString',"
+             "valueencoded='7',value='680061006c006c006f007800',numchild='0'}");
 }
 
 void dumpQStringListTest()
 {
-    QStringList s;
+    /* A */ QStringList s;
+    /* B */ s.append("hello");
+    /* C */ s.append("world");
 }
 
 void tst_Gdb::dumpQStringList()
 {
-    QByteArrayList bal;
-    //bal.append("xxx");
-    runTestCase("dumpQStringListTest", NS"QStringList", bal);
+    prepare("dumpQStringListTest");
+    run("A", "{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
+             "value='<not in scope>',numchild='0'}");
+    next();
+    //run("B", "{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
+    //         "value='<0 items>',numchild='0'}");
+    run("B", "{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
+             "value='<0 items>',numchild='0'}", "local.s");
+    next();
+    run("C", "{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
+             "value='<1 items>',numchild='1'}");
 }
 
 int runit(int &argc, char *argv[])
 {
     // Plain call. Start the testing.
-    QApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
     tst_Gdb test;
     return QTest::qExec(&test, argc, argv);
 }

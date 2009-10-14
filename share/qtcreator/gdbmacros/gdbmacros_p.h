@@ -56,8 +56,8 @@
 #   define NSY "'"
 #else
 #   define NS ""
-#   define NSX ""
-#   define NSY ""
+#   define NSX "'"
+#   define NSY "'"
 #endif
 
 #if defined(QT_BEGIN_NAMESPACE)

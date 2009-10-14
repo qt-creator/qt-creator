@@ -868,16 +868,21 @@ static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *i
 
 void WatchModel::insertData(const WatchData &data)
 {
-    // qDebug() << "WMI:" << data.toString();
+    //qDebug() << "WMI:" << data.toString();
     //static int bulk = 0;
     //qDebug() << "SINGLE: " << ++bulk << data.toString();
-    QTC_ASSERT(!data.iname.isEmpty(), return);
+    if (data.iname.isEmpty()) {
+        int x;
+        x = 1;
+    }
+    QTC_ASSERT(!data.iname.isEmpty(), qDebug() << data.toString(); return);
     WatchItem *parent = findItem(parentName(data.iname), m_root);
     if (!parent) {
         WatchData parent;
         parent.iname = parentName(data.iname);
-        insertData(parent);
-        //MODEL_DEBUG("\nFIXING MISSING PARENT FOR\n" << data.iname);
+        MODEL_DEBUG("\nFIXING MISSING PARENT FOR\n" << data.iname);
+        if (!parent.iname.isEmpty())
+            insertData(parent);
         return;
     }
     QModelIndex index = watchIndex(parent);
@@ -1098,10 +1103,12 @@ void WatchHandler::insertData(const WatchData &data)
         return;
     }
     if (data.isSomethingNeeded()) {
+        MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
         m_manager->updateWatchData(data);
     } else {
         WatchModel *model = modelForIName(data.iname);
         QTC_ASSERT(model, return);
+        MODEL_DEBUG("NOTHING NEEDED: " << data.toString());
         model->insertData(data);
     }
 }
@@ -1372,7 +1379,7 @@ WatchModel *WatchHandler::modelForIName(const QString &iname) const
         return m_watchers;
     if (iname.startsWith(QLatin1String("tooltip")))
         return m_tooltips;
-    QTC_ASSERT(false, /**/);
+    QTC_ASSERT(false, qDebug() << "INAME: " << iname);
     return 0;
 }
 

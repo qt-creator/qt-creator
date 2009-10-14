@@ -661,24 +661,6 @@ QtDumperHelper::Type QtDumperHelper::specialType(QString s)
     return UnknownType;
 }
 
-QtDumperHelper::ExpressionRequirement QtDumperHelper::expressionRequirements(Type t)
-{
-
-    switch (t) {
-    case QAbstractItemType:
-        return NeedsComplexExpression;
-    case QMapType:
-    case QMultiMapType:
-    case QMapNodeType:
-    case StdMapType:
-        return NeedsCachedExpression;
-    default:
-        // QObjectSlotType, QObjectSignalType need the signal number, which is numeric
-        break;
-    }
-    return NeedsNoExpression;
-}
-
 QString QtDumperHelper::qtVersionString() const
 {
     QString rc;
@@ -688,19 +670,13 @@ QString QtDumperHelper::qtVersionString() const
 }
 
 // Parse a list of types.
-void QtDumperHelper::parseQueryTypes(const QStringList &l, Debugger debugger)
+void QtDumperHelper::parseQueryTypes(const QStringList &l, Debugger  /* debugger */)
 {
     m_nameTypeMap.clear();
     const int count = l.count();
     for (int i = 0; i < count; i++) {
         const Type t = specialType(l.at(i));
-        if (t != UnknownType) {
-            // Exclude types that require expression syntax for CDB
-            if (debugger == GdbDebugger || expressionRequirements(t) != NeedsComplexExpression)
-                m_nameTypeMap.insert(l.at(i), t);
-        } else {
-            m_nameTypeMap.insert(l.at(i), SupportedType);
-        }
+        m_nameTypeMap.insert(l.at(i), t != UnknownType ? t : SupportedType);
     }
 }
 

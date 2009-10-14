@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
     fcntl(chldPipe[1], F_SETFD, FD_CLOEXEC);
     switch ((chldPid = fork())) {
         case -1:
-            perror("Cannot fork child process failed");
+            perror("Cannot fork child process");
             doExit(3);
         case 0:
             close(qtcFd);
