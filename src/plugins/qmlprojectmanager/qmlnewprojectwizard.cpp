@@ -233,7 +233,6 @@ Core::GeneratedFiles QmlNewProjectWizard::generateFiles(const QWizard *w,
         << "Rectangle {" << endl
         << "    width: 200" << endl
         << "    height: 200" << endl
-        << "    color: \"white\"" << endl
         << "    Text {" << endl
         << "        text: \"Hello World\"" << endl
         << "        anchors.centerIn: parent" << endl
