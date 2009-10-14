@@ -168,19 +168,7 @@ public:
     // 'data' excludes the leading indicator character.
     static bool parseValue(const char *data, QList<WatchData> *l);
 
-    // What kind of debugger expressions are required to dump that type.
-    // A debugger with restricted expression syntax can handle
-    // 'NeedsNoExpression' and 'NeedsCachedExpression' if it is found in
-    // the cache.
-    enum ExpressionRequirement {
-        NeedsNoExpression,     // None, easy.
-        NeedsCachedExpression, // Common values might be found in expression cache.
-        NeedsComplexExpression // Totally arbitrary, adress-dependent expressions
-    };
-    static ExpressionRequirement expressionRequirements(Type t);
-
     QString toString(bool debug = false) const;
-
 
     static QString msgDumperOutdated(double requiredVersion, double currentVersion);
 
