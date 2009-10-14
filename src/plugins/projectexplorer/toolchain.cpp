@@ -336,7 +336,12 @@ QByteArray MSVCToolChain::predefinedMacros()
                               "#define __WINNT__\n"
                               "#define __WINNT\n"
                               "#define WINNT\n"
-                              "#define __int64 long long";
+                              "#define __int64 long long\n"
+                              "#define __int32 long\n"
+                              "#define __int16 short\n"
+                              "#define __int8 char\n"
+                              "#define __ptr32\n"
+                              "#define __ptr64\n";
 
         QString tmpFilePath;
         {
