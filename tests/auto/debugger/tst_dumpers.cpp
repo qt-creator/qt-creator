@@ -2243,7 +2243,7 @@ void tst_Debugger::dumpQVariant_QStringList()
 {
     QVariant v = QStringList() << "Hi";
     testDumper("value='(QStringList) ',type='$T',numchild='1',"
-        "children=[{name='value',exp='(*('myns::QStringList'*)%)',"
+        "children=[{name='value',exp='(*('"NS"QStringList'*)%)',"
         "type='QStringList',numchild='1'}]"
             << QByteArray::number(quintptr(&v)),
         &v, NS"QVariant", true);
