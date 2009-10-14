@@ -252,6 +252,7 @@ void GdbEngine::initializeVariables()
     m_debuggingHelperState = DebuggingHelperUninitialized;
     m_gdbVersion = 100;
     m_gdbBuildVersion = -1;
+    m_isSynchroneous = false;
 
     m_fullToShortName.clear();
     m_shortToFullName.clear();
@@ -1307,6 +1308,16 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
                 .arg(m_gdbBuildVersion));
         }
         //qDebug () << "VERSION 3:" << m_gdbVersion << m_gdbBuildVersion;
+    }
+}
+
+void GdbEngine::handleIsSynchroneous(const GdbResponse &response)
+{
+    Q_UNUSED(response);
+    if (response.resultClass == GdbResultDone) {
+        m_isSynchroneous = true;
+    } else {
+        m_isSynchroneous = false;
     }
 }
 
@@ -3247,7 +3258,7 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
         item.findChild("valuetooltipencoded").data().toInt());
     setWatchDataValueEnabled(data, item.findChild("valueenabled"));
     setWatchDataValueEditable(data, item.findChild("valueeditable"));
-    //qDebug() << "HANDLE CHILDREN: " << data.toString();
+    //qDebug() << "\nAPPEND TO LIST: " << data.toString() << "\n";
     list->append(data);
 
     // try not to repeat data too often
@@ -3370,7 +3381,6 @@ void GdbEngine::updateLocals()
 
     if (isSynchroneous()) {
         QStringList expanded = m_manager->watchHandler()->expandedINames().toList();
-        qDebug() << "EXPANDED: " << expanded;
         postCommand(_("bb %1").arg(expanded.join(_(","))),
             WatchUpdate, CB(handleStackFrame1));
         postCommand(_("p 0"), WatchUpdate, CB(handleStackFrame2));
@@ -3393,7 +3403,7 @@ void GdbEngine::handleStackFrame1(const GdbResponse &response)
             out.chop(1);
         //qDebug() << "FIRST CHUNK: " << out;
         m_firstChunk = out;
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         QTC_ASSERT(false, /**/);
     }
 }
@@ -3406,24 +3416,25 @@ void GdbEngine::handleStackFrame2(const GdbResponse &response)
             out.chop(1);
         //qDebug() << "SECOND CHUNK: " << out;
         out = m_firstChunk + out;
-        // FIXME: Hack, make sure dumper does not return "{}"
-        out.replace(",{}", "");
         GdbMi all("[" + out + "]");
-        qDebug() << "ALL: " << all.toString();
-        QList<GdbMi> locals = all.children();
-        //manager()->watchHandler()->insertBulkData(locals);
-        //setLocals(locals);
+        //GdbMi all(out);
+        
+        //qDebug() << "\n\n\nALL: " << all.toString() << "\n";
+        GdbMi locals = all.findChild("locals");
+        //qDebug() << "\n\n\nLOCALS: " << locals.toString() << "\n";
         WatchData *data = manager()->watchHandler()->findItem(_("local"));
         QTC_ASSERT(data, return);
 
         QList<WatchData> list;
-        foreach (const GdbMi &local, locals)
-            handleChildren(*data, local, &list);
-        
+        //foreach (const GdbMi &local, locals.children)
+        //   handleChildren(*data, local, &list);
+        handleChildren(*data, locals, &list);
+        //for (int i = 0; i != list.size(); ++i)
+        //    qDebug() << "READ: " << list.at(i).toString();
         manager()->watchHandler()->insertBulkData(list);
 
         manager()->watchHandler()->updateWatchers();
-    } else if (response.resultClass == GdbResultError) {
+    } else {
         QTC_ASSERT(false, /**/);
     }
 }
@@ -4094,6 +4105,7 @@ void GdbEngine::handleAdapterStarted()
     debugMessage(_("ADAPTER SUCCESSFULLY STARTED, INITIALIZING GDB"));
 
     postCommand(_("show version"), CB(handleShowVersion));
+    postCommand(_("help bb"), CB(handleIsSynchroneous));
     //postCommand(_("-enable-timings");
     postCommand(_("set print static-members off")); // Seemingly doesn't work.
     //postCommand(_("set debug infrun 1"));
@@ -4253,7 +4265,7 @@ void GdbEngine::showMessageBox(int icon, const QString &title, const QString &te
 
 bool GdbEngine::isSynchroneous() const
 {
-    return false;
+    return m_isSynchroneous;
 }
 
 //
