@@ -989,7 +989,7 @@ void tst_Gdb::dumpQImageData()
 }
 
 template <typename T>
-        void tst_Gdb::dumpQLinkedListHelper(QLinkedList<T> &l)
+void tst_Gdb::dumpQLinkedListHelper(QLinkedList<T> &l)
 {
     const int size = qMin(l.size(), 1000);
     const QString &sizeStr = N(size);
@@ -2204,8 +2204,10 @@ void Thread::readStandardOutput()
         DEBUG(" LINE 2: " << m_line);
     }
 
-    if (ba.startsWith("~\"XXX: "))
+    if (ba.startsWith("~\"XXX: ")) {
+        QByteArray ba1 = ba.mid(7, ba.size() - 11);
         qWarning() << "MESSAGE: " << ba.mid(7, ba.size() - 11);
+    }
     if (!ba.startsWith("~\"locals="))
         return;
     //m_output += ba;
@@ -2243,6 +2245,7 @@ tst_Gdb::tst_Gdb()
 {
     // FIXME: Wait until gdb proc is running.
     QTest::qWait(300);
+
     QFile file("tst_gdb.cpp");
     Q_ASSERT(file.open(QIODevice::ReadOnly));
     QByteArray funcName;
@@ -2258,7 +2261,6 @@ tst_Gdb::tst_Gdb()
             m_lineForLabel[funcName + ba.mid(7, pos - 8)] = i + 1;
         }
     }
-    qWarning() << m_lineForLabel;
 }
 
 
@@ -2288,27 +2290,43 @@ void tst_Gdb::run(const QByteArray &label,
     QByteArray expected = "locals={iname='local',name='Locals',value=' ',type=' ',"
         "children=[" + expected0 + "]}";
     int line = m_thread.m_line;
-    if (actual____ != expected) {
-        qWarning() << "LINE: " << line << "ACT/EXP";
-        QByteArrayList l1 = actual____.split(',');
-        QByteArrayList l2 = expected.split(',');
+
+    QByteArrayList l1 = actual____.split(',');
+    QByteArrayList l2 = expected.split(',');
+
+    bool ok = l1.size() == l2.size();
+    if (ok) {
+        for (int i = 0 ; i < l1.size(); ++i) {
+            if (l1.at(i) != l2.at(i))
+                if (!l1.at(i).startsWith("addr") || !l2.at(i).startsWith("addr"))
+                    ok = false;
+        }
+    }
+    
+    if (!ok) {
         int i = 0;
         for ( ; i < l1.size() && i < l2.size(); ++i) {
-            if (l1.at(i) == l2.at(i))
+            if (l1.at(i) == l2.at(i)
+                    || (l1.at(i).startsWith("addr") && l2.at(i).startsWith("addr"))) {
                 qWarning() << "== " << l1.at(i);
-            else 
+            } else {
                 //qWarning() << "!= " << l1.at(i).right(30) << l2.at(i).right(30);
                 qWarning() << "!= " << l1.at(i) << l2.at(i);
+                ok = false;
+            }
         }
         for ( ; i < l2.size(); ++i) 
             qWarning() << "!= " << "-----" << l2.at(i);
         for ( ; i < l1.size(); ++i) 
             qWarning() << "!= " << l1.at(i) << "-----";
-        if (l1.size() != l2.size())
+        if (l1.size() != l2.size()) {
+            ok = false;
             qWarning() << "!= size: " << l1.size() << l2.size();
+        }
     }
-    //qDebug() << "LABEL: " << m_function + '@' + label;
-    QCOMPARE(actual____, expected);
+    QCOMPARE(ok, true);
+    qWarning() << "LINE: " << line << "ACT/EXP" << m_function + '@' + label;
+    //QCOMPARE(actual____, expected);
 
 
     int expline = m_lineForLabel.value(m_function + '@' + label);
@@ -2342,16 +2360,16 @@ void dumpQStringTest()
 void tst_Gdb::dumpQString()
 {
     prepare("dumpQStringTest");
-    run("A", "{iname='local.s',addr='0xbffff19c',name='s',type='"NS"QString',"
+    run("A", "{iname='local.s',addr='-',name='s',type='"NS"QString',"
              "value='<not in scope>',numchild='0'}");
     next();
-    run("B", "{iname='local.s',addr='0xbffff19c',name='s',type='"NS"QString',"
+    run("B", "{iname='local.s',addr='-',name='s',type='"NS"QString',"
              "valueencoded='7',value='',numchild='0'}");
     next();
-    run("C", "{iname='local.s',addr='0xbffff19c',name='s',type='"NS"QString',"
+    run("C", "{iname='local.s',addr='-',name='s',type='"NS"QString',"
              "valueencoded='7',value='680061006c006c006f00',numchild='0'}");
     next();
-    run("D", "{iname='local.s',addr='0xbffff19c',name='s',type='"NS"QString',"
+    run("D", "{iname='local.s',addr='-',name='s',type='"NS"QString',"
              "valueencoded='7',value='680061006c006c006f007800',numchild='0'}");
 }
 
@@ -2365,7 +2383,16 @@ void dumpQStringListTest()
 void tst_Gdb::dumpQStringList()
 {
     prepare("dumpQStringListTest");
-    run("A", "xxx");
+    run("A", "{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
+             "value='<not in scope>',numchild='0'}");
+    next();
+    //run("B", "{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
+    //         "value='<0 items>',numchild='0'}");
+    run("B", "{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
+             "value='<0 items>',numchild='0'}", "local.s");
+    next();
+    run("C", "{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
+             "value='<1 items>',numchild='1'}");
 }
 
 int runit(int &argc, char *argv[])
