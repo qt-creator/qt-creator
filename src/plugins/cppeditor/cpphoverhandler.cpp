@@ -357,7 +357,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
                 overview.setShowReturnTypes(true);
                 overview.setShowFullyQualifiedNamed(true);
 
-                if (symbol == resolvedSymbol && symbol->isClass()) {
+                if (symbol && symbol == resolvedSymbol && symbol->isClass()) {
                     m_toolTip = m_helpId;
 
                 } else if (lookupSymbol && (lookupSymbol->isDeclaration() || lookupSymbol->isArgument())) {
