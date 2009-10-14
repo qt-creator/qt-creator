@@ -1878,9 +1878,6 @@ void CdbDebugEnginePrivate::updateStackTrace()
     m_firstActivatedFrame = true;
     if (current >= 0) {
         manager()->stackHandler()->setCurrentIndex(current);
-        // First time : repaint
-        if (m_dumper->isEnabled() && m_dumper->state() != CdbDumperHelper::Initialized)
-            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         m_engine->activateFrame(current);
     } else {
         // Clean out variables

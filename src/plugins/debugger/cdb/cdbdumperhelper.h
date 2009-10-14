@@ -41,6 +41,7 @@ class DebuggerManager;
 
 namespace Internal {
 struct CdbComInterfaces;
+class CdbDumperInitThread;
 
 /* For code clarity, all the stuff related to custom dumpers goes here.
  * "Custom dumper" is a library compiled against the current
@@ -108,11 +109,10 @@ public:
     void setDumperCallThread(unsigned long t);
 
 private:
+    friend class CdbDumperInitThread;
     enum CallLoadResult { CallLoadOk, CallLoadError, CallLoadNoQtApp, CallLoadAlreadyLoaded };
 
     void clearBuffer();
-
-    bool ensureInitialized(QString *errorMessage);
     CallLoadResult initCallLoad(QString *errorMessage);
     bool initResolveSymbols(QString *errorMessage);
     bool initKnownTypes(QString *errorMessage);
