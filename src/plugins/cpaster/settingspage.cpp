@@ -44,7 +44,12 @@ SettingsPage::SettingsPage()
     m_settings = Core::ICore::instance()->settings();
     if (m_settings) {
         m_settings->beginGroup("CodePaster");
-        m_username = m_settings->value("UserName", qgetenv("USER")).toString();
+#ifdef Q_OS_WIN32
+        QString defaultUser = qgetenv("USERNAME");
+#else
+        QString defaultUser = qgetenv("USER");
+#endif
+        m_username = m_settings->value("UserName", defaultUser).toString();
         m_protocol = m_settings->value("DefaultProtocol", "CodePaster").toString();
         m_copy = m_settings->value("CopyToClipboard", true).toBool();
         m_output = m_settings->value("DisplayOutput", true).toBool();
