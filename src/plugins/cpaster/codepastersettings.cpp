@@ -66,7 +66,7 @@ QString CodePasterSettingsPage::category() const
 
 QString CodePasterSettingsPage::trCategory() const
 {
-    return tr("CodePaster");
+    return tr("Code Pasting");
 }
 
 QWidget *CodePasterSettingsPage::createPage(QWidget *parent)

@@ -60,7 +60,7 @@ QString PasteBinDotComSettings::category() const
 
 QString PasteBinDotComSettings::trCategory() const
 {
-    return tr("CodePaster");
+    return tr("Code Pasting");
 }
 
 QWidget *PasteBinDotComSettings::createPage(QWidget *parent)
