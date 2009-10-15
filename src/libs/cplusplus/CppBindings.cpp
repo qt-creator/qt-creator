@@ -676,6 +676,8 @@ ClassBinding *Binder::findClassBinding(Name *name)
     if (classBinding) {
         if (ClassBinding *k = classBinding->findClassBinding(name, &processed))
             return k;
+
+        processed.clear();
     }
 
     if (namespaceBinding)
@@ -718,8 +720,6 @@ bool Binder::visit(UsingNamespaceDirective *u)
 
 bool Binder::visit(Class *classSymbol)
 {
-    Overview oo;
-
     ClassBinding *binding = findOrCreateClassBinding(classSymbol);
     ClassBinding *previousClassBinding = switchClassBinding(binding);
 

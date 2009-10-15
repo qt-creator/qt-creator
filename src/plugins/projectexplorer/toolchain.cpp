@@ -336,7 +336,12 @@ QByteArray MSVCToolChain::predefinedMacros()
                               "#define __WINNT__\n"
                               "#define __WINNT\n"
                               "#define WINNT\n"
-                              "#define __int64 long long";
+                              "#define __int64 long long\n"
+                              "#define __int32 long\n"
+                              "#define __int16 short\n"
+                              "#define __int8 char\n"
+                              "#define __ptr32\n"
+                              "#define __ptr64\n";
 
         QString tmpFilePath;
         {
@@ -513,10 +518,10 @@ void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 
     path += "/";
 
-//        qDebug()<<"MSVC path"<<msvcPath;
+//        qDebug()<<"MSVC path"<<path;
 //        qDebug()<<"looking for platform name in"<< path() + "/mkspecs/" + mkspec() +"/qmake.conf";
     // Find Platform name
-//        qDebug()<<"Platform Name"<<platformName;
+//        qDebug()<<"Platform Name"<<m_platform;
 
     CeSdkHandler cesdkhandler;
     cesdkhandler.parse(path);

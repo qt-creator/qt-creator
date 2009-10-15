@@ -581,6 +581,8 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol,
                                        NamespaceBinding *globalNamespace)
 {
     Symbol *canonicalSymbol = LookupContext::canonicalSymbol(symbol);
+    if (! canonicalSymbol)
+        return 0;
 
     if (Identifier *symbolId = canonicalSymbol->identifier()) {
         if (symbolId && canonicalSymbol->type()->isFunctionType()) {

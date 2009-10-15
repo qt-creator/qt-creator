@@ -549,6 +549,7 @@ CPPEditor::CPPEditor(QWidget *parent)
     , m_inRename(false)
     , m_allowSkippingOfBlockEnd(false)
 {
+    m_initialized = false;
     qRegisterMetaType<SemanticInfo>("SemanticInfo");
 
     m_semanticHighlighter = new SemanticHighlighter(this);
@@ -699,6 +700,13 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
 {
     if (doc->fileName() != file()->fileName())
         return;
+
+    if (! m_initialized) {
+        m_initialized = true;
+
+        const SemanticHighlighter::Source source = currentSource(/*force = */ true);
+        m_semanticHighlighter->rehighlight(source);
+    }
 
     m_overviewModel->rebuild(doc);
     OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_methodCombo->view());
@@ -1885,7 +1893,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     setExtraSelections(CodeSemanticsSelection, allSelections);
 }
 
-SemanticHighlighter::Source CPPEditor::currentSource()
+SemanticHighlighter::Source CPPEditor::currentSource(bool force)
 {
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
@@ -1894,12 +1902,13 @@ SemanticHighlighter::Source CPPEditor::currentSource()
     const QString fileName = file()->fileName();
 
     QString code;
-    if (m_lastSemanticInfo.revision != document()->revision())
+    if (force || m_lastSemanticInfo.revision != document()->revision())
         code = toPlainText(); // get the source code only when needed.
 
     const int revision = document()->revision();
-    const SemanticHighlighter::Source source(snapshot, fileName, code,
-                                             line, column, revision);
+    SemanticHighlighter::Source source(snapshot, fileName, code,
+                                       line, column, revision);
+    source.force = force;
     return source;
 }
 
@@ -1974,14 +1983,14 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     Snapshot snapshot;
     Document::Ptr doc;
 
-    if (revision == source.revision) {
+    if (! source.force && revision == source.revision) {
         m_mutex.lock();
         snapshot = m_lastSemanticInfo.snapshot;
         doc = m_lastSemanticInfo.doc;
         m_mutex.unlock();
     }
 
-    if (!doc) {
+    if (! doc) {
         const QByteArray preprocessedCode = source.snapshot.preprocessedCode(source.code, source.fileName);
 
         snapshot = source.snapshot;
