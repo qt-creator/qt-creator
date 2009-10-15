@@ -30,7 +30,7 @@
 #include "settingspage.h"
 #include "quickopenconstants.h"
 
-#include "quickopenplugin.h"
+#include "locatorplugin.h"
 #include "ilocatorfilter.h"
 #include "directoryfilter.h"
 
@@ -44,7 +44,7 @@ Q_DECLARE_METATYPE(QuickOpen::ILocatorFilter*)
 using namespace QuickOpen;
 using namespace QuickOpen::Internal;
 
-SettingsPage::SettingsPage(QuickOpenPlugin *plugin)
+SettingsPage::SettingsPage(LocatorPlugin *plugin)
     : m_plugin(plugin), m_page(0)
 {
 }

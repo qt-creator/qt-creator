@@ -3,7 +3,7 @@ TARGET = QuickOpen
 DEFINES += QUICKOPEN_LIBRARY
 include(../../qtcreatorplugin.pri)
 include(quickopen_dependencies.pri)
-HEADERS += quickopenplugin.h \
+HEADERS += locatorplugin.h \
     locatorwidget.h \
     quickopenfiltersfilter.h \
     settingspage.h \
@@ -15,7 +15,7 @@ HEADERS += quickopenplugin.h \
     locatormanager.h \
     basefilefilter.h \
     quickopen_global.h
-SOURCES += quickopenplugin.cpp \
+SOURCES += locatorplugin.cpp \
     locatorwidget.cpp \
     quickopenfiltersfilter.cpp \
     opendocumentsfilter.cpp \

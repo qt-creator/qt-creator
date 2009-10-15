@@ -38,7 +38,7 @@ unsigned int qHash(const QuickOpen::FilterEntry &entry);
 QT_END_NAMESPACE
 
 #include "locatorwidget.h"
-#include "quickopenplugin.h"
+#include "locatorplugin.h"
 #include "quickopenconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -246,8 +246,8 @@ void CompletionList::updatePreferredSize()
 
 // =========== LocatorWidget ===========
 
-LocatorWidget::LocatorWidget(QuickOpenPlugin *qop) :
-     m_quickOpenPlugin(qop),
+LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
+     m_locatorPlugin(qop),
      m_quickOpenModel(new QuickOpenModel(this)),
      m_completionList(new CompletionList(this)),
      m_filterMenu(new QMenu(this)),
@@ -293,7 +293,7 @@ LocatorWidget::LocatorWidget(QuickOpenPlugin *qop) :
 
     m_fileLineEdit->setMenu( m_filterMenu);
 
-    connect(m_refreshAction, SIGNAL(triggered()), m_quickOpenPlugin, SLOT(refresh()));
+    connect(m_refreshAction, SIGNAL(triggered()), m_locatorPlugin, SLOT(refresh()));
     connect(m_configureAction, SIGNAL(triggered()), this, SLOT(showConfigureDialog()));
     connect(m_fileLineEdit, SIGNAL(textEdited(const QString&)),
         this, SLOT(showPopup()));
@@ -309,7 +309,7 @@ bool LocatorWidget::isShowingTypeHereMessage() const
 void LocatorWidget::updateFilterList()
 {
     m_filterMenu->clear();
-    foreach (ILocatorFilter *filter, m_quickOpenPlugin->filters()) {
+    foreach (ILocatorFilter *filter, m_locatorPlugin->filters()) {
         if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
             QAction *action = m_filterMenu->addAction(filter->trName(), this, SLOT(filterSelected()));
             action->setData(qVariantFromValue(filter));
@@ -374,7 +374,7 @@ void LocatorWidget::showPopup()
 
 QList<ILocatorFilter*> LocatorWidget::filtersFor(const QString &text, QString &searchText)
 {
-    QList<ILocatorFilter*> filters = m_quickOpenPlugin->filters();
+    QList<ILocatorFilter*> filters = m_locatorPlugin->filters();
     int whiteSpace = text.indexOf(" ");
     QString prefix;
     if (whiteSpace >= 0)
@@ -463,7 +463,7 @@ void LocatorWidget::filterSelected()
     // add shortcut string at front or replace existing shortcut string
     if (!currentText.isEmpty()) {
         searchText = currentText;
-        foreach (ILocatorFilter *otherfilter, m_quickOpenPlugin->filters()) {
+        foreach (ILocatorFilter *otherfilter, m_locatorPlugin->filters()) {
             if (currentText.startsWith(otherfilter->shortcutString() + " ")) {
                 searchText = currentText.mid(otherfilter->shortcutString().length()+1);
                 break;

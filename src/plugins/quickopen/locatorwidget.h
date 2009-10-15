@@ -30,7 +30,7 @@
 #ifndef LOCATORWIDGET_H
 #define LOCATORWIDGET_H
 
-#include "quickopenplugin.h"
+#include "locatorplugin.h"
 
 #include <QtCore/QEvent>
 #include <QtGui/QWidget>
@@ -59,7 +59,7 @@ class LocatorWidget
     Q_OBJECT
 
 public:
-    LocatorWidget(QuickOpenPlugin *qop);
+    LocatorWidget(LocatorPlugin *qop);
 
     void updateFilterList();
 
@@ -81,7 +81,7 @@ private:
     void updateCompletionList(const QString &text);
     QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);
 
-    QuickOpenPlugin *m_quickOpenPlugin;
+    LocatorPlugin *m_locatorPlugin;
     QuickOpenModel *m_quickOpenModel;
 
     CompletionList *m_completionList;

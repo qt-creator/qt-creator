@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "quickopenfiltersfilter.h"
-#include "quickopenplugin.h"
+#include "locatorplugin.h"
 #include "locatorwidget.h"
 
 #include <coreplugin/coreconstants.h>
@@ -38,7 +38,7 @@ using namespace QuickOpen::Internal;
 
 Q_DECLARE_METATYPE(ILocatorFilter*);
 
-QuickOpenFiltersFilter::QuickOpenFiltersFilter(QuickOpenPlugin *plugin,
+QuickOpenFiltersFilter::QuickOpenFiltersFilter(LocatorPlugin *plugin,
                                                LocatorWidget *locatorWidget):
     m_plugin(plugin),
     m_locatorWidget(locatorWidget),

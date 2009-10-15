@@ -47,14 +47,14 @@ class ILocatorFilter;
 
 namespace Internal {
 
-class QuickOpenPlugin;
+class LocatorPlugin;
 
 class SettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    explicit SettingsPage(QuickOpenPlugin *plugin);
+    explicit SettingsPage(LocatorPlugin *plugin);
     QString id() const;
     QString trName() const;
     QString category() const;
@@ -77,7 +77,7 @@ private:
     void requestRefresh();
 
     Ui::SettingsWidget m_ui;
-    QuickOpenPlugin *m_plugin;
+    LocatorPlugin *m_plugin;
     QWidget* m_page;
     QList<ILocatorFilter *> m_filters;
     QList<ILocatorFilter *> m_addedFilters;

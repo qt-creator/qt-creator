@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "quickopenplugin.h"
+#include "locatorplugin.h"
 #include "quickopenconstants.h"
 #include "quickopenfiltersfilter.h"
 #include "locatormanager.h"
@@ -70,13 +70,13 @@ namespace {
     }
 }
 
-QuickOpenPlugin::QuickOpenPlugin()
+LocatorPlugin::LocatorPlugin()
 {
     m_refreshTimer.setSingleShot(false);
     connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
 }
 
-QuickOpenPlugin::~QuickOpenPlugin()
+LocatorPlugin::~LocatorPlugin()
 {
     removeObject(m_openDocumentsFilter);
     removeObject(m_fileSystemFilter);
@@ -87,7 +87,7 @@ QuickOpenPlugin::~QuickOpenPlugin()
     qDeleteAll(m_customFilters);
 }
 
-bool QuickOpenPlugin::initialize(const QStringList &, QString *)
+bool LocatorPlugin::initialize(const QStringList &, QString *)
 {
     Core::ICore *core = Core::ICore::instance();
     m_settingsPage = new SettingsPage(this);
@@ -126,24 +126,24 @@ bool QuickOpenPlugin::initialize(const QStringList &, QString *)
     return true;
 }
 
-void QuickOpenPlugin::openQuickOpen()
+void LocatorPlugin::openQuickOpen()
 {
     m_locatorWidget->show("");
 }
 
-void QuickOpenPlugin::extensionsInitialized()
+void LocatorPlugin::extensionsInitialized()
 {
     m_filters = ExtensionSystem::PluginManager::instance()->getObjects<ILocatorFilter>();
     qSort(m_filters.begin(), m_filters.end(), filterLessThan);
 }
 
-void QuickOpenPlugin::startSettingsLoad()
+void LocatorPlugin::startSettingsLoad()
 {
-    m_loadWatcher.setFuture(QtConcurrent::run(this, &QuickOpenPlugin::loadSettings));
+    m_loadWatcher.setFuture(QtConcurrent::run(this, &LocatorPlugin::loadSettings));
     connect(&m_loadWatcher, SIGNAL(finished()), this, SLOT(settingsLoaded()));
 }
 
-void QuickOpenPlugin::loadSettings()
+void LocatorPlugin::loadSettings()
 {
     Core::ICore *core = Core::ICore::instance();
     QSettings *qs = core->settings();
@@ -159,7 +159,7 @@ void QuickOpenPlugin::loadSettings()
     qs->remove("QuickOpen");
 }
 
-void QuickOpenPlugin::settingsLoaded()
+void LocatorPlugin::settingsLoaded()
 {
     m_locatorWidget->updateFilterList();
     m_locatorWidget->setEnabled(true);
@@ -167,7 +167,7 @@ void QuickOpenPlugin::settingsLoaded()
         m_refreshTimer.start();
 }
 
-void QuickOpenPlugin::saveSettings()
+void LocatorPlugin::saveSettings()
 {
     Core::ICore *core = Core::ICore::instance();
     if (core && core->settingsDatabase()) {
@@ -191,43 +191,43 @@ void QuickOpenPlugin::saveSettings()
 }
 
 /*!
-    \fn QList<ILocatorFilter*> QuickOpenPlugin::filter()
+    \fn QList<ILocatorFilter*> LocatorPlugin::filter()
 
     Return all filters, including the ones created by the user.
 */
-QList<ILocatorFilter*> QuickOpenPlugin::filters()
+QList<ILocatorFilter*> LocatorPlugin::filters()
 {
     return m_filters;
 }
 
 /*!
-    \fn QList<ILocatorFilter*> QuickOpenPlugin::customFilter()
+    \fn QList<ILocatorFilter*> LocatorPlugin::customFilter()
 
     This returns a subset of all the filters, that contains only the filters that
     have been created by the user at some point (maybe in a previous session).
  */
-QList<ILocatorFilter*> QuickOpenPlugin::customFilters()
+QList<ILocatorFilter*> LocatorPlugin::customFilters()
 {
     return m_customFilters;
 }
 
-void QuickOpenPlugin::setFilters(QList<ILocatorFilter*> f)
+void LocatorPlugin::setFilters(QList<ILocatorFilter*> f)
 {
     m_filters = f;
     m_locatorWidget->updateFilterList();
 }
 
-void QuickOpenPlugin::setCustomFilters(QList<ILocatorFilter *> filters)
+void LocatorPlugin::setCustomFilters(QList<ILocatorFilter *> filters)
 {
     m_customFilters = filters;
 }
 
-int QuickOpenPlugin::refreshInterval()
+int LocatorPlugin::refreshInterval()
 {
     return m_refreshTimer.interval() / 60000;
 }
 
-void QuickOpenPlugin::setRefreshInterval(int interval)
+void LocatorPlugin::setRefreshInterval(int interval)
 {
     if (interval < 1) {
         m_refreshTimer.stop();
@@ -238,7 +238,7 @@ void QuickOpenPlugin::setRefreshInterval(int interval)
     m_refreshTimer.start();
 }
 
-void QuickOpenPlugin::refresh(QList<ILocatorFilter*> filters)
+void LocatorPlugin::refresh(QList<ILocatorFilter*> filters)
 {
     if (filters.isEmpty())
         filters = m_filters;
@@ -250,4 +250,4 @@ void QuickOpenPlugin::refresh(QList<ILocatorFilter*> filters)
     connect(progress, SIGNAL(finished()), this, SLOT(saveSettings()));
 }
 
-Q_EXPORT_PLUGIN(QuickOpenPlugin)
+Q_EXPORT_PLUGIN(LocatorPlugin)

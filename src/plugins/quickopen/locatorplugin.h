@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QUICKOPENPLUGIN_H
-#define QUICKOPENPLUGIN_H
+#ifndef LOCATORPLUGIN_H
+#define LOCATORPLUGIN_H
 
 #include "ilocatorfilter.h"
 #include "directoryfilter.h"
@@ -46,15 +46,15 @@ class LocatorWidget;
 class OpenDocumentsFilter;
 class FileSystemFilter;
 class SettingsPage;
-class QuickOpenPlugin;
+class LocatorPlugin;
 
-class QuickOpenPlugin : public ExtensionSystem::IPlugin
+class LocatorPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 
 public:
-    QuickOpenPlugin();
-    ~QuickOpenPlugin();
+    LocatorPlugin();
+    ~LocatorPlugin();
 
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
@@ -94,7 +94,7 @@ private:
 };
 
 template <typename S>
-void QuickOpenPlugin::loadSettingsHelper(S *settings)
+void LocatorPlugin::loadSettingsHelper(S *settings)
 {
     settings->beginGroup("QuickOpen");
     m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
@@ -123,4 +123,4 @@ void QuickOpenPlugin::loadSettingsHelper(S *settings)
 } // namespace Internal
 } // namespace QuickOpen
 
-#endif // QUICKOPENPLUGIN_H
+#endif // LOCATORPLUGIN_H

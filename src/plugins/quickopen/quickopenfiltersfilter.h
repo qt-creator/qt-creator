@@ -37,7 +37,7 @@
 namespace QuickOpen {
 namespace Internal {
 
-class QuickOpenPlugin;
+class LocatorPlugin;
 class LocatorWidget;
 
 /*!
@@ -49,7 +49,7 @@ class QuickOpenFiltersFilter : public ILocatorFilter
     Q_OBJECT
 
 public:
-    QuickOpenFiltersFilter(QuickOpenPlugin *plugin,
+    QuickOpenFiltersFilter(LocatorPlugin *plugin,
                            LocatorWidget *locatorWidget);
 
     // ILocatorFilter
@@ -62,7 +62,7 @@ public:
     bool isConfigurable() const;
 
 private:
-    QuickOpenPlugin *m_plugin;
+    LocatorPlugin *m_plugin;
     LocatorWidget *m_locatorWidget;
     QIcon m_icon;
 };
