@@ -106,7 +106,7 @@ public:
     void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
     Internal::ProjectExplorerSettings projectExplorerSettings() const;
 
-    void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QString &mode);
+    void startRunControl(RunControl *runControl, const QString &mode);
 
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
