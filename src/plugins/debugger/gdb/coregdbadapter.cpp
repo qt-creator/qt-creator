@@ -73,7 +73,6 @@ void CoreGdbAdapter::startAdapter()
 void CoreGdbAdapter::handleGdbStarted()
 {
     QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
-    setState(AdapterStarted);
     emit adapterStarted();
 }
 

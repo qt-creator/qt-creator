@@ -4100,6 +4100,7 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
 
 void GdbEngine::handleAdapterStarted()
 {
+    setState(AdapterStarted);
     debugMessage(_("ADAPTER SUCCESSFULLY STARTED, INITIALIZING GDB"));
 
     postCommand(_("show version"), CB(handleShowVersion));

@@ -1563,7 +1563,6 @@ void TrkGdbAdapter::maybeAdapterStarted()
 {
     QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     if (m_gdbProc.state() == QProcess::Running && m_trkDevice.isOpen()) {
-        setState(AdapterStarted);
         emit adapterStarted();
     }
 }

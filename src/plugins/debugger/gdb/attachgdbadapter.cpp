@@ -73,7 +73,6 @@ void AttachGdbAdapter::startAdapter()
 void AttachGdbAdapter::handleGdbStarted()
 {
     QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
-    setState(AdapterStarted);
     emit adapterStarted();
 }
 

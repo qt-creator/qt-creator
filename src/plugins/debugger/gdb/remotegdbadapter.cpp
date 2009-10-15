@@ -93,7 +93,6 @@ void RemoteGdbAdapter::startAdapter()
 void RemoteGdbAdapter::handleGdbStarted()
 {
     QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
-    setState(AdapterStarted);
     emit adapterStarted();
 }
 
