@@ -96,7 +96,7 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
     m_locatorWidget = new LocatorWidget(this);
     m_locatorWidget->setEnabled(false);
     Core::BaseView *view = new Core::BaseView;
-    view->setUniqueViewName("QuickOpen");
+    view->setUniqueViewName("Locator");
     view->setWidget(m_locatorWidget);
     view->setContext(QList<int>() << core->uniqueIDManager()
         ->uniqueIdentifier(QLatin1String("LocatorWidget")));
@@ -107,7 +107,7 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
     QAction *action = new QAction(m_locatorWidget->windowIcon(), m_locatorWidget->windowTitle(), this);
     Core::Command *cmd = core->actionManager()->registerAction(action, actionId, QList<int>() << Core::Constants::C_GLOBAL_ID);
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+K"));
-    connect(action, SIGNAL(triggered()), this, SLOT(openQuickOpen()));
+    connect(action, SIGNAL(triggered()), this, SLOT(openLocator()));
 
     Core::ActionContainer *mtools = core->actionManager()->actionContainer(Core::Constants::M_TOOLS);
     mtools->addAction(cmd);
@@ -126,7 +126,7 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
     return true;
 }
 
-void LocatorPlugin::openQuickOpen()
+void LocatorPlugin::openLocator()
 {
     m_locatorWidget->show("");
 }

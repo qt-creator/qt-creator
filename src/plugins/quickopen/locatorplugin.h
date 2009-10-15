@@ -69,7 +69,7 @@ public:
 public slots:
     void refresh(QList<ILocatorFilter*> filters = QList<ILocatorFilter*>());
     void saveSettings();
-    void openQuickOpen();
+    void openLocator();
 
 private slots:
     void startSettingsLoad();
