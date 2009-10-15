@@ -400,6 +400,11 @@ void LookupContext::expandNamespace(Namespace *ns,
                                     const QList<Scope *> &visibleScopes,
                                     QList<Scope *> *expandedScopes) const
 {
+    //qDebug() << "*** expand namespace:" << ns->fileName() << ns->line() << ns->column();
+
+    if (Scope *encl = ns->enclosingNamespaceScope())
+        expand(encl, visibleScopes, expandedScopes);
+
     if (Name *nsName = ns->name()) {
         const QList<Symbol *> namespaceList = resolveNamespace(nsName, visibleScopes);
         foreach (Symbol *otherNs, namespaceList) {
