@@ -287,9 +287,6 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
 
                 if (! macro->definition().isEmpty())
                 {
-                    if (client)
-                        client->startExpandingMacro(start_offset + (name_begin-start), *macro, fast_name, true);
-
                     macro->setHidden(true);
 
                     QByteArray __tmp;
@@ -316,9 +313,6 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
                     }
 
                     macro->setHidden(false);
-
-                    if (client)
-                        client->stopExpandingMacro(start_offset + (name_begin-start), *macro);
                 }
 
                 if (! m)
@@ -375,17 +369,11 @@ const char *MacroExpander::expand(const char *__first, const char *__last,
             ++arg_it; // skip ')'
             __first = arg_it;
 
-            if (client)
-                client->startExpandingMacro(start_offset + (name_begin-start), *macro, fast_name, true, actuals_ref);
-
             pp_frame frame (macro, actuals);
             MacroExpander expand_macro (env, &frame);
             macro->setHidden(true);
             expand_macro (macro->definition(), __result);
             macro->setHidden(false);
-
-            if (client)
-                client->stopExpandingMacro(start_offset + (name_begin-start), *macro);
         }
         else
             __result->append(*__first++);

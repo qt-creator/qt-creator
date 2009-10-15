@@ -975,18 +975,9 @@ Macro *Preprocessor::processObjectLikeMacro(TokenIterator identifierToken,
 void Preprocessor::expandBuiltinMacro(TokenIterator identifierToken,
                                       const QByteArray &spell)
 {
-    const Macro trivial;
-
-    if (client)
-        client->startExpandingMacro(identifierToken->offset,
-                                    trivial, spell);
-
     const bool was = markGeneratedTokens(true, identifierToken);
     expand(spell, _result);
     (void) markGeneratedTokens(was);
-
-    if (client)
-        client->stopExpandingMacro(_dot->offset, trivial);
 }
 
 void Preprocessor::expandObjectLikeMacro(TokenIterator identifierToken,
