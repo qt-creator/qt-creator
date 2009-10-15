@@ -161,6 +161,7 @@ struct CdbDebugEnginePrivate
     int                     m_currentThreadId;
     int                     m_eventThreadId;
     int                     m_interruptArticifialThreadId;
+    bool                    m_ignoreInitialBreakPoint;
     HandleBreakEventMode    m_breakEventMode;
 
     int                     m_watchTimer;

@@ -307,6 +307,7 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *manager,
     m_currentThreadId(-1),
     m_eventThreadId(-1),
     m_interruptArticifialThreadId(-1),
+    m_ignoreInitialBreakPoint(false),
     m_interrupted(false),    
     m_watchTimer(-1),
     m_debugEventCallBack(engine),
@@ -661,6 +662,7 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     bool needWatchTimer = false;
     m_d->clearForRun();
     m_d->setCodeLevel();
+    m_d->m_ignoreInitialBreakPoint = false;
     switch (mode) {
     case AttachExternal:
     case AttachCrashedExternal:
@@ -670,6 +672,8 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     case StartInternal:
     case StartExternal:
         if (sp->useTerminal) {
+            // Attaching to console processes triggers an initial breakpoint, which we do not want
+            m_d->m_ignoreInitialBreakPoint = true;
             // Launch console stub and wait for its startup
             m_d->m_consoleStubProc.stop(); // We leave the console open, so recycle it now.
             m_d->m_consoleStubProc.setWorkingDirectory(sp->workingDir);
@@ -704,6 +708,8 @@ bool CdbDebugEngine::startAttachDebugger(qint64 pid, DebuggerStartMode sm, QStri
     // Need to attrach invasively, otherwise, no notification signals
     // for for CreateProcess/ExitProcess occur.
     // As of version 6.11, the initial breakpoint suppression has no effect (see notifyException).
+    // when attaching to a console process starting up. However, there is no initial breakpoint
+    // (and no startup trap), when attaching to a running GUI process.
     const ULONG flags = DEBUG_ATTACH_INVASIVE_RESUME_PROCESS|DEBUG_ATTACH_INVASIVE_NO_INITIAL_BREAK;
     const HRESULT hr = m_d->m_cif.debugClient->AttachProcess(NULL, pid, flags);
     if (debugCDB)
@@ -1669,14 +1675,14 @@ void CdbDebugEnginePrivate::notifyException(long code, bool fatal)
     if (debugCDBExecution)
         qDebug() << "notifyException code" << code << " fatal=" << fatal;
     // Suppress the initial breakpoint that occurs when
-    // attaching (If a breakpoint is encountered before startup
-    // is complete).
+    // attaching to a console (If a breakpoint is encountered before startup
+    // is complete, see startAttachDebugger()).
     switch (code) {
     case winExceptionStartupCompleteTrap:
         m_inferiorStartupComplete = true;
         break;
     case EXCEPTION_BREAKPOINT:
-        if (!m_inferiorStartupComplete && m_breakEventMode == BreakEventHandle) {
+        if (m_ignoreInitialBreakPoint && !m_inferiorStartupComplete && m_breakEventMode == BreakEventHandle) {
             manager()->showDebuggerOutput(LogMisc, CdbDebugEngine::tr("Ignoring initial breakpoint..."));
             m_breakEventMode = BreakEventIgnoreOnce;
         }
