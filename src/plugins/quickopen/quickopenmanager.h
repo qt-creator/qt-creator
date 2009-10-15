@@ -37,7 +37,7 @@
 namespace QuickOpen {
 
 namespace Internal {
-class QuickOpenToolWindow;
+class LocatorWidget;
 }
 
 class QUICKOPEN_EXPORT QuickOpenManager : public QObject
@@ -45,7 +45,7 @@ class QUICKOPEN_EXPORT QuickOpenManager : public QObject
     Q_OBJECT
 
 public:
-    QuickOpenManager(Internal::QuickOpenToolWindow *toolWindow);
+    QuickOpenManager(Internal::LocatorWidget *locatorWidget);
     ~QuickOpenManager();
 
     static QuickOpenManager* instance() { return m_instance; }
@@ -53,7 +53,7 @@ public:
     void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
 
 private:
-    Internal::QuickOpenToolWindow *m_toolWindow;
+    Internal::LocatorWidget *m_locatorWidget;
     static QuickOpenManager *m_instance;
 };
 

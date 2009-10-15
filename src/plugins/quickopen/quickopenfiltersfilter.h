@@ -30,7 +30,7 @@
 #ifndef QUICKOPENFILTERSFILTER_H
 #define QUICKOPENFILTERSFILTER_H
 
-#include "iquickopenfilter.h"
+#include "ilocatorfilter.h"
 
 #include <QtGui/QIcon>
 
@@ -38,21 +38,21 @@ namespace QuickOpen {
 namespace Internal {
 
 class QuickOpenPlugin;
-class QuickOpenToolWindow;
+class LocatorWidget;
 
 /*!
   This filter provides the user with the list of available QuickOpen filters.
   The list is only shown when nothing has been typed yet.
  */
-class QuickOpenFiltersFilter : public IQuickOpenFilter
+class QuickOpenFiltersFilter : public ILocatorFilter
 {
     Q_OBJECT
 
 public:
     QuickOpenFiltersFilter(QuickOpenPlugin *plugin,
-                           QuickOpenToolWindow *toolWindow);
+                           LocatorWidget *locatorWidget);
 
-    // IQuickOpenFilter
+    // ILocatorFilter
     QString trName() const;
     QString name() const;
     Priority priority() const;
@@ -63,7 +63,7 @@ public:
 
 private:
     QuickOpenPlugin *m_plugin;
-    QuickOpenToolWindow *m_toolWindow;
+    LocatorWidget *m_locatorWidget;
     QIcon m_icon;
 };
 

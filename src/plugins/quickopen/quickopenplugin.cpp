@@ -31,7 +31,7 @@
 #include "quickopenconstants.h"
 #include "quickopenfiltersfilter.h"
 #include "quickopenmanager.h"
-#include "quickopentoolwindow.h"
+#include "locatorwidget.h"
 #include "opendocumentsfilter.h"
 #include "filesystemfilter.h"
 #include "settingspage.h"
@@ -64,7 +64,7 @@ using namespace QuickOpen;
 using namespace QuickOpen::Internal;
 
 namespace {
-    static bool filterLessThan(const IQuickOpenFilter *first, const IQuickOpenFilter *second)
+    static bool filterLessThan(const ILocatorFilter *first, const ILocatorFilter *second)
     {
         return first->priority() < second->priority();
     }
@@ -93,18 +93,18 @@ bool QuickOpenPlugin::initialize(const QStringList &, QString *)
     m_settingsPage = new SettingsPage(this);
     addObject(m_settingsPage);
 
-    m_quickOpenToolWindow = new QuickOpenToolWindow(this);
-    m_quickOpenToolWindow->setEnabled(false);
+    m_locatorWidget = new LocatorWidget(this);
+    m_locatorWidget->setEnabled(false);
     Core::BaseView *view = new Core::BaseView;
     view->setUniqueViewName("QuickOpen");
-    view->setWidget(m_quickOpenToolWindow);
+    view->setWidget(m_locatorWidget);
     view->setContext(QList<int>() << core->uniqueIDManager()
-        ->uniqueIdentifier(QLatin1String("QuickOpenToolWindow")));
+        ->uniqueIdentifier(QLatin1String("LocatorWidget")));
     view->setDefaultPosition(Core::IView::First);
     addAutoReleasedObject(view);
 
     const QString actionId = QLatin1String("QtCreator.Locate");
-    QAction *action = new QAction(m_quickOpenToolWindow->windowIcon(), m_quickOpenToolWindow->windowTitle(), this);
+    QAction *action = new QAction(m_locatorWidget->windowIcon(), m_locatorWidget->windowTitle(), this);
     Core::Command *cmd = core->actionManager()->registerAction(action, actionId, QList<int>() << Core::Constants::C_GLOBAL_ID);
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+K"));
     connect(action, SIGNAL(triggered()), this, SLOT(openQuickOpen()));
@@ -112,15 +112,15 @@ bool QuickOpenPlugin::initialize(const QStringList &, QString *)
     Core::ActionContainer *mtools = core->actionManager()->actionContainer(Core::Constants::M_TOOLS);
     mtools->addAction(cmd);
 
-    addObject(new QuickOpenManager(m_quickOpenToolWindow));
+    addObject(new QuickOpenManager(m_locatorWidget));
 
     m_openDocumentsFilter = new OpenDocumentsFilter(core->editorManager());
     addObject(m_openDocumentsFilter);
 
-    m_fileSystemFilter = new FileSystemFilter(core->editorManager(), m_quickOpenToolWindow);
+    m_fileSystemFilter = new FileSystemFilter(core->editorManager(), m_locatorWidget);
     addObject(m_fileSystemFilter);
 
-    addAutoReleasedObject(new QuickOpenFiltersFilter(this, m_quickOpenToolWindow));
+    addAutoReleasedObject(new QuickOpenFiltersFilter(this, m_locatorWidget));
 
     connect(core, SIGNAL(coreOpened()), this, SLOT(startSettingsLoad()));
     return true;
@@ -128,12 +128,12 @@ bool QuickOpenPlugin::initialize(const QStringList &, QString *)
 
 void QuickOpenPlugin::openQuickOpen()
 {
-    m_quickOpenToolWindow->show("");
+    m_locatorWidget->show("");
 }
 
 void QuickOpenPlugin::extensionsInitialized()
 {
-    m_filters = ExtensionSystem::PluginManager::instance()->getObjects<IQuickOpenFilter>();
+    m_filters = ExtensionSystem::PluginManager::instance()->getObjects<ILocatorFilter>();
     qSort(m_filters.begin(), m_filters.end(), filterLessThan);
 }
 
@@ -161,8 +161,8 @@ void QuickOpenPlugin::loadSettings()
 
 void QuickOpenPlugin::settingsLoaded()
 {
-    m_quickOpenToolWindow->updateFilterList();
-    m_quickOpenToolWindow->setEnabled(true);
+    m_locatorWidget->updateFilterList();
+    m_locatorWidget->setEnabled(true);
     if (m_refreshTimer.interval() > 0)
         m_refreshTimer.start();
 }
@@ -175,13 +175,13 @@ void QuickOpenPlugin::saveSettings()
         s->beginGroup("QuickOpen");
         s->remove("");
         s->setValue("RefreshInterval", refreshInterval());
-        foreach (IQuickOpenFilter *filter, m_filters) {
+        foreach (ILocatorFilter *filter, m_filters) {
             if (!m_customFilters.contains(filter))
                 s->setValue(filter->name(), filter->saveState());
         }
         s->beginGroup("CustomFilters");
         int i = 0;
-        foreach (IQuickOpenFilter *filter, m_customFilters) {
+        foreach (ILocatorFilter *filter, m_customFilters) {
             s->setValue(QString("directory%1").arg(i), filter->saveState());
             ++i;
         }
@@ -191,33 +191,33 @@ void QuickOpenPlugin::saveSettings()
 }
 
 /*!
-    \fn QList<IQuickOpenFilter*> QuickOpenPlugin::filter()
+    \fn QList<ILocatorFilter*> QuickOpenPlugin::filter()
 
     Return all filters, including the ones created by the user.
 */
-QList<IQuickOpenFilter*> QuickOpenPlugin::filters()
+QList<ILocatorFilter*> QuickOpenPlugin::filters()
 {
     return m_filters;
 }
 
 /*!
-    \fn QList<IQuickOpenFilter*> QuickOpenPlugin::customFilter()
+    \fn QList<ILocatorFilter*> QuickOpenPlugin::customFilter()
 
     This returns a subset of all the filters, that contains only the filters that
     have been created by the user at some point (maybe in a previous session).
  */
-QList<IQuickOpenFilter*> QuickOpenPlugin::customFilters()
+QList<ILocatorFilter*> QuickOpenPlugin::customFilters()
 {
     return m_customFilters;
 }
 
-void QuickOpenPlugin::setFilters(QList<IQuickOpenFilter*> f)
+void QuickOpenPlugin::setFilters(QList<ILocatorFilter*> f)
 {
     m_filters = f;
-    m_quickOpenToolWindow->updateFilterList();
+    m_locatorWidget->updateFilterList();
 }
 
-void QuickOpenPlugin::setCustomFilters(QList<IQuickOpenFilter *> filters)
+void QuickOpenPlugin::setCustomFilters(QList<ILocatorFilter *> filters)
 {
     m_customFilters = filters;
 }
@@ -238,11 +238,11 @@ void QuickOpenPlugin::setRefreshInterval(int interval)
     m_refreshTimer.start();
 }
 
-void QuickOpenPlugin::refresh(QList<IQuickOpenFilter*> filters)
+void QuickOpenPlugin::refresh(QList<ILocatorFilter*> filters)
 {
     if (filters.isEmpty())
         filters = m_filters;
-    QFuture<void> task = QtConcurrent::run(&IQuickOpenFilter::refresh, filters);
+    QFuture<void> task = QtConcurrent::run(&ILocatorFilter::refresh, filters);
     Core::FutureProgress *progress = Core::ICore::instance()
             ->progressManager()->addTask(task, tr("Indexing"),
                                          QuickOpen::Constants::TASK_INDEX,

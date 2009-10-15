@@ -53,7 +53,7 @@ public:
     CurrentProjectFilter(ProjectExplorerPlugin *pe);
     QString trName() const { return tr("Files in current project"); }
     QString name() const { return "Files in current project"; }
-    QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Low; }
+    QuickOpen::ILocatorFilter::Priority priority() const { return QuickOpen::ILocatorFilter::Low; }
     void refresh(QFutureInterface<void> &future);
 
 protected:

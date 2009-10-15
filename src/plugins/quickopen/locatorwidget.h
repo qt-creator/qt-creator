@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QUICKOPENTOOLWINDOW_H
-#define QUICKOPENTOOLWINDOW_H
+#ifndef LOCATORWIDGET_H
+#define LOCATORWIDGET_H
 
 #include "quickopenplugin.h"
 
@@ -53,13 +53,13 @@ namespace Internal {
 class QuickOpenModel;
 class CompletionList;
 
-class QuickOpenToolWindow
+class LocatorWidget
   : public QWidget
 {
     Q_OBJECT
 
 public:
-    QuickOpenToolWindow(QuickOpenPlugin *qop);
+    LocatorWidget(QuickOpenPlugin *qop);
 
     void updateFilterList();
 
@@ -79,7 +79,7 @@ private:
     bool isShowingTypeHereMessage() const;
     void showCompletionList();
     void updateCompletionList(const QString &text);
-    QList<IQuickOpenFilter*> filtersFor(const QString &text, QString &searchText);
+    QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);
 
     QuickOpenPlugin *m_quickOpenPlugin;
     QuickOpenModel *m_quickOpenModel;
@@ -94,4 +94,4 @@ private:
 } // namespace Internal
 } // namespace QuickOpen
 
-#endif // QUICKOPENTOOLWINDOW_H
+#endif // LOCATORWIDGET_H

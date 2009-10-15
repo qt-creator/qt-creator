@@ -31,14 +31,14 @@
 #define BASEFILEFILTER_H
 
 #include "quickopen_global.h"
-#include "iquickopenfilter.h"
+#include "ilocatorfilter.h"
 
 #include <QtCore/QString>
 #include <QtCore/QList>
 
 namespace QuickOpen {
 
-class QUICKOPEN_EXPORT BaseFileFilter : public QuickOpen::IQuickOpenFilter
+class QUICKOPEN_EXPORT BaseFileFilter : public QuickOpen::ILocatorFilter
 {
     Q_OBJECT
 

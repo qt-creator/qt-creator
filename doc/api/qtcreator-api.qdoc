@@ -162,7 +162,7 @@
     \row
     \o Add a new filter to Locator.
     \o For a text typed in by the user you provide a list of things to show in the popup. When the user selects an entry you are requested to do whatever you want.
-    \o \l{QuickOpen::IQuickOpenFilter}, \l{QuickOpen::FilterEntry}, \l{QuickOpen::BaseFileFilter}
+    \o \l{QuickOpen::ILocatorFilter}, \l{QuickOpen::FilterEntry}, \l{QuickOpen::BaseFileFilter}
 
     \row
     \o

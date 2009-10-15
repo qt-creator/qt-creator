@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "iquickopenfilter.h"
+#include "ilocatorfilter.h"
 
 #include <QtGui/QBoxLayout>
 #include <QtGui/QCheckBox>
@@ -38,24 +38,24 @@
 
 using namespace QuickOpen;
 
-IQuickOpenFilter::IQuickOpenFilter(QObject *parent):
+ILocatorFilter::ILocatorFilter(QObject *parent):
     QObject(parent),
     m_includedByDefault(false),
     m_hidden(false)
 {
 }
 
-QString IQuickOpenFilter::shortcutString() const
+QString ILocatorFilter::shortcutString() const
 {
     return m_shortcut;
 }
 
-void IQuickOpenFilter::setShortcutString(const QString &shortcut)
+void ILocatorFilter::setShortcutString(const QString &shortcut)
 {
     m_shortcut = shortcut;
 }
 
-QByteArray IQuickOpenFilter::saveState() const
+QByteArray ILocatorFilter::saveState() const
 {
     QByteArray value;
     QDataStream out(&value, QIODevice::WriteOnly);
@@ -64,7 +64,7 @@ QByteArray IQuickOpenFilter::saveState() const
     return value;
 }
 
-bool IQuickOpenFilter::restoreState(const QByteArray &state)
+bool ILocatorFilter::restoreState(const QByteArray &state)
 {
     QString shortcut;
     bool defaultFilter;
@@ -78,7 +78,7 @@ bool IQuickOpenFilter::restoreState(const QByteArray &state)
     return true;
 }
 
-bool IQuickOpenFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
+bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 {
     Q_UNUSED(needsRefresh)
 
@@ -113,27 +113,27 @@ bool IQuickOpenFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     return false;
 }
 
-bool IQuickOpenFilter::isConfigurable() const
+bool ILocatorFilter::isConfigurable() const
 {
     return true;
 }
 
-bool IQuickOpenFilter::isIncludedByDefault() const
+bool ILocatorFilter::isIncludedByDefault() const
 {
     return m_includedByDefault;
 }
 
-void IQuickOpenFilter::setIncludedByDefault(bool includedByDefault)
+void ILocatorFilter::setIncludedByDefault(bool includedByDefault)
 {
     m_includedByDefault = includedByDefault;
 }
 
-bool IQuickOpenFilter::isHidden() const
+bool ILocatorFilter::isHidden() const
 {
     return m_hidden;
 }
 
-void IQuickOpenFilter::setHidden(bool hidden)
+void ILocatorFilter::setHidden(bool hidden)
 {
     m_hidden = hidden;
 }

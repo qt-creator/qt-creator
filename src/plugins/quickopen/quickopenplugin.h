@@ -30,7 +30,7 @@
 #ifndef QUICKOPENPLUGIN_H
 #define QUICKOPENPLUGIN_H
 
-#include "iquickopenfilter.h"
+#include "ilocatorfilter.h"
 #include "directoryfilter.h"
 
 #include <extensionsystem/iplugin.h>
@@ -42,7 +42,7 @@
 namespace QuickOpen {
 namespace Internal {
 
-class QuickOpenToolWindow;
+class LocatorWidget;
 class OpenDocumentsFilter;
 class FileSystemFilter;
 class SettingsPage;
@@ -59,15 +59,15 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
 
-    QList<IQuickOpenFilter*> filters();
-    QList<IQuickOpenFilter*> customFilters();
-    void setFilters(QList<IQuickOpenFilter*> f);
-    void setCustomFilters(QList<IQuickOpenFilter*> f);
+    QList<ILocatorFilter*> filters();
+    QList<ILocatorFilter*> customFilters();
+    void setFilters(QList<ILocatorFilter*> f);
+    void setCustomFilters(QList<ILocatorFilter*> f);
     int refreshInterval();
     void setRefreshInterval(int interval);
 
 public slots:
-    void refresh(QList<IQuickOpenFilter*> filters = QList<IQuickOpenFilter*>());
+    void refresh(QList<ILocatorFilter*> filters = QList<ILocatorFilter*>());
     void saveSettings();
     void openQuickOpen();
 
@@ -81,11 +81,11 @@ private:
     template <typename S>
     void loadSettingsHelper(S *settings);
 
-    QuickOpenToolWindow *m_quickOpenToolWindow;
+    LocatorWidget *m_locatorWidget;
     SettingsPage *m_settingsPage;
 
-    QList<IQuickOpenFilter*> m_filters;
-    QList<IQuickOpenFilter*> m_customFilters;
+    QList<ILocatorFilter*> m_filters;
+    QList<ILocatorFilter*> m_customFilters;
     int m_refreshInterval;
     QTimer m_refreshTimer;
     OpenDocumentsFilter *m_openDocumentsFilter;
@@ -99,7 +99,7 @@ void QuickOpenPlugin::loadSettingsHelper(S *settings)
     settings->beginGroup("QuickOpen");
     m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
 
-    foreach (IQuickOpenFilter *filter, m_filters) {
+    foreach (ILocatorFilter *filter, m_filters) {
         if (settings->contains(filter->name())) {
             const QByteArray state = settings->value(filter->name()).toByteArray();
             if (!state.isEmpty())
@@ -107,10 +107,10 @@ void QuickOpenPlugin::loadSettingsHelper(S *settings)
         }
     }
     settings->beginGroup("CustomFilters");
-    QList<IQuickOpenFilter *> customFilters;
+    QList<ILocatorFilter *> customFilters;
     const QStringList keys = settings->childKeys();
     foreach (const QString &key, keys) {
-        IQuickOpenFilter *filter = new DirectoryFilter;
+        ILocatorFilter *filter = new DirectoryFilter;
         filter->restoreState(settings->value(key).toByteArray());
         m_filters.append(filter);
         customFilters.append(filter);

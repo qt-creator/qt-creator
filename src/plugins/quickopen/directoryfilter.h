@@ -52,7 +52,7 @@ public:
     DirectoryFilter();
     QString trName() const { return m_name; }
     QString name() const { return m_name; }
-    QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Medium; }
+    QuickOpen::ILocatorFilter::Priority priority() const { return QuickOpen::ILocatorFilter::Medium; }
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);

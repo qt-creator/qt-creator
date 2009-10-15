@@ -29,19 +29,19 @@
 
 #include "quickopenfiltersfilter.h"
 #include "quickopenplugin.h"
-#include "quickopentoolwindow.h"
+#include "locatorwidget.h"
 
 #include <coreplugin/coreconstants.h>
 
 using namespace QuickOpen;
 using namespace QuickOpen::Internal;
 
-Q_DECLARE_METATYPE(IQuickOpenFilter*);
+Q_DECLARE_METATYPE(ILocatorFilter*);
 
 QuickOpenFiltersFilter::QuickOpenFiltersFilter(QuickOpenPlugin *plugin,
-                                               QuickOpenToolWindow *toolWindow):
+                                               LocatorWidget *locatorWidget):
     m_plugin(plugin),
-    m_toolWindow(toolWindow),
+    m_locatorWidget(locatorWidget),
     m_icon(QIcon(Core::Constants::ICON_NEXT))
 {
     setIncludedByDefault(true);
@@ -58,7 +58,7 @@ QString QuickOpenFiltersFilter::name() const
     return QLatin1String("FiltersFilter");
 }
 
-IQuickOpenFilter::Priority QuickOpenFiltersFilter::priority() const
+ILocatorFilter::Priority QuickOpenFiltersFilter::priority() const
 {
     return High;
 }
@@ -67,7 +67,7 @@ QList<FilterEntry> QuickOpenFiltersFilter::matchesFor(const QString &entry)
 {
     QList<FilterEntry> entries;
     if (entry.isEmpty()) {
-        foreach (IQuickOpenFilter *filter, m_plugin->filters()) {
+        foreach (ILocatorFilter *filter, m_plugin->filters()) {
             if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
                 FilterEntry entry(this,
                                   filter->shortcutString(),
@@ -83,9 +83,9 @@ QList<FilterEntry> QuickOpenFiltersFilter::matchesFor(const QString &entry)
 
 void QuickOpenFiltersFilter::accept(FilterEntry selection) const
 {
-    IQuickOpenFilter *filter = selection.internalData.value<IQuickOpenFilter*>();
+    ILocatorFilter *filter = selection.internalData.value<ILocatorFilter*>();
     if (filter)
-        m_toolWindow->show(filter->shortcutString() + " ",
+        m_locatorWidget->show(filter->shortcutString() + " ",
                            filter->shortcutString().length() + 1);
 }
 

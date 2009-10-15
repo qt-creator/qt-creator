@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "filesystemfilter.h"
-#include "quickopentoolwindow.h"
+#include "locatorwidget.h"
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QtCore/QDir>
@@ -37,8 +37,8 @@ using namespace Core;
 using namespace QuickOpen;
 using namespace QuickOpen::Internal;
 
-FileSystemFilter::FileSystemFilter(EditorManager *editorManager, QuickOpenToolWindow *toolWindow)
-        : m_editorManager(editorManager), m_toolWindow(toolWindow), m_includeHidden(true)
+FileSystemFilter::FileSystemFilter(EditorManager *editorManager, LocatorWidget *locatorWidget)
+        : m_editorManager(editorManager), m_locatorWidget(locatorWidget), m_includeHidden(true)
 {
     setShortcutString("f");
     setIncludedByDefault(false);
@@ -96,7 +96,7 @@ void FileSystemFilter::accept(FilterEntry selection) const
     QFileInfo info(selection.internalData.toString());
     if (info.isDir()) {
         QString value = shortcutString() + " " + QDir::toNativeSeparators(info.absoluteFilePath()+"/");
-        m_toolWindow->show(value, value.length());
+        m_locatorWidget->show(value, value.length());
         return;
     }
     m_editorManager->openEditor(selection.internalData.toString());

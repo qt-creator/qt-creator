@@ -30,7 +30,7 @@
 #define CPPCURRENTDOCUMENTFILTER_H
 
 #include "searchsymbols.h"
-#include <quickopen/iquickopenfilter.h>
+#include <quickopen/ilocatorfilter.h>
 
 namespace Core {
 class EditorManager;
@@ -42,7 +42,7 @@ namespace Internal {
 
 class CppModelManager;
 
-class CppCurrentDocumentFilter : public  QuickOpen::IQuickOpenFilter
+class CppCurrentDocumentFilter : public  QuickOpen::ILocatorFilter
 {
     Q_OBJECT
 

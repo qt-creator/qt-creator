@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef IQUICKOPENFILTER_H
-#define IQUICKOPENFILTER_H
+#ifndef ILOCATORFILTER_H
+#define ILOCATORFILTER_H
 
 #include "quickopen_global.h"
 
@@ -39,12 +39,12 @@
 
 namespace QuickOpen {
 
-class IQuickOpenFilter;
+class ILocatorFilter;
 
 struct FilterEntry
 {
     FilterEntry() {}
-    FilterEntry(IQuickOpenFilter *fromFilter, const QString &name, const QVariant &data,
+    FilterEntry(ILocatorFilter *fromFilter, const QString &name, const QVariant &data,
                 const QIcon &icon = QIcon())
     : filter(fromFilter)
     , displayName(name)
@@ -60,7 +60,7 @@ struct FilterEntry
     }
 
     /* backpointer to creating filter */
-    IQuickOpenFilter *filter;
+    ILocatorFilter *filter;
     /* displayed string */
     QString displayName;
     /* extra information displayed in light-gray in a second column (optional) */
@@ -73,15 +73,15 @@ struct FilterEntry
     bool resolveFileIcon;
 };
 
-class QUICKOPEN_EXPORT IQuickOpenFilter : public QObject
+class QUICKOPEN_EXPORT ILocatorFilter : public QObject
 {
     Q_OBJECT
 
 public:
     enum Priority {High = 0, Medium = 1, Low = 2};
 
-    IQuickOpenFilter(QObject *parent = 0);
-    virtual ~IQuickOpenFilter() {}
+    ILocatorFilter(QObject *parent = 0);
+    virtual ~ILocatorFilter() {}
 
     /* Visible name. */
     virtual QString trName() const = 0;
@@ -153,4 +153,4 @@ private:
 
 } // namespace QuickOpen
 
-#endif // IQUICKOPENFILTER_H
+#endif // ILOCATORFILTER_H

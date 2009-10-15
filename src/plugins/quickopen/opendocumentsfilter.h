@@ -30,7 +30,7 @@
 #ifndef OPENDOCUMENTSFILTER_H
 #define OPENDOCUMENTSFILTER_H
 
-#include "iquickopenfilter.h"
+#include "ilocatorfilter.h"
 
 #include <QtCore/QString>
 #include <QtCore/QList>
@@ -44,7 +44,7 @@
 namespace QuickOpen {
 namespace Internal {
 
-class OpenDocumentsFilter : public QuickOpen::IQuickOpenFilter
+class OpenDocumentsFilter : public QuickOpen::ILocatorFilter
 {
     Q_OBJECT
 
@@ -52,7 +52,7 @@ public:
     OpenDocumentsFilter(Core::EditorManager *editorManager);
     QString trName() const { return tr("Open documents"); }
     QString name() const { return "Open documents"; }
-    QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Medium; }
+    QuickOpen::ILocatorFilter::Priority priority() const { return QuickOpen::ILocatorFilter::Medium; }
     QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
     void accept(QuickOpen::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);

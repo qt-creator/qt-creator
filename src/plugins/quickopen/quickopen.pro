@@ -4,10 +4,10 @@ DEFINES += QUICKOPEN_LIBRARY
 include(../../qtcreatorplugin.pri)
 include(quickopen_dependencies.pri)
 HEADERS += quickopenplugin.h \
-    quickopentoolwindow.h \
+    locatorwidget.h \
     quickopenfiltersfilter.h \
     settingspage.h \
-    iquickopenfilter.h \
+    ilocatorfilter.h \
     opendocumentsfilter.h \
     filesystemfilter.h \
     quickopenconstants.h \
@@ -16,7 +16,7 @@ HEADERS += quickopenplugin.h \
     basefilefilter.h \
     quickopen_global.h
 SOURCES += quickopenplugin.cpp \
-    quickopentoolwindow.cpp \
+    locatorwidget.cpp \
     quickopenfiltersfilter.cpp \
     opendocumentsfilter.cpp \
     filesystemfilter.cpp \
@@ -24,7 +24,7 @@ SOURCES += quickopenplugin.cpp \
     directoryfilter.cpp \
     quickopenmanager.cpp \
     basefilefilter.cpp \
-    iquickopenfilter.cpp
+    ilocatorfilter.cpp
 FORMS += settingspage.ui \
     filesystemfilter.ui \
     directoryfilter.ui

@@ -37,7 +37,7 @@ QT_BEGIN_NAMESPACE
 unsigned int qHash(const QuickOpen::FilterEntry &entry);
 QT_END_NAMESPACE
 
-#include "quickopentoolwindow.h"
+#include "locatorwidget.h"
 #include "quickopenplugin.h"
 #include "quickopenconstants.h"
 
@@ -67,7 +67,7 @@ QT_END_NAMESPACE
 #include <QtGui/QScrollBar>
 #include <QtGui/QTreeView>
 
-Q_DECLARE_METATYPE(QuickOpen::IQuickOpenFilter*);
+Q_DECLARE_METATYPE(QuickOpen::ILocatorFilter*);
 Q_DECLARE_METATYPE(QuickOpen::FilterEntry);
 
 namespace QuickOpen {
@@ -244,9 +244,9 @@ void CompletionList::updatePreferredSize()
 }
 
 
-// =========== QuickOpenToolWindow ===========
+// =========== LocatorWidget ===========
 
-QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
+LocatorWidget::LocatorWidget(QuickOpenPlugin *qop) :
      m_quickOpenPlugin(qop),
      m_quickOpenModel(new QuickOpenModel(this)),
      m_completionList(new CompletionList(this)),
@@ -301,15 +301,15 @@ QuickOpenToolWindow::QuickOpenToolWindow(QuickOpenPlugin *qop) :
             this, SLOT(acceptCurrentEntry()));
 }
 
-bool QuickOpenToolWindow::isShowingTypeHereMessage() const
+bool LocatorWidget::isShowingTypeHereMessage() const
 {
     return m_fileLineEdit->isShowingHintText();
 }
 
-void QuickOpenToolWindow::updateFilterList()
+void LocatorWidget::updateFilterList()
 {
     m_filterMenu->clear();
-    foreach (IQuickOpenFilter *filter, m_quickOpenPlugin->filters()) {
+    foreach (ILocatorFilter *filter, m_quickOpenPlugin->filters()) {
         if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
             QAction *action = m_filterMenu->addAction(filter->trName(), this, SLOT(filterSelected()));
             action->setData(qVariantFromValue(filter));
@@ -320,7 +320,7 @@ void QuickOpenToolWindow::updateFilterList()
     m_filterMenu->addAction(m_configureAction);
 }
 
-bool QuickOpenToolWindow::eventFilter(QObject *obj, QEvent *event)
+bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == m_fileLineEdit && event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
@@ -357,7 +357,7 @@ bool QuickOpenToolWindow::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-void QuickOpenToolWindow::showCompletionList()
+void LocatorWidget::showCompletionList()
 {
     const int border = m_completionList->frameWidth();
     const QSize size = m_completionList->preferredSize();
@@ -366,44 +366,44 @@ void QuickOpenToolWindow::showCompletionList()
     m_completionList->show();
 }
 
-void QuickOpenToolWindow::showPopup()
+void LocatorWidget::showPopup()
 {
     updateCompletionList(m_fileLineEdit->typedText());
     showCompletionList();
 }
 
-QList<IQuickOpenFilter*> QuickOpenToolWindow::filtersFor(const QString &text, QString &searchText)
+QList<ILocatorFilter*> LocatorWidget::filtersFor(const QString &text, QString &searchText)
 {
-    QList<IQuickOpenFilter*> filters = m_quickOpenPlugin->filters();
+    QList<ILocatorFilter*> filters = m_quickOpenPlugin->filters();
     int whiteSpace = text.indexOf(" ");
     QString prefix;
     if (whiteSpace >= 0)
         prefix = text.left(whiteSpace);
     if (!prefix.isEmpty()) {
         prefix = prefix.toLower();
-        foreach (IQuickOpenFilter *filter, filters) {
+        foreach (ILocatorFilter *filter, filters) {
             if (prefix == filter->shortcutString()) {
                 searchText = text.mid(whiteSpace+1);
-                return QList<IQuickOpenFilter*>() << filter;
+                return QList<ILocatorFilter*>() << filter;
             }
         }
     }
     searchText = text;
-    QList<IQuickOpenFilter*> activeFilters;
-    foreach (IQuickOpenFilter *filter, filters)
+    QList<ILocatorFilter*> activeFilters;
+    foreach (ILocatorFilter *filter, filters)
         if (filter->isIncludedByDefault())
             activeFilters << filter;
     return activeFilters;
 }
 
-void QuickOpenToolWindow::updateCompletionList(const QString &text)
+void LocatorWidget::updateCompletionList(const QString &text)
 {
     QString searchText;
-    const QList<IQuickOpenFilter*> filters = filtersFor(text, searchText);
+    const QList<ILocatorFilter*> filters = filtersFor(text, searchText);
     QSet<FilterEntry> alreadyAdded;
     const bool checkDuplicates = (filters.size() > 1);
     QList<FilterEntry> entries;
-    foreach (IQuickOpenFilter *filter, filters) {
+    foreach (ILocatorFilter *filter, filters) {
         foreach (const FilterEntry &entry, filter->matchesFor(searchText)) {
             if (checkDuplicates && alreadyAdded.contains(entry))
                 continue;
@@ -421,7 +421,7 @@ void QuickOpenToolWindow::updateCompletionList(const QString &text)
 #endif
 }
 
-void QuickOpenToolWindow::acceptCurrentEntry()
+void LocatorWidget::acceptCurrentEntry()
 {
     if (!m_completionList->isVisible())
         return;
@@ -433,7 +433,7 @@ void QuickOpenToolWindow::acceptCurrentEntry()
     entry.filter->accept(entry);
 }
 
-void QuickOpenToolWindow::show(const QString &text, int selectionStart, int selectionLength)
+void LocatorWidget::show(const QString &text, int selectionStart, int selectionLength)
 {
     m_fileLineEdit->hideHintText();
     if (!text.isEmpty())
@@ -452,18 +452,18 @@ void QuickOpenToolWindow::show(const QString &text, int selectionStart, int sele
     }
 }
 
-void QuickOpenToolWindow::filterSelected()
+void LocatorWidget::filterSelected()
 {
     QString searchText = tr("<type here>");
     QAction *action = qobject_cast<QAction*>(sender());
     QTC_ASSERT(action, return);
-    IQuickOpenFilter *filter = action->data().value<IQuickOpenFilter*>();
+    ILocatorFilter *filter = action->data().value<ILocatorFilter*>();
     QTC_ASSERT(filter, return);
     QString currentText = m_fileLineEdit->text().trimmed();
     // add shortcut string at front or replace existing shortcut string
     if (!currentText.isEmpty()) {
         searchText = currentText;
-        foreach (IQuickOpenFilter *otherfilter, m_quickOpenPlugin->filters()) {
+        foreach (ILocatorFilter *otherfilter, m_quickOpenPlugin->filters()) {
             if (currentText.startsWith(otherfilter->shortcutString() + " ")) {
                 searchText = currentText.mid(otherfilter->shortcutString().length()+1);
                 break;
@@ -477,12 +477,12 @@ void QuickOpenToolWindow::filterSelected()
     m_fileLineEdit->setFocus();
 }
 
-void QuickOpenToolWindow::showEvent(QShowEvent *event)
+void LocatorWidget::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 }
 
-void QuickOpenToolWindow::showConfigureDialog()
+void LocatorWidget::showConfigureDialog()
 {
     Core::ICore::instance()->showOptionsDialog(Constants::QUICKOPEN_CATEGORY,
           Constants::FILTER_OPTIONS_PAGE);

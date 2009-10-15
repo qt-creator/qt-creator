@@ -43,7 +43,7 @@ QT_END_NAMESPACE
 
 namespace QuickOpen {
 
-class IQuickOpenFilter;
+class ILocatorFilter;
 
 namespace Internal {
 
@@ -79,12 +79,12 @@ private:
     Ui::SettingsWidget m_ui;
     QuickOpenPlugin *m_plugin;
     QWidget* m_page;
-    QList<IQuickOpenFilter *> m_filters;
-    QList<IQuickOpenFilter *> m_addedFilters;
-    QList<IQuickOpenFilter *> m_removedFilters;
-    QList<IQuickOpenFilter *> m_customFilters;
-    QList<IQuickOpenFilter *> m_refreshFilters;
-    QHash<IQuickOpenFilter *, QByteArray> m_filterStates;
+    QList<ILocatorFilter *> m_filters;
+    QList<ILocatorFilter *> m_addedFilters;
+    QList<ILocatorFilter *> m_removedFilters;
+    QList<ILocatorFilter *> m_customFilters;
+    QList<ILocatorFilter *> m_refreshFilters;
+    QHash<ILocatorFilter *, QByteArray> m_filterStates;
 };
 
 } // namespace Internal

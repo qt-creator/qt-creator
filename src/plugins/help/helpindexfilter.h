@@ -30,7 +30,7 @@
 #ifndef HELPINDEXFILTER_H
 #define HELPINDEXFILTER_H
 
-#include <quickopen/iquickopenfilter.h>
+#include <quickopen/ilocatorfilter.h>
 
 #include <QtGui/QIcon>
 
@@ -44,14 +44,14 @@ namespace Internal {
 
 class HelpPlugin;
 
-class HelpIndexFilter : public QuickOpen::IQuickOpenFilter
+class HelpIndexFilter : public QuickOpen::ILocatorFilter
 {
     Q_OBJECT
 
 public:
     HelpIndexFilter(HelpPlugin *plugin, QHelpEngine *helpEngine);
 
-    // IQuickOpenFilter
+    // ILocatorFilter
     QString trName() const;
     QString name() const;
     Priority priority() const;

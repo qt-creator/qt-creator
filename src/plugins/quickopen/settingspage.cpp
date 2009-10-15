@@ -31,7 +31,7 @@
 #include "quickopenconstants.h"
 
 #include "quickopenplugin.h"
-#include "iquickopenfilter.h"
+#include "ilocatorfilter.h"
 #include "directoryfilter.h"
 
 #include <qtconcurrent/QtConcurrentTools>
@@ -39,7 +39,7 @@
 
 #include <QtCore/QCoreApplication>
 
-Q_DECLARE_METATYPE(QuickOpen::IQuickOpenFilter*)
+Q_DECLARE_METATYPE(QuickOpen::ILocatorFilter*)
 
 using namespace QuickOpen;
 using namespace QuickOpen::Internal;
@@ -135,20 +135,20 @@ void SettingsPage::requestRefresh()
 void SettingsPage::saveFilterStates()
 {
     m_filterStates.clear();
-    foreach (IQuickOpenFilter *filter, m_filters)
+    foreach (ILocatorFilter *filter, m_filters)
         m_filterStates.insert(filter, filter->saveState());
 }
 
 void SettingsPage::restoreFilterStates()
 {
-    foreach (IQuickOpenFilter *filter, m_filterStates.keys())
+    foreach (ILocatorFilter *filter, m_filterStates.keys())
         filter->restoreState(m_filterStates.value(filter));
 }
 
 void SettingsPage::updateFilterList()
 {
     m_ui.filterList->clear();
-    foreach (IQuickOpenFilter *filter, m_filters) {
+    foreach (ILocatorFilter *filter, m_filters) {
         if (filter->isHidden())
             continue;
 
@@ -168,7 +168,7 @@ void SettingsPage::updateFilterList()
 void SettingsPage::updateButtonStates()
 {
     QListWidgetItem *item = m_ui.filterList->currentItem();
-    IQuickOpenFilter *filter = (item ? item->data(Qt::UserRole).value<IQuickOpenFilter *>() : 0);
+    ILocatorFilter *filter = (item ? item->data(Qt::UserRole).value<ILocatorFilter *>() : 0);
     m_ui.editButton->setEnabled(filter && filter->isConfigurable());
     m_ui.removeButton->setEnabled(filter && m_customFilters.contains(filter));
 }
@@ -178,7 +178,7 @@ void SettingsPage::configureFilter(QListWidgetItem *item)
     if (!item)
         item = m_ui.filterList->currentItem();
     QTC_ASSERT(item, return);
-    IQuickOpenFilter *filter = item->data(Qt::UserRole).value<IQuickOpenFilter *>();
+    ILocatorFilter *filter = item->data(Qt::UserRole).value<ILocatorFilter *>();
     QTC_ASSERT(filter, return);
 
     if (!filter->isConfigurable())
@@ -192,7 +192,7 @@ void SettingsPage::configureFilter(QListWidgetItem *item)
 
 void SettingsPage::addCustomFilter()
 {
-    IQuickOpenFilter *filter = new DirectoryFilter;
+    ILocatorFilter *filter = new DirectoryFilter;
     bool needsRefresh = false;
     if (filter->openConfigDialog(m_page, needsRefresh)) {
         m_filters.append(filter);
@@ -207,7 +207,7 @@ void SettingsPage::removeCustomFilter()
 {
     QListWidgetItem *item = m_ui.filterList->currentItem();
     QTC_ASSERT(item, return);
-    IQuickOpenFilter *filter = item->data(Qt::UserRole).value<IQuickOpenFilter *>();
+    ILocatorFilter *filter = item->data(Qt::UserRole).value<ILocatorFilter *>();
     QTC_ASSERT(m_customFilters.contains(filter), return);
     m_filters.removeAll(filter);
     m_customFilters.removeAll(filter);

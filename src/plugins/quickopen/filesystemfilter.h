@@ -30,7 +30,7 @@
 #ifndef FILESYSTEMFILTER_H
 #define FILESYSTEMFILTER_H
 
-#include "iquickopenfilter.h"
+#include "ilocatorfilter.h"
 #include "ui_filesystemfilter.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -43,17 +43,17 @@
 namespace QuickOpen {
 namespace Internal {
 
-class QuickOpenToolWindow;
+class LocatorWidget;
 
-class FileSystemFilter : public QuickOpen::IQuickOpenFilter
+class FileSystemFilter : public QuickOpen::ILocatorFilter
 {
     Q_OBJECT
 
 public:
-    FileSystemFilter(Core::EditorManager *editorManager, QuickOpenToolWindow *toolWindow);
+    FileSystemFilter(Core::EditorManager *editorManager, LocatorWidget *locatorWidget);
     QString trName() const { return tr("Files in file system"); }
     QString name() const { return "Files in file system"; }
-    QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Medium; }
+    QuickOpen::ILocatorFilter::Priority priority() const { return QuickOpen::ILocatorFilter::Medium; }
     QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
     void accept(QuickOpen::FilterEntry selection) const;
     QByteArray saveState() const;
@@ -63,7 +63,7 @@ public:
 
 private:
     Core::EditorManager *m_editorManager;
-    QuickOpenToolWindow *m_toolWindow;
+    LocatorWidget *m_locatorWidget;
     bool m_includeHidden;
 };
 

@@ -32,7 +32,7 @@
 
 #include "searchsymbols.h"
 
-#include <quickopen/iquickopenfilter.h>
+#include <quickopen/ilocatorfilter.h>
 
 namespace Core {
 class EditorManager;
@@ -43,7 +43,7 @@ namespace Internal {
 
 class CppModelManager;
 
-class CppQuickOpenFilter : public QuickOpen::IQuickOpenFilter
+class CppQuickOpenFilter : public QuickOpen::ILocatorFilter
 {
     Q_OBJECT
 public:

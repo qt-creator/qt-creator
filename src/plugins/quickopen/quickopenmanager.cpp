@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "quickopenmanager.h"
-#include "quickopentoolwindow.h"
+#include "locatorwidget.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -38,9 +38,9 @@ using namespace QuickOpen::Internal;
 
 QuickOpenManager *QuickOpenManager::m_instance = 0;
 
-QuickOpenManager::QuickOpenManager(QuickOpenToolWindow *toolWindow)
-  : QObject(toolWindow),
-    m_toolWindow(toolWindow)
+QuickOpenManager::QuickOpenManager(LocatorWidget *locatorWidget)
+  : QObject(locatorWidget),
+    m_locatorWidget(locatorWidget)
 {
     m_instance = this;
 }
@@ -54,6 +54,6 @@ QuickOpenManager::~QuickOpenManager()
 void QuickOpenManager::show(const QString &text,
                             int selectionStart, int selectionLength)
 {
-    QTC_ASSERT(m_toolWindow, return);
-    m_toolWindow->show(text, selectionStart, selectionLength);
+    QTC_ASSERT(m_locatorWidget, return);
+    m_locatorWidget->show(text, selectionStart, selectionLength);
 }

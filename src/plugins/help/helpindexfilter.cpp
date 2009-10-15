@@ -41,7 +41,7 @@ using namespace QuickOpen;
 using namespace Help;
 using namespace Help::Internal;
 
-Q_DECLARE_METATYPE(IQuickOpenFilter*);
+Q_DECLARE_METATYPE(ILocatorFilter*);
 
 HelpIndexFilter::HelpIndexFilter(HelpPlugin *plugin, QHelpEngine *helpEngine):
     m_plugin(plugin),
@@ -77,7 +77,7 @@ QString HelpIndexFilter::name() const
     return QLatin1String("HelpIndexFilter");
 }
 
-IQuickOpenFilter::Priority HelpIndexFilter::priority() const
+ILocatorFilter::Priority HelpIndexFilter::priority() const
 {
     return Medium;
 }

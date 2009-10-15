@@ -30,7 +30,7 @@
 #ifndef LINENUMBERFILTER_H
 #define LINENUMBERFILTER_H
 
-#include <quickopen/iquickopenfilter.h>
+#include <quickopen/ilocatorfilter.h>
 
 #include <QtCore/QString>
 #include <QtCore/QList>
@@ -42,7 +42,7 @@ class ITextEditor;
 
 namespace Internal {
 
-class LineNumberFilter : public QuickOpen::IQuickOpenFilter
+class LineNumberFilter : public QuickOpen::ILocatorFilter
 {
     Q_OBJECT
 
@@ -51,7 +51,7 @@ public:
 
     QString trName() const { return tr("Line in current document"); }
     QString name() const { return "Line in current document"; }
-    QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::High; }
+    QuickOpen::ILocatorFilter::Priority priority() const { return QuickOpen::ILocatorFilter::High; }
     QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
     void accept(QuickOpen::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &) {}
