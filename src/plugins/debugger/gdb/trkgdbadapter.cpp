@@ -1548,7 +1548,6 @@ void TrkGdbAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitSta
         emitDelayedAdapterStartFailed(msg);// Potentially emitted from QProcess::start() on Windows
     } else {
         logMessage(msg);
-        setState(DebuggerNotReady);
         emit adapterShutDown();
     }
 }

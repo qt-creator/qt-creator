@@ -212,7 +212,6 @@ void CoreGdbAdapter::handleExit(const GdbResponse &response)
 void CoreGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
 {
     debugMessage(_("GDB PROESS FINISHED"));
-    setState(DebuggerNotReady);
     emit adapterShutDown();
 }
 

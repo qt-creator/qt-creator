@@ -280,7 +280,6 @@ void RemoteGdbAdapter::handleExit(const GdbResponse &response)
 void RemoteGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
 {
     debugMessage(_("GDB PROESS FINISHED"));
-    setState(DebuggerNotReady);
     emit adapterShutDown();
 }
 
