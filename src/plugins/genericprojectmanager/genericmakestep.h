@@ -44,10 +44,20 @@ namespace GenericProjectManager {
 namespace Internal {
 
 class GenericProject;
+class GenericMakeStepConfigWidget;
+
+struct GenericMakeStepSettings
+{
+    QStringList buildTargets;
+    QStringList makeArguments;
+    QString makeCommand;
+};
 
 class GenericMakeStep : public ProjectExplorer::AbstractMakeStep
 {
     Q_OBJECT
+    friend class GenericMakeStepConfigWidget; // TODO remove again?
+    // Currently the ConfigWidget accesses the m_values directly
 public:
     GenericMakeStep(GenericProject *pro);
     ~GenericMakeStep();
@@ -64,8 +74,16 @@ public:
     void setBuildTarget(const QString &buildConfiguration, const QString &target, bool on);
     QStringList replacedArguments(const QString &buildConfiguration) const;
     QString makeCommand(const QString &buildConfiguration) const;
+
+    virtual void restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map);
+    virtual void storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map);
+
+    virtual void addBuildConfiguration(const QString & name);
+    virtual void removeBuildConfiguration(const QString & name);
+    virtual void copyBuildConfiguration(const QString &source, const QString &dest);
 private:
     GenericProject *m_pro;
+    QMap<QString, GenericMakeStepSettings> m_values;
 };
 
 class GenericMakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget

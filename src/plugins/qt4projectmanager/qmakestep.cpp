@@ -60,7 +60,7 @@ QMakeStep::~QMakeStep()
 
 QStringList QMakeStep::arguments(const QString &buildConfiguration)
 {
-    QStringList additonalArguments = value(buildConfiguration, "qmakeArgs").toStringList();
+    QStringList additonalArguments = m_values.value(buildConfiguration).qmakeArgs;
     ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(buildConfiguration);
     QStringList arguments;
     arguments << project()->file()->fileName();
@@ -121,24 +121,24 @@ bool QMakeStep::init(const QString &name)
     QString program = qtVersion->qmakeCommand();
 
     // Check wheter we need to run qmake
-    bool needToRunQMake = true;
+    m_needToRunQMake = true;
     if (QDir(workingDirectory).exists(QLatin1String("Makefile"))) {
         QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(workingDirectory);
         if (qtVersion->qmakeCommand() == qmakePath) {
-            needToRunQMake = !m_pro->compareBuildConfigurationToImportFrom(bc, workingDirectory);
+            m_needToRunQMake = !m_pro->compareBuildConfigurationToImportFrom(bc, workingDirectory);
         }
     }
 
     if (m_forced) {
         m_forced = false;
-        needToRunQMake = true;
+        m_needToRunQMake = true;
     }
 
-    setEnabled(name, needToRunQMake);
-    setWorkingDirectory(name, workingDirectory);
-    setCommand(name, program);
-    setArguments(name, args);
-    setEnvironment(name, m_pro->environment(bc));
+    setEnabled(m_needToRunQMake);
+    setWorkingDirectory(workingDirectory);
+    setCommand(program);
+    setArguments(args);
+    setEnvironment(m_pro->environment(bc));
 
     setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_QMAKE);
     return AbstractMakeStep::init(name);
@@ -151,7 +151,7 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
         return;
     }
 
-    if (!enabled(m_buildConfiguration)) {
+    if (!m_needToRunQMake) {
         emit addToOutputWindow(tr("<font color=\"#0000ff\">Configuration unchanged, skipping QMake step.</font>"));
         fi.reportResult(true);
         return;
@@ -205,8 +205,40 @@ bool QMakeStep::processFinished(int exitCode, QProcess::ExitStatus status)
 
 void QMakeStep::setQMakeArguments(const QString &buildConfiguration, const QStringList &arguments)
 {
-    setValue(buildConfiguration, "qmakeArgs", arguments);
+    m_values[buildConfiguration].qmakeArgs = arguments;
     emit changed();
+}
+
+QStringList QMakeStep::qmakeArguments(const QString &buildConfiguration)
+{
+    return m_values[buildConfiguration].qmakeArgs;
+}
+
+void QMakeStep::restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map)
+{
+    m_values[buildConfiguration].qmakeArgs = map.value("qmakeArgs").toStringList();
+    AbstractProcessStep::restoreFromMap(buildConfiguration, map);
+}
+
+void QMakeStep::storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map)
+{
+    map["qmakeArgs"] = m_values.value(buildConfiguration).qmakeArgs;
+    AbstractProcessStep::storeIntoMap(buildConfiguration, map);
+}
+
+void QMakeStep::addBuildConfiguration(const QString & name)
+{
+    m_values.insert(name, QMakeStepSettings());
+}
+
+void QMakeStep::removeBuildConfiguration(const QString & name)
+{
+    m_values.remove(name);
+}
+
+void QMakeStep::copyBuildConfiguration(const QString &source, const QString &dest)
+{
+    m_values.insert(dest, m_values.value(source));
 }
 
 QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
@@ -261,7 +293,8 @@ void QMakeStepConfigWidget::updateTitleLabel()
 void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
 {
     Q_ASSERT(!m_buildConfiguration.isNull());
-    m_step->setValue(m_buildConfiguration, "qmakeArgs", ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
+    m_step->setQMakeArguments(m_buildConfiguration,
+            ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
 
     static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
     updateTitleLabel();
@@ -300,7 +333,7 @@ void QMakeStepConfigWidget::update()
 void QMakeStepConfigWidget::init(const QString &buildConfiguration)
 {
     m_buildConfiguration = buildConfiguration;
-    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->value(buildConfiguration, "qmakeArgs").toStringList());
+    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->qmakeArguments(buildConfiguration));
     m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
     ProjectExplorer::BuildConfiguration *bc = m_step->project()->buildConfiguration(buildConfiguration);
     bool debug = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt()) & QtVersion::DebugBuild;

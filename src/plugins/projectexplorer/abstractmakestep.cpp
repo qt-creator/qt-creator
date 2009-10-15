@@ -64,7 +64,7 @@ bool AbstractMakeStep::init(const QString &buildConfiguration)
     m_buildConfiguration = buildConfiguration;
 
     m_openDirectories.clear();
-    addDirectory(workingDirectory(buildConfiguration));
+    addDirectory(workingDirectory());
 
     return AbstractProcessStep::init(buildConfiguration);
 }

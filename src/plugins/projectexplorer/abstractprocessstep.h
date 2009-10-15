@@ -80,39 +80,34 @@ public:
     virtual bool immutable() const = 0;
 
     /// setCommand() sets the executable to run in the \p buildConfiguration
-    void setCommand(const QString &buildConfiguration, const QString &cmd);
-    /// returns the executable that is run for the \p buildConfiguration
-    QString command(const QString &buildConfiguration) const;
+    /// should be called from init()
+    void setCommand(const QString &cmd);
 
     /// sets the workingDirectory for the process for a buildConfiguration
-    /// if no workingDirectory is set, it falls back to the projects workingDirectory TODO remove that magic, thats bad
-    void setWorkingDirectory(const QString &buildConfiguration, const QString &workingDirectory);
-    /// returns the workingDirectory for a \p buildConfiguration
-    QString workingDirectory(const QString &buildConfiguration) const;
+    /// should be called from init()
+    void setWorkingDirectory(const QString &workingDirectory);
 
     /// sets the command line arguments used by the process for a \p buildConfiguration
-    void setArguments(const QString &buildConfiguration, const QStringList &arguments);
-    /// returns the arguments used in the \p buildCOnfiguration
-    QStringList arguments(const QString &buildConfiguration) const;
+    /// should be called from init()
+    void setArguments(const QStringList &arguments);
 
     /// enables or disables a BuildStep
     /// Disabled BuildSteps immediately return true from their run method
-    void setEnabled(const QString &buildConfiguration, bool b);
-    /// returns wheter the BuildStep is disabled
-    bool enabled(const QString &buildConfiguration) const;
+    /// should be called from init()
+    void setEnabled(bool b);
 
-    /*! If ignoreReturnValue is set to true, then the abstractprocess step will
-        return sucess even if the return value indicates otherwise
-    */
-    void setIgnoreReturnValue(const QString &buildConfiguration,bool b);
-    /*! returns ignoreReturnValue
-    */
-    bool ignoreReturnValue(const QString &buildConfiguration) const;
+    /// If ignoreReturnValue is set to true, then the abstractprocess step will
+    /// return sucess even if the return value indicates otherwise
+    /// should be called from init
+    void setIgnoreReturnValue(bool b);
+    /// Set the Environment for running the command
+    /// should be called from init()
+    void setEnvironment(Environment env);
 
-    void setEnvironment(const QString &buildConfiguration, Environment env);
-    Environment environment(const QString &buildConfiguration) const;
-
+    // TODO can I remove this?
+    QString workingDirectory() const;
 protected:
+
     /// Called after the process is started
     /// the default implementation adds a process started message to the output message
     virtual void processStarted();
@@ -122,7 +117,13 @@ protected:
     /// Called if the process could not be started,
     /// by default adds a message to the output window
     virtual void processStartupFailed();
+    /// Called for each line of output on stdOut()
+    /// the default implementation adds the line to the
+    /// application output window
     virtual void stdOut(const QString &line);
+    /// Called for each line of output on StdErrror()
+    /// the default implementation adds the line to the
+    /// application output window
     virtual void stdError(const QString &line);
 private slots:
     void processReadyReadStdOutput();

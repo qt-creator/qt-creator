@@ -66,10 +66,9 @@ Project::~Project()
 void Project::insertBuildStep(int position, BuildStep *step)
 {
     m_buildSteps.insert(position, step);
-    // check that the step has all the configurations
+    // add all BuildConfigurations
     foreach (const BuildConfiguration *bc, buildConfigurations())
-        if (!step->getBuildConfiguration(bc->name()))
-            step->addBuildConfiguration(bc->name());
+        step->addBuildConfiguration(bc->name());
 }
 
 void Project::removeBuildStep(int position)
@@ -87,10 +86,9 @@ void Project::moveBuildStepUp(int position)
 void Project::insertCleanStep(int position, BuildStep *step)
 {
     m_cleanSteps.insert(position, step);
-    // check that the step has all the configurations
+    // add all BuildConfigurations
     foreach (const BuildConfiguration *bc, buildConfigurations())
-        if (!step->getBuildConfiguration(bc->name()))
-            step->addBuildConfiguration(bc->name());
+        step->addBuildConfiguration(bc->name());
 }
 
 void Project::removeCleanStep(int position)
@@ -256,8 +254,9 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     //save buildstep configuration
     int buildstepnr = 0;
     foreach (BuildStep *buildStep, buildSteps()) {
-        QMap<QString, QVariant> buildConfiguration = buildStep->valuesToMap();
-        writer.saveValue("buildstep" + QString().setNum(buildstepnr), buildConfiguration);
+        QMap<QString, QVariant> buildStepValues;
+        buildStep->storeIntoMap(buildStepValues);
+        writer.saveValue("buildstep" + QString().setNum(buildstepnr), buildStepValues);
         ++buildstepnr;
     }
 
@@ -265,8 +264,8 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     foreach (const QString &buildConfigurationName, buildConfigurationNames) {
         buildstepnr = 0;
         foreach (BuildStep *buildStep, buildSteps()) {
-            QMap<QString, QVariant> temp =
-                buildStep->valuesToMap(buildConfigurationName);
+            QMap<QString, QVariant> temp;
+            buildStep->storeIntoMap(temp);
             writer.saveValue("buildconfiguration-" + buildConfigurationName + "-buildstep" + QString().setNum(buildstepnr), temp);
             ++buildstepnr;
         }
@@ -275,8 +274,9 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     //save cleansteps buildconfiguration
     int cleanstepnr = 0;
     foreach (BuildStep *cleanStep, cleanSteps()) {
-        QMap<QString, QVariant> buildConfiguration = cleanStep->valuesToMap();
-        writer.saveValue("cleanstep" + QString().setNum(cleanstepnr), buildConfiguration);
+        QMap<QString, QVariant> buildStepValues;
+        cleanStep->storeIntoMap(buildStepValues);
+        writer.saveValue("cleanstep" + QString().setNum(cleanstepnr), buildStepValues);
         ++cleanstepnr;
     }
 
@@ -284,7 +284,8 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     foreach (const QString &buildConfigurationName, buildConfigurationNames) {
         cleanstepnr = 0;
         foreach (BuildStep *cleanStep, cleanSteps()) {
-            QMap<QString, QVariant> temp = cleanStep->valuesToMap(buildConfigurationName);
+            QMap<QString, QVariant> temp;
+            cleanStep->storeIntoMap(temp);
             writer.saveValue("buildconfiguration-" + buildConfigurationName + "-cleanstep" + QString().setNum(cleanstepnr), temp);
             ++cleanstepnr;
         }
@@ -344,13 +345,13 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
             }
             // Restoring settings
             if (buildStep) {
-                QMap<QString, QVariant> buildConfiguration = reader.restoreValue("buildstep" + QString().setNum(buildstepnr)).toMap();
-                buildStep->setValuesFromMap(buildConfiguration);
+                QMap<QString, QVariant> buildStepValues = reader.restoreValue("buildstep" + QString().setNum(buildstepnr)).toMap();
+                buildStep->restoreFromMap(buildStepValues);
                 foreach (const QString &buildConfigurationName, buildConfigurationNames) {
                     //get the buildconfiguration for this build step
-                    QMap<QString, QVariant> buildConfiguration =
+                    QMap<QString, QVariant> buildStepValues =
                         reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-buildstep" + QString().setNum(buildstepnr)).toMap();
-                    buildStep->setValuesFromMap(buildConfigurationName, buildConfiguration);
+                    buildStep->restoreFromMap(buildStepValues);
                 }
             }
         }
@@ -374,12 +375,12 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
             }
             // Restoring settings
             if (cleanStep) {
-                QMap<QString, QVariant> buildConfiguration = reader.restoreValue("cleanstep" + QString().setNum(cleanstepnr)).toMap();
-                cleanStep->setValuesFromMap(buildConfiguration);
+                QMap<QString, QVariant> buildStepValues = reader.restoreValue("cleanstep" + QString().setNum(cleanstepnr)).toMap();
+                cleanStep->restoreFromMap(buildStepValues);
                 foreach (const QString &buildConfigurationName, buildConfigurationNames) {
-                    QMap<QString, QVariant> buildConfiguration =
+                    QMap<QString, QVariant> buildStepValues =
                             reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-cleanstep" + QString().setNum(cleanstepnr)).toMap();
-                    cleanStep->setValuesFromMap(buildConfigurationName, buildConfiguration);
+                    cleanStep->restoreFromMap(buildStepValues);
                 }
             }
         }

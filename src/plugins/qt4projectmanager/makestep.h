@@ -60,9 +60,17 @@ public:
 
 class Qt4Project;
 
+struct MakeStepSettings
+{
+    QStringList makeargs;
+    QString makeCmd;
+};
+
 class MakeStep : public ProjectExplorer::AbstractMakeStep
 {
     Q_OBJECT
+    friend class MakeStepConfigWidget; // TODO remove this
+    // currently used to access m_values
 public:
     MakeStep(Qt4Project * project);
     ~MakeStep();
@@ -72,11 +80,26 @@ public:
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
+    QStringList makeArguments(const QString &buildConfiguration);
     void setMakeArguments(const QString &buildConfiguration, const QStringList &arguments);
+
+    virtual void restoreFromMap(const QMap<QString, QVariant> &map);
+    virtual void storeIntoMap(QMap<QString, QVariant> &map);
+
+    void setClean(bool clean);
+
+    virtual void restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map);
+    virtual void storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map);
+
+    virtual void addBuildConfiguration(const QString & name);
+    virtual void removeBuildConfiguration(const QString & name);
+    virtual void copyBuildConfiguration(const QString &source, const QString &dest);
 signals:
     void changed();
 private:
     QString m_buildConfiguration;
+    bool m_clean;
+    QMap<QString, MakeStepSettings> m_values;
 };
 
 class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

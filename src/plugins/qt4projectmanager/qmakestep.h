@@ -60,10 +60,16 @@ public:
 
 class Qt4Project;
 
+struct QMakeStepSettings
+{
+    QStringList qmakeArgs;
+};
+
 class QMakeStep : public ProjectExplorer::AbstractMakeStep
 {
     Q_OBJECT
-
+    friend class Qt4Project; // TODO remove
+    // Currently used to access qmakeArgs
 public:
     QMakeStep(Qt4Project * project);
     ~QMakeStep();
@@ -77,8 +83,15 @@ public:
     void setForced(bool b);
     bool forced();
 
+    QStringList qmakeArguments(const QString &buildConfiguration);
     void setQMakeArguments(const QString &buildConfiguraion, const QStringList &arguments);
 
+    virtual void restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map);
+    virtual void storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map);
+
+    virtual void addBuildConfiguration(const QString & name);
+    virtual void removeBuildConfiguration(const QString & name);
+    virtual void copyBuildConfiguration(const QString &source, const QString &dest);
 signals:
     void changed();
 
@@ -92,6 +105,8 @@ private:
     QString m_buildConfiguration;
     QStringList m_lastEnv;
     bool m_forced;
+    bool m_needToRunQMake; // set in init(), read in run()
+    QMap<QString, QMakeStepSettings> m_values;
 };
 
 

@@ -63,24 +63,56 @@ bool GenericMakeStep::init(const QString &buildConfigurationName)
     setBuildParser(buildParser);
     qDebug() << "*** build parser:" << buildParser;
 
-    setEnabled(buildConfigurationName, true);
+    setEnabled(true);
     Core::VariableManager *vm = Core::VariableManager::instance();
     const QString rawBuildDir = m_pro->buildDirectory(bc);
     const QString buildDir = vm->resolve(rawBuildDir);
-    setWorkingDirectory(buildConfigurationName, buildDir);
+    setWorkingDirectory(buildDir);
 
-    setCommand(buildConfigurationName, makeCommand(buildConfigurationName));
-    setArguments(buildConfigurationName, replacedArguments(buildConfigurationName));
+    setCommand(makeCommand(buildConfigurationName));
+    setArguments(replacedArguments(buildConfigurationName));
 
-    setEnvironment(buildConfigurationName, m_pro->environment(bc));
+    setEnvironment(m_pro->environment(bc));
     return AbstractMakeStep::init(buildConfigurationName);
 }
+
+void GenericMakeStep::restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map)
+{
+    m_values[buildConfiguration].buildTargets = map.value("buildTargets").toStringList();
+    m_values[buildConfiguration].makeArguments = map.value("makeArguments").toStringList();
+    m_values[buildConfiguration].makeCommand = map.value("makeCommand").toString();
+    ProjectExplorer::AbstractMakeStep::restoreFromMap(buildConfiguration, map);
+}
+
+void GenericMakeStep::storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map)
+{
+    map["buildTargets"] = m_values.value(buildConfiguration).buildTargets;
+    map["makeArguments"] = m_values.value(buildConfiguration).makeArguments;
+    map["makeCommand"] = m_values.value(buildConfiguration).makeCommand;
+    ProjectExplorer::AbstractMakeStep::storeIntoMap(buildConfiguration, map);
+}
+
+void GenericMakeStep::addBuildConfiguration(const QString & name)
+{
+    m_values.insert(name, GenericMakeStepSettings());
+}
+
+void GenericMakeStep::removeBuildConfiguration(const QString & name)
+{
+    m_values.remove(name);
+}
+
+void GenericMakeStep::copyBuildConfiguration(const QString &source, const QString &dest)
+{
+    m_values.insert(dest, m_values.value(source));
+}
+
 
 QStringList GenericMakeStep::replacedArguments(const QString &buildConfiguration) const
 {
     Core::VariableManager *vm = Core::VariableManager::instance();
-    const QStringList targets = value(buildConfiguration, "buildTargets").toStringList();
-    QStringList arguments = value(buildConfiguration, "makeArguments").toStringList();
+    const QStringList targets = m_values.value(buildConfiguration).buildTargets;
+    QStringList arguments = m_values.value(buildConfiguration).makeArguments;
     QStringList replacedArguments;
     foreach (const QString &arg, arguments) {
       replacedArguments.append(vm->resolve(arg));
@@ -93,7 +125,7 @@ QStringList GenericMakeStep::replacedArguments(const QString &buildConfiguration
 
 QString GenericMakeStep::makeCommand(const QString &buildConfiguration) const
 {
-    QString command = value(buildConfiguration, "makeCommand").toString();
+    QString command = m_values.value(buildConfiguration).makeCommand;
     if (command.isEmpty()) {
         if (ProjectExplorer::ToolChain *toolChain = m_pro->toolChain())
             command = toolChain->makeCommand();
@@ -135,17 +167,18 @@ GenericProject *GenericMakeStep::project() const
 
 bool GenericMakeStep::buildsTarget(const QString &buildConfiguration, const QString &target) const
 {
-    return value(buildConfiguration, "buildTargets").toStringList().contains(target);
+    return m_values.value(buildConfiguration).buildTargets.contains(target);
 }
 
 void GenericMakeStep::setBuildTarget(const QString &buildConfiguration, const QString &target, bool on)
 {
-    QStringList old = value(buildConfiguration, "buildTargets").toStringList();
+    QStringList old = m_values.value(buildConfiguration).buildTargets;
     if (on && !old.contains(target))
-        old << target;
+         old << target;
     else if(!on && old.contains(target))
         old.removeOne(target);
-    setValue(buildConfiguration, "buildTargets", old);
+
+    m_values[buildConfiguration].buildTargets = old;
 }
 
 //
@@ -196,11 +229,10 @@ void GenericMakeStepConfigWidget::init(const QString &buildConfiguration)
 
     updateMakeOverrrideLabel();
 
-    QString makeCommand = m_makeStep->value(buildConfiguration, "makeCommand").toString();
+    QString makeCommand = m_makeStep->m_values.value(buildConfiguration).makeCommand;
     m_ui->makeLineEdit->setText(makeCommand);
 
-    const QStringList &makeArguments =
-            m_makeStep->value(buildConfiguration, "makeArguments").toStringList();
+    const QStringList &makeArguments = m_makeStep->m_values.value(buildConfiguration).makeArguments;
     m_ui->makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
 
     // Disconnect to make the changes to the items
@@ -240,15 +272,15 @@ void GenericMakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 void GenericMakeStepConfigWidget::makeLineEditTextEdited()
 {
     QTC_ASSERT(!m_buildConfiguration.isNull(), return);
-    m_makeStep->setValue(m_buildConfiguration, "makeCommand", m_ui->makeLineEdit->text());
+    m_makeStep->m_values[m_buildConfiguration].makeCommand = m_ui->makeLineEdit->text();
     updateDetails();
 }
 
 void GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited()
 {
     QTC_ASSERT(!m_buildConfiguration.isNull(), return);
-    m_makeStep->setValue(m_buildConfiguration, "makeArguments",
-                         ProjectExplorer::Environment::parseCombinedArgString(m_ui->makeArgumentsLineEdit->text()));
+    m_makeStep->m_values[m_buildConfiguration].makeArguments =
+                         ProjectExplorer::Environment::parseCombinedArgString(m_ui->makeArgumentsLineEdit->text());
     updateDetails();
 }
 

@@ -50,6 +50,15 @@ public:
     virtual QString displayNameForName(const QString &name) const;
 };
 
+struct ProcessStepSettings
+{
+    QString command;
+    QStringList arguments;
+    QString workingDirectory;
+    Environment env;
+    bool enabled;
+};
+
 class ProcessStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
@@ -63,8 +72,30 @@ public:
     virtual QString displayName();
     virtual BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
+
+    virtual void restoreFromMap(const QMap<QString, QVariant> &map);
+    virtual void storeIntoMap(QMap<QString, QVariant> &map);
+
+    virtual void restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map);
+    virtual void storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map);
+
+    virtual void addBuildConfiguration(const QString & name);
+    virtual void removeBuildConfiguration(const QString & name);
+    virtual void copyBuildConfiguration(const QString &source, const QString &dest);
+
+    QString command(const QString &buildConfiguration) const;
+    QStringList arguments(const QString &buildConfiguration) const;
+    bool enabled(const QString &buildConfiguration) const;
+    QString workingDirectory(const QString &buildConfiguration) const;
+
+    void setCommand(const QString &buildConfiguration, const QString &command);
+    void setArguments(const QString &buildConfiguration, const QStringList &arguments);
+    void setEnabled(const QString &buildConfiguration, bool enabled);
+    void setWorkingDirectory(const QString &buildConfiguration, const QString &workingDirectory);
+
 private:
     QString m_name;
+    QMap<QString, ProcessStepSettings> m_values;
 };
 
 class ProcessStepConfigWidget : public BuildStepConfigWidget

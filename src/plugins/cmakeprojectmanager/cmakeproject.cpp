@@ -667,7 +667,7 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
 
         MakeStep *cleanMakeStep = new MakeStep(this);
         insertCleanStep(0, cleanMakeStep);
-        cleanMakeStep->setValue("clean", true);
+        cleanMakeStep->setClean(true);
         setActiveBuildConfiguration(bc);
     } else {
         // We have a user file, but we could still be missing the cbp file

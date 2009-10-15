@@ -92,17 +92,6 @@ public:
     // The name shown to the user
     virtual QString displayName() = 0;
 
-    // sets a value, which can be retrieved with value()
-    // these values are automatically saved and restored when qt creator is quit and restarted
-    void setValue(const QString &name, const QVariant &value);
-    // sets a value specific to a buildConfiguration
-    void setValue(const QString &buildConfiguration, const QString &name, const QVariant &value);
-
-    // retrieves a value
-    QVariant value(const QString &name) const;
-    // retrieves a value specific to a buildConfiguration
-    QVariant value(const QString &buildConfiguration, const QString & name) const;
-
     // the Widget shown in the project settings dialog for this buildStep
     // ownership is transfered to the caller
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
@@ -112,18 +101,17 @@ public:
     // the default implementation returns false
     virtual bool immutable() const;
 
+    virtual void restoreFromMap(const QMap<QString, QVariant> &map);
+    virtual void storeIntoMap(QMap<QString, QVariant> &map);
+
+    virtual void restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map);
+    virtual void storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map);
+
+    virtual void addBuildConfiguration(const QString & name);
+    virtual void removeBuildConfiguration(const QString & name);
+    virtual void copyBuildConfiguration(const QString &source, const QString &dest);
+
     Project *project() const;
-
-protected:
-    // internal function for restoring the configuration
-    void setValuesFromMap(const QMap<QString, QVariant> &values);
-    // internal function for restoring the configuration
-    void setValuesFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &values);
-
-    // internal function for storing the configuration
-    QMap<QString, QVariant> valuesToMap();
-    // internal function for storing the configuration
-    QMap<QString, QVariant> valuesToMap(const QString & buildConfiguration);
 
 Q_SIGNALS:
     void addToTaskWindow(const ProjectExplorer::TaskWindow::Task &task);
@@ -132,13 +120,6 @@ Q_SIGNALS:
     void addToOutputWindow(const QString &string);
 
 private:
-    void addBuildConfiguration(const QString & name);
-    void removeBuildConfiguration(const QString & name);
-    BuildConfiguration *getBuildConfiguration(const QString & name) const;
-    void copyBuildConfiguration(const QString &source, const QString &dest);
-
-    QList<BuildConfiguration *> m_buildConfigurations;
-    BuildConfiguration *m_configuration;
     Project *m_project;
 };
 

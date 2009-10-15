@@ -39,13 +39,34 @@ using namespace ProjectExplorer;
 BuildStep::BuildStep(Project * pro)
     : m_project(pro)
 {
-    m_configuration = new BuildConfiguration("");
 }
 
 BuildStep::~BuildStep()
 {
-    qDeleteAll(m_buildConfigurations);
-    delete m_configuration;
+
+}
+
+
+void BuildStep::restoreFromMap(const QMap<QString, QVariant> &map)
+{
+    Q_UNUSED(map)
+}
+
+void BuildStep::storeIntoMap(QMap<QString, QVariant> &map)
+{
+    Q_UNUSED(map)
+}
+
+void BuildStep::restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map)
+{
+    Q_UNUSED(buildConfiguration)
+    Q_UNUSED(map)
+}
+
+void BuildStep::storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map)
+{
+    Q_UNUSED(buildConfiguration)
+    Q_UNUSED(map)
 }
 
 Project * BuildStep::project() const
@@ -55,78 +76,18 @@ Project * BuildStep::project() const
 
 void BuildStep::addBuildConfiguration(const QString &name)
 {
-    m_buildConfigurations.push_back(new BuildConfiguration(name));
+    Q_UNUSED(name)
 }
 
 void BuildStep::removeBuildConfiguration(const QString &name)
 {
-    for (int i = 0; i != m_buildConfigurations.size(); ++i)
-        if (m_buildConfigurations.at(i)->name() == name) {
-            delete m_buildConfigurations.at(i);
-            m_buildConfigurations.removeAt(i);
-            break;
-        }
+    Q_UNUSED(name)
 }
 
 void BuildStep::copyBuildConfiguration(const QString &source, const QString &dest)
 {
-    for (int i = 0; i != m_buildConfigurations.size(); ++i)
-        if (m_buildConfigurations.at(i)->name() == source)
-            m_buildConfigurations.push_back(new BuildConfiguration(dest, m_buildConfigurations.at(i)));
-}
-
-void BuildStep::setValue(const QString &buildConfiguration, const QString &name, const QVariant &value)
-{
-    BuildConfiguration *bc = getBuildConfiguration(buildConfiguration);
-    Q_ASSERT(bc);
-    bc->setValue(name, value);
-}
-
-void BuildStep::setValue(const QString &name, const QVariant &value)
-{
-    m_configuration->setValue(name, value);
-}
-
-QVariant BuildStep::value(const QString &buildConfiguration, const QString &name) const
-{
-    BuildConfiguration *bc = getBuildConfiguration(buildConfiguration);
-    if (bc)
-        return bc->value(name);
-    else
-        return QVariant();
-}
-
-QVariant BuildStep::value(const QString &name) const
-{
-    return m_configuration->value(name);
-}
-
-void BuildStep::setValuesFromMap(const QMap<QString, QVariant> & values)
-{
-    m_configuration->setValuesFromMap(values);
-}
-
-void BuildStep::setValuesFromMap(const QString & buildConfiguration, const QMap<QString, QVariant> & values)
-{
-    getBuildConfiguration(buildConfiguration)->setValuesFromMap(values);
-}
-
-QMap<QString, QVariant> BuildStep::valuesToMap()
-{
-    return m_configuration->toMap();
-}
-
-QMap<QString, QVariant> BuildStep::valuesToMap(const QString & buildConfiguration)
-{
-    return getBuildConfiguration(buildConfiguration)->toMap();
-}
-
-BuildConfiguration * BuildStep::getBuildConfiguration(const QString & name) const
-{
-    for (int i = 0; i != m_buildConfigurations.size(); ++i)
-        if (m_buildConfigurations.at(i)->name() == name)
-            return m_buildConfigurations.at(i);
-    return 0;
+    Q_UNUSED(source)
+    Q_UNUSED(dest)
 }
 
 bool BuildStep::immutable() const

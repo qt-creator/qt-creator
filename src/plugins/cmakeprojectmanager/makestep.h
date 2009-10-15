@@ -43,9 +43,17 @@ namespace Internal {
 
 class CMakeProject;
 
+struct MakeStepSettings
+{
+    QStringList buildTargets;
+    QStringList additionalArguments;
+};
+
 class MakeStep : public ProjectExplorer::AbstractMakeStep
 {
     Q_OBJECT
+    friend class MakeStepConfigWidget; // TODO remove
+    // This is for modifying m_values
 public:
     MakeStep(CMakeProject *pro);
     ~MakeStep();
@@ -62,13 +70,27 @@ public:
     void setBuildTarget(const QString &buildConfiguration, const QString &target, bool on);
     QStringList additionalArguments(const QString &buildConfiguration) const;
     void setAdditionalArguments(const QString &buildConfiguration, const QStringList &list);
+
+    virtual void restoreFromMap(const QMap<QString, QVariant> &map);
+    virtual void storeIntoMap(QMap<QString, QVariant> &map);
+
+    void setClean(bool clean);
+
+    virtual void restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map);
+    virtual void storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map);
+
+    virtual void addBuildConfiguration(const QString & name);
+    virtual void removeBuildConfiguration(const QString & name);
+    virtual void copyBuildConfiguration(const QString &source, const QString &dest);
 protected:
     // For parsing [ 76%]
     virtual void stdOut(const QString &line);
 private:
     CMakeProject *m_pro;
+    bool m_clean;
     QRegExp m_percentProgress;
     QFutureInterface<bool> *m_futureInterface;
+    QMap<QString, MakeStepSettings> m_values;
 };
 
 class MakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget

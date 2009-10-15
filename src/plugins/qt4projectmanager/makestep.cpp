@@ -45,7 +45,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 MakeStep::MakeStep(Qt4Project * project)
-    : AbstractMakeStep(project)
+    : AbstractMakeStep(project), m_clean(false)
 {
 
 }
@@ -55,20 +55,69 @@ MakeStep::~MakeStep()
 
 }
 
+void MakeStep::setClean(bool clean)
+{
+    m_clean = clean;
+}
+
+void MakeStep::restoreFromMap(const QMap<QString, QVariant> &map)
+{
+    if (map.value("clean").isValid() && map.value("clean").toBool())
+        m_clean = true;
+    ProjectExplorer::AbstractMakeStep::restoreFromMap(map);
+}
+
+void MakeStep::storeIntoMap(QMap<QString, QVariant> &map)
+{
+    if (m_clean)
+        map["clean"] = true;
+    ProjectExplorer::AbstractMakeStep::storeIntoMap(map);
+}
+
+void MakeStep::restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map)
+{
+    m_values[buildConfiguration].makeargs = map.value("makeargs").toStringList();
+    m_values[buildConfiguration].makeCmd = map.value("makeCmd").toString();
+    ProjectExplorer::AbstractMakeStep::restoreFromMap(buildConfiguration, map);
+}
+
+void MakeStep::storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map)
+{
+    map["makeargs"] = m_values.value(buildConfiguration).makeargs;
+    map["makeCmd"] = m_values.value(buildConfiguration).makeCmd;
+    ProjectExplorer::AbstractMakeStep::storeIntoMap(buildConfiguration, map);
+}
+
+void MakeStep::addBuildConfiguration(const QString & name)
+{
+    m_values.insert(name, MakeStepSettings());
+}
+
+void MakeStep::removeBuildConfiguration(const QString & name)
+{
+    m_values.remove(name);
+}
+
+void MakeStep::copyBuildConfiguration(const QString &source, const QString &dest)
+{
+    m_values.insert(dest, m_values.value(source));
+}
+
+
 bool MakeStep::init(const QString &name)
 {
     m_buildConfiguration = name;
     ProjectExplorer::BuildConfiguration *bc = project()->buildConfiguration(name);
     Environment environment = project()->environment(bc);
-    setEnvironment(name, environment);
+    setEnvironment(environment);
 
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
     QString workingDirectory = qt4project->buildDirectory(bc);
-    setWorkingDirectory(name, workingDirectory);
+    setWorkingDirectory(workingDirectory);
 
     QString makeCmd = qt4project->makeCommand(bc);
-    if (!value(name, "makeCmd").toString().isEmpty())
-        makeCmd = value(name, "makeCmd").toString();
+    if (!m_values.value(name).makeCmd.isEmpty())
+        makeCmd = m_values.value(name).makeCmd;
     if (!QFileInfo(makeCmd).isAbsolute()) {
         // Try to detect command in environment
         QString tmp = environment.searchInPath(makeCmd);
@@ -79,19 +128,14 @@ bool MakeStep::init(const QString &name)
         }
         makeCmd = tmp;
     }
-    setCommand(name, makeCmd);
+    setCommand(makeCmd);
 
-    if (!value(name, "cleanConfig").isValid() && value("clean").isValid() && value("clean").toBool()) {
-        // Import old settings
-        setValue(name, "cleanConfig", true);
-        setValue(name, "makeargs", QStringList() << "clean");
-    }
     // If we are cleaning, then make can fail with a error code, but that doesn't mean
     // we should stop the clean queue
     // That is mostly so that rebuild works on a alrady clean project
-    setIgnoreReturnValue(name, value(name, "cleanConfig").isValid());
-    QStringList args = value(name, "makeargs").toStringList();
-    if (!value(name, "cleanConfig").isValid()) {
+    setIgnoreReturnValue(m_clean);
+    QStringList args = m_values.value(name).makeargs;
+    if (!m_clean) {
         if (!qt4project->defaultMakeTarget(bc).isEmpty())
             args << qt4project->defaultMakeTarget(bc);
     }
@@ -106,12 +150,12 @@ bool MakeStep::init(const QString &name)
     if (toolchain)
         type = toolchain->type();
     if (type != ProjectExplorer::ToolChain::MSVC && type != ProjectExplorer::ToolChain::WINCE) {
-        if (value(name, "makeCmd").toString().isEmpty())
+        if (m_values.value(name).makeCmd.isEmpty())
             args << "-w";
     }
 
-    setEnabled(name, true);
-    setArguments(name, args);
+    setEnabled(true);
+    setArguments(args);
 
     if (type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
         setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_MSVC);
@@ -131,12 +175,6 @@ bool MakeStep::init(const QString &name)
 void MakeStep::run(QFutureInterface<bool> & fi)
 {
     if (qobject_cast<Qt4Project *>(project())->rootProjectNode()->projectType() == ScriptTemplate) {
-        fi.reportResult(true);
-        return;
-    }
-
-    if (!enabled(m_buildConfiguration)) {
-        emit addToOutputWindow(tr("<font color=\"#0000ff\"><b>No Makefile found, assuming project is clean.</b></font>"));
         fi.reportResult(true);
         return;
     }
@@ -164,9 +202,14 @@ ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
     return new MakeStepConfigWidget(this);
 }
 
+QStringList MakeStep::makeArguments(const QString &buildConfiguration)
+{
+    return m_values.value(buildConfiguration).makeargs;
+}
+
 void MakeStep::setMakeArguments(const QString &buildConfiguration, const QStringList &arguments)
 {
-    setValue(buildConfiguration, "makeargs", arguments);
+    m_values[buildConfiguration].makeargs = arguments;
     emit changed();
 }
 
@@ -204,8 +247,8 @@ void MakeStepConfigWidget::updateDetails()
     QString workingDirectory = pro->buildDirectory(bc);
 
     QString makeCmd = pro->makeCommand(bc);
-    if (!m_makeStep->value(m_buildConfiguration, "makeCmd").toString().isEmpty())
-        makeCmd = m_makeStep->value(m_buildConfiguration, "makeCmd").toString();
+    if (!m_makeStep->m_values.value(m_buildConfiguration).makeCmd.isEmpty())
+        makeCmd = m_makeStep->m_values.value(m_buildConfiguration).makeCmd;
     if (!QFileInfo(makeCmd).isAbsolute()) {
         Environment environment = pro->environment(bc);
         // Try to detect command in environment
@@ -222,13 +265,13 @@ void MakeStepConfigWidget::updateDetails()
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    QStringList args = m_makeStep->value(m_buildConfiguration, "makeargs").toStringList();
+    QStringList args = m_makeStep->makeArguments(m_buildConfiguration);
     ProjectExplorer::ToolChain::ToolChainType t = ProjectExplorer::ToolChain::UNKNOWN;
     ProjectExplorer::ToolChain *toolChain = pro->toolChain(bc);
     if (toolChain)
         t = toolChain->type();
     if (t != ProjectExplorer::ToolChain::MSVC && t != ProjectExplorer::ToolChain::WINCE) {
-        if (m_makeStep->value(m_buildConfiguration, "makeCmd").toString().isEmpty())
+        if (m_makeStep->m_values.value(m_buildConfiguration).makeCmd.isEmpty())
             args << "-w";
     }
     m_summaryText = tr("<b>Make:</b> %1 %2 in %3").arg(QFileInfo(makeCmd).fileName(), args.join(" "),
@@ -255,19 +298,12 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
 {
     m_buildConfiguration = buildConfiguration;
 
-    if (!m_makeStep->value(buildConfiguration, "cleanConfig").isValid() && m_makeStep->value("clean").isValid() && m_makeStep->value("clean").toBool()) {
-        // Import old settings
-        m_makeStep->setValue(buildConfiguration, "cleanConfig", true);
-        m_makeStep->setValue(buildConfiguration, "makeargs", QStringList() << "clean");
-    }
-
     updateMakeOverrideLabel();
 
-    const QString &makeCmd = m_makeStep->value(buildConfiguration, "makeCmd").toString();
+    const QString &makeCmd = m_makeStep->m_values.value(buildConfiguration).makeCmd;
     m_ui.makeLineEdit->setText(makeCmd);
 
-    const QStringList &makeArguments =
-            m_makeStep->value(buildConfiguration, "makeargs").toStringList();
+    const QStringList &makeArguments = m_makeStep->makeArguments(buildConfiguration);
     m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
     updateDetails();
 }
@@ -275,14 +311,14 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
 void MakeStepConfigWidget::makeLineEditTextEdited()
 {
     Q_ASSERT(!m_buildConfiguration.isNull());
-    m_makeStep->setValue(m_buildConfiguration, "makeCmd", m_ui.makeLineEdit->text());
+    m_makeStep->m_values[m_buildConfiguration].makeCmd = m_ui.makeLineEdit->text();
     updateDetails();
 }
 
 void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
 {
     Q_ASSERT(!m_buildConfiguration.isNull());
-    m_makeStep->setValue(m_buildConfiguration, "makeargs",
+    m_makeStep->setMakeArguments(m_buildConfiguration,
                          ProjectExplorer::Environment::parseCombinedArgString(m_ui.makeArgumentsLineEdit->text()));
     updateDetails();
 }

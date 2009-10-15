@@ -359,7 +359,8 @@ bool Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
 {
     Project::restoreSettingsImpl(settingsReader);
 
-    addDefaultBuild();
+    if (buildConfigurations().isEmpty())
+        addDefaultBuild();
 
     // Ensure that the qt version and tool chain in each build configuration is valid
     // or if not, is reset to the default
@@ -450,11 +451,11 @@ void Qt4Project::addQt4BuildConfiguration(QString buildConfigurationName, QtVers
     addBuildConfiguration(bc);
     const QString &finalBuildConfigurationName = bc->name();
     if (!additionalArguments.isEmpty())
-        qmake->setValue(finalBuildConfigurationName, "qmakeArgs", additionalArguments);
+        qmake->m_values[finalBuildConfigurationName].qmakeArgs = additionalArguments;
 
     // set some options for qmake and make
     if (qmakeBuildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
-        make->setValue(finalBuildConfigurationName, "makeargs", QStringList() << (debug ? "debug" : "release"));
+        make->setMakeArguments(finalBuildConfigurationName, QStringList() << (debug ? "debug" : "release"));
 
     bc->setValue("buildConfiguration", int(qmakeBuildConfiguration));
 
@@ -817,52 +818,26 @@ QList<ProjectExplorer::Project*> Qt4Project::dependsOn()
 
 void Qt4Project::addDefaultBuild()
 {
-    if (buildConfigurations().isEmpty()) {
-        // We don't have any buildconfigurations, so this is a new project
-        // The Project Load Wizard is a work of art
-        // It will ask the user what kind of build setup he want
-        // It will add missing Qt Versions
-        // And get the project into a buildable state
+    // We don't have any buildconfigurations, so this is a new project
+    QMakeStep *qmakeStep = 0;
+    MakeStep *makeStep = 0;
 
-        //TODO have a better check wheter there is already a configuration?
-        QMakeStep *qmakeStep = 0;
-        MakeStep *makeStep = 0;
+    qmakeStep = new QMakeStep(this);
+    insertBuildStep(1, qmakeStep);
 
-        qmakeStep = new QMakeStep(this);
-        qmakeStep->setValue("mkspec", "");
-        insertBuildStep(1, qmakeStep);
+    makeStep = new MakeStep(this);
+    insertBuildStep(2, makeStep);
 
-        makeStep = new MakeStep(this);
-        insertBuildStep(2, makeStep);
+    MakeStep* cleanStep = new MakeStep(this);
+    cleanStep->setClean(true);
+    insertCleanStep(1, cleanStep);
 
-        MakeStep* cleanStep = new MakeStep(this);
-        cleanStep->setValue("clean", true);
-        insertCleanStep(1, cleanStep);
-
-        ProjectLoadWizard wizard(this);
-        wizard.execDialog();
-    } else {
-        // Migrate settings
-        QMakeStep *qs = qmakeStep();
-        foreach (BuildConfiguration *bc, buildConfigurations()) {
-            QVariant v = qs ? qs->value(bc->name(), "buildConfiguration") : QVariant();
-            if (v.isValid()) {
-                qs->setValue(bc->name(), "buildConfiguration", QVariant());
-                bc->setValue("buildConfiguration", v);
-            } else if (!bc->value("buildConfiguration").isValid()) {
-                if (QtVersion *version = qtVersion(bc))
-                    bc->setValue("buildConfiguration", int(version->defaultBuildConfig()));
-                else
-                    bc->setValue("buildConfiguration", int(QtVersion::BuildAll & QtVersion::DebugBuild));
-            }
-        }
-
-
-        // Restoring configuration
-        foreach(BuildConfiguration *bc, buildConfigurations()) {
-            bc->setValue("addQDumper", QVariant());
-        }
-    }
+    // TODO this could probably refactored
+    // That is the ProjectLoadWizard divided into useful bits
+    // and this code then called here, instead of that strange forwarding
+    // to a wizard, which doesn't even show up
+    ProjectLoadWizard wizard(this);
+    wizard.execDialog();
 }
 
 void Qt4Project::proFileParseError(const QString &errorMessage)
@@ -1306,14 +1281,15 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(BuildConfiguration *confi
                 // now compare arguments lists
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own
-                QString actualSpec = extractSpecFromArgumentList(qs->value(configuration->name(), "qmakeArgs").toStringList(), workingDirectory, version);
+                QString actualSpec = extractSpecFromArgumentList(qs->m_values.value(configuration->name()).qmakeArgs, workingDirectory, version);
                 if (actualSpec.isEmpty()) {
                     // Easy one the user has choosen not to override the settings
                     actualSpec = version->mkspec();
                 }
 
+
                 QString parsedSpec = extractSpecFromArgumentList(result.second, workingDirectory, version);
-                QStringList actualArgs = removeSpecFromArgumentList(qs->value(configuration->name(), "qmakeArgs").toStringList());
+                QStringList actualArgs = removeSpecFromArgumentList(qs->m_values.value(configuration->name()).qmakeArgs);
                 QStringList parsedArgs = removeSpecFromArgumentList(result.second);
 
                 if (debug) {
