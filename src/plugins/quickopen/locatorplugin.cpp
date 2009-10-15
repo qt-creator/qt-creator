@@ -29,7 +29,7 @@
 
 #include "locatorplugin.h"
 #include "quickopenconstants.h"
-#include "quickopenfiltersfilter.h"
+#include "locatorfiltersfilter.h"
 #include "locatormanager.h"
 #include "locatorwidget.h"
 #include "opendocumentsfilter.h"
@@ -120,7 +120,7 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
     m_fileSystemFilter = new FileSystemFilter(core->editorManager(), m_locatorWidget);
     addObject(m_fileSystemFilter);
 
-    addAutoReleasedObject(new QuickOpenFiltersFilter(this, m_locatorWidget));
+    addAutoReleasedObject(new LocatorFiltersFilter(this, m_locatorWidget));
 
     connect(core, SIGNAL(coreOpened()), this, SLOT(startSettingsLoad()));
     return true;

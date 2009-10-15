@@ -5,7 +5,7 @@ include(../../qtcreatorplugin.pri)
 include(quickopen_dependencies.pri)
 HEADERS += locatorplugin.h \
     locatorwidget.h \
-    quickopenfiltersfilter.h \
+    locatorfiltersfilter.h \
     settingspage.h \
     ilocatorfilter.h \
     opendocumentsfilter.h \
@@ -17,7 +17,7 @@ HEADERS += locatorplugin.h \
     quickopen_global.h
 SOURCES += locatorplugin.cpp \
     locatorwidget.cpp \
-    quickopenfiltersfilter.cpp \
+    locatorfiltersfilter.cpp \
     opendocumentsfilter.cpp \
     filesystemfilter.cpp \
     settingspage.cpp \

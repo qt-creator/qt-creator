@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "quickopenfiltersfilter.h"
+#include "locatorfiltersfilter.h"
 #include "locatorplugin.h"
 #include "locatorwidget.h"
 
@@ -38,7 +38,7 @@ using namespace QuickOpen::Internal;
 
 Q_DECLARE_METATYPE(ILocatorFilter*);
 
-QuickOpenFiltersFilter::QuickOpenFiltersFilter(LocatorPlugin *plugin,
+LocatorFiltersFilter::LocatorFiltersFilter(LocatorPlugin *plugin,
                                                LocatorWidget *locatorWidget):
     m_plugin(plugin),
     m_locatorWidget(locatorWidget),
@@ -48,22 +48,22 @@ QuickOpenFiltersFilter::QuickOpenFiltersFilter(LocatorPlugin *plugin,
     setHidden(true);
 }
 
-QString QuickOpenFiltersFilter::trName() const
+QString LocatorFiltersFilter::trName() const
 {
     return tr("Available filters");
 }
 
-QString QuickOpenFiltersFilter::name() const
+QString LocatorFiltersFilter::name() const
 {
     return QLatin1String("FiltersFilter");
 }
 
-ILocatorFilter::Priority QuickOpenFiltersFilter::priority() const
+ILocatorFilter::Priority LocatorFiltersFilter::priority() const
 {
     return High;
 }
 
-QList<FilterEntry> QuickOpenFiltersFilter::matchesFor(const QString &entry)
+QList<FilterEntry> LocatorFiltersFilter::matchesFor(const QString &entry)
 {
     QList<FilterEntry> entries;
     if (entry.isEmpty()) {
@@ -81,7 +81,7 @@ QList<FilterEntry> QuickOpenFiltersFilter::matchesFor(const QString &entry)
     return entries;
 }
 
-void QuickOpenFiltersFilter::accept(FilterEntry selection) const
+void LocatorFiltersFilter::accept(FilterEntry selection) const
 {
     ILocatorFilter *filter = selection.internalData.value<ILocatorFilter*>();
     if (filter)
@@ -89,13 +89,13 @@ void QuickOpenFiltersFilter::accept(FilterEntry selection) const
                            filter->shortcutString().length() + 1);
 }
 
-void QuickOpenFiltersFilter::refresh(QFutureInterface<void> &future)
+void LocatorFiltersFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
     // Nothing to refresh
 }
 
-bool QuickOpenFiltersFilter::isConfigurable() const
+bool LocatorFiltersFilter::isConfigurable() const
 {
     return false;
 }

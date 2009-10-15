@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QUICKOPENFILTERSFILTER_H
-#define QUICKOPENFILTERSFILTER_H
+#ifndef LOCATORFILTERSFILTER_H
+#define LOCATORFILTERSFILTER_H
 
 #include "ilocatorfilter.h"
 
@@ -44,12 +44,12 @@ class LocatorWidget;
   This filter provides the user with the list of available QuickOpen filters.
   The list is only shown when nothing has been typed yet.
  */
-class QuickOpenFiltersFilter : public ILocatorFilter
+class LocatorFiltersFilter : public ILocatorFilter
 {
     Q_OBJECT
 
 public:
-    QuickOpenFiltersFilter(LocatorPlugin *plugin,
+    LocatorFiltersFilter(LocatorPlugin *plugin,
                            LocatorWidget *locatorWidget);
 
     // ILocatorFilter
@@ -70,4 +70,4 @@ private:
 } // namespace Internal
 } // namespace QuickOpen
 
-#endif // QUICKOPENFILTERSFILTER_H
+#endif // LOCATORFILTERSFILTER_H
