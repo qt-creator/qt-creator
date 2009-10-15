@@ -682,6 +682,8 @@ static void applyChanges(QTextDocument *doc, const QString &text, const QList<Fi
 void CppFindReferences::onReplaceButtonClicked(const QString &text,
                                                const QList<Find::SearchResultItem> &items)
 {
+    Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+
     if (text.isEmpty())
         return;
 

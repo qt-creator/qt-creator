@@ -196,6 +196,7 @@ public Q_SLOTS:
     void renameUsages();
     void findUsages();
     void renameUsagesNow();
+    void hideRenameNotification();
 
 protected:
     bool event(QEvent *e);

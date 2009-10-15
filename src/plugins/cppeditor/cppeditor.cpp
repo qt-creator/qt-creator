@@ -571,6 +571,8 @@ CPPEditor::CPPEditor(QWidget *parent)
 
 CPPEditor::~CPPEditor()
 {
+    Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+
     m_semanticHighlighter->abort();
     m_semanticHighlighter->wait();
 }
@@ -763,13 +765,18 @@ void CPPEditor::renameUsages()
     Core::EditorManager::instance()->showEditorInfoBar(QLatin1String("CppEditor.Rename"),
                                                        tr("This change cannot be undone."),
                                                        tr("Yes, I know what I am doing."),
-                                                       this, SLOT(renameUsagesNow()));
+                                                       this, SLOT(hideRenameNotification()));
+    renameUsagesNow();
+}
+
+void CPPEditor::hideRenameNotification()
+{
+    Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
 }
 
 void CPPEditor::renameUsagesNow()
 {
     if (Symbol *canonicalSymbol = markSymbols()) {
-        Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
         m_modelManager->renameUsages(canonicalSymbol);
     }
 }
