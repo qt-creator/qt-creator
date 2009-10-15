@@ -105,9 +105,10 @@ public:
         int line;
         int column;
         int revision;
+        bool force;
 
         Source()
-                : line(0), column(0), revision(0)
+            : line(0), column(0), revision(0), force(false)
         { }
 
         Source(const CPlusPlus::Snapshot &snapshot,
@@ -117,7 +118,7 @@ public:
                int revision)
             : snapshot(snapshot), fileName(fileName),
               code(code), line(line), column(column),
-              revision(revision)
+              revision(revision), force(false)
         { }
 
         void clear()
@@ -128,6 +129,7 @@ public:
             line = 0;
             column = 0;
             revision = 0;
+            force = false;
         }
     };
 
@@ -240,7 +242,7 @@ private:
     TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
                                              int column = 0);
 
-    SemanticHighlighter::Source currentSource();
+    SemanticHighlighter::Source currentSource(bool force = false);
 
     void highlightUses(const QList<SemanticInfo::Use> &uses,
                        QList<QTextEdit::ExtraSelection> *selections);
@@ -285,6 +287,7 @@ private:
 
     SemanticHighlighter *m_semanticHighlighter;
     SemanticInfo m_lastSemanticInfo;
+    bool m_initialized;
 };
 
 
