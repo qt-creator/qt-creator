@@ -12,7 +12,7 @@ HEADERS += quickopenplugin.h \
     filesystemfilter.h \
     quickopenconstants.h \
     directoryfilter.h \
-    quickopenmanager.h \
+    locatormanager.h \
     basefilefilter.h \
     quickopen_global.h
 SOURCES += quickopenplugin.cpp \
@@ -22,7 +22,7 @@ SOURCES += quickopenplugin.cpp \
     filesystemfilter.cpp \
     settingspage.cpp \
     directoryfilter.cpp \
-    quickopenmanager.cpp \
+    locatormanager.cpp \
     basefilefilter.cpp \
     ilocatorfilter.cpp
 FORMS += settingspage.ui \

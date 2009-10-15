@@ -30,7 +30,7 @@
 #include "quickopenplugin.h"
 #include "quickopenconstants.h"
 #include "quickopenfiltersfilter.h"
-#include "quickopenmanager.h"
+#include "locatormanager.h"
 #include "locatorwidget.h"
 #include "opendocumentsfilter.h"
 #include "filesystemfilter.h"
@@ -112,7 +112,7 @@ bool QuickOpenPlugin::initialize(const QStringList &, QString *)
     Core::ActionContainer *mtools = core->actionManager()->actionContainer(Core::Constants::M_TOOLS);
     mtools->addAction(cmd);
 
-    addObject(new QuickOpenManager(m_locatorWidget));
+    addObject(new LocatorManager(m_locatorWidget));
 
     m_openDocumentsFilter = new OpenDocumentsFilter(core->editorManager());
     addObject(m_openDocumentsFilter);

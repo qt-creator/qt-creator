@@ -27,33 +27,36 @@
 **
 **************************************************************************/
 
-#include "quickopenmanager.h"
-#include "locatorwidget.h"
+#ifndef LOCATORMANAGER_H
+#define LOCATORMANAGER_H
 
-#include <extensionsystem/pluginmanager.h>
-#include <utils/qtcassert.h>
+#include "quickopen_global.h"
 
-using namespace QuickOpen;
-using namespace QuickOpen::Internal;
+#include <QtCore/QObject>
 
-QuickOpenManager *QuickOpenManager::m_instance = 0;
+namespace QuickOpen {
 
-QuickOpenManager::QuickOpenManager(LocatorWidget *locatorWidget)
-  : QObject(locatorWidget),
-    m_locatorWidget(locatorWidget)
-{
-    m_instance = this;
+namespace Internal {
+class LocatorWidget;
 }
 
-QuickOpenManager::~QuickOpenManager()
+class QUICKOPEN_EXPORT LocatorManager : public QObject
 {
-    ExtensionSystem::PluginManager::instance()->removeObject(this);
-    m_instance = 0;
-}
+    Q_OBJECT
 
-void QuickOpenManager::show(const QString &text,
-                            int selectionStart, int selectionLength)
-{
-    QTC_ASSERT(m_locatorWidget, return);
-    m_locatorWidget->show(text, selectionStart, selectionLength);
-}
+public:
+    LocatorManager(Internal::LocatorWidget *locatorWidget);
+    ~LocatorManager();
+
+    static LocatorManager* instance() { return m_instance; }
+
+    void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
+
+private:
+    Internal::LocatorWidget *m_locatorWidget;
+    static LocatorManager *m_instance;
+};
+
+} // namespace QuickOpen
+
+#endif // LOCATORMANAGER_H

@@ -33,7 +33,7 @@
 #include "texteditorplugin.h"
 #include "linenumberfilter.h"
 
-#include <quickopen/quickopenmanager.h>
+#include <quickopen/locatormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -360,7 +360,7 @@ void TextEditorActionHandler::updateCopyAction()
 
 void TextEditorActionHandler::gotoAction()
 {
-    QuickOpen::QuickOpenManager *quickopen = QuickOpen::QuickOpenManager::instance();
+    QuickOpen::LocatorManager *quickopen = QuickOpen::LocatorManager::instance();
     QTC_ASSERT(quickopen, return);
     const QString shortcut = TextEditorPlugin::instance()->lineNumberFilter()->shortcutString();
     const QString text = tr(" <line number>");
