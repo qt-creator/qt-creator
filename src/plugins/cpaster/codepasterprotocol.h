@@ -66,6 +66,7 @@ public slots:
     void readPostResponseHeader(const QHttpResponseHeader &);
 
 private:
+    bool isValidHostName(const QString& hostName);
     CodePasterSettingsPage *m_page;
     QHttp http;
     QNetworkAccessManager manager;
