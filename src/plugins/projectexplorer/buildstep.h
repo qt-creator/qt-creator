@@ -130,7 +130,6 @@ Q_SIGNALS:
     void addToOutputWindow(const QString &string);
 
 private:
-    QList<BuildConfiguration *> buildConfigurations();
     void addBuildConfiguration(const QString & name);
     void removeBuildConfiguration(const QString & name);
     BuildConfiguration *getBuildConfiguration(const QString & name) const;
