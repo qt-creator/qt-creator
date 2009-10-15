@@ -174,19 +174,13 @@ void Launcher::logMessage(const QString &msg)
         qDebug() << "LAUNCHER: " << qPrintable(msg);
 }
 
-void Launcher::waitForTrkFinished(const TrkResult &result)
-{
-    Q_UNUSED(result)
-    d->m_device.sendTrkMessage(TrkPing, TrkCallback(this, &Launcher::handleWaitForFinished));
-}
-
 void Launcher::terminate()
 {
     //TODO handle case where application has not been started
     QByteArray ba;
     appendShort(&ba, 0x0000, TargetByteOrder);
     appendInt(&ba, d->m_session.pid, TargetByteOrder);
-    d->m_device.sendTrkMessage(TrkDeleteItem, TrkCallback(this, &Launcher::waitForTrkFinished), ba);
+    d->m_device.sendTrkMessage(TrkDeleteItem, TrkCallback(this, &Launcher::handleWaitForFinished), ba);
 }
 
 void Launcher::handleResult(const TrkResult &result)
@@ -273,7 +267,7 @@ void Launcher::handleResult(const TrkResult &result)
             if (itemType == 0 // process
                 && result.data.size() >= 10
                 && d->m_session.pid == extractInt(result.data.data() + 6)) {
-                d->m_device.sendTrkMessage(TrkDisconnect, TrkCallback(this, &Launcher::waitForTrkFinished));
+                d->m_device.sendTrkMessage(TrkDisconnect, TrkCallback(this, &Launcher::handleWaitForFinished));
             }
             break;
         }
