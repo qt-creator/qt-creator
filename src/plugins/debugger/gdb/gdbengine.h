@@ -255,7 +255,6 @@ private slots:
     void handleAdapterShutdownFailed(const QString &msg);
 
 private:
-    int terminationIndex(const QByteArray &buffer, int &length);
     void handleResponse(const QByteArray &buff);
     void handleStopResponse(const GdbMi &data);
     void handleStop1(const GdbResponse &response);
@@ -265,7 +264,6 @@ private:
     void handleResultRecord(const GdbResponse &response);
     void handleExecContinue(const GdbResponse &response);
 //    void handleExecRunToFunction(const GdbResponse &response);
-    void handleInfoShared(const GdbResponse &response);
     void handleShowVersion(const GdbResponse &response);
     void handleQuerySources(const GdbResponse &response);
     void handleWatchPoint(const GdbResponse &response);
@@ -288,7 +286,6 @@ private:
     QByteArray m_inbuffer;
 
     QHash<int, GdbCommand> m_cookieForToken;
-    QHash<int, QByteArray> m_customOutputForToken;
 
     QByteArray m_pendingConsoleStreamOutput;
     QByteArray m_pendingLogStreamOutput;

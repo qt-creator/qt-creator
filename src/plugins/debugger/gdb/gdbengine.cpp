@@ -261,7 +261,6 @@ void GdbEngine::initializeVariables()
     m_commandsDoneCallback = 0;
     m_commandsToRunOnTemporaryBreak.clear();
     m_cookieForToken.clear();
-    m_customOutputForToken.clear();
 
     m_pendingConsoleStreamOutput.clear();
     m_pendingLogStreamOutput.clear();
@@ -557,11 +556,6 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 m_pendingLogStreamOutput);
             response.data.setStreamOutput("consolestreamoutput",
                 m_pendingConsoleStreamOutput);
-            QByteArray custom = m_customOutputForToken[token];
-            if (!custom.isEmpty())
-                response.data.setStreamOutput("customvaluecontents",
-                    '{' + custom + '}');
-            //m_customOutputForToken.remove(token);
             m_pendingLogStreamOutput.clear();
             m_pendingConsoleStreamOutput.clear();
 
@@ -889,14 +883,6 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
         }
         if (m_shortToFullName != oldShortToFull)
             manager()->sourceFileWindow()->setSourceFiles(m_shortToFullName);
-    }
-}
-
-void GdbEngine::handleInfoShared(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        // let the modules handler do the parsing
-        handleModulesList(response);
     }
 }
 
