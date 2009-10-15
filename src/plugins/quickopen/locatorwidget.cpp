@@ -74,10 +74,10 @@ namespace QuickOpen {
 namespace Internal {
 
 /*! A model to represent the QuickOpen results. */
-class QuickOpenModel : public QAbstractListModel
+class LocatorModel : public QAbstractListModel
 {
 public:
-    QuickOpenModel(QObject *parent = 0)
+    LocatorModel(QObject *parent = 0)
         : QAbstractListModel(parent)
 //        , mDisplayCount(64)
     {}
@@ -124,12 +124,12 @@ QT_END_NAMESPACE
 
 // =========== QuickOpenModel ===========
 
-int QuickOpenModel::rowCount(const QModelIndex & /* parent */) const
+int LocatorModel::rowCount(const QModelIndex & /* parent */) const
 {
     return mEntries.size();
 }
 
-int QuickOpenModel::columnCount(const QModelIndex &parent) const
+int LocatorModel::columnCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : 2;
 }
@@ -140,7 +140,7 @@ int QuickOpenModel::columnCount(const QModelIndex &parent) const
  * FilterEntry::resolveFileIcon is true. FilterEntry::internalData is assumed
  * to be the filename.
  */
-QVariant QuickOpenModel::data(const QModelIndex &index, int role) const
+QVariant LocatorModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= mEntries.size())
         return QVariant();
@@ -168,7 +168,7 @@ QVariant QuickOpenModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void QuickOpenModel::setEntries(const QList<FilterEntry> &entries)
+void LocatorModel::setEntries(const QList<FilterEntry> &entries)
 {
     mEntries = entries;
     reset();
@@ -248,7 +248,7 @@ void CompletionList::updatePreferredSize()
 
 LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
      m_locatorPlugin(qop),
-     m_quickOpenModel(new QuickOpenModel(this)),
+     m_locatorModel(new LocatorModel(this)),
      m_completionList(new CompletionList(this)),
      m_filterMenu(new QMenu(this)),
      m_refreshAction(new QAction(tr("Refresh"), this)),
@@ -283,7 +283,7 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
     m_fileLineEdit->installEventFilter(this);
     this->installEventFilter(this);
 
-    m_completionList->setModel(m_quickOpenModel);
+    m_completionList->setModel(m_locatorModel);
     m_completionList->header()->resizeSection(0, 300);
     m_completionList->updatePreferredSize();
     m_completionList->resize(m_completionList->preferredSize());
@@ -412,9 +412,9 @@ void LocatorWidget::updateCompletionList(const QString &text)
                 alreadyAdded.insert(entry);
         }
     }
-    m_quickOpenModel->setEntries(entries);
-    if (m_quickOpenModel->rowCount() > 0) {
-        m_completionList->setCurrentIndex(m_quickOpenModel->index(0, 0));
+    m_locatorModel->setEntries(entries);
+    if (m_locatorModel->rowCount() > 0) {
+        m_completionList->setCurrentIndex(m_locatorModel->index(0, 0));
     }
 #if 0
     m_completionList->updatePreferredSize();
@@ -428,7 +428,7 @@ void LocatorWidget::acceptCurrentEntry()
     const QModelIndex index = m_completionList->currentIndex();
     if (!index.isValid())
         return;
-    const FilterEntry entry = m_quickOpenModel->data(index, Qt::UserRole).value<FilterEntry>();
+    const FilterEntry entry = m_locatorModel->data(index, Qt::UserRole).value<FilterEntry>();
     m_completionList->hide();
     entry.filter->accept(entry);
 }

@@ -50,7 +50,7 @@ namespace Utils {
 namespace QuickOpen {
 namespace Internal {
 
-class QuickOpenModel;
+class LocatorModel;
 class CompletionList;
 
 class LocatorWidget
@@ -82,7 +82,7 @@ private:
     QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);
 
     LocatorPlugin *m_locatorPlugin;
-    QuickOpenModel *m_quickOpenModel;
+    LocatorModel *m_locatorModel;
 
     CompletionList *m_completionList;
     QMenu *m_filterMenu;
