@@ -1,3 +1,3 @@
 include(locator_dependencies.pri)
 
-LIBS *= -l$$qtLibraryTarget(QuickOpen)
+LIBS *= -l$$qtLibraryTarget(Locator)

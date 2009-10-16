@@ -1,4 +1,4 @@
-<plugin name="QuickOpen" version="1.2.93" compatVersion="1.2.93">
+<plugin name="Locator" version="1.2.93" compatVersion="1.2.93">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -16,7 +16,7 @@ General Public License version 2.1 as published by the Free Software
 Foundation.  Please review the following information to
 ensure the GNU Lesser General Public License version 2.1 requirements
 will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
-    <description>Provides the Locator widget and the hooks for QuickOpen filter implementations.</description>
+    <description>Provides the Locator widget and the hooks for Locator filter implementations.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
         <dependency name="Core" version="1.2.93"/>

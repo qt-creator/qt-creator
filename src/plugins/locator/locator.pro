@@ -1,5 +1,5 @@
 TEMPLATE = lib
-TARGET = QuickOpen
+TARGET = Locator
 DEFINES += LOCATOR_LIBRARY
 include(../../qtcreatorplugin.pri)
 include(locator_dependencies.pri)
@@ -30,4 +30,4 @@ FORMS += settingspage.ui \
     directoryfilter.ui
 RESOURCES += locator.qrc
 
-OTHER_FILES += QuickOpen.pluginspec
+OTHER_FILES += Locator.pluginspec
