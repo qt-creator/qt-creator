@@ -113,7 +113,9 @@ public:
     QString symbolFileName;
     QString serverStartScript;
     QString sysRoot;
+    QString debuggerCommand;
     int toolChainType;
+    QString remoteDumperLib;
 
     QString dumperLibrary;
     QStringList dumperLibraryLocations;

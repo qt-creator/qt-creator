@@ -3796,47 +3796,56 @@ void GdbEngine::tryLoadDebuggingHelpers()
     }
 
     m_debuggingHelperState = DebuggingHelperLoadTried;
+    const QString dlopenLib =
+        (startParameters().startMode == StartRemote)
+            ? startParameters().remoteDumperLib : lib;
 #if defined(Q_OS_WIN)
     if (m_dumperInjectionLoad) {
         /// Launch asynchronous remote thread to load.
         SharedLibraryInjector injector(inferiorPid());
         QString errorMessage;
-        if (injector.remoteInject(lib, false, &errorMessage)) {
-            debugMessage(tr("Dumper injection loading triggered (%1)...").arg(lib));
+        if (injector.remoteInject(dlopenLib, false, &errorMessage)) {
+            debugMessage(tr("Dumper injection loading triggered (%1)...").
+                         arg(dlopenLib));
         } else {
-            debugMessage(tr("Dumper loading (%1) failed: %2").arg(lib, errorMessage));
+            debugMessage(tr("Dumper loading (%1) failed: %2").
+                         arg(dlopenLib, errorMessage));
             debugMessage(errorMessage);
             manager()->showQtDumperLibraryWarning(errorMessage);
             m_debuggingHelperState = DebuggingHelperUnavailable;
             return;
         }
     } else {
-        debugMessage(tr("Loading dumpers via debugger call (%1)...").arg(lib));
+        debugMessage(tr("Loading dumpers via debugger call (%1)...").
+                     arg(dlopenLib));
         postCommand(_("sharedlibrary .*")); // for LoadLibraryA
         //postCommand(_("handle SIGSEGV pass stop print"));
         //postCommand(_("set unwindonsignal off"));
-        postCommand(_("call LoadLibraryA(\"") + GdbMi::escapeCString(lib) + _("\")"),
+        postCommand(_("call LoadLibraryA(\"") + GdbMi::escapeCString(dlopenLib) + _("\")"),
                     CB(handleDebuggingHelperSetup));
-        postCommand(_("sharedlibrary ") + dotEscape(lib));
+        postCommand(_("sharedlibrary ") + dotEscape(dlopenLib));
     }
 #elif defined(Q_OS_MAC)
     //postCommand(_("sharedlibrary libc")); // for malloc
     //postCommand(_("sharedlibrary libdl")); // for dlopen
-    postCommand(_("call (void)dlopen(\"") + GdbMi::escapeCString(lib) + _("\", " STRINGIFY(RTLD_NOW) ")"),
+    postCommand(_("call (void)dlopen(\"") + GdbMi::escapeCString(dlopenLib)
+                + _("\", " STRINGIFY(RTLD_NOW) ")"),
         CB(handleDebuggingHelperSetup));
-    //postCommand(_("sharedlibrary ") + dotEscape(lib));
+    //postCommand(_("sharedlibrary ") + dotEscape(dlopenLib));
     m_debuggingHelperState = DebuggingHelperLoadTried;
 #else
     //postCommand(_("p dlopen"));
     QString flag = QString::number(RTLD_NOW);
     postCommand(_("sharedlibrary libc")); // for malloc
     postCommand(_("sharedlibrary libdl")); // for dlopen
-    postCommand(_("call (void*)dlopen(\"") + GdbMi::escapeCString(lib) + _("\", " STRINGIFY(RTLD_NOW) ")"),
+    postCommand(_("call (void*)dlopen(\"") + GdbMi::escapeCString(dlopenLib)
+                + _("\", " STRINGIFY(RTLD_NOW) ")"),
         CB(handleDebuggingHelperSetup));
     // some older systems like CentOS 4.6 prefer this:
-    postCommand(_("call (void*)__dlopen(\"") + GdbMi::escapeCString(lib) + _("\", " STRINGIFY(RTLD_NOW) ")"),
+    postCommand(_("call (void*)__dlopen(\"") + GdbMi::escapeCString(dlopenLib)
+                + _("\", " STRINGIFY(RTLD_NOW) ")"),
         CB(handleDebuggingHelperSetup));
-    postCommand(_("sharedlibrary ") + dotEscape(lib));
+    postCommand(_("sharedlibrary ") + dotEscape(dlopenLib));
 #endif
     if (!m_dumperInjectionLoad)
         tryQueryDebuggingHelpers();

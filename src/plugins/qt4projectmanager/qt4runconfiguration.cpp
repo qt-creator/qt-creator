@@ -95,15 +95,21 @@ QString Qt4RunConfiguration::type() const
 
 bool Qt4RunConfiguration::isEnabled() const
 {
-#ifdef QTCREATOR_WITH_S60
+#if defined(QTCREATOR_WITH_S60) || defined(QTCREATOR_WITH_MAEMO)
     Qt4Project *pro = qobject_cast<Qt4Project*>(project());
     QTC_ASSERT(pro, return false);
     ProjectExplorer::ToolChain::ToolChainType type = pro->toolChainType(pro->activeBuildConfiguration());
+#ifdef QTCREATOR_WITH_S60
     if (type == ProjectExplorer::ToolChain::WINSCW
         || type == ProjectExplorer::ToolChain::GCCE
         || type == ProjectExplorer::ToolChain::RVCT_ARMV5
         || type == ProjectExplorer::ToolChain::RVCT_ARMV6)
         return false;
+#endif
+#ifdef QTCREATOR_WITH_MAEMO
+    if (type == ProjectExplorer::ToolChain::GCC_MAEMO)
+        return false;
+#endif
 #endif
     return true;
 }

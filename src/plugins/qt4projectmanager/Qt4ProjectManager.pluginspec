@@ -25,5 +25,6 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
         <dependency name="CppEditor" version="1.3.80"/>
         <dependency name="Help" version="1.3.80"/>
         <dependency name="Designer" version="1.3.80"/>
+        <dependency name="Debugger" version="1.3.80"/>
     </dependencyList>
 </plugin>

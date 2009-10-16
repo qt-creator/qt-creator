@@ -83,7 +83,8 @@ public:
         GCCE = 6,
         RVCT_ARMV5 = 7,
         RVCT_ARMV6 = 8,
-        LAST_VALID = 9,
+        GCC_MAEMO = 9,
+        LAST_VALID = 10,
         OTHER = 200,
         UNKNOWN = 201,
         INVALID = 202

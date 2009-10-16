@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/qt-maemo">
+        <file>images/qemu-run.png</file>
+        <file>images/qemu-stop.png</file>
+    </qresource>
+</RCC>

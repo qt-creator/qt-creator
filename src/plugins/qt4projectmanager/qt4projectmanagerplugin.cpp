@@ -51,6 +51,10 @@
 #include "qt-s60/s60manager.h"
 #endif
 
+#ifdef QTCREATOR_WITH_MAEMO
+#include "qt-maemo/maemomanager.h"
+#endif
+
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
@@ -158,6 +162,10 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
 #ifdef QTCREATOR_WITH_S60
     addAutoReleasedObject(new S60Manager);
+#endif
+
+#ifdef QTCREATOR_WITH_MAEMO
+    addAutoReleasedObject(MaemoManager::instance());
 #endif
 
     // TODO reenable

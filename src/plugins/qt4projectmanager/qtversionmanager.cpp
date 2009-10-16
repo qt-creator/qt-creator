@@ -35,6 +35,9 @@
 #ifdef QTCREATOR_WITH_S60
 #include "qt-s60/s60manager.h"
 #endif
+#ifdef QTCREATOR_WITH_MAEMO
+#include "qt-maemo/maemomanager.h"
+#endif
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/projectexplorer.h>
@@ -1056,6 +1059,10 @@ ProjectExplorer::ToolChain *QtVersion::createToolChain(ProjectExplorer::ToolChai
                || type == ProjectExplorer::ToolChain::RVCT_ARMV6) {
         tempToolchain = S60Manager::instance()->createRVCTToolChain(this, type);
 #endif
+#ifdef QTCREATOR_WITH_MAEMO
+    } else if (type == ProjectExplorer::ToolChain::GCC_MAEMO) {
+        tempToolchain = MaemoManager::instance()->maemoToolChain(this);
+#endif
     } else {
         qDebug()<<"Could not create ToolChain for"<<mkspec();
         qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
@@ -1150,6 +1157,25 @@ QList<ProjectExplorer::ToolChain::ToolChainType> QtVersion::possibleToolChainTyp
                 << ProjectExplorer::ToolChain::RVCT_ARMV5
                 << ProjectExplorer::ToolChain::RVCT_ARMV6
                 << ProjectExplorer::ToolChain::WINSCW;
+#endif
+#ifdef QTCREATOR_WITH_MAEMO
+    } else if (spec.contains("linux-g++-opengl")) {
+        bool maemo = false;
+        const QString baseDir = m_versionInfo.contains("QT_INSTALL_DATA") ?
+            m_versionInfo.value("QT_INSTALL_DATA") : QLatin1String("");
+        QFile qconfigpri(baseDir + QLatin1String("/mkspecs/qconfig.pri"));
+        if (qconfigpri.exists()) {
+            qconfigpri.open(QIODevice::ReadOnly | QIODevice::Text);
+            QTextStream stream(&qconfigpri);
+            while (!stream.atEnd()) {
+                QString line = stream.readLine().trimmed();
+                if (line.startsWith(QLatin1String("QT_ARCH"))
+                    && line.endsWith(QLatin1String("arm")))
+                    maemo = true;
+            }
+        }
+        toolChains << (maemo ? ProjectExplorer::ToolChain::GCC_MAEMO
+                       : ProjectExplorer::ToolChain::GCC);
 #endif
     } else {
         toolChains << ProjectExplorer::ToolChain::GCC;

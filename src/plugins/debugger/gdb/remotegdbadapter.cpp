@@ -160,6 +160,8 @@ void RemoteGdbAdapter::startInferior()
     m_engine->postCommand(_("set architecture %1")
         .arg(startParameters().remoteArchitecture));
     m_engine->postCommand(_("set sysroot %1").arg(startParameters().sysRoot));
+    m_engine->postCommand(_("set solib-search-path %1").
+                          arg(QFileInfo(startParameters().dumperLibrary).path()));
 
     if (!startParameters().processArgs.isEmpty())
         m_engine->postCommand(_("-exec-arguments ")

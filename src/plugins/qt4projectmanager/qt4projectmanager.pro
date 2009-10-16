@@ -88,6 +88,7 @@ RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc
 include(../../shared/proparser/proparser.pri)
 include(qt-s60/qt-s60.pri)
+include(qt-maemo/qt-maemo.pri)
 include(customwidgetwizard/customwidgetwizard.pri)
 DEFINES += QT_NO_CAST_TO_ASCII
 OTHER_FILES += Qt4ProjectManager.pluginspec

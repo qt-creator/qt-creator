@@ -68,6 +68,12 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
 
     arguments << "-r";
 
+#ifdef Q_OS_WIN
+    ToolChain::ToolChainType type = m_pro->toolChainType(bc);
+    if (type == ToolChain::GCC_MAEMO)
+        arguments << QLatin1String("-unix");
+#endif
+
     if (bc->value("buildConfiguration").isValid()) {
         QStringList configarguments;
         QtVersion::QmakeBuildConfig defaultBuildConfiguration = m_pro->qtVersion(bc)->defaultBuildConfig();

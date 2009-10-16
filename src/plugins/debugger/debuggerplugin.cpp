@@ -451,6 +451,7 @@ void DebuggerPlugin::shutdown()
     delete m_locationMark;
     m_locationMark = 0;
 
+    removeObject(m_manager);
     delete m_manager;
     m_manager = 0;
 }
@@ -545,6 +546,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     }
 
     m_manager = new DebuggerManager;
+    ExtensionSystem::PluginManager::instance()->addObject(m_manager);
     const QList<Core::IOptionsPage *> engineOptionPages =
         m_manager->initializeEngines(m_cmdLineEnabledEngines);
 
