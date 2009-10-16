@@ -3497,8 +3497,11 @@ void GdbEngine::handleStackListLocals(const GdbResponse &response)
                                       &uninitializedVariables);
     }
     QList<WatchData> list;
-    foreach (const GdbMi &item, locals)
-        list.push_back(localVariable(item, uninitializedVariables, &seen));
+    foreach (const GdbMi &item, locals) {
+        const WatchData data = localVariable(item, uninitializedVariables, &seen);
+        if (data.isValid())
+            list.push_back(data);
+    }
     manager()->watchHandler()->insertBulkData(list);
     manager()->watchHandler()->updateWatchers();
 }
@@ -3518,7 +3521,7 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
     foreach (const GdbMi &child, item.children())
         numExps += int(child.name() == "exp");
     if (numExps > 1)
-        continue;
+        return WatchData();
     QByteArray name = item.findChild("exp").data();
 #else
     QByteArray name = item.findChild("name").data();
