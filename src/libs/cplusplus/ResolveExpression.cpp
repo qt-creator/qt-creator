@@ -897,14 +897,7 @@ bool ResolveExpression::visit(PostIncrDecrAST *)
 
 ////////////////////////////////////////////////////////////////////////////////
 ResolveClass::ResolveClass()
-    : _pointerAccess(false)
 { }
-
-bool ResolveClass::pointerAccess() const
-{ return _pointerAccess; }
-
-void ResolveClass::setPointerAccess(bool pointerAccess)
-{ _pointerAccess = pointerAccess; }
 
 QList<Symbol *> ResolveClass::operator()(Name *name,
                                          const ResolveExpression::Result &p,
@@ -937,16 +930,7 @@ QList<Symbol *> ResolveClass::resolveClass(Name *name,
             resolvedSymbols.append(klass);
         } else if (candidate->isTypedef()) {
             if (Declaration *decl = candidate->asDeclaration()) {
-                if (_pointerAccess && decl->type()->isPointerType()) {
-                    PointerType *ptrTy = decl->type()->asPointerType();
-                    FullySpecifiedType elementTy = ptrTy->elementType().simplified();
-                    if (NamedType *namedTy = elementTy->asNamedType()) {
-                        _pointerAccess = false;
-                        const ResolveExpression::Result r(elementTy, decl);
-                        resolvedSymbols += resolveClass(namedTy->name(), r, context);
-                        _pointerAccess = true;
-                    }
-                } else if (Class *asClass = decl->type()->asClassType()) {
+                if (Class *asClass = decl->type()->asClassType()) {
                     // typedef struct { } Point;
                     // Point pt;
                     // pt.

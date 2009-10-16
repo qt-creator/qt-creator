@@ -130,9 +130,6 @@ class CPLUSPLUS_EXPORT ResolveClass
 public:
     ResolveClass();
 
-    bool pointerAccess() const;
-    void setPointerAccess(bool pointerAccess);
-
     QList<Symbol *> operator()(Name *name,
                                const ResolveExpression::Result &p,
                                const LookupContext &context);
@@ -144,7 +141,6 @@ private:
 
 private:
     QList<ResolveExpression::Result> _blackList;
-    bool _pointerAccess;
 };
 
 
