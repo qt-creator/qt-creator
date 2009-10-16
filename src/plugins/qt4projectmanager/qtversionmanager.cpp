@@ -1133,25 +1133,27 @@ QList<ProjectExplorer::ToolChain::ToolChainType> QtVersion::possibleToolChainTyp
     if (!isValid())
         return toolChains << ProjectExplorer::ToolChain::INVALID;
     const QString &spec = mkspec();
-    if (spec.contains("win32-msvc") || spec.contains(QLatin1String("win32-icc")))
+    if (spec.contains("win32-msvc")
+        || spec.contains(QLatin1String("win32-icc"))) {
         toolChains << ProjectExplorer::ToolChain::MSVC;
-    else if (spec.contains("win32-g++"))
+    } else if (spec.contains("win32-g++")) {
         toolChains << ProjectExplorer::ToolChain::MinGW;
-    else if (spec == QString::null)
+    } else if (spec == QString::null) {
         toolChains << ProjectExplorer::ToolChain::INVALID;
-    else if (spec.contains("wince"))
+    } else if (spec.contains("wince")) {
         toolChains << ProjectExplorer::ToolChain::WINCE;
-    else if (spec.contains("linux-icc"))
+    } else if (spec.contains("linux-icc")) {
         toolChains << ProjectExplorer::ToolChain::LinuxICC;
 #ifdef QTCREATOR_WITH_S60
-    else if (spec.contains("symbian-abld"))
+    } else if (spec.contains("symbian-abld")) {
         toolChains << ProjectExplorer::ToolChain::GCCE
                 << ProjectExplorer::ToolChain::RVCT_ARMV5
                 << ProjectExplorer::ToolChain::RVCT_ARMV6
                 << ProjectExplorer::ToolChain::WINSCW;
 #endif
-    else
+    } else {
         toolChains << ProjectExplorer::ToolChain::GCC;
+    }
     return toolChains;
 }
 
