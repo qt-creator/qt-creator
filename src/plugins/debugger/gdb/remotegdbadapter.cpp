@@ -164,32 +164,20 @@ void RemoteGdbAdapter::startInferior()
         m_engine->postCommand(_("-exec-arguments ")
             + startParameters().processArgs.join(_(" ")));
 
-#if 0
     m_engine->postCommand(_("set target-async on"), CB(handleSetTargetAsync));
-#else
+
     QFileInfo fi(startParameters().executable);
     QString fileName = fi.absoluteFilePath();
     m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName),
         CB(handleFileExecAndSymbols));
-#endif
 }
 
-#if 0
 void RemoteGdbAdapter::handleSetTargetAsync(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
-        //qq->breakHandler()->setAllPending();
-        QFileInfo fi(startParameters().executable);
-        QString fileName = fi.absoluteFilePath();
-        m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName),
-            CB(handleFileExecAndSymbols));
-    } else {
-        QString msg = tr("Adapter too old: does not support asynchronous mode.");
-        emit inferiorStartFailed(msg);
-    }
+    if (response.resultClass == GdbResultError)
+        qDebug() << "Adapter too old: does not support asynchronous mode.";
 }
-#endif
 
 void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
