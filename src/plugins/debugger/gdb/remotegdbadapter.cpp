@@ -159,6 +159,7 @@ void RemoteGdbAdapter::startInferior()
 
     m_engine->postCommand(_("set architecture %1")
         .arg(startParameters().remoteArchitecture));
+    m_engine->postCommand(_("set sysroot %1").arg(startParameters().sysRoot));
 
     if (!startParameters().processArgs.isEmpty())
         m_engine->postCommand(_("-exec-arguments ")

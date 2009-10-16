@@ -140,6 +140,8 @@ public:
     QString serverStartScript() const;
     void setUseServerStartScript(bool on);
     bool useServerStartScript() const;
+    void setSysroot(const QString &sysroot);
+    const QString sysroot() const;
 
 private slots:
     void updateState();

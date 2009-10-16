@@ -112,6 +112,7 @@ public:
     QString remoteArchitecture;
     QString symbolFileName;
     QString serverStartScript;
+    QString sysRoot;
     int toolChainType;
 
     QString dumperLibrary;

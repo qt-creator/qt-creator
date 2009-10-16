@@ -1292,17 +1292,20 @@ void DebuggerPlugin::startRemoteApplication()
             configValue(_("LastServerStartScript")).toString());
     dlg.setUseServerStartScript(
             configValue(_("LastUseServerStartScript")).toBool());
+    dlg.setSysroot(configValue(_("LastSysroot")).toString());
     if (dlg.exec() != QDialog::Accepted)
         return;
     setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
     setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
     setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
     setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
+    setConfigValue(_("LastSysroot"), dlg.sysroot());
     sp->remoteChannel = dlg.remoteChannel();
     sp->remoteArchitecture = dlg.remoteArchitecture();
     sp->startMode = StartRemote;
     if (dlg.useServerStartScript())
         sp->serverStartScript = dlg.serverStartScript();
+    sp->sysRoot = dlg.sysroot();
 
     RunConfigurationPtr rc = activeRunConfiguration();
     if (rc.isNull())

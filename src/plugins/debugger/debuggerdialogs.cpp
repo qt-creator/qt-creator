@@ -454,6 +454,16 @@ bool StartRemoteDialog::useServerStartScript() const
     return m_ui->useServerStartScriptCheckBox->isChecked();
 }
 
+void StartRemoteDialog::setSysroot(const QString &sysroot)
+{
+    m_ui->sysrootPathChooser->setPath(sysroot);
+}
+
+const QString StartRemoteDialog::sysroot() const
+{
+    return m_ui->sysrootPathChooser->path();
+}
+
 void StartRemoteDialog::updateState()
 {
     bool enabled = m_ui->useServerStartScriptCheckBox->isChecked();
