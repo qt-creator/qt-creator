@@ -19,7 +19,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_cpptools \
             plugin_qt4projectmanager \
 #            plugin_snippets \ # buggy and annoying
-            plugin_quickopen \
+            plugin_locator \
             plugin_debugger \
 #            plugin_qtestlib \ # this seems to be dead
 #            plugin_helloworld \ # sample plugin
@@ -46,7 +46,7 @@ plugin_find.depends += plugin_coreplugin
 
 plugin_texteditor.subdir = texteditor
 plugin_texteditor.depends = plugin_find
-plugin_texteditor.depends += plugin_quickopen
+plugin_texteditor.depends += plugin_locator
 plugin_texteditor.depends += plugin_coreplugin
 
 plugin_cppeditor.subdir = cppeditor
@@ -88,7 +88,7 @@ plugin_subversion.depends += plugin_projectexplorer
 plugin_subversion.depends += plugin_coreplugin
 
 plugin_projectexplorer.subdir = projectexplorer
-plugin_projectexplorer.depends = plugin_quickopen
+plugin_projectexplorer.depends = plugin_locator
 plugin_projectexplorer.depends += plugin_find
 plugin_projectexplorer.depends += plugin_coreplugin
 plugin_projectexplorer.depends += plugin_texteditor
@@ -102,8 +102,8 @@ plugin_qt4projectmanager.depends += plugin_help
 plugin_qt4projectmanager.depends += plugin_designer
 plugin_qt4projectmanager.depends += plugin_debugger
 
-plugin_quickopen.subdir = quickopen
-plugin_quickopen.depends = plugin_coreplugin
+plugin_locator.subdir = locator
+plugin_locator.depends = plugin_coreplugin
 
 plugin_cpptools.subdir = cpptools
 plugin_cpptools.depends = plugin_projectexplorer
@@ -139,7 +139,7 @@ plugin_helloworld.depends = plugin_coreplugin
 
 plugin_help.subdir = help
 plugin_help.depends = plugin_find
-plugin_help.depends += plugin_quickopen
+plugin_help.depends += plugin_locator
 plugin_help.depends += plugin_coreplugin
 
 plugin_resourceeditor.subdir = resourceeditor

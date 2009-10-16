@@ -30,7 +30,7 @@
 #ifndef ALLPROJECTSFILTER_H
 #define ALLPROJECTSFILTER_H
 
-#include <quickopen/basefilefilter.h>
+#include <locator/basefilefilter.h>
 
 #include <QtCore/QFutureInterface>
 #include <QtCore/QString>
@@ -42,7 +42,7 @@ class ProjectExplorerPlugin;
 
 namespace Internal {
 
-class AllProjectsFilter : public QuickOpen::BaseFileFilter
+class AllProjectsFilter : public Locator::BaseFileFilter
 {
     Q_OBJECT
 
@@ -50,7 +50,7 @@ public:
     explicit AllProjectsFilter(ProjectExplorerPlugin *pe);
     QString trName() const { return tr("Files in any project"); }
     QString name() const { return "Files in any project"; }
-    QuickOpen::IQuickOpenFilter::Priority priority() const { return QuickOpen::IQuickOpenFilter::Low; }
+    Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Low; }
     void refresh(QFutureInterface<void> &future);
 
 protected:

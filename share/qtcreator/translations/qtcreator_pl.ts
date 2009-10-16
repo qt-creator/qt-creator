@@ -2769,9 +2769,9 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QuickOpen::Internal::DirectoryFilterOptions</name>
+    <name>Locator::Internal::DirectoryFilterOptions</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/directoryfilter.ui"/>
+        <location filename="../../../src/plugins/locator/directoryfilter.ui"/>
         <source>Name:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2823,9 +2823,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>QuickOpen::Internal::FileSystemFilterOptions</name>
+    <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/filesystemfilter.ui"/>
+        <location filename="../../../src/plugins/locator/filesystemfilter.ui"/>
         <source>Filter configuration</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2851,9 +2851,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>QuickOpen::Internal::SettingsWidget</name>
+    <name>Locator::Internal::SettingsWidget</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/settingspage.ui"/>
+        <location filename="../../../src/plugins/locator/settingspage.ui"/>
         <source>Configure Filters</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2884,9 +2884,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>QuickOpen::Internal::SettingsDialog</name>
+    <name>Locator::Internal::SettingsDialog</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/settingswidget.ui"/>
+        <location filename="../../../src/plugins/locator/settingswidget.ui"/>
         <source>Configure Filters</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5901,9 +5901,9 @@ Note: This might remove the local file.</source>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppQuickOpenFilter</name>
+    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppquickopenfilter.h" line="+53"/>
+        <location filename="../../../src/plugins/cpptools/cpplocatorfilter.h" line="+53"/>
         <source>Classes and Methods</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13421,9 +13421,9 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>QuickOpen::Internal::DirectoryFilter</name>
+    <name>Locator::Internal::DirectoryFilter</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/directoryfilter.cpp" line="+44"/>
+        <location filename="../../../src/plugins/locator/directoryfilter.cpp" line="+44"/>
         <source>Generic Directory Filter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13457,17 +13457,17 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>QuickOpen::Internal::FileSystemFilter</name>
+    <name>Locator::Internal::FileSystemFilter</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/filesystemfilter.h" line="+54"/>
+        <location filename="../../../src/plugins/locator/filesystemfilter.h" line="+54"/>
         <source>Files in file system</source>
         <translation>Pliki w systemie plików</translation>
     </message>
 </context>
 <context>
-    <name>QuickOpen::IQuickOpenFilter</name>
+    <name>Locator::ILocatorFilter</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/iquickopenfilter.cpp" line="+86"/>
+        <location filename="../../../src/plugins/locator/ilocatorfilter.cpp" line="+86"/>
         <source>Filter Configuration</source>
         <translation>Konfiguracja filtra</translation>
     </message>
@@ -13483,9 +13483,9 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>QuickOpen::Internal::OpenDocumentsFilter</name>
+    <name>Locator::Internal::OpenDocumentsFilter</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/opendocumentsfilter.h" line="+53"/>
+        <location filename="../../../src/plugins/locator/opendocumentsfilter.h" line="+53"/>
         <source>Open documents</source>
         <translation>Otwarte dokumenty</translation>
     </message>
@@ -13493,7 +13493,7 @@ Check if the phone is connected and the TRK application is running.</source>
 <context>
     <name>Locator</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/quickopenconstants.h" line="+38"/>
+        <location filename="../../../src/plugins/locator/locatorconstants.h" line="+38"/>
         <source>Filters</source>
         <translation>Filtry</translation>
     </message>
@@ -13504,25 +13504,25 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>QuickOpen::Internal::QuickOpenFiltersFilter</name>
+    <name>Locator::Internal::LocatorFiltersFilter</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/quickopenfiltersfilter.cpp" line="+53"/>
+        <location filename="../../../src/plugins/locator/locatorfiltersfilter.cpp" line="+53"/>
         <source>Available filters</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>QuickOpen::Internal::QuickOpenPlugin</name>
+    <name>Locator::Internal::LocatorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/quickopenplugin.cpp" line="+247"/>
+        <location filename="../../../src/plugins/locator/locatorplugin.cpp" line="+247"/>
         <source>Indexing</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>QuickOpen::Internal::QuickOpenToolWindow</name>
+    <name>Locator::Internal::LocatorWidget</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/quickopentoolwindow.cpp" line="+254"/>
+        <location filename="../../../src/plugins/locator/locatorwidget.cpp" line="+254"/>
         <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13548,9 +13548,9 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>QuickOpen::Internal::SettingsPage</name>
+    <name>Locator::Internal::SettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/quickopen/settingspage.cpp" line="+159"/>
+        <location filename="../../../src/plugins/locator/settingspage.cpp" line="+159"/>
         <source>%1 (Prefix: %2)</source>
         <translation>%1 (Przedrostek: %2)</translation>
     </message>

@@ -30,7 +30,7 @@
 #ifndef HELPINDEXFILTER_H
 #define HELPINDEXFILTER_H
 
-#include <quickopen/iquickopenfilter.h>
+#include <locator/ilocatorfilter.h>
 
 #include <QtGui/QIcon>
 
@@ -44,19 +44,19 @@ namespace Internal {
 
 class HelpPlugin;
 
-class HelpIndexFilter : public QuickOpen::IQuickOpenFilter
+class HelpIndexFilter : public Locator::ILocatorFilter
 {
     Q_OBJECT
 
 public:
     HelpIndexFilter(HelpPlugin *plugin, QHelpEngine *helpEngine);
 
-    // IQuickOpenFilter
+    // ILocatorFilter
     QString trName() const;
     QString name() const;
     Priority priority() const;
-    QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
-    void accept(QuickOpen::FilterEntry selection) const;
+    QList<Locator::FilterEntry> matchesFor(const QString &entry);
+    void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 signals:

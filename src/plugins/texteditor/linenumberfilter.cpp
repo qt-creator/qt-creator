@@ -35,12 +35,12 @@
 #include <QtCore/QVariant>
 
 using namespace Core;
-using namespace QuickOpen;
+using namespace Locator;
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 LineNumberFilter::LineNumberFilter(QObject *parent)
-  : IQuickOpenFilter(parent)
+  : ILocatorFilter(parent)
 {
     setShortcutString("l");
     setIncludedByDefault(true);

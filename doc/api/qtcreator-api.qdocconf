@@ -9,7 +9,7 @@ headerdirs              = . \
                           ../../src/libs/extensionsystem \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \
-                          ../../src/plugins/quickopen
+                          ../../src/plugins/locator
 
 sourcedirs              = . \
                           ../../src/libs/aggregation \
@@ -17,7 +17,7 @@ sourcedirs              = . \
                           ../../src/libs/extensionsystem \
                           ../../src/plugins/coreplugin \
                           ../../src/plugins/find \
-                          ../../src/plugins/quickopen
+                          ../../src/plugins/locator
 
 headers.fileextesnions  = "*.h"
 sources.fileextensions  = "*.cpp *.qdoc"
@@ -62,7 +62,7 @@ macro.endquote                  = "\\endquotation"
 macro.relatesto                 = "\\relates"
 
 spurious			= "Missing comma in .*" \
-				  "Missing pattern .*"
+                                  "Missing pattern .*"
 
 ## macros.qdocconf
 macro.aring.HTML        = "&aring;"
@@ -224,7 +224,7 @@ defines                 = Q_QDOC \
                           Q_WS_.* \
                           Q_OS_.* \
                           Q_BYTE_ORDER \
-			  QT_DEPRECATED \
+                          QT_DEPRECATED \
                           Q_NO_USING_KEYWORD \
                           __cplusplus
 
@@ -232,4 +232,4 @@ defines                 = Q_QDOC \
 # See also qhp.Qt.extraFiles
 extraimages.HTML        = qt-logo \
                           trolltech-logo
-                             
+
