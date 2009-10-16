@@ -55,7 +55,7 @@ class PROJECTEXPLORER_EXPORT BuildManager
 {
     Q_OBJECT
 
-    //NBS TODO this class has to many different variables which hold state:
+    //NBS TODO this class has too many different variables which hold state:
     // m_buildQueue, m_running, m_canceled, m_progress, m_maxProgress, m_activeBuildSteps and ...
     // I might need to reduce that
 
