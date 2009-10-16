@@ -30,7 +30,7 @@
 #ifndef CURRENTPROJECTFILTER_H
 #define CURRENTPROJECTFILTER_H
 
-#include <quickopen/basefilefilter.h>
+#include <locator/basefilefilter.h>
 
 #include <QtCore/QString>
 #include <QtCore/QByteArray>

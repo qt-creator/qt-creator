@@ -33,7 +33,7 @@
 #include "texteditorplugin.h"
 #include "linenumberfilter.h"
 
-#include <quickopen/locatormanager.h>
+#include <locator/locatormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>

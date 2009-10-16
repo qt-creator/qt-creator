@@ -30,7 +30,7 @@
 #ifndef ALLPROJECTSFILTER_H
 #define ALLPROJECTSFILTER_H
 
-#include <quickopen/basefilefilter.h>
+#include <locator/basefilefilter.h>
 
 #include <QtCore/QFutureInterface>
 #include <QtCore/QString>

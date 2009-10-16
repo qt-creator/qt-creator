@@ -32,7 +32,7 @@
 
 #include "searchsymbols.h"
 
-#include <quickopen/ilocatorfilter.h>
+#include <locator/ilocatorfilter.h>
 
 namespace Core {
 class EditorManager;

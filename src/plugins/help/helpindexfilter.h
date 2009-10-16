@@ -30,7 +30,7 @@
 #ifndef HELPINDEXFILTER_H
 #define HELPINDEXFILTER_H
 
-#include <quickopen/ilocatorfilter.h>
+#include <locator/ilocatorfilter.h>
 
 #include <QtGui/QIcon>
 
