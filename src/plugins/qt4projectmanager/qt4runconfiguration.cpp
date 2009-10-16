@@ -99,13 +99,13 @@ bool Qt4RunConfiguration::isEnabled() const
     Qt4Project *pro = qobject_cast<Qt4Project*>(project());
     QTC_ASSERT(pro, return false);
     ProjectExplorer::ToolChain::ToolChainType type = pro->toolChainType(pro->activeBuildConfiguration());
-    return type != ProjectExplorer::ToolChain::WINSCW
-            && type != ProjectExplorer::ToolChain::GCCE
-            && type != ProjectExplorer::ToolChain::RVCT_ARMV5
-            && type != ProjectExplorer::ToolChain::RVCT_ARMV6;
-#else
-    return true;
+    if (type == ProjectExplorer::ToolChain::WINSCW
+        || type == ProjectExplorer::ToolChain::GCCE
+        || type == ProjectExplorer::ToolChain::RVCT_ARMV5
+        || type == ProjectExplorer::ToolChain::RVCT_ARMV6)
+        return false;
 #endif
+    return true;
 }
 
 //////
