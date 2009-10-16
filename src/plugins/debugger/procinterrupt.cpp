@@ -61,7 +61,7 @@ bool Debugger::Internal::interruptProcess(int pID)
 bool Debugger::Internal::interruptProcess(int pID)
 {
     if (pID > 0) {
-        if (kill(pID, SIGTRAP) == 0)
+        if (kill(pID, SIGINT) == 0)
             return true;
     }
     return false;

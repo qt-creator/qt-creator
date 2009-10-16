@@ -1005,6 +1005,14 @@ void GdbEngine::handleAqcuiredInferior()
 }
 #endif
 
+#ifdef Q_OS_UNIX
+# define STOP_SIGNAL "SIGINT"
+# define CROSS_STOP_SIGNAL "SIGTRAP"
+#else
+# define STOP_SIGNAL "SIGTRAP"
+# define CROSS_STOP_SIGNAL "SIGINT"
+#endif
+
 void GdbEngine::handleStopResponse(const GdbMi &data)
 {
     const QByteArray reason = data.findChild("reason").data();
@@ -1124,10 +1132,14 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             initHelpers = false;
         // Don't load helpers on stops triggered by signals unless it's
         // an intentional trap.
-        if (initHelpers && reason == "signal-received"
-                && data.findChild("signal-name").data() != "SIGTRAP")
-            initHelpers = false;
-            
+        if (initHelpers && reason == "signal-received") {
+            QByteArray name = data.findChild("signal-name").data();
+            if (name != STOP_SIGNAL
+                && (startParameters().startMode != StartRemote
+                    || name != CROSS_STOP_SIGNAL))
+                initHelpers = false;
+        }
+
         if (initHelpers) {
             tryLoadDebuggingHelpers();
             QVariant var = QVariant::fromValue<GdbMi>(data);
@@ -1202,9 +1214,11 @@ void GdbEngine::handleStop1(const GdbMi &data)
         if (reason == "signal-received"
             && theDebuggerBoolSetting(UseMessageBoxForSignals)) {
             QByteArray name = data.findChild("signal-name").data();
-            // Ignore SIGTRAP as they are showing up regularily when
+            // Ignore these as they are showing up regularly when
             // stopping debugging.
-            if (name != "SIGTRAP") {
+            if (name != STOP_SIGNAL
+                && (startParameters().startMode != StartRemote
+                    || name != CROSS_STOP_SIGNAL)) {
                 QByteArray meaning = data.findChild("signal-meaning").data();
                 QString msg = tr("<p>The inferior stopped because it received a "
                     "signal from the Operating System.<p>"
