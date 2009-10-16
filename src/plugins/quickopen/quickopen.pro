@@ -10,7 +10,7 @@ HEADERS += locatorplugin.h \
     ilocatorfilter.h \
     opendocumentsfilter.h \
     filesystemfilter.h \
-    quickopenconstants.h \
+    locatorconstants.h \
     directoryfilter.h \
     locatormanager.h \
     basefilefilter.h \

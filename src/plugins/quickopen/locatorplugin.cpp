@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "locatorplugin.h"
-#include "quickopenconstants.h"
+#include "locatorconstants.h"
 #include "locatorfiltersfilter.h"
 #include "locatormanager.h"
 #include "locatorwidget.h"

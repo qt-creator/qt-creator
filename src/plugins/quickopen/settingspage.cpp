@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "settingspage.h"
-#include "quickopenconstants.h"
+#include "locatorconstants.h"
 
 #include "locatorplugin.h"
 #include "ilocatorfilter.h"

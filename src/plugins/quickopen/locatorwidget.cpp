@@ -39,7 +39,7 @@ QT_END_NAMESPACE
 
 #include "locatorwidget.h"
 #include "locatorplugin.h"
-#include "quickopenconstants.h"
+#include "locatorconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
