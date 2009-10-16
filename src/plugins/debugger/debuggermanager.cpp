@@ -229,20 +229,7 @@ DebuggerStartParameters::DebuggerStartParameters()
 
 void DebuggerStartParameters::clear()
 {
-    executable.clear();
-    coreFile.clear();
-    processArgs.clear();
-    environment.clear();
-    workingDir.clear();
-    buildDir.clear();
-    attachPID = -1;
-    useTerminal = false;
-    crashParameter.clear();
-    remoteChannel.clear();
-    remoteArchitecture.clear();
-    serverStartScript.clear();
-    toolChainType = ProjectExplorer::ToolChain::UNKNOWN;
-    startMode = NoStartMode;
+    *this = DebuggerStartParameters();
 }
 
 
