@@ -341,6 +341,8 @@ void CdbDumperInitThread ::run()
 CdbDumperHelper::CdbDumperHelper(DebuggerManager *manager,
                                  CdbComInterfaces *cif) :
     m_tryInjectLoad(true),
+    m_msgDisabled(QLatin1String("Dumpers are disabled")),
+    m_msgNotInScope(QLatin1String("Data not in scope")),
     m_state(NotLoaded),
     m_manager(manager),
     m_cif(cif),
@@ -648,8 +650,12 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpTypeI(const WatchData &wd, bool
 {
     errorMessage->clear();
     // Check failure cache and supported types
-    if (m_state == Disabled) {
-        *errorMessage = QLatin1String("Dumpers are disabled");
+    if (m_state == Disabled) {        
+        *errorMessage =m_msgDisabled;
+        return DumpNotHandled;
+    }
+    if (wd.error) {
+        *errorMessage =m_msgNotInScope;
         return DumpNotHandled;
     }
     if (m_failedTypes.contains(wd.type)) {

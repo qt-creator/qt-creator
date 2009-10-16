@@ -33,8 +33,11 @@
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdebugengine_p.h"
 #include "cdbdumperhelper.h"
+#include "debuggeractions.h"
+#include "debuggermanager.h"
 
 #include <QtCore/QDir>
+#include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 
 namespace Debugger {
@@ -160,7 +163,13 @@ CdbStackFrameContext *CdbStackTraceContext::frameContextAt(int index, QString *e
         *errorMessage = msgFrameContextFailed(index, m_frames.at(index), *errorMessage);
         return 0;
     }
-    CdbSymbolGroupContext *sc = CdbSymbolGroupContext::create(QLatin1String("local"), sg, errorMessage);
+    // Exclude unitialized variables if desired    
+    QStringList uninitializedVariables;
+    if (theDebuggerAction(UseCodeModel)->isChecked()) {        
+        const StackFrame &frame = m_frames.at(index);
+        getUninitializedVariables(DebuggerManager::instance()->cppCodeModelSnapshot(), frame.function, frame.file, frame.line, &uninitializedVariables);
+    }
+    CdbSymbolGroupContext *sc = CdbSymbolGroupContext::create(QLatin1String("local"), sg, uninitializedVariables, errorMessage);
     if (!sc) {
         *errorMessage = msgFrameContextFailed(index, m_frames.at(index), *errorMessage);
         return 0;

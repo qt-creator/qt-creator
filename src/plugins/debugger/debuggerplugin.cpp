@@ -373,6 +373,9 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(CustomDebuggingHelperLocation),
         m_ui.dumperLocationChooser);
 
+    m_group.insert(theDebuggerAction(UseCodeModel),
+        m_ui.checkBoxUseCodeModel);
+
 #ifdef QT_DEBUG
     m_group.insert(theDebuggerAction(DebugDebuggingHelpers),
         m_ui.checkBoxDebugDebuggingHelpers);

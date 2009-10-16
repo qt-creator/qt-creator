@@ -61,6 +61,8 @@
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <projectexplorer/toolchain.h>
+#include <cplusplus/CppDocument.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -303,6 +305,8 @@ struct DebuggerManagerPrivate
 
     IDebuggerEngine *m_engine;
     DebuggerState m_state;
+
+    CPlusPlus::Snapshot m_codeModelSnapshot;
 };
 
 DebuggerManager *DebuggerManagerPrivate::instance = 0;
@@ -621,6 +625,18 @@ ThreadsHandler *DebuggerManager::threadsHandler() const
 WatchHandler *DebuggerManager::watchHandler() const
 {
     return d->m_watchHandler;
+}
+
+const CPlusPlus::Snapshot &DebuggerManager::cppCodeModelSnapshot() const
+{
+    if (d->m_codeModelSnapshot.isEmpty() && theDebuggerAction(UseCodeModel)->isChecked())
+        d->m_codeModelSnapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
+    return d->m_codeModelSnapshot;
+}
+
+void DebuggerManager::clearCppCodeModelSnapshot()
+{
+    d->m_codeModelSnapshot.clear();
 }
 
 SourceFilesWindow *DebuggerManager::sourceFileWindow() const
@@ -1026,6 +1042,7 @@ void DebuggerManager::exitDebugger()
     // in turn will handle the cleanup.
     if (d->m_engine && state() != DebuggerNotReady)
         d->m_engine->exitDebugger();
+    d->m_codeModelSnapshot.clear();
 }
 
 DebuggerStartParametersPtr DebuggerManager::startParameters() const

@@ -89,10 +89,6 @@
 #endif
 #include <ctype.h>
 
-// FIXME: temporary hack to evalaute tbreak based step-over behaviour
-static QString lastFile;
-static int lastLine;
-
 namespace Debugger {
 namespace Internal {
 
@@ -1233,9 +1229,9 @@ void GdbEngine::handleStop2(const GdbResponse &response)
 void GdbEngine::handleStop2(const GdbMi &data)
 {
     // Sometimes we get some interesting extra information. Grab it.
-    GdbMi frame = data.findChild("frame");
-    GdbMi shortName = frame.findChild("file");
-    GdbMi fullName = frame.findChild("fullname");
+    const GdbMi gdbmiFrame = data.findChild("frame");
+    GdbMi shortName = gdbmiFrame.findChild("file");
+    GdbMi fullName = gdbmiFrame.findChild("fullname");
     if (shortName.isValid() && fullName.isValid()) {
         QString file = QFile::decodeName(shortName.data());
         QString full = QFile::decodeName(fullName.data());
@@ -1246,16 +1242,17 @@ void GdbEngine::handleStop2(const GdbMi &data)
     }
 
     // Quick shot: Jump to stack frame #0.
-    if (frame.isValid()) {
-        const StackFrame f = parseStackFrame(frame, 0);
-        gotoLocation(f, true);
+    StackFrame frame;
+    if (gdbmiFrame.isValid()) {
+        frame = parseStackFrame(gdbmiFrame, 0);
+        gotoLocation(frame, true);
     }
 
     //
     // Stack
     //
     manager()->stackHandler()->setCurrentIndex(0);
-    updateLocals(); // Quick shot
+    updateLocals(qVariantFromValue(frame)); // Quick shot
 
     reloadStack(false);
 
@@ -2583,11 +2580,6 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
 //
 //////////////////////////////////////////////////////////////////////
 
-//: Variable
-static const QString strNotInScope =
-        QCoreApplication::translate("Debugger::Internal::GdbEngine", "<not in scope>");
-
-
 static void setWatchDataValue(WatchData &data, const GdbMi &mi,
     int encoding = 0)
 {
@@ -2804,8 +2796,8 @@ void GdbEngine::updateSubItem(const WatchData &data0)
             qDebug() << "FIXME: GdbEngine::updateSubItem:"
                  << data.toString() << "should not happen";
             #else
-            data.setType(strNotInScope);
-            data.setValue(strNotInScope);
+            data.setType(WatchData::msgNotInScope());
+            data.setValue(WatchData::msgNotInScope());
             data.setHasChildren(false);
             insertData(data);
             return;
@@ -3139,7 +3131,7 @@ void GdbEngine::handleVarCreate(const GdbResponse &response)
     } else {
         data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
         if (data.isWatcher()) {
-            data.value = strNotInScope;
+            data.value = WatchData::msgNotInScope();
             data.type = _(" ");
             data.setAllUnneeded();
             data.setHasChildren(false);
@@ -3213,7 +3205,7 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResponse &response)
 
     GdbMi contents;
     if (!parseConsoleStream(response, &contents)) {
-        data.setError(strNotInScope);
+        data.setError(WatchData::msgNotInScope());
         insertData(data);
         return;
     }
@@ -3306,7 +3298,7 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResponse &response)
         //    <<  " STREAM:" << out;
         if (list.isEmpty()) {
             //: Value for variable
-            data.setError(strNotInScope);
+            data.setError(WatchData::msgNotInScope());
             data.setAllUnneeded();
             insertData(data);
         } else if (data.type == __("QString")
@@ -3351,19 +3343,19 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResponse &response)
             }
         } else {
             //: Value for variable
-            data.setError(strNotInScope);
+            data.setError(WatchData::msgNotInScope());
             data.setAllUnneeded();
             insertData(data);
         }
     } else {
         WatchData data = response.cookie.value<WatchData>();
-        data.setError(strNotInScope);
+        data.setError(WatchData::msgNotInScope());
         data.setAllUnneeded();
         insertData(data);
     }
 }
 
-void GdbEngine::updateLocals()
+void GdbEngine::updateLocals(const QVariant &cookie)
 {
     m_pendingRequests = 0;
     m_processedNames.clear();
@@ -3393,7 +3385,7 @@ void GdbEngine::updateLocals()
         postCommand(cmd, WatchUpdate, CB(handleStackListArguments));
         // '2' is 'list with type and value'
         postCommand(_("-stack-list-locals 2"), WatchUpdate,
-            CB(handleStackListLocals)); // stage 2/2
+            CB(handleStackListLocals), cookie); // stage 2/2
     }
 }
 
@@ -3489,91 +3481,102 @@ void GdbEngine::handleStackListLocals(const GdbResponse &response)
     // There could be shadowed variables
     QList<GdbMi> locals = response.data.findChild("locals").children();
     locals += m_currentFunctionArgs;
-
-    setLocals(locals);
+    QMap<QByteArray, int> seen;
+    // If desired, retrieve list of uninitialized variables looking at
+    // the current frame. This is invoked first time after a stop from
+    // handleStop2, which passes on the frame as cookie. The whole stack
+    // is not known at this point.
+    QStringList uninitializedVariables;
+    if (theDebuggerAction(UseCodeModel)->isChecked()) {
+        const StackFrame frame = qVariantCanConvert<Debugger::Internal::StackFrame>(response.cookie) ?
+                                 qVariantValue<Debugger::Internal::StackFrame>(response.cookie) :
+                                 m_manager->stackHandler()->currentFrame();
+        if (frame.isUsable())
+            getUninitializedVariables(m_manager->cppCodeModelSnapshot(),
+                                      frame.function, frame.file, frame.line,
+                                      &uninitializedVariables);
+    }
+    QList<WatchData> list;
+    foreach (const GdbMi &item, locals)
+        list.push_back(localVariable(item, uninitializedVariables, &seen));
+    manager()->watchHandler()->insertBulkData(list);
     manager()->watchHandler()->updateWatchers();
 }
 
-void GdbEngine::setLocals(const QList<GdbMi> &locals)
+// Parse a local variable from GdbMi
+WatchData GdbEngine::localVariable(const GdbMi &item,
+                                   const QStringList &uninitializedVariables,
+                                   QMap<QByteArray, int> *seen)
 {
-    //qDebug() << m_varToType;
-    QMap<QByteArray, int> seen;
-
-    QList<WatchData> list;
-    foreach (const GdbMi &item, locals) {
-        // Local variables of inlined code are reported as
-        // 26^done,locals={varobj={exp="this",value="",name="var4",exp="this",
-        // numchild="1",type="const QtSharedPointer::Basic<CPlusPlus::..."
-        // We do not want these at all. Current hypotheses is that those
-        // "spurious" locals have _two_ "exp" field. Try to filter them:
-        #ifdef Q_OS_MAC
-        int numExps = 0;
-        foreach (const GdbMi &child, item.children())
-            numExps += int(child.name() == "exp");
-        if (numExps > 1)
-            continue;
-        QByteArray name = item.findChild("exp").data();
-        #else
-        QByteArray name = item.findChild("name").data();
-        #endif
-        int n = seen.value(name);
-        if (n) {
-            seen[name] = n + 1;
-            WatchData data;
-            QString nam = _(name);
-            data.iname = _("local.") + nam + QString::number(n + 1);
-            //: Variable %1 is the variable name, %2 is a simple count
-            data.name = tr("%1 <shadowed %2>").arg(nam).arg(n);
+    // Local variables of inlined code are reported as
+    // 26^done,locals={varobj={exp="this",value="",name="var4",exp="this",
+    // numchild="1",type="const QtSharedPointer::Basic<CPlusPlus::..."
+    // We do not want these at all. Current hypotheses is that those
+    // "spurious" locals have _two_ "exp" field. Try to filter them:
+#ifdef Q_OS_MAC
+    int numExps = 0;
+    foreach (const GdbMi &child, item.children())
+        numExps += int(child.name() == "exp");
+    if (numExps > 1)
+        continue;
+    QByteArray name = item.findChild("exp").data();
+#else
+    QByteArray name = item.findChild("name").data();
+#endif
+    const QMap<QByteArray, int>::iterator it  = seen->find(name);
+    if (it != seen->end()) {
+        const int n = it.value();
+        ++(it.value());
+        WatchData data;
+        QString nam = _(name);
+        data.iname = _("local.") + nam + QString::number(n + 1);
+        //: Variable %1 is the variable name, %2 is a simple count
+        data.name = WatchData::shadowedName(nam, n);
+        if (uninitializedVariables.contains(data.name)) {
+            data.setError(WatchData::msgNotInScope());
+            return data;
+        }
+        //: Type of local variable or parameter shadowed by another        
+        //: variable of the same name in a nested block.
+        setWatchDataValue(data, item.findChild("value"));
+        data.setType(GdbEngine::tr("<shadowed>"));        
+        data.setHasChildren(false);
+        return data;
+    }
+    seen->insert(name, 1);
+    WatchData data;
+    QString nam = _(name);
+    data.iname = _("local.") + nam;
+    data.name = nam;
+    data.exp = nam;
+    data.framekey = m_currentFrame + data.name;
+    setWatchDataType(data, item.findChild("type"));
+    if (uninitializedVariables.contains(data.name)) {
+        data.setError(WatchData::msgNotInScope());
+        return data;
+    }
+    if (isSynchroneous()) {
+        setWatchDataValue(data, item.findChild("value"),
+                          item.findChild("valueencoded").data().toInt());
+        // We know that the complete list of children is
+        // somewhere in the response.
+        data.setChildrenUnneeded();
+    } else {
+        // set value only directly if it is simple enough, otherwise
+        // pass through the insertData() machinery
+        if (isIntOrFloatType(data.type) || isPointerType(data.type))
             setWatchDataValue(data, item.findChild("value"));
-            //: Type of local variable or parameter shadowed by another 
-            //variable of the same name in a nested block
-            data.setType(tr("<shadowed>"));
+        if (isSymbianIntType(data.type)) {
+            setWatchDataValue(data, item.findChild("value"));
             data.setHasChildren(false);
-            list.append(data);
-        } else {
-            seen[name] = 1;
-            WatchData data;
-            QString nam = _(name);
-            data.iname = _("local.") + nam;
-            data.name = nam;
-            data.exp = nam;
-            data.framekey = m_currentFrame + data.name;
-            setWatchDataType(data, item.findChild("type"));
-            if (isSynchroneous()) {
-                setWatchDataValue(data, item.findChild("value"),
-                    item.findChild("valueencoded").data().toInt());
-                // We know that the complete list of children is 
-                // somewhere in the response.
-                data.setChildrenUnneeded();
-            } else {
-                // set value only directly if it is simple enough, otherwise
-                // pass through the insertData() machinery
-                if (isIntOrFloatType(data.type) || isPointerType(data.type))
-                    setWatchDataValue(data, item.findChild("value"));
-                if (isSymbianIntType(data.type)) {
-                    setWatchDataValue(data, item.findChild("value"));
-                    data.setHasChildren(false);
-                }
-            }
-
-            // Let's be a bit more bold:
-            //if (!hasDebuggingHelperForType(data.type)) {
-            //    QByteArray value = item.findChild("value").data();
-            //    if (!value.isEmpty() && value != "{...}")
-            //        data.setValue(decodeData(value, 0));
-            //}
-            if (!manager()->watchHandler()->isExpandedIName(data.iname))
-                data.setChildrenUnneeded();
-            if (isPointerType(data.type) || data.name == __("this"))
-                data.setHasChildren(true);
-            if (0 && m_varToType.contains(data.framekey)) {
-                qDebug() << "RE-USING" << m_varToType.value(data.framekey);
-                data.setType(m_varToType.value(data.framekey));
-            }
-            list.append(data);
         }
     }
-    manager()->watchHandler()->insertBulkData(list);
+
+    if (!m_manager->watchHandler()->isExpandedIName(data.iname))
+        data.setChildrenUnneeded();
+    if (isPointerType(data.type) || data.name == __("this"))
+        data.setHasChildren(true);
+    return data;
 }
 
 void GdbEngine::insertData(const WatchData &data0)
@@ -4089,9 +4092,7 @@ void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResponse &response)
 
 void GdbEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 {
-    lastFile = frame.file;
-    lastLine = frame.line;
-    //qDebug() << "GOTO " << frame.toString() << setMarker;
+    // qDebug() << "GOTO " << frame << setMarker;
     m_manager->gotoLocation(frame, setMarker);
 }
 
@@ -4291,4 +4292,3 @@ IDebuggerEngine *createGdbEngine(DebuggerManager *manager)
 Q_DECLARE_METATYPE(Debugger::Internal::MemoryAgentCookie);
 Q_DECLARE_METATYPE(Debugger::Internal::DisassemblerAgentCookie);
 Q_DECLARE_METATYPE(Debugger::Internal::GdbMi);
-

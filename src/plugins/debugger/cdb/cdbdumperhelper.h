@@ -134,6 +134,8 @@ private:
     static bool writeToDebuggee(CIDebugDataSpaces *ds, const QByteArray &buffer, quint64 address, QString *errorMessage);
 
     const bool m_tryInjectLoad;
+    const QString m_msgDisabled;
+    const QString m_msgNotInScope;
     State m_state;
     DebuggerManager *m_manager;
     CdbComInterfaces *m_cif;

@@ -43,6 +43,9 @@
 #include <cpptools/cpptoolsconstants.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/Overview.h>
+#include <Symbols.h>
+#include <Scope.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -51,6 +54,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextStream>
+#include <QtCore/QHash>
 
 #include <QtGui/QTextCursor>
 #include <QtGui/QPlainTextEdit>
@@ -59,6 +63,78 @@
 #include <ctype.h>
 
 enum { debug = 0 };
+
+// Debug helpers for code model. @todo: Move to some CppTools library?
+namespace CPlusPlus {
+
+static void debugCppSymbolRecursion(QTextStream &str, const Overview &o,
+                                    const Symbol &s, bool doRecurse = true,
+                                    int recursion = 0)
+{
+    for (int i = 0; i < recursion; i++)
+        str << "  ";
+    str << "Symbol: " << o.prettyName(s.name()) << " at line " << s.line();
+    if (s.isFunction())
+        str << " function";
+    if (s.isClass())
+        str << " class";
+    if (s.isDeclaration())
+        str << " declaration";
+    if (s.isBlock())
+        str << " block";
+    if (doRecurse && s.isScopedSymbol()) {
+        const ScopedSymbol *scoped = s.asScopedSymbol();
+        const int size =  scoped->memberCount();
+        str << " scoped symbol of " << size << '\n';
+        for (int m = 0; m < size; m++)
+            debugCppSymbolRecursion(str, o, *scoped->memberAt(m), true, recursion + 1);
+    } else {
+        str << '\n';
+    }
+}
+
+QDebug operator<<(QDebug d, const Symbol &s)
+{
+    QString output;
+    CPlusPlus::Overview o;
+    QTextStream str(&output);
+    debugCppSymbolRecursion(str, o, s, true, 0);
+    d.nospace() << output;
+    return d;
+}
+
+QDebug operator<<(QDebug d, const Scope &scope)
+{
+    QString output;
+    Overview o;
+    QTextStream str(&output);
+    const int size =  scope.symbolCount();
+    str << "Scope of " << size;
+    if (scope.isNamespaceScope())
+        str << " namespace";
+    if (scope.isClassScope())
+        str << " class";
+    if (scope.isEnumScope())
+        str << " enum";
+    if (scope.isBlockScope())
+        str << " block";
+    if (scope.isFunctionScope())
+        str << " function";
+    if (scope.isPrototypeScope())
+        str << " prototype";
+    if (const Symbol *owner = scope.owner()) {
+        str << " owner: ";
+        debugCppSymbolRecursion(str, o, *owner, false, 0);
+    } else {
+        str << " 0-owner\n";
+    }
+    for (int s = 0; s < size; s++)
+        debugCppSymbolRecursion(str, o, *scope.symbolAt(s), true, 2);
+    d.nospace() << output;
+    return d;
+}
+} // namespace CPlusPlus
+
 namespace Debugger {
 namespace Internal {
 
@@ -215,6 +291,133 @@ QString stripPointerType(QString type)
     if (type.endsWith(QLatin1Char(' ')))
         type.chop(1);
     return type;
+}
+
+/* getUninitializedVariables(): Get variables that are not initialized
+ * at a certain line of a function from the code model to be able to
+ * indicate them as not in scope in the locals view.
+ * Find document + function in the code model, do a double check and
+ * collect declarative symbols that are in the function past or on
+ * the current line. blockRecursion() recurses up the scopes
+ * and collect symbols declared past or on the current line.
+ * Recursion goes up from the innermost scope, keeping a map
+ * of occurrences seen, to be able to derive the names of
+ * shadowed variables as the debugger sees them:
+\code
+int x;             // Occurrence (1), should be reported as "x <shadowed 1>"
+if (true) {
+   int x = 5; (2)  // Occurrence (2), should be reported as "x"
+}
+\endcode
+ */
+
+typedef QHash<QString, int> SeenHash;
+
+static void blockRecursion(const CPlusPlus::Overview &overview,
+                           const CPlusPlus::Scope *scope,
+                           unsigned line,
+                           QStringList *uninitializedVariables,
+                           SeenHash *seenHash,
+                           int level = 0)
+{
+    const int size = scope->symbolCount();
+    for (int s = 0; s < size; s++){
+        const CPlusPlus::Symbol *symbol = scope->symbolAt(s);
+        if (symbol->isDeclaration()) {
+            // Find out about shadowed symbols by bookkeeping
+            // the already seen occurrences in a hash.
+            const QString name = overview.prettyName(symbol->name());
+            SeenHash::iterator it = seenHash->find(name);
+            if (it == seenHash->end()) {
+                it = seenHash->insert(name, 0);
+            } else {
+                ++(it.value());
+            }            
+            // Is the declaration on or past the current line, that is,
+            // the variable not initialized.
+            if (symbol->line() >= line)
+                uninitializedVariables->push_back(WatchData::shadowedName(name, it.value()));
+        }
+    }
+    // Next block scope.
+    if (const CPlusPlus::Scope *enclosingScope = scope->enclosingBlockScope())
+        blockRecursion(overview, enclosingScope, line, uninitializedVariables, seenHash, level + 1);
+}
+
+// Inline helper with integer error return codes.
+static inline
+int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
+                               const QString &functionName,
+                               const QString &file,
+                               int line,
+                               QStringList *uninitializedVariables)
+{
+    uninitializedVariables->clear();
+    // Find document
+    if (snapshot.empty() || functionName.isEmpty() || file.isEmpty() || line < 1)
+        return 1;
+    const CPlusPlus::Snapshot::ConstIterator docIt = snapshot.constFind(file);
+    if (docIt == snapshot.constEnd())
+        return 2;
+    const CPlusPlus::Document::Ptr doc = docIt.value();
+    // Look at symbol at line and find its function. Either it is the
+    // function itself or some expression/variable.
+    const CPlusPlus::Symbol *symbolAtLine = doc->findSymbolAt(line, 0);
+    if (!symbolAtLine)
+        return 4;
+    // First figure out the function to do a safety name check.
+    const CPlusPlus::Function *function = 0;
+    const bool hitFunction = symbolAtLine->isFunction();
+    if (hitFunction) {
+        function = symbolAtLine->asFunction();
+    } else {
+        if (CPlusPlus::Scope *functionScope = symbolAtLine->enclosingFunctionScope())
+            function = functionScope->owner()->asFunction();
+    }
+    if (!function)
+        return 7;
+    // Compare function names with a bit off fuzz,
+    // skipping modules from a CDB symbol "lib!foo" or namespaces
+    // that the code model does not show at this point
+    CPlusPlus::Overview overview;
+    const QString name = overview.prettyName(function->name());
+    if (!functionName.endsWith(name))
+        return 11;
+    if (functionName.size() > name.size()) {
+        const char previousChar = functionName.at(functionName.size() - name.size() - 1).toLatin1();
+        if (previousChar != ':' && previousChar != '!' )
+            return 11;
+    }
+    // Starting from the innermost block scope, collect
+    // declarations.
+    const CPlusPlus::Scope *innerMostScope = hitFunction ?
+                                             symbolAtLine->asFunction()->members() :
+                                             symbolAtLine->enclosingBlockScope();
+    if (!innerMostScope)
+        return 15;
+    SeenHash seenHash;
+    blockRecursion(overview, innerMostScope, line, uninitializedVariables, &seenHash);
+    return 0;
+}
+
+bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
+                               const QString &function,
+                               const QString &file,
+                               int line,
+                               QStringList *uninitializedVariables)
+{
+    const int rc = getUninitializedVariablesI(snapshot, function, file, line, uninitializedVariables);
+    if (debug) {
+        QString msg;
+        QTextStream str(&msg);
+        str << "getUninitializedVariables() " << function << ' ' << file << ':' << line
+                << " returns (int) " << rc << " '"
+                << uninitializedVariables->join(QString(QLatin1Char(','))) << '\'';
+        if (rc)
+            str << " of " << snapshot.keys().size() << " documents";
+        qDebug() << msg;
+    }
+    return rc == 0;
 }
 
 QString gdbQuoteTypes(const QString &type)

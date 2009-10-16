@@ -217,7 +217,7 @@ bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QSt
 
     bool handled = false;
     do {
-        if (!isPointerType(wd.type))
+        if (wd.error || !isPointerType(wd.type))
             break;
         const int classPos = wd.value.indexOf(" class ");
         if (classPos == -1)
@@ -396,9 +396,9 @@ bool CdbStackFrameContext::editorToolTip(const QString &iname,
         *errorMessage = QString::fromLatin1("%1 not found.").arg(iname);
         return false;
     }
-    const WatchData wd = m_symbolContext->symbolAt(index);
     // Check dumpers. Should actually be just one item.
-    if (m_useDumpers && m_dumper->state() != CdbDumperHelper::Disabled) {
+    const WatchData wd = m_symbolContext->watchDataAt(index);
+    if (m_useDumpers && !wd.error && m_dumper->state() != CdbDumperHelper::Disabled) {
         QList<WatchData> result;
         if (CdbDumperHelper::DumpOk == m_dumper->dumpType(wd, false, &result, errorMessage))  {
             foreach (const WatchData &dwd, result) {

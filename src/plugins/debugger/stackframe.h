@@ -33,12 +33,17 @@
 #include <QtCore/QString>
 #include <QtCore/QMetaType>
 
+QT_BEGIN_NAMESPACE
+class QDebug;
+QT_END_NAMESPACE
+
 namespace Debugger {
 namespace Internal {
 
 struct StackFrame
 {
     StackFrame();
+    void clear();
     bool isUsable() const;
     QString toToolTip() const;
     QString toString() const;
@@ -51,6 +56,8 @@ struct StackFrame
     int line;
     QString address;
 };
+
+QDebug operator<<(QDebug d, const  StackFrame &);
 
 } // namespace Internal
 } // namespace Debugger

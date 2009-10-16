@@ -229,6 +229,13 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setValue(false);
     instance->insertItem(DebugDebuggingHelpers, item);
 
+    item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseCodeModel"));
+    item->setText(tr("Use code model"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setValue(false);
+    instance->insertItem(UseCodeModel, item);
 
     item = new SavedAction(instance);
     item->setText(tr("Recheck debugging helper availability"));

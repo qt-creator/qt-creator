@@ -231,7 +231,7 @@ private:
     void setTokenBarrier();
 
     void updateAll();
-    void updateLocals();
+    void updateLocals(const QVariant &cookie = QVariant());
 
     void gdbInputAvailable(int channel, const QString &msg)
     { m_manager->showDebuggerInput(channel, msg); }
@@ -399,7 +399,9 @@ private:
         const WatchData &parent);
     void setWatchDataType(WatchData &data, const GdbMi &mi);
     void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
-    void setLocals(const QList<GdbMi> &locals);
+    inline WatchData localVariable(const GdbMi &item,
+                                   const QStringList &uninitializedVariables,
+                                   QMap<QByteArray, int> *seen);
     void connectDebuggingHelperActions();
     void disconnectDebuggingHelperActions();
     AbstractGdbAdapter *createAdapter(const DebuggerStartParametersPtr &dp);
