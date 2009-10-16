@@ -1,4 +1,6 @@
 
+//#define DO_DEBUG 1
+
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
@@ -29,7 +31,6 @@
 #   define NSY ""
 #endif
 
-//#define DO_DEBUG 1
 #undef DEBUG
 #if DO_DEBUG
 #   define DEBUG(s) qDebug() << s
@@ -127,13 +128,14 @@ public:
     void cleanupTestCase();
     void prepare(const QByteArray &function);
     void run(const QByteArray &label, const QByteArray &expected,
-        const QByteArray &expanded = QByteArray());
+        const QByteArray &expanded = QByteArray(), bool fancy = true);
     void next(int n = 1);
 
 signals:
     void writeToGdb(const QByteArray &ba);
 
 private slots:
+    void dumpMisc();
     void dumpQList_int();
     void dumpQString();
     void dumpQStringList();
@@ -2243,11 +2245,11 @@ void tst_Gdb::prepare(const QByteArray &function)
     writeToGdb("call " + function + "()");
 }
 
-void tst_Gdb::run(const QByteArray &label,
-    const QByteArray &expected0, const QByteArray &expanded)
+void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
+    const QByteArray &expanded, bool fancy)
 {
-    //qDebug() << "\nABOUT TO RUN TEST: " << function << m_thread.m_proc;
-    writeToGdb("bb 1 " + expanded);
+    //qDebug() << "\nABOUT TO RUN TEST: " << expanded;
+    writeToGdb("bb " + QByteArray::number(int(fancy)) + " " + expanded);
     m_mutex.lock();
     m_waitCondition.wait(&m_mutex);
     QByteArray ba = m_thread.m_output;
@@ -2269,17 +2271,16 @@ void tst_Gdb::run(const QByteArray &label,
     bool ok = l1.size() == l2.size();
     if (ok) {
         for (int i = 0 ; i < l1.size(); ++i) {
-            if (l1.at(i) != l2.at(i))
-                if (!l1.at(i).startsWith("addr") || !l2.at(i).startsWith("addr"))
-                    ok = false;
+            // Use "-" as joker.
+            if (l1.at(i) != l2.at(i) && !l2.at(i).endsWith("'-'"))
+                ok = false;
         }
     }
     
     if (!ok) {
         int i = 0;
         for ( ; i < l1.size() && i < l2.size(); ++i) {
-            if (l1.at(i) == l2.at(i)
-                    || (l1.at(i).startsWith("addr") && l2.at(i).startsWith("addr"))) {
+            if (l1.at(i) == l2.at(i) || l2.at(i).endsWith("'-'")) {
                 qWarning() << "== " << l1.at(i);
             } else {
                 //qWarning() << "!= " << l1.at(i).right(30) << l2.at(i).right(30);
@@ -2397,6 +2398,24 @@ void tst_Gdb::dumpQList_QString()
 }
 */
 
+void dumpMisc()
+{
+    /* A */ int *s = new int(1);
+    /* B */ *s += 1;
+    /* D */ (void) s;
+}
+
+void tst_Gdb::dumpMisc()
+{
+    prepare("dumpMisc");
+    next();
+    run("B","{iname='local.s',addr='-',name='s',type='int *',"
+            "value='-',numchild='1'}", "", 0);
+    run("B","{iname='local.s',addr='-',name='s',type='int *',"
+            "value='-',numchild='1',children=[{iname='local.s.*',"
+            "name='*s',type='int',value='1',numchild='0'}]}", "local.s", 0);
+}
+
 void dumpQStringTest()
 {
     /* A */ QString s;
@@ -2412,7 +2431,13 @@ void tst_Gdb::dumpQString()
             "value='<not in scope>',numchild='0'}");
     next();
     run("B","{iname='local.s',addr='-',name='s',type='"NS"QString',"
-            "valueencoded='7',value='',numchild='0'}");
+            "valueencoded='7',value='',numchild='0'}", "local.s");
+    // Plain C:
+    run("B","{iname='local.s',addr='-',name='s',type='"NS"QString',"
+            "value='{...}',numchild='5'}", "", 0);
+    run("B","{iname='local.s',addr='-',name='s',type='"NS"QString',"
+            "value='{...}',numchild='5',children=[]}", "local.s", 0);
+return;
     next();
     run("C","{iname='local.s',addr='-',name='s',type='"NS"QString',"
             "valueencoded='7',value='680061006c006c006f00',numchild='0'}");
@@ -2432,8 +2457,8 @@ void dumpQStringListTest()
 void tst_Gdb::dumpQStringList()
 {
     prepare("dumpQStringListTest");
-    run("A","{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
-            "value='<not in scope>',numchild='0'}");
+    //run("A","{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
+    //        "value='<not in scope>',numchild='0'}");
     next();
     run("B","{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
             "value='<0 items>',numchild='0'}");
