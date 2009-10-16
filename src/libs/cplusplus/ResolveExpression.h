@@ -54,20 +54,12 @@ public:
                                           Name *memberName,
                                           bool *replacedDotOperator = 0) const;
 
-    QList<Result> resolveMember(Name *memberName, Class *klass, Name *className = 0) const;
-
-    QList<Result> resolveArrowOperator(const Result &result,
-                                       NamedType *namedTy,
-                                       Class *klass) const;
-
-    QList<Result> resolveArrayOperator(const Result &result,
-                                       NamedType *namedTy,
-                                       Class *klass) const;
-
-
     QList<Result> resolveBaseExpression(const QList<Result> &baseResults,
                                         int accessOp,
                                         bool *replacedDotOperator = 0) const;
+
+    QList<Result> resolveMember(Name *memberName, Class *klass,
+                                Name *className = 0) const;
 
 protected:
     QList<Result> switchResults(const QList<Result> &symbols);

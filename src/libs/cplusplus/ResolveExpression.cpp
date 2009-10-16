@@ -592,34 +592,36 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
     _results.clear();
 
     const QList<Result> indexResults = operator()(ast->expression);
-    ResolveClass symbolsForDotAcccess;
+    ResolveClass resolveClass;
 
-    foreach (Result p, baseResults) {
-        FullySpecifiedType ty = p.first;
-        Symbol *contextSymbol = p.second;
+    Name *arrayAccessOp = control()->operatorNameId(OperatorNameId::ArrayAccessOp);
 
-        if (ReferenceType *refTy = ty->asReferenceType())
-            ty = refTy->elementType();
+    foreach (const Result &result, baseResults) {
+        FullySpecifiedType ty = result.first.simplified();
+        Symbol *contextSymbol = result.second;
 
         if (PointerType *ptrTy = ty->asPointerType()) {
-            addResult(ptrTy->elementType(), contextSymbol);
+            addResult(ptrTy->elementType().simplified(), contextSymbol);
+
         } else if (ArrayType *arrTy = ty->asArrayType()) {
-            addResult(arrTy->elementType(), contextSymbol);
+            addResult(arrTy->elementType().simplified(), contextSymbol);
+
         } else if (NamedType *namedTy = ty->asNamedType()) {
             const QList<Symbol *> classObjectCandidates =
-                    symbolsForDotAcccess(namedTy->name(), p, _context);
+                    resolveClass(namedTy->name(), result, _context);
 
             foreach (Symbol *classObject, classObjectCandidates) {
-                const QList<Result> overloads =
-                        resolveArrayOperator(p, namedTy, classObject->asClass());
-                foreach (Result r, overloads) {
-                    FullySpecifiedType ty = r.first;
-                    Function *funTy = ty->asFunctionType();
-                    if (! funTy)
-                        continue;
+                Q_ASSERT(classObject->isClass());
 
-                    ty = funTy->returnType();
-                    addResult(ty, funTy);
+                const QList<Result> overloads =
+                        resolveMember(arrayAccessOp, classObject->asClass(), namedTy->name());
+
+                foreach (Result r, overloads) {
+                    FullySpecifiedType ty = r.first.simplified();
+                    if (Function *funTy = ty->asFunctionType()) {
+                        ty = funTy->returnType().simplified();
+                        addResult(ty, funTy);
+                    }
                 }
             }
         }
@@ -686,11 +688,12 @@ ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int a
 
         if (NamedType *namedTy = ty->asNamedType()) {
             ResolveClass resolveClass;
-
+            Name *arrowAccessOp = control()->operatorNameId(OperatorNameId::ArrowOp);
             const QList<Symbol *> candidates = resolveClass(namedTy->name(), result, _context);
-            foreach (Symbol *classObject, candidates) {
-                const QList<Result> overloads = resolveArrowOperator(result, namedTy,
-                                                                     classObject->asClass());
+
+            foreach (Symbol *classObject, candidates) {                
+                const QList<Result> overloads = resolveMember(arrowAccessOp, classObject->asClass(),
+                                                              namedTy->name());
 
                 foreach (const Result &r, overloads) {
                     FullySpecifiedType typeOfOverloadFunction = r.first.simplified();
@@ -817,78 +820,6 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
     return removeDuplicates(results);
 }
 
-QList<ResolveExpression::Result>
-ResolveExpression::resolveArrowOperator(const Result &,
-                                        NamedType *namedTy,
-                                        Class *klass) const
-{
-    QList<Scope *> scopes;
-    _context.expand(klass->members(), _context.visibleScopes(), &scopes);
-    QList<Result> results;
-
-    Name *memberName = control()->operatorNameId(OperatorNameId::ArrowOp);
-    QList<Symbol *> candidates = _context.resolve(memberName, scopes);
-    foreach (Symbol *candidate, candidates) {
-        FullySpecifiedType ty = candidate->type();
-        Name *unqualifiedNameId = namedTy->name();
-        if (QualifiedNameId *q = namedTy->name()->asQualifiedNameId())
-            unqualifiedNameId = q->unqualifiedNameId();
-        if (TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
-            Substitution subst;
-            for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
-                FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
-                if (i < klass->templateParameterCount()) {
-                    subst.append(qMakePair(klass->templateParameterAt(i)->name(),
-                                           templArgTy));
-                }
-            }
-            GenerateInstance inst(control(), subst);
-            ty = inst(ty);
-        }
-
-        const Result result(ty, candidate);
-        results.append(result);
-    }
-
-    return removeDuplicates(results);
-}
-
-QList<ResolveExpression::Result>
-ResolveExpression::resolveArrayOperator(const Result &,
-                                        NamedType *namedTy,
-                                        Class *klass) const
-{
-    // ### todo handle index expressions.
-
-    QList<Scope *> scopes;
-    _context.expand(klass->members(), _context.visibleScopes(), &scopes);
-    QList<Result> results;
-
-    Name *memberName = control()->operatorNameId(OperatorNameId::ArrayAccessOp);
-    QList<Symbol *> candidates = _context.resolve(memberName, scopes);
-    foreach (Symbol *candidate, candidates) {
-        FullySpecifiedType ty = candidate->type();
-        Name *unqualifiedNameId = namedTy->name();
-        if (QualifiedNameId *q = namedTy->name()->asQualifiedNameId())
-            unqualifiedNameId = q->unqualifiedNameId();
-        if (TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
-            Substitution subst;
-            for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
-                FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
-                if (i < klass->templateParameterCount()) {
-                    subst.append(qMakePair(klass->templateParameterAt(i)->name(),
-                                           templArgTy));
-                }
-            }
-            GenerateInstance inst(control(), subst);
-            ty = inst(ty);
-        }
-
-        results.append(Result(ty, candidate));
-    }
-
-    return removeDuplicates(results);
-}
 
 bool ResolveExpression::visit(PostIncrDecrAST *)
 {
