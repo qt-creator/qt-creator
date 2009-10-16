@@ -30,7 +30,7 @@
 #ifndef BASEFILEFILTER_H
 #define BASEFILEFILTER_H
 
-#include "quickopen_global.h"
+#include "locator_global.h"
 #include "ilocatorfilter.h"
 
 #include <QtCore/QString>
@@ -38,7 +38,7 @@
 
 namespace QuickOpen {
 
-class QUICKOPEN_EXPORT BaseFileFilter : public QuickOpen::ILocatorFilter
+class LOCATOR_EXPORT BaseFileFilter : public QuickOpen::ILocatorFilter
 {
     Q_OBJECT
 

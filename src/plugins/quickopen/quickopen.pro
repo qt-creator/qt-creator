@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = QuickOpen
-DEFINES += QUICKOPEN_LIBRARY
+DEFINES += LOCATOR_LIBRARY
 include(../../qtcreatorplugin.pri)
 include(quickopen_dependencies.pri)
 HEADERS += locatorplugin.h \
@@ -14,7 +14,7 @@ HEADERS += locatorplugin.h \
     directoryfilter.h \
     locatormanager.h \
     basefilefilter.h \
-    quickopen_global.h
+    locator_global.h
 SOURCES += locatorplugin.cpp \
     locatorwidget.cpp \
     locatorfiltersfilter.cpp \

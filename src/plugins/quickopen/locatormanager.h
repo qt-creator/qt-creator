@@ -30,7 +30,7 @@
 #ifndef LOCATORMANAGER_H
 #define LOCATORMANAGER_H
 
-#include "quickopen_global.h"
+#include "locator_global.h"
 
 #include <QtCore/QObject>
 
@@ -40,7 +40,7 @@ namespace Internal {
 class LocatorWidget;
 }
 
-class QUICKOPEN_EXPORT LocatorManager : public QObject
+class LOCATOR_EXPORT LocatorManager : public QObject
 {
     Q_OBJECT
 

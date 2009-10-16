@@ -27,15 +27,15 @@
 **
 **************************************************************************/
 
-#ifndef QUICKOPEN_GLOBAL_H
-#define QUICKOPEN_GLOBAL_H
+#ifndef LOCATOR_GLOBAL_H
+#define LOCATOR_GLOBAL_H
 
 #include <QtCore/qglobal.h>
 
-#if defined(QUICKOPEN_LIBRARY)
-#  define QUICKOPEN_EXPORT Q_DECL_EXPORT
+#if defined(LOCATOR_LIBRARY)
+#  define LOCATOR_EXPORT Q_DECL_EXPORT
 #else
-#  define QUICKOPEN_EXPORT Q_DECL_IMPORT
+#  define LOCATOR_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif // QUICKOPEN_GLOBAL_H
+#endif // LOCATOR_GLOBAL_H

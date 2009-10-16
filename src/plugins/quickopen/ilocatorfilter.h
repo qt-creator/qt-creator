@@ -30,7 +30,7 @@
 #ifndef ILOCATORFILTER_H
 #define ILOCATORFILTER_H
 
-#include "quickopen_global.h"
+#include "locator_global.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QVariant>
@@ -73,7 +73,7 @@ struct FilterEntry
     bool resolveFileIcon;
 };
 
-class QUICKOPEN_EXPORT ILocatorFilter : public QObject
+class LOCATOR_EXPORT ILocatorFilter : public QObject
 {
     Q_OBJECT
 
