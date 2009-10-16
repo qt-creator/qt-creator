@@ -2929,7 +2929,7 @@ static void qDumpQVector(QDumper &d)
 
     d.putItemCount("value", n);
     d.putItem("valueeditable", "false");
-    d.putItem("numchild", n);
+    d.putItem("numchild", nn);
     if (d.dumpChildren) {
         QByteArray strippedInnerType = stripPointerType(d.innerType);
         const char *stripped = innerIsPointerType ? strippedInnerType.data() : 0;
