@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QuickOpen::Internal::SettingsWidget</class>
- <widget class="QWidget" name="QuickOpen::Internal::SettingsWidget">
+ <class>Locator::Internal::SettingsWidget</class>
+ <widget class="QWidget" name="Locator::Internal::SettingsWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -91,9 +91,6 @@
        <property name="buttonSymbols">
         <enum>QAbstractSpinBox::PlusMinus</enum>
        </property>
-       <property name="value">
-        <number>60</number>
-       </property>
        <property name="suffix">
         <string> min</string>
        </property>
@@ -102,6 +99,9 @@
        </property>
        <property name="singleStep">
         <number>5</number>
+       </property>
+       <property name="value">
+        <number>60</number>
        </property>
       </widget>
      </item>

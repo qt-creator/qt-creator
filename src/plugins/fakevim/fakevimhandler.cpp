@@ -52,7 +52,7 @@
 //   There is always a "current" cursor (m_tc). A current "region of interest"
 //   spans between m_anchor (== anchor()) and  m_tc.position() (== position())
 //   The value of m_tc.anchor() is not used.
-// 
+//
 
 #include <utils/qtcassert.h>
 
@@ -213,7 +213,7 @@ struct Range
 
     Range(int b, int e, RangeMode m = RangeCharMode)
         : beginPos(qMin(b, e)), endPos(qMax(b, e)), rangemode(m)
-    {} 
+    {}
 
     int beginPos;
     int endPos;
@@ -518,7 +518,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
 
     // We are interested in overriding  most Ctrl key combinations
     if (mods == Qt::ControlModifier && key >= Key_A && key <= Key_Z && key != Key_K) {
-        // Ctrl-K is special as it is the Core's default notion of QuickOpen
+        // Ctrl-K is special as it is the Core's default notion of Locator
         if (m_passing) {
             KEY_DEBUG(" PASSING CTRL KEY");
             // We get called twice on the same key
@@ -566,7 +566,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         setTargetColumn();
 
     m_tc.setVisualNavigation(true);
-    
+
     if (m_fakeEnd)
         moveRight();
 
@@ -913,9 +913,9 @@ void FakeVimHandler::Private::updateMiniBuffer()
     const QString pos = QString::fromLatin1("%1,%2").arg(l + 1).arg(cursorColumnInDocument() + 1);
     // FIXME: physical "-" logical
     if (linesInDoc != 0) {
-	status = FakeVimHandler::tr("%1%2%").arg(pos, -10).arg(l * 100 / linesInDoc, 4);
+        status = FakeVimHandler::tr("%1%2%").arg(pos, -10).arg(l * 100 / linesInDoc, 4);
     } else {
-	status = FakeVimHandler::tr("%1All").arg(pos, -10);
+        status = FakeVimHandler::tr("%1All").arg(pos, -10);
     }
     emit q->statusDataChanged(status);
 }
@@ -974,7 +974,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setDotCommand("%1dd", count());
         m_submode = NoSubMode;
         moveToFirstNonBlankOnLine();
-        setTargetColumn(); 
+        setTargetColumn();
         finishMovement();
     } else if (m_submode == ShiftLeftSubMode && key == '<') {
         setAnchor();
@@ -1529,7 +1529,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_savedYankPosition = position();
         setAnchor(firstPositionInLine(line));
         setPosition(lastPositionInLine(line+count() - 1));
-        if (count() > 1) 
+        if (count() > 1)
             showBlackMessage(QString("%1 lines yanked").arg(count()));
         m_rangemode = RangeLineMode;
         m_movetype = MoveLineWise;
@@ -1666,7 +1666,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         insertAutomaticIndentation(true);
         setTargetColumn();
     } else if (key == Key_Backspace || key == control('h')) {
-        if (!removeAutomaticIndentation()) 
+        if (!removeAutomaticIndentation())
             if (!m_lastInsertion.isEmpty() || hasConfig(ConfigBackspace, "start")) {
                 m_tc.deletePreviousChar();
                 m_lastInsertion.chop(1);
@@ -1899,7 +1899,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     static QRegExp reSet("^set?( (.*))?$");
     static QRegExp reWrite("^[wx]q?a?!?( (.*))?$");
     static QRegExp reSubstitute("^s(.)(.*)\\1(.*)\\1([gi]*)");
-    
+
     enterCommandMode();
     showBlackMessage(QString());
 
@@ -2509,12 +2509,12 @@ QString FakeVimHandler::Private::text(const Range &range) const
     int beginColumn = 0;
     int endColumn = INT_MAX;
     if (range.rangemode == RangeBlockMode) {
-        int column1 = range.beginPos - firstPositionInLine(beginLine); 
-        int column2 = range.endPos - firstPositionInLine(endLine); 
+        int column1 = range.beginPos - firstPositionInLine(beginLine);
+        int column2 = range.endPos - firstPositionInLine(endLine);
         beginColumn = qMin(column1, column2);
         endColumn = qMax(column1, column2);
         qDebug() << "COLS: " << beginColumn << endColumn;
-    } 
+    }
     int len = endColumn - beginColumn + 1;
     QString contents;
     QTextBlock block = m_tc.document()->findBlockByNumber(beginLine - 1);
@@ -2580,8 +2580,8 @@ void FakeVimHandler::Private::removeText(const Range &range)
         case RangeBlockMode: {
             int beginLine = lineForPosition(range.beginPos);
             int endLine = lineForPosition(range.endPos);
-            int column1 = range.beginPos - firstPositionInLine(beginLine); 
-            int column2 = range.endPos - firstPositionInLine(endLine); 
+            int column1 = range.beginPos - firstPositionInLine(beginLine);
+            int column2 = range.endPos - firstPositionInLine(endLine);
             int beginColumn = qMin(column1, column2);
             int endColumn = qMax(column1, column2);
             qDebug() << "COLS: " << beginColumn << endColumn;
@@ -2645,7 +2645,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                     tc.movePosition(EndOfLine, MoveAnchor);
                     fixMarks(position(), QString(col - line.size() + 1, QChar(' ')).length());
                     tc.insertText(QString(col - line.size() + 1, QChar(' ')));
-                } else { 
+                } else {
                     tc.movePosition(Right, MoveAnchor, col);
                 }
                 qDebug() << "INSERT " << line << " AT " << tc.position()
@@ -2673,8 +2673,8 @@ void FakeVimHandler::Private::fixMarks(int positionAction, int positionChange)
     QHashIterator<int, int> i(m_marks);
     while (i.hasNext()) {
         i.next();
-        if (i.value() >= positionAction) { 
-            if (i.value() + positionChange > 0) 
+        if (i.value() >= positionAction) {
+            if (i.value() + positionChange > 0)
                 m_marks[i.key()] = i.value() + positionChange;
             else
                 m_marks.remove(i.key());

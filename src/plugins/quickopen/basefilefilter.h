@@ -36,16 +36,16 @@
 #include <QtCore/QString>
 #include <QtCore/QList>
 
-namespace QuickOpen {
+namespace Locator {
 
-class LOCATOR_EXPORT BaseFileFilter : public QuickOpen::ILocatorFilter
+class LOCATOR_EXPORT BaseFileFilter : public Locator::ILocatorFilter
 {
     Q_OBJECT
 
 public:
     BaseFileFilter();
-    QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
-    void accept(QuickOpen::FilterEntry selection) const;
+    QList<Locator::FilterEntry> matchesFor(const QString &entry);
+    void accept(Locator::FilterEntry selection) const;
 
 protected:
     virtual void updateFiles();
@@ -59,6 +59,6 @@ protected:
     QString m_previousEntry;
 };
 
-} // namespace QuickOpen
+} // namespace Locator
 
 #endif // BASEFILEFILTER_H

@@ -37,8 +37,8 @@
 
 #include <qtconcurrent/QtConcurrentTools>
 
-using namespace QuickOpen;
-using namespace QuickOpen::Internal;
+using namespace Locator;
+using namespace Locator::Internal;
 
 DirectoryFilter::DirectoryFilter()
   : m_name(tr("Generic Directory Filter")),

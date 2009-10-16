@@ -34,8 +34,8 @@
 #include <QtCore/QDir>
 
 using namespace Core;
-using namespace QuickOpen;
-using namespace QuickOpen::Internal;
+using namespace Locator;
+using namespace Locator::Internal;
 
 FileSystemFilter::FileSystemFilter(EditorManager *editorManager, LocatorWidget *locatorWidget)
         : m_editorManager(editorManager), m_locatorWidget(locatorWidget), m_includeHidden(true)

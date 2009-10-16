@@ -32,8 +32,8 @@
 Q_DECLARE_METATYPE(Core::IEditor*);
 
 using namespace Core;
-using namespace QuickOpen;
-using namespace QuickOpen::Internal;
+using namespace Locator;
+using namespace Locator::Internal;
 
 OpenDocumentsFilter::OpenDocumentsFilter(EditorManager *editorManager) :
     m_editorManager(editorManager)

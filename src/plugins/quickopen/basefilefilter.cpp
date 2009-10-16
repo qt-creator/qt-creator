@@ -35,7 +35,7 @@
 #include <QtCore/QStringMatcher>
 
 using namespace Core;
-using namespace QuickOpen;
+using namespace Locator;
 
 BaseFileFilter::BaseFileFilter()
   : m_forceNewSearchList(false)
@@ -85,12 +85,12 @@ QList<FilterEntry> BaseFileFilter::matchesFor(const QString &origEntry)
             m_previousResultNames.append(name);
         }
     }
-   
-    matches.append(badMatches); 
+
+    matches.append(badMatches);
     return matches;
 }
 
-void BaseFileFilter::accept(QuickOpen::FilterEntry selection) const
+void BaseFileFilter::accept(Locator::FilterEntry selection) const
 {
     Core::EditorManager *em = Core::EditorManager::instance();
     em->openEditor(selection.internalData.toString());

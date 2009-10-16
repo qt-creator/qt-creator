@@ -27,19 +27,19 @@
 **
 **************************************************************************/
 
-#ifndef QUICKOPENCONSTANTS_H
-#define QUICKOPENCONSTANTS_H
+#ifndef LOCATORCONSTANTS_H
+#define LOCATORCONSTANTS_H
 
 #include <QtCore/QtGlobal>
 
-namespace QuickOpen {
+namespace Locator {
 namespace Constants {
 
 const char * const FILTER_OPTIONS_PAGE = QT_TRANSLATE_NOOP("Locator", "Filters");
-const char * const QUICKOPEN_CATEGORY = QT_TRANSLATE_NOOP("Locator", "Locator");
-const char * const TASK_INDEX = "QuickOpen.Task.Index";
+const char * const LOCATOR_CATEGORY = QT_TRANSLATE_NOOP("Locator", "Locator");
+const char * const TASK_INDEX = "Locator.Task.Index";
 
 } // namespace Constants
-} // namespace QuickOpen
+} // namespace Locator
 
-#endif // QUICKOPENCONSTANTS_H
+#endif // LOCATORCONSTANTS_H

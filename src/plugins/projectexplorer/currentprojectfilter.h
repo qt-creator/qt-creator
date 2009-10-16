@@ -45,7 +45,7 @@ class Project;
 
 namespace Internal {
 
-class CurrentProjectFilter : public QuickOpen::BaseFileFilter
+class CurrentProjectFilter : public Locator::BaseFileFilter
 {
     Q_OBJECT
 
@@ -53,7 +53,7 @@ public:
     CurrentProjectFilter(ProjectExplorerPlugin *pe);
     QString trName() const { return tr("Files in current project"); }
     QString name() const { return "Files in current project"; }
-    QuickOpen::ILocatorFilter::Priority priority() const { return QuickOpen::ILocatorFilter::Low; }
+    Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Low; }
     void refresh(QFutureInterface<void> &future);
 
 protected:

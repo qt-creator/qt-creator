@@ -42,7 +42,7 @@ namespace Internal {
 
 class CppModelManager;
 
-class CppCurrentDocumentFilter : public  QuickOpen::ILocatorFilter
+class CppCurrentDocumentFilter : public  Locator::ILocatorFilter
 {
     Q_OBJECT
 
@@ -53,8 +53,8 @@ public:
     QString trName() const { return tr("Methods in current Document"); }
     QString name() const { return QLatin1String("Methods in current Document"); }
     Priority priority() const { return Medium; }
-    QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
-    void accept(QuickOpen::FilterEntry selection) const;
+    QList<Locator::FilterEntry> matchesFor(const QString &entry);
+    void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 private slots:

@@ -37,7 +37,7 @@
 #include <QtCore/QFutureInterface>
 #include <QtGui/QIcon>
 
-namespace QuickOpen {
+namespace Locator {
 
 class ILocatorFilter;
 
@@ -151,6 +151,6 @@ private:
     bool m_hidden;
 };
 
-} // namespace QuickOpen
+} // namespace Locator
 
 #endif // ILOCATORFILTER_H

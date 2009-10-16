@@ -29,12 +29,12 @@
 
 #include <qglobal.h>
 
-namespace QuickOpen {
+namespace Locator {
 struct FilterEntry;
 }
 
 QT_BEGIN_NAMESPACE
-unsigned int qHash(const QuickOpen::FilterEntry &entry);
+unsigned int qHash(const Locator::FilterEntry &entry);
 QT_END_NAMESPACE
 
 #include "locatorwidget.h"
@@ -67,13 +67,13 @@ QT_END_NAMESPACE
 #include <QtGui/QScrollBar>
 #include <QtGui/QTreeView>
 
-Q_DECLARE_METATYPE(QuickOpen::ILocatorFilter*);
-Q_DECLARE_METATYPE(QuickOpen::FilterEntry);
+Q_DECLARE_METATYPE(Locator::ILocatorFilter*);
+Q_DECLARE_METATYPE(Locator::FilterEntry);
 
-namespace QuickOpen {
+namespace Locator {
 namespace Internal {
 
-/*! A model to represent the QuickOpen results. */
+/*! A model to represent the Locator results. */
 class LocatorModel : public QAbstractListModel
 {
 public:
@@ -107,10 +107,10 @@ private:
 };
 
 } // namespace Internal
-} // namespace QuickOpen
+} // namespace Locator
 
-using namespace QuickOpen;
-using namespace QuickOpen::Internal;
+using namespace Locator;
+using namespace Locator::Internal;
 
 QT_BEGIN_NAMESPACE
 uint qHash(const FilterEntry &entry)
@@ -122,7 +122,7 @@ uint qHash(const FilterEntry &entry)
 QT_END_NAMESPACE
 
 
-// =========== QuickOpenModel ===========
+// =========== LocatorModel ===========
 
 int LocatorModel::rowCount(const QModelIndex & /* parent */) const
 {
@@ -135,7 +135,7 @@ int LocatorModel::columnCount(const QModelIndex &parent) const
 }
 
 /*!
- * When asked for the icon via Qt::DecorationRole, the QuickOpenModel lazily
+ * When asked for the icon via Qt::DecorationRole, the LocatorModel lazily
  * resolves and caches the Greehouse-specific file icon when
  * FilterEntry::resolveFileIcon is true. FilterEntry::internalData is assumed
  * to be the filename.
@@ -174,7 +174,7 @@ void LocatorModel::setEntries(const QList<FilterEntry> &entries)
     reset();
 }
 #if 0
-void QuickOpenModel::setDisplayCount(int count)
+void LocatorModel::setDisplayCount(int count)
 {
     // TODO: This method is meant to be used for increasing the number of items displayed at the
     // user's request. There is however no way yet for the user to request this.
@@ -484,6 +484,6 @@ void LocatorWidget::showEvent(QShowEvent *event)
 
 void LocatorWidget::showConfigureDialog()
 {
-    Core::ICore::instance()->showOptionsDialog(Constants::QUICKOPEN_CATEGORY,
+    Core::ICore::instance()->showOptionsDialog(Constants::LOCATOR_CATEGORY,
           Constants::FILTER_OPTIONS_PAGE);
 }

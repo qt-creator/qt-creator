@@ -41,7 +41,7 @@ QT_BEGIN_NAMESPACE
 class QListWidgetItem;
 QT_END_NAMESPACE
 
-namespace QuickOpen {
+namespace Locator {
 
 class ILocatorFilter;
 
@@ -88,6 +88,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QuickOpen
+} // namespace Locator
 
 #endif // SETTINGSPAGE_H

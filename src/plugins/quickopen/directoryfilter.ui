@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QuickOpen::Internal::DirectoryFilterOptions</class>
- <widget class="QDialog" name="QuickOpen::Internal::DirectoryFilterOptions">
+ <class>Locator::Internal::DirectoryFilterOptions</class>
+ <widget class="QDialog" name="Locator::Internal::DirectoryFilterOptions">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>393</width>
-    <height>271</height>
+    <height>275</height>
    </rect>
   </property>
   <layout class="QGridLayout">
@@ -72,11 +72,11 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
        <property name="text">
         <string>Limit to prefix</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -161,7 +161,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>QuickOpen::Internal::DirectoryFilterOptions</receiver>
+   <receiver>Locator::Internal::DirectoryFilterOptions</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -177,7 +177,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>QuickOpen::Internal::DirectoryFilterOptions</receiver>
+   <receiver>Locator::Internal::DirectoryFilterOptions</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

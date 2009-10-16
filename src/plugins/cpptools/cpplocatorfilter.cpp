@@ -73,17 +73,17 @@ void CppLocatorFilter::refresh(QFutureInterface<void> &future)
     Q_UNUSED(future)
 }
 
-static bool compareLexigraphically(const QuickOpen::FilterEntry &a,
-                                   const QuickOpen::FilterEntry &b)
+static bool compareLexigraphically(const Locator::FilterEntry &a,
+                                   const Locator::FilterEntry &b)
 {
     return a.displayName < b.displayName;
 }
 
-QList<QuickOpen::FilterEntry> CppLocatorFilter::matchesFor(const QString &origEntry)
+QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(const QString &origEntry)
 {
     QString entry = trimWildcards(origEntry);
-    QList<QuickOpen::FilterEntry> goodEntries;
-    QList<QuickOpen::FilterEntry> betterEntries;
+    QList<Locator::FilterEntry> goodEntries;
+    QList<Locator::FilterEntry> betterEntries;
     QStringMatcher matcher(entry, Qt::CaseInsensitive);
     const QRegExp regexp("*"+entry+"*", Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
@@ -108,7 +108,7 @@ QList<QuickOpen::FilterEntry> CppLocatorFilter::matchesFor(const QString &origEn
                     || (!hasWildcard && matcher.indexIn(info.symbolName) != -1)) {
 
                 QVariant id = qVariantFromValue(info);
-                QuickOpen::FilterEntry filterEntry(this, info.symbolName, id, info.icon);
+                Locator::FilterEntry filterEntry(this, info.symbolName, id, info.icon);
                 if (! info.symbolType.isEmpty())
                     filterEntry.extraInfo = info.symbolType;
                 else
@@ -131,7 +131,7 @@ QList<QuickOpen::FilterEntry> CppLocatorFilter::matchesFor(const QString &origEn
     return betterEntries;
 }
 
-void CppLocatorFilter::accept(QuickOpen::FilterEntry selection) const
+void CppLocatorFilter::accept(Locator::FilterEntry selection) const
 {
     ModelItemInfo info = qvariant_cast<CppTools::Internal::ModelItemInfo>(selection.internalData);
     TextEditor::BaseTextEditor::openEditorAt(info.fileName, info.line);

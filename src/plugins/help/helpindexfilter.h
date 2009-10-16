@@ -44,7 +44,7 @@ namespace Internal {
 
 class HelpPlugin;
 
-class HelpIndexFilter : public QuickOpen::ILocatorFilter
+class HelpIndexFilter : public Locator::ILocatorFilter
 {
     Q_OBJECT
 
@@ -55,8 +55,8 @@ public:
     QString trName() const;
     QString name() const;
     Priority priority() const;
-    QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
-    void accept(QuickOpen::FilterEntry selection) const;
+    QList<Locator::FilterEntry> matchesFor(const QString &entry);
+    void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 signals:

@@ -41,10 +41,10 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-namespace QuickOpen {
+namespace Locator {
 namespace Internal {
 
-class OpenDocumentsFilter : public QuickOpen::ILocatorFilter
+class OpenDocumentsFilter : public Locator::ILocatorFilter
 {
     Q_OBJECT
 
@@ -52,9 +52,9 @@ public:
     OpenDocumentsFilter(Core::EditorManager *editorManager);
     QString trName() const { return tr("Open documents"); }
     QString name() const { return "Open documents"; }
-    QuickOpen::ILocatorFilter::Priority priority() const { return QuickOpen::ILocatorFilter::Medium; }
-    QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
-    void accept(QuickOpen::FilterEntry selection) const;
+    Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Medium; }
+    QList<Locator::FilterEntry> matchesFor(const QString &entry);
+    void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 public slots:
@@ -67,6 +67,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QuickOpen
+} // namespace Locator
 
 #endif // OPENDOCUMENTSFILTER_H

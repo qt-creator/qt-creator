@@ -104,9 +104,9 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     addAutoReleasedObject(new CppQuickFixCollector(m_modelManager));
 
-    CppLocatorFilter *quickOpenFilter = new CppLocatorFilter(m_modelManager,
+    CppLocatorFilter *locatorFilter = new CppLocatorFilter(m_modelManager,
                                                                  core->editorManager());
-    addAutoReleasedObject(quickOpenFilter);
+    addAutoReleasedObject(locatorFilter);
     addAutoReleasedObject(new CppClassesFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CppFunctionsFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CppCurrentDocumentFilter(m_modelManager, core->editorManager()));

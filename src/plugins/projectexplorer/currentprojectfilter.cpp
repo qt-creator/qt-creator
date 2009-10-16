@@ -38,7 +38,7 @@
 #include <QtCore/QVariant>
 
 using namespace Core;
-using namespace QuickOpen;
+using namespace Locator;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 

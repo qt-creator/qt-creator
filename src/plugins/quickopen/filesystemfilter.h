@@ -40,12 +40,12 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QFutureInterface>
 
-namespace QuickOpen {
+namespace Locator {
 namespace Internal {
 
 class LocatorWidget;
 
-class FileSystemFilter : public QuickOpen::ILocatorFilter
+class FileSystemFilter : public Locator::ILocatorFilter
 {
     Q_OBJECT
 
@@ -53,9 +53,9 @@ public:
     FileSystemFilter(Core::EditorManager *editorManager, LocatorWidget *locatorWidget);
     QString trName() const { return tr("Files in file system"); }
     QString name() const { return "Files in file system"; }
-    QuickOpen::ILocatorFilter::Priority priority() const { return QuickOpen::ILocatorFilter::Medium; }
-    QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
-    void accept(QuickOpen::FilterEntry selection) const;
+    Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Medium; }
+    QList<Locator::FilterEntry> matchesFor(const QString &entry);
+    void accept(Locator::FilterEntry selection) const;
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);
@@ -68,6 +68,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QuickOpen
+} // namespace Locator
 
 #endif // FILESYSTEMFILTER_H

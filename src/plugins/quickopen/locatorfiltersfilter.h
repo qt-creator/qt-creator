@@ -34,14 +34,14 @@
 
 #include <QtGui/QIcon>
 
-namespace QuickOpen {
+namespace Locator {
 namespace Internal {
 
 class LocatorPlugin;
 class LocatorWidget;
 
 /*!
-  This filter provides the user with the list of available QuickOpen filters.
+  This filter provides the user with the list of available Locator filters.
   The list is only shown when nothing has been typed yet.
  */
 class LocatorFiltersFilter : public ILocatorFilter
@@ -68,6 +68,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QuickOpen
+} // namespace Locator
 
 #endif // LOCATORFILTERSFILTER_H

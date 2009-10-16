@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QuickOpen::Internal::FileSystemFilterOptions</class>
- <widget class="QDialog" name="QuickOpen::Internal::FileSystemFilterOptions">
+ <class>Locator::Internal::FileSystemFilterOptions</class>
+ <widget class="QDialog" name="Locator::Internal::FileSystemFilterOptions">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>327</width>
+    <width>335</width>
     <height>131</height>
    </rect>
   </property>
@@ -78,7 +78,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>QuickOpen::Internal::FileSystemFilterOptions</receiver>
+   <receiver>Locator::Internal::FileSystemFilterOptions</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -94,7 +94,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>QuickOpen::Internal::FileSystemFilterOptions</receiver>
+   <receiver>Locator::Internal::FileSystemFilterOptions</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

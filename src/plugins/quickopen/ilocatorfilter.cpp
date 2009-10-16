@@ -36,7 +36,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
 
-using namespace QuickOpen;
+using namespace Locator;
 
 ILocatorFilter::ILocatorFilter(QObject *parent):
     QObject(parent),

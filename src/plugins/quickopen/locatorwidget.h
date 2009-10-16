@@ -47,7 +47,7 @@ namespace Utils {
     class FancyLineEdit;
 }
 
-namespace QuickOpen {
+namespace Locator {
 namespace Internal {
 
 class LocatorModel;
@@ -92,6 +92,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QuickOpen
+} // namespace Locator
 
 #endif // LOCATORWIDGET_H

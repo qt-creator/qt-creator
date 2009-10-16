@@ -52,16 +52,16 @@
 #include <qtconcurrent/QtConcurrentTools>
 
 /*!
-    \namespace QuickOpen
-    The QuickOpen namespace provides the hooks for Locator content.
+    \namespace Locator
+    The Locator namespace provides the hooks for Locator content.
 */
 /*!
-    \namespace QuickOpen::Internal
+    \namespace Locator::Internal
     \internal
 */
 
-using namespace QuickOpen;
-using namespace QuickOpen::Internal;
+using namespace Locator;
+using namespace Locator::Internal;
 
 namespace {
     static bool filterLessThan(const ILocatorFilter *first, const ILocatorFilter *second)
@@ -245,7 +245,7 @@ void LocatorPlugin::refresh(QList<ILocatorFilter*> filters)
     QFuture<void> task = QtConcurrent::run(&ILocatorFilter::refresh, filters);
     Core::FutureProgress *progress = Core::ICore::instance()
             ->progressManager()->addTask(task, tr("Indexing"),
-                                         QuickOpen::Constants::TASK_INDEX,
+                                         Locator::Constants::TASK_INDEX,
                                          Core::ProgressManager::CloseOnSuccess);
     connect(progress, SIGNAL(finished()), this, SLOT(saveSettings()));
 }

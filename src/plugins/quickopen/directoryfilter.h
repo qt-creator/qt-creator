@@ -41,7 +41,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QDialog>
 
-namespace QuickOpen {
+namespace Locator {
 namespace Internal {
 
 class DirectoryFilter : public BaseFileFilter
@@ -52,7 +52,7 @@ public:
     DirectoryFilter();
     QString trName() const { return m_name; }
     QString name() const { return m_name; }
-    QuickOpen::ILocatorFilter::Priority priority() const { return QuickOpen::ILocatorFilter::Medium; }
+    Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Medium; }
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);
@@ -76,6 +76,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QuickOpen
+} // namespace Locator
 
 #endif // DIRECTORYFILTER_H

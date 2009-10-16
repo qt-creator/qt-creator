@@ -39,10 +39,10 @@
 
 #include <QtCore/QCoreApplication>
 
-Q_DECLARE_METATYPE(QuickOpen::ILocatorFilter*)
+Q_DECLARE_METATYPE(Locator::ILocatorFilter*)
 
-using namespace QuickOpen;
-using namespace QuickOpen::Internal;
+using namespace Locator;
+using namespace Locator::Internal;
 
 SettingsPage::SettingsPage(LocatorPlugin *plugin)
     : m_plugin(plugin), m_page(0)
@@ -56,17 +56,17 @@ QString SettingsPage::id() const
 
 QString SettingsPage::trName() const
 {
-    return QCoreApplication::translate("Locator", QuickOpen::Constants::FILTER_OPTIONS_PAGE);
+    return QCoreApplication::translate("Locator", Locator::Constants::FILTER_OPTIONS_PAGE);
 }
 
 QString SettingsPage::category() const
 {
-    return Constants::QUICKOPEN_CATEGORY;
+    return Constants::LOCATOR_CATEGORY;
 }
 
 QString SettingsPage::trCategory() const
 {
-    return QCoreApplication::translate("Locator", QuickOpen::Constants::QUICKOPEN_CATEGORY);
+    return QCoreApplication::translate("Locator", Locator::Constants::LOCATOR_CATEGORY);
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

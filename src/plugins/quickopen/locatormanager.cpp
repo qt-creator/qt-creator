@@ -33,8 +33,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-using namespace QuickOpen;
-using namespace QuickOpen::Internal;
+using namespace Locator;
+using namespace Locator::Internal;
 
 LocatorManager *LocatorManager::m_instance = 0;
 

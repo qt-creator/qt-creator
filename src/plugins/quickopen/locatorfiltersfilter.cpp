@@ -33,8 +33,8 @@
 
 #include <coreplugin/coreconstants.h>
 
-using namespace QuickOpen;
-using namespace QuickOpen::Internal;
+using namespace Locator;
+using namespace Locator::Internal;
 
 Q_DECLARE_METATYPE(ILocatorFilter*);
 

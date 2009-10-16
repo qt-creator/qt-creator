@@ -39,7 +39,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QFutureWatcher>
 
-namespace QuickOpen {
+namespace Locator {
 namespace Internal {
 
 class LocatorWidget;
@@ -121,6 +121,6 @@ void LocatorPlugin::loadSettingsHelper(S *settings)
 }
 
 } // namespace Internal
-} // namespace QuickOpen
+} // namespace Locator
 
 #endif // LOCATORPLUGIN_H

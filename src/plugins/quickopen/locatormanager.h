@@ -34,7 +34,7 @@
 
 #include <QtCore/QObject>
 
-namespace QuickOpen {
+namespace Locator {
 
 namespace Internal {
 class LocatorWidget;
@@ -57,6 +57,6 @@ private:
     static LocatorManager *m_instance;
 };
 
-} // namespace QuickOpen
+} // namespace Locator
 
 #endif // LOCATORMANAGER_H

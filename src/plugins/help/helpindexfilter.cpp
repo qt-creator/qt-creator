@@ -37,7 +37,7 @@
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpIndexModel>
 
-using namespace QuickOpen;
+using namespace Locator;
 using namespace Help;
 using namespace Help::Internal;
 

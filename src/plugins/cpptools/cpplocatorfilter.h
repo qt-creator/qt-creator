@@ -43,7 +43,7 @@ namespace Internal {
 
 class CppModelManager;
 
-class CppLocatorFilter : public QuickOpen::ILocatorFilter
+class CppLocatorFilter : public Locator::ILocatorFilter
 {
     Q_OBJECT
 public:
@@ -53,8 +53,8 @@ public:
     QString trName() const { return tr("Classes and Methods"); }
     QString name() const { return QLatin1String("Classes and Methods"); }
     Priority priority() const { return Medium; }
-    QList<QuickOpen::FilterEntry> matchesFor(const QString &entry);
-    void accept(QuickOpen::FilterEntry selection) const;
+    QList<Locator::FilterEntry> matchesFor(const QString &entry);
+    void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 protected:

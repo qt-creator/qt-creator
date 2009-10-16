@@ -35,7 +35,7 @@
 #include <QtCore/QVariant>
 
 using namespace Core;
-using namespace QuickOpen;
+using namespace Locator;
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
