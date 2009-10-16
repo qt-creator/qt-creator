@@ -15,7 +15,7 @@ HEADERS += completionsettingspage.h \
     cppfunctionsfilter.h \
     cppmodelmanager.h \
     cppmodelmanagerinterface.h \
-    cppquickopenfilter.h \
+    cpplocatorfilter.h \
     cpptools_global.h \
     cpptoolsconstants.h \
     cpptoolseditorsupport.h \
@@ -31,7 +31,7 @@ SOURCES += completionsettingspage.cpp \
     cppcurrentdocumentfilter.cpp \
     cppfunctionsfilter.cpp \
     cppmodelmanager.cpp \
-    cppquickopenfilter.cpp \
+    cpplocatorfilter.cpp \
     cpptoolseditorsupport.cpp \
     cpptoolsplugin.cpp \
     searchsymbols.cpp \

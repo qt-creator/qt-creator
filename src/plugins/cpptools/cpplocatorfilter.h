@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef CPPQUICKOPENFILTER_H
-#define CPPQUICKOPENFILTER_H
+#ifndef CPPLOCATORFILTER_H
+#define CPPLOCATORFILTER_H
 
 #include "searchsymbols.h"
 
@@ -43,12 +43,12 @@ namespace Internal {
 
 class CppModelManager;
 
-class CppQuickOpenFilter : public QuickOpen::ILocatorFilter
+class CppLocatorFilter : public QuickOpen::ILocatorFilter
 {
     Q_OBJECT
 public:
-    CppQuickOpenFilter(CppModelManager *manager, Core::EditorManager *editorManager);
-    ~CppQuickOpenFilter();
+    CppLocatorFilter(CppModelManager *manager, Core::EditorManager *editorManager);
+    ~CppLocatorFilter();
 
     QString trName() const { return tr("Classes and Methods"); }
     QString name() const { return QLatin1String("Classes and Methods"); }
@@ -86,4 +86,4 @@ private:
 } // namespace Internal
 } // namespace CppTools
 
-#endif // CPPQUICKOPENFILTER_H
+#endif // CPPLOCATORFILTER_H

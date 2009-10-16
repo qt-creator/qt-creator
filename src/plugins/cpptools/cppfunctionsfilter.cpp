@@ -32,7 +32,7 @@
 using namespace CppTools::Internal;
 
 CppFunctionsFilter::CppFunctionsFilter(CppModelManager *manager, Core::EditorManager *editorManager)
-    : CppQuickOpenFilter(manager, editorManager)
+    : CppLocatorFilter(manager, editorManager)
 {
     setShortcutString("m");
     setIncludedByDefault(false);

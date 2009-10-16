@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "cppquickopenfilter.h"
+#include "cpplocatorfilter.h"
 #include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -39,7 +39,7 @@
 
 using namespace CppTools::Internal;
 
-CppQuickOpenFilter::CppQuickOpenFilter(CppModelManager *manager, Core::EditorManager *editorManager)
+CppLocatorFilter::CppLocatorFilter(CppModelManager *manager, Core::EditorManager *editorManager)
     : m_manager(manager),
     m_editorManager(editorManager),
     m_forceNewSearchList(true)
@@ -54,21 +54,21 @@ CppQuickOpenFilter::CppQuickOpenFilter(CppModelManager *manager, Core::EditorMan
             this, SLOT(onAboutToRemoveFiles(QStringList)));
 }
 
-CppQuickOpenFilter::~CppQuickOpenFilter()
+CppLocatorFilter::~CppLocatorFilter()
 { }
 
-void CppQuickOpenFilter::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
+void CppLocatorFilter::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
 {
     m_searchList[doc->fileName()] = Info(doc);
 }
 
-void CppQuickOpenFilter::onAboutToRemoveFiles(const QStringList &files)
+void CppLocatorFilter::onAboutToRemoveFiles(const QStringList &files)
 {
     foreach (const QString &file, files)
         m_searchList.remove(file);
 }
 
-void CppQuickOpenFilter::refresh(QFutureInterface<void> &future)
+void CppLocatorFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
 }
@@ -79,7 +79,7 @@ static bool compareLexigraphically(const QuickOpen::FilterEntry &a,
     return a.displayName < b.displayName;
 }
 
-QList<QuickOpen::FilterEntry> CppQuickOpenFilter::matchesFor(const QString &origEntry)
+QList<QuickOpen::FilterEntry> CppLocatorFilter::matchesFor(const QString &origEntry)
 {
     QString entry = trimWildcards(origEntry);
     QList<QuickOpen::FilterEntry> goodEntries;
@@ -131,7 +131,7 @@ QList<QuickOpen::FilterEntry> CppQuickOpenFilter::matchesFor(const QString &orig
     return betterEntries;
 }
 
-void CppQuickOpenFilter::accept(QuickOpen::FilterEntry selection) const
+void CppLocatorFilter::accept(QuickOpen::FilterEntry selection) const
 {
     ModelItemInfo info = qvariant_cast<CppTools::Internal::ModelItemInfo>(selection.internalData);
     TextEditor::BaseTextEditor::openEditorAt(info.fileName, info.line);

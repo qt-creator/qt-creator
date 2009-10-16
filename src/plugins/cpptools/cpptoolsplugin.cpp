@@ -36,7 +36,7 @@
 #include "cppcurrentdocumentfilter.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
-#include "cppquickopenfilter.h"
+#include "cpplocatorfilter.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -104,7 +104,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     addAutoReleasedObject(new CppQuickFixCollector(m_modelManager));
 
-    CppQuickOpenFilter *quickOpenFilter = new CppQuickOpenFilter(m_modelManager,
+    CppLocatorFilter *quickOpenFilter = new CppLocatorFilter(m_modelManager,
                                                                  core->editorManager());
     addAutoReleasedObject(quickOpenFilter);
     addAutoReleasedObject(new CppClassesFilter(m_modelManager, core->editorManager()));
