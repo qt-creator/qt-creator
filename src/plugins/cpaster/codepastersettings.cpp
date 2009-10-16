@@ -66,7 +66,7 @@ QString CodePasterSettingsPage::category() const
 
 QString CodePasterSettingsPage::trCategory() const
 {
-    return tr("CodePaster");
+    return tr("Code Pasting");
 }
 
 QWidget *CodePasterSettingsPage::createPage(QWidget *parent)
@@ -76,9 +76,14 @@ QWidget *CodePasterSettingsPage::createPage(QWidget *parent)
     QLineEdit *lineedit = new QLineEdit;
     lineedit->setText(m_host);
     connect(lineedit, SIGNAL(textChanged(QString)), this, SLOT(serverChanged(QString)));
+    QLabel *noteLabel = new QLabel(tr("Note: Specify the host name for the CodePaster service "
+                                      "without any protocol prepended (e.g. codepaster.mycompany.com)."));
+    noteLabel->setWordWrap(true);
     QGridLayout* layout = new QGridLayout();
     layout->addWidget(label, 0, 0);
     layout->addWidget(lineedit, 0, 1);
+    layout->addWidget(noteLabel, 1, 1);
+    layout->addItem(new QSpacerItem(1,1, QSizePolicy::Preferred, QSizePolicy::MinimumExpanding), 2, 0);
     w->setLayout(layout);
     return w;
 }

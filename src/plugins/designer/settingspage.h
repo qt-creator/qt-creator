@@ -63,6 +63,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QuickOpen
+} // namespace Designer
 
 #endif // DESIGNER_SETTINGSPAGE_H

@@ -431,11 +431,12 @@ QString decodeData(const QByteArray &ba, int encoding)
         case 5: { //  base64 encoded 8 bit data, without quotes (see 1)
             return quoteUnprintableLatin1(QByteArray::fromBase64(ba));
         }
-        case 7: { //  %04x endoded 16 bit data
+        case 7: { //  %04x encoded 16 bit data
+            const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
             //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
-            return QString::fromUtf16(reinterpret_cast<const ushort *>
-                (decodedBa.data()), decodedBa.size() / 2);
+            return doubleQuote + QString::fromUtf16(reinterpret_cast<const ushort *>
+                (decodedBa.data()), decodedBa.size() / 2) + doubleQuote;
         }
     }
     return QCoreApplication::translate("Debugger", "<Encoding error>");

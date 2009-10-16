@@ -30,12 +30,12 @@
 #ifndef CPPFUNCTIONSFILTER_H
 #define CPPFUNCTIONSFILTER_H
 
-#include <cppquickopenfilter.h>
+#include <cpplocatorfilter.h>
 
 namespace CppTools {
 namespace Internal {
 
-class CppFunctionsFilter : public CppQuickOpenFilter
+class CppFunctionsFilter : public CppLocatorFilter
 {
     Q_OBJECT
 

@@ -2,19 +2,6 @@ unix:QDOC_BIN = $$(QTDIR)/bin/qdoc3
 win32:QDOC_BIN = $$(QTDIR)/bin/qdoc3.exe
 win32:QDOC_BIN = $$replace(QDOC_BIN, "/", "\\")
 
-# legacy branch, can be dropped as soon as we depend on Qt 4.6
-!exists( $$QDOC_BIN ) {
-    unix:QDOC_BIN = $$(QTDIR)/tools/qdoc3/qdoc3
-    win32 { 
-        QDOC_BIN = $$(QTDIR)/tools/qdoc3/release/qdoc3.exe
-        QDOC_BIN = $$replace(QDOC_BIN, "/", "\\")
-        !exists( $$QDOC_BIN ) {
-            QDOC_BIN = $$(QTDIR)/tools/qdoc3/debug/qdoc3.exe
-            QDOC_BIN = $$replace(QDOC_BIN, "/", "\\")
-        }
-    }
-}
-
 unix {
     QDOC = SRCDIR=$$PWD OUTDIR=$$OUT_PWD/doc/html $$QDOC_BIN 
     HELPGENERATOR = $$(QTDIR)/bin/qhelpgenerator

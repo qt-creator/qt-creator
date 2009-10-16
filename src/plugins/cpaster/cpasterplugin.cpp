@@ -106,7 +106,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
 
     Core::ActionContainer *cpContainer =
         actionManager->createMenu(QLatin1String("CodePaster"));
-    cpContainer->menu()->setTitle(tr("&CodePaster"));
+    cpContainer->menu()->setTitle(tr("&Code Pasting"));
     toolsContainer->addMenu(cpContainer);
 
     Core::Command *command;

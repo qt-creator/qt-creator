@@ -314,8 +314,8 @@ QByteArray msvcCompilationFile() {
                                    "_MSC_FULL_VER","_MSC_VER","__MSVC_RUNTIME_CHECKS",
                                    "_MT", "_NATIVE_WCHAR_T_DEFINED", "_OPENMP",
                                    "_VC_NODEFAULTLIB", "_WCHAR_T_DEFINED", "_WIN32",
-                                   "_WIN64", "_Wp64", "__DATE__", "__DATE__",
-                                   "__TIME__", "__TIMESTAMP__",
+                                   "_WIN32_WCE", "_WIN64", "_Wp64", "__DATE__",
+                                    "__DATE__", "__TIME__", "__TIMESTAMP__",
                                    0};
     QByteArray file = "#define __PPOUT__(x) V##x=x\n\n";
     int i =0;
@@ -333,9 +333,6 @@ QByteArray MSVCToolChain::predefinedMacros()
 {
     if (m_predefinedMacros.isEmpty()) {
         m_predefinedMacros += "#define __MSVCRT__\n"
-                              "#define __WINNT__\n"
-                              "#define __WINNT\n"
-                              "#define WINNT\n"
                               "#define __int64 long long\n"
                               "#define __int32 long\n"
                               "#define __int16 short\n"

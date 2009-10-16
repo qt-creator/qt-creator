@@ -51,14 +51,14 @@ namespace {
 
 typedef QList< QPair<Name *, FullySpecifiedType> > Substitution;
 
-class Instantiation: protected TypeVisitor, protected NameVisitor
+class GenerateInstance: protected TypeVisitor, protected NameVisitor
 {
     Control *_control;
     FullySpecifiedType _type;
     const Substitution _substitution;
 
 public:
-    Instantiation(Control *control, const Substitution &substitution)
+    GenerateInstance(Control *control, const Substitution &substitution)
         : _control(control),
           _substitution(substitution)
     { }
@@ -547,8 +547,36 @@ bool ResolveExpression::visit(TemplateIdAST *ast)
     return false;
 }
 
+bool ResolveExpression::maybeValidPrototype(Function *funTy, unsigned actualArgumentCount) const
+{
+    unsigned minNumberArguments = 0;
+
+    for (; minNumberArguments < funTy->argumentCount(); ++minNumberArguments) {
+        Argument *arg = funTy->argumentAt(minNumberArguments)->asArgument();
+
+        if (arg->hasInitializer())
+            break;
+    }
+
+    if (actualArgumentCount < minNumberArguments) {
+        // not enough arguments.
+        return false;
+
+    } else if (! funTy->isVariadic() && actualArgumentCount > funTy->argumentCount()) {
+        // too many arguments.
+        return false;
+    }
+
+    return true;
+}
+
 bool ResolveExpression::visit(CallAST *ast)
 {
+    ResolveClass resolveClass;
+
+    const QList<Result> baseResults = _results;
+    _results.clear();
+
     // Compute the types of the actual arguments.
     QList< QList<Result> > arguments;
     for (ExpressionListAST *exprIt = ast->expression_list; exprIt;
@@ -556,30 +584,38 @@ bool ResolveExpression::visit(CallAST *ast)
         arguments.append(operator()(exprIt->expression));
     }
 
-    QList<Result> baseResults = _results;
-    _results.clear();
+    const unsigned actualArgumentCount = arguments.count();
 
-    foreach (Result p, baseResults) {
-        if (Function *funTy = p.first->asFunctionType()) {
-            unsigned minNumberArguments = 0;
-            for (; minNumberArguments < funTy->argumentCount(); ++minNumberArguments) {
-                Argument *arg = funTy->argumentAt(minNumberArguments)->asArgument();
-                if (arg->hasInitializer())
-                    break;
+    Name *functionCallOp = control()->operatorNameId(OperatorNameId::FunctionCallOp);
+
+    foreach (const Result &result, baseResults) {
+        FullySpecifiedType ty = result.first.simplified();
+        Symbol *lastVisibleSymbol = result.second;
+
+        if (NamedType *namedTy = ty->asNamedType()) {
+            const QList<Symbol *> classObjectCandidates = resolveClass(namedTy->name(), result, _context);
+
+            foreach (Symbol *classObject, classObjectCandidates) {
+                const QList<Result> overloads = resolveMember(functionCallOp, classObject->asClass(), namedTy->name());
+
+                foreach (const Result &o, overloads) {
+                    FullySpecifiedType overloadTy = o.first.simplified();
+
+                    if (Function *funTy = overloadTy->asFunctionType()) {
+                        if (maybeValidPrototype(funTy, actualArgumentCount))
+                            addResult(funTy->returnType().simplified(), lastVisibleSymbol);
+                    }
+                }
             }
-            const unsigned actualArgumentCount = arguments.count();
-            if (actualArgumentCount < minNumberArguments) {
-                // not enough arguments.
-            } else if (! funTy->isVariadic() && actualArgumentCount > funTy->argumentCount()) {
-                // too many arguments.
-            } else {
-                p.first = funTy->returnType();
-                addResult(p);
-            }
-        } else if (Class *classTy = p.first->asClassType()) {
+
+        } else if (Function *funTy = ty->asFunctionType()) {            
+            if (maybeValidPrototype(funTy, actualArgumentCount))
+                addResult(funTy->returnType().simplified(), lastVisibleSymbol);
+
+        } else if (Class *classTy = ty->asClassType()) {
             // Constructor call
-            p.first = control()->namedType(classTy->name());
-            addResult(p);
+            FullySpecifiedType ctorTy = control()->namedType(classTy->name());
+            addResult(ctorTy, lastVisibleSymbol);
         }
     }
 
@@ -592,34 +628,36 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
     _results.clear();
 
     const QList<Result> indexResults = operator()(ast->expression);
-    ResolveClass symbolsForDotAcccess;
+    ResolveClass resolveClass;
 
-    foreach (Result p, baseResults) {
-        FullySpecifiedType ty = p.first;
-        Symbol *contextSymbol = p.second;
+    Name *arrayAccessOp = control()->operatorNameId(OperatorNameId::ArrayAccessOp);
 
-        if (ReferenceType *refTy = ty->asReferenceType())
-            ty = refTy->elementType();
+    foreach (const Result &result, baseResults) {
+        FullySpecifiedType ty = result.first.simplified();
+        Symbol *contextSymbol = result.second;
 
         if (PointerType *ptrTy = ty->asPointerType()) {
-            addResult(ptrTy->elementType(), contextSymbol);
+            addResult(ptrTy->elementType().simplified(), contextSymbol);
+
         } else if (ArrayType *arrTy = ty->asArrayType()) {
-            addResult(arrTy->elementType(), contextSymbol);
+            addResult(arrTy->elementType().simplified(), contextSymbol);
+
         } else if (NamedType *namedTy = ty->asNamedType()) {
             const QList<Symbol *> classObjectCandidates =
-                    symbolsForDotAcccess(namedTy->name(), p, _context);
+                    resolveClass(namedTy->name(), result, _context);
 
             foreach (Symbol *classObject, classObjectCandidates) {
-                const QList<Result> overloads =
-                        resolveArrayOperator(p, namedTy, classObject->asClass());
-                foreach (Result r, overloads) {
-                    FullySpecifiedType ty = r.first;
-                    Function *funTy = ty->asFunctionType();
-                    if (! funTy)
-                        continue;
+                Q_ASSERT(classObject->isClass());
 
-                    ty = funTy->returnType();
-                    addResult(ty, funTy);
+                const QList<Result> overloads =
+                        resolveMember(arrayAccessOp, classObject->asClass(), namedTy->name());
+
+                foreach (Result r, overloads) {
+                    FullySpecifiedType ty = r.first.simplified();
+                    if (Function *funTy = ty->asFunctionType()) {
+                        ty = funTy->returnType().simplified();
+                        addResult(ty, funTy);
+                    }
                 }
             }
         }
@@ -647,7 +685,8 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
 }
 
 QList<ResolveExpression::Result>
-ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int accessOp) const
+ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int accessOp,
+                                         bool *replacedDotOperator) const
 {
     QList<Result> results;
 
@@ -685,11 +724,12 @@ ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int a
 
         if (NamedType *namedTy = ty->asNamedType()) {
             ResolveClass resolveClass;
-
+            Name *arrowAccessOp = control()->operatorNameId(OperatorNameId::ArrowOp);
             const QList<Symbol *> candidates = resolveClass(namedTy->name(), result, _context);
-            foreach (Symbol *classObject, candidates) {
-                const QList<Result> overloads = resolveArrowOperator(result, namedTy,
-                                                                     classObject->asClass());
+
+            foreach (Symbol *classObject, candidates) {                
+                const QList<Result> overloads = resolveMember(arrowAccessOp, classObject->asClass(),
+                                                              namedTy->name());
 
                 foreach (const Result &r, overloads) {
                     FullySpecifiedType typeOfOverloadFunction = r.first.simplified();
@@ -715,10 +755,20 @@ ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int a
                 results.append(Result(elementTy, lastVisibleSymbol));
         }
     } else if (accessOp == T_DOT) {
-        if (ty->isClassType() || ty->isNamedType())
+        if (replacedDotOperator) {
+            if (PointerType *ptrTy = ty->asPointerType()) {
+                *replacedDotOperator = true;
+                ty = ptrTy->elementType().simplified();
+            } else if (ArrayType *arrTy = ty->asArrayType()) {
+                *replacedDotOperator = true;
+                ty = arrTy->elementType().simplified();
+            }
+        }
+
+        if (ty->isNamedType())
             results.append(Result(ty, lastVisibleSymbol));
 
-        if (Function *fun = ty->asFunctionType()) {
+        else if (Function *fun = ty->asFunctionType()) {
             Scope *funScope = fun->scope();
 
             if (funScope && (funScope->isBlockScope() || funScope->isNamespaceScope())) {
@@ -734,12 +784,13 @@ ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int a
 QList<ResolveExpression::Result>
 ResolveExpression::resolveMemberExpression(const QList<Result> &baseResults,
                                            unsigned accessOp,
-                                           Name *memberName) const
+                                           Name *memberName,
+                                           bool *replacedDotOperator) const
 {
     ResolveClass resolveClass;
     QList<Result> results;
 
-    const QList<Result> classObjectResults = resolveBaseExpression(baseResults, accessOp);
+    const QList<Result> classObjectResults = resolveBaseExpression(baseResults, accessOp, replacedDotOperator);
     foreach (const Result &r, classObjectResults) {
         FullySpecifiedType ty = r.first;
 
@@ -795,7 +846,7 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
                                            templArgTy));
             }
             
-            Instantiation inst(control(), subst);
+            GenerateInstance inst(control(), subst);
             ty = inst(ty);
         }
         
@@ -805,78 +856,6 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
     return removeDuplicates(results);
 }
 
-QList<ResolveExpression::Result>
-ResolveExpression::resolveArrowOperator(const Result &,
-                                        NamedType *namedTy,
-                                        Class *klass) const
-{
-    QList<Scope *> scopes;
-    _context.expand(klass->members(), _context.visibleScopes(), &scopes);
-    QList<Result> results;
-
-    Name *memberName = control()->operatorNameId(OperatorNameId::ArrowOp);
-    QList<Symbol *> candidates = _context.resolve(memberName, scopes);
-    foreach (Symbol *candidate, candidates) {
-        FullySpecifiedType ty = candidate->type();
-        Name *unqualifiedNameId = namedTy->name();
-        if (QualifiedNameId *q = namedTy->name()->asQualifiedNameId())
-            unqualifiedNameId = q->unqualifiedNameId();
-        if (TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
-            Substitution subst;
-            for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
-                FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
-                if (i < klass->templateParameterCount()) {
-                    subst.append(qMakePair(klass->templateParameterAt(i)->name(),
-                                           templArgTy));
-                }
-            }
-            Instantiation inst(control(), subst);
-            ty = inst(ty);
-        }
-
-        const Result result(ty, candidate);
-        results.append(result);
-    }
-
-    return removeDuplicates(results);
-}
-
-QList<ResolveExpression::Result>
-ResolveExpression::resolveArrayOperator(const Result &,
-                                        NamedType *namedTy,
-                                        Class *klass) const
-{
-    // ### todo handle index expressions.
-
-    QList<Scope *> scopes;
-    _context.expand(klass->members(), _context.visibleScopes(), &scopes);
-    QList<Result> results;
-
-    Name *memberName = control()->operatorNameId(OperatorNameId::ArrayAccessOp);
-    QList<Symbol *> candidates = _context.resolve(memberName, scopes);
-    foreach (Symbol *candidate, candidates) {
-        FullySpecifiedType ty = candidate->type();
-        Name *unqualifiedNameId = namedTy->name();
-        if (QualifiedNameId *q = namedTy->name()->asQualifiedNameId())
-            unqualifiedNameId = q->unqualifiedNameId();
-        if (TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
-            Substitution subst;
-            for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
-                FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
-                if (i < klass->templateParameterCount()) {
-                    subst.append(qMakePair(klass->templateParameterAt(i)->name(),
-                                           templArgTy));
-                }
-            }
-            Instantiation inst(control(), subst);
-            ty = inst(ty);
-        }
-
-        results.append(Result(ty, candidate));
-    }
-
-    return removeDuplicates(results);
-}
 
 bool ResolveExpression::visit(PostIncrDecrAST *)
 {
@@ -885,14 +864,7 @@ bool ResolveExpression::visit(PostIncrDecrAST *)
 
 ////////////////////////////////////////////////////////////////////////////////
 ResolveClass::ResolveClass()
-    : _pointerAccess(false)
 { }
-
-bool ResolveClass::pointerAccess() const
-{ return _pointerAccess; }
-
-void ResolveClass::setPointerAccess(bool pointerAccess)
-{ _pointerAccess = pointerAccess; }
 
 QList<Symbol *> ResolveClass::operator()(Name *name,
                                          const ResolveExpression::Result &p,
@@ -925,16 +897,7 @@ QList<Symbol *> ResolveClass::resolveClass(Name *name,
             resolvedSymbols.append(klass);
         } else if (candidate->isTypedef()) {
             if (Declaration *decl = candidate->asDeclaration()) {
-                if (_pointerAccess && decl->type()->isPointerType()) {
-                    PointerType *ptrTy = decl->type()->asPointerType();
-                    FullySpecifiedType elementTy = ptrTy->elementType().simplified();
-                    if (NamedType *namedTy = elementTy->asNamedType()) {
-                        _pointerAccess = false;
-                        const ResolveExpression::Result r(elementTy, decl);
-                        resolvedSymbols += resolveClass(namedTy->name(), r, context);
-                        _pointerAccess = true;
-                    }
-                } else if (Class *asClass = decl->type()->asClassType()) {
+                if (Class *asClass = decl->type()->asClassType()) {
                     // typedef struct { } Point;
                     // Point pt;
                     // pt.

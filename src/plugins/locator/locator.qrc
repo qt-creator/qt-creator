@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/locator">
+        <file>images/reload.png</file>
+        <file>images/locator.png</file>
+    </qresource>
+</RCC>

@@ -3381,7 +3381,9 @@ void GdbEngine::updateLocals()
 
     if (isSynchroneous()) {
         QStringList expanded = m_manager->watchHandler()->expandedINames().toList();
-        postCommand(_("bb %1").arg(expanded.join(_(","))),
+        postCommand(_("bb %1 %2")
+                .arg(int(theDebuggerBoolSetting(UseDebuggingHelpers)))
+                .arg(expanded.join(_(","))),
             WatchUpdate, CB(handleStackFrame1));
         postCommand(_("p 0"), WatchUpdate, CB(handleStackFrame2));
     } else {
@@ -3416,6 +3418,12 @@ void GdbEngine::handleStackFrame2(const GdbResponse &response)
             out.chop(1);
         //qDebug() << "SECOND CHUNK: " << out;
         out = m_firstChunk + out;
+        int pos = out.indexOf("locals=");
+        if (pos != 0) {
+            qDebug() << "DICARDING JUNK AT BEGIN OF RESPONSE: " 
+                << out.left(pos);
+            out = out.mid(pos);
+        }
         GdbMi all("[" + out + "]");
         //GdbMi all(out);
         

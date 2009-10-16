@@ -4,21 +4,15 @@
 win32 {
 contains(QMAKE_CXX, cl) {
 
-CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows/sdk"
+CDB_PATH=$$(CDB_PATH)
+isEmpty($$CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows/sdk"
 
-!exists ($$CDB_PATH) {
-  CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x86)/sdk"
-}
+!exists($$CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x86)/sdk"
+!exists($$CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x64)/sdk"
+!exists($$CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows 64-bit/sdk"
 
-!exists ($$CDB_PATH) {
-  CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x64)/sdk"
-}
+exists($$CDB_PATH) {
 
-!exists ($$CDB_PATH) {
-  CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows 64-bit/sdk"
-}
-
-exists ($$CDB_PATH) {
 message("Adding support for $$CDB_PATH")
 
 DEFINES+=CDB_ENABLED
@@ -70,6 +64,6 @@ FORMS += $$PWD/cdboptionspagewidget.ui
 
 } else {
    message("Debugging Tools for Windows could not be found in $$CDB_PATH")
-}
-}
-}
+} # exists($$CDB_PATH)
+} # (QMAKE_CXX, cl)
+} # win32

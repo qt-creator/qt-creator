@@ -21,6 +21,6 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <dependencyList>
         <dependency name="TextEditor" version="1.3.80"/>
         <dependency name="ProjectExplorer" version="1.3.80"/>
-        <dependency name="QuickOpen" version="1.3.80"/>
+        <dependency name="Locator" version="1.3.80"/>
     </dependencyList>
 </plugin>

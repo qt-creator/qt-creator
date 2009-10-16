@@ -103,7 +103,6 @@ private:
     void handleStop(const TrkResult &result);
     void handleSupportMask(const TrkResult &result);
     void handleTrkVersion(const TrkResult &result);
-    void waitForTrkFinished(const TrkResult &data);
 
     void copyFileToRemote();
     void installRemotePackageSilently();

@@ -77,7 +77,8 @@ public:
               _doc(doc),
               _snapshot(snapshot),
               _source(_doc->source()),
-              _sem(doc->control())
+              _sem(doc->control()),
+              _inSimpleDeclaration(0)
     {
         _snapshot.insert(_doc);
     }
@@ -435,8 +436,8 @@ protected:
             for (PtrOperatorAST *ptr_op = declarator->ptr_operators; ptr_op; ptr_op = ptr_op->next)
                 accept(ptr_op);
 
-            // ### TODO: well, not exactly. We need to look at qualified-name-ids and nested-declarators.
-            // accept(declarator->core_declarator);
+            if (! _inSimpleDeclaration) // visit the core declarator only if we are not in simple-declaration.
+                accept(declarator->core_declarator);
 
             for (PostfixDeclaratorAST *fx_op = declarator->postfix_declarators; fx_op; fx_op = fx_op->next)
                 accept(fx_op);
@@ -469,6 +470,15 @@ protected:
         return false;
     }
 
+    virtual bool visit(SimpleDeclarationAST *)
+    {
+        ++_inSimpleDeclaration;
+        return true;
+    }
+
+    virtual void endVisit(SimpleDeclarationAST *)
+    { --_inSimpleDeclaration; }
+
 private:
     QFutureInterface<Utils::FileSearchResult> *_future;
     Identifier *_id; // ### remove me
@@ -482,6 +492,7 @@ private:
     QList<PostfixExpressionAST *> _postfixExpressionStack;
     QList<QualifiedNameAST *> _qualifiedNameStack;
     QList<int> _references;
+    int _inSimpleDeclaration;
 };
 
 } // end of anonymous namespace
@@ -682,6 +693,8 @@ static void applyChanges(QTextDocument *doc, const QString &text, const QList<Fi
 void CppFindReferences::onReplaceButtonClicked(const QString &text,
                                                const QList<Find::SearchResultItem> &items)
 {
+    Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+
     if (text.isEmpty())
         return;
 

@@ -62,10 +62,29 @@ bool CodePasterProtocol::canList() const
     return true;
 }
 
+bool CodePasterProtocol::isValidHostName(const QString& hostName)
+{
+    if (hostName.isEmpty()) {
+        ICore::instance()->messageManager()->printToOutputPane(
+#ifdef Q_OS_MAC
+                       tr("No Server defined in the CodePaster preferences!"),
+#else
+                       tr("No Server defined in the CodePaster options!"),
+#endif
+                       true /*error*/);
+        ICore::instance()->messageManager()->showOutputPane();
+        return false;
+    }
+    return true;
+}
+
 void CodePasterProtocol::fetch(const QString &id)
 {
+    QString hostName = m_page->hostName();
+    if (!isValidHostName(hostName))
+        return;
     QString link = "http://";
-    link.append(m_page->hostName());
+    link.append(hostName);
     link.append("/?format=raw&id=");
     link.append(id);
     QUrl url(link);
@@ -78,9 +97,12 @@ void CodePasterProtocol::fetch(const QString &id)
 
 void CodePasterProtocol::list(QListWidget *listWidget)
 {
+    QString hostName = m_page->hostName();
+    if (!isValidHostName(hostName))
+        return;
     this->listWidget = listWidget;
     QString link = QLatin1String("http://");
-    link += m_page->hostName();
+    link += hostName;
     link += QLatin1String("/?command=browse&format=raw");
     QUrl url(link);
     QNetworkRequest r(url);
@@ -93,6 +115,10 @@ void CodePasterProtocol::paste(const QString &text,
                        const QString &comment,
                        const QString &description)
 {
+    QString hostName = m_page->hostName();
+    if (!isValidHostName(hostName))
+        return;
+
     QByteArray data = "command=processcreate&submit=submit&highlight_type=0&description=";
     data += CGI::encodeURL(description).toLatin1();
     data += "&comment=";
@@ -102,7 +128,7 @@ void CodePasterProtocol::paste(const QString &text,
     data += "&poster=";
     data += CGI::encodeURL(username).toLatin1();
 
-    http.setHost(m_page->hostName());
+    http.setHost(hostName);
     http.post("/", data);
 }
 

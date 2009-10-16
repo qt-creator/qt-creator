@@ -174,19 +174,13 @@ void Launcher::logMessage(const QString &msg)
         qDebug() << "LAUNCHER: " << qPrintable(msg);
 }
 
-void Launcher::waitForTrkFinished(const TrkResult &result)
-{
-    Q_UNUSED(result)
-    d->m_device.sendTrkMessage(TrkPing, TrkCallback(this, &Launcher::handleWaitForFinished));
-}
-
 void Launcher::terminate()
 {
     //TODO handle case where application has not been started
     QByteArray ba;
     appendShort(&ba, 0x0000, TargetByteOrder);
     appendInt(&ba, d->m_session.pid, TargetByteOrder);
-    d->m_device.sendTrkMessage(TrkDeleteItem, TrkCallback(this, &Launcher::waitForTrkFinished), ba);
+    d->m_device.sendTrkMessage(TrkDeleteItem, TrkCallback(this, &Launcher::handleWaitForFinished), ba);
 }
 
 void Launcher::handleResult(const TrkResult &result)
@@ -254,9 +248,10 @@ void Launcher::handleResult(const TrkResult &result)
             logMessage(prefix + "NAME:  " + name);
             */
 
+            if (result.data.size() < 10)
+                break;
             QByteArray ba;
-            appendInt(&ba, d->m_session.pid);
-            appendInt(&ba, d->m_session.tid);
+            ba.append(result.data.mid(2, 8));
             d->m_device.sendTrkMessage(TrkContinue, TrkCallback(), ba, "CONTINUE");
             //d->m_device.sendTrkAck(result.token)
             break;
@@ -269,8 +264,10 @@ void Launcher::handleResult(const TrkResult &result)
                        arg(QString::fromAscii(prefix)).arg(itemType ? QLatin1String("LIB") : QLatin1String("PROCESS")).
                        arg(name));
             d->m_device.sendTrkAck(result.token);
-            if (itemType == 0) { // process
-                d->m_device.sendTrkMessage(TrkDisconnect, TrkCallback(this, &Launcher::waitForTrkFinished));
+            if (itemType == 0 // process
+                && result.data.size() >= 10
+                && d->m_session.pid == extractInt(result.data.data() + 6)) {
+                d->m_device.sendTrkMessage(TrkDisconnect, TrkCallback(this, &Launcher::handleWaitForFinished));
             }
             break;
         }
@@ -554,7 +551,7 @@ void Launcher::startInferiorIfNeeded()
     // It's not started yet
     QByteArray ba;
     appendByte(&ba, 0); // ?
-    appendByte(&ba, 0); // ?
+    appendByte(&ba, 0); // create new process
     appendByte(&ba, 0); // ?
     appendString(&ba, d->m_fileName.toLocal8Bit(), TargetByteOrder);
     d->m_device.sendTrkMessage(TrkCreateItem, TrkCallback(this, &Launcher::handleCreateProcess), ba); // Create Item

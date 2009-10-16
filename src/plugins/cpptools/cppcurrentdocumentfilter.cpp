@@ -58,11 +58,11 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager, Cor
             this,          SLOT(onEditorAboutToClose(Core::IEditor*)));
 }
 
-QList<QuickOpen::FilterEntry> CppCurrentDocumentFilter::matchesFor(const QString & origEntry)
+QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(const QString & origEntry)
 {
     QString entry = trimWildcards(origEntry);
-    QList<QuickOpen::FilterEntry> goodEntries;
-    QList<QuickOpen::FilterEntry> betterEntries;
+    QList<Locator::FilterEntry> goodEntries;
+    QList<Locator::FilterEntry> betterEntries;
     QStringMatcher matcher(entry, Qt::CaseInsensitive);
     const QRegExp regexp("*"+entry+"*", Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
@@ -86,7 +86,7 @@ QList<QuickOpen::FilterEntry> CppCurrentDocumentFilter::matchesFor(const QString
         {
             QString symbolName = info.symbolName;// + (info.type == ModelItemInfo::Declaration ? ";" : " {...}");
             QVariant id = qVariantFromValue(info);
-            QuickOpen::FilterEntry filterEntry(this, symbolName, id, info.icon);
+            Locator::FilterEntry filterEntry(this, symbolName, id, info.icon);
             filterEntry.extraInfo = info.symbolType;
 
             if (info.symbolName.startsWith(entry))
@@ -102,7 +102,7 @@ QList<QuickOpen::FilterEntry> CppCurrentDocumentFilter::matchesFor(const QString
     return betterEntries;
 }
 
-void CppCurrentDocumentFilter::accept(QuickOpen::FilterEntry selection) const
+void CppCurrentDocumentFilter::accept(Locator::FilterEntry selection) const
 {
     ModelItemInfo info = qvariant_cast<CppTools::Internal::ModelItemInfo>(selection.internalData);
     TextEditor::BaseTextEditor::openEditorAt(info.fileName, info.line);

@@ -1102,7 +1102,7 @@ void WatchHandler::insertData(const WatchData &data)
         qWarning("%s:%d: Attempt to insert invalid watch item: %s", __FILE__, __LINE__, qPrintable(data.toString()));
         return;
     }
-    if (data.isSomethingNeeded()) {
+    if (data.isSomethingNeeded() && data.iname.contains('.')) {
         MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
         m_manager->updateWatchData(data);
     } else {
