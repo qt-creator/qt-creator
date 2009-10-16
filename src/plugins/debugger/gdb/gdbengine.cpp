@@ -3381,7 +3381,9 @@ void GdbEngine::updateLocals()
 
     if (isSynchroneous()) {
         QStringList expanded = m_manager->watchHandler()->expandedINames().toList();
-        postCommand(_("bb %1").arg(expanded.join(_(","))),
+        postCommand(_("bb %1 %2")
+                .arg(int(theDebuggerBoolSetting(UseDebuggingHelpers)))
+                .arg(expanded.join(_(","))),
             WatchUpdate, CB(handleStackFrame1));
         postCommand(_("p 0"), WatchUpdate, CB(handleStackFrame2));
     } else {
