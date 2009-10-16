@@ -3416,6 +3416,12 @@ void GdbEngine::handleStackFrame2(const GdbResponse &response)
             out.chop(1);
         //qDebug() << "SECOND CHUNK: " << out;
         out = m_firstChunk + out;
+        int pos = out.indexOf("locals=");
+        if (pos != 0) {
+            qDebug() << "DICARDING JUNK AT BEGIN OF RESPONSE: " 
+                << out.left(pos);
+            out = out.mid(pos);
+        }
         GdbMi all("[" + out + "]");
         //GdbMi all(out);
         
