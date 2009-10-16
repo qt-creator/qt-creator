@@ -272,7 +272,7 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
     layout->setMargin(0);
     layout->addWidget(m_fileLineEdit);
 
-    setWindowIcon(QIcon(":/quickopen/images/quickopen.png"));
+    setWindowIcon(QIcon(":/locator/images/locator.png"));
     QPixmap image(Core::Constants::ICON_MAGNIFIER);
     m_fileLineEdit->setPixmap(image);
     m_fileLineEdit->setUseLayoutDirection(true);

@@ -360,11 +360,11 @@ void TextEditorActionHandler::updateCopyAction()
 
 void TextEditorActionHandler::gotoAction()
 {
-    QuickOpen::LocatorManager *quickopen = QuickOpen::LocatorManager::instance();
-    QTC_ASSERT(quickopen, return);
+    QuickOpen::LocatorManager *locatorManager = QuickOpen::LocatorManager::instance();
+    QTC_ASSERT(locatorManager, return);
     const QString shortcut = TextEditorPlugin::instance()->lineNumberFilter()->shortcutString();
     const QString text = tr(" <line number>");
-    quickopen->show(shortcut + text, 2, text.length()-1);
+    locatorManager->show(shortcut + text, 2, text.length()-1);
 }
 
 void TextEditorActionHandler::printAction()

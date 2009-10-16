@@ -28,6 +28,6 @@ SOURCES += locatorplugin.cpp \
 FORMS += settingspage.ui \
     filesystemfilter.ui \
     directoryfilter.ui
-RESOURCES += quickopen.qrc
+RESOURCES += locator.qrc
 
 OTHER_FILES += QuickOpen.pluginspec
