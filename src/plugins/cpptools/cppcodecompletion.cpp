@@ -984,135 +984,42 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
     return false;
 }
 
-bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &results,
+bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &baseResults,
                                        const LookupContext &context)
 {
-    if (results.isEmpty())
+    if (baseResults.isEmpty())
         return false;
 
-    TypeOfExpression::Result result = results.first();
+    ResolveExpression resolveExpression(context);
+    ResolveClass resolveClass;
+
+    bool replacedDotOperator = false;
+    const QList<TypeOfExpression::Result> classObjectResults =
+            resolveExpression.resolveBaseExpression(baseResults,
+                                                    m_completionOperator,
+                                                    &replacedDotOperator);
+
+    if (replacedDotOperator) {
+        // Replace . with ->
+        int length = m_editor->position() - m_startPosition + 1;
+        m_editor->setCurPos(m_startPosition - 1);
+        m_editor->replace(length, QLatin1String("->"));
+        ++m_startPosition;
+    }
+
     QList<Symbol *> classObjectCandidates;
+    foreach (const TypeOfExpression::Result &r, classObjectResults) {
+        FullySpecifiedType ty = r.first.simplified();
 
-    if (m_completionOperator == T_ARROW)  {
-        FullySpecifiedType ty = result.first.simplified();
+        if (Class *klass = ty->asClassType())
+            classObjectCandidates.append(klass);
 
-        if (Class *classTy = ty->asClassType()) {
-            Symbol *symbol = result.second;
-            if (symbol && ! symbol->isClass())
-                classObjectCandidates.append(classTy);
-        } else if (NamedType *namedTy = ty->asNamedType()) {
-            // ### This code is pretty slow.
-            const QList<Symbol *> candidates = context.resolve(namedTy->name());
-            foreach (Symbol *candidate, candidates) {
-                if (candidate->isTypedef()) {
-                    ty = candidate->type();
-                    const ResolveExpression::Result r(ty, candidate);
-                    result = r;
-                    break;
-                }
-            }
-        }
+        else if (NamedType *namedTy = ty->asNamedType()) {
+            Name *className = namedTy->name();
+            const QList<Symbol *> classes = resolveClass(className, r, context);
 
-        if (NamedType *namedTy = ty->asNamedType()) {
-            ResolveExpression resolveExpression(context);
-            ResolveClass resolveClass;
-
-            const QList<Symbol *> candidates = resolveClass(namedTy->name(), result, context);
-            foreach (Symbol *classObject, candidates) {
-                const QList<TypeOfExpression::Result> overloads =
-                        resolveExpression.resolveArrowOperator(result, namedTy,
-                                                               classObject->asClass());
-
-                foreach (TypeOfExpression::Result r, overloads) {
-                    FullySpecifiedType ty = r.first;
-                    Function *funTy = ty->asFunctionType();
-                    if (! funTy)
-                        continue;
-
-                    ty = funTy->returnType().simplified();
-
-                    if (PointerType *ptrTy = ty->asPointerType()) {
-                        FullySpecifiedType elementTy = ptrTy->elementType().simplified();
-                        if (NamedType *namedTy = elementTy->asNamedType()) {
-                            const QList<Symbol *> classes =
-                                    resolveClass(namedTy->name(), result, context);
-
-                            foreach (Symbol *c, classes) {
-                                if (! classObjectCandidates.contains(c))
-                                    classObjectCandidates.append(c);
-                            }
-                        }
-                    }
-                }
-            }
-        } else if (PointerType *ptrTy = ty->asPointerType()) {
-            FullySpecifiedType elementTy = ptrTy->elementType().simplified();
-            if (NamedType *namedTy = elementTy->asNamedType()) {
-                ResolveClass resolveClass;
-
-                const QList<Symbol *> classes = resolveClass(namedTy->name(), result,
-                                                             context);
-
-                foreach (Symbol *c, classes) {
-                    if (! classObjectCandidates.contains(c))
-                        classObjectCandidates.append(c);
-                }
-            } else if (Class *classTy = elementTy->asClassType()) {
-                // typedef struct { int x } *Ptr;
-                // Ptr p;
-                // p->
-                classObjectCandidates.append(classTy);
-            }
-        }
-    } else if (m_completionOperator == T_DOT) {
-        FullySpecifiedType ty = result.first.simplified();
-
-        NamedType *namedTy = 0;
-
-        if (ArrayType *arrayTy = ty->asArrayType()) {
-            // Replace . with [0]. when `ty' is an array type.
-            FullySpecifiedType elementTy = arrayTy->elementType().simplified();
-
-            if (elementTy->isNamedType() || elementTy->isPointerType()) {
-                ty = elementTy;
-
-                const int length = m_editor->position() - m_startPosition + 1;
-                m_editor->setCurPos(m_startPosition - 1);
-                m_editor->replace(length, QLatin1String("[0]."));
-                m_startPosition += 3;
-            }
-        }
-
-        if (PointerType *ptrTy = ty->asPointerType()) {
-            if (ptrTy->elementType()->isNamedType()) {
-                // Replace . with ->
-                int length = m_editor->position() - m_startPosition + 1;
-                m_editor->setCurPos(m_startPosition - 1);
-                m_editor->replace(length, QLatin1String("->"));
-                ++m_startPosition;
-                namedTy = ptrTy->elementType()->asNamedType();
-            }
-        } else if (Class *classTy = ty->asClassType()) {
-            Symbol *symbol = result.second;
-            if (symbol && ! symbol->isClass())
-                classObjectCandidates.append(classTy);
-        } else {
-            namedTy = ty->asNamedType();
-            if (! namedTy) {
-                Function *fun = ty->asFunctionType();
-                if (fun && fun->scope() && (fun->scope()->isBlockScope() || fun->scope()->isNamespaceScope()))
-                    namedTy = fun->returnType()->asNamedType();
-            }
-        }
-
-        if (namedTy) {
-            ResolveClass resolveClass;
-            const QList<Symbol *> symbols = resolveClass(namedTy->name(), result,
-                                                         context);
-            foreach (Symbol *symbol, symbols) {
-                if (classObjectCandidates.contains(symbol))
-                    continue;
-                if (Class *klass = symbol->asClass())
+            foreach (Symbol *c, classes) {
+                if (Class *klass = c->asClass())
                     classObjectCandidates.append(klass);
             }
         }

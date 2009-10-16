@@ -647,7 +647,8 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
 }
 
 QList<ResolveExpression::Result>
-ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int accessOp) const
+ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int accessOp,
+                                         bool *replacedDotOperator) const
 {
     QList<Result> results;
 
@@ -715,6 +716,16 @@ ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int a
                 results.append(Result(elementTy, lastVisibleSymbol));
         }
     } else if (accessOp == T_DOT) {
+        if (replacedDotOperator) {
+            if (PointerType *ptrTy = ty->asPointerType()) {
+                *replacedDotOperator = true;
+                ty = ptrTy->elementType().simplified();
+            } else if (ArrayType *arrTy = ty->asArrayType()) {
+                *replacedDotOperator = true;
+                ty = arrTy->elementType().simplified();
+            }
+        }
+
         if (ty->isClassType() || ty->isNamedType())
             results.append(Result(ty, lastVisibleSymbol));
 
@@ -734,12 +745,13 @@ ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int a
 QList<ResolveExpression::Result>
 ResolveExpression::resolveMemberExpression(const QList<Result> &baseResults,
                                            unsigned accessOp,
-                                           Name *memberName) const
+                                           Name *memberName,
+                                           bool *replacedDotOperator) const
 {
     ResolveClass resolveClass;
     QList<Result> results;
 
-    const QList<Result> classObjectResults = resolveBaseExpression(baseResults, accessOp);
+    const QList<Result> classObjectResults = resolveBaseExpression(baseResults, accessOp, replacedDotOperator);
     foreach (const Result &r, classObjectResults) {
         FullySpecifiedType ty = r.first;
 
