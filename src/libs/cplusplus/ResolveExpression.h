@@ -68,6 +68,8 @@ protected:
     void addResult(const Result &result);
     void addResults(const QList<Result> &results);
 
+    bool maybeValidPrototype(Function *funTy, unsigned actualArgumentCount) const;
+
     using ASTVisitor::visit;
 
     virtual bool visit(ExpressionListAST *ast);

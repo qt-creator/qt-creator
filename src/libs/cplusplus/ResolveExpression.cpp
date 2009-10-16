@@ -547,8 +547,36 @@ bool ResolveExpression::visit(TemplateIdAST *ast)
     return false;
 }
 
+bool ResolveExpression::maybeValidPrototype(Function *funTy, unsigned actualArgumentCount) const
+{
+    unsigned minNumberArguments = 0;
+
+    for (; minNumberArguments < funTy->argumentCount(); ++minNumberArguments) {
+        Argument *arg = funTy->argumentAt(minNumberArguments)->asArgument();
+
+        if (arg->hasInitializer())
+            break;
+    }
+
+    if (actualArgumentCount < minNumberArguments) {
+        // not enough arguments.
+        return false;
+
+    } else if (! funTy->isVariadic() && actualArgumentCount > funTy->argumentCount()) {
+        // too many arguments.
+        return false;
+    }
+
+    return true;
+}
+
 bool ResolveExpression::visit(CallAST *ast)
 {
+    ResolveClass resolveClass;
+
+    const QList<Result> baseResults = _results;
+    _results.clear();
+
     // Compute the types of the actual arguments.
     QList< QList<Result> > arguments;
     for (ExpressionListAST *exprIt = ast->expression_list; exprIt;
@@ -556,30 +584,38 @@ bool ResolveExpression::visit(CallAST *ast)
         arguments.append(operator()(exprIt->expression));
     }
 
-    QList<Result> baseResults = _results;
-    _results.clear();
+    const unsigned actualArgumentCount = arguments.count();
 
-    foreach (Result p, baseResults) {
-        if (Function *funTy = p.first->asFunctionType()) {
-            unsigned minNumberArguments = 0;
-            for (; minNumberArguments < funTy->argumentCount(); ++minNumberArguments) {
-                Argument *arg = funTy->argumentAt(minNumberArguments)->asArgument();
-                if (arg->hasInitializer())
-                    break;
+    Name *functionCallOp = control()->operatorNameId(OperatorNameId::FunctionCallOp);
+
+    foreach (const Result &result, baseResults) {
+        FullySpecifiedType ty = result.first.simplified();
+        Symbol *lastVisibleSymbol = result.second;
+
+        if (NamedType *namedTy = ty->asNamedType()) {
+            const QList<Symbol *> classObjectCandidates = resolveClass(namedTy->name(), result, _context);
+
+            foreach (Symbol *classObject, classObjectCandidates) {
+                const QList<Result> overloads = resolveMember(functionCallOp, classObject->asClass(), namedTy->name());
+
+                foreach (const Result &o, overloads) {
+                    FullySpecifiedType overloadTy = o.first.simplified();
+
+                    if (Function *funTy = overloadTy->asFunctionType()) {
+                        if (maybeValidPrototype(funTy, actualArgumentCount))
+                            addResult(funTy->returnType().simplified(), lastVisibleSymbol);
+                    }
+                }
             }
-            const unsigned actualArgumentCount = arguments.count();
-            if (actualArgumentCount < minNumberArguments) {
-                // not enough arguments.
-            } else if (! funTy->isVariadic() && actualArgumentCount > funTy->argumentCount()) {
-                // too many arguments.
-            } else {
-                p.first = funTy->returnType();
-                addResult(p);
-            }
-        } else if (Class *classTy = p.first->asClassType()) {
+
+        } else if (Function *funTy = ty->asFunctionType()) {            
+            if (maybeValidPrototype(funTy, actualArgumentCount))
+                addResult(funTy->returnType().simplified(), lastVisibleSymbol);
+
+        } else if (Class *classTy = ty->asClassType()) {
             // Constructor call
-            p.first = control()->namedType(classTy->name());
-            addResult(p);
+            FullySpecifiedType ctorTy = control()->namedType(classTy->name());
+            addResult(ctorTy, lastVisibleSymbol);
         }
     }
 
