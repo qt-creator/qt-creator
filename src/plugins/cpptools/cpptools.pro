@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = CppTools
 include(../../qtcreatorplugin.pri)
-include(../../plugins/locator/quickopen.pri)
+include(../../plugins/locator/locator.pri)
 include(cpptools_dependencies.pri)
 
 # DEFINES += QT_NO_CAST_FROM_ASCII
