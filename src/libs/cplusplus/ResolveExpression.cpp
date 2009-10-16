@@ -51,14 +51,14 @@ namespace {
 
 typedef QList< QPair<Name *, FullySpecifiedType> > Substitution;
 
-class Instantiation: protected TypeVisitor, protected NameVisitor
+class GenerateInstance: protected TypeVisitor, protected NameVisitor
 {
     Control *_control;
     FullySpecifiedType _type;
     const Substitution _substitution;
 
 public:
-    Instantiation(Control *control, const Substitution &substitution)
+    GenerateInstance(Control *control, const Substitution &substitution)
         : _control(control),
           _substitution(substitution)
     { }
@@ -807,7 +807,7 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
                                            templArgTy));
             }
             
-            Instantiation inst(control(), subst);
+            GenerateInstance inst(control(), subst);
             ty = inst(ty);
         }
         
@@ -842,7 +842,7 @@ ResolveExpression::resolveArrowOperator(const Result &,
                                            templArgTy));
                 }
             }
-            Instantiation inst(control(), subst);
+            GenerateInstance inst(control(), subst);
             ty = inst(ty);
         }
 
@@ -880,7 +880,7 @@ ResolveExpression::resolveArrayOperator(const Result &,
                                            templArgTy));
                 }
             }
-            Instantiation inst(control(), subst);
+            GenerateInstance inst(control(), subst);
             ty = inst(ty);
         }
 
