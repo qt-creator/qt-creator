@@ -765,10 +765,10 @@ ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int a
             }
         }
 
-        if (ty->isClassType() || ty->isNamedType())
+        if (ty->isNamedType())
             results.append(Result(ty, lastVisibleSymbol));
 
-        if (Function *fun = ty->asFunctionType()) {
+        else if (Function *fun = ty->asFunctionType()) {
             Scope *funScope = fun->scope();
 
             if (funScope && (funScope->isBlockScope() || funScope->isNamespaceScope())) {
