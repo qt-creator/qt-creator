@@ -136,6 +136,14 @@ QSize FancyToolButton::minimumSizeHint() const
     return QSize(8, 8);
 }
 
+void FancyToolButton::actionChanged()
+{
+    // the default action changed in some way, e.g. it might got hidden
+    // since we inherit a tool button we won't get invisible, so do this here
+    if (QAction* action = defaultAction())
+        setVisible(action->isVisible());
+}
+
 FancyActionBar::FancyActionBar(QWidget *parent)
     : QWidget(parent)
 {
@@ -152,6 +160,8 @@ void FancyActionBar::insertAction(int index, QAction *action, QMenu *menu)
 {
     FancyToolButton *toolButton = new FancyToolButton(this);
     toolButton->setDefaultAction(action);
+    connect(action, SIGNAL(changed()), toolButton, SLOT(actionChanged()));
+
     if (menu) {
         toolButton->setMenu(menu);
         toolButton->setPopupMode(QToolButton::DelayedPopup);

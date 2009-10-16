@@ -43,12 +43,17 @@ namespace Internal {
 
 class FancyToolButton : public QToolButton
 {
+    Q_OBJECT
+
 public:
     FancyToolButton(QWidget *parent = 0);
 
     void paintEvent(QPaintEvent *event);
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
+
+private slots:
+    void actionChanged();
 
 private:
     const QMap<QString, QPicture> &m_buttonElements;
