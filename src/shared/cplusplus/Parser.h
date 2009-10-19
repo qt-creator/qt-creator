@@ -264,8 +264,11 @@ public:
 
     void match(int kind, unsigned *token);
 
+    bool maybeAmbiguousStatement(DeclarationStatementAST *ast) const;
     bool maybeFunctionCall(SimpleDeclarationAST *simpleDecl) const;
     bool maybeSimpleExpression(SimpleDeclarationAST *simpleDecl) const;
+    bool maybeForwardOrClassDeclaration(SpecifierAST *decl_specifier_seq) const;
+    bool isPointerDeclaration(DeclarationStatementAST *ast) const;
 
 private:
     bool switchTemplateArguments(bool templateArguments);

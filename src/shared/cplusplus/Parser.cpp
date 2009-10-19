@@ -56,7 +56,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
-#include <QDebug>
+
 CPLUSPLUS_BEGIN_NAMESPACE
 
 Parser::Parser(TranslationUnit *unit)
@@ -2041,10 +2041,68 @@ bool Parser::maybeSimpleExpression(SimpleDeclarationAST *simpleDecl) const
 {
     if (! simpleDecl->declarators)  {
         SpecifierAST *spec = simpleDecl->decl_specifier_seq;
-        if (spec && ! spec->next && spec->asNamedTypeSpecifier()) {
+
+        if (spec && ! spec->next && spec->asNamedTypeSpecifier())
+            return true;
+    }
+
+    return false;
+}
+
+bool Parser::isPointerDeclaration(DeclarationStatementAST *ast) const
+{
+    if (! ast)
+        return false;
+
+    if (SimpleDeclarationAST *declaration = ast->declaration->asSimpleDeclaration()) {
+        if (SpecifierAST *spec = declaration->decl_specifier_seq) {
+            if (spec->asNamedTypeSpecifier() && ! spec->next) {
+                if (DeclaratorListAST *declarators = declaration->declarators) {
+                    if (DeclaratorAST *declarator = declarators->declarator) {
+                        if (declarator->ptr_operators && declarator->equals_token && declarator->initializer) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast) const
+{
+    if (! ast)
+        return false;
+
+    if (SimpleDeclarationAST *declaration = ast->declaration->asSimpleDeclaration()) {
+        if (SpecifierAST *spec = declaration->decl_specifier_seq) {
+            if (spec->asNamedTypeSpecifier() && ! spec->next) {
+                if (DeclaratorListAST *declarators = declaration->declarators) {
+                    if (DeclaratorAST *declarator = declarators->declarator) {
+                        if (declarator->core_declarator &&
+                            declarator->core_declarator->asNestedDeclarator()) {
+                            // recognized name(id-expression)
+                            return true;
+                        }
+                    }
+                }
+            }
+
+        } else if (DeclaratorListAST *declarators = declaration->declarators) {
+            // no decl_specifiers...
+            if (DeclaratorAST *declarator = declarators->declarator) {
+                if (declarator->postfix_declarators && declarator->postfix_declarators->asFunctionDeclarator()
+                                                     && ! declarator->initializer) {
+                    return false;
+                }                
+            }
+
             return true;
         }
     }
+
     return false;
 }
 
@@ -2055,31 +2113,35 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
 
     unsigned start = cursor();
     bool blocked = blockErrors(true);
+
     if (parseDeclarationStatement(node)) {
         DeclarationStatementAST *stmt = static_cast<DeclarationStatementAST *>(node);
-        SimpleDeclarationAST *simpleDecl = 0;
-        if (stmt->declaration)
-            simpleDecl = stmt->declaration->asSimpleDeclaration();
 
-        if (simpleDecl && simpleDecl->decl_specifier_seq &&
-                ! maybeFunctionCall(simpleDecl) && ! maybeSimpleExpression(simpleDecl)) {
+        if (isPointerDeclaration(stmt)) {
+            blockErrors(blocked);
+            return true;
+        }
+
+        if (! maybeAmbiguousStatement(stmt)) {
             unsigned end_of_declaration_statement = cursor();
             rewind(start);
+
             StatementAST *expression = 0;
-            if (! parseExpressionStatement(expression) || cursor() != end_of_declaration_statement) {
-                rewind(end_of_declaration_statement);
-            } else {
-                ExpressionOrDeclarationStatementAST *ast =
-                        new (_pool) ExpressionOrDeclarationStatementAST;
+            if (parseExpressionStatement(expression) && cursor() == end_of_declaration_statement) {
+                // it's an ambiguous expression-or-declaration statement.
+                ExpressionOrDeclarationStatementAST *ast = new (_pool) ExpressionOrDeclarationStatementAST;
                 ast->declaration = node;
                 ast->expression = expression;
                 node = ast;
             }
+
+            rewind(end_of_declaration_statement);
             blockErrors(blocked);
             return true;
         }
     }
 
+    // it's not a declaration statement.
     blockErrors(blocked);
     rewind(start);
     return parseExpressionStatement(node);
@@ -2653,6 +2715,12 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
             return false;
     }
 
+    // if there is no valid declarator
+    // and it doesn't look like a fwd or a class declaration
+    // then it's not a declarations
+    if (! declarator && ! maybeForwardOrClassDeclaration(decl_specifier_seq))
+        return false;
+
     DeclaratorAST *firstDeclarator = declarator;
 
     if (declarator) {
@@ -2706,6 +2774,19 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
     }
 
     _translationUnit->error(cursor(), "unexpected token `%s'", tok().spell());
+    return false;
+}
+
+bool Parser::maybeForwardOrClassDeclaration(SpecifierAST *decl_specifier_seq) const
+{
+    // look at the decl_specifier for possible fwd or class declarations.
+    if (SpecifierAST *spec = decl_specifier_seq) {
+        if (! spec->next && (spec->asElaboratedTypeSpecifier() ||
+                             spec->asEnumSpecifier() ||
+                             spec->asClassSpecifier()))
+            return true;
+    }
+
     return false;
 }
 

@@ -58,6 +58,12 @@ private slots:
     void while_condition_statement();
     void for_statement();
     void cpp_initializer_or_function_declaration();
+    void simple_declaration_1();
+    void function_call_1();
+    void function_call_2();
+    void function_call_3();
+    void nested_deref_expression();
+    void assignment_1();
 
     // objc++
     void objc_attributes_followed_by_at_keyword();
@@ -76,6 +82,19 @@ void tst_AST::gcc_attributes_1()
     QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
 "static inline void *__attribute__((__always_inline__)) _mm_malloc(size_t size, size_t align);"
     ));
+}
+
+void tst_AST::simple_declaration_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("\n"
+"a * b = 10;"
+    ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+
+    DeclarationStatementAST *declStmt = ast->asDeclarationStatement();
+    QVERIFY(declStmt);
 }
 
 void tst_AST::simple_name()
@@ -161,7 +180,7 @@ void tst_AST::new_expression_2()
 void tst_AST::condition_1()
 {
     QSharedPointer<TranslationUnit> unit(parseExpression("\n"
-"(x < 0 && y > (int) a"
+"(x < 0 && y > (int) a)"
     ));
 
     AST *ast = unit->ast();
@@ -176,6 +195,46 @@ void tst_AST::init_1()
 
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
+}
+
+void tst_AST::function_call_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("retranslateUi(blah);"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    QVERIFY(ast->asExpressionStatement());
+}
+
+void tst_AST::function_call_2()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("retranslateUi(10);"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    QVERIFY(ast->asExpressionStatement());
+}
+
+void tst_AST::function_call_3()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("(*blah) = 10;"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    QVERIFY(ast->asExpressionStatement());
+}
+
+void tst_AST::nested_deref_expression()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("(*blah);"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    QVERIFY(ast->asExpressionStatement());
+}
+
+void tst_AST::assignment_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("a(x) = 3;"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    QVERIFY(ast->asExpressionStatement());
 }
 
 void tst_AST::if_statement()
@@ -195,7 +254,7 @@ void tst_AST::if_statement()
     QCOMPARE(stmt->else_token, 0U);
     QVERIFY(stmt->else_statement == 0);
 
-    // check the `then' statement
+    // check the `then' statement1
     ExpressionStatementAST *then_stmt = stmt->statement->asExpressionStatement();
     QVERIFY(then_stmt != 0);
     QVERIFY(then_stmt->expression != 0);
@@ -435,7 +494,7 @@ void tst_AST::normal_array_access()
 {
     QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
                                                           "int f() {\n"
-                                                          "  int a[15];\n"
+                                                          "  int a[10];\n"
                                                           "  int b = 1;\n"
                                                           "  return a[b];\n"
                                                           "}"
@@ -447,7 +506,10 @@ void tst_AST::normal_array_access()
     QVERIFY(func);
 
     StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
-    QVERIFY(bodyStatements && bodyStatements->next && bodyStatements->next->next && bodyStatements->next->next->statement);
+    QVERIFY(bodyStatements);
+    QVERIFY(bodyStatements->next);
+    QVERIFY(bodyStatements->next->next);
+    QVERIFY(bodyStatements->next->next->statement);
     ExpressionAST *expr = bodyStatements->next->next->statement->asReturnStatement()->expression;
     QVERIFY(expr);
 
@@ -536,9 +598,9 @@ void tst_AST::objc_msg_send_expression()
     QVERIFY(bodyStatements && bodyStatements->next && !bodyStatements->next->next && bodyStatements->next->statement);
 
     {// check the NSObject declaration
-        ExpressionOrDeclarationStatementAST *firstStatement = bodyStatements->statement->asExpressionOrDeclarationStatement();
-        QVERIFY(firstStatement && firstStatement->declaration && firstStatement->declaration->asDeclarationStatement());
-        DeclarationAST *objDecl = firstStatement->declaration->asDeclarationStatement()->declaration;
+        DeclarationStatementAST *firstStatement = bodyStatements->statement->asDeclarationStatement();
+        QVERIFY(firstStatement);
+        DeclarationAST *objDecl = firstStatement->declaration;
         QVERIFY(objDecl);
         SimpleDeclarationAST *simpleDecl = objDecl->asSimpleDeclaration();
         QVERIFY(simpleDecl);
