@@ -114,7 +114,8 @@ private:
     bool completeInclude(const QTextCursor &cursor);
 
     bool completeConstructorOrFunction(const QList<CPlusPlus::TypeOfExpression::Result> &,
-                                       const CPlusPlus::LookupContext &);
+                                       const CPlusPlus::LookupContext &,
+                                       int endOfExpression);
 
     bool completeMember(const QList<CPlusPlus::TypeOfExpression::Result> &,
                         const CPlusPlus::LookupContext &context);
