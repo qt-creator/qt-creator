@@ -707,10 +707,17 @@ bool CdbDebugEngine::startAttachDebugger(qint64 pid, DebuggerStartMode sm, QStri
 {
     // Need to attrach invasively, otherwise, no notification signals
     // for for CreateProcess/ExitProcess occur.
-    // As of version 6.11, the initial breakpoint suppression has no effect (see notifyException).
-    // when attaching to a console process starting up. However, there is no initial breakpoint
-    // (and no startup trap), when attaching to a running GUI process.
-    const ULONG flags = DEBUG_ATTACH_INVASIVE_RESUME_PROCESS|DEBUG_ATTACH_INVASIVE_NO_INITIAL_BREAK;
+    // Initial breakpoint occur:
+    // 1) Desired: When attaching to a crashed process
+    // 2) Undesired: When starting up a console process, in conjunction
+    //    with the 32bit Wow-engine
+    //  As of version 6.11, the flag only affects 1). 2) Still needs to be suppressed
+    // by lookup at the state of the application (startup trap). However,
+    // there is no startup trap when attaching to a process that has been
+    // running for a while. (see notifyException).
+    ULONG flags = DEBUG_ATTACH_INVASIVE_RESUME_PROCESS;
+    if (manager()->startParameters()->startMode != AttachCrashedExternal)
+        flags |= DEBUG_ATTACH_INVASIVE_NO_INITIAL_BREAK;
     const HRESULT hr = m_d->m_cif.debugClient->AttachProcess(NULL, pid, flags);
     if (debugCDB)
         qDebug() << "Attaching to " << pid << " using flags" << flags << " returns " << hr << executionStatusString(m_d->m_cif.debugControl);
