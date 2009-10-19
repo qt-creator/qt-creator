@@ -180,6 +180,7 @@ private slots:
     void makesisProcessFinished();
     void signsisProcessFailed();
     void signsisProcessFinished();
+    void printConnectFailed(const QString &errorMessage);
     void printCopyingNotice();
     void printCreateFileFailed(const QString &filename, const QString &errorMessage);
     void printWriteFileFailed(const QString &filename, const QString &errorMessage);

@@ -670,6 +670,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
     }
     m_launcher = new trk::Launcher();
     connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
+    connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(printConnectFailed(QString)));
     connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
     connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(printWriteFileFailed(QString,QString)));
@@ -711,6 +712,11 @@ void S60DeviceRunControlBase::printCloseFileFailed(const QString &filename, cons
 {
     const QString msg = tr("Could not close file %1 on device: %2. It will be closed when App TRK is closed.");
     emit addToOutputWindow(this, msg.arg(filename, errorMessage));
+}
+
+void S60DeviceRunControlBase::printConnectFailed(const QString &errorMessage)
+{
+    emit addToOutputWindow(this, tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage));
 }
 
 void S60DeviceRunControlBase::printCopyingNotice()
