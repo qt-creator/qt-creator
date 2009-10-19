@@ -2988,15 +2988,30 @@ bool Parser::parseObjCMessageExpression(ExpressionAST *&node)
     if (LA() != T_LBRACKET)
         return false;
 
-    ObjCMessageExpressionAST *ast = new (_pool) ObjCMessageExpressionAST;
-    ast->lbracket_token = consumeToken();
+    unsigned start = cursor();
 
-    parseObjCMessageReceiver(ast->receiver_expression);
-    parseObjCMessageArguments(ast->selector, ast->argument_list);
+    unsigned lbracket_token = consumeToken();
+    ExpressionAST *receiver_expression = 0;
+    ObjCSelectorAST *selector = 0;
+    ObjCMessageArgumentListAST *argument_list = 0;
 
-    match(T_RBRACKET, &(ast->rbracket_token));
-    node = ast;
-    return true;
+    if (parseObjCMessageReceiver(receiver_expression) &&
+        parseObjCMessageArguments(selector, argument_list)) {
+
+        ObjCMessageExpressionAST *ast = new (_pool) ObjCMessageExpressionAST;
+        ast->lbracket_token = lbracket_token;
+        ast->receiver_expression = receiver_expression;
+        ast->selector = selector;
+        ast->argument_list = argument_list;
+
+        match(T_RBRACKET, &(ast->rbracket_token));
+        node = ast;
+
+        return true;
+    }
+
+    rewind(start);
+    return false;
 }
 
 bool Parser::parseObjCMessageReceiver(ExpressionAST *&node)
@@ -3051,15 +3066,20 @@ bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArg
 
         selNode = selWithArgs;
         argNode = argAst;
+        return true;
     } else {
         rewind(start);
+        unsigned name_token = 0;
+        if (!parseObjCSelector(name_token))
+            return false;
         ObjCSelectorWithoutArgumentsAST *sel = new (_pool) ObjCSelectorWithoutArgumentsAST;
-        parseObjCSelector(sel->name_token);
+        sel->name_token = name_token;
         selNode = sel;
         argNode = 0;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 bool Parser::parseObjCSelectorArg(ObjCSelectorArgumentAST *&selNode, ObjCMessageArgumentAST *&argNode)

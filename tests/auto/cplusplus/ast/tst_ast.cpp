@@ -3,6 +3,7 @@
 #include <QtDebug>
 
 #include <Control.h>
+#include <Literals.h>
 #include <Parser.h>
 #include <AST.h>
 
@@ -15,19 +16,22 @@ class tst_AST: public QObject
     Control control;
 
 public:
+
     TranslationUnit *parse(const QByteArray &source,
-                           TranslationUnit::ParseMode mode)
+                           TranslationUnit::ParseMode mode,
+                           bool blockErrors = false)
     {
         StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
         unit->setObjCEnabled(true);
         unit->setSource(source.constData(), source.length());
+        unit->blockErrors(blockErrors);
         unit->parse(mode);
         return unit;
     }
 
-    TranslationUnit *parseDeclaration(const QByteArray &source)
-    { return parse(source, TranslationUnit::ParseDeclaration); }
+    TranslationUnit *parseDeclaration(const QByteArray &source, bool blockErrors = false)
+    { return parse(source, TranslationUnit::ParseDeclaration, blockErrors); }
 
     TranslationUnit *parseExpression(const QByteArray &source)
     { return parse(source, TranslationUnit::ParseExpression); }
@@ -59,6 +63,12 @@ private slots:
     void objc_attributes_followed_by_at_keyword();
     void objc_protocol_forward_declaration_1();
     void objc_protocol_definition_1();
+
+    // expressions with (square) brackets
+    void normal_array_access();
+    void array_access_with_nested_expression();
+    void objc_msg_send_expression();
+    void objc_msg_send_expression_without_selector();
 };
 
 void tst_AST::gcc_attributes_1()
@@ -419,6 +429,199 @@ void tst_AST::objc_protocol_definition_1()
 {
     QSharedPointer<TranslationUnit> unit(parseDeclaration("\n@protocol foo <ciao, bar> @end"));
     AST *ast = unit->ast();
+}
+
+void tst_AST::normal_array_access()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+                                                          "int f() {\n"
+                                                          "  int a[15];\n"
+                                                          "  int b = 1;\n"
+                                                          "  return a[b];\n"
+                                                          "}"
+                                                          ));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+
+    FunctionDefinitionAST *func = ast->asFunctionDefinition();
+    QVERIFY(func);
+
+    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
+    QVERIFY(bodyStatements && bodyStatements->next && bodyStatements->next->next && bodyStatements->next->next->statement);
+    ExpressionAST *expr = bodyStatements->next->next->statement->asReturnStatement()->expression;
+    QVERIFY(expr);
+
+    PostfixExpressionAST *postfixExpr = expr->asPostfixExpression();
+    QVERIFY(postfixExpr);
+
+    {
+        ExpressionAST *lhs = postfixExpr->base_expression;
+        QVERIFY(lhs);
+        SimpleNameAST *a = lhs->asSimpleName();
+        QVERIFY(a);
+        QCOMPARE(QLatin1String(unit->identifier(a->identifier_token)->chars()), QLatin1String("a"));
+    }
+
+    {
+        QVERIFY(postfixExpr->postfix_expressions && !postfixExpr->postfix_expressions->next);
+        ArrayAccessAST *rhs = postfixExpr->postfix_expressions->asArrayAccess();
+        QVERIFY(rhs && rhs->expression);
+        SimpleNameAST *b = rhs->expression->asSimpleName();
+        QVERIFY(b);
+        QCOMPARE(QLatin1String(unit->identifier(b->identifier_token)->chars()), QLatin1String("b"));
+    }
+}
+
+void tst_AST::array_access_with_nested_expression()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+                                                          "int f() {\n"
+                                                          "  int a[15];\n"
+                                                          "  int b = 1;\n"
+                                                          "  return (a)[b];\n"
+                                                          "}"
+                                                          ));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+
+    FunctionDefinitionAST *func = ast->asFunctionDefinition();
+    QVERIFY(func);
+
+    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
+    QVERIFY(bodyStatements && bodyStatements->next && bodyStatements->next->next && bodyStatements->next->next->statement);
+    ExpressionAST *expr = bodyStatements->next->next->statement->asReturnStatement()->expression;
+    QVERIFY(expr);
+
+    CastExpressionAST *castExpr = expr->asCastExpression();
+    QVERIFY(!castExpr);
+
+    PostfixExpressionAST *postfixExpr = expr->asPostfixExpression();
+    QVERIFY(postfixExpr);
+
+    {
+        ExpressionAST *lhs = postfixExpr->base_expression;
+        QVERIFY(lhs);
+        NestedExpressionAST *nested_a = lhs->asNestedExpression();
+        QVERIFY(nested_a && nested_a->expression);
+        SimpleNameAST *a = nested_a->expression->asSimpleName();
+        QVERIFY(a);
+        QCOMPARE(QLatin1String(unit->identifier(a->identifier_token)->chars()), QLatin1String("a"));
+    }
+
+    {
+        QVERIFY(postfixExpr->postfix_expressions && !postfixExpr->postfix_expressions->next);
+        ArrayAccessAST *rhs = postfixExpr->postfix_expressions->asArrayAccess();
+        QVERIFY(rhs && rhs->expression);
+        SimpleNameAST *b = rhs->expression->asSimpleName();
+        QVERIFY(b);
+        QCOMPARE(QLatin1String(unit->identifier(b->identifier_token)->chars()), QLatin1String("b"));
+    }
+}
+
+void tst_AST::objc_msg_send_expression()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+                                                          "int f() {\n"
+                                                          "  NSObject *obj = [[[NSObject alloc] init] autorelease];\n"
+                                                          "  return [obj description];\n"
+                                                          "}"
+                                                          ));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+
+    FunctionDefinitionAST *func = ast->asFunctionDefinition();
+    QVERIFY(func);
+
+    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
+    QVERIFY(bodyStatements && bodyStatements->next && !bodyStatements->next->next && bodyStatements->next->statement);
+
+    {// check the NSObject declaration
+        ExpressionOrDeclarationStatementAST *firstStatement = bodyStatements->statement->asExpressionOrDeclarationStatement();
+        QVERIFY(firstStatement && firstStatement->declaration && firstStatement->declaration->asDeclarationStatement());
+        DeclarationAST *objDecl = firstStatement->declaration->asDeclarationStatement()->declaration;
+        QVERIFY(objDecl);
+        SimpleDeclarationAST *simpleDecl = objDecl->asSimpleDeclaration();
+        QVERIFY(simpleDecl);
+
+        {// check the type (NSObject)
+            QVERIFY(simpleDecl->decl_specifier_seq && !simpleDecl->decl_specifier_seq->next);
+            NamedTypeSpecifierAST *namedType = simpleDecl->decl_specifier_seq->asNamedTypeSpecifier();
+            QVERIFY(namedType && namedType->name);
+            SimpleNameAST *typeName = namedType->name->asSimpleName();
+            QVERIFY(typeName);
+            QCOMPARE(QLatin1String(unit->identifier(typeName->identifier_token)->chars()), QLatin1String("NSObject"));
+        }
+
+        {// check the assignment
+            QVERIFY(simpleDecl->declarators && !simpleDecl->declarators->next);
+            DeclaratorAST *declarator = simpleDecl->declarators->declarator;
+            QVERIFY(declarator);
+            QVERIFY(!declarator->attributes);
+
+            QVERIFY(declarator->ptr_operators && !declarator->ptr_operators->next && declarator->ptr_operators->asPointer() && !declarator->ptr_operators->asPointer()->cv_qualifier_seq);
+
+            QVERIFY(declarator->core_declarator && declarator->core_declarator->asDeclaratorId());
+            NameAST *objNameId = declarator->core_declarator->asDeclaratorId()->name;
+            QVERIFY(objNameId && objNameId->asSimpleName());
+            QCOMPARE(QLatin1String(unit->identifier(objNameId->asSimpleName()->identifier_token)->chars()), QLatin1String("obj"));
+
+            QVERIFY(!declarator->postfix_declarators);
+            QVERIFY(!declarator->post_attributes);
+            ExpressionAST *initializer = declarator->initializer;
+            QVERIFY(initializer);
+
+            ObjCMessageExpressionAST *expr1 = initializer->asObjCMessageExpression();
+            QVERIFY(expr1 && expr1->receiver_expression && expr1->selector && !expr1->argument_list);
+
+            ObjCMessageExpressionAST *expr2 = expr1->receiver_expression->asObjCMessageExpression();
+            QVERIFY(expr2 && expr2->receiver_expression && expr2->selector && !expr2->argument_list);
+
+            ObjCMessageExpressionAST *expr3 = expr2->receiver_expression->asObjCMessageExpression();
+            QVERIFY(expr3 && expr3->receiver_expression && expr3->selector && !expr3->argument_list);
+        }
+    }
+
+    {// check the return statement
+        ExpressionAST *expr = bodyStatements->next->statement->asReturnStatement()->expression;
+        QVERIFY(expr);
+
+        ObjCMessageExpressionAST *msgExpr = expr->asObjCMessageExpression();
+        QVERIFY(msgExpr);
+
+        QVERIFY(msgExpr->receiver_expression);
+        SimpleNameAST *receiver = msgExpr->receiver_expression->asSimpleName();
+        QVERIFY(receiver);
+        QCOMPARE(QLatin1String(unit->identifier(receiver->identifier_token)->chars()), QLatin1String("obj"));
+
+        QVERIFY(msgExpr->argument_list == 0);
+
+        QVERIFY(msgExpr->selector);
+        ObjCSelectorWithoutArgumentsAST *sel = msgExpr->selector->asObjCSelectorWithoutArguments();
+        QVERIFY(sel);
+        QCOMPARE(QLatin1String(unit->identifier(sel->name_token)->chars()), QLatin1String("description"));
+    }
+}
+
+void tst_AST::objc_msg_send_expression_without_selector()
+{
+    // This test is to verify that no ObjCMessageExpressionAST element is created as the expression for the return statement.
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+                                                          "int f() {\n"
+                                                          "  NSObject *obj = [[[NSObject alloc] init] autorelease];\n"
+                                                          "  return [obj];\n"
+                                                          "}",
+                                                          true));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+
+    FunctionDefinitionAST *func = ast->asFunctionDefinition();
+    QVERIFY(func);
+
+    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
+    QVERIFY(bodyStatements && bodyStatements->next);
+    QVERIFY(bodyStatements->next->statement);
+    QVERIFY(bodyStatements->next->statement->asReturnStatement());
+    QVERIFY(!bodyStatements->next->statement->asReturnStatement()->expression);
 }
 
 QTEST_APPLESS_MAIN(tst_AST)
