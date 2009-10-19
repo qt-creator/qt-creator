@@ -365,16 +365,24 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
     const CPlusPlus::Symbol *symbolAtLine = doc->findSymbolAt(line, 0);
     if (!symbolAtLine)
         return 4;
-    // First figure out the function to do a safety name check.
+    // First figure out the function to do a safety name check
+    // and the innermost scope at cursor position
     const CPlusPlus::Function *function = 0;
-    const bool hitFunction = symbolAtLine->isFunction();
-    if (hitFunction) {
+    const CPlusPlus::Scope *innerMostScope = 0;
+    if (symbolAtLine->isFunction()) {
         function = symbolAtLine->asFunction();
+        if (function->memberCount() == 1) // Skip over function block
+            if (CPlusPlus::Block *block = function->memberAt(0)->asBlock())
+                innerMostScope = block->members();
     } else {
-        if (CPlusPlus::Scope *functionScope = symbolAtLine->enclosingFunctionScope())
+        if (const CPlusPlus::Scope *functionScope = symbolAtLine->enclosingFunctionScope()) {
             function = functionScope->owner()->asFunction();
+            innerMostScope = symbolAtLine->isBlock() ?
+                             symbolAtLine->asBlock()->members() :
+                             symbolAtLine->enclosingBlockScope();
+        }
     }
-    if (!function)
+    if (!function || !innerMostScope)
         return 7;
     // Compare function names with a bit off fuzz,
     // skipping modules from a CDB symbol "lib!foo" or namespaces
@@ -388,13 +396,7 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
         if (previousChar != ':' && previousChar != '!' )
             return 11;
     }
-    // Starting from the innermost block scope, collect
-    // declarations.
-    const CPlusPlus::Scope *innerMostScope = hitFunction ?
-                                             symbolAtLine->asFunction()->members() :
-                                             symbolAtLine->enclosingBlockScope();
-    if (!innerMostScope)
-        return 15;
+    // Starting from the innermost block scope, collect declarations.
     SeenHash seenHash;
     blockRecursion(overview, innerMostScope, line, uninitializedVariables, &seenHash);
     return 0;

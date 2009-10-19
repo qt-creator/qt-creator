@@ -88,6 +88,7 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << frameCount;
 
+    const QChar exclamationMark = QLatin1Char('!');
     m_frameContexts.resize(frameCount);
     qFill(m_frameContexts, static_cast<CdbStackFrameContext*>(0));
 
@@ -102,7 +103,11 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
         frame.address = QString::fromLatin1("0x%1").arg(instructionOffset, 0, 16);
 
         m_cif->debugSymbols->GetNameByOffsetWide(instructionOffset, wszBuf, MAX_PATH, 0, 0);
+        // Determine function and module, if available
         frame.function = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
+        const int moduleSepPos = frame.function.indexOf(exclamationMark);
+        if (moduleSepPos != -1)
+            frame.from = frame.function.mid(0, moduleSepPos);
 
         ULONG ulLine;
         ULONG64 ul64Displacement;
