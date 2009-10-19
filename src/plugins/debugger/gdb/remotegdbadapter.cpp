@@ -74,7 +74,9 @@ void RemoteGdbAdapter::startAdapter()
     gdbArgs.prepend(_("mi"));
     gdbArgs.prepend(_("-i"));
 
-    QString location = theDebuggerStringSetting(GdbLocation);
+    QString location = startParameters().debuggerCommand;
+    if (location.isEmpty())
+        location = theDebuggerStringSetting(GdbLocation);
 
     // FIXME: make asynchroneous
     // Start the remote server
