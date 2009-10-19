@@ -3178,6 +3178,14 @@ static void qDumpStdSetHelper(QDumper &d)
     const int nn = set.size();
     if (nn < 0)
         return;
+#ifdef Q_CC_MSVC
+    // This set has a head element pointer:
+    // "{ base class ; HeadType *_MyHead ; unsigned int _MySize }",
+    // which is valid even if the set is empty. Check that to avoid iterator asserts.
+    const void *headPtrAddress = addOffset(&set, sizeof(DummyType) - sizeof(unsigned int) - sizeof(void*));
+    if (const void *headPtr = deref(headPtrAddress))
+        qCheckAccess(headPtr);
+#endif
     Q_TYPENAME DummyType::const_iterator it = set.begin();
     const Q_TYPENAME DummyType::const_iterator cend = set.end();
     for (int i = 0; i < nn && i < 10 && it != cend; ++i, ++it)

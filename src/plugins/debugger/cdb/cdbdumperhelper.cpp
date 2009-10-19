@@ -563,8 +563,14 @@ CdbDumperHelper::CallResult
         if (!writeToDebuggee(m_cif->debugDataSpaces, inBuffer, m_inBufferAddress, errorMessage))
             return CallFailed;
     }
-    if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, callCmd, errorMessage))
+    if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, callCmd, errorMessage)) {
+        // Clear the outstanding call in case we triggered a debug library assert with a message box
+        QString clearError;
+        if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, QLatin1String(".call /c"), &clearError)) {
+            *errorMessage += QString::fromLatin1("/Unable to clear call %1").arg(clearError);
+        }
         return CallSyntaxError;
+    }
     // Set up call and a temporary breakpoint after it.
     // Try to skip debuggee crash exceptions and dumper exceptions
     // by using 'gN' (go not handled -> pass handling to dumper __try/__catch block)
