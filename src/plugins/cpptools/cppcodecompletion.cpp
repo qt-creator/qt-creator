@@ -50,6 +50,7 @@
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/TokenUnderCursor.h>
 
 #include <coreplugin/icore.h>
@@ -860,7 +861,8 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
 
         if (! resolvedTypes.isEmpty()) {
-            if (m_completionOperator == T_LPAREN && completeConstructorOrFunction(resolvedTypes, context)) {
+            if (m_completionOperator == T_LPAREN &&
+                completeConstructorOrFunction(resolvedTypes, context, endOfExpression)) {
                 return m_startPosition;
 
             } else if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
@@ -899,7 +901,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             // If it's a class, add completions for the constructors
             foreach (const TypeOfExpression::Result &result, results) {
                 if (result.first->isClassType()) {
-                    if (completeConstructorOrFunction(results, context))
+                    if (completeConstructorOrFunction(results, context, endOfExpression))
                         return m_startPosition;
                     break;
                 }
@@ -912,7 +914,8 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 }
 
 bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpression::Result> &results,
-                                                      const LookupContext &context)
+                                                      const LookupContext &context,
+                                                      int endOfExpression)
 {
     QList<Function *> functions;
 
@@ -1002,6 +1005,77 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
     }
 
     if (! functions.isEmpty()) {
+        // There are two options:
+        // 1. If this is a function call, we want to pop up a tooltip that shows the user
+        // the possible overloads with their argument types and names.
+        // 2. If this is a function definition, we want to offer autocompletion of
+        // the function signature.
+
+        // Here we evaluate a first criterion: function definitions will only
+        // happen in class or namespace scope.
+
+        // get current line and column
+        TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(m_editor->widget());
+        int lineSigned = 0, columnSigned = 0;
+        edit->convertPosition(m_editor->position(), &lineSigned, &columnSigned);
+        unsigned line = lineSigned, column = columnSigned;
+
+        // find a scope that encloses the current location, starting from the lastVisibileSymbol
+        // and moving outwards
+        Scope *sc = context.symbol()->scope();
+        while (sc->enclosingScope()) {
+            unsigned startLine, startColumn;
+            context.thisDocument()->translationUnit()->getPosition(sc->owner()->startOffset(), &startLine, &startColumn);
+            unsigned endLine, endColumn;
+            context.thisDocument()->translationUnit()->getPosition(sc->owner()->endOffset(), &endLine, &endColumn);
+
+            if (startLine <= line && line <= endLine)
+                if ((startLine != line || startColumn <= column)
+                    && (endLine != line || column <= endColumn))
+                    break;
+
+            sc = sc->enclosingScope();
+        }
+
+        if (sc->isClassScope() || sc->isNamespaceScope())
+        {
+            // It may still be a function call. If the whole line parses as a function
+            // declaration, we should be certain that it isn't.
+            bool autocompleteSignature = false;
+
+            QTextCursor tc(edit->document());
+            tc.setPosition(endOfExpression);
+            BackwardsScanner bs(tc);
+            QString possibleDecl = bs.mid(bs.startOfLine(bs.startToken())).trimmed().append("();");
+
+            Document::Ptr doc = Document::create(QLatin1String("<completion>"));
+            doc->setSource(possibleDecl.toLatin1());
+            if (doc->parse(Document::ParseDeclaration)) {
+                doc->check();
+                if (SimpleDeclarationAST *sd = doc->translationUnit()->ast()->asSimpleDeclaration()) {
+                    if (sd->declarators->declarator->postfix_declarators
+                        && sd->declarators->declarator->postfix_declarators->asFunctionDeclarator()) {
+                        autocompleteSignature = true;
+                    }
+                }
+            }
+
+            if (autocompleteSignature) {
+                // set up signature autocompletion
+                foreach (Function *f, functions) {
+                    Overview overview;
+                    overview.setShowArgumentNames(true);
+
+                    TextEditor::CompletionItem item(this);
+                    item.text = overview(f->type());
+                    item.text = item.text.mid(1, item.text.size()-2);
+                    m_completions.append(item);
+                }
+                return true;
+            }
+        }
+
+        // set up function call tooltip
 
         // Recreate if necessary
         if (!m_functionArgumentWidget)
