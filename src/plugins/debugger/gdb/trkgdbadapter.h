@@ -170,6 +170,7 @@ public:
 private:
     void startAdapter();
     void startInferior();
+    void startInferiorPhase2();
     void interruptInferior();
     void shutdown();
 

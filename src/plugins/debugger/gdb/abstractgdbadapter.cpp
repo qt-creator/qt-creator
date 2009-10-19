@@ -51,6 +51,10 @@ void AbstractGdbAdapter::shutdown()
 {
 }
 
+void AbstractGdbAdapter::startInferiorPhase2()
+{
+}
+
 const char *AbstractGdbAdapter::inferiorShutdownCommand() const
 {
     return "kill";

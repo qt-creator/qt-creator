@@ -56,6 +56,7 @@ public:
 
     virtual void startAdapter() = 0;
     virtual void startInferior() = 0;
+    virtual void startInferiorPhase2();
     virtual void interruptInferior() = 0;
     virtual void shutdown();
     virtual const char *inferiorShutdownCommand() const;
@@ -79,6 +80,10 @@ signals:
     // Something went wrong with the adapter *after* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.
     void adapterCrashed(const QString &msg);
+
+    // This triggers the initial breakpoint synchronization and causes
+    // startInferiorPhase2() being called once done.
+    void inferiorPrepared();
 
     // The adapter is still running just fine, but it failed to acquire a debuggee.
     void inferiorStartFailed(const QString &msg);

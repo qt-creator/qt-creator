@@ -1639,13 +1639,18 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        setState(InferiorRunningRequested);
-        m_engine->postCommand(_("-exec-continue"), GdbEngine::RunRequest, CB(handleFirstContinue));
+        emit inferiorPrepared();
     } else {
         QString msg = tr("Connecting to trk server adapter failed:\n")
             + _(record.data.findChild("msg").data());
         emit inferiorStartFailed(msg);
     }
+}
+
+void TrkGdbAdapter::startInferiorPhase2()
+{
+    setState(InferiorRunningRequested);
+    m_engine->postCommand(_("-exec-continue"), GdbEngine::RunRequest, CB(handleFirstContinue));
 }
 
 void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)

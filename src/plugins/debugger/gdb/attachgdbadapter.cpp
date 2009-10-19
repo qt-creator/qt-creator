@@ -82,6 +82,7 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
         QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
         debugMessage(_("INFERIOR ATTACHED"));
         showStatusMessage(msgAttachedToStoppedInferior());
+        emit inferiorPrepared();
         m_engine->updateAll();
     } else {
         QString msg = __(response.data.findChild("msg").data());

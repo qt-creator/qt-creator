@@ -106,14 +106,18 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        //m_breakHandler->clearBreakMarkers();
-        setState(InferiorRunningRequested);
-        m_engine->postCommand(_("-exec-run"), GdbEngine::RunRequest, CB(handleExecRun));
+        emit inferiorPrepared();
     } else {
         QString msg = tr("Starting executable failed:\n") +
             __(response.data.findChild("msg").data());
         emit inferiorStartFailed(msg);
     }
+}
+
+void PlainGdbAdapter::startInferiorPhase2()
+{
+    setState(InferiorRunningRequested);
+    m_engine->postCommand(_("-exec-run"), GdbEngine::RunRequest, CB(handleExecRun));
 }
 
 void PlainGdbAdapter::handleExecRun(const GdbResponse &response)

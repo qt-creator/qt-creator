@@ -199,12 +199,17 @@ void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
         // gdb server will stop the remote application itself.
         debugMessage(_("INFERIOR STARTED"));
         showStatusMessage(msgAttachedToStoppedInferior());
-        m_engine->continueInferior();
+        emit inferiorPrepared();
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
         QString msg = msgConnectRemoteServerFailed(__(record.data.findChild("msg").data()));
         emit inferiorStartFailed(msg);
     }
+}
+
+void RemoteGdbAdapter::startInferiorPhase2()
+{
+    m_engine->continueInferior();
 }
 
 void RemoteGdbAdapter::interruptInferior()

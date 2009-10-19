@@ -234,6 +234,9 @@ void GdbEngine::connectAdapter()
     connect(m_gdbAdapter, SIGNAL(adapterStartFailed(QString,QString)),
         this, SLOT(handleAdapterStartFailed(QString,QString)));
 
+    connect(m_gdbAdapter, SIGNAL(inferiorPrepared()),
+        this, SLOT(handleInferiorPrepared()));
+
     connect(m_gdbAdapter, SIGNAL(inferiorStartFailed(QString)),
         this, SLOT(handleInferiorStartFailed(QString)));
 
@@ -692,7 +695,8 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
     }
 
     if (cmd.flags & NeedsStop) {
-        if (state() == InferiorStopped || state() == AdapterStarted) {
+        if (state() == InferiorStopped
+            || state() == InferiorStarting || state() == AdapterStarted) {
             // Can be safely sent now.
             flushCommand(cmd);
         } else {
@@ -4318,24 +4322,29 @@ void GdbEngine::handleAdapterStarted()
     setState(AdapterStarted);
     debugMessage(_("ADAPTER SUCCESSFULLY STARTED"));
 
+    showStatusMessage(tr("Starting inferior..."));
+    setState(InferiorStarting);
+    m_gdbAdapter->startInferior();
+}
+
+void GdbEngine::handleInferiorPrepared()
+{
     // Initial attempt to set breakpoints
     showStatusMessage(tr("Setting breakpoints..."));
     attemptBreakpointSynchronization();
 
     if (m_cookieForToken.isEmpty()) {
-        startInferior();
+        startInferiorPhase2();
     } else {
         QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
-        m_commandsDoneCallback = &GdbEngine::startInferior;
+        m_commandsDoneCallback = &GdbEngine::startInferiorPhase2;
     }
 }
 
-void GdbEngine::startInferior()
+void GdbEngine::startInferiorPhase2()
 {
-    QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
-    showStatusMessage(tr("Starting inferior..."));
-    setState(InferiorStarting);
-    m_gdbAdapter->startInferior();
+    debugMessage(_("BREAKPOINTS SET, CONTINUING INFERIOR STARTUP"));
+    m_gdbAdapter->startInferiorPhase2();
 }
 
 void GdbEngine::handleInferiorStartFailed(const QString &msg)
