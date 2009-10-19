@@ -60,14 +60,14 @@ template <class T>
     unsigned char *mem = 0;
     if (optTestUninitialized) {
         mem = new unsigned char[sizeof(T)];
-        for (int i = 0; i < sizeof(T); i++) {
+        for (unsigned int i = 0; i < sizeof(T); i++) {
             mem[i] = char(rand() % 255u);
         }
     } else {
         mem = reinterpret_cast<unsigned char*>(in);
     }
     if (optVerbose) {
-        for (int i = 0; i < sizeof(T); i++) {
+        for (unsigned int i = 0; i < sizeof(T); i++) {
             unsigned int b = mem[i];
             printf("%2d %2x %3d\n", i, b, b);
         }
