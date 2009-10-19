@@ -69,6 +69,7 @@ public:
 
 signals:
     void copyingStarted();
+    void canNotConnect(const QString &errorMessage);
     void canNotCreateFile(const QString &filename, const QString &errorMessage);
     void canNotWriteFile(const QString &filename, const QString &errorMessage);
     void canNotCloseFile(const QString &filename, const QString &errorMessage);
@@ -90,7 +91,10 @@ private slots:
 private:
     // kill process and breakpoints
     void cleanUp();
+    void disconnectTrk();
 
+    void handleRemoteProcessKilled(const TrkResult &result);
+    void handleConnect(const TrkResult &result);
     void handleFileCreation(const TrkResult &result);
     void handleCopy(const TrkResult &result);
     void continueCopying(uint lastCopiedBlockSize = 0);

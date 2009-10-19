@@ -64,10 +64,12 @@ struct LauncherPrivate {
     QString m_installFileName;
     int m_verbose;
     Launcher::Actions m_startupActions;
+    bool m_connected;
 };
 
 LauncherPrivate::LauncherPrivate() :
-    m_verbose(0)
+    m_verbose(0),
+    m_connected(false)
 {
 }
 
@@ -148,18 +150,27 @@ bool Launcher::startServer(QString *errorMessage)
     if (!d->m_device.open(d->m_trkServerName, errorMessage))
         return false;
     d->m_device.sendTrkInitialPing();
-    d->m_device.sendTrkMessage(TrkConnect); // Connect
     d->m_device.sendTrkMessage(TrkSupported, TrkCallback(this, &Launcher::handleSupportMask));
     d->m_device.sendTrkMessage(TrkCpuType, TrkCallback(this, &Launcher::handleCpuType));
     d->m_device.sendTrkMessage(TrkVersions, TrkCallback(this, &Launcher::handleTrkVersion));
+    if (d->m_startupActions != ActionPingOnly)
+        d->m_device.sendTrkMessage(TrkConnect, TrkCallback(this, &Launcher::handleConnect));
+    return true;
+}
 
+void Launcher::handleConnect(const TrkResult &result)
+{
+    if (result.errorCode()) {
+        emit canNotConnect(result.errorString());
+        return;
+    }
+    d->m_connected = true;
     if (d->m_startupActions & ActionCopy)
         copyFileToRemote();
     else if (d->m_startupActions & ActionInstall)
         installRemotePackageSilently();
     else if (d->m_startupActions & ActionRun)
         startInferiorIfNeeded();
-    return true;
 }
 
 void Launcher::setVerbose(int v)
@@ -176,11 +187,24 @@ void Launcher::logMessage(const QString &msg)
 
 void Launcher::terminate()
 {
-    //TODO handle case where application has not been started
-    QByteArray ba;
-    appendShort(&ba, 0x0000, TargetByteOrder);
-    appendInt(&ba, d->m_session.pid, TargetByteOrder);
-    d->m_device.sendTrkMessage(TrkDeleteItem, TrkCallback(this, &Launcher::handleWaitForFinished), ba);
+    if (d->m_session.pid) {
+        QByteArray ba;
+        appendShort(&ba, 0x0000, TargetByteOrder);
+        appendInt(&ba, d->m_session.pid, TargetByteOrder);
+        d->m_device.sendTrkMessage(TrkDeleteItem, TrkCallback(this, &Launcher::handleRemoteProcessKilled), ba);
+    } else if (d->m_connected) {
+        if (d->m_copyState.copyFileHandle)
+            closeRemoteFile(true);
+        disconnectTrk();
+    } else {
+        emit finished();
+    }
+}
+
+void Launcher::handleRemoteProcessKilled(const TrkResult &result)
+{
+    Q_UNUSED(result)
+    disconnectTrk();
 }
 
 void Launcher::handleResult(const TrkResult &result)
@@ -267,7 +291,7 @@ void Launcher::handleResult(const TrkResult &result)
             if (itemType == 0 // process
                 && result.data.size() >= 10
                 && d->m_session.pid == extractInt(result.data.data() + 6)) {
-                d->m_device.sendTrkMessage(TrkDisconnect, TrkCallback(this, &Launcher::handleWaitForFinished));
+                disconnectTrk();
             }
             break;
         }
@@ -321,7 +345,7 @@ void Launcher::handleFileCreation(const TrkResult &result)
 {
     if (result.errorCode() || result.data.size() < 6) {
         emit canNotCreateFile(d->m_copyState.destinationFileName, result.errorString());
-        emit finished();
+        disconnectTrk();
         return;
     }
     const char *data = result.data.data();
@@ -339,7 +363,7 @@ void Launcher::handleCopy(const TrkResult &result)
     if (result.errorCode() || result.data.size() < 4) {
         closeRemoteFile(true);
         emit canNotWriteFile(d->m_copyState.destinationFileName, result.errorString());
-        emit finished();
+        disconnectTrk();
     } else {
         continueCopying(extractShort(result.data.data() + 2));
     }
@@ -374,6 +398,8 @@ void Launcher::closeRemoteFile(bool failed)
                                failed ? TrkCallback() : TrkCallback(this, &Launcher::handleFileCopied),
                                ba);
     d->m_copyState.data.reset();
+    d->m_copyState.copyFileHandle = 0;
+    d->m_copyState.position = 0;
 }
 
 void Launcher::handleFileCopied(const TrkResult &result)
@@ -385,7 +411,7 @@ void Launcher::handleFileCopied(const TrkResult &result)
     else if (d->m_startupActions & ActionRun)
         startInferiorIfNeeded();
     else
-        emit finished();
+        disconnectTrk();
 }
 
 void Launcher::handleCpuType(const TrkResult &result)
@@ -410,7 +436,7 @@ void Launcher::handleCreateProcess(const TrkResult &result)
 {
     if (result.errorCode()) {
         emit canNotRun(result.errorString());
-        emit finished();
+        disconnectTrk();
         return;
     }
     //  40 00 00]
@@ -511,6 +537,11 @@ void Launcher::cleanUp()
     // Error: 0x00
 }
 
+void Launcher::disconnectTrk()
+{
+    d->m_device.sendTrkMessage(TrkDisconnect, TrkCallback(this, &Launcher::handleWaitForFinished));
+}
+
 void Launcher::copyFileToRemote()
 {
     emit copyingStarted();
@@ -533,11 +564,11 @@ void Launcher::handleInstallPackageFinished(const TrkResult &result)
 {
     if (result.errorCode()) {
         emit canNotInstall(d->m_installFileName, result.errorString());
-        emit finished();
+        disconnectTrk();
     } else if (d->m_startupActions & ActionRun) {
         startInferiorIfNeeded();
     } else {
-        emit finished();
+        disconnectTrk();
     }
 }
 
