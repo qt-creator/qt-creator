@@ -1063,10 +1063,18 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
                     Overview overview;
                     overview.setShowArgumentNames(true);
 
-                    TextEditor::CompletionItem item(this);
-                    item.text = overview(f->type());
-                    item.text = item.text.mid(1, item.text.size()-2);
-                    m_completions.append(item);
+                    // get rid of parentheses and cv-qualifiers
+                    QString completion = overview(f->type());
+                    if (f->isVolatile() || f->isConst())
+                        completion = completion.mid(1, completion.lastIndexOf(')') - 1);
+                    else
+                        completion = completion.mid(1, completion.size() - 2);
+
+                    if (completion.size()) {
+                        TextEditor::CompletionItem item(this);
+                        item.text = completion;
+                        m_completions.append(item);
+                    }
                 }
                 return true;
             }
