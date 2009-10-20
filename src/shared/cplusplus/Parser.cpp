@@ -3441,13 +3441,21 @@ bool Parser::parseTypeidExpression(ExpressionAST *&node)
 bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
-    if (parseCppCastExpression(node))
-        return true;
-    else if (parseTypenameCallExpression(node))
-        return true;
-    else if (parseTypeidExpression(node))
-        return true;
-    else {
+
+    switch (LA()) {
+    case T_DYNAMIC_CAST:
+    case T_STATIC_CAST:
+    case T_REINTERPRET_CAST:
+    case T_CONST_CAST:
+        return parseCppCastExpression(node);
+
+    case T_TYPENAME:
+        return parseTypenameCallExpression(node);
+
+    case T_TYPEID:
+        return parseTypeidExpression(node);
+
+    default: {
         unsigned start = cursor();
         SpecifierAST *type_specifier = 0;
         bool blocked = blockErrors(true);
@@ -3494,7 +3502,8 @@ bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
 
         blockErrors(blocked);
         return parsePrimaryExpression(node);
-    }
+    } // default
+    } // switch
 }
 
 bool Parser::parsePostfixExpression(ExpressionAST *&node)
