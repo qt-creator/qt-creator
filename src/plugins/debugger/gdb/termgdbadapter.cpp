@@ -130,8 +130,7 @@ void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
 
 void TermGdbAdapter::startInferiorPhase2()
 {
-    setState(InferiorRunningRequested);
-    m_engine->postCommand(_("-exec-continue"), GdbEngine::RunRequest);
+    m_engine->continueInferiorInternal();
 }
 
 void TermGdbAdapter::interruptInferior()

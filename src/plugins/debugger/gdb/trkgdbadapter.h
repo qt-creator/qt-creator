@@ -180,7 +180,6 @@ private:
 
     Q_SLOT void waitForTrkConnect();
     void handleTargetRemote(const GdbResponse &response);
-    void handleFirstContinue(const GdbResponse &response);
 
     //
     // TRK

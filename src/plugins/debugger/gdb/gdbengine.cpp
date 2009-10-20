@@ -1055,7 +1055,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             QString pat = theDebuggerStringSetting(SelectedPluginBreakpointsPattern);
             debugMessage(_("PATTERN: ") + pat);
             postCommand(_("sharedlibrary ") + pat);
-            continueInferior();
+            continueInferiorInternal();
             showStatusMessage(tr("Loading %1...").arg(dataStr));
             return;
         }
@@ -1070,7 +1070,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     //  args=[],from="C:\\WINDOWS\\system32\\ntdll.dll"}
     //if (reason == "signal-received"
     //      && data.findChild("signal-name").data() == "SIGTRAP") {
-    //    continueInferior();
+    //    continueInferiorInternal();
     //    return;
     //}
 
@@ -1178,8 +1178,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
             GdbMi frameData = data.findChild("frame");
             if (frameData.findChild("func").data() == "_start"
                 && frameData.findChild("from").data() == "/lib/ld-linux.so.2") {
-                setState(InferiorRunningRequested);
-                postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
+                continueInferiorInternal();
                 return;
             }
         }
@@ -1314,17 +1313,16 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
         QTC_ASSERT(state() == InferiorRunning, /**/);
     } else {
         QTC_ASSERT(state() == InferiorRunningRequested, /**/);
+        setState(InferiorStopped);
         QByteArray msg = response.data.findChild("msg").data();
         if (msg.startsWith("Cannot find bounds of current function")) {
-            setState(InferiorStopped);
             showStatusMessage(tr("Stopped."), 5000);
             //showStatusMessage(tr("No debug information available. "
             //  "Leaving function..."));
             //stepOutExec();
         } else {
-            showMessageBox(QMessageBox::Critical, tr("Error"),
-                tr("Starting executable failed:\n") + QString::fromLocal8Bit(msg));
-            QTC_ASSERT(state() == InferiorRunning, /**/);
+            showMessageBox(QMessageBox::Critical, tr("Execution Error"),
+                           tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
             shutdown();
         }
     }
@@ -1531,8 +1529,6 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 void GdbEngine::continueInferiorInternal()
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
-    m_manager->resetLocation();
-    setTokenBarrier();
     setState(InferiorRunningRequested);
     postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
 }
@@ -1545,6 +1541,8 @@ void GdbEngine::autoContinueInferior()
 
 void GdbEngine::continueInferior()
 {
+    m_manager->resetLocation();
+    setTokenBarrier();
     continueInferiorInternal();
     showStatusMessage(tr("Running requested..."), 5000);
 }
@@ -1627,12 +1625,10 @@ void GdbEngine::runToFunctionExec(const QString &functionName)
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
     setTokenBarrier();
     postCommand(_("-break-insert -t ") + functionName);
-    setState(InferiorRunningRequested);
-    showStatusMessage(tr("Run to function %1 requested...").arg(functionName), 5000);
-    // that should be "^running". We need to handle the resulting
-    // "Stopped"
-    postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
+    continueInferiorInternal();
+    //setState(InferiorRunningRequested);
     //postCommand(_("-exec-continue"), handleExecRunToFunction);
+    showStatusMessage(tr("Run to function %1 requested...").arg(functionName), 5000);
 }
 
 void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)

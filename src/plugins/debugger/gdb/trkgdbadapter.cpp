@@ -1649,19 +1649,7 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 
 void TrkGdbAdapter::startInferiorPhase2()
 {
-    setState(InferiorRunningRequested);
-    m_engine->postCommand(_("-exec-continue"), GdbEngine::RunRequest, CB(handleFirstContinue));
-}
-
-void TrkGdbAdapter::handleFirstContinue(const GdbResponse &record)
-{
-    QTC_ASSERT(state() == InferiorRunning, qDebug() << state());
-    if (record.resultClass == GdbResultDone) {
-        debugMessage(_("INFERIOR STARTED"));
-        showStatusMessage(msgInferiorRunning());
-    } else {
-        emit inferiorStartFailed(msgConnectRemoteServerFailed(record.toString()));
-    }
+    m_engine->continueInferiorInternal();
 }
 
 //

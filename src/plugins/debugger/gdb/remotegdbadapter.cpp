@@ -209,7 +209,7 @@ void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
 
 void RemoteGdbAdapter::startInferiorPhase2()
 {
-    m_engine->continueInferior();
+    m_engine->continueInferiorInternal();
 }
 
 void RemoteGdbAdapter::interruptInferior()
