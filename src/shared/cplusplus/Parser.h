@@ -265,7 +265,6 @@ public:
     void match(int kind, unsigned *token);
 
     bool maybeAmbiguousStatement(DeclarationStatementAST *ast) const;
-    bool maybeSimpleExpression(SimpleDeclarationAST *simpleDecl) const;
     bool maybeForwardOrClassDeclaration(SpecifierAST *decl_specifier_seq) const;
     bool isPointerDeclaration(DeclarationStatementAST *ast) const;
 

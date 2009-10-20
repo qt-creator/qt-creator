@@ -1999,18 +1999,6 @@ bool Parser::parseReturnStatement(StatementAST *&node)
     return false;
 }
 
-bool Parser::maybeSimpleExpression(SimpleDeclarationAST *simpleDecl) const
-{
-    if (! simpleDecl->declarators)  {
-        SpecifierAST *spec = simpleDecl->decl_specifier_seq;
-
-        if (spec && ! spec->next && spec->asNamedTypeSpecifier())
-            return true;
-    }
-
-    return false;
-}
-
 bool Parser::isPointerDeclaration(DeclarationStatementAST *ast) const
 {
     if (! ast)
