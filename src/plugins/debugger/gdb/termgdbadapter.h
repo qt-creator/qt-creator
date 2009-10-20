@@ -61,8 +61,6 @@ public:
     void startInferior();
     void startInferiorPhase2();
     void interruptInferior();
-    void shutdown();
-    const char *inferiorShutdownCommand() const { return "kill"; }
 
 private:
     void handleStubAttached(const GdbResponse &response);

@@ -141,10 +141,6 @@ void TermGdbAdapter::interruptInferior()
         debugMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
 }
 
-void TermGdbAdapter::shutdown()
-{
-}
-
 void TermGdbAdapter::stubError(const QString &msg)
 {
     showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
