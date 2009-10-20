@@ -53,7 +53,6 @@ namespace Internal {
 CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    commonInit();
 }
 
 void CoreGdbAdapter::startAdapter()
@@ -62,25 +61,10 @@ void CoreGdbAdapter::startAdapter()
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
 
-    QStringList gdbArgs;
-    gdbArgs.prepend(_("mi"));
-    gdbArgs.prepend(_("-i"));
+    if (!m_engine->startGdb())
+        return;
 
-    QString location = theDebuggerStringSetting(GdbLocation);
-    m_gdbProc.start(location, gdbArgs);
-}
-
-void CoreGdbAdapter::handleGdbStarted()
-{
-    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     emit adapterStarted();
-}
-
-void CoreGdbAdapter::handleGdbError(QProcess::ProcessError error)
-{
-    debugMessage(_("PLAIN ADAPTER, HANDLE GDB ERROR"));
-    emit adapterCrashed(m_engine->errorMessage(error));
-    shutdown();
 }
 
 void CoreGdbAdapter::startInferior()
@@ -175,44 +159,11 @@ void CoreGdbAdapter::handleTargetCore2(const GdbResponse &response)
        // emit inferiorStartFailed(msg);
     }
 }
+
 void CoreGdbAdapter::interruptInferior()
 {
     // A core should never 'run'
     QTC_ASSERT(false, /**/);
-}
-
-void CoreGdbAdapter::shutdown()
-{
-    switch (state()) {
-
-    case DebuggerNotReady:
-        return;
-
-    case InferiorUnrunnable:
-    case InferiorShutDown:
-        setState(AdapterShuttingDown);
-        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
-        return;
-
-    default:
-        QTC_ASSERT(false, qDebug() << state());
-    }
-}
-
-void CoreGdbAdapter::handleExit(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        // don't set state here, this will be handled in handleGdbFinished()
-    } else {
-        const QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
-        emit adapterShutdownFailed(msg);
-    }
-}
-
-void CoreGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
-{
-    debugMessage(_("GDB PROESS FINISHED"));
-    emit adapterShutDown();
 }
 
 } // namespace Internal

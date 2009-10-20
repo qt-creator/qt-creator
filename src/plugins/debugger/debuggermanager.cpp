@@ -101,43 +101,35 @@
 // gdbserver, the trk client etc are referred to as 'Adapter',
 // whereas the debugged process is referred to as 'Inferior'.
 //
-//               0 == DebuggerNotReady
+//              0 == DebuggerNotReady
 //                          |
-//                     EngineStarting
+//                    EngineStarting
 //                          |
-//                     AdapterStarting --> AdapterStartFailed --> 0
+//                    AdapterStarting --> AdapterStartFailed --> 0
 //                          |
-//                     AdapterStarted
-//                          |
-//                     InferiorStarting --> InferiorStartFailed --> 0
-//                          |
-//         (core)           |     (attach) (remote)
-//      .-----------------<-|->--------------------.
-//      |                   v                      |
-//  InferiorUnrunnable      |                      |
-//      |                   |                      v
-//      |                   | (plain)
-//      |                   | (trk)
-//      |                   |
-//      |                   |  .------------------------------------.
-//      |                   |  v                                    |
-//      |              InferiorRunningRequested    v                |
-//      |                   |                      |                |
-//      |        .---- InferiorRunning             |                |
-//      |        |          |                      |                |
-//      |        |     InferiorStopping            |                |
-//      |        |          |                      |                |
-//      |        v          v                      |                |
-//      |        |<--- InferiorStopped <-----------'                |
-//      |        |          |                                       |
-//      |        |          `---------------------------------------'
-//      |        |          
-//      |        '---> InferiorShuttingDown  -> InferiorShutdownFailed
-//      |                   |
-//      |              InferiorShutDown
-//      |                   |
-//      |                   v
-//      '------------> AdapterShuttingDown  -> AdapterShutdownFailed --> 0
+//                    AdapterStarted ------------------------------------.
+//                          |                                            v
+//                   InferiorStarting ----> InferiorStartFailed -------->|
+//                          |                                            |
+//         (core)           |     (attach) (term) (remote)               |
+//      .-----------------<-|->------------------.                       |
+//      |                   v                    |                       |
+//  InferiorUnrunnable      | (plain)            |                       |
+//      |                   | (trk)              |                       |
+//      |                   |                    |                       |
+//      |    .--> InferiorRunningRequested       |                       |
+//      |    |              |                    |                       |
+//      |    |       InferiorRunning             |                       |
+//      |    |              |                    |                       |
+//      |    |       InferiorStopping            |                       |
+//      |    |              |                    |                       |
+//      |    '------ InferiorStopped <-----------'                       |
+//      |                   |                                            v
+//      |          InferiorShuttingDown  ->  InferiorShutdownFailed ---->|
+//      |                   |                                            |
+//      |            InferiorShutDown                                    |
+//      |                   |                                            |
+//      '-------->  EngineShuttingDown  <--------------------------------'
 //                          |
 //                          0
 //
@@ -208,8 +200,7 @@ static const char *stateName(int s)
         SN(InferiorShuttingDown)
         SN(InferiorShutDown)
         SN(InferiorShutdownFailed)
-        SN(AdapterShuttingDown)
-        SN(AdapterShutdownFailed)
+        SN(EngineShuttingDown)
     }
     return "<unknown>";
     #undef SN
@@ -1574,7 +1565,7 @@ static bool isAllowedTransition(int from, int to)
     case AdapterStarting:
         return to == AdapterStarted || to == AdapterStartFailed;
     case AdapterStarted:
-        return to == InferiorStarting;
+        return to == InferiorStarting || to == EngineShuttingDown;
     case AdapterStartFailed:
         return to == DebuggerNotReady;
 
@@ -1582,37 +1573,38 @@ static bool isAllowedTransition(int from, int to)
         return to == InferiorRunningRequested || to == InferiorStopped
             || to == InferiorStartFailed || to == InferiorUnrunnable;
     case InferiorStartFailed:
-        return to == DebuggerNotReady;
+        return to == EngineShuttingDown;
 
     case InferiorRunningRequested:
         return to == InferiorRunning;
     case InferiorRunning:
-        return to == InferiorStopping || to == InferiorShuttingDown;
+        return to == InferiorStopping;
 
     case InferiorStopping:
         return to == InferiorStopped || to == InferiorStopFailed;
     case InferiorStopped:
         return to == InferiorRunningRequested || to == InferiorShuttingDown;
     case InferiorStopFailed:
-        return to == DebuggerNotReady;
+        return to == EngineShuttingDown;
 
     case InferiorUnrunnable:
-        return to == AdapterShuttingDown;
+        return to == EngineShuttingDown;
     case InferiorShuttingDown:
         return to == InferiorShutDown || to == InferiorShutdownFailed;
     case InferiorShutDown:
-        return to == AdapterShuttingDown;
+        return to == EngineShuttingDown;
+    case InferiorShutdownFailed:
+        return to == EngineShuttingDown;
 
-    case AdapterShuttingDown:
+    case EngineShuttingDown:
         return to == DebuggerNotReady;
-
-    default:
-        qDebug() << "UNKNOWN STATE: " << from;
     }
+
+    qDebug() << "UNKNOWN STATE:" << from;
     return false;
 }
 
-void DebuggerManager::setState(DebuggerState state)
+void DebuggerManager::setState(DebuggerState state, bool forced)
 {
     //STATE_DEBUG("STATUS CHANGE: FROM " << stateName(d->m_state)
     //        << " TO " << stateName(state));
@@ -1621,7 +1613,7 @@ void DebuggerManager::setState(DebuggerState state)
         .arg(stateName(d->m_state)).arg(d->m_state).arg(stateName(state)).arg(state);
     //if (!((d->m_state == -1 && state == 0) || (d->m_state == 0 && state == 0)))
     //    qDebug() << msg;
-    if (!isAllowedTransition(d->m_state, state))
+    if (!forced && !isAllowedTransition(d->m_state, state))
         qDebug() << "UNEXPECTED STATE TRANSITION: " << msg;
 
     showDebuggerOutput(LogDebug, msg);
@@ -1715,8 +1707,7 @@ bool DebuggerManager::debuggerActionsEnabled() const
     case InferiorShuttingDown:
     case InferiorShutDown:
     case InferiorShutdownFailed:
-    case AdapterShuttingDown:
-    case AdapterShutdownFailed:
+    case EngineShuttingDown:
         break;
     }
     return false;
@@ -1793,9 +1784,9 @@ DebuggerState IDebuggerEngine::state() const
     return m_manager->state();
 }
 
-void IDebuggerEngine::setState(DebuggerState state)
+void IDebuggerEngine::setState(DebuggerState state, bool forced)
 {
-    m_manager->setState(state);
+    m_manager->setState(state, forced);
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -53,7 +53,6 @@ namespace Internal {
 AttachGdbAdapter::AttachGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    commonInit();
 }
 
 void AttachGdbAdapter::startAdapter()
@@ -62,25 +61,10 @@ void AttachGdbAdapter::startAdapter()
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
 
-    QStringList gdbArgs;
-    gdbArgs.prepend(_("mi"));
-    gdbArgs.prepend(_("-i"));
+    if (!m_engine->startGdb())
+        return;
 
-    QString location = theDebuggerStringSetting(GdbLocation);
-    m_gdbProc.start(location, gdbArgs);
-}
-
-void AttachGdbAdapter::handleGdbStarted()
-{
-    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     emit adapterStarted();
-}
-
-void AttachGdbAdapter::handleGdbError(QProcess::ProcessError error)
-{
-    debugMessage(_("PLAIN ADAPTER, HANDLE GDB ERROR"));
-    emit adapterCrashed(m_engine->errorMessage(error));
-    shutdown();
 }
 
 void AttachGdbAdapter::startInferior()
@@ -111,59 +95,6 @@ void AttachGdbAdapter::interruptInferior()
     const qint64 pid = startParameters().attachPID;
     if (!interruptProcess(pid))
         debugMessage(_("CANNOT INTERRUPT %1").arg(pid));
-}
-
-void AttachGdbAdapter::shutdown()
-{
-    switch (state()) {
-    
-    case InferiorStartFailed:
-        m_engine->postCommand(_("-gdb-exit"));
-        setState(DebuggerNotReady);
-        return;
-
-    case InferiorStopped:
-        setState(InferiorShuttingDown);
-        m_engine->postCommand(_("detach"), CB(handleDetach));
-        return;
-
-    case InferiorShutDown:
-        setState(AdapterShuttingDown);
-        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
-        return;
-
-    default:
-        QTC_ASSERT(false, qDebug() << state());
-    }
-}
-
-void AttachGdbAdapter::handleDetach(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        setState(InferiorShutDown);
-        emit inferiorShutDown();
-        shutdown(); // re-iterate...
-    } else {
-        const QString msg = msgInferiorStopFailed(__(response.data.findChild("msg").data()));
-        setState(InferiorShutdownFailed);
-        emit inferiorShutdownFailed(msg);
-    }
-}
-
-void AttachGdbAdapter::handleExit(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        // don't set state here, this will be handled in handleGdbFinished()
-    } else {
-        const QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
-        emit adapterShutdownFailed(msg);
-    }
-}
-
-void AttachGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
-{
-    debugMessage(_("GDB PROESS FINISHED"));
-    emit adapterShutDown();
 }
 
 } // namespace Internal

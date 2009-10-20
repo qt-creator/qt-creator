@@ -123,7 +123,7 @@ public:
 protected:
     void showStatusMessage(const QString &msg, int timeout = -1);
     DebuggerState state() const;
-    void setState(DebuggerState state);
+    void setState(DebuggerState state, bool forced = false);
     DebuggerManager *manager() const { return m_manager; }
     DebuggerManager *m_manager;
 

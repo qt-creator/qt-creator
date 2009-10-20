@@ -79,15 +79,13 @@ enum DebuggerState
 
     InferiorStopping,           // Debuggee running, stop requested
     InferiorStopped,            // Debuggee stopped
-    InferiorStopFailed,         // Debuggee stopped
+    InferiorStopFailed,         // Debuggee not stopped, will kill debugger
 
     InferiorShuttingDown,
     InferiorShutDown,
     InferiorShutdownFailed,
 
-    AdapterShuttingDown,
-    //AdapterShutDown,          // Use DebuggerNotReady instead
-    AdapterShutdownFailed,
+    EngineShuttingDown
 };
 
 enum DebuggerStartMode

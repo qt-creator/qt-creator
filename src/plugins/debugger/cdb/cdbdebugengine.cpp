@@ -824,6 +824,9 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
 void CdbDebugEngine::processTerminated(unsigned long exitCode)
 {
     manager()->showDebuggerOutput(LogMisc, tr("The process exited with exit code %1.").arg(exitCode));
+    if (m_engine->state() != InferiorStopping)
+        setState(InferiorStopping, Q_FUNC_INFO, __LINE__);
+    setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
     setState(InferiorShuttingDown, Q_FUNC_INFO, __LINE__);
     m_d->setDebuggeeHandles(0, 0);
     m_d->clearForRun();
@@ -919,14 +922,11 @@ void CdbDebugEnginePrivate::endDebugging(EndDebuggingMode em)
         errorMessage.clear();
     }
     // Clean up resources (open files, etc.)
-    m_engine->setState(AdapterShuttingDown, Q_FUNC_INFO, __LINE__);
+    m_engine->setState(EngineShuttingDown, Q_FUNC_INFO, __LINE__);
     clearForRun();
     const HRESULT hr = m_cif.debugClient->EndSession(DEBUG_END_PASSIVE);
-    if (SUCCEEDED(hr)) {
-        m_engine->setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
-    } else {
-        m_engine->setState(AdapterShutdownFailed, Q_FUNC_INFO, __LINE__);
-        m_engine->setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
+    m_engine->setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
+    if (!SUCCEEDED(hr)) {
         errorMessage = QString::fromLatin1("There were errors trying to end debugging: %1").arg(msgComFailed("EndSession", hr));
         manager()->showDebuggerOutput(LogError, errorMessage);
     }

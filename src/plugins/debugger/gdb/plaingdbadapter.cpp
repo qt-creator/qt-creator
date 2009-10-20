@@ -58,8 +58,6 @@ namespace Internal {
 PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    commonInit();
-
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
         engine, SLOT(readDebugeeOutput(QByteArray)));
@@ -72,34 +70,25 @@ void PlainGdbAdapter::startAdapter()
     debugMessage(_("TRYING TO START ADAPTER"));
 
     QStringList gdbArgs;
-    gdbArgs.prepend(_("mi"));
-    gdbArgs.prepend(_("-i"));
 
     if (!m_outputCollector.listen()) {
         emit adapterStartFailed(tr("Cannot set up communication with child process: %1")
                 .arg(m_outputCollector.errorString()), QString());
         return;
     }
-    gdbArgs.prepend(_("--tty=") + m_outputCollector.serverName());
+    gdbArgs.append(_("--tty=") + m_outputCollector.serverName());
 
     if (!startParameters().workingDir.isEmpty())
-        m_gdbProc.setWorkingDirectory(startParameters().workingDir);
+        m_engine->m_gdbProc.setWorkingDirectory(startParameters().workingDir);
     if (!startParameters().environment.isEmpty())
-        m_gdbProc.setEnvironment(startParameters().environment);
+        m_engine->m_gdbProc.setEnvironment(startParameters().environment);
 
-    m_gdbProc.start(theDebuggerStringSetting(GdbLocation), gdbArgs);
-}
+    if (!m_engine->startGdb(gdbArgs)) {
+        m_outputCollector.shutdown();
+        return;
+    }
 
-void PlainGdbAdapter::handleGdbStarted()
-{
-    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     emit adapterStarted();
-}
-
-void PlainGdbAdapter::handleGdbError(QProcess::ProcessError error)
-{
-    debugMessage(_("PLAIN ADAPTER, HANDLE GDB ERROR"));
-    emit adapterCrashed(m_engine->errorMessage(error));
 }
 
 void PlainGdbAdapter::startInferior()
@@ -159,74 +148,6 @@ void PlainGdbAdapter::shutdown()
 {
     debugMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
     m_outputCollector.shutdown();
-    switch (state()) {
-    
-    case InferiorRunningRequested:
-    case InferiorRunning:
-    case InferiorStopping:
-    case InferiorStopped:
-        setState(InferiorShuttingDown);
-        m_engine->postCommand(_("kill"), CB(handleKill));
-        return;
-
-    case InferiorShuttingDown:
-        // FIXME: How can we end up here?
-        QTC_ASSERT(false, qDebug() << state());
-        // Fall through.
-
-    case InferiorShutDown:
-        setState(AdapterShuttingDown);
-        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
-        return;
-
-/*
-    case InferiorShutdownFailed:
-        m_gdbProc.terminate();
-        // 20s can easily happen when loading webkit debug information
-        m_gdbProc.waitForFinished(20000);
-        setState(AdapterShuttingDown);
-        debugMessage(_("FORCING TERMINATION: %1").arg(state()));
-        if (state() != QProcess::NotRunning) {
-            debugMessage(_("PROBLEM STOPPING DEBUGGER: STATE %1")
-                .arg(state()));
-            m_gdbProc.kill();
-        }
-        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
-        return;
-*/
-    default:
-        QTC_ASSERT(false, qDebug() << state());
-    }
-}
-
-void PlainGdbAdapter::handleKill(const GdbResponse &response)
-{
-    debugMessage(_("PLAIN ADAPTER HANDLE KILL " + response.toString()));
-    if (response.resultClass == GdbResultDone) {
-        setState(InferiorShutDown);
-        emit inferiorShutDown();
-        shutdown(); // re-iterate...
-    } else {
-        const QString msg = msgInferiorStopFailed(__(response.data.findChild("msg").data()));
-        setState(InferiorShutdownFailed);
-        emit inferiorShutdownFailed(msg);
-    }
-}
-
-void PlainGdbAdapter::handleExit(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        // don't set state here, this will be handled in handleGdbFinished()
-    } else {
-        const QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
-        emit adapterShutdownFailed(msg);
-    }
-}
-
-void PlainGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
-{
-    debugMessage(_("GDB PROCESS FINISHED"));
-    emit adapterShutDown();
 }
 
 } // namespace Internal

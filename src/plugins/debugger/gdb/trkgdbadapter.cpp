@@ -204,10 +204,6 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
 #endif
     m_gdbServerName = _("127.0.0.1:%1").arg(2222 + portOffset);
 
-    commonInit();
-    connect(&m_gdbProc, SIGNAL(stateChanged(QProcess::ProcessState)),
-        this, SLOT(handleGdbStateChanged(QProcess::ProcessState)));
-
     connect(&m_rfcommProc, SIGNAL(readyReadStandardError()),
         this, SLOT(handleRfcommReadyReadStandardError()));
     connect(&m_rfcommProc, SIGNAL(readyReadStandardOutput()),
@@ -380,17 +376,6 @@ QByteArray TrkGdbAdapter::trkInterruptMessage()
     return ba;
 }
 
-void TrkGdbAdapter::emitDelayedAdapterStartFailed(const QString &msg)
-{
-    m_adapterFailMessage = msg;
-    QTimer::singleShot(0, this, SLOT(slotEmitDelayedAdapterStartFailed()));
-}
-
-void TrkGdbAdapter::slotEmitDelayedAdapterStartFailed()
-{
-    emit adapterStartFailed(m_adapterFailMessage, TrkOptionsPage::settingsId());
-}
-
 void TrkGdbAdapter::emitDelayedInferiorStartFailed(const QString &msg)
 {
     m_adapterFailMessage = msg;
@@ -437,7 +422,7 @@ void TrkGdbAdapter::waitForTrkConnect()
     //    "10 " + formatString("C:\\data\\usingdlls.sisx")); // Open File
     //sendTrkMessage(0x4B, 0, "00 00 00 01 73 1C 3A C8"); // Close File
 
-    maybeAdapterStarted();
+    emit adapterStarted();
 }
 
 void TrkGdbAdapter::logMessage(const QString &msg)
@@ -1527,50 +1512,6 @@ void TrkGdbAdapter::interruptInferior()
     sendTrkMessage(0x1a, TrkCallback(), trkInterruptMessage(), "Interrupting...");
 }
 
-void TrkGdbAdapter::handleGdbError(QProcess::ProcessError error)
-{
-    if (error == QProcess::FailedToStart) {
-        const QString msg = QString::fromLatin1("GDB: Cannot start '%1': %2. Please check the settings.").arg(m_options->gdb).arg(m_gdbProc.errorString());
-        emitDelayedAdapterStartFailed(msg); // Emitted from QProcess::start() on Windows
-    } else {
-        // Others should trigger handleGdbFinished
-        const QString msg = QString::fromLatin1("GDB: Process error %1: %2").arg(error).arg(m_gdbProc.errorString());
-        logMessage(msg);
-    }
-}
-
-void TrkGdbAdapter::handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus)
-{
-    const QString msg = exitStatus == QProcess::NormalExit ?
-                        QString::fromLatin1("GDB: Process finished (exit code: %1).").arg(exitCode) :
-                        QString::fromLatin1("GDB: Process crashed: %1").arg(m_gdbProc.errorString());
-    if (state() == AdapterStarting) {
-        emitDelayedAdapterStartFailed(msg);// Potentially emitted from QProcess::start() on Windows
-    } else {
-        logMessage(msg);
-        emit adapterShutDown();
-    }
-}
-
-void TrkGdbAdapter::handleGdbStarted()
-{
-    logMessage(QString("GDB: Process Started"));
-    maybeAdapterStarted();
-}
-
-void TrkGdbAdapter::maybeAdapterStarted()
-{
-    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
-    if (m_gdbProc.state() == QProcess::Running && m_trkDevice.isOpen()) {
-        emit adapterStarted();
-    }
-}
-
-void TrkGdbAdapter::handleGdbStateChanged(QProcess::ProcessState newState)
-{
-    logMessage(_("GDB: Process State %1").arg(newState));
-}
-
 void TrkGdbAdapter::startAdapter()
 {
     // Retrieve parameters
@@ -1632,13 +1573,12 @@ void TrkGdbAdapter::startAdapter()
     connect(m_gdbServer, SIGNAL(newConnection()),
         this, SLOT(handleGdbConnection()));
 
-    logMessage("STARTING GDB");
-    logMessage(_("### Starting gdb %1").arg(m_options->gdb));
     QStringList gdbArgs;
     gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
-    gdbArgs.append(QLatin1String("-i"));
-    gdbArgs.append(QLatin1String("mi"));
-    m_gdbProc.start(m_options->gdb, gdbArgs);
+    if (!m_engine->startGdb(gdbArgs, m_options->gdb)) {
+        cleanup();
+        return;
+    }
 
     waitForTrkConnect();
 }
@@ -1792,7 +1732,7 @@ void TrkGdbAdapter::write(const QByteArray &data)
            trkReadMemoryMessage(m_session.dataseg, 12));
         return;
     }
-    m_gdbProc.write(data);
+    m_engine->m_gdbProc.write(data);
 }
 
 uint oldPC;
@@ -1990,79 +1930,7 @@ void TrkGdbAdapter::cleanup()
 
 void TrkGdbAdapter::shutdown()
 {
-    switch (state()) {
-    case AdapterStarting:
-    case AdapterStartFailed:
-        cleanup();
-        setState(DebuggerNotReady);
-        return;
-
-    case InferiorStopping:
-    case InferiorRunningRequested:
-    case InferiorRunning:
-        //sendTrkMessage(0x1a, TrkCallback(), trkInterruptMessage(), "Interrupting...");
-        // Fall through.
-
-    case InferiorStopped:
-        //sendTrkMessage(0x41, TrkCallback(), trkDeleteProcessMessage(), "Delete process"); 
-        //sendTrkMessage(0x02, TrkCB(handleDisconnect));
-        setState(InferiorShuttingDown);
-        m_engine->postCommand(_("kill"), CB(handleKill));
-        return;
-
-    case InferiorShutDown:
-        setState(AdapterShuttingDown);
-        cleanup();
-        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
-        return;
-
-/*
-    if (m_options->mode == TrkOptions::BlueTooth
-            && m_rfcommProc.state() == QProcess::Running)
-        m_rfcommProc.kill();
-    m_rfcommProc.terminate();
-    m_rfcommProc.write(ba);
-    m_rfcommProc.terminate();
-    m_rfcommProc.waitForFinished();
-
-    m_gdbProc.kill();
-    m_gdbProc.terminate();
-
-    QByteArray ba;
-    ba.append(0x03);
-    QProcess proc;
-    proc.start("rfcomm release " + m_options->blueToothDevice);
-    proc.waitForFinished();
-    m_gdbProc.waitForFinished(msecs);
-*/
-
-    default:
-        QTC_ASSERT(false, qDebug() << state());
-    }
-}
-
-void TrkGdbAdapter::handleKill(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        setState(InferiorShutDown);
-        emit inferiorShutDown();
-        shutdown(); // re-iterate...
-    } else {
-        const QString msg = msgInferiorStopFailed(__(response.data.findChild("msg").data()));
-        setState(InferiorShutdownFailed);
-        emit inferiorShutdownFailed(msg);
-    }
-}
-
-void TrkGdbAdapter::handleExit(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        qDebug() << "EXITED, NO MESSAGE...";
-        // don't set state here, this will be handled in handleGdbFinished()
-    } else {
-        const QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
-        emit adapterShutdownFailed(msg);
-    }
+    cleanup();
 }
 
 } // namespace Internal

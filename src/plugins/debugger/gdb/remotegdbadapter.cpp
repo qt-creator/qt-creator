@@ -54,8 +54,6 @@ namespace Internal {
 RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, QObject *parent)
     : AbstractGdbAdapter(engine, parent)
 {
-    commonInit();
-
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(uploadProcError(QProcess::ProcessError)));
     connect(&m_uploadProc, SIGNAL(readyReadStandardOutput()),
@@ -70,12 +68,6 @@ void RemoteGdbAdapter::startAdapter()
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
 
-    QStringList gdbArgs;
-    gdbArgs.prepend(_("mi"));
-    gdbArgs.prepend(_("-i"));
-
-    QString location = theDebuggerStringSetting(GdbLocation);
-
     // FIXME: make asynchroneous
     // Start the remote server
     if (startParameters().serverStartScript.isEmpty()) {
@@ -86,21 +78,11 @@ void RemoteGdbAdapter::startAdapter()
         m_uploadProc.waitForStarted();
     }
 
-    // Start the debugger
-    m_gdbProc.start(location, gdbArgs);
-}
+    if (!m_engine->startGdb())
+        // FIXME: cleanup missing
+        return;
 
-void RemoteGdbAdapter::handleGdbStarted()
-{
-    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
     emit adapterStarted();
-}
-
-void RemoteGdbAdapter::handleGdbError(QProcess::ProcessError error)
-{
-    debugMessage(_("ADAPTER, HANDLE GDB ERROR"));
-    emit adapterCrashed(m_engine->errorMessage(error));
-    shutdown();
 }
 
 void RemoteGdbAdapter::uploadProcError(QProcess::ProcessError error)
@@ -232,55 +214,7 @@ void RemoteGdbAdapter::interruptInferior()
 
 void RemoteGdbAdapter::shutdown()
 {
-    switch (state()) {
-
-    case InferiorRunning:
-    case InferiorStopped:
-        setState(InferiorShuttingDown);
-        m_engine->postCommand(_("kill"), CB(handleKill));
-        return;
-    
-    default:
-        QTC_ASSERT(false, qDebug() << state());
-        // fall through
-
-    case InferiorStartFailed:
-    case InferiorShutDown:
-        setState(AdapterShuttingDown);
-        m_engine->postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleExit));
-        return;
-
-    }
-}
-
-void RemoteGdbAdapter::handleKill(const GdbResponse &response)
-{
-    QTC_ASSERT(state() == InferiorShuttingDown, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
-        setState(InferiorShutDown);
-        emit inferiorShutDown();
-        shutdown(); // re-iterate...
-    } else {
-        QString msg = msgInferiorStopFailed(__(response.data.findChild("msg").data()));
-        setState(InferiorShutdownFailed);
-        emit inferiorShutdownFailed(msg);
-    }
-}
-
-void RemoteGdbAdapter::handleExit(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        // don't set state here, this will be handled in handleGdbFinished()
-    } else {
-        QString msg = msgGdbStopFailed(__(response.data.findChild("msg").data()));
-        emit adapterShutdownFailed(msg);
-    }
-}
-
-void RemoteGdbAdapter::handleGdbFinished(int, QProcess::ExitStatus)
-{
-    debugMessage(_("GDB PROESS FINISHED"));
-    emit adapterShutDown();
+    // FIXME: cleanup missing
 }
 
 } // namespace Internal

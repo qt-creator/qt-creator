@@ -125,7 +125,11 @@ private: ////////// Gdb Process Management //////////
 
     AbstractGdbAdapter *createAdapter(const DebuggerStartParametersPtr &dp);
     void connectAdapter();
+    bool startGdb(const QStringList &args = QStringList(), const QString &gdb = QString());
     void startInferior();
+
+    void handleInferiorShutdown(const GdbResponse &response);
+    void handleGdbExit(const GdbResponse &response);
 
     void gdbInputAvailable(int channel, const QString &msg)
     { m_manager->showDebuggerInput(channel, msg); }
@@ -133,6 +137,8 @@ private: ////////// Gdb Process Management //////////
     { m_manager->showDebuggerOutput(channel, msg); }
 
 private slots:
+    void handleGdbFinished(int, QProcess::ExitStatus status);
+    void handleGdbError(QProcess::ProcessError error);
     void readGdbStandardOutput();
     void readGdbStandardError();
     void readDebugeeOutput(const QByteArray &data);
@@ -141,12 +147,8 @@ private slots:
     void handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint = QString());
 
     void handleInferiorStartFailed(const QString &msg);
-    void handleInferiorShutDown();
-    void handleInferiorShutdownFailed(const QString &msg);
 
     void handleAdapterCrashed(const QString &msg);
-    void handleAdapterShutDown();
-    void handleAdapterShutdownFailed(const QString &msg);
 
 private:
     QTextCodec *m_outputCodec;
@@ -154,6 +156,7 @@ private:
 
     QByteArray m_inbuffer;
 
+    QProcess m_gdbProc;
     AbstractGdbAdapter *m_gdbAdapter;
 
 private: ////////// Gdb Command Management //////////

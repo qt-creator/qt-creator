@@ -57,16 +57,10 @@ public:
     void startAdapter();
     void startInferior();
     void interruptInferior();
-    void shutdown();
+    const char *inferiorShutdownCommand() const { return "detach"; }
 
 private:
     void handleAttach(const GdbResponse &response);
-    void handleDetach(const GdbResponse &response);
-    void handleExit(const GdbResponse &response);
-
-    Q_SLOT void handleGdbStarted();
-    Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
-    Q_SLOT void handleGdbError(QProcess::ProcessError error);
 };
 
 } // namespace Internal

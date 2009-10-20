@@ -285,7 +285,7 @@ private:
 
     void cleanupViews();
 
-    void setState(DebuggerState state);
+    void setState(DebuggerState state, bool forced = false);
 
     //
     // internal implementation

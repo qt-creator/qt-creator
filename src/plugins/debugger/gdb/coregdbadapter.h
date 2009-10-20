@@ -57,18 +57,12 @@ public:
     void startAdapter();
     void startInferior();
     void interruptInferior();
-    void shutdown();
 
 private:
     void handleTargetCore1(const GdbResponse &response);
     void handleDetach1(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleTargetCore2(const GdbResponse &response);
-    void handleExit(const GdbResponse &response);
-
-    Q_SLOT void handleGdbStarted();
-    Q_SLOT void handleGdbError(QProcess::ProcessError error);
-    Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
 
     QString m_executable;
 };
