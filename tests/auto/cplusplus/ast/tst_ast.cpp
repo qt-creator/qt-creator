@@ -62,8 +62,10 @@ private slots:
     void function_call_1();
     void function_call_2();
     void function_call_3();
+    void function_call_4();
     void nested_deref_expression();
     void assignment_1();
+    void assignment_2();
 
     // objc++
     void objc_attributes_followed_by_at_keyword();
@@ -215,7 +217,15 @@ void tst_AST::function_call_2()
 
 void tst_AST::function_call_3()
 {
-    QSharedPointer<TranslationUnit> unit(parseStatement("(*blah) = 10;"));
+    QSharedPointer<TranslationUnit> unit(parseStatement("advance();"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    QVERIFY(ast->asExpressionStatement());
+}
+
+void tst_AST::function_call_4()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("checkPropertyAttribute(attrAst, propAttrs, ReadWrite);"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
@@ -232,6 +242,14 @@ void tst_AST::nested_deref_expression()
 void tst_AST::assignment_1()
 {
     QSharedPointer<TranslationUnit> unit(parseStatement("a(x) = 3;"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    QVERIFY(ast->asExpressionStatement());
+}
+
+void tst_AST::assignment_2()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("(*blah) = 10;"));
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
     QVERIFY(ast->asExpressionStatement());
