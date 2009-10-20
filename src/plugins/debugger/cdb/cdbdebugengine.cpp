@@ -824,7 +824,7 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
 void CdbDebugEngine::processTerminated(unsigned long exitCode)
 {
     manager()->showDebuggerOutput(LogMisc, tr("The process exited with exit code %1.").arg(exitCode));
-    if (m_engine->state() != InferiorStopping)
+    if (state() != InferiorStopping)
         setState(InferiorStopping, Q_FUNC_INFO, __LINE__);
     setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
     setState(InferiorShuttingDown, Q_FUNC_INFO, __LINE__);
