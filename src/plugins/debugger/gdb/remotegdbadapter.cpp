@@ -90,10 +90,7 @@ void RemoteGdbAdapter::uploadProcError(QProcess::ProcessError error)
     QString msg;
     switch (error) {
         case QProcess::FailedToStart:
-            msg = tr("The upload process failed to start. Either the "
-                "invoked script '%1' is missing, or you may have insufficient "
-                "permissions to invoke the program.")
-                .arg(theDebuggerStringSetting(GdbLocation));
+            msg = tr("The upload process failed to start. Shell missing?");
             break;
         case QProcess::Crashed:
             msg = tr("The upload process crashed some time after starting "
