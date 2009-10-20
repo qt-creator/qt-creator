@@ -1936,11 +1936,7 @@ void GdbEngine::handleBreakInsert(const GdbResponse &response)
         const BreakpointData *data = handler->at(index);
         // Note that it is perfectly correct that the file name is put
         // in quotes but not escaped. GDB simply is like that.
-#if defined(Q_OS_WIN)
-        QFileInfo fi(data->fileName);
-        QString where = _c('"') + fi.fileName() + _("\":")
-            + data->lineNumber;
-#elif defined(Q_OS_MAC)
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
         QFileInfo fi(data->fileName);
         QString where = _c('"') + fi.fileName() + _("\":")
             + data->lineNumber;
