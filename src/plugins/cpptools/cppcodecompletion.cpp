@@ -562,63 +562,63 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     const QChar ch3 = pos >  1 ? editor->characterAt(pos - 3) : QChar();
 
     int start = pos;
-    int k = T_EOF_SYMBOL;
+    int completionKind = T_EOF_SYMBOL;
 
     switch (ch.toLatin1()) {
     case '.':
         if (ch2 != QLatin1Char('.')) {
-            k = T_DOT;
+            completionKind = T_DOT;
             --start;
         }
         break;
     case ',':
-        k = T_COMMA;
+        completionKind = T_COMMA;
         --start;
         break;
     case '(':
         if (wantFunctionCall) {
-            k = T_LPAREN;
+            completionKind = T_LPAREN;
             --start;
         }
         break;
     case ':':
         if (ch3 != QLatin1Char(':') && ch2 == QLatin1Char(':')) {
-            k = T_COLON_COLON;
+            completionKind = T_COLON_COLON;
             start -= 2;
         }
         break;
     case '>':
         if (ch2 == QLatin1Char('-')) {
-            k = T_ARROW;
+            completionKind = T_ARROW;
             start -= 2;
         }
         break;
     case '*':
         if (ch2 == QLatin1Char('.')) {
-            k = T_DOT_STAR;
+            completionKind = T_DOT_STAR;
             start -= 2;
         } else if (ch3 == QLatin1Char('-') && ch2 == QLatin1Char('>')) {
-            k = T_ARROW_STAR;
+            completionKind = T_ARROW_STAR;
             start -= 3;
         }
         break;
     case '\\':
     case '@':
         if (ch2.isNull() || ch2.isSpace()) {
-            k = T_DOXY_COMMENT;
+            completionKind = T_DOXY_COMMENT;
             --start;
         }
         break;
     case '<':
-        k = T_ANGLE_STRING_LITERAL;
+        completionKind = T_ANGLE_STRING_LITERAL;
         --start;
         break;
     case '"':
-        k = T_STRING_LITERAL;
+        completionKind = T_STRING_LITERAL;
         --start;
         break;
     case '/':
-        k = T_SLASH;
+        completionKind = T_SLASH;
         --start;
         break;
     }
@@ -631,20 +631,20 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     tc.setPosition(pos);
 
     // Include completion: make sure the quote character is the first one on the line
-    if (k == T_STRING_LITERAL) {
+    if (completionKind == T_STRING_LITERAL) {
         QTextCursor s = tc;
         s.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
         QString sel = s.selectedText();
         if (sel.indexOf(QLatin1Char('"')) < sel.length() - 1) {
-            k = T_EOF_SYMBOL;
+            completionKind = T_EOF_SYMBOL;
             start = pos;
         }
     }
 
-    if (k == T_COMMA) {
+    if (completionKind == T_COMMA) {
         ExpressionUnderCursor expressionUnderCursor;
         if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
-            k = T_EOF_SYMBOL;
+            completionKind = T_EOF_SYMBOL;
             start = pos;
         }
     }
@@ -652,24 +652,24 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     static CPlusPlus::TokenUnderCursor tokenUnderCursor;
     const SimpleToken tk = tokenUnderCursor(tc);
 
-    if (k == T_DOXY_COMMENT && tk.isNot(T_DOXY_COMMENT)) {
-        k = T_EOF_SYMBOL;
+    if (completionKind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
+        completionKind = T_EOF_SYMBOL;
         start = pos;
     }
     // Don't complete in comments or strings, but still check for include completion
-    else if (tk.is(T_COMMENT) || (tk.isLiteral() &&
-                                  (k != T_STRING_LITERAL
-                                   && k != T_ANGLE_STRING_LITERAL
-                                   && k != T_SLASH))) {
-        k = T_EOF_SYMBOL;
+    else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT) ||
+             (tk.isLiteral() && (completionKind != T_STRING_LITERAL
+                                 && completionKind != T_ANGLE_STRING_LITERAL
+                                 && completionKind != T_SLASH))) {
+        completionKind = T_EOF_SYMBOL;
         start = pos;
     }
     // Include completion: can be triggered by slash, but only in a string
-    else if (k == T_SLASH && (tk.isNot(T_STRING_LITERAL) && tk.isNot(T_ANGLE_STRING_LITERAL))) {
-        k = T_EOF_SYMBOL;
+    else if (completionKind == T_SLASH && (tk.isNot(T_STRING_LITERAL) && tk.isNot(T_ANGLE_STRING_LITERAL))) {
+        completionKind = T_EOF_SYMBOL;
         start = pos;
     }
-    else if (k == T_LPAREN) {
+    else if (completionKind == T_LPAREN) {
         const QList<SimpleToken> &tokens = tokenUnderCursor.tokens();
         int i = 0;
         for (; i < tokens.size(); ++i) {
@@ -685,12 +685,12 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         }
 
         if (i == tokens.size()) {
-            k = T_EOF_SYMBOL;
+            completionKind = T_EOF_SYMBOL;
             start = pos;
         }
     }
     // Check for include preprocessor directive
-    else if (k == T_STRING_LITERAL || k == T_ANGLE_STRING_LITERAL || k == T_SLASH) {
+    else if (completionKind == T_STRING_LITERAL || completionKind == T_ANGLE_STRING_LITERAL || completionKind == T_SLASH) {
         bool include = false;
         const QList<SimpleToken> &tokens = tokenUnderCursor.tokens();
         if (tokens.size() >= 3) {
@@ -706,13 +706,13 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         }
 
         if (!include) {
-            k = T_EOF_SYMBOL;
+            completionKind = T_EOF_SYMBOL;
             start = pos;
         }
     }
 
     if (kind)
-        *kind = k;
+        *kind = completionKind;
 
     return start;
 }
