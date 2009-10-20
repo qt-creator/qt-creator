@@ -1999,44 +1999,6 @@ bool Parser::parseReturnStatement(StatementAST *&node)
     return false;
 }
 
-bool Parser::maybeFunctionCall(SimpleDeclarationAST *simpleDecl) const
-{
-    if (! simpleDecl)
-        return false;
-    else if (! simpleDecl->decl_specifier_seq)
-        return false;
-    else if (simpleDecl->decl_specifier_seq->next)
-        return false;
-
-    NamedTypeSpecifierAST *type_spec = simpleDecl->decl_specifier_seq->asNamedTypeSpecifier();
-    if (! type_spec)
-        return false;
-
-    DeclaratorListAST *first_declarator = simpleDecl->declarators;
-    if (! first_declarator)
-        return false;
-    else if (first_declarator->next)
-        return false;
-
-    DeclaratorAST *declarator = first_declarator->declarator;
-    if (! declarator)
-        return false;
-    else if (declarator->ptr_operators)
-        return false;
-    else if (declarator->postfix_declarators)
-        return false;
-    else if (declarator->initializer)
-        return false;
-    else if (! declarator->core_declarator)
-        return false;
-
-    NestedDeclaratorAST *nested_declarator = declarator->core_declarator->asNestedDeclarator();
-    if (! nested_declarator)
-        return false;
-
-    return true;
-}
-
 bool Parser::maybeSimpleExpression(SimpleDeclarationAST *simpleDecl) const
 {
     if (! simpleDecl->declarators)  {
