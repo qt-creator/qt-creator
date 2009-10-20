@@ -30,21 +30,23 @@
 #include "trkgdbadapter.h"
 #include "trkoptions.h"
 #include "trkoptionspage.h"
+
 #include "debuggerstringutils.h"
 #ifndef STANDALONE_RUNNER
 #include "gdbengine.h"
-#endif
-#ifdef Q_OS_WIN
-#  include <windows.h>
-#else
-#  include <sys/types.h>
-#  include <unistd.h>
 #endif
 
 #include <utils/qtcassert.h>
 
 #include <QtCore/QTimer>
 #include <QtCore/QDir>
+
+#ifdef Q_OS_WIN
+#  include <windows.h>
+#else
+#  include <sys/types.h>
+#  include <unistd.h>
+#endif
 
 #define CB(callback) \
     static_cast<GdbEngine::AdapterCallback>(&TrkGdbAdapter::callback), \

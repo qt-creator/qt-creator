@@ -31,11 +31,8 @@
 #define DEBUGGER_PLAINGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
-#include "gdbengine.h"
-#include "outputcollector.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QProcess>
+#include <outputcollector.h>
 
 namespace Debugger {
 namespace Internal {

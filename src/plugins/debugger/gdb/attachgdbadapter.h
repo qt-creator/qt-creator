@@ -31,10 +31,6 @@
 #define DEBUGGER_ATTACHGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
-#include "gdbengine.h"
-
-#include <QtCore/QDebug>
-#include <QtCore/QProcess>
 
 namespace Debugger {
 namespace Internal {

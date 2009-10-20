@@ -28,8 +28,8 @@
 **************************************************************************/
 
 #include "remotegdbadapter.h"
+
 #include "debuggerstringutils.h"
-#include "debuggeractions.h"
 #include "gdbengine.h"
 
 #include <utils/qtcassert.h>

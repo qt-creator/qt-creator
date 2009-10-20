@@ -29,7 +29,6 @@
 
 #include "attachgdbadapter.h"
 
-#include "debuggeractions.h"
 #include "gdbengine.h"
 #include "procinterrupt.h"
 #include "debuggerstringutils.h"

@@ -31,7 +31,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QObject>
 #include <QtCore/QProcess>
 
 namespace Debugger {

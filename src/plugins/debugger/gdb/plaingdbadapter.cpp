@@ -29,18 +29,13 @@
 
 #include "plaingdbadapter.h"
 
-#include "debuggeractions.h"
 #include "gdbengine.h"
 #include "procinterrupt.h"
 #include "debuggerstringutils.h"
 
 #include <utils/qtcassert.h>
-#include <utils/fancymainwindow.h>
-#include <coreplugin/icore.h>
 
 #include <QtCore/QFileInfo>
-#include <QtCore/QVariant>
-#include <QtGui/QMessageBox>
 
 namespace Debugger {
 namespace Internal {

@@ -30,10 +30,11 @@
 #ifndef DEBUGGER_TRKGDBADAPTER_H
 #define DEBUGGER_TRKGDBADAPTER_H
 
+#include "abstractgdbadapter.h"
+
 #include "trkutils.h"
 #include "trkdevice.h"
 #include "trkoptions.h"
-#include "abstractgdbadapter.h"
 
 #include <QtCore/QHash>
 #include <QtCore/QPointer>
