@@ -150,6 +150,7 @@ bool Launcher::startServer(QString *errorMessage)
     if (!d->m_device.open(d->m_trkServerName, errorMessage))
         return false;
     d->m_device.sendTrkInitialPing();
+    d->m_device.sendTrkMessage(TrkDisconnect); // Disconnect, as trk might be still connected
     d->m_device.sendTrkMessage(TrkSupported, TrkCallback(this, &Launcher::handleSupportMask));
     d->m_device.sendTrkMessage(TrkCpuType, TrkCallback(this, &Launcher::handleCpuType));
     d->m_device.sendTrkMessage(TrkVersions, TrkCallback(this, &Launcher::handleTrkVersion));

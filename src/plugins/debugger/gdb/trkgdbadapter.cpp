@@ -413,6 +413,7 @@ void TrkGdbAdapter::waitForTrkConnect()
     }
 
     m_trkDevice.sendTrkInitialPing();
+    sendTrkMessage(0x02); // Disconnect, as trk might be still connected
     sendTrkMessage(0x01); // Connect
     sendTrkMessage(0x05, TrkCB(handleSupportMask));
     sendTrkMessage(0x06, TrkCB(handleCpuType));
