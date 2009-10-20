@@ -89,16 +89,7 @@ public:
         : control(control),
           translationUnit(0),
           diagnosticClient(0)
-    {
-        objcGetterId = control->findOrInsertIdentifier("getter");
-        objcSetterId = control->findOrInsertIdentifier("setter");
-        objcReadwriteId = control->findOrInsertIdentifier("readwrite");
-        objcReadonlyId = control->findOrInsertIdentifier("readonly");
-        objcAssignId = control->findOrInsertIdentifier("assign");
-        objcRetainId = control->findOrInsertIdentifier("retain");
-        objcCopyId = control->findOrInsertIdentifier("copy");
-        objcNonatomicId = control->findOrInsertIdentifier("nonatomic");
-    }
+    {}
 
     ~Data()
     {
@@ -599,7 +590,18 @@ public:
 };
 
 Control::Control()
-{ d = new Data(this); }
+{
+    d = new Data(this);
+
+    d->objcGetterId = findOrInsertIdentifier("getter");
+    d->objcSetterId = findOrInsertIdentifier("setter");
+    d->objcReadwriteId = findOrInsertIdentifier("readwrite");
+    d->objcReadonlyId = findOrInsertIdentifier("readonly");
+    d->objcAssignId = findOrInsertIdentifier("assign");
+    d->objcRetainId = findOrInsertIdentifier("retain");
+    d->objcCopyId = findOrInsertIdentifier("copy");
+    d->objcNonatomicId = findOrInsertIdentifier("nonatomic");
+}
 
 Control::~Control()
 { delete d; }
