@@ -1576,7 +1576,7 @@ static bool isAllowedTransition(int from, int to)
         return to == EngineShuttingDown;
 
     case InferiorRunningRequested:
-        return to == InferiorRunning;
+        return to == InferiorRunning || to == InferiorStopped;
     case InferiorRunning:
         return to == InferiorStopping;
 
