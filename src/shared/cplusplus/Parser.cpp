@@ -55,9 +55,37 @@
 #include "ObjectiveCTypeQualifiers.h"
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <cassert>
 
 using namespace CPlusPlus;
+
+#define CPLUSPLUS_NO_DEBUG_RULE
+
+namespace {
+
+class DebugRule {
+    const char *name;
+    static int depth;
+
+public:
+    DebugRule(const char *name)
+        : name(name)
+    { std::cout << std::string(depth++, ' ') << name << std::endl; }
+
+    ~DebugRule()
+    { --depth; }
+};
+
+int DebugRule::depth = 0;
+
+} // end of anonymous namespace
+
+#ifndef CPLUSPLUS_NO_DEBUG_RULE
+#  define DEBUG_THIS_RULE() DebugRule __debug_rule__(__func__)
+#else
+#  define DEBUG_THIS_RULE() do {} while (0)
+#endif
 
 Parser::Parser(TranslationUnit *unit)
     : _translationUnit(unit),
@@ -246,6 +274,7 @@ void Parser::match(int kind, unsigned *token)
 
 bool Parser::parseClassOrNamespaceName(NameAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_IDENTIFIER) {
         unsigned identifier_token = cursor();
 
@@ -271,6 +300,7 @@ bool Parser::parseClassOrNamespaceName(NameAST *&node)
 
 bool Parser::parseTemplateId(NameAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_IDENTIFIER && LA(2) == T_LESS) {
         TemplateIdAST *ast = new (_pool) TemplateIdAST;
         ast->identifier_token = consumeToken();
@@ -290,6 +320,7 @@ bool Parser::parseTemplateId(NameAST *&node)
 bool Parser::parseNestedNameSpecifier(NestedNameSpecifierAST *&node,
                                       bool /*acceptTemplateId*/)
 {
+    DEBUG_THIS_RULE();
     NestedNameSpecifierAST **nested_name_specifier = &node;
     NameAST *class_or_namespace_name = 0;
     if (parseClassOrNamespaceName(class_or_namespace_name) &&
@@ -323,6 +354,7 @@ bool Parser::parseNestedNameSpecifier(NestedNameSpecifierAST *&node,
 bool Parser::parseNestedNameSpecifierOpt(NestedNameSpecifierAST *&name,
         bool acceptTemplateId)
 {
+    DEBUG_THIS_RULE();
     unsigned start = cursor();
     if (! parseNestedNameSpecifier(name, acceptTemplateId))
         rewind(start);
@@ -331,6 +363,7 @@ bool Parser::parseNestedNameSpecifierOpt(NestedNameSpecifierAST *&name,
 
 bool Parser::parseName(NameAST *&node, bool acceptTemplateId)
 {
+    DEBUG_THIS_RULE();
     unsigned global_scope_token = 0;
     if (LA() == T_COLON_COLON)
         global_scope_token = consumeToken();
@@ -360,6 +393,7 @@ bool Parser::parseName(NameAST *&node, bool acceptTemplateId)
 
 bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
 {
+    DEBUG_THIS_RULE();
     TranslationUnitAST *ast = new (_pool) TranslationUnitAST;
     DeclarationListAST **decl = &ast->declarations;
 
@@ -384,6 +418,7 @@ bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
 
 bool Parser::parseEmptyDeclaration(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_SEMICOLON) {
         EmptyDeclarationAST *ast = new (_pool) EmptyDeclarationAST;
         ast->semicolon_token = consumeToken();
@@ -395,6 +430,7 @@ bool Parser::parseEmptyDeclaration(DeclarationAST *&node)
 
 bool Parser::parseDeclaration(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     switch (LA()) {
     case T_SEMICOLON:
         return parseEmptyDeclaration(node);
@@ -461,6 +497,7 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
 
 bool Parser::parseLinkageSpecification(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_EXTERN && LA(2) == T_STRING_LITERAL) {
         LinkageSpecificationAST *ast = new (_pool) LinkageSpecificationAST;
         ast->extern_token = consumeToken();
@@ -480,6 +517,7 @@ bool Parser::parseLinkageSpecification(DeclarationAST *&node)
 
 bool Parser::parseLinkageBody(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_LBRACE) {
         LinkageBodyAST *ast = new (_pool) LinkageBodyAST;
         ast->lbrace_token = consumeToken();
@@ -510,6 +548,7 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
 // ### rename parseNamespaceAliarOrDeclaration?
 bool Parser::parseNamespace(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_NAMESPACE)
         return false;
 
@@ -544,6 +583,7 @@ bool Parser::parseNamespace(DeclarationAST *&node)
 
 bool Parser::parseUsing(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_USING)
         return false;
 
@@ -564,6 +604,7 @@ bool Parser::parseUsing(DeclarationAST *&node)
 
 bool Parser::parseUsingDirective(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_USING && LA(2) == T_NAMESPACE) {
         UsingDirectiveAST *ast = new (_pool) UsingDirectiveAST;
         ast->using_token = consumeToken();
@@ -580,6 +621,7 @@ bool Parser::parseUsingDirective(DeclarationAST *&node)
 
 bool Parser::parseConversionFunctionId(NameAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_OPERATOR)
         return false;
     unsigned operator_token = consumeToken();
@@ -601,6 +643,7 @@ bool Parser::parseConversionFunctionId(NameAST *&node)
 
 bool Parser::parseOperatorFunctionId(NameAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_OPERATOR)
         return false;
     unsigned operator_token = consumeToken();
@@ -618,6 +661,7 @@ bool Parser::parseOperatorFunctionId(NameAST *&node)
 
 bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
 {
+    DEBUG_THIS_RULE();
     TemplateArgumentListAST **template_argument_ptr = &node;
     ExpressionAST *template_argument = 0;
     if (parseTemplateArgument(template_argument)) {
@@ -641,6 +685,7 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
 
 bool Parser::parseAsmDefinition(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_ASM)
         return false;
 
@@ -682,6 +727,7 @@ bool Parser::parseAsmDefinition(DeclarationAST *&node)
 
 bool Parser::parseAsmOperandList()
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_STRING_LITERAL)
         return true;
 
@@ -698,6 +744,7 @@ bool Parser::parseAsmOperandList()
 
 bool Parser::parseAsmOperand()
 {
+    DEBUG_THIS_RULE();
     unsigned string_literal_token = 0;
     match(T_STRING_LITERAL, &string_literal_token);
 
@@ -718,6 +765,7 @@ bool Parser::parseAsmOperand()
 
 bool Parser::parseAsmClobberList()
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_STRING_LITERAL)
         return false;
 
@@ -733,6 +781,7 @@ bool Parser::parseAsmClobberList()
 
 bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! (LA(1) == T_TEMPLATE || ((LA(1) == T_EXPORT || LA(1) == T_EXTERN)
             && LA(2) == T_TEMPLATE)))
         return false;
@@ -757,6 +806,7 @@ bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
 
 bool Parser::parseOperator(OperatorAST *&node) // ### FIXME
 {
+    DEBUG_THIS_RULE();
     OperatorAST *ast = new (_pool) OperatorAST;
 
     switch (LA()) {
@@ -828,6 +878,7 @@ bool Parser::parseOperator(OperatorAST *&node) // ### FIXME
 
 bool Parser::parseCvQualifiers(SpecifierAST *&node)
 {
+    DEBUG_THIS_RULE();
     unsigned start = cursor();
     SpecifierAST **ast = &node;
     while (*ast)
@@ -852,6 +903,7 @@ bool Parser::parseCvQualifiers(SpecifierAST *&node)
 
 bool Parser::parsePtrOperator(PtrOperatorAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_AMPER) {
         ReferenceAST *ast = new (_pool) ReferenceAST;
         ast->amp_token = consumeToken();
@@ -889,6 +941,7 @@ bool Parser::parsePtrOperator(PtrOperatorAST *&node)
 
 bool Parser::parseTemplateArgument(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     unsigned start = cursor();
     if (parseTypeId(node) && (LA() == T_COMMA || LA() == T_GREATER))
         return true;
@@ -904,6 +957,7 @@ bool Parser::parseDeclSpecifierSeq(SpecifierAST *&decl_specifier_seq,
                                    bool onlyTypeSpecifiers,
                                    bool simplified)
 {
+    DEBUG_THIS_RULE();
     bool has_type_specifier = false;
     NameAST *named_type_specifier = 0;
     SpecifierAST **decl_specifier_seq_ptr = &decl_specifier_seq;
@@ -951,6 +1005,7 @@ bool Parser::parseDeclSpecifierSeq(SpecifierAST *&decl_specifier_seq,
 
 bool Parser::parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node)
 {
+    DEBUG_THIS_RULE();
     unsigned start = cursor();
     bool blocked = blockErrors(true);
     if (parseDeclarator(node)) {
@@ -964,6 +1019,7 @@ bool Parser::parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node)
 
 bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
 {
+    DEBUG_THIS_RULE();
     unsigned start = cursor();
     SpecifierAST *attributes = 0;
     SpecifierAST **attribute_ptr = &attributes;
@@ -1013,6 +1069,7 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
 
 bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
 {
+    DEBUG_THIS_RULE();
     if (! parseCoreDeclarator(node))
         return false;
 
@@ -1099,6 +1156,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
 
 bool Parser::parseAbstractCoreDeclarator(DeclaratorAST *&node)
 {
+    DEBUG_THIS_RULE();
     PtrOperatorAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
     while (parsePtrOperator(*ptr_operators_tail))
         ptr_operators_tail = &(*ptr_operators_tail)->next;
@@ -1133,6 +1191,7 @@ bool Parser::parseAbstractCoreDeclarator(DeclaratorAST *&node)
 
 bool Parser::parseAbstractDeclarator(DeclaratorAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseAbstractCoreDeclarator(node))
         return false;
 
@@ -1176,6 +1235,7 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node)
 
 bool Parser::parseEnumSpecifier(SpecifierAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_ENUM) {
         unsigned enum_token = consumeToken();
         NameAST *name = 0;
@@ -1214,6 +1274,7 @@ bool Parser::parseEnumSpecifier(SpecifierAST *&node)
 
 bool Parser::parseTemplateParameterList(DeclarationListAST *&node)
 {
+    DEBUG_THIS_RULE();
     DeclarationListAST **template_parameter_ptr = &node;
     DeclarationAST *declaration = 0;
     if (parseTemplateParameter(declaration)) {
@@ -1238,6 +1299,7 @@ bool Parser::parseTemplateParameterList(DeclarationListAST *&node)
 
 bool Parser::parseTemplateParameter(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (parseTypeParameter(node))
         return true;
     bool previousTemplateArguments = switchTemplateArguments(true);
@@ -1248,6 +1310,7 @@ bool Parser::parseTemplateParameter(DeclarationAST *&node)
 
 bool Parser::parseTypenameTypeParameter(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_CLASS || LA() == T_TYPENAME) {
         TypenameTypeParameterAST *ast = new (_pool) TypenameTypeParameterAST;
         ast->classkey_token = consumeToken();
@@ -1264,6 +1327,7 @@ bool Parser::parseTypenameTypeParameter(DeclarationAST *&node)
 
 bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_TEMPLATE) {
         TemplateTypeParameterAST *ast = new (_pool) TemplateTypeParameterAST;
         ast->template_token = consumeToken();
@@ -1290,6 +1354,7 @@ bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
 
 bool Parser::parseTypeParameter(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_CLASS || LA() == T_TYPENAME)
         return parseTypenameTypeParameter(node);
     else if (LA() == T_TEMPLATE)
@@ -1300,6 +1365,7 @@ bool Parser::parseTypeParameter(DeclarationAST *&node)
 
 bool Parser::parseTypeId(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     SpecifierAST *type_specifier = 0;
     if (parseTypeSpecifier(type_specifier)) {
         TypeIdAST *ast = new (_pool) TypeIdAST;
@@ -1313,6 +1379,7 @@ bool Parser::parseTypeId(ExpressionAST *&node)
 
 bool Parser::parseParameterDeclarationClause(ParameterDeclarationClauseAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_RPAREN)
         return true; // nothing to do
 
@@ -1344,6 +1411,7 @@ bool Parser::parseParameterDeclarationClause(ParameterDeclarationClauseAST *&nod
 
 bool Parser::parseParameterDeclarationList(DeclarationListAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_DOT_DOT_DOT || (LA() == T_COMMA && LA(2) == T_DOT_DOT_DOT))
         return false; // nothing to do.
 
@@ -1373,6 +1441,7 @@ bool Parser::parseParameterDeclarationList(DeclarationListAST *&node)
 
 bool Parser::parseParameterDeclaration(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     SpecifierAST *decl_specifier_seq = 0;
     if (parseDeclSpecifierSeq(decl_specifier_seq)) {
         ParameterDeclarationAST *ast = new (_pool) ParameterDeclarationAST;
@@ -1391,6 +1460,7 @@ bool Parser::parseParameterDeclaration(DeclarationAST *&node)
 
 bool Parser::parseClassSpecifier(SpecifierAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! lookAtClassKey())
         return false;
 
@@ -1474,6 +1544,7 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
 
 bool Parser::parseAccessSpecifier(SpecifierAST *&node)
 {
+    DEBUG_THIS_RULE();
     switch (LA()) {
     case T_PUBLIC:
     case T_PROTECTED:
@@ -1491,6 +1562,7 @@ bool Parser::parseAccessSpecifier(SpecifierAST *&node)
 
 bool Parser::parseAccessDeclaration(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_PUBLIC || LA() == T_PROTECTED || LA() == T_PRIVATE || LA() == T_Q_SIGNALS) {
         bool isSignals = LA() == T_Q_SIGNALS;
         AccessDeclarationAST *ast = new (_pool) AccessDeclarationAST;
@@ -1506,6 +1578,7 @@ bool Parser::parseAccessDeclaration(DeclarationAST *&node)
 
 bool Parser::parseMemberSpecification(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     switch (LA()) {
     case T_SEMICOLON:
         return parseEmptyDeclaration(node);
@@ -1529,6 +1602,7 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node)
 
 bool Parser::parseCtorInitializer(CtorInitializerAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_COLON) {
         unsigned colon_token = consumeToken();
 
@@ -1544,6 +1618,7 @@ bool Parser::parseCtorInitializer(CtorInitializerAST *&node)
 
 bool Parser::parseElaboratedTypeSpecifier(SpecifierAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (lookAtClassKey() || LA() == T_ENUM || LA() == T_TYPENAME) {
         unsigned classkey_token = consumeToken();
         NameAST *name = 0;
@@ -1562,6 +1637,7 @@ bool Parser::parseElaboratedTypeSpecifier(SpecifierAST *&node)
 
 bool Parser::parseExceptionSpecification(ExceptionSpecificationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_THROW) {
         ExceptionSpecificationAST *ast = new (_pool) ExceptionSpecificationAST;
         ast->throw_token = consumeToken();
@@ -1581,6 +1657,7 @@ bool Parser::parseExceptionSpecification(ExceptionSpecificationAST *&node)
 
 bool Parser::parseEnumerator(EnumeratorAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_IDENTIFIER) {
         EnumeratorAST *ast = new (_pool) EnumeratorAST;
         ast->identifier_token = consumeToken();
@@ -1598,6 +1675,7 @@ bool Parser::parseEnumerator(EnumeratorAST *&node)
 bool Parser::parseInitDeclarator(DeclaratorAST *&node,
         bool acceptStructDeclarator)
 {
+    DEBUG_THIS_RULE();
     unsigned start = cursor();
 
     if (acceptStructDeclarator && LA() == T_COLON) {
@@ -1641,6 +1719,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node,
 
 bool Parser::parseBaseClause(BaseSpecifierAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_COLON) {
         consumeToken();
 
@@ -1665,6 +1744,7 @@ bool Parser::parseBaseClause(BaseSpecifierAST *&node)
 
 bool Parser::parseInitializer(ExpressionAST *&node, unsigned *equals_token)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_LPAREN) {
         return parsePrimaryExpression(node);
     } else if (LA() == T_EQUAL) {
@@ -1676,6 +1756,7 @@ bool Parser::parseInitializer(ExpressionAST *&node, unsigned *equals_token)
 
 bool Parser::parseMemInitializerList(MemInitializerAST *&node)
 {
+    DEBUG_THIS_RULE();
     MemInitializerAST **initializer = &node;
 
     if (parseMemInitializer(*initializer)) {
@@ -1695,6 +1776,7 @@ bool Parser::parseMemInitializerList(MemInitializerAST *&node)
 
 bool Parser::parseMemInitializer(MemInitializerAST *&node)
 {
+    DEBUG_THIS_RULE();
     NameAST *name = 0;
     if (parseName(name) && LA() == T_LPAREN) {
         MemInitializerAST *ast = new (_pool) MemInitializerAST;
@@ -1711,6 +1793,7 @@ bool Parser::parseMemInitializer(MemInitializerAST *&node)
 
 bool Parser::parseTypeIdList(ExpressionListAST *&node)
 {
+    DEBUG_THIS_RULE();
     ExpressionListAST **expression_list_ptr = &node;
     ExpressionAST *typeId = 0;
     if (parseTypeId(typeId)) {
@@ -1734,6 +1817,7 @@ bool Parser::parseTypeIdList(ExpressionListAST *&node)
 
 bool Parser::parseExpressionList(ExpressionListAST *&node)
 {
+    DEBUG_THIS_RULE();
     ExpressionListAST **expression_list_ptr = &node;
     ExpressionAST *expression = 0;
     if (parseAssignmentExpression(expression)) {
@@ -1757,6 +1841,7 @@ bool Parser::parseExpressionList(ExpressionListAST *&node)
 
 bool Parser::parseBaseSpecifier(BaseSpecifierAST *&node)
 {
+    DEBUG_THIS_RULE();
     BaseSpecifierAST *ast = new (_pool) BaseSpecifierAST;
 
     if (LA() == T_VIRTUAL) {
@@ -1783,6 +1868,7 @@ bool Parser::parseBaseSpecifier(BaseSpecifierAST *&node)
 
 bool Parser::parseInitializerList(ExpressionListAST *&node)
 {
+    DEBUG_THIS_RULE();
     ExpressionListAST **initializer_ptr = &node;
     ExpressionAST *initializer = 0;
     if (parseInitializerClause(initializer)) {
@@ -1804,6 +1890,7 @@ bool Parser::parseInitializerList(ExpressionListAST *&node)
 
 bool Parser::parseInitializerClause(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_LBRACE) {
         ArrayInitializerAST *ast = new (_pool) ArrayInitializerAST;
         ast->lbrace_token = consumeToken();
@@ -1817,6 +1904,7 @@ bool Parser::parseInitializerClause(ExpressionAST *&node)
 
 bool Parser::parseUnqualifiedName(NameAST *&node, bool acceptTemplateId)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_TILDE && LA(2) == T_IDENTIFIER) {
         DestructorNameAST *ast = new (_pool) DestructorNameAST;
         ast->tilde_token = consumeToken();
@@ -1853,6 +1941,7 @@ bool Parser::parseUnqualifiedName(NameAST *&node, bool acceptTemplateId)
 
 bool Parser::parseStringLiteral(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! (LA() == T_STRING_LITERAL || LA() == T_WIDE_STRING_LITERAL))
         return false;
 
@@ -1868,6 +1957,7 @@ bool Parser::parseStringLiteral(ExpressionAST *&node)
 
 bool Parser::parseExpressionStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     ExpressionAST *expression = 0;
     if (LA() == T_SEMICOLON || parseExpression(expression)) {
         ExpressionStatementAST *ast = new (_pool) ExpressionStatementAST;
@@ -1881,6 +1971,7 @@ bool Parser::parseExpressionStatement(StatementAST *&node)
 
 bool Parser::parseStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     switch (LA()) {
     case T_WHILE:
         return parseWhileStatement(node);
@@ -1951,6 +2042,7 @@ bool Parser::parseStatement(StatementAST *&node)
 
 bool Parser::parseBreakStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_BREAK) {
         BreakStatementAST *ast = new (_pool) BreakStatementAST;
         ast->break_token = consumeToken();
@@ -1963,6 +2055,7 @@ bool Parser::parseBreakStatement(StatementAST *&node)
 
 bool Parser::parseContinueStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_CONTINUE) {
         ContinueStatementAST *ast = new (_pool) ContinueStatementAST;
         ast->continue_token = consumeToken();
@@ -1975,6 +2068,7 @@ bool Parser::parseContinueStatement(StatementAST *&node)
 
 bool Parser::parseGotoStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_GOTO) {
         GotoStatementAST *ast = new (_pool) GotoStatementAST;
         ast->goto_token = consumeToken();
@@ -1988,6 +2082,7 @@ bool Parser::parseGotoStatement(StatementAST *&node)
 
 bool Parser::parseReturnStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_RETURN) {
         ReturnStatementAST *ast = new (_pool) ReturnStatementAST;
         ast->return_token = consumeToken();
@@ -2058,6 +2153,7 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast) const
 
 bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_SEMICOLON)
         return parseExpressionStatement(node);
 
@@ -2099,6 +2195,7 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
 
 bool Parser::parseCondition(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     unsigned start = cursor();
 
     bool blocked = blockErrors(true);
@@ -2124,6 +2221,7 @@ bool Parser::parseCondition(ExpressionAST *&node)
 
 bool Parser::parseWhileStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_WHILE) {
         WhileStatementAST *ast = new (_pool) WhileStatementAST;
         ast->while_token = consumeToken();
@@ -2139,6 +2237,7 @@ bool Parser::parseWhileStatement(StatementAST *&node)
 
 bool Parser::parseDoStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_DO) {
         DoStatementAST *ast = new (_pool) DoStatementAST;
         ast->do_token = consumeToken();
@@ -2156,6 +2255,7 @@ bool Parser::parseDoStatement(StatementAST *&node)
 
 bool Parser::parseForeachStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_Q_FOREACH) {
         ForeachStatementAST *ast = new (_pool) ForeachStatementAST;
         ast->foreach_token = consumeToken();
@@ -2191,6 +2291,7 @@ bool Parser::parseForeachStatement(StatementAST *&node)
 
 bool Parser::parseForStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_FOR)
         return false;
 
@@ -2261,11 +2362,13 @@ bool Parser::parseForStatement(StatementAST *&node)
 
 bool Parser::parseForInitStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     return parseExpressionOrDeclarationStatement(node);
 }
 
 bool Parser::parseCompoundStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_LBRACE) {
         CompoundStatementAST *ast = new (_pool) CompoundStatementAST;
         ast->lbrace_token = consumeToken();
@@ -2294,6 +2397,7 @@ bool Parser::parseCompoundStatement(StatementAST *&node)
 
 bool Parser::parseIfStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_IF) {
         IfStatementAST *ast = new (_pool) IfStatementAST;
         ast->if_token = consumeToken();
@@ -2315,6 +2419,7 @@ bool Parser::parseIfStatement(StatementAST *&node)
 
 bool Parser::parseSwitchStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_SWITCH) {
         SwitchStatementAST *ast = new (_pool) SwitchStatementAST;
         ast->switch_token = consumeToken();
@@ -2330,6 +2435,7 @@ bool Parser::parseSwitchStatement(StatementAST *&node)
 
 bool Parser::parseLabeledStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     switch (LA()) {
     case T_IDENTIFIER:
         if (LA(2) == T_COLON) {
@@ -2369,6 +2475,7 @@ bool Parser::parseLabeledStatement(StatementAST *&node)
 
 bool Parser::parseBlockDeclaration(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     switch (LA()) {
     case T_USING:
         return parseUsing(node);
@@ -2387,6 +2494,7 @@ bool Parser::parseBlockDeclaration(DeclarationAST *&node)
 
 bool Parser::parseNamespaceAliasDefinition(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_NAMESPACE && LA(2) == T_IDENTIFIER && LA(3) == T_EQUAL) {
         NamespaceAliasDefinitionAST *ast = new (_pool) NamespaceAliasDefinitionAST;
         ast->namespace_token = consumeToken();
@@ -2402,6 +2510,7 @@ bool Parser::parseNamespaceAliasDefinition(DeclarationAST *&node)
 
 bool Parser::parseDeclarationStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     unsigned start = cursor();
     DeclarationAST *declaration = 0;
     if (! parseBlockDeclaration(declaration))
@@ -2497,6 +2606,7 @@ bool Parser::lookAtClassKey() const
 
 bool Parser::parseAttributeSpecifier(SpecifierAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T___ATTRIBUTE__)
         return false;
 
@@ -2513,6 +2623,7 @@ bool Parser::parseAttributeSpecifier(SpecifierAST *&node)
 
 bool Parser::parseAttributeList(AttributeAST *&node)
 {
+    DEBUG_THIS_RULE();
     AttributeAST **attribute_ptr = &node;
     while (LA() == T_IDENTIFIER || LA() == T_CONST) {
         AttributeAST *ast = new (_pool) AttributeAST;
@@ -2543,6 +2654,7 @@ bool Parser::parseAttributeList(AttributeAST *&node)
 
 bool Parser::parseBuiltinTypeSpecifier(SpecifierAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T___ATTRIBUTE__) {
         return parseAttributeSpecifier(node);
     } else if (LA() == T___TYPEOF__) {
@@ -2573,6 +2685,7 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierAST *&node)
 bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
                                     bool acceptStructDeclarator)
 {
+    DEBUG_THIS_RULE();
     unsigned qt_invokable_token = 0;
     if (acceptStructDeclarator && (LA() == T_Q_SIGNAL || LA() == T_Q_SLOT))
         qt_invokable_token = consumeToken();
@@ -2750,6 +2863,7 @@ bool Parser::maybeForwardOrClassDeclaration(SpecifierAST *decl_specifier_seq) co
 
 bool Parser::parseFunctionBody(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (_translationUnit->skipFunctionBody()) {
         unsigned token_lbrace = 0;
         match(T_LBRACE, &token_lbrace);
@@ -2772,6 +2886,7 @@ bool Parser::parseFunctionBody(StatementAST *&node)
 
 bool Parser::parseTryBlockStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_TRY) {
         TryBlockStatementAST *ast = new (_pool) TryBlockStatementAST;
         ast->try_token = consumeToken();
@@ -2787,6 +2902,7 @@ bool Parser::parseTryBlockStatement(StatementAST *&node)
 
 bool Parser::parseCatchClause(CatchClauseAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_CATCH) {
         CatchClauseAST *ast = new (_pool) CatchClauseAST;
         ast->catch_token = consumeToken();
@@ -2802,6 +2918,7 @@ bool Parser::parseCatchClause(CatchClauseAST *&node)
 
 bool Parser::parseExceptionDeclaration(ExceptionDeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_DOT_DOT_DOT) {
         ExceptionDeclarationAST *ast = new (_pool) ExceptionDeclarationAST;
         ast->dot_dot_dot_token = consumeToken();
@@ -2822,6 +2939,7 @@ bool Parser::parseExceptionDeclaration(ExceptionDeclarationAST *&node)
 
 bool Parser::parseBoolLiteral(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_TRUE || LA() == T_FALSE) {
         BoolLiteralAST *ast = new (_pool) BoolLiteralAST;
         ast->literal_token = consumeToken();
@@ -2833,6 +2951,7 @@ bool Parser::parseBoolLiteral(ExpressionAST *&node)
 
 bool Parser::parseNumericLiteral(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_NUMERIC_LITERAL  ||
         LA() == T_CHAR_LITERAL     ||
         LA() == T_WIDE_CHAR_LITERAL) {
@@ -2846,6 +2965,7 @@ bool Parser::parseNumericLiteral(ExpressionAST *&node)
 
 bool Parser::parseThisExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_THIS) {
         ThisExpressionAST *ast = new (_pool) ThisExpressionAST;
         ast->this_token = consumeToken();
@@ -2857,6 +2977,7 @@ bool Parser::parseThisExpression(ExpressionAST *&node)
 
 bool Parser::parsePrimaryExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     switch (LA()) {
     case T_STRING_LITERAL:
     case T_WIDE_STRING_LITERAL:
@@ -2904,6 +3025,7 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
 
 bool Parser::parseObjCExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     switch (LA()) {
     case T_AT_ENCODE:
         return parseObjCEncodeExpression(node);
@@ -2928,6 +3050,7 @@ bool Parser::parseObjCExpression(ExpressionAST *&node)
 
 bool Parser::parseObjCStringLiteral(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_AT_STRING_LITERAL)
         return false;
 
@@ -2943,6 +3066,7 @@ bool Parser::parseObjCStringLiteral(ExpressionAST *&node)
 
 bool Parser::parseObjCSynchronizedStatement(StatementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_AT_SYNCHRONIZED)
         return false;
 
@@ -2960,6 +3084,7 @@ bool Parser::parseObjCSynchronizedStatement(StatementAST *&node)
 
 bool Parser::parseObjCEncodeExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_AT_ENCODE)
         return false;
 
@@ -2972,6 +3097,7 @@ bool Parser::parseObjCEncodeExpression(ExpressionAST *&node)
 
 bool Parser::parseObjCProtocolExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_AT_PROTOCOL)
         return false;
 
@@ -2986,6 +3112,7 @@ bool Parser::parseObjCProtocolExpression(ExpressionAST *&node)
 
 bool Parser::parseObjCSelectorExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_AT_SELECTOR)
         return false;
 
@@ -3024,6 +3151,7 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&node)
 
 bool Parser::parseObjCMessageExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_LBRACKET)
         return false;
 
@@ -3055,11 +3183,13 @@ bool Parser::parseObjCMessageExpression(ExpressionAST *&node)
 
 bool Parser::parseObjCMessageReceiver(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     return parseExpression(node);
 }
 
 bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArgumentListAST *& argNode)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_RBRACKET)
         return false; // nothing to do.
 
@@ -3123,6 +3253,7 @@ bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArg
 
 bool Parser::parseObjCSelectorArg(ObjCSelectorArgumentAST *&selNode, ObjCMessageArgumentAST *&argNode)
 {
+    DEBUG_THIS_RULE();
     unsigned selector_token = 0;
     if (!parseObjCSelector(selector_token))
         return false;
@@ -3146,6 +3277,7 @@ bool Parser::parseObjCSelectorArg(ObjCSelectorArgumentAST *&selNode, ObjCMessage
 
 bool Parser::parseObjCMethodSignature()
 {
+    DEBUG_THIS_RULE();
     unsigned selector_token = 0;
     if (parseObjCSelector(selector_token)) {
         while (LA() == T_COMMA) {
@@ -3159,6 +3291,7 @@ bool Parser::parseObjCMethodSignature()
 
 bool Parser::parseNameId(NameAST *&name)
 {
+    DEBUG_THIS_RULE();
     unsigned start = cursor();
     if (! parseName(name))
         return false;
@@ -3209,6 +3342,7 @@ bool Parser::parseNameId(NameAST *&name)
 
 bool Parser::parseNestedExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_LPAREN) {
         unsigned lparen_token = consumeToken();
 
@@ -3243,6 +3377,7 @@ bool Parser::parseNestedExpression(ExpressionAST *&node)
 
 bool Parser::parseCppCastExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_DYNAMIC_CAST     || LA() == T_STATIC_CAST ||
         LA() == T_REINTERPRET_CAST || LA() == T_CONST_CAST) {
         CppCastExpressionAST *ast = new (_pool) CppCastExpressionAST;
@@ -3263,6 +3398,7 @@ bool Parser::parseCppCastExpression(ExpressionAST *&node)
 // typename ::opt  nested-name-specifier templateopt  template-id ( expression-listopt )
 bool Parser::parseTypenameCallExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_TYPENAME) {
         unsigned typename_token = consumeToken();
         NameAST *name = 0;
@@ -3284,6 +3420,7 @@ bool Parser::parseTypenameCallExpression(ExpressionAST *&node)
 // typeid ( type-id )
 bool Parser::parseTypeidExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_TYPEID) {
         TypeidExpressionAST *ast = new (_pool) TypeidExpressionAST;
         ast->typeid_token = consumeToken();
@@ -3303,6 +3440,7 @@ bool Parser::parseTypeidExpression(ExpressionAST *&node)
 
 bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (parseCppCastExpression(node))
         return true;
     else if (parseTypenameCallExpression(node))
@@ -3361,6 +3499,7 @@ bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
 
 bool Parser::parsePostfixExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (parseCorePostfixExpression(node)) {
         PostfixAST *postfix_expressions = 0,
             **postfix_ptr = &postfix_expressions;
@@ -3410,6 +3549,7 @@ bool Parser::parsePostfixExpression(ExpressionAST *&node)
 
 bool Parser::parseUnaryExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     switch (LA()) {
     case T_PLUS_PLUS:
     case T_MINUS_MINUS:
@@ -3474,6 +3614,7 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
 // new-placement ::= T_LPAREN expression-list T_RPAREN
 bool Parser::parseNewPlacement(NewPlacementAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_LPAREN) {
         unsigned lparen_token = consumeToken();
         ExpressionListAST *expression_list = 0;
@@ -3497,6 +3638,7 @@ bool Parser::parseNewPlacement(NewPlacementAST *&node)
 //                    T_LPAREN type-id T_RPAREN new-initializer.opt
 bool Parser::parseNewExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! (LA() == T_NEW || (LA() == T_COLON_COLON && LA(2) == T_NEW)))
         return false;
 
@@ -3560,6 +3702,7 @@ bool Parser::parseNewExpression(ExpressionAST *&node)
 
 bool Parser::parseNewTypeId(NewTypeIdAST *&node)
 {
+    DEBUG_THIS_RULE();
     SpecifierAST *typeSpec = 0;
     if (! parseTypeSpecifier(typeSpec))
         return false;
@@ -3579,6 +3722,7 @@ bool Parser::parseNewTypeId(NewTypeIdAST *&node)
 
 bool Parser::parseNewArrayDeclarator(NewArrayDeclaratorAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_LBRACKET)
         return false;
 
@@ -3592,6 +3736,7 @@ bool Parser::parseNewArrayDeclarator(NewArrayDeclaratorAST *&node)
 
 bool Parser::parseNewInitializer(NewInitializerAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_LPAREN) {
         unsigned lparen_token = consumeToken();
         ExpressionAST *expression = 0;
@@ -3609,6 +3754,7 @@ bool Parser::parseNewInitializer(NewInitializerAST *&node)
 
 bool Parser::parseDeleteExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_DELETE || (LA() == T_COLON_COLON && LA(2) == T_DELETE)) {
         DeleteExpressionAST *ast = new (_pool) DeleteExpressionAST;
 
@@ -3631,6 +3777,7 @@ bool Parser::parseDeleteExpression(ExpressionAST *&node)
 
 bool Parser::parseCastExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_LPAREN) {
         unsigned lparen_token = consumeToken();
         ExpressionAST *type_id = 0;
@@ -3654,6 +3801,7 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
 
 bool Parser::parsePmExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseCastExpression(node))
         return false;
 
@@ -3675,6 +3823,7 @@ bool Parser::parsePmExpression(ExpressionAST *&node)
 
 bool Parser::parseMultiplicativeExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parsePmExpression(node))
         return false;
 
@@ -3696,6 +3845,7 @@ bool Parser::parseMultiplicativeExpression(ExpressionAST *&node)
 
 bool Parser::parseAdditiveExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseMultiplicativeExpression(node))
         return false;
 
@@ -3717,6 +3867,7 @@ bool Parser::parseAdditiveExpression(ExpressionAST *&node)
 
 bool Parser::parseShiftExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseAdditiveExpression(node))
         return false;
 
@@ -3738,6 +3889,7 @@ bool Parser::parseShiftExpression(ExpressionAST *&node)
 
 bool Parser::parseRelationalExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseShiftExpression(node))
         return false;
 
@@ -3760,6 +3912,7 @@ bool Parser::parseRelationalExpression(ExpressionAST *&node)
 
 bool Parser::parseEqualityExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseRelationalExpression(node))
         return false;
 
@@ -3781,6 +3934,7 @@ bool Parser::parseEqualityExpression(ExpressionAST *&node)
 
 bool Parser::parseAndExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseEqualityExpression(node))
         return false;
 
@@ -3802,6 +3956,7 @@ bool Parser::parseAndExpression(ExpressionAST *&node)
 
 bool Parser::parseExclusiveOrExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseAndExpression(node))
         return false;
 
@@ -3823,6 +3978,7 @@ bool Parser::parseExclusiveOrExpression(ExpressionAST *&node)
 
 bool Parser::parseInclusiveOrExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseExclusiveOrExpression(node))
         return false;
 
@@ -3845,6 +4001,7 @@ bool Parser::parseInclusiveOrExpression(ExpressionAST *&node)
 
 bool Parser::parseLogicalAndExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseInclusiveOrExpression(node))
         return false;
 
@@ -3866,6 +4023,7 @@ bool Parser::parseLogicalAndExpression(ExpressionAST *&node)
 
 bool Parser::parseLogicalOrExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseLogicalAndExpression(node))
         return false;
 
@@ -3888,6 +4046,7 @@ bool Parser::parseLogicalOrExpression(ExpressionAST *&node)
 
 bool Parser::parseConditionalExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseLogicalOrExpression(node))
         return false;
 
@@ -3927,6 +4086,7 @@ bool Parser::lookAtAssignmentOperator() const
 
 bool Parser::parseAssignmentExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_THROW)
         return parseThrowExpression(node);
     else if (! parseConditionalExpression(node))
@@ -3951,6 +4111,7 @@ bool Parser::parseAssignmentExpression(ExpressionAST *&node)
 
 bool Parser::parseQtMethod(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_SIGNAL || LA() == T_SLOT) {
         QtMethodAST *ast = new (_pool) QtMethodAST;
         ast->method_token = consumeToken();
@@ -3967,16 +4128,19 @@ bool Parser::parseQtMethod(ExpressionAST *&node)
 
 bool Parser::parseConstantExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     return parseConditionalExpression(node);
 }
 
 bool Parser::parseExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     return parseCommaExpression(node);
 }
 
 bool Parser::parseCommaExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! parseAssignmentExpression(node))
         return false;
 
@@ -3998,6 +4162,7 @@ bool Parser::parseCommaExpression(ExpressionAST *&node)
 
 bool Parser::parseThrowExpression(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_THROW) {
         ThrowExpressionAST *ast = new (_pool) ThrowExpressionAST;
         ast->throw_token = consumeToken();
@@ -4037,6 +4202,7 @@ bool Parser::lookAtObjCSelector() const
 //
 bool Parser::parseObjCClassForwardDeclaration(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_AT_CLASS)
         return false;
 
@@ -4087,6 +4253,7 @@ bool Parser::parseObjCClassForwardDeclaration(DeclarationAST *&node)
 bool Parser::parseObjCInterface(DeclarationAST *&node,
                                 SpecifierAST *attributes)
 {
+    DEBUG_THIS_RULE();
     if (! attributes && LA() == T___ATTRIBUTE__) {
         SpecifierAST **attr = &attributes;
         while (parseAttributeSpecifier(*attr))
@@ -4176,6 +4343,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
 bool Parser::parseObjCProtocol(DeclarationAST *&node,
                                SpecifierAST *attributes)
 {
+    DEBUG_THIS_RULE();
     if (! attributes && LA() == T___ATTRIBUTE__) {
         SpecifierAST **attr = &attributes;
         while (parseAttributeSpecifier(*attr))
@@ -4248,6 +4416,7 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
 //
 bool Parser::parseObjCImplementation(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_AT_IMPLEMENTATION)
         return false;
 
@@ -4300,6 +4469,7 @@ bool Parser::parseObjCImplementation(DeclarationAST *&node)
 
 bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
 {
+    DEBUG_THIS_RULE();
     DeclarationListAST **next = &node;
 
     while (LA() && LA() != T_AT_END) {
@@ -4404,6 +4574,7 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
 
 bool Parser::parseObjCMethodDefinition(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     ObjCMethodPrototypeAST *method_prototype = 0;
     if (! parseObjCMethodPrototype(method_prototype))
         return false;
@@ -4429,6 +4600,7 @@ bool Parser::parseObjCMethodDefinition(DeclarationAST *&node)
 //
 bool Parser::parseObjCProtocolRefs(ObjCProtocolRefsAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_LESS)
         return false;
 
@@ -4467,6 +4639,7 @@ bool Parser::parseObjCProtocolRefs(ObjCProtocolRefsAST *&node)
 //
 bool Parser::parseObjClassInstanceVariables(ObjCInstanceVariablesDeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_LBRACE)
         return false;
 
@@ -4502,6 +4675,7 @@ bool Parser::parseObjClassInstanceVariables(ObjCInstanceVariablesDeclarationAST 
 // objc-interface-declaration ::= objc-method-prototype
 bool Parser::parseObjCInterfaceMemberDeclaration(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     switch (LA()) {
     case T_AT_END:
         return false;
@@ -4550,6 +4724,7 @@ bool Parser::parseObjCInterfaceMemberDeclaration(DeclarationAST *&node)
 //
 bool Parser::parseObjCInstanceVariableDeclaration(DeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     switch (LA()) {
         case T_AT_PRIVATE:
         case T_AT_PROTECTED:
@@ -4571,6 +4746,7 @@ bool Parser::parseObjCInstanceVariableDeclaration(DeclarationAST *&node)
 //
 bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *attributes)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_AT_PROPERTY)
         return false;
 
@@ -4617,6 +4793,7 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *a
 //
 bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_PLUS && LA() != T_MINUS)
         return false;
 
@@ -4688,6 +4865,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
 // objc-property-attribute ::= nonatomic
 bool Parser::parseObjCPropertyAttribute(ObjCPropertyAttributeAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_IDENTIFIER)
         return false;
 
@@ -4735,6 +4913,7 @@ bool Parser::parseObjCPropertyAttribute(ObjCPropertyAttributeAST *&node)
 //
 bool Parser::parseObjCTypeName(ObjCTypeNameAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_LPAREN)
         return false;
 
@@ -4751,6 +4930,7 @@ bool Parser::parseObjCTypeName(ObjCTypeNameAST *&node)
 //
 bool Parser::parseObjCSelector(unsigned &selector_token)
 {
+    DEBUG_THIS_RULE();
     if (! lookAtObjCSelector())
         return false;
 
@@ -4762,6 +4942,7 @@ bool Parser::parseObjCSelector(unsigned &selector_token)
 //
 bool Parser::parseObjCKeywordDeclaration(ObjCSelectorArgumentAST *&argument, ObjCMessageArgumentDeclarationAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (! (LA() == T_COLON || (lookAtObjCSelector() && LA(2) == T_COLON)))
         return false;
 
@@ -4784,6 +4965,7 @@ bool Parser::parseObjCKeywordDeclaration(ObjCSelectorArgumentAST *&argument, Obj
 
 bool Parser::parseObjCTypeQualifiers(unsigned &type_qualifier)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_IDENTIFIER)
         return false;
 
@@ -4807,6 +4989,8 @@ bool Parser::peekAtObjCContextKeyword(int kind)
 
 bool Parser::parseObjCContextKeyword(int kind, unsigned &in_token)
 {
+    DEBUG_THIS_RULE();
+
     if (peekAtObjCContextKeyword(kind)) {
         in_token = consumeToken();
         return true;
