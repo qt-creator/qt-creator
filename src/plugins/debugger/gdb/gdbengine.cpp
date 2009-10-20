@@ -1166,7 +1166,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
             reloadSourceFiles();
         postCommand(_("-break-list"), CB(handleBreakList));
         QVariant var = QVariant::fromValue<GdbMi>(data);
-        postCommand(_("p 0"), CB(handleStop2), var);  // dummy
+        postCommand(_("p 2"), CB(handleStop2), var);  // dummy
     } else {
 #ifdef Q_OS_LINUX
         // For some reason, attaching to a stopped process causes *two* stops
@@ -2992,7 +2992,7 @@ void GdbEngine::updateWatchData(const WatchData &data)
     if (isSynchroneous()) {
         // This should only be called for fresh expanded items, not for
         // items that had their children retrieved earlier.
-        qDebug() << "\nUPDATE WATCH DATA: " << data.toString() << "\n";
+        //qDebug() << "\nUPDATE WATCH DATA: " << data.toString() << "\n";
 #if 0
         WatchData data1 = data;
         data1.setAllUnneeded();
@@ -3234,7 +3234,7 @@ void GdbEngine::handleDebuggingHelperValue1(const GdbResponse &response)
                 && msg.startsWith(__("The program being debugged stopped while"))
                 && msg.contains(__("qDumpObjectData440"))) {
             // Fake full stop
-            postCommand(_("p 0"), CB(handleStop2));  // dummy
+            postCommand(_("p 3"), CB(handleStop2));  // dummy
             return;
         }
 #endif
@@ -3426,8 +3426,8 @@ void GdbEngine::updateLocals(const QVariant &cookie)
         postCommand(_("bb %1 %2")
                 .arg(int(theDebuggerBoolSetting(UseDebuggingHelpers)))
                 .arg(expanded.join(_(","))),
-            WatchUpdate, CB(handleStackFrame1));
-        postCommand(_("p 0"), WatchUpdate, CB(handleStackFrame2));
+            CB(handleStackFrame1));
+        postCommand(_("p 1"), CB(handleStackFrame2));
     } else {
         QString level = QString::number(currentFrame());
         // '2' is 'list with type and value'
@@ -3483,7 +3483,9 @@ void GdbEngine::handleStackFrame2(const GdbResponse &response)
         //    qDebug() << "READ: " << list.at(i).toString();
         manager()->watchHandler()->insertBulkData(list);
 
-        manager()->watchHandler()->updateWatchers();
+        // FIXME:
+        //manager()->watchHandler()->updateWatchers();
+        rebuildModel();
     } else {
         QTC_ASSERT(false, /**/);
     }
@@ -3563,7 +3565,7 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
 {
     // Local variables of inlined code are reported as
     // 26^done,locals={varobj={exp="this",value="",name="var4",exp="this",
-    // numchild="1",type="const QtSharedPointer::Basic<CPlusPlus::..."
+    // numchild="1",type="const QtSharedPointer::Basic<CPlusPlus::..."}}
     // We do not want these at all. Current hypotheses is that those
     // "spurious" locals have _two_ "exp" field. Try to filter them:
 #ifdef Q_OS_MAC

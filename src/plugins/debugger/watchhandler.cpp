@@ -608,9 +608,10 @@ void WatchModel::fetchMore(const QModelIndex &index)
     QTC_ASSERT(index.isValid(), return);
     QTC_ASSERT(!watchItem(index)->fetchTriggered, return);
     if (WatchItem *item = watchItem(index)) {
+        m_handler->m_expandedINames.insert(item->iname);
         item->fetchTriggered = true;
-        WatchData data = *item;
         if (item->children.isEmpty()) {
+            WatchData data = *item;
             data.setChildrenNeeded();
             m_handler->m_manager->updateWatchData(data);
         }
@@ -789,10 +790,13 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
 {
     WatchItem &data = *watchItem(index);
     if (role == ExpandedRole) {
-        if (value.toBool())
+        if (value.toBool()) {
+            // Should already have been triggered by fetchMore()
+            QTC_ASSERT(m_handler->m_expandedINames.contains(data.iname), /**/);
             m_handler->m_expandedINames.insert(data.iname);
-        else
+        } else {
             m_handler->m_expandedINames.remove(data.iname);
+        }
     } else if (role == TypeFormatRole) {
         m_handler->setFormat(data.type, value.toInt());
     } else if (role == IndividualFormatRole) {

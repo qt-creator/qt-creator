@@ -136,10 +136,10 @@ WatchWindow::WatchWindow(Type type, DebuggerManager *manager, QWidget *parent)
 
     connect(act, SIGNAL(toggled(bool)),
         this, SLOT(setAlternatingRowColorsHelper(bool)));
-    connect(this, SIGNAL(expanded(QModelIndex)), 
-        this, SLOT(expandNode(QModelIndex))); 
-    connect(this, SIGNAL(collapsed(QModelIndex)), 
-        this, SLOT(collapseNode(QModelIndex))); 
+    connect(this, SIGNAL(expanded(QModelIndex)),
+        this, SLOT(expandNode(QModelIndex)));
+    connect(this, SIGNAL(collapsed(QModelIndex)),
+        this, SLOT(collapseNode(QModelIndex)));
 } 
  
 void WatchWindow::expandNode(const QModelIndex &idx) 
