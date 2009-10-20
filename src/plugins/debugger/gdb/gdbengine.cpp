@@ -1616,7 +1616,8 @@ void GdbEngine::runToLineExec(const QString &fileName, int lineNumber)
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Run to line %1 requested...").arg(lineNumber), 5000);
-    postCommand(_("-exec-until %1:%2").arg(fileName).arg(lineNumber));
+    postCommand(_("-exec-until %1:%2").arg(fileName).arg(lineNumber),
+                RunRequest, CB(handleExecContinue));
 }
 
 void GdbEngine::runToFunctionExec(const QString &functionName)
@@ -2314,7 +2315,10 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
 
         // Immediately leave bogus frames.
         if (targetFrame == -1 && isBogus) {
-            postCommand(_("-exec-finish"));
+            setTokenBarrier();
+            setState(InferiorRunningRequested);
+            postCommand(_("-exec-finish"), RunRequest, CB(handleExecContinue));
+            showStatusMessage(tr("Jumping out of bogus frame..."), 1000);
             return;
         }
         #endif
