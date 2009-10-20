@@ -44,15 +44,17 @@ private slots:
     void gcc_attributes_1();
 
     // expressions
-    void simple_name();
-    void template_id();
+    void simple_name_1();
+    void template_id_1();
     void new_expression_1();
     void new_expression_2();
     void condition_1();
     void init_1();
 
     // statements
-    void if_statement();
+    void if_statement_1();
+    void if_statement_2();
+    void if_statement_3();
     void if_else_statement();
     void while_statement();
     void while_condition_statement();
@@ -99,7 +101,7 @@ void tst_AST::simple_declaration_1()
     QVERIFY(declStmt);
 }
 
-void tst_AST::simple_name()
+void tst_AST::simple_name_1()
 {
     QSharedPointer<TranslationUnit> unit(parseExpression("a"));
     AST *ast = unit->ast();
@@ -109,7 +111,7 @@ void tst_AST::simple_name()
     QCOMPARE(ast->asSimpleName()->identifier_token, 1U);
 }
 
-void tst_AST::template_id()
+void tst_AST::template_id_1()
 {
     QSharedPointer<TranslationUnit> unit(parseExpression("list<10>"));
     AST *ast = unit->ast();
@@ -255,7 +257,7 @@ void tst_AST::assignment_2()
     QVERIFY(ast->asExpressionStatement());
 }
 
-void tst_AST::if_statement()
+void tst_AST::if_statement_1()
 {
     QSharedPointer<TranslationUnit> unit(parseStatement("if (a) b;"));
 
@@ -281,6 +283,34 @@ void tst_AST::if_statement()
     SimpleNameAST *id_expr = then_stmt->expression->asSimpleName();
     QVERIFY(id_expr != 0);
     QCOMPARE(id_expr->identifier_token, 5U);
+}
+
+void tst_AST::if_statement_2()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("if (x<0 && y>a);"));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    IfStatementAST *stmt = ast->asIfStatement();
+    QVERIFY(stmt != 0);
+
+    QVERIFY(stmt->condition);
+    QVERIFY(stmt->condition->asBinaryExpression());
+    QCOMPARE(unit->tokenKind(stmt->condition->asBinaryExpression()->binary_op_token), int(T_AMPER_AMPER));
+}
+
+void tst_AST::if_statement_3()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("if (x<0 && x<0 && x<0 && x<0 && x<0 && x<0 && x<0);"));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    IfStatementAST *stmt = ast->asIfStatement();
+    QVERIFY(stmt != 0);
+
+    QVERIFY(stmt->condition);
 }
 
 void tst_AST::if_else_statement()
