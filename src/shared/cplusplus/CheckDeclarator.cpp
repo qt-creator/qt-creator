@@ -55,7 +55,7 @@
 #include "CoreTypes.h"
 #include "Symbols.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 CheckDeclarator::CheckDeclarator(Semantic *semantic)
     : SemanticCheck(semantic),
@@ -300,4 +300,4 @@ void CheckDeclarator::applyCvQualifiers(SpecifierAST *cv)
     }
 }
 
-CPLUSPLUS_END_NAMESPACE
+

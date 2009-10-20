@@ -51,8 +51,8 @@
 
 #include <CPlusPlusForwardDeclarations.h>
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class AST;
 class ASTVisitor;
@@ -203,7 +203,7 @@ class ObjCDynamicPropertiesDeclarationAST;
 class ObjCFastEnumerationAST;
 class ObjCSynchronizedStatementAST;
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_ASTFWD_H

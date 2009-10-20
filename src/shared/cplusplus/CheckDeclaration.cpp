@@ -57,9 +57,8 @@
 #include "Control.h"
 #include "Literals.h"
 #include <cassert>
-#include <QtCore/QByteArray>
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 CheckDeclaration::CheckDeclaration(Semantic *semantic)
     : SemanticCheck(semantic),
@@ -228,7 +227,6 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
         if (it->declarator && it->declarator->initializer) {
             FullySpecifiedType initTy = semantic()->check(it->declarator->initializer, _scope);
-            Q_UNUSED(initTy)
         }
 
         *decl_it = new (translationUnit()->memoryPool()) List<Declaration *>();
@@ -703,25 +701,25 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
             continue;
 
         const char *attrName = spell(attrAst->attribute_identifier_token);
-        if (!qstrcmp("getter", attrName)) {
+        if (!strcmp("getter", attrName)) {
             if (checkPropertyAttribute(attrAst, propAttrs, Getter)) {
                 // TODO: find method declaration for getter
             }
-        } else if (!qstrcmp("setter", attrName)) {
+        } else if (!strcmp("setter", attrName)) {
             if (checkPropertyAttribute(attrAst, propAttrs, Setter)) {
                 // TODO: find method declaration for setter
             }
-        } else if (!qstrcmp("readwrite", attrName)) {
+        } else if (!strcmp("readwrite", attrName)) {
             checkPropertyAttribute(attrAst, propAttrs, ReadWrite);
-        } else if (!qstrcmp("readonly", attrName)) {
+        } else if (!strcmp("readonly", attrName)) {
             checkPropertyAttribute(attrAst, propAttrs, ReadOnly);
-        } else if (!qstrcmp("assign", attrName)) {
+        } else if (!strcmp("assign", attrName)) {
             checkPropertyAttribute(attrAst, propAttrs, Assign);
-        } else if (!qstrcmp("retain", attrName)) {
+        } else if (!strcmp("retain", attrName)) {
             checkPropertyAttribute(attrAst, propAttrs, Retain);
-        } else if (!qstrcmp("copy", attrName)) {
+        } else if (!strcmp("copy", attrName)) {
             checkPropertyAttribute(attrAst, propAttrs, Copy);
-        } else if (!qstrcmp("nonatomic", attrName)) {
+        } else if (!strcmp("nonatomic", attrName)) {
             checkPropertyAttribute(attrAst, propAttrs, NonAtomic);
         }
     }
@@ -745,4 +743,4 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
     return false;
 }
 
-CPLUSPLUS_END_NAMESPACE
+

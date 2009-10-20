@@ -52,7 +52,7 @@
 #include <cstring>
 #include <algorithm>
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 QualifiedNameId::QualifiedNameId(Name *const names[],
                                  unsigned nameCount,
@@ -326,4 +326,4 @@ bool SelectorNameId::isEqualTo(const Name *other) const
     return true;
 }
 
-CPLUSPLUS_END_NAMESPACE
+

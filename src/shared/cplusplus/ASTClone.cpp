@@ -30,7 +30,7 @@
 #include "AST.h"
 #include "ASTVisitor.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 SimpleSpecifierAST *SimpleSpecifierAST::clone(MemoryPool *pool) const
 {
@@ -1516,4 +1516,4 @@ ObjCSynchronizedStatementAST *ObjCSynchronizedStatementAST::clone(MemoryPool *po
 }
 
 
-CPLUSPLUS_END_NAMESPACE
+

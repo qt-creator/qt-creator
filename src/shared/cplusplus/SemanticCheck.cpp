@@ -49,7 +49,7 @@
 #include "SemanticCheck.h"
 #include "Semantic.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 SemanticCheck::SemanticCheck(Semantic *semantic)
     : ASTVisitor(semantic->control()),
@@ -65,4 +65,4 @@ Semantic *SemanticCheck::semantic() const
 Control *SemanticCheck::control() const
 { return _semantic->control(); }
 
-CPLUSPLUS_END_NAMESPACE
+

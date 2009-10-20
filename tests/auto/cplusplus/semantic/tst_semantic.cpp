@@ -13,7 +13,7 @@
 #include <Literals.h>
 #include <DiagnosticClient.h>
 
-CPLUSPLUS_USE_NAMESPACE
+using namespace CPlusPlus;
 
 class tst_Semantic: public QObject
 {

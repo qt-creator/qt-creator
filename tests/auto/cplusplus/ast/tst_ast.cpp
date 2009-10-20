@@ -7,7 +7,7 @@
 #include <Parser.h>
 #include <AST.h>
 
-CPLUSPLUS_USE_NAMESPACE
+using namespace CPlusPlus;
 
 class tst_AST: public QObject
 {

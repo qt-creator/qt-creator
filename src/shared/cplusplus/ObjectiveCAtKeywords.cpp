@@ -1,7 +1,7 @@
 #include "Lexer.h"
 #include "Token.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 static inline int classify3(const char *s) {
   if (s[0] == 'e') {
@@ -461,4 +461,4 @@ int Lexer::classifyObjCAtKeyword(const char *s, int n) {
   } // switch
 }
 
-CPLUSPLUS_END_NAMESPACE
+

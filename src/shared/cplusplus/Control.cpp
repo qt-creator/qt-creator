@@ -57,7 +57,7 @@
 #include <map> // ### replace me with LiteralTable
 #include <string>
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 
 template <typename _Iterator>
@@ -766,4 +766,4 @@ ObjCForwardProtocolDeclaration *Control::newObjCForwardProtocolDeclaration(unsig
 ObjCMethod *Control::newObjCMethod(unsigned sourceLocation, Name *name)
 { return d->newObjCMethod(sourceLocation, name); }
 
-CPLUSPLUS_END_NAMESPACE
+

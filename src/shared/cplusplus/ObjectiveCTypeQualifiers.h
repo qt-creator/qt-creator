@@ -31,8 +31,8 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 enum {
   Token_in,
@@ -54,7 +54,7 @@ enum {
 
 CPLUSPLUS_EXPORT int classifyObjectiveCTypeQualifiers(const char *s, int n);
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_OBJC_TYPEQUALIFIERS_H

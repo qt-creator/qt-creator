@@ -55,7 +55,7 @@
 #include "Control.h"
 #include "Symbols.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 CheckStatement::CheckStatement(Semantic *semantic)
     : SemanticCheck(semantic),
@@ -307,4 +307,4 @@ bool CheckStatement::visit(WhileStatementAST *ast)
     return false;
 }
 
-CPLUSPLUS_END_NAMESPACE
+

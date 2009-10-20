@@ -53,7 +53,7 @@
 #include "Scope.h"
 #include <cstdlib>
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 TemplateParameters::TemplateParameters(Scope *scope)
     : _previous(0), _scope(scope)
@@ -819,4 +819,4 @@ void ObjCMethod::visitSymbol0(SymbolVisitor *visitor)
     }
 }
 
-CPLUSPLUS_END_NAMESPACE
+

@@ -52,8 +52,8 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "stdarg.h"
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT DiagnosticClient
 {
@@ -76,7 +76,7 @@ public:
                         const char *format, va_list ap) = 0;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_DIAGNOSTICCLIENT_H

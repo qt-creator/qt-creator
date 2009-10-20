@@ -50,7 +50,7 @@
 #include "Names.h"
 #include "NameVisitor.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 Name::Name()
 { }
@@ -93,4 +93,4 @@ void Name::accept(Name *name, NameVisitor *visitor)
     name->accept(visitor);
 }
 
-CPLUSPLUS_END_NAMESPACE
+

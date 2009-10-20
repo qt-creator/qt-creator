@@ -58,7 +58,7 @@
 #include "Control.h"
 #include "Scope.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 CheckSpecifier::CheckSpecifier(Semantic *semantic)
     : SemanticCheck(semantic),
@@ -420,4 +420,4 @@ bool CheckSpecifier::visit(ObjCTypeNameAST * /*ast*/)
     return true;
 }
 
-CPLUSPLUS_END_NAMESPACE
+

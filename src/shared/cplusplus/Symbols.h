@@ -55,8 +55,8 @@
 #include "FullySpecifiedType.h"
 #include "Array.h"
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class TemplateParameters
 {
@@ -729,7 +729,7 @@ private:
     Scope *_arguments;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_SYMBOLS_H

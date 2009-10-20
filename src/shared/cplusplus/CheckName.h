@@ -52,8 +52,8 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "SemanticCheck.h"
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT CheckName: public SemanticCheck
 {
@@ -89,7 +89,7 @@ private:
     Scope *_scope;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_CHECKNAME_H

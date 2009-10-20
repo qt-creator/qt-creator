@@ -57,7 +57,7 @@
 #include <cstring>
 #include <cassert>
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 Parser::Parser(TranslationUnit *unit)
     : _translationUnit(unit),
@@ -4857,4 +4857,4 @@ bool Parser::parseObjCContextKeyword(int kind, unsigned &in_token)
     }
 }
 
-CPLUSPLUS_END_NAMESPACE
+

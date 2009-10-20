@@ -57,7 +57,7 @@
 
 using namespace std;
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 Scope::Scope(ScopedSymbol *owner)
     : _owner(owner),
@@ -312,4 +312,4 @@ Scope::iterator Scope::firstSymbol() const
 Scope::iterator Scope::lastSymbol() const
 { return _symbols + _symbolCount + 1; }
 
-CPLUSPLUS_END_NAMESPACE
+

@@ -49,7 +49,7 @@
 #include "TypeVisitor.h"
 #include "Type.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 TypeVisitor::TypeVisitor()
 { }
@@ -60,4 +60,4 @@ TypeVisitor::~TypeVisitor()
 void TypeVisitor::accept(Type *type)
 { Type::accept(type, this); }
 
-CPLUSPLUS_END_NAMESPACE
+

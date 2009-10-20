@@ -53,8 +53,8 @@
 #include "SemanticCheck.h"
 #include "FullySpecifiedType.h"
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT CheckSpecifier: public SemanticCheck
 {
@@ -88,7 +88,7 @@ private:
     Scope *_scope;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_CHECKSPECIFIER_H

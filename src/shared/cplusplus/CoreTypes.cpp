@@ -51,7 +51,7 @@
 #include "Names.h"
 #include <algorithm>
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 
 bool VoidType::isEqualTo(const Type *other) const
@@ -230,4 +230,4 @@ bool NamedType::isEqualTo(const Type *other) const
 void NamedType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
-CPLUSPLUS_END_NAMESPACE
+

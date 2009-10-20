@@ -53,7 +53,7 @@
 
 using namespace std;
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 ////////////////////////////////////////////////////////////////////////////////
 Literal::Literal(const char *chars, unsigned size)
@@ -227,4 +227,4 @@ bool Identifier::isEqualTo(const Identifier *other) const
     return ! strcmp(chars(), other->chars());
 }
 
-CPLUSPLUS_END_NAMESPACE
+

@@ -52,8 +52,8 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "ASTVisitor.h"
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT SemanticCheck: public ASTVisitor
 {
@@ -68,7 +68,7 @@ private:
     Semantic *_semantic;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_SEMANTICCHECK_H

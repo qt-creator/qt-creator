@@ -50,7 +50,7 @@
 #include "Type.h"
 #include "CoreTypes.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 FullySpecifiedType::FullySpecifiedType(Type *type) :
     _type(type), _flags(0)
@@ -209,4 +209,4 @@ FullySpecifiedType FullySpecifiedType::simplified() const
     return *this;
 }
 
-CPLUSPLUS_END_NAMESPACE
+

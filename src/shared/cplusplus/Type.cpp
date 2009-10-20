@@ -51,7 +51,7 @@
 #include "CoreTypes.h"
 #include "Symbols.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 Type::Type()
 { }
@@ -131,4 +131,4 @@ void Type::accept(Type *type, TypeVisitor *visitor)
     type->accept(visitor);
 }
 
-CPLUSPLUS_END_NAMESPACE
+

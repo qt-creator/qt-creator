@@ -54,7 +54,7 @@
 #include <cstddef>
 #include <algorithm>
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 AST::AST()
 { }
@@ -2493,4 +2493,4 @@ unsigned ObjCSynchronizedStatementAST::lastToken() const
     return synchronized_token + 1;
 }
 
-CPLUSPLUS_END_NAMESPACE
+

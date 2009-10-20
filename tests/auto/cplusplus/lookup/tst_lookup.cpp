@@ -10,7 +10,7 @@
 #include <Symbols.h>
 #include <Overview.h>
 
-CPLUSPLUS_USE_NAMESPACE
+using namespace CPlusPlus;
 
 template <template <typename, typename> class _Map, typename _T1, typename _T2>
 _Map<_T2, _T1> invert(const _Map<_T1, _T2> &m)
