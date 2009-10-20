@@ -58,9 +58,9 @@
 #include <iostream>
 #include <cassert>
 
-using namespace CPlusPlus;
-
 #define CPLUSPLUS_NO_DEBUG_RULE
+
+using namespace CPlusPlus;
 
 namespace {
 
@@ -3296,16 +3296,32 @@ bool Parser::parseNameId(NameAST *&name)
     if (! parseName(name))
         return false;
 
-    TemplateIdAST *template_id = name->asTemplateId();
-    if (LA() == T_LPAREN && template_id) {
+    QualifiedNameAST *qualified_name_id = name->asQualifiedName();
+
+    TemplateIdAST *template_id = 0;
+    if (qualified_name_id) {
+        if (NameAST *unqualified_name = qualified_name_id->unqualified_name)
+            template_id = unqualified_name->asTemplateId();
+    } else {
+        template_id = name->asTemplateId();
+    }
+
+    if (! template_id)
+        return true; // it's not a template-id, there's nothing to rewind.
+
+    else if (LA() == T_LPAREN) {
+        // a template-id followed by a T_LPAREN
         if (TemplateArgumentListAST *template_arguments = template_id->template_arguments) {
             if (! template_arguments->next && template_arguments->template_argument &&
                     template_arguments->template_argument->asBinaryExpression()) {
+
                 unsigned saved = cursor();
                 ExpressionAST *expr = 0;
+
                 bool blocked = blockErrors(true);
                 bool lookAtCastExpression = parseCastExpression(expr);
                 (void) blockErrors(blocked);
+
                 if (lookAtCastExpression) {
                     if (CastExpressionAST *cast_expression = expr->asCastExpression()) {
                         if (cast_expression->lparen_token && cast_expression->rparen_token
@@ -3322,20 +3338,27 @@ bool Parser::parseNameId(NameAST *&name)
         }
     }
 
-    if (LA() == T_COMMA || LA() == T_SEMICOLON ||
-        LA() == T_LBRACKET || LA() == T_LPAREN)
+    switch (LA()) {
+    case T_COMMA:
+    case T_SEMICOLON:
+    case T_LBRACKET:
+    case T_LPAREN:
         return true;
-    else if (LA() == T_IDENTIFIER ||
-        LA() == T_STATIC_CAST ||
-        LA() == T_DYNAMIC_CAST ||
-        LA() == T_REINTERPRET_CAST ||
-        LA() == T_CONST_CAST ||
-        tok().isLiteral()    ||
-        tok().isOperator())
-    {
+
+    case T_IDENTIFIER:
+    case T_STATIC_CAST:
+    case T_DYNAMIC_CAST:
+    case T_REINTERPRET_CAST:
+    case T_CONST_CAST:
         rewind(start);
         return parseName(name, false);
-    }
+
+    default:
+        if (tok().isLiteral() || tok().isOperator()) {
+            rewind(start);
+            return parseName(name, false);
+        }
+    } // switch
 
     return true;
 }
