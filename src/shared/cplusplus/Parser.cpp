@@ -57,6 +57,7 @@
 #include <cstring>
 #include <iostream>
 #include <cassert>
+#include <string>
 
 #define CPLUSPLUS_NO_DEBUG_RULE
 
