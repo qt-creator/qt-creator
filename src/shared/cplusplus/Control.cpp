@@ -89,7 +89,16 @@ public:
         : control(control),
           translationUnit(0),
           diagnosticClient(0)
-    { }
+    {
+        objcGetterId = control->findOrInsertIdentifier("getter");
+        objcSetterId = control->findOrInsertIdentifier("setter");
+        objcReadwriteId = control->findOrInsertIdentifier("readwrite");
+        objcReadonlyId = control->findOrInsertIdentifier("readonly");
+        objcAssignId = control->findOrInsertIdentifier("assign");
+        objcRetainId = control->findOrInsertIdentifier("retain");
+        objcCopyId = control->findOrInsertIdentifier("copy");
+        objcNonatomicId = control->findOrInsertIdentifier("nonatomic");
+    }
 
     ~Data()
     {
@@ -577,6 +586,16 @@ public:
     std::vector<ObjCForwardClassDeclaration *> objcForwardClassDeclarations;
     std::vector<ObjCForwardProtocolDeclaration *> objcForwardProtocolDeclarations;
     std::vector<ObjCMethod *> objcMethods;
+
+    // ObjC context keywords:
+    Identifier *objcGetterId;
+    Identifier *objcSetterId;
+    Identifier *objcReadwriteId;
+    Identifier *objcReadonlyId;
+    Identifier *objcAssignId;
+    Identifier *objcRetainId;
+    Identifier *objcCopyId;
+    Identifier *objcNonatomicId;
 };
 
 Control::Control()
@@ -766,4 +785,26 @@ ObjCForwardProtocolDeclaration *Control::newObjCForwardProtocolDeclaration(unsig
 ObjCMethod *Control::newObjCMethod(unsigned sourceLocation, Name *name)
 { return d->newObjCMethod(sourceLocation, name); }
 
+Identifier *Control::objcGetterId() const
+{ return d->objcGetterId; }
 
+Identifier *Control::objcSetterId() const
+{ return d->objcSetterId; }
+
+Identifier *Control::objcReadwriteId() const
+{ return d->objcReadwriteId; }
+
+Identifier *Control::objcReadonlyId() const
+{ return d->objcReadonlyId; }
+
+Identifier *Control::objcAssignId() const
+{ return d->objcAssignId; }
+
+Identifier *Control::objcRetainId() const
+{ return d->objcRetainId; }
+
+Identifier *Control::objcCopyId() const
+{ return d->objcCopyId; }
+
+Identifier *Control::objcNonatomicId() const
+{ return d->objcNonatomicId; }

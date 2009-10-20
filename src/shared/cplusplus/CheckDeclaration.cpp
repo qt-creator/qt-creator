@@ -700,26 +700,26 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
         if (!attrAst)
             continue;
 
-        const char *attrName = spell(attrAst->attribute_identifier_token);
-        if (!strcmp("getter", attrName)) {
+        Identifier *attrId = identifier(attrAst->attribute_identifier_token);
+        if (attrId == control()->objcGetterId()) {
             if (checkPropertyAttribute(attrAst, propAttrs, Getter)) {
                 // TODO: find method declaration for getter
             }
-        } else if (!strcmp("setter", attrName)) {
+        } else if (attrId == control()->objcSetterId()) {
             if (checkPropertyAttribute(attrAst, propAttrs, Setter)) {
                 // TODO: find method declaration for setter
             }
-        } else if (!strcmp("readwrite", attrName)) {
+        } else if (attrId == control()->objcReadwriteId()) {
             checkPropertyAttribute(attrAst, propAttrs, ReadWrite);
-        } else if (!strcmp("readonly", attrName)) {
+        } else if (attrId == control()->objcReadonlyId()) {
             checkPropertyAttribute(attrAst, propAttrs, ReadOnly);
-        } else if (!strcmp("assign", attrName)) {
+        } else if (attrId == control()->objcAssignId()) {
             checkPropertyAttribute(attrAst, propAttrs, Assign);
-        } else if (!strcmp("retain", attrName)) {
+        } else if (attrId == control()->objcRetainId()) {
             checkPropertyAttribute(attrAst, propAttrs, Retain);
-        } else if (!strcmp("copy", attrName)) {
+        } else if (attrId == control()->objcCopyId()) {
             checkPropertyAttribute(attrAst, propAttrs, Copy);
-        } else if (!strcmp("nonatomic", attrName)) {
+        } else if (attrId == control()->objcNonatomicId()) {
             checkPropertyAttribute(attrAst, propAttrs, NonAtomic);
         }
     }

@@ -169,6 +169,16 @@ public:
     /// Creates a new Objective-C method symbol.
     ObjCMethod *newObjCMethod(unsigned sourceLocation, Name *name = 0);
 
+    // Objective-C specific context keywords.
+    Identifier *objcGetterId() const;
+    Identifier *objcSetterId() const;
+    Identifier *objcReadwriteId() const;
+    Identifier *objcReadonlyId() const;
+    Identifier *objcAssignId() const;
+    Identifier *objcRetainId() const;
+    Identifier *objcCopyId() const;
+    Identifier *objcNonatomicId() const;
+
     Identifier *findIdentifier(const char *chars, unsigned size) const;
 
     Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
