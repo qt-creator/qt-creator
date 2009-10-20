@@ -35,6 +35,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtGui/QMessageBox>
 
@@ -138,12 +139,16 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
                 if (idx >= 0)
                     m_executable.truncate(idx);
                 if (!m_executable.isEmpty()) {
-                    // Finish extra round ...
-                    showStatusMessage(tr("Attached to core temporarily."));
-                    m_engine->postCommand(_("detach"));
-                    // ... and retry.
-                    loadExeAndSyms();
-                    return;
+                    m_executable = QFileInfo(startParameters().coreFile).absoluteDir()
+                                   .absoluteFilePath(m_executable);
+                    if (QFile::exists(m_executable)) {
+                        // Finish extra round ...
+                        showStatusMessage(tr("Attached to core temporarily."));
+                        m_engine->postCommand(_("detach"));
+                        // ... and retry.
+                        loadExeAndSyms();
+                        return;
+                    }
                 }
             }
             showMessageBox(QMessageBox::Warning, tr("Error Loading Symbols"),
