@@ -99,6 +99,8 @@ protected:
         { m_engine->debugMessage(msg); }
     void showStatusMessage(const QString &msg) const
         { m_engine->showStatusMessage(msg); }
+    void showMessageBox(int icon, const QString &title, const QString &text) const
+        { m_engine->showMessageBox(icon, title, text); }
 
     GdbEngine * const m_engine;
 };

@@ -147,7 +147,7 @@ void TermGdbAdapter::shutdown()
 
 void TermGdbAdapter::stubError(const QString &msg)
 {
-    QMessageBox::critical(m_engine->mainWindow(), tr("Debugger Error"), msg);
+    showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
 }
 
 void TermGdbAdapter::stubExited()

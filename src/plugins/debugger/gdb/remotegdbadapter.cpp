@@ -119,7 +119,7 @@ void RemoteGdbAdapter::uploadProcError(QProcess::ProcessError error)
     }
 
     m_engine->showStatusMessage(msg);
-    QMessageBox::critical(m_engine->mainWindow(), tr("Error"), msg);
+    showMessageBox(QMessageBox::Critical, tr("Error"), msg);
 }
 
 void RemoteGdbAdapter::readUploadStandardOutput()
