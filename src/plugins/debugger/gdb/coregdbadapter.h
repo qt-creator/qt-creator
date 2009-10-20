@@ -32,6 +32,10 @@
 
 #include "abstractgdbadapter.h"
 
+#ifdef Q_OS_LINUX
+# define EXE_FROM_CORE
+#endif
+
 namespace Debugger {
 namespace Internal {
 
@@ -55,11 +59,14 @@ public:
     void interruptInferior();
 
 private:
-    void handleTargetCore1(const GdbResponse &response);
-    void handleDetach1(const GdbResponse &response);
+    void loadExeAndSyms();
+    void loadCoreFile();
     void handleFileExecAndSymbols(const GdbResponse &response);
-    void handleTargetCore2(const GdbResponse &response);
+    void handleTargetCore(const GdbResponse &response);
 
+#ifdef EXE_FROM_CORE
+    int m_round;
+#endif
     QString m_executable;
 };
 
