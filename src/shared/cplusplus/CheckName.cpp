@@ -58,7 +58,7 @@
 #include "Scope.h"
 #include <cassert>
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 CheckName::CheckName(Semantic *semantic)
     : SemanticCheck(semantic),
@@ -425,4 +425,4 @@ bool CheckName::visit(ObjCMessageArgumentDeclarationAST *ast)
     return false;
 }
 
-CPLUSPLUS_END_NAMESPACE
+

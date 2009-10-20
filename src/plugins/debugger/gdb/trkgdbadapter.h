@@ -30,10 +30,11 @@
 #ifndef DEBUGGER_TRKGDBADAPTER_H
 #define DEBUGGER_TRKGDBADAPTER_H
 
+#include "abstractgdbadapter.h"
+
 #include "trkutils.h"
 #include "trkdevice.h"
 #include "trkoptions.h"
-#include "abstractgdbadapter.h"
 
 #include <QtCore/QHash>
 #include <QtCore/QPointer>
@@ -163,8 +164,6 @@ public:
     //
     void start(const QString &program, const QStringList &args,
         QIODevice::OpenMode mode = QIODevice::ReadWrite);
-    QByteArray readAllStandardError();
-    QByteArray readAllStandardOutput();
     void write(const QByteArray &data);
     bool isTrkAdapter() const { return true; }
     bool dumpersAvailable() const { return false; }
@@ -172,19 +171,16 @@ public:
 private:
     void startAdapter();
     void startInferior();
+    void startInferiorPhase2();
     void interruptInferior();
     void shutdown();
+
     void cleanup();
-    void emitDelayedAdapterStartFailed(const QString &msg);
-    Q_SLOT void slotEmitDelayedAdapterStartFailed();
     void emitDelayedInferiorStartFailed(const QString &msg);
     Q_SLOT void slotEmitDelayedInferiorStartFailed();
 
     Q_SLOT void waitForTrkConnect();
-    void handleKill(const GdbResponse &response);
-    void handleExit(const GdbResponse &response);
     void handleTargetRemote(const GdbResponse &response);
-    void handleFirstContinue(const GdbResponse &response);
 
     //
     // TRK
@@ -284,13 +280,6 @@ private:
     void sendGdbServerAck();
     bool sendGdbServerPacket(const QByteArray &packet, bool doFlush);
     void tryAnswerGdbMemoryRequest(bool buffered);
-
-    Q_SLOT void handleGdbError(QProcess::ProcessError error);
-    Q_SLOT void handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    Q_SLOT void handleGdbStarted();
-    Q_SLOT void handleGdbStateChanged(QProcess::ProcessState newState);
-
-    void maybeAdapterStarted();
 
     void logMessage(const QString &msg);  // triggers output() if m_verbose
     Q_SLOT void trkLogMessage(const QString &msg);

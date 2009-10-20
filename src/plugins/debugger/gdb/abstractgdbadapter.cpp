@@ -31,7 +31,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QObject>
 #include <QtCore/QProcess>
 
 namespace Debugger {
@@ -47,35 +46,22 @@ AbstractGdbAdapter::~AbstractGdbAdapter()
     disconnect();
 }
 
-// This cannot be in the c'tor, as it would not connect the "virtual" slots
-void AbstractGdbAdapter::commonInit()
+void AbstractGdbAdapter::shutdown()
 {
-    QTC_ASSERT(state() == EngineStarting, qDebug() << state());
-    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(&m_gdbProc, SIGNAL(started()),
-        this, SLOT(handleGdbStarted()));
-    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
-        this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
-        this, SIGNAL(readyReadStandardOutput()));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
-        this, SIGNAL(readyReadStandardError()));
 }
 
-QByteArray AbstractGdbAdapter::readAllStandardOutput()
+void AbstractGdbAdapter::startInferiorPhase2()
 {
-    return m_gdbProc.readAllStandardOutput();
 }
 
-QByteArray AbstractGdbAdapter::readAllStandardError()
+const char *AbstractGdbAdapter::inferiorShutdownCommand() const
 {
-    return m_gdbProc.readAllStandardError();
+    return "kill";
 }
 
 void AbstractGdbAdapter::write(const QByteArray &data)
 {
-    m_gdbProc.write(data);
+    m_engine->m_gdbProc.write(data);
 }
 
 bool AbstractGdbAdapter::isTrkAdapter() const

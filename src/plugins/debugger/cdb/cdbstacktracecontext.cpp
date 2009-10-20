@@ -33,8 +33,11 @@
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdebugengine_p.h"
 #include "cdbdumperhelper.h"
+#include "debuggeractions.h"
+#include "debuggermanager.h"
 
 #include <QtCore/QDir>
+#include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 
 namespace Debugger {
@@ -85,6 +88,7 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << frameCount;
 
+    const QChar exclamationMark = QLatin1Char('!');
     m_frameContexts.resize(frameCount);
     qFill(m_frameContexts, static_cast<CdbStackFrameContext*>(0));
 
@@ -99,7 +103,11 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
         frame.address = QString::fromLatin1("0x%1").arg(instructionOffset, 0, 16);
 
         m_cif->debugSymbols->GetNameByOffsetWide(instructionOffset, wszBuf, MAX_PATH, 0, 0);
+        // Determine function and module, if available
         frame.function = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
+        const int moduleSepPos = frame.function.indexOf(exclamationMark);
+        if (moduleSepPos != -1)
+            frame.from = frame.function.mid(0, moduleSepPos);
 
         ULONG ulLine;
         ULONG64 ul64Displacement;
@@ -160,7 +168,13 @@ CdbStackFrameContext *CdbStackTraceContext::frameContextAt(int index, QString *e
         *errorMessage = msgFrameContextFailed(index, m_frames.at(index), *errorMessage);
         return 0;
     }
-    CdbSymbolGroupContext *sc = CdbSymbolGroupContext::create(QLatin1String("local"), sg, errorMessage);
+    // Exclude unitialized variables if desired    
+    QStringList uninitializedVariables;
+    if (theDebuggerAction(UseCodeModel)->isChecked()) {        
+        const StackFrame &frame = m_frames.at(index);
+        getUninitializedVariables(DebuggerManager::instance()->cppCodeModelSnapshot(), frame.function, frame.file, frame.line, &uninitializedVariables);
+    }
+    CdbSymbolGroupContext *sc = CdbSymbolGroupContext::create(QLatin1String("local"), sg, uninitializedVariables, errorMessage);
     if (!sc) {
         *errorMessage = msgFrameContextFailed(index, m_frames.at(index), *errorMessage);
         return 0;

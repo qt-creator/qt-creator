@@ -42,7 +42,7 @@ namespace Internal {
 // debugging and TrkGdbAdapter used for on-device debugging.
 // In the PlainGdbAdapter case it's just a wrapper around a QProcess running
 // gdb, in the TrkGdbAdapter case it's the interface to the gdb process in
-// the whole rfomm/gdb/gdbserver combo.
+// the whole rfcomm/gdb/gdbserver combo.
 class AbstractGdbAdapter : public QObject
 {
     Q_OBJECT
@@ -51,34 +51,44 @@ public:
     AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0);
     virtual ~AbstractGdbAdapter();
 
-    QByteArray readAllStandardOutput();
-    QByteArray readAllStandardError();
     virtual void write(const QByteArray &data);
     virtual bool isTrkAdapter() const; // isUtterlyBrokenAdapter
 
     virtual void startAdapter() = 0;
     virtual void startInferior() = 0;
+    virtual void startInferiorPhase2();
     virtual void interruptInferior() = 0;
-    virtual void shutdown() = 0;
+    virtual void shutdown();
+    virtual const char *inferiorShutdownCommand() const;
 
     virtual bool dumpersAvailable() const = 0;
 
+    static QString msgGdbStopFailed(const QString &why);
+    static QString msgInferiorStopFailed(const QString &why);
+    static QString msgAttachedToStoppedInferior();
+    static QString msgInferiorStarted();
+    static QString msgInferiorRunning();
+    static QString msgConnectRemoteServerFailed(const QString &why);
+
 signals:
     void adapterStarted();
+
+    // Something went wrong with the adapter *before* adapterStarted() was emitted.
+    // Make sure to clean up everything before emitting this signal.
     void adapterStartFailed(const QString &msg, const QString &settingsIdHint);
-    void adapterShutDown();
-    void adapterShutdownFailed(const QString &msg);
+
+    // Something went wrong with the adapter *after* adapterStarted() was emitted.
+    // Make sure to clean up everything before emitting this signal.
     void adapterCrashed(const QString &msg);
 
-    void inferiorStartFailed(const QString &msg);
-    void inferiorShutDown();
-    void inferiorShutdownFailed(const QString &msg);
-    
-    void readyReadStandardOutput();
-    void readyReadStandardError();
+    // This triggers the initial breakpoint synchronization and causes
+    // startInferiorPhase2() being called once done.
+    void inferiorPrepared();
 
+    // The adapter is still running just fine, but it failed to acquire a debuggee.
+    void inferiorStartFailed(const QString &msg);
+    
 protected:
-    void commonInit();
     DebuggerState state() const
         { return m_engine->state(); }
     void setState(DebuggerState state)
@@ -89,17 +99,10 @@ protected:
         { m_engine->debugMessage(msg); }
     void showStatusMessage(const QString &msg) const
         { m_engine->showStatusMessage(msg); }
-
-    static QString msgGdbStopFailed(const QString &why);
-    static QString msgInferiorStopFailed(const QString &why);
-    static QString msgAttachedToStoppedInferior();
-    static QString msgInferiorStarted();
-    static QString msgInferiorRunning();
-    static QString msgConnectRemoteServerFailed(const QString &why);
+    void showMessageBox(int icon, const QString &title, const QString &text) const
+        { m_engine->showMessageBox(icon, title, text); }
 
     GdbEngine * const m_engine;
-
-    QProcess m_gdbProc;
 };
 
 } // namespace Internal

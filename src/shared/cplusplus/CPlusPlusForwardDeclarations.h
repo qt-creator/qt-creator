@@ -49,34 +49,19 @@
 #ifndef CPLUSPLUS_CPLUSPLUSFORWARDDECLARATIONS_H
 #define CPLUSPLUS_CPLUSPLUSFORWARDDECLARATIONS_H
 
-#ifndef CPLUSPLUS_WITH_NO_QT
+#ifndef CPLUSPLUS_WITHOUT_QT
 #  include <QtCore/qglobal.h>
-#  define CPLUSPLUS_BEGIN_HEADER
-#  define CPLUSPLUS_END_HEADER
+
 #  if defined(CPLUSPLUS_BUILD_LIB)
 #    define CPLUSPLUS_EXPORT Q_DECL_EXPORT
 #  else
 #    define CPLUSPLUS_EXPORT Q_DECL_IMPORT
 #  endif
-#  define CPLUSPLUS_WITH_NAMESPACE
 #else
-#  define CPLUSPLUS_BEGIN_HEADER
-#  define CPLUSPLUS_END_HEADER
 #  define CPLUSPLUS_EXPORT
 #endif
 
-#ifdef CPLUSPLUS_WITH_NAMESPACE
-#  define CPLUSPLUS_BEGIN_NAMESPACE namespace CPlusPlus {
-#  define CPLUSPLUS_END_NAMESPACE   } // end of namespace CPlusPLus
-#  define CPLUSPLUS_USE_NAMESPACE   using namespace CPlusPlus;
-#else
-#  define CPLUSPLUS_BEGIN_NAMESPACE
-#  define CPLUSPLUS_END_NAMESPACE
-#  define CPLUSPLUS_USE_NAMESPACE   ;
-#endif
-
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+namespace CPlusPlus {
 
 class TranslationUnit;
 class Semantic;
@@ -144,7 +129,6 @@ class ObjCProtocol;
 class ObjCForwardProtocolDeclaration;
 class ObjCMethod;
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
 
 #endif // CPLUSPLUS_CPLUSPLUSFORWARDDECLARATIONS_H

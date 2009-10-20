@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>403</width>
+    <width>432</width>
     <height>434</height>
    </rect>
   </property>
@@ -83,9 +83,19 @@
          </widget>
         </item>
         <item>
-         <widget class="Utils::PathChooser" name="dumperLocationChooser" native="true"/>
+         <widget class="Utils::PathChooser" name="dumperLocationChooser"/>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxUseCodeModel">
+        <property name="toolTip">
+         <string>Makes use of Qt Creator's code model to find out if a variable has already been assigned a value at the point the debugger interrupts.</string>
+        </property>
+        <property name="text">
+         <string>Use code model</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="checkBoxDebugDebuggingHelpers">

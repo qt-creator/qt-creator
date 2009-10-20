@@ -51,7 +51,7 @@
 #include <cstring>
 #include <cassert>
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 using namespace std;
 
@@ -125,4 +125,4 @@ void Managed::operator delete(void *)
 void Managed::operator delete(void *, MemoryPool *)
 { }
 
-CPLUSPLUS_END_NAMESPACE
+

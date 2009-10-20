@@ -54,8 +54,8 @@
 #include "Token.h"
 #include "TranslationUnit.h"
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT Parser
 {
@@ -264,8 +264,9 @@ public:
 
     void match(int kind, unsigned *token);
 
-    bool maybeFunctionCall(SimpleDeclarationAST *simpleDecl) const;
-    bool maybeSimpleExpression(SimpleDeclarationAST *simpleDecl) const;
+    bool maybeAmbiguousStatement(DeclarationStatementAST *ast) const;
+    bool maybeForwardOrClassDeclaration(SpecifierAST *decl_specifier_seq) const;
+    bool isPointerDeclaration(DeclarationStatementAST *ast) const;
 
 private:
     bool switchTemplateArguments(bool templateArguments);
@@ -302,7 +303,7 @@ private:
     void operator =(const Parser& source);
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_PARSER_H

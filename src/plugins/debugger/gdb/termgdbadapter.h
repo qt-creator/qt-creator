@@ -27,39 +27,48 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_ATTACHGDBADAPTER_H
-#define DEBUGGER_ATTACHGDBADAPTER_H
+#ifndef DEBUGGER_TERMGDBADAPTER_H
+#define DEBUGGER_TERMGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
+
+#include <consoleprocess.h>
 
 namespace Debugger {
 namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// AttachGdbAdapter
+// TermGdbAdapter
 //
 ///////////////////////////////////////////////////////////////////////
 
-class AttachGdbAdapter : public AbstractGdbAdapter
+class TermGdbAdapter : public AbstractGdbAdapter
 {
     Q_OBJECT
 
 public:
-    AttachGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    TermGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    ~TermGdbAdapter();
 
     bool dumpersAvailable() const { return true; }
 
     void startAdapter();
     void startInferior();
+    void startInferiorPhase2();
     void interruptInferior();
-    const char *inferiorShutdownCommand() const { return "detach"; }
 
 private:
-    void handleAttach(const GdbResponse &response);
+    void handleStubAttached(const GdbResponse &response);
+
+    Q_SLOT void handleInferiorStarted();
+    Q_SLOT void stubExited();
+    Q_SLOT void stubError(const QString &msg);
+
+    Utils::ConsoleProcess m_stubProc;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_ATTACHDBADAPTER_H
+#endif // DEBUGGER_TERMGDBADAPTER_H

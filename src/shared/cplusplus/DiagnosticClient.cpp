@@ -48,7 +48,7 @@
 
 #include "DiagnosticClient.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 DiagnosticClient::DiagnosticClient()
 { }
@@ -56,4 +56,4 @@ DiagnosticClient::DiagnosticClient()
 DiagnosticClient::~DiagnosticClient()
 { }
 
-CPLUSPLUS_END_NAMESPACE
+

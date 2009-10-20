@@ -117,6 +117,9 @@ public:
     
     bool isEqual(const WatchData &other) const;
 
+    static QString msgNotInScope();
+    static QString shadowedName(const QString &name, int seen);
+
 public:
     QString iname;        // internal name sth like 'local.baz.public.a'
     QString exp;          // the expression
@@ -135,6 +138,7 @@ public:
     int generation;       // when updated?
     bool valueEnabled;    // value will be greyed out or not
     bool valueEditable;   // value will be editable
+    bool error;
 
 private:
 

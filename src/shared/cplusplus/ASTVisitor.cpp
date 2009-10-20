@@ -51,7 +51,7 @@
 #include "TranslationUnit.h"
 #include "Control.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 ASTVisitor::ASTVisitor(Control *control)
     : _control(control)
@@ -111,4 +111,4 @@ void ASTVisitor::getTokenStartPosition(unsigned index, unsigned *line, unsigned 
 void ASTVisitor::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const
 { getPosition(tokenAt(index).end(), line, column); }
 
-CPLUSPLUS_END_NAMESPACE
+

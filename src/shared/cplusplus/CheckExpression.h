@@ -53,8 +53,8 @@
 #include "SemanticCheck.h"
 #include "FullySpecifiedType.h"
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT CheckExpression: public SemanticCheck
 {
@@ -122,7 +122,7 @@ private:
     bool _checkOldStyleCasts: 1;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_CHECKEXPRESSION_H

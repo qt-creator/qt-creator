@@ -52,8 +52,8 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include <cstddef>
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 enum Kind {
     T_EOF_SYMBOL = 0,
@@ -336,7 +336,7 @@ public:
     };
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_TOKEN_H

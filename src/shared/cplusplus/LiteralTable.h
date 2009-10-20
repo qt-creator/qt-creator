@@ -53,8 +53,8 @@
 #include <cstring>
 #include <cstdlib>
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 template <typename _Literal>
 class LiteralTable
@@ -185,7 +185,7 @@ protected:
     int _allocatedBuckets;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_LITERALTABLE_H

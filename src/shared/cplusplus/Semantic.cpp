@@ -59,7 +59,7 @@
 #include "CheckExpression.h"
 #include "CheckName.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 class Semantic::Data
 {
@@ -252,4 +252,4 @@ int Semantic::visibilityForClassKey(int tokenKind) const
     }
 }
 
-CPLUSPLUS_END_NAMESPACE
+

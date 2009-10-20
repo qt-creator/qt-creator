@@ -136,10 +136,10 @@ WatchWindow::WatchWindow(Type type, DebuggerManager *manager, QWidget *parent)
 
     connect(act, SIGNAL(toggled(bool)),
         this, SLOT(setAlternatingRowColorsHelper(bool)));
-    connect(this, SIGNAL(expanded(QModelIndex)), 
-        this, SLOT(expandNode(QModelIndex))); 
-    connect(this, SIGNAL(collapsed(QModelIndex)), 
-        this, SLOT(collapseNode(QModelIndex))); 
+    connect(this, SIGNAL(expanded(QModelIndex)),
+        this, SLOT(expandNode(QModelIndex)));
+    connect(this, SIGNAL(collapsed(QModelIndex)),
+        this, SLOT(collapseNode(QModelIndex)));
 } 
  
 void WatchWindow::expandNode(const QModelIndex &idx) 
@@ -253,10 +253,11 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actInsertNewWatchItem = menu.addAction(tr("Insert new watch item"));
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select widget to watch"));
 
+    const bool actionsEnabled = m_manager->debuggerActionsEnabled();
     const QString address = model()->data(mi0, AddressRole).toString();
     QAction *actWatchKnownMemory = 0;
     QAction *actWatchUnknownMemory = new QAction(tr("Open memory editor..."), &menu);
-    actWatchUnknownMemory->setEnabled(m_manager->debuggerActionsEnabled());
+    actWatchUnknownMemory->setEnabled(actionsEnabled);
 
     if (!address.isEmpty())
         actWatchKnownMemory = new QAction(tr("Open memory editor at %1").arg(address), &menu);
@@ -276,7 +277,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
     menu.addAction(theDebuggerAction(UseDebuggingHelpers));
-
+    QAction *actClearCodeModelSnapshot = new QAction(tr("Refresh code model snapshot"), &menu);
+    actClearCodeModelSnapshot->setEnabled(actionsEnabled && theDebuggerAction(UseCodeModel)->isChecked());
+    menu.addAction(actClearCodeModelSnapshot);
     menu.addSeparator();
     menu.addAction(theDebuggerAction(UseToolTipsInLocalsView));
     
@@ -311,6 +314,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
+    } else if (act == actClearCodeModelSnapshot) {
+        m_manager->clearCppCodeModelSnapshot();
     } else { 
         for (int i = 0; i != alternativeFormats.size(); ++i) {
             if (act == typeFormatActions.at(i))

@@ -31,10 +31,6 @@
 #define DEBUGGER_REMOTEGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
-#include "gdbengine.h"
-
-#include <QtCore/QDebug>
-#include <QtCore/QProcess>
 
 namespace Debugger {
 namespace Internal {
@@ -56,6 +52,7 @@ public:
 
     void startAdapter();
     void startInferior();
+    void startInferiorPhase2();
     void interruptInferior();
     void shutdown();
 
@@ -67,12 +64,6 @@ private:
     void handleSetTargetAsync(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleTargetRemote(const GdbResponse &response);
-    void handleKill(const GdbResponse &response);
-    void handleExit(const GdbResponse &response);
-
-    Q_SLOT void handleGdbStarted();
-    Q_SLOT void handleGdbError(QProcess::ProcessError error);
-    Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
 
     QProcess m_uploadProc;
 };

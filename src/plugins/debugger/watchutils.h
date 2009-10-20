@@ -45,6 +45,10 @@ namespace Core {
     class IEditor;
 }
 
+namespace CPlusPlus {
+    class Snapshot;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -88,6 +92,15 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
 
 // Decode string data as returned by the dumper helpers.
 QString decodeData(const QByteArray &baIn, int encoding);
+
+// Get variables that are not initialized at a certain line
+// of a function from the code model. Shadowed variables will
+// be reported using the debugger naming conventions '<shadowed n>'
+bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
+                       const QString &function,
+                       const QString &file,
+                       int line,
+                       QStringList *uninitializedVariables);
 
 /* Attempt to put common code of the dumper handling into a helper
  * class.

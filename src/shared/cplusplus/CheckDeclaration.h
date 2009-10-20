@@ -52,8 +52,8 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "SemanticCheck.h"
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT CheckDeclaration: public SemanticCheck
 {
@@ -111,7 +111,7 @@ private:
     bool _checkAnonymousArguments: 1;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_CHECKDECLARATION_H

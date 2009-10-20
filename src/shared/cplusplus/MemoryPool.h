@@ -53,8 +53,8 @@
 #include <cstddef>
 #include <new>
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT MemoryPool
 {
@@ -110,7 +110,7 @@ public:
     void operator delete(void *, MemoryPool *);
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_MEMORYPOOL_H

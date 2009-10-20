@@ -341,6 +341,8 @@ void CdbDumperInitThread ::run()
 CdbDumperHelper::CdbDumperHelper(DebuggerManager *manager,
                                  CdbComInterfaces *cif) :
     m_tryInjectLoad(true),
+    m_msgDisabled(QLatin1String("Dumpers are disabled")),
+    m_msgNotInScope(QLatin1String("Data not in scope")),
     m_state(NotLoaded),
     m_manager(manager),
     m_cif(cif),
@@ -561,8 +563,14 @@ CdbDumperHelper::CallResult
         if (!writeToDebuggee(m_cif->debugDataSpaces, inBuffer, m_inBufferAddress, errorMessage))
             return CallFailed;
     }
-    if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, callCmd, errorMessage))
+    if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, callCmd, errorMessage)) {
+        // Clear the outstanding call in case we triggered a debug library assert with a message box
+        QString clearError;
+        if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, QLatin1String(".call /c"), &clearError)) {
+            *errorMessage += QString::fromLatin1("/Unable to clear call %1").arg(clearError);
+        }
         return CallSyntaxError;
+    }
     // Set up call and a temporary breakpoint after it.
     // Try to skip debuggee crash exceptions and dumper exceptions
     // by using 'gN' (go not handled -> pass handling to dumper __try/__catch block)
@@ -648,8 +656,12 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpTypeI(const WatchData &wd, bool
 {
     errorMessage->clear();
     // Check failure cache and supported types
-    if (m_state == Disabled) {
-        *errorMessage = QLatin1String("Dumpers are disabled");
+    if (m_state == Disabled) {        
+        *errorMessage =m_msgDisabled;
+        return DumpNotHandled;
+    }
+    if (wd.error) {
+        *errorMessage =m_msgNotInScope;
         return DumpNotHandled;
     }
     if (m_failedTypes.contains(wd.type)) {

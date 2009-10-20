@@ -59,6 +59,10 @@ namespace TextEditor {
 class ITextEditor;
 }
 
+namespace CPlusPlus {
+    class Snapshot;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -183,6 +187,8 @@ public:
                                  QString *settingsCategory = 0,
                                  QString *settingsPage = 0) const;
 
+    const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
+
     static DebuggerManager *instance();
 
 public slots:
@@ -235,6 +241,7 @@ public slots:
     void setRegisterValue(int nr, const QString &value);
 
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
+    void clearCppCodeModelSnapshot();
 
 public slots: // FIXME
     void showDebuggerOutput(const QString &msg)
@@ -270,7 +277,8 @@ private:
     Internal::ThreadsHandler *threadsHandler() const;
     Internal::WatchHandler *watchHandler() const;
     Internal::SourceFilesWindow *sourceFileWindow() const;
-    QWidget *threadsWindow() const;    
+    QWidget *threadsWindow() const;        
+
     Internal::DebuggerManagerActions debuggerManagerActions() const;
 
     void notifyInferiorStopped();
@@ -280,7 +288,7 @@ private:
 
     void cleanupViews();
 
-    void setState(DebuggerState state);
+    void setState(DebuggerState state, bool forced = false);
 
     //
     // internal implementation

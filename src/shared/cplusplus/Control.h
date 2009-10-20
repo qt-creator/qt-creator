@@ -52,8 +52,8 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include <cstddef>
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT Control
 {
@@ -169,6 +169,16 @@ public:
     /// Creates a new Objective-C method symbol.
     ObjCMethod *newObjCMethod(unsigned sourceLocation, Name *name = 0);
 
+    // Objective-C specific context keywords.
+    Identifier *objcGetterId() const;
+    Identifier *objcSetterId() const;
+    Identifier *objcReadwriteId() const;
+    Identifier *objcReadonlyId() const;
+    Identifier *objcAssignId() const;
+    Identifier *objcRetainId() const;
+    Identifier *objcCopyId() const;
+    Identifier *objcNonatomicId() const;
+
     Identifier *findIdentifier(const char *chars, unsigned size) const;
 
     Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
@@ -199,7 +209,7 @@ private:
     Data *d;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_CONTROL_H

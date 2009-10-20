@@ -49,7 +49,7 @@
 #include "Lexer.h"
 #include "Token.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 static inline int classify2(const char *s, bool) {
   if (s[0] == 'd') {
@@ -1400,4 +1400,4 @@ int Lexer::classifyOperator(const char *s, int n) {
   } // switch
 }
 
-CPLUSPLUS_END_NAMESPACE
+

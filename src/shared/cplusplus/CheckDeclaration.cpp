@@ -57,9 +57,8 @@
 #include "Control.h"
 #include "Literals.h"
 #include <cassert>
-#include <QtCore/QByteArray>
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 CheckDeclaration::CheckDeclaration(Semantic *semantic)
     : SemanticCheck(semantic),
@@ -228,7 +227,6 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
         if (it->declarator && it->declarator->initializer) {
             FullySpecifiedType initTy = semantic()->check(it->declarator->initializer, _scope);
-            Q_UNUSED(initTy)
         }
 
         *decl_it = new (translationUnit()->memoryPool()) List<Declaration *>();
@@ -702,26 +700,26 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
         if (!attrAst)
             continue;
 
-        const char *attrName = spell(attrAst->attribute_identifier_token);
-        if (!qstrcmp("getter", attrName)) {
+        Identifier *attrId = identifier(attrAst->attribute_identifier_token);
+        if (attrId == control()->objcGetterId()) {
             if (checkPropertyAttribute(attrAst, propAttrs, Getter)) {
                 // TODO: find method declaration for getter
             }
-        } else if (!qstrcmp("setter", attrName)) {
+        } else if (attrId == control()->objcSetterId()) {
             if (checkPropertyAttribute(attrAst, propAttrs, Setter)) {
                 // TODO: find method declaration for setter
             }
-        } else if (!qstrcmp("readwrite", attrName)) {
+        } else if (attrId == control()->objcReadwriteId()) {
             checkPropertyAttribute(attrAst, propAttrs, ReadWrite);
-        } else if (!qstrcmp("readonly", attrName)) {
+        } else if (attrId == control()->objcReadonlyId()) {
             checkPropertyAttribute(attrAst, propAttrs, ReadOnly);
-        } else if (!qstrcmp("assign", attrName)) {
+        } else if (attrId == control()->objcAssignId()) {
             checkPropertyAttribute(attrAst, propAttrs, Assign);
-        } else if (!qstrcmp("retain", attrName)) {
+        } else if (attrId == control()->objcRetainId()) {
             checkPropertyAttribute(attrAst, propAttrs, Retain);
-        } else if (!qstrcmp("copy", attrName)) {
+        } else if (attrId == control()->objcCopyId()) {
             checkPropertyAttribute(attrAst, propAttrs, Copy);
-        } else if (!qstrcmp("nonatomic", attrName)) {
+        } else if (attrId == control()->objcNonatomicId()) {
             checkPropertyAttribute(attrAst, propAttrs, NonAtomic);
         }
     }
@@ -745,4 +743,4 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
     return false;
 }
 
-CPLUSPLUS_END_NAMESPACE
+

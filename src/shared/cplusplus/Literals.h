@@ -52,8 +52,8 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "Token.h"
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT Literal
 {
@@ -135,7 +135,7 @@ public:
     bool isEqualTo(const Identifier *other) const;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_LITERALS_H

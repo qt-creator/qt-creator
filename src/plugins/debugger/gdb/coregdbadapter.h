@@ -31,10 +31,10 @@
 #define DEBUGGER_COREGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
-#include "gdbengine.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QProcess>
+#ifdef Q_OS_LINUX
+# define EXE_FROM_CORE
+#endif
 
 namespace Debugger {
 namespace Internal {
@@ -57,19 +57,16 @@ public:
     void startAdapter();
     void startInferior();
     void interruptInferior();
-    void shutdown();
 
 private:
-    void handleTargetCore1(const GdbResponse &response);
-    void handleDetach1(const GdbResponse &response);
+    void loadExeAndSyms();
+    void loadCoreFile();
     void handleFileExecAndSymbols(const GdbResponse &response);
-    void handleTargetCore2(const GdbResponse &response);
-    void handleExit(const GdbResponse &response);
+    void handleTargetCore(const GdbResponse &response);
 
-    Q_SLOT void handleGdbStarted();
-    Q_SLOT void handleGdbError(QProcess::ProcessError error);
-    Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus);
-
+#ifdef EXE_FROM_CORE
+    int m_round;
+#endif
     QString m_executable;
 };
 

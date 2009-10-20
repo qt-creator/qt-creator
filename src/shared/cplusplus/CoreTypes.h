@@ -54,8 +54,8 @@
 #include "FullySpecifiedType.h"
 #include <cstddef>
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT UndefinedType : public Type
 {
@@ -272,7 +272,7 @@ private:
     Name *_name;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_CORETYPES_H

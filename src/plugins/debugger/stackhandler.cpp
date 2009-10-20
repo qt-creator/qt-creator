@@ -37,11 +37,22 @@
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 
-using namespace Debugger::Internal;
+namespace Debugger {
+namespace Internal {
 
 StackFrame::StackFrame()
   : level(0), line(0)
 {}
+
+void StackFrame::clear()
+{
+    line = level = 0;
+    function.clear();
+    file.clear();
+    from.clear();
+    to.clear();
+    address.clear();
+}
 
 bool StackFrame::isUsable() const
 {
@@ -52,12 +63,12 @@ QString StackFrame::toString() const
 {
     QString res;
     QTextStream str(&res);
-    str << StackHandler::tr("Address:") << " " << address << " "
-        << StackHandler::tr("Function:") << " " << function << " "
-        << StackHandler::tr("File:") << " " << file << " "
-        << StackHandler::tr("Line:") << " " << line << " "
-        << StackHandler::tr("From:") << " " << from << " "
-        << StackHandler::tr("To:") << " " << to;
+    str << StackHandler::tr("Address:") << ' ' << address << ' '
+        << StackHandler::tr("Function:") << ' ' << function << ' '
+        << StackHandler::tr("File:") << ' ' << file << ' '
+        << StackHandler::tr("Line:") << ' ' << line << ' '
+        << StackHandler::tr("From:") << ' ' << from << ' '
+        << StackHandler::tr("To:") << ' ' << to;
     return res;
 }
 
@@ -74,6 +85,23 @@ QString StackFrame::toToolTip() const
         << "<tr><td>" << StackHandler::tr("To:") << "</td><td>" << to << "</td></tr>"
         << "</table></body></html>";
     return res;
+}
+
+QDebug operator<<(QDebug d, const  StackFrame &f)
+{
+    QString res;
+    QTextStream str(&res);
+    str << "level=" << f.level << " address=" << f.address;
+    if (!f.function.isEmpty())
+        str << ' ' << f.function;
+    if (!f.file.isEmpty())
+        str << ' ' << f.file << ':' << f.line;
+    if (!f.from.isEmpty())
+        str << " from=" << f.from;
+    if (!f.to.isEmpty())
+        str << " to=" << f.to;
+    d.nospace() << res;
+    return d;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -379,3 +407,5 @@ void ThreadsHandler::notifyRunning()
         it->notifyRunning();
     emit dataChanged(index(0, 1), index(m_threads.size()- 1, ColumnCount - 1));
 }
+} // namespace Internal
+} // namespace Debugger

@@ -61,7 +61,7 @@ bool CdbSymbolGroupContext::getDumpChildSymbols(CIDebugDataSpaces *ds, const QSt
     for (int s = start; s < m_symbolParameters.size(); ++s) {
         const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(s);
         if (p.ParentSymbol == parentId && isSymbolDisplayable(p)) {
-            WatchData wd = symbolAt(s);
+            WatchData wd = watchDataAt(s);
             // Run internal dumper, mark ownership
             if (ds) {
                 switch (dump(ds, &wd)) {

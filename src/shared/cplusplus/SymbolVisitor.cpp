@@ -49,7 +49,7 @@
 #include "SymbolVisitor.h"
 #include "Symbol.h"
 
-CPLUSPLUS_USE_NAMESPACE
+using namespace CPlusPlus;
 
 SymbolVisitor::SymbolVisitor()
 { }

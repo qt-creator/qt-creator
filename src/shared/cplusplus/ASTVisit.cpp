@@ -30,7 +30,7 @@
 #include "AST.h"
 #include "ASTVisitor.h"
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 void SimpleSpecifierAST::accept0(ASTVisitor *visitor)
 {
@@ -1465,4 +1465,4 @@ void ObjCSynchronizedStatementAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-CPLUSPLUS_END_NAMESPACE
+

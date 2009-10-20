@@ -39,6 +39,9 @@
 enum { debug = 0 };
 enum { debugInternalDumpers = 0 };
 
+// name separator for shadowed variables
+static const char iNameShadowDelimiter = '#';
+
 static inline QString msgSymbolNotFound(const QString &s)
 {
     return QString::fromLatin1("The symbol '%1' could not be found.").arg(s);
@@ -81,6 +84,14 @@ QTextStream &operator<<(QTextStream &str, const DEBUG_SYMBOL_PARAMETERS &p)
     str << " Subs=" << p.SubElements << " flags=" << p.Flags << '/';
     debugSymbolFlags(p.Flags, str);
     return str;
+}
+
+static inline QString hexSymbolOffset(CIDebugSymbolGroup *sg, unsigned long index)
+{
+    ULONG64 rc = 0;
+    if (FAILED(sg->GetSymbolOffset(index, &rc)))
+        rc = 0;
+    return QLatin1String("0x") + QString::number(rc, 16);
 }
 
 // A helper function to extract a string value from a member function of
@@ -129,12 +140,15 @@ static inline CdbSymbolGroupContext::SymbolState getSymbolState(const DEBUG_SYMB
 }
 
 CdbSymbolGroupContext::CdbSymbolGroupContext(const QString &prefix,
-                                             CIDebugSymbolGroup *symbolGroup) :
+                                             CIDebugSymbolGroup *symbolGroup,
+                                             const QStringList &uninitializedVariables) :
     m_prefix(prefix),
     m_nameDelimiter(QLatin1Char('.')),
+    m_uninitializedVariables(uninitializedVariables.toSet()),
     m_symbolGroup(symbolGroup),
     m_unnamedSymbolNumber(1)
 {
+
 }
 
 CdbSymbolGroupContext::~CdbSymbolGroupContext()
@@ -144,9 +158,10 @@ CdbSymbolGroupContext::~CdbSymbolGroupContext()
 
 CdbSymbolGroupContext *CdbSymbolGroupContext::create(const QString &prefix,
                                                      CIDebugSymbolGroup *symbolGroup,
+                                                     const QStringList &uninitializedVariables,
                                                      QString *errorMessage)
 {
-    CdbSymbolGroupContext *rc = new CdbSymbolGroupContext(prefix, symbolGroup);
+    CdbSymbolGroupContext *rc = new CdbSymbolGroupContext(prefix, symbolGroup, uninitializedVariables);
     if (!rc->init(errorMessage)) {
         delete rc;
         return 0;
@@ -173,28 +188,36 @@ bool CdbSymbolGroupContext::init(QString *errorMessage)
             *errorMessage = QString::fromLatin1("In %1: %2 (%3 symbols)").arg(QLatin1String(Q_FUNC_INFO), msgComFailed("GetSymbolParameters", hr)).arg(count);
             return false;
         }
-        populateINameIndexMap(m_prefix, DEBUG_ANY_ID, 0, count);
+        populateINameIndexMap(m_prefix, DEBUG_ANY_ID, count);
     }
     if (debug)
-        qDebug() << Q_FUNC_INFO << '\n'<< toString();
+        qDebug() << Q_FUNC_INFO << '\n'<< toString(true);
     return true;
 }
 
+/* Make the entries for iname->index mapping. We might encounter
+ * already expanded subitems when doing it for top-level ('this'-pointers),
+ * recurse in that case, (skip over expanded children).
+ * Loop backwards to detect shadowed variables in the order the
+/* debugger expects them:
+\code
+int x;             // Occurrence (1), should be reported as "x <shadowed 1>"
+if (true) {
+   int x = 5; (2)  // Occurrence (2), should be reported as "x"
+}
+\endcode
+ * The order in the symbol group is (1),(2). Give them an iname of
+ * <root>#<shadowed-nr>, which will be split apart for display. */
+
 void CdbSymbolGroupContext::populateINameIndexMap(const QString &prefix, unsigned long parentId,
-                                                  unsigned long start, unsigned long count)
+                                                  unsigned long end)
 {
-    // Make the entries for iname->index mapping. We might encounter
-    // already expanded subitems when doing it for top-level, recurse in that case.
     const QString symbolPrefix = prefix + m_nameDelimiter;
     if (debug)
-        qDebug() << Q_FUNC_INFO << '\n'<< symbolPrefix << start << count;
-    const unsigned long end = m_symbolParameters.size();
-    unsigned long seenChildren = 0;
-    // Skip over expanded children
-    for (unsigned long i = start; i < end && seenChildren < count; i++) {
+        qDebug() << Q_FUNC_INFO << '\n'<< symbolPrefix << parentId << end;
+    for (unsigned long i = end - 1; ; i--) {
         const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(i);
         if (parentId == p.ParentSymbol) {
-            seenChildren++;
             // "__formal" occurs when someone writes "void foo(int /* x */)..."
             static const QString unnamedFormalParameter = QLatin1String("__formal");
             QString symbolName = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolNameWide, i);
@@ -203,11 +226,21 @@ void CdbSymbolGroupContext::populateINameIndexMap(const QString &prefix, unsigne
                 symbolName += QString::number(m_unnamedSymbolNumber++);
                 symbolName += QLatin1Char('>');
             }
-            const QString name = symbolPrefix + symbolName;
+            // Find a unique name in case the variable is shadowed by
+            // an existing one
+            const QString namePrefix = symbolPrefix + symbolName;
+            QString name = namePrefix;
+            for (int n = 1; m_inameIndexMap.contains(name); n++) {
+                name.truncate(namePrefix.size());
+                name += QLatin1Char(iNameShadowDelimiter);
+                name += QString::number(n);
+            }
             m_inameIndexMap.insert(name, i);
             if (getSymbolState(p) == ExpandedSymbol)
-                populateINameIndexMap(name, i, i + 1, p.SubElements);
+                populateINameIndexMap(name, i, i + 1 + p.SubElements);
         }
+        if (i == 0 || i == parentId)
+            break;
     }
 }
 
@@ -223,7 +256,10 @@ QString CdbSymbolGroupContext::toString(bool verbose) const
             str << "    ";
         str << getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolNameWide, i);
         if (p.Flags & DEBUG_SYMBOL_IS_LOCAL)
-            str << " '" << getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, i);
+            str << " '" << getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, i) << '\'';
+        str << " Address: " << hexSymbolOffset(m_symbolGroup, i);
+        if (verbose)
+            str << " '" << getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, i) << '\'';
         str << p << '\n';
     }
     if (verbose) {
@@ -348,7 +384,7 @@ bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long in
         if (it.value() > index)
             it.value() += newSymbolCount;
     // insert the new symbols
-    populateINameIndexMap(prefix, index, index + 1, newSymbolCount);
+    populateINameIndexMap(prefix, index, index + 1 + newSymbolCount);
     if (debug > 1)
         qDebug() << '<' << Q_FUNC_INFO << '\n' << prefix << index << '\n' << toString();
     return true;
@@ -363,14 +399,6 @@ void CdbSymbolGroupContext::clear()
 QString CdbSymbolGroupContext::symbolINameAt(unsigned long index) const
 {
     return m_inameIndexMap.key(index);
-}
-
-static inline QString hexSymbolOffset(CIDebugSymbolGroup *sg, unsigned long index)
-{
-    ULONG64 rc = 0;
-    if (FAILED(sg->GetSymbolOffset(index, &rc)))
-        rc = 0;
-    return QLatin1String("0x") + QString::number(rc, 16);
 }
 
 // check for "0x000", "0x000 class X"
@@ -409,19 +437,35 @@ static inline QString fixValue(const QString &value)
     return removeInnerTemplateType(value);
 }
 
-WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
+WatchData CdbSymbolGroupContext::watchDataAt(unsigned long index) const
 {
     WatchData wd;
     wd.iname = symbolINameAt(index);
     wd.exp = wd.iname;
+    // Determine name from iname and format shadowed variables correctly
+    // as "<shadowed X>, see populateINameIndexMap().
     const int lastDelimiterPos = wd.iname.lastIndexOf(m_nameDelimiter);
+    QString name = lastDelimiterPos == -1 ? wd.iname : wd.iname.mid(lastDelimiterPos + 1);
+    int shadowedNumber = 0;
+    const int shadowedPos = name.lastIndexOf(QLatin1Char(iNameShadowDelimiter));
+    if (shadowedPos != -1) {
+        shadowedNumber = name.mid(shadowedPos + 1).toInt();
+        name.truncate(shadowedPos);
+    }
     // For class hierarchies, we get sometimes complicated std::template types here.
-    // Remove them for display
-    wd.name = removeInnerTemplateType(lastDelimiterPos == -1 ? wd.iname : wd.iname.mid(lastDelimiterPos + 1));
+    // (std::map extends std::tree<>... Remove them for display only.
+    const QString fullShadowedName = WatchData::shadowedName(name, shadowedNumber);
+    wd.name = WatchData::shadowedName(removeInnerTemplateType(name), shadowedNumber);
     wd.addr = hexSymbolOffset(m_symbolGroup, index);
-    const QString type = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index);
+    const QString type = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index);    
+    wd.setType(type);    
+    // Check for unitialized variables at level 0 only.
+    const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(index);
+    if (p.ParentSymbol == DEBUG_ANY_ID && m_uninitializedVariables.contains(fullShadowedName)) {
+        wd.setError(WatchData::msgNotInScope());
+        return wd;
+    }
     const QString value = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
-    wd.setType(type);
     wd.setValue(fixValue(value));
     wd.setChildrenNeeded(); // compensate side effects of above setters
     // Figure out children. The SubElement is only a guess unless the symbol,
@@ -429,7 +473,7 @@ WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
     // If the symbol has children (expanded or not), we leave the 'Children' flag
     // in 'needed' state. Suppress 0-pointers right ("0x000 class X")
     // here as they only lead to children with memory access errors.
-    const bool hasChildren = m_symbolParameters.at(index).SubElements && !isNullPointer(wd);
+    const bool hasChildren = p.SubElements && !isNullPointer(wd);
     wd.setHasChildren(hasChildren);
     if (debug > 1)
         qDebug() << Q_FUNC_INFO << index << '\n' << wd.toString();
@@ -438,7 +482,7 @@ WatchData CdbSymbolGroupContext::symbolAt(unsigned long index) const
 
 WatchData CdbSymbolGroupContext::dumpSymbolAt(CIDebugDataSpaces *ds, unsigned long index)
 {
-    WatchData rc = symbolAt(index);
+    WatchData rc = watchDataAt(index);
     dump(ds, &rc);
     return rc;
 }

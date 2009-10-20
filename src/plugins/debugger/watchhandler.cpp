@@ -105,6 +105,7 @@ WatchData::WatchData() :
     generation(-1),
     valueEnabled(true),
     valueEditable(true),
+    error(false),
     source(0),
     state(InitialState),
     changed(false)
@@ -127,7 +128,8 @@ bool WatchData::isEqual(const WatchData &other) const
       && framekey == other.framekey
       && hasChildren == other.hasChildren
       && valueEnabled == other.valueEnabled
-      && valueEditable == other.valueEditable;
+      && valueEditable == other.valueEditable
+      && error == other.error;
 }
 
 void WatchData::setError(const QString &msg)
@@ -137,6 +139,7 @@ void WatchData::setError(const QString &msg)
     setHasChildren(false);
     valueEnabled = false;
     valueEditable = false;
+    error = true;
 }
 
 void WatchData::setValue(const QString &value0)
@@ -232,6 +235,8 @@ QString WatchData::toString() const
         str << "iname=\"" << iname << doubleQuoteComma;
     if (!name.isEmpty() && name != iname)
         str << "name=\"" << name << doubleQuoteComma;
+    if (error)
+        str << "error,";
     if (!addr.isEmpty())
         str << "addr=\"" << addr << doubleQuoteComma;
     if (!exp.isEmpty())
@@ -308,6 +313,19 @@ QString WatchData::toToolTip() const
         QString::number(generation));
     str << "</table></body></html>";
     return res;
+}
+
+QString WatchData::msgNotInScope()
+{
+    static const QString rc = QCoreApplication::translate("Debugger::Internal::WatchData", "<not in scope>");
+    return rc;
+}
+
+QString WatchData::shadowedName(const QString &name, int seen)
+{
+    if (seen <= 0)
+        return name;
+    return QCoreApplication::translate("Debugger::Internal::WatchData", "%1 <shadowed %2>").arg(name).arg(seen);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -590,9 +608,10 @@ void WatchModel::fetchMore(const QModelIndex &index)
     QTC_ASSERT(index.isValid(), return);
     QTC_ASSERT(!watchItem(index)->fetchTriggered, return);
     if (WatchItem *item = watchItem(index)) {
+        m_handler->m_expandedINames.insert(item->iname);
         item->fetchTriggered = true;
-        WatchData data = *item;
         if (item->children.isEmpty()) {
+            WatchData data = *item;
             data.setChildrenNeeded();
             m_handler->m_manager->updateWatchData(data);
         }
@@ -771,10 +790,13 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
 {
     WatchItem &data = *watchItem(index);
     if (role == ExpandedRole) {
-        if (value.toBool())
+        if (value.toBool()) {
+            // Should already have been triggered by fetchMore()
+            QTC_ASSERT(m_handler->m_expandedINames.contains(data.iname), /**/);
             m_handler->m_expandedINames.insert(data.iname);
-        else
+        } else {
             m_handler->m_expandedINames.remove(data.iname);
+        }
     } else if (role == TypeFormatRole) {
         m_handler->setFormat(data.type, value.toInt());
     } else if (role == IndividualFormatRole) {

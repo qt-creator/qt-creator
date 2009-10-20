@@ -2929,7 +2929,7 @@ static void qDumpQVector(QDumper &d)
 
     d.putItemCount("value", n);
     d.putItem("valueeditable", "false");
-    d.putItem("numchild", n);
+    d.putItem("numchild", nn);
     if (d.dumpChildren) {
         QByteArray strippedInnerType = stripPointerType(d.innerType);
         const char *stripped = innerIsPointerType ? strippedInnerType.data() : 0;
@@ -2998,10 +2998,26 @@ static void qDumpQWeakPointer(QDumper &d)
 #endif // QT_VERSION >= 0x040500
 #endif // QT_BOOTSTRAPPED
 
+#ifdef Q_CC_MSVC
+// A friendly list that grants access to its head.
+template <class T> class FriendlyList : public std::list<T> {
+public:
+    typedef _Node Node;
+    static const Node *head(const std::list<T> *list) {
+        return static_cast<const FriendlyList *>(list)->_Myhead;
+    }
+};
+#endif
+
 static void qDumpStdList(QDumper &d)
 {
     const std::list<int> &list = *reinterpret_cast<const std::list<int> *>(d.data);
 #ifdef Q_CC_MSVC
+    /* Extensive checks to avoid _HAS_ITERATOR_DEBUGGING asserts at all cost.
+     * Examine the head element which is present in empty lists as well.
+     * It could be even further checked if the type was known. */
+    const void *head = FriendlyList<int>::head(&list);
+    qCheckAccess(head);
     const int size = static_cast<int>(list.size());
     if (size < 0)
         return;
@@ -3052,6 +3068,43 @@ static void qDumpStdList(QDumper &d)
     d.disarm();
 }
 
+#ifdef Q_CC_MSVC
+// A friendly red-black tree that is able to access the node type and head
+// pointer. The class _Tree is used for the std::map/std::set implementations in
+// MS VS CC. It has a head element pointer (with left and right) that exists
+// even if it is empty. Provides a check() function to perform extensive checks
+// to avoid _HAS_ITERATOR_DEBUGGING asserts at all cost.
+template <class RedBlackTreeTraits> class FriendlyRedBlackTree : public std::_Tree<RedBlackTreeTraits> {
+public:
+    static inline void check(const std::_Tree<RedBlackTreeTraits> *fs, bool *ok);
+};
+
+template <class RedBlackTreeTraits>
+void FriendlyRedBlackTree<RedBlackTreeTraits>::check(const std::_Tree<RedBlackTreeTraits> *fs, bool *ok)
+{
+    *ok = false;
+    const FriendlyRedBlackTree *friendlyTree =  static_cast<const FriendlyRedBlackTree*>(fs);
+    // Check the red/black tree
+    const _Node *head = friendlyTree->_Myhead;
+    qCheckAccess(head);
+    if (head->_Color != _Red && head->_Color != _Black)
+        return;
+    const _Node *left = head->_Left;
+    if (left && left != head) {
+        qCheckAccess(left);
+        if (left->_Color != _Red && left->_Color != _Black)
+            return;
+    }
+    const _Node *right= head->_Right;
+    if (right && right != left) {
+        qCheckAccess(right);
+        if (right->_Color != _Red && right->_Color != _Black)
+            return;
+    }
+    *ok = true;
+}
+#endif
+
 /* Dump out an arbitrary map. To iterate the map,
  * it is cast to a map of <KeyType,Value>. 'int' can be used for both
  * for all types if the implementation does not depend on the types
@@ -3072,6 +3125,16 @@ static void qDumpStdMapHelper(QDumper &d)
     const int nn = map.size();
     if (nn < 0)
         return;
+#ifdef Q_CC_MSVC
+    // Additional checks to avoid _HAS_ITERATOR_DEBUGGING asserts
+    typedef std::pair<const KeyType, ValueType> RedBlackTreeEntryType;
+    typedef std::_Tmap_traits<KeyType, ValueType, std::less<KeyType>, std::allocator<RedBlackTreeEntryType>, false>
+            MapRedBlackTreeTraits;
+    bool ok;
+    FriendlyRedBlackTree<MapRedBlackTreeTraits>::check(&map, &ok);
+    if (!ok)
+        return;
+#endif
     Q_TYPENAME DummyType::const_iterator it = map.begin();
     const Q_TYPENAME DummyType::const_iterator cend = map.end();
     for (int i = 0; i < nn && i < 10 && it != cend; ++i, ++it)
@@ -3178,6 +3241,15 @@ static void qDumpStdSetHelper(QDumper &d)
     const int nn = set.size();
     if (nn < 0)
         return;
+#ifdef Q_CC_MSVC
+    // Additional checks to avoid _HAS_ITERATOR_DEBUGGING asserts
+    typedef std::_Tset_traits<KeyType, std::less<KeyType> , std::allocator<KeyType>, false>
+            SetRedBlackTreeTraits;
+    bool ok;
+    FriendlyRedBlackTree<SetRedBlackTreeTraits>::check(&set, &ok);
+    if (!ok)
+        return;
+#endif
     Q_TYPENAME DummyType::const_iterator it = set.begin();
     const Q_TYPENAME DummyType::const_iterator cend = set.end();
     for (int i = 0; i < nn && i < 10 && it != cend; ++i, ++it)

@@ -52,8 +52,8 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "Token.h"
 
-CPLUSPLUS_BEGIN_HEADER
-CPLUSPLUS_BEGIN_NAMESPACE
+
+namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT Lexer
 {
@@ -152,7 +152,7 @@ private:
     unsigned _currentLine;
 };
 
-CPLUSPLUS_END_NAMESPACE
-CPLUSPLUS_END_HEADER
+} // end of namespace CPlusPlus
+
 
 #endif // CPLUSPLUS_LEXER_H

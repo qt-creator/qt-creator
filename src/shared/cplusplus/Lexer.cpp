@@ -55,7 +55,7 @@
 
 using namespace std;
 
-CPLUSPLUS_BEGIN_NAMESPACE
+using namespace CPlusPlus;
 
 Lexer::Lexer(TranslationUnit *unit)
     : _translationUnit(unit),
@@ -720,4 +720,4 @@ void Lexer::scan_helper(Token *tok)
     } // switch
 }
 
-CPLUSPLUS_END_NAMESPACE
+

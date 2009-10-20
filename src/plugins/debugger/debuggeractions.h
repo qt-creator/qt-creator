@@ -85,6 +85,8 @@ enum DebuggerActionCode
     UseCustomDebuggingHelperLocation,
     CustomDebuggingHelperLocation,
     DebugDebuggingHelpers,
+
+    UseCodeModel,
     
     UseToolTipsInMainEditor,
     UseToolTipsInLocalsView,

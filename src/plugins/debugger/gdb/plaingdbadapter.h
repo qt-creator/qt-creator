@@ -31,11 +31,8 @@
 #define DEBUGGER_PLAINGDBADAPTER_H
 
 #include "abstractgdbadapter.h"
-#include "gdbengine.h"
-#include "outputcollector.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QProcess>
+#include <outputcollector.h>
 
 namespace Debugger {
 namespace Internal {
@@ -57,18 +54,14 @@ public:
 
     void startAdapter();
     void startInferior();
+    void startInferiorPhase2();
     void interruptInferior();
     void shutdown();
+    const char *inferiorShutdownCommand() const { return "kill"; }
 
 private:
     void handleFileExecAndSymbols(const GdbResponse &response);
-    void handleKill(const GdbResponse &response);
-    void handleExit(const GdbResponse &response);
     void handleExecRun(const GdbResponse &response);
-
-    Q_SLOT void handleGdbFinished(int, QProcess::ExitStatus status);
-    Q_SLOT void handleGdbError(QProcess::ProcessError error);
-    Q_SLOT void handleGdbStarted();
 
     OutputCollector m_outputCollector;
 };

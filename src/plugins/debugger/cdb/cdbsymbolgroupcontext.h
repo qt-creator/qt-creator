@@ -69,12 +69,14 @@ class CdbSymbolGroupContext
 {
     Q_DISABLE_COPY(CdbSymbolGroupContext);
      explicit CdbSymbolGroupContext(const QString &prefix,
-                                    CIDebugSymbolGroup *symbolGroup);
+                                    CIDebugSymbolGroup *symbolGroup,
+                                    const QStringList &uninitializedVariables = QStringList());
 
 public:
     ~CdbSymbolGroupContext();
-    static CdbSymbolGroupContext *create(const QString &prefix,
+    static CdbSymbolGroupContext *create(const QString &prefix,                                         
                                          CIDebugSymbolGroup *symbolGroup,
+                                         const QStringList &uninitializedVariables,
                                          QString *errorMessage);
 
     QString prefix() const { return m_prefix; }
@@ -118,7 +120,7 @@ public:
                                       int dumpedOwner,
                                       OutputIterator it, QString *errorMessage);
 
-    WatchData symbolAt(unsigned long index) const;
+    WatchData watchDataAt(unsigned long index) const;
     // Run the internal dumpers on the symbol
     WatchData dumpSymbolAt(CIDebugDataSpaces *ds, unsigned long index);
 
@@ -155,7 +157,7 @@ private:
                                  unsigned long *parentId,
                                  QString *errorMessage);
     bool expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage);
-    void populateINameIndexMap(const QString &prefix, unsigned long parentId, unsigned long start, unsigned long count);
+    void populateINameIndexMap(const QString &prefix, unsigned long parentId, unsigned long end);
     QString symbolINameAt(unsigned long index) const;
 
     int dumpQString(CIDebugDataSpaces *ds, WatchData *wd);
@@ -166,6 +168,7 @@ private:
 
     const QString m_prefix;
     const QChar m_nameDelimiter;
+    const QSet<QString> m_uninitializedVariables;
 
     CIDebugSymbolGroup *m_symbolGroup;
     NameIndexMap m_inameIndexMap;
