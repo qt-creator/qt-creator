@@ -1019,8 +1019,13 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
 
         // find a scope that encloses the current location, starting from the lastVisibileSymbol
         // and moving outwards
-        Scope *sc = context.symbol()->scope();
-        while (sc->enclosingScope()) {
+        Scope *sc = 0;
+        if (context.symbol())
+            sc = context.symbol()->scope();
+        else if (context.thisDocument())
+            sc = context.thisDocument()->globalSymbols();
+
+        while (sc && sc->enclosingScope()) {
             unsigned startLine, startColumn;
             context.thisDocument()->translationUnit()->getPosition(sc->owner()->startOffset(), &startLine, &startColumn);
             unsigned endLine, endColumn;
@@ -1034,7 +1039,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
             sc = sc->enclosingScope();
         }
 
-        if (sc->isClassScope() || sc->isNamespaceScope())
+        if (sc && (sc->isClassScope() || sc->isNamespaceScope()))
         {
             // It may still be a function call. If the whole line parses as a function
             // declaration, we should be certain that it isn't.
