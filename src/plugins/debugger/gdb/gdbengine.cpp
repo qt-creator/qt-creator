@@ -703,7 +703,6 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
         } else {
             // Queue the commands that we cannot send at once.
             showStatusMessage(tr("Stopping temporarily."), 1000);
-            qDebug() << _("QUEUING COMMAND ") + cmd.command;
             debugMessage(_("QUEUING COMMAND ") + cmd.command);
             m_commandsToRunOnTemporaryBreak.append(cmd);
             interruptInferior();
@@ -3463,7 +3462,7 @@ void GdbEngine::handleStackFrame2(const GdbResponse &response)
         out = m_firstChunk + out;
         int pos = out.indexOf("locals=");
         if (pos != 0) {
-            qDebug() << "DICARDING JUNK AT BEGIN OF RESPONSE: " 
+            qDebug() << "DISCARDING JUNK AT BEGIN OF RESPONSE: "
                 << out.left(pos);
             out = out.mid(pos);
         }
