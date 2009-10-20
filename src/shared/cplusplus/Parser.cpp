@@ -2402,9 +2402,17 @@ bool Parser::parseNamespaceAliasDefinition(DeclarationAST *&node)
 
 bool Parser::parseDeclarationStatement(StatementAST *&node)
 {
+    unsigned start = cursor();
     DeclarationAST *declaration = 0;
     if (! parseBlockDeclaration(declaration))
         return false;
+
+    if (SimpleDeclarationAST *simpleDeclaration = declaration->asSimpleDeclaration()) {
+        if (! simpleDeclaration->decl_specifier_seq) {
+            rewind(start);
+            return false;
+        }
+    }
 
     DeclarationStatementAST *ast = new (_pool) DeclarationStatementAST;
     ast->declaration = declaration;
