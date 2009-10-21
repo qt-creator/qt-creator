@@ -63,11 +63,12 @@ public:
 
     void setCMakeExecutable(const QString &executable);
 
-    QProcess* createXmlFile(const QStringList &arguments,
-                            const QString &sourceDirectory,
-                            const QDir &buildDirectory,
-                            const ProjectExplorer::Environment &env,
-                            const QString &generator);
+    void createXmlFile(QProcess *process,
+                       const QStringList &arguments,
+                       const QString &sourceDirectory,
+                       const QDir &buildDirectory,
+                       const ProjectExplorer::Environment &env,
+                       const QString &generator);
     bool hasCodeBlocksMsvcGenerator() const;
     static QString findCbpFile(const QDir &);
 
