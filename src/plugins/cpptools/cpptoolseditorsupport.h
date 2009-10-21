@@ -89,7 +89,6 @@ protected:
     QTextCursor moveAtEndOfToken(unsigned index) const;
 
 private:
-    CPlusPlus::AST *_node;
     CPlusPlus::Document::Ptr _doc;
     CPlusPlus::Snapshot _snapshot;
     QTextCursor _textCursor;
