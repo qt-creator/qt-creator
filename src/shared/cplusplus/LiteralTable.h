@@ -175,8 +175,6 @@ protected:
     }
 
 protected:
-    MemoryPool *_pool;
-
     _Literal **_literals;
     int _allocatedLiterals;
     int _literalCount;
