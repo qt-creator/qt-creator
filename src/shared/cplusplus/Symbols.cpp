@@ -589,6 +589,7 @@ void ObjCBaseProtocol::visitSymbol0(SymbolVisitor *visitor)
 
 ObjCClass::ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
         ScopedSymbol(translationUnit, sourceLocation, name),
+        _isInterface(false),
         _categoryName(0),
         _baseClass(0)
 {
