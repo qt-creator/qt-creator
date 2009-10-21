@@ -545,6 +545,8 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
     : client(client),
       env(env),
       _expand(env),
+      _skipping(MAX_LEVEL),
+      _true_test(MAX_LEVEL),
       _result(0),
       _markGeneratedTokens(false),
       _expandMacros(true)
