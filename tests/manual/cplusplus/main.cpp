@@ -95,11 +95,9 @@ public:
             "#include \"AST.h\"\n"
             "#include \"ASTVisitor.h\"\n"
             "\n"
-            "CPLUSPLUS_BEGIN_NAMESPACE\n" << std::endl;
+            "using namespace CPlusPlus;\n" << std::endl;
 
         accept(ast);
-
-        std::cout << "CPLUSPLUS_END_NAMESPACE" << std::endl;
     }
 
 protected:
@@ -250,14 +248,12 @@ public:
             "\n"
             "#include \"AST.h\"\n"
             "\n"
-            "CPLUSPLUS_BEGIN_NAMESPACE\n" << std::endl;
+            "using namespace CPlusPlus;\n" << std::endl;
 
         SearchListNodes listNodes(control());
         _listNodes = listNodes(ast);
 
         accept(ast);
-
-        std::cout << "CPLUSPLUS_END_NAMESPACE" << std::endl;
     }
 
 protected:
@@ -354,9 +350,7 @@ int main(int argc, char *argv[])
             const QByteArray appFileName = QFile::encodeName(appInfo.fileName());
 
             printf("Usage: %s [options]\n"
-                   "  --help                    Display this information\n"
-                   "  --test-rewriter           Test the tree rewriter\n"
-                   "  --test-pretty-printer     Test the pretty printer\n",
+                   "  --help                    Display this information\n",
                    appFileName.constData());
 
             return EXIT_SUCCESS;
