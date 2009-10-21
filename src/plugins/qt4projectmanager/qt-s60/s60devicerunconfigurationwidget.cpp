@@ -93,8 +93,8 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     // Serial devices control
     connect(m_serialPortsCombo, SIGNAL(activated(int)), this, SLOT(setSerialPort(int)));
     QHBoxLayout *serialPortHBoxLayout = new QHBoxLayout;
-    serialPortHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
     serialPortHBoxLayout->addWidget(m_serialPortsCombo);
+    serialPortHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
 
     formLayout->addRow(tr("Device on Serial Port:"), serialPortHBoxLayout);
 
