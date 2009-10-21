@@ -1616,8 +1616,13 @@ void GdbEngine::runToLineExec(const QString &fileName, int lineNumber)
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Run to line %1 requested...").arg(lineNumber), 5000);
-    postCommand(_("-exec-until %1:%2").arg(fileName).arg(lineNumber),
-                RunRequest, CB(handleExecContinue));
+    if (m_gdbVersion < 60500) { // We just know that 6.4 on S60 is broken
+        postCommand(_("tbreak %1:%2").arg(fileName).arg(lineNumber));
+        postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
+    } else {
+        postCommand(_("-exec-until %1:%2").arg(fileName).arg(lineNumber),
+                    RunRequest, CB(handleExecContinue));
+    }
 }
 
 void GdbEngine::runToFunctionExec(const QString &functionName)
