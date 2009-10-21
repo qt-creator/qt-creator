@@ -705,7 +705,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
             showStatusMessage(tr("Stopping temporarily."), 1000);
             debugMessage(_("QUEUING COMMAND ") + cmd.command);
             m_commandsToRunOnTemporaryBreak.append(cmd);
-            interruptInferior();
+            interruptInferior(); // FIXME: race condition between gdb and kill()
         }
     } else if (!cmd.command.isEmpty()) {
         flushCommand(cmd);
