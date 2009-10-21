@@ -255,9 +255,6 @@ void MakeStepConfigWidget::init(const QString &buildConfiguration)
 {
     m_buildConfiguration = buildConfiguration;
 
-    Qt4Project *pro = qobject_cast<Qt4Project *>(m_makeStep->project());
-    Q_ASSERT(pro);
-
     if (!m_makeStep->value(buildConfiguration, "cleanConfig").isValid() && m_makeStep->value("clean").isValid() && m_makeStep->value("clean").toBool()) {
         // Import old settings
         m_makeStep->setValue(buildConfiguration, "cleanConfig", true);
