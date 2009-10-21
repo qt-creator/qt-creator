@@ -179,7 +179,7 @@ private:
     MacroExpander _expand;
 
     QBitArray _skipping; // ### move in state
-    QBitArray _true_test; // ### move in state
+    QBitArray _trueTest; // ### move in state
     int iflevel; // ### move in state
 
     QList<State> _savedStates;

@@ -546,7 +546,7 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
       env(env),
       _expand(env),
       _skipping(MAX_LEVEL),
-      _true_test(MAX_LEVEL),
+      _trueTest(MAX_LEVEL),
       _result(0),
       _markGeneratedTokens(false),
       _expandMacros(true)
@@ -1270,7 +1270,7 @@ void Preprocessor::processIf(TokenIterator firstToken, TokenIterator lastToken)
                                             tokens.constEnd() - 1,
                                             condition);
 
-        _true_test[iflevel] = ! result.is_zero ();
+        _trueTest[iflevel] = ! result.is_zero ();
         _skipping[iflevel]  =   result.is_zero ();
     }
 }
@@ -1284,7 +1284,7 @@ void Preprocessor::processElse(TokenIterator firstToken, TokenIterator lastToken
     } else if (iflevel > 0 && _skipping[iflevel - 1]) {
         _skipping[iflevel] = true;
     } else {
-        _skipping[iflevel] = _true_test[iflevel];
+        _skipping[iflevel] = _trueTest[iflevel];
     }
 }
 
@@ -1298,7 +1298,7 @@ void Preprocessor::processElif(TokenIterator firstToken, TokenIterator lastToken
         // std::cerr << "*** WARNING: " << __FILE__ << __LINE__ << std::endl;
     } else if (iflevel == 0 && !skipping()) {
         // std::cerr << "*** WARNING #else without #if" << std::endl;
-    } else if (!_true_test[iflevel] && !_skipping[iflevel - 1]) {
+    } else if (!_trueTest[iflevel] && !_skipping[iflevel - 1]) {
 
         const char *first = startOfToken(*tk);
         const char *last = startOfToken(*lastToken);
@@ -1314,7 +1314,7 @@ void Preprocessor::processElif(TokenIterator firstToken, TokenIterator lastToken
                                             tokens.constEnd() - 1,
                                             condition);
 
-        _true_test[iflevel] = ! result.is_zero ();
+        _trueTest[iflevel] = ! result.is_zero ();
         _skipping[iflevel]  =   result.is_zero ();
     } else {
         _skipping[iflevel] = true;
@@ -1327,7 +1327,7 @@ void Preprocessor::processEndif(TokenIterator, TokenIterator)
         // std::cerr << "*** WARNING #endif without #if" << std::endl;
     } else {
         _skipping[iflevel] = false;
-        _true_test[iflevel] = false;
+        _trueTest[iflevel] = false;
 
         --iflevel;
     }
@@ -1349,7 +1349,7 @@ void Preprocessor::processIfdef(bool checkUndefined,
             if (checkUndefined)
                 value = ! value;
 
-            _true_test[iflevel] =   value;
+            _trueTest[iflevel] =   value;
             _skipping [iflevel] = ! value;
         }
     }
@@ -1375,7 +1375,7 @@ void Preprocessor::resetIfLevel ()
 {
     iflevel = 0;
     _skipping[iflevel] = false;
-    _true_test[iflevel] = false;
+    _trueTest[iflevel] = false;
 }
 
 Preprocessor::PP_DIRECTIVE_TYPE Preprocessor::classifyDirective(const QByteArray &directive) const
@@ -1433,7 +1433,7 @@ bool Preprocessor::testIfLevel()
 {
     const bool result = !_skipping[iflevel++];
     _skipping[iflevel] = _skipping[iflevel - 1];
-    _true_test[iflevel] = false;
+    _trueTest[iflevel] = false;
     return result;
 }
 
