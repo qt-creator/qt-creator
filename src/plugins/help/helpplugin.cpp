@@ -639,6 +639,16 @@ void HelpPlugin::extensionsInitialized()
         needsSetup = true;
     }
 
+    QString addedDocs = m_helpEngine->customValue(QLatin1String("AddedDocs")).toString();
+    if (!addedDocs.isEmpty()) {
+        QStringList documentationToAdd = addedDocs.split(";");
+        foreach(QString item, documentationToAdd) {
+            needsSetup = true;
+            m_helpEngine->registerDocumentation(item);
+        }
+        m_helpEngine->removeCustomValue(QLatin1String("AddedDocs"));
+    }
+
     if (needsSetup)
         m_helpEngine->setupData();
 
