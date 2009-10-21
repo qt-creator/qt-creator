@@ -74,6 +74,7 @@ ClassNamePage::ClassNamePage(QWidget *parent) :
     m_newClassWidget->setFormInputVisible(false);
     m_newClassWidget->setNamespacesEnabled(true);
     m_newClassWidget->setAllowDirectories(true);
+    m_newClassWidget->setBaseClassInputVisible(true);
 
     connect(m_newClassWidget, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
 
@@ -154,6 +155,7 @@ CppClassWizardParameters  CppClassWizardDialog::parameters() const
     rc.sourceFile = ncw->sourceFileName();
     rc.baseClass = ncw->baseClassName();
     rc.path = ncw->path();
+    rc.inheritsQObject = ncw->inheritsQObject();
     return rc;
 }
 
@@ -253,6 +255,8 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     else
         headerStr << "\n";
     headerStr << namespaceIndent << "{\n";
+    if (params.inheritsQObject)
+        headerStr << namespaceIndent << "Q_OBJECT\n";
     headerStr << namespaceIndent << "public:\n"
               << namespaceIndent << indent << unqualifiedClassName << "();\n";
     headerStr << namespaceIndent << "};\n";

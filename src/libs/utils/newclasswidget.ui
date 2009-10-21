@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>Utils::NewClassWidget</class>
  <widget class="QWidget" name="Utils::NewClassWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>213</width>
+    <height>190</height>
+   </rect>
+  </property>
   <layout class="QFormLayout" name="formLayout">
    <property name="fieldGrowthPolicy">
     <enum>QFormLayout::ExpandingFieldsGrow</enum>
@@ -36,7 +44,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -52,7 +60,7 @@
      </property>
     </spacer>
    </item>
-   <item row="2" column="1">
+   <item row="3" column="1">
     <spacer name="verticalSpacer_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -68,57 +76,64 @@
      </property>
     </spacer>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="headerLabel">
      <property name="text">
       <string>Header file:</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="4" column="1">
     <widget class="Utils::FileNameValidatingLineEdit" name="headerFileLineEdit"/>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="sourceLabel">
      <property name="text">
       <string>Source file:</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
+   <item row="5" column="1">
     <widget class="Utils::FileNameValidatingLineEdit" name="sourceFileLineEdit"/>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="generateFormLabel">
      <property name="text">
       <string>Generate form:</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QLabel" name="formLabel">
      <property name="text">
       <string>Form file:</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="7" column="1">
     <widget class="Utils::FileNameValidatingLineEdit" name="formFileLineEdit"/>
    </item>
-   <item row="7" column="0">
+   <item row="8" column="0">
     <widget class="QLabel" name="pathLabel">
      <property name="text">
       <string>Path:</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="8" column="1">
     <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
    </item>
-   <item row="5" column="1">
+   <item row="6" column="1">
     <widget class="QCheckBox" name="generateFormCheckBox">
      <property name="text">
       <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="qobjectCheckBox">
+     <property name="text">
+      <string>Inherits QObject</string>
      </property>
     </widget>
    </item>
