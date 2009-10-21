@@ -104,17 +104,11 @@ public:
 
     inline QString fileName() const { return m_fileName; }
     inline Engine *engine() const { return m_engine; }
-#ifndef J_SCRIPT_NO_EVENT_NOTIFY
-    inline qint64 id() const { return m_id; }
-#endif
 
 private:
     QHash<AST::Node*, Code*> m_codeCache;
     QString m_fileName;
     Engine *m_engine;
-#ifndef J_SCRIPT_NO_EVENT_NOTIFY
-    qint64 m_id;
-#endif
 
 private:
     Q_DISABLE_COPY(NodePool)
