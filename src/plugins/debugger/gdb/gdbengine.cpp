@@ -3453,7 +3453,7 @@ void GdbEngine::handleStackFrame1(const GdbResponse &response)
         //qDebug() << "FIRST CHUNK: " << out;
         m_firstChunk = out;
     } else {
-        QTC_ASSERT(false, /**/);
+        QTC_ASSERT(false, qDebug() << response.toString());
     }
 }
 

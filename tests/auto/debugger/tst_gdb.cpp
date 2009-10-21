@@ -140,6 +140,7 @@ private slots:
     void dumpMisc();
     void dumpQByteArray();
     void dumpQChar();
+    void dumpQList_char_star();
     void dumpQList_char();
     void dumpQList_int();
     void dumpQList_QString();
@@ -2168,7 +2169,8 @@ void Thread::readStandardOutput()
         DEBUG(" LINE 2: " << m_line);
     }
     if (ba.startsWith("^error,msg=")) {
-        qWarning() << "ERROR: " << ba.mid(1, ba.size() - 3);
+        if (!ba.startsWith("^error,msg=\"The program being debugged stopped"))
+            qWarning() << "ERROR: " << ba.mid(1, ba.size() - 3);
     }
 
     if (ba.startsWith("~\"XXX: ")) {
@@ -2237,12 +2239,16 @@ tst_Gdb::tst_Gdb()
     }
 }
 
-
 void tst_Gdb::prepare(const QByteArray &function)
 {
     m_function = function;
     writeToGdb("b " + function);
     writeToGdb("call " + function + "()");
+}
+
+static bool isJoker(const QByteArray &ba)
+{
+    return ba.endsWith("'-'") || ba.contains("'-'}");
 }
 
 void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
@@ -2273,7 +2279,7 @@ void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
     if (ok) {
         for (int i = 0 ; i < l1.size(); ++i) {
             // Use "-" as joker.
-            if (l1.at(i) != l2.at(i) && !l2.at(i).endsWith("'-'"))
+            if (l1.at(i) != l2.at(i) && !isJoker(l2.at(i)))
                 ok = false;
         }
     } else {
@@ -2283,7 +2289,7 @@ void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
     if (!ok) {
         int i = 0;
         for ( ; i < l1.size() && i < l2.size(); ++i) {
-            if (l1.at(i) == l2.at(i) || l2.at(i).endsWith("'-'")) {
+            if (l1.at(i) == l2.at(i) || isJoker(l2.at(i))) {
                 qWarning() << "== " << l1.at(i);
             } else {
                 //qWarning() << "!= " << l1.at(i).right(30) << l2.at(i).right(30);
@@ -2336,40 +2342,41 @@ void tst_Gdb::cleanupTestCase()
 
 void dumpQList_int()
 {
-    /* A */ QList<int> ilist;
-    /* B */ ilist.append(1);
-    /* C */ ilist.append(2);
+    /* A */ QList<int> list;
+    /* B */ list.append(1);
+    /* C */ list.append(2);
     /* D */ (void) 0;
 }
 
 void tst_Gdb::dumpQList_int()
 {
     prepare("dumpQList_int");
-    run("A","{iname='local.ilist',addr='-',name='ilist',"
-            "type='"NS"QList<int>',value='<not in scope>',numchild='0'}");
+    if (checkUninitialized)
+        run("A","{iname='local.list',addr='-',name='list',"
+                "type='"NS"QList<int>',value='<not in scope>',numchild='0'}");
     next();
-    run("B","{iname='local.ilist',addr='-',name='ilist',"
+    run("B","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<int>',value='<0 items>',numchild='0'}");
     next();
-    run("C","{iname='local.ilist',addr='-',name='ilist',"
+    run("C","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<int>',value='<1 items>',numchild='1'}");
-    run("C","{iname='local.ilist',addr='-',name='ilist',"
+    run("C","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<int>',value='<1 items>',numchild='1',"
             "childtype='int',childnumchild='0',children=["
-            "{value='1'}]}", "local.ilist");
+            "{value='1'}]}", "local.list");
     next();
-    run("D","{iname='local.ilist',addr='-',name='ilist',"
+    run("D","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<int>',value='<2 items>',numchild='2'}");
-    run("D","{iname='local.ilist',addr='-',name='ilist',"
+    run("D","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<int>',value='<2 items>',numchild='2',"
             "childtype='int',childnumchild='0',children=["
-            "{value='1'},{value='2'}]}", "local.ilist");
+            "{value='1'},{value='2'}]}", "local.list");
 }
 
 void dumpQList_char()
 {
-    /* A */ QList<char> ilist;
-    /* B */ ilist.append('a');
+    /* A */ QList<char> list;
+    /* B */ list.append('a');
     /* C */ (void) 0;
 }
 
@@ -2377,18 +2384,53 @@ void tst_Gdb::dumpQList_char()
 {
     prepare("dumpQList_char");
     if (checkUninitialized)
-        run("A","{iname='local.ilist',addr='-',name='ilist',"
+        run("A","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<char>',value='<not in scope>',numchild='0'}");
     next();
-    run("B","{iname='local.ilist',addr='-',name='ilist',"
+    run("B","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<char>',value='<0 items>',numchild='0'}");
     next();
-    run("C","{iname='local.ilist',addr='-',name='ilist',"
+    run("C","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<char>',value='<1 items>',numchild='1'}");
-    run("C","{iname='local.ilist',addr='-',name='ilist',"
+    run("C","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<char>',value='<1 items>',numchild='1',"
             "childtype='char',childnumchild='0',children=["
-            "{value='97 'a''}]}", "local.ilist");
+            "{value='97 'a''}]}", "local.list");
+}
+
+void dumpQList_char_star()
+{
+    /* A */ QList<const char *> list;
+    /* B */ list.append("a");
+    /* C */ list.append(0);
+    /* D */ list.append("bc");
+    /* E */ (void) 0;
+}
+
+void tst_Gdb::dumpQList_char_star()
+{
+    prepare("dumpQList_char_star");
+    if (checkUninitialized)
+        run("A","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char const*>',value='<not in scope>',numchild='0'}");
+    next();
+    run("B","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char const*>',value='<0 items>',numchild='0'}");
+    next();
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char const*>',value='<1 items>',numchild='1'}");
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char const*>',value='<1 items>',numchild='1',"
+            "childtype='const char *',childnumchild='1',children=["
+            "{valueencoded='6',value='61',numchild='0'}]}", "local.list");
+    next();
+    next();
+    run("E","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char const*>',value='<3 items>',numchild='3',"
+            "childtype='const char *',childnumchild='1',children=["
+            "{valueencoded='6',value='61',numchild='0'},"
+            "{value='0x0',numchild='0'},"
+            "{valueencoded='6',value='6263',numchild='0'}]}", "local.list");
 }
 
 void dumpQList_QString()
