@@ -135,6 +135,8 @@ void FindPlugin::openFindFilter()
     QAction *action = qobject_cast<QAction*>(sender());
     QTC_ASSERT(action, return);
     IFindFilter *filter = action->data().value<IFindFilter *>();
+    if (m_currentDocumentFind->candidateIsEnabled())
+        m_currentDocumentFind->acceptCandidate();
     QString currentFindString = (m_currentDocumentFind->isEnabled() ? m_currentDocumentFind->currentFindString() : "");
     if (!currentFindString.isEmpty())
         m_findDialog->setFindText(currentFindString);
