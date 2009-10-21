@@ -1267,6 +1267,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
         QRegExp supported(_("GNU gdb(.*) (\\d+)\\.(\\d+)(\\.(\\d+))?(-(\\d+))?"));
         if (supported.indexIn(msg) == -1) {
             debugMessage(_("UNSUPPORTED GDB VERSION ") + msg);
+#if 0
             QStringList list = msg.split(_c('\n'));
             while (list.size() > 2)
                 list.removeLast();
@@ -1282,6 +1283,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
             err->showMessage(msg);
 #else
             //showMessageBox(QMessageBox::Information, tr("Warning"), msg);
+#endif
 #endif
         } else {
             m_gdbVersion = 10000 * supported.cap(2).toInt()
