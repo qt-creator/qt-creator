@@ -28,13 +28,12 @@
 **************************************************************************/
 
 #include "s60devicerunconfiguration.h"
-
+#include "s60devicerunconfigurationwidget.h"
 #include "qt4project.h"
 #include "qtversionmanager.h"
 #include "profilereader.h"
 #include "s60manager.h"
 #include "s60devices.h"
-#include "serialdevicelister.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -47,11 +46,6 @@
 #include <projectexplorer/persistentsettings.h>
 
 #include <debugger/debuggermanager.h>
-
-#include <QtGui/QRadioButton>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QComboBox>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
@@ -313,139 +307,6 @@ void S60DeviceRunConfiguration::invalidateCachedTargetInformation()
     emit targetInformationChanged();
 }
 
-// ======== S60DeviceRunConfigurationWidget
-
-S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
-        S60DeviceRunConfiguration *runConfiguration,
-        QWidget *parent)
-    : QWidget(parent),
-    m_runConfiguration(runConfiguration)
-{
-    QVBoxLayout *mainBoxLayout = new QVBoxLayout();
-    mainBoxLayout->setMargin(0);
-    setLayout(mainBoxLayout);
-    QFormLayout *formLayout = new QFormLayout();
-    formLayout->setMargin(0);
-    mainBoxLayout->addLayout(formLayout);
-
-    QLabel *nameLabel = new QLabel(tr("Name:"));
-    m_nameLineEdit = new QLineEdit(m_runConfiguration->name());
-    nameLabel->setBuddy(m_nameLineEdit);
-    formLayout->addRow(nameLabel, m_nameLineEdit);
-
-    m_sisxFileLabel = new QLabel(m_runConfiguration->basePackageFilePath() + ".sisx");
-    formLayout->addRow(tr("Install File:"), m_sisxFileLabel);
-
-    m_serialPorts = new QComboBox;
-    updateSerialDevices();
-    connect(S60Manager::instance()->serialDeviceLister(), SIGNAL(updated()),
-            this, SLOT(updateSerialDevices()));
-    connect(m_serialPorts, SIGNAL(activated(int)), this, SLOT(setSerialPort(int)));
-    formLayout->addRow(tr("Device on Serial Port:"), m_serialPorts);
-
-    QWidget *signatureWidget = new QWidget();
-    QVBoxLayout *layout = new QVBoxLayout();
-    signatureWidget->setLayout(layout);
-    mainBoxLayout->addWidget(signatureWidget);
-    QRadioButton *selfSign = new QRadioButton(tr("Self-signed certificate"));
-    QHBoxLayout *customHBox = new QHBoxLayout();
-    customHBox->setMargin(0);
-    QVBoxLayout *radioLayout = new QVBoxLayout();
-    QRadioButton *customSignature = new QRadioButton();
-    radioLayout->addWidget(customSignature);
-    radioLayout->addStretch(10);
-    customHBox->addLayout(radioLayout);
-    QFormLayout *customLayout = new QFormLayout();
-    customLayout->setMargin(0);
-    customLayout->setLabelAlignment(Qt::AlignRight);
-    Utils::PathChooser *signaturePath = new Utils::PathChooser();
-    signaturePath->setExpectedKind(Utils::PathChooser::File);
-    signaturePath->setPromptDialogTitle(tr("Choose certificate file (.cer)"));
-    customLayout->addRow(new QLabel(tr("Custom certificate:")), signaturePath);
-    Utils::PathChooser *keyPath = new Utils::PathChooser();
-    keyPath->setExpectedKind(Utils::PathChooser::File);
-    keyPath->setPromptDialogTitle(tr("Choose key file (.key / .pem)"));
-    customLayout->addRow(new QLabel(tr("Key file:")), keyPath);
-    customHBox->addLayout(customLayout);
-    customHBox->addStretch(10);
-    layout->addWidget(selfSign);
-    layout->addLayout(customHBox);
-    layout->addStretch(10);
-
-    switch (m_runConfiguration->signingMode()) {
-    case S60DeviceRunConfiguration::SignSelf:
-        selfSign->setChecked(true);
-        break;
-    case S60DeviceRunConfiguration::SignCustom:
-        customSignature->setChecked(true);
-        break;
-    }
-
-    signaturePath->setPath(m_runConfiguration->customSignaturePath());
-    keyPath->setPath(m_runConfiguration->customKeyPath());
-
-    connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
-        this, SLOT(nameEdited(QString)));
-    connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
-            this, SLOT(updateTargetInformation()));
-    connect(selfSign, SIGNAL(toggled(bool)), this, SLOT(selfSignToggled(bool)));
-    connect(customSignature, SIGNAL(toggled(bool)), this, SLOT(customSignatureToggled(bool)));
-    connect(signaturePath, SIGNAL(changed(QString)), this, SLOT(signaturePathChanged(QString)));
-    connect(keyPath, SIGNAL(changed(QString)), this, SLOT(keyPathChanged(QString)));
-}
-
-void S60DeviceRunConfigurationWidget::updateSerialDevices()
-{
-    m_serialPorts->clear();
-    QString runConfigurationPortName = m_runConfiguration->serialPortName();
-    QList<SerialDeviceLister::SerialDevice> serialDevices = S60Manager::instance()->serialDeviceLister()->serialDevices();
-    for (int i = 0; i < serialDevices.size(); ++i) {
-        const SerialDeviceLister::SerialDevice &device = serialDevices.at(i);
-        m_serialPorts->addItem(device.friendlyName, device.portName);
-        if (device.portName == runConfigurationPortName)
-            m_serialPorts->setCurrentIndex(i);
-    }
-    QString selectedPortName = m_serialPorts->itemData(m_serialPorts->currentIndex()).toString();
-    if (m_serialPorts->count() > 0 && runConfigurationPortName != selectedPortName)
-        m_runConfiguration->setSerialPortName(selectedPortName);
-}
-
-void S60DeviceRunConfigurationWidget::nameEdited(const QString &text)
-{
-    m_runConfiguration->setName(text);
-}
-
-void S60DeviceRunConfigurationWidget::updateTargetInformation()
-{
-    m_sisxFileLabel->setText(m_runConfiguration->basePackageFilePath() + ".sisx");
-}
-
-void S60DeviceRunConfigurationWidget::setSerialPort(int index)
-{
-    m_runConfiguration->setSerialPortName(m_serialPorts->itemData(index).toString());
-}
-
-void S60DeviceRunConfigurationWidget::selfSignToggled(bool toggle)
-{
-    if (toggle)
-        m_runConfiguration->setSigningMode(S60DeviceRunConfiguration::SignSelf);
-}
-
-void S60DeviceRunConfigurationWidget::customSignatureToggled(bool toggle)
-{
-    if (toggle)
-        m_runConfiguration->setSigningMode(S60DeviceRunConfiguration::SignCustom);
-}
-
-void S60DeviceRunConfigurationWidget::signaturePathChanged(const QString &path)
-{
-    m_runConfiguration->setCustomSignaturePath(path);
-}
-
-void S60DeviceRunConfigurationWidget::keyPathChanged(const QString &path)
-{
-    m_runConfiguration->setCustomKeyPath(path);
-}
 
 // ======== S60DeviceRunConfigurationFactory
 

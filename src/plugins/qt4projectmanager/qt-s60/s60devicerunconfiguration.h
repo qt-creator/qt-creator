@@ -35,15 +35,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/toolchain.h>
 
-#include <QtGui/QWidget>
-
 #include <QtCore/QProcess>
-
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QLineEdit;
-class QComboBox;
-QT_END_NAMESPACE
 
 namespace Debugger {
     class DebuggerStartParameters;
@@ -109,30 +101,6 @@ private:
     SigningMode m_signingMode;
     QString m_customSignaturePath;
     QString m_customKeyPath;
-};
-
-class S60DeviceRunConfigurationWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit S60DeviceRunConfigurationWidget(S60DeviceRunConfiguration *runConfiguration,
-                                      QWidget *parent = 0);
-
-private slots:
-    void nameEdited(const QString &text);
-    void updateTargetInformation();
-    void updateSerialDevices();
-    void setSerialPort(int index);
-    void selfSignToggled(bool toggle);
-    void customSignatureToggled(bool toggle);
-    void signaturePathChanged(const QString &path);
-    void keyPathChanged(const QString &path);
-
-private:
-    S60DeviceRunConfiguration *m_runConfiguration;
-    QComboBox *m_serialPorts;
-    QLineEdit *m_nameLineEdit;
-    QLabel *m_sisxFileLabel;
 };
 
 class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

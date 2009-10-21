@@ -36,6 +36,75 @@
 
 namespace trk {
 
+TrkAppVersion::TrkAppVersion()
+{
+    reset();
+}
+
+void TrkAppVersion::reset()
+{
+    trkMajor = trkMinor= protocolMajor = protocolMinor = 0;
+}
+
+Session::Session()
+{
+    reset();
+}
+
+void Session::reset()
+{
+    cpuMajor = 0;
+    cpuMinor = 0;
+    bigEndian = 0;
+    defaultTypeSize = 0;
+    fpTypeSize = 0;
+    extended1TypeSize = 0;
+    extended2TypeSize = 0;
+    pid = 0;
+    tid = 0;
+    codeseg = 0;
+    dataseg = 0;
+
+    currentThread = 0;
+    libraries.clear();
+    trkAppVersion.reset();
+}
+
+inline void formatCpu(QTextStream &str,int major, int minor)
+{
+    str << "CPU: v" << major << '.' << minor;
+    switch (major) {
+    case 0x04:
+        str << " ARM";
+        break;
+    }
+    switch (minor) {
+    case 0x00:
+        str << " 920T";
+        break;
+    }
+ }
+
+QString Session::deviceDescription(unsigned verbose) const
+{
+    QString msg;
+    if (cpuMajor) {
+        QTextStream str(&msg);
+        formatCpu(str, cpuMajor, cpuMinor);
+        str << ", "  << (bigEndian ? "big endian" : "little endian");
+        if (verbose) {
+            if (defaultTypeSize)
+                str << ", type size: " << defaultTypeSize;
+            if (fpTypeSize)
+                str << ", float size: " << fpTypeSize;
+        }
+        str << ", Trk: v" << trkAppVersion.trkMajor << '.' << trkAppVersion.trkMinor
+            << " Protocol: v" << trkAppVersion.protocolMajor << '.' << trkAppVersion.protocolMinor;
+    }
+    return msg;
+}
+
+
 // FIXME: Use the QByteArray based version below?
 QString stringFromByte(byte c)
 {

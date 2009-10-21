@@ -102,26 +102,21 @@ struct Library
     uint dataseg;
 };
 
+struct TrkAppVersion {
+    TrkAppVersion();
+    void reset();    
+
+    int trkMajor;
+    int trkMinor;
+    int protocolMajor;
+    int protocolMinor;
+};
+
 struct Session
 {
-    Session() { reset(); }
-
-    void reset() {
-        cpuMajor = 0;
-        cpuMinor = 0;
-        bigEndian = 0;
-        defaultTypeSize = 0;
-        fpTypeSize = 0;
-        extended1TypeSize = 0;
-        extended2TypeSize = 0;
-        pid = 0;
-        tid = 0;
-        codeseg = 0;
-        dataseg = 0;
-
-        currentThread = 0;
-        libraries.clear();
-    }
+    Session();
+    void reset();
+    QString deviceDescription(unsigned verbose) const;
 
     // Trk feedback
     byte cpuMajor;
@@ -131,6 +126,7 @@ struct Session
     byte fpTypeSize;
     byte extended1TypeSize;
     byte extended2TypeSize;
+    TrkAppVersion trkAppVersion;
     uint pid;
     uint tid;
     uint codeseg;

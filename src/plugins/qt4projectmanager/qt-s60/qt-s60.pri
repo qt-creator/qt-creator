@@ -8,6 +8,7 @@
         $$PWD/gccetoolchain.cpp \
         $$PWD/s60emulatorrunconfiguration.cpp \
         $$PWD/s60devicerunconfiguration.cpp \
+        $$PWD/s60devicerunconfigurationwidget.cpp \
         $$PWD/serialdevicelister.cpp \
         $$PWD/rvcttoolchain.cpp
     HEADERS += $$PWD/s60devices.h \
@@ -17,6 +18,7 @@
         $$PWD/gccetoolchain.h \
         $$PWD/s60emulatorrunconfiguration.h \
         $$PWD/s60devicerunconfiguration.h \
+        $$PWD/s60devicerunconfigurationwidget.h \
         $$PWD/serialdevicelister.h \
         $$PWD/rvcttoolchain.h
     FORMS += $$PWD/s60devicespreferencepane.ui

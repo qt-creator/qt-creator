@@ -38,9 +38,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
+#include <utils/detailswidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/persistentsettings.h>
+
+#include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
@@ -175,24 +179,34 @@ void S60EmulatorRunConfiguration::invalidateCachedTargetInformation()
 S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60EmulatorRunConfiguration *runConfiguration,
                                                                      QWidget *parent)
     : QWidget(parent),
-    m_runConfiguration(runConfiguration)
+    m_runConfiguration(runConfiguration),
+    m_detailsWidget(new Utils::DetailsWidget),
+    m_nameLineEdit(new QLineEdit(m_runConfiguration->name())),
+    m_executableLabel(new QLabel(m_runConfiguration->executable()))
 {
-    QFormLayout *toplayout = new QFormLayout();
-    toplayout->setMargin(0);
-    setLayout(toplayout);
+    QVBoxLayout *mainBoxLayout = new QVBoxLayout();
+    mainBoxLayout->setMargin(0);
+    setLayout(mainBoxLayout);
+    mainBoxLayout->addWidget(m_detailsWidget);
+    QWidget *detailsContainer = new QWidget;
+    m_detailsWidget->setWidget(detailsContainer);
+
+    QFormLayout *detailsFormLayout = new QFormLayout();
+    detailsFormLayout->setMargin(0);
+    detailsContainer->setLayout(detailsFormLayout);
 
     QLabel *nameLabel = new QLabel(tr("Name:"));
-    m_nameLineEdit = new QLineEdit(m_runConfiguration->name());
-    nameLabel->setBuddy(m_nameLineEdit);
-    toplayout->addRow(nameLabel, m_nameLineEdit);
 
-    m_executableLabel = new QLabel(m_runConfiguration->executable());
-    toplayout->addRow(tr("Executable:"), m_executableLabel);
+    nameLabel->setBuddy(m_nameLineEdit);
+    detailsFormLayout->addRow(nameLabel, m_nameLineEdit);
+
+    detailsFormLayout->addRow(tr("Executable:"), m_executableLabel);
 
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
         this, SLOT(nameEdited(QString)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
+    updateSummary();
 }
 
 void S60EmulatorRunConfigurationWidget::nameEdited(const QString &text)
@@ -203,6 +217,11 @@ void S60EmulatorRunConfigurationWidget::nameEdited(const QString &text)
 void S60EmulatorRunConfigurationWidget::updateTargetInformation()
 {
     m_executableLabel->setText(m_runConfiguration->executable());
+}
+
+void S60EmulatorRunConfigurationWidget::updateSummary()
+{
+    m_detailsWidget->setSummaryText(tr("Summary: Run %1 in emulator").arg(m_runConfiguration->executable()));
 }
 
 // ======== S60EmulatorRunConfigurationFactory

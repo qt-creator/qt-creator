@@ -73,7 +73,8 @@ LauncherPrivate::LauncherPrivate() :
 {
 }
 
-Launcher::Launcher(Actions startupActions) :
+Launcher::Launcher(Actions startupActions, QObject *parent) :
+    QObject(parent),
     d(new LauncherPrivate)
 {
     d->m_startupActions = startupActions;
@@ -318,6 +319,11 @@ void Launcher::handleResult(const TrkResult &result)
     }
 }
 
+QString Launcher::deviceDescription(unsigned verbose) const
+{
+    return d->m_session.deviceDescription(verbose);
+}
+
 void Launcher::handleTrkVersion(const TrkResult &result)
 {
     if (result.errorCode() || result.data.size() < 5) {
@@ -325,19 +331,13 @@ void Launcher::handleTrkVersion(const TrkResult &result)
             emit finished();
         return;
     }
-    const int trkMajor = result.data.at(1);
-    const int trkMinor = result.data.at(2);
-    const int protocolMajor = result.data.at(3);
-    const int protocolMinor = result.data.at(4);
+    d->m_session.trkAppVersion.trkMajor = result.data.at(1);
+    d->m_session.trkAppVersion.trkMinor = result.data.at(2);
+    d->m_session.trkAppVersion.protocolMajor = result.data.at(3);
+    d->m_session.trkAppVersion.protocolMinor = result.data.at(4);
     // Ping mode: Log & Terminate
     if (d->m_startupActions == ActionPingOnly) {
-        QString msg;
-        QTextStream(&msg) << "CPU: " << d->m_session.cpuMajor << '.' << d->m_session.cpuMinor << ' '
-                << (d->m_session.bigEndian ? "big endian" : "little endian")
-                << " type size: " << d->m_session.defaultTypeSize
-                << " float size: " << d->m_session.fpTypeSize
-                << " Trk: v" << trkMajor << '.' << trkMinor << " Protocol: " << protocolMajor << '.' << protocolMinor;
-        qWarning("%s", qPrintable(msg));
+        qWarning("%s", qPrintable(deviceDescription()));
         emit finished();
     }
 }

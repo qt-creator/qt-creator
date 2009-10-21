@@ -436,15 +436,52 @@ void WriterThread::terminate()
 }
 
 #ifdef Q_OS_WIN
-static inline bool overlappedSyncWrite(HANDLE file, const char *data,
+
+static inline QString msgTerminated(int size)
+{
+    return QString::fromLatin1("Terminated with %1 bytes pending.").arg(size);
+}
+
+// Interruptible synchronous write function.
+static inline bool overlappedSyncWrite(HANDLE file,
+                                       const bool &terminateFlag,
+                                       const char *data,
                                        DWORD size, DWORD *charsWritten,
-                                       OVERLAPPED *overlapped)
+                                       OVERLAPPED *overlapped,
+                                       QString *errorMessage)
 {
     if (WriteFile(file, data, size, charsWritten, overlapped))
         return true;
-    if (GetLastError() != ERROR_IO_PENDING)
+    const DWORD writeError = GetLastError();
+    if (writeError != ERROR_IO_PENDING) {
+        *errorMessage = QString::fromLatin1("WriteFile failed: %1").arg(winErrorMessage(writeError));
         return false;
-    return GetOverlappedResult(file, overlapped, charsWritten, TRUE);
+    }
+    // Wait for written or thread terminated
+    const DWORD timeoutMS = 200;
+    const unsigned maxAttempts = 20;
+    DWORD wr = WaitForSingleObject(overlapped->hEvent, timeoutMS);
+    for (unsigned n = 0; wr == WAIT_TIMEOUT && n < maxAttempts && !terminateFlag;
+         wr = WaitForSingleObject(overlapped->hEvent, timeoutMS), n++);
+    if (terminateFlag) {
+        *errorMessage = msgTerminated(size);
+        return false;
+    }
+    switch (wr) {
+    case WAIT_OBJECT_0:
+        break;
+    case WAIT_TIMEOUT:
+        *errorMessage = QString::fromLatin1("Write timed out.");
+        return false;
+    default:
+        *errorMessage = QString::fromLatin1("Error while waiting for WriteFile results: %1").arg(winErrorMessage(GetLastError()));
+        return false;
+    }
+    if (!GetOverlappedResult(file, overlapped, charsWritten, TRUE)) {
+        *errorMessage = QString::fromLatin1("Error writing %1 bytes: %2").arg(size).arg(winErrorMessage(GetLastError()));
+        return false;
+    }
+    return true;
 }
 #endif
 
@@ -453,8 +490,7 @@ bool WriterThread::write(const QByteArray &data, QString *errorMessage)
     QMutexLocker locker(&m_context->mutex);
 #ifdef Q_OS_WIN
     DWORD charsWritten;
-    if (!overlappedSyncWrite(m_context->device, data.data(), data.size(), &charsWritten, &m_context->writeOverlapped)) {
-        *errorMessage = QString::fromLatin1("Error writing data: %1").arg(winErrorMessage(GetLastError()));
+    if (!overlappedSyncWrite(m_context->device, m_terminate, data.data(), data.size(), &charsWritten, &m_context->writeOverlapped, errorMessage)) {
         return false;
     }
     FlushFileBuffers(m_context->device);
@@ -473,8 +509,10 @@ bool WriterThread::trkWriteRawMessage(const TrkMessage &msg)
     const QByteArray ba = frameMessage(msg.code, msg.token, msg.data, m_context->serialFrame);
     QString errorMessage;
     const bool rc = write(ba, &errorMessage);
-    if (!rc)
+    if (!rc) {
+        qWarning("%s\n", qPrintable(errorMessage));
         emit error(errorMessage);
+    }
     return rc;
 }
 

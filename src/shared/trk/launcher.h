@@ -55,7 +55,8 @@ public:
         ActionCopyInstallRun = ActionCopy | ActionInstall | ActionRun
     };
 
-    Launcher(trk::Launcher::Actions startupActions = trk::Launcher::ActionPingOnly);
+    explicit Launcher(trk::Launcher::Actions startupActions = trk::Launcher::ActionPingOnly,
+                      QObject *parent = 0);
     ~Launcher();
     void addStartupActions(trk::Launcher::Actions startupActions);
     void setTrkServerName(const QString &name);
@@ -66,6 +67,9 @@ public:
     void setVerbose(int v);    
     void setSerialFrame(bool b);
     bool serialFrame() const;
+
+    // becomes valid after successful execution of ActionPingOnly
+    QString deviceDescription(unsigned verbose = 0u) const;
 
 signals:
     void copyingStarted();
