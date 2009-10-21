@@ -2035,6 +2035,18 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 
 void GdbEngine::attemptBreakpointSynchronization()
 {
+    switch (state()) {
+    case InferiorStarting:
+    case InferiorRunningRequested:
+    case InferiorRunning:
+    case InferiorStopping:
+    case InferiorStopped:
+        break;
+    default:
+        //qDebug() << "attempted breakpoint sync in state" << state();
+        return;
+    }
+
     BreakHandler *handler = manager()->breakHandler();
 
     foreach (BreakpointData *data, handler->takeDisabledBreakpoints()) {
