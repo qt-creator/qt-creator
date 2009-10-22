@@ -1651,7 +1651,8 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
     // not available everywhere?
     //sendCliCommand(_("tbreak ") + fileName + ':' + QString::number(lineNumber));
     postCommand(_("-break-insert -t ") + fileName + _c(':') + QString::number(lineNumber));
-    postCommand(_("jump ") + fileName + _c(':') + QString::number(lineNumber));
+    setState(InferiorRunningRequested);
+    postCommand(_("jump ") + fileName + _c(':') + QString::number(lineNumber), RunRequest);
     // will produce something like
     //  &"jump /home/apoenitz/dev/work/test1/test1.cpp:242"
     //  ~"Continuing at 0x4058f3."
@@ -1664,7 +1665,8 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 #else
     gotoLocation(frame,  true);
     setBreakpoint(fileName, lineNumber);
-    postCommand(_("jump ") + fileName + ':' + QString::number(lineNumber));
+    setState(InferiorRunningRequested);
+    postCommand(_("jump ") + fileName + ':' + QString::number(lineNumber), RunRequest);
 #endif
 }
 
