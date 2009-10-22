@@ -1099,6 +1099,7 @@ void QtVersion::updateToolChain() const
         mkspecPath = mkspecPath + "/default";
 
     ProFileReader *reader = new ProFileReader();
+    reader->setQtVersion(this);
     reader->setCumulative(false);
     reader->setParsePreAndPostFiles(false);
     reader->readProFile(mkspecPath + "/qmake.conf");
@@ -1120,11 +1121,6 @@ void QtVersion::updateToolChain() const
     } else if (qt_arch == "arm") {
 #ifdef QTCREATOR_WITH_MAEMO
         m_toolChains << MaemoManager::instance()->maemoToolChain(this);
-
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-        //addToEnvironment(env);
-        qmakeCXX = env.searchInPath(qmakeCXX);
-        m_toolChains << ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX);
 #endif
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {
         // TODO proper support for intel cl

@@ -47,7 +47,7 @@ public:
     ProFileReader();
     ~ProFileReader();
 
-    void setQtVersion(QtVersion *qtVersion);
+    void setQtVersion(const QtVersion *qtVersion);
     bool readProFile(const QString &fileName);
     QList<ProFile*> includeFiles() const;
 

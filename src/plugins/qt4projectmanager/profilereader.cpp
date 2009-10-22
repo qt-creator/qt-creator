@@ -45,7 +45,8 @@ ProFileReader::~ProFileReader()
         delete pf;
 }
 
-void ProFileReader::setQtVersion(QtVersion *qtVersion) {
+void ProFileReader::setQtVersion(const QtVersion *qtVersion)
+{
     if (qtVersion)
         m_option.properties = qtVersion->versionInfo();
     else
