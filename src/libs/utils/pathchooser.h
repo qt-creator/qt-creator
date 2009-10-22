@@ -99,6 +99,7 @@ private:
 
 signals:
     void validChanged();
+    void validChanged(bool validState);
     void changed(const QString &text);
     void editingFinished();
     void beforeBrowsing();
