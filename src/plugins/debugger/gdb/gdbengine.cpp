@@ -2221,7 +2221,7 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
 
 void GdbEngine::reloadSourceFiles()
 {
-    postCommand(_("-file-list-exec-source-files"), CB(handleQuerySources));
+    postCommand(_("-file-list-exec-source-files"), NeedsStop, CB(handleQuerySources));
 }
 
 
