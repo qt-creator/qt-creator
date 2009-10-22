@@ -417,12 +417,14 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 QByteArray id = result.findChild("id").data();
                 if (!id.isEmpty())
                     showStatusMessage(tr("Library %1 loaded.").arg(_(id)));
+                m_modulesListOutdated = true;
             } else if (asyncClass == "library-unloaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
                 // target-name="/usr/lib/libdrm.so.2",
                 // host-name="/usr/lib/libdrm.so.2"
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Library %1 unloaded.").arg(_(id)));
+                m_modulesListOutdated = true;
             } else if (asyncClass == "thread-group-created") {
                 // Archer has "{id="28902"}" 
                 QByteArray id = result.findChild("id").data();
@@ -451,6 +453,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             #if defined(Q_OS_MAC)
             } else if (asyncClass == "shlibs-updated") {
                 // MAC announces updated libs
+                m_modulesListOutdated = true;
             } else if (asyncClass == "shlibs-added") {
                 // MAC announces added libs
                 // {shlib-info={num="2", name="libmathCommon.A_debug.dylib",
@@ -458,6 +461,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // state="Y", path="/usr/lib/system/libmathCommon.A_debug.dylib",
                 // description="/usr/lib/system/libmathCommon.A_debug.dylib",
                 // loaded_addr="0x7f000", slide="0x7f000", prefix=""}}
+                m_modulesListOutdated = true;
             #endif
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
@@ -491,6 +495,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             // Show some messages to give the impression something happens.
             if (data.startsWith("Reading symbols from ")) {
                 showStatusMessage(tr("Reading %1...").arg(_(data.mid(21))), 1000);
+                m_modulesListOutdated = true;
             } else if (data.startsWith("[New ") || data.startsWith("[Thread ")) {
                 if (data.endsWith('\n'))
                     data.chop(1);
@@ -1052,6 +1057,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     const QByteArray &msg = data.findChild("consolestreamoutput").data();
     if (msg.contains("Stopped due to shared library event") || reason.isEmpty()) {
+        m_modulesListOutdated = true;
         if (theDebuggerBoolSetting(SelectedPluginBreakpoints)) {
             QString dataStr = _(data.toString());
             debugMessage(_("SHARED LIBRARY EVENT: ") + dataStr);
@@ -1062,7 +1068,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             showStatusMessage(tr("Loading %1...").arg(dataStr));
             return;
         }
-        m_modulesListOutdated = true;
         // fall through
     }
 
@@ -1153,10 +1158,8 @@ void GdbEngine::handleStop1(const GdbResponse &response)
 
 void GdbEngine::handleStop1(const GdbMi &data)
 {
-    if (m_modulesListOutdated) {
+    if (m_modulesListOutdated)
         reloadModules();
-        m_modulesListOutdated = false;
-    }
     QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
         showStatusMessage(tr("Stopped at breakpoint."));
@@ -2166,6 +2169,7 @@ QList<Symbol> GdbEngine::moduleSymbols(const QString &moduleName)
 
 void GdbEngine::reloadModules()
 {
+    m_modulesListOutdated = false;
     postCommand(_("info shared"), CB(handleModulesList));
 }
 
