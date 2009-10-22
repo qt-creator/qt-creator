@@ -3889,10 +3889,8 @@ void GdbEngine::tryLoadDebuggingHelpers()
     postCommand(_("call (void)dlopen(\"") + GdbMi::escapeCString(lib) + _("\", " STRINGIFY(RTLD_NOW) ")"),
         CB(handleDebuggingHelperSetup));
     //postCommand(_("sharedlibrary ") + dotEscape(lib));
-    m_debuggingHelperState = DebuggingHelperLoadTried;
 #else
     //postCommand(_("p dlopen"));
-    QString flag = QString::number(RTLD_NOW);
     postCommand(_("sharedlibrary libc")); // for malloc
     postCommand(_("sharedlibrary libdl")); // for dlopen
     postCommand(_("call (void*)dlopen(\"") + GdbMi::escapeCString(lib) + _("\", " STRINGIFY(RTLD_NOW) ")"),
