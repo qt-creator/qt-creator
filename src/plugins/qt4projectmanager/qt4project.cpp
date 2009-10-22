@@ -495,10 +495,7 @@ void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFile
 ProjectExplorer::ToolChain *Qt4Project::toolChain(BuildConfiguration *configuration) const
 {
     ToolChain::ToolChainType tct = toolChainType(configuration);
-    foreach(ToolChain *tc, qtVersion(configuration)->toolChains())
-        if (tc->type() == tct)
-            return tc;
-    return 0;
+    return qtVersion(configuration)->toolChain(tct);
 }
 
 QString Qt4Project::makeCommand(BuildConfiguration *configuration) const

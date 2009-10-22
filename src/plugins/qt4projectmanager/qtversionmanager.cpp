@@ -484,7 +484,7 @@ QtVersion::QtVersion()
 
 QtVersion::~QtVersion()
 {
-    qDeleteAll(m_toolChains);
+
 }
 
 QString QtVersion::name() const
@@ -1062,16 +1062,24 @@ QString QtVersion::linguistCommand() const
     return m_linguistCommand;
 }
 
-QList<ProjectExplorer::ToolChain *> QtVersion::toolChains() const
+QList<QSharedPointer<ProjectExplorer::ToolChain> > QtVersion::toolChains() const
 {
     updateToolChain();
     return m_toolChains;
 }
 
+ProjectExplorer::ToolChain *QtVersion::toolChain(ProjectExplorer::ToolChain::ToolChainType type) const
+{
+    foreach(QSharedPointer<ProjectExplorer::ToolChain> tcptr, toolChains())
+        if (tcptr->type() == type)
+            return tcptr.data();
+    return 0;
+}
+
 QList<ProjectExplorer::ToolChain::ToolChainType> QtVersion::possibleToolChainTypes() const
 {
     QList<ProjectExplorer::ToolChain::ToolChainType> types;
-    foreach(ProjectExplorer::ToolChain *tc, toolChains())
+    foreach(QSharedPointer<ProjectExplorer::ToolChain> tc, toolChains())
         types << tc->type();
     return types;
 }
@@ -1090,7 +1098,7 @@ void QtVersion::updateToolChain() const
     if (m_toolChainUpToDate)
         return;
 
-    qDeleteAll(m_toolChains);
+    m_toolChains.clear();
 
     QString mkspecPath = versionInfo().value("QMAKE_MKSPECS");
     if (mkspecPath.isEmpty())
@@ -1109,32 +1117,41 @@ void QtVersion::updateToolChain() const
     QString qt_arch = reader->value("QT_ARCH");
     if (!ce_sdk.isEmpty() && !ce_arch.isEmpty()) {
         QString wincePlatformName = ce_sdk + " (" + ce_arch + ")";
-        m_toolChains << ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatformName);
+        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+                ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatformName));
     } else if (makefileGenerator == "SYMBIAN_ABLD") {
 #ifdef QTCREATOR_WITH_S60
-        m_toolChains << S60Manager::instance()->createGCCEToolChain(this);
-        m_toolChains << S60Manager::instance()->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5);
-        m_toolChains << S60Manager::instance()->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6);
-        m_toolChains << S60Manager::instance()->createWINSCWToolChain(this);
+        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+                S60Manager::instance()->createGCCEToolChain(this));
+        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+                S60Manager::instance()->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5));
+        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+                S60Manager::instance()->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6));
+        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+                S60Manager::instance()->createWINSCWToolChain(this));
 #endif
     } else if (qt_arch == "arm") {
 #ifdef QTCREATOR_WITH_MAEMO
-        m_toolChains << MaemoManager::instance()->maemoToolChain(this);
+        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+                MaemoManager::instance()->maemoToolChain(this));
 
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         //addToEnvironment(env);
         qmakeCXX = env.searchInPath(qmakeCXX);
-        m_toolChains << ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX);
+        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+                ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX));
 #endif
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {
         // TODO proper support for intel cl
-        m_toolChains << ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isQt64Bit());
+        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+                ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isQt64Bit()));
     } else if (qmakeCXX == "g++" && makefileGenerator == "MINGW") {
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         //addToEnvironment(env);
         env.prependOrSetPath(mingwDirectory() + "/bin");
         qmakeCXX = env.searchInPath(qmakeCXX);
-        m_toolChains << ProjectExplorer::ToolChain::createMinGWToolChain(qmakeCXX, mingwDirectory());
+        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+                ProjectExplorer::ToolChain::createMinGWToolChain(qmakeCXX, mingwDirectory()));
     } else if (qmakeCXX == "g++" || qmakeCXX == "icc") {
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         //addToEnvironment(env);
@@ -1144,7 +1161,8 @@ void QtVersion::updateToolChain() const
             // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
             qmakeCXX = QLatin1String("cc");
         }
-        m_toolChains << ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX);
+        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+                ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX));
     }
 
     if (m_toolChains.isEmpty()) {
@@ -1310,8 +1328,8 @@ QString QtVersion::buildDebuggingHelperLibrary()
     addToEnvironment(env);
 
     // TODO: the debugging helper doesn't comply to actual tool chain yet
-    QList<ProjectExplorer::ToolChain *> alltc = toolChains();
-    ProjectExplorer::ToolChain *tc = alltc.isEmpty() ? 0 : alltc.first();
+    QList<QSharedPointer<ProjectExplorer::ToolChain> > alltc = toolChains();
+    ProjectExplorer::ToolChain *tc = alltc.isEmpty() ? 0 : alltc.first().data();
     tc->addToEnvironment(env);
     QString output;
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, &output);
