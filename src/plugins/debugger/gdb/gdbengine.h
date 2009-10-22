@@ -260,8 +260,9 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     void handleShowVersion(const GdbResponse &response);
     void handleIsSynchroneous(const GdbResponse &response);
 
-    int m_gdbVersion; // 6.8.0 is 680
+    int m_gdbVersion; // 6.8.0 is 60800
     int m_gdbBuildVersion; // MAC only?
+    bool m_isMacGdb;
     bool m_isSynchroneous; // Can act synchroneously?
 
 private: ////////// Inferior Management //////////

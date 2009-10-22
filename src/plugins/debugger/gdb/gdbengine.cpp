@@ -250,6 +250,7 @@ void GdbEngine::initializeVariables()
     m_debuggingHelperState = DebuggingHelperUninitialized;
     m_gdbVersion = 100;
     m_gdbBuildVersion = -1;
+    m_isMacGdb = false;
     m_isSynchroneous = false;
 
     m_fullToShortName.clear();
@@ -1263,6 +1264,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         m_gdbVersion = 100;
         m_gdbBuildVersion = -1;
+        m_isMacGdb = false;
         QString msg = QString::fromLocal8Bit(response.data.findChild("consolestreamoutput").data());
         QRegExp supported(_("GNU gdb(.*) (\\d+)\\.(\\d+)(\\.(\\d+))?(-(\\d+))?"));
         if (supported.indexIn(msg) == -1) {
@@ -1290,8 +1292,9 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
                          +   100 * supported.cap(3).toInt()
                          +     1 * supported.cap(5).toInt();
             m_gdbBuildVersion = supported.cap(7).toInt();
-            debugMessage(_("GDB VERSION: %1, BUILD: %2 ").arg(m_gdbVersion)
-                .arg(m_gdbBuildVersion));
+            m_isMacGdb = msg.contains(__("Apple version"));
+            debugMessage(_("GDB VERSION: %1, BUILD: %2%3").arg(m_gdbVersion)
+                .arg(m_gdbBuildVersion).arg(_(m_isMacGdb ? " (APPLE)" : "")));
         }
         //qDebug () << "VERSION 3:" << m_gdbVersion << m_gdbBuildVersion;
     }
@@ -1805,21 +1808,15 @@ void GdbEngine::sendInsertBreakpoint(int index)
 
     // set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface
-#if defined(Q_OS_WIN)
-    QString cmd = _("-break-insert ");
-    //if (!data->condition.isEmpty())
-    //    cmd += "-c " + data->condition + " ";
-#elif defined(Q_OS_MAC)
-    QString cmd = _("-break-insert -l -1 ");
-    //if (!data->condition.isEmpty())
-    //    cmd += "-c " + data->condition + " ";
-#else
-    QString cmd = _("-break-insert -f ");
-    if (m_gdbAdapter->isTrkAdapter())
+    QString cmd;
+    if (m_isMacGdb)
+        cmd = _("-break-insert -l -1 ");
+    else if (m_gdbVersion >= 60800) // Probably some earlier version would work as well ...
+        cmd = _("-break-insert -f ");
+    else
         cmd = _("-break-insert ");
     //if (!data->condition.isEmpty())
-    //    cmd += _("-c ") + data->condition + ' ';
-#endif
+    //    cmd += _("-c ") + data->condition + _c(' ');
     cmd += where;
     gdbOutputAvailable(LogStatus, _("Current state: %1").arg(state()));
     postCommand(cmd, NeedsStop, CB(handleBreakInsert), index);
@@ -1942,20 +1939,18 @@ void GdbEngine::handleBreakInsert(const GdbResponse &response)
         attemptBreakpointSynchronization();
         handler->updateMarkers();
     } else {
-        const BreakpointData *data = handler->at(index);
-        // Note that it is perfectly correct that the file name is put
-        // in quotes but not escaped. GDB simply is like that.
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
-        QFileInfo fi(data->fileName);
-        QString where = _c('"') + fi.fileName() + _("\":")
-            + data->lineNumber;
-#else
-        QString where = _c('"') + data->fileName + _("\":")
-            + data->lineNumber;
-        // Should not happen with -break-insert -f. gdb older than 6.8?
-        QTC_ASSERT(false, /**/);
-#endif
-        postCommand(_("break ") + where, CB(handleBreakInsert1), index);
+        if (m_gdbVersion < 60800 && !m_isMacGdb) {
+            // Note that it is perfectly correct that the file name is put
+            // in quotes but not escaped. GDB simply is like that.
+            const BreakpointData *data = handler->at(index);
+            QFileInfo fi(data->fileName);
+            QString where = _c('"') + fi.fileName() + _("\":")
+                + data->lineNumber;
+            postCommand(_("break ") + where, CB(handleBreakInsert1), index);
+        } else {
+            // The breakpoint would be pending even if the path simply cannot be found.
+            QTC_ASSERT(false, /**/);
+        }
     }
 }
 
@@ -2296,11 +2291,7 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
 
 void GdbEngine::handleStackListFrames(const GdbResponse &response)
 {
-    #if defined(Q_OS_MAC)
-    bool handleIt = true;
-    #else
-    bool handleIt = response.resultClass == GdbResultDone;
-    #endif
+    bool handleIt = (m_isMacGdb || response.resultClass == GdbResultDone);
     if (!handleIt) {
         // That always happens on symbian gdb with
         // ^error,data={msg="Previous frame identical to this frame (corrupt stack?)"
@@ -2371,15 +2362,11 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
     if (targetFrame == -1)
         targetFrame = 0;
 
-    #ifdef Q_OS_MAC
     // Mac gdb does not add the location to the "stopped" message,
     // so the early gotoLocation() was not triggered. Force it here.
-    bool jump = true;
-    #else
     // For targetFrame == 0 we already issued a 'gotoLocation'
     // when reading the *stopped message.
-    bool jump = targetFrame != 0;
-    #endif
+    bool jump = (m_isMacGdb || targetFrame != 0);
   
     manager()->stackHandler()->setCurrentIndex(targetFrame);
     if (jump || cookie.gotoLocation) {
@@ -2520,12 +2507,9 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
 
 bool GdbEngine::supportsThreads() const
 {
-#ifdef Q_OS_MAC
-    return true;
-#endif
     // FSF gdb 6.3 crashes happily on -thread-list-ids. So don't use it.
     // The test below is a semi-random pick, 6.8 works fine
-    return m_gdbVersion > 60500;
+    return m_isMacGdb || m_gdbVersion > 60500;
 }
 
 
@@ -3588,16 +3572,17 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
     // numchild="1",type="const QtSharedPointer::Basic<CPlusPlus::..."}}
     // We do not want these at all. Current hypotheses is that those
     // "spurious" locals have _two_ "exp" field. Try to filter them:
-#ifdef Q_OS_MAC
-    int numExps = 0;
-    foreach (const GdbMi &child, item.children())
-        numExps += int(child.name() == "exp");
-    if (numExps > 1)
-        return WatchData();
-    QByteArray name = item.findChild("exp").data();
-#else
-    QByteArray name = item.findChild("name").data();
-#endif
+    QByteArray name;
+    if (m_isMacGdb) {
+        int numExps = 0;
+        foreach (const GdbMi &child, item.children())
+            numExps += int(child.name() == "exp");
+        if (numExps > 1)
+            return WatchData();
+        name = item.findChild("exp").data();
+    } else {
+        name = item.findChild("name").data();
+    }
     const QMap<QByteArray, int>::iterator it  = seen->find(name);
     if (it != seen->end()) {
         const int n = it.value();
@@ -4260,9 +4245,9 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb)
     postCommand(_("set width 0"));
     postCommand(_("set height 0"));
 
-    #ifdef Q_OS_MAC
-    postCommand(_("-gdb-set inferior-auto-start-cfm off"));
-    postCommand(_("-gdb-set sharedLibrary load-rules "
+    if (m_isMacGdb) {
+        postCommand(_("-gdb-set inferior-auto-start-cfm off"));
+        postCommand(_("-gdb-set sharedLibrary load-rules "
             "dyld \".*libSystem.*\" all "
             "dyld \".*libauto.*\" all "
             "dyld \".*AppKit.*\" all "
@@ -4271,7 +4256,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb)
             "dyld \".*CFDataFormatters.*\" all "
             "dyld \".*libobjc.*\" all "
             "dyld \".*CarbonDataFormatters.*\" all"));
-    #endif
+    }
 
     QString scriptFileName = theDebuggerStringSetting(GdbScriptFile);
     if (!scriptFileName.isEmpty()) {
