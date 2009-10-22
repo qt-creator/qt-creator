@@ -618,7 +618,7 @@ void HelpPlugin::extensionsInitialized()
                 + QLatin1String("../../share/doc/qtcreator/qtcreator.qch"));
 #endif
             if (!hc.registerDocumentation(qchFileName))
-                qDebug() << hc.error();
+                qDebug() << qPrintable(hc.error());
             needsSetup = true;
         }
 
