@@ -298,6 +298,9 @@ private:
     bool _inFunctionBody: 1;
     bool _inObjCImplementationContext: 1;
 
+    class Rewind;
+    friend class Rewind;
+
 private:
     Parser(const Parser& source);
     void operator =(const Parser& source);

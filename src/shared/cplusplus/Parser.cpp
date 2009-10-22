@@ -88,6 +88,30 @@ int DebugRule::depth = 0;
 #  define DEBUG_THIS_RULE() do {} while (0)
 #endif
 
+class Parser::Rewind
+{
+    Parser *_parser;
+    MemoryPool::State _state;
+
+public:
+    inline Rewind(Parser *parser)
+        : _parser(parser) {}
+
+    inline void operator()(unsigned tokenIndex)
+    { rewind(tokenIndex); }
+
+    inline void mark()
+    { _state = _parser->_pool->state(); }
+
+    inline void rewind(unsigned tokenIndex)
+    {
+        _parser->rewind(tokenIndex);
+
+        if (_state.isValid())
+            _parser->_pool->rewind(_state);
+    }
+};
+
 Parser::Parser(TranslationUnit *unit)
     : _translationUnit(unit),
       _control(_translationUnit->control()),
@@ -302,6 +326,11 @@ bool Parser::parseClassOrNamespaceName(NameAST *&node)
 bool Parser::parseTemplateId(NameAST *&node)
 {
     DEBUG_THIS_RULE();
+
+    const unsigned start = cursor();
+    Rewind rewind(this);
+    rewind.mark();
+
     if (LA() == T_IDENTIFIER && LA(2) == T_LESS) {
         TemplateIdAST *ast = new (_pool) TemplateIdAST;
         ast->identifier_token = consumeToken();
@@ -315,6 +344,9 @@ bool Parser::parseTemplateId(NameAST *&node)
             }
         }
     }
+
+    rewind(start);
+
     return false;
 }
 
