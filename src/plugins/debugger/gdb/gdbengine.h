@@ -267,7 +267,9 @@ private: ////////// Gdb Output, State & Capability Handling //////////
 
 private: ////////// Inferior Management //////////
 
+    // This should be always the last call in a function.
     Q_SLOT virtual void attemptBreakpointSynchronization();
+    void attemptBreakpointSynchronization2(const GdbResponse &);
 
     virtual void stepExec();
     virtual void stepOutExec();
@@ -311,6 +313,7 @@ private: ////////// View & Data Stuff //////////
     void extractDataFromInfoBreak(const QString &output, BreakpointData *data);
     void breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt);
     void sendInsertBreakpoint(int index);
+    QString breakLocation(const QString &file) const;
 
     //
     // Modules specific stuff
@@ -354,6 +357,9 @@ private: ////////// View & Data Stuff //////////
     // awful hack to keep track of used files
     QMap<QString, QString> m_shortToFullName;
     QMap<QString, QString> m_fullToShortName;
+
+    bool m_sourcesListOutdated;
+    bool m_sourcesListUpdating;
 
     //
     // Stack specific stuff

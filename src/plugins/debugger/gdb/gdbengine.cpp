@@ -257,7 +257,8 @@ void GdbEngine::initializeVariables()
     m_shortToFullName.clear();
     m_varToType.clear();
 
-    m_modulesListOutdated = true;
+    m_modulesListOutdated = m_sourcesListOutdated = true;
+    m_sourcesListUpdating = false;
     m_oldestAcceptableToken = -1;
     m_outputCodec = QTextCodec::codecForLocale();
     m_pendingRequests = 0;
@@ -417,14 +418,14 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 QByteArray id = result.findChild("id").data();
                 if (!id.isEmpty())
                     showStatusMessage(tr("Library %1 loaded.").arg(_(id)));
-                m_modulesListOutdated = true;
+                m_modulesListOutdated = m_sourcesListOutdated = true;
             } else if (asyncClass == "library-unloaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
                 // target-name="/usr/lib/libdrm.so.2",
                 // host-name="/usr/lib/libdrm.so.2"
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Library %1 unloaded.").arg(_(id)));
-                m_modulesListOutdated = true;
+                m_modulesListOutdated = m_sourcesListOutdated = true;
             } else if (asyncClass == "thread-group-created") {
                 // Archer has "{id="28902"}" 
                 QByteArray id = result.findChild("id").data();
@@ -453,7 +454,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             #if defined(Q_OS_MAC)
             } else if (asyncClass == "shlibs-updated") {
                 // MAC announces updated libs
-                m_modulesListOutdated = true;
+                m_modulesListOutdated = m_sourcesListOutdated = true;
             } else if (asyncClass == "shlibs-added") {
                 // MAC announces added libs
                 // {shlib-info={num="2", name="libmathCommon.A_debug.dylib",
@@ -461,7 +462,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // state="Y", path="/usr/lib/system/libmathCommon.A_debug.dylib",
                 // description="/usr/lib/system/libmathCommon.A_debug.dylib",
                 // loaded_addr="0x7f000", slide="0x7f000", prefix=""}}
-                m_modulesListOutdated = true;
+                m_modulesListOutdated = m_sourcesListOutdated = true;
             #endif
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
@@ -495,7 +496,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             // Show some messages to give the impression something happens.
             if (data.startsWith("Reading symbols from ")) {
                 showStatusMessage(tr("Reading %1...").arg(_(data.mid(21))), 1000);
-                m_modulesListOutdated = true;
+                m_modulesListOutdated = m_sourcesListOutdated = true;
             } else if (data.startsWith("[New ") || data.startsWith("[Thread ")) {
                 if (data.endsWith('\n'))
                     data.chop(1);
@@ -866,6 +867,7 @@ void GdbEngine::updateAll()
 
 void GdbEngine::handleQuerySources(const GdbResponse &response)
 {
+    m_sourcesListUpdating = false;
     if (response.resultClass == GdbResultDone) {
         QMap<QString, QString> oldShortToFull = m_shortToFullName;
         m_shortToFullName.clear();
@@ -1056,7 +1058,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     // due to unrelated no-reason stops.
     const QByteArray &msg = data.findChild("consolestreamoutput").data();
     if (msg.contains("Stopped due to shared library event") || reason.isEmpty()) {
-        m_modulesListOutdated = true;
+        m_modulesListOutdated = m_sourcesListOutdated = true;
         if (theDebuggerBoolSetting(SelectedPluginBreakpoints)) {
             QString dataStr = _(data.toString());
             debugMessage(_("SHARED LIBRARY EVENT: ") + dataStr);
@@ -1159,7 +1161,9 @@ void GdbEngine::handleStop1(const GdbResponse &response)
 void GdbEngine::handleStop1(const GdbMi &data)
 {
     if (m_modulesListOutdated)
-        reloadModules();
+        reloadModules(); // This is for display only
+    if (m_sourcesListOutdated)
+        reloadSourceFiles(); // This needs to be done before fullName() may need it
     QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
         showStatusMessage(tr("Stopped at breakpoint."));
@@ -1168,8 +1172,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
         m_currentFrame = _(frame.findChild("addr").data() + '%' +
              frame.findChild("func").data() + '%');
 
-        if (theDebuggerAction(ListSourceFiles)->value().toBool())
-            reloadSourceFiles();
         postCommand(_("-break-list"), CB(handleBreakList));
         QVariant var = QVariant::fromValue<GdbMi>(data);
         postCommand(_("p 2"), CB(handleStop2), var);  // dummy
@@ -1330,6 +1332,8 @@ QString GdbEngine::fullName(const QString &fileName)
 {
     if (fileName.isEmpty())
         return QString();
+    QTC_ASSERT(!m_sourcesListOutdated, /* */)
+    QTC_ASSERT(!m_sourcesListUpdating, /* */)
     QString full = m_shortToFullName.value(fileName, QString());
     //debugMessage(_("RESOLVING: ") + fileName + " " +  full);
     if (!full.isEmpty())
@@ -1576,8 +1580,7 @@ void GdbEngine::nextExec()
 #if 1
         postCommand(_("-exec-next"), RunRequest, CB(handleExecContinue));
 #else
-        postCommand(_("tbreak %1:%2").arg(QFileInfo(lastFile).fileName())
-            .arg(lastLine + 1));
+        postCommand(_("tbreak \"%2\":%1").arg(lastLine + 1).arg(breakLocation(lastFile)));
         postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
 #endif
     }
@@ -1601,13 +1604,8 @@ void GdbEngine::runToLineExec(const QString &fileName, int lineNumber)
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Run to line %1 requested...").arg(lineNumber), 5000);
-    if (m_gdbVersion < 60500) { // We just know that 6.4 on S60 is broken
-        postCommand(_("tbreak %1:%2").arg(fileName).arg(lineNumber));
-        postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
-    } else {
-        postCommand(_("-exec-until %1:%2").arg(fileName).arg(lineNumber),
-                    RunRequest, CB(handleExecContinue));
-    }
+    postCommand(_("-exec-until \"%2\":%1").arg(lineNumber).arg(breakLocation(fileName)),
+                RunRequest, CB(handleExecContinue));
 }
 
 void GdbEngine::runToFunctionExec(const QString &functionName)
@@ -1628,13 +1626,12 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
     frame.file = fileName;
     frame.line = lineNumber;
 #if 1
-    // not available everywhere?
-    //sendCliCommand(_("tbreak ") + fileName + ':' + QString::number(lineNumber));
-    postCommand(_("-break-insert -t ") + fileName + _c(':') + QString::number(lineNumber));
+    QString loc = breakLocation(fileName);
+    postCommand(_("tbreak \"%2\":%1").arg(lineNumber).arg(loc));
     setState(InferiorRunningRequested);
-    postCommand(_("jump ") + fileName + _c(':') + QString::number(lineNumber), RunRequest);
+    postCommand(_("jump \"%2\":%1").arg(lineNumber).arg(loc), RunRequest);
     // will produce something like
-    //  &"jump /home/apoenitz/dev/work/test1/test1.cpp:242"
+    //  &"jump \"/home/apoenitz/dev/work/test1/test1.cpp\":242"
     //  ~"Continuing at 0x4058f3."
     //  ~"run1 (argc=1, argv=0x7fffbf1f5538) at test1.cpp:242"
     //  ~"242\t x *= 2;"
@@ -1764,21 +1761,25 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
     data->bpFileName = name;
 }
 
+QString GdbEngine::breakLocation(const QString &file) const
+{
+    QTC_ASSERT(!m_sourcesListOutdated, /* */)
+    QTC_ASSERT(!m_sourcesListUpdating, /* */)
+    QString where = m_fullToShortName.value(file);
+    if (where.isEmpty())
+        return QFileInfo(file).fileName();
+    return where;
+}
+
 void GdbEngine::sendInsertBreakpoint(int index)
 {
     const BreakpointData *data = manager()->breakHandler()->at(index);
     QString where;
     if (data->funcName.isEmpty()) {
-        if (data->useFullPath) {
-            where = data->fileName;
-        } else {
-            QFileInfo fi(data->fileName);
-            where = fi.fileName();
-        }
+        where = data->useFullPath ? data->fileName : breakLocation(data->fileName);
         // The argument is simply a C-quoted version of the argument to the
         // non-MI "break" command, including the "original" quoting it wants.
-        where = _("\"\\\"%1\\\":%2\"")
-            .arg(GdbMi::escapeCString(where)).arg(data->lineNumber);
+        where = _("\"\\\"%2\\\":%1\"").arg(data->lineNumber).arg(GdbMi::escapeCString(where));
     } else {
         where = data->funcName;
     }
@@ -1917,15 +1918,8 @@ void GdbEngine::handleBreakInsert(const GdbResponse &response)
         handler->updateMarkers();
     } else {
         if (m_gdbVersion < 60800 && !m_isMacGdb) {
-            // Note that it is perfectly correct that the file name is put
-            // in quotes but not escaped. GDB simply is like that.
-            const BreakpointData *data = handler->at(index);
-            QFileInfo fi(data->fileName);
-            QString where = _c('"') + fi.fileName() + _("\":")
-                + data->lineNumber;
-            postCommand(_("break ") + where, CB(handleBreakInsert1), index);
+            // This gdb version doesn't "do" pending breakpoints.
         } else {
-            // The breakpoint would be pending even if the path simply cannot be found.
             QTC_ASSERT(false, /**/);
         }
     }
@@ -2008,6 +2002,11 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
     handler->updateMarkers();
 }
 
+void GdbEngine::attemptBreakpointSynchronization2(const GdbResponse &)
+{
+    attemptBreakpointSynchronization();
+}
+
 void GdbEngine::attemptBreakpointSynchronization()
 {
     switch (state()) {
@@ -2019,6 +2018,13 @@ void GdbEngine::attemptBreakpointSynchronization()
         break;
     default:
         //qDebug() << "attempted breakpoint sync in state" << state();
+        return;
+    }
+
+    // For best results, we rely on an up-to-date fullname mapping.
+    if (m_sourcesListOutdated) {
+        reloadSourceFiles();
+        postCommand(_("p 5"), CB(attemptBreakpointSynchronization2));
         return;
     }
 
@@ -2191,6 +2197,8 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
 
 void GdbEngine::reloadSourceFiles()
 {
+    m_sourcesListUpdating = true;
+    m_sourcesListOutdated = false;
     postCommand(_("-file-list-exec-source-files"), NeedsStop, CB(handleQuerySources));
 }
 
