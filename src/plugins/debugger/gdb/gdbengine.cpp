@@ -1529,7 +1529,8 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 
 void GdbEngine::continueInferiorInternal()
 {
-    QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    QTC_ASSERT(state() == InferiorStopped || state() == InferiorStarting,
+               qDebug() << state());
     setState(InferiorRunningRequested);
     postCommand(_("-exec-continue"), RunRequest, CB(handleExecContinue));
 }
