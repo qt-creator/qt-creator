@@ -489,12 +489,13 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             }
 
             // Show some messages to give the impression something happens.
-            if (data.startsWith("Reading symbols from "))
+            if (data.startsWith("Reading symbols from ")) {
                 showStatusMessage(tr("Reading %1...").arg(_(data.mid(21))), 1000);
-            if (data.endsWith('\n'))
-                data.chop(1);
-            if (data.startsWith("[New ") || data.startsWith("[Thread "))
+            } else if (data.startsWith("[New ") || data.startsWith("[Thread ")) {
+                if (data.endsWith('\n'))
+                    data.chop(1);
                 showStatusMessage(_(data), 1000);
+            }
             break;
         }
 
@@ -875,13 +876,15 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
         foreach (const GdbMi &item, files.children()) {
             QString fileName = QString::fromLocal8Bit(item.findChild("file").data());
             GdbMi fullName = item.findChild("fullname");
-            QString full = QString::fromLocal8Bit(fullName.data());
-            #ifdef Q_OS_WIN
-            full = QDir::cleanPath(full);
-            #endif
-            if (fullName.isValid() && QFileInfo(full).isReadable()) {
-                m_shortToFullName[fileName] = full;
-                m_fullToShortName[full] = fileName;
+            if (fullName.isValid()) {
+                QString full = QString::fromLocal8Bit(fullName.data());
+                if (QFileInfo(full).isReadable()) {
+                    #ifdef Q_OS_WIN
+                    full = QDir::cleanPath(full);
+                    #endif
+                    m_shortToFullName[fileName] = full;
+                    m_fullToShortName[full] = fileName;
+                }
             }
         }
         if (m_shortToFullName != oldShortToFull)
@@ -1150,12 +1153,11 @@ void GdbEngine::handleStop1(const GdbResponse &response)
 
 void GdbEngine::handleStop1(const GdbMi &data)
 {
-    QByteArray reason = data.findChild("reason").data();
     if (m_modulesListOutdated) {
         reloadModules();
         m_modulesListOutdated = false;
     }
-    // Need another round trip
+    QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
         showStatusMessage(tr("Stopped at breakpoint."));
         GdbMi frame = data.findChild("frame");
@@ -4064,14 +4066,14 @@ QString GdbEngine::parseDisassembler(const GdbMi &lines)
     foreach (const GdbMi &child, lines.children()) {
         if (child.hasName("src_and_asm_line")) {
             // mixed mode
-            int line = child.findChild("line").data().toInt();
-            QString fileName = QFile::decodeName(child.findChild("file").data());
             if (!fileLoaded) {
+                QString fileName = QFile::decodeName(child.findChild("file").data());
                 QFile file(fullName(fileName));
                 file.open(QIODevice::ReadOnly);
                 fileContents = file.readAll().split('\n');
                 fileLoaded = true;
             }
+            int line = child.findChild("line").data().toInt();
             if (line >= 0 && line < fileContents.size())
                 ba += "    " + fileContents.at(line) + '\n';
             GdbMi insn = child.findChild("line_asm_insn");
