@@ -32,6 +32,7 @@
 
 #include <projectexplorer/environment.h>
 #include <projectexplorer/toolchain.h>
+#include <QSharedPointer>
 
 #include <QtCore/QHash>
 #include <QtCore/QSharedPointer>
