@@ -91,6 +91,8 @@ void ProjectExplorerSettingsPage::apply()
     pes.showCompilerOutput = m_ui.showCompileOutputCheckBox->isChecked();
 #ifdef Q_OS_WIN
     pes.useJom = m_ui.jomCheckbox->isChecked();
+#else
+    pes.useJom = false;
 #endif
     ProjectExplorerPlugin::instance()->setProjectExplorerSettings(pes);
 }
