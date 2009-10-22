@@ -1810,7 +1810,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
     // by the MI interface
     QString cmd;
     if (m_isMacGdb)
-        cmd = _("-break-insert -l -1 ");
+        cmd = _("-break-insert -l -1 -f ");
     else if (m_gdbVersion >= 60800) // Probably some earlier version would work as well ...
         cmd = _("-break-insert -f ");
     else
