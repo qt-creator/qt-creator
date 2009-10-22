@@ -64,6 +64,10 @@ public:
 
     QString serialPortName() const;
     void setSerialPortName(const QString &name);
+    // See SerialDeviceListener
+    int communicationType() const;
+    void setCommunicationType(int t);
+
     QString targetName() const;
     QString basePackageFilePath() const;
     QString symbianPlatform() const;
@@ -98,7 +102,8 @@ private:
     QString m_packageTemplateFileName;
     bool m_cachedTargetInformationValid;
     QString m_serialPortName;
-    SigningMode m_signingMode;
+    int m_communicationType;
+    SigningMode m_signingMode;    
     QString m_customSignaturePath;
     QString m_customKeyPath;
 };
@@ -163,6 +168,7 @@ private:
 
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
+    int     m_communicationType;
     QString m_targetName;
     QString m_baseFileName;
     QString m_symbianPlatform;

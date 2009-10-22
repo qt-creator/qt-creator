@@ -47,6 +47,7 @@ namespace Utils {
 namespace Qt4ProjectManager {
 namespace Internal {
 
+struct CommunicationDevice;
 class S60DeviceRunConfiguration;
 
 /* Configuration widget for S60 devices on serial ports that are
@@ -73,8 +74,9 @@ private slots:
     void clearDeviceInfo();
 
 private:
-    inline QString currentPortName() const;
-    inline QString portName(int index) const;
+    inline CommunicationDevice device(int i) const;
+    inline CommunicationDevice currentDevice() const;
+
     bool getDeviceInfo(QString *message);
     void setDeviceInfoLabel(const QString &message, bool isError = false);
 

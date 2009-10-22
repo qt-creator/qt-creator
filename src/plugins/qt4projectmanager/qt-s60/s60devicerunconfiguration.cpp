@@ -34,6 +34,7 @@
 #include "profilereader.h"
 #include "s60manager.h"
 #include "s60devices.h"
+#include "serialdevicelister.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -59,12 +60,19 @@ static QString lsFile(const QString &f)
     str << fi.size() << ' ' << fi.lastModified().toString(Qt::ISODate) << ' ' << QDir::toNativeSeparators(fi.absoluteFilePath());
     return rc;
 }
+
 // ======== S60DeviceRunConfiguration
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QString &proFilePath)
     : RunConfiguration(project),
     m_proFilePath(proFilePath),
     m_cachedTargetInformationValid(false),
-    m_serialPortName("COM5"),
+#ifdef Q_OS_WIN
+    m_serialPortName(QLatin1String("COM5")),
+    m_communicationType(SerialPortCommunication),
+#else
+    m_serialPortName(QLatin1String(SerialDeviceLister::linuxBlueToothDeviceRootC) + QLatin1Char('0')),
+    m_communicationType(BlueToothCommunication),
+#endif
     m_signingMode(SignSelf)
 {
     if (!m_proFilePath.isEmpty())
@@ -114,6 +122,7 @@ void S60DeviceRunConfiguration::save(PersistentSettingsWriter &writer) const
     writer.saveValue("CustomSignaturePath", m_customSignaturePath);
     writer.saveValue("CustomKeyPath", m_customKeyPath);
     writer.saveValue("SerialPortName", m_serialPortName);
+    writer.saveValue("CommunicationType", m_communicationType);
     RunConfiguration::save(writer);
 }
 
@@ -126,6 +135,7 @@ void S60DeviceRunConfiguration::restore(const PersistentSettingsReader &reader)
     m_customSignaturePath = reader.restoreValue("CustomSignaturePath").toString();
     m_customKeyPath = reader.restoreValue("CustomKeyPath").toString();
     m_serialPortName = reader.restoreValue("SerialPortName").toString().trimmed();
+    m_communicationType = reader.restoreValue("CommunicationType").toInt();
 }
 
 QString S60DeviceRunConfiguration::serialPortName() const
@@ -136,6 +146,16 @@ QString S60DeviceRunConfiguration::serialPortName() const
 void S60DeviceRunConfiguration::setSerialPortName(const QString &name)
 {
     m_serialPortName = name.trimmed();
+}
+
+int S60DeviceRunConfiguration::communicationType() const
+{
+    return m_communicationType;
+}
+
+void S60DeviceRunConfiguration::setCommunicationType(int t)
+{
+    m_communicationType = t;
 }
 
 QString S60DeviceRunConfiguration::targetName() const
@@ -393,6 +413,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfigu
 
     m_serialPortName = s60runConfig->serialPortName();
     m_serialPortFriendlyName = S60Manager::instance()->serialDeviceLister()->friendlyNameForPort(m_serialPortName);
+    m_communicationType = s60runConfig->communicationType();
     m_targetName = s60runConfig->targetName();
     m_baseFileName = s60runConfig->basePackageFilePath();
     m_symbianPlatform = s60runConfig->symbianPlatform();
@@ -542,6 +563,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
 
     //TODO sisx destination and file path user definable
     m_launcher->setTrkServerName(m_serialPortName);
+    m_launcher->setSerialFrame(m_communicationType == SerialPortCommunication);
     const QString copySrc(m_baseFileName + ".sisx");
     const QString copyDst = QString("C:\\Data\\%1.sisx").arg(QFileInfo(m_baseFileName).fileName());
     const QString runFileName = QString("C:\\sys\\bin\\%1.exe").arg(m_targetName);
@@ -689,6 +711,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(const QSharedPointer<ProjectE
             Qt::QueuedConnection);
 
     m_startParams->remoteChannel = rc->serialPortName();
+    m_startParams->remoteChannelType = rc->communicationType();
     m_startParams->startMode = Debugger::StartInternal;
     m_startParams->toolChainType = rc->toolChainType();
 }

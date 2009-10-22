@@ -50,6 +50,8 @@
 #include <QtGui/QApplication>
 #include <QtGui/QSpacerItem>
 
+Q_DECLARE_METATYPE(Qt4ProjectManager::Internal::CommunicationDevice)
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -167,16 +169,16 @@ void S60DeviceRunConfigurationWidget::updateSerialDevices()
     m_serialPortsCombo->clear();
     clearDeviceInfo();
     const QString previousRunConfigurationPortName = m_runConfiguration->serialPortName();
-    const QList<SerialDeviceLister::SerialDevice> serialDevices = S60Manager::instance()->serialDeviceLister()->serialDevices();
+    const QList<CommunicationDevice> devices = S60Manager::instance()->serialDeviceLister()->communicationDevices();
     int newIndex = -1;
-    for (int i = 0; i < serialDevices.size(); ++i) {
-        const SerialDeviceLister::SerialDevice &device = serialDevices.at(i);
-        m_serialPortsCombo->addItem(device.friendlyName, device.portName);
+    for (int i = 0; i < devices.size(); ++i) {
+        const CommunicationDevice &device = devices.at(i);
+        m_serialPortsCombo->addItem(device.friendlyName, qVariantFromValue(device));
         if (device.portName == previousRunConfigurationPortName)
             newIndex = i;
     }
     // Set new index: prefer to keep old or set to 0, if available.
-    if (newIndex == -1 && !serialDevices.empty())
+    if (newIndex == -1 && !devices.empty())
         newIndex = 0;
     m_serialPortsCombo->setCurrentIndex(newIndex);
     if (newIndex == -1) {
@@ -184,20 +186,25 @@ void S60DeviceRunConfigurationWidget::updateSerialDevices()
         m_runConfiguration->setSerialPortName(QString());
     } else {
         m_deviceInfoButton->setEnabled(true);
-        const QString newPortName = portName(newIndex);
+        const QString newPortName = device(newIndex).portName;
         if (newPortName != previousRunConfigurationPortName)
             m_runConfiguration->setSerialPortName(newPortName);
     }
 }
 
-QString S60DeviceRunConfigurationWidget::portName(int index) const
+CommunicationDevice S60DeviceRunConfigurationWidget::device(int i) const
 {
-    return index >= 0 ? m_serialPortsCombo->itemData(index).toString() : QString();
+    if (i >= 0) {
+        const QVariant data = m_serialPortsCombo->itemData(i);
+        if (qVariantCanConvert<Qt4ProjectManager::Internal::CommunicationDevice>(data))
+            return qVariantValue<Qt4ProjectManager::Internal::CommunicationDevice>(data);
+    }
+    return CommunicationDevice(SerialPortCommunication);
 }
 
-QString S60DeviceRunConfigurationWidget::currentPortName() const
+CommunicationDevice S60DeviceRunConfigurationWidget::currentDevice() const
 {
-    return portName(m_serialPortsCombo->currentIndex());
+    return device(m_serialPortsCombo->currentIndex());
 }
 
 void S60DeviceRunConfigurationWidget::nameEdited(const QString &text)
@@ -212,7 +219,9 @@ void S60DeviceRunConfigurationWidget::updateTargetInformation()
 
 void S60DeviceRunConfigurationWidget::setSerialPort(int index)
 {
-    m_runConfiguration->setSerialPortName(portName(index));
+    const CommunicationDevice d = device(index);
+    m_runConfiguration->setSerialPortName(d.portName);
+    m_runConfiguration->setCommunicationType(d.type);
     m_deviceInfoButton->setEnabled(index >= 0);
     clearDeviceInfo();
     updateSummary();
@@ -252,7 +261,7 @@ void S60DeviceRunConfigurationWidget::updateSummary()
                            tr("<No Device>");
     const QString signature = m_runConfiguration->signingMode() == S60DeviceRunConfiguration::SignCustom ?
                               tr("(custom certificate)") :
-                              tr("(self-signed certificate)");
+                              tr("(self-signed certificate)");    
     m_detailsWidget->setSummaryText(tr("Summary: Run on '%1' %2").arg(device, signature));
 }
 
@@ -284,7 +293,9 @@ bool S60DeviceRunConfigurationWidget::getDeviceInfo(QString *message)
     // Do a launcher run with the ping protocol. Instantiate launcher on heap
     // as not to introduce delays when destructing a device with timeout
     trk::Launcher *launcher = new trk::Launcher(trk::Launcher::ActionPingOnly, this);
-    launcher->setTrkServerName(currentPortName());
+    const CommunicationDevice commDev = currentDevice();
+    launcher->setSerialFrame(commDev.type == SerialPortCommunication);
+    launcher->setTrkServerName(commDev.portName);
     if (!launcher->startServer(message)) {
         launcher->deleteLater();
         return false;

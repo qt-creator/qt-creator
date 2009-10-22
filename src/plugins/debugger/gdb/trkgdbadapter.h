@@ -142,16 +142,13 @@ public:
     void setBufferedMemoryRead(bool b) { m_bufferedMemoryRead = b; }
     trk::Session &session() { return m_session; }
 
-    // Set a device (from the project) to override the settings.
-    QString overrideTrkDevice() const;
-    void setOverrideTrkDevice(const QString &);
-
 signals:
     void output(const QString &msg);
 
 private:
     const TrkOptionsPtr m_options;
     QString m_overrideTrkDevice;
+    int m_overrideTrkDeviceType;
 
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
 
@@ -302,6 +299,7 @@ private:
     Q_SLOT void handleRfcommStateChanged(QProcess::ProcessState newState);
 
     QString effectiveTrkDevice() const;
+    int effectiveTrkDeviceType() const;
 
     // Debuggee state
     trk::Session m_session; // global-ish data (process id, target information)

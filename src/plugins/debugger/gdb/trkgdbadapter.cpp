@@ -191,6 +191,7 @@ void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
 TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     AbstractGdbAdapter(engine),
     m_options(options),
+    m_overrideTrkDeviceType(-1),
     m_running(false),
     m_gdbAckMode(true),
     m_verbose(2),
@@ -225,7 +226,7 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
         this, SLOT(handleTrkError(QString)));
 
     m_trkDevice.setVerbose(m_verbose);
-    m_trkDevice.setSerialFrame(m_options->mode != TrkOptions::BlueTooth);
+    m_trkDevice.setSerialFrame(effectiveTrkDeviceType() != TrkOptions::BlueTooth);
 
     connect(&m_trkDevice, SIGNAL(logMessage(QString)),
         this, SLOT(trkLogMessage(QString)));
@@ -237,16 +238,6 @@ TrkGdbAdapter::~TrkGdbAdapter()
     logMessage("Shutting down.\n");
 }
 
-QString TrkGdbAdapter::overrideTrkDevice() const
-{
-    return m_overrideTrkDevice;
-}
-
-void TrkGdbAdapter::setOverrideTrkDevice(const QString &d)
-{
-    m_overrideTrkDevice = d;
-}
-
 QString TrkGdbAdapter::effectiveTrkDevice() const
 {
     if (!m_overrideTrkDevice.isEmpty())
@@ -254,6 +245,13 @@ QString TrkGdbAdapter::effectiveTrkDevice() const
     if (m_options->mode == TrkOptions::BlueTooth)
         return m_options->blueToothDevice;
     return m_options->serialPort;
+}
+
+int TrkGdbAdapter::effectiveTrkDeviceType() const
+{
+    if (m_overrideTrkDeviceType >= 0)
+        return m_overrideTrkDeviceType;
+    return m_options->mode;
 }
 
 void TrkGdbAdapter::trkLogMessage(const QString &msg)
@@ -403,7 +401,7 @@ void TrkGdbAdapter::waitForTrkConnect()
                 .arg(QChar("/-\\|"[direction])));
         }
         // Do not loop forever
-        if (m_waitCount++ < (m_options->mode == TrkOptions::BlueTooth ? 60 : 5)) {
+        if (m_waitCount++ < (effectiveTrkDeviceType() == TrkOptions::BlueTooth ? 60 : 5)) {
             QTimer::singleShot(1000, this, SLOT(waitForTrkConnect()));
         } else {
             QString msg = _("Failed to connect to %1 after "
@@ -1519,7 +1517,8 @@ void TrkGdbAdapter::startAdapter()
 {
     // Retrieve parameters
     const DebuggerStartParameters &parameters = startParameters();
-    setOverrideTrkDevice(parameters.remoteChannel);
+    m_overrideTrkDevice = parameters.remoteChannel;
+    m_overrideTrkDeviceType = parameters.remoteChannelType;
     m_remoteExecutable = parameters.executable;
     m_symbolFile = parameters.symbolFileName;
     // FIXME: testing hack, remove!
@@ -1534,7 +1533,8 @@ void TrkGdbAdapter::startAdapter()
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
-    if (m_options->mode == TrkOptions::BlueTooth) {
+    m_trkDevice.setSerialFrame(effectiveTrkDeviceType() != TrkOptions::BlueTooth);
+    if (effectiveTrkDeviceType() == TrkOptions::BlueTooth) {
         const QString device = effectiveTrkDevice();
         const QString blueToothListener = QLatin1String("rfcomm");
         QStringList blueToothListenerArguments;
