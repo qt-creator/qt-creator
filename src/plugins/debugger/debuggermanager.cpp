@@ -844,7 +844,7 @@ static IDebuggerEngine *debuggerEngineForToolChain(ProjectExplorer::ToolChain::T
 {
     IDebuggerEngine *rc = 0;
     switch (tc) {
-    case ProjectExplorer::ToolChain::LinuxICC:
+    //case ProjectExplorer::ToolChain::LinuxICC:
     case ProjectExplorer::ToolChain::MinGW:
     case ProjectExplorer::ToolChain::GCC:
         rc = gdbEngine;
@@ -1713,7 +1713,7 @@ bool DebuggerManager::checkDebugConfiguration(int toolChain,
     bool success = true;
     switch(toolChain) {
     case ProjectExplorer::ToolChain::GCC:
-    case ProjectExplorer::ToolChain::LinuxICC:
+    //case ProjectExplorer::ToolChain::LinuxICC:
     case ProjectExplorer::ToolChain::MinGW:
     case ProjectExplorer::ToolChain::WINCE: // S60
     case ProjectExplorer::ToolChain::WINSCW:

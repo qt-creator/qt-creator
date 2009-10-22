@@ -413,7 +413,7 @@ QString GenericProject::buildParser(BuildConfiguration *configuration) const
     if (m_toolChain) {
         switch (m_toolChain->type()) {
         case ProjectExplorer::ToolChain::GCC:
-        case ProjectExplorer::ToolChain::LinuxICC:
+        //case ProjectExplorer::ToolChain::LinuxICC:
         case ProjectExplorer::ToolChain::MinGW:
             return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_GCC);
 

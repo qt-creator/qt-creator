@@ -407,6 +407,7 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand, int id,
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_mkspecUpToDate(false),
+    m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
     m_defaultConfigIsDebug(true),
@@ -429,6 +430,7 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand,
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_mkspecUpToDate(false),
+    m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
     m_defaultConfigIsDebug(true),
@@ -447,6 +449,7 @@ QtVersion::QtVersion(const QString &qmakeCommand, bool isAutodetected, const QSt
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
     m_mkspecUpToDate(false),
+    m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
     m_defaultConfigIsDebug(true),
@@ -466,6 +469,7 @@ QtVersion::QtVersion()
     m_isAutodetected(false),
     m_hasDebuggingHelper(false),
     m_mkspecUpToDate(false),
+    m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
     m_defaultConfigIsDebug(true),
@@ -480,7 +484,7 @@ QtVersion::QtVersion()
 
 QtVersion::~QtVersion()
 {
-
+    qDeleteAll(m_toolChains);
 }
 
 QString QtVersion::name() const
@@ -521,13 +525,6 @@ QHash<QString,QString> QtVersion::versionInfo() const
     return m_versionInfo;
 }
 
-QString QtVersion::qmakeCXX() const
-{
-    updateQMakeCXX();
-    return m_qmakeCXX;
-}
-
-
 void QtVersion::setName(const QString &name)
 {
     m_name = name;
@@ -541,8 +538,7 @@ void QtVersion::setQMakeCommand(const QString& qmakeCommand)
 #endif
     m_designerCommand = m_linguistCommand = m_uicCommand = QString::null;
     m_mkspecUpToDate = false;
-    m_qmakeCXX = QString::null;
-    m_qmakeCXXUpToDate = false;
+    m_toolChainUpToDate = false;
     // TODO do i need to optimize this?
     m_versionInfoUpToDate = false;
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
@@ -940,14 +936,14 @@ void QtVersion::updateMkSpec() const
 
     QString mkspec;
     // no .qmake.cache so look at the default mkspec
-    QString mkspecPath = versionInfo().value("QMAKE_MKSPECS");
-    if (mkspecPath.isEmpty())
-        mkspecPath = versionInfo().value("QT_INSTALL_DATA") + "/mkspecs/default";
+    m_mkspecFullPath = versionInfo().value("QMAKE_MKSPECS");
+    if (m_mkspecFullPath.isEmpty())
+        m_mkspecFullPath = versionInfo().value("QT_INSTALL_DATA") + "/mkspecs/default";
     else
-        mkspecPath = mkspecPath + "/default";
-//     qDebug() << "default mkspec is located at" << mkspecPath;
+        m_mkspecFullPath = m_mkspecFullPath + "/default";
+//     qDebug() << "default mkspec is located at" << m_mkspecFullPath;
 #ifdef Q_OS_WIN
-    QFile f2(mkspecPath + "/qmake.conf");
+    QFile f2(m_mkspecFullPath + "/qmake.conf");
     if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
         while (!f2.atEnd()) {
             QByteArray line = f2.readLine();
@@ -962,7 +958,7 @@ void QtVersion::updateMkSpec() const
         f2.close();
     }
 #elif defined(Q_OS_MAC)
-    QFile f2(mkspecPath + "/qmake.conf");
+    QFile f2(m_mkspecFullPath + "/qmake.conf");
     if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
         while (!f2.atEnd()) {
             QByteArray line = f2.readLine();
@@ -976,7 +972,7 @@ void QtVersion::updateMkSpec() const
                         mkspec = "macx-g++";
                     } else {
                         //resolve mkspec link
-                        QFileInfo f3(mkspecPath);
+                        QFileInfo f3(m_mkspecFullPath);
                         if (f3.isSymLink()) {
                             mkspec = f3.symLinkTarget();
                         }
@@ -988,88 +984,20 @@ void QtVersion::updateMkSpec() const
         f2.close();
     }
 #else
-    QFileInfo f2(mkspecPath);
+    QFileInfo f2(m_mkspecFullPath);
     if (f2.isSymLink()) {
         mkspec = f2.symLinkTarget();
     }
 #endif
 
-    m_mkspecFullPath = mkspec;
-    int index = mkspec.lastIndexOf('/');
-    if (index == -1)
-        index = mkspec.lastIndexOf('\\');
-    QString mkspecDir = QDir(versionInfo().value("QT_INSTALL_DATA") + "/mkspecs/").canonicalPath();
-    if (index >= 0 && QDir(mkspec.left(index)).canonicalPath() == mkspecDir)
+    int index = qMax(mkspec.lastIndexOf('/'), mkspec.lastIndexOf('\\'));
+    if (index >= 0)
         mkspec = mkspec.mid(index+1).trimmed();
 
     m_mkspec = mkspec;
     m_mkspecUpToDate = true;
 //    qDebug()<<"mkspec for "<<versionInfo().value("QT_INSTALL_DATA")<<" is "<<mkspec;
 }
-
-void QtVersion::updateQMakeCXX() const
-{
-    if (m_qmakeCXXUpToDate)
-        return;
-    ProFileReader *reader = new ProFileReader();
-    reader->setCumulative(false);
-    reader->setParsePreAndPostFiles(false);
-    reader->readProFile(mkspecPath() + "/qmake.conf");
-    m_qmakeCXX = reader->value("QMAKE_CXX");
-
-    delete reader;
-    m_qmakeCXXUpToDate = true;
-}
-
-ProjectExplorer::ToolChain *QtVersion::createToolChain(ProjectExplorer::ToolChain::ToolChainType type) const
-{
-    ProjectExplorer::ToolChain *tempToolchain = 0;
-    if (type == ProjectExplorer::ToolChain::MinGW) {
-        QString qmake_cxx = qmakeCXX();
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-        //addToEnvironment(env);
-        env.prependOrSetPath(mingwDirectory()+"/bin");
-        qmake_cxx = env.searchInPath(qmake_cxx);
-        tempToolchain = ProjectExplorer::ToolChain::createMinGWToolChain(qmake_cxx, mingwDirectory());
-        //qDebug()<<"Mingw ToolChain";
-    } else if(type == ProjectExplorer::ToolChain::MSVC) {
-        tempToolchain = ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isQt64Bit());
-        //qDebug()<<"MSVC ToolChain ("<<version->msvcVersion()<<")";
-    } else if(type == ProjectExplorer::ToolChain::WINCE) {
-        tempToolchain = ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatform());
-        //qDebug()<<"WinCE ToolChain ("<<version->msvcVersion()<<","<<version->wincePlatform()<<")";
-    } else if(type == ProjectExplorer::ToolChain::GCC || type == ProjectExplorer::ToolChain::LinuxICC) {
-        QString qmake_cxx = qmakeCXX();
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-        //addToEnvironment(env);
-        qmake_cxx = env.searchInPath(qmake_cxx);
-        if (qmake_cxx.isEmpty()) {
-            // macx-xcode mkspec resets the value of QMAKE_CXX.
-            // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
-            qmake_cxx = QLatin1String("cc");
-        }
-        tempToolchain = ProjectExplorer::ToolChain::createGccToolChain(qmake_cxx);
-        //qDebug()<<"GCC ToolChain ("<<qmake_cxx<<")";
-#ifdef QTCREATOR_WITH_S60
-    } else if (type == ProjectExplorer::ToolChain::WINSCW) {
-        tempToolchain = S60Manager::instance()->createWINSCWToolChain(this);
-    } else if (type == ProjectExplorer::ToolChain::GCCE) {
-        tempToolchain = S60Manager::instance()->createGCCEToolChain(this);
-    } else if (type == ProjectExplorer::ToolChain::RVCT_ARMV5
-               || type == ProjectExplorer::ToolChain::RVCT_ARMV6) {
-        tempToolchain = S60Manager::instance()->createRVCTToolChain(this, type);
-#endif
-#ifdef QTCREATOR_WITH_MAEMO
-    } else if (type == ProjectExplorer::ToolChain::GCC_MAEMO) {
-        tempToolchain = MaemoManager::instance()->maemoToolChain(this);
-#endif
-    } else {
-        qDebug()<<"Could not create ToolChain for"<<mkspec();
-        qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
-    }
-    return tempToolchain;
-}
-
 
 QString QtVersion::findQtBinary(const QStringList &possibleCommands) const
 {
@@ -1134,58 +1062,98 @@ QString QtVersion::linguistCommand() const
     return m_linguistCommand;
 }
 
+QList<ProjectExplorer::ToolChain *> QtVersion::toolChains() const
+{
+    updateToolChain();
+    return m_toolChains;
+}
+
 QList<ProjectExplorer::ToolChain::ToolChainType> QtVersion::possibleToolChainTypes() const
 {
-    QList<ProjectExplorer::ToolChain::ToolChainType> toolChains;
-    if (!isValid())
-        return toolChains << ProjectExplorer::ToolChain::INVALID;
-    const QString &spec = mkspec();
-    if (spec.contains("win32-msvc")
-        || spec.contains(QLatin1String("win32-icc"))) {
-        toolChains << ProjectExplorer::ToolChain::MSVC;
-    } else if (spec.contains("win32-g++")) {
-        toolChains << ProjectExplorer::ToolChain::MinGW;
-    } else if (spec == QString::null) {
-        toolChains << ProjectExplorer::ToolChain::INVALID;
-    } else if (spec.contains("wince")) {
-        toolChains << ProjectExplorer::ToolChain::WINCE;
-    } else if (spec.contains("linux-icc")) {
-        toolChains << ProjectExplorer::ToolChain::LinuxICC;
-#ifdef QTCREATOR_WITH_S60
-    } else if (spec.contains("symbian-abld")) {
-        toolChains << ProjectExplorer::ToolChain::GCCE
-                << ProjectExplorer::ToolChain::RVCT_ARMV5
-                << ProjectExplorer::ToolChain::RVCT_ARMV6
-                << ProjectExplorer::ToolChain::WINSCW;
-#endif
-#ifdef QTCREATOR_WITH_MAEMO
-    } else if (spec.contains("linux-g++-opengl")) {
-        bool maemo = false;
-        const QString baseDir = m_versionInfo.contains("QT_INSTALL_DATA") ?
-            m_versionInfo.value("QT_INSTALL_DATA") : QLatin1String("");
-        QFile qconfigpri(baseDir + QLatin1String("/mkspecs/qconfig.pri"));
-        if (qconfigpri.exists()) {
-            qconfigpri.open(QIODevice::ReadOnly | QIODevice::Text);
-            QTextStream stream(&qconfigpri);
-            while (!stream.atEnd()) {
-                QString line = stream.readLine().trimmed();
-                if (line.startsWith(QLatin1String("QT_ARCH"))
-                    && line.endsWith(QLatin1String("arm")))
-                    maemo = true;
-            }
-        }
-        toolChains << (maemo ? ProjectExplorer::ToolChain::GCC_MAEMO
-                       : ProjectExplorer::ToolChain::GCC);
-#endif
-    } else {
-        toolChains << ProjectExplorer::ToolChain::GCC;
-    }
-    return toolChains;
+    QList<ProjectExplorer::ToolChain::ToolChainType> types;
+    foreach(ProjectExplorer::ToolChain *tc, toolChains())
+        types << tc->type();
+    return types;
 }
 
 ProjectExplorer::ToolChain::ToolChainType QtVersion::defaultToolchainType() const
 {
-    return possibleToolChainTypes().at(0);
+    const QList<ProjectExplorer::ToolChain::ToolChainType> & list = possibleToolChainTypes();
+    if (list.isEmpty())
+        return ProjectExplorer::ToolChain::INVALID;
+    return list.first();
+}
+
+// if none, then it's INVALID everywhere this function is called
+void QtVersion::updateToolChain() const
+{
+    if (m_toolChainUpToDate)
+        return;
+
+    qDeleteAll(m_toolChains);
+
+    QString mkspecPath = versionInfo().value("QMAKE_MKSPECS");
+    if (mkspecPath.isEmpty())
+        mkspecPath = versionInfo().value("QT_INSTALL_DATA") + "/mkspecs/default";
+    else
+        mkspecPath = mkspecPath + "/default";
+
+    ProFileReader *reader = new ProFileReader();
+    reader->setCumulative(false);
+    reader->setParsePreAndPostFiles(false);
+    reader->readProFile(mkspecPath + "/qmake.conf");
+    QString qmakeCXX = reader->value("QMAKE_CXX");
+    QString makefileGenerator = reader->value("MAKEFILE_GENERATOR");
+    QString ce_sdk = reader->value("CE_SDK");
+    QString ce_arch = reader->value("CE_ARCH");
+    QString qt_arch = reader->value("QT_ARCH");
+    if (!ce_sdk.isEmpty() && !ce_arch.isEmpty()) {
+        QString wincePlatformName = ce_sdk + " (" + ce_arch + ")";
+        m_toolChains << ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatformName);
+    } else if (makefileGenerator == "SYMBIAN_ABLD") {
+#ifdef QTCREATOR_WITH_S60
+        m_toolChains << S60Manager::instance()->createGCCEToolChain(this);
+        m_toolChains << S60Manager::instance()->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5);
+        m_toolChains << S60Manager::instance()->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6);
+        m_toolChains << S60Manager::instance()->createWINSCWToolChain(this);
+#endif
+    } else if (qt_arch == "arm") {
+#ifdef QTCREATOR_WITH_MAEMO
+        m_toolChains << MaemoManager::instance()->maemoToolChain(this);
+
+        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        //addToEnvironment(env);
+        qmakeCXX = env.searchInPath(qmakeCXX);
+        m_toolChains << ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX);
+#endif
+    } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {
+        // TODO proper support for intel cl
+        m_toolChains << ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isQt64Bit());
+    } else if (qmakeCXX == "g++" && makefileGenerator == "MINGW") {
+        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        //addToEnvironment(env);
+        env.prependOrSetPath(mingwDirectory() + "/bin");
+        qmakeCXX = env.searchInPath(qmakeCXX);
+        m_toolChains << ProjectExplorer::ToolChain::createMinGWToolChain(qmakeCXX, mingwDirectory());
+    } else if (qmakeCXX == "g++" || qmakeCXX == "icc") {
+        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+        //addToEnvironment(env);
+        qmakeCXX = env.searchInPath(qmakeCXX);
+        if (qmakeCXX.isEmpty()) {
+            // macx-xcode mkspec resets the value of QMAKE_CXX.
+            // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
+            qmakeCXX = QLatin1String("cc");
+        }
+        m_toolChains << ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX);
+    }
+
+    if (m_toolChains.isEmpty()) {
+        qDebug()<<"Could not create ToolChain for"<<mkspecPath<<qmakeCXX;
+        qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
+    }
+
+    delete reader;
+    m_toolChainUpToDate = true;
 }
 
 #ifdef QTCREATOR_WITH_S60
@@ -1208,6 +1176,7 @@ QString QtVersion::mingwDirectory() const
 void QtVersion::setMingwDirectory(const QString &directory)
 {
     m_mingwDirectory = directory;
+    m_toolChainUpToDate = false;
 }
 
 QString QtVersion::msvcVersion() const
@@ -1215,15 +1184,10 @@ QString QtVersion::msvcVersion() const
     return m_msvcVersion;
 }
 
-QString QtVersion::wincePlatform() const
-{
-//    qDebug()<<"QtVersion::wincePlatform returning"<<ProjectExplorer::CeSdkHandler::platformName(mkspecPath() + "/qmake.conf");
-    return ProjectExplorer::CeSdkHandler::platformName(mkspecPath() + "/qmake.conf");
-}
-
 void QtVersion::setMsvcVersion(const QString &version)
 {
     m_msvcVersion = version;
+    m_toolChainUpToDate = false;
 }
 
 void QtVersion::addToEnvironment(ProjectExplorer::Environment &env) const
@@ -1346,7 +1310,8 @@ QString QtVersion::buildDebuggingHelperLibrary()
     addToEnvironment(env);
 
     // TODO: the debugging helper doesn't comply to actual tool chain yet
-    ProjectExplorer::ToolChain *tc = createToolChain(defaultToolchainType());
+    QList<ProjectExplorer::ToolChain *> alltc = toolChains();
+    ProjectExplorer::ToolChain *tc = alltc.isEmpty() ? 0 : alltc.first();
     tc->addToEnvironment(env);
     QString output;
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, &output);

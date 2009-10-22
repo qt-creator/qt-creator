@@ -198,6 +198,7 @@ public:
     //returns the name of the qt version, might be QString::Null, which means default qt version
     // qtVersion is in general the better method to use
     QString qtVersionName(ProjectExplorer::BuildConfiguration *configuration) const;
+
     ProjectExplorer::ToolChain *toolChain(ProjectExplorer::BuildConfiguration *configuration) const;
     void setToolChainType(ProjectExplorer::BuildConfiguration *configuration, ProjectExplorer::ToolChain::ToolChainType type);
     ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
@@ -234,7 +235,6 @@ public:
     bool compareBuildConfigurationToImportFrom(ProjectExplorer::BuildConfiguration *configuration, const QString &workingDirectory);
 
     static QStringList removeSpecFromArgumentList(const QStringList &old);
-    static QString extractSpecFromArgumentList(const QStringList &list);
 signals:
     void targetInformationChanged();
 
@@ -293,8 +293,6 @@ private:
     QList<Qt4ProjectManager::Internal::Qt4ProFileNode *> m_proFilesForCodeModelUpdate;
 
     QMap<QString, Internal::CodeModelInfo> m_codeModelInfo;
-    mutable ProjectExplorer::ToolChain *m_toolChain;
-
     friend class Qt4ProjectFile;
 };
 

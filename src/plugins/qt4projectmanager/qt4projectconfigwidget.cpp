@@ -288,17 +288,6 @@ void Qt4ProjectConfigWidget::importLabelClicked()
             QtVersion::QmakeBuildConfig qmakeBuildConfig = result.first;
             QStringList additionalArguments = result.second;
 
-            QString versionSpec = version->sourcePath() + "/mkspecs/" + version->mkspec();
-            QString parsedSpec = Qt4Project::extractSpecFromArgumentList(additionalArguments);
-            QString parsedSpecOrginal = parsedSpec;
-            if (QFileInfo(parsedSpec).isRelative())
-                parsedSpec = QDir::cleanPath(directory + "/" + parsedSpec);
-            additionalArguments = Qt4Project::removeSpecFromArgumentList(additionalArguments);
-            if (parsedSpec != versionSpec) {
-                additionalArguments.prepend(parsedSpecOrginal);
-                additionalArguments.prepend("-spec");
-            }
-
             // So we got all the information now apply it...
             m_pro->setQtVersion(bc, version->uniqueId());
             // Combo box will be updated at the end

@@ -308,8 +308,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
     m_fileInfo(new Qt4ProjectFile(this, fileName, this)),
     m_isApplication(true),
-    m_projectFiles(new Qt4ProjectFiles),
-    m_toolChain(0)
+    m_projectFiles(new Qt4ProjectFiles)
 {
     m_manager->registerProject(this);
 
@@ -322,7 +321,6 @@ Qt4Project::~Qt4Project()
 {
     m_manager->unregisterProject(this);
     delete m_projectFiles;
-    delete m_toolChain;
 }
 
 void Qt4Project::defaultQtVersionChanged()
@@ -496,17 +494,11 @@ void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFile
 
 ProjectExplorer::ToolChain *Qt4Project::toolChain(BuildConfiguration *configuration) const
 {
-    ProjectExplorer::ToolChain *tempToolChain;
-    tempToolChain = qtVersion(configuration)->createToolChain(toolChainType(configuration));
-    if (!ProjectExplorer::ToolChain::equals(m_toolChain, tempToolChain)) {
-        if (m_toolChain)
-            delete m_toolChain;
-        m_toolChain = tempToolChain;
-    } else {
-        delete tempToolChain;
-    }
-
-    return m_toolChain;
+    ToolChain::ToolChainType tct = toolChainType(configuration);
+    foreach(ToolChain *tc, qtVersion(configuration)->toolChains())
+        if (tc->type() == tct)
+            return tc;
+    return 0;
 }
 
 QString Qt4Project::makeCommand(BuildConfiguration *configuration) const
@@ -1009,9 +1001,8 @@ void Qt4Project::updateActiveRunConfiguration()
 
 ProjectExplorer::ToolChain::ToolChainType Qt4Project::toolChainType(BuildConfiguration *configuration) const
 {
-    const ProjectExplorer::ToolChain::ToolChainType originalType =
-        (ProjectExplorer::ToolChain::ToolChainType)configuration->value("ToolChain").toInt();
-    ProjectExplorer::ToolChain::ToolChainType type = originalType;
+    ToolChain::ToolChainType originalType = ToolChain::ToolChainType(configuration->value("ToolChain").toInt());
+    ToolChain::ToolChainType type = originalType;
     const QtVersion *version = qtVersion(configuration);
     if (!version->possibleToolChainTypes().contains(type)) // use default tool chain
         type = version->defaultToolchainType();
@@ -1233,19 +1224,6 @@ QStringList Qt4Project::removeSpecFromArgumentList(const QStringList &old)
     return newList;
 }
 
-QString Qt4Project::extractSpecFromArgumentList(const QStringList &list)
-{
-    int index = list.indexOf("-spec");
-    if (index == -1)
-        index = list.indexOf("-platform");
-    if (index == -1)
-        return QString();
-    if (index + 1 < list.length())
-        return list.at(index +1);
-    else
-        return QString();
-}
-
 // returns true if both are equal
 bool Qt4Project::compareBuildConfigurationToImportFrom(BuildConfiguration *configuration, const QString &workingDirectory)
 {
@@ -1262,51 +1240,15 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(BuildConfiguration *confi
                 // now compare arguments lists
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own
-                QString actualSpec = extractSpecFromArgumentList(qs->value(configuration->name(), "qmakeArgs").toStringList());
-                if (actualSpec.isEmpty())
-                    actualSpec = version->mkspec();
-
-                // Now to convert the actualSpec to a absolute path, we go through a few hops
-                if (QFileInfo(actualSpec).isRelative()) {
-                    QString path = version->sourcePath() + "/mkspecs/" + actualSpec;
-                    if (QFileInfo(path).exists()) {
-                        actualSpec = QDir::cleanPath(path);
-                    } else {
-                        path = version->versionInfo().value("QMAKE_MKSPECS") + "/" + actualSpec;
-                        if (QFileInfo(path).exists()) {
-                            actualSpec = QDir::cleanPath(path);
-                        } else {
-                            path = workingDirectory + "/" + actualSpec;
-                            if (QFileInfo(path).exists())
-                                actualSpec = QDir::cleanPath(path);
-                        }
-                    }
-                }
-
-
-                QString parsedSpec = extractSpecFromArgumentList(result.second);
-                // if the MakeFile did not contain a mkspec, then it is the default for that qmake
-                if (parsedSpec.isEmpty())
-                    parsedSpec = version->sourcePath() + "/mkspecs/" + version->mkspec();
-                if (QFileInfo(parsedSpec).isRelative())
-                    parsedSpec = QDir::cleanPath(workingDirectory + "/" + parsedSpec);
 
                 QStringList actualArgs = removeSpecFromArgumentList(qs->value(configuration->name(), "qmakeArgs").toStringList());
                 QStringList parsedArgs = removeSpecFromArgumentList(result.second);
-
-#ifdef Q_OS_WIN
-                actualSpec = actualSpec.toLower();
-                parsedSpec = parsedSpec.toLower();
-#endif
-
                 if (debug) {
                     qDebug()<<"Actual args:"<<actualArgs;
                     qDebug()<<"Parsed args:"<<parsedArgs;
-                    qDebug()<<"Actual spec:"<<actualSpec;
-                    qDebug()<<"Parsed spec:"<<parsedSpec;
                 }
 
-                if (actualArgs == parsedArgs && actualSpec == parsedSpec)
+                if (actualArgs == parsedArgs)
                     return true;
             }
         }

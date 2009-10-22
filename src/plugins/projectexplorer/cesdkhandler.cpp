@@ -56,53 +56,6 @@ CeSdkHandler::CeSdkHandler()
 {
 }
 
-static void readMkSpec(const QString &qtpath, QString *ceSdk, QString *ceArch)
-{
-    QFile f(qtpath);
-    if (f.exists() && f.open(QIODevice::ReadOnly)) {
-        while (!f.atEnd()) {
-            QByteArray line = f.readLine();
-            if (line.startsWith("CE_SDK")) {
-                int index = line.indexOf('=');
-                if (index >= 0) {
-                    *ceSdk = line.mid(index + 1).trimmed();
-                }
-            } else if (line.startsWith("CE_ARCH")) {
-                int index = line.indexOf('=');
-                if (index >= 0) {
-                    *ceArch = line.mid(index + 1).trimmed();
-                }
-            } else if (line.startsWith("include(")) {
-                int startIndex = line.indexOf('(');
-                int endIndex = line.indexOf(')');
-                if (startIndex >= 0 && endIndex >= 0) {
-                    QString path = line.mid(startIndex + 1, endIndex - startIndex - 1).trimmed();
-
-                    int index = qtpath.lastIndexOf('/');
-                    if (index >= 0)
-                        readMkSpec(qtpath.left(index + 1) + path, ceSdk, ceArch);
-                    else
-                        readMkSpec(path, ceSdk, ceArch);
-                }
-            }
-        }
-    }
-}
-
-QString CeSdkHandler::platformName(const QString &qtpath)
-{
-    QString platformName;
-    QString CE_SDK;
-    QString CE_ARCH;
-
-    readMkSpec(qtpath, &CE_SDK, &CE_ARCH);
-
-    if (!CE_SDK.isEmpty() && !CE_ARCH.isEmpty())
-        platformName = CE_SDK + " (" + CE_ARCH + ")";
-
-    return platformName;
-}
-
 bool CeSdkHandler::parse(const QString &vsdir)
 {
     // look at the file at %VCInstallDir%/vcpackages/WCE.VCPlatform.config

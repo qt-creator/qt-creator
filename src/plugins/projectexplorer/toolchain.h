@@ -75,7 +75,7 @@ public:
     enum ToolChainType
     {
         GCC = 0,
-        LinuxICC = 1,
+        // LINUX_ICC = 1,
         MinGW = 2,
         MSVC = 3,
         WINCE = 4,

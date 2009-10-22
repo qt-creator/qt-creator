@@ -394,7 +394,7 @@ QString CMakeProject::buildParser(BuildConfiguration *configuration) const
     if (!m_toolChain)
         return QString::null;
     if (m_toolChain->type() == ProjectExplorer::ToolChain::GCC
-        || m_toolChain->type() == ProjectExplorer::ToolChain::LinuxICC
+        //|| m_toolChain->type() == ProjectExplorer::ToolChain::LinuxICC
         || m_toolChain->type() == ProjectExplorer::ToolChain::MinGW) {
         return ProjectExplorer::Constants::BUILD_PARSER_GCC;
     } else if (m_toolChain->type() == ProjectExplorer::ToolChain::MSVC

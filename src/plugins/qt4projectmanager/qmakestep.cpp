@@ -62,10 +62,6 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
     ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(buildConfiguration);
     QStringList arguments;
     arguments << project()->file()->fileName();
-    if (!additonalArguments.contains("-spec")) {
-        arguments << "-spec" << m_pro->qtVersion(bc)->mkspec();
-    }
-
     arguments << "-r";
 
 #ifdef Q_OS_WIN

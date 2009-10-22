@@ -36,6 +36,10 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QHash>
 
+namespace ProjectExplorer {
+    class ToolChain;
+}
+
 namespace Qt4ProjectManager {
 
 namespace Internal {
@@ -65,16 +69,21 @@ public:
 
     QString name() const;
     QString sourcePath() const;
-    QString mkspecPath() const;
     QString qmakeCommand() const;
     QString uicCommand() const;
     QString designerCommand() const;
     QString linguistCommand() const;
 
     QList<ProjectExplorer::ToolChain::ToolChainType> possibleToolChainTypes() const;
-    QString mkspec() const;
     ProjectExplorer::ToolChain::ToolChainType defaultToolchainType() const;
-    ProjectExplorer::ToolChain *createToolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
+    QList<ProjectExplorer::ToolChain *> toolChains() const;
+
+    /// @returns the name of the mkspec, which is generally not enough
+    /// to pass to qmake.
+    QString mkspec() const;
+    /// @returns the full path to the default directory
+    /// specifally not the directory the symlink/ORIGINAL_QMAKESPEC points to
+    QString mkspecPath() const;
 
     void setName(const QString &name);
     void setQMakeCommand(const QString &path);
@@ -90,7 +99,6 @@ public:
     QString mingwDirectory() const;
     void setMingwDirectory(const QString &directory);
     QString msvcVersion() const;
-    QString wincePlatform() const;
     void setMsvcVersion(const QString &version);
     void addToEnvironment(ProjectExplorer::Environment &env) const;
 
@@ -128,9 +136,8 @@ private:
     void updateSourcePath();
     void updateMkSpec() const;
     void updateVersionInfo() const;
-    void updateQMakeCXX() const;
-    QString qmakeCXX() const;
     QString findQtBinary(const QStringList &possibleName) const;
+    void updateToolChain() const;
     QString m_name;
     QString m_sourcePath;
     QString m_mingwDirectory;
@@ -147,6 +154,9 @@ private:
     mutable QString m_mkspec; // updated lazily
     mutable QString m_mkspecFullPath;
 
+    mutable bool m_toolChainUpToDate;
+    mutable QList<ProjectExplorer::ToolChain *> m_toolChains;
+
     mutable bool m_versionInfoUpToDate;
     mutable QHash<QString,QString> m_versionInfo; // updated lazily
     mutable bool m_notInstalled;
@@ -161,9 +171,6 @@ private:
     mutable QString m_uicCommand;
     mutable QString m_designerCommand;
     mutable QString m_linguistCommand;
-
-    mutable bool m_qmakeCXXUpToDate;
-    mutable QString m_qmakeCXX;
 };
 
 struct QMakeAssignment
