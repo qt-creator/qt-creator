@@ -290,7 +290,7 @@ void QtVersionManager::addNewVersionsFromInstaller()
     foreach (QString newVersion, newVersionsList) {
         QStringList newVersionData = newVersion.split('=');
         if (newVersionData.count()>=2) {
-            if (QDir(newVersionData[1]).exists()) {
+            if (QFile::exists(newVersionData[1])) {
                 QtVersion *version = new QtVersion(newVersionData[0], newVersionData[1], m_idcount++ );
                 if (newVersionData.count() >= 3)
                     version->setMingwDirectory(newVersionData[2]);
