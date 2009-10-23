@@ -615,18 +615,12 @@ void GdbEngine::readGdbStandardOutput()
 
 void GdbEngine::interruptInferior()
 {
-    QTC_ASSERT(state() == InferiorRunning, qDebug() << state());
-
-    if (state() == DebuggerNotReady) {
-        debugMessage(_("TRYING TO INTERRUPT INFERIOR WITHOUT RUNNING GDB"));
-        shutdown();
-        return;
-    }
+    QTC_ASSERT(state() == InferiorRunning, qDebug() << state(); return);
 
     setState(InferiorStopping);
     showStatusMessage(tr("Stop requested..."), 5000);
 
-    debugMessage(_("TRYING TO INTERUPT INFERIOR"));
+    debugMessage(_("TRYING TO INTERRUPT INFERIOR"));
     m_gdbAdapter->interruptInferior();
 }
 
