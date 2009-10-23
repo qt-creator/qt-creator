@@ -2183,15 +2183,21 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
         QTextStream ts(&data, QIODevice::ReadOnly);
         while (!ts.atEnd()) {
             QString line = ts.readLine();
-            if (!line.startsWith(__("0x")))
-                continue;
             Module module;
             QString symbolsRead;
             QTextStream ts(&line, QIODevice::ReadOnly);
-            ts >> module.startAddress >> module.endAddress >> symbolsRead;
-            module.moduleName = ts.readLine().trimmed();
-            module.symbolsRead = (symbolsRead == __("Yes"));
-            modules.append(module);
+            if (line.startsWith(__("0x"))) {
+                ts >> module.startAddress >> module.endAddress >> symbolsRead;
+                module.moduleName = ts.readLine().trimmed();
+                module.symbolsRead = (symbolsRead == __("Yes"));
+                modules.append(module);
+            } else if (line.trimmed().startsWith(__("No"))) {
+                // gdb 6.4 symbianelf
+                ts >> symbolsRead;
+                QTC_ASSERT(symbolsRead == __("No"), continue);
+                module.moduleName = ts.readLine().trimmed();
+                modules.append(module);
+            }
         }
         if (modules.isEmpty()) {
             // Mac has^done,shlib-info={num="1",name="dyld",kind="-",

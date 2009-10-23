@@ -97,7 +97,7 @@ struct Library
 {
     Library() {}
 
-    QString name;
+    QByteArray name;
     uint codeseg;
     uint dataseg;
 };

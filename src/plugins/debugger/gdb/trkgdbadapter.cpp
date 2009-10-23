@@ -800,8 +800,26 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd == "qfDllInfo") {
-        // happens with  gdb 6.4.50.20060226-cvs / CodeSourcery
-        // never made it into FSF gdb?
+        // That's the _first_ query package.
+        // Happens with  gdb 6.4.50.20060226-cvs / CodeSourcery.
+        // Never made it into FSF gdb that got qXfer:libraries:read instead.
+        // http://sourceware.org/ml/gdb/2007-05/msg00038.html
+        // Name=hexname,TextSeg=textaddr[,DataSeg=dataaddr]
+        sendGdbServerAck();
+        QByteArray response; // = "m";
+        // FIXME: Limit packet length by using qsDllInfo packages?
+        foreach (const Library &lib, m_session.libraries) {
+            response += "Name=" + lib.name.toHex()
+                + ",TextSeg=" + hexNumber(lib.codeseg)
+                + ",DataSeg=" + hexNumber(lib.dataseg);
+            response += ';';
+        }
+        response += "l";
+        sendGdbServerMessage(response, "library information transfered");
+    }
+
+    else if (cmd == "qsDllInfo") {
+        // That's a following query package
         sendGdbServerAck();
         sendGdbServerMessage("", "FIXME: nothing?");
     }
@@ -1067,7 +1085,10 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             // With CS gdb 6.4 we get a non-standard $qfDllInfo#7f+ request
             // afterwards, so don't use it for now.
             //sendGdbServerMessage("T05library:;");
-            sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+            sendGdbServerMessage("T05load:Name=" + lib.name.toHex()
+                + ",TextSeg=" + hexNumber(lib.codeseg)
+                + ",DataSeg=" + hexNumber(lib.dataseg) + ';');
+            //sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
             break;
         }
         case 0xa1: { // NotifyDeleted
