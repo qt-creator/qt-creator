@@ -696,7 +696,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
             << "LEAVES PENDING AT:" << m_pendingRequests << cmd.command);
     }
 
-    if (cmd.flags & NeedsStop) {
+    if ((cmd.flags & NeedsStop) || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
         if (state() == InferiorStopped
             || state() == InferiorStarting || state() == AdapterStarted) {
             // Can be safely sent now.
