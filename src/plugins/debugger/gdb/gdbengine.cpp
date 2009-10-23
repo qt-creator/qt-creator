@@ -945,21 +945,6 @@ static bool isExitedReason(const QByteArray &reason)
         || reason == "exited";           // inferior exited
 }
 
-static bool isStoppedReason(const QByteArray &reason)
-{
-    return reason == "function-finished"  // -exec-finish
-        || reason == "signal-received"  // handled as "isExitedReason"
-        || reason == "breakpoint-hit"     // -exec-continue
-        || reason == "end-stepping-range" // -exec-next, -exec-step
-        || reason == "location-reached"   // -exec-until
-        || reason == "access-watchpoint-trigger"
-        || reason == "read-watchpoint-trigger"
-        #ifdef Q_OS_MAC
-        || reason.isEmpty()
-        #endif
-    ;
-}
-
 #if 0
 void GdbEngine::handleAqcuiredInferior()
 {
@@ -1129,43 +1114,20 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         }
     }
 
-    if (isStoppedReason(reason) || reason.isEmpty()) {
-        if (initHelpers && m_debuggingHelperState != DebuggingHelperUninitialized)
-            initHelpers = false;
-        // Don't load helpers on stops triggered by signals unless it's
-        // an intentional trap.
-        if (initHelpers && reason == "signal-received"
-                && data.findChild("signal-name").data() != "SIGTRAP")
-            initHelpers = false;
-            
-        if (initHelpers) {
-            tryLoadDebuggingHelpers();
-            QVariant var = QVariant::fromValue<GdbMi>(data);
-            postCommand(_("p 4"), CB(handleStop1), var);  // dummy
-        } else {
-            handleStop1(data);
-        }
-        return;
+    if (initHelpers && m_debuggingHelperState != DebuggingHelperUninitialized)
+        initHelpers = false;
+    // Don't load helpers on stops triggered by signals unless it's
+    // an intentional trap.
+    if (initHelpers && reason == "signal-received"
+            && data.findChild("signal-name").data() != "SIGTRAP")
+        initHelpers = false;
+    if (initHelpers) {
+        tryLoadDebuggingHelpers();
+        QVariant var = QVariant::fromValue<GdbMi>(data);
+        postCommand(_("p 4"), CB(handleStop1), var);  // dummy
+    } else {
+        handleStop1(data);
     }
-
-    debugMessage(_("STOPPED FOR UNKNOWN REASON: " + data.toString()));
-    // Ignore it. Will be handled with full response later in the
-    // JumpToLine or RunToFunction handlers
-#if 1
-    // FIXME: remove this special case as soon as there's a real
-    // reason given when the temporary breakpoint is hit.
-    // right now we get:
-    // 14*stopped,thread-id="1",frame={addr="0x0000000000403ce4",
-    // func="foo",args=[{name="str",value="@0x7fff0f450460"}],
-    // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
-    //
-    // MAC yields sometimes:
-    // >3661*stopped,time={wallclock="0.00658",user="0.00142",
-    // system="0.00136",start="1218810678.805432",end="1218810678.812011"}
-    showStatusMessage(tr("Run to Function finished. Stopped."));
-    StackFrame f = parseStackFrame(data.findChild("frame"), 0);
-    gotoLocation(f, true);
-#endif
 }
 
 void GdbEngine::handleStop1(const GdbResponse &response)
