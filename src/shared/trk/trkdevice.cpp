@@ -955,8 +955,10 @@ void TrkDevice::close()
 {
     if (!isOpen())
         return;
-    d->readerThread->terminate();
-    d->writerThread->terminate();
+    if (d->readerThread)
+        d->readerThread->terminate();
+    if (d->writerThread)
+        d->writerThread->terminate();
 #ifdef Q_OS_WIN
     CloseHandle(d->deviceContext->device);
     d->deviceContext->device = INVALID_HANDLE_VALUE;
