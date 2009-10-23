@@ -350,8 +350,6 @@ private: ////////// View & Data Stuff //////////
     void handleQuerySources(const GdbResponse &response);
 
     QString fullName(const QString &fileName);
-    // get one usable name out of these, try full names first
-    QString fullName(const QStringList &candidates);
 
     // awful hack to keep track of used files
     QMap<QString, QString> m_shortToFullName;

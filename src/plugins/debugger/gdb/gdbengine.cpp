@@ -1219,18 +1219,7 @@ void GdbEngine::handleStop2(const GdbResponse &response)
 
 void GdbEngine::handleStop2(const GdbMi &data)
 {
-    // Sometimes we get some interesting extra information. Grab it.
     const GdbMi gdbmiFrame = data.findChild("frame");
-    GdbMi shortName = gdbmiFrame.findChild("file");
-    GdbMi fullName = gdbmiFrame.findChild("fullname");
-    if (shortName.isValid() && fullName.isValid()) {
-        QString file = QFile::decodeName(shortName.data());
-        QString full = QFile::decodeName(fullName.data());
-        if (file != full) {
-            m_shortToFullName[file] = full;
-            m_fullToShortName[full] = file;
-        }
-    }
 
     // Quick shot: Jump to stack frame #0.
     StackFrame frame;
@@ -1353,21 +1342,6 @@ QString GdbEngine::fullName(const QString &fileName)
     //debugMessage(_("STORING: ") + fileName + " " + full);
     m_shortToFullName[fileName] = full;
     m_fullToShortName[full] = fileName;
-    return full;
-}
-
-QString GdbEngine::fullName(const QStringList &candidates)
-{
-    QString full;
-    foreach (const QString &fileName, candidates) {
-        full = fullName(fileName);
-        if (!full.isEmpty())
-            return full;
-    }
-    foreach (const QString &fileName, candidates) {
-        if (!fileName.isEmpty())
-            return fileName;
-    }
     return full;
 }
 
@@ -1727,7 +1701,7 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
     data->bpMultiple = false;
     data->bpEnabled = true;
     data->bpCondition.clear();
-    QStringList files;
+    QByteArray file, fullName;
     foreach (const GdbMi &child, bkpt.children()) {
         if (child.hasName("number")) {
             data->bpNumber = _(child.data());
@@ -1741,13 +1715,9 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
             else
                 data->bpAddress = _(child.data());
         } else if (child.hasName("file")) {
-            files.append(QFile::decodeName(child.data()));
+            file = child.data();
         } else if (child.hasName("fullname")) {
-            QString fullName = QFile::decodeName(child.data());
-            #ifdef Q_OS_WIN
-            fullName = QDir::cleanPath(fullName);
-            #endif
-            files.prepend(fullName);
+            fullName = child.data();
         } else if (child.hasName("line")) {
             data->bpLineNumber = _(child.data());
             if (child.data().toInt())
@@ -1761,17 +1731,8 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
             data->bpEnabled = (child.data() == "y");
         } else if (child.hasName("pending")) {
             data->pending = true;
-            int pos = child.data().lastIndexOf(':');
-            if (pos > 0) {
-                data->bpLineNumber = _(child.data().mid(pos + 1));
-                data->markerLineNumber = child.data().mid(pos + 1).toInt();
-                QString file = QString::fromLocal8Bit(child.data().left(pos));
-                if (file.startsWith(_c('"')) && file.endsWith(_c('"')))
-                    file = file.mid(1, file.size() - 2);
-                files.prepend(file);
-            } else {
-                files.prepend(QString::fromLocal8Bit(child.data()));
-            }
+            // Any content here would be interesting only if we did accept
+            // spontaneously appearing breakpoints (user using gdb commands).
         } else if (child.hasName("at")) {
             // Happens with (e.g.?) gdb 6.4 symbianelf
             QByteArray ba = child.data();
@@ -1785,11 +1746,20 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
     //else if (child.hasName("ignore"))
     //    data->bpIgnoreCount = child.data();
 
-    QString name = fullName(files);
-    if (data->bpFileName.isEmpty())
-        data->bpFileName = name;
-    if (data->markerFileName.isEmpty())
-        data->markerFileName = name;
+    QString name;
+    if (!fullName.isEmpty()) {
+        name = QFile::decodeName(fullName);
+        #ifdef Q_OS_WIN
+        name = QDir::cleanPath(name);
+        #endif
+        if (data->markerFileName.isEmpty())
+            data->markerFileName = name;
+    } else {
+        name = QFile::decodeName(file);
+        // Use fullName() once we have a mapping which is more complete than gdb's own ...
+        // No point in assigning markerFileName for now.
+    }
+    data->bpFileName = name;
 }
 
 void GdbEngine::sendInsertBreakpoint(int index)
@@ -2102,15 +2072,6 @@ void GdbEngine::attemptBreakpointSynchronization()
             }
         }
     }
-
-    for (int index = 0; index != handler->size(); ++index) {
-        // happens sometimes on Mac. Brush over symptoms
-        BreakpointData *data = handler->at(index);
-        if (data->markerFileName.startsWith(__("../"))) {
-            data->markerFileName = fullName(data->markerFileName);
-            handler->updateMarkers();
-        }
-    }
 }
 
 
@@ -2288,12 +2249,11 @@ void GdbEngine::reloadStack(bool forceGotoLocation)
 StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
 {
     //qDebug() << "HANDLING FRAME:" << frameMi.toString();
-    QStringList files;
-    files.append(QFile::decodeName(frameMi.findChild("fullname").data()));
-    files.append(QFile::decodeName(frameMi.findChild("file").data()));
     StackFrame frame;
     frame.level = level;
-    frame.file = fullName(files);
+    // We might want to fall back to "file" once we have a mapping which
+    // is more complete than gdb's own ...
+    frame.file = QFile::decodeName(frameMi.findChild("fullname").data());
     frame.function = _(frameMi.findChild("func").data());
     frame.from = _(frameMi.findChild("from").data());
     frame.line = frameMi.findChild("line").data().toInt();
