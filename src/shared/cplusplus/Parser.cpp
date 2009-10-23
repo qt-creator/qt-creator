@@ -705,7 +705,8 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
 {
     if (TemplateArgumentListEntry *entry = templateArgumentListEntry(cursor())) {
         rewind(entry->cursor);
-        return entry->ast;
+        node = entry->ast;
+        return entry->ast != 0;
     }
 
     unsigned start = cursor();
