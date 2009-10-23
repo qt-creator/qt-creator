@@ -1574,6 +1574,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'Z') {
         m_submode = CapitalZSubMode;
     } else if (key == '~' && !atEndOfLine()) {
+        beginEditBlock();
         setAnchor();
         moveRight(qMin(count(), rightDist()));
         QString str = selectedText();
@@ -1583,6 +1584,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             str[i] = c.isUpper() ? c.toLower() : c.toUpper();
         }
         m_tc.insertText(str);
+        endEditBlock();
     } else if (key == Key_PageDown || key == control('f')) {
         moveDown(count() * (linesOnScreen() - 2) - cursorLineOnScreen());
         scrollToLineInDocument(cursorLineInDocument());
