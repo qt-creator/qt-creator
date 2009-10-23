@@ -76,7 +76,7 @@ public:
 
     QList<ProjectExplorer::ToolChain::ToolChainType> possibleToolChainTypes() const;
     ProjectExplorer::ToolChain::ToolChainType defaultToolchainType() const;
-    QList<ProjectExplorer::ToolChain *> toolChains() const;
+    ProjectExplorer::ToolChain *toolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
 
     /// @returns the name of the mkspec, which is generally not enough
     /// to pass to qmake.
@@ -131,6 +131,7 @@ public:
 
     QmakeBuildConfig defaultBuildConfig() const;
 private:
+    QList<QSharedPointer<ProjectExplorer::ToolChain> > toolChains() const;
     static int getUniqueId();
     // Also used by QtOptionsPageWidget
     void updateSourcePath();
@@ -155,7 +156,7 @@ private:
     mutable QString m_mkspecFullPath;
 
     mutable bool m_toolChainUpToDate;
-    mutable QList<ProjectExplorer::ToolChain *> m_toolChains;
+    mutable QList<QSharedPointer<ProjectExplorer::ToolChain> > m_toolChains;
 
     mutable bool m_versionInfoUpToDate;
     mutable QHash<QString,QString> m_versionInfo; // updated lazily
