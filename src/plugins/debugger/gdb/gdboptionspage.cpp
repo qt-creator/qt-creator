@@ -51,6 +51,9 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(GdbEnvironment),
         m_ui.environmentEdit);
 
+#if 1
+    m_ui.groupBoxPluginDebugging->hide();
+#else // The related code (handleAqcuiredInferior()) is disabled as well.
     m_group.insert(theDebuggerAction(AllPluginBreakpoints),
         m_ui.radioButtonAllPluginBreakpoints);
     m_group.insert(theDebuggerAction(SelectedPluginBreakpoints),
@@ -59,6 +62,7 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
         m_ui.radioButtonNoPluginBreakpoints);
     m_group.insert(theDebuggerAction(SelectedPluginBreakpointsPattern),
         m_ui.lineEditSelectedPluginBreakpointsPattern);
+#endif
 
     m_ui.lineEditSelectedPluginBreakpointsPattern->
         setEnabled(theDebuggerAction(SelectedPluginBreakpoints)->value().toBool());

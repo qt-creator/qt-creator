@@ -1049,6 +1049,10 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
     setState(InferiorStopped);
 
+#if 0
+    // The related code (handleAqcuiredInferior()) is disabled as well.
+    // When re-enabling, try something to avoid spurious source list updates
+    // due to unrelated no-reason stops.
     const QByteArray &msg = data.findChild("consolestreamoutput").data();
     if (msg.contains("Stopped due to shared library event") || reason.isEmpty()) {
         m_modulesListOutdated = true;
@@ -1064,6 +1068,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         }
         // fall through
     }
+#endif
 
     // seen on XP after removing a breakpoint while running
     //  >945*stopped,reason="signal-received",signal-name="SIGTRAP",
