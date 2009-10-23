@@ -1090,9 +1090,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         if (reason == "end-stepping-range" || reason == "function-finished") {
             GdbMi frame = data.findChild("frame");
             //debugMessage(frame.toString());
-            m_currentFrame = _(frame.findChild("addr").data() + '%' +
-                 frame.findChild("func").data() + '%');
-
             QString funcName = _(frame.findChild("func").data());
             QString fileName = QString::fromLocal8Bit(frame.findChild("file").data());
             if (isLeavableFunction(funcName, fileName)) {
@@ -1144,11 +1141,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
     QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
         showStatusMessage(tr("Stopped at breakpoint."));
-        GdbMi frame = data.findChild("frame");
         //debugMessage(_("HIT BREAKPOINT: " + frame.toString()));
-        m_currentFrame = _(frame.findChild("addr").data() + '%' +
-             frame.findChild("func").data() + '%');
-
         postCommand(_("-break-list"), CB(handleBreakList));
         QVariant var = QVariant::fromValue<GdbMi>(data);
         postCommand(_("p 2"), CB(handleStop2), var);  // dummy
@@ -1187,6 +1180,9 @@ void GdbEngine::handleStop2(const GdbResponse &response)
 void GdbEngine::handleStop2(const GdbMi &data)
 {
     const GdbMi gdbmiFrame = data.findChild("frame");
+
+    m_currentFrame = _(gdbmiFrame.findChild("addr").data() + '%' +
+         gdbmiFrame.findChild("func").data() + '%');
 
     // Quick shot: Jump to stack frame #0.
     StackFrame frame;
