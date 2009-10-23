@@ -435,6 +435,14 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfigu
     m_packageFile = QFileInfo(m_packageFilePath).fileName();
 }
 
+S60DeviceRunControlBase::~S60DeviceRunControlBase()
+{
+    if (m_launcher) {
+        m_launcher->deleteLater();
+        m_launcher = 0;
+    }
+}
+
 void S60DeviceRunControlBase::start()
 {
     emit started();

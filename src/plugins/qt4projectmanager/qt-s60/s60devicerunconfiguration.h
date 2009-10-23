@@ -129,7 +129,7 @@ class S60DeviceRunControlBase : public ProjectExplorer::RunControl
     Q_OBJECT
 public:
     explicit S60DeviceRunControlBase(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
-    ~S60DeviceRunControlBase() {}
+    ~S60DeviceRunControlBase();
     virtual void start();
     virtual void stop();
     virtual bool isRunning() const;
