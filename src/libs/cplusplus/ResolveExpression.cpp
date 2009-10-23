@@ -286,9 +286,14 @@ bool ResolveExpression::visit(ConditionAST *)
     return false;
 }
 
-bool ResolveExpression::visit(ConditionalExpressionAST *)
+bool ResolveExpression::visit(ConditionalExpressionAST *ast)
 {
-    // nothing to do.
+    if (ast->left_expression)
+        accept(ast->left_expression);
+
+    else if (ast->right_expression)
+        accept(ast->right_expression);
+
     return false;
 }
 
@@ -300,7 +305,8 @@ bool ResolveExpression::visit(CppCastExpressionAST *ast)
 
 bool ResolveExpression::visit(DeleteExpressionAST *)
 {
-    // nothing to do.
+    FullySpecifiedType ty(control()->voidType());
+    addResult(ty);
     return false;
 }
 
@@ -310,8 +316,15 @@ bool ResolveExpression::visit(ArrayInitializerAST *)
     return false;
 }
 
-bool ResolveExpression::visit(NewExpressionAST *)
+bool ResolveExpression::visit(NewExpressionAST *ast)
 {
+    if (ast->new_type_id) {
+        Scope *scope = _context.expressionDocument()->globalSymbols();
+        FullySpecifiedType ty = sem.check(ast->new_type_id->type_specifier, scope);
+        ty = sem.check(ast->new_type_id->ptr_operators, ty, scope);
+        FullySpecifiedType ptrTy(control()->pointerType(ty));
+        addResult(ptrTy);
+    }
     // nothing to do.
     return false;
 }
