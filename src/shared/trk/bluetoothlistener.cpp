@@ -37,7 +37,25 @@
 #ifdef Q_OS_UNIX
 #   include <unistd.h>
 #   include <signal.h>
+#else
+#   include <windows.h>
 #endif
+
+// Process id helpers.
+#ifdef Q_OS_WIN
+inline DWORD processId(const QProcess &p)
+{
+    if (const Q_PID processInfoStruct = p.pid())
+        return processInfoStruct->dwProcessId;
+    return 0;
+}
+#else
+inline Q_PID processId(const QProcess &p)
+{
+    return p.pid();
+}
+#endif
+
 
 enum { debug = 0 };
 
@@ -47,7 +65,11 @@ struct BluetoothListenerPrivate {
     BluetoothListenerPrivate();
     QString device;
     QProcess process;
+#ifdef Q_OS_WIN
+    DWORD pid;
+#else
     Q_PID pid;
+#endif
     bool printConsoleMessages;
     BluetoothListener::Mode mode;
 };
@@ -110,7 +132,7 @@ int BluetoothListener::terminateProcess()
         qDebug() << "terminateProcess" << d->process.pid() << d->process.state();
     if (d->process.state() == QProcess::NotRunning)
         return -1;
-    emitMessage(tr("%1: Stopping listener %2...").arg(d->device).arg(d->process.pid()));
+    emitMessage(tr("%1: Stopping listener %2...").arg(d->device).arg(processId(d->process)));
     // When listening, the process should terminate by itself after closing the connection
     if (mode() == Listen && d->process.waitForFinished(TimeOutMS))
         return 0;
@@ -147,8 +169,8 @@ bool BluetoothListener::start(const QString &device, QString *errorMessage)
         *errorMessage = tr("Unable to run '%1': %2").arg(binary, d->process.errorString());
         return false;
     }
-    d->pid = d->process.pid(); // Forgets it after crash/termination
-    emitMessage(tr("%1: Bluetooth listener running (%2).").arg(device).arg(d->process.pid()));
+    d->pid = processId(d->process); // Forgets it after crash/termination
+    emitMessage(tr("%1: Bluetooth listener running (%2).").arg(device).arg(processId(d->process)));
     return true;
 }
 
