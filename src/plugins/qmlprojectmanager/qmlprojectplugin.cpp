@@ -42,7 +42,6 @@
 #include <texteditor/texteditoractionhandler.h>
 
 #include <QtCore/QtPlugin>
-#include <QtCore/QDebug>
 
 using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;

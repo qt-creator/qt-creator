@@ -47,3 +47,4 @@ SOURCES += qmleditor.cpp \
     qmlsymbol.cpp \
     qmlfilewizard.cpp
 RESOURCES += qmleditor.qrc
+OTHER_FILES += QmlEditor.pluginspec
