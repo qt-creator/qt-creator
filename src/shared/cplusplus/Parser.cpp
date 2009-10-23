@@ -328,8 +328,6 @@ bool Parser::parseTemplateId(NameAST *&node)
     DEBUG_THIS_RULE();
 
     const unsigned start = cursor();
-    Rewind rewind(this);
-    rewind.mark();
 
     if (LA() == T_IDENTIFIER && LA(2) == T_LESS) {
         TemplateIdAST *ast = new (_pool) TemplateIdAST;
@@ -692,8 +690,26 @@ bool Parser::parseOperatorFunctionId(NameAST *&node)
     return true;
 }
 
+Parser::TemplateArgumentListEntry *Parser::templateArgumentListEntry(unsigned tokenIndex)
+{
+    for (unsigned i = 0; i < _templateArgumentList.size(); ++i) {
+        TemplateArgumentListEntry *entry = &_templateArgumentList[i];
+        if (entry->index == tokenIndex)
+            return entry;
+    }
+
+    return 0;
+}
+
 bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
 {
+    if (TemplateArgumentListEntry *entry = templateArgumentListEntry(cursor())) {
+        rewind(entry->cursor);
+        return entry->ast;
+    }
+
+    unsigned start = cursor();
+
     DEBUG_THIS_RULE();
     TemplateArgumentListAST **template_argument_ptr = &node;
     ExpressionAST *template_argument = 0;
@@ -711,8 +727,13 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
                 template_argument_ptr = &(*template_argument_ptr)->next;
             }
         }
+
+        _templateArgumentList.push_back(TemplateArgumentListEntry(start, cursor(), node));
         return true;
     }
+
+    _templateArgumentList.push_back(TemplateArgumentListEntry(start, cursor(), 0));
+
     return false;
 }
 
