@@ -1052,6 +1052,21 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
     setState(InferiorStopped);
 
+#ifdef Q_OS_LINUX
+    // For some reason, attaching to a stopped process causes *two* stops
+    // when trying to continue (kernel 2.6.24-23-ubuntu).
+    // Interestingly enough, on MacOSX no signal is delivered at all.
+    if (reason == "signal-received"
+        && data.findChild("signal-name").data() == "SIGSTOP") {
+        GdbMi frameData = data.findChild("frame");
+        if (frameData.findChild("func").data() == "_start"
+            && frameData.findChild("from").data() == "/lib/ld-linux.so.2") {
+            continueInferiorInternal();
+            return;
+        }
+    }
+#endif
+
 #if 0
     // The related code (handleAqcuiredInferior()) is disabled as well.
     // When re-enabling, try something to avoid spurious source list updates
@@ -1176,20 +1191,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
         QVariant var = QVariant::fromValue<GdbMi>(data);
         postCommand(_("p 2"), CB(handleStop2), var);  // dummy
     } else {
-#ifdef Q_OS_LINUX
-        // For some reason, attaching to a stopped process causes *two* stops
-        // when trying to continue (kernel 2.6.24-23-ubuntu).
-        // Interestingly enough, on MacOSX no signal is delivered at all.
-        if (reason == "signal-received"
-            && data.findChild("signal-name").data() == "SIGSTOP") {
-            GdbMi frameData = data.findChild("frame");
-            if (frameData.findChild("func").data() == "_start"
-                && frameData.findChild("from").data() == "/lib/ld-linux.so.2") {
-                continueInferiorInternal();
-                return;
-            }
-        }
-#endif
         if (reason == "signal-received"
             && theDebuggerBoolSetting(UseMessageBoxForSignals)) {
             QByteArray name = data.findChild("signal-name").data();
