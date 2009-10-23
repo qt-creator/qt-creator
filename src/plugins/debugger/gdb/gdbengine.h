@@ -246,7 +246,7 @@ private: ////////// Gdb Output, State & Capability Handling //////////
 
     void handleResponse(const QByteArray &buff);
     void handleStopResponse(const GdbMi &data);
-    void handleResultRecord(const GdbResponse &response);
+    void handleResultRecord(GdbResponse *response);
     void handleStop1(const GdbResponse &response);
     void handleStop1(const GdbMi &data);
     void handleStop2(const GdbResponse &response);

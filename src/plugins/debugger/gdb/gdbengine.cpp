@@ -568,7 +568,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             m_pendingLogStreamOutput.clear();
             m_pendingConsoleStreamOutput.clear();
 
-            handleResultRecord(response);
+            handleResultRecord(&response);
             break;
         }
         default: {
@@ -733,13 +733,13 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
     m_gdbAdapter->write(cmd.command.toLatin1() + "\r\n");
 }
 
-void GdbEngine::handleResultRecord(const GdbResponse &response)
+void GdbEngine::handleResultRecord(GdbResponse *response)
 {
     //qDebug() << "TOKEN:" << response.token
     //    << " ACCEPTABLE:" << m_oldestAcceptableToken;
     //qDebug() << "\nRESULT" << response.token << response.toString();
 
-    int token = response.token;
+    int token = response->token;
     if (token == -1)
         return;
 
@@ -750,8 +750,8 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
         // Ideally, this code should not be present at all.
         debugMessage(_("COOKIE FOR TOKEN %1 ALREADY EATEN. "
             "TWO RESPONSES FOR ONE COMMAND?").arg(token));
-        if (response.resultClass == GdbResultError) {
-            QByteArray msg = response.data.findChild("msg").data();
+        if (response->resultClass == GdbResultError) {
+            QByteArray msg = response->data.findChild("msg").data();
             if (msg == "Cannot find new threads: generic error") {
                 // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
                 // with helpers enabled. In this case we get a second response with
@@ -788,26 +788,25 @@ void GdbEngine::handleResultRecord(const GdbResponse &response)
             .arg(cmd.postTime.msecsTo(QTime::currentTime()) / 1000.));
     }
 
-    if (response.token < m_oldestAcceptableToken && (cmd.flags & Discardable)) {
+    if (response->token < m_oldestAcceptableToken && (cmd.flags & Discardable)) {
         //debugMessage(_("### SKIPPING OLD RESULT") + response.toString());
         return;
     }
 
-    GdbResponse responseWithCookie = response;
-    responseWithCookie.cookie = cmd.cookie;
+    response->cookie = cmd.cookie;
 
-    if (response.resultClass != GdbResultError &&
-        response.resultClass != ((cmd.flags & RunRequest) ? GdbResultRunning :
-                                 (cmd.flags & ExitRequest) ? GdbResultExit :
-                                 GdbResultDone)) {
-        QString rsp = _(GdbResponse::stringFromResultClass(response.resultClass));
+    if (response->resultClass != GdbResultError &&
+        response->resultClass != ((cmd.flags & RunRequest) ? GdbResultRunning :
+                                  (cmd.flags & ExitRequest) ? GdbResultExit :
+                                  GdbResultDone)) {
+        QString rsp = _(GdbResponse::stringFromResultClass(response->resultClass));
         qWarning() << "UNEXPECTED RESPONSE " << rsp << " TO COMMAND" << cmd.command << " AT " __FILE__ ":" STRINGIFY(__LINE__);
         debugMessage(_("UNEXPECTED RESPONSE %1 TO COMMAND %2").arg(rsp).arg(cmd.command));
     } else {
         if (cmd.callback)
-            (this->*cmd.callback)(responseWithCookie);
+            (this->*cmd.callback)(*response);
         else if (cmd.adapterCallback)
-            (m_gdbAdapter->*cmd.adapterCallback)(responseWithCookie);
+            (m_gdbAdapter->*cmd.adapterCallback)(*response);
     }
 
     if (cmd.flags & RebuildModel) {
