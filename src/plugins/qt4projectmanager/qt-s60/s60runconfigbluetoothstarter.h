@@ -27,44 +27,27 @@
 **
 **************************************************************************/
 
-#ifndef MESSAGEMANAGER_H
-#define MESSAGEMANAGER_H
+#ifndef S60RUNCONFIGBLUETOOTHSTARTER_H
+#define S60RUNCONFIGBLUETOOTHSTARTER_H
 
-#include "core_global.h"
-#include <QtCore/QObject>
+#include "bluetoothlistener.h"
 
-namespace Core {
-
+namespace Qt4ProjectManager {
 namespace Internal {
-class MessageOutputWindow;
-}
 
-class CORE_EXPORT MessageManager : public QObject
+/* S60RunConfigBluetoothStarter: Creates a listener in 'Listen' mode
+ * parented on the Qt Creator core which outputs to the message manager. */
+
+class S60RunConfigBluetoothStarter : public trk::AbstractBluetoothStarter
 {
-    Q_OBJECT
-
 public:
-    MessageManager();
-    ~MessageManager();
+    explicit S60RunConfigBluetoothStarter(const TrkDevicePtr& trkDevice, QObject *parent = 0);
 
-    void init();
-
-    static MessageManager *instance() { return m_instance; }
-
-    void displayStatusBarMessage(const QString &text, int ms = 0);
-    void showOutputPane();
-
-public slots:
-    void printToOutputPane(const QString &text, bool bringToForeground);
-    void printToOutputPanePopup(const QString &text); // pops up
-    void printToOutputPane(const QString &text);
-
-private:
-    Internal::MessageOutputWindow *m_messageOutputWindow;
-
-    static MessageManager *m_instance;
+protected:
+    virtual trk::BluetoothListener *createListener();
 };
 
-} // namespace Core
+} // namespace Internal
+} // namespace Qt4ProjectManager
 
-#endif // MESSAGEMANAGER_H
+#endif // S60RUNCONFIGBLUETOOTHSTARTER_H

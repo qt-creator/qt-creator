@@ -30,6 +30,7 @@
 #include "launcher.h"
 #include "trkutils.h"
 #include "trkdevice.h"
+#include "bluetoothlistener.h"
 
 #include <QtCore/QTimer>
 #include <QtCore/QDateTime>
@@ -50,8 +51,9 @@ struct LauncherPrivate {
         int position;
     };
 
-    LauncherPrivate();
-    TrkDevice m_device;
+    explicit LauncherPrivate(const TrkDevicePtr &d);
+
+    TrkDevicePtr m_device;
     QString m_trkServerName;
     QByteArray m_trkReadBuffer;
 
@@ -65,21 +67,28 @@ struct LauncherPrivate {
     int m_verbose;
     Launcher::Actions m_startupActions;
     bool m_connected;
+    bool m_closeDevice;
 };
 
-LauncherPrivate::LauncherPrivate() :
+LauncherPrivate::LauncherPrivate(const TrkDevicePtr &d) :
+    m_device(d),
     m_verbose(0),
-    m_connected(false)
+    m_connected(false),
+    m_closeDevice(true)
 {
+    if (m_device.isNull())
+        m_device = TrkDevicePtr(new TrkDevice);
 }
 
-Launcher::Launcher(Actions startupActions, QObject *parent) :
+Launcher::Launcher(Actions startupActions,
+                   const TrkDevicePtr &dev,
+                   QObject *parent) :
     QObject(parent),
-    d(new LauncherPrivate)
+    d(new LauncherPrivate(dev))
 {
     d->m_startupActions = startupActions;
-    connect(&d->m_device, SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));
-    connect(this, SIGNAL(finished()), &d->m_device, SLOT(close()));
+    connect(d->m_device.data(), SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));    
+    connect(this, SIGNAL(finished()), d->m_device.data(), SLOT(close()));
 }
 
 Launcher::~Launcher()
@@ -96,6 +105,16 @@ void Launcher::addStartupActions(trk::Launcher::Actions startupActions)
 void Launcher::setTrkServerName(const QString &name)
 {
     d->m_trkServerName = name;
+}
+
+QString Launcher::trkServerName() const
+{
+    return d->m_trkServerName;
+}
+
+TrkDevicePtr Launcher::trkDevice() const
+{
+    return d->m_device;
 }
 
 void Launcher::setFileName(const QString &name)
@@ -116,16 +135,28 @@ void Launcher::setInstallFileName(const QString &name)
 
 void Launcher::setSerialFrame(bool b)
 {
-    d->m_device.setSerialFrame(b);
+    d->m_device->setSerialFrame(b);
 }
 
 bool Launcher::serialFrame() const
 {
-    return d->m_device.serialFrame();
+    return d->m_device->serialFrame();
+}
+
+
+bool Launcher::closeDevice() const
+{
+    return d->m_closeDevice;
+}
+
+void Launcher::setCloseDevice(bool c)
+{
+    d->m_closeDevice = c;
 }
 
 bool Launcher::startServer(QString *errorMessage)
 {
+    errorMessage->clear();
     if (d->m_verbose) {
         const QString msg = QString::fromLatin1("Port=%1 Executable=%2 Package=%3 Remote Package=%4 Install file=%5")
                             .arg(d->m_trkServerName, d->m_fileName, d->m_copyState.sourceFileName, d->m_copyState.destinationFileName, d->m_installFileName);
@@ -148,15 +179,21 @@ bool Launcher::startServer(QString *errorMessage)
         qWarning("No remote executable given for running.");
         return false;
     }
-    if (!d->m_device.open(d->m_trkServerName, errorMessage))
+    if (!d->m_device->isOpen() && !d->m_device->open(d->m_trkServerName, errorMessage))
         return false;
-    d->m_device.sendTrkInitialPing();
-    d->m_device.sendTrkMessage(TrkDisconnect); // Disconnect, as trk might be still connected
-    d->m_device.sendTrkMessage(TrkSupported, TrkCallback(this, &Launcher::handleSupportMask));
-    d->m_device.sendTrkMessage(TrkCpuType, TrkCallback(this, &Launcher::handleCpuType));
-    d->m_device.sendTrkMessage(TrkVersions, TrkCallback(this, &Launcher::handleTrkVersion));
+    if (d->m_closeDevice) {
+        connect(this, SIGNAL(finished()), d->m_device.data(), SLOT(close()));
+    } else {
+        disconnect(this, SIGNAL(finished()), d->m_device.data(), 0);
+    }
+
+    d->m_device->sendTrkInitialPing();
+    d->m_device->sendTrkMessage(TrkDisconnect); // Disconnect, as trk might be still connected
+    d->m_device->sendTrkMessage(TrkSupported, TrkCallback(this, &Launcher::handleSupportMask));
+    d->m_device->sendTrkMessage(TrkCpuType, TrkCallback(this, &Launcher::handleCpuType));
+    d->m_device->sendTrkMessage(TrkVersions, TrkCallback(this, &Launcher::handleTrkVersion));
     if (d->m_startupActions != ActionPingOnly)
-        d->m_device.sendTrkMessage(TrkConnect, TrkCallback(this, &Launcher::handleConnect));
+        d->m_device->sendTrkMessage(TrkConnect, TrkCallback(this, &Launcher::handleConnect));
     return true;
 }
 
@@ -178,7 +215,7 @@ void Launcher::handleConnect(const TrkResult &result)
 void Launcher::setVerbose(int v)
 {
     d->m_verbose = v;
-    d->m_device.setVerbose(v);
+    d->m_device->setVerbose(v);
 }
 
 void Launcher::logMessage(const QString &msg)
@@ -193,7 +230,7 @@ void Launcher::terminate()
         QByteArray ba;
         appendShort(&ba, 0x0000, TargetByteOrder);
         appendInt(&ba, d->m_session.pid, TargetByteOrder);
-        d->m_device.sendTrkMessage(TrkDeleteItem, TrkCallback(this, &Launcher::handleRemoteProcessKilled), ba);
+        d->m_device->sendTrkMessage(TrkDeleteItem, TrkCallback(this, &Launcher::handleRemoteProcessKilled), ba);
     } else if (d->m_connected) {
         if (d->m_copyState.copyFileHandle)
             closeRemoteFile(true);
@@ -235,17 +272,17 @@ void Launcher::handleResult(const TrkResult &result)
 //            uint pid = extractInt(data + 4); // ProcessID: 4 bytes;
 //            uint tid = extractInt(data + 8); // ThreadID: 4 bytes
             //logMessage(prefix << "      ADDR: " << addr << " PID: " << pid << " TID: " << tid);
-            d->m_device.sendTrkAck(result.token);
+            d->m_device->sendTrkAck(result.token);
             break;
         }
         case TrkNotifyException: { // Notify Exception (obsolete)
             logMessage(prefix + "NOTE: EXCEPTION  " + str);
-            d->m_device.sendTrkAck(result.token);
+            d->m_device->sendTrkAck(result.token);
             break;
         }
         case TrkNotifyInternalError: { //
             logMessage(prefix + "NOTE: INTERNAL ERROR: " + str);
-            d->m_device.sendTrkAck(result.token);
+            d->m_device->sendTrkAck(result.token);
             break;
         }
 
@@ -278,8 +315,8 @@ void Launcher::handleResult(const TrkResult &result)
                 break;
             QByteArray ba;
             ba.append(result.data.mid(2, 8));
-            d->m_device.sendTrkMessage(TrkContinue, TrkCallback(), ba, "CONTINUE");
-            //d->m_device.sendTrkAck(result.token)
+            d->m_device->sendTrkMessage(TrkContinue, TrkCallback(), ba, "CONTINUE");
+            //d->m_device->sendTrkAck(result.token)
             break;
         }
         case TrkNotifyDeleted: { // NotifyDeleted
@@ -289,7 +326,7 @@ void Launcher::handleResult(const TrkResult &result)
             logMessage(QString::fromLatin1("%1 %2 UNLOAD: %3").
                        arg(QString::fromAscii(prefix)).arg(itemType ? QLatin1String("LIB") : QLatin1String("PROCESS")).
                        arg(name));
-            d->m_device.sendTrkAck(result.token);
+            d->m_device->sendTrkAck(result.token);
             if (itemType == 0 // process
                 && result.data.size() >= 10
                 && d->m_session.pid == extractInt(result.data.data() + 6)) {
@@ -299,17 +336,17 @@ void Launcher::handleResult(const TrkResult &result)
         }
         case TrkNotifyProcessorStarted: { // NotifyProcessorStarted
             logMessage(prefix + "NOTE: PROCESSOR STARTED: " + str);
-            d->m_device.sendTrkAck(result.token);
+            d->m_device->sendTrkAck(result.token);
             break;
         }
         case TrkNotifyProcessorStandBy: { // NotifyProcessorStandby
             logMessage(prefix + "NOTE: PROCESSOR STANDBY: " + str);
-            d->m_device.sendTrkAck(result.token);
+            d->m_device->sendTrkAck(result.token);
             break;
         }
         case TrkNotifyProcessorReset: { // NotifyProcessorReset
             logMessage(prefix + "NOTE: PROCESSOR RESET: " + str);
-            d->m_device.sendTrkAck(result.token);
+            d->m_device->sendTrkAck(result.token);
             break;
         }
         default: {
@@ -384,7 +421,7 @@ void Launcher::continueCopying(uint lastCopiedBlockSize)
         QByteArray ba;
         appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
         appendString(&ba, d->m_copyState.data->mid(d->m_copyState.position, 2048), TargetByteOrder, false);
-        d->m_device.sendTrkMessage(TrkWriteFile, TrkCallback(this, &Launcher::handleCopy), ba);
+        d->m_device->sendTrkMessage(TrkWriteFile, TrkCallback(this, &Launcher::handleCopy), ba);
     } else {
         closeRemoteFile();
     }
@@ -395,7 +432,7 @@ void Launcher::closeRemoteFile(bool failed)
     QByteArray ba;
     appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
     appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
-    d->m_device.sendTrkMessage(TrkCloseFile,
+    d->m_device->sendTrkMessage(TrkCloseFile,
                                failed ? TrkCallback() : TrkCallback(this, &Launcher::handleFileCopied),
                                ba);
     d->m_copyState.data.reset();
@@ -458,7 +495,7 @@ void Launcher::handleCreateProcess(const TrkResult &result)
     QByteArray ba;
     appendInt(&ba, d->m_session.pid);
     appendInt(&ba, d->m_session.tid);
-    d->m_device.sendTrkMessage(TrkContinue, TrkCallback(), ba, "CONTINUE");
+    d->m_device->sendTrkMessage(TrkContinue, TrkCallback(), ba, "CONTINUE");
 }
 
 void Launcher::handleWaitForFinished(const TrkResult &result)
@@ -496,7 +533,7 @@ void Launcher::cleanUp()
     appendByte(&ba, 0x00);
     appendByte(&ba, 0x00);
     appendInt(&ba, d->m_session.pid);
-    d->m_device.sendTrkMessage(TrkDeleteItem, TrkCallback(), ba, "Delete process");
+    d->m_device->sendTrkMessage(TrkDeleteItem, TrkCallback(), ba, "Delete process");
 
     //---TRK------------------------------------------------------
     //  Command: 0x80 Acknowledge
@@ -540,7 +577,7 @@ void Launcher::cleanUp()
 
 void Launcher::disconnectTrk()
 {
-    d->m_device.sendTrkMessage(TrkDisconnect, TrkCallback(this, &Launcher::handleWaitForFinished));
+    d->m_device->sendTrkMessage(TrkDisconnect, TrkCallback(this, &Launcher::handleWaitForFinished));
 }
 
 void Launcher::copyFileToRemote()
@@ -549,7 +586,7 @@ void Launcher::copyFileToRemote()
     QByteArray ba;
     appendByte(&ba, 0x10);
     appendString(&ba, d->m_copyState.destinationFileName.toLocal8Bit(), TargetByteOrder, false);
-    d->m_device.sendTrkMessage(TrkOpenFile, TrkCallback(this, &Launcher::handleFileCreation), ba);
+    d->m_device->sendTrkMessage(TrkOpenFile, TrkCallback(this, &Launcher::handleFileCreation), ba);
 }
 
 void Launcher::installRemotePackageSilently()
@@ -558,7 +595,7 @@ void Launcher::installRemotePackageSilently()
     QByteArray ba;
     appendByte(&ba, 'C');
     appendString(&ba, d->m_installFileName.toLocal8Bit(), TargetByteOrder, false);
-    d->m_device.sendTrkMessage(TrkInstallFile, TrkCallback(this, &Launcher::handleInstallPackageFinished), ba);
+    d->m_device->sendTrkMessage(TrkInstallFile, TrkCallback(this, &Launcher::handleInstallPackageFinished), ba);
 }
 
 void Launcher::handleInstallPackageFinished(const TrkResult &result)
@@ -586,7 +623,6 @@ void Launcher::startInferiorIfNeeded()
     appendByte(&ba, 0); // create new process
     appendByte(&ba, 0); // ?
     appendString(&ba, d->m_fileName.toLocal8Bit(), TargetByteOrder);
-    d->m_device.sendTrkMessage(TrkCreateItem, TrkCallback(this, &Launcher::handleCreateProcess), ba); // Create Item
+    d->m_device->sendTrkMessage(TrkCreateItem, TrkCallback(this, &Launcher::handleCreateProcess), ba); // Create Item
 }
-
-}
+} // namespace trk

@@ -27,44 +27,32 @@
 **
 **************************************************************************/
 
-#ifndef MESSAGEMANAGER_H
-#define MESSAGEMANAGER_H
+#ifndef BLUETOOTHLISTENER_GUI_H
+#define BLUETOOTHLISTENER_GUI_H
 
-#include "core_global.h"
-#include <QtCore/QObject>
+#include <QtCore/QtGlobal>
 
-namespace Core {
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
 
-namespace Internal {
-class MessageOutputWindow;
-}
+namespace trk {
+    class AbstractBluetoothStarter;
 
-class CORE_EXPORT MessageManager : public QObject
-{
-    Q_OBJECT
+    /* startBluetoothGui(): Prompt the user to start a Bluetooth
+     * connection with a message box he can cancel. Pass in
+     * the starter with device and parameters set up.  */
 
-public:
-    MessageManager();
-    ~MessageManager();
+    enum StartBluetoothGuiResult {
+        BluetoothGuiConnected,
+        BluetoothGuiCanceled,
+        BluetoothGuiError
+    };
 
-    void init();
+    StartBluetoothGuiResult
+        startBluetoothGui(AbstractBluetoothStarter &starter,
+                          QWidget *msgBoxParent,
+                          QString *errorMessage);
+} // namespace trk
 
-    static MessageManager *instance() { return m_instance; }
-
-    void displayStatusBarMessage(const QString &text, int ms = 0);
-    void showOutputPane();
-
-public slots:
-    void printToOutputPane(const QString &text, bool bringToForeground);
-    void printToOutputPanePopup(const QString &text); // pops up
-    void printToOutputPane(const QString &text);
-
-private:
-    Internal::MessageOutputWindow *m_messageOutputWindow;
-
-    static MessageManager *m_instance;
-};
-
-} // namespace Core
-
-#endif // MESSAGEMANAGER_H
+#endif // BLUETOOTHLISTENER_GUI_H

@@ -29,8 +29,12 @@
 
 #include "s60devicerunconfigurationwidget.h"
 #include "s60devicerunconfiguration.h"
+#include "s60runconfigbluetoothstarter.h"
+#include "bluetoothlistener_gui.h"
 #include "s60manager.h"
 #include "launcher.h"
+#include "bluetoothlistener.h"
+#include "bluetoothlistener_gui.h"
 #include "serialdevicelister.h"
 
 #include <utils/detailswidget.h>
@@ -278,6 +282,7 @@ void S60DeviceRunConfigurationWidget::setDeviceInfoLabel(const QString &message,
                                      QString(QLatin1String("background-color: red;")) :
                                      QString());
     m_deviceInfoLabel->setText(message);
+    m_deviceInfoLabel->adjustSize();
 }
 
 void S60DeviceRunConfigurationWidget::updateDeviceInfo()
@@ -290,12 +295,29 @@ void S60DeviceRunConfigurationWidget::updateDeviceInfo()
 
 bool S60DeviceRunConfigurationWidget::getDeviceInfo(QString *message)
 {
+    message->clear();
     // Do a launcher run with the ping protocol. Instantiate launcher on heap
     // as not to introduce delays when destructing a device with timeout
-    trk::Launcher *launcher = new trk::Launcher(trk::Launcher::ActionPingOnly, this);
+    trk::Launcher *launcher = new trk::Launcher(trk::Launcher::ActionPingOnly, QSharedPointer<trk::TrkDevice>(), this);
     const CommunicationDevice commDev = currentDevice();
     launcher->setSerialFrame(commDev.type == SerialPortCommunication);
     launcher->setTrkServerName(commDev.portName);
+    // Prompt the user to start
+    if (commDev.type == BlueToothCommunication) {
+        S60RunConfigBluetoothStarter starter(launcher->trkDevice());
+        starter.setDevice(launcher->trkServerName());
+        const trk::StartBluetoothGuiResult src = trk::startBluetoothGui(starter, this, message);
+        switch (src) {
+        case trk::BluetoothGuiConnected:
+            break;
+        case trk::BluetoothGuiCanceled:
+            launcher->deleteLater();
+            return true;
+        case trk::BluetoothGuiError:
+            launcher->deleteLater();
+            return false;
+        };
+    }
     if (!launcher->startServer(message)) {
         launcher->deleteLater();
         return false;

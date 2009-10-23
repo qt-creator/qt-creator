@@ -1,13 +1,19 @@
 #include "launcher.h"
+#include "bluetoothlistener.h"
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QDebug>
 #include <QtCore/QStringList>
 
 static const char *usageC =
-"\nUsage: %1 <trk_port_name> [-v] [-i remote_sis_file | -I local_sis_file remote_sis_file] [<remote_executable_name>]\n"
+"\n"
+"Usage: %1 [options] <trk_port_name>\n"
+"       %1 [options] -i <trk_port_name> remote_sis_file\n"
+"       %1 [options] -I local_sis_file remote_sis_file] [<remote_executable_name>]\n"
 "\nOptions:\n    -v verbose\n"
-            "    -f turn serial message frame off\n\n"
+            "    -b Prompt for Bluetooth connect (Linux only)\n"
+            "    -f turn serial message frame off (Bluetooth)\n"
 "\nPing:\n"
 "%1 COM5\n"
 "\nRemote launch:\n"
@@ -27,74 +33,94 @@ static void usage()
     qWarning("%s", qPrintable(msg));
 }
 
-static bool parseArguments(const QStringList &arguments, trk::Launcher &launcher)
+typedef QSharedPointer<trk::Launcher> TrkLauncherPtr;
+
+// Parse arguments, return pointer or a null none.
+
+static inline TrkLauncherPtr createLauncher(trk::Launcher::Actions actions,
+                                            const QString &serverName,
+                                            bool serialFrame,
+                                            int verbosity)
+{
+    TrkLauncherPtr launcher(new trk::Launcher(actions));
+    launcher->setTrkServerName(serverName);
+    launcher->setSerialFrame(serialFrame);
+    launcher->setVerbose(verbosity);
+    return launcher;
+}
+
+static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetooth)
 {
     // Parse away options
     bool install = false;
     bool customInstall = false;
+    bool serialFrame = true;
     const int argCount = arguments.size();
     int verbosity = 0;
+    *bluetooth = false;
+    trk::Launcher::Actions actions = trk::Launcher::ActionPingOnly;
     int a = 1;
     for ( ; a < argCount; a++) {
         const QString option = arguments.at(a);
         if (!option.startsWith(QLatin1Char('-')))
             break;
         if (option.size() != 2)
-            return  false;
+            return TrkLauncherPtr();        
         switch (option.at(1).toAscii()) {
         case 'v':
             verbosity++;
             break;
         case 'f':
-            launcher.setSerialFrame(false);
-            break;verbosity++;
+            serialFrame = false;
+            break;
+        case 'b':
+            *bluetooth = true;
+            break;
         case 'i':
             install = true;
-            launcher.addStartupActions(trk::Launcher::ActionInstall);
+            actions = trk::Launcher::ActionInstall;
             break;
         case 'I':
             customInstall = true;
-            launcher.addStartupActions(trk::Launcher::ActionCopyInstall);
+            actions = trk::Launcher::ActionCopyInstall;
             break;
         default:
-            return false;
+            return TrkLauncherPtr();
         }
     }
-
-    launcher.setVerbose(verbosity);
     // Evaluate arguments
     const int remainingArgsCount = argCount - a;
-    if (remainingArgsCount == 1 && !install && !customInstall) {
-        launcher.setTrkServerName(arguments.at(a)); // ping
-        return true;
+    if (remainingArgsCount == 1 && !install && !customInstall) { // Ping
+        return createLauncher(actions, arguments.at(a), serialFrame, verbosity);
     }
     if (remainingArgsCount == 2 && !install && !customInstall) {
         // remote exec
-        launcher.addStartupActions(trk::Launcher::ActionRun);
-        launcher.setTrkServerName(arguments.at(a));
-        launcher.setFileName(arguments.at(a + 1));
-        return true;
+        TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
+        launcher->addStartupActions(trk::Launcher::ActionRun);
+        launcher->setFileName(arguments.at(a + 1));
+        return launcher;
     }
     if ((remainingArgsCount == 3 || remainingArgsCount == 2) && install && !customInstall) {
-        launcher.setTrkServerName(arguments.at(a)); // ping
-        launcher.setInstallFileName(arguments.at(a + 1));
+        TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
+        launcher->setInstallFileName(arguments.at(a + 1));
         if (remainingArgsCount == 3) {
-            launcher.addStartupActions(trk::Launcher::ActionRun);
-            launcher.setFileName(arguments.at(a + 2));
+            launcher->addStartupActions(trk::Launcher::ActionRun);
+            launcher->setFileName(arguments.at(a + 2));
         }
-        return true;
+        return launcher;
     }
     if ((remainingArgsCount == 4 || remainingArgsCount == 3) && !install && customInstall) {
-        launcher.setTrkServerName(arguments.at(a)); // ping
-        launcher.setCopyFileName(arguments.at(a + 1), arguments.at(a + 2));
-        launcher.setInstallFileName(arguments.at(a + 2));
+        TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
+        launcher->setTrkServerName(arguments.at(a)); // ping
+        launcher->setCopyFileName(arguments.at(a + 1), arguments.at(a + 2));
+        launcher->setInstallFileName(arguments.at(a + 2));
         if (remainingArgsCount == 4) {
-            launcher.addStartupActions(trk::Launcher::ActionRun);
-            launcher.setFileName(arguments.at(a + 3));
+            launcher->addStartupActions(trk::Launcher::ActionRun);
+            launcher->setFileName(arguments.at(a + 3));
         }
-        return true;
+        return launcher;
     }
-    return false;
+    return TrkLauncherPtr();
 }
 
 int main(int argc, char *argv[])
@@ -103,14 +129,23 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName(QLatin1String("trklauncher"));
     QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
 
-    trk::Launcher launcher;
-    if (!parseArguments(app.arguments(), launcher)) {
+    bool bluetooth;
+    const TrkLauncherPtr launcher = parseArguments(app.arguments(), &bluetooth);
+    if (launcher.isNull()) {
         usage();
         return 1;
     }
-    QObject::connect(&launcher, SIGNAL(finished()), &app, SLOT(quit()));
+    QObject::connect(launcher.data(), SIGNAL(finished()), &app, SLOT(quit()));
+    // BLuetooth: Open with prompt
     QString errorMessage;
-    if (launcher.startServer(&errorMessage))
+    if (bluetooth && !trk::ConsoleBluetoothStarter::startBluetooth(launcher->trkDevice(),
+                                                     launcher.data(),
+                                                     launcher->trkServerName(),
+                                                     30, &errorMessage)) {
+        qWarning("%s\n", qPrintable(errorMessage));
+        return -1;
+    }
+    if (launcher->startServer(&errorMessage))
         return app.exec();
     qWarning("%s\n", qPrintable(errorMessage));
     return 4;

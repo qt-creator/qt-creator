@@ -34,6 +34,8 @@
 #include "profilereader.h"
 #include "s60manager.h"
 #include "s60devices.h"
+#include "s60runconfigbluetoothstarter.h"
+#include "bluetoothlistener_gui.h"
 #include "serialdevicelister.h"
 
 #include <coreplugin/icore.h>
@@ -572,6 +574,21 @@ void S60DeviceRunControlBase::signsisProcessFinished()
     initLauncher(runFileName, m_launcher);
     emit addToOutputWindow(this, tr("Package: %1\nDeploying application to '%2'...").arg(lsFile(copySrc), m_serialPortFriendlyName));
     QString errorMessage;
+    // Prompt the user to start up the Blue tooth connection
+    if (m_communicationType == BlueToothCommunication) {
+        S60RunConfigBluetoothStarter starter(m_launcher->trkDevice());
+        switch (trk::startBluetoothGui(starter, 0, &errorMessage)) {
+        case trk::BluetoothGuiConnected:
+            break;
+        case trk::BluetoothGuiCanceled:
+        case trk::BluetoothGuiError:
+            delete m_launcher;
+            m_launcher = 0;
+            error(this, errorMessage);
+            emit finished();
+            return;
+        };
+    }
     if (!m_launcher->startServer(&errorMessage)) {
         delete m_launcher;
         m_launcher = 0;

@@ -19,6 +19,7 @@ HEADERS += \
     $$PWD/termgdbadapter.h \
     $$PWD/remotegdbadapter.h \
     $$PWD/trkgdbadapter.h \
+    $$PWD/s60debuggerbluetoothstarter.h
 
 SOURCES += \
     $$PWD/gdbmi.cpp \
@@ -34,6 +35,7 @@ SOURCES += \
     $$PWD/termgdbadapter.cpp \
     $$PWD/remotegdbadapter.cpp \
     $$PWD/trkgdbadapter.cpp \
+    $$PWD/s60debuggerbluetoothstarter.cpp
 
 FORMS +=  $$PWD/gdboptionspage.ui \
 $$PWD/trkoptionswidget.ui

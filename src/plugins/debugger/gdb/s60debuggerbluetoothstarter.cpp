@@ -27,44 +27,25 @@
 **
 **************************************************************************/
 
-#ifndef MESSAGEMANAGER_H
-#define MESSAGEMANAGER_H
+#include "s60debuggerbluetoothstarter.h"
+#include "debuggermanager.h"
 
-#include "core_global.h"
-#include <QtCore/QObject>
-
-namespace Core {
-
+namespace Debugger {
 namespace Internal {
-class MessageOutputWindow;
+
+S60DebuggerBluetoothStarter::S60DebuggerBluetoothStarter(const  TrkDevicePtr& trkDevice, QObject *parent) :
+    trk::AbstractBluetoothStarter(trkDevice, parent)
+{
 }
 
-class CORE_EXPORT MessageManager : public QObject
+trk::BluetoothListener *S60DebuggerBluetoothStarter::createListener()
 {
-    Q_OBJECT
+    DebuggerManager *dm = DebuggerManager::instance();
+    trk::BluetoothListener *rc = new trk::BluetoothListener(dm);
+    rc->setMode(trk::BluetoothListener::Listen);
+    connect(rc, SIGNAL(message(QString)), dm, SLOT(showDebuggerOutput(QString)));
+    return rc;
+}
 
-public:
-    MessageManager();
-    ~MessageManager();
-
-    void init();
-
-    static MessageManager *instance() { return m_instance; }
-
-    void displayStatusBarMessage(const QString &text, int ms = 0);
-    void showOutputPane();
-
-public slots:
-    void printToOutputPane(const QString &text, bool bringToForeground);
-    void printToOutputPanePopup(const QString &text); // pops up
-    void printToOutputPane(const QString &text);
-
-private:
-    Internal::MessageOutputWindow *m_messageOutputWindow;
-
-    static MessageManager *m_instance;
-};
-
-} // namespace Core
-
-#endif // MESSAGEMANAGER_H
+} // namespace Internal
+} // namespace Debugger

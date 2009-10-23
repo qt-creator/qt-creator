@@ -27,44 +27,26 @@
 **
 **************************************************************************/
 
-#ifndef MESSAGEMANAGER_H
-#define MESSAGEMANAGER_H
+#include "s60runconfigbluetoothstarter.h"
 
-#include "core_global.h"
-#include <QtCore/QObject>
+#include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
-namespace Core {
-
+namespace Qt4ProjectManager {
 namespace Internal {
-class MessageOutputWindow;
+
+S60RunConfigBluetoothStarter::S60RunConfigBluetoothStarter(const  TrkDevicePtr& trkDevice, QObject *parent) :
+    trk::AbstractBluetoothStarter(trkDevice, parent)
+{
 }
 
-class CORE_EXPORT MessageManager : public QObject
+trk::BluetoothListener *S60RunConfigBluetoothStarter::createListener()
 {
-    Q_OBJECT
-
-public:
-    MessageManager();
-    ~MessageManager();
-
-    void init();
-
-    static MessageManager *instance() { return m_instance; }
-
-    void displayStatusBarMessage(const QString &text, int ms = 0);
-    void showOutputPane();
-
-public slots:
-    void printToOutputPane(const QString &text, bool bringToForeground);
-    void printToOutputPanePopup(const QString &text); // pops up
-    void printToOutputPane(const QString &text);
-
-private:
-    Internal::MessageOutputWindow *m_messageOutputWindow;
-
-    static MessageManager *m_instance;
-};
-
-} // namespace Core
-
-#endif // MESSAGEMANAGER_H
+    Core::ICore *core = Core::ICore::instance();
+    trk::BluetoothListener *rc = new trk::BluetoothListener(core);
+    rc->setMode(trk::BluetoothListener::Listen);
+    connect(rc, SIGNAL(message(QString)), core->messageManager(), SLOT(printToOutputPane(QString)));
+    return rc;
+}
+} // namespace Internal
+} // namespace Qt4ProjectManager
