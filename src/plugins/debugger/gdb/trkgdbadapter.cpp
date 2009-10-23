@@ -806,22 +806,23 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // http://sourceware.org/ml/gdb/2007-05/msg00038.html
         // Name=hexname,TextSeg=textaddr[,DataSeg=dataaddr]
         sendGdbServerAck();
-        QByteArray response; // = "m";
+        QByteArray response = "m";
         // FIXME: Limit packet length by using qsDllInfo packages?
-        foreach (const Library &lib, m_session.libraries) {
+        for (int i = 0; i != m_session.libraries.size(); ++i) {
+            if (i)
+                response += ';';
+            const Library &lib = m_session.libraries.at(i);
             response += "Name=" + lib.name.toHex()
                 + ",TextSeg=" + hexNumber(lib.codeseg)
                 + ",DataSeg=" + hexNumber(lib.dataseg);
-            response += ';';
         }
-        response += "l";
         sendGdbServerMessage(response, "library information transfered");
     }
 
     else if (cmd == "qsDllInfo") {
         // That's a following query package
         sendGdbServerAck();
-        sendGdbServerMessage("", "FIXME: nothing?");
+        sendGdbServerMessage("l", "library information transfer finished");
     }
 
     else if (cmd == "qPacketInfo") {
