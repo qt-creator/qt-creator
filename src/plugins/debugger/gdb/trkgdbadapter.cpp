@@ -1529,8 +1529,6 @@ void TrkGdbAdapter::readMemory(uint addr, uint len, bool buffered)
 
 void TrkGdbAdapter::interruptInferior()
 {
-    QTC_ASSERT(state() == AdapterStarted, qDebug() << state());
-    logMessage("TRYING TO INTERRUPT INFERIOR");
     sendTrkMessage(0x1a, TrkCallback(), trkInterruptMessage(), "Interrupting...");
 }
 
