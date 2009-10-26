@@ -60,6 +60,7 @@ CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
     sites[tr("Qt Labs")] = QLatin1String("http://labs.qt.nokia.com");
     sites[tr("Qt Git Hosting")] = QLatin1String("http://qt.gitorious.org");
     sites[tr("Qt Centre")] = QLatin1String("http://www.qtcentre.org");
+    sites[tr("Qt Apps")] = QLatin1String("http://www.qt-apps.org");
     sites[tr("Qt for Symbian at Forum Nokia")] =  QLatin1String("http://discussion.forum.nokia.com/forum/forumdisplay.php?f=196");
 
     QMapIterator<QString, QString> it(sites);
