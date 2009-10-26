@@ -1,6 +1,8 @@
 
 #include <QtTest>
 #include <QtDebug>
+#include <QTextDocument>
+#include <QTextCursor>
 
 #include <Control.h>
 #include <Parser.h>
@@ -14,6 +16,7 @@
 #include <DiagnosticClient.h>
 #include <GenTemplateInstance.h>
 #include <Overview.h>
+#include <ExpressionUnderCursor.h>
 
 using namespace CPlusPlus;
 
@@ -105,6 +108,8 @@ private slots:
     void pointer_to_function_1();
 
     void template_instance_1();
+
+    void expression_under_cursor_1();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -415,6 +420,22 @@ void tst_Semantic::template_instance_1()
 
     const QString genDecl = oo.prettyType(genTy);
     QCOMPARE(genDecl, QString::fromLatin1("void(const int &)"));
+}
+
+void tst_Semantic::expression_under_cursor_1()
+{
+    const QString plainText = "void *ptr = foo(10, bar";
+
+    QTextDocument textDocument;
+    textDocument.setPlainText(plainText);
+
+    QTextCursor tc(&textDocument);
+    tc.movePosition(QTextCursor::End);
+
+    ExpressionUnderCursor expressionUnderCursor;
+    const QString expression = expressionUnderCursor(tc);
+
+    QCOMPARE(expression, QString("bar"));
 }
 
 QTEST_APPLESS_MAIN(tst_Semantic)
