@@ -30,6 +30,8 @@
 #include "trkgdbadapter.h"
 #include "trkoptions.h"
 #include "trkoptionspage.h"
+#include "s60debuggerbluetoothstarter.h"
+#include "bluetoothlistener_gui.h"
 
 #include "debuggerstringutils.h"
 #ifndef STANDALONE_RUNNER
@@ -193,10 +195,10 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     m_options(options),
     m_overrideTrkDeviceType(-1),
     m_running(false),
+    m_trkDevice(new trk::TrkDevice),
     m_gdbAckMode(true),
     m_verbose(2),
-    m_bufferedMemoryRead(true),
-    m_waitCount(0)
+    m_bufferedMemoryRead(true)
 {
     m_gdbServer = 0;
     m_gdbConnection = 0;
@@ -207,28 +209,15 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
 #endif
     m_gdbServerName = _("127.0.0.1:%1").arg(2222 + portOffset);
 
-    connect(&m_rfcommProc, SIGNAL(readyReadStandardError()),
-        this, SLOT(handleRfcommReadyReadStandardError()));
-    connect(&m_rfcommProc, SIGNAL(readyReadStandardOutput()),
-        this, SLOT(handleRfcommReadyReadStandardOutput()));
-    connect(&m_rfcommProc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(handleRfcommError(QProcess::ProcessError)));
-    connect(&m_rfcommProc, SIGNAL(finished(int, QProcess::ExitStatus)),
-        this, SLOT(handleRfcommFinished(int, QProcess::ExitStatus)));
-    connect(&m_rfcommProc, SIGNAL(started()),
-        this, SLOT(handleRfcommStarted()));
-    connect(&m_rfcommProc, SIGNAL(stateChanged(QProcess::ProcessState)),
-        this, SLOT(handleRfcommStateChanged(QProcess::ProcessState)));
-
-    connect(&m_trkDevice, SIGNAL(messageReceived(trk::TrkResult)),
+    connect(m_trkDevice.data(), SIGNAL(messageReceived(trk::TrkResult)),
         this, SLOT(handleTrkResult(trk::TrkResult)));
-    connect(&m_trkDevice, SIGNAL(error(QString)),
+    connect(m_trkDevice.data(), SIGNAL(error(QString)),
         this, SLOT(handleTrkError(QString)));
 
-    m_trkDevice.setVerbose(m_verbose);
-    m_trkDevice.setSerialFrame(effectiveTrkDeviceType() != TrkOptions::BlueTooth);
+    m_trkDevice->setVerbose(m_verbose);
+    m_trkDevice->setSerialFrame(effectiveTrkDeviceType() != TrkOptions::BlueTooth);
 
-    connect(&m_trkDevice, SIGNAL(logMessage(QString)),
+    connect(m_trkDevice.data(), SIGNAL(logMessage(QString)),
         this, SLOT(trkLogMessage(QString)));
 }
 
@@ -387,44 +376,6 @@ void TrkGdbAdapter::slotEmitDelayedInferiorStartFailed()
     emit inferiorStartFailed(m_adapterFailMessage);
 }
 
-void TrkGdbAdapter::waitForTrkConnect()
-{
-    QTC_ASSERT(state() == AdapterStarting, qDebug() << state());
-    QString errorMessage;
-    const QString device = effectiveTrkDevice();
-    if (!m_trkDevice.open(device, &errorMessage)) {
-        logMessage(_("Waiting on %1 (%2)").arg(device, errorMessage));
-        if (errorMessage.contains(_("ermission denied"))) {
-            static int direction = 0;
-            direction = (direction + 1) % 4;
-            showStatusMessage(_("Please start TRK on your device! %1")
-                .arg(QChar("/-\\|"[direction])));
-        }
-        // Do not loop forever
-        if (m_waitCount++ < (effectiveTrkDeviceType() == TrkOptions::BlueTooth ? 60 : 5)) {
-            QTimer::singleShot(1000, this, SLOT(waitForTrkConnect()));
-        } else {
-            QString msg = _("Failed to connect to %1 after "
-                "%2 attempts").arg(device).arg(m_waitCount);
-            logMessage(msg);
-            emit adapterStartFailed(msg, TrkOptionsPage::settingsId());
-        }
-        return;
-    }
-
-    m_trkDevice.sendTrkInitialPing();
-    sendTrkMessage(0x02); // Disconnect, as trk might be still connected
-    sendTrkMessage(0x01); // Connect
-    sendTrkMessage(0x05, TrkCB(handleSupportMask));
-    sendTrkMessage(0x06, TrkCB(handleCpuType));
-    sendTrkMessage(0x04, TrkCB(handleTrkVersions)); // Versions
-    //sendTrkMessage(0x09); // Unrecognized command
-    //sendTrkMessage(0x4a, 0,
-    //    "10 " + formatString("C:\\data\\usingdlls.sisx")); // Open File
-    //sendTrkMessage(0x4B, 0, "00 00 00 01 73 1C 3A C8"); // Close File
-
-    emit adapterStarted();
-}
 
 void TrkGdbAdapter::logMessage(const QString &msg)
 {
@@ -981,13 +932,13 @@ i        */
 void TrkGdbAdapter::sendTrkMessage(byte code, TrkCallback callback,
     const QByteArray &data, const QVariant &cookie)
 {
-    m_trkDevice.sendTrkMessage(code, callback, data, cookie);
+    m_trkDevice->sendTrkMessage(code, callback, data, cookie);
 }
 
 void TrkGdbAdapter::sendTrkAck(byte token)
 {
     //logMessage(QString("SENDING ACKNOWLEDGEMENT FOR TOKEN %1").arg(int(token)));
-    m_trkDevice.sendTrkAck(token);
+    m_trkDevice->sendTrkAck(token);
 }
 
 void TrkGdbAdapter::handleTrkError(const QString &msg)
@@ -1495,7 +1446,7 @@ void TrkGdbAdapter::handleSupportMask(const TrkResult &result)
     logMessage("SUPPORTED: " + str);
  }
 
-void TrkGdbAdapter::handleTrkVersions(const TrkResult &result)
+void TrkGdbAdapter::handleTrkVersionsStartGdb(const TrkResult &result)
 {
     QString logMsg;
     QTextStream str(&logMsg);
@@ -1507,6 +1458,13 @@ void TrkGdbAdapter::handleTrkVersions(const TrkResult &result)
              << '.' << int(result.data.at(4));
     }
     logMessage(logMsg);
+    QStringList gdbArgs;
+    gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
+    if (!m_engine->startGdb(gdbArgs, m_options->gdb, TrkOptionsPage::settingsId())) {
+        cleanup();
+        return;
+    }
+    emit adapterStarted();
 }
 
 void TrkGdbAdapter::handleDisconnect(const TrkResult & /*result*/)
@@ -1553,30 +1511,32 @@ void TrkGdbAdapter::startAdapter()
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
-    m_trkDevice.setSerialFrame(effectiveTrkDeviceType() != TrkOptions::BlueTooth);
+    m_trkDevice->setSerialFrame(effectiveTrkDeviceType() != TrkOptions::BlueTooth);
+    // Prompt the user for a bluetooth connection
+    const QString device = effectiveTrkDevice();
+    QString message;    
     if (effectiveTrkDeviceType() == TrkOptions::BlueTooth) {
-        const QString device = effectiveTrkDevice();
-        const QString blueToothListener = QLatin1String("rfcomm");
-        QStringList blueToothListenerArguments;
-        blueToothListenerArguments.append(_("-r"));
-        blueToothListenerArguments.append(_("listen"));
-        blueToothListenerArguments.append(m_options->blueToothDevice);
-        blueToothListenerArguments.append(_("1"));
-        logMessage(_("### Starting BlueTooth listener %1 on %2: %3 %4")
-            .arg(blueToothListener).arg(device).arg(blueToothListener)
-            .arg(blueToothListenerArguments.join(" ")));
-        m_rfcommProc.start(blueToothListener, blueToothListenerArguments);
-        m_rfcommProc.waitForStarted();
-        if (m_rfcommProc.state() != QProcess::Running) {
-            QString msg = _("Failed to start BlueTooth "
-                "listener %1 on %2: %3\n");
-            msg = msg.arg(blueToothListener, device, m_rfcommProc.errorString());
-            msg += QString::fromLocal8Bit(m_rfcommProc.readAllStandardError());
-            emit adapterStartFailed(msg, TrkOptionsPage::settingsId());
+        S60DebuggerBluetoothStarter starter(m_trkDevice);
+        starter.setDevice(device);
+        const trk::StartBluetoothGuiResult src = trk::startBluetoothGui(starter, 0, &message);
+        switch (src) {
+        case trk::BluetoothGuiConnected:
+            break;
+        case trk::BluetoothGuiCanceled:
+            emit adapterStartFailed(message, QString());
+            return;
+        case trk::BluetoothGuiError:
+            emit adapterStartFailed(message, TrkOptionsPage::settingsId());
+            return;
+        };
+    } else {
+        if (!m_trkDevice->isOpen() && !m_trkDevice->open(device, &message)) {
+            message = tr("Failed to connect to %1: %2\nCheck whether TRK is running.").arg(device).arg(message);
+            logMessage(message);
+            emit adapterStartFailed(message, TrkOptionsPage::settingsId());
             return;
         }
     }
-    m_waitCount = 0;
 
     QTC_ASSERT(m_gdbServer == 0, delete m_gdbServer);
     QTC_ASSERT(m_gdbConnection == 0, m_gdbConnection = 0);
@@ -1596,14 +1556,12 @@ void TrkGdbAdapter::startAdapter()
     connect(m_gdbServer, SIGNAL(newConnection()),
         this, SLOT(handleGdbConnection()));
 
-    QStringList gdbArgs;
-    gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
-    if (!m_engine->startGdb(gdbArgs, m_options->gdb)) {
-        cleanup();
-        return;
-    }
-
-    waitForTrkConnect();
+    m_trkDevice->sendTrkInitialPing();
+    sendTrkMessage(0x02); // Disconnect, as trk might be still connected
+    sendTrkMessage(0x01); // Connect
+    sendTrkMessage(0x05, TrkCB(handleSupportMask));
+    sendTrkMessage(0x06, TrkCB(handleCpuType));
+    sendTrkMessage(0x04, TrkCB(handleTrkVersionsStartGdb)); // Versions
 }
 
 void TrkGdbAdapter::startInferior()
@@ -1640,11 +1598,11 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
     m_session.tid = extractInt(data + 5);
     m_session.codeseg = extractInt(data + 9);
     m_session.dataseg = extractInt(data + 13);
+    const QString startMsg = tr("Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.")
+                             .arg(m_session.pid, 0, 16).arg(m_session.tid, 0, 16)
+                             .arg(m_session.codeseg, 0, 16).arg(m_session.dataseg, 0, 16);
 
-    logMessage("PID: " + hexxNumber(m_session.pid));
-    logMessage("TID: " + hexxNumber(m_session.tid));
-    logMessage("COD: " + hexxNumber(m_session.codeseg));
-    logMessage("DAT: " + hexxNumber(m_session.dataseg));
+    logMessage(startMsg);
 
     const QString fileName = m_symbolFile;
     if (m_symbolFile.isEmpty()) {
@@ -1673,45 +1631,6 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
 void TrkGdbAdapter::startInferiorPhase2()
 {
     m_engine->continueInferiorInternal();
-}
-
-//
-// Rfcomm process handling
-//
-
-void TrkGdbAdapter::handleRfcommReadyReadStandardError()
-{
-    QByteArray ba = m_rfcommProc.readAllStandardError();
-    logMessage(QString("RFCONN stderr: %1").arg(_(ba)));
-}
-
-void TrkGdbAdapter::handleRfcommReadyReadStandardOutput()
-{
-    QByteArray ba = m_rfcommProc.readAllStandardOutput();
-    logMessage(QString("RFCONN stdout: %1").arg(_(ba)));
-}
-
-
-void TrkGdbAdapter::handleRfcommError(QProcess::ProcessError error)
-{
-    logMessage(QString("RFCOMM: Process Error %1: %2")
-        .arg(error).arg(m_rfcommProc.errorString()));
-}
-
-void TrkGdbAdapter::handleRfcommFinished(int exitCode, QProcess::ExitStatus exitStatus)
-{
-    logMessage(QString("RFCOMM: ProcessFinished %1 %2")
-        .arg(exitCode).arg(exitStatus));
-}
-
-void TrkGdbAdapter::handleRfcommStarted()
-{
-    logMessage(QString("RFCOMM: Process Started"));
-}
-
-void TrkGdbAdapter::handleRfcommStateChanged(QProcess::ProcessState newState)
-{
-    logMessage(QString("RFCOMM: Process State %1").arg(newState));
 }
 
 //
@@ -1939,7 +1858,7 @@ void TrkGdbAdapter::handleDirectStep3(const TrkResult &result)
 
 void TrkGdbAdapter::cleanup()
 {
-    m_trkDevice.close();
+    m_trkDevice->close();
     delete m_gdbServer;
     m_gdbServer = 0;
 }

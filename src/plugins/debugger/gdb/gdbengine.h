@@ -126,7 +126,9 @@ private: ////////// Gdb Process Management //////////
 
     AbstractGdbAdapter *createAdapter(const DebuggerStartParametersPtr &dp);
     void connectAdapter();
-    bool startGdb(const QStringList &args = QStringList(), const QString &gdb = QString());
+    bool startGdb(const QStringList &args = QStringList(),
+                  const QString &gdb = QString(),
+                  const QString &settingsIdHint = QString());
     void startInferiorPhase2();
 
     void handleInferiorShutdown(const GdbResponse &response);

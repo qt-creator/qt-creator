@@ -225,7 +225,9 @@ QMainWindow *GdbEngine::mainWindow() const
 GdbEngine::~GdbEngine()
 {
     // prevent sending error messages afterwards
+    disconnect(&m_gdbProc);
     delete m_gdbAdapter;
+    m_gdbAdapter = 0;
 }
 
 void GdbEngine::connectAdapter()
@@ -1325,7 +1327,11 @@ void GdbEngine::shutdown()
         // fall-through
     case AdapterStartFailed: // Adapter "did something", but it did not help
         // FIXME set some timeout?
-        postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleGdbExit));
+        if (m_gdbProc.state() == QProcess::Running) {
+            postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleGdbExit));
+        } else {
+            setState(DebuggerNotReady);
+        }
         break;
     case InferiorRunningRequested:
     case InferiorRunning:
@@ -4099,7 +4105,7 @@ void GdbEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 // Starting up & shutting down
 //
 
-bool GdbEngine::startGdb(const QStringList &args, const QString &gdb)
+bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QString &settingsIdHint)
 {
     debugMessage(_("STARTING GDB ") + gdb);
 
@@ -4115,7 +4121,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb)
     m_gdbProc.start(location, gdbArgs);
 
     if (!m_gdbProc.waitForStarted()) {
-        handleAdapterStartFailed(m_gdbProc.errorString());
+        const QString msg = tr("Unable to start gdb '%1': %2").arg(gdb, m_gdbProc.errorString());
+        handleAdapterStartFailed(msg, settingsIdHint);
         return false;
     }
 
@@ -4166,7 +4173,6 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb)
     //  /build/buildd/gdb-6.8/gdb/valops.c:2069: internal-error:
     postCommand(_("set overload-resolution off"));
     //postCommand(_("set demangle-style none"));
-
     // From the docs:
     //  Stop means reenter debugger if this signal happens (implies print).
     //  Print means print a message if this signal happens.
@@ -4238,6 +4244,8 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
 void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
 {
     debugMessage(_("GDB PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
+    if (!m_gdbAdapter)
+        return;
     if (state() == EngineShuttingDown) {
         m_gdbAdapter->shutdown();
     } else if (state() != AdapterStartFailed) {
@@ -4255,9 +4263,14 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
 {
     setState(AdapterStartFailed);
     debugMessage(_("ADAPTER START FAILED"));
-    Core::ICore::instance()->showWarningWithOptions(
-            tr("Adapter start failed"), msg, QString(),
-            _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
+    const QString title = tr("Adapter start failed");
+    if (settingsIdHint.isEmpty()) {
+        Core::ICore::instance()->showWarningWithOptions(title, msg);
+    } else {
+        Core::ICore::instance()->showWarningWithOptions(title, msg, QString(),
+                    _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY),
+                    settingsIdHint);
+    }
     shutdown();
 }
 

@@ -43,9 +43,11 @@
 #include <QtCore/QQueue>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QSharedPointer>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
+
 
 namespace Debugger {
 namespace Internal {
@@ -152,7 +154,6 @@ private:
 
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
 
-    QProcess m_rfcommProc;
     bool m_running;
 
 public:
@@ -176,7 +177,6 @@ private:
     void emitDelayedInferiorStartFailed(const QString &msg);
     Q_SLOT void slotEmitDelayedInferiorStartFailed();
 
-    Q_SLOT void waitForTrkConnect();
     void handleTargetRemote(const GdbResponse &response);
 
     //
@@ -198,7 +198,7 @@ private:
     void handleSignalContinue(const TrkResult &result);
     void handleStop(const TrkResult &result);
     void handleSupportMask(const TrkResult &result);
-    void handleTrkVersions(const TrkResult &result);
+    void handleTrkVersionsStartGdb(const TrkResult &result);
     void handleDisconnect(const TrkResult &result);
     void handleDeleteProcess(const TrkResult &result);
     void handleDeleteProcess2(const TrkResult &result);
@@ -248,7 +248,7 @@ private:
     QByteArray trkDeleteProcessMessage();    
     QByteArray trkInterruptMessage();
 
-    trk::TrkDevice m_trkDevice;
+    QSharedPointer<trk::TrkDevice> m_trkDevice;
     QString m_adapterFailMessage;
 
     //
@@ -288,16 +288,6 @@ private:
 
     QHash<int, GdbCommand> m_gdbCookieForToken;
 
-    //
-    // Rfcomm
-    //
-    Q_SLOT void handleRfcommReadyReadStandardError();
-    Q_SLOT void handleRfcommReadyReadStandardOutput();
-    Q_SLOT void handleRfcommError(QProcess::ProcessError error);
-    Q_SLOT void handleRfcommFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    Q_SLOT void handleRfcommStarted();
-    Q_SLOT void handleRfcommStateChanged(QProcess::ProcessState newState);
-
     QString effectiveTrkDevice() const;
     int effectiveTrkDeviceType() const;
 
@@ -308,7 +298,6 @@ private:
     QString m_symbolFile;
     int m_verbose;
     bool m_bufferedMemoryRead;
-    int m_waitCount;
 };
 
 } // namespace Internal
