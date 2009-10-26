@@ -35,11 +35,12 @@
 #include <QtCore/QEventLoop>
 
 namespace trk {
-// --------------- AbstractBluetoothStarter
-struct AbstractBluetoothStarterPrivate {
-    explicit AbstractBluetoothStarterPrivate(const AbstractBluetoothStarter::TrkDevicePtr &d);
 
-    const AbstractBluetoothStarter::TrkDevicePtr trkDevice;
+// --------------- AbstractBluetoothStarter
+struct BaseCommunicationStarterPrivate {
+    explicit BaseCommunicationStarterPrivate(const BaseCommunicationStarter::TrkDevicePtr &d);
+
+    const BaseCommunicationStarter::TrkDevicePtr trkDevice;
     BluetoothListener *listener;
     QTimer *timer;
     int intervalMS;
@@ -47,11 +48,10 @@ struct AbstractBluetoothStarterPrivate {
     int n;
     QString device;
     QString errorString;
-    AbstractBluetoothStarter::State state;
+    BaseCommunicationStarter::State state;
 };
 
-AbstractBluetoothStarterPrivate::AbstractBluetoothStarterPrivate(const AbstractBluetoothStarter::TrkDevicePtr &d) :
-
+BaseCommunicationStarterPrivate::BaseCommunicationStarterPrivate(const BaseCommunicationStarter::TrkDevicePtr &d) :
         trkDevice(d),
         listener(0),
         timer(0),
@@ -59,32 +59,38 @@ AbstractBluetoothStarterPrivate::AbstractBluetoothStarterPrivate(const AbstractB
         attempts(-1),
         n(0),
         device(QLatin1String("/dev/rfcomm0")),
-        state(AbstractBluetoothStarter::TimedOut)
+        state(BaseCommunicationStarter::TimedOut)
 {
 }
 
-AbstractBluetoothStarter::AbstractBluetoothStarter(const TrkDevicePtr &trkDevice, QObject *parent) :
+BaseCommunicationStarter::BaseCommunicationStarter(const TrkDevicePtr &trkDevice, QObject *parent) :
         QObject(parent),
-        d(new AbstractBluetoothStarterPrivate(trkDevice))
+        d(new BaseCommunicationStarterPrivate(trkDevice))
 {
 }
 
-AbstractBluetoothStarter::~AbstractBluetoothStarter()
+BaseCommunicationStarter::~BaseCommunicationStarter()
 {
     stopTimer();
     delete d;
 }
 
-void AbstractBluetoothStarter::stopTimer()
+void BaseCommunicationStarter::stopTimer()
 {
     if (d->timer && d->timer->isActive())
         d->timer->stop();
 }
 
-AbstractBluetoothStarter::StartResult AbstractBluetoothStarter::start()
+bool BaseCommunicationStarter::initializeStartupResources(QString *errorMessage)
+{
+    errorMessage->clear();
+    return true;
+}
+
+BaseCommunicationStarter::StartResult BaseCommunicationStarter::start()
 {
     if (state() == Running) {
-        d->errorString = QLatin1String("Internal error, attempt to re-start AbstractBluetoothStarter.\n");
+        d->errorString = QLatin1String("Internal error, attempt to re-start BaseCommunicationStarter.\n");
         return StartError;
     }
     // Before we instantiate timers, and such, try to open the device,
@@ -92,10 +98,9 @@ AbstractBluetoothStarter::StartResult AbstractBluetoothStarter::start()
     // 'Watch' mode
     if (d->trkDevice->open(d->device , &(d->errorString)))
         return ConnectionSucceeded;
-    // Fire up the listener
+    // Pull up resources for next attempt
     d->n = 0;
-    d->listener = createListener();
-    if (!d->listener->start(d->device, &(d->errorString)))
+    if (!initializeStartupResources(&(d->errorString)))
         return StartError;
     // Start timer
     if (!d->timer) {
@@ -109,49 +114,49 @@ AbstractBluetoothStarter::StartResult AbstractBluetoothStarter::start()
     return Started;
 }
 
-AbstractBluetoothStarter::State AbstractBluetoothStarter::state() const
+BaseCommunicationStarter::State BaseCommunicationStarter::state() const
 {
     return d->state;
 }
 
-int AbstractBluetoothStarter::intervalMS() const
+int BaseCommunicationStarter::intervalMS() const
 {
     return d->intervalMS;
 }
 
-void AbstractBluetoothStarter::setIntervalMS(int i)
+void BaseCommunicationStarter::setIntervalMS(int i)
 {
     d->intervalMS = i;
     if (d->timer)
         d->timer->setInterval(i);
 }
 
-int AbstractBluetoothStarter::attempts() const
+int BaseCommunicationStarter::attempts() const
 {
     return d->attempts;
 }
 
-void AbstractBluetoothStarter::setAttempts(int a)
+void BaseCommunicationStarter::setAttempts(int a)
 {
     d->attempts = a;
 }
 
-QString AbstractBluetoothStarter::device() const
+QString BaseCommunicationStarter::device() const
 {
     return d->device;
 }
 
-void AbstractBluetoothStarter::setDevice(const QString &dv)
+void BaseCommunicationStarter::setDevice(const QString &dv)
 {
     d->device = dv;
 }
 
-QString AbstractBluetoothStarter::errorString() const
+QString BaseCommunicationStarter::errorString() const
 {
     return d->errorString;
 }
 
-void AbstractBluetoothStarter::slotTimer()
+void BaseCommunicationStarter::slotTimer()
 {
     ++d->n;
     // Check for timeout
@@ -166,15 +171,30 @@ void AbstractBluetoothStarter::slotTimer()
         if (d->trkDevice->open(d->device , &(d->errorString))) {
             stopTimer();
             const QString msg = tr("%1: Connection attempt %2 succeeded.").arg(d->device).arg(d->n);
-            d->listener->emitMessage(msg);
+            emit message(msg);
             d->state = Connected;
             emit connected();
         } else {
             const QString msg = tr("%1: Connection attempt %2 failed: %3 (retrying)...")
                                 .arg(d->device).arg(d->n).arg(d->errorString);
-            d->listener->emitMessage(msg);
+            emit message(msg);
         }
     }
+}
+
+// --------------- AbstractBluetoothStarter
+
+AbstractBluetoothStarter::AbstractBluetoothStarter(const TrkDevicePtr &trkDevice, QObject *parent) :
+    BaseCommunicationStarter(trkDevice, parent)
+{
+}
+
+bool AbstractBluetoothStarter::initializeStartupResources(QString *errorMessage)
+{
+    // Create the listener and forward messages to it.
+    BluetoothListener *listener = createListener();
+    connect(this, SIGNAL(message(QString)), listener, SLOT(emitMessage(QString)));
+    return listener->start(device(), errorMessage);
 }
 
 // -------- ConsoleBluetoothStarter

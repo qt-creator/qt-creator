@@ -38,38 +38,62 @@
 
 namespace trk {
 
-StartBluetoothGuiResult
-    startBluetoothGui(AbstractBluetoothStarter &starter,
-                      QWidget *msgBoxParent,
-                      QString *errorMessage)
+PromptStartCommunicationResult
+    promptStartCommunication(BaseCommunicationStarter &starter,
+                             const QString &msgBoxTitle,
+                             const QString &msgBoxText,
+                             QWidget *msgBoxParent,
+                             QString *errorMessage)
 {
     errorMessage->clear();
+    // Initial connection attempt.
     switch (starter.start()) {
-    case AbstractBluetoothStarter::Started:
+    case BaseCommunicationStarter::Started:
         break;
-    case AbstractBluetoothStarter::ConnectionSucceeded:
-        return BluetoothGuiConnected;
-    case AbstractBluetoothStarter::StartError:
+    case BaseCommunicationStarter::ConnectionSucceeded:
+        return PromptStartCommunicationConnected;
+    case BaseCommunicationStarter::StartError:
         *errorMessage = starter.errorString();
-        return BluetoothGuiError;
+        return PromptStartCommunicationError;
     }
-    // Run the starter with the event loop of a message box, close it
-    // with the finished signals.
-    const QString title = QCoreApplication::translate("trk::startBluetoothGui", "Waiting for Bluetooth Connection");
-    const QString message = QCoreApplication::translate("trk::startBluetoothGui", "Connecting to %1...").arg(starter.device());
-    QMessageBox messageBox(QMessageBox::Information, title, message, QMessageBox::Cancel, msgBoxParent);
+    // Run the starter with the event loop of a message box, have the box
+    // closed by the signals of the starter.
+    QMessageBox messageBox(QMessageBox::Information, msgBoxTitle, msgBoxText, QMessageBox::Cancel, msgBoxParent);
     QObject::connect(&starter, SIGNAL(connected()), &messageBox, SLOT(close()));
     QObject::connect(&starter, SIGNAL(timeout()), &messageBox, SLOT(close()));
-    messageBox.exec();
-    // Only starter.state() is reliable here.
-    if (starter.state() == AbstractBluetoothStarter::Running) {
-        *errorMessage = QCoreApplication::translate("trk::startBluetoothGui", "Connection on %1 canceled.").arg(starter.device());
-        return BluetoothGuiCanceled;
-    }
-    if (starter.state() != AbstractBluetoothStarter::Connected) {
+    messageBox.exec();    
+    // Only starter.state() is reliable here to obtain the state.
+    switch (starter.state()) {
+    case AbstractBluetoothStarter::Running:
+        *errorMessage = QCoreApplication::translate("trk::promptStartCommunication", "Connection on %1 canceled.").arg(starter.device());
+        return PromptStartCommunicationCanceled;
+    case AbstractBluetoothStarter::TimedOut:
         *errorMessage = starter.errorString();
-        return BluetoothGuiError;
+        return PromptStartCommunicationError;
+    case AbstractBluetoothStarter::Connected:
+        break;
     }
-    return BluetoothGuiConnected;
+    return PromptStartCommunicationConnected;
 }
+
+PromptStartCommunicationResult
+    promptStartSerial(BaseCommunicationStarter &starter,
+                         QWidget *msgBoxParent,
+                         QString *errorMessage)
+{
+    const QString title = QCoreApplication::translate("trk::promptStartCommunication", "Waiting for TRK");
+    const QString message = QCoreApplication::translate("trk::promptStartCommunication", "Waiting for TRK to start on %1...").arg(starter.device());
+    return promptStartCommunication(starter, title, message, msgBoxParent, errorMessage);
+}
+
+PromptStartCommunicationResult
+    promptStartBluetooth(BaseCommunicationStarter &starter,
+                         QWidget *msgBoxParent,
+                         QString *errorMessage)
+{
+    const QString title = QCoreApplication::translate("trk::promptStartCommunication", "Waiting for Bluetooth Connection");
+    const QString message = QCoreApplication::translate("trk::promptStartCommunication", "Connecting to %1...").arg(starter.device());
+    return promptStartCommunication(starter, title, message, msgBoxParent, errorMessage);
+}
+
 } // namespace trk

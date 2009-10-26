@@ -37,22 +37,39 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace trk {
-    class AbstractBluetoothStarter;
+class BaseCommunicationStarter;
 
-    /* startBluetoothGui(): Prompt the user to start a Bluetooth
-     * connection with a message box he can cancel. Pass in
-     * the starter with device and parameters set up.  */
+/* promptStartCommunication(): Convenience functions that
+ * prompt the user to start a communication (launching or
+ * connecting TRK) using a modal message box in which they can cancel.
+ * Pass in the starter with device and parameters set up.  */
 
-    enum StartBluetoothGuiResult {
-        BluetoothGuiConnected,
-        BluetoothGuiCanceled,
-        BluetoothGuiError
-    };
+enum PromptStartCommunicationResult {
+    PromptStartCommunicationConnected,
+    PromptStartCommunicationCanceled,
+    PromptStartCommunicationError
+};
 
-    StartBluetoothGuiResult
-        startBluetoothGui(AbstractBluetoothStarter &starter,
+PromptStartCommunicationResult
+        promptStartCommunication(BaseCommunicationStarter &starter,
+                                 const QString &msgBoxTitle,
+                                 const QString &msgBoxText,
+                                 QWidget *msgBoxParent,
+                                 QString *errorMessage);
+
+// Convenience to start a serial connection (messages prompting
+// to launch Trk).
+PromptStartCommunicationResult
+        promptStartSerial(BaseCommunicationStarter &starter,
                           QWidget *msgBoxParent,
                           QString *errorMessage);
+
+// Convenience to start blue tooth connection (messages
+// prompting to connect).
+PromptStartCommunicationResult
+        promptStartBluetooth(BaseCommunicationStarter &starter,
+                             QWidget *msgBoxParent,
+                             QString *errorMessage);
 } // namespace trk
 
 #endif // BLUETOOTHLISTENER_GUI_H

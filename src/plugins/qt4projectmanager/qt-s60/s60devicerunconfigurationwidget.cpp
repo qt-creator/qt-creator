@@ -302,22 +302,22 @@ bool S60DeviceRunConfigurationWidget::getDeviceInfo(QString *message)
     const CommunicationDevice commDev = currentDevice();
     launcher->setSerialFrame(commDev.type == SerialPortCommunication);
     launcher->setTrkServerName(commDev.portName);
-    // Prompt the user to start
-    if (commDev.type == BlueToothCommunication) {
-        S60RunConfigBluetoothStarter starter(launcher->trkDevice());
-        starter.setDevice(launcher->trkServerName());
-        const trk::StartBluetoothGuiResult src = trk::startBluetoothGui(starter, this, message);
-        switch (src) {
-        case trk::BluetoothGuiConnected:
-            break;
-        case trk::BluetoothGuiCanceled:
-            launcher->deleteLater();
-            return true;
-        case trk::BluetoothGuiError:
-            launcher->deleteLater();
-            return false;
-        };
-    }
+    // Prompt user
+    const trk::PromptStartCommunicationResult src =
+            S60RunConfigBluetoothStarter::startCommunication(launcher->trkDevice(),
+                                                             commDev.portName,
+                                                             commDev.type, this,
+                                                             message);
+    switch (src) {
+    case trk::PromptStartCommunicationConnected:
+        break;
+    case trk::PromptStartCommunicationCanceled:
+        launcher->deleteLater();
+        return true;
+    case trk::PromptStartCommunicationError:
+        launcher->deleteLater();
+        return false;
+    };
     if (!launcher->startServer(message)) {
         launcher->deleteLater();
         return false;

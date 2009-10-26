@@ -1512,30 +1512,22 @@ void TrkGdbAdapter::startAdapter()
     debugMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
     m_trkDevice->setSerialFrame(effectiveTrkDeviceType() != TrkOptions::BlueTooth);
-    // Prompt the user for a bluetooth connection
-    const QString device = effectiveTrkDevice();
-    QString message;    
-    if (effectiveTrkDeviceType() == TrkOptions::BlueTooth) {
-        S60DebuggerBluetoothStarter starter(m_trkDevice);
-        starter.setDevice(device);
-        const trk::StartBluetoothGuiResult src = trk::startBluetoothGui(starter, 0, &message);
-        switch (src) {
-        case trk::BluetoothGuiConnected:
-            break;
-        case trk::BluetoothGuiCanceled:
-            emit adapterStartFailed(message, QString());
-            return;
-        case trk::BluetoothGuiError:
-            emit adapterStartFailed(message, TrkOptionsPage::settingsId());
-            return;
-        };
-    } else {
-        if (!m_trkDevice->isOpen() && !m_trkDevice->open(device, &message)) {
-            message = tr("Failed to connect to %1: %2\nCheck whether TRK is running.").arg(device).arg(message);
-            logMessage(message);
-            emit adapterStartFailed(message, TrkOptionsPage::settingsId());
-            return;
-        }
+    // Prompt the user to start communication
+    QString message;        
+    const trk::PromptStartCommunicationResult src =
+            S60DebuggerBluetoothStarter::startCommunication(m_trkDevice,
+                                                            effectiveTrkDevice(),
+                                                            effectiveTrkDeviceType(),
+                                                            0, &message);
+    switch (src) {
+    case trk::PromptStartCommunicationConnected:
+        break;
+    case trk::PromptStartCommunicationCanceled:
+        emit adapterStartFailed(message, QString());
+        return;
+    case trk::PromptStartCommunicationError:
+        emit adapterStartFailed(message, TrkOptionsPage::settingsId());
+        return;
     }
 
     QTC_ASSERT(m_gdbServer == 0, delete m_gdbServer);

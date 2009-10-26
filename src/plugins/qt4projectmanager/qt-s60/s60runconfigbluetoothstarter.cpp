@@ -29,6 +29,7 @@
 
 #include "s60runconfigbluetoothstarter.h"
 #include "bluetoothlistener.h"
+#include "serialdevicelister.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -49,5 +50,25 @@ trk::BluetoothListener *S60RunConfigBluetoothStarter::createListener()
     connect(rc, SIGNAL(message(QString)), core->messageManager(), SLOT(printToOutputPane(QString)));
     return rc;
 }
+
+trk::PromptStartCommunicationResult
+S60RunConfigBluetoothStarter::startCommunication(const TrkDevicePtr &trkDevice,
+                                                 const QString &device,
+                                                 int communicationType,
+                                                 QWidget *msgBoxParent,
+                                                 QString *errorMessage)
+{
+    // Bluetooth?
+    if (communicationType == BlueToothCommunication) {
+        S60RunConfigBluetoothStarter bluetoothStarter(trkDevice);
+        bluetoothStarter.setDevice(device);
+        return trk::promptStartBluetooth(bluetoothStarter, msgBoxParent, errorMessage);
+    }
+    // Serial
+    BaseCommunicationStarter serialStarter(trkDevice);
+    serialStarter.setDevice(device);
+    return trk::promptStartSerial(serialStarter, msgBoxParent, errorMessage);
+}
+
 } // namespace Internal
 } // namespace Qt4ProjectManager

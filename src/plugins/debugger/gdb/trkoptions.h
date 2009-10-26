@@ -46,6 +46,7 @@ namespace Internal {
 
 struct TrkOptions
 {
+    // Matches the communication enumeration from the S60 devices listener.
     enum Mode { Serial, BlueTooth };
 
     TrkOptions();

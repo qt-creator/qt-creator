@@ -49,8 +49,7 @@
 #ifndef CPLUSPLUS_ASTFWD_H
 #define CPLUSPLUS_ASTFWD_H
 
-#include <CPlusPlusForwardDeclarations.h>
-
+#include "CPlusPlusForwardDeclarations.h"
 
 namespace CPlusPlus {
 
