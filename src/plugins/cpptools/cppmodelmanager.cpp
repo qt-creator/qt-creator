@@ -331,9 +331,8 @@ void CppPreprocessor::resetEnvironment()
 
 bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QString *result)
 {
-    if (absoluteFilePath.isEmpty() || m_included.contains(absoluteFilePath)) {
+    if (absoluteFilePath.isEmpty() || m_included.contains(absoluteFilePath))
         return true;
-    }
 
     if (m_workingCopy.contains(absoluteFilePath)) {
         m_included.insert(absoluteFilePath);

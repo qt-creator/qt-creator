@@ -698,7 +698,7 @@ void Qt4Project::updateCodeModel()
             pinfo.includePaths == allIncludePaths     &&
             pinfo.frameworkPaths == allFrameworkPaths &&
             pinfo.sourceFiles == files) {
-        modelmanager->updateProjectInfo(pinfo);
+        // Nothing to update...
     } else {
         if (pinfo.defines != predefinedMacros         ||
             pinfo.includePaths != allIncludePaths     ||
