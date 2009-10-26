@@ -30,6 +30,7 @@
 #include "welcomemodetreewidget.h"
 
 #include <QtGui/QLabel>
+#include <QtGui/QAction>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QHeaderView>
 
@@ -78,7 +79,7 @@ QSize WelcomeModeTreeWidget::sizeHint() const
     return QSize(QTreeWidget::sizeHint().width(), 30 * topLevelItemCount());
 }
 
-QTreeWidgetItem *WelcomeModeTreeWidget::addItem(const QString &label, const QString &data)
+QTreeWidgetItem *WelcomeModeTreeWidget::addItem(const QString &label, const QString &data, const QString &toolTip)
 {
     QTreeWidgetItem *item = new QTreeWidgetItem(this);
     item->setIcon(0, m_d->bullet);
@@ -94,7 +95,10 @@ QTreeWidgetItem *WelcomeModeTreeWidget::addItem(const QString &label, const QStr
     wdg->setLayout(lay);
     setItemWidget(item, 1, wdg);
     item->setData(0, Qt::UserRole, data);
+    if (!toolTip.isEmpty())
+        wdg->setToolTip(toolTip);
     return item;
+
 }
 
 void WelcomeModeTreeWidget::slotAddNewsItem(const QString &title, const QString &description, const QString &link)
@@ -105,7 +109,7 @@ void WelcomeModeTreeWidget::slotAddNewsItem(const QString &title, const QString 
     f.setBold(true);
     QString elidedTitle = QFontMetrics(f).elidedText(title, Qt::ElideRight, itemWidth);
     QString data = QString::fromLatin1("<b>%1</b><br />%2").arg(elidedTitle).arg(elidedText);
-    addTopLevelItem(addItem(data,link));
+    addTopLevelItem(addItem(data, link, link));
 }
 
 void WelcomeModeTreeWidget::slotItemClicked(QTreeWidgetItem *item)
