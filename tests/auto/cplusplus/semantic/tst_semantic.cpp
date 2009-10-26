@@ -100,6 +100,7 @@ private slots:
     void typedef_3();
     void const_1();
     void const_2();
+    void pointer_to_function_1();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -365,6 +366,25 @@ void tst_Semantic::const_2()
     QVERIFY(arg->type()->isPointerType());
     QVERIFY(! arg->type()->asPointerType()->elementType().isConst());
     QVERIFY(arg->type()->asPointerType()->elementType()->isIntegerType());
+}
+
+void tst_Semantic::pointer_to_function_1()
+{
+    QSharedPointer<Document> doc = document("void (*QtSomething)();");
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->symbolCount(), 1U);
+
+    Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
+    QVERIFY(decl);
+
+    PointerType *ptrTy = decl->type()->asPointerType();
+    QVERIFY(ptrTy);
+
+    Function *funTy = ptrTy->elementType()->asFunctionType();
+    QVERIFY(funTy);
+
+    QVERIFY(funTy->scope());
+    QCOMPARE(funTy->scope(), decl->scope());
 }
 
 QTEST_APPLESS_MAIN(tst_Semantic)
