@@ -98,6 +98,7 @@ public:
     QList<Scope *> visibleScopes() const
     { return _visibleScopes; }
 
+    QList<Scope *> visibleScopes(Symbol *symbol) const;
     QList<Scope *> visibleScopes(const QPair<FullySpecifiedType, Symbol *> &result) const;
 
     QList<Scope *> expand(const QList<Scope *> &scopes) const;

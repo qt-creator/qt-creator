@@ -408,12 +408,12 @@ void tst_Semantic::template_instance_1()
     QVERIFY(decl);
 
     GenTemplateInstance::Substitution subst;
-    Name *nameTp = control.nameId(control.findOrInsertIdentifier("_Tp"));
+    Identifier *nameTp = control.findOrInsertIdentifier("_Tp");
     FullySpecifiedType intTy(control.integerType(IntegerType::Int));
     subst.append(qMakePair(nameTp, intTy));
 
     GenTemplateInstance inst(&control, subst);
-    FullySpecifiedType genTy = inst(decl->type());
+    FullySpecifiedType genTy = inst(decl);
 
     Overview oo;
     oo.setShowReturnTypes(true);

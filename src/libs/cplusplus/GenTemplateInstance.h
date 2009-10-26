@@ -5,51 +5,29 @@
 #include <NameVisitor.h>
 #include <FullySpecifiedType.h>
 
+#include "LookupContext.h"
+
 #include <QtCore/QList>
 #include <QtCore/QPair>
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT GenTemplateInstance: protected TypeVisitor, protected NameVisitor
+class CPLUSPLUS_EXPORT GenTemplateInstance
 {
 public:
-    typedef QList< QPair<Name *, FullySpecifiedType> > Substitution;
+    typedef QList< QPair<Identifier *, FullySpecifiedType> > Substitution;
 
 public:
-    GenTemplateInstance(Control *control, const Substitution &substitution);
+    GenTemplateInstance(const LookupContext &context, const Substitution &substitution);
 
-    FullySpecifiedType operator()(const FullySpecifiedType &ty);
+    FullySpecifiedType operator()(Symbol *symbol);
 
-protected:
-    FullySpecifiedType subst(Name *name);
-    FullySpecifiedType subst(const FullySpecifiedType &ty);
-
-    FullySpecifiedType switchType(const FullySpecifiedType &type);
-
-    virtual void visit(PointerToMemberType * /*ty*/);
-    virtual void visit(PointerType *ty);
-    virtual void visit(ReferenceType *ty);
-    virtual void visit(ArrayType *ty);
-    virtual void visit(NamedType *ty);
-    virtual void visit(Function *ty);
-    virtual void visit(VoidType *);
-    virtual void visit(IntegerType *);
-    virtual void visit(FloatType *);
-    virtual void visit(Namespace *);
-    virtual void visit(Class *);
-    virtual void visit(Enum *);
-
-    // names
-    virtual void visit(NameId *);
-    virtual void visit(TemplateNameId *);
-    virtual void visit(DestructorNameId *);
-    virtual void visit(OperatorNameId *);
-    virtual void visit(ConversionNameId *);
-    virtual void visit(QualifiedNameId *);
+    Control *control() const;
+    int findSubstitution(Identifier *id) const;
 
 private:
-    Control *_control;
-    FullySpecifiedType _type;
+    Symbol *_symbol;
+    LookupContext _context;
     const Substitution _substitution;
 };
 
