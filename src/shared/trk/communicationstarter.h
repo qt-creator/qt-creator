@@ -36,25 +36,28 @@
 namespace trk {
 class TrkDevice;
 class BluetoothListener;
-struct AbstractBluetoothStarterPrivate;
+struct BaseCommunicationStarterPrivate;
 
-/* AbstractBluetoothStarter: Repeatedly tries to open a trk device
- * until a connection succeeds, allowing to do something else in the
- * foreground (local event loop or asynchronous operation).
- * Note that in case a Listener is already running in watch mode, it might
- * also happen that connection succeeds immediately.
- * Implementations must provide a factory function that creates and sets up the
- * listener (mode, message connection, etc). */
+/* BaseCommunicationStarter: A QObject that repeatedly tries to open a
+ * trk device until a connection succeeds or a timeout occurs (emitting
+ * signals), allowing to do something else in the foreground (local event loop
+ * [say QMessageBox] or some asynchronous operation). If the initial
+ * connection attempt in start() fails, the
+ * virtual initializeStartupResources() is called to initialize resources
+ * required to pull up the communication (namely Bluetooth listeners).
+ * The base class can be used as is to prompt the user to launch TRK for a serial
+ * communication as this requires no further resource setup. */
 
-class AbstractBluetoothStarter : public QObject {
+class BaseCommunicationStarter : public QObject {
     Q_OBJECT
-    Q_DISABLE_COPY(AbstractBluetoothStarter)
+    Q_DISABLE_COPY(BaseCommunicationStarter)
 public:
-            typedef QSharedPointer<TrkDevice> TrkDevicePtr;
+    typedef QSharedPointer<TrkDevice> TrkDevicePtr;
 
     enum State { Running, Connected, TimedOut };
 
-    virtual ~AbstractBluetoothStarter();
+    explicit BaseCommunicationStarter(const TrkDevicePtr& trkDevice, QObject *parent = 0);
+    virtual ~BaseCommunicationStarter();
 
     int intervalMS() const;
     void setIntervalMS(int i);
@@ -80,19 +83,40 @@ public:
 signals:
     void connected();
     void timeout();
+    void message(const QString &);
 
 private slots:
     void slotTimer();
 
 protected:
-    explicit AbstractBluetoothStarter(const TrkDevicePtr& trkDevice, QObject *parent = 0);
-    // Overwrite to create and parametrize the listener.
-    virtual BluetoothListener *createListener() = 0;
+    virtual bool initializeStartupResources(QString *errorMessage);
 
 private:
     inline void stopTimer();
 
-    AbstractBluetoothStarterPrivate *d;
+    BaseCommunicationStarterPrivate *d;
+};
+
+/* AbstractBluetoothStarter: Repeatedly tries to open a trk Bluetooth
+ * device. Note that in case a Listener is already running mode, the
+ * connection will succeed immediately.
+ * initializeStartupResources() is implemented to fire up the listener.
+ * Introduces a new virtual createListener() that derived classes must
+ * implement as a factory function that creates and sets up the
+ * listener (mode, message connection, etc). */
+
+class AbstractBluetoothStarter : public BaseCommunicationStarter {
+    Q_OBJECT
+    Q_DISABLE_COPY(AbstractBluetoothStarter)
+public:
+
+protected:
+    explicit AbstractBluetoothStarter(const TrkDevicePtr& trkDevice, QObject *parent = 0);
+
+    // Implemented to fire up the listener.
+    virtual bool initializeStartupResources(QString *errorMessage);
+    // New virtual: Overwrite to create and parametrize the listener.
+    virtual BluetoothListener *createListener() = 0;
 };
 
 /* ConsoleBluetoothStarter: Convenience class for console processes. Creates a
@@ -102,12 +126,11 @@ class ConsoleBluetoothStarter : public AbstractBluetoothStarter {
     Q_OBJECT
     Q_DISABLE_COPY(ConsoleBluetoothStarter)
 public:
-
-            static bool startBluetooth(const TrkDevicePtr& trkDevice,
-                                       QObject *listenerParent,
-                                       const QString &device,
-                                       int attempts,
-                                       QString *errorMessage);
+    static bool startBluetooth(const TrkDevicePtr& trkDevice,
+                               QObject *listenerParent,
+                               const QString &device,
+                               int attempts,
+                               QString *errorMessage);
 
 protected:
     virtual BluetoothListener *createListener();

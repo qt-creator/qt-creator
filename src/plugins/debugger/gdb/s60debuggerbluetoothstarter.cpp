@@ -30,6 +30,7 @@
 #include "s60debuggerbluetoothstarter.h"
 #include "bluetoothlistener.h"
 #include "debuggermanager.h"
+#include "trkoptions.h"
 
 namespace Debugger {
 namespace Internal {
@@ -46,6 +47,25 @@ trk::BluetoothListener *S60DebuggerBluetoothStarter::createListener()
     rc->setMode(trk::BluetoothListener::Listen);
     connect(rc, SIGNAL(message(QString)), dm, SLOT(showDebuggerOutput(QString)));
     return rc;
+}
+
+trk::PromptStartCommunicationResult
+S60DebuggerBluetoothStarter::startCommunication(const TrkDevicePtr &trkDevice,
+                                                 const QString &device,
+                                                 int communicationType,
+                                                 QWidget *msgBoxParent,
+                                                 QString *errorMessage)
+{
+    // Bluetooth?
+    if (communicationType == TrkOptions::BlueTooth) {
+        S60DebuggerBluetoothStarter bluetoothStarter(trkDevice);
+        bluetoothStarter.setDevice(device);
+        return trk::promptStartBluetooth(bluetoothStarter, msgBoxParent, errorMessage);
+    }
+    // Serial
+    BaseCommunicationStarter serialStarter(trkDevice);
+    serialStarter.setDevice(device);
+    return trk::promptStartSerial(serialStarter, msgBoxParent, errorMessage);
 }
 
 } // namespace Internal

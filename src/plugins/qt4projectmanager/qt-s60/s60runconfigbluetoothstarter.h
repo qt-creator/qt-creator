@@ -31,20 +31,34 @@
 #define S60RUNCONFIGBLUETOOTHSTARTER_H
 
 #include "communicationstarter.h"
+#include "bluetoothlistener_gui.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 /* S60RunConfigBluetoothStarter: Creates a listener in 'Listen' mode
- * parented on the Qt Creator core which outputs to the message manager. */
+ * parented on the Qt Creator core which outputs to the message manager.
+ * Provides a static convenience to prompt for both connection types. */
 
 class S60RunConfigBluetoothStarter : public trk::AbstractBluetoothStarter
 {
 public:
-    explicit S60RunConfigBluetoothStarter(const TrkDevicePtr& trkDevice, QObject *parent = 0);
+    typedef  trk::AbstractBluetoothStarter::TrkDevicePtr TrkDevicePtr;
+
+    // Convenience function to start communication depending on type,
+    // passing on the right messages.
+    static trk::PromptStartCommunicationResult
+            startCommunication(const TrkDevicePtr &trkDevice,
+                               const QString &device,
+                               int communicationType,
+                               QWidget *msgBoxParent,
+                               QString *errorMessage);
 
 protected:
     virtual trk::BluetoothListener *createListener();
+
+private:
+    explicit S60RunConfigBluetoothStarter(const TrkDevicePtr& trkDevice, QObject *parent = 0);
 };
 
 } // namespace Internal

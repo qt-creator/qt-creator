@@ -582,21 +582,24 @@ void S60DeviceRunControlBase::signsisProcessFinished()
     initLauncher(runFileName, m_launcher);
     emit addToOutputWindow(this, tr("Package: %1\nDeploying application to '%2'...").arg(lsFile(copySrc), m_serialPortFriendlyName));
     QString errorMessage;
-    // Prompt the user to start up the Blue tooth connection
-    if (m_communicationType == BlueToothCommunication) {
-        S60RunConfigBluetoothStarter starter(m_launcher->trkDevice());
-        switch (trk::startBluetoothGui(starter, 0, &errorMessage)) {
-        case trk::BluetoothGuiConnected:
-            break;
-        case trk::BluetoothGuiCanceled:
-        case trk::BluetoothGuiError:
-            delete m_launcher;
-            m_launcher = 0;
-            error(this, errorMessage);
-            emit finished();
-            return;
-        };
-    }
+    // Prompt the user to start up the Blue tooth connection    
+    const trk::PromptStartCommunicationResult src =
+            S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
+                                                             m_serialPortName,
+                                                             m_communicationType, 0,
+                                                             &errorMessage);
+    switch (src) {
+    case trk::PromptStartCommunicationConnected:
+        break;
+    case trk::PromptStartCommunicationCanceled:
+    case trk::PromptStartCommunicationError:
+        delete m_launcher;
+        m_launcher = 0;
+        error(this, errorMessage);
+        emit finished();
+        return;
+    };
+
     if (!m_launcher->startServer(&errorMessage)) {
         delete m_launcher;
         m_launcher = 0;

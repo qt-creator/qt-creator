@@ -31,6 +31,7 @@
 #define S60DEBUGGERBLUETOOTHSTARTER_H
 
 #include "communicationstarter.h"
+#include "bluetoothlistener_gui.h"
 
 namespace Debugger {
 namespace Internal {
@@ -38,15 +39,24 @@ namespace Internal {
 /* S60DebuggerBluetoothStarter: Creates a listener in 'Listen' mode
  * parented on the Debugger manager which outputs to the debugger window.
  * Note: This is a "last resort" starter, normally, the run configuration
- * should have already started a listener. */
+ * should have already started a listener.
+ * Provides a static convenience to prompt for both connection types.  */
 
 class S60DebuggerBluetoothStarter : public trk::AbstractBluetoothStarter
-{
+{    
 public:
-    explicit S60DebuggerBluetoothStarter(const TrkDevicePtr& trkDevice, QObject *parent = 0);
+    static trk::PromptStartCommunicationResult
+        startCommunication(const TrkDevicePtr &trkDevice,
+                           const QString &device,
+                           int communicationType,
+                           QWidget *msgBoxParent,
+                           QString *errorMessage);
 
-protected:
+protected:    
     virtual trk::BluetoothListener *createListener();
+
+private:
+    explicit S60DebuggerBluetoothStarter(const TrkDevicePtr& trkDevice, QObject *parent = 0);
 };
 
 } // namespace Internal

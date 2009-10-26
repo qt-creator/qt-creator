@@ -14,6 +14,7 @@ SOURCES += $$PWD/trkutils.cpp \
     $$PWD/bluetoothlistener.cpp \
     $$PWD/communicationstarter.cpp
 
+# Tests/trklauncher is a console application
 contains(QT, gui) {
    HEADERS += $$PWD/bluetoothlistener_gui.h
     SOURCES += $$PWD/bluetoothlistener_gui.cpp
