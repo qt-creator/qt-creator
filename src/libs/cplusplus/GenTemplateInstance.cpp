@@ -366,17 +366,3 @@ FullySpecifiedType GenTemplateInstance::operator()(Symbol *symbol)
 
 Control *GenTemplateInstance::control() const
 { return _context.control(); }
-
-int GenTemplateInstance::findSubstitution(Identifier *id) const
-{
-    int index = 0;
-
-    for (; index < _substitution.size(); ++index) {
-        const QPair<Identifier *, FullySpecifiedType> s = _substitution.at(index);
-
-        if (id->isEqualTo(s.first))
-            break;
-    }
-
-    return index;
-}

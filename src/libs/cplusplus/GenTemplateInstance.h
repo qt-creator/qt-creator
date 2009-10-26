@@ -52,7 +52,6 @@ public:
     FullySpecifiedType operator()(Symbol *symbol);
 
     Control *control() const;
-    int findSubstitution(Identifier *id) const;
 
 private:
     Symbol *_symbol;
