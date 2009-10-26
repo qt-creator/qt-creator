@@ -78,6 +78,10 @@
 
 #include <climits>
 
+// FIXME: Restrict this as soon the availableUndoSteps has been merged to Qt
+//#if QT_VERSION < 0x040600
+#define availableUndoSteps revision
+//#endif
 
 //#define DEBUG_KEY  1
 #if DEBUG_KEY
@@ -88,7 +92,7 @@
 
 //#define DEBUG_UNDO  1
 #if DEBUG_UNDO
-#   define UNDO_DEBUG(s) qDebug() << << m_tc.document()->revision() << s
+#   define UNDO_DEBUG(s) qDebug() << << m_tc.document()->availableUndoSteps() << s
 #else
 #   define UNDO_DEBUG(s)
 #endif
@@ -661,7 +665,7 @@ void FakeVimHandler::Private::restoreWidget()
 EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
     const QString &text)
 {
-    m_undoCursorPosition[m_tc.document()->revision()] = m_tc.position();
+    m_undoCursorPosition[m_tc.document()->availableUndoSteps()] = m_tc.position();
     //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
     if (m_mode == InsertMode)
         return handleInsertMode(key, unmodified, text);
@@ -2728,30 +2732,32 @@ QWidget *FakeVimHandler::Private::editor() const
 
 void FakeVimHandler::Private::undo()
 {
-    int current = m_tc.document()->revision();
+    int current = m_tc.document()->availableUndoSteps();
     //endEditBlock();
     EDITOR(undo());
     //beginEditBlock();
-    int rev = m_tc.document()->revision();
+    int rev = m_tc.document()->availableUndoSteps();
     if (current == rev)
         showBlackMessage(FakeVimHandler::tr("Already at oldest change"));
     else
         showBlackMessage(QString());
+
     if (m_undoCursorPosition.contains(rev))
         m_tc.setPosition(m_undoCursorPosition[rev]);
 }
 
 void FakeVimHandler::Private::redo()
 {
-    int current = m_tc.document()->revision();
+    int current = m_tc.document()->availableUndoSteps();
     //endEditBlock();
     EDITOR(redo());
     //beginEditBlock();
-    int rev = m_tc.document()->revision();
+    int rev = m_tc.document()->availableUndoSteps();
     if (rev == current)
         showBlackMessage(FakeVimHandler::tr("Already at newest change"));
     else
         showBlackMessage(QString());
+
     if (m_undoCursorPosition.contains(rev))
         m_tc.setPosition(m_undoCursorPosition[rev]);
 }
