@@ -12,6 +12,8 @@
 #include <Names.h>
 #include <Literals.h>
 #include <DiagnosticClient.h>
+#include <GenTemplateInstance.h>
+#include <Overview.h>
 
 using namespace CPlusPlus;
 
@@ -101,6 +103,8 @@ private slots:
     void const_1();
     void const_2();
     void pointer_to_function_1();
+
+    void template_instance_1();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -387,6 +391,30 @@ void tst_Semantic::pointer_to_function_1()
 
     QEXPECT_FAIL("", "Requires initialize enclosing scope of pointer-to-function symbols", Continue);
     QCOMPARE(funTy->scope(), decl->scope());
+}
+
+void tst_Semantic::template_instance_1()
+{
+    QSharedPointer<Document> doc = document("void append(const _Tp &value);");
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->symbolCount(), 1U);
+
+    Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
+    QVERIFY(decl);
+
+    GenTemplateInstance::Substitution subst;
+    Name *nameTp = control.nameId(control.findOrInsertIdentifier("_Tp"));
+    FullySpecifiedType intTy(control.integerType(IntegerType::Int));
+    subst.append(qMakePair(nameTp, intTy));
+
+    GenTemplateInstance inst(&control, subst);
+    FullySpecifiedType genTy = inst(decl->type());
+
+    Overview oo;
+    oo.setShowReturnTypes(true);
+
+    const QString genDecl = oo.prettyType(genTy);
+    QCOMPARE(genDecl, QString::fromLatin1("void(const int &)"));
 }
 
 QTEST_APPLESS_MAIN(tst_Semantic)
