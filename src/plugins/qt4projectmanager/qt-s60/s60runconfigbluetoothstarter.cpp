@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "s60runconfigbluetoothstarter.h"
+#include "bluetoothlistener.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>

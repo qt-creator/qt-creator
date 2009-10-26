@@ -1,5 +1,5 @@
 #include "launcher.h"
-#include "bluetoothlistener.h"
+#include "communicationstarter.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSharedPointer>

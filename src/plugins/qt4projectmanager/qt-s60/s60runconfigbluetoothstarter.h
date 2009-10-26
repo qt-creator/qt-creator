@@ -30,7 +30,7 @@
 #ifndef S60RUNCONFIGBLUETOOTHSTARTER_H
 #define S60RUNCONFIGBLUETOOTHSTARTER_H
 
-#include "bluetoothlistener.h"
+#include "communicationstarter.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {

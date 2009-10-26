@@ -30,7 +30,7 @@
 #ifndef S60DEBUGGERBLUETOOTHSTARTER_H
 #define S60DEBUGGERBLUETOOTHSTARTER_H
 
-#include "bluetoothlistener.h"
+#include "communicationstarter.h"
 
 namespace Debugger {
 namespace Internal {

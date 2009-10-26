@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "s60debuggerbluetoothstarter.h"
+#include "bluetoothlistener.h"
 #include "debuggermanager.h"
 
 namespace Debugger {
