@@ -149,28 +149,26 @@ private:
 
     int findStartOfName(int pos = -1) const;
 
-    QList<TextEditor::CompletionItem> m_completions;
+private:
+    bool objcKeywordsWanted() const;
 
+    CppModelManager *m_manager;
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;     // Position of the cursor from which completion started
 
-    CppModelManager *m_manager;
     Qt::CaseSensitivity m_caseSensitivity;
     bool m_autoInsertBrackets;
     bool m_partialCompletionEnabled;
-
     bool m_forcedCompletion;
+    unsigned m_completionOperator;
+    bool m_objcEnabled;
 
     CPlusPlus::Icons m_icons;
     CPlusPlus::Overview overview;
     CPlusPlus::TypeOfExpression typeOfExpression;
-
-    unsigned m_completionOperator;
-
     QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
 
-    bool objcKeywordsWanted() const;
-    bool m_objcEnabled;
+    QList<TextEditor::CompletionItem> m_completions;
 };
 
 } // namespace Internal

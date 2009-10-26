@@ -93,11 +93,11 @@ DEFINES += QT_NO_CAST_TO_ASCII
 #DEFINES += QT_USE_FAST_CONCATENATION
 
 unix {
-    debug:OBJECTS_DIR = $${OUT_PWD}/.obj/debug-shared
-    release:OBJECTS_DIR = $${OUT_PWD}/.obj/release-shared
+    CONFIG(debug, debug|release):OBJECTS_DIR = $${OUT_PWD}/.obj/debug-shared
+    CONFIG(release, debug|release):OBJECTS_DIR = $${OUT_PWD}/.obj/release-shared
 
-    debug:MOC_DIR = $${OUT_PWD}/.moc/debug-shared
-    release:MOC_DIR = $${OUT_PWD}/.moc/release-shared
+    CONFIG(debug, debug|release):MOC_DIR = $${OUT_PWD}/.moc/debug-shared
+    CONFIG(release, debug|release):MOC_DIR = $${OUT_PWD}/.moc/release-shared
 
     RCC_DIR = $${OUT_PWD}/.rcc
     UI_DIR = $${OUT_PWD}/.uic

@@ -113,6 +113,7 @@ public:
     QString crashParameter; // for AttachCrashedExternal
     // for remote debugging
     QString remoteChannel;
+    int remoteChannelType;
     QString remoteArchitecture;
     QString symbolFileName;
     QString serverStartScript;

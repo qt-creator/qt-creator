@@ -165,7 +165,8 @@ class CheckDocument: protected ASTVisitor
 
 public:
     CheckDocument(Document::Ptr doc, Snapshot snapshot)
-        : ASTVisitor(doc->control()), _doc(doc), _snapshot(snapshot)
+        : ASTVisitor(doc->control()), _doc(doc), _snapshot(snapshot),
+          _line(0), _column(0)
     { }
 
     QList<QuickFixOperationPtr> operator()(QTextCursor tc)

@@ -51,11 +51,14 @@
 #include <texteditor/textfilewizard.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/completionsupport.h>
+#include <help/helpplugin.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
+#include <QtCore/QDir>
+#include <QtCore/QCoreApplication>
 #include <QtGui/QAction>
 
 using namespace QmlEditor;
@@ -132,6 +135,27 @@ bool QmlEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
 void QmlEditorPlugin::extensionsInitialized()
 {
+    //
+    // Explicitly register qml.qch if located in creator directory.
+    //
+    // This is only needed for the creator-qml package, were we
+    // want to ship the documentation without a qt development version.
+    //
+
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    Help::HelpManager *helpManager = pluginManager->getObject<Help::HelpManager>();
+
+    Q_ASSERT(helpManager);
+
+    const QString qmlHelpFile =
+            QDir::cleanPath(QCoreApplication::applicationDirPath()
+#if defined(Q_OS_MAC)
+            + QLatin1String("/../Resources/doc/qml.qch"));
+#else
+            + QLatin1String("../../share/doc/qtcreator/qml.qch"));
+#endif
+
+    helpManager->registerDocumentation(QStringList(qmlHelpFile));
 }
 
 void QmlEditorPlugin::initializeEditor(QmlEditor::Internal::ScriptEditor *editor)

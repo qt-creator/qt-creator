@@ -52,12 +52,12 @@ class QtVersion
 {
     friend class QtVersionManager;
 public:
-    QtVersion(const QString &name, const QString &path,
+    QtVersion(const QString &name, const QString &qmakeCommand,
               bool isAutodetected = false, const QString &autodetectionSource = QString());
 
     QtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
 
-    QtVersion(const QString &name, const QString &path, int id,
+    QtVersion(const QString &name, const QString &qmakeCommand, int id,
               bool isAutodetected = false, const QString &autodetectionSource = QString());
     QtVersion();
     ~QtVersion();

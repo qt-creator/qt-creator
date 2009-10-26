@@ -29,8 +29,11 @@
 #ifndef LAUNCHER_H
 #define LAUNCHER_H
 
+#include "trkdevice.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
+#include <QtCore/QSharedPointer>
 
 namespace trk {
 
@@ -38,9 +41,12 @@ struct TrkResult;
 struct TrkMessage;
 struct LauncherPrivate;
 
+typedef QSharedPointer<TrkDevice> TrkDevicePtr;
+
 class Launcher : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(Launcher)
 public:
     typedef void (Launcher::*TrkCallBack)(const TrkResult &);
 
@@ -55,10 +61,13 @@ public:
         ActionCopyInstallRun = ActionCopy | ActionInstall | ActionRun
     };
 
-    Launcher(trk::Launcher::Actions startupActions = trk::Launcher::ActionPingOnly);
+    explicit Launcher(trk::Launcher::Actions startupActions = trk::Launcher::ActionPingOnly,
+                      const TrkDevicePtr &trkDevice = TrkDevicePtr(),
+                      QObject *parent = 0);
     ~Launcher();
     void addStartupActions(trk::Launcher::Actions startupActions);
     void setTrkServerName(const QString &name);
+    QString trkServerName() const;
     void setFileName(const QString &name);
     void setCopyFileName(const QString &srcName, const QString &dstName);
     void setInstallFileName(const QString &name);
@@ -66,6 +75,14 @@ public:
     void setVerbose(int v);    
     void setSerialFrame(bool b);
     bool serialFrame() const;
+    // Close device or leave it open
+    bool closeDevice() const;
+    void setCloseDevice(bool c);
+
+    TrkDevicePtr trkDevice() const;
+
+    // becomes valid after successful execution of ActionPingOnly
+    QString deviceDescription(unsigned verbose = 0u) const;
 
 signals:
     void copyingStarted();

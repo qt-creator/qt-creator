@@ -54,6 +54,7 @@
 
 #include <Token.h>
 #include <QVector>
+#include <QBitArray>
 
 namespace CPlusPlus {
 
@@ -177,8 +178,8 @@ private:
     Environment *env;
     MacroExpander _expand;
 
-    bool _skipping[MAX_LEVEL]; // ### move in state
-    bool _true_test[MAX_LEVEL]; // ### move in state
+    QBitArray _skipping; // ### move in state
+    QBitArray _trueTest; // ### move in state
     int iflevel; // ### move in state
 
     QList<State> _savedStates;

@@ -81,6 +81,7 @@ public:
 
 signals:
     void validChanged();
+    void validChanged(bool validState);
     void validReturnPressed();
 
 protected:

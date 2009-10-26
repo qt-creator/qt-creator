@@ -51,6 +51,8 @@ struct ModelItemInfo
     enum ItemType { Enum, Class, Method, Declaration };
 
     ModelItemInfo()
+        : type(Declaration),
+          line(0)
     { }
 
     ModelItemInfo(const QString &symbolName,

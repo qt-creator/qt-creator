@@ -126,7 +126,9 @@ private: ////////// Gdb Process Management //////////
 
     AbstractGdbAdapter *createAdapter(const DebuggerStartParametersPtr &dp);
     void connectAdapter();
-    bool startGdb(const QStringList &args = QStringList(), const QString &gdb = QString());
+    bool startGdb(const QStringList &args = QStringList(),
+                  const QString &gdb = QString(),
+                  const QString &settingsIdHint = QString());
     void startInferiorPhase2();
 
     void handleInferiorShutdown(const GdbResponse &response);
@@ -246,7 +248,7 @@ private: ////////// Gdb Output, State & Capability Handling //////////
 
     void handleResponse(const QByteArray &buff);
     void handleStopResponse(const GdbMi &data);
-    void handleResultRecord(const GdbResponse &response);
+    void handleResultRecord(GdbResponse *response);
     void handleStop1(const GdbResponse &response);
     void handleStop1(const GdbMi &data);
     void handleStop2(const GdbResponse &response);
@@ -260,13 +262,16 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     void handleShowVersion(const GdbResponse &response);
     void handleIsSynchroneous(const GdbResponse &response);
 
-    int m_gdbVersion; // 6.8.0 is 680
+    int m_gdbVersion; // 6.8.0 is 60800
     int m_gdbBuildVersion; // MAC only?
+    bool m_isMacGdb;
     bool m_isSynchroneous; // Can act synchroneously?
 
 private: ////////// Inferior Management //////////
 
+    // This should be always the last call in a function.
     Q_SLOT virtual void attemptBreakpointSynchronization();
+    void attemptBreakpointSynchronization2(const GdbResponse &);
 
     virtual void stepExec();
     virtual void stepOutExec();
@@ -310,6 +315,7 @@ private: ////////// View & Data Stuff //////////
     void extractDataFromInfoBreak(const QString &output, BreakpointData *data);
     void breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt);
     void sendInsertBreakpoint(int index);
+    QString breakLocation(const QString &file) const;
 
     //
     // Modules specific stuff
@@ -349,12 +355,13 @@ private: ////////// View & Data Stuff //////////
     void handleQuerySources(const GdbResponse &response);
 
     QString fullName(const QString &fileName);
-    // get one usable name out of these, try full names first
-    QString fullName(const QStringList &candidates);
 
     // awful hack to keep track of used files
     QMap<QString, QString> m_shortToFullName;
     QMap<QString, QString> m_fullToShortName;
+
+    bool m_sourcesListOutdated;
+    bool m_sourcesListUpdating;
 
     //
     // Stack specific stuff

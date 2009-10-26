@@ -30,32 +30,36 @@
 #ifndef SERIALDEVICELISTER_H
 #define SERIALDEVICELISTER_H
 
-#include <QtCore/QAbstractEventDispatcher>
-#include <QtCore/QList>
 #include <QtCore/QObject>
-#include <QtCore/QString>
-
-//#ifdef Q_OS_WIN32
-//#include <windows.h>
-//#include <dbt.h>
-//#endif
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+enum DeviceCommunicationType {
+    SerialPortCommunication = 0,
+    BlueToothCommunication = 1
+};
+
+struct CommunicationDevice {
+    explicit CommunicationDevice(DeviceCommunicationType type = SerialPortCommunication,
+                                 const QString &portName = QString(),
+                                 const QString &friendlyName = QString());
+    QString portName;
+    QString friendlyName;
+    DeviceCommunicationType type;
+};
 
 class SerialDeviceLister : public QObject
 {
     Q_OBJECT
 public:
+    static const char *linuxBlueToothDeviceRootC;
 
-    struct SerialDevice {
-        QString portName;
-        QString friendlyName;
-    };
-
-    SerialDeviceLister(QObject *parent = 0);
+    explicit SerialDeviceLister(QObject *parent = 0);
     ~SerialDeviceLister();
-    QList<SerialDevice> serialDevices() const;
+
+    QList<CommunicationDevice> communicationDevices() const;
+
     QString friendlyNameForPort(const QString &port) const;
 
 public slots:
@@ -66,9 +70,11 @@ signals:
 
 private:
     void updateSilently() const;
+    QList<CommunicationDevice> serialPorts() const;
+    QList<CommunicationDevice> blueToothDevices() const;
 
     mutable bool m_initialized;
-    mutable QList<SerialDevice> m_devices;
+    mutable QList<CommunicationDevice> m_devices2;
 };
 
 } // Internal

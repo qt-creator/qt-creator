@@ -1,8 +1,6 @@
 TEMPLATE = app
 CONFIG += qt warn_on console depend_includepath
-QT = core testlib
-
-include(../../../../src/libs/cplusplus/cplusplus-lib.pri)
-
+QT += testlib
+include(../shared/shared.pri)
 SOURCES += tst_lookup.cpp
 TARGET=tst_$$TARGET

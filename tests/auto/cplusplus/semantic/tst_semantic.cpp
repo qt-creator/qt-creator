@@ -1,6 +1,8 @@
 
 #include <QtTest>
 #include <QtDebug>
+#include <QTextDocument>
+#include <QTextCursor>
 
 #include <Control.h>
 #include <Parser.h>
@@ -12,6 +14,9 @@
 #include <Names.h>
 #include <Literals.h>
 #include <DiagnosticClient.h>
+#include <GenTemplateInstance.h>
+#include <Overview.h>
+#include <ExpressionUnderCursor.h>
 
 using namespace CPlusPlus;
 
@@ -100,6 +105,11 @@ private slots:
     void typedef_3();
     void const_1();
     void const_2();
+    void pointer_to_function_1();
+
+    void template_instance_1();
+
+    void expression_under_cursor_1();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -216,7 +226,6 @@ void tst_Semantic::nested_class_1()
     Identifier *objectId = classObjectNameId->identifier();
     QCOMPARE(QByteArray(objectId->chars(), objectId->size()), QByteArray("Object"));
     QCOMPARE(classObject->baseClassCount(), 0U);
-    QEXPECT_FAIL("", "Requires support for forward classes", Continue);
     QCOMPARE(classObject->members()->symbolCount(), 2U);
 
     Class *classObjectData = doc->globals->symbolAt(1)->asClass();
@@ -365,6 +374,68 @@ void tst_Semantic::const_2()
     QVERIFY(arg->type()->isPointerType());
     QVERIFY(! arg->type()->asPointerType()->elementType().isConst());
     QVERIFY(arg->type()->asPointerType()->elementType()->isIntegerType());
+}
+
+void tst_Semantic::pointer_to_function_1()
+{
+    QSharedPointer<Document> doc = document("void (*QtSomething)();");
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->symbolCount(), 1U);
+
+    Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
+    QVERIFY(decl);
+
+    PointerType *ptrTy = decl->type()->asPointerType();
+    QVERIFY(ptrTy);
+
+    Function *funTy = ptrTy->elementType()->asFunctionType();
+    QVERIFY(funTy);
+
+    QEXPECT_FAIL("", "Requires initialize enclosing scope of pointer-to-function symbols", Continue);
+    QVERIFY(funTy->scope());
+
+    QEXPECT_FAIL("", "Requires initialize enclosing scope of pointer-to-function symbols", Continue);
+    QCOMPARE(funTy->scope(), decl->scope());
+}
+
+void tst_Semantic::template_instance_1()
+{
+    QSharedPointer<Document> doc = document("void append(const _Tp &value);");
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->symbolCount(), 1U);
+
+    Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
+    QVERIFY(decl);
+
+    GenTemplateInstance::Substitution subst;
+    Name *nameTp = control.nameId(control.findOrInsertIdentifier("_Tp"));
+    FullySpecifiedType intTy(control.integerType(IntegerType::Int));
+    subst.append(qMakePair(nameTp, intTy));
+
+    GenTemplateInstance inst(&control, subst);
+    FullySpecifiedType genTy = inst(decl->type());
+
+    Overview oo;
+    oo.setShowReturnTypes(true);
+
+    const QString genDecl = oo.prettyType(genTy);
+    QCOMPARE(genDecl, QString::fromLatin1("void(const int &)"));
+}
+
+void tst_Semantic::expression_under_cursor_1()
+{
+    const QString plainText = "void *ptr = foo(10, bar";
+
+    QTextDocument textDocument;
+    textDocument.setPlainText(plainText);
+
+    QTextCursor tc(&textDocument);
+    tc.movePosition(QTextCursor::End);
+
+    ExpressionUnderCursor expressionUnderCursor;
+    const QString expression = expressionUnderCursor(tc);
+
+    QCOMPARE(expression, QString("bar"));
 }
 
 QTEST_APPLESS_MAIN(tst_Semantic)

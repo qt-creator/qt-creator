@@ -108,6 +108,7 @@ PathChooser::PathChooser(QWidget *parent) :
     connect(m_d->m_lineEdit, SIGNAL(validReturnPressed()), this, SIGNAL(returnPressed()));
     connect(m_d->m_lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(changed(QString)));
     connect(m_d->m_lineEdit, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
+    connect(m_d->m_lineEdit, SIGNAL(validChanged(bool)), this, SIGNAL(validChanged(bool)));
     connect(m_d->m_lineEdit, SIGNAL(editingFinished()), this, SIGNAL(editingFinished()));
 
     m_d->m_lineEdit->setMinimumWidth(200);

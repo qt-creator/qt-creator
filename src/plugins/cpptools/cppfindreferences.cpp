@@ -656,6 +656,9 @@ void CppFindReferences::renameUsages(Symbol *symbol)
 
 void CppFindReferences::findAll_helper(Symbol *symbol)
 {
+    if (! (symbol && symbol->identifier()))
+        return;
+
     _resultWindow->popup(true);
 
     const Snapshot snapshot = _modelManager->snapshot();

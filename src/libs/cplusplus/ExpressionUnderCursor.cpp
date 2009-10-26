@@ -38,6 +38,7 @@
 using namespace CPlusPlus;
 
 ExpressionUnderCursor::ExpressionUnderCursor()
+    : _jumpedComma(false)
 { }
 
 ExpressionUnderCursor::~ExpressionUnderCursor()

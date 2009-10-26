@@ -1,15 +1,14 @@
-unix:QDOC_BIN = $$(QTDIR)/bin/qdoc3
-win32:QDOC_BIN = $$(QTDIR)/bin/qdoc3.exe
+QDOC_BIN = $$[QT_INSTALL_BINS]/qdoc3
 win32:QDOC_BIN = $$replace(QDOC_BIN, "/", "\\")
 
 unix {
     QDOC = SRCDIR=$$PWD OUTDIR=$$OUT_PWD/doc/html $$QDOC_BIN 
-    HELPGENERATOR = $$(QTDIR)/bin/qhelpgenerator
+    HELPGENERATOR = $$[QT_INSTALL_BINS]/qhelpgenerator
 } else {
     QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$OUT_PWD/doc/html&& $$QDOC_BIN
     # Always run qhelpgenerator inside its own cmd; this is a workaround for
     # an unusual bug which causes qhelpgenerator.exe to do nothing
-    HELPGENERATOR = cmd /C $$(QTDIR)\bin\qhelpgenerator.exe
+    HELPGENERATOR = cmd /C $$replace($$list($$[QT_INSTALL_BINS]/qhelpgenerator.exe), "/", "\\")
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp

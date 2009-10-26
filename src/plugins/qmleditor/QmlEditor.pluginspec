@@ -21,5 +21,6 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <dependencyList>
         <dependency name="Core" version="1.3.80"/>
         <dependency name="TextEditor" version="1.3.80"/>
+        <dependency name="Help" version="1.3.80"/>
     </dependencyList>
 </plugin>

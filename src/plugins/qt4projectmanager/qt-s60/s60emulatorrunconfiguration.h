@@ -34,8 +34,15 @@
 #include <projectexplorer/applicationlauncher.h>
 
 #include <QtGui/QWidget>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
+
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QLineEdit;
+QT_END_NAMESPACE
+
+namespace Utils {
+    class DetailsWidget;
+}
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -79,9 +86,11 @@ public:
 private slots:
     void nameEdited(const QString &text);
     void updateTargetInformation();
+    void updateSummary();
 
 private:
     S60EmulatorRunConfiguration *m_runConfiguration;
+    Utils::DetailsWidget *m_detailsWidget;
     QLineEdit *m_nameLineEdit;
     QLabel *m_executableLabel;
 };

@@ -510,8 +510,11 @@ void CppQuickFixCollector::cleanup()
 CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
     : ICompletionCollector(manager),
       m_manager(manager),
+      m_editor(0),
+      m_startPosition(-1),
       m_caseSensitivity(Qt::CaseSensitive),
       m_autoInsertBrackets(true),
+      m_partialCompletionEnabled(true),
       m_forcedCompletion(false),
       m_completionOperator(T_EOF_SYMBOL),
       m_objcEnabled(true)

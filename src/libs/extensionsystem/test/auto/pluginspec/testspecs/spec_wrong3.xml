@@ -1,6 +1,6 @@
 <plugin name="test" compatVersion="1.0.0">
-    <vendor>Trolltech</vendor>
-    <copyright>(C) 2007 Trolltech ASA</copyright>
+    <vendor>Nokia Corporation</vendor>
+    <copyright>(C) 2007 Nokia Corporation</copyright>
     <license>
 This is a default license bla
 blubbblubb
@@ -10,7 +10,7 @@ end of terms
 This plugin is just a test.
     it demonstrates the great use of the plugin spec.
     </description>
-    <url>http://www.trolltech.com</url>
+    <url>http://qt.nokia.com</url>
     <dependencyList>
         <dependency name="SomeOtherPlugin" version="2.3.0_2"/>
         <dependency name="EvenOther" version="1.0.0"/>

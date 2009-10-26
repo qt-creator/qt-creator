@@ -35,15 +35,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/toolchain.h>
 
-#include <QtGui/QWidget>
-
 #include <QtCore/QProcess>
-
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QLineEdit;
-class QComboBox;
-QT_END_NAMESPACE
 
 namespace Debugger {
     class DebuggerStartParameters;
@@ -72,6 +64,10 @@ public:
 
     QString serialPortName() const;
     void setSerialPortName(const QString &name);
+    // See SerialDeviceListener
+    int communicationType() const;
+    void setCommunicationType(int t);
+
     QString targetName() const;
     QString basePackageFilePath() const;
     QString symbianPlatform() const;
@@ -106,33 +102,10 @@ private:
     QString m_packageTemplateFileName;
     bool m_cachedTargetInformationValid;
     QString m_serialPortName;
-    SigningMode m_signingMode;
+    int m_communicationType;
+    SigningMode m_signingMode;    
     QString m_customSignaturePath;
     QString m_customKeyPath;
-};
-
-class S60DeviceRunConfigurationWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit S60DeviceRunConfigurationWidget(S60DeviceRunConfiguration *runConfiguration,
-                                      QWidget *parent = 0);
-
-private slots:
-    void nameEdited(const QString &text);
-    void updateTargetInformation();
-    void updateSerialDevices();
-    void setSerialPort(int index);
-    void selfSignToggled(bool toggle);
-    void customSignatureToggled(bool toggle);
-    void signaturePathChanged(const QString &path);
-    void keyPathChanged(const QString &path);
-
-private:
-    S60DeviceRunConfiguration *m_runConfiguration;
-    QComboBox *m_serialPorts;
-    QLineEdit *m_nameLineEdit;
-    QLabel *m_sisxFileLabel;
 };
 
 class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
@@ -156,7 +129,7 @@ class S60DeviceRunControlBase : public ProjectExplorer::RunControl
     Q_OBJECT
 public:
     explicit S60DeviceRunControlBase(const QSharedPointer<ProjectExplorer::RunConfiguration> &runConfiguration);
-    ~S60DeviceRunControlBase() {}
+    ~S60DeviceRunControlBase();
     virtual void start();
     virtual void stop();
     virtual bool isRunning() const;
@@ -195,6 +168,7 @@ private:
 
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
+    int     m_communicationType;
     QString m_targetName;
     QString m_baseFileName;
     QString m_symbianPlatform;

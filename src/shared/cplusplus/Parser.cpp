@@ -88,6 +88,30 @@ int DebugRule::depth = 0;
 #  define DEBUG_THIS_RULE() do {} while (0)
 #endif
 
+class Parser::Rewind
+{
+    Parser *_parser;
+    MemoryPool::State _state;
+
+public:
+    inline Rewind(Parser *parser)
+        : _parser(parser) {}
+
+    inline void operator()(unsigned tokenIndex)
+    { rewind(tokenIndex); }
+
+    inline void mark()
+    { _state = _parser->_pool->state(); }
+
+    inline void rewind(unsigned tokenIndex)
+    {
+        _parser->rewind(tokenIndex);
+
+        if (_state.isValid())
+            _parser->_pool->rewind(_state);
+    }
+};
+
 Parser::Parser(TranslationUnit *unit)
     : _translationUnit(unit),
       _control(_translationUnit->control()),
@@ -302,6 +326,9 @@ bool Parser::parseClassOrNamespaceName(NameAST *&node)
 bool Parser::parseTemplateId(NameAST *&node)
 {
     DEBUG_THIS_RULE();
+
+    const unsigned start = cursor();
+
     if (LA() == T_IDENTIFIER && LA(2) == T_LESS) {
         TemplateIdAST *ast = new (_pool) TemplateIdAST;
         ast->identifier_token = consumeToken();
@@ -315,6 +342,9 @@ bool Parser::parseTemplateId(NameAST *&node)
             }
         }
     }
+
+    rewind(start);
+
     return false;
 }
 
@@ -660,8 +690,27 @@ bool Parser::parseOperatorFunctionId(NameAST *&node)
     return true;
 }
 
+Parser::TemplateArgumentListEntry *Parser::templateArgumentListEntry(unsigned tokenIndex)
+{
+    for (unsigned i = 0; i < _templateArgumentList.size(); ++i) {
+        TemplateArgumentListEntry *entry = &_templateArgumentList[i];
+        if (entry->index == tokenIndex)
+            return entry;
+    }
+
+    return 0;
+}
+
 bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
 {
+    if (TemplateArgumentListEntry *entry = templateArgumentListEntry(cursor())) {
+        rewind(entry->cursor);
+        node = entry->ast;
+        return entry->ast != 0;
+    }
+
+    unsigned start = cursor();
+
     DEBUG_THIS_RULE();
     TemplateArgumentListAST **template_argument_ptr = &node;
     ExpressionAST *template_argument = 0;
@@ -679,8 +728,13 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
                 template_argument_ptr = &(*template_argument_ptr)->next;
             }
         }
+
+        _templateArgumentList.push_back(TemplateArgumentListEntry(start, cursor(), node));
         return true;
     }
+
+    _templateArgumentList.push_back(TemplateArgumentListEntry(start, cursor(), 0));
+
     return false;
 }
 
@@ -4541,6 +4595,7 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
                 last->next = new (_pool) ObjCSynthesizedPropertyListAST;
                 last = last->next;
 
+                last->synthesized_property = new (_pool) ObjCSynthesizedPropertyAST;
                 match(T_IDENTIFIER, &(last->synthesized_property->property_identifier));
 
                 if (LA() == T_EQUAL) {
