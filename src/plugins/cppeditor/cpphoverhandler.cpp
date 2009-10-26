@@ -337,7 +337,8 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             firstType = resolve(firstType, typeOfExpression.lookupContext(),
                                 &resolvedSymbol, &resolvedName);
 
-            if (resolvedSymbol && resolvedSymbol->scope()->isClassScope()) {
+            if (resolvedSymbol && resolvedSymbol->scope()
+                && resolvedSymbol->scope()->isClassScope()) {
                 Class *enclosingClass = resolvedSymbol->scope()->owner()->asClass();
                 if (Identifier *id = enclosingClass->identifier()) {
                     if (id->isEqualTo(resolvedSymbol->identifier()))
