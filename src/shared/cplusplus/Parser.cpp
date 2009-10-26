@@ -4595,6 +4595,7 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
                 last->next = new (_pool) ObjCSynthesizedPropertyListAST;
                 last = last->next;
 
+                last->synthesized_property = new (_pool) ObjCSynthesizedPropertyAST;
                 match(T_IDENTIFIER, &(last->synthesized_property->property_identifier));
 
                 if (LA() == T_EQUAL) {
