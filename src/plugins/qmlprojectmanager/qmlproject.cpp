@@ -338,7 +338,12 @@ QmlRunConfiguration::QmlRunConfiguration(QmlProject *pro)
 {
     setName(tr("QML Viewer"));
 
-    m_qmlViewer = Utils::SynchronousProcess::locateBinary(QLatin1String("qmlviewer"));
+    // append creator/bin dir to search path (only useful for special creator-qml package)
+    const QString searchPath = QString(qgetenv("PATH"))
+                               + Utils::SynchronousProcess::pathSeparator()
+                               + QCoreApplication::applicationDirPath()
+;
+    m_qmlViewer = Utils::SynchronousProcess::locateBinary(searchPath, QLatin1String("qmlviewer"));
 }
 
 QmlRunConfiguration::~QmlRunConfiguration()

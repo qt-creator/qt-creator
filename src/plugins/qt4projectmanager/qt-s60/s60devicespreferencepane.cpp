@@ -64,8 +64,13 @@ void S60DevicesWidget::updateDevicesList()
     QList<S60Devices::Device> devices = m_devices->devices();
     m_ui->list->clear();
     foreach (const S60Devices::Device &device, devices) {
-        m_ui->list->addTopLevelItem(new QTreeWidgetItem(QStringList() << device.epocRoot
-          << (device.qt.isEmpty()?tr("No Qt installed"):device.qt)));
+        QStringList columns;
+        columns << device.epocRoot << (device.qt.isEmpty()?tr("No Qt installed"):device.qt);
+        QTreeWidgetItem *item = new QTreeWidgetItem(columns);
+        const QString tooltip = device.toHtml();
+        item->setToolTip(0, tooltip);
+        item->setToolTip(1, tooltip);
+        m_ui->list->addTopLevelItem(item);
     }
 }
 

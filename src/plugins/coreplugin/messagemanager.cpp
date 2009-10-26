@@ -82,3 +82,14 @@ void MessageManager::printToOutputPane(const QString &text, bool bringToForegrou
         m_messageOutputWindow->popup(false);
     m_messageOutputWindow->append(text);
 }
+
+void MessageManager::printToOutputPanePopup(const QString &text)
+{
+    printToOutputPane(text, true);
+}
+
+void MessageManager::printToOutputPane(const QString &text)
+{
+    printToOutputPane(text, false);
+}
+

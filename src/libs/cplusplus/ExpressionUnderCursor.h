@@ -59,6 +59,7 @@ private:
     int previousBlockState(const QTextBlock &block);
     bool isAccessToken(const SimpleToken &tk);
 
+private:
     bool _jumpedComma;
 };
 

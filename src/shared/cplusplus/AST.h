@@ -64,6 +64,7 @@ class List: public Managed
 
 public:
     List()
+        : value(_Tp()), next(0)
     { }
 
     _Tp value;

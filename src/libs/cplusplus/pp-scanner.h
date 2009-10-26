@@ -54,6 +54,8 @@ namespace CPlusPlus {
 struct pp_skip_blanks
 {
   int lines;
+
+  pp_skip_blanks(): lines(0) {}
   const char *operator () (const char *first, const char *last);
 };
 
@@ -61,6 +63,7 @@ struct pp_skip_whitespaces
 {
   int lines;
 
+  pp_skip_whitespaces(): lines(0) {}
   const char *operator () (const char *first, const char *last);
 };
 
@@ -68,6 +71,7 @@ struct pp_skip_comment_or_divop
 {
   int lines;
 
+  pp_skip_comment_or_divop(): lines(0) {}
   const char *operator () (const char *first, const char *last);
 };
 
@@ -75,6 +79,7 @@ struct pp_skip_identifier
 {
   int lines;
 
+  pp_skip_identifier(): lines(0) {}
   const char *operator () (const char *first, const char *last);
 };
 
@@ -82,6 +87,7 @@ struct pp_skip_number
 {
   int lines;
 
+  pp_skip_number(): lines(0) {}
   const char *operator () (const char *first, const char *last);
 };
 
@@ -89,6 +95,7 @@ struct pp_skip_string_literal
 {
   int lines;
 
+  pp_skip_string_literal(): lines(0) {}
   const char *operator () (const char *first, const char *last);
 };
 
@@ -96,6 +103,7 @@ struct pp_skip_char_literal
 {
   int lines;
 
+  pp_skip_char_literal(): lines(0) {}
   const char *operator () (const char *first, const char *last);
 };
 
@@ -108,6 +116,7 @@ struct pp_skip_argument
   pp_skip_comment_or_divop skip_comment_or_divop;
   int lines;
 
+  pp_skip_argument(): lines(0) {}
   const char *operator () (const char *first, const char *last);
 };
 

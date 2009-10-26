@@ -55,7 +55,9 @@ public:
     void showOutputPane();
 
 public slots:
-    void printToOutputPane(const QString &text, bool bringToForeground = true);
+    void printToOutputPane(const QString &text, bool bringToForeground);
+    void printToOutputPanePopup(const QString &text); // pops up
+    void printToOutputPane(const QString &text);
 
 private:
     Internal::MessageOutputWindow *m_messageOutputWindow;

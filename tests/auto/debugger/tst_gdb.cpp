@@ -1,4 +1,6 @@
 
+//bool checkUninitialized = true;
+bool checkUninitialized = false;
 //#define DO_DEBUG 1
 
 #include <QtCore/QThread>
@@ -43,6 +45,46 @@
 
 using namespace Debugger;
 using namespace Debugger::Internal;
+
+
+class Foo
+{
+public:
+    Foo(int i = 0)
+        : a(i), b(2)
+    {}
+
+    ~Foo()
+    {
+    } 
+    void doit()
+    {
+        static QObject ob;
+        m["1"] = "2";
+        h[&ob] = m.begin();
+
+        a += 1;
+        --b;
+        //s += 'x';
+    }
+
+
+    struct Bar {
+        Bar() : ob(0) {}
+        QObject *ob;
+    };
+
+public:
+    int a, b;
+    char x[6];
+
+private:
+    //QString s;
+    typedef QMap<QString, QString> Map;
+    Map m;
+    QHash<QObject *, Map::iterator> h;
+};
+
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -135,18 +177,28 @@ signals:
     void writeToGdb(const QByteArray &ba);
 
 private slots:
+    void dumpArray();
     void dumpMisc();
+    void dumpFoo();
+    void dumpQByteArray();
+    void dumpQChar();
+    void dumpQList_char_star();
+    void dumpQList_char();
     void dumpQList_int();
+    void dumpQList_QString();
+    void dumpQList_QString3();
+    void dumpQList_Int3();
+    void dumpQStack();
     void dumpQString();
     void dumpQStringList();
+    void dumpQWeakPointer();
+    void dumpQVector();
 
 public slots:
     void dumperCompatibility();
 #if 0
     void dumpQAbstractItemAndModelIndex();
     void dumpQAbstractItemModel();
-    void dumpQByteArray();
-    void dumpQChar();
     void dumpQDateTime();
     void dumpQDir();
     void dumpQFile();
@@ -156,10 +208,6 @@ public slots:
     void dumpQImage();
     void dumpQImageData();
     void dumpQLinkedList();
-    void dumpQList_char();
-    void dumpQList_QString();
-    void dumpQList_QString3();
-    void dumpQList_Int3();
     void dumpQLocale();
     void dumpQMap();
     void dumpQMapNode();
@@ -178,7 +226,6 @@ public slots:
     void dumpQVariant_QString();
     void dumpQVariant_QStringList();
     void dumpStdVector();
-    void dumpQWeakPointer();
 #endif
 
 private:
@@ -398,6 +445,357 @@ void getMapNodeParams(size_t &nodeSize, size_t &valOffset)
 }
 
 #endif
+
+
+/////////////////////////////////////////////////////////////////////////
+//
+// Gdb Thread
+//
+/////////////////////////////////////////////////////////////////////////
+
+Thread::Thread(tst_Gdb *test)
+{
+    moveToThread(this);
+    m_test = test;
+    m_proc = 0;
+    m_proc = new QProcess;
+    m_proc->moveToThread(this);
+    qDebug() << "\nTHREAD CREATED" << getpid() << gettid();
+    connect(m_test, SIGNAL(writeToGdb(QByteArray)),
+        this, SLOT(writeToGdbRequested(QByteArray)));
+    connect(m_proc, SIGNAL(error(QProcess::ProcessError)),
+        this, SLOT(handleGdbError(QProcess::ProcessError)));
+    connect(m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
+        this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
+    connect(m_proc, SIGNAL(started()),
+        this, SLOT(handleGdbStarted()));
+    connect(m_proc, SIGNAL(readyReadStandardOutput()),
+        this, SLOT(readStandardOutput()));
+    connect(m_proc, SIGNAL(readyReadStandardError()),
+        this, SLOT(readStandardError()));
+    start();
+}
+
+void Thread::handleGdbError(QProcess::ProcessError error)
+{
+    qDebug() << "GDB ERROR: " << error;
+    //this->exit();
+}
+
+void Thread::handleGdbFinished(int code, QProcess::ExitStatus st)
+{
+    qDebug() << "GDB FINISHED: " << code << st;
+    //m_waitCondition.wakeAll();
+    //this->exit();
+    throw 42;
+}
+
+void Thread::readStandardOutput()
+{
+    QByteArray ba = m_proc->readAllStandardOutput();
+    DEBUG("THREAD GDB OUT: " << ba);
+    // =library-loaded...
+    if (ba.startsWith("=")) 
+        return;
+    if (ba.startsWith("*stopped")) {
+        m_lastStopped = ba;
+        //qDebug() << "THREAD GDB OUT: " << ba;
+        if (!ba.contains("func=\"main\"")) {
+            int pos1 = ba.indexOf(",line=\"") + 7;
+            int pos2 = ba.indexOf("\"", pos1);
+            m_line = ba.mid(pos1, pos2 - pos1).toInt();
+            DEBUG(" LINE 1: " << m_line);
+        }
+    }
+
+    // The "call" is always aborted with a message like:
+    //  "~"2321\t    /* A */ QString s;\n" " 
+    //  "&"The program being debugged stopped while in a function called ..."
+    //  "^error,msg="The program being debugged stopped ..."
+    // Extract the "2321" from this
+    static QByteArray lastText;
+    if (ba.startsWith("~")) {
+        lastText = ba;
+        if (ba.size() > 8
+                && (ba.at(2) < 'a' || ba.at(2) > 'z')
+                && (ba.at(2) < '0' || ba.at(2) > '9')
+                && !ba.startsWith("~\"Breakpoint ")
+                && !ba.startsWith("~\"    at ")
+                && !ba.startsWith("~\"    locals=")
+                && !ba.startsWith("~\"XXX:")) {
+            QByteArray ba1 = ba.mid(2, ba.size() - 6);
+            if (ba1.startsWith("  File "))
+                ba1 = ba1.replace(2, ba1.indexOf(','), "");
+            qWarning() << "OUT: " << ba1;
+        }
+    }
+    if (ba.startsWith("&\"The program being debugged")) {
+        int pos1 = 2;
+        int pos2 = lastText.indexOf("\\", pos1);
+        m_line = lastText.mid(pos1, pos2 - pos1).toInt();
+        DEBUG(" LINE 2: " << m_line);
+    }
+    if (ba.startsWith("^error,msg=")) {
+        if (!ba.startsWith("^error,msg=\"The program being debugged stopped"))
+            qWarning() << "ERROR: " << ba.mid(1, ba.size() - 3);
+    }
+
+    if (ba.startsWith("~\"XXX: ")) {
+        QByteArray ba1 = ba.mid(7, ba.size() - 11);
+        qWarning() << "MESSAGE: " << ba.mid(7, ba.size() - 12);
+    }
+    if (!ba.contains("locals={iname="))
+        return;
+    //m_output += ba;
+    ba = ba.mid(2, ba.size() - 4);
+    ba = ba.replace("\\\"", "\"");
+    m_output = ba;
+    m_waitCondition.wakeAll();
+}
+
+void Thread::readStandardError()
+{
+    QByteArray ba = m_proc->readAllStandardOutput();
+    qDebug() << "THREAD GDB ERR: " << ba;
+}
+
+void Thread::handleGdbStarted()
+{
+    //qDebug() << "\n\nGDB STARTED" << getpid() << gettid() << "\n\n";
+}
+
+void Thread::run()
+{
+    //qDebug() << "\nTHREAD RUN" << getpid() << gettid();
+    m_proc->start("./gdb -i mi --args ./tst_gdb run");
+    m_proc->waitForStarted();
+    m_proc->write("break main\n");
+    m_proc->write("run\n");
+    m_proc->write("handle SIGSTOP stop pass\n");
+    //qDebug() << "\nTHREAD RUNNING";
+    exec();
+}
+
+
+/////////////////////////////////////////////////////////////////////////
+//
+// Test Class Framework Implementation
+//
+/////////////////////////////////////////////////////////////////////////
+
+tst_Gdb::tst_Gdb()
+    : m_thread(this)
+{
+    // FIXME: Wait until gdb proc is running.
+    QTest::qWait(600);
+
+    QFile file("tst_gdb.cpp");
+    Q_ASSERT(file.open(QIODevice::ReadOnly));
+    QByteArray funcName;
+    const QByteArrayList bal = file.readAll().split('\n');
+    Q_ASSERT(bal.size() > 100);
+    for (int i = 0; i != bal.size(); ++i) {
+        const QByteArray &ba = bal.at(i);
+        if (ba.startsWith("void dump")) {
+            int pos = ba.indexOf('(');
+            funcName = ba.mid(5, pos - 5) + '@';
+        } else if (ba.startsWith("    /*")) {
+            int pos = ba.indexOf('*', 7);
+            m_lineForLabel[funcName + ba.mid(7, pos - 8)] = i + 1;
+        }
+    }
+}
+
+void tst_Gdb::prepare(const QByteArray &function)
+{
+    m_function = function;
+    writeToGdb("b " + function);
+    writeToGdb("call " + function + "()");
+}
+
+static bool isJoker(const QByteArray &ba)
+{
+    return ba.endsWith("'-'") || ba.contains("'-'}");
+}
+
+void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
+    const QByteArray &expanded, bool fancy)
+{
+    //qDebug() << "\nABOUT TO RUN TEST: " << expanded;
+    qWarning() << label << "...";
+    writeToGdb("bb " + QByteArray::number(int(fancy)) + " " + expanded);
+    m_mutex.lock();
+    m_waitCondition.wait(&m_mutex);
+    QByteArray ba = m_thread.m_output;
+    m_mutex.unlock();
+    //GdbMi locals;
+    //locals.fromString("{" + ba + "}");
+    QByteArray received = ba.replace("\"", "'");
+    //qDebug() << "OUTPUT: " << ba << "\n\n";
+    //qDebug() << "OUTPUT: " << locals.toString() << "\n\n";
+
+    QByteArray actual = received.trimmed();
+    if (actual.endsWith("\\n"))
+        actual.chop(2);
+    QByteArray expected = "locals={iname='local',name='Locals',value=' ',type=' ',"
+        "children=[" + expected0 + "]}";
+    int line = m_thread.m_line;
+
+    QByteArrayList l1 = actual.split(',');
+    QByteArrayList l2 = expected.split(',');
+
+    bool ok = l1.size() == l2.size();
+    if (ok) {
+        for (int i = 0 ; i < l1.size(); ++i) {
+            // Use "-" as joker.
+            if (l1.at(i) != l2.at(i) && !isJoker(l2.at(i)))
+                ok = false;
+        }
+    } else {
+        qWarning() << "!= size: " << l1.size() << l2.size();
+    }
+    
+    if (!ok) {
+        int i = 0;
+        for ( ; i < l1.size() && i < l2.size(); ++i) {
+            if (l1.at(i) == l2.at(i) || isJoker(l2.at(i))) {
+                qWarning() << "== " << l1.at(i);
+            } else {
+                //qWarning() << "!= " << l1.at(i).right(30) << l2.at(i).right(30);
+                qWarning() << "!= " << l1.at(i) << l2.at(i);
+                ok = false;
+            }
+        }
+        for ( ; i < l2.size(); ++i) 
+            qWarning() << "!= " << "-----" << l2.at(i);
+        for ( ; i < l1.size(); ++i) 
+            qWarning() << "!= " << l1.at(i) << "-----";
+        if (l1.size() != l2.size()) {
+            ok = false;
+            qWarning() << "!= size: " << l1.size() << l2.size();
+        }
+        qWarning() << "RECEIVED: " << received;
+    }
+    QCOMPARE(ok, true);
+    //qWarning() << "LINE: " << line << "ACT/EXP" << m_function + '@' + label;
+    //QCOMPARE(actual, expected);
+
+
+    int expline = m_lineForLabel.value(m_function + '@' + label);
+    int actline = line;
+    if (actline != expline) {
+        qWarning() << "LAST STOPPED: " << m_thread.m_lastStopped;
+    }
+    QCOMPARE(actline, expline);
+}
+
+void tst_Gdb::next(int n)
+{
+    for (int i = 0; i != n; ++i)
+        writeToGdb("next");
+}
+
+void tst_Gdb::cleanupTestCase()
+{
+    writeToGdb("kill");
+    writeToGdb("quit");
+    //m_thread.m_proc->waitForFinished();
+}
+
+
+/////////////////////////////////////////////////////////////////////////
+//
+// Dumper Tests
+//
+/////////////////////////////////////////////////////////////////////////
+
+///////////////////////////// Foo structure /////////////////////////////////
+
+void dumpFoo()
+{
+    /* A */ Foo f;
+    /* B */ f.doit();
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dumpFoo()
+{
+    prepare("dumpFoo");
+    next();
+    run("B","{iname='local.f',addr='-',name='f',type='Foo',"
+            "value='-',numchild='5'}", "", 0);
+    run("B","{iname='local.f',addr='-',name='f',type='Foo',"
+            "value='-',numchild='5',children=["
+            "{iname='local.f.a',name='a',type='int',value='0',numchild='0'},"
+            "{iname='local.f.b',name='b',type='int',value='2',numchild='0'},"
+            "{iname='local.f.x',name='x',type='char [6]',"
+                "value='{...}',numchild='1'},"
+            "{iname='local.f.m',name='m',type='"NS"QMap<"NS"QString, "NS"QString>',"
+                "value='{...}',numchild='1'},"
+            "{iname='local.f.h',name='h',type='"NS"QHash<"NS"QObject*, "
+                ""NS"QMap<"NS"QString, "NS"QString>::iterator>',"
+                "value='{...}',numchild='1'}]}",
+            "local.f", 0);
+}
+
+
+///////////////////////////// Array ///////////////////////////////////////
+
+void dumpArray_char()
+{
+    /* A */ const char s[] = "XYZ";
+    /* B */ (void) &s; }
+
+void dumpArray_int()
+{
+    /* A */ int s[] = {1, 2, 3};
+    /* B */ (void) s; }
+
+void tst_Gdb::dumpArray()
+{
+    prepare("dumpArray_char");
+    next();
+    // FIXME: numchild should be '4', not '1'
+    run("B","{iname='local.s',addr='-',name='s',type='char [4]',"
+            "value='-',numchild='1'}", "");
+    run("B","{iname='local.s',addr='-',name='s',type='char [4]',"
+            "value='-',numchild='1',childtype='char',childnumchild='0',"
+            "children=[{value='88 'X''},{value='89 'Y''},{value='90 'Z''},"
+            "{value='0 '\\\\000''}]}",
+            "local.s");
+
+    prepare("dumpArray_int");
+    next();
+    // FIXME: numchild should be '3', not '1'
+    run("B","{iname='local.s',addr='-',name='s',type='int [3]',"
+            "value='-',numchild='1'}", "");
+    run("B","{iname='local.s',addr='-',name='s',type='int [3]',"
+            "value='-',numchild='1',childtype='int',childnumchild='0',"
+            "children=[{value='1'},{value='2'},{value='3'}]}",
+            "local.s");
+}
+
+
+///////////////////////////// Misc stuff /////////////////////////////////
+
+void dumpMisc()
+{
+    /* A */ int *s = new int(1);
+    /* B */ *s += 1;
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dumpMisc()
+{
+    prepare("dumpMisc");
+    next();
+    run("B","{iname='local.s',addr='-',name='s',type='int *',"
+            "value='-',numchild='1'}", "", 0);
+    run("B","{iname='local.s',addr='-',name='s',type='int *',"
+            "value='-',numchild='1',children=[{iname='local.s.*',"
+            "name='*s',type='int',value='1',numchild='0'}]}", "local.s", 0);
+}
+
 #if 0
 void tst_Gdb::dumpQAbstractItemHelper(QModelIndex &index)
 {
@@ -649,81 +1047,93 @@ void tst_Gdb::dumpQAbstractItemModel()
     model2.appendRow(QList<QStandardItem *>() << &item3 << &item4);
     dumpQAbstractItemModelHelper(model);
 }
+#endif
+
+void dumpQByteArrayTest()
+{
+    /* A */ QByteArray ba;                       // Empty object.
+    /* B */ ba.append('a');                      // One element.
+    /* C */ ba.append('b');                      // Two elements.
+    /* D */ ba = QByteArray(101, 'a');           // > 100 elements.
+    /* E */ ba = QByteArray("abc\a\n\r\e\'\"?"); // Mixed.
+    /* F */ (void) 0;
+}
 
 void tst_Gdb::dumpQByteArray()
 {
-    // Case 1: Empty object.
-    QByteArray ba;
-    testDumper("value='',valueencoded='1',type='"NS"QByteArray',numchild='0',"
-            "childtype='char',childnumchild='0',children=[]",
-        &ba, NS"QByteArray", true);
-
-    // Case 2: One element.
-    ba.append('a');
-    testDumper("value='YQ==',valueencoded='1',type='"NS"QByteArray',numchild='1',"
-            "childtype='char',childnumchild='0',children=[{value='61  (97 'a')'}]",
-        &ba, NS"QByteArray", true);
-
-    // Case 3: Two elements.
-    ba.append('b');
-    testDumper("value='YWI=',valueencoded='1',type='"NS"QByteArray',numchild='2',"
-            "childtype='char',childnumchild='0',children=["
-            "{value='61  (97 'a')'},{value='62  (98 'b')'}]",
-        &ba, NS"QByteArray", true);
-
-    // Case 4: > 100 elements.
-    ba = QByteArray(101, 'a');
-    QByteArray children;
-    for (int i = 0; i < 101; i++)
-        children.append("{value='61  (97 'a')'},");
-    children.chop(1);
-    testDumper(QByteArray("value='YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh"
-            "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh"
-            "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYQ== <size: 101, cut...>',"
-            "valueencoded='1',type='"NS"QByteArray',numchild='101',"
-            "childtype='char',childnumchild='0',children=[%]") << children,
-        &ba, NS"QByteArray", true);
-
-    // Case 5: Regular and special characters and the replacement character.
-    ba = QByteArray("abc\a\n\r\e\'\"?");
-    testDumper("value='YWJjBwoNGyciPw==',valueencoded='1',type='"NS"QByteArray',"
-            "numchild='10',childtype='char',childnumchild='0',children=["
-            "{value='61  (97 'a')'},{value='62  (98 'b')'},"
-            "{value='63  (99 'c')'},{value='07  (7 '?')'},"
-            "{value='0a  (10 '?')'},{value='0d  (13 '?')'},"
-            "{value='1b  (27 '?')'},{value='27  (39 '?')'},"
-            "{value='22  (34 '?')'},{value='3f  (63 '?')'}]",
-        &ba, NS"QByteArray", true);
+    prepare("dumpQByteArrayTest");
+    if (1 || checkUninitialized)
+        run("A","{iname='local.ba',addr='-',name='ba',type='"NS"QByteArray',"
+            "value='<not in scope>',numchild='0'}");
+    next();
+    run("B","{iname='local.ba',addr='-',name='ba',type='"NS"QByteArray',"
+            "valueencoded='6',value='',numchild='0'}");
+    next();
+    run("C","{iname='local.ba',addr='-',name='ba',type='"NS"QByteArray',"
+            "valueencoded='6',value='61',numchild='1'}");
+    next();
+    run("D","{iname='local.ba',addr='-',name='ba',type='"NS"QByteArray',"
+            "valueencoded='6',value='6162',numchild='2'}");
+    next();
+    run("E","{iname='local.ba',addr='-',name='ba',type='"NS"QByteArray',"
+            "valueencoded='6',value='616161616161616161616161616161616161"
+            "616161616161616161616161616161616161616161616161616161616161"
+            "616161616161616161616161616161616161616161616161616161616161"
+            "6161616161616161616161616161616161616161616161',numchild='101'}");
+    next();
+    run("F","{iname='local.ba',addr='-',name='ba',type='"NS"QByteArray',"
+            "valueencoded='6',value='616263070a0d1b27223f',numchild='10'}");
+    run("F","{iname='local.ba',addr='-',name='ba',type='"NS"QByteArray',"
+            "valueencoded='6',value='616263070a0d1b27223f',numchild='10',"
+            "childtype='char',childnumchild='0',"
+            "children=[{value='97 'a''},{value='98 'b''},"
+            "{value='99 'c''},{value='7 '\\\\a''},"
+            "{value='10 '\\\\n''},{value='13 '\\\\r''},"
+            "{value='27 '\\\\033''},{value='39 '\\\\'''},"
+            "{value='34 ''''},{value='63 '?''}]}",
+            "local.ba");
 }
+
+void dumpQCharTest()
+{
+    /* A */ QChar c('X');               // Printable ASCII character.
+    /* B */ c = QChar(0x600);           // Printable non-ASCII character.
+    /* C */ c = QChar::fromAscii('\a'); // Non-printable ASCII character.
+    /* D */ c = QChar(0x9f);            // Non-printable non-ASCII character.
+    /* E */ c = QChar::fromAscii('?');  // The replacement character.
+    /* F */ (void) 0; }
 
 void tst_Gdb::dumpQChar()
 {
+    prepare("dumpQCharTest");
+    next();
+
     // Case 1: Printable ASCII character.
-    QChar c('X');
-    testDumper("value=''X', ucs=88',numchild='0'",
-        &c, NS"QChar", false);
+    run("B","{iname='local.c',addr='-',name='c',type='"NS"QChar',"
+        "value=''X', ucs=88',numchild='0'}");
+    next();
 
     // Case 2: Printable non-ASCII character.
-    c = QChar(0x600);
-    testDumper("value=''?', ucs=1536',numchild='0'",
-        &c, NS"QChar", false);
+    run("C","{iname='local.c',addr='-',name='c',type='"NS"QChar',"
+        "value=''?', ucs=1536',numchild='0'}");
+    next();
 
     // Case 3: Non-printable ASCII character.
-    c = QChar::fromAscii('\a');
-    testDumper("value=''?', ucs=7',numchild='0'",
-        &c, NS"QChar", false);
+    run("D","{iname='local.c',addr='-',name='c',type='"NS"QChar',"
+        "value=''?', ucs=7',numchild='0'}");
+    next();
 
     // Case 4: Non-printable non-ASCII character.
-    c = QChar(0x9f);
-    testDumper("value=''?', ucs=159',numchild='0'",
-        &c, NS"QChar", false);
+    run("E","{iname='local.c',addr='-',name='c',type='"NS"QChar',"
+        "value=''?', ucs=159',numchild='0'}");
+    next();
 
     // Case 5: Printable ASCII Character that looks like the replacement character.
-    c = QChar::fromAscii('?');
-    testDumper("value=''?', ucs=63',numchild='0'",
-        &c, NS"QChar", false);
+    run("F","{iname='local.c',addr='-',name='c',type='"NS"QChar',"
+        "value=''?', ucs=63',numchild='0'}");
 }
 
+#if 0
 void tst_Gdb::dumpQDateTimeHelper(const QDateTime &d)
 {
     QByteArray value;
@@ -1159,36 +1569,6 @@ void tst_Gdb::dumpQLinkedList()
         testDumper("", &l, NS"QLinkedList", true, NS"QString");
     }
     #endif
-
-void tst_Gdb::dumpQList_Int3()
-{
-    QList<Int3> i3list;
-    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
-        "internal='0',children=[]",
-        &i3list, NS"QList", true, "Int3");
-    i3list.append(Int3());
-    i3list.append(Int3());
-    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
-        "internal='0',childtype='Int3',children=["
-        "{addr='" + str(&i3list.at(0)) + "'},"
-        "{addr='" + str(&i3list.at(1)) + "'}]",
-        &i3list, NS"QList", true, "Int3");
-}
-
-void tst_Gdb::dumpQList_QString3()
-{
-    QList<QString3> s3list;
-    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
-        "internal='0',children=[]",
-        &s3list, NS"QList", true, "QString3");
-    s3list.append(QString3());
-    s3list.append(QString3());
-    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
-        "internal='0',childtype='QString3',children=["
-        "{addr='" + str(&s3list.at(0)) + "'},"
-        "{addr='" + str(&s3list.at(1)) + "'}]",
-        &s3list, NS"QList", true, "QString3");
-}
 
 void tst_Gdb::dumpQLocaleHelper(QLocale &loc)
 {
@@ -2061,19 +2441,102 @@ void tst_Gdb::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
     testDumper(expected, &ptr, NS"QWeakPointer", true, typeToString<T>());
 }
 #endif
+#endif // #if 0
+
+///////////////////////////// QWeakPointer /////////////////////////////////
+
+#if QT_VERSION >= 0x040500
+void dumpQWeakPointer_11()
+{
+    // Case 1: Simple type.
+    // Case 1.1: Null pointer.
+    /* A */ QSharedPointer<int> sp;
+    /*   */ QWeakPointer<int> wp = sp.toWeakRef();
+    /* B */ (void) 0;
+}
+
+void dumpQWeakPointer_12()
+{
+    // Case 1.2: Weak pointer is unique.
+    /* A */ QSharedPointer<int> sp(new int(99));
+    /*   */ QWeakPointer<int> wp = sp.toWeakRef();
+    /* B */ (void) 0;
+}
+
+void dumpQWeakPointer_13()
+{
+    // Case 1.3: There are other weak pointers.
+    /* A */ QSharedPointer<int> sp(new int(99));
+    /*   */ QWeakPointer<int> wp = sp.toWeakRef();
+    /* B */ (void) 0;
+}
+
+void dumpQWeakPointer_14()
+{
+    // Case 1.4: There are other strong shared pointers as well.
+    /* A */ QSharedPointer<int> sp(new int(99));
+    /*   */ QSharedPointer<int> sp2(sp);
+    /* B */ (void) 0;
+}
+
+void dumpQWeakPointer_2()
+{
+    // Case 2: Composite type.
+    /* A */ QSharedPointer<QString> sp(new QString("Test"));
+    /*   */ QWeakPointer<QString> wp = sp.toWeakRef();
+    /* B */ (void) 0;
+}
+#endif
 
 void tst_Gdb::dumpQWeakPointer()
 {
 #if QT_VERSION >= 0x040500
-    // Case 1: Simple type.
+
+return;
 
     // Case 1.1: Null pointer.
-    QSharedPointer<int> spNull;
-    QWeakPointer<int> wp = spNull.toWeakRef();
-    testDumper("value='<null>',valuedisabled='true',numchild='0'",
-        &wp, NS"QWeakPointer", true, "int");
+    prepare("dumpQWeakPointer_11");
+    if (checkUninitialized)
+        run("A","{iname='local.sp',addr='-',name='sp',"
+            "type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'}");
+    next();
+    run("B","{iname='local.sp',addr='-',name='sp',"
+            "type='"NS"QSharedPointer<int>',value='<0 items>',numchild='1'}");
+
+/*
+    //,numchild='1',children=[{name='data',addr='").
+        append(ptrToBa(data)).append("',type='").append(typeToString<T>()).
+        append("',value='").append(dataStr).append("'},{name='weakref',value='").
+        append(valToString(*weakRefPtr)).append("',type='int',addr='").
+        append(ptrToBa(weakRefPtr)).append("',numchild='0'},{name='strongref',value='").
+        append(valToString(*strongRefPtr)).append("',type='int',addr='").
+        append(ptrToBa(strongRefPtr)).append("',numchild='0'}]");
 
     // Case 1.2: Weak pointer is unique.
+void tst_Gdb::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
+{
+    typedef QtSharedPointer::ExternalRefCountData Data;
+    const size_t dataOffset = 0;
+    const Data *d = *reinterpret_cast<const Data **>(
+            reinterpret_cast<const char **>(&ptr) + dataOffset);
+    const int *weakRefPtr = reinterpret_cast<const int *>(&d->weakref);
+    const int *strongRefPtr = reinterpret_cast<const int *>(&d->strongref);
+    T *data = ptr.toStrongRef().data();
+    const QString dataStr = valToString(*data);
+    QByteArray expected("value='");
+    if (isSimpleType<T>())
+        expected.append(dataStr);
+    expected.append("',valuedisabled='true',numchild='1',children=[{name='data',addr='").
+        append(ptrToBa(data)).append("',type='").append(typeToString<T>()).
+        append("',value='").append(dataStr).append("'},{name='weakref',value='").
+        append(valToString(*weakRefPtr)).append("',type='int',addr='").
+        append(ptrToBa(weakRefPtr)).append("',numchild='0'},{name='strongref',value='").
+        append(valToString(*strongRefPtr)).append("',type='int',addr='").
+        append(ptrToBa(strongRefPtr)).append("',numchild='0'}]");
+    testDumper(expected, &ptr, NS"QWeakPointer", true, typeToString<T>());
+}
+
+
     QSharedPointer<int> sp(new int(99));
     wp = sp.toWeakRef();
     dumpQWeakPointerHelper(wp);
@@ -2090,333 +2553,253 @@ void tst_Gdb::dumpQWeakPointer()
     QSharedPointer<QString> spS(new QString("Test"));
     QWeakPointer<QString> wpS = spS.toWeakRef();
     dumpQWeakPointerHelper(wpS);
+*/
 #endif
 }
-#endif // #if 0
 
-
-/////////////////////////////////////////////////////////////////////////
-//
-// Gdb Thread
-//
-/////////////////////////////////////////////////////////////////////////
-
-Thread::Thread(tst_Gdb *test)
-{
-    moveToThread(this);
-    m_test = test;
-    m_proc = 0;
-    m_proc = new QProcess;
-    m_proc->moveToThread(this);
-    qDebug() << "\nTHREAD CREATED" << getpid() << gettid();
-    connect(m_test, SIGNAL(writeToGdb(QByteArray)),
-        this, SLOT(writeToGdbRequested(QByteArray)));
-    connect(m_proc, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
-        this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
-    connect(m_proc, SIGNAL(started()),
-        this, SLOT(handleGdbStarted()));
-    connect(m_proc, SIGNAL(readyReadStandardOutput()),
-        this, SLOT(readStandardOutput()));
-    connect(m_proc, SIGNAL(readyReadStandardError()),
-        this, SLOT(readStandardError()));
-    start();
-}
-
-void Thread::handleGdbError(QProcess::ProcessError error)
-{
-    qDebug() << "GDB ERROR: " << error;
-    //this->exit();
-}
-
-void Thread::handleGdbFinished(int code, QProcess::ExitStatus st)
-{
-    qDebug() << "GDB FINISHED: " << code << st;
-    //m_waitCondition.wakeAll();
-    //this->exit();
-    throw 42;
-}
-
-void Thread::readStandardOutput()
-{
-    QByteArray ba = m_proc->readAllStandardOutput();
-    DEBUG("THREAD GDB OUT: " << ba);
-    // =library-loaded...
-    if (ba.startsWith("=")) 
-        return;
-    if (ba.startsWith("*stopped")) {
-        m_lastStopped = ba;
-        //qDebug() << "THREAD GDB OUT: " << ba;
-        if (!ba.contains("func=\"main\"")) {
-            int pos1 = ba.indexOf(",line=\"") + 7;
-            int pos2 = ba.indexOf("\"", pos1);
-            m_line = ba.mid(pos1, pos2 - pos1).toInt();
-            DEBUG(" LINE 1: " << m_line);
-        }
-    }
-
-    // The "call" is always aborted with a message like:
-    //  "~"2321\t    /* A */ QString s;\n" " 
-    //  "&"The program being debugged stopped while in a function called ..."
-    //  "^error,msg="The program being debugged stopped ..."
-    // Extract the "2321" from this
-    static QByteArray lastText;
-    if (ba.startsWith("~"))
-        lastText = ba;
-    if (ba.startsWith("&\"The program being debugged")) {
-        int pos1 = 2;
-        int pos2 = lastText.indexOf("\\", pos1);
-        m_line = lastText.mid(pos1, pos2 - pos1).toInt();
-        DEBUG(" LINE 2: " << m_line);
-    }
-
-    if (ba.startsWith("~\"XXX: ")) {
-        QByteArray ba1 = ba.mid(7, ba.size() - 11);
-        qWarning() << "MESSAGE: " << ba.mid(7, ba.size() - 12);
-    }
-    if (!ba.contains("locals={iname="))
-        return;
-    //m_output += ba;
-    ba = ba.mid(2, ba.size() - 4);
-    ba = ba.replace("\\\"", "\"");
-    m_output = ba;
-    m_waitCondition.wakeAll();
-}
-
-void Thread::readStandardError()
-{
-    QByteArray ba = m_proc->readAllStandardOutput();
-    qDebug() << "THREAD GDB ERR: " << ba;
-}
-
-void Thread::handleGdbStarted()
-{
-    //qDebug() << "\n\nGDB STARTED" << getpid() << gettid() << "\n\n";
-}
-
-void Thread::run()
-{
-    //qDebug() << "\nTHREAD RUN" << getpid() << gettid();
-    m_proc->start("./gdb -i mi --args ./tst_gdb run");
-    m_proc->waitForStarted();
-    m_proc->write("break main\n");
-    m_proc->write("run\n");
-    m_proc->write("handle SIGSTOP stop pass\n");
-    //qDebug() << "\nTHREAD RUNNING";
-    exec();
-}
-
-
-/////////////////////////////////////////////////////////////////////////
-//
-// Test Class Framework Implementation
-//
-/////////////////////////////////////////////////////////////////////////
-
-tst_Gdb::tst_Gdb()
-    : m_thread(this)
-{
-    // FIXME: Wait until gdb proc is running.
-    QTest::qWait(600);
-
-    QFile file("tst_gdb.cpp");
-    Q_ASSERT(file.open(QIODevice::ReadOnly));
-    QByteArray funcName;
-    const QByteArrayList bal = file.readAll().split('\n');
-    Q_ASSERT(bal.size() > 100);
-    for (int i = 0; i != bal.size(); ++i) {
-        const QByteArray &ba = bal.at(i);
-        if (ba.startsWith("void dump")) {
-            int pos = ba.indexOf('(');
-            funcName = ba.mid(5, pos - 5) + '@';
-        } else if (ba.startsWith("    /*")) {
-            int pos = ba.indexOf('*', 7);
-            m_lineForLabel[funcName + ba.mid(7, pos - 8)] = i + 1;
-        }
-    }
-}
-
-
-void tst_Gdb::prepare(const QByteArray &function)
-{
-    m_function = function;
-    writeToGdb("b " + function);
-    writeToGdb("call " + function + "()");
-}
-
-void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
-    const QByteArray &expanded, bool fancy)
-{
-    //qDebug() << "\nABOUT TO RUN TEST: " << expanded;
-    writeToGdb("bb " + QByteArray::number(int(fancy)) + " " + expanded);
-    m_mutex.lock();
-    m_waitCondition.wait(&m_mutex);
-    QByteArray ba = m_thread.m_output;
-    m_mutex.unlock();
-    //GdbMi locals;
-    //locals.fromString("{" + ba + "}");
-    QByteArray received = ba.replace("\"", "'");
-    //qDebug() << "OUTPUT: " << ba << "\n\n";
-    //qDebug() << "OUTPUT: " << locals.toString() << "\n\n";
-
-    QByteArray actual____ = received.trimmed();
-    QByteArray expected = "locals={iname='local',name='Locals',value=' ',type=' ',"
-        "children=[" + expected0 + "]}";
-    int line = m_thread.m_line;
-
-    QByteArrayList l1 = actual____.split(',');
-    QByteArrayList l2 = expected.split(',');
-
-    bool ok = l1.size() == l2.size();
-    if (ok) {
-        for (int i = 0 ; i < l1.size(); ++i) {
-            // Use "-" as joker.
-            if (l1.at(i) != l2.at(i) && !l2.at(i).endsWith("'-'"))
-                ok = false;
-        }
-    }
-    
-    if (!ok) {
-        int i = 0;
-        for ( ; i < l1.size() && i < l2.size(); ++i) {
-            if (l1.at(i) == l2.at(i) || l2.at(i).endsWith("'-'")) {
-                qWarning() << "== " << l1.at(i);
-            } else {
-                //qWarning() << "!= " << l1.at(i).right(30) << l2.at(i).right(30);
-                qWarning() << "!= " << l1.at(i) << l2.at(i);
-                ok = false;
-            }
-        }
-        for ( ; i < l2.size(); ++i) 
-            qWarning() << "!= " << "-----" << l2.at(i);
-        for ( ; i < l1.size(); ++i) 
-            qWarning() << "!= " << l1.at(i) << "-----";
-        if (l1.size() != l2.size()) {
-            ok = false;
-            qWarning() << "!= size: " << l1.size() << l2.size();
-        }
-        qWarning() << "RECEIVED: " << received;
-    }
-    QCOMPARE(ok, true);
-    qWarning() << "LINE: " << line << "ACT/EXP" << m_function + '@' + label;
-    //QCOMPARE(actual____, expected);
-
-
-    int expline = m_lineForLabel.value(m_function + '@' + label);
-    int actline = line;
-    if (actline != expline) {
-        qWarning() << "LAST STOPPED: " << m_thread.m_lastStopped;
-    }
-    QCOMPARE(actline, expline);
-}
-
-void tst_Gdb::next(int n)
-{
-    for (int i = 0; i != n; ++i)
-        writeToGdb("next");
-}
-
-void tst_Gdb::cleanupTestCase()
-{
-    writeToGdb("kill");
-    writeToGdb("quit");
-    //m_thread.m_proc->waitForFinished();
-}
-
-
-/////////////////////////////////////////////////////////////////////////
-//
-// Dumper Tests
-//
-/////////////////////////////////////////////////////////////////////////
+///////////////////////////// QList<int> /////////////////////////////////
 
 void dumpQList_int()
 {
-    /* A */ QList<int> ilist;
-    /* B */ ilist.append(1);
-    /* C */ ilist.append(2);
+    /* A */ QList<int> list;
+    /* B */ list.append(1);
+    /* C */ list.append(2);
     /* D */ (void) 0;
 }
 
 void tst_Gdb::dumpQList_int()
 {
     prepare("dumpQList_int");
-    run("A","{iname='local.ilist',addr='-',name='ilist',"
-            "type='"NS"QList<int>',value='<not in scope>',numchild='0'}");
+    if (checkUninitialized)
+        run("A","{iname='local.list',addr='-',name='list',"
+                "type='"NS"QList<int>',value='<not in scope>',numchild='0'}");
     next();
-    run("B","{iname='local.ilist',addr='-',name='ilist',"
+    run("B","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<int>',value='<0 items>',numchild='0'}");
     next();
-    run("C","{iname='local.ilist',addr='-',name='ilist',"
+    run("C","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<int>',value='<1 items>',numchild='1'}");
-    //run("C","{iname='local.ilist',addr='-',name='ilist',"
-    //        "type='"NS"QList<int>',value='<1 items>',numchild='1',"
-    //    "childtype='int',childnumchild='0',children=["
-    //    "{value='1'}]}", "local.ilist");
-/*
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<int>',value='<1 items>',numchild='1',"
+            "childtype='int',childnumchild='0',children=["
+            "{value='1'}]}", "local.list");
     next();
-    run("D","{iname='local.ilist',addr='-',name='ilist',"
+    run("D","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<int>',value='<2 items>',numchild='2'}");
+    run("D","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<int>',value='<2 items>',numchild='2',"
-        "childtype='int',childnumchild='0'}");
-    run("D","{iname='local.ilist',addr='-',name='ilist',"
-            "type='"NS"QList<int>',value='<2 items>',numchild='2',"
-        "childtype='int',childnumchild='0',children=["
-        "{addr='-',value='1'},{addr='-',value='2'}]}", "local.ilist");
-*/
+            "childtype='int',childnumchild='0',children=["
+            "{value='1'},{value='2'}]}", "local.list");
 }
 
-/*
+
+///////////////////////////// QList<char> /////////////////////////////////
+
+void dumpQList_char()
+{
+    /* A */ QList<char> list;
+    /* B */ list.append('a');
+    /* C */ (void) 0;
+}
+
 void tst_Gdb::dumpQList_char()
 {
-    QList<char> clist;
-    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
-        "internal='1',children=[]",
-        &clist, NS"QList", true, "char");
-    clist.append('a');
-    clist.append('b');
-    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
-        "internal='1',childtype='char',childnumchild='0',children=["
-        "{addr='" + str(&clist.at(0)) + "',value=''a', ascii=97'},"
-        "{addr='" + str(&clist.at(1)) + "',value=''b', ascii=98'}]",
-        &clist, NS"QList", true, "char");
+    prepare("dumpQList_char");
+    if (checkUninitialized)
+        run("A","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char>',value='<not in scope>',numchild='0'}");
+    next();
+    run("B","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char>',value='<0 items>',numchild='0'}");
+    next();
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char>',value='<1 items>',numchild='1'}");
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char>',value='<1 items>',numchild='1',"
+            "childtype='char',childnumchild='0',children=["
+            "{value='97 'a''}]}", "local.list");
+}
+
+
+///////////////////////////// QList<const char *> /////////////////////////////////
+
+void dumpQList_char_star()
+{
+    /* A */ QList<const char *> list;
+    /* B */ list.append("a");
+    /* C */ list.append(0);
+    /* D */ list.append("bc");
+    /* E */ (void) 0;
+}
+
+void tst_Gdb::dumpQList_char_star()
+{
+    prepare("dumpQList_char_star");
+    if (checkUninitialized)
+        run("A","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char const*>',value='<not in scope>',numchild='0'}");
+    next();
+    run("B","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char const*>',value='<0 items>',numchild='0'}");
+    next();
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char const*>',value='<1 items>',numchild='1'}");
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char const*>',value='<1 items>',numchild='1',"
+            "childtype='const char *',childnumchild='1',children=["
+            "{valueencoded='6',value='61',numchild='0'}]}", "local.list");
+    next();
+    next();
+    run("E","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<char const*>',value='<3 items>',numchild='3',"
+            "childtype='const char *',childnumchild='1',children=["
+            "{valueencoded='6',value='61',numchild='0'},"
+            "{value='0x0',numchild='0'},"
+            "{valueencoded='6',value='6263',numchild='0'}]}", "local.list");
+}
+
+
+///////////////////////////// QList<QString> /////////////////////////////////////
+
+void dumpQList_QString()
+{
+    /* A */ QList<QString> list;
+    /* B */ list.append("Hallo");
+    /* C */ (void) 0;
 }
 
 void tst_Gdb::dumpQList_QString()
 {
-    QList<QString> slist;
-    testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
-        "internal='1',children=[]",
-        &slist, NS"QList", true, NS"QString");
-    slist.append("a");
-    slist.append("b");
-    testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
-        "internal='1',childtype='"NS"QString',childnumchild='0',children=["
-        "{addr='" + str(&slist.at(0)) + "',value='YQA=',valueencoded='2'},"
-        "{addr='" + str(&slist.at(1)) + "',value='YgA=',valueencoded='2'}]",
-        &slist, NS"QList", true, NS"QString");
-}
-*/
-
-void dumpMisc()
-{
-    /* A */ int *s = new int(1);
-    /* B */ *s += 1;
-    /* D */ (void) s;
-}
-
-void tst_Gdb::dumpMisc()
-{
-    prepare("dumpMisc");
+    prepare("dumpQList_QString");
+    if (0 && checkUninitialized)
+        run("A","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<"NS"QString>',value='<not in scope>',numchild='0'}");
     next();
-    run("B","{iname='local.s',addr='-',name='s',type='int *',"
-            "value='-',numchild='1'}", "", 0);
-    run("B","{iname='local.s',addr='-',name='s',type='int *',"
-            "value='-',numchild='1',children=[{iname='local.s.*',"
-            "name='*s',type='int',value='1',numchild='0'}]}", "local.s", 0);
+    run("B","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<"NS"QString>',value='<0 items>',numchild='0'}");
+    next();
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<"NS"QString>',value='<1 items>',numchild='1'}");
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<"NS"QString>',value='<1 items>',numchild='1',"
+            "childtype='"NS"QString',childnumchild='0',children=["
+            "{valueencoded='7',value='480061006c006c006f00'}]}", "local.list");
 }
 
-void dumpQStringTest()
+
+///////////////////////////// QList<QString3> ///////////////////////////////////
+
+void dumpQList_QString3()
+{
+    /* A */ QList<QString3> list;
+    /* B */ list.append(QString3());
+    /* C */ (void) 0;
+}
+
+void tst_Gdb::dumpQList_QString3()
+{
+    prepare("dumpQList_QString3");
+    if (checkUninitialized)
+        run("A","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<QString3>',value='<not in scope>',numchild='0'}");
+    next();
+    run("B","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<QString3>',value='<0 items>',numchild='0'}");
+    next();
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<QString3>',value='<1 items>',numchild='1'}");
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<QString3>',value='<1 items>',numchild='1',"
+            "childtype='QString3',children=["
+            "{value='{...}',numchild='3'}]}", "local.list");
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<QString3>',value='<1 items>',numchild='1',"
+            "childtype='QString3',children=[{value='{...}',numchild='3',children=["
+         "{iname='local.list.0.s1',name='s1',type='"NS"QString',"
+            "valueencoded='7',value='6100',numchild='0'},"
+         "{iname='local.list.0.s2',name='s2',type='"NS"QString',"
+            "valueencoded='7',value='6200',numchild='0'},"
+         "{iname='local.list.0.s3',name='s3',type='"NS"QString',"
+            "valueencoded='7',value='6300',numchild='0'}]}]}",
+            "local.list,local.list.0");
+}
+
+
+///////////////////////////// QList<Int3> /////////////////////////////////////
+
+void dumpQList_Int3()
+{
+    /* A */ QList<Int3> list;
+    /* B */ list.append(Int3());
+    /* C */ (void) 0;
+}
+
+void tst_Gdb::dumpQList_Int3()
+{
+    prepare("dumpQList_Int3");
+    if (checkUninitialized)
+        run("A","{iname='local.list',addr='-',name='list',"
+                "type='"NS"QList<Int3>',value='<not in scope>',numchild='0'}");
+    next();
+    run("B","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<Int3>',value='<0 items>',numchild='0'}");
+    next();
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<Int3>',value='<1 items>',numchild='1'}");
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<Int3>',value='<1 items>',numchild='1',"
+            "childtype='Int3',children=[{value='{...}',numchild='3'}]}",
+            "local.list");
+    run("C","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<Int3>',value='<1 items>',numchild='1',"
+            "childtype='Int3',children=[{value='{...}',numchild='3',children=["
+         "{iname='local.list.0.i1',name='i1',type='int',value='42',numchild='0'},"
+         "{iname='local.list.0.i2',name='i2',type='int',value='43',numchild='0'},"
+         "{iname='local.list.0.i3',name='i3',type='int',value='44',numchild='0'}]}]}",
+            "local.list,local.list.0");
+}
+
+///////////////////////////// QVector /////////////////////////////////
+
+void dumpQStack()
+{
+    /* A */ QStack<int> v;
+    /* B */ v.append(3);
+    /* C */ v.append(2);
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dumpQStack()
+{
+    prepare("dumpQStack");
+    if (checkUninitialized)
+        run("A","{iname='local.v',addr='-',name='v',type='"NS"QStack<int>',"
+            "value='<not in scope>',numchild='0'}");
+    next();
+    run("B","{iname='local.v',addr='-',name='v',type='"NS"QStack<int>',"
+            "value='<0 items>',numchild='0'}");
+    run("B","{iname='local.v',addr='-',name='v',type='"NS"QStack<int>',"
+            "value='<0 items>',numchild='0',children=[]}", "local.v");
+    next();
+    run("C","{iname='local.v',addr='-',name='v',type='"NS"QStack<int>',"
+            "value='<1 items>',numchild='1'}");
+    run("C","{iname='local.v',addr='-',name='v',type='"NS"QStack<int>',"
+            "value='<1 items>',numchild='1',childtype='int',"
+            "childnumchild='0',children=[{value='3'}]}",  // rounding...
+            "local.v");
+    next();
+    run("D","{iname='local.v',addr='-',name='v',type='"NS"QStack<int>',"
+            "value='<2 items>',numchild='2'}");
+    run("D","{iname='local.v',addr='-',name='v',type='"NS"QStack<int>',"
+            "value='<2 items>',numchild='2',childtype='int',"
+            "childnumchild='0',children=[{value='3'},{value='2'}]}",
+            "local.v");
+}
+
+
+///////////////////////////// QString /////////////////////////////////////
+
+void dumpQString()
 {
     /* A */ QString s;
     /* B */ s = "hallo"; 
@@ -2426,18 +2809,27 @@ void dumpQStringTest()
 
 void tst_Gdb::dumpQString()
 {
-    prepare("dumpQStringTest");
-    run("A","{iname='local.s',addr='-',name='s',type='"NS"QString',"
-            "value='<not in scope>',numchild='0'}");
+    prepare("dumpQString");
+    if (checkUninitialized)
+        run("A","{iname='local.s',addr='-',name='s',type='"NS"QString',"
+                "value='<not in scope>',numchild='0'}");
     next();
     run("B","{iname='local.s',addr='-',name='s',type='"NS"QString',"
             "valueencoded='7',value='',numchild='0'}", "local.s");
-    // Plain C:
+    // Plain C style dumping:
     run("B","{iname='local.s',addr='-',name='s',type='"NS"QString',"
             "value='{...}',numchild='5'}", "", 0);
     run("B","{iname='local.s',addr='-',name='s',type='"NS"QString',"
-            "value='{...}',numchild='5',children=[]}", "local.s", 0);
-return;
+            "value='{...}',numchild='5',children=["
+            "{iname='local.s.d',name='d',type='"NS"QString::Data *',"
+            "value='-',numchild='1'}]}", "local.s", 0);
+    run("B","{iname='local.s',addr='-',name='s',type='"NS"QString',"
+            "value='{...}',numchild='5',"
+            "children=[{iname='local.s.d',name='d',"
+              "type='"NS"QString::Data *',value='-',numchild='1',"
+                "children=[{iname='local.s.d.*',name='*d',"
+                "type='"NS"QString::Data',value='{...}',numchild='11'}]}]}",
+            "local.s,local.s.d", 0);
     next();
     run("C","{iname='local.s',addr='-',name='s',type='"NS"QString',"
             "valueencoded='7',value='680061006c006c006f00',numchild='0'}");
@@ -2446,7 +2838,10 @@ return;
             "valueencoded='7',value='680061006c006c006f007800',numchild='0'}");
 }
 
-void dumpQStringListTest()
+
+///////////////////////////// QStringList /////////////////////////////////
+
+void dumpQStringList()
 {
     /* A */ QStringList s;
     /* B */ s.append("hello");
@@ -2456,9 +2851,10 @@ void dumpQStringListTest()
 
 void tst_Gdb::dumpQStringList()
 {
-    prepare("dumpQStringListTest");
-    //run("A","{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
-    //        "value='<not in scope>',numchild='0'}");
+    prepare("dumpQStringList");
+    if (checkUninitialized)
+        run("A","{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
+            "value='<not in scope>',numchild='0'}");
     next();
     run("B","{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
             "value='<0 items>',numchild='0'}");
@@ -2472,7 +2868,6 @@ void tst_Gdb::dumpQStringList()
             "childnumchild='0',children=[{valueencoded='7',"
             "value='680065006c006c006f00'}]}",
             "local.s");
-return;
     next();
     run("D","{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
             "value='<2 items>',numchild='2'}");
@@ -2484,6 +2879,43 @@ return;
             "local.s");
 }
 
+
+///////////////////////////// QVector /////////////////////////////////
+
+void dumpQVector()
+{
+    /* A */ QVector<double> v;
+    /* B */ v.append(3.14);
+    /* C */ v.append(2.81);
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dumpQVector()
+{
+    prepare("dumpQVector");
+    if (checkUninitialized)
+        run("A","{iname='local.v',addr='-',name='v',type='"NS"QVector<double>',"
+            "value='<not in scope>',numchild='0'}");
+    next();
+    run("B","{iname='local.v',addr='-',name='v',type='"NS"QVector<double>',"
+            "value='<0 items>',numchild='0'}");
+    run("B","{iname='local.v',addr='-',name='v',type='"NS"QVector<double>',"
+            "value='<0 items>',numchild='0',children=[]}", "local.v");
+    next();
+    run("C","{iname='local.v',addr='-',name='v',type='"NS"QVector<double>',"
+            "value='<1 items>',numchild='1'}");
+    run("C","{iname='local.v',addr='-',name='v',type='"NS"QVector<double>',"
+            "value='<1 items>',numchild='1',childtype='double',"
+            "childnumchild='0',children=[{value='-'}]}",  // rounding...
+            "local.v");
+    next();
+    run("D","{iname='local.v',addr='-',name='v',type='"NS"QVector<double>',"
+            "value='<2 items>',numchild='2'}");
+    run("D","{iname='local.v',addr='-',name='v',type='"NS"QVector<double>',"
+            "value='<2 items>',numchild='2',childtype='double',"
+            "childnumchild='0',children=[{value='-'},{value='-'}]}",
+            "local.v");
+}
 
 /////////////////////////////////////////////////////////////////////////
 //

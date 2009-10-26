@@ -3120,7 +3120,6 @@ static void qDumpStdMapHelper(QDumper &d)
     const char *valueType = d.templateParameters[1];
     const void *p = d.data;
     qCheckAccess(p);
-    p = deref(p);
 
     const int nn = map.size();
     if (nn < 0)
@@ -3236,7 +3235,6 @@ static void qDumpStdSetHelper(QDumper &d)
     const DummyType &set = *reinterpret_cast<const DummyType*>(d.data);
     const void *p = d.data;
     qCheckAccess(p);
-    p = deref(p);
 
     const int nn = set.size();
     if (nn < 0)

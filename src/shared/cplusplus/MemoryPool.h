@@ -79,6 +79,22 @@ public:
         return allocate_helper(size);
     }
 
+    struct State
+    {
+        char *ptr;
+        char *end;
+        int blockCount;
+
+        inline bool isValid() const
+        { return ptr != 0; }
+
+        inline State(char *ptr = 0, int blockCount = 0)
+            : ptr(ptr), blockCount(blockCount) {}
+    };
+
+    State state() const;
+    void rewind(const State &state);
+
 private:
     void *allocate_helper(size_t size);
 

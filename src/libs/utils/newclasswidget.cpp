@@ -57,6 +57,7 @@ struct NewClassWidgetPrivate {
     bool m_baseClassInputVisible;
     bool m_formInputVisible;
     bool m_pathInputVisible;
+    bool m_qobjectCheckBoxVisible;
     bool m_formInputCheckable;
 };
 
@@ -69,7 +70,9 @@ NewClassWidgetPrivate:: NewClassWidgetPrivate() :
     m_baseClassInputVisible(true),
     m_formInputVisible(true),
     m_pathInputVisible(true),
+    m_qobjectCheckBoxVisible(false),
     m_formInputCheckable(false)
+
 {
 }
 
@@ -167,6 +170,17 @@ void NewClassWidget::setBaseClassInputVisible(bool visible)
     m_d->m_baseClassInputVisible = visible;
     m_d->m_ui.baseClassLabel->setVisible(visible);
     m_d->m_ui.baseClassComboBox->setVisible(visible);
+}
+
+void NewClassWidget::setQObjectCheckBoxVisible(bool visible)
+{
+    m_d->m_qobjectCheckBoxVisible = visible;
+    m_d->m_ui.qobjectCheckBox->setVisible(visible);
+}
+
+bool NewClassWidget::isQObjectCheckBoxVisible() const
+{
+    return m_d->m_qobjectCheckBoxVisible;
 }
 
 void NewClassWidget::setBaseClassEditable(bool editable)
@@ -354,6 +368,16 @@ void NewClassWidget::setAllowDirectories(bool v)
         m_d->m_ui.headerFileLineEdit->setAllowDirectories(v);
         m_d->m_ui.formFileLineEdit->setAllowDirectories(v);
     }
+}
+
+bool NewClassWidget::inheritsQObject() const
+{
+    return m_d->m_ui.qobjectCheckBox->isChecked();
+}
+
+void NewClassWidget::setInheritsQObject(bool v)
+{
+    m_d->m_ui.qobjectCheckBox->setChecked(v);
 }
 
 bool NewClassWidget::lowerCaseFiles() const

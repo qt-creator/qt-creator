@@ -435,9 +435,10 @@ void CMakeRunPage::runCMake()
     m_output->clear();
 
     if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
-        m_cmakeProcess = cmakeManager->createXmlFile(arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory, env, generator);
+        m_cmakeProcess = new QProcess();
         connect(m_cmakeProcess, SIGNAL(readyRead()), this, SLOT(cmakeReadyRead()));
         connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
+        cmakeManager->createXmlFile(m_cmakeProcess, arguments, m_cmakeWizard->sourceDirectory(), m_buildDirectory, env, generator);
     } else {
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);

@@ -65,11 +65,11 @@ QString PasteBinDotComSettings::trCategory() const
 
 QWidget *PasteBinDotComSettings::createPage(QWidget *parent)
 {
-    Ui_PasteBinComSettingsWidget* ui = new Ui_PasteBinComSettingsWidget;
+    Ui_PasteBinComSettingsWidget ui;
     QWidget *w = new QWidget(parent);
-    ui->setupUi(w);
-    ui->lineEdit->setText(hostPrefix());
-    connect(ui->lineEdit, SIGNAL(textChanged(QString)), this, SLOT(serverChanged(QString)));
+    ui.setupUi(w);
+    ui.lineEdit->setText(hostPrefix());
+    connect(ui.lineEdit, SIGNAL(textChanged(QString)), this, SLOT(serverChanged(QString)));
     return w;
 }
 

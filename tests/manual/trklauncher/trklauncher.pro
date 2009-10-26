@@ -1,5 +1,5 @@
 TEMPLATE = app
 QT = core
+CONFIG += console
 include(../../../src/shared/trk/trk.pri)
-win32:CONFIG += console
 SOURCES += main.cpp
