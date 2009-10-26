@@ -32,14 +32,14 @@
 
 #include "welcome_global.h"
 
-#include <extensionsystem/iwelcomepage.h>
+#include <utils/iwelcomepage.h>
 
 namespace Welcome {
 namespace Internal {
 
 class CommunityWelcomePageWidget;
 
-class WELCOME_EXPORT CommunityWelcomePage : public ExtensionSystem::IWelcomePage
+class CommunityWelcomePage : public Utils::IWelcomePage
 {
     Q_OBJECT
 public:

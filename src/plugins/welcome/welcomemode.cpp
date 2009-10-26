@@ -29,7 +29,6 @@
 
 #include "welcomemode.h"
 #include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/iwelcomepage.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -39,6 +38,7 @@
 
 #include <utils/styledbar.h>
 #include <utils/welcomemodetreewidget.h>
+#include <utils/iwelcomepage.h>
 
 #include <QtGui/QMouseEvent>
 #include <QtGui/QScrollArea>
@@ -55,6 +55,7 @@
 #include "ui_welcomemode.h"
 
 using namespace ExtensionSystem;
+using namespace Utils;
 
 namespace Welcome {
 

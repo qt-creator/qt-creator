@@ -33,6 +33,7 @@ SOURCES += reloadpromptutils.cpp \
     styledbar.cpp \
     stylehelper.cpp \
     welcomemodetreewidget.cpp \
+    iwelcomepage.cpp \
     fancymainwindow.cpp \
     detailsbutton.cpp \
     detailswidget.cpp
@@ -76,6 +77,7 @@ HEADERS += utils_global.h \
     styledbar.h \
     stylehelper.h \
     welcomemodetreewidget.h \
+    iwelcomepage.h \
     fancymainwindow.h \
     detailsbutton.h \
     detailswidget.h

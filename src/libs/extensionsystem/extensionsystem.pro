@@ -19,16 +19,14 @@ HEADERS += pluginerrorview.h \
     pluginspec_p.h \
     pluginview.h \
     pluginview_p.h \
-    optionsparser.h \
-    iwelcomepage.h
+    optionsparser.h
 SOURCES += pluginerrorview.cpp \
     plugindetailsview.cpp \
     iplugin.cpp \
     pluginmanager.cpp \
     pluginspec.cpp \
     pluginview.cpp \
-    optionsparser.cpp \
-    iwelcomepage.cpp
+    optionsparser.cpp
 FORMS += pluginview.ui \
     pluginerrorview.ui \
     plugindetailsview.ui
