@@ -54,6 +54,8 @@
 
 #  if defined(CPLUSPLUS_BUILD_LIB)
 #    define CPLUSPLUS_EXPORT Q_DECL_EXPORT
+#  elif defined(CPLUSPLUS_BUILD_STATIC_LIB)
+#    define CPLUSPLUS_EXPORT
 #  else
 #    define CPLUSPLUS_EXPORT Q_DECL_IMPORT
 #  endif

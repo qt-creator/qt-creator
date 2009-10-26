@@ -1,4 +1,9 @@
-DEFINES += CPLUSPLUS_BUILD_LIB
+contains(CONFIG, dll) {
+    DEFINES += CPLUSPLUS_BUILD_LIB
+} else {
+    DEFINES += CPLUSPLUS_BUILD_STATIC_LIB
+}
+
 INCLUDEPATH += $$PWD
 
 include(../../shared/cplusplus/cplusplus.pri)

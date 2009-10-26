@@ -1,6 +1,9 @@
 
 QT += testlib
 
+# Defines import symbol as empty
+DEFINES+=QTCREATOR_UTILS_STATIC_LIB
+
 FAKEVIMDIR = ../../../src/plugins/fakevim
 UTILSDIR = ../../../src/libs
 
