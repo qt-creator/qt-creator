@@ -107,8 +107,8 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     // Device Info with button. Widgets are enabled in above call to updateSerialDevices()
     QHBoxLayout *infoHBoxLayout = new QHBoxLayout;
     m_deviceInfoLabel->setWordWrap(true);
+    m_deviceInfoLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     infoHBoxLayout->addWidget(m_deviceInfoLabel);
-    infoHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
     infoHBoxLayout->addWidget(m_deviceInfoButton);
     m_deviceInfoButton->setIcon(qApp->style()->standardIcon(QStyle::SP_MessageBoxInformation));
     m_deviceInfoButton->setToolTip(tr("Queries the device for information"));
