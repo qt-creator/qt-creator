@@ -755,7 +755,7 @@ void QtDumperHelper::clear()
 QString QtDumperHelper::msgDumperOutdated(double requiredVersion, double currentVersion)
 {
     return QCoreApplication::translate("QtDumperHelper",
-                                       "Found a too-old version of the debugging helper library (%1); version %2 is required.").
+                                       "Found an outdated version of the debugging helper library (%1); version %2 is required.").
                                        arg(currentVersion).arg(requiredVersion);
 }
 

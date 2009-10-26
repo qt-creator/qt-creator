@@ -3785,7 +3785,7 @@ void GdbEngine::tryLoadDebuggingHelpers()
     const QFileInfo fi(lib);
     if (!fi.exists()) {
         const QString loc = locations.join(QLatin1String(", "));
-        const QString msg = tr("The dumper library was not found at %1.").arg(loc);
+        const QString msg = tr("The debugging helper library was not found at %1.").arg(loc);
         debugMessage(msg);
         manager()->showQtDumperLibraryWarning(msg);
         return;
