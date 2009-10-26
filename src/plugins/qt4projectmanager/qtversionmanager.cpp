@@ -934,7 +934,7 @@ void QtVersion::updateMkSpec() const
         return;
     //qDebug()<<"Finding mkspec for"<<path();
 
-    QString mkspec;
+    QString mkspec = "default";
     // no .qmake.cache so look at the default mkspec
     m_mkspecFullPath = versionInfo().value("QMAKE_MKSPECS");
     if (m_mkspecFullPath.isEmpty())
@@ -1228,7 +1228,8 @@ int QtVersion::getUniqueId()
 
 bool QtVersion::isValid() const
 {
-    return (!(m_id == -1 || m_qmakeCommand == QString::null || m_name == QString::null || mkspec() == QString::null) && !m_notInstalled);
+    return (!(m_id == -1 || m_qmakeCommand == QString::null
+        || m_name == QString::null) && !m_notInstalled);
 }
 
 QtVersion::QmakeBuildConfig QtVersion::defaultBuildConfig() const

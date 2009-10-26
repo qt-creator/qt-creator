@@ -64,6 +64,9 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
     arguments << project()->file()->fileName();
     arguments << "-r";
 
+    if (!arguments.contains("-spec"))
+        arguments << "-spec" << "default";
+
 #ifdef Q_OS_WIN
     ToolChain::ToolChainType type = m_pro->toolChainType(bc);
     if (type == ToolChain::GCC_MAEMO)
