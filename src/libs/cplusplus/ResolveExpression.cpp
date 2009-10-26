@@ -30,6 +30,7 @@
 #include "ResolveExpression.h"
 #include "LookupContext.h"
 #include "Overview.h"
+#include "GenTemplateInstance.h"
 
 #include <Control.h>
 #include <AST.h>
@@ -48,151 +49,6 @@
 using namespace CPlusPlus;
 
 namespace {
-
-typedef QList< QPair<Name *, FullySpecifiedType> > Substitution;
-
-class GenerateInstance: protected TypeVisitor, protected NameVisitor
-{
-    Control *_control;
-    FullySpecifiedType _type;
-    const Substitution _substitution;
-
-public:
-    GenerateInstance(Control *control, const Substitution &substitution)
-        : _control(control),
-          _substitution(substitution)
-    { }
-
-    FullySpecifiedType operator()(const FullySpecifiedType &ty)
-    { return subst(ty); }
-
-protected:
-    FullySpecifiedType subst(Name *name)
-    {
-        if (TemplateNameId *t = name->asTemplateNameId()) {
-            QVarLengthArray<FullySpecifiedType, 8> args(t->templateArgumentCount());
-
-            for (unsigned i = 0; i < t->templateArgumentCount(); ++i)
-                args[i] = subst(t->templateArgumentAt(i));
-
-            TemplateNameId *n = _control->templateNameId(t->identifier(),
-                                                         args.data(), args.size());
-
-            return FullySpecifiedType(_control->namedType(n));
-        } else if (name->isQualifiedNameId()) {
-            // ### implement me
-        }
-
-        for (int i = 0; i < _substitution.size(); ++i) {
-            const QPair<Name *, FullySpecifiedType> s = _substitution.at(i);
-            if (name->isEqualTo(s.first))
-                return s.second;
-        }
-
-        return FullySpecifiedType(_control->namedType(name));
-    }
-
-    FullySpecifiedType subst(const FullySpecifiedType &ty)
-    {
-        FullySpecifiedType previousType = switchType(ty);
-        TypeVisitor::accept(ty.type());
-        return switchType(previousType);
-    }
-
-    FullySpecifiedType switchType(const FullySpecifiedType &type)
-    {
-        FullySpecifiedType previousType = _type;
-        _type = type;
-        return previousType;
-    }
-
-    // types
-    virtual void visit(PointerToMemberType * /*ty*/)
-    {
-        Q_ASSERT(false);
-    }
-
-    virtual void visit(PointerType *ty)
-    {
-        FullySpecifiedType elementType = subst(ty->elementType());
-        _type.setType(_control->pointerType(elementType));
-    }
-
-    virtual void visit(ReferenceType *ty)
-    {
-        FullySpecifiedType elementType = subst(ty->elementType());
-        _type.setType(_control->referenceType(elementType));
-    }
-
-    virtual void visit(ArrayType *ty)
-    {
-        FullySpecifiedType elementType = subst(ty->elementType());
-        _type.setType(_control->arrayType(elementType, ty->size()));
-    }
-
-    virtual void visit(NamedType *ty)
-    {
-        Name *name = ty->name();
-        _type.setType(subst(name).type());
-    }
-
-    virtual void visit(Function *ty)
-    {
-        Name *name = ty->name();
-        FullySpecifiedType returnType = subst(ty->returnType());
-
-        Function *fun = _control->newFunction(0, name);
-        fun->setScope(ty->scope());
-        fun->setConst(ty->isConst());
-        fun->setVolatile(ty->isVolatile());
-        fun->setReturnType(returnType);
-        for (unsigned i = 0; i < ty->argumentCount(); ++i) {
-            Symbol *arg = ty->argumentAt(i);
-            FullySpecifiedType argTy = subst(arg->type());
-            Argument *newArg = _control->newArgument(0, arg->name());
-            newArg->setType(argTy);
-            fun->arguments()->enterSymbol(newArg);
-        }
-        _type.setType(fun);
-    }
-
-    virtual void visit(VoidType *)
-    { /* nothing to do*/ }
-
-    virtual void visit(IntegerType *)
-    { /* nothing to do*/ }
-
-    virtual void visit(FloatType *)
-    { /* nothing to do*/ }
-
-    virtual void visit(Namespace *)
-    { Q_ASSERT(false); }
-
-    virtual void visit(Class *)
-    { Q_ASSERT(false); }
-
-    virtual void visit(Enum *)
-    { Q_ASSERT(false); }
-
-    // names
-    virtual void visit(NameId *)
-    { Q_ASSERT(false); }
-
-    virtual void visit(TemplateNameId *)
-    { Q_ASSERT(false); }
-
-    virtual void visit(DestructorNameId *)
-    { Q_ASSERT(false); }
-
-    virtual void visit(OperatorNameId *)
-    { Q_ASSERT(false); }
-
-    virtual void visit(ConversionNameId *)
-    { Q_ASSERT(false); }
-
-    virtual void visit(QualifiedNameId *)
-    { Q_ASSERT(false); }
-};
 
 template <typename _Tp>
 static QList<_Tp> removeDuplicates(const QList<_Tp> &results)
@@ -849,7 +705,7 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
             unqualifiedNameId = q->unqualifiedNameId();
         
         if (TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
-            Substitution subst;
+            GenTemplateInstance::Substitution subst;
             
             for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
                 FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
@@ -859,7 +715,7 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
                                            templArgTy));
             }
             
-            GenerateInstance inst(control(), subst);
+            GenTemplateInstance inst(control(), subst);
             ty = inst(ty);
         }
         

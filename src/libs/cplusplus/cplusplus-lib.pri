@@ -32,6 +32,7 @@ HEADERS += \
     $$PWD/LookupContext.h \
     $$PWD/CppBindings.h \
     $$PWD/ASTParent.h \
+    $$PWD/GenTemplateInstance.h \
     $$PWD/CheckUndefinedSymbols.h \
     $$PWD/PreprocessorClient.h \
     $$PWD/PreprocessorEnvironment.h \
@@ -54,6 +55,7 @@ SOURCES += \
     $$PWD/LookupContext.cpp \
     $$PWD/CppBindings.cpp \
     $$PWD/ASTParent.cpp \
+    $$PWD/GenTemplateInstance.cpp \
     $$PWD/CheckUndefinedSymbols.cpp \
     $$PWD/PreprocessorClient.cpp \
     $$PWD/PreprocessorEnvironment.cpp \
