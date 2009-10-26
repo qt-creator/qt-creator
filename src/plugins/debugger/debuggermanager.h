@@ -241,6 +241,8 @@ public slots:
     void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
     void clearCppCodeModelSnapshot();
 
+    static const char *stateName(int s);
+
 public slots: // FIXME
     void showDebuggerOutput(const QString &msg)
         { showDebuggerOutput(LogDebug, msg); }

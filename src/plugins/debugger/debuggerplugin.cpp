@@ -47,6 +47,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/icorelistener.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
@@ -202,6 +203,60 @@ DebugMode::~DebugMode()
 {
     // Make sure the editor manager does not get deleted
     EditorManager::instance()->setParent(0);
+}
+
+///////////////////////////////////////////////////////////////////////
+//
+// DebuggerListener: Close the debugging session if running.
+//
+///////////////////////////////////////////////////////////////////////
+
+class DebuggerListener : public Core::ICoreListener {
+    Q_OBJECT
+public:
+    explicit DebuggerListener(QObject *parent = 0);
+    virtual bool coreAboutToClose();
+};
+
+DebuggerListener::DebuggerListener(QObject *parent) :
+    Core::ICoreListener(parent)
+{
+}
+
+bool DebuggerListener::coreAboutToClose()
+{
+    DebuggerManager *mgr = DebuggerManager::instance();
+    if (!mgr)
+        return true;
+    // Ask to terminate the session.
+    const QString title = tr("Close Debugging Session");
+    bool cleanTermination = false;
+    switch (mgr->state()) {
+    case DebuggerNotReady:
+        return true;
+    case AdapterStarted:     // Most importantly, terminating a running
+    case AdapterStartFailed: // debuggee can cause problems.
+    case InferiorUnrunnable:
+    case InferiorStartFailed:
+    case InferiorStopped:
+    case InferiorShutDown:
+        cleanTermination = true;
+        break;
+    default:
+        break;
+    }
+    const QString question = cleanTermination ?
+        tr("A debugging session is still in progress. Would you like to terminate it?") :
+        tr("A debugging session is still in progress. Terminating the session in the current"
+           " state (%1) can leave the target in an inconsistent state."
+           " Would you like to terminate it?")
+        .arg(QLatin1String(DebuggerManager::stateName(mgr->state())));
+    QMessageBox::StandardButton answer = QMessageBox::question(0, title, question,
+                                         QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+    if (answer == QMessageBox::No)
+        return false;
+    mgr->exitDebugger();
+    return true;
 }
 
 } // namespace Internal
@@ -753,7 +808,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     addAutoReleasedObject(new DebuggingHelperOptionPage);
     foreach (Core::IOptionsPage* op, engineOptionPages)
         addAutoReleasedObject(op);
-
+    addAutoReleasedObject(new DebuggerListener);
     m_locationMark = 0;
 
 

@@ -180,7 +180,7 @@ using namespace Debugger::Internal;
 
 static const QString tooltipIName = "tooltip";
 
-static const char *stateName(int s)
+const char *DebuggerManager::stateName(int s)
 {
     #define SN(x) case x: return #x;
     switch (s) {
@@ -1766,7 +1766,7 @@ void DebuggerManager::ensureLogVisible()
 
 QDebug operator<<(QDebug d, DebuggerState state)
 {
-    return d << stateName(state) << '(' << int(state) << ')';
+    return d << DebuggerManager::stateName(state) << '(' << int(state) << ')';
 }
 
 //////////////////////////////////////////////////////////////////////
