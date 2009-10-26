@@ -3798,16 +3798,15 @@ void GdbEngine::tryLoadDebuggingHelpers()
         SharedLibraryInjector injector(inferiorPid());
         QString errorMessage;
         if (injector.remoteInject(lib, false, &errorMessage)) {
-            debugMessage(tr("Dumper injection loading triggered (%1)...").arg(lib));
+            debugMessage(_("Dumper injection loading triggered (%1)...").arg(lib));
         } else {
-            debugMessage(tr("Dumper loading (%1) failed: %2").arg(lib, errorMessage));
-            debugMessage(errorMessage);
+            debugMessage(_("Dumper loading (%1) failed: %2").arg(lib, errorMessage));
             manager()->showQtDumperLibraryWarning(errorMessage);
             m_debuggingHelperState = DebuggingHelperUnavailable;
             return;
         }
     } else {
-        debugMessage(tr("Loading dumpers via debugger call (%1)...").arg(lib));
+        debugMessage(_("Loading dumpers via debugger call (%1)...").arg(lib));
         postCommand(_("sharedlibrary .*")); // for LoadLibraryA
         //postCommand(_("handle SIGSEGV pass stop print"));
         //postCommand(_("set unwindonsignal off"));
