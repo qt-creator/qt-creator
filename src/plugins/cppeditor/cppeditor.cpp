@@ -762,10 +762,6 @@ void CPPEditor::findUsages()
 
 void CPPEditor::renameUsages()
 {
-    Core::EditorManager::instance()->showEditorInfoBar(QLatin1String("CppEditor.Rename"),
-                                                       tr("This change cannot be undone."),
-                                                       tr("Yes, I know what I am doing."),
-                                                       this, SLOT(hideRenameNotification()));
     renameUsagesNow();
 }
 
@@ -777,7 +773,14 @@ void CPPEditor::hideRenameNotification()
 void CPPEditor::renameUsagesNow()
 {
     if (Symbol *canonicalSymbol = markSymbols()) {
-        m_modelManager->renameUsages(canonicalSymbol);
+        if (canonicalSymbol->identifier() != 0) {
+            Core::EditorManager::instance()->showEditorInfoBar(QLatin1String("CppEditor.Rename"),
+                                                               tr("This change cannot be undone."),
+                                                               tr("Yes, I know what I am doing."),
+                                                               this, SLOT(hideRenameNotification()));
+
+            m_modelManager->renameUsages(canonicalSymbol);
+        }
     }
 }
 
