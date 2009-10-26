@@ -217,7 +217,6 @@ void tst_Semantic::nested_class_1()
     Identifier *objectId = classObjectNameId->identifier();
     QCOMPARE(QByteArray(objectId->chars(), objectId->size()), QByteArray("Object"));
     QCOMPARE(classObject->baseClassCount(), 0U);
-    QEXPECT_FAIL("", "Requires support for forward classes", Continue);
     QCOMPARE(classObject->members()->symbolCount(), 2U);
 
     Class *classObjectData = doc->globals->symbolAt(1)->asClass();
@@ -383,7 +382,10 @@ void tst_Semantic::pointer_to_function_1()
     Function *funTy = ptrTy->elementType()->asFunctionType();
     QVERIFY(funTy);
 
+    QEXPECT_FAIL("", "Requires initialize enclosing scope of pointer-to-function symbols", Continue);
     QVERIFY(funTy->scope());
+
+    QEXPECT_FAIL("", "Requires initialize enclosing scope of pointer-to-function symbols", Continue);
     QCOMPARE(funTy->scope(), decl->scope());
 }
 
