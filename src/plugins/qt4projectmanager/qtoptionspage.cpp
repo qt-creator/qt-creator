@@ -121,7 +121,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     m_ui->mingwPath->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->mingwPath->setPromptDialogTitle(tr("Select the MinGW Directory"));
     m_ui->mwcPath->setExpectedKind(Utils::PathChooser::Directory);
-    m_ui->mwcPath->setPromptDialogTitle(tr("Select \"x86build\" Directory from Carbide Install"));
+    m_ui->mwcPath->setPromptDialogTitle(tr("Select Carbide Install Directory"));
 
     m_ui->addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_ui->delButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
