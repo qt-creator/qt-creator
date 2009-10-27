@@ -101,6 +101,7 @@ namespace Internal {
 #else
 #   define PENDING_DEBUG(s)
 #endif
+#define PENDING_DEBUGX(s) qDebug() << s
 
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
 
@@ -3379,6 +3380,8 @@ void GdbEngine::updateLocals(const QVariant &cookie)
 {
     m_pendingRequests = 0;
     if (isSynchroneous()) {
+        manager()->watchHandler()->beginCycle();
+        m_toolTipExpression.clear();
         QStringList expanded = m_manager->watchHandler()->expandedINames().toList();
         postCommand(_("bb %1 %2")
                 .arg(int(theDebuggerBoolSetting(UseDebuggingHelpers)))

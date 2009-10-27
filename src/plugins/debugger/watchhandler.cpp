@@ -1095,7 +1095,6 @@ void WatchHandler::beginCycle()
 
 void WatchHandler::endCycle()
 {
-    //qDebug() << "END CYCLE";
     m_locals->endCycle();
     m_watchers->endCycle();
     m_tooltips->endCycle();
