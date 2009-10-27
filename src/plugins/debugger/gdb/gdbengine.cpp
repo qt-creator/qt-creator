@@ -693,11 +693,11 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 
     if (cmd.flags & RebuildModel) {
         ++m_pendingRequests;
-        PENDING_DEBUG("   COMMAND" << cmd.callbackName
-            << "INCREMENTS PENDING TO:" << m_pendingRequests << cmd.command);
+        PENDING_DEBUG("   MODEL:" << cmd.command << "=>" << cmd.callbackName
+                      << "INCREMENTS PENDING TO" << m_pendingRequests);
     } else {
-        PENDING_DEBUG("   UNKNOWN COMMAND" << cmd.callbackName
-            << "LEAVES PENDING AT:" << m_pendingRequests << cmd.command);
+        PENDING_DEBUG("   OTHER (IN):" << cmd.command << "=>" << cmd.callbackName
+                      << "LEAVES PENDING AT" << m_pendingRequests);
     }
 
     if ((cmd.flags & NeedsStop) || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
@@ -817,15 +817,15 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
 
     if (cmd.flags & RebuildModel) {
         --m_pendingRequests;
-        PENDING_DEBUG("   RESULT " << cmd.callbackName << " DECREMENTS PENDING TO: "
-            << m_pendingRequests << cmd.command);
+        PENDING_DEBUG("   WATCH" << cmd.command << "=>" << cmd.callbackName
+                      << "DECREMENTS PENDING TO" << m_pendingRequests);
         if (m_pendingRequests <= 0) {
-            PENDING_DEBUG("\n\n ....  AND TRIGGERS MODEL UPDATE\n");
+            PENDING_DEBUG("\n\n ... AND TRIGGERS MODEL UPDATE\n");
             rebuildModel();
         }
     } else {
-        PENDING_DEBUG("   UNKNOWN RESULT " << cmd.callbackName << " LEAVES PENDING AT: "
-            << m_pendingRequests << cmd.command);
+        PENDING_DEBUG("   OTHER (OUT):" << cmd.command << "=>" << cmd.callbackName
+                      << "LEAVES PENDING AT" << m_pendingRequests);
     }
 
     // Continue only if there are no commands wire anymore, so this will
@@ -1764,7 +1764,6 @@ void GdbEngine::sendInsertBreakpoint(int index)
     //if (!data->condition.isEmpty())
     //    cmd += _("-c ") + data->condition + _c(' ');
     cmd += where;
-    gdbOutputAvailable(LogStatus, _("Current state: %1").arg(state()));
     postCommand(cmd, NeedsStop, CB(handleBreakInsert), index);
 }
 
