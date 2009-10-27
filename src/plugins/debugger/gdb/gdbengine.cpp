@@ -2762,15 +2762,13 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
             <<',' <<  addr << ',' << (dumpChildren ? "1" : "0")
             << ',' << extraArgs.join(QString(_c(','))) <<  ')';
 
-    QVariant var;
-    var.setValue(data);
-    postCommand(cmd, WatchUpdate | EmbedToken, CB(handleDebuggingHelperValue1), var);
+    postCommand(cmd, WatchUpdate);
 
     showStatusMessage(msgRetrievingWatchData(m_pendingRequests + 1), 10000);
 
     // retrieve response
     postCommand(_("p (char*)&qDumpOutBuffer"), WatchUpdate,
-        CB(handleDebuggingHelperValue2), var);
+        CB(handleDebuggingHelperValue2), qVariantFromValue(data));
 }
 
 void GdbEngine::createGdbVariable(const WatchData &data)
@@ -3194,27 +3192,6 @@ void GdbEngine::handleDebuggingHelperSetup(const GdbResponse &response)
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
         //qDebug() << "CUSTOM DUMPER SETUP ERROR MESSAGE:" << msg;
         showStatusMessage(tr("Custom dumper setup: %1").arg(msg), 10000);
-    }
-}
-
-void GdbEngine::handleDebuggingHelperValue1(const GdbResponse &response)
-{
-    WatchData data = response.cookie.value<WatchData>();
-    QTC_ASSERT(data.isValid(), return);
-    if (response.resultClass == GdbResultDone) {
-        // ignore this case, data will follow
-    } else {
-        QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
-#ifdef QT_DEBUG
-        // Make debugging of dumpers easier
-        if (theDebuggerBoolSetting(DebugDebuggingHelpers)
-                && msg.startsWith(__("The program being debugged stopped while"))
-                && msg.contains(__("qDumpObjectData440"))) {
-            // Fake full stop
-            postCommand(_("p 3"), CB(handleStop2));  // dummy
-            return;
-        }
-#endif
     }
 }
 

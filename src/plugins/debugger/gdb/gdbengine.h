@@ -418,7 +418,6 @@ private: ////////// View & Data Stuff //////////
     void handleEvaluateExpression(const GdbResponse &response);
     //void handleToolTip(const GdbResponse &response);
     void handleQueryDebuggingHelper(const GdbResponse &response);
-    void handleDebuggingHelperValue1(const GdbResponse &response);
     void handleDebuggingHelperValue2(const GdbResponse &response);
     void handleDebuggingHelperValue3(const GdbResponse &response);
     void handleDebuggingHelperEditValue(const GdbResponse &response);
