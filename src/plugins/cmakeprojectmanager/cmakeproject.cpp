@@ -497,11 +497,13 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
     QString relativePath = QDir(QFileInfo(rootNode->path()).path()).relativeFilePath(directory);
     QStringList parts = relativePath.split("/", QString::SkipEmptyParts);
     ProjectExplorer::FolderNode *parent = rootNode;
+    QString path = QFileInfo(rootNode->path()).path();
     foreach (const QString &part, parts) {
+        path += "/" + part;
         // Find folder in subFolders
         bool found = false;
         foreach (ProjectExplorer::FolderNode *folder, parent->subFolderNodes()) {
-            if (QFileInfo(folder->path()).fileName() == part) {
+            if (folder->path() == path) {
                 // yeah found something :)
                 parent = folder;
                 found = true;
@@ -510,7 +512,8 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
         }
         if (!found) {
             // No FolderNode yet, so create it
-            ProjectExplorer::FolderNode *tmp = new ProjectExplorer::FolderNode(part);
+            ProjectExplorer::FolderNode *tmp = new ProjectExplorer::FolderNode(path);
+            tmp->setFolderName(part);
             rootNode->addFolderNodes(QList<ProjectExplorer::FolderNode *>() << tmp, parent);
             parent = tmp;
         }
