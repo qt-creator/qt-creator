@@ -235,23 +235,25 @@ void ErrorDumper::printToStream(QProcess::ProcessError error)
 // #pragma mark -- MaemoRunConfiguration
 
 
-const QString MaemoRunConfiguration::ArgumentsKey("Arguments");
-const QString MaemoRunConfiguration::RemoteHostIsSimulatorKey =
-    "RemoteHostIsSimulator";
-const QString MaemoRunConfiguration::RemoteHostNameKey =
-    "RemoteHostName";
-const QString MaemoRunConfiguration::RemoteUserNameKey =
-    "RemoteUserName";
-const QString MaemoRunConfiguration::RemotePortKey("RemotePort");
-const QString MaemoRunConfiguration::LastDeployedKey("LastDeployed");
-const QString MaemoRunConfiguration::DebuggingHelpersLastDeployedKey =
-    "DebuggingHelpersLastDeployed";
+static const QLatin1String RemoteHostIsSimulatorKey("RemoteHostIsSimulator");
+static const QLatin1String ArgumentsKeySim("ArgumentsSim");
+static const QLatin1String RemoteHostNameKeySim("RemoteHostNameSim");
+static const QLatin1String RemoteUserNameKeySim("RemoteUserNameSim");
+static const QLatin1String RemotePortKeySim("RemotePortSim");
+
+static const QLatin1String ArgumentsKeyDevice("ArgumentsDevice");
+static const QLatin1String RemoteHostNameKeyDevice("RemoteHostNameDevice");
+static const QLatin1String RemoteUserNameKeyDevice("RemoteUserNameDevice");
+static const QLatin1String RemotePortKeyDevice("RemotePortDevice");
+
+static const QLatin1String LastDeployedKey("LastDeployed");
+static const QLatin1String DebuggingHelpersLastDeployedKey(
+    "DebuggingHelpersLastDeployed");
 
 #if USE_SSL_PASSWORD
-const QString MaemoRunConfiguration::RemoteUserPasswordKey =
-        "RemoteUserPassword";
-const QString MaemoRunConfiguration::RemoteHostRequiresPasswordKey =
-        "RemoteHostRequiresPassword";
+static const QLatinString RemoteUserPasswordKey("RemoteUserPassword");
+static const QLatinString RemoteHostRequiresPasswordKey(
+    "RemoteHostRequiresPassword");
 #endif
 
 MaemoRunConfiguration::MaemoRunConfiguration(Project *project,
@@ -260,6 +262,8 @@ MaemoRunConfiguration::MaemoRunConfiguration(Project *project,
     , m_proFilePath(proFilePath)
     , m_cachedTargetInformationValid(false)
     , m_cachedSimulatorInformationValid(false)
+    , m_remotePortSim(22)
+    , m_remotePortDevice(22)
     , qemu(0)
 {
     if (!m_proFilePath.isEmpty()) {
@@ -324,20 +328,27 @@ QWidget *MaemoRunConfiguration::configurationWidget()
 
 void MaemoRunConfiguration::save(PersistentSettingsWriter &writer) const
 {
-    writer.saveValue("Runtime", m_simulatorPath);
-    writer.saveValue(ArgumentsKey, m_arguments);
     writer.saveValue(RemoteHostIsSimulatorKey, m_remoteHostIsSimulator);
-    writer.saveValue(RemoteHostNameKey, m_remoteHostName);
-    writer.saveValue(RemoteUserNameKey, m_remoteUserName);
+    writer.saveValue(ArgumentsKeySim, m_argumentsSim);
+    writer.saveValue(RemoteHostNameKeySim, m_remoteHostNameSim);
+    writer.saveValue(RemoteUserNameKeySim, m_remoteUserNameSim);
+    writer.saveValue(RemotePortKeySim, m_remotePortSim);
+
+    writer.saveValue(ArgumentsKeyDevice, m_remoteUserNameDevice);
+    writer.saveValue(RemoteHostNameKeyDevice, m_remoteHostNameDevice);
+    writer.saveValue(RemoteUserNameKeyDevice, m_remoteUserNameDevice);
+    writer.saveValue(RemotePortKeyDevice, m_remotePortDevice);
+
 #if USE_SSL_PASSWORD
     writer.saveValue(RemoteUserPasswordKey, m_remoteUserPassword);
     writer.saveValue(RemoteHostRequiresPasswordKey, m_remoteHostRequiresPassword);
 #endif
-    writer.saveValue(RemotePortKey, m_remotePort);
+
     writer.saveValue(LastDeployedKey, m_lastDeployed);
     writer.saveValue(DebuggingHelpersLastDeployedKey,
         m_debuggingHelpersLastDeployed);
 
+    writer.saveValue("Runtime", m_simulatorPath);
     const QDir &dir = QFileInfo(project()->file()->fileName()).absoluteDir();
     writer.saveValue("ProFile", dir.relativeFilePath(m_proFilePath));
 
@@ -348,22 +359,31 @@ void MaemoRunConfiguration::restore(const PersistentSettingsReader &reader)
 {
     RunConfiguration::restore(reader);
 
-    m_simulatorPath = reader.restoreValue("Runtime").toString();
-    m_arguments = reader.restoreValue(ArgumentsKey).toStringList();
-    m_remoteHostIsSimulator =
-        reader.restoreValue(RemoteHostIsSimulatorKey).toBool();
-    m_remoteHostName = reader.restoreValue(RemoteHostNameKey).toString();
-    m_remoteUserName = reader.restoreValue(RemoteUserNameKey).toString();
+    m_remoteHostIsSimulator = reader.restoreValue(RemoteHostIsSimulatorKey)
+        .toBool();
+    m_argumentsSim = reader.restoreValue(ArgumentsKeySim).toStringList();
+    m_remoteHostNameSim = reader.restoreValue(RemoteHostNameKeySim).toString();
+    m_remoteUserNameSim = reader.restoreValue(RemoteUserNameKeySim).toString();
+    m_remotePortSim = reader.restoreValue(RemotePortKeySim).toInt();
+
+    m_argumentsDevice = reader.restoreValue(ArgumentsKeyDevice).toStringList();
+    m_remoteHostNameDevice = reader.restoreValue(RemoteHostNameKeyDevice)
+        .toString();
+    m_remoteUserNameDevice = reader.restoreValue(RemoteUserNameKeyDevice)
+        .toString();
+    m_remotePortDevice = reader.restoreValue(RemotePortKeyDevice).toInt();
+
 #if USE_SSL_PASSWORD
     m_remoteUserPassword = reader.restoreValue(RemoteUserPasswordKey).toString();
     m_remoteHostRequiresPassword =
         reader.restoreValue(RemoteHostRequiresPasswordKey).toBool();
 #endif
-    m_remotePort = reader.restoreValue(RemotePortKey).toInt();
+
     m_lastDeployed = reader.restoreValue(LastDeployedKey).toDateTime();
     m_debuggingHelpersLastDeployed =
         reader.restoreValue(DebuggingHelpersLastDeployedKey).toDateTime();
 
+    m_simulatorPath = reader.restoreValue("Runtime").toString();
     const QDir &dir = QFileInfo(project()->file()->fileName()).absoluteDir();
     m_proFilePath = dir.filePath(reader.restoreValue("ProFile").toString());
 }
@@ -401,6 +421,24 @@ bool MaemoRunConfiguration::fileNeedsDeployment(const QString &path,
 {
     return !lastDeployed.isValid()
         || QFileInfo(path).lastModified() > lastDeployed;
+}
+
+const QString MaemoRunConfiguration::remoteHostName() const
+{
+    return m_remoteHostIsSimulator ? m_remoteHostNameSim
+        : m_remoteHostNameDevice;
+}
+
+const QString MaemoRunConfiguration::remoteUserName() const
+{
+    return m_remoteHostIsSimulator ? m_remoteUserNameSim
+        : m_remoteUserNameDevice;
+}
+
+int MaemoRunConfiguration::remotePort() const
+{
+    int port = m_remoteHostIsSimulator ? m_remotePortSim : m_remotePortDevice;
+    return port > 0 ? port : 22;
 }
 
 const QString MaemoRunConfiguration::remoteDir() const
@@ -457,6 +495,11 @@ const QString MaemoRunConfiguration::sysRoot() const
     return toolchain() != 0 ? toolchain()->sysrootRoot() : QString();
 }
 
+const QStringList MaemoRunConfiguration::arguments() const
+{
+    return m_remoteHostIsSimulator ? m_argumentsSim : m_argumentsDevice;
+}
+
 const QString MaemoRunConfiguration::dumperLib() const
 {
     return project()->qtVersion(project()->activeBuildConfiguration())->
@@ -500,7 +543,10 @@ QString MaemoRunConfiguration::simulatorArgs() const
 
 void MaemoRunConfiguration::setArguments(const QStringList &args)
 {
-    m_arguments = args;
+    if (m_remoteHostIsSimulator)
+        m_argumentsSim = args;
+    else
+        m_argumentsDevice = args;
 }
 
 void MaemoRunConfiguration::setRemoteHostIsSimulator(bool isSimulator)
@@ -512,21 +558,33 @@ void MaemoRunConfiguration::setRemoteHostName(const QString &hostName)
 {
     m_lastDeployed = QDateTime();
     m_debuggingHelpersLastDeployed = QDateTime();
-    m_remoteHostName = hostName;
+
+    if (m_remoteHostIsSimulator)
+        m_remoteHostNameSim = hostName;
+    else
+        m_remoteHostNameDevice = hostName;
 }
 
 void MaemoRunConfiguration::setRemoteUserName(const QString &userName)
 {
     m_lastDeployed = QDateTime();
     m_debuggingHelpersLastDeployed = QDateTime();
-    m_remoteUserName = userName;
+
+    if (m_remoteHostIsSimulator)
+        m_remoteUserNameSim = userName;
+    else
+        m_remoteUserNameDevice = userName;
 }
 
 void MaemoRunConfiguration::setRemotePort(int port)
 {
     m_lastDeployed = QDateTime();
     m_debuggingHelpersLastDeployed = QDateTime();
-    m_remotePort = port;
+
+    if (m_remoteHostIsSimulator)
+        m_remotePortSim = port;
+    else
+        m_remotePortDevice = port;
 }
 
 #if USE_SSL_PASSWORD
@@ -785,17 +843,16 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     mainLayout->addRow(tr("Arguments:"), m_argsLineEdit);
     m_debuggerLabel = new QLabel(m_runConfiguration->gdbCmd());
     mainLayout->addRow(tr("Debugger:"), m_debuggerLabel);
+    mainLayout->addItem(new QSpacerItem(10, 10));
 
-    QWidget *hostTypeWidget = new QWidget;
     QHBoxLayout *hostTypeLayout = new QHBoxLayout;
-    hostTypeLayout->setContentsMargins(0, 0, 0, 0);
-    hostTypeWidget->setLayout(hostTypeLayout);
     m_hwButton = new QRadioButton(tr("Physical device"));
-    m_simButton = new QRadioButton(tr("Simulator"));
     hostTypeLayout->addWidget(m_hwButton);
+    m_simButton = new QRadioButton(tr("Simulator"));
     hostTypeLayout->addWidget(m_simButton);
     hostTypeLayout->addStretch(1);
-    mainLayout->addRow(tr("Remote host type:"), hostTypeWidget);
+    mainLayout->addRow(tr("Remote host type:"), hostTypeLayout);
+
     m_chooseSimPathLabel = new QLabel(tr("Choose simulator:"));
     m_simPathChooser = new Utils::PathChooser;
     m_simPathChooser->setPath(m_runConfiguration->simulatorPath());
@@ -808,6 +865,8 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     mainLayout->addRow(tr("Remote host name:"), m_hostNameLineEdit);
     m_userLineEdit = new QLineEdit(m_runConfiguration->remoteUserName());
     mainLayout->addRow(tr("Remote user name:"), m_userLineEdit);
+    m_portLineEdit = new QLineEdit(QString::number(m_runConfiguration->remotePort()));
+    mainLayout->addRow(tr("Remote SSH port:"), m_portLineEdit);
 
     // Unlikely to ever work: ssh uses /dev/tty directly instead of stdin/out
 #if USE_SSL_PASSWORD
@@ -820,9 +879,6 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_passwordLineEdit->setEnabled(m_passwordCheckBox->isChecked());
     mainLayout->addRow(m_passwordCheckBox, m_passwordLineEdit);
 #endif
-
-    m_portLineEdit = new QLineEdit(QString::number(m_runConfiguration->remotePort()));
-    mainLayout->addRow(tr("Remote SSH port:"), m_portLineEdit);
 
     connect(m_configNameLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(configNameEdited(QString)));
@@ -876,13 +932,18 @@ void MaemoRunConfigurationWidget::updateVisibleSimulatorParameter()
 
 void MaemoRunConfigurationWidget::hostTypeChanged()
 {
-    Q_ASSERT(m_hwButton->isChecked() != m_simButton->isChecked());
     const bool isSimulator = m_simButton->isChecked();
+
     m_chooseSimPathLabel->setVisible(isSimulator);
     m_simPathChooser->setVisible(isSimulator);
     m_simParamsNameLabel->setVisible(isSimulator);
     m_simParamsValueLabel->setVisible(isSimulator);
+
     m_runConfiguration->setRemoteHostIsSimulator(isSimulator);
+    m_argsLineEdit->setText(m_runConfiguration->arguments().join(" "));
+    m_hostNameLineEdit->setText(m_runConfiguration->remoteHostName());
+    m_userLineEdit->setText(m_runConfiguration->remoteUserName());
+    m_portLineEdit->setText(QString::number(m_runConfiguration->remotePort()));
 }
 
 void MaemoRunConfigurationWidget::hostNameEdited(const QString &hostName)

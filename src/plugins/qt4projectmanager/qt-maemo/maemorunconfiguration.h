@@ -86,7 +86,7 @@ public:
     QString maddeRoot() const;
     QString executable() const;
     const QString sysRoot() const;
-    const QStringList arguments() const { return m_arguments; }
+    const QStringList arguments() const;
     void setArguments(const QStringList &args);
 
     QString simulator() const;
@@ -95,9 +95,9 @@ public:
     QString visibleSimulatorParameter() const;
 
     bool remoteHostIsSimulator() const { return m_remoteHostIsSimulator; }
-    const QString remoteHostName() const { return m_remoteHostName; }
-    const QString remoteUserName() const { return m_remoteUserName; }
-    int remotePort() const { return m_remotePort > 0 ? m_remotePort : 22; }
+    const QString remoteHostName() const;
+    const QString remoteUserName() const;
+    int remotePort() const;
 
     const QString remoteDir() const;
     const QString sshCmd() const;
@@ -146,21 +146,10 @@ private:
 
 private:
     // Keys for saving/loading attributes.
-    static const QString ArgumentsKey;
-    static const QString RemoteHostIsSimulatorKey;
-    static const QString RemoteHostRequiresPasswordKey;
-    static const QString RemoteHostNameKey;
-    static const QString RemoteUserNameKey;
-    static const QString RemoteUserPasswordKey;
-    static const QString RemotePortKey;
-    static const QString LastDeployedKey;
-    static const QString DebuggingHelpersLastDeployedKey;
-
     QString m_executable;
     QString m_proFilePath;
     bool m_cachedTargetInformationValid;
 
-    QStringList m_arguments;
     QString m_simulator;
     QString m_simulatorArgs;
     QString m_simulatorPath;
@@ -171,9 +160,16 @@ private:
 
     // Information about the remote host.
     bool m_remoteHostIsSimulator;
-    QString m_remoteHostName;
-    QString m_remoteUserName;
-    int m_remotePort;
+
+    QStringList m_argumentsSim;
+    QString m_remoteHostNameSim;
+    QString m_remoteUserNameSim;
+    int m_remotePortSim;
+
+    QStringList m_argumentsDevice;
+    QString m_remoteHostNameDevice;
+    QString m_remoteUserNameDevice;
+    int m_remotePortDevice;
 
     QDateTime m_lastDeployed;
     QDateTime m_debuggingHelpersLastDeployed;
