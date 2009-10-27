@@ -51,7 +51,6 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/CppBindings.h>
 #include <cplusplus/Overview.h>
-#include <cplusplus/FindUsages.h>
 
 #include <QtCore/QTime>
 #include <QtCore/QtConcurrentRun>

@@ -36,15 +36,12 @@
 #include <QtCore/QFutureWatcher>
 #include <utils/filesearch.h>
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/FindUsages.h>
 
 namespace Find {
     class SearchResultWindow;
     struct SearchResultItem;
 } // end of namespace Find
-
-namespace CPlusPlus {
-    class Usage;
-} // end of namespace CPlusPlus
 
 namespace CppTools {
 class CppModelManagerInterface;
