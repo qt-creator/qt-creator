@@ -2926,7 +2926,7 @@ static void qDumpQVector(QDumper &d)
     if (innerIsPointerType && nn > 0)
         for (int i = 0; i != n; ++i)
             if (const void *p = addOffset(v, i * innersize + typeddatasize))
-                qCheckAccess(deref(p));
+                qCheckPointer(deref(p));
 
     d.putItemCount("value", n);
     d.putItem("valueeditable", "false");
