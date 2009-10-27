@@ -42,6 +42,7 @@
 #include <utils/pathchooser.h>
 
 #include <QtCore/QTimer>
+#include <QtCore/QDir>
 #include <QtGui/QRadioButton>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
@@ -67,12 +68,13 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     m_detailsWidget(new Utils::DetailsWidget),
     m_serialPortsCombo(new QComboBox),
     m_nameLineEdit(new QLineEdit(m_runConfiguration->name())),
-    m_sisxFileLabel(new QLabel(m_runConfiguration->basePackageFilePath() + QLatin1String(".sisx"))),
+    m_sisxFileLabel(new QLabel),
     m_deviceInfoButton(new QToolButton),
     m_deviceInfoDescriptionLabel(new QLabel(tr("Device:"))),
     m_deviceInfoLabel(new QLabel),
     m_infoTimeOutTimer(0)
 {
+    updateTargetInformation();
     QVBoxLayout *mainBoxLayout = new QVBoxLayout();
     mainBoxLayout->setMargin(0);
     setLayout(mainBoxLayout);
@@ -100,7 +102,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     connect(m_serialPortsCombo, SIGNAL(activated(int)), this, SLOT(setSerialPort(int)));
     QHBoxLayout *serialPortHBoxLayout = new QHBoxLayout;
     serialPortHBoxLayout->addWidget(m_serialPortsCombo);
-    serialPortHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
+    serialPortHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
 
     formLayout->addRow(tr("Device on Serial Port:"), serialPortHBoxLayout);
 
@@ -218,7 +220,8 @@ void S60DeviceRunConfigurationWidget::nameEdited(const QString &text)
 
 void S60DeviceRunConfigurationWidget::updateTargetInformation()
 {
-    m_sisxFileLabel->setText(m_runConfiguration->basePackageFilePath() + QLatin1String(".sisx"));
+    m_sisxFileLabel->setText(QDir::toNativeSeparators(m_runConfiguration->basePackageFilePath()
+                                                      + QLatin1String(".sisx")));
 }
 
 void S60DeviceRunConfigurationWidget::setSerialPort(int index)

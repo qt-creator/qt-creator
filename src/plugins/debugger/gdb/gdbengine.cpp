@@ -101,6 +101,7 @@ namespace Internal {
 #else
 #   define PENDING_DEBUG(s)
 #endif
+#define PENDING_DEBUGX(s) qDebug() << s
 
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
 
@@ -225,7 +226,7 @@ QMainWindow *GdbEngine::mainWindow() const
 GdbEngine::~GdbEngine()
 {
     // prevent sending error messages afterwards
-    disconnect(&m_gdbProc);
+    disconnect(&m_gdbProc, 0, this, 0);
     delete m_gdbAdapter;
     m_gdbAdapter = 0;
 }
@@ -692,10 +693,10 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 
     if (cmd.flags & RebuildModel) {
         ++m_pendingRequests;
-        PENDING_DEBUG("   CALLBACK" << cmd.callbackName
+        PENDING_DEBUG("   COMMAND" << cmd.callbackName
             << "INCREMENTS PENDING TO:" << m_pendingRequests << cmd.command);
     } else {
-        PENDING_DEBUG("   UNKNOWN CALLBACK" << cmd.callbackName
+        PENDING_DEBUG("   UNKNOWN COMMAND" << cmd.callbackName
             << "LEAVES PENDING AT:" << m_pendingRequests << cmd.command);
     }
 
@@ -816,14 +817,14 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
 
     if (cmd.flags & RebuildModel) {
         --m_pendingRequests;
-        PENDING_DEBUG("   TYPE " << cmd.callbackName << " DECREMENTS PENDING TO: "
+        PENDING_DEBUG("   RESULT " << cmd.callbackName << " DECREMENTS PENDING TO: "
             << m_pendingRequests << cmd.command);
         if (m_pendingRequests <= 0) {
             PENDING_DEBUG("\n\n ....  AND TRIGGERS MODEL UPDATE\n");
             rebuildModel();
         }
     } else {
-        PENDING_DEBUG("   UNKNOWN TYPE " << cmd.callbackName << " LEAVES PENDING AT: "
+        PENDING_DEBUG("   UNKNOWN RESULT " << cmd.callbackName << " LEAVES PENDING AT: "
             << m_pendingRequests << cmd.command);
     }
 
@@ -1132,6 +1133,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
                 || name != CROSS_STOP_SIGNAL))
             initHelpers = false;
     }
+    if (isSynchroneous())
+        initHelpers = false;
     if (initHelpers) {
         tryLoadDebuggingHelpers();
         QVariant var = QVariant::fromValue<GdbMi>(data);
@@ -2966,6 +2969,22 @@ void GdbEngine::updateWatchData(const WatchData &data)
 #else
         if (data.iname.endsWith(_(".")))
             return;
+
+        // Avoid endless loops created by faulty dumpers.
+        QString processedName = QString(_("%1-%2").arg(1).arg(data.iname));
+        //qDebug() << "PROCESSED NAMES: " << processedName << m_processedNames;
+        if (m_processedNames.contains(processedName)) {
+            WatchData data1 = data;
+            gdbInputAvailable(LogStatus,
+                _("<Breaking endless loop for %1>").arg(data1.iname));
+            data1.setAllUnneeded();
+            data1.setValue(_("<unavailable>"));
+            data1.setHasChildren(false);
+            insertData(data1);
+            return; 
+        }
+        m_processedNames.insert(processedName);
+
         updateLocals();
 #endif
     } else {
@@ -3004,7 +3023,8 @@ void GdbEngine::rebuildModel()
 {
     static int count = 0;
     ++count;
-    m_processedNames.clear();
+    if (!isSynchroneous())
+        m_processedNames.clear();
     PENDING_DEBUG("REBUILDING MODEL" << count);
     gdbInputAvailable(LogStatus, _("<Rebuild Watchmodel %1>").arg(count));
     showStatusMessage(tr("Finished retrieving data."), 400);
@@ -3373,27 +3393,28 @@ void GdbEngine::handleDebuggingHelperValue3(const GdbResponse &response)
 void GdbEngine::updateLocals(const QVariant &cookie)
 {
     m_pendingRequests = 0;
-    m_processedNames.clear();
-
-    PENDING_DEBUG("\nRESET PENDING");
-    //m_toolTipCache.clear();
-    m_toolTipExpression.clear();
-    manager()->watchHandler()->beginCycle();
-
-    // Asynchronous load of injected library, initialize in first stop
-    if (m_dumperInjectionLoad && m_debuggingHelperState == DebuggingHelperLoadTried
-            && m_dumperHelper.typeCount() == 0
-            && inferiorPid() > 0)
-        tryQueryDebuggingHelpers();
-
     if (isSynchroneous()) {
+        manager()->watchHandler()->beginCycle();
+        m_toolTipExpression.clear();
         QStringList expanded = m_manager->watchHandler()->expandedINames().toList();
         postCommand(_("bb %1 %2")
                 .arg(int(theDebuggerBoolSetting(UseDebuggingHelpers)))
                 .arg(expanded.join(_(","))),
-            CB(handleStackFrame1));
-        postCommand(_("p 1"), CB(handleStackFrame2));
+            CB(handleStackFrame));
     } else {
+        m_processedNames.clear();
+
+        PENDING_DEBUG("\nRESET PENDING");
+        //m_toolTipCache.clear();
+        m_toolTipExpression.clear();
+        manager()->watchHandler()->beginCycle();
+
+        // Asynchronous load of injected library, initialize in first stop
+        if (m_dumperInjectionLoad && m_debuggingHelperState == DebuggingHelperLoadTried
+                && m_dumperHelper.typeCount() == 0
+                && inferiorPid() > 0)
+            tryQueryDebuggingHelpers();
+
         QString level = QString::number(currentFrame());
         // '2' is 'list with type and value'
         QString cmd = _("-stack-list-arguments 2 ") + level + _c(' ') + level;
@@ -3404,27 +3425,13 @@ void GdbEngine::updateLocals(const QVariant &cookie)
     }
 }
 
-void GdbEngine::handleStackFrame1(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        QByteArray out = response.data.findChild("consolestreamoutput").data();
-        while (out.endsWith(' ') || out.endsWith('\n'))
-            out.chop(1);
-        //qDebug() << "FIRST CHUNK: " << out;
-        m_firstChunk = out;
-    } else {
-        QTC_ASSERT(false, qDebug() << response.toString());
-    }
-}
-
-void GdbEngine::handleStackFrame2(const GdbResponse &response)
+void GdbEngine::handleStackFrame(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         QByteArray out = response.data.findChild("consolestreamoutput").data();
         while (out.endsWith(' ') || out.endsWith('\n'))
             out.chop(1);
         //qDebug() << "SECOND CHUNK: " << out;
-        out = m_firstChunk + out;
         int pos = out.indexOf("locals=");
         if (pos != 0) {
             qDebug() << "DISCARDING JUNK AT BEGIN OF RESPONSE: "
@@ -3450,7 +3457,13 @@ void GdbEngine::handleStackFrame2(const GdbResponse &response)
 
         // FIXME:
         //manager()->watchHandler()->updateWatchers();
-        rebuildModel();
+        PENDING_DEBUG("AFTER handleStackFrame()");
+        // FIXME: This should only be used when updateLocals() was
+        // triggered by expanding an item in the view.
+        if (m_pendingRequests <= 0) {
+            PENDING_DEBUG("\n\n ....  AND TRIGGERS MODEL UPDATE\n");
+            rebuildModel();
+        }
     } else {
         QTC_ASSERT(false, /**/);
     }
@@ -3799,7 +3812,7 @@ void GdbEngine::tryLoadDebuggingHelpers()
     const QFileInfo fi(lib);
     if (!fi.exists()) {
         const QString loc = locations.join(QLatin1String(", "));
-        const QString msg = tr("The dumper library was not found at %1.").arg(loc);
+        const QString msg = tr("The debugging helper library was not found at %1.").arg(loc);
         debugMessage(msg);
         manager()->showQtDumperLibraryWarning(msg);
         return;
@@ -3815,10 +3828,10 @@ void GdbEngine::tryLoadDebuggingHelpers()
         SharedLibraryInjector injector(inferiorPid());
         QString errorMessage;
         if (injector.remoteInject(dlopenLib, false, &errorMessage)) {
-            debugMessage(tr("Dumper injection loading triggered (%1)...").
+            debugMessage(_("Dumper injection loading triggered (%1)...").
                          arg(dlopenLib));
         } else {
-            debugMessage(tr("Dumper loading (%1) failed: %2").
+            debugMessage(_("Dumper loading (%1) failed: %2").
                          arg(dlopenLib, errorMessage));
             debugMessage(errorMessage);
             manager()->showQtDumperLibraryWarning(errorMessage);
@@ -3826,7 +3839,7 @@ void GdbEngine::tryLoadDebuggingHelpers()
             return;
         }
     } else {
-        debugMessage(tr("Loading dumpers via debugger call (%1)...").
+        debugMessage(_("Loading dumpers via debugger call (%1)...").
                      arg(dlopenLib));
         postCommand(_("sharedlibrary .*")); // for LoadLibraryA
         //postCommand(_("handle SIGSEGV pass stop print"));

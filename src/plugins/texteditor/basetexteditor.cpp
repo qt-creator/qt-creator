@@ -4651,7 +4651,8 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
                             || text.endsWith(QChar::ParagraphSeparator)
                             || text.endsWith(QLatin1Char('\r')));
 
-    if (hasFinalNewline) // since we'll add a final newline, preserve current line's indentation
+    if (insertAtBeginningOfLine
+        && hasFinalNewline) // since we'll add a final newline, preserve current line's indentation
         cursor.setPosition(cursor.block().position());
 
     int cursorPosition = cursor.position();

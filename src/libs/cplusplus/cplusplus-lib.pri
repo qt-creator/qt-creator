@@ -1,4 +1,9 @@
-DEFINES += CPLUSPLUS_BUILD_LIB
+contains(CONFIG, dll) {
+    DEFINES += CPLUSPLUS_BUILD_LIB
+} else {
+    DEFINES += CPLUSPLUS_BUILD_STATIC_LIB
+}
+
 INCLUDEPATH += $$PWD
 
 include(../../shared/cplusplus/cplusplus.pri)
@@ -33,6 +38,7 @@ HEADERS += \
     $$PWD/CppBindings.h \
     $$PWD/ASTParent.h \
     $$PWD/GenTemplateInstance.h \
+    $$PWD/FindUsages.h \
     $$PWD/CheckUndefinedSymbols.h \
     $$PWD/PreprocessorClient.h \
     $$PWD/PreprocessorEnvironment.h \
@@ -56,6 +62,7 @@ SOURCES += \
     $$PWD/CppBindings.cpp \
     $$PWD/ASTParent.cpp \
     $$PWD/GenTemplateInstance.cpp \
+    $$PWD/FindUsages.cpp \
     $$PWD/CheckUndefinedSymbols.cpp \
     $$PWD/PreprocessorClient.cpp \
     $$PWD/PreprocessorEnvironment.cpp \

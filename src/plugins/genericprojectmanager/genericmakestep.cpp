@@ -142,9 +142,10 @@ void GenericMakeStep::setBuildTarget(const QString &buildConfiguration, const QS
 {
     QStringList old = value(buildConfiguration, "buildTargets").toStringList();
     if (on && !old.contains(target))
-        setValue(buildConfiguration, "buildTargets", old << target);
+        old << target;
     else if(!on && old.contains(target))
-        setValue(buildConfiguration, "buildTargets", old.removeOne(target));
+        old.removeOne(target);
+    setValue(buildConfiguration, "buildTargets", old);
 }
 
 //

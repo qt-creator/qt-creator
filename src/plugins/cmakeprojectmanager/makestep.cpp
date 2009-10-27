@@ -132,9 +132,11 @@ void MakeStep::setBuildTarget(const QString &buildConfiguration, const QString &
 {
     QStringList old = value(buildConfiguration, "buildTargets").toStringList();
     if (on && !old.contains(target))
-        setValue(buildConfiguration, "buildTargets", old << target);
+        old.append(target);
     else if(!on && old.contains(target))
-        setValue(buildConfiguration, "buildTargets", old.removeOne(target));
+        old.removeOne(target);
+
+    setValue(buildConfiguration, "buildTargets", old);
 }
 
 QStringList MakeStep::additionalArguments(const QString &buildConfiguration) const

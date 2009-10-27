@@ -370,14 +370,12 @@ private: ////////// View & Data Stuff //////////
     void handleStackListFrames(const GdbResponse &response);
     void handleStackSelectThread(const GdbResponse &response);
     void handleStackListThreads(const GdbResponse &response);
-    void handleStackFrame1(const GdbResponse &response);
-    void handleStackFrame2(const GdbResponse &response);
+    void handleStackFrame(const GdbResponse &response);
     Q_SLOT void reloadStack(bool forceGotoLocation);
     Q_SLOT void reloadFullStack();
     int currentFrame() const;
 
     QList<GdbMi> m_currentFunctionArgs;
-    QByteArray m_firstChunk;
     QString m_currentFrame;
 
     //

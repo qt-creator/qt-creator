@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = Utils
 QT += gui \
     network
-DEFINES += QTCREATOR_UTILS_LIBRARY
+DEFINES += QTCREATOR_UTILS_LIB
 include(../../qtcreatorlibrary.pri)
 SOURCES += reloadpromptutils.cpp \
     settingsutils.cpp \

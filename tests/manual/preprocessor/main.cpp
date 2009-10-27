@@ -69,9 +69,15 @@ public:
 #endif
     }
 
+    virtual void passedMacroDefinitionCheck(unsigned, const Macro &)
+    { }
+
+    virtual void failedMacroDefinitionCheck(unsigned, const QByteArray &)
+    { }
+
     virtual void startExpandingMacro(unsigned, const Macro &,
                                      const QByteArray &,
-                                     const QVector<MacroArgumentReference> &)
+                                     bool, const QVector<MacroArgumentReference> &)
     { }
 
     virtual void stopExpandingMacro(unsigned, const Macro &)
@@ -84,11 +90,33 @@ public:
     { }
 };
 
+int make_depend(QCoreApplication *app);
+
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    QStringList todo = app.arguments();
+    QStringList args = app.arguments();
+    args.removeFirst();
+
+    foreach (const QString &fileName, args) {
+        QFile file(fileName);
+        if (file.open(QFile::ReadOnly)) {
+            QTextStream in(&file);
+            const QString source = in.readAll();
+
+            Environment env;
+            Preprocessor pp(/*client=*/ 0, &env);
+            const QByteArray preprocessedCode = pp(fileName, source);
+            std::cout << preprocessedCode.constData();
+        }
+    }
+}
+
+int make_depend(QCoreApplication *app)
+{
+    QStringList todo = app->arguments();
     todo.removeFirst();
 
     if (todo.isEmpty())

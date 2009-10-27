@@ -566,6 +566,11 @@ ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int a
     FullySpecifiedType ty = result.first.simplified();
     Symbol *lastVisibleSymbol = result.second;
 
+    if (Function *funTy = ty->asFunctionType()) {
+        if (funTy->isAmbiguous())
+            ty = funTy->returnType().simplified();
+    }
+
     if (accessOp == T_ARROW)  {
         if (lastVisibleSymbol && ty->isClassType() && ! lastVisibleSymbol->isClass()) {
             // ### remove ! lastVisibleSymbol->isClass() from the condition.
@@ -695,7 +700,7 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
     QList<Scope *> scopes;
     _context.expand(klass->members(), _context.visibleScopes(), &scopes);
 
-    QList<Symbol *> candidates = _context.resolve(memberName, scopes);
+    const QList<Symbol *> candidates = _context.resolve(memberName, scopes);
 
     foreach (Symbol *candidate, candidates) {
         FullySpecifiedType ty = candidate->type();
@@ -710,13 +715,17 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
             for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
                 FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
                 
-                if (i < klass->templateParameterCount())
-                    subst.append(qMakePair(klass->templateParameterAt(i)->name(),
-                                           templArgTy));
+                if (i < klass->templateParameterCount()) {
+                    Name *templArgName = klass->templateParameterAt(i)->name();
+                    if (templArgName && templArgName->identifier()) {
+                        Identifier *templArgId = templArgName->identifier();
+                        subst.append(qMakePair(templArgId, templArgTy));
+                    }
+                }
             }
             
-            GenTemplateInstance inst(control(), subst);
-            ty = inst(ty);
+            GenTemplateInstance inst(_context, subst);
+            ty = inst(candidate);
         }
         
         results.append(Result(ty, candidate));

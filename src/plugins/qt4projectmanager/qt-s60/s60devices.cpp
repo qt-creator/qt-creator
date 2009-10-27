@@ -140,6 +140,8 @@ bool S60Devices::readWin()
                                 device.toolsRoot = xml.readElementText();
                             }
                         }
+                        if (device.toolsRoot.isEmpty())
+                            device.toolsRoot = device.epocRoot;
                         m_devices.append(device);
                     }
                 }
@@ -206,6 +208,16 @@ S60Devices::Device S60Devices::deviceForId(const QString &id) const
 {
     foreach (const S60Devices::Device &i, m_devices) {
         if (i.id == id) {
+            return i;
+        }
+    }
+    return Device();
+}
+
+S60Devices::Device S60Devices::deviceForEpocRoot(const QString &root) const
+{
+    foreach (const S60Devices::Device &i, m_devices) {
+        if (i.epocRoot == root) {
             return i;
         }
     }

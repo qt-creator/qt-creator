@@ -36,6 +36,7 @@
 #include <QtCore/QFutureWatcher>
 #include <utils/filesearch.h>
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/FindUsages.h>
 
 namespace Find {
     class SearchResultWindow;
@@ -78,7 +79,7 @@ private:
 private:
     QPointer<CppModelManagerInterface> _modelManager;
     Find::SearchResultWindow *_resultWindow;
-    QFutureWatcher<Utils::FileSearchResult> m_watcher;
+    QFutureWatcher<CPlusPlus::Usage> m_watcher;
 };
 
 } // end of namespace Internal

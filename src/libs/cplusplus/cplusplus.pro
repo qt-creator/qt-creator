@@ -1,5 +1,5 @@
 TEMPLATE = lib
-
+CONFIG+=dll
 TARGET = CPlusPlus
 
 DEFINES += NDEBUG

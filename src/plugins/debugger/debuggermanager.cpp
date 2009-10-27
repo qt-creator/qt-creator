@@ -180,7 +180,7 @@ using namespace Debugger::Internal;
 
 static const QString tooltipIName = "tooltip";
 
-static const char *stateName(int s)
+const char *DebuggerManager::stateName(int s)
 {
     #define SN(x) case x: return #x;
     switch (s) {
@@ -1470,20 +1470,19 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
     QMessageBox dialog(mainWindow());
     QPushButton *qtPref = dialog.addButton(tr("Open Qt preferences"),
         QMessageBox::ActionRole);
-    QPushButton *helperOff = dialog.addButton(tr("Turn helper usage off"),
+    QPushButton *helperOff = dialog.addButton(tr("Turn off helper usage"),
         QMessageBox::ActionRole);
     QPushButton *justContinue = dialog.addButton(tr("Continue anyway"),
         QMessageBox::AcceptRole);
     dialog.setDefaultButton(justContinue);
     dialog.setWindowTitle(tr("Debugging helper missing"));
-    dialog.setText(tr("The debugger did not find the debugging helper library."));
+    dialog.setText(tr("The debugger could not load the debugging helper library."));
     dialog.setInformativeText(tr(
         "The debugging helper is used to nicely format the values of some Qt "
         "and Standard Library data types. "
-        "It must be compiled for each Qt version which "
-        "you can do in the Qt preferences page by selecting "
-        "a Qt installation and clicking on 'Rebuild' for the debugging "
-        "helper."));
+        "It must be compiled for each used Qt version separately. "
+        "This can be done in the Qt preferences page by selecting a Qt installation "
+        "and clicking on 'Rebuild' in the 'Debugging Helper' row."));
     if (!details.isEmpty())
         dialog.setDetailedText(details);
     dialog.exec();
@@ -1753,7 +1752,7 @@ void DebuggerManager::ensureLogVisible()
 
 QDebug operator<<(QDebug d, DebuggerState state)
 {
-    return d << stateName(state) << '(' << int(state) << ')';
+    return d << DebuggerManager::stateName(state) << '(' << int(state) << ')';
 }
 
 //////////////////////////////////////////////////////////////////////

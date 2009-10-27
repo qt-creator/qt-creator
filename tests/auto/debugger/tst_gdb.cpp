@@ -194,6 +194,8 @@ private slots:
     void dumpQWeakPointer();
     void dumpQVector();
 
+    void dumpQHash();
+
 public slots:
     void dumperCompatibility();
 #if 0
@@ -203,7 +205,6 @@ public slots:
     void dumpQDir();
     void dumpQFile();
     void dumpQFileInfo();
-    void dumpQHash();
     void dumpQHashNode();
     void dumpQImage();
     void dumpQImageData();
@@ -2556,6 +2557,84 @@ void tst_Gdb::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
 */
 #endif
 }
+
+///////////////////////////// QHash<QString, QString> //////////////////////////////
+
+void dumpQHash_QString_QString()
+{
+    /* A */ QHash<QString, QString> h;
+    /* B */ h["hello"] = "world";
+    /* C */ h["foo"] = "bar";
+    /* D */ (void) 0;
+}
+
+void dumpQHash_int_int()
+{
+    /* A */ QHash<int, int> h;
+    /* B */ h[43] = 44;
+    /* C */ h[45] = 46;
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dumpQHash()
+{
+    // Need to check the following combinations:
+    // int-key optimization, small value
+    //struct NodeOS { void *next; uint k; uint  v; } nodeOS
+    // int-key optimiatzion, large value
+    //struct NodeOL { void *next; uint k; void *v; } nodeOL
+    // no optimization, small value
+    //struct NodeNS +  { void *next; uint h; uint  k; uint  v; } nodeNS
+    // no optimization, large value
+    //struct NodeNL { void *next; uint h; uint  k; void *v; } nodeNL
+    // complex key
+    //struct NodeL  { void *next; uint h; void *k; void *v; } nodeL
+
+    prepare("dumpQHash_int_int");
+    if (checkUninitialized)
+        run("A","{iname='local.h',addr='-',name='h',"
+            "type='"NS"QHash<int, int>',value='<not in scope>',"
+            "numchild='0'}");
+    next();
+    next();
+    next();
+    run("D","{iname='local.h',addr='-',name='h',"
+            "type='"NS"QHash<int, int>',value='<2 items>',numchild='2',"
+            "childtype='int',childnumchild='0',children=["
+            "{name='43',value='44'},"
+            "{name='45',value='46'}]}",
+            "local.h");
+
+    prepare("dumpQHash_QString_QString");
+    if (checkUninitialized)
+        run("A","{iname='local.h',addr='-',name='h',"
+            "type='"NS"QHash<"NS"QString, "NS"QString>',value='<not in scope>',"
+            "numchild='0'}");
+    next();
+    //run("B","{iname='local.h',addr='-',name='h',"
+    //        "type='"NS"QHash<"NS"QString, "NS"QString>',value='<0 items>',"
+    //        "numchild='0'}");
+    next();
+    next();
+    //run("D","{iname='local.h',addr='-',name='h',"
+    //        "type='"NS"QHash<"NS"QString, "NS"QString>',value='<2 items>',"
+    //        "numchild='2'}");
+    run("D","{iname='local.h',addr='-',name='h',"
+            "type='"NS"QHash<"NS"QString, "NS"QString>',value='<2 items>',"
+            "numchild='2',childtype='"NS"QHashNode<"NS"QString, "NS"QString>',"
+            "children=["
+              "{value=' ',numchild='2',children=[{name='key',valueencoded='7',"
+                            "value='66006f006f00',numchild='0'},"
+                         "{name='value',valueencoded='7',"
+                             "value='620061007200',numchild='0'}]},"
+              "{value=' ',numchild='2',children=[{name='key',valueencoded='7',"
+                            "value='680065006c006c006f00',numchild='0'},"
+                         "{name='value',valueencoded='7',"
+                             "value='77006f0072006c006400',numchild='0'}]}"
+            "]}",
+            "local.h,local.h.0,local.h.1");
+}
+
 
 ///////////////////////////// QList<int> /////////////////////////////////
 

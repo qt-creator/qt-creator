@@ -190,6 +190,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             fun->setScope(_scope);
             fun->setName(name);
             fun->setMethodKey(semantic()->currentMethodKey());
+            fun->setVirtual(ty.isVirtual());
             if (isQ_SIGNAL)
                 fun->setMethodKey(Function::SignalMethod);
             else if (isQ_SLOT)
@@ -281,6 +282,7 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     }
 
     Function *fun = funTy->asFunctionType();
+    fun->setVirtual(ty.isVirtual());
     fun->setStartOffset(tokenAt(ast->firstToken()).offset);
     fun->setEndOffset(tokenAt(ast->lastToken()).offset);
     if (ast->declarator)

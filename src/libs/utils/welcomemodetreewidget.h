@@ -56,7 +56,7 @@ class QTCREATOR_UTILS_EXPORT WelcomeModeTreeWidget : public QTreeWidget
 public:
     WelcomeModeTreeWidget(QWidget *parent = 0);
     ~WelcomeModeTreeWidget();
-    QTreeWidgetItem *addItem(const QString &label, const QString &data);
+    QTreeWidgetItem *addItem(const QString &label, const QString &data,const QString &toolTip = QString::null);
 
 public slots:
     void slotAddNewsItem(const QString &title, const QString &description, const QString &link);

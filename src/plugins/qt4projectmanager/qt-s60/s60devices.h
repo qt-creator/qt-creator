@@ -63,6 +63,7 @@ public:
     QList<Device> devices() const;
     bool detectQtForDevices();
     Device deviceForId(const QString &id) const;
+    Device deviceForEpocRoot(const QString &root) const;
 
     static QString cleanedRootPath(const QString &deviceRoot);
 signals:

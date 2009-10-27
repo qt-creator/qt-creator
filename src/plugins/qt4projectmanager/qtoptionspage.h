@@ -82,6 +82,8 @@ public:
     int defaultVersion() const;
     void finish();
 
+    virtual bool eventFilter(QObject *o, QEvent *e);
+
 private:
     void showEnvironmentPage(QTreeWidgetItem * item);
     void fixQtVersionName(int index);
@@ -109,7 +111,7 @@ private slots:
     void updateState();
     void makeMingwVisible(bool visible);
     void makeMSVCVisible(bool visible);
-    void makeMWCVisible(bool visible);
+    void makeS60Visible(bool visible);
     void onQtBrowsed();
     void onMingwBrowsed();
     void defaultChanged(int index);
@@ -118,6 +120,7 @@ private slots:
     void updateCurrentMingwDirectory();
 #ifdef QTCREATOR_WITH_S60
     void updateCurrentMwcDirectory();
+    void updateCurrentS60SDKDirectory();
 #endif
     void msvcVersionChanged();
     void buildDebuggingHelper();

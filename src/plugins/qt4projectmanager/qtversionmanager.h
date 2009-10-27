@@ -95,6 +95,8 @@ public:
 #ifdef QTCREATOR_WITH_S60
     QString mwcDirectory() const;
     void setMwcDirectory(const QString &directory);
+    QString s60SDKDirectory() const;
+    void setS60SDKDirectory(const QString &directory);
 #endif
     QString mingwDirectory() const;
     void setMingwDirectory(const QString &directory);
@@ -130,6 +132,9 @@ public:
     };
 
     QmakeBuildConfig defaultBuildConfig() const;
+
+    QString toHtml() const;
+
 private:
     QList<QSharedPointer<ProjectExplorer::ToolChain> > toolChains() const;
     static int getUniqueId();
@@ -149,6 +154,7 @@ private:
     bool m_hasDebuggingHelper;
 #ifdef QTCREATOR_WITH_S60
     QString m_mwcDirectory;
+    QString m_s60SDKDirectory;
 #endif
 
     mutable bool m_mkspecUpToDate;

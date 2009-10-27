@@ -119,9 +119,8 @@ void ProjectWelcomePageWidget::updateWelcomePage(const WelcomePageData &welcomeP
     typedef QPair<QString, QString> QStringPair;
     if (welcomePageData.projectList.count() > 0) {
         foreach (const QStringPair &it, welcomePageData.projectList) {
-            QTreeWidgetItem *item = ui->projTreeWidget->addItem(it.second, it.first);
             const QFileInfo fi(it.first);
-            item->setToolTip(1, QDir::toNativeSeparators(fi.absolutePath()));
+            QTreeWidgetItem *item = ui->projTreeWidget->addItem(it.second, it.first, fi.absolutePath());
         }
     } else {
         ui->projTreeWidget->hide();
