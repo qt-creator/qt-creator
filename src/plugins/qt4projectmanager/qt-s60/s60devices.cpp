@@ -140,6 +140,8 @@ bool S60Devices::readWin()
                                 device.toolsRoot = xml.readElementText();
                             }
                         }
+                        if (device.toolsRoot.isEmpty())
+                            device.toolsRoot = device.epocRoot;
                         m_devices.append(device);
                     }
                 }
