@@ -127,6 +127,8 @@ static void find_helper(QFutureInterface<Usage> &future,
         files += snapshot.dependsOn(sourceFile);
     }
 
+    files.removeDuplicates();
+
     //qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
 
     future.setProgressRange(0, files.size());

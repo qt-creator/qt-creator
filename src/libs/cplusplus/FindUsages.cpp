@@ -122,9 +122,11 @@ bool FindUsages::checkCandidates(const QList<Symbol *> &candidates) const
     if (Symbol *canonicalSymbol = LookupContext::canonicalSymbol(candidates, _globalNamespaceBinding.data())) {
 
 #if 0
+        Symbol *c = candidates.first();
         qDebug() << "*** canonical symbol:" << canonicalSymbol->fileName()
                 << canonicalSymbol->line() << canonicalSymbol->column()
-                << "candidates:" << candidates.size();
+                << "candidates:" << candidates.size()
+                << c->fileName() << c->line() << c->column();
 #endif
 
         return checkSymbol(canonicalSymbol);
