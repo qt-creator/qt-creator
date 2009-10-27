@@ -252,8 +252,6 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     void handleResultRecord(GdbResponse *response);
     void handleStop1(const GdbResponse &response);
     void handleStop1(const GdbMi &data);
-    void handleStop2(const GdbResponse &response);
-    void handleStop2(const GdbMi &data);
     StackFrame parseStackFrame(const GdbMi &mi, int level);
 
     virtual bool isSynchroneous() const;

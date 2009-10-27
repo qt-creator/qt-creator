@@ -1134,6 +1134,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     } else {
         handleStop1(data);
     }
+    // Dumper loading is sequenced, as otherwise the display functions
+    // will start requesting data without knowing that dumpers are available.
 }
 
 void GdbEngine::handleStop1(const GdbResponse &response)
@@ -1147,13 +1149,12 @@ void GdbEngine::handleStop1(const GdbMi &data)
         reloadModules(); // This is for display only
     if (m_sourcesListOutdated)
         reloadSourceFiles(); // This needs to be done before fullName() may need it
+
     QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
         showStatusMessage(tr("Stopped at breakpoint."));
         //debugMessage(_("HIT BREAKPOINT: " + frame.toString()));
         postCommand(_("-break-list"), CB(handleBreakList));
-        QVariant var = QVariant::fromValue<GdbMi>(data);
-        postCommand(_("p 2"), CB(handleStop2), var);  // dummy
     } else {
         if (reason == "signal-received"
             && theDebuggerBoolSetting(UseMessageBoxForSignals)) {
@@ -1177,17 +1178,8 @@ void GdbEngine::handleStop1(const GdbMi &data)
             showStatusMessage(tr("Stopped."));
         else
             showStatusMessage(tr("Stopped: \"%1\"").arg(_(reason)));
-        handleStop2(data);
     }
-}
 
-void GdbEngine::handleStop2(const GdbResponse &response)
-{
-    handleStop2(response.cookie.value<GdbMi>());
-}
-
-void GdbEngine::handleStop2(const GdbMi &data)
-{
     const GdbMi gdbmiFrame = data.findChild("frame");
 
     m_currentFrame = _(gdbmiFrame.findChild("addr").data() + '%' +
@@ -3484,7 +3476,7 @@ void GdbEngine::handleStackListLocals(const GdbResponse &response)
     QMap<QByteArray, int> seen;
     // If desired, retrieve list of uninitialized variables looking at
     // the current frame. This is invoked first time after a stop from
-    // handleStop2, which passes on the frame as cookie. The whole stack
+    // handleStop1, which passes on the frame as cookie. The whole stack
     // is not known at this point.
     QStringList uninitializedVariables;
     if (theDebuggerAction(UseCodeModel)->isChecked()) {
