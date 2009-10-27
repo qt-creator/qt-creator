@@ -40,6 +40,7 @@ static const char *smartBackspaceKey = "SmartBackspace";
 static const char *autoIndentKey = "AutoIndent";
 static const char *tabSizeKey = "TabSize";
 static const char *indentSizeKey = "IndentSize";
+static const char *indentBracesKey = "IndentBraces";
 static const char *tabKeyBehaviorKey = "TabKeyBehavior";
 static const char *groupPostfix = "TabSettings";
 
@@ -51,6 +52,7 @@ TabSettings::TabSettings() :
     m_smartBackspace(false),
     m_tabSize(8),
     m_indentSize(4),
+    m_indentBraces(false),
     m_tabKeyBehavior(TabNeverIndents)
 {
 }
@@ -66,6 +68,7 @@ void TabSettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(smartBackspaceKey), m_smartBackspace);
     s->setValue(QLatin1String(tabSizeKey), m_tabSize);
     s->setValue(QLatin1String(indentSizeKey), m_indentSize);
+    s->setValue(QLatin1String(indentBracesKey), m_indentBraces);
     s->setValue(QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior);
     s->endGroup();
 }
@@ -84,6 +87,7 @@ void TabSettings::fromSettings(const QString &category, const QSettings *s)
     m_smartBackspace  = s->value(group + QLatin1String(smartBackspaceKey), m_smartBackspace).toBool();
     m_tabSize         = s->value(group + QLatin1String(tabSizeKey), m_tabSize).toInt();
     m_indentSize      = s->value(group + QLatin1String(indentSizeKey), m_indentSize).toInt();
+    m_indentBraces    = s->value(group + QLatin1String(indentBracesKey), m_indentBraces).toBool();
     m_tabKeyBehavior  = (TabKeyBehavior)s->value(group + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior).toInt();
 }
 
@@ -296,6 +300,7 @@ bool TabSettings::equals(const TabSettings &ts) const
         && m_smartBackspace == ts.m_smartBackspace
         && m_tabSize == ts.m_tabSize
         && m_indentSize == ts.m_indentSize
+        && m_indentBraces == ts.m_indentBraces
         && m_tabKeyBehavior == ts.m_tabKeyBehavior;
 }
 

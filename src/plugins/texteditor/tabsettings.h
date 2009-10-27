@@ -80,6 +80,7 @@ struct TEXTEDITOR_EXPORT TabSettings
     bool m_smartBackspace;
     int m_tabSize;
     int m_indentSize;
+    bool m_indentBraces;
     TabKeyBehavior m_tabKeyBehavior;
 
     bool equals(const TabSettings &ts) const;

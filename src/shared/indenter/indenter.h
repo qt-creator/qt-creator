@@ -93,6 +93,7 @@ public:
 
     void setIndentSize(int size);
     void setTabSize(int size );
+    void setIndentBraces(bool indent);
 
     /* Return indentation for the last line of the sequence
      * based on the previous lines. */
@@ -123,6 +124,7 @@ private:
     IndenterInternal::Constants m_constants;
     int ppHardwareTabSize;
     int ppIndentSize;
+    bool ppIndentBraces;
     int ppContinuationIndentSize;
 
     Iterator yyProgramBegin;

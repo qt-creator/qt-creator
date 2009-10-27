@@ -95,6 +95,8 @@ namespace {
       line.
     * ppCommentOffset is the indentation within a C-style comment,
       when it cannot be picked up.
+    * ppIndentBraces will indent braces flush with an indented code
+      block.
 */
 
 
@@ -105,6 +107,7 @@ template <class Iterator>
 Indenter<Iterator>::Indenter() :
     ppHardwareTabSize(8),
     ppIndentSize(4),
+    ppIndentBraces(false),
     ppContinuationIndentSize(8),
     yyLinizerState(new LinizerState),
     yyLine(0),
@@ -137,6 +140,12 @@ template <class Iterator>
 void Indenter<Iterator>::setTabSize(int size )
 {
     ppHardwareTabSize = size;
+}
+
+template <class Iterator>
+void Indenter<Iterator>::setIndentBraces(bool indent)
+{
+    ppIndentBraces = indent;
 }
 /*
   Returns the first non-space character in the string t, or
@@ -1044,6 +1053,7 @@ int Indenter<Iterator>::indentForBottomLine(const Iterator &current,
     int indent;
 
     const QChar hash = QLatin1Char('#');
+    const QChar openingBrace = QLatin1Char('{');
     const QChar closingBrace = QLatin1Char('}');
     const QChar colon =  QLatin1Char(':');
 
@@ -1070,7 +1080,9 @@ int Indenter<Iterator>::indentForBottomLine(const Iterator &current,
 	    indent = indentForStandaloneLine();
 	}
 
-	if ( firstCh == closingBrace ) {
+        if ( ppIndentBraces && firstCh == openingBrace ) {
+            indent += ppIndentSize;
+        } else if ( !ppIndentBraces && firstCh == closingBrace ) {
 	    /*
 	      A closing brace is one level more to the left than the
 	      code it follows.
@@ -1097,6 +1109,10 @@ int Indenter<Iterator>::indentForBottomLine(const Iterator &current,
 		    indent = indentOfLine( bottomLine );
 	    }
 	}
+    }
+    if ( ppIndentBraces && indent == ppIndentSize &&
+         (firstCh == openingBrace || firstCh == closingBrace ) ) {
+        indent = 0;
     }
     return qMax( 0, indent );
 }
