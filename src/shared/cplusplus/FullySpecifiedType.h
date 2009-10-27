@@ -121,6 +121,8 @@ public:
 
     FullySpecifiedType simplified() const;
 
+    void copySpecifiers(const FullySpecifiedType &type);
+
 private:
     Type *_type;
     struct Flags {
