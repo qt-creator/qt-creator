@@ -106,8 +106,13 @@ void ProjectWelcomePageWidget::updateWelcomePage(const WelcomePageData &welcomeP
     if (welcomePageData.sessionList.count() > 0) {
         foreach (const QString &s, welcomePageData.sessionList) {
             QString str = s;
-            if (s == welcomePageData.previousSession)
-                str = tr("%1 (last session)").arg(s);
+            if (welcomePageData.activeSession.isEmpty()) {
+                if (s == welcomePageData.previousSession)
+                    str = tr("%1 (last session)").arg(s);
+            } else {
+                if (s == welcomePageData.activeSession)
+                    str = tr("%1 (current session)").arg(s);
+            }
             ui->sessTreeWidget->addItem(str, s);
         }
         ui->sessTreeWidget->updateGeometry();
