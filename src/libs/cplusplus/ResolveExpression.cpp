@@ -566,6 +566,11 @@ ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int a
     FullySpecifiedType ty = result.first.simplified();
     Symbol *lastVisibleSymbol = result.second;
 
+    if (Function *funTy = ty->asFunctionType()) {
+        if (funTy->isAmbiguous())
+            ty = funTy->returnType().simplified();
+    }
+
     if (accessOp == T_ARROW)  {
         if (lastVisibleSymbol && ty->isClassType() && ! lastVisibleSymbol->isClass()) {
             // ### remove ! lastVisibleSymbol->isClass() from the condition.
