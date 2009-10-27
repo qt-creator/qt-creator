@@ -792,7 +792,7 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
     if (role == ExpandedRole) {
         if (value.toBool()) {
             // Should already have been triggered by fetchMore()
-            QTC_ASSERT(m_handler->m_expandedINames.contains(data.iname), /**/);
+            //QTC_ASSERT(m_handler->m_expandedINames.contains(data.iname), /**/);
             m_handler->m_expandedINames.insert(data.iname);
         } else {
             m_handler->m_expandedINames.remove(data.iname);
