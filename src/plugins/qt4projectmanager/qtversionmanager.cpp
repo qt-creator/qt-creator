@@ -51,6 +51,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
+#include <QtCore/QTextStream>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
 
@@ -480,6 +481,46 @@ QtVersion::QtVersion()
 QtVersion::~QtVersion()
 {
 
+}
+
+QString QtVersion::toHtml() const
+{
+    QString rc;
+    QTextStream str(&rc);
+    str << "<html></head><body><table>";
+    str << "<tr><td><b>" << QtVersionManager::tr("Name:")
+        << "</b></td><td>" << name() << "</td></tr>";
+    str << "<tr><td><b>" << QtVersionManager::tr("Source:")
+        << "</b></td><td>" << sourcePath() << "</td></tr>";
+    str << "<tr><td><b>" << QtVersionManager::tr("mkspec:")
+        << "</b></td><td>" << mkspec() << "</td></tr>";
+    str << "<tr><td><b>" << QtVersionManager::tr("qmake:")
+        << "</b></td><td>" << m_qmakeCommand << "</td></tr>";
+    updateVersionInfo();
+    if (m_defaultConfigIsDebug || m_defaultConfigIsDebugAndRelease) {
+        str << "<tr><td><b>" << QtVersionManager::tr("Default:") << "</b></td><td>";
+        if (m_defaultConfigIsDebug)
+            str << "debug";
+        if (m_defaultConfigIsDebugAndRelease)
+                    str << "default_and_release";
+        str << "</td></tr>";
+    } // default config.
+    if (!qmakeCXX().isEmpty())
+        str << "<tr><td><b>" << QtVersionManager::tr("Compiler:")
+            << "</b></td><td>" << qmakeCXX() << "</td></tr>";
+    str << "<tr><td><b>" << QtVersionManager::tr("Version:")
+        << "</b></td><td>" << qtVersionString() << "</td></tr>";
+    if (hasDebuggingHelper())
+        str << "<tr><td><b>" << QtVersionManager::tr("Debugging helper:")
+            << "</b></td><td>" << debuggingHelperLibrary() << "</td></tr>";
+    const QHash<QString,QString> vInfo = versionInfo();
+    if (!vInfo.isEmpty()) {
+        const QHash<QString,QString>::const_iterator vcend = vInfo.constEnd();
+        for (QHash<QString,QString>::const_iterator it = vInfo.constBegin(); it != vcend; ++it)
+            str << "<tr><td><pre>" << it.key() <<  "</pre></td><td>" << it.value() << "</td></tr>";
+    }
+    str << "<table></body></html>";
+    return rc;
 }
 
 QString QtVersion::name() const
@@ -1307,7 +1348,7 @@ bool QtVersion::isQt64Bit() const
 #ifdef Q_OS_WIN32
 #  ifdef __GNUC__   // MinGW lacking some definitions/winbase.h
 #    define SCS_64BIT_BINARY 6
-#  endif   
+#  endif
         DWORD binaryType = 0;
         bool success = GetBinaryTypeW(reinterpret_cast<const TCHAR*>(make.utf16()), &binaryType) != 0;
         if (success && binaryType == SCS_64BIT_BINARY)

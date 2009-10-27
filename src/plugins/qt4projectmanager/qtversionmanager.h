@@ -124,6 +124,9 @@ public:
     };
 
     QmakeBuildConfig defaultBuildConfig() const;
+
+    QString toHtml() const;
+
 private:
     static int getUniqueId();
     // Also used by QtOptionsPageWidget

@@ -17,6 +17,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QDateTime>
+#include <QtGui/QHelpEvent>
+#include <QtGui/QToolTip>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -133,6 +135,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     // setup parent items for auto-detected and manual versions
     m_ui->qtdirList->header()->setResizeMode(QHeaderView::ResizeToContents);
     QTreeWidgetItem *autoItem = new QTreeWidgetItem(m_ui->qtdirList);
+    m_ui->qtdirList->installEventFilter(this);
     autoItem->setText(0, tr("Auto-detected"));
     autoItem->setFirstColumnSpanned(true);
     QTreeWidgetItem *manualItem = new QTreeWidgetItem(m_ui->qtdirList);
@@ -198,6 +201,26 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 
     showEnvironmentPage(0);
     updateState();
+}
+
+bool QtOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
+{
+    // Set the items tooltip, which may cause costly initialization
+    // of QtVersion and must be up-to-date
+    if (o != m_ui->qtdirList || e->type() != QEvent::ToolTip)
+        return false;    
+    QHelpEvent *helpEvent = static_cast<QHelpEvent *>(e);
+    const QPoint treePos = helpEvent->pos() - QPoint(0, m_ui->qtdirList->header()->height());
+    QTreeWidgetItem *item = m_ui->qtdirList->itemAt(treePos);
+    if (!item)
+        return false;
+    const int index = indexForTreeItem(item);
+    if (index == -1)
+        return false;
+    const QString tooltip = m_versions.at(index)->toHtml();
+    QToolTip::showText(helpEvent->globalPos(), tooltip, m_ui->qtdirList);
+    helpEvent->accept();
+    return true;
 }
 
 int QtOptionsPageWidget::currentIndex() const

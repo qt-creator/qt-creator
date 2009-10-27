@@ -82,6 +82,8 @@ public:
     int defaultVersion() const;
     void finish();
 
+    virtual bool eventFilter(QObject *o, QEvent *e);
+
 private:
     void showEnvironmentPage(QTreeWidgetItem * item);
     void fixQtVersionName(int index);
