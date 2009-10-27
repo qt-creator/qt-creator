@@ -47,13 +47,13 @@ namespace {
 class ApplySubstitution
 {
 public:
-    ApplySubstitution(const LookupContext &context, const GenTemplateInstance::Substitution &substitution);
+    ApplySubstitution(const LookupContext &context, Symbol *symbol, const GenTemplateInstance::Substitution &substitution);
     ~ApplySubstitution();
 
     Control *control() const { return context.control(); }
 
-    FullySpecifiedType operator()(Name *name);
-    FullySpecifiedType operator()(const FullySpecifiedType &type);
+    FullySpecifiedType apply(Name *name);
+    FullySpecifiedType apply(const FullySpecifiedType &type);
 
     int findSubstitution(Identifier *id) const;
     FullySpecifiedType applySubstitution(int index) const;
@@ -107,22 +107,22 @@ private:
 
         virtual void visit(PointerType *ptrTy)
         {
-            _type.setType(control()->pointerType(operator()(ptrTy->elementType())));
+            _type.setType(control()->pointerType(q->apply(ptrTy->elementType())));
         }
 
         virtual void visit(ReferenceType *refTy)
         {
-            _type.setType(control()->referenceType(operator()(refTy->elementType())));
+            _type.setType(control()->referenceType(q->apply(refTy->elementType())));
         }
 
         virtual void visit(ArrayType *arrayTy)
         {
-            _type.setType(control()->arrayType(operator()(arrayTy->elementType()), arrayTy->size()));
+            _type.setType(control()->arrayType(q->apply(arrayTy->elementType()), arrayTy->size()));
         }
 
         virtual void visit(NamedType *ty)
         {
-            FullySpecifiedType n = q->operator ()(ty->name());
+            FullySpecifiedType n = q->apply(ty->name());
             _type.setType(n.type());
         }
 
@@ -136,14 +136,14 @@ private:
             fun->setAmbiguous(funTy->isAmbiguous());
             fun->setVariadic(funTy->isVariadic());
 
-            fun->setReturnType(q->operator ()(funTy->returnType()));
+            fun->setReturnType(q->apply(funTy->returnType()));
 
             for (unsigned i = 0; i < funTy->argumentCount(); ++i) {
                 Argument *originalArgument = funTy->argumentAt(i)->asArgument();
                 Argument *arg = control()->newArgument(/*sourceLocation*/ 0,
                                                        originalArgument->name());
 
-                arg->setType(q->operator ()(originalArgument->type()));
+                arg->setType(q->apply(originalArgument->type()));
                 arg->setInitializer(originalArgument->hasInitializer());
                 fun->arguments()->enterSymbol(arg);
             }
@@ -199,6 +199,7 @@ private:
     private:
         ApplySubstitution *q;
         FullySpecifiedType _type;
+        QHash<Symbol *, FullySpecifiedType> _processed;
     };
 
     class ApplyToName: protected NameVisitor
@@ -246,7 +247,7 @@ private:
             QVarLengthArray<FullySpecifiedType, 8> arguments(name->templateArgumentCount());
             for (unsigned i = 0; i < name->templateArgumentCount(); ++i) {
                 FullySpecifiedType argTy = name->templateArgumentAt(i);
-                arguments[i] = q->operator ()(argTy);
+                arguments[i] = q->apply(argTy);
             }
 
             TemplateNameId *templId = control()->templateNameId(name->identifier(), arguments.data(), arguments.size());
@@ -263,7 +264,7 @@ private:
                     QVarLengthArray<FullySpecifiedType, 8> arguments(templId->templateArgumentCount());
                     for (unsigned templateArgIndex = 0; templateArgIndex < templId->templateArgumentCount(); ++templateArgIndex) {
                         FullySpecifiedType argTy = templId->templateArgumentAt(templateArgIndex);
-                        arguments[templateArgIndex] = q->operator ()(argTy);
+                        arguments[templateArgIndex] = q->apply(argTy);
                     }
 
                     n = control()->templateNameId(templId->identifier(), arguments.data(), arguments.size());
@@ -307,26 +308,34 @@ private:
 
 public: // attributes
     LookupContext context;
+    Symbol *symbol;
     GenTemplateInstance::Substitution substitution;
-
-private:
     ApplyToType applyToType;
     ApplyToName applyToName;
 };
 
-ApplySubstitution::ApplySubstitution(const LookupContext &context, const GenTemplateInstance::Substitution &substitution)
-    : context(context), substitution(substitution), applyToType(this), applyToName(this)
+ApplySubstitution::ApplySubstitution(const LookupContext &context, Symbol *symbol,
+                                     const GenTemplateInstance::Substitution &substitution)
+    : context(context), symbol(symbol),
+      substitution(substitution),
+      applyToType(this), applyToName(this)
 { }
 
 ApplySubstitution::~ApplySubstitution()
 {
 }
 
-FullySpecifiedType ApplySubstitution::operator()(Name *name)
-{ return applyToName(name); }
+FullySpecifiedType ApplySubstitution::apply(Name *name)
+{
+    FullySpecifiedType ty = applyToName(name);
+    return ty;
+}
 
-FullySpecifiedType ApplySubstitution::operator()(const FullySpecifiedType &type)
-{ return applyToType(type); }
+FullySpecifiedType ApplySubstitution::apply(const FullySpecifiedType &type)
+{
+    FullySpecifiedType ty = applyToType(type);
+    return ty;
+}
 
 int ApplySubstitution::findSubstitution(Identifier *id) const
 {
@@ -360,8 +369,8 @@ GenTemplateInstance::GenTemplateInstance(const LookupContext &context, const Sub
 
 FullySpecifiedType GenTemplateInstance::operator()(Symbol *symbol)
 {
-    ApplySubstitution o(_context, _substitution);
-    return o(symbol->type());
+    ApplySubstitution o(_context, symbol, _substitution);
+    return o.apply(symbol->type());
 }
 
 Control *GenTemplateInstance::control() const
