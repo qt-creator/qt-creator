@@ -38,6 +38,7 @@ HEADERS += \
     $$PWD/CppBindings.h \
     $$PWD/ASTParent.h \
     $$PWD/GenTemplateInstance.h \
+    $$PWD/FindUsages.h \
     $$PWD/CheckUndefinedSymbols.h \
     $$PWD/PreprocessorClient.h \
     $$PWD/PreprocessorEnvironment.h \
@@ -61,6 +62,7 @@ SOURCES += \
     $$PWD/CppBindings.cpp \
     $$PWD/ASTParent.cpp \
     $$PWD/GenTemplateInstance.cpp \
+    $$PWD/FindUsages.cpp \
     $$PWD/CheckUndefinedSymbols.cpp \
     $$PWD/PreprocessorClient.cpp \
     $$PWD/PreprocessorEnvironment.cpp \

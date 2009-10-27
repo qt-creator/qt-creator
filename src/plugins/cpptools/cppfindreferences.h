@@ -42,6 +42,10 @@ namespace Find {
     struct SearchResultItem;
 } // end of namespace Find
 
+namespace CPlusPlus {
+    class Usage;
+} // end of namespace CPlusPlus
+
 namespace CppTools {
 class CppModelManagerInterface;
 
@@ -78,7 +82,7 @@ private:
 private:
     QPointer<CppModelManagerInterface> _modelManager;
     Find::SearchResultWindow *_resultWindow;
-    QFutureWatcher<Utils::FileSearchResult> m_watcher;
+    QFutureWatcher<CPlusPlus::Usage> m_watcher;
 };
 
 } // end of namespace Internal
