@@ -1113,7 +1113,7 @@ void QtVersion::updateToolChain() const
     reader->readProFile(mkspecPath + "/qmake.conf");
     QString qmakeCXX = reader->value("QMAKE_CXX");
     QString makefileGenerator = reader->value("MAKEFILE_GENERATOR");
-    QString ce_sdk = reader->value("CE_SDK");
+    QString ce_sdk = reader->values("CE_SDK").join(QLatin1String(" "));
     QString ce_arch = reader->value("CE_ARCH");
     QString qt_arch = reader->value("QT_ARCH");
     if (!ce_sdk.isEmpty() && !ce_arch.isEmpty()) {
