@@ -160,6 +160,7 @@ private:
     QTextCodec::ConverterState m_outputCodecState;
 
     QByteArray m_inbuffer;
+    bool m_busy;
 
     QProcess m_gdbProc;
     AbstractGdbAdapter *m_gdbAdapter;

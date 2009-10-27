@@ -191,6 +191,9 @@ GdbEngine::GdbEngine(DebuggerManager *manager) :
     m_trkOptions->fromSettings(Core::ICore::instance()->settings());
     m_gdbAdapter = 0;
 
+    // Needs no resetting in initializeVariables()
+    m_busy = false;
+
     connect(theDebuggerAction(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
             this, SLOT(setAutoDerefPointers(QVariant)));
 }
@@ -594,6 +597,10 @@ void GdbEngine::readGdbStandardOutput()
 
     m_inbuffer.append(m_gdbProc.readAllStandardOutput());
 
+    // This can trigger when a dialog starts a nested event loop
+    if (m_busy)
+        return;
+
     while (newstart < m_inbuffer.size()) {
         int start = newstart;
         int end = m_inbuffer.indexOf('\n', scan);
@@ -612,7 +619,9 @@ void GdbEngine::readGdbStandardOutput()
                 continue;
         }
         #endif
+        m_busy = true;
         handleResponse(QByteArray::fromRawData(m_inbuffer.constData() + start, end - start));
+        m_busy = false;
     }
     m_inbuffer.clear();
 }
