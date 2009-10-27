@@ -126,6 +126,7 @@ QtVersionManager::QtVersionManager()
         version->setMsvcVersion(s->value("msvcVersion").toString());
 #ifdef QTCREATOR_WITH_S60
         version->setMwcDirectory(s->value("MwcDirectory").toString());
+        version->setS60SDKDirectory(s->value("S60SDKDirectory").toString());
 #endif
         m_versions.append(version);
     }
@@ -245,6 +246,7 @@ void QtVersionManager::writeVersionsIntoSettings()
             s->setValue("autodetectionSource", version->autodetectionSource());
 #ifdef QTCREATOR_WITH_S60
         s->setValue("MwcDirectory", version->mwcDirectory());
+        s->setValue("S60SDKDirectory", version->s60SDKDirectory());
 #endif
     }
     s->endArray();
@@ -1169,6 +1171,15 @@ QString QtVersion::mwcDirectory() const
 void QtVersion::setMwcDirectory(const QString &directory)
 {
     m_mwcDirectory = directory;
+}
+QString QtVersion::s60SDKDirectory() const
+{
+    return m_s60SDKDirectory;
+}
+
+void QtVersion::setS60SDKDirectory(const QString &directory)
+{
+    m_s60SDKDirectory = directory;
 }
 #endif
 

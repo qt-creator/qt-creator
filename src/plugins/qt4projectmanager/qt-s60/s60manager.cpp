@@ -177,6 +177,7 @@ void S60Manager::updateQtVersions()
             deviceVersion->setName(deviceVersion->name().arg(deviceVersion->qtVersionString()));
             versionsToAdd.append(deviceVersion);
         }
+        deviceVersion->setS60SDKDirectory(device.epocRoot);
     }
     // remove old autodetected versions
     foreach (QtVersion *version, versions) {
@@ -202,8 +203,9 @@ ProjectExplorer::ToolChain *S60Manager::createGCCEToolChain(const Qt4ProjectMana
     return new GCCEToolChain(deviceForQtVersion(version));
 }
 
-ProjectExplorer::ToolChain *S60Manager::createRVCTToolChain(const Qt4ProjectManager::QtVersion *version,
-                                                ProjectExplorer::ToolChain::ToolChainType type) const
+ProjectExplorer::ToolChain *S60Manager::createRVCTToolChain(
+        const Qt4ProjectManager::QtVersion *version,
+        ProjectExplorer::ToolChain::ToolChainType type) const
 {
     return new RVCTToolChain(deviceForQtVersion(version), type);
 }
@@ -215,15 +217,19 @@ S60Devices::Device S60Manager::deviceForQtVersion(const Qt4ProjectManager::QtVer
     if (version->isAutodetected())
         deviceId = deviceIdFromDetectionSource(version->autodetectionSource());
     if (deviceId.isEmpty()) { // it's not an s60 autodetected version
-        // have a look if we find the device root anyhow
-        QString qtPath = version->versionInfo().value("QT_INSTALL_DATA");
-        if (QFile::exists(QString::fromLatin1("%1/epoc32").arg(qtPath))) {
-            device.epocRoot = qtPath;
-            device.toolsRoot = device.epocRoot;
-            device.qt = device.epocRoot;
-            device.isDefault = false;
-            device.name = QString::fromLatin1("SDK");
-            device.id = QString::fromLatin1("SDK");
+        // try to find a device entry belonging to the root given in Qt prefs
+        QString sdkRoot = version->s60SDKDirectory();
+        device = m_devices->deviceForEpocRoot(sdkRoot);
+        if (device.epocRoot.isEmpty()) { // no device found
+            // check if we can construct a dummy one
+            if (QFile::exists(QString::fromLatin1("%1/epoc32").arg(sdkRoot))) {
+                device.epocRoot = sdkRoot;
+                device.toolsRoot = device.epocRoot;
+                device.qt = QFileInfo(QFileInfo(version->qmakeCommand()).path()).path();
+                device.isDefault = false;
+                device.name = QString::fromLatin1("Manual");
+                device.id = QString::fromLatin1("Manual");
+            }
         }
     } else {
         device = m_devices->deviceForId(deviceId);
