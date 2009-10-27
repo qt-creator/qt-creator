@@ -270,7 +270,6 @@ private: ////////// Inferior Management //////////
 
     // This should be always the last call in a function.
     Q_SLOT virtual void attemptBreakpointSynchronization();
-    void attemptBreakpointSynchronization2(const GdbResponse &);
 
     virtual void stepExec();
     virtual void stepOutExec();

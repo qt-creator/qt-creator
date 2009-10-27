@@ -879,7 +879,6 @@ void GdbEngine::updateAll()
 
 void GdbEngine::handleQuerySources(const GdbResponse &response)
 {
-    m_sourcesListUpdating = false;
     if (response.resultClass == GdbResultDone) {
         QMap<QString, QString> oldShortToFull = m_shortToFullName;
         m_shortToFullName.clear();
@@ -1153,8 +1152,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
     QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
         showStatusMessage(tr("Stopped at breakpoint."));
-        //debugMessage(_("HIT BREAKPOINT: " + frame.toString()));
-        postCommand(_("-break-list"), CB(handleBreakList));
     } else {
         if (reason == "signal-received"
             && theDebuggerBoolSetting(UseMessageBoxForSignals)) {
@@ -1765,6 +1762,8 @@ void GdbEngine::sendInsertBreakpoint(int index)
 
 void GdbEngine::handleBreakList(const GdbResponse &response)
 {
+    m_sourcesListUpdating = false;
+
     // 45^done,BreakpointTable={nr_rows="2",nr_cols="6",hdr=[
     // {width="3",alignment="-1",col_name="number",colhdr="Num"}, ...
     // body=[bkpt={number="1",type="breakpoint",disp="keep",enabled="y",
@@ -1965,11 +1964,6 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
     attemptBreakpointSynchronization(); // trigger "ready"
 }
 
-void GdbEngine::attemptBreakpointSynchronization2(const GdbResponse &)
-{
-    attemptBreakpointSynchronization();
-}
-
 void GdbEngine::attemptBreakpointSynchronization()
 {
     switch (state()) {
@@ -1985,9 +1979,11 @@ void GdbEngine::attemptBreakpointSynchronization()
     }
 
     // For best results, we rely on an up-to-date fullname mapping.
+    // The listing completion will retrigger us, so no futher action is needed.
     if (m_sourcesListOutdated) {
         reloadSourceFiles();
-        postCommand(_("p 5"), CB(attemptBreakpointSynchronization2));
+        return;
+    } else if (m_sourcesListUpdating) {
         return;
     }
 
@@ -2165,6 +2161,7 @@ void GdbEngine::reloadSourceFiles()
     m_sourcesListUpdating = true;
     m_sourcesListOutdated = false;
     postCommand(_("-file-list-exec-source-files"), NeedsStop, CB(handleQuerySources));
+    postCommand(_("-break-list"), CB(handleBreakList));
 }
 
 
