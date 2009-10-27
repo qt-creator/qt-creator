@@ -48,20 +48,18 @@ class GenericMakeStepConfigWidget;
 
 struct GenericMakeStepSettings
 {
-    QStringList buildTargets;
-    QStringList makeArguments;
-    QString makeCommand;
+
 };
 
 class GenericMakeStep : public ProjectExplorer::AbstractMakeStep
 {
     Q_OBJECT
     friend class GenericMakeStepConfigWidget; // TODO remove again?
-    // Currently the ConfigWidget accesses the m_values directly
 public:
-    GenericMakeStep(GenericProject *pro);
+    GenericMakeStep(GenericProject *pro, ProjectExplorer::BuildConfiguration *bc);
+    GenericMakeStep(GenericMakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
     ~GenericMakeStep();
-    virtual bool init(const QString &buildConfiguration);
+    virtual bool init();
 
     virtual void run(QFutureInterface<bool> &fi);
 
@@ -70,20 +68,18 @@ public:
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
     GenericProject *project() const;
-    bool buildsTarget(const QString &buildConfiguration, const QString &target) const;
-    void setBuildTarget(const QString &buildConfiguration, const QString &target, bool on);
-    QStringList replacedArguments(const QString &buildConfiguration) const;
-    QString makeCommand(const QString &buildConfiguration) const;
+    bool buildsTarget(const QString &target) const;
+    void setBuildTarget(const QString &target, bool on);
+    QStringList replacedArguments() const;
+    QString makeCommand() const;
 
-    virtual void restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map);
-    virtual void storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map);
-
-    virtual void addBuildConfiguration(const QString & name);
-    virtual void removeBuildConfiguration(const QString & name);
-    virtual void copyBuildConfiguration(const QString &source, const QString &dest);
+    virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
+    virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 private:
     GenericProject *m_pro;
-    QMap<QString, GenericMakeStepSettings> m_values;
+    QStringList m_buildTargets;
+    QStringList m_makeArguments;
+    QString m_makeCommand;
 };
 
 class GenericMakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
@@ -92,7 +88,7 @@ class GenericMakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
 public:
     GenericMakeStepConfigWidget(GenericMakeStep *makeStep);
     virtual QString displayName() const;
-    virtual void init(const QString &buildConfiguration);
+    virtual void init();
     virtual QString summaryText() const;
 private slots:
     void itemChanged(QListWidgetItem*);
@@ -101,7 +97,6 @@ private slots:
     void updateMakeOverrrideLabel();
     void updateDetails();
 private:
-    QString m_buildConfiguration;
     Ui::GenericMakeStep *m_ui;
     GenericMakeStep *m_makeStep;
     QString m_summaryText;
@@ -110,7 +105,11 @@ private:
 class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     virtual bool canCreate(const QString &name) const;
-    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::Project *pro, const QString &name) const;
+    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::Project *pro,
+                                               ProjectExplorer::BuildConfiguration *bc,
+                                               const QString &name) const;
+    virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs,
+                                              ProjectExplorer::BuildConfiguration *bc) const;
     virtual QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
     virtual QString displayNameForName(const QString &name) const;
 };

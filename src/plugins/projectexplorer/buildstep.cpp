@@ -36,9 +36,15 @@
 
 using namespace ProjectExplorer;
 
-BuildStep::BuildStep(Project * pro)
-    : m_project(pro)
+BuildStep::BuildStep(Project * pro, BuildConfiguration *bc)
+    : m_project(pro), m_buildConfiguration(bc)
 {
+}
+
+BuildStep::BuildStep(BuildStep *bs, BuildConfiguration *bc)
+    : m_project(bs->m_project), m_buildConfiguration(bc)
+{
+
 }
 
 BuildStep::~BuildStep()
@@ -47,47 +53,29 @@ BuildStep::~BuildStep()
 }
 
 
-void BuildStep::restoreFromMap(const QMap<QString, QVariant> &map)
+void BuildStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
 {
     Q_UNUSED(map)
 }
 
-void BuildStep::storeIntoMap(QMap<QString, QVariant> &map)
+void BuildStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
 {
     Q_UNUSED(map)
 }
 
-void BuildStep::restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map)
+void BuildStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 {
-    Q_UNUSED(buildConfiguration)
     Q_UNUSED(map)
 }
 
-void BuildStep::storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map)
-{
-    Q_UNUSED(buildConfiguration)
-    Q_UNUSED(map)
-}
-
-Project * BuildStep::project() const
+Project *BuildStep::project() const
 {
     return m_project;
 }
 
-void BuildStep::addBuildConfiguration(const QString &name)
+BuildConfiguration *BuildStep::buildConfiguration() const
 {
-    Q_UNUSED(name)
-}
-
-void BuildStep::removeBuildConfiguration(const QString &name)
-{
-    Q_UNUSED(name)
-}
-
-void BuildStep::copyBuildConfiguration(const QString &source, const QString &dest)
-{
-    Q_UNUSED(source)
-    Q_UNUSED(dest)
+    return m_buildConfiguration;
 }
 
 bool BuildStep::immutable() const

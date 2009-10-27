@@ -105,6 +105,13 @@ bool CMakeBuildConfigurationFactory::create(const QString &type) const
         return false;
     BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
 
+    MakeStep *makeStep = new MakeStep(m_project, bc);
+    bc->insertBuildStep(0, makeStep);
+
+    MakeStep *cleanMakeStep = new MakeStep(m_project, bc);
+    bc->insertCleanStep(0, cleanMakeStep);
+    cleanMakeStep->setClean(true);
+
     CMakeOpenProjectWizard copw(m_project->projectManager(),
                                 m_project->sourceDirectory(),
                                 m_project->buildDirectory(bc),
@@ -114,12 +121,14 @@ bool CMakeBuildConfigurationFactory::create(const QString &type) const
         return false;
     }
     m_project->addBuildConfiguration(bc); // this also makes the name unique
-    // Default to all
-    if (m_project->targets().contains("all"))
-        m_project->makeStep()->setBuildTarget(buildConfigurationName, "all", true);
+
     bc->setValue("buildDirectory", copw.buildDirectory());
     bc->setValue("msvcVersion", copw.msvcVersion());
     m_project->parseCMakeLists();
+
+    // Default to all
+    if (m_project->targets().contains("all"))
+        makeStep->setBuildTarget("all", true);
     return true;
 }
 
@@ -627,17 +636,6 @@ void CMakeProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &w
     Project::saveSettingsImpl(writer);
 }
 
-MakeStep *CMakeProject::makeStep() const
-{
-    foreach (ProjectExplorer::BuildStep *bs, buildSteps()) {
-        MakeStep *ms = qobject_cast<MakeStep *>(bs);
-        if (ms)
-            return ms;
-    }
-    return 0;
-}
-
-
 bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
     Project::restoreSettingsImpl(reader);
@@ -651,22 +649,19 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         if (copw.exec() != QDialog::Accepted)
             return false;
 
-        qDebug()<<"ccd.buildDirectory()"<<copw.buildDirectory();
-
-        // Now create a standard build configuration
-        makeStep = new MakeStep(this);
-
-        insertBuildStep(0, makeStep);
-
         ProjectExplorer::BuildConfiguration *bc = new ProjectExplorer::BuildConfiguration("all");
         addBuildConfiguration(bc);
         bc->setValue("msvcVersion", copw.msvcVersion());
         if (!copw.buildDirectory().isEmpty())
             bc->setValue("buildDirectory", copw.buildDirectory());
-        //TODO save arguments somewhere copw.arguments()
 
-        MakeStep *cleanMakeStep = new MakeStep(this);
-        insertCleanStep(0, cleanMakeStep);
+        // Now create a standard build configuration
+        makeStep = new MakeStep(this, bc);
+        bc->insertBuildStep(0, makeStep);
+
+        //TODO save arguments somewhere copw.arguments()
+        MakeStep *cleanMakeStep = new MakeStep(this, bc);
+        bc->insertCleanStep(0, cleanMakeStep);
         cleanMakeStep->setClean(true);
         setActiveBuildConfiguration(bc);
     } else {
@@ -697,14 +692,14 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         }
     }
 
-    if (!hasUserFile && targets().contains("all"))
-        makeStep->setBuildTarget("all", "all", true);
-
     m_watcher = new ProjectExplorer::FileWatcher(this);
     connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
     bool result = parseCMakeLists(); // Gets the directory from the active buildconfiguration
     if (!result)
         return false;
+
+    if (!hasUserFile && targets().contains("all"))
+        makeStep->setBuildTarget("all", true);
 
     connect(this, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(slotActiveBuildConfiguration()));

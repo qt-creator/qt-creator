@@ -244,7 +244,7 @@ void OutputPane::insertLine()
 void OutputPane::reRunRunControl()
 {
     RunControl *rc = runControlForTab(m_tabWidget->currentIndex());
-    rc->start(); //TODO check for rerun
+    rc->start();
 }
 
 void OutputPane::stopRunControl()
@@ -282,7 +282,7 @@ void OutputPane::tabChanged(int i)
     } else {
         RunControl *rc = runControlForTab(i);
         m_stopAction->setEnabled(rc->isRunning());
-        m_reRunButton->setEnabled(!rc->isRunning()); // Check for rerun?
+        m_reRunButton->setEnabled(!rc->isRunning());
     }
 }
 
@@ -299,7 +299,7 @@ void OutputPane::runControlFinished()
 {
     RunControl *rc = runControlForTab(m_tabWidget->currentIndex());
     if (rc == qobject_cast<RunControl *>(sender())) {
-        m_reRunButton->setEnabled(rc); // TODO check for rerun?
+        m_reRunButton->setEnabled(rc);
         m_stopAction->setEnabled(false);
     }
 }

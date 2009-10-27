@@ -40,11 +40,23 @@
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
+using namespace ProjectExplorer;
 
-MakeStep::MakeStep(CMakeProject *pro)
-    : AbstractMakeStep(pro), m_pro(pro), m_clean(false)
+MakeStep::MakeStep(CMakeProject *pro, BuildConfiguration *bc)
+    : AbstractMakeStep(pro, bc), m_pro(pro), m_clean(false), m_futureInterface(0)
 {
     m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
+}
+
+MakeStep::MakeStep(MakeStep *bs, BuildConfiguration *bc)
+    : AbstractMakeStep(bs, bc),
+    m_pro(bs->m_pro),
+    m_clean(bs->m_clean),
+    m_futureInterface(0),
+    m_buildTargets(bs->m_buildTargets),
+    m_additionalArguments(bs->m_buildTargets)
+{
+
 }
 
 MakeStep::~MakeStep()
@@ -57,53 +69,34 @@ void MakeStep::setClean(bool clean)
     m_clean = clean;
 }
 
-void MakeStep::restoreFromMap(const QMap<QString, QVariant> &map)
+void MakeStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
 {
     if (map.value("clean").isValid() && map.value("clean").toBool())
         m_clean = true;
-    ProjectExplorer::AbstractMakeStep::restoreFromMap(map);
+    AbstractMakeStep::restoreFromGlobalMap(map);
 }
 
-void MakeStep::storeIntoMap(QMap<QString, QVariant> &map)
+void MakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
 {
+    m_buildTargets = map["buildTargets"].toStringList();
+    m_additionalArguments = map["additionalArguments"].toStringList();
+    if (map.value("clean").isValid() && map.value("clean").toBool())
+        m_clean = true;
+    AbstractMakeStep::restoreFromLocalMap(map);
+}
+
+void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
+{
+    map["buildTargets"] = m_buildTargets;
+    map["additionalArguments"] = m_additionalArguments;
     if (m_clean)
         map["clean"] = true;
-    ProjectExplorer::AbstractMakeStep::storeIntoMap(map);
+    AbstractMakeStep::storeIntoLocalMap(map);
 }
 
-void MakeStep::restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map)
+bool MakeStep::init()
 {
-    m_values[buildConfiguration].buildTargets = map["buildTargets"].toStringList();
-    m_values[buildConfiguration].additionalArguments = map["additionalArguments"].toStringList();
-    ProjectExplorer::AbstractMakeStep::restoreFromMap(buildConfiguration, map);
-}
-
-void MakeStep::storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map)
-{
-    map["buildTargets"] = m_values.value(buildConfiguration).buildTargets;
-    map["additionalArguments"] = m_values.value(buildConfiguration).additionalArguments;
-    ProjectExplorer::AbstractMakeStep::storeIntoMap(buildConfiguration, map);
-}
-
-
-void MakeStep::addBuildConfiguration(const QString & name)
-{
-    m_values.insert(name, MakeStepSettings());
-}
-
-void MakeStep::removeBuildConfiguration(const QString & name)
-{
-    m_values.remove(name);
-}
-
-void MakeStep::copyBuildConfiguration(const QString &source, const QString &dest)
-{
-    m_values.insert(dest, m_values.value(source));
-}
-
-bool MakeStep::init(const QString &buildConfiguration)
-{
-    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(buildConfiguration);
+    BuildConfiguration *bc = buildConfiguration();
     setBuildParser(m_pro->buildParser(bc));
 
     setEnabled(true);
@@ -111,13 +104,13 @@ bool MakeStep::init(const QString &buildConfiguration)
 
     setCommand(m_pro->toolChain(bc)->makeCommand());
 
-    QStringList arguments = m_values.value(buildConfiguration).buildTargets;
-    arguments << additionalArguments(buildConfiguration);
-    setArguments(arguments); // TODO
+    QStringList arguments = m_buildTargets;
+    arguments << additionalArguments();
+    setArguments(arguments);
     setEnvironment(m_pro->environment(bc));
     setIgnoreReturnValue(m_clean);
 
-    return AbstractMakeStep::init(buildConfiguration);
+    return AbstractMakeStep::init();
 }
 
 void MakeStep::run(QFutureInterface<bool> &fi)
@@ -140,7 +133,7 @@ QString MakeStep::displayName()
     return "Make";
 }
 
-ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
+BuildStepConfigWidget *MakeStep::createConfigWidget()
 {
     return new MakeStepConfigWidget(this);
 }
@@ -166,29 +159,29 @@ CMakeProject *MakeStep::project() const
     return m_pro;
 }
 
-bool MakeStep::buildsTarget(const QString &buildConfiguration, const QString &target) const
+bool MakeStep::buildsTarget(const QString &target) const
 {
-    return m_values.value(buildConfiguration).buildTargets.contains(target);
+    return m_buildTargets.contains(target);
 }
 
-void MakeStep::setBuildTarget(const QString &buildConfiguration, const QString &target, bool on)
+void MakeStep::setBuildTarget(const QString &target, bool on)
 {
-    QStringList old = m_values.value(buildConfiguration).buildTargets;
+    QStringList old = m_buildTargets;
     if (on && !old.contains(target))
         old << target;
     else if(!on && old.contains(target))
         old.removeOne(target);
-    m_values[buildConfiguration].buildTargets = old;
+    m_buildTargets = old;
 }
 
-QStringList MakeStep::additionalArguments(const QString &buildConfiguration) const
+QStringList MakeStep::additionalArguments() const
 {
-    return m_values.value(buildConfiguration).additionalArguments;
+    return m_additionalArguments;
 }
 
-void MakeStep::setAdditionalArguments(const QString &buildConfiguration, const QStringList &list)
+void MakeStep::setAdditionalArguments(const QStringList &list)
 {
-    m_values[buildConfiguration].additionalArguments = list;
+    m_additionalArguments = list;
 }
 
 //
@@ -227,13 +220,13 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
 void MakeStepConfigWidget::additionalArgumentsEdited()
 {
-    m_makeStep->setAdditionalArguments(m_buildConfiguration, ProjectExplorer::Environment::parseCombinedArgString(m_additionalArguments->text()));
+    m_makeStep->setAdditionalArguments(Environment::parseCombinedArgString(m_additionalArguments->text()));
     updateDetails();
 }
 
 void MakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 {
-    m_makeStep->setBuildTarget(m_buildConfiguration, item->text(), item->checkState() & Qt::Checked);
+    m_makeStep->setBuildTarget(item->text(), item->checkState() & Qt::Checked);
     updateDetails();
 }
 
@@ -242,30 +235,29 @@ QString MakeStepConfigWidget::displayName() const
     return "Make";
 }
 
-void MakeStepConfigWidget::init(const QString &buildConfiguration)
+void MakeStepConfigWidget::init()
 {
     // disconnect to make the changes to the items
     disconnect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
-    m_buildConfiguration = buildConfiguration;
     int count = m_targetsList->count();
     for(int i = 0; i < count; ++i) {
         QListWidgetItem *item = m_targetsList->item(i);
-        item->setCheckState(m_makeStep->buildsTarget(buildConfiguration, item->text()) ? Qt::Checked : Qt::Unchecked);
+        item->setCheckState(m_makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
     // and connect again
     connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
 
-    m_additionalArguments->setText(ProjectExplorer::Environment::joinArgumentList(m_makeStep->additionalArguments(m_buildConfiguration)));
+    m_additionalArguments->setText(Environment::joinArgumentList(m_makeStep->additionalArguments()));
     updateDetails();
 }
 
 void MakeStepConfigWidget::updateDetails()
 {
-    QStringList arguments = m_makeStep->m_values.value(m_buildConfiguration).buildTargets;
-    arguments << m_makeStep->additionalArguments(m_buildConfiguration);
+    QStringList arguments = m_makeStep->m_buildTargets;
+    arguments << m_makeStep->additionalArguments();
     m_summaryText = tr("<b>Make:</b> %1 %2")
                     .arg(m_makeStep->project()->toolChain(
-                            m_makeStep->project()->buildConfiguration(m_buildConfiguration))
+                            m_makeStep->buildConfiguration())
                             ->makeCommand(),
                          arguments.join(" "));
     emit updateSummary();
@@ -285,15 +277,20 @@ bool MakeStepFactory::canCreate(const QString &name) const
     return (Constants::MAKESTEP == name);
 }
 
-ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::Project *project, const QString &name) const
+BuildStep *MakeStepFactory::create(Project *project, BuildConfiguration *bc, const QString &name) const
 {
     Q_ASSERT(name == Constants::MAKESTEP);
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
     Q_ASSERT(pro);
-    return new MakeStep(pro);
+    return new MakeStep(pro, bc);
 }
 
-QStringList MakeStepFactory::canCreateForProject(ProjectExplorer::Project * /* pro */) const
+BuildStep *MakeStepFactory::clone(BuildStep *bs, BuildConfiguration *bc) const
+{
+    return new MakeStep(static_cast<MakeStep *>(bs), bc);
+}
+
+QStringList MakeStepFactory::canCreateForProject(Project * /* pro */) const
 {
     return QStringList();
 }

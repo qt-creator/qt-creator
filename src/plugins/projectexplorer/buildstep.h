@@ -72,13 +72,16 @@ class PROJECTEXPLORER_EXPORT BuildStep : public QObject
 {
     Q_OBJECT
     friend class Project; //for managing BuildConfigurations
+protected:
+    BuildStep(Project *p, BuildConfiguration *bc);
+    BuildStep(BuildStep *bs, BuildConfiguration *bc);
+
 public:
-    BuildStep(Project *p);
     virtual ~BuildStep();
 
     // This function is run in the gui thread,
     // use it to retrieve any information that you need in run()
-    virtual bool init(const QString &buildConfiguration) = 0;
+    virtual bool init() = 0;
 
     // Reimplement this. This function is called when the project is build.
     // This function is NOT run in the gui thread. It runs in its own thread
@@ -101,17 +104,14 @@ public:
     // the default implementation returns false
     virtual bool immutable() const;
 
-    virtual void restoreFromMap(const QMap<QString, QVariant> &map);
-    virtual void storeIntoMap(QMap<QString, QVariant> &map);
+    // TODO remove after 2.0
+    virtual void restoreFromGlobalMap(const QMap<QString, QVariant> &map);
 
-    virtual void restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map);
-    virtual void storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map);
-
-    virtual void addBuildConfiguration(const QString & name);
-    virtual void removeBuildConfiguration(const QString & name);
-    virtual void copyBuildConfiguration(const QString &source, const QString &dest);
+    virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
+    virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 
     Project *project() const;
+    BuildConfiguration *buildConfiguration() const;
 
 Q_SIGNALS:
     void addToTaskWindow(const ProjectExplorer::TaskWindow::Task &task);
@@ -121,6 +121,7 @@ Q_SIGNALS:
 
 private:
     Project *m_project;
+    BuildConfiguration *m_buildConfiguration;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildStepFactory
@@ -131,14 +132,17 @@ class PROJECTEXPLORER_EXPORT IBuildStepFactory
 public:
     IBuildStepFactory();
     virtual ~IBuildStepFactory();
-    // Called to check wheter this factory can restore the named BuildStep
+    /// Called to check wheter this factory can restore the named BuildStep
     virtual bool canCreate(const QString &name) const = 0;
-    // Called to restore a buildstep
-    virtual BuildStep *create(Project *pro, const QString &name) const = 0;
-    // Caleld by the add BuildStep action to check which BuildSteps could be added
-    // to the project by this factory, should return a list of names
+    /// Called to restore a buildstep
+    virtual BuildStep *create(Project *pro, BuildConfiguration *bc, const QString &name) const = 0;
+    /// Called by the add BuildStep action to check which BuildSteps could be added
+    /// to the project by this factory, should return a list of names
     virtual QStringList canCreateForProject(Project *pro) const = 0;
-    // Called to convert an internal name to a displayName
+    /// Called to convert an internal name to a displayName
+
+    /// Called to clone a BuildStep
+    virtual BuildStep *clone(BuildStep *bs, BuildConfiguration *bc) const = 0;
     virtual QString displayNameForName(const QString &name) const = 0;
 };
 
@@ -158,14 +162,16 @@ public:
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepConfigWidget
-    : public BuildConfigWidget
+    : public QWidget
 {
     Q_OBJECT
 public:
     BuildStepConfigWidget()
-        : BuildConfigWidget()
+        : QWidget()
         {}
+    virtual void init() = 0;
     virtual QString summaryText() const = 0;
+    virtual QString displayName() const = 0;
 signals:
     void updateSummary();
 };

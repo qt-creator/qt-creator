@@ -77,7 +77,7 @@ public:
     bool isBuilding(Project *p);
 
     // Append any build step to the list of build steps (currently only used to add the QMakeStep)
-    void appendStep(BuildStep *step, const QString& configuration);
+    void appendStep(BuildStep *step);
 
 public slots:
     void cancel();
@@ -104,7 +104,7 @@ private:
     void startBuildQueue();
     void nextStep();
     void clearBuildQueue();
-    void buildQueueAppend(BuildStep * bs, const QString &configuration);
+    void buildQueueAppend(BuildStep * bs);
     void incrementActiveBuildSteps(Project *pro);
     void decrementActiveBuildSteps(Project *pro);
 

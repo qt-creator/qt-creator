@@ -46,9 +46,10 @@ class PROJECTEXPLORER_EXPORT AbstractMakeStep : public ProjectExplorer::Abstract
 {
     Q_OBJECT
 public:
-    AbstractMakeStep(Project * project);
+    AbstractMakeStep(Project * project, BuildConfiguration *bc);
+    AbstractMakeStep(AbstractMakeStep *bs, BuildConfiguration *bc);
     ~AbstractMakeStep();
-    virtual bool init(const QString & name);
+    virtual bool init();
     virtual void run(QFutureInterface<bool> &);
 
 protected:
@@ -64,7 +65,6 @@ private slots:
     void addDirectory(const QString &dir);
     void removeDirectory(const QString &dir);
 private:
-    Project *m_project;
     QString m_buildParserName;
     ProjectExplorer::IBuildParser *m_buildParser;
     QString m_buildConfiguration;

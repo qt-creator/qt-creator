@@ -83,17 +83,6 @@ public:
 
     virtual bool hasBuildSettings() const;
 
-    // Build/Clean Step functions
-    QList<BuildStep *> buildSteps() const;
-    void insertBuildStep(int position, BuildStep *step);
-    void removeBuildStep(int position);
-    void moveBuildStepUp(int position);
-
-    QList<BuildStep *> cleanSteps() const;
-    void insertCleanStep(int position, BuildStep *step);
-    void removeCleanStep(int position);
-    void moveCleanStepUp(int position);
-
     // Build configuration
     void addBuildConfiguration(BuildConfiguration *configuration);
     void removeBuildConfiguration(BuildConfiguration *configuration);
@@ -184,8 +173,6 @@ protected:
     virtual bool restoreSettingsImpl(PersistentSettingsReader &reader);
 
 private:
-    QList<BuildStep *> m_buildSteps;
-    QList<BuildStep *> m_cleanSteps;
     QMap<QString, QVariant> m_values;
     QList<BuildConfiguration *> m_buildConfigurationValues;
     QString m_activeBuildConfiguration;

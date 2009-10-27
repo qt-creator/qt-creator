@@ -45,26 +45,19 @@ class ProcessStepFactory : public IBuildStepFactory
 public:
     ProcessStepFactory();
     virtual bool canCreate(const QString &name) const;
-    virtual BuildStep *create(Project *pro, const QString &name) const;
+    virtual BuildStep *create(Project *pro, BuildConfiguration *bc, const QString &name) const;
+    virtual BuildStep *clone(BuildStep *bs, BuildConfiguration *bc) const;
     virtual QStringList canCreateForProject(Project *pro) const;
     virtual QString displayNameForName(const QString &name) const;
-};
-
-struct ProcessStepSettings
-{
-    QString command;
-    QStringList arguments;
-    QString workingDirectory;
-    Environment env;
-    bool enabled;
 };
 
 class ProcessStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 public:
-    ProcessStep(Project *pro);
-    virtual bool init(const QString & name);
+    ProcessStep(Project *pro, BuildConfiguration *bc);
+    ProcessStep(ProcessStep *bs, BuildConfiguration *bc);
+    virtual bool init();
     virtual void run(QFutureInterface<bool> &);
 
     virtual QString name();
@@ -73,29 +66,28 @@ public:
     virtual BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
 
-    virtual void restoreFromMap(const QMap<QString, QVariant> &map);
-    virtual void storeIntoMap(QMap<QString, QVariant> &map);
+    virtual void restoreFromGlobalMap(const QMap<QString, QVariant> &map);
 
-    virtual void restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map);
-    virtual void storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map);
+    virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
+    virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 
-    virtual void addBuildConfiguration(const QString & name);
-    virtual void removeBuildConfiguration(const QString & name);
-    virtual void copyBuildConfiguration(const QString &source, const QString &dest);
+    QString command() const;
+    QStringList arguments() const;
+    bool enabled() const;
+    QString workingDirectory() const;
 
-    QString command(const QString &buildConfiguration) const;
-    QStringList arguments(const QString &buildConfiguration) const;
-    bool enabled(const QString &buildConfiguration) const;
-    QString workingDirectory(const QString &buildConfiguration) const;
-
-    void setCommand(const QString &buildConfiguration, const QString &command);
-    void setArguments(const QString &buildConfiguration, const QStringList &arguments);
-    void setEnabled(const QString &buildConfiguration, bool enabled);
-    void setWorkingDirectory(const QString &buildConfiguration, const QString &workingDirectory);
+    void setCommand(const QString &command);
+    void setArguments(const QStringList &arguments);
+    void setEnabled(bool enabled);
+    void setWorkingDirectory(const QString &workingDirectory);
 
 private:
     QString m_name;
-    QMap<QString, ProcessStepSettings> m_values;
+    QString m_command;
+    QStringList m_arguments;
+    QString m_workingDirectory;
+    Environment m_env;
+    bool m_enabled;
 };
 
 class ProcessStepConfigWidget : public BuildStepConfigWidget
@@ -104,7 +96,7 @@ class ProcessStepConfigWidget : public BuildStepConfigWidget
 public:
     ProcessStepConfigWidget(ProcessStep *step);
     virtual QString displayName() const;
-    virtual void init(const QString &buildConfiguration);
+    virtual void init();
     virtual QString summaryText() const;
 private slots:
     void nameLineEditTextEdited();
@@ -114,7 +106,6 @@ private slots:
     void enabledCheckBoxClicked(bool);
 private:
     void updateDetails();
-    QString m_buildConfiguration;
     ProcessStep *m_step;
     Ui::ProcessStepWidget m_ui;
     QString m_summaryText;

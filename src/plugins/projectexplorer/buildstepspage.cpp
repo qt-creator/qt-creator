@@ -28,8 +28,8 @@
 **************************************************************************/
 
 #include "buildstepspage.h"
-
 #include "project.h"
+#include "buildconfiguration.h"
 
 #include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
@@ -53,13 +53,8 @@ BuildStepsPage::BuildStepsPage(Project *project, bool clean) :
     m_vbox = new QVBoxLayout(this);
     m_vbox->setContentsMargins(0, 0, 0, 0);
     m_vbox->setSpacing(0);
-    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
-    foreach (BuildStep *bs, steps) {
-        addBuildStepWidget(-1, bs);
-    }
 
     m_noStepsLabel = new QLabel(tr("No Build Steps"), this);
-    m_noStepsLabel->setVisible(steps.isEmpty());
     m_vbox->addWidget(m_noStepsLabel);
 
     QHBoxLayout *hboxLayout = new QHBoxLayout();
@@ -81,8 +76,6 @@ BuildStepsPage::BuildStepsPage(Project *project, bool clean) :
 
     m_vbox->addLayout(hboxLayout);
 
-    updateBuildStepButtonsState();
-
     connect(m_addButton->menu(), SIGNAL(aboutToShow()),
             this, SLOT(updateAddBuildStepMenu()));
 
@@ -102,10 +95,14 @@ BuildStepsPage::~BuildStepsPage()
 void BuildStepsPage::updateSummary()
 {
     BuildStepConfigWidget *widget = qobject_cast<BuildStepConfigWidget *>(sender());
-    if (widget)
-        foreach(const BuildStepsWidgetStruct &s, m_buildSteps)
-            if (s.widget == widget)
+    if (widget) {
+        foreach(const BuildStepsWidgetStruct &s, m_buildSteps) {
+            if (s.widget == widget) {
                 s.detailsWidget->setSummaryText(widget->summaryText());
+                break;
+            }
+        }
+    }
 }
 
 QString BuildStepsPage::displayName() const
@@ -115,13 +112,30 @@ QString BuildStepsPage::displayName() const
 
 void BuildStepsPage::init(const QString &buildConfiguration)
 {
+    foreach(BuildStepsWidgetStruct s, m_buildSteps) {
+        delete s.widget;
+        delete s.detailsWidget;
+    }
+    m_buildSteps.clear();
+
     m_configuration = buildConfiguration;
+    BuildConfiguration *bc = m_pro->buildConfiguration(m_configuration);
+
+    const QList<BuildStep *> &steps = m_clean ? bc->cleanSteps() : bc->buildSteps();
+    int i = 0;
+    foreach (BuildStep *bs, steps) {
+        addBuildStepWidget(i, bs);
+        ++i;
+    }
+
+    m_noStepsLabel->setVisible(steps.isEmpty());
 
     // make sure widget is updated
     foreach(BuildStepsWidgetStruct s, m_buildSteps) {
-        s.widget->init(m_configuration);
+        s.widget->init();
         s.detailsWidget->setSummaryText(s.widget->summaryText());
     }
+    updateBuildStepButtonsState();
 }
 
 void BuildStepsPage::updateAddBuildStepMenu()
@@ -184,16 +198,8 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
     s.hbox->addWidget(s.downButton);
     s.detailsWidget->setToolWidget(toolWidget);
 
-    if (pos == -1)
-        m_buildSteps.append(s);
-    else
-        m_buildSteps.insert(pos, s);
-
-    if (pos == -1) {
-        m_vbox->addWidget(s.detailsWidget);
-    } else {
-        m_vbox->insertWidget(pos, s.detailsWidget);
-    }
+    m_buildSteps.insert(pos, s);
+    m_vbox->insertWidget(pos, s.detailsWidget);
 
     connect(s.widget, SIGNAL(updateSummary()),
             this, SLOT(updateSummary()));
@@ -207,14 +213,15 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
 void BuildStepsPage::addBuildStep()
 {
     if (QAction *action = qobject_cast<QAction *>(sender())) {
+        BuildConfiguration *bc = m_pro->buildConfiguration(m_configuration);
         QPair<QString, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
-        BuildStep *newStep = pair.second->create(m_pro, pair.first);
-        int pos = m_clean ? m_pro->cleanSteps().count() : m_pro->buildSteps().count();
-        m_clean ? m_pro->insertCleanStep(pos, newStep) : m_pro->insertBuildStep(pos, newStep);
+        BuildStep *newStep = pair.second->create(m_pro, bc, pair.first);
+        int pos = m_clean ? bc->cleanSteps().count() : bc->buildSteps().count();
+        m_clean ? bc->insertCleanStep(pos, newStep) : bc->insertBuildStep(pos, newStep);
 
         addBuildStepWidget(pos, newStep);
         const BuildStepsWidgetStruct s = m_buildSteps.at(pos);
-        s.widget->init(m_configuration);
+        s.widget->init();
         s.detailsWidget->setSummaryText(s.widget->summaryText());
     }
     updateBuildStepButtonsState();
@@ -224,7 +231,8 @@ void BuildStepsPage::updateRemoveBuildStepMenu()
 {
     QMenu *menu = m_removeButton->menu();
     menu->clear();
-    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+    BuildConfiguration *bc = m_pro->buildConfiguration(m_configuration);
+    const QList<BuildStep *> &steps = m_clean ? bc->cleanSteps() : bc->buildSteps();
     foreach(BuildStep *step, steps) {
         QAction *action = menu->addAction(step->displayName());
         if (step->immutable())
@@ -239,7 +247,8 @@ void BuildStepsPage::removeBuildStep()
     QAction *action = qobject_cast<QAction *>(sender());
     if (action) {
         int pos = m_removeButton->menu()->actions().indexOf(action);
-        const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+        BuildConfiguration *bc = m_pro->buildConfiguration(m_configuration);
+        const QList<BuildStep *> &steps = m_clean ? bc->cleanSteps() : bc->buildSteps();
         if (steps.at(pos)->immutable())
             return;
 
@@ -247,7 +256,7 @@ void BuildStepsPage::removeBuildStep()
         delete s.widget;
         delete s.detailsWidget;
         m_buildSteps.removeAt(pos);
-        m_clean ? m_pro->removeCleanStep(pos) : m_pro->removeBuildStep(pos);
+        m_clean ? bc->removeCleanStep(pos) : bc->removeBuildStep(pos);
     }
     updateBuildStepButtonsState();
 }
@@ -294,7 +303,8 @@ void BuildStepsPage::downBuildStep()
 
 void BuildStepsPage::stepMoveUp(int pos)
 {
-    m_clean ? m_pro->moveCleanStepUp(pos) : m_pro->moveBuildStepUp(pos);
+    BuildConfiguration *bc = m_pro->buildConfiguration(m_configuration);
+    m_clean ? bc->moveCleanStepUp(pos) : bc->moveBuildStepUp(pos);
 
     m_vbox->insertWidget(pos - 1, m_buildSteps.at(pos).detailsWidget);
 
@@ -305,7 +315,8 @@ void BuildStepsPage::stepMoveUp(int pos)
 
 void BuildStepsPage::updateBuildStepButtonsState()
 {
-    const QList<BuildStep *> &steps = m_clean ? m_pro->cleanSteps() : m_pro->buildSteps();
+    BuildConfiguration *bc = m_pro->buildConfiguration(m_configuration);
+    const QList<BuildStep *> &steps = m_clean ? bc->cleanSteps() : bc->buildSteps();
     for(int i=0; i<m_buildSteps.count(); ++i) {
         BuildStepsWidgetStruct s = m_buildSteps.at(i);
         s.upButton->setEnabled((i>0) && !(steps.at(i)->immutable() && steps.at(i - 1)));

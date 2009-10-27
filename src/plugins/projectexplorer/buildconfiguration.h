@@ -39,6 +39,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
 
+#include "buildstep.h"
+
 namespace ProjectExplorer {
 
 class Project;
@@ -50,6 +52,7 @@ class PROJECTEXPLORER_EXPORT BuildConfiguration : public QObject
 public:
     BuildConfiguration(const QString &name);
     BuildConfiguration(const QString &name, BuildConfiguration *source);
+    ~BuildConfiguration();
     QString name() const;
     QString displayName() const;
     void setDisplayName(const QString &name);
@@ -60,12 +63,25 @@ public:
     QMap<QString, QVariant> toMap() const;
     void setValuesFromMap(QMap<QString, QVariant> map);
 
+    QList<BuildStep *> buildSteps() const;
+    void insertBuildStep(int position, BuildStep *step);
+    void removeBuildStep(int position);
+    void moveBuildStepUp(int position);
+
+    QList<BuildStep *> cleanSteps() const;
+    void insertCleanStep(int position, BuildStep *step);
+    void removeCleanStep(int position);
+    void moveCleanStepUp(int position);
+
 private:
     void setName(const QString &name);
 
+    QList<BuildStep *> m_buildSteps;
+    QList<BuildStep *> m_cleanSteps;
+
     QHash<QString, QVariant> m_values;
     QString m_name;
-    friend class Project;
+    friend class Project; // for setName
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory : public QObject

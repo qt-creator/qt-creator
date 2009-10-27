@@ -147,7 +147,10 @@ bool GenericBuildConfigurationFactory::create(const QString &type) const
         return false;
     BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
     m_project->addBuildConfiguration(bc); // also makes the name unique...
-    m_project->makeStep()->setBuildTarget(bc->name(), "all", true);
+
+    GenericMakeStep *makeStep = new GenericMakeStep(m_project, bc);
+    bc->insertBuildStep(0, makeStep);
+    makeStep->setBuildTarget("all", /* on = */ true);
     return true;
 }
 
@@ -510,34 +513,25 @@ QStringList GenericProject::targets() const
     return targets;
 }
 
-GenericMakeStep *GenericProject::makeStep() const
-{
-    foreach (ProjectExplorer::BuildStep *bs, buildSteps()) {
-        if (GenericMakeStep *ms = qobject_cast<GenericMakeStep *>(bs))
-            return ms;
-    }
-    return 0;
-}
-
 bool GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
     Project::restoreSettingsImpl(reader);
 
     if (buildConfigurations().isEmpty()) {
-        GenericMakeStep *makeStep = new GenericMakeStep(this);
-        insertBuildStep(0, makeStep);
-
-        const QLatin1String all("all");
-
-        ProjectExplorer::BuildConfiguration *bc = new BuildConfiguration(all);
+        ProjectExplorer::BuildConfiguration *bc = new BuildConfiguration("all");
         addBuildConfiguration(bc);
-        setActiveBuildConfiguration(bc);
-        makeStep->setBuildTarget(all, all, /* on = */ true);
+
+        GenericMakeStep *makeStep = new GenericMakeStep(this, bc);
+        bc->insertBuildStep(0, makeStep);
+
+        makeStep->setBuildTarget("all", /* on = */ true);
 
         const QLatin1String buildDirectory("buildDirectory");
 
         const QFileInfo fileInfo(file()->fileName());
         bc->setValue(buildDirectory, fileInfo.absolutePath());
+
+        setActiveBuildConfiguration(bc);
     }
 
     using namespace ProjectExplorer;

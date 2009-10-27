@@ -211,14 +211,13 @@ public:
 
     QList<Internal::Qt4ProFileNode *> applicationProFiles() const;
 
-    // Those functions arein a few places.
+    // Those functions are used in a few places.
     // The drawback is that we shouldn't actually depend on them beeing always there
     // That is generally the stuff that is asked should normally be transfered to
     // Qt4Project *
     // So that we can later enable people to build qt4projects the way they would like
-    QMakeStep *qmakeStep() const;
-    MakeStep *makeStep() const;
-
+    QMakeStep *qmakeStep(ProjectExplorer::BuildConfiguration *bc) const;
+    MakeStep *makeStep(ProjectExplorer::BuildConfiguration *bc) const;
     void notifyChanged(const QString &name);
 
     QString makeCommand(ProjectExplorer::BuildConfiguration *configuration) const;

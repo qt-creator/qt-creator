@@ -34,7 +34,6 @@
 #include "prowriter.h"
 #include "makestep.h"
 #include "qmakestep.h"
-#include "deployhelper.h"
 #include "qt4runconfiguration.h"
 #include "qt4nodes.h"
 #include "qt4projectconfigwidget.h"
@@ -441,21 +440,27 @@ void Qt4Project::addQt4BuildConfiguration(QString buildConfigurationName, QtVers
                                           QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                           QStringList additionalArguments)
 {
-    QMakeStep *qmake = qmakeStep();
-    MakeStep *make = makeStep();
-
     bool debug = qmakeBuildConfiguration & QtVersion::DebugBuild;
 
     // Add the buildconfiguration
     ProjectExplorer::BuildConfiguration *bc = new ProjectExplorer::BuildConfiguration(buildConfigurationName);
     addBuildConfiguration(bc);
-    const QString &finalBuildConfigurationName = bc->name();
+
+    QMakeStep *qmakeStep = new QMakeStep(this, bc);
+    bc->insertBuildStep(0, qmakeStep);
+
+    MakeStep *makeStep = new MakeStep(this, bc);
+    bc->insertBuildStep(1, makeStep);
+
+    MakeStep* cleanStep = new MakeStep(this, bc);
+    cleanStep->setClean(true);
+    bc->insertCleanStep(0, cleanStep);
     if (!additionalArguments.isEmpty())
-        qmake->m_values[finalBuildConfigurationName].qmakeArgs = additionalArguments;
+        qmakeStep->m_qmakeArgs = additionalArguments;
 
     // set some options for qmake and make
     if (qmakeBuildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
-        make->setMakeArguments(finalBuildConfigurationName, QStringList() << (debug ? "debug" : "release"));
+        makeStep->setMakeArguments(QStringList() << (debug ? "debug" : "release"));
 
     bc->setValue("buildConfiguration", int(qmakeBuildConfiguration));
 
@@ -818,20 +823,6 @@ QList<ProjectExplorer::Project*> Qt4Project::dependsOn()
 
 void Qt4Project::addDefaultBuild()
 {
-    // We don't have any buildconfigurations, so this is a new project
-    QMakeStep *qmakeStep = 0;
-    MakeStep *makeStep = 0;
-
-    qmakeStep = new QMakeStep(this);
-    insertBuildStep(1, qmakeStep);
-
-    makeStep = new MakeStep(this);
-    insertBuildStep(2, makeStep);
-
-    MakeStep* cleanStep = new MakeStep(this);
-    cleanStep->setClean(true);
-    insertCleanStep(1, cleanStep);
-
     // TODO this could probably refactored
     // That is the ProjectLoadWizard divided into useful bits
     // and this code then called here, instead of that strange forwarding
@@ -1176,19 +1167,19 @@ void Qt4Project::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *nod
     }
 }
 
-QMakeStep *Qt4Project::qmakeStep() const
+QMakeStep *Qt4Project::qmakeStep(ProjectExplorer::BuildConfiguration *bc) const
 {
     QMakeStep *qs = 0;
-    foreach(BuildStep *bs, buildSteps())
+    foreach(BuildStep *bs, bc->buildSteps())
         if ((qs = qobject_cast<QMakeStep *>(bs)) != 0)
             return qs;
     return 0;
 }
 
-MakeStep *Qt4Project::makeStep() const
+MakeStep *Qt4Project::makeStep(ProjectExplorer::BuildConfiguration *bc) const
 {
     MakeStep *qs = 0;
-    foreach(BuildStep *bs, buildSteps())
+    foreach(BuildStep *bs, bc->buildSteps())
         if ((qs = qobject_cast<MakeStep *>(bs)) != 0)
             return qs;
     return 0;
@@ -1266,22 +1257,22 @@ QStringList Qt4Project::removeSpecFromArgumentList(const QStringList &old)
 }
 
 // returns true if both are equal
-bool Qt4Project::compareBuildConfigurationToImportFrom(BuildConfiguration *configuration, const QString &workingDirectory)
+bool Qt4Project::compareBuildConfigurationToImportFrom(BuildConfiguration *bc, const QString &workingDirectory)
 {
-    QMakeStep *qs = qmakeStep();
+    QMakeStep *qs = qmakeStep(bc);
     if (QDir(workingDirectory).exists(QLatin1String("Makefile")) && qs) {
         QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(workingDirectory);
-        QtVersion *version = qtVersion(configuration);
+        QtVersion *version = qtVersion(bc);
         if (version->qmakeCommand() == qmakePath) {
             // same qtversion
             QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
                     QtVersionManager::scanMakeFile(workingDirectory, version->defaultBuildConfig());
-            if (QtVersion::QmakeBuildConfig(configuration->value("buildConfiguration").toInt()) == result.first) {
+            if (QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt()) == result.first) {
                 // The QMake Build Configuration are the same,
                 // now compare arguments lists
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own
-                QString actualSpec = extractSpecFromArgumentList(qs->m_values.value(configuration->name()).qmakeArgs, workingDirectory, version);
+                QString actualSpec = extractSpecFromArgumentList(qs->m_qmakeArgs, workingDirectory, version);
                 if (actualSpec.isEmpty()) {
                     // Easy one the user has choosen not to override the settings
                     actualSpec = version->mkspec();
@@ -1289,7 +1280,7 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(BuildConfiguration *confi
 
 
                 QString parsedSpec = extractSpecFromArgumentList(result.second, workingDirectory, version);
-                QStringList actualArgs = removeSpecFromArgumentList(qs->m_values.value(configuration->name()).qmakeArgs);
+                QStringList actualArgs = removeSpecFromArgumentList(qs->m_qmakeArgs);
                 QStringList parsedArgs = removeSpecFromArgumentList(result.second);
 
                 if (debug) {

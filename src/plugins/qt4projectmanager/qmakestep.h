@@ -52,7 +52,8 @@ public:
     QMakeStepFactory();
     virtual ~QMakeStepFactory();
     bool canCreate(const QString & name) const;
-    ProjectExplorer::BuildStep * create(ProjectExplorer::Project * pro, const QString & name) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::Project * pro, ProjectExplorer::BuildConfiguration *bc, const QString & name) const;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
     QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
     QString displayNameForName(const QString &name) const;
 };
@@ -60,10 +61,6 @@ public:
 
 class Qt4Project;
 
-struct QMakeStepSettings
-{
-    QStringList qmakeArgs;
-};
 
 class QMakeStep : public ProjectExplorer::AbstractMakeStep
 {
@@ -71,27 +68,25 @@ class QMakeStep : public ProjectExplorer::AbstractMakeStep
     friend class Qt4Project; // TODO remove
     // Currently used to access qmakeArgs
 public:
-    QMakeStep(Qt4Project * project);
+    QMakeStep(Qt4Project * project, ProjectExplorer::BuildConfiguration *bc);
+    QMakeStep(QMakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
     ~QMakeStep();
-    virtual bool init(const QString &name);
+    virtual bool init();
     virtual void run(QFutureInterface<bool> &);
     virtual QString name();
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
-    QStringList arguments(const QString &buildConfiguration);
+    QStringList arguments();
     void setForced(bool b);
     bool forced();
 
-    QStringList qmakeArguments(const QString &buildConfiguration);
-    void setQMakeArguments(const QString &buildConfiguraion, const QStringList &arguments);
+    QStringList qmakeArguments();
+    void setQMakeArguments(const QStringList &arguments);
 
-    virtual void restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map);
-    virtual void storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map);
+    virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
+    virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 
-    virtual void addBuildConfiguration(const QString & name);
-    virtual void removeBuildConfiguration(const QString & name);
-    virtual void copyBuildConfiguration(const QString &source, const QString &dest);
 signals:
     void changed();
 
@@ -102,11 +97,10 @@ protected:
 private:
     Qt4Project *m_pro;
     // last values
-    QString m_buildConfiguration;
     QStringList m_lastEnv;
     bool m_forced;
     bool m_needToRunQMake; // set in init(), read in run()
-    QMap<QString, QMakeStepSettings> m_values;
+    QStringList m_qmakeArgs;
 };
 
 
@@ -116,7 +110,7 @@ class QMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     QMakeStepConfigWidget(QMakeStep *step);
     QString displayName() const;
-    void init(const QString &buildConfiguration);
+    void init();
     QString summaryText() const;
 private slots:
     void qmakeArgumentsLineEditTextEdited();
@@ -126,7 +120,6 @@ private slots:
 private:
     void updateTitleLabel();
     void updateEffectiveQMakeCall();
-    QString m_buildConfiguration;
     Ui::QMakeStep m_ui;
     QMakeStep *m_step;
     QString m_summaryText;

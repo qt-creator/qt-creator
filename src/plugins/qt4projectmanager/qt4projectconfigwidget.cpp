@@ -232,8 +232,8 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     bool visible = false;
 
     // we only show if we actually have a qmake and makestep
-    if (m_pro->qmakeStep() && m_pro->makeStep()) {
-        ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(m_buildConfiguration);
+    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(m_buildConfiguration);
+    if (m_pro->qmakeStep(bc) && m_pro->makeStep(bc)) {
         QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(m_pro->buildDirectory(bc));
         QtVersion *version = m_pro->qtVersion(bc);
         // check that there's a makefile
@@ -271,9 +271,9 @@ void Qt4ProjectConfigWidget::shadowBuildLineEditTextChanged()
 
 void Qt4ProjectConfigWidget::importLabelClicked()
 {
-    if (!m_pro->qmakeStep() || !m_pro->makeStep())
-        return;
     ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(m_buildConfiguration);
+    if (!m_pro->qmakeStep(bc) || !m_pro->makeStep(bc))
+        return;
     QString directory = m_pro->buildDirectory(bc);
     if (!directory.isEmpty()) {
         QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(directory);
@@ -302,16 +302,16 @@ void Qt4ProjectConfigWidget::importLabelClicked()
             m_pro->setQtVersion(bc, version->uniqueId());
             // Combo box will be updated at the end
 
-            QMakeStep *qmakeStep = m_pro->qmakeStep();
-            qmakeStep->setQMakeArguments(m_buildConfiguration, additionalArguments);
-            MakeStep *makeStep = m_pro->makeStep();
+            QMakeStep *qmakeStep = m_pro->qmakeStep(bc);
+            qmakeStep->setQMakeArguments(additionalArguments);
+            MakeStep *makeStep = m_pro->makeStep(bc);
 
             bc->setValue("buildConfiguration", int(qmakeBuildConfig));
             // Adjust command line arguments, this is ugly as hell
             // If we are switching to BuildAll we want "release" in there and no "debug"
             // or "debug" in there and no "release"
             // If we are switching to not BuildAl we want neither "release" nor "debug" in there
-            QStringList makeCmdArguments = makeStep->makeArguments(m_buildConfiguration);
+            QStringList makeCmdArguments = makeStep->makeArguments();
             bool debug = qmakeBuildConfig & QtVersion::DebugBuild;
             if (qmakeBuildConfig & QtVersion::BuildAll) {
                 makeCmdArguments.removeAll(debug ? "release" : "debug");
@@ -321,7 +321,7 @@ void Qt4ProjectConfigWidget::importLabelClicked()
                 makeCmdArguments.removeAll("debug");
                 makeCmdArguments.removeAll("release");
             }
-            makeStep->setMakeArguments(m_buildConfiguration, makeCmdArguments);
+            makeStep->setMakeArguments(makeCmdArguments);
         }
     }
     setupQtVersionsComboBox();

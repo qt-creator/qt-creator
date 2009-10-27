@@ -113,7 +113,6 @@ public:
     virtual ProjectExplorer::ProjectNode *rootProjectNode() const;
 
     virtual QStringList files(FilesMode fileMode) const;
-    MakeStep *makeStep() const;
     QStringList targets() const;
     QString buildParser(ProjectExplorer::BuildConfiguration *configuration) const;
     CMakeTarget targetForTitle(const QString &title);

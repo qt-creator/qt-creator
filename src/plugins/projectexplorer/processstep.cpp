@@ -45,22 +45,32 @@ static const char * const PROCESS_WORKINGDIRECTORY = "abstractProcess.workingDir
 static const char * const PROCESS_ARGUMENTS        = "abstractProcess.arguments";
 static const char * const PROCESS_ENABLED          = "abstractProcess.enabled";
 
-ProcessStep::ProcessStep(Project *pro)
-        : AbstractProcessStep(pro)
+ProcessStep::ProcessStep(Project *pro, BuildConfiguration *bc)
+    : AbstractProcessStep(pro, bc)
 {
 
 }
 
-bool ProcessStep::init(const QString &buildConfigurationName)
+ProcessStep::ProcessStep(ProcessStep *bs, BuildConfiguration *bc)
+    : AbstractProcessStep(bs, bc)
 {
-    BuildConfiguration *bc = project()->buildConfiguration(buildConfigurationName);
-    setEnvironment(project()->environment(bc));
-    QString wd = workingDirectory(buildConfigurationName);
+    m_name = bs->m_name;
+    m_command = bs->m_command;
+    m_arguments = bs->m_arguments;
+    m_workingDirectory = bs->m_workingDirectory;
+    m_env = bs->m_env;
+    m_enabled = bs->m_enabled;
+}
+
+bool ProcessStep::init()
+{
+    setEnvironment(project()->environment(buildConfiguration()));
+    QString wd = workingDirectory();
     if (wd.isEmpty())
         wd = "$BUILDDIR";
 
-    AbstractProcessStep::setWorkingDirectory(wd.replace("$BUILDDIR", project()->buildDirectory(bc)));
-    return AbstractProcessStep::init(buildConfigurationName);
+    AbstractProcessStep::setWorkingDirectory(wd.replace("$BUILDDIR", project()->buildDirectory(buildConfiguration())));
+    return AbstractProcessStep::init();
 }
 
 void ProcessStep::run(QFutureInterface<bool> & fi)
@@ -73,37 +83,37 @@ QString ProcessStep::name()
     return "projectexplorer.processstep";
 }
 
-void ProcessStep::restoreFromMap(const QMap<QString, QVariant> &map)
+void ProcessStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
 {
     QMap<QString, QVariant>::const_iterator it = map.constFind("ProjectExplorer.ProcessStep.DisplayName");
     if (it != map.constEnd())
         m_name = (*it).toString();
-    ProjectExplorer::AbstractProcessStep::restoreFromMap(map);
+    ProjectExplorer::AbstractProcessStep::restoreFromGlobalMap(map);
 }
 
-void ProcessStep::storeIntoMap(QMap<QString, QVariant> &map)
-{
-    map["ProjectExplorer.ProcessStep.DisplayName"] = m_name;
-    ProjectExplorer::AbstractProcessStep::storeIntoMap(map);
-}
-
-void ProcessStep::restoreFromMap(const QString &buildConfiguration, const QMap<QString, QVariant> &map)
+void ProcessStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
 {
     // TODO checking for PROCESS_*
-    setCommand(buildConfiguration, map.value(PROCESS_COMMAND).toString());
-    setWorkingDirectory(buildConfiguration, map.value(PROCESS_WORKINGDIRECTORY).toString());
-    setArguments(buildConfiguration, map.value(PROCESS_ARGUMENTS).toStringList());
-    setEnabled(buildConfiguration, map.value(PROCESS_ENABLED).toBool());
-    ProjectExplorer::AbstractProcessStep::restoreFromMap(buildConfiguration, map);
+    setCommand(map.value(PROCESS_COMMAND).toString());
+    setWorkingDirectory(map.value(PROCESS_WORKINGDIRECTORY).toString());
+    setArguments(map.value(PROCESS_ARGUMENTS).toStringList());
+    setEnabled(map.value(PROCESS_ENABLED).toBool());
+
+    QMap<QString, QVariant>::const_iterator it = map.constFind("ProjectExplorer.ProcessStep.DisplayName");
+    if (it != map.constEnd())
+        m_name = (*it).toString();
+
+    ProjectExplorer::AbstractProcessStep::restoreFromLocalMap(map);
 }
 
-void ProcessStep::storeIntoMap(const QString &buildConfiguration, QMap<QString, QVariant> &map)
+void ProcessStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 {
-    map[PROCESS_COMMAND] = command(buildConfiguration);
-    map[PROCESS_WORKINGDIRECTORY] = workingDirectory(buildConfiguration);
-    map[PROCESS_ARGUMENTS] = arguments(buildConfiguration);
-    map[PROCESS_ENABLED] = enabled(buildConfiguration);
-    ProjectExplorer::AbstractProcessStep::storeIntoMap(buildConfiguration, map);
+    map[PROCESS_COMMAND] = command();
+    map[PROCESS_WORKINGDIRECTORY] = workingDirectory();
+    map[PROCESS_ARGUMENTS] = arguments();
+    map[PROCESS_ENABLED] = enabled();
+    map["ProjectExplorer.ProcessStep.DisplayName"] = m_name;
+    ProjectExplorer::AbstractProcessStep::storeIntoLocalMap(map);
 }
 
 
@@ -117,7 +127,7 @@ void ProcessStep::setDisplayName(const QString &name)
 
 QString ProcessStep::displayName()
 {
-    if (!m_name.isNull())
+    if (!m_name.isEmpty())
         return m_name;
     else
         return tr("Custom Process Step");
@@ -133,81 +143,44 @@ bool ProcessStep::immutable() const
     return false;
 }
 
-QString ProcessStep::command(const QString &buildConfiguration) const
+QString ProcessStep::command() const
 {
-    QMap<QString, ProcessStepSettings>::const_iterator it = m_values.constFind(buildConfiguration);
-    QTC_ASSERT(it != m_values.end(), return QString::null);
-    return (*it).command;
+    return m_command;
 }
 
-QStringList ProcessStep::arguments(const QString &buildConfiguration) const
+QStringList ProcessStep::arguments() const
 {
-    QMap<QString, ProcessStepSettings>::const_iterator it = m_values.constFind(buildConfiguration);
-    QTC_ASSERT(it != m_values.end(), return QStringList());
-    return (*it).arguments;
+    return m_arguments;
 }
 
-bool ProcessStep::enabled(const QString &buildConfiguration) const
+bool ProcessStep::enabled() const
 {
-    QMap<QString, ProcessStepSettings>::const_iterator it = m_values.constFind(buildConfiguration);
-    QTC_ASSERT(it != m_values.end(), return false);
-    return (*it).enabled;
+    return m_enabled;
 }
 
-QString ProcessStep::workingDirectory(const QString &buildConfiguration) const
+QString ProcessStep::workingDirectory() const
 {
-    QMap<QString, ProcessStepSettings>::const_iterator it = m_values.constFind(buildConfiguration);
-    QTC_ASSERT(it != m_values.end(), return QString::null);
-    return (*it).workingDirectory;
+    return m_workingDirectory;
 }
 
-void ProcessStep::setCommand(const QString &buildConfiguration, const QString &command)
+void ProcessStep::setCommand(const QString &command)
 {
-    QMap<QString, ProcessStepSettings>::iterator it = m_values.find(buildConfiguration);
-    QTC_ASSERT(it != m_values.end(), return);
-    it->command = command;
+    m_command = command;
 }
 
-void ProcessStep::setArguments(const QString &buildConfiguration, const QStringList &arguments)
+void ProcessStep::setArguments(const QStringList &arguments)
 {
-    QMap<QString, ProcessStepSettings>::iterator it = m_values.find(buildConfiguration);
-    QTC_ASSERT(it != m_values.end(), return);
-    it->arguments = arguments;
+    m_arguments = arguments;
 }
 
-void ProcessStep::setEnabled(const QString &buildConfiguration, bool enabled)
+void ProcessStep::setEnabled(bool enabled)
 {
-    QMap<QString, ProcessStepSettings>::iterator it = m_values.find(buildConfiguration);
-    QTC_ASSERT(it != m_values.end(), return);
-    it->enabled = enabled;
+    m_enabled = enabled;
 }
 
-void ProcessStep::setWorkingDirectory(const QString &buildConfiguration, const QString &workingDirectory)
+void ProcessStep::setWorkingDirectory(const QString &workingDirectory)
 {
-    QMap<QString, ProcessStepSettings>::iterator it = m_values.find(buildConfiguration);
-    QTC_ASSERT(it != m_values.end(), return);
-    it->workingDirectory = workingDirectory;
-}
-
-void ProcessStep::addBuildConfiguration(const QString & name)
-{
-    QMap<QString, ProcessStepSettings>::const_iterator it = m_values.constFind(name);
-    QTC_ASSERT(it == m_values.constEnd(), return);
-    m_values.insert(name, ProcessStepSettings());
-}
-
-void ProcessStep::removeBuildConfiguration(const QString & name)
-{
-    QMap<QString, ProcessStepSettings>::const_iterator it = m_values.constFind(name);
-    QTC_ASSERT(it != m_values.constEnd(), return);
-    m_values.remove(name);
-}
-
-void ProcessStep::copyBuildConfiguration(const QString &source, const QString &dest)
-{
-    QMap<QString, ProcessStepSettings>::const_iterator it = m_values.constFind(source);
-    QTC_ASSERT(it != m_values.constEnd(), return);
-    m_values.insert(dest, *it);
+    m_workingDirectory = workingDirectory;
 }
 
 //*******
@@ -224,10 +197,15 @@ bool ProcessStepFactory::canCreate(const QString &name) const
     return name == "projectexplorer.processstep";
 }
 
-BuildStep *ProcessStepFactory::create(Project *pro, const QString &name) const
+BuildStep *ProcessStepFactory::create(Project *pro, BuildConfiguration *bc, const QString &name) const
 {
     Q_UNUSED(name)
-    return new ProcessStep(pro);
+    return new ProcessStep(pro, bc);
+}
+
+BuildStep *ProcessStepFactory::clone(BuildStep *bs, BuildConfiguration *bc) const
+{
+    return new ProcessStep(static_cast<ProcessStep *>(bs), bc);
 }
 
 QStringList ProcessStepFactory::canCreateForProject(Project *pro) const
@@ -270,9 +248,9 @@ void ProcessStepConfigWidget::updateDetails()
         displayName = "Custom Process Step";
     m_summaryText = tr("<b>%1</b> %2 %3 %4")
                     .arg(displayName,
-                         m_step->command(m_buildConfiguration),
-                         m_step->arguments(m_buildConfiguration).join(" "),
-                         m_step->enabled(m_buildConfiguration) ? "" : tr("(disabled)"));
+                         m_step->command(),
+                         m_step->arguments().join(" "),
+                         m_step->enabled() ? "" : tr("(disabled)"));
     emit updateSummary();
 }
 
@@ -281,20 +259,18 @@ QString ProcessStepConfigWidget::displayName() const
     return m_step->name();
 }
 
-void ProcessStepConfigWidget::init(const QString &buildConfiguration)
+void ProcessStepConfigWidget::init()
 {
-    m_buildConfiguration = buildConfiguration;
-    if (buildConfiguration != QString::null) {
-        m_ui.command->setPath(m_step->command(buildConfiguration));
+    m_ui.command->setPath(m_step->command());
 
-        QString workingDirectory = m_step->workingDirectory(buildConfiguration);
-        if (workingDirectory.isEmpty())
-            workingDirectory = "$BUILDDIR";
-        m_ui.workingDirectory->setPath(workingDirectory);
+    QString workingDirectory = m_step->workingDirectory();
+    if (workingDirectory.isEmpty())
+        workingDirectory = "$BUILDDIR";
+    m_ui.workingDirectory->setPath(workingDirectory);
 
-        m_ui.commandArgumentsLineEdit->setText(m_step->arguments(buildConfiguration).join(" "));
-        m_ui.enabledCheckBox->setChecked(m_step->enabled(buildConfiguration));
-    }
+    m_ui.commandArgumentsLineEdit->setText(m_step->arguments().join(" "));
+    m_ui.enabledCheckBox->setChecked(m_step->enabled());
+
     m_ui.nameLineEdit->setText(m_step->displayName());
     updateDetails();
 }
@@ -312,24 +288,24 @@ void ProcessStepConfigWidget::nameLineEditTextEdited()
 
 void ProcessStepConfigWidget::commandLineEditTextEdited()
 {
-    m_step->setCommand(m_buildConfiguration, m_ui.command->path());
+    m_step->setCommand(m_ui.command->path());
     updateDetails();
 }
 
 void ProcessStepConfigWidget::workingDirectoryLineEditTextEdited()
 {
-    m_step->setWorkingDirectory(m_buildConfiguration, m_ui.workingDirectory->path());
+    m_step->setWorkingDirectory(m_ui.workingDirectory->path());
 }
 
 void ProcessStepConfigWidget::commandArgumentsLineEditTextEdited()
 {
-    m_step->setArguments(m_buildConfiguration, m_ui.commandArgumentsLineEdit->text().split(" ",
+    m_step->setArguments(m_ui.commandArgumentsLineEdit->text().split(" ",
           QString::SkipEmptyParts));
     updateDetails();
 }
 
 void ProcessStepConfigWidget::enabledCheckBoxClicked(bool)
 {
-    m_step->setEnabled(m_buildConfiguration, m_ui.enabledCheckBox->isChecked());
+    m_step->setEnabled(m_ui.enabledCheckBox->isChecked());
     updateDetails();
 }

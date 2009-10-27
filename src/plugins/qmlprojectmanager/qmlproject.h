@@ -81,7 +81,6 @@ public:
     virtual QStringList files(FilesMode fileMode) const;
 
     QStringList targets() const;
-    QmlMakeStep *makeStep() const;
     QString buildParser(ProjectExplorer::BuildConfiguration *configuration) const;
 
     enum RefreshOptions {

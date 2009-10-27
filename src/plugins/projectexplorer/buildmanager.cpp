@@ -37,6 +37,7 @@
 #include "project.h"
 #include "projectexplorersettings.h"
 #include "taskwindow.h"
+#include "buildconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -150,7 +151,6 @@ void BuildManager::clearBuildQueue()
         decrementActiveBuildSteps(bs->project());
 
     m_buildQueue.clear();
-    m_configurations.clear();
     m_running = false;
     m_previousBuildStepProject = 0;
 
@@ -285,16 +285,14 @@ void BuildManager::nextStep()
 {
     if (!m_buildQueue.empty()) {
         m_currentBuildStep = m_buildQueue.front();
-        m_currentConfiguration = m_configurations.front();
         m_buildQueue.pop_front();
-        m_configurations.pop_front();
 
         connect(m_currentBuildStep, SIGNAL(addToTaskWindow(ProjectExplorer::TaskWindow::Task)),
                 this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
         connect(m_currentBuildStep, SIGNAL(addToOutputWindow(QString)),
                 this, SLOT(addToOutputWindow(QString)));
 
-        bool init = m_currentBuildStep->init(m_currentConfiguration);
+        bool init = m_currentBuildStep->init();
         if (!init) {
             addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1</font>").arg(m_currentBuildStep->project()->name()));
             addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(m_currentBuildStep->displayName()));
@@ -321,12 +319,11 @@ void BuildManager::nextStep()
     }
 }
 
-void BuildManager::buildQueueAppend(BuildStep * bs, const QString &configuration)
+void BuildManager::buildQueueAppend(BuildStep * bs)
 {
     m_buildQueue.append(bs);
     ++m_maxProgress;
     incrementActiveBuildSteps(bs->project());
-    m_configurations.append(configuration);
 }
 
 void BuildManager::buildProjects(const QList<Project *> &projects, const QList<QString> &configurations)
@@ -338,9 +335,10 @@ void BuildManager::buildProjects(const QList<Project *> &projects, const QList<Q
 
     for (it = projects.constBegin(); it != end; ++it, ++cit) {
         if (*cit != QString::null) {
-            QList<BuildStep *> buildSteps = (*it)->buildSteps();
+            BuildConfiguration *bc = (*it)->buildConfiguration(*cit);
+            QList<BuildStep *> buildSteps = bc->buildSteps();
             foreach (BuildStep *bs, buildSteps) {
-                buildQueueAppend(bs, *cit);
+                buildQueueAppend(bs);
             }
         }
     }
@@ -357,9 +355,12 @@ void BuildManager::cleanProjects(const QList<Project *> &projects, const QList<Q
     end = projects.constEnd();
 
     for (it = projects.constBegin(); it != end; ++it, ++cit) {
-        QList<BuildStep *> cleanSteps = (*it)->cleanSteps();
-        foreach (BuildStep *bs, cleanSteps) {
-            buildQueueAppend(bs, *cit);
+        if (*cit != QString::null) {
+            BuildConfiguration *bc = (*it)->buildConfiguration(*cit);
+            QList<BuildStep *> cleanSteps = bc->cleanSteps();
+            foreach (BuildStep *bs, cleanSteps) {
+                buildQueueAppend(bs);
+            }
         }
     }
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
@@ -377,9 +378,9 @@ void BuildManager::cleanProject(Project *p, const QString &configuration)
     cleanProjects(QList<Project *>() << p, QList<QString>() << configuration);
 }
 
-void BuildManager::appendStep(BuildStep *step, const QString &configuration)
+void BuildManager::appendStep(BuildStep *step)
 {
-    buildQueueAppend(step, configuration);
+    buildQueueAppend(step);
     startBuildQueue();
 }
 

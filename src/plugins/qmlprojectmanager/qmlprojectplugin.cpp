@@ -34,7 +34,6 @@
 #include "qmlprojectconstants.h"
 #include "qmlprojectfileseditor.h"
 #include "qmlproject.h"
-#include "qmlmakestep.h"
 #include "qmltaskmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -89,8 +88,6 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     addAutoReleasedObject(new QmlRunConfigurationFactory);
     addAutoReleasedObject(new QmlNewProjectWizard);
     addAutoReleasedObject(new QmlProjectWizard);
-    addAutoReleasedObject(new QmlMakeStepFactory);
-
     return true;
 }
 

@@ -30,8 +30,19 @@
 #include "buildconfiguration.h"
 
 #include <utils/qtcassert.h>
+#include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
 
 using namespace ProjectExplorer;
+
+IBuildStepFactory *findFactory(const QString &name)
+{
+    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
+    foreach(IBuildStepFactory *factory, factories)
+        if (factory->canCreate(name))
+            return factory;
+    return 0;
+}
 
 BuildConfiguration::BuildConfiguration(const QString &name)
     : m_name(name)
@@ -42,6 +53,22 @@ BuildConfiguration::BuildConfiguration(const QString &name)
 BuildConfiguration::BuildConfiguration(const QString &name, BuildConfiguration *source)
     : m_values(source->m_values), m_name(name)
 {
+    foreach(BuildStep *originalbs, source->buildSteps()) {
+        IBuildStepFactory *factory = findFactory(originalbs->name());
+        BuildStep *clonebs = factory->clone(originalbs, this);
+        m_buildSteps.append(clonebs);
+    }
+    foreach(BuildStep *originalcs, source->cleanSteps()) {
+        IBuildStepFactory *factory = findFactory(originalcs->name());
+        BuildStep *clonecs = factory->clone(originalcs, this);
+        m_cleanSteps.append(clonecs);
+    }
+}
+
+BuildConfiguration::~BuildConfiguration()
+{
+    qDeleteAll(m_buildSteps);
+    qDeleteAll(m_cleanSteps);
 }
 
 void BuildConfiguration::setName(const QString &name)
@@ -98,6 +125,53 @@ QMap<QString, QVariant> BuildConfiguration::toMap() const
     return result;
 }
 
+QList<BuildStep *> BuildConfiguration::buildSteps() const
+{
+    return m_buildSteps;
+}
+
+void BuildConfiguration::insertBuildStep(int position, BuildStep *step)
+{
+    m_buildSteps.insert(position, step);
+}
+
+void BuildConfiguration::removeBuildStep(int position)
+{
+    delete m_buildSteps.at(position);
+    m_buildSteps.removeAt(position);
+}
+
+void BuildConfiguration::moveBuildStepUp(int position)
+{
+    BuildStep *bs = m_buildSteps.takeAt(position);
+    m_buildSteps.insert(position - 1, bs);
+}
+
+QList<BuildStep *> BuildConfiguration::cleanSteps() const
+{
+    return m_cleanSteps;
+}
+
+void BuildConfiguration::insertCleanStep(int position, BuildStep *step)
+{
+    m_cleanSteps.insert(position, step);
+}
+
+void BuildConfiguration::removeCleanStep(int position)
+{
+    delete m_cleanSteps.at(position);
+    m_cleanSteps.removeAt(position);
+}
+
+void BuildConfiguration::moveCleanStepUp(int position)
+{
+    BuildStep *cs = m_cleanSteps.takeAt(position);
+    m_cleanSteps.insert(position, cs);
+}
+
+///
+// IBuildConfigurationFactory
+///
 
 IBuildConfigurationFactory::IBuildConfigurationFactory(QObject *parent)
     : QObject(parent)

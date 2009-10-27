@@ -257,12 +257,17 @@ void Qt4Manager::runQMakeContextMenu()
 
 void Qt4Manager::runQMake(ProjectExplorer::Project *p)
 {
-    QMakeStep *qs = qobject_cast<Qt4Project *>(p)->qmakeStep();
+    ProjectExplorer::BuildConfiguration *bc = p->activeBuildConfiguration();
+    QMakeStep *qs = 0;
+    foreach(BuildStep *bs, bc->buildSteps())
+        if ((qs = qobject_cast<QMakeStep *>(bs)) != 0)
+            break;
+
     if (!qs)
         return;
     //found qmakeStep, now use it
     qs->setForced(true);
-    m_projectExplorer->buildManager()->appendStep(qs, p->activeBuildConfiguration()->name());
+    m_projectExplorer->buildManager()->appendStep(qs);
 }
 
 QString Qt4Manager::fileTypeId(ProjectExplorer::FileType type)

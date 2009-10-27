@@ -39,9 +39,16 @@
 
 using namespace ProjectExplorer;
 
-AbstractProcessStep::AbstractProcessStep(Project *pro)
-  : BuildStep(pro)
+AbstractProcessStep::AbstractProcessStep(Project *pro, BuildConfiguration *bc)
+  : BuildStep(pro, bc), m_timer(0), m_futureInterface(0), m_process(0), m_eventLoop(0)
 {
+
+}
+
+AbstractProcessStep::AbstractProcessStep(AbstractProcessStep *bs, BuildConfiguration *bc)
+    : BuildStep(bs, bc), m_timer(0), m_futureInterface(0), m_process(0), m_eventLoop(0)
+{
+
 }
 
 void AbstractProcessStep::setCommand(const QString &cmd)
@@ -79,9 +86,8 @@ void AbstractProcessStep::setEnvironment(Environment env)
     m_environment = env;
 }
 
-bool AbstractProcessStep::init(const QString &buildConfiguration)
+bool AbstractProcessStep::init()
 {
-    Q_UNUSED(buildConfiguration)
     if (QFileInfo(m_command).isRelative()) {
         QString searchInPath = m_environment.searchInPath(m_command);
         if (!searchInPath.isEmpty())
@@ -133,6 +139,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> & fi)
     m_eventLoop->exec();
     m_timer->stop();
     delete m_timer;
+    m_timer = 0;
 
     // The process has finished, leftover data is read in processFinished
     bool returnValue = processFinished(m_process->exitCode(), m_process->exitStatus());
@@ -142,6 +149,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> & fi)
     delete m_eventLoop;
     m_eventLoop = 0;
     fi.reportResult(returnValue);
+    m_futureInterface = 0;
     return;
 }
 

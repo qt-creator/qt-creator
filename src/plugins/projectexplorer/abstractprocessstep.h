@@ -65,10 +65,11 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 {
     Q_OBJECT
 public:
-    AbstractProcessStep(Project *pro);
+    AbstractProcessStep(Project *pro, BuildConfiguration *bc);
+    AbstractProcessStep(AbstractProcessStep *bs, BuildConfiguration *bc);
     /// reimplemented from BuildStep::init()
     /// You need to call this from YourBuildStep::init()
-    virtual bool init(const QString & name);
+    virtual bool init();
     /// reimplemented from BuildStep::init()
     /// You need to call this from YourBuildStep::run()
     virtual void run(QFutureInterface<bool> &);

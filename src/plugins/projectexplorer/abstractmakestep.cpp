@@ -46,11 +46,17 @@ namespace {
 bool debug = false;
 }
 
-AbstractMakeStep::AbstractMakeStep(Project *project)
-    : AbstractProcessStep(project),
-      m_project(project),
+AbstractMakeStep::AbstractMakeStep(Project *project, BuildConfiguration *bc)
+    : AbstractProcessStep(project, bc),
       m_buildParser(0)
 {
+}
+
+AbstractMakeStep::AbstractMakeStep(AbstractMakeStep *bs, BuildConfiguration *bc)
+    : AbstractProcessStep(bs, bc),
+    m_buildParser(0)
+{
+
 }
 
 AbstractMakeStep::~AbstractMakeStep()
@@ -59,14 +65,12 @@ AbstractMakeStep::~AbstractMakeStep()
     m_buildParser = 0;
 }
 
-bool AbstractMakeStep::init(const QString &buildConfiguration)
+bool AbstractMakeStep::init()
 {
-    m_buildConfiguration = buildConfiguration;
-
     m_openDirectories.clear();
     addDirectory(workingDirectory());
 
-    return AbstractProcessStep::init(buildConfiguration);
+    return AbstractProcessStep::init();
 }
 
 QString AbstractMakeStep::buildParser() const
@@ -140,7 +144,7 @@ void AbstractMakeStep::slotAddToTaskWindow(const TaskWindow::Task &task)
             if (debug)
                 qDebug() << "No success. Trying all files in project ...";
             QString fileName = QFileInfo(filePath).fileName();
-            foreach (const QString &file, m_project->files(ProjectExplorer::Project::AllFiles)) {
+            foreach (const QString &file, project()->files(ProjectExplorer::Project::AllFiles)) {
                 QFileInfo candidate(file);
                 if (candidate.fileName() == fileName) {
                     if (debug)
