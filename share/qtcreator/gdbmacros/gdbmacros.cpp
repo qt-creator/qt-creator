@@ -57,6 +57,12 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QVector>
 
+#if (QT_POINTER_SIZE==4) // How to printf/scanf a pointer (uintptr_t)
+#    define POINTER_PRINTFORMAT "0x%x"
+#else
+#    define POINTER_PRINTFORMAT "0x%lx"
+#endif
+
 #ifndef QT_BOOTSTRAPPED
 
 #include <QtCore/QModelIndex>
@@ -630,18 +636,10 @@ QDumper &QDumper::put(int i)
 
 QDumper &QDumper::put(const void *p)
 {
-    static char buf[100];
     if (p) {
-        sprintf(buf, "%p", p);
-        // we get a '0x' prefix only on some implementations.
-        // if it isn't there, write it out manually.
-        if (buf[1] != 'x') {
-            put('0');
-            put('x');
-        }
-        put(buf);
+        pos += sprintf(outBuffer + pos, POINTER_PRINTFORMAT, reinterpret_cast<uintptr_t>(p));
     } else {
-        put("<null>");
+        pos += sprintf(outBuffer + pos, "<null>");
     }
     return *this;
 }
@@ -1070,7 +1068,10 @@ static void qDumpQAbstractItem(QDumper &d)
     QModelIndex mi;
     {
        ModelIndex *mm = reinterpret_cast<ModelIndex *>(&mi);
-       sscanf(d.templateParameters[0], "%d,%d,%p,%p", &mm->r, &mm->c, &mm->p, &mm->m);
+       mm->r = mm->c = 0;
+       mm->p = mm->m = 0;
+       sscanf(d.templateParameters[0], "%d,%d,"POINTER_PRINTFORMAT","POINTER_PRINTFORMAT, &mm->r, &mm->c, 
+	      reinterpret_cast<uintptr_t*>(&mm->p), reinterpret_cast<uintptr_t*>(&mm->m));
     }
     const QAbstractItemModel *m = mi.model();
     const int rowCount = m->rowCount(mi);
@@ -2149,8 +2150,8 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
     default: {
         char buf[1000];
         const char *format = (v->typeName()[0] == 'Q')
-            ?  "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)%p)"
-            :  "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)%p)";
+            ?  "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)"POINTER_PRINTFORMAT")"
+            :  "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)"POINTER_PRINTFORMAT")";
         qsnprintf(buf, sizeof(buf) - 1, format, v->typeName(), v->typeName(), v);
         *exp = QLatin1String(buf);
         *numchild = 1;

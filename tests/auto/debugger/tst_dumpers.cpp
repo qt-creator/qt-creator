@@ -10,6 +10,12 @@
 #include <QtTest/QtTest>
 //#include <QtTest/qtest_gui.h>
 
+#if (QT_POINTER_SIZE==4)
+#    define POINTER_PRINTFORMAT "0x%x"
+#else
+#    define POINTER_PRINTFORMAT "0x%lx"
+#endif
+
 #undef NS
 #ifdef QT_NAMESPACE
 #   define STRINGIFY0(s) #s
@@ -387,7 +393,7 @@ static void testDumper(QByteArray expected0, const void *data, QByteArray outert
         extraInt0, extraInt1, extraInt2, extraInt3);
     QString expected(expected0);
     char buf[100];
-    sprintf(buf, "%p", data);
+    sprintf(buf, POINTER_PRINTFORMAT, (uintptr_t)data);
     if ((!expected.startsWith('t') && !expected.startsWith('f'))
             || expected.startsWith("type"))
         expected = "tiname='$I',addr='$A'," + expected;
@@ -417,7 +423,7 @@ static void testDumper(QByteArray expected0, const void *data, QByteArray outert
 QByteArray str(const void *p)
 {
     char buf[100];
-    sprintf(buf, "%p", p);
+    sprintf(buf, POINTER_PRINTFORMAT, (uintptr_t)p);
     return buf;
 }
 
@@ -880,7 +886,7 @@ void tst_Debugger::dumpQByteArray()
         &ba, NS"QByteArray", true);
 
     // Case 5: Regular and special characters and the replacement character.
-    ba = QByteArray("abc\a\n\r\e\'\"?");
+    ba = QByteArray("abc\a\n\r\033\'\"?");
     testDumper("value='YWJjBwoNGyciPw==',valueencoded='1',type='"NS"QByteArray',"
             "numchild='10',childtype='char',childnumchild='0',children=["
             "{value='61  (97 'a')'},{value='62  (98 'b')'},"
