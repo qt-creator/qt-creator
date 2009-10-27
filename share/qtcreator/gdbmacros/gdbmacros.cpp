@@ -1642,7 +1642,7 @@ static void qDumpQList(QDumper &d)
         if (innerTypeIsPointer)
             for (int i = 0; i != n; ++i)
                 if (const void *p = ldata.d->array + i + pdata->begin)
-                    qCheckAccess(deref(p));
+                    qCheckPointer(deref(p));
     }
     qCheckAccess(pdata);
 
