@@ -249,11 +249,11 @@ bool DebuggerListener::coreAboutToClose()
         tr("A debugging session is still in progress. Would you like to terminate it?") :
         tr("A debugging session is still in progress. Terminating the session in the current"
            " state (%1) can leave the target in an inconsistent state."
-           " Would you like to terminate it?")
+           " Would you still like to terminate it?")
         .arg(QLatin1String(DebuggerManager::stateName(mgr->state())));
-    QMessageBox::StandardButton answer = QMessageBox::question(0, title, question,
-                                         QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
-    if (answer == QMessageBox::No)
+    QMessageBox::StandardButton answer = QMessageBox::question(mgr->mainWindow(), title, question,
+                                         QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+    if (answer != QMessageBox::Yes)
         return false;
     mgr->exitDebugger();
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
