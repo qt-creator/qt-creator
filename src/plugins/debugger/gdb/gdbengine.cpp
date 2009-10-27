@@ -225,7 +225,7 @@ QMainWindow *GdbEngine::mainWindow() const
 GdbEngine::~GdbEngine()
 {
     // prevent sending error messages afterwards
-    disconnect(&m_gdbProc);
+    disconnect(&m_gdbProc, 0, this, 0);
     delete m_gdbAdapter;
     m_gdbAdapter = 0;
 }

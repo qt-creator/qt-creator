@@ -256,6 +256,7 @@ bool DebuggerListener::coreAboutToClose()
     if (answer == QMessageBox::No)
         return false;
     mgr->exitDebugger();
+    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     return true;
 }
 

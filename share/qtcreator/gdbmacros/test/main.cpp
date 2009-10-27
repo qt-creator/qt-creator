@@ -280,6 +280,27 @@ static int dumpQVariant()
     return 0;
 }
 
+static int dumpQVariantList()
+{
+    QVariantList test;
+    if (!optEmptyContainers) {
+        test.push_back(QVariant(QLatin1String("hallo")));
+        test.push_back(QVariant(42));
+        test.push_back(QVariant(3.141));
+    }
+    // As a list
+    prepareInBuffer("QList", "local.qvariantlist", "local.qvariantlist", "QVariant");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(QVariant), 0,0 ,0);
+    fputs(qDumpOutBuffer, stdout);
+    // As typedef
+    fputs("\n\n", stdout);
+    prepareInBuffer("QVariantList", "local.qvariantlist", "local.qvariantlist", "");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, 0, 0,0 ,0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
+    return 0;
+}
+
 // ---------------  std types
 
 static int dumpStdString()
@@ -548,6 +569,7 @@ static TypeDumpFunctionMap registerTypes()
     rc.insert("QObject", dumpQObject);
     rc.insert("QObjectList", dumpQObjectList);
     rc.insert("QVariant", dumpQVariant);
+    rc.insert("QVariantList", dumpQVariantList);
     return rc;
 }
 

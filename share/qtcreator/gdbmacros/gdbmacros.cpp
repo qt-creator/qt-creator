@@ -3590,10 +3590,16 @@ static void handleProtocolVersion2and3(QDumper &d)
             break;
         case 'V':
             #ifndef QT_BOOTSTRAPPED
-            if (isEqual(type, "QVariant"))
+            if (isEqual(type, "QVariantList")) { // resolve typedef
+                d.outerType = "QList";
+                d.innerType = "QVariant";
+                d.extraInt[0] = sizeof(QVariant);
+                qDumpQList(d);
+            } else if (isEqual(type, "QVariant")) {
                 qDumpQVariant(d);
-            else if (isEqual(type, "QVector"))
+            } else if (isEqual(type, "QVector")) {
                 qDumpQVector(d);
+            }
             #endif
             break;
         case 'W':
@@ -3801,6 +3807,7 @@ void *qDumpObjectData440(
             "\""NS"QStringList\","
             "\""NS"QTextCodec\","
             "\""NS"QVariant\","
+            "\""NS"QVariantList\","
             "\""NS"QVector\","
 #if QT_VERSION >= 0x040500
             "\""NS"QMultiMap\","
