@@ -1825,7 +1825,6 @@ void GdbEngine::handleBreakList(const GdbMi &table)
     }
 
     attemptBreakpointSynchronization();
-    handler->updateMarkers();
 }
 
 void GdbEngine::handleBreakIgnore(const GdbResponse &response)
@@ -1891,7 +1890,6 @@ void GdbEngine::handleBreakInsert(const GdbResponse &response)
         breakpointDataFromOutput(data, bkpt);
 //#endif
         attemptBreakpointSynchronization();
-        handler->updateMarkers();
     } else {
         if (m_gdbVersion < 60800 && !m_isMacGdb) {
             // This gdb version doesn't "do" pending breakpoints.
@@ -1954,7 +1952,6 @@ void GdbEngine::handleBreakInfo(const GdbResponse &response)
         if (found != -1) {
             QString str = QString::fromLocal8Bit(response.data.findChild("consolestreamoutput").data());
             extractDataFromInfoBreak(str, handler->at(found));
-            handler->updateMarkers();
             attemptBreakpointSynchronization(); // trigger "ready"
         }
     }
@@ -1975,7 +1972,6 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         data->bpNumber = _("<unavailable>");
     }
     attemptBreakpointSynchronization(); // trigger "ready"
-    handler->updateMarkers();
 }
 
 void GdbEngine::attemptBreakpointSynchronization2(const GdbResponse &)
@@ -2056,6 +2052,8 @@ void GdbEngine::attemptBreakpointSynchronization()
             }
         }
     }
+
+    handler->updateMarkers();
 }
 
 
