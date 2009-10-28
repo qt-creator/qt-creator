@@ -1347,6 +1347,8 @@ EditorManager::ReadOnlyAction
 MakeWritableResult
 EditorManager::makeEditorWritable(IEditor *editor)
 {
+    if (!editor || !editor->file())
+        return Failed;
     QString directory = QFileInfo(editor->file()->fileName()).absolutePath();
     IVersionControl *versionControl = m_d->m_core->vcsManager()->findVersionControlForDirectory(directory);
     IFile *file = editor->file();
