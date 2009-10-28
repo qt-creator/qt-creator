@@ -290,13 +290,18 @@ void Qt4ProjectConfigWidget::importLabelClicked()
 
             QString versionSpec = version->sourcePath() + "/mkspecs/" + version->mkspec();
             QString parsedSpec = Qt4Project::extractSpecFromArgumentList(additionalArguments);
-            QString parsedSpecOrginal = parsedSpec;
-            if (QFileInfo(parsedSpec).isRelative())
-                parsedSpec = QDir::cleanPath(directory + "/" + parsedSpec);
-            additionalArguments = Qt4Project::removeSpecFromArgumentList(additionalArguments);
-            if (parsedSpec != versionSpec) {
-                additionalArguments.prepend(parsedSpecOrginal);
-                additionalArguments.prepend("-spec");
+
+            if (parsedSpec.isEmpty()) {
+                // using the default spec, don't modify additional arguments
+            } else {
+                QString parsedSpecOrginal = parsedSpec;
+                if (QFileInfo(parsedSpec).isRelative())
+                    parsedSpec = QDir::cleanPath(directory + "/" + parsedSpec);
+                additionalArguments = Qt4Project::removeSpecFromArgumentList(additionalArguments);
+                if (parsedSpec != versionSpec) {
+                    additionalArguments.prepend(parsedSpecOrginal);
+                    additionalArguments.prepend("-spec");
+                }
             }
 
             // So we got all the information now apply it...
