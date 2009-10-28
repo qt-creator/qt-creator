@@ -106,10 +106,10 @@ bool MakeStep::init(const QString &name)
     // but for now this is the least invasive change
     ProjectExplorer::ToolChain *toolchain = qt4project->toolChain(bc);
 
-    ProjectExplorer::ToolChain::ToolChainType t =  ProjectExplorer::ToolChain::UNKNOWN;
+    ProjectExplorer::ToolChain::ToolChainType type =  ProjectExplorer::ToolChain::UNKNOWN;
     if (toolchain)
-        t = toolchain->type();
-    if (t != ProjectExplorer::ToolChain::MSVC && t != ProjectExplorer::ToolChain::WINCE) {
+        type = toolchain->type();
+    if (type != ProjectExplorer::ToolChain::MSVC && type != ProjectExplorer::ToolChain::WINCE) {
         if (value(name, "makeCmd").toString().isEmpty())
             args << "-w";
     }
@@ -117,8 +117,7 @@ bool MakeStep::init(const QString &name)
     setEnabled(name, true);
     setArguments(name, args);
 
-    ProjectExplorer::ToolChain::ToolChainType type = qt4project->toolChain(bc)->type();
-    if ( type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
+    if (type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
         setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_MSVC);
     else
         setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_GCC);
