@@ -194,16 +194,21 @@ private slots:
     void dumpFoo();
     void dumpQByteArray();
     void dumpQChar();
-    void dumpQList_char_star();
     void dumpQList_char();
+    void dumpQList_char_star();
     void dumpQList_int();
+    void dumpQList_int_star();
     void dumpQList_QString();
     void dumpQList_QString3();
     void dumpQList_Int3();
     void dumpQStack();
     void dumpQString();
     void dumpQStringList();
-    void dumpQWeakPointer();
+    void dumpQWeakPointer_11();
+    void dumpQWeakPointer_12();
+    void dumpQWeakPointer_13();
+    void dumpQWeakPointer_14();
+    void dumpQWeakPointer_2();
     void dumpQVector();
 
     void dumpQHash();
@@ -2446,43 +2451,12 @@ void tst_Gdb::dumpQTextCodec()
         dumpQTextCodecHelper(QTextCodec::codecForName(codecName));
 }
 
-#if QT_VERSION >= 0x040500
-template <typename T1, typename T2>
-        size_t offsetOf(const T1 *klass, const T2 *member)
-{
-    return static_cast<size_t>(reinterpret_cast<const char *>(member) -
-                               reinterpret_cast<const char *>(klass));
-}
-
-template <typename T>
-void tst_Gdb::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
-{
-    typedef QtSharedPointer::ExternalRefCountData Data;
-    const size_t dataOffset = 0;
-    const Data *d = *reinterpret_cast<const Data **>(
-            reinterpret_cast<const char **>(&ptr) + dataOffset);
-    const int *weakRefPtr = reinterpret_cast<const int *>(&d->weakref);
-    const int *strongRefPtr = reinterpret_cast<const int *>(&d->strongref);
-    T *data = ptr.toStrongRef().data();
-    const QString dataStr = valToString(*data);
-    QByteArray expected("value='");
-    if (isSimpleType<T>())
-        expected.append(dataStr);
-    expected.append("',valuedisabled='true',numchild='1',children=[{name='data',addr='").
-        append(ptrToBa(data)).append("',type='").append(typeToString<T>()).
-        append("',value='").append(dataStr).append("'},{name='weakref',value='").
-        append(valToString(*weakRefPtr)).append("',type='int',addr='").
-        append(ptrToBa(weakRefPtr)).append("',numchild='0'},{name='strongref',value='").
-        append(valToString(*strongRefPtr)).append("',type='int',addr='").
-        append(ptrToBa(strongRefPtr)).append("',numchild='0'}]");
-    testDumper(expected, &ptr, NS"QWeakPointer", true, typeToString<T>());
-}
-#endif
 #endif // #if 0
 
 ///////////////////////////// QWeakPointer /////////////////////////////////
 
 #if QT_VERSION >= 0x040500
+
 void dumpQWeakPointer_11()
 {
     // Case 1: Simple type.
@@ -2492,6 +2466,20 @@ void dumpQWeakPointer_11()
     /* B */ (void) 0;
 }
 
+void tst_Gdb::dumpQWeakPointer_11()
+{
+    // Case 1.1: Null pointer.
+    prepare("dumpQWeakPointer_11");
+    if (checkUninitialized)
+        run("A","{iname='local.sp',addr='-',name='sp',"
+            "type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'}");
+    next();
+    next();
+    run("B","{iname='local.sp',addr='-',name='sp',"
+            "type='"NS"QSharedPointer<int>',value='<0 items>',numchild='1'}");
+}
+
+
 void dumpQWeakPointer_12()
 {
     // Case 1.2: Weak pointer is unique.
@@ -2500,45 +2488,19 @@ void dumpQWeakPointer_12()
     /* B */ (void) 0;
 }
 
-void dumpQWeakPointer_13()
+void tst_Gdb::dumpQWeakPointer_12()
 {
-    // Case 1.3: There are other weak pointers.
-    /* A */ QSharedPointer<int> sp(new int(99));
-    /*   */ QWeakPointer<int> wp = sp.toWeakRef();
-    /* B */ (void) 0;
-}
-
-void dumpQWeakPointer_14()
-{
-    // Case 1.4: There are other strong shared pointers as well.
-    /* A */ QSharedPointer<int> sp(new int(99));
-    /*   */ QSharedPointer<int> sp2(sp);
-    /* B */ (void) 0;
-}
-
-void dumpQWeakPointer_2()
-{
-    // Case 2: Composite type.
-    /* A */ QSharedPointer<QString> sp(new QString("Test"));
-    /*   */ QWeakPointer<QString> wp = sp.toWeakRef();
-    /* B */ (void) 0;
-}
-#endif
-
-void tst_Gdb::dumpQWeakPointer()
-{
-#if QT_VERSION >= 0x040500
-
-return;
-
     // Case 1.1: Null pointer.
-    prepare("dumpQWeakPointer_11");
+    prepare("dumpQWeakPointer_12");
     if (checkUninitialized)
         run("A","{iname='local.sp',addr='-',name='sp',"
             "type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'}");
     next();
+    next();
     run("B","{iname='local.sp',addr='-',name='sp',"
             "type='"NS"QSharedPointer<int>',value='<0 items>',numchild='1'}");
+}
+
 
 /*
     //,numchild='1',children=[{name='data',addr='").
@@ -2548,51 +2510,56 @@ return;
         append(ptrToBa(weakRefPtr)).append("',numchild='0'},{name='strongref',value='").
         append(valToString(*strongRefPtr)).append("',type='int',addr='").
         append(ptrToBa(strongRefPtr)).append("',numchild='0'}]");
-
-    // Case 1.2: Weak pointer is unique.
-void tst_Gdb::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
-{
-    typedef QtSharedPointer::ExternalRefCountData Data;
-    const size_t dataOffset = 0;
-    const Data *d = *reinterpret_cast<const Data **>(
-            reinterpret_cast<const char **>(&ptr) + dataOffset);
-    const int *weakRefPtr = reinterpret_cast<const int *>(&d->weakref);
-    const int *strongRefPtr = reinterpret_cast<const int *>(&d->strongref);
-    T *data = ptr.toStrongRef().data();
-    const QString dataStr = valToString(*data);
-    QByteArray expected("value='");
-    if (isSimpleType<T>())
-        expected.append(dataStr);
-    expected.append("',valuedisabled='true',numchild='1',children=[{name='data',addr='").
-        append(ptrToBa(data)).append("',type='").append(typeToString<T>()).
-        append("',value='").append(dataStr).append("'},{name='weakref',value='").
-        append(valToString(*weakRefPtr)).append("',type='int',addr='").
-        append(ptrToBa(weakRefPtr)).append("',numchild='0'},{name='strongref',value='").
-        append(valToString(*strongRefPtr)).append("',type='int',addr='").
-        append(ptrToBa(strongRefPtr)).append("',numchild='0'}]");
-    testDumper(expected, &ptr, NS"QWeakPointer", true, typeToString<T>());
-}
-
-
-    QSharedPointer<int> sp(new int(99));
-    wp = sp.toWeakRef();
-    dumpQWeakPointerHelper(wp);
-
-    // Case 1.3: There are other weak pointers.
-    QWeakPointer<int> wp2 = sp.toWeakRef();
-    dumpQWeakPointerHelper(wp);
-
-    // Case 1.4: There are other strong shared pointers as well.
-    QSharedPointer<int> sp2(sp);
-    dumpQWeakPointerHelper(wp);
-
-    // Case 2: Composite type.
-    QSharedPointer<QString> spS(new QString("Test"));
-    QWeakPointer<QString> wpS = spS.toWeakRef();
-    dumpQWeakPointerHelper(wpS);
 */
-#endif
+
+
+void dumpQWeakPointer_13()
+{
+    // Case 1.3: There are other weak pointers.
+    /* A */ QSharedPointer<int> sp(new int(99));
+    /*   */ QWeakPointer<int> wp = sp.toWeakRef();
+    /* B */ (void) 0;
 }
+
+void tst_Gdb::dumpQWeakPointer_13()
+{
+}
+
+
+void dumpQWeakPointer_14()
+{
+    // Case 1.4: There are other strong shared pointers as well.
+    /* A */ QSharedPointer<int> sp(new int(99));
+    /*   */ QSharedPointer<int> sp2(sp);
+    /* B */ (void) 0;
+}
+
+void tst_Gdb::dumpQWeakPointer_14()
+{
+}
+
+
+void dumpQWeakPointer_2()
+{
+    // Case 2: Composite type.
+    /* A */ QSharedPointer<QString> sp(new QString("Test"));
+    /*   */ QWeakPointer<QString> wp = sp.toWeakRef();
+    /* B */ (void) 0;
+}
+
+void tst_Gdb::dumpQWeakPointer_2()
+{
+}
+
+#else // before Qt 4.5
+
+void tst_Gdb::dumpQWeakPointer_11() {}
+void tst_Gdb::dumpQWeakPointer_12() {}
+void tst_Gdb::dumpQWeakPointer_13() {}
+void tst_Gdb::dumpQWeakPointer_14() {}
+void tst_Gdb::dumpQWeakPointer_2() {}
+
+#endif
 
 ///////////////////////////// QHash<QString, QString> //////////////////////////////
 
@@ -2702,6 +2669,34 @@ void tst_Gdb::dumpQList_int()
     run("D","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<int>',value='<2 items>',numchild='2'}");
     run("D","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<int>',value='<2 items>',numchild='2',"
+            "childtype='int',childnumchild='0',children=["
+            "{value='1'},{value='2'}]}", "local.list");
+}
+
+
+///////////////////////////// QList<int *> /////////////////////////////////
+
+void dumpQList_int_star()
+{
+    /* A */ QList<int *> list;
+    /* B */ list.append(new int(1));
+    /* C */ list.append(0);
+    /* D */ list.append(new int(2));
+    /* E */ (void) 0;
+}
+
+void tst_Gdb::dumpQList_int_star()
+{
+    prepare("dumpQList_int_star");
+    if (checkUninitialized)
+        run("A","{iname='local.list',addr='-',name='list',"
+                "type='"NS"QList<int>',value='<not in scope>',numchild='0'}");
+    next();
+    next();
+    next();
+    next();
+    run("E","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<int>',value='<2 items>',numchild='2',"
             "childtype='int',childnumchild='0',children=["
             "{value='1'},{value='2'}]}", "local.list");
@@ -3044,6 +3039,32 @@ int main(int argc, char *argv[])
         // We are the debugged process, recursively called and steered
         // by our spawning alter ego.
         return 0;
+    }
+
+    if (argc == 2 && QByteArray(argv[1]) == "debug") {
+        dumpArray_char();
+        dumpArray_int();
+        dumpFoo();
+        dumpMisc();
+        dumpQByteArrayTest();
+        dumpQCharTest();
+        dumpQHash_int_int();
+        dumpQList_char();
+        dumpQList_char_star();
+        dumpQList_int();
+        dumpQList_int_star();
+        dumpQList_Int3();
+        dumpQList_QString();
+        dumpQList_QString3();
+        dumpQStack();
+        dumpQString();
+        dumpQStringList();
+        dumpQVector();
+        dumpQWeakPointer_11();
+        dumpQWeakPointer_12();
+        dumpQWeakPointer_13();
+        dumpQWeakPointer_14();
+        dumpQWeakPointer_2();
     }
 
     try {
