@@ -478,6 +478,7 @@ Thread::Thread(tst_Gdb *test) : m_proc(0), m_test(test)
 #else
     qDebug() << "\nTHREAD CREATED" << getpid() << gettid();
 #endif
+    moveToThread(this);
     connect(m_test, SIGNAL(writeToGdb(QByteArray)),
             this, SLOT(writeToGdbRequested(QByteArray)), Qt::QueuedConnection);
 }
