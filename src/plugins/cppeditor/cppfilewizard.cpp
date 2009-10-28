@@ -81,9 +81,7 @@ QString CppFileWizard::fileContents(FileType type, const QString &fileName) cons
         }
         break;
     case Source:
-        str << QLatin1String("#include \"") << baseName
-            << '.' << preferredSuffix(QLatin1String(Constants::CPP_HEADER_MIMETYPE))
-            << QLatin1String("\"\n\n");
+        str << '\n';
         break;
     }
     return contents;
