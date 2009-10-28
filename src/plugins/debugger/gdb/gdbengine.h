@@ -321,7 +321,7 @@ private: ////////// View & Data Stuff //////////
     virtual void loadSymbols(const QString &moduleName);
     virtual void loadAllSymbols();
     virtual QList<Symbol> moduleSymbols(const QString &moduleName);
-    void reloadModules();
+    virtual void reloadModules();
     void handleModulesList(const GdbResponse &response);
 
     bool m_modulesListOutdated;
@@ -329,8 +329,8 @@ private: ////////// View & Data Stuff //////////
     //
     // Register specific stuff
     //
-    Q_SLOT void reloadRegisters();
-    void setRegisterValue(int nr, const QString &value);
+    Q_SLOT virtual void reloadRegisters();
+    virtual void setRegisterValue(int nr, const QString &value);
     void handleRegisterListNames(const GdbResponse &response);
     void handleRegisterListValues(const GdbResponse &response);
 
@@ -349,7 +349,7 @@ private: ////////// View & Data Stuff //////////
     //
     // Source file specific stuff
     //
-    void reloadSourceFiles();
+    virtual void reloadSourceFiles();
     void handleQuerySources(const GdbResponse &response);
 
     QString fullName(const QString &fileName);
@@ -375,7 +375,7 @@ private: ////////// View & Data Stuff //////////
     void handleStackListThreads(const GdbResponse &response);
     void handleStackFrame(const GdbResponse &response);
     Q_SLOT void reloadStack(bool forceGotoLocation);
-    Q_SLOT void reloadFullStack();
+    Q_SLOT virtual void reloadFullStack();
     int currentFrame() const;
 
     QList<GdbMi> m_currentFunctionArgs;
@@ -399,7 +399,7 @@ private: ////////// View & Data Stuff //////////
     void handleChildren(const WatchData &parent, const GdbMi &child,
         QList<WatchData> *insertions);
 
-    void updateWatchData(const WatchData &data);
+    void virtual updateWatchData(const WatchData &data);
     Q_SLOT void updateWatchDataHelper(const WatchData &data);
     void rebuildModel();
     bool showToolTip();
