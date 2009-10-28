@@ -356,6 +356,11 @@ private: ////////// View & Data Stuff //////////
     void handleQuerySources(const GdbResponse &response);
 
     QString fullName(const QString &fileName);
+#ifdef Q_OS_WIN
+    QString cleanupFullName(const QString &fileName);
+#else
+    QString cleanupFullName(const QString &fileName) { return fileName; }
+#endif
 
     // awful hack to keep track of used files
     QMap<QString, QString> m_shortToFullName;

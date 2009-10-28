@@ -891,14 +891,9 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
             QString fileName = QString::fromLocal8Bit(item.findChild("file").data());
             GdbMi fullName = item.findChild("fullname");
             if (fullName.isValid()) {
-                QString full = QString::fromLocal8Bit(fullName.data());
-                if (QFileInfo(full).isReadable()) {
-                    #ifdef Q_OS_WIN
-                    full = QDir::cleanPath(full);
-                    #endif
-                    m_shortToFullName[fileName] = full;
-                    m_fullToShortName[full] = fileName;
-                }
+                QString full = cleanupFullName(QString::fromLocal8Bit(fullName.data()));
+                m_shortToFullName[fileName] = full;
+                m_fullToShortName[full] = fileName;
             }
         }
         if (m_shortToFullName != oldShortToFull)
@@ -1307,22 +1302,25 @@ QString GdbEngine::fullName(const QString &fileName)
         return QString();
     QTC_ASSERT(!m_sourcesListOutdated, /* */)
     QTC_ASSERT(!m_sourcesListUpdating, /* */)
-    QString full = m_shortToFullName.value(fileName, QString());
-    //debugMessage(_("RESOLVING: ") + fileName + " " +  full);
-    if (!full.isEmpty())
-        return full;
-    QFileInfo fi(fileName);
-    if (!fi.isReadable())
-        return QString();
-    full = fi.absoluteFilePath();
-    #ifdef Q_OS_WIN
-    full = QDir::cleanPath(full);
-    #endif
-    //debugMessage(_("STORING: ") + fileName + " " + full);
-    m_shortToFullName[fileName] = full;
-    m_fullToShortName[full] = fileName;
-    return full;
+    return m_shortToFullName.value(fileName, QString());
 }
+
+#ifdef Q_OS_WIN
+QString GdbEngine::cleanupFullName(const QString &fileName)
+{
+    QTC_ASSERT(!fileName.isEmpty(), return QString())
+    if (m_gdbVersion < 60800) {
+        // The symbian gdb 6.4 seems to deliver "fullnames" which
+        // a) have no drive letter and b) are not normalized.
+        QFileInfo fi(fileName);
+        if (!fi.isReadable())
+            return QString();
+        return QDir::cleanPath(fi.absoluteFilePath());
+    } else {
+        return fileName;
+    }
+}
+#endif
 
 void GdbEngine::shutdown()
 {
@@ -1724,10 +1722,7 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
 
     QString name;
     if (!fullName.isEmpty()) {
-        name = QFile::decodeName(fullName);
-        #ifdef Q_OS_WIN
-        name = QDir::cleanPath(name);
-        #endif
+        name = cleanupFullName(QFile::decodeName(fullName));
         if (data->markerFileName.isEmpty())
             data->markerFileName = name;
     } else {
@@ -1930,7 +1925,11 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
         QString full = fullName(re.cap(3));
         if (full.isEmpty()) {
             qDebug() << "NO FULL NAME KNOWN FOR" << re.cap(3);
-            full = re.cap(3); // FIXME: wrong, but prevents recursion
+            full = cleanupFullName(re.cap(3));
+            if (full.isEmpty()) {
+                qDebug() << "FILE IS NOT RESOLVABLE" << re.cap(3);
+                full = re.cap(3); // FIXME: wrong, but prevents recursion
+            }
         }
         data->markerLineNumber = data->bpLineNumber.toInt();
         data->markerFileName = full;
@@ -2237,7 +2236,7 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
     frame.level = level;
     // We might want to fall back to "file" once we have a mapping which
     // is more complete than gdb's own ...
-    frame.file = QFile::decodeName(frameMi.findChild("fullname").data());
+    frame.file = cleanupFullName(QFile::decodeName(frameMi.findChild("fullname").data()));
     frame.function = _(frameMi.findChild("func").data());
     frame.from = _(frameMi.findChild("from").data());
     frame.line = frameMi.findChild("line").data().toInt();
