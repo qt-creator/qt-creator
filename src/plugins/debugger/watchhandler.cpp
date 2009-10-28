@@ -31,6 +31,7 @@
 #include "watchutils.h"
 #include "debuggeractions.h"
 #include "debuggermanager.h"
+#include "idebuggerengine.h"
 
 #if USE_MODEL_TEST
 #include "modeltest.h"
@@ -1124,8 +1125,18 @@ void WatchHandler::insertData(const WatchData &data)
         return;
     }
     if (data.isSomethingNeeded() && data.iname.contains('.')) {
-        MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
-        m_manager->updateWatchData(data);
+        MODEL_DEBUGX("SOMETHING NEEDED: " << data.toString());
+        if (!m_manager->currentEngine()->isSynchroneous()) {
+            m_manager->updateWatchData(data);
+        } else {
+            qDebug() << "ENDLESS LOOP: SOMETHING NEEDED: " << data.toString();
+            WatchData data1 = data;
+            data1.setAllUnneeded();
+            data1.setValue(QLatin1String("<unavailable synchroneous data>"));
+            data1.setHasChildren(false);
+            WatchModel *model = modelForIName(data.iname);
+            model->insertData(data1);
+        }
     } else {
         WatchModel *model = modelForIName(data.iname);
         QTC_ASSERT(model, return);

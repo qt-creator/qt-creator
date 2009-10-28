@@ -3363,6 +3363,7 @@ void GdbEngine::updateLocals(const QVariant &cookie)
 {
     m_pendingRequests = 0;
     if (isSynchroneous()) {
+        m_processedNames.clear();
         manager()->watchHandler()->beginCycle();
         m_toolTipExpression.clear();
         QStringList expanded = m_manager->watchHandler()->expandedINames().toList();
