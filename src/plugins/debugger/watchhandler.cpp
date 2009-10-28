@@ -1125,7 +1125,7 @@ void WatchHandler::insertData(const WatchData &data)
         return;
     }
     if (data.isSomethingNeeded() && data.iname.contains('.')) {
-        MODEL_DEBUGX("SOMETHING NEEDED: " << data.toString());
+        MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
         if (!m_manager->currentEngine()->isSynchroneous()) {
             m_manager->updateWatchData(data);
         } else {
