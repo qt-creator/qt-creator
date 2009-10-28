@@ -2762,7 +2762,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
             <<',' <<  addr << ',' << (dumpChildren ? "1" : "0")
             << ',' << extraArgs.join(QString(_c(','))) <<  ')';
 
-    postCommand(cmd, WatchUpdate);
+    postCommand(cmd, WatchUpdate | EmbedToken);
 
     showStatusMessage(msgRetrievingWatchData(m_pendingRequests + 1), 10000);
 
