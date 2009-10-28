@@ -447,13 +447,13 @@ bool ResolveExpression::visit(CallAST *ast)
     _results.clear();
 
     // Compute the types of the actual arguments.
-    QList< QList<Result> > arguments;
-    for (ExpressionListAST *exprIt = ast->expression_list; exprIt;
-            exprIt = exprIt->next) {
-        arguments.append(operator()(exprIt->expression));
-    }
+    int actualArgumentCount = 0;
 
-    const unsigned actualArgumentCount = arguments.count();
+    //QList< QList<Result> > arguments;
+    for (ExpressionListAST *exprIt = ast->expression_list; exprIt; exprIt = exprIt->next) {
+        //arguments.append(operator()(exprIt->expression));
+        ++actualArgumentCount;
+    }
 
     Name *functionCallOp = control()->operatorNameId(OperatorNameId::FunctionCallOp);
 
