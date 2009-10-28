@@ -1530,8 +1530,10 @@ template <typename K, typename V>
             QByteArray keyTypeStr = typeToString<K>();
             QByteArray valTypeStr = typeToString<V>();
 #if QT_VERSION >= 0x040500
-            expected.append("addr='").
-                append(ptrToBa(reinterpret_cast<char *>(&(*it)) + sizeof(V))).
+            QMapNode<K, V> *node = 0;
+            size_t backwardOffset = size_t(&node->backward) - valOff;
+            char *addr = reinterpret_cast<char *>(&(*it)) + backwardOffset;
+            expected.append("addr='").append(ptrToBa(addr)).
                 append("',type='"NS"QMapNode<").append(keyTypeStr).append(",").
                 append(valTypeStr).append(MAP_NODE_TYPE_END).append("'");
 #else
