@@ -68,7 +68,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 
-//================EditorView====================
+// ================EditorView====================
 
 EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
     QWidget(parent),
