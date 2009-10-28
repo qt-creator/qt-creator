@@ -17,7 +17,12 @@ bool checkUninitialized = false;
 #include "gdb/gdbmi.h"
 
 #include <sys/types.h>
-#include <unistd.h>
+
+#ifdef Q_OS_WIN
+#    include <windows.h>
+#else
+#    include <unistd.h>
+#endif
 
 
 #undef NS
@@ -43,9 +48,11 @@ bool checkUninitialized = false;
 
 #define gettid()  QString("0x%1").arg((qulonglong)(void *)currentThread(), 0, 16)
 
-using namespace Debugger;
-using namespace Debugger::Internal;
-
+#ifdef Q_OS_WIN
+QString gdbBinary = "c:\\MinGw\\bin\\gdb.exe";
+#else
+QString gdbBinary = "./gdb";
+#endif
 
 class Foo
 {
@@ -88,6 +95,7 @@ private:
 
 
 /////////////////////////////////////////////////////////////////////////
+//
 //
 // Helper stuff
 //
@@ -135,7 +143,10 @@ class Thread : public QThread
 
 public:
     Thread(tst_Gdb *test);
+    void startup(QProcess *proc);
     void run();
+
+    QString errorString() const { return  m_errorString; }
 
 public slots:
     void readStandardOutput();
@@ -157,6 +168,7 @@ public:
     int m_line; // line extracted from last "*stopped" message
     QProcess *m_proc; // owned
     tst_Gdb *m_test; // not owned
+    QString m_errorString;
 };
 
 class tst_Gdb : public QObject
@@ -166,7 +178,6 @@ class tst_Gdb : public QObject
 public:
     tst_Gdb();
 
-    void initTestCase() {}
     void cleanupTestCase();
     void prepare(const QByteArray &function);
     void run(const QByteArray &label, const QByteArray &expected,
@@ -177,6 +188,7 @@ signals:
     void writeToGdb(const QByteArray &ba);
 
 private slots:
+    void initTestCase();
     void dumpArray();
     void dumpMisc();
     void dumpFoo();
@@ -454,16 +466,21 @@ void getMapNodeParams(size_t &nodeSize, size_t &valOffset)
 //
 /////////////////////////////////////////////////////////////////////////
 
-Thread::Thread(tst_Gdb *test)
+Thread::Thread(tst_Gdb *test) : m_proc(0), m_test(test)
 {
-    moveToThread(this);
-    m_test = test;
-    m_proc = 0;
-    m_proc = new QProcess;
-    m_proc->moveToThread(this);
+#ifdef Q_OS_WIN
+    qDebug() << "\nTHREAD CREATED" << GetCurrentProcessId() << GetCurrentThreadId();
+#else
     qDebug() << "\nTHREAD CREATED" << getpid() << gettid();
+#endif
     connect(m_test, SIGNAL(writeToGdb(QByteArray)),
-        this, SLOT(writeToGdbRequested(QByteArray)));
+            this, SLOT(writeToGdbRequested(QByteArray)), Qt::QueuedConnection);
+}
+
+void Thread::startup(QProcess *proc)
+{
+    m_proc = proc;
+    m_proc->moveToThread(this);
     connect(m_proc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(handleGdbError(QProcess::ProcessError)));
     connect(m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
@@ -567,9 +584,6 @@ void Thread::handleGdbStarted()
 
 void Thread::run()
 {
-    //qDebug() << "\nTHREAD RUN" << getpid() << gettid();
-    m_proc->start("./gdb -i mi --args ./tst_gdb run");
-    m_proc->waitForStarted();
     m_proc->write("break main\n");
     m_proc->write("run\n");
     m_proc->write("handle SIGSTOP stop pass\n");
@@ -587,11 +601,32 @@ void Thread::run()
 tst_Gdb::tst_Gdb()
     : m_thread(this)
 {
-    // FIXME: Wait until gdb proc is running.
-    QTest::qWait(600);
 
-    QFile file("tst_gdb.cpp");
-    Q_ASSERT(file.open(QIODevice::ReadOnly));
+}
+
+void tst_Gdb::initTestCase()
+{
+    //qDebug() << "\nTHREAD RUN" << getpid() << gettid();
+    QProcess *gdbProc = new QProcess;
+    QStringList args;
+    args << QLatin1String("-i")
+            << QLatin1String("mi") << QLatin1String("--args")
+            << qApp->applicationFilePath();
+    qDebug() << "Starting" << gdbBinary << args;
+    gdbProc->start(gdbBinary, args);
+    if (!gdbProc->waitForStarted()) {
+        const QString msg = QString::fromLatin1("Unable to run %1: %2").arg(gdbBinary, gdbProc->errorString());
+        delete gdbProc;
+        QSKIP(msg.toLatin1().constData(), SkipAll);
+    }
+
+    const QString fileName = "tst_gdb.cpp";
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        const QString msg = QString::fromLatin1("Unable to open %1: %2").arg(fileName, file.errorString());
+        QSKIP(msg.toLatin1().constData(), SkipAll);
+    }
+
     QByteArray funcName;
     const QByteArrayList bal = file.readAll().split('\n');
     Q_ASSERT(bal.size() > 100);
@@ -605,6 +640,7 @@ tst_Gdb::tst_Gdb()
             m_lineForLabel[funcName + ba.mid(7, pos - 8)] = i + 1;
         }
     }
+    m_thread.startup(gdbProc);
 }
 
 void tst_Gdb::prepare(const QByteArray &function)
@@ -1056,7 +1092,7 @@ void dumpQByteArrayTest()
     /* B */ ba.append('a');                      // One element.
     /* C */ ba.append('b');                      // Two elements.
     /* D */ ba = QByteArray(101, 'a');           // > 100 elements.
-    /* E */ ba = QByteArray("abc\a\n\r\e\'\"?"); // Mixed.
+    /* E */ ba = QByteArray("abc\a\n\r\033\'\"?"); // Mixed.
     /* F */ (void) 0;
 }
 
