@@ -132,7 +132,6 @@ void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
 
 void PlainGdbAdapter::interruptInferior()
 {
-    debugMessage(_("TRYING TO INTERUPT INFERIOR"));
     const qint64 attachedPID = m_engine->inferiorPid();
     if (attachedPID <= 0) {
         debugMessage(_("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED"));

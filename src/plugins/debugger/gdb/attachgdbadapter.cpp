@@ -91,7 +91,6 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 
 void AttachGdbAdapter::interruptInferior()
 {
-    debugMessage(_("TRYING TO INTERUPT INFERIOR"));
     const qint64 pid = startParameters().attachPID;
     if (!interruptProcess(pid))
         debugMessage(_("CANNOT INTERRUPT %1").arg(pid));
