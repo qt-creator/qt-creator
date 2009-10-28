@@ -2844,6 +2844,7 @@ void GdbEngine::updateSubItem(const WatchData &data0)
             data1.exp = QLatin1String("(*(") + data.exp + QLatin1String("))");
             data1.type = stripPointerType(data.type);
             data1.setValueNeeded();
+            data1.setChildrenUnneeded();
             insertData(data1);
         }
         return;
