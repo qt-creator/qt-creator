@@ -62,14 +62,10 @@ bool MakeStep::init(const QString &name)
     Environment environment = project()->environment(bc);
     setEnvironment(name, environment);
 
-    QString workingDirectory;
-    if (bc->value("useShadowBuild").toBool())
-        workingDirectory = bc->value("buildDirectory").toString();
-    if (workingDirectory.isEmpty())
-        workingDirectory = QFileInfo(project()->file()->fileName()).absolutePath();
+    Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
+    QString workingDirectory = qt4project->buildDirectory(bc);
     setWorkingDirectory(name, workingDirectory);
 
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
     QString makeCmd = qt4project->makeCommand(bc);
     if (!value(name, "makeCmd").toString().isEmpty())
         makeCmd = value(name, "makeCmd").toString();
@@ -194,13 +190,9 @@ void MakeStepConfigWidget::updateMakeOverrideLabel()
 void MakeStepConfigWidget::updateDetails()
 {
     // TODO reduce heavy code duplication
-    QString workingDirectory;
     Qt4Project *pro = static_cast<Qt4Project *>(m_makeStep->project());
     ProjectExplorer::BuildConfiguration *bc = pro->buildConfiguration(m_buildConfiguration);
-    if (bc->value("useShadowBuild").toBool())
-        workingDirectory = bc->value("buildDirectory").toString();
-    if (workingDirectory.isEmpty())
-        workingDirectory = QFileInfo(pro->file()->fileName()).absolutePath();
+    QString workingDirectory = pro->buildDirectory(bc);
 
     QString makeCmd = pro->makeCommand(bc);
     if (!m_makeStep->value(m_buildConfiguration, "makeCmd").toString().isEmpty())
