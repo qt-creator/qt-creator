@@ -49,6 +49,7 @@ class PersistentSettingsReader;
 class PersistentSettingsWriter;
 
 class RunControl;
+class BuildConfiguration;
 
 /* Base class for a run configuration. A run configuration specifies how a
  * project should be run, while the runner (see below) does the actual running.
@@ -75,7 +76,8 @@ public:
     QString name() const;
     void setName(const QString &name);
 
-    virtual bool isEnabled() const { return true; }
+    virtual bool isEnabled(BuildConfiguration *) const { return true; }
+    bool isEnabled() const;
 
     // Returns the widget used to configure this run configuration. Ownership is transferred to the caller
     // rename to createConfigurationWidget

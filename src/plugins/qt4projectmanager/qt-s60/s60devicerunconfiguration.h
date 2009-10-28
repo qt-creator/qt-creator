@@ -62,7 +62,7 @@ public:
     ~S60DeviceRunConfiguration();
 
     QString type() const;
-    bool isEnabled() const;
+    bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *configurationWidget();
     void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     void restore(const ProjectExplorer::PersistentSettingsReader &reader);
@@ -97,6 +97,7 @@ private slots:
     void invalidateCachedTargetInformation();
 
 private:
+    ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
     void updateTarget();
 
     QString m_proFilePath;

@@ -93,12 +93,12 @@ QString Qt4RunConfiguration::type() const
     return "Qt4ProjectManager.Qt4RunConfiguration";
 }
 
-bool Qt4RunConfiguration::isEnabled() const
+bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
 #ifdef QTCREATOR_WITH_S60
     Qt4Project *pro = qobject_cast<Qt4Project*>(project());
     QTC_ASSERT(pro, return false);
-    ProjectExplorer::ToolChain::ToolChainType type = pro->toolChainType(pro->activeBuildConfiguration());
+    ProjectExplorer::ToolChain::ToolChainType type = pro->toolChainType(configuration);
     return type != ProjectExplorer::ToolChain::WINSCW
             && type != ProjectExplorer::ToolChain::GCCE
             && type != ProjectExplorer::ToolChain::RVCT_ARMV5

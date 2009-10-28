@@ -98,6 +98,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
+#include <QtGui/QVBoxLayout>
 
 Q_DECLARE_METATYPE(QSharedPointer<ProjectExplorer::RunConfiguration>);
 Q_DECLARE_METATYPE(Core::IEditorFactory*);
@@ -1541,6 +1542,10 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro)
         return;
 
     if (d->m_projectExplorerSettings.buildBeforeRun && pro->hasBuildSettings()) {
+        if (!pro->activeRunConfiguration()->isEnabled()) {
+            if (!showBuildConfigDialog())
+                return;
+        }
         if (saveModifiedFiles()) {
             d->m_runMode = ProjectExplorer::Constants::RUNMODE;
             d->m_delayedRunConfiguration = pro->activeRunConfiguration();
@@ -1560,6 +1565,10 @@ void ProjectExplorerPlugin::debugProject()
         return;
 
     if (d->m_projectExplorerSettings.buildBeforeRun && pro->hasBuildSettings()) {
+        if (!pro->activeRunConfiguration()->isEnabled()) {
+            if (!showBuildConfigDialog())
+                return;
+        }
         if (saveModifiedFiles()) {
             d->m_runMode = ProjectExplorer::Constants::DEBUGMODE;
             d->m_delayedRunConfiguration = pro->activeRunConfiguration();
@@ -1571,6 +1580,31 @@ void ProjectExplorerPlugin::debugProject()
         }
     } else {
         executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE);
+    }
+}
+
+bool ProjectExplorerPlugin::showBuildConfigDialog()
+{
+    Project *pro = startupProject();
+    BuildConfigDialog *dialog = new BuildConfigDialog(pro,
+                                                      Core::ICore::instance()->mainWindow());
+    dialog->exec();
+    BuildConfiguration *otherConfig = dialog->selectedBuildConfiguration();
+    int result = dialog->result();
+    dialog->deleteLater();
+    switch (result) {
+    case BuildConfigDialog::ChangeBuild:
+        if (otherConfig) {
+            pro->setActiveBuildConfiguration(otherConfig);
+            return true;
+        }
+        return false;
+    case BuildConfigDialog::Cancel:
+        return false;
+    case BuildConfigDialog::Continue:
+        return true;
+    default:
+        return false;
     }
 }
 
@@ -2093,6 +2127,81 @@ void ProjectExplorerPlugin::setProjectExplorerSettings(const Internal::ProjectEx
 Internal::ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings() const
 {
     return d->m_projectExplorerSettings;
+}
+
+// ---------- BuildConfigDialog -----------
+Q_DECLARE_METATYPE(BuildConfiguration*);
+
+BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
+    : QDialog(parent),
+    m_project(project)
+{
+    QVBoxLayout *vlayout = new QVBoxLayout;
+    setLayout(vlayout);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox;
+    m_changeBuildConfiguration = buttonBox->addButton(tr("Change build configuration && continue"),
+        QDialogButtonBox::ActionRole);
+    m_cancel = buttonBox->addButton(tr("Cancel"),
+        QDialogButtonBox::RejectRole);
+    m_justContinue = buttonBox->addButton(tr("Continue anyway"),
+        QDialogButtonBox::AcceptRole);
+    connect(m_changeBuildConfiguration, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+    connect(m_cancel, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+    connect(m_justContinue, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+    setWindowTitle(tr("Run configuration doesn't match build configuration"));
+    QLabel *shortText = new QLabel(tr(
+            "The active build configuration builds a target "
+            "that cannot be used by the active run configuration."
+            ));
+    vlayout->addWidget(shortText);
+    QLabel *descriptiveText = new QLabel(tr(
+        "This can happen if the active build configuration "
+        "uses the wrong Qt version and/or tool chain for the active run configuration "
+        "(e.g. running in Symbian emulator requires building with WINSCW tool chain)."
+    ));
+    descriptiveText->setWordWrap(true);
+    vlayout->addWidget(descriptiveText);
+    QHBoxLayout *hlayout = new QHBoxLayout;
+    hlayout->addWidget(new QLabel(tr("Choose build configuration:")));
+    m_configCombo = new QComboBox;
+    QSharedPointer<RunConfiguration> activeRun = m_project->activeRunConfiguration();
+    foreach (BuildConfiguration *config, m_project->buildConfigurations()) {
+        if (activeRun->isEnabled(config)) {
+            m_configCombo->addItem(config->name(), qVariantFromValue(config));
+        }
+    }
+    if (m_configCombo->count() == 0) {
+        m_configCombo->addItem(tr("No valid build configuration found."));
+        m_configCombo->setEnabled(false);
+        m_changeBuildConfiguration->setEnabled(false);
+    }
+
+
+    hlayout->addWidget(m_configCombo);
+    hlayout->addStretch(10);
+    vlayout->addLayout(hlayout);
+    vlayout->addWidget(buttonBox);
+    m_cancel->setDefault(true);
+}
+
+BuildConfiguration *BuildConfigDialog::selectedBuildConfiguration() const
+{
+    int index = m_configCombo->currentIndex();
+    if (index < 0)
+        return 0;
+    return m_configCombo->itemData(index, Qt::UserRole).value<BuildConfiguration*>();
+}
+
+void BuildConfigDialog::buttonClicked()
+{
+    QPushButton *button = qobject_cast<QPushButton *>(sender());
+    if (button == m_changeBuildConfiguration) {
+        done(ChangeBuild);
+    } else if (button == m_cancel) {
+        done(Cancel);
+    } else if (button == m_justContinue) {
+        done(Continue);
+    }
 }
 
 Q_EXPORT_PLUGIN(ProjectExplorerPlugin)

@@ -101,6 +101,14 @@ QString S60DeviceRunConfiguration::type() const
     return QLatin1String("Qt4ProjectManager.DeviceRunConfiguration");
 }
 
+ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType(
+        ProjectExplorer::BuildConfiguration *configuration) const
+{
+    if (const Qt4Project *pro = qobject_cast<const Qt4Project*>(project()))
+        return pro->toolChainType(configuration);
+    return ProjectExplorer::ToolChain::INVALID;
+}
+
 ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType() const
 {
     if (const Qt4Project *pro = qobject_cast<const Qt4Project*>(project()))
@@ -108,9 +116,9 @@ ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainTy
     return ProjectExplorer::ToolChain::INVALID;
 }
 
-bool S60DeviceRunConfiguration::isEnabled() const
+bool S60DeviceRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
-    const ToolChain::ToolChainType type = toolChainType();
+    const ToolChain::ToolChainType type = toolChainType(configuration);
     return type == ToolChain::GCCE || type == ToolChain::RVCT_ARMV5 || type == ToolChain::RVCT_ARMV6;
 }
 

@@ -66,7 +66,7 @@ public:
     virtual ~Qt4RunConfiguration();
 
     virtual QString type() const;
-    virtual bool isEnabled() const;
+    virtual bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     virtual QWidget *configurationWidget();
     virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);

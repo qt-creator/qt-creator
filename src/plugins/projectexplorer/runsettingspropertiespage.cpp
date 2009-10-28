@@ -288,11 +288,6 @@ void RunSettingsWidget::initRunConfigurationComboBox()
         m_ui->runConfigurationCombo->setCurrentIndex(runConfigurations.indexOf(currentSelection));
     else
         m_ui->runConfigurationCombo->setCurrentIndex(runConfigurations.indexOf(activeRunConfiguration));
-    QList<QSharedPointer<RunConfiguration> > enabledRunConfigurations;
-    for (int i = 0; i < runConfigurations.size(); ++i) {
-        if (runConfigurations.at(i)->isEnabled())
-            enabledRunConfigurations.append(runConfigurations.at(i));
-    }
     m_ui->removeToolButton->setEnabled(runConfigurations.size() > 1);
     updateMakeActiveLabel();
 }

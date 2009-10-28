@@ -30,6 +30,7 @@
 #include "runconfiguration.h"
 #include "project.h"
 #include "persistentsettings.h"
+#include "buildconfiguration.h"
 
 #include <QtCore/QTimer>
 
@@ -54,6 +55,15 @@ RunConfiguration::~RunConfiguration()
 Project *RunConfiguration::project() const
 {
     return m_project.data();
+}
+
+bool RunConfiguration::isEnabled() const
+{
+    if (!m_project)
+        return false;
+    if (!m_project->activeBuildConfiguration())
+        return false;
+    return isEnabled(m_project->activeBuildConfiguration());
 }
 
 QString RunConfiguration::name() const
