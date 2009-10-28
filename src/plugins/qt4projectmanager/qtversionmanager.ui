@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>577</width>
-    <height>477</height>
+    <height>507</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -133,6 +133,12 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="0" column="0" colspan="2">
        <widget class="QTreeWidget" name="qtdirList">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>150</height>
+         </size>
+        </property>
         <property name="uniformRowHeights">
          <bool>true</bool>
         </property>
