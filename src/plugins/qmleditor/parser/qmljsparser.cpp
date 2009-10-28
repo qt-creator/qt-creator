@@ -1713,7 +1713,7 @@ case 337: {
         const int errorState = state_stack[tos];
 
         // automatic insertion of `;'
-        if (t_action(errorState, T_AUTOMATIC_SEMICOLON) && automatic(driver, yytoken)) {
+        if (yytoken != -1 && t_action(errorState, T_AUTOMATIC_SEMICOLON) && automatic(driver, yytoken)) {
             SavedToken &tk = token_buffer[0];
             tk.token = yytoken;
             tk.dval = yylval;
