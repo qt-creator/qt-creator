@@ -1135,6 +1135,7 @@ void WatchHandler::insertData(const WatchData &data)
             data1.setValue(QLatin1String("<unavailable synchroneous data>"));
             data1.setHasChildren(false);
             WatchModel *model = modelForIName(data.iname);
+            QTC_ASSERT(model, return);
             model->insertData(data1);
         }
     } else {
