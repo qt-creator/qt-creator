@@ -3367,7 +3367,7 @@ void GdbEngine::updateLocals(const QVariant &cookie)
         manager()->watchHandler()->beginCycle();
         m_toolTipExpression.clear();
         QStringList expanded = m_manager->watchHandler()->expandedINames().toList();
-        postCommand(_("bb %1 %2")
+        postCommand(_("-interpreter-exec console \"bb %1 %2\"")
                 .arg(int(theDebuggerBoolSetting(UseDebuggingHelpers)))
                 .arg(expanded.join(_(","))),
             CB(handleStackFrame));
@@ -4135,7 +4135,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     debugMessage(_("GDB STARTED, INITIALIZING IT"));
 
     postCommand(_("show version"), CB(handleShowVersion));
-    postCommand(_("help bb"), CB(handleIsSynchroneous));
+    postCommand(_("-interpreter-exec console \"help bb\""),
+        CB(handleIsSynchroneous));
     //postCommand(_("-enable-timings");
     postCommand(_("set print static-members off")); // Seemingly doesn't work.
     //postCommand(_("set debug infrun 1"));
