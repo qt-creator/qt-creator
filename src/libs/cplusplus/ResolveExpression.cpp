@@ -639,10 +639,19 @@ ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int a
             }
         }
 
-        if (ty->isNamedType())
+        if (NamedType *namedTy = ty->asNamedType()) {
+            const QList<Scope *> visibleScopes = _context.visibleScopes(result);
+            const QList<Symbol *> typedefCandidates = _context.resolve(namedTy->name(), visibleScopes);
+            foreach (Symbol *typedefCandidate, typedefCandidates) {
+                if (typedefCandidate->isTypedef() && typedefCandidate->type()->isNamedType()) {
+                    ty = typedefCandidate->type();
+                    break;
+                }
+            }
+
             results.append(Result(ty, lastVisibleSymbol));
 
-        else if (Function *fun = ty->asFunctionType()) {
+        } else if (Function *fun = ty->asFunctionType()) {
             Scope *funScope = fun->scope();
 
             if (funScope && (funScope->isBlockScope() || funScope->isNamespaceScope())) {
