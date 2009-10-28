@@ -223,6 +223,7 @@ void Qt4ProjectConfigWidget::shadowBuildCheckBoxClicked(bool checked)
     else
         bc->setValue("buildDirectory", QVariant(QString::null));
     updateDetails();
+    updateImportLabel();
 }
 
 void Qt4ProjectConfigWidget::updateImportLabel()
@@ -352,6 +353,7 @@ void Qt4ProjectConfigWidget::qtVersionComboBoxCurrentIndexChanged(const QString 
         m_pro->update();
     }
     updateDetails();
+    updateImportLabel();
 }
 
 void Qt4ProjectConfigWidget::updateToolChainCombo()
