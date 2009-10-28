@@ -57,6 +57,10 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QVector>
 
+#ifndef Q_OS_WIN
+#    include <stdint.h>
+#endif
+
 #if (QT_POINTER_SIZE==4) // How to printf/scanf a pointer (uintptr_t)
 #    define POINTER_PRINTFORMAT "0x%x"
 #else
