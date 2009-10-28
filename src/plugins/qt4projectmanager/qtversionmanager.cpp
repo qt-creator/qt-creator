@@ -1175,12 +1175,6 @@ void QtVersion::updateToolChain() const
 #ifdef QTCREATOR_WITH_MAEMO
         m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
                 MaemoManager::instance()->maemoToolChain(this));
-
-        ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-        //addToEnvironment(env);
-        qmakeCXX = env.searchInPath(qmakeCXX);
-        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
-                ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX));
 #endif
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {
         // TODO proper support for intel cl
