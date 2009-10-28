@@ -757,17 +757,21 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // http://sourceware.org/ml/gdb/2007-05/msg00038.html
         // Name=hexname,TextSeg=textaddr[,DataSeg=dataaddr]
         sendGdbServerAck();
-        QByteArray response = "m";
-        // FIXME: Limit packet length by using qsDllInfo packages?
-        for (int i = 0; i != m_session.libraries.size(); ++i) {
-            if (i)
-                response += ';';
-            const Library &lib = m_session.libraries.at(i);
-            response += "Name=" + lib.name.toHex()
-                + ",TextSeg=" + hexNumber(lib.codeseg)
-                + ",DataSeg=" + hexNumber(lib.dataseg);
+        if (!m_session.libraries.isEmpty()) {
+            QByteArray response = "m";
+            // FIXME: Limit packet length by using qsDllInfo packages?
+            for (int i = 0; i != m_session.libraries.size(); ++i) {
+                if (i)
+                    response += ';';
+                const Library &lib = m_session.libraries.at(i);
+                response += "Name=" + lib.name.toHex()
+                            + ",TextSeg=" + hexNumber(lib.codeseg)
+                            + ",DataSeg=" + hexNumber(lib.dataseg);
+            }
+            sendGdbServerMessage(response, "library information transfered");
+        } else {
+            sendGdbServerMessage("l", "library information transfer finished");
         }
-        sendGdbServerMessage(response, "library information transfered");
     }
 
     else if (cmd == "qsDllInfo") {
