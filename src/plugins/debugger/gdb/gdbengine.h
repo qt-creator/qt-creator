@@ -322,6 +322,7 @@ private: ////////// View & Data Stuff //////////
     virtual void loadAllSymbols();
     virtual QList<Symbol> moduleSymbols(const QString &moduleName);
     virtual void reloadModules();
+    void reloadModulesInternal();
     void handleModulesList(const GdbResponse &response);
 
     bool m_modulesListOutdated;
@@ -350,6 +351,7 @@ private: ////////// View & Data Stuff //////////
     // Source file specific stuff
     //
     virtual void reloadSourceFiles();
+    void reloadSourceFilesInternal();
     void handleQuerySources(const GdbResponse &response);
 
     QString fullName(const QString &fileName);

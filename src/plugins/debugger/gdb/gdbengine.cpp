@@ -981,7 +981,7 @@ void GdbEngine::handleAqcuiredInferior()
     #endif
 
     // It's nicer to see a bit of the world we live in.
-    reloadModules();
+    reloadModulesInternal();
     attemptBreakpointSynchronization();
 }
 #endif
@@ -1145,9 +1145,9 @@ void GdbEngine::handleStop1(const GdbResponse &response)
 void GdbEngine::handleStop1(const GdbMi &data)
 {
     if (m_modulesListOutdated)
-        reloadModules(); // This is for display only
+        reloadModulesInternal(); // This is for display only
     if (m_sourcesListOutdated)
-        reloadSourceFiles(); // This needs to be done before fullName() may need it
+        reloadSourceFilesInternal(); // This needs to be done before fullName() may need it
 
     QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
@@ -1981,7 +1981,7 @@ void GdbEngine::attemptBreakpointSynchronization()
     // For best results, we rely on an up-to-date fullname mapping.
     // The listing completion will retrigger us, so no futher action is needed.
     if (m_sourcesListOutdated) {
-        reloadSourceFiles();
+        reloadSourceFilesInternal();
         return;
     } else if (m_sourcesListUpdating) {
         return;
@@ -2054,13 +2054,13 @@ void GdbEngine::loadSymbols(const QString &moduleName)
 {
     // FIXME: gdb does not understand quoted names here (tested with 6.8)
     postCommand(_("sharedlibrary ") + dotEscape(moduleName));
-    reloadModules();
+    reloadModulesInternal();
 }
 
 void GdbEngine::loadAllSymbols()
 {
     postCommand(_("sharedlibrary .*"));
-    reloadModules();
+    reloadModulesInternal();
 }
 
 QList<Symbol> GdbEngine::moduleSymbols(const QString &moduleName)
@@ -2099,8 +2099,14 @@ QList<Symbol> GdbEngine::moduleSymbols(const QString &moduleName)
 
 void GdbEngine::reloadModules()
 {
+    if (state() == InferiorRunning || state() == InferiorStopped)
+        reloadModulesInternal();
+}
+
+void GdbEngine::reloadModulesInternal()
+{
     m_modulesListOutdated = false;
-    postCommand(_("info shared"), CB(handleModulesList));
+    postCommand(_("info shared"), NeedsStop, CB(handleModulesList));
 }
 
 void GdbEngine::handleModulesList(const GdbResponse &response)
@@ -2157,6 +2163,13 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
 //////////////////////////////////////////////////////////////////////
 
 void GdbEngine::reloadSourceFiles()
+{
+    if ((state() == InferiorRunning || state() == InferiorStopped)
+        && !m_sourcesListUpdating)
+        reloadSourceFilesInternal();
+}
+
+void GdbEngine::reloadSourceFilesInternal()
 {
     m_sourcesListUpdating = true;
     m_sourcesListOutdated = false;
