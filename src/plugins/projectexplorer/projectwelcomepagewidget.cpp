@@ -125,7 +125,8 @@ void ProjectWelcomePageWidget::updateWelcomePage(const WelcomePageData &welcomeP
     if (welcomePageData.projectList.count() > 0) {
         foreach (const QStringPair &it, welcomePageData.projectList) {
             const QFileInfo fi(it.first);
-            ui->projTreeWidget->addItem(it.second, it.first, fi.absolutePath());
+            ui->projTreeWidget->addItem(it.second, it.first,
+                                        QDir::toNativeSeparators(fi.absolutePath()));
         }
     } else {
         ui->projTreeWidget->hide();
