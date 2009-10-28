@@ -1376,7 +1376,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
     QList<QSharedPointer<ProjectExplorer::ToolChain> > alltc = toolChains();
     ProjectExplorer::ToolChain *tc = alltc.isEmpty() ? 0 : alltc.first().data();
     if (!tc)
-        return QApplication::tr("The Qt Version has no toolchain.");)
+        return QApplication::tr("The Qt Version has no toolchain.");
     tc->addToEnvironment(env);
     QString output;
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, &output);
