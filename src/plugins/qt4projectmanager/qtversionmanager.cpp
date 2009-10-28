@@ -1370,7 +1370,10 @@ QString QtVersion::buildDebuggingHelperLibrary()
     addToEnvironment(env);
 
     // TODO: the debugging helper doesn't comply to actual tool chain yet
+
     ProjectExplorer::ToolChain *tc = createToolChain(defaultToolchainType());
+    if (!tc)
+        return QApplication::tr("The Qt Version has no toolchain.");
     tc->addToEnvironment(env);
     QString output;
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, &output);
