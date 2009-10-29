@@ -776,6 +776,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
                 // with helpers enabled. In this case we get a second response with
                 // msg="Cannot find new threads: generic error"
+                debugMessage(_("APPLYING WORKAROUND #1"));
                 showMessageBox(QMessageBox::Critical,
                     tr("Executable failed"), QString::fromLocal8Bit(msg));
                 showStatusMessage(tr("Process failed to start."));
@@ -783,14 +784,28 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
             } else if (msg == "\"finish\" not meaningful in the outermost frame.") { 
                 // Handle a case known to appear on gdb 6.4 symbianelf when
                 // the stack is cut due to access to protected memory.
+                debugMessage(_("APPLYING WORKAROUND #2"));
                 setState(InferiorStopping);
                 setState(InferiorStopped);
             } else if (msg.startsWith("Cannot find bounds of current function")) {
                 // Happens when running "-exec-next" in a function for which
                 // there is no debug information. Divert to "-exec-next-step"
+                debugMessage(_("APPLYING WORKAROUND #3"));
                 setState(InferiorStopping);
                 setState(InferiorStopped);
                 nextIExec();
+            } else if (msg.startsWith("Couldn't get registers: No such process.")) {
+                // Happens on archer-tromey-python 6.8.50.20090910-cvs
+                // There might to be a race between a process shutting down
+                // and library load messages.
+                debugMessage(_("APPLYING WORKAROUND #4"));
+                setState(InferiorStopping);
+                setState(InferiorStopped);
+                showStatusMessage(tr("Executable failed: %1")
+                    .arg(QString::fromLocal8Bit(msg)));
+                shutdown();
+                showMessageBox(QMessageBox::Critical,
+                    tr("Executable failed"), QString::fromLocal8Bit(msg));
             } else {
                 showMessageBox(QMessageBox::Critical,
                     tr("Executable failed"), QString::fromLocal8Bit(msg));
