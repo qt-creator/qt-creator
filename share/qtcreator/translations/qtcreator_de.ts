@@ -1052,10 +1052,6 @@
 <context>
     <name>CodePaster::CodepasterPlugin</name>
     <message>
-        <source>&amp;CodePaster</source>
-        <translation type="obsolete">&amp;CodePaster</translation>
-    </message>
-    <message>
         <location filename="../../../src/plugins/cpaster/cpasterplugin.cpp" line="+109"/>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Code Pasting</translation>
@@ -2667,10 +2663,6 @@ Sollen sie überschrieben werden?</translation>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation>Es wurde eine veraltete Version (%1) der Ausgabe-Hilfsbibliothek gefunden. Version %2 ist erforderlich.</translation>
     </message>
-    <message>
-        <source>Found a too-old version of the debugging helper library (%1); version %2 is required.</source>
-        <translation type="obsolete">Es wurde eine veraltete Version (%1) der Ausgabe-Hilfsbibliothek gefunden. Version %2 ist erforderlich.</translation>
-    </message>
     <message numerus="yes">
         <location line="+37"/>
         <source>%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3</source>
@@ -2820,10 +2812,6 @@ Sollen sie überschrieben werden?</translation>
         <translation>Qt-Versionseinstellungen öffnen</translation>
     </message>
     <message>
-        <source>Turn helper usage off</source>
-        <translation type="obsolete">Ausgabe-Hilfsbibliothek deaktivieren</translation>
-    </message>
-    <message>
         <location line="+4"/>
         <source>Continue anyway</source>
         <translation>Trotzdem fortsetzen</translation>
@@ -2832,14 +2820,6 @@ Sollen sie überschrieben werden?</translation>
         <location line="+3"/>
         <source>Debugging helper missing</source>
         <translation>Ausgabe-Hilfsbibliothek nicht gefunden</translation>
-    </message>
-    <message>
-        <source>The debugger did not find the debugging helper library.</source>
-        <translation type="obsolete">Der Debugger konnte die Ausgabe-Hilfsbibliothek nicht finden.</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each Qt version which you can do in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; for the debugging helper.</source>
-        <translation type="obsolete">Die Ausgabe-Hilfsbibliothek dient zur Ausgabe der Werte einiger Datentypen aus Qt- und den Standardbibliotheken. Sie muss mit jeder benutzten Qt-Version compiliert werden. Das geschieht in der Seite &apos;Qt-Einstellungen&apos; durch Auswahl der Qt-Installation und Klicken auf &apos;Erstellen&apos; für die Ausgabe-Hilfsbibliothek.</translation>
     </message>
     <message>
         <location line="+166"/>
@@ -3315,10 +3295,6 @@ Sollen sie überschrieben werden?</translation>
         <translation>Ausgabe-Hilfsbibliothek initialisieren...</translation>
     </message>
     <message>
-        <source>Custom dumper library initialized.</source>
-        <translation type="obsolete">Ausgabe-Hilfsbibliothek wurde initialisiert.</translation>
-    </message>
-    <message>
         <location line="-39"/>
         <source>The custom dumper library could not be initialized: %1</source>
         <translation>Die Ausgabe-Hilfsbibliothek konnte nicht initialisiert werden: %1</translation>
@@ -3424,22 +3400,6 @@ Sollen sie überschrieben werden?</translation>
 </source>
         <translation>Das Debuggen der core-Datei &quot;%1&quot; schlug fehl:
 </translation>
-    </message>
-    <message>
-        <source>No binary found.</source>
-        <translation type="obsolete">Es konnte keine ausführbare Datei gefunden werden.</translation>
-    </message>
-    <message>
-        <source>Symbols not found in &quot;%1&quot; failed:
-%2</source>
-        <translation type="obsolete">In &quot;%1&quot; konnten keine Symbole gefunden werden; Fehler:
-%2</translation>
-    </message>
-    <message>
-        <source>Attach to core &quot;%1&quot; failed:
-%2</source>
-        <translation type="obsolete">Das Debuggen der core-Datei &quot;%1&quot; schlug fehl:
-%2</translation>
     </message>
 </context>
 <context>
@@ -3829,10 +3789,6 @@ Sollen sie überschrieben werden?</translation>
         <translation>Ein Fehler trat beim Versuch des Lesens vom Gdb-Prozess auf. Wahrscheinlich läuft der Prozess nicht.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="obsolete">Fehler</translation>
-    </message>
-    <message>
         <location line="+117"/>
         <source>Library %1 loaded.</source>
         <translation>Bibliothek %1 geladen.</translation>
@@ -3894,10 +3850,6 @@ Sollen sie überschrieben werden?</translation>
         <translation>Signal erhalten</translation>
     </message>
     <message>
-        <source>The dumper library was not found at %1.</source>
-        <translation type="obsolete">Es konnte keine Ausgabe-Hilfsbibliothek unter %1 gefunden werden.</translation>
-    </message>
-    <message>
         <location line="-671"/>
         <source>Reading %1...</source>
         <translation>Lese %1...</translation>
@@ -3906,10 +3858,6 @@ Sollen sie überschrieben werden?</translation>
         <location line="+415"/>
         <source>Jumped. Stopped.</source>
         <translation>Sprung ausgeführt/ Angehalten.</translation>
-    </message>
-    <message>
-        <source>Run to Function finished. Stopped.</source>
-        <translation type="obsolete">Ausgeführung bis zu Funktion beendet. Angehalten.</translation>
     </message>
     <message>
         <location line="+161"/>
@@ -3939,12 +3887,6 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Diese Version wird von Qt Creator nicht offiziell unterstützt.
 Das Debuggen wird wahrscheinlich nicht richtig funktionieren.
 Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
-    </message>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation type="obsolete">Das Starten der ausführbaren Datei schlug fehl:
-</translation>
     </message>
     <message>
         <location line="-210"/>
@@ -4005,11 +3947,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <location line="+8"/>
         <source>Retrieving data for stack view...</source>
         <translation>Daten der Stack-Anzeige werden empfangen...</translation>
-    </message>
-    <message>
-        <source>&lt;not in scope&gt;</source>
-        <extracomment>Variable</extracomment>
-        <translation type="obsolete">&lt;nicht im Bereich&gt;</translation>
     </message>
     <message numerus="yes">
         <location line="+495"/>
@@ -4073,10 +4010,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Fehler bei Ausführung: %1</translation>
     </message>
     <message>
-        <source>Function reached. Stopped.</source>
-        <translation type="obsolete">Die Funktion wurde erreicht. Angehalten.</translation>
-    </message>
-    <message>
         <location line="+211"/>
         <source>Program exited with exit code %1.</source>
         <translation>Das Programm wurde beendet, Rückgabewert %1.</translation>
@@ -4090,10 +4023,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <location line="+3"/>
         <source>Program exited normally.</source>
         <translation>Das Programm wurde normal beendet.</translation>
-    </message>
-    <message>
-        <source>Starting executable failed</source>
-        <translation type="obsolete">Das Starten der ausführbaren Datei schlug fehl</translation>
     </message>
     <message>
         <location line="+482"/>
@@ -4156,11 +4085,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>&lt;leer&gt;</translation>
     </message>
     <message>
-        <source>%1 &lt;shadowed %2&gt;</source>
-        <extracomment>Variable %1 is the variable name, %2 is a simple count</extracomment>
-        <translation type="obsolete">%1 &lt;überlagert %2&gt;</translation>
-    </message>
-    <message>
         <location line="+224"/>
         <source>&lt;shadowed&gt;</source>
         <translation>&lt;überlagert&gt;</translation>
@@ -4180,22 +4104,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <source>&lt;no information&gt;</source>
         <extracomment>About variable&apos;s value</extracomment>
         <translation>&lt;keine Angabe&gt;</translation>
-    </message>
-    <message>
-        <source>Unknown error: </source>
-        <translation type="obsolete">Unbekannter Fehler: </translation>
-    </message>
-    <message>
-        <source>Dumper injection loading triggered (%1)...</source>
-        <translation type="obsolete">Das Laden der Ausgabe-Hilfsbibliothek (%1) per Injektion wurde gestartet...</translation>
-    </message>
-    <message>
-        <source>Dumper loading (%1) failed: %2</source>
-        <translation type="obsolete">Das Laden der Ausgabe-Hilfsbibliothek (%1) schlug fehl: %2</translation>
-    </message>
-    <message>
-        <source>Loading dumpers via debugger call (%1)...</source>
-        <translation type="obsolete">Lade die Ausgabe-Hilfsbibliothek (%1) per Debugger-Aufruf...</translation>
     </message>
     <message>
         <location line="+333"/>
@@ -4235,14 +4143,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Der Start des Adapters schlug fehl</translation>
     </message>
     <message>
-        <source>Inferior start preparation failed</source>
-        <translation type="obsolete">Die Vorbereitung des zu debuggenden Prozesses schlug fehl</translation>
-    </message>
-    <message>
-        <source>Inferior prepared for startup.</source>
-        <translation type="obsolete">Zu debuggender Prozess vorbereitet.</translation>
-    </message>
-    <message>
         <location line="+24"/>
         <source>Setting breakpoints...</source>
         <translation>Setze Haltepunkte...</translation>
@@ -4266,10 +4166,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <location line="+2958"/>
         <source>Adapter crashed</source>
         <translation>Der Adapter ist abgestürzt</translation>
-    </message>
-    <message>
-        <source>Adapter shutdown failed</source>
-        <translation type="obsolete">Das Beenden des Adapter schlug fehl</translation>
     </message>
 </context>
 <context>
@@ -4505,10 +4401,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 </context>
 <context>
     <name>Debugger::Internal::RemoteGdbAdapter</name>
-    <message>
-        <source>The upload process failed to start. Either the invoked script &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation type="obsolete">Das Hochladen konnte nicht gestartet weden. Entweder fehlt das Skript &apos;%1&apos;, oder die Berechtigungen sind nicht ausreichend.</translation>
-    </message>
     <message>
         <location filename="../../../src/plugins/debugger/gdb/remotegdbadapter.cpp" line="+93"/>
         <source>The upload process failed to start. Shell missing?</source>
@@ -4825,12 +4717,6 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <source>Connecting to TRK server adapter failed:
 </source>
         <translation>Die Verbindung zum TRK-Server-Adapter schlug fehl:
-</translation>
-    </message>
-    <message>
-        <source>Connecting to trk server adapter failed:
-</source>
-        <translation type="obsolete">Die Verbindung zum Trk-Server-Adapter schlug fehl:
 </translation>
     </message>
 </context>
@@ -8390,10 +8276,6 @@ p, li { white-space: pre-wrap; }
         <source>Code Pasting</source>
         <translation>Code Pasting</translation>
     </message>
-    <message>
-        <source>CodePaster</source>
-        <translation type="obsolete">CodePaster</translation>
-    </message>
 </context>
 <context>
     <name>PasteView</name>
@@ -9353,7 +9235,7 @@ Fehler: %2</translation>
 <context>
     <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.cpp" line="+80"/>
+        <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.cpp" line="+81"/>
         <source>Build Settings</source>
         <translation>&apos;Build&apos;-Einstellungen</translation>
     </message>
@@ -9361,7 +9243,7 @@ Fehler: %2</translation>
 <context>
     <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
-        <location line="+118"/>
+        <location line="+137"/>
         <source>&amp;Clone Selected</source>
         <translation>Auswahl duplizieren</translation>
     </message>
@@ -9371,7 +9253,7 @@ Fehler: %2</translation>
         <translation>Erstellungsschritte</translation>
     </message>
     <message>
-        <location line="-81"/>
+        <location line="-98"/>
         <source>Edit Build Configuration:</source>
         <translation>Build-Konfiguration bearbeiten:</translation>
     </message>
@@ -9386,12 +9268,17 @@ Fehler: %2</translation>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location line="+71"/>
+        <location line="+88"/>
         <source>Clean Steps</source>
         <translation>Schritte zur Bereinigung</translation>
     </message>
     <message>
-        <location line="+69"/>
+        <location line="+48"/>
+        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;#&quot;&gt;Setze %1 aktiv.&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <location line="+33"/>
         <source>New Configuration Name:</source>
         <translation>Name der neuen Konfiguration:</translation>
     </message>
@@ -10025,6 +9912,11 @@ Fehler: %2</translation>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
+    <message>
+        <location line="+133"/>
+        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;#&quot;&gt;Setze %1 aktiv.&lt;/a&gt;</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::SessionDialog</name>
@@ -10152,7 +10044,7 @@ Fehler: %2</translation>
 <context>
     <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+256"/>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+257"/>
         <source>Projects</source>
         <translation>Projekte</translation>
     </message>
@@ -10385,7 +10277,7 @@ Fehler: %2</translation>
         <translation>Bereinigen unter Ausschluss der Abhängigkeiten</translation>
     </message>
     <message>
-        <location line="+1148"/>
+        <location line="+1181"/>
         <source>New File</source>
         <comment>Title of dialog</comment>
         <translation>Neue Datei</translation>
@@ -10472,6 +10364,49 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <location line="+1"/>
         <source>Could not delete file %1.</source>
         <translation>Die Datei %1 konnte nicht gelöscht werden.</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::BuildConfigDialog</name>
+    <message>
+        <location line="+227"/>
+        <source>This can happen if the active build configuration uses the wrong Qt version and/or tool chain for the active run configuration (for example, running in Symbian emulator requires building with the WINSCW tool chain).</source>
+        <translation>Das kann passieren, wenn die aktive Build-Konfiguration eine für die aktive Ausführungskonfiguration ungeeignete Qt-Version und/oder Toolchain benutzt (zum Beispiel erfordert die Ausführung im Symbian-Emulator die Toolchain WINSCW).</translation>
+    </message>
+    <message>
+        <location line="-6"/>
+        <source>Run configuration does not match build configuration</source>
+        <translation>Die Ausführungskonfiguration entspricht nicht der Build-Konfiguration</translation>
+    </message>
+    <message>
+        <location line="-9"/>
+        <source>Change build configuration &amp;&amp; continue</source>
+        <translation>Ändere Build-Konfiguration und setze fort</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Continue anyway</source>
+        <translation>Trotzdem fortsetzen</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>The active build configuration builds a target that cannot be used by the active run configuration.</source>
+        <translation>Die aktive Build-Konfiguration erstellt ein Ziel, was von der aktive Ausführungskonfiguration nicht verwendet werden kann.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Choose build configuration:</source>
+        <translation>Build-Konfiguration wählen:</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>No valid build configuration found.</source>
+        <translation>Es konnte keine gültige Build-Konfiguration gefunden werden.</translation>
     </message>
 </context>
 <context>
@@ -10574,7 +10509,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+9"/>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11370,8 +11305,8 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
-        <translation>Im Editor können Sie &lt;tt&gt;F2&lt;/tt&gt; verwenden, um zwischen Deklaration und Definition umzuschalten. &lt;tt&gt;F4&lt;/tt&gt; schaltet zwischen Header- und Quelldatei um.</translation>
+        <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; follows symbol definition, &lt;tt&gt;Shift+F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
+        <translation>Im Editor können Sie &lt;tt&gt;F2&lt;/tt&gt; verwenden, um ein Symbol zu verfolgen; &lt;tt&gt;Shift+F2&lt;/tt&gt; wechselt zwischen Deklaration und Definition. &lt;tt&gt;F4&lt;/tt&gt; schaltet zwischen Header- und Quelldatei um.</translation>
     </message>
 </context>
 <context>
@@ -11598,10 +11533,6 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::ProjectLoadWizard</name>
-    <message>
-        <source>Import existing settings</source>
-        <translation type="obsolete">Existierende Einstellungen importieren</translation>
-    </message>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/projectloadwizard.cpp" line="+51"/>
         <location line="+125"/>
@@ -11910,10 +11841,6 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>Wählen Sie das MinGW-Verzeichnis aus</translation>
     </message>
     <message>
-        <source>Select &quot;x86build&quot; Directory from Carbide Install</source>
-        <translation type="obsolete">Geben Sie das &quot;x86build&quot;-Verzeichnis aus der Carbide-Installation an</translation>
-    </message>
-    <message>
         <location line="+2"/>
         <source>Select Carbide Install Directory</source>
         <translation>Carbide-Installationsordner auswählen</translation>
@@ -11922,6 +11849,11 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <location line="+2"/>
         <source>Select S60 SDK Root</source>
         <translation>Hauptordner des S60 SDK auswählen</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Select the CSL Arm Toolchain (GCCE) Directory</source>
+        <translation>Ordner der CSL Arm Toolchain (GCCE)</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -11934,7 +11866,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>Benutzerdefiniert</translation>
     </message>
     <message>
-        <location line="+142"/>
+        <location line="+144"/>
         <source>Building helpers</source>
         <translation>Ausgabe-Hilfsbibliothek</translation>
     </message>
@@ -11945,7 +11877,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Datei:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Letzte Änderung:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Größe:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location line="+120"/>
+        <location line="+124"/>
         <source>The Qt Version identified by %1 is not installed. Run make install</source>
         <translation>Die Qt-Version %1 ist nicht installiert. Führen Sie make install aus</translation>
     </message>
@@ -12036,10 +11968,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;Die MSVC-Version konnte nicht bestimmt werden.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>MWC Directory:</source>
-        <translation type="obsolete">MWC-Verzeichnis:</translation>
-    </message>
-    <message>
         <location/>
         <source>QMake Location</source>
         <translation>QMake-Pfad</translation>
@@ -12059,6 +11987,11 @@ p, li { white-space: pre-wrap; }
         <source>Carbide Directory:</source>
         <translation>Carbide-Ordner:</translation>
     </message>
+    <message>
+        <location/>
+        <source>CLS/GCCE Directory:</source>
+        <translation>CLS/GCCE:</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::QtWizard</name>
@@ -12071,7 +12004,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceDebugRunControl</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfiguration.cpp" line="+828"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfiguration.cpp" line="+836"/>
         <source>Warning: Cannot locate the symbol file belonging to %1.</source>
         <translation>Warnung: Die zu %1 gehörige Symboldatei konnte nicht gefunden werden.</translation>
     </message>
@@ -12089,17 +12022,17 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceRunConfiguration</name>
     <message>
-        <location line="-756"/>
+        <location line="-764"/>
         <source>QtS60DeviceRunConfiguration</source>
         <translation>QtS60DeviceRunConfiguration</translation>
     </message>
     <message>
-        <location line="+197"/>
+        <location line="+205"/>
         <source>Could not parse %1. The QtS60 Device run configuration %2 can not be started.</source>
         <translation>%1 konnte nicht ausgewertet werden. Die Qt S60-Ausführungskonfiguration %2 kann nicht gestartet werden.</translation>
     </message>
     <message>
-        <location line="-199"/>
+        <location line="-207"/>
         <source>%1 on Symbian Device</source>
         <translation>%1 auf Symbian-Gerät</translation>
     </message>
@@ -12107,7 +12040,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
     <message>
-        <location line="+286"/>
+        <location line="+294"/>
         <source>%1 on Symbian Device</source>
         <translation>%1 auf Symbian-Gerät</translation>
     </message>
@@ -12276,12 +12209,6 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
 Deploying application to &apos;%2&apos;...</source>
         <translation>Installationspaket: %1
 Installiere Anwendung auf &apos;%2&apos;...</translation>
-    </message>
-    <message>
-        <source>Could not connect to phone on port &apos;%1&apos;: %2
-Check if the phone is connected and the TRK application is running.</source>
-        <translation type="obsolete">Die Verbindung zum Gerät über den Port &apos;%1&apos; konnte nicht hergestellt werden: %2
-Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos; läuft.</translation>
     </message>
     <message>
         <location line="+30"/>
@@ -12455,7 +12382,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
 <context>
     <name>Qt4ProjectManager::Internal::S60Manager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60manager.cpp" line="+112"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60manager.cpp" line="+113"/>
         <source>Run in Emulator</source>
         <translation>Im Emulator ausführen</translation>
     </message>
@@ -12656,7 +12583,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
         <translation>Es wird die Qt-Version &quot;%1&quot; benutzt</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+26"/>
         <source>New configuration</source>
         <translation>Neue Konfiguration</translation>
     </message>
@@ -12666,7 +12593,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
         <translation>Name der neuen Konfiguration:</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+7"/>
         <source>%1 Debug</source>
         <translation>%1 Debug</translation>
     </message>
@@ -12713,7 +12640,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
 <context>
     <name>Qt4ProjectManager::QtVersionManager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+349"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+351"/>
         <source>&lt;not found&gt;</source>
         <translation>&lt;nicht gefunden&gt;</translation>
     </message>
@@ -12767,7 +12694,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
 <context>
     <name>QApplication</name>
     <message>
-        <location line="+862"/>
+        <location line="+872"/>
         <source>The Qt Version has no toolchain.</source>
         <translation>Dieser Qt-Version ist keine Toolchain zugeordnet.</translation>
     </message>
@@ -13175,37 +13102,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <location line="+178"/>
         <source>&lt;type here&gt;</source>
         <translation>&lt;Tippen Sie hier&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsDialog</name>
-    <message>
-        <source>Configure Filters</source>
-        <translation type="obsolete">Filter konfigurieren</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Hinzufügen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Entfernen</translation>
-    </message>
-    <message>
-        <source> min</source>
-        <translation type="obsolete"> minuten</translation>
-    </message>
-    <message>
-        <source>Refresh now!</source>
-        <translation type="obsolete">Jetzt aktualisieren!</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Ändern...</translation>
-    </message>
-    <message>
-        <source>Refresh Interval:</source>
-        <translation type="obsolete">Aktualisierungsintervall:</translation>
     </message>
 </context>
 <context>
@@ -15779,7 +15675,7 @@ Qt Centre</translation>
     <message>
         <location line="+1"/>
         <source>Qt Apps</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Apps</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -15864,10 +15760,6 @@ Qt Centre</translation>
 </context>
 <context>
     <name>Debugger::Internal::TrkOptionsPage</name>
-    <message>
-        <source>Symbian Trk</source>
-        <translation type="obsolete">Symbian-Trk</translation>
-    </message>
     <message>
         <location filename="../../../src/plugins/debugger/gdb/trkoptionspage.cpp" line="+43"/>
         <source>Symbian TRK</source>
