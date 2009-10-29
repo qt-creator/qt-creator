@@ -274,17 +274,18 @@ bool Qt4BuildConfigurationFactory::create(const QString &type) const
 {
     QTC_ASSERT(m_versions.contains(type), return false);
     const VersionInfo &info = m_versions.value(type);
+    QtVersion *version = QtVersionManager::instance()->version(info.versionId);
+    if (!version)
+        return false;
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,
                           tr("New configuration"),
                           tr("New Configuration Name:"),
                           QLineEdit::Normal,
-                          QString(),
+                          version->name(),
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-
-    QtVersion *version = QtVersionManager::instance()->version(info.versionId);
 
     m_project->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
                                      version,
