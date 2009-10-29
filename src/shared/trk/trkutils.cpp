@@ -30,6 +30,7 @@
 #include "trkutils.h"
 #include <ctype.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
 #define logMessage(s)  do { qDebug() << "TRKCLIENT: " << s; } while (0)
@@ -70,38 +71,61 @@ void Session::reset()
     trkAppVersion.reset();
 }
 
-inline void formatCpu(QTextStream &str,int major, int minor)
+QString formatCpu(int major, int minor)
 {
-    str << "CPU: v" << major << '.' << minor;
+    //: CPU description of an S60 device
+    //: %1 major verison, %2 minor version
+    //: %3 real name of major verison, %4 real name of minor version
+    const QString str = QCoreApplication::translate("trk::Session", "CPU: v%1.%2%3%4");
+    QString majorStr;
+    QString minorStr;
     switch (major) {
     case 0x04:
-        str << " ARM";
+        majorStr = " ARM";
         break;
     }
     switch (minor) {
     case 0x00:
-        str << " 920T";
+        minorStr = " 920T";
         break;
     }
+    return str.arg(major).arg(minor).arg(majorStr).arg(minorStr);
  }
+
+QString formatTrkVersion(const TrkAppVersion &version)
+{
+    QString str = QCoreApplication::translate("trk::Session",
+                                              "App TRK: v%1.%2 TRK protocol: v%3.%4");
+    str = str.arg(version.trkMajor).arg(version.trkMinor);
+    return str.arg(version.protocolMajor).arg(version.protocolMinor);
+}
 
 QString Session::deviceDescription(unsigned verbose) const
 {
-    QString msg;
-    if (cpuMajor) {
-        QTextStream str(&msg);
-        formatCpu(str, cpuMajor, cpuMinor);
-        str << ", "  << (bigEndian ? "big endian" : "little endian");
-        if (verbose) {
-            if (defaultTypeSize)
-                str << ", type size: " << defaultTypeSize;
-            if (fpTypeSize)
-                str << ", float size: " << fpTypeSize;
-        }
-        str << ", App TRK: v" << trkAppVersion.trkMajor << '.' << trkAppVersion.trkMinor
-            << " TRK protocol: v" << trkAppVersion.protocolMajor << '.' << trkAppVersion.protocolMinor;
-    }
-    return msg;
+    if (!cpuMajor)
+        return QString();
+
+    //: s60description
+    //: description of an S60 device
+    //: %1 CPU description, %2 endianness
+    //: %3 default type size (if any), %4 float size (if any)
+    //: %5 TRK version
+    QString msg = QCoreApplication::translate("trk::Session", "%1, %2%3%4, %5");
+    QString endianness = bigEndian
+                         ? QCoreApplication::translate("trk::Session", "big endian")
+                         : QCoreApplication::translate("trk::Session", "little endian");
+    msg = msg.arg(formatCpu(cpuMajor, cpuMinor)).arg(endianness);
+    //: The separator in a list of strings
+    QString defaultTypeSizeStr;
+    QString fpTypeSizeStr;
+    if (verbose && defaultTypeSize)
+        //: will be inserted into s60description
+        defaultTypeSizeStr = QCoreApplication::translate("trk::Session", ", type size: %1").arg(defaultTypeSize);
+    if (verbose && fpTypeSize)
+        //: will be inserted into s60description
+        fpTypeSizeStr = QCoreApplication::translate("trk::Session", ", float size: %1").arg(fpTypeSize);
+    msg = msg.arg(defaultTypeSizeStr).arg(fpTypeSizeStr);
+    return msg.arg(formatTrkVersion(trkAppVersion));
 }
 
 
