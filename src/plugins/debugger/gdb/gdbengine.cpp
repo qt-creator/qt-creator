@@ -1319,16 +1319,12 @@ QString GdbEngine::fullName(const QString &fileName)
 QString GdbEngine::cleanupFullName(const QString &fileName)
 {
     QTC_ASSERT(!fileName.isEmpty(), return QString())
-    if (m_gdbVersion < 60800) {
-        // The symbian gdb 6.4 seems to deliver "fullnames" which
-        // a) have no drive letter and b) are not normalized.
-        QFileInfo fi(fileName);
-        if (!fi.isReadable())
-            return QString();
-        return QDir::cleanPath(fi.absoluteFilePath());
-    } else {
-        return fileName;
-    }
+    // Gdb on windows often delivers "fullnames" which
+    // a) have no drive letter and b) are not normalized.
+    QFileInfo fi(fileName);
+    if (!fi.isReadable())
+        return QString();
+    return QDir::cleanPath(fi.absoluteFilePath());
 }
 #endif
 
