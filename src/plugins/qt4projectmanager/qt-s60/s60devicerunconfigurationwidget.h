@@ -31,6 +31,7 @@
 #define S60DEVICERUNCONFIGURATIONWIDGET_H
 
 #include <QtGui/QWidget>
+#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -42,6 +43,10 @@ QT_END_NAMESPACE
 
 namespace Utils {
     class DetailsWidget;
+}
+
+namespace trk {
+    class Launcher;
 }
 
 namespace Qt4ProjectManager {
@@ -72,12 +77,13 @@ private slots:
     void updateSummary();
     void updateDeviceInfo();
     void clearDeviceInfo();
+    void slotLauncherStateChanged(int);
+    void slotWaitingForTrkClosed();
 
 private:
     inline CommunicationDevice device(int i) const;
     inline CommunicationDevice currentDevice() const;
 
-    bool getDeviceInfo(QString *message);
     void setDeviceInfoLabel(const QString &message, bool isError = false);
 
     S60DeviceRunConfiguration *m_runConfiguration;
@@ -89,6 +95,7 @@ private:
     QLabel *m_deviceInfoDescriptionLabel;
     QLabel *m_deviceInfoLabel;
     QTimer *m_infoTimeOutTimer;
+    QPointer<trk::Launcher> m_infoLauncher;
 };
 
 } // namespace Internal

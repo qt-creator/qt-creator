@@ -29,8 +29,8 @@
 
 #include "s60manager.h"
 
-#include "s60devices.h"
 #include "s60devicespreferencepane.h"
+#include "serialdevicelister.h"
 #include "winscwtoolchain.h"
 #include "gccetoolchain.h"
 #include "rvcttoolchain.h"
@@ -40,6 +40,7 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchain.h>
 #include <debugger/debuggermanager.h>
 #include <utils/qtcassert.h>
 

@@ -56,6 +56,7 @@ struct LauncherPrivate {
     TrkDevicePtr m_device;
     QString m_trkServerName;
     QByteArray m_trkReadBuffer;
+    Launcher::State m_state;
 
     void logMessage(const QString &msg);
     // Debuggee state
@@ -66,14 +67,13 @@ struct LauncherPrivate {
     QString m_installFileName;
     int m_verbose;
     Launcher::Actions m_startupActions;
-    bool m_connected;
     bool m_closeDevice;
 };
 
 LauncherPrivate::LauncherPrivate(const TrkDevicePtr &d) :
     m_device(d),
+    m_state(Launcher::Disconnected),
     m_verbose(0),
-    m_connected(false),
     m_closeDevice(true)
 {
     if (m_device.isNull())
@@ -95,6 +95,19 @@ Launcher::~Launcher()
 {
     logMessage("Shutting down.\n");
     delete d;
+}
+
+Launcher::State Launcher::state() const
+{
+    return d->m_state;
+}
+
+void Launcher::setState(State s)
+{
+    if (s != d->m_state) {
+        d->m_state = s;
+        emit stateChanged(s);
+    }
 }
 
 void Launcher::addStartupActions(trk::Launcher::Actions startupActions)
@@ -186,7 +199,9 @@ bool Launcher::startServer(QString *errorMessage)
     } else {
         disconnect(this, SIGNAL(finished()), d->m_device.data(), 0);
     }
-
+    setState(Connecting);
+    // Set up the temporary 'waiting' state if we do not get immediate connection
+    QTimer::singleShot(200, this, SLOT(slotWaitingForTrk()));
     d->m_device->sendTrkInitialPing();
     d->m_device->sendTrkMessage(TrkDisconnect); // Disconnect, as trk might be still connected
     d->m_device->sendTrkMessage(TrkSupported, TrkCallback(this, &Launcher::handleSupportMask));
@@ -197,13 +212,20 @@ bool Launcher::startServer(QString *errorMessage)
     return true;
 }
 
+void Launcher::slotWaitingForTrk()
+{
+    // Set temporary state if we are still in connected state
+    if (state() == Connecting)
+        setState(WaitingForTrk);
+}
+
 void Launcher::handleConnect(const TrkResult &result)
 {
     if (result.errorCode()) {
         emit canNotConnect(result.errorString());
         return;
     }
-    d->m_connected = true;
+    setState(Connected);
     if (d->m_startupActions & ActionCopy)
         copyFileToRemote();
     else if (d->m_startupActions & ActionInstall)
@@ -226,17 +248,27 @@ void Launcher::logMessage(const QString &msg)
 
 void Launcher::terminate()
 {
-    if (d->m_session.pid) {
-        QByteArray ba;
-        appendShort(&ba, 0x0000, TargetByteOrder);
-        appendInt(&ba, d->m_session.pid, TargetByteOrder);
-        d->m_device->sendTrkMessage(TrkDeleteItem, TrkCallback(this, &Launcher::handleRemoteProcessKilled), ba);
-    } else if (d->m_connected) {
+    switch (state()) {
+    case DeviceDescriptionReceived:
+    case Connected:
+        if (d->m_session.pid) {
+            QByteArray ba;
+            appendShort(&ba, 0x0000, TargetByteOrder);
+            appendInt(&ba, d->m_session.pid, TargetByteOrder);
+            d->m_device->sendTrkMessage(TrkDeleteItem, TrkCallback(this, &Launcher::handleRemoteProcessKilled), ba);
+            return;
+        }
         if (d->m_copyState.copyFileHandle)
             closeRemoteFile(true);
         disconnectTrk();
-    } else {
+        break;
+    case Disconnected:
+        break;
+    case Connecting:
+    case WaitingForTrk:
+        setState(Disconnected);
         emit finished();
+        break;
     }
 }
 
@@ -364,17 +396,21 @@ QString Launcher::deviceDescription(unsigned verbose) const
 void Launcher::handleTrkVersion(const TrkResult &result)
 {
     if (result.errorCode() || result.data.size() < 5) {
-        if (d->m_startupActions == ActionPingOnly)
+        if (d->m_startupActions == ActionPingOnly) {
+            setState(Disconnected);
             emit finished();
+        }
         return;
     }
     d->m_session.trkAppVersion.trkMajor = result.data.at(1);
     d->m_session.trkAppVersion.trkMinor = result.data.at(2);
     d->m_session.trkAppVersion.protocolMajor = result.data.at(3);
     d->m_session.trkAppVersion.protocolMinor = result.data.at(4);
+    setState(DeviceDescriptionReceived);
     // Ping mode: Log & Terminate
     if (d->m_startupActions == ActionPingOnly) {
         qWarning("%s", qPrintable(deviceDescription()));
+        setState(Disconnected);
         emit finished();
     }
 }
@@ -501,6 +537,7 @@ void Launcher::handleCreateProcess(const TrkResult &result)
 void Launcher::handleWaitForFinished(const TrkResult &result)
 {
     logMessage("   FINISHED: " + stringFromArray(result.data));
+    setState(Disconnected);
     emit finished();
 }
 

@@ -37,6 +37,11 @@
 
 #include <QtCore/QProcess>
 
+QT_BEGIN_NAMESPACE
+class QMessageBox;
+class QWidget;
+QT_END_NAMESPACE
+
 namespace Debugger {
     class DebuggerStartParameters;
 }
@@ -134,6 +139,8 @@ public:
     virtual void stop();
     virtual bool isRunning() const;
 
+    static QMessageBox *createTrkWaitingMessageBox(const QString &port, QWidget *parent = 0);
+
 protected:
     virtual void initLauncher(const QString &executable, trk::Launcher *) = 0;
     virtual void handleLauncherFinished() = 0;
@@ -162,8 +169,10 @@ private slots:
     void printInstallingNotice();
     void printInstallFailed(const QString &filename, const QString &errorMessage);
     void launcherFinished();
+    void slotLauncherStateChanged(int);
+    void slotWaitingForTrkClosed();
 
-private:    
+private:        
     bool createPackageFileFromTemplate(QString *errorMessage);
 
     QString m_serialPortName;

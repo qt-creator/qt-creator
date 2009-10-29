@@ -61,10 +61,21 @@ public:
         ActionCopyInstallRun = ActionCopy | ActionInstall | ActionRun
     };
 
+    enum State { Disconnected, Connecting, Connected,
+                 WaitingForTrk, // This occurs only if the initial ping times out after
+                                // a reasonable timeout, indicating that Trk is not
+                                // running. Note that this will never happen with
+                                // Bluetooth as communication immediately starts
+                                // after connecting.
+                 DeviceDescriptionReceived };
+
     explicit Launcher(trk::Launcher::Actions startupActions = trk::Launcher::ActionPingOnly,
                       const TrkDevicePtr &trkDevice = TrkDevicePtr(),
                       QObject *parent = 0);
     ~Launcher();
+
+    State state() const;
+
     void addStartupActions(trk::Launcher::Actions startupActions);
     void setTrkServerName(const QString &name);
     QString trkServerName() const;
@@ -98,12 +109,14 @@ signals:
     void finished();
     void applicationOutputReceived(const QString &output);
     void copyProgress(int percent);
+    void stateChanged(int);
 
 public slots:
     void terminate();
 
 private slots:
     void handleResult(const trk::TrkResult &data);
+    void slotWaitingForTrk();
 
 private:
     // kill process and breakpoints
@@ -130,6 +143,7 @@ private:
     void startInferiorIfNeeded();
 
     void logMessage(const QString &msg);
+    void setState(State s);
 
     LauncherPrivate *d;
 };
