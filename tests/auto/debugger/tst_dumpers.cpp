@@ -10,11 +10,10 @@
 #include <QtTest/QtTest>
 //#include <QtTest/qtest_gui.h>
 
-#if (QT_POINTER_SIZE==4)
-#    define POINTER_PRINTFORMAT "0x%x"
-#else
-#    define POINTER_PRINTFORMAT "0x%lx"
-#endif
+static const char *pointerPrintFormat()
+{
+    return sizeof(quintptr) == sizeof(long) ? "0x%lx" : "0x%llx";
+}
 
 #undef NS
 #ifdef QT_NAMESPACE
@@ -393,7 +392,7 @@ static void testDumper(QByteArray expected0, const void *data, QByteArray outert
         extraInt0, extraInt1, extraInt2, extraInt3);
     QString expected(expected0);
     char buf[100];
-    sprintf(buf, POINTER_PRINTFORMAT, (uintptr_t)data);
+    sprintf(buf, pointerPrintFormat(), (uintptr_t)data);
     if ((!expected.startsWith('t') && !expected.startsWith('f'))
             || expected.startsWith("type"))
         expected = "tiname='$I',addr='$A'," + expected;
@@ -423,7 +422,7 @@ static void testDumper(QByteArray expected0, const void *data, QByteArray outert
 QByteArray str(const void *p)
 {
     char buf[100];
-    sprintf(buf, POINTER_PRINTFORMAT, (uintptr_t)p);
+    sprintf(buf, pointerPrintFormat(), (uintptr_t)p);
     return buf;
 }
 
@@ -1975,7 +1974,7 @@ void tst_Debugger::dumpQObjectSignalList()
              "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
         "{name='21',value='columnsMoved(QModelIndex,int,int,QModelIndex,int)',"
             "numchild='0',addr='$A',type='"NS"QObjectSignal'}]";
-        
+ 
 
     testDumper(expected << "0" << "0" << "0" << "0" << "0" << "0",
         &m, NS"QObjectSignalList", true);

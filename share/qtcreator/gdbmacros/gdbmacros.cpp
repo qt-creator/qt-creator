@@ -57,16 +57,6 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QVector>
 
-#ifndef Q_OS_WIN
-#    include <stdint.h>
-#endif
-
-#if (QT_POINTER_SIZE==4) // How to printf/scanf a pointer (uintptr_t)
-#    define POINTER_PRINTFORMAT "0x%x"
-#else
-#    define POINTER_PRINTFORMAT "0x%lx"
-#endif
-
 #ifndef QT_BOOTSTRAPPED
 
 #include <QtCore/QModelIndex>
@@ -641,7 +631,9 @@ QDumper &QDumper::put(int i)
 QDumper &QDumper::put(const void *p)
 {
     if (p) {
-        pos += sprintf(outBuffer + pos, POINTER_PRINTFORMAT, reinterpret_cast<uintptr_t>(p));
+        // Pointer is 'long long' on WIN_64, only
+        static const char *printFormat = sizeof(quintptr) == sizeof(long) ? "0x%lx" : "0x%llx";
+        pos += sprintf(outBuffer + pos, printFormat, reinterpret_cast<uintptr_t>(p));
     } else {
         pos += sprintf(outBuffer + pos, "<null>");
     }
@@ -1073,8 +1065,10 @@ static void qDumpQAbstractItem(QDumper &d)
     {
        ModelIndex *mm = reinterpret_cast<ModelIndex *>(&mi);
        mm->r = mm->c = 0;
-       mm->p = mm->m = 0;
-       sscanf(d.templateParameters[0], "%d,%d,"POINTER_PRINTFORMAT","POINTER_PRINTFORMAT, &mm->r, &mm->c, 
+       mm->p = mm->m = 0;       
+       static const char *printFormat = sizeof(quintptr) == sizeof(long) ?
+                                        "%d,%d,0x%lx,0x%lx" : "%d,%d,0x%llx,0x%llx";
+       sscanf(d.templateParameters[0], printFormat, &mm->r, &mm->c,
 	      reinterpret_cast<uintptr_t*>(&mm->p), reinterpret_cast<uintptr_t*>(&mm->m));
     }
     const QAbstractItemModel *m = mi.model();
@@ -2152,10 +2146,14 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
         break;
     #endif
     default: {
+        static const char *qTypeFormat = sizeof(quintptr) == sizeof(long) ?
+                                            "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)0x%lx)" :
+                                            "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)0x%llx)";
+        static const char *nonQTypeFormat = sizeof(quintptr) == sizeof(long) ?
+                                            "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)0x%lx)" :
+                                            "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)0x%llx)";
         char buf[1000];
-        const char *format = (v->typeName()[0] == 'Q')
-            ?  "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)"POINTER_PRINTFORMAT")"
-            :  "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)"POINTER_PRINTFORMAT")";
+        const char *format = (v->typeName()[0] == 'Q') ? qTypeFormat : nonQTypeFormat;
         qsnprintf(buf, sizeof(buf) - 1, format, v->typeName(), v->typeName(), v);
         *exp = QLatin1String(buf);
         *numchild = 1;
