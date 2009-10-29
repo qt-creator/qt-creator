@@ -4305,6 +4305,8 @@ void GdbEngine::startInferiorPhase2()
 
 void GdbEngine::handleInferiorStartFailed(const QString &msg)
 {
+    if (state() == AdapterStartFailed)
+        return; // Adapter crashed meanwhile, so this notification is meaningless.
     debugMessage(_("INFERIOR START FAILED"));
     showMessageBox(QMessageBox::Critical, tr("Inferior start failed"), msg);
     setState(InferiorStartFailed);
