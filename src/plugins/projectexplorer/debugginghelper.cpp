@@ -80,22 +80,34 @@ QString DebuggingHelperLibrary::qtInstallDataDir(const QString &qmakePath)
 
 // Debugging Helper Library
 
-static inline QString helperFilePath(const QString &directory)
+static inline bool getHelperFileInfoFor(const QString &directory, QFileInfo* info)
 {
-#if defined(Q_OS_WIN)
-    return directory + QLatin1String("debug/gdbmacros.dll");
-#elif defined(Q_OS_MAC)
-    return directory + QLatin1String("libgdbmacros.dylib");
-#else // generic UNIX
-    return directory + QLatin1String("libgdbmacros.so");
-#endif
+    if (!info)
+        return false;
+
+    info->setFile(directory + QLatin1String("debug/gdbmacros.dll"));
+    if (info->exists())
+        return true;
+
+    info->setFile(directory + QLatin1String("libgdbmacros.dylib"));
+    if (info->exists())
+        return true;
+
+    info->setFile(directory + QLatin1String("libgdbmacros.so"));
+    if (info->exists())
+        return true;
+
+    return false;
 }
 
 QStringList DebuggingHelperLibrary::debuggingHelperLibraryLocationsByInstallData(const QString &qtInstallData)
 {
     QStringList result;
-    foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData))
-        result << QFileInfo(helperFilePath(directory)).filePath();
+    QFileInfo fileInfo;
+    foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData)) {
+        if (getHelperFileInfoFor(directory, &fileInfo))
+            result << fileInfo.filePath();
+    }
     return result;
 }
 
@@ -104,10 +116,12 @@ QString DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(const QStrin
     const QString dumperSourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/gdbmacros/");
     QDateTime lastModified = QFileInfo(dumperSourcePath + "gdbmacros.cpp").lastModified();
 
+    QFileInfo fileInfo;
     foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData)) {
-        const QFileInfo fi(helperFilePath(directory));
-        if (fi.exists() && fi.lastModified() >= lastModified)
-            return fi.filePath();
+        if (getHelperFileInfoFor(directory, &fileInfo)) {
+            if (fileInfo.lastModified() >= lastModified)
+                return fileInfo.filePath();
+        }
     }
     return QString();
 }
