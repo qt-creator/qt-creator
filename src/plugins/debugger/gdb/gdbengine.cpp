@@ -4119,7 +4119,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     m_gdbProc.start(location, gdbArgs);
 
     if (!m_gdbProc.waitForStarted()) {
-        const QString msg = tr("Unable to start gdb '%1': %2").arg(gdb, m_gdbProc.errorString());
+        const QString msg = tr("Unable to start gdb '%1': %2").arg(location, m_gdbProc.errorString());
         handleAdapterStartFailed(msg, settingsIdHint);
         return false;
     }
