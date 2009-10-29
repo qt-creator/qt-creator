@@ -539,6 +539,11 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             if (resultClass == "done") {
                 response.resultClass = GdbResultDone;
             } else if (resultClass == "running") {
+                if (state() == InferiorStopped) { // Result of manual command.
+                    m_manager->resetLocation();
+                    setTokenBarrier();
+                    setState(InferiorRunningRequested);
+                }
                 setState(InferiorRunning);
                 showStatusMessage(tr("Running..."));
                 response.resultClass = GdbResultRunning;
