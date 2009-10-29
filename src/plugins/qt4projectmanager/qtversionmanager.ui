@@ -100,7 +100,7 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
-      <item row="7" column="1">
+      <item row="8" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QLabel" name="debuggingHelperStateLabel">
@@ -133,12 +133,6 @@ p, li { white-space: pre-wrap; }
       </item>
       <item row="0" column="0" colspan="2">
        <widget class="QTreeWidget" name="qtdirList">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>150</height>
-         </size>
-        </property>
         <property name="uniformRowHeights">
          <bool>true</bool>
         </property>
@@ -210,23 +204,33 @@ p, li { white-space: pre-wrap; }
        <widget class="Utils::PathChooser" name="s60SDKPath" native="true"/>
       </item>
       <item row="6" column="0">
+       <widget class="QLabel" name="gcceLabel">
+        <property name="text">
+         <string>CLS/GCCE Directory:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="Utils::PathChooser" name="gccePath" native="true"/>
+      </item>
+      <item row="7" column="0">
        <widget class="QLabel" name="mwcLabel">
         <property name="text">
          <string>Carbide Directory:</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="7" column="1">
        <widget class="Utils::PathChooser" name="mwcPath" native="true"/>
       </item>
-      <item row="7" column="0">
+      <item row="8" column="0">
        <widget class="QLabel" name="debuggingHelperLabel">
         <property name="text">
          <string>Debugging Helper:</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="1">
+      <item row="9" column="1">
        <widget class="QLabel" name="errorLabel">
         <property name="text">
          <string/>

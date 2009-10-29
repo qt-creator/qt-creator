@@ -40,7 +40,7 @@ namespace Internal {
 class GCCEToolChain : public ProjectExplorer::GccToolChain
 {
 public:
-    GCCEToolChain(S60Devices::Device device);
+    GCCEToolChain(S60Devices::Device device, const QString &gcceCommand);
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
     void addToEnvironment(ProjectExplorer::Environment &env);
     ProjectExplorer::ToolChain::ToolChainType type() const;
@@ -52,6 +52,7 @@ private:
     QString m_deviceId;
     QString m_deviceName;
     QString m_deviceRoot;
+    QString m_gcceCommand;
 };
 
 } // namespace Internal

@@ -36,15 +36,12 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-namespace {
-    const char *GCCE_COMMAND = "arm-none-symbianelf-gcc.exe";
-}
-
-GCCEToolChain::GCCEToolChain(S60Devices::Device device)
-    : GccToolChain(QLatin1String(GCCE_COMMAND)),
+GCCEToolChain::GCCEToolChain(S60Devices::Device device, const QString &gcceCommand)
+    : GccToolChain(gcceCommand),
     m_deviceId(device.id),
     m_deviceName(device.name),
-    m_deviceRoot(device.epocRoot)
+    m_deviceRoot(device.epocRoot),
+    m_gcceCommand(gcceCommand)
 {
 
 }
@@ -68,9 +65,9 @@ QList<HeaderPath> GCCEToolChain::systemHeaderPaths()
 
 void GCCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
-    // TODO: do we need to set path to gcce?
     env.prependOrSetPath(QString("%1\\epoc32\\tools").arg(m_deviceRoot)); // e.g. make.exe
     env.prependOrSetPath(QString("%1\\epoc32\\gcc\\bin").arg(m_deviceRoot)); // e.g. gcc.exe
+    env.prependOrSetPath(QFileInfo(m_gcceCommand).absolutePath());
     env.set("EPOCDEVICE", QString("%1:%2").arg(m_deviceId, m_deviceName));
     env.set("EPOCROOT", S60Devices::cleanedRootPath(m_deviceRoot));
 }

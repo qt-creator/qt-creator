@@ -121,6 +121,7 @@ private slots:
 #ifdef QTCREATOR_WITH_S60
     void updateCurrentMwcDirectory();
     void updateCurrentS60SDKDirectory();
+    void updateCurrentGcceDirectory();
 #endif
     void msvcVersionChanged();
     void buildDebuggingHelper();
