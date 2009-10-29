@@ -141,6 +141,23 @@ QtVersionManager::QtVersionManager()
     writeVersionsIntoSettings();
 
     updateDocumentation();
+
+    if (m_defaultVersion > m_versions.size() || m_defaultVersion < 0) {
+        // Invalid default version, correct that...
+        for(int i = 0; i < m_versions.size(); ++i) {
+            QtVersion *version = m_versions.at(i);
+            if (version->isAutodetected() && version->autodetectionSource() == PATH_AUTODETECTION_SOURCE && version->isValid()) {
+                m_defaultVersion = i;
+                break;
+            }
+        }
+    }
+
+    if (m_defaultVersion > m_versions.size() || m_defaultVersion < 0) {
+        // Still invalid? Use the first one
+        m_defaultVersion = 0;
+    }
+
     // cannot call from ctor, needs to get connected extenernally first
     QTimer::singleShot(0, this, SLOT(updateExamples()));
 }
