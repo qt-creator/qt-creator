@@ -36,6 +36,7 @@
 
 QT_BEGIN_NAMESPACE
 class QMenu;
+class QLabel;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -82,10 +83,13 @@ private slots:
     void removeRunConfiguration();
     void nameChanged();
     void initRunConfigurationComboBox();
+    void updateMakeActiveLabel();
+    void makeActive();
 private:
     Project *m_project;
     RunConfigurationsModel *m_runConfigurationsModel;
     Ui::RunSettingsPropertiesPage *m_ui;
+    QLabel *m_makeActiveLabel;
     QWidget *m_runConfigurationWidget;
     QMenu *m_addMenu;
 };

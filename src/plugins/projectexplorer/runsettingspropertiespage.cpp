@@ -185,6 +185,10 @@ RunSettingsWidget::RunSettingsWidget(Project *project)
     m_ui->removeToolButton->setText(tr("Remove"));
     m_ui->runConfigurationCombo->setModel(m_runConfigurationsModel);
 
+    m_makeActiveLabel = new QLabel(this);
+    m_makeActiveLabel->setVisible(false);
+    layout()->addWidget(m_makeActiveLabel);
+
     connect(m_addMenu, SIGNAL(aboutToShow()),
             this, SLOT(aboutToShowAddMenu()));
     connect(m_ui->runConfigurationCombo, SIGNAL(currentIndexChanged(int)),
@@ -196,6 +200,12 @@ RunSettingsWidget::RunSettingsWidget(Project *project)
             this, SLOT(initRunConfigurationComboBox()));
     connect(m_project, SIGNAL(addedRunConfiguration(ProjectExplorer::Project *, QString)),
             this, SLOT(initRunConfigurationComboBox()));
+
+    connect(m_project, SIGNAL(activeRunConfigurationChanged()),
+            this, SLOT(updateMakeActiveLabel()));
+
+    connect(m_makeActiveLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(makeActive()));
 
     initRunConfigurationComboBox();
     const QList<QSharedPointer<RunConfiguration> > runConfigurations = m_project->runConfigurations();
@@ -284,6 +294,7 @@ void RunSettingsWidget::initRunConfigurationComboBox()
             enabledRunConfigurations.append(runConfigurations.at(i));
     }
     m_ui->removeToolButton->setEnabled(runConfigurations.size() > 1);
+    updateMakeActiveLabel();
 }
 
 void RunSettingsWidget::showRunConfigurationWidget(int index)
@@ -296,10 +307,39 @@ void RunSettingsWidget::showRunConfigurationWidget(int index)
     delete m_runConfigurationWidget;
     m_runConfigurationWidget = selectedRunConfiguration->configurationWidget();
     layout()->addWidget(m_runConfigurationWidget);
+    updateMakeActiveLabel();
+}
+
+void RunSettingsWidget::updateMakeActiveLabel()
+{
+    m_makeActiveLabel->setVisible(false);
+    QSharedPointer<RunConfiguration> rc = QSharedPointer<RunConfiguration>(0);
+    int index = m_ui->runConfigurationCombo->currentIndex();
+    if (index != -1) {
+        rc = m_runConfigurationsModel->runConfigurations().at(index);
+    }
+    if (rc) {
+        if (m_project->activeRunConfiguration() != rc) {
+            m_makeActiveLabel->setText(tr("<a href=\"#\">Make %1 active.</a>").arg(rc->name()));
+            m_makeActiveLabel->setVisible(true);
+        }
+    }
+}
+
+void RunSettingsWidget::makeActive()
+{
+    QSharedPointer<RunConfiguration> rc = QSharedPointer<RunConfiguration>(0);
+    int index = m_ui->runConfigurationCombo->currentIndex();
+    if (index != -1) {
+        rc = m_runConfigurationsModel->runConfigurations().at(index);
+    }
+    if (rc)
+        m_project->setActiveRunConfiguration(rc);
 }
 
 void RunSettingsWidget::nameChanged()
 {
     RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
     m_runConfigurationsModel->nameChanged(rc);
+    updateMakeActiveLabel();
 }
