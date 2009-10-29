@@ -2253,9 +2253,11 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
     //qDebug() << "HANDLING FRAME:" << frameMi.toString();
     StackFrame frame;
     frame.level = level;
-    // We might want to fall back to "file" once we have a mapping which
-    // is more complete than gdb's own ...
-    frame.file = cleanupFullName(QFile::decodeName(frameMi.findChild("fullname").data()));
+    GdbMi fullName = frameMi.findChild("fullname");
+    if (fullName.isValid())
+        frame.file = cleanupFullName(QFile::decodeName(fullName.data()));
+    else
+        frame.file = QFile::decodeName(frameMi.findChild("file").data());
     frame.function = _(frameMi.findChild("func").data());
     frame.from = _(frameMi.findChild("from").data());
     frame.line = frameMi.findChild("line").data().toInt();
