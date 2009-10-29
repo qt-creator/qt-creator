@@ -1,4 +1,4 @@
-
+//
 //bool checkUninitialized = true;
 bool checkUninitialized = false;
 //#define DO_DEBUG 1
@@ -7,10 +7,19 @@ bool checkUninitialized = false;
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
 
-#include <QtCore/private/qobject_p.h>
 
-//#include <QtGui/QStandardItemModel>
-//#include <QtGui/QStringListModel>
+/*
+#include <QtGui/QBitmap>
+#include <QtGui/QBrush>
+#include <QtGui/QColor>
+#include <QtGui/QCursor>
+#include <QtGui/QFont>
+#include <QtGui/QIcon>
+#include <QtGui/QKeySequence>
+#include <QtGui/QQuaternion>
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QStringListModel>
+*/
 
 #include <QtTest/QtTest>
 
@@ -194,6 +203,8 @@ private slots:
     void dump_Foo();
     void dump_QByteArray();
     void dump_QChar();
+    void dump_QHash_int_int();
+    void dump_QHash_QString_QString();
     void dump_QList_char();
     void dump_QList_char_star();
     void dump_QList_int();
@@ -201,16 +212,18 @@ private slots:
     void dump_QList_QString();
     void dump_QList_QString3();
     void dump_QList_Int3();
+    void dump_QPoint();
+    void dump_QRect();
+    void dump_QSize();
     void dump_QStack();
     void dump_QString();
     void dump_QStringList();
+    void dump_QVariant();
+    void dump_QVector();
     void dump_QWeakPointer_11();
     void dump_QWeakPointer_12();
     void dump_QWeakPointer_13();
     void dump_QWeakPointer_2();
-    void dump_QVector();
-
-    void dump_QHash();
 
 public slots:
     void dumperCompatibility();
@@ -239,9 +252,6 @@ public slots:
     void dump_QPixmap();
     void dump_QSharedPointer();
     void dump_QTextCodec();
-    void dump_QVariant_invalid();
-    void dump_QVariant_QString();
-    void dump_QVariant_QStringList();
     void dumpStdVector();
 #endif
 
@@ -642,7 +652,7 @@ void tst_Gdb::initTestCase()
             funcName = ba.mid(5, pos - 5) + '@';
         } else if (ba.startsWith("    /*")) {
             int pos = ba.indexOf('*', 7);
-            m_lineForLabel[funcName + ba.mid(7, pos - 8)] = i + 1;
+            m_lineForLabel[(funcName + ba.mid(7, pos - 8)).trimmed()] = i + 1;
         }
     }
     m_thread.startup(gdbProc);
@@ -677,6 +687,9 @@ void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
     //qDebug() << "OUTPUT: " << locals.toString() << "\n\n";
 
     QByteArray actual = received.trimmed();
+    int pos = actual.indexOf("^done");
+    if (pos != -1)
+        actual = actual.left(pos);
     if (actual.endsWith("\\n"))
         actual.chop(2);
     QByteArray expected = "locals={iname='local',name='Locals',value=' ',type=' ',"
@@ -1345,59 +1358,6 @@ void tst_Gdb::dump_QFileInfo()
     testDumper(expected, &fi, NS"QFileInfo", true);
 }
 
-void tst_Gdb::dump_QHash()
-{
-    QHash<QString, QList<int> > hash;
-    hash.insert("Hallo", QList<int>());
-    hash.insert("Welt", QList<int>() << 1);
-    hash.insert("!", QList<int>() << 1 << 2);
-    hash.insert("!", QList<int>() << 1 << 2);
-}
-
-template <typename K, typename V>
-void tst_Gdb::dump_QHashNodeHelper(QHash<K, V> &hash)
-{
-    typename QHash<K, V>::iterator it = hash.begin();
-    typedef QHashNode<K, V> HashNode;
-    HashNode *dummy = 0;
-    HashNode *node =
-        reinterpret_cast<HashNode *>(reinterpret_cast<char *>(const_cast<K *>(&it.key())) -
-            size_t(&dummy->key));
-    const K &key = it.key();
-    const V &val = it.value();
-    QByteArray expected("value='");
-    if (isSimpleType<V>())
-        expected.append(valToString(val));
-    expected.append("',numchild='2',children=[{name='key',type='").
-        append(typeToString<K>()).append("',addr='").append(ptrToBa(&key)).
-        append("'},{name='value',type='").append(typeToString<V>()).
-        append("',addr='").append(ptrToBa(&val)).append("'}]");
-    testDumper(expected, node, NS"QHashNode", true,
-        getMapType<K, V>(), "", sizeof(it.key()), sizeof(it.value()));
-}
-
-void tst_Gdb::dump_QHashNode()
-{
-    // Case 1: simple type -> simple type.
-    QHash<int, int> hash1;
-    hash1[2] = 3;
-    dump_QHashNodeHelper(hash1);
-
-    // Case 2: simple type -> composite type.
-    QHash<int, QString> hash2;
-    hash2[5] = "String 7";
-    dump_QHashNodeHelper(hash2);
-
-    // Case 3: composite type -> simple type
-    QHash<QString, int> hash3;
-    hash3["String 11"] = 13;
-    dump_QHashNodeHelper(hash3);
-
-    // Case 4: composite type -> composite type
-    QHash<QString, QString> hash4;
-    hash4["String 17"] = "String 19";
-    dump_QHashNodeHelper(hash4);
-}
 
 void tst_Gdb::dump_QImageHelper(const QImage &img)
 {
@@ -2375,38 +2335,6 @@ void tst_Gdb::dump_QSharedPointer()
 #endif
 }
 
-void tst_Gdb::dump_QVariant_invalid()
-{
-    QVariant v;
-    testDumper("value='(invalid)',type='$T',numchild='0'",
-        &v, NS"QVariant", false);
-}
-
-void tst_Gdb::dump_QVariant_QString()
-{
-    QVariant v = "abc";
-    testDumper("value='KFFTdHJpbmcpICJhYmMi',valueencoded='5',type='$T',"
-        "numchild='0'",
-        &v, NS"QVariant", true);
-/*
-    FIXME: the QString version should have a child:
-    testDumper("value='KFFTdHJpbmcpICJhYmMi',valueencoded='5',type='$T',"
-        "numchild='1',children=[{name='value',value='IgBhAGIAYwAiAA==',"
-        "valueencoded='4',type='QString',numchild='0'}]",
-        &v, NS"QVariant", true);
-*/
-}
-
-void tst_Gdb::dump_QVariant_QStringList()
-{
-    QVariant v = QStringList() << "Hi";
-    testDumper("value='(QStringList) ',type='$T',numchild='1',"
-        "children=[{name='value',exp='(*('myns::QStringList'*)%)',"
-        "type='QStringList',numchild='1'}]"
-            << QByteArray::number(quintptr(&v)),
-        &v, NS"QVariant", true);
-}
-
 void tst_Gdb::dump_StdVector()
 {
     std::vector<std::list<int> *> vector;
@@ -2452,6 +2380,235 @@ void tst_Gdb::dump_QTextCodec()
 }
 
 #endif // #if 0
+
+///////////////////////////// QVariant /////////////////////////////////
+
+void dump_QVariant()
+{
+    /*<not in scope>*/ QVariant v;
+    /* <invalid>    */ v = QBitArray();
+    /* QBitArray    */ v = 0; // QBitmap();
+    /* QBitMap      */ v = bool(true);
+    /* bool         */ v = 0; // QBrush();
+    /* QBrush       */ v = QByteArray("abc");
+    /* QByteArray   */ v = QChar(QLatin1Char('x'));
+    /* QChar        */ v = 0; // QColor();
+    /* QColor       */ v = 0; // QCursor();
+    /* QCursor      */ v = QDate();
+    /* QDate        */ v = QDateTime();
+    /* QDateTime    */ v = double(46);
+    /* double       */ v = 0; // QFont();
+    /* QFont        */ v = QVariantHash();
+    /* QVariantHash */ v = 0; // QIcon();
+    /* QIcon        */ v = 0; // QImage();
+    /* QImage       */ v = int(42);
+    /* int          */ v = 0; // QKeySequence();
+    /* QKeySequence */ v = QLine();
+    /* QLine        */ v = QLineF();
+    /* QLineF       */ v = QVariantList();
+    /* QVariantList */ v = QLocale();
+    /* QLocale      */ v = qlonglong(44);
+    /* qlonglong    */ v = QVariantMap();
+    /* QVariantMap  */ v = 0; // QTransform();
+    /* QTransform   */ v = 0; // QMatrix4x4();
+    /* QMatrix4x4   */ v = 0; // QPalette();
+    /* QPalette     */ v = 0; // QPen();
+    /* QPen         */ v = 0; // QPixmap();
+    /* QPixmap      */ v = QPoint(45, 46);
+    /* QPoint       */ v = 0; // QPointArray();
+    /* QPointArray  */ v = QPointF(41, 42);
+    /* QPointF      */ v = 0; // QPolygon();
+    /* QPolygon     */ v = 0; // QQuaternion();
+    /* QQuaternion  */ v = QRect();
+    /* QRect        */ v = QRectF();
+    /* QRectF       */ v = QRegExp("abc");
+    /* QRegExp      */ v = 0; // QRegion();
+    /* QRegion      */ v = QSize(0, 0);
+    /* QSize        */ v = QSizeF(0, 0);
+    /* QSizeF       */ v = 0; // QSizePolicy();
+    /* QSizePolicy  */ v = QString("abc");
+    /* QString      */ v = QStringList() << "abc";
+    /* QStringList  */ v = 0; // QTextFormat();
+    /* QTextFormat  */ v = 0; // QTextLength();
+    /* QTextLength  */ v = QTime();
+    /* QTime        */ v = uint(43);
+    /* uint         */ v = qulonglong(45);
+    /* qulonglong   */ v = QUrl("http://foo");
+    /* QUrl         */ v = 0; // QVector2D();
+    /* QVector2D    */ v = 0; // QVector3D();
+    /* QVector3D    */ v = 0; // QVector4D();
+    /* QVector4D    */ (void) 0;
+}
+
+void tst_Gdb::dump_QVariant()
+{
+    #define PRE "iname='local.v',addr='-',name='v',type='"NS"QVariant',"
+    prepare("dump_QVariant");
+    if (checkUninitialized) /*<not in scope>*/
+        run("A","{"PRE"'value=<not in scope>',numchild='0'}");
+    next(); 
+    run("<invalid>", "{"PRE"value='<invalid>',numchild='0'}");
+    next(); 
+    run("QBitArray", "{"PRE"value='("NS"QBitArray)',numchild='1',children=["
+        "{name='data',type='"NS"QBitArray',value='{...}',numchild='1'}]}",
+        "local.v");
+    next(); 
+    //run("QBitMap", "{"PRE"value="NS"QBitMap'',numchild='1',children=["
+    //    "]}", "local.v");
+    next(); 
+    run("bool", "{"PRE"value='true',numchild='0'}", "local.v");
+    next(); 
+    //run("QBrush", "{"PRE"value='"NS"QBrush',numchild='1',children=["
+    //    "]}", "local.v");
+    next(); 
+    run("QByteArray", "{"PRE"value='("NS"QByteArray)',numchild='1',"
+        "children=[{name='data',type='"NS"QByteArray',valueencoded='6',"
+            "value='616263',numchild='3'}]}", "local.v");
+    next(); 
+    run("QChar", "{"PRE"value='("NS"QChar)',numchild='1',"
+        "children=[{name='data',type='"NS"QChar',value=''x', ucs=120',numchild='0'}]}", "local.v");
+    next(); 
+    //run("QColor", "{"PRE"value='("NS"QColor)',numchild='1',children=["
+    //    "]}", "local.v");
+    next(); 
+    //run("QCursor", "{"PRE"value='',numchild='1',children=["
+    //    "]}", "local.v");
+    next(); 
+    run("QDate", "{"PRE"value='("NS"QDate)',numchild='1',children=["
+        "{name='data',type='"NS"QDate',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    run("QDateTime", "{"PRE"value='("NS"QDateTime)',numchild='1',children=["
+        "{name='data',type='"NS"QDateTime',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    run("double", "{"PRE"value='46',numchild='0'}", "local.v");
+    next(); 
+    //run("QFont", "{"PRE"value='(NS"QFont")',numchild='1',children=["
+    //    "{name='data',type='"NS"QFont',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    run("QVariantHash", "{"PRE"value='("NS"QVariantHash)',numchild='1',children=["
+        "{name='data',type='"NS"QHash<"NS"QString, "NS"QVariant>',"
+            "value='<0 items>',numchild='0'}]}", "local.v");
+    next(); 
+    //run("QIcon", "{"PRE"value='("NS"QIcon)',numchild='1',children=["
+    //    "{name='data',type='"NS"QIcon',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QImage", "{"PRE"value='("NS"QImage)',numchild='1',children=["
+    //    "{name='data',type='"NS"QImage',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    run("int", "{"PRE"value='42',numchild='0'}", "local.v");
+    next(); 
+    //run("QKeySequence", "{"PRE"value='("NS"QKeySequence)',numchild='1'",
+    //  "local.v");
+    next(); 
+    run("QLine", "{"PRE"value='("NS"QLine)',numchild='1',children=["
+        "{name='data',type='"NS"QLine',value='{...}',numchild='2'}]}", "local.v");
+    next(); 
+    run("QLineF", "{"PRE"value='("NS"QLineF)',numchild='1',children=["
+        "{name='data',type='"NS"QLineF',value='{...}',numchild='2'}]}", "local.v");
+    next(); 
+    run("QVariantList", "{"PRE"value='("NS"QVariantList)',numchild='1',children=["
+        "{name='data',type='"NS"QList<"NS"QVariant>',"
+            "value='<0 items>',numchild='0'}]}", "local.v");
+    next(); 
+    run("QLocale", "{"PRE"value='("NS"QLocale)',numchild='1',children=["
+        "{name='data',type='"NS"QLocale',value='{...}',numchild='2'}]}", "local.v");
+    next(); 
+    run("qlonglong", "{"PRE"value='44',numchild='0'}", "local.v");
+    next(); 
+    run("QVariantMap", "{"PRE"value='("NS"QVariantMap)',numchild='1',children=["
+        "{name='data',type='"NS"QMap<"NS"QString, "NS"QVariant>',"
+            "value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QTransform", "{"PRE"value='("NS"QTransform)',numchild='1',children=["
+    //    "{name='data',type='"NS"QTransform',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QMatrix4x4", "{"PRE"value='("NS"QMatrix4x4)',numchild='1',children=["
+    //    "{name='data',type='"NS"QMatrix4x4',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QPalette", "{"PRE"value='("NS"QPalette)',numchild='1',children=["
+    //    "{name='data',type='"NS"QPalette',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QPen", "{"PRE"value='("NS"QPen)',numchild='1',children=["
+    //    "{name='data',type='"NS"QPen',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QPixmap", "{"PRE"value='("NS"QPixmap)',numchild='1',children=["
+    //    "{name='data',type='"NS"QPixmap',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    run("QPoint", "{"PRE"value='("NS"QPoint)',numchild='1',children=["
+        "{name='data',type='"NS"QPoint',value='(45, 46)',numchild='2'}]}",
+            "local.v");
+    next(); 
+    //run("QPointArray", "{"PRE"value='("NS"QPointArray)',numchild='1',children=["
+    //    "{name='data',type='"NS"QPointArray',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+// FIXME
+//    run("QPointF", "{"PRE"value='("NS"QPointF)',numchild='1',children=["
+//        "{name='data',type='"NS"QPointF',value='(41, 42)',numchild='2'}]}",
+//            "local.v");
+    next(); 
+    //run("QPolygon", "{"PRE"value='("NS"QPolygon)',numchild='1',children=["
+    //    "{name='data',type='"NS"QPolygon',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QQuaternion", "{"PRE"value='("NS"QQuaternion)',numchild='1',children=["
+    //    "{name='data',type='"NS"QQuaternion',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    run("QRect", "{"PRE"value='("NS"QRect)',numchild='1',children=["
+        "{name='data',type='"NS"QRect',value='{...}',numchild='4'}]}", "local.v");
+    next(); 
+// FIXME:
+//    run("QRectF", "{"PRE"value='("NS"QRectF)',numchild='1',children=["
+//        "{name='data',type='"NS"QRectF',value='{...}',numchild='4'}]}", "local.v");
+    next(); 
+    run("QRegExp", "{"PRE"value='("NS"QRegExp)',numchild='1',children=["
+        "{name='data',type='"NS"QRegExp',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QRegion", "{"PRE"value='("NS"QRegion)',numchild='1',children=["
+    //    "{name='data',type='"NS"QRegion',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    run("QSize", "{"PRE"value='("NS"QSize)',numchild='1',children=["
+        "{name='data',type='"NS"QSize',value='(0, 0)',numchild='2'}]}", "local.v");
+    next(); 
+
+// FIXME:
+//    run("QSizeF", "{"PRE"value='("NS"QSizeF)',numchild='1',children=["
+//        "{name='data',type='"NS"QSizeF',value='(0, 0)',numchild='2'}]}", "local.v");
+    next(); 
+    //run("QSizePolicy", "{"PRE"value='("NS"QSizePolicy)',numchild='1',children=["
+    //    "{name='data',type='"NS"QSizePolicy',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    run("QString", "{"PRE"value='("NS"QString)',numchild='1',children=["
+        "{name='data',type='"NS"QString',valueencoded='7',value='610062006300',numchild='0'}]}",
+        "local.v");
+    next(); 
+    run("QStringList", "{"PRE"value='("NS"QStringList)',numchild='1',children=["
+        "{name='data',type='"NS"QStringList',value='<1 items>',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QTextFormat", "{"PRE"value='("NS"QTextFormat)',numchild='1',children=["
+    //    "{name='data',type='"NS"QTextFormat',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QTextLength", "{"PRE"value='("NS"QTextLength)',numchild='1',children=["
+    //    "{name='data',type='"NS"QTextLength',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    run("QTime", "{"PRE"value='("NS"QTime)',numchild='1',children=["
+        "{name='data',type='"NS"QTime',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    run("uint", "{"PRE"value='43',numchild='0'}", "local.v");
+    next(); 
+    run("qulonglong", "{"PRE"value='45',numchild='0'}", "local.v");
+    next(); 
+    run("QUrl", "{"PRE"value='("NS"QUrl)',numchild='1',children=["
+        "{name='data',type='"NS"QUrl',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QVector2D", "{"PRE"value='("NS"QVector2D)',numchild='1',children=["
+    //   "{name='data',type='"NS"QVector2D',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QVector3D", "{"PRE"value='("NS"QVector3D)',numchild='1',children=["
+    //    "{name='data',type='"NS"QVector3D',value='{...}',numchild='1'}]}", "local.v");
+    next(); 
+    //run("QVector4D", "{"PRE"value='("NS"QVector4D)',numchild='1',children=["
+    //    "{name='data',type='"NS"QVector4D',value='{...}',numchild='1'}]}", "local.v");
+}
+
 
 ///////////////////////////// QWeakPointer /////////////////////////////////
 
@@ -2601,14 +2758,6 @@ void tst_Gdb::dump_QWeakPointer_2() {}
 
 ///////////////////////////// QHash<QString, QString> //////////////////////////////
 
-void dump_QHash_QString_QString()
-{
-    /* A */ QHash<QString, QString> h;
-    /* B */ h["hello"] = "world";
-    /* C */ h["foo"] = "bar";
-    /* D */ (void) 0;
-}
-
 void dump_QHash_int_int()
 {
     /* A */ QHash<int, int> h;
@@ -2617,7 +2766,7 @@ void dump_QHash_int_int()
     /* D */ (void) 0;
 }
 
-void tst_Gdb::dump_QHash()
+void tst_Gdb::dump_QHash_int_int()
 {
     // Need to check the following combinations:
     // int-key optimization, small value
@@ -2645,7 +2794,19 @@ void tst_Gdb::dump_QHash()
             "{name='43',value='44'},"
             "{name='45',value='46'}]}",
             "local.h");
+}
 
+
+void dump_QHash_QString_QString()
+{
+    /* A */ QHash<QString, QString> h;
+    /* B */ h["hello"] = "world";
+    /* C */ h["foo"] = "bar";
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dump_QHash_QString_QString()
+{
     prepare("dump_QHash_QString_QString");
     if (checkUninitialized)
         run("A","{iname='local.h',addr='-',name='h',"
@@ -2907,7 +3068,84 @@ void tst_Gdb::dump_QList_Int3()
             "local.list,local.list.0");
 }
 
-///////////////////////////// QVector /////////////////////////////////
+
+///////////////////////////// QPoint /////////////////////////////////
+
+void dump_QPoint()
+{
+    /* A */ QPoint p(43, 44);
+    /* B */ QPointF f(45, 46);
+    /* C */ (void) 0;
+}
+
+void tst_Gdb::dump_QPoint()
+{
+    prepare("dump_QPoint");
+    next();
+    next();
+    run("C","{iname='local.p',addr='-',name='p',type='"NS"QPoint',"
+            "value='(43, 44)',numchild='2',childtype='int',childnumchild='0',"
+                "children=[{name='x',value='43'},{name='y',value='44'}]},"
+            "{iname='local.f',addr='-',name='f',type='"NS"QPointF',"
+            "value='(45, 46)',numchild='2',childtype='double',childnumchild='0',"
+                "children=[{name='x',value='45'},{name='y',value='46'}]}",
+            "local.p,local.f");
+}
+
+
+///////////////////////////// QRect /////////////////////////////////
+
+void dump_QRect()
+{
+    /* A */ QRect p(43, 44, 100, 200);
+    /* B */ QRectF f(45, 46, 100, 200);
+    /* C */ (void) 0;
+}
+
+void tst_Gdb::dump_QRect()
+{
+    prepare("dump_QRect");
+    next();
+    next();
+
+return; // FIXME
+
+    run("C","{iname='local.p',addr='-',name='p',type='"NS"QRect',"
+            "value='(100x200+43+44)',numchild='4',childtype='int',childnumchild='0',"
+                "children=[{name='x1',value='43'},{name='y1',value='44'},"
+                "{name='x2',value='142'},{name='y2',value='243'}]},"
+            "{iname='local.f',addr='-',name='f',type='"NS"QRectF',"
+            "value='(45x46+100+200)',numchild='2',childtype='double',childnumchild='0',"
+                "children=[{name='x',value='45'},{name='y',value='46'}]}",
+            "local.p,local.f");
+}
+
+
+///////////////////////////// QSize /////////////////////////////////
+
+void dump_QSize()
+{
+    /* A */ QSize p(43, 44);
+    /* B */ QSizeF f(45, 46);
+    /* C */ (void) 0;
+}
+
+void tst_Gdb::dump_QSize()
+{
+    prepare("dump_QSize");
+    next();
+    next();
+    run("C","{iname='local.p',addr='-',name='p',type='"NS"QSize',"
+            "value='(43, 44)',numchild='2',childtype='int',childnumchild='0',"
+                "children=[{name='w',value='43'},{name='h',value='44'}]},"
+            "{iname='local.f',addr='-',name='f',type='"NS"QSizeF',"
+            "value='(45, 46)',numchild='2',childtype='double',childnumchild='0',"
+                "children=[{name='w',value='45'},{name='h',value='46'}]}",
+            "local.p,local.f");
+}
+
+
+///////////////////////////// QStack /////////////////////////////////
 
 void dump_QStack()
 {
@@ -3094,9 +3332,13 @@ int main(int argc, char *argv[])
         dump_QList_Int3();
         dump_QList_QString();
         dump_QList_QString3();
+        dump_QPoint();
+        dump_QRect();
+        dump_QSize();
         dump_QStack();
         dump_QString();
         dump_QStringList();
+        dump_QVariant();
         dump_QVector();
         dump_QWeakPointer_11();
         dump_QWeakPointer_12();

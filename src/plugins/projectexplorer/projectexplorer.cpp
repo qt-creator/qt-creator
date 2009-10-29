@@ -2153,7 +2153,7 @@ BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
     connect(m_changeBuildConfiguration, SIGNAL(clicked()), this, SLOT(buttonClicked()));
     connect(m_cancel, SIGNAL(clicked()), this, SLOT(buttonClicked()));
     connect(m_justContinue, SIGNAL(clicked()), this, SLOT(buttonClicked()));
-    setWindowTitle(tr("Run configuration doesn't match build configuration"));
+    setWindowTitle(tr("Run configuration does not match build configuration"));
     QLabel *shortText = new QLabel(tr(
             "The active build configuration builds a target "
             "that cannot be used by the active run configuration."
@@ -2162,7 +2162,7 @@ BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
     QLabel *descriptiveText = new QLabel(tr(
         "This can happen if the active build configuration "
         "uses the wrong Qt version and/or tool chain for the active run configuration "
-        "(e.g. running in Symbian emulator requires building with WINSCW tool chain)."
+        "(for example, running in Symbian emulator requires building with the WINSCW tool chain)."
     ));
     descriptiveText->setWordWrap(true);
     vlayout->addWidget(descriptiveText);
