@@ -40,7 +40,7 @@
 namespace Debugger {
 namespace Internal {
 
-const char * const TRK_SETTINGS_ID = QT_TRANSLATE_NOOP("Debugger::Internal::TrkOptionsPage", "Symbian Trk");
+const char * const TRK_SETTINGS_ID = QT_TRANSLATE_NOOP("Debugger::Internal::TrkOptionsPage", "Symbian TRK");
 
 TrkOptionsPage::TrkOptionsPage(const TrkOptionsPtr &options) :
     m_options(options)

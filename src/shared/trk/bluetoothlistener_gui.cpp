@@ -81,8 +81,8 @@ PromptStartCommunicationResult
                          QWidget *msgBoxParent,
                          QString *errorMessage)
 {
-    const QString title = QCoreApplication::translate("trk::promptStartCommunication", "Waiting for TRK");
-    const QString message = QCoreApplication::translate("trk::promptStartCommunication", "Waiting for TRK to start on %1...").arg(starter.device());
+    const QString title = QCoreApplication::translate("trk::promptStartCommunication", "Waiting for App TRK");
+    const QString message = QCoreApplication::translate("trk::promptStartCommunication", "Waiting for App TRK to start on %1...").arg(starter.device());
     return promptStartCommunication(starter, title, message, msgBoxParent, errorMessage);
 }
 

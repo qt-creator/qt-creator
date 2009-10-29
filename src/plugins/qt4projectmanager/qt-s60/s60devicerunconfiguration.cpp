@@ -626,7 +626,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
     if (!m_launcher->startServer(&errorMessage)) {
 
         error(this, tr("Could not connect to phone on port '%1': %2\n"
-                       "Check if the phone is connected and the TRK application is running.").arg(m_serialPortName, errorMessage));
+                       "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage));
         stop();
         emit finished();
     }
@@ -683,9 +683,9 @@ void S60DeviceRunControlBase::launcherFinished()
 QMessageBox *S60DeviceRunControlBase::createTrkWaitingMessageBox(const QString &port, QWidget *parent)
 {
     const QString title  = QCoreApplication::translate("Qt4ProjectManager::Internal::S60DeviceRunControlBase",
-                                                       "Waiting for TRK");
+                                                       "Waiting for App TRK");
     const QString text = QCoreApplication::translate("Qt4ProjectManager::Internal::S60DeviceRunControlBase",
-                                                     "Please start TRK on %1.").arg(port);
+                                                     "Please start App TRK on %1.").arg(port);
     QMessageBox *rc = new QMessageBox(QMessageBox::Information, title, text,
                                       QMessageBox::Cancel, parent);
     return rc;
