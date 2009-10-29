@@ -98,8 +98,8 @@ QString Session::deviceDescription(unsigned verbose) const
             if (fpTypeSize)
                 str << ", float size: " << fpTypeSize;
         }
-        str << ", Trk: v" << trkAppVersion.trkMajor << '.' << trkAppVersion.trkMinor
-            << " Protocol: v" << trkAppVersion.protocolMajor << '.' << trkAppVersion.protocolMinor;
+        str << ", App TRK: v" << trkAppVersion.trkMajor << '.' << trkAppVersion.trkMinor
+            << " TRK protocol: v" << trkAppVersion.protocolMajor << '.' << trkAppVersion.protocolMinor;
     }
     return msg;
 }

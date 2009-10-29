@@ -30,14 +30,14 @@
 #ifndef GETTINGSTARTEDWELCOMEPLUGIN_H
 #define GETTINGSTARTEDWELCOMEPLUGIN_H
 
-#include <extensionsystem/iwelcomepage.h>
+#include <utils/iwelcomepage.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 class GettingStartedWelcomePageWidget;
 
-class GettingStartedWelcomePage : public ExtensionSystem::IWelcomePage
+class GettingStartedWelcomePage : public Utils::IWelcomePage
 {
     Q_OBJECT
 public:

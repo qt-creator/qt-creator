@@ -97,6 +97,8 @@ public:
     void setMwcDirectory(const QString &directory);
     QString s60SDKDirectory() const;
     void setS60SDKDirectory(const QString &directory);
+    QString gcceDirectory() const;
+    void setGcceDirectory(const QString &directory);
 #endif
     QString mingwDirectory() const;
     void setMingwDirectory(const QString &directory);
@@ -155,6 +157,7 @@ private:
 #ifdef QTCREATOR_WITH_S60
     QString m_mwcDirectory;
     QString m_s60SDKDirectory;
+    QString m_gcceDirectory;
 #endif
 
     mutable bool m_mkspecUpToDate;

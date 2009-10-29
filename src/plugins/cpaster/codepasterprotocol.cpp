@@ -67,9 +67,9 @@ bool CodePasterProtocol::isValidHostName(const QString& hostName)
     if (hostName.isEmpty()) {
         ICore::instance()->messageManager()->printToOutputPane(
 #ifdef Q_OS_MAC
-                       tr("No Server defined in the CodePaster preferences!"),
+                       tr("No Server defined in the CodePaster preferences."),
 #else
-                       tr("No Server defined in the CodePaster options!"),
+                       tr("No Server defined in the CodePaster options."),
 #endif
                        true /*error*/);
         ICore::instance()->messageManager()->showOutputPane();

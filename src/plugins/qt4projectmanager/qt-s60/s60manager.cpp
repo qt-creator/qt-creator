@@ -29,8 +29,8 @@
 
 #include "s60manager.h"
 
-#include "s60devices.h"
 #include "s60devicespreferencepane.h"
+#include "serialdevicelister.h"
 #include "winscwtoolchain.h"
 #include "gccetoolchain.h"
 #include "rvcttoolchain.h"
@@ -40,19 +40,21 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchain.h>
 #include <debugger/debuggermanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QMainWindow>
 
+namespace {
+    const char *GCCE_COMMAND = "arm-none-symbianelf-gcc.exe";
+    const char *S60_AUTODETECTION_SOURCE = "QTS60";
+}
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
 S60Manager *S60Manager::m_instance = 0;
-
-namespace {
-static const char *S60_AUTODETECTION_SOURCE = "QTS60";
-}
 
 // ======== Parametrizable Factory for RunControls, depending on the configuration
 // class and mode.
@@ -200,7 +202,10 @@ ProjectExplorer::ToolChain *S60Manager::createWINSCWToolChain(const Qt4ProjectMa
 
 ProjectExplorer::ToolChain *S60Manager::createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
-    return new GCCEToolChain(deviceForQtVersion(version));
+    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    env.prependOrSetPath(version->gcceDirectory()+"/bin");
+    QString gcceCommandPath= env.searchInPath(GCCE_COMMAND);
+    return new GCCEToolChain(deviceForQtVersion(version), gcceCommandPath);
 }
 
 ProjectExplorer::ToolChain *S60Manager::createRVCTToolChain(
@@ -237,5 +242,5 @@ S60Devices::Device S60Manager::deviceForQtVersion(const Qt4ProjectManager::QtVer
     return device;
 }
 
-}
-}
+} // namespace internal
+} // namespace qt4projectmanager

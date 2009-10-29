@@ -62,8 +62,10 @@ QList<int> FindUsages::operator()(Symbol *symbol, Identifier *id, AST *ast)
     _references.clear();
     _declSymbol = symbol;
     _id = id;
-    _exprDoc = Document::create("<references>");
-    accept(ast);
+    if (_declSymbol && _id) {
+        _exprDoc = Document::create("<references>");
+        accept(ast);
+    }
     return _references;
 }
 

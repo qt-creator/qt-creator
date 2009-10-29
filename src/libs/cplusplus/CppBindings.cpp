@@ -404,6 +404,11 @@ Binding *ClassBinding::findClassOrNamespaceBinding(Identifier *id, QSet<Binding 
     if (id->isEqualTo(identifier()))
         return this;
 
+    if (processed->contains(this))
+        return 0;
+
+    processed->insert(this);
+
     foreach (ClassBinding *nestedClassBinding, children) {
         if (id->isEqualTo(nestedClassBinding->identifier()))
             return nestedClassBinding;
@@ -412,6 +417,7 @@ Binding *ClassBinding::findClassOrNamespaceBinding(Identifier *id, QSet<Binding 
     foreach (ClassBinding *baseClassBinding, baseClassBindings) {
         if (! baseClassBinding)
             continue;
+
         else if (Binding *b = baseClassBinding->findClassOrNamespaceBinding(id, processed))
             return b;
     }

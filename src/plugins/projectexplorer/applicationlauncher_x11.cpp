@@ -87,7 +87,10 @@ void ApplicationLauncher::stop()
 {
     if (m_currentMode == Gui) {
         m_guiProcess->terminate();
-        m_guiProcess->waitForFinished();
+        if (!m_guiProcess->waitForFinished(1000)) { // This is blocking, so be fast.
+            m_guiProcess->kill();
+            m_guiProcess->waitForFinished();
+        }
     } else {
         m_consoleProcess->stop();
     }

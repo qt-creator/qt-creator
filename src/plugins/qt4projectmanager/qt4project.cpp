@@ -274,17 +274,18 @@ bool Qt4BuildConfigurationFactory::create(const QString &type) const
 {
     QTC_ASSERT(m_versions.contains(type), return false);
     const VersionInfo &info = m_versions.value(type);
+    QtVersion *version = QtVersionManager::instance()->version(info.versionId);
+    if (!version)
+        return false;
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,
                           tr("New configuration"),
                           tr("New Configuration Name:"),
                           QLineEdit::Normal,
-                          QString(),
+                          version->name(),
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-
-    QtVersion *version = QtVersionManager::instance()->version(info.versionId);
 
     m_project->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
                                      version,
@@ -983,17 +984,8 @@ void Qt4Project::setToolChainType(BuildConfiguration *configuration, ProjectExpl
 
 void Qt4Project::updateActiveRunConfiguration()
 {
-    const QSharedPointer<RunConfiguration> activeRunConfig = activeRunConfiguration();
-    if (!activeRunConfig.isNull() && !activeRunConfig->isEnabled()) {
-        foreach (const QSharedPointer<RunConfiguration> &runConfiguration, runConfigurations()) {
-            if (runConfiguration->isEnabled()) {
-                setActiveRunConfiguration(runConfiguration);
-                break;
-            }
-        }
-    }
     emit runConfigurationsEnabledStateChanged();
-    emit invalidateCachedTargetInformation();
+    emit targetInformationChanged();
 }
 
 ProjectExplorer::ToolChain::ToolChainType Qt4Project::toolChainType(BuildConfiguration *configuration) const
@@ -1193,6 +1185,11 @@ void Qt4Project::notifyChanged(const QString &name)
 void Qt4Project::invalidateCachedTargetInformation()
 {
     emit targetInformationChanged();
+}
+
+void Qt4Project::emitBuildDirectoryChanged()
+{
+    emit buildDirectoryChanged();
 }
 
 // We match -spec and -platfrom separetly

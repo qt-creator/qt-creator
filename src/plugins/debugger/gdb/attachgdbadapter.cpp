@@ -78,7 +78,16 @@ void AttachGdbAdapter::startInferior()
 void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
-        QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+        // We don't know the exact 6.8.50 build where gdb started emitting
+        // *stopped here, so allow for some slack.
+        if (m_engine->m_gdbVersion < 60850) {
+            QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
+            setState(InferiorStopped);
+        } else if (m_engine->m_gdbVersion < 70000 && state() == InferiorStarting) {
+            setState(InferiorStopped);
+        } else {
+            QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+        }
         debugMessage(_("INFERIOR ATTACHED"));
         showStatusMessage(msgAttachedToStoppedInferior());
         emit inferiorPrepared();
@@ -91,8 +100,8 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 
 void AttachGdbAdapter::interruptInferior()
 {
-    debugMessage(_("TRYING TO INTERUPT INFERIOR"));
     const qint64 pid = startParameters().attachPID;
+    QTC_ASSERT(pid > 0, return);
     if (!interruptProcess(pid))
         debugMessage(_("CANNOT INTERRUPT %1").arg(pid));
 }

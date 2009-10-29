@@ -31,16 +31,18 @@
 #define S60MANAGER_H
 
 #include "qtversionmanager.h"
-#include "serialdevicelister.h"
 #include "s60devices.h"
-
-#include <extensionsystem/iplugin.h>
-#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QObject>
 
+namespace ProjectExplorer {
+class ToolChain;
+}
+
 namespace Qt4ProjectManager {
 namespace Internal {
+
+class SerialDeviceLister;
 
 class S60Manager : public QObject
 {

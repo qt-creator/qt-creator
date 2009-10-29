@@ -1,8 +1,13 @@
 #include "iwelcomepage.h"
 
-using namespace ExtensionSystem;
+using namespace Utils;
 
 IWelcomePage::IWelcomePage()
+{
+
+}
+
+IWelcomePage::~IWelcomePage()
 {
 
 }

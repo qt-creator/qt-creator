@@ -48,6 +48,7 @@ using namespace Qt4ProjectManager::Internal;
 ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::WindowFlags flags)
     : QWizard(parent, flags), m_project(project), m_importVersion(0), m_temporaryVersion(false)
 {
+    setWindowTitle(tr("Import existing build settings"));
     QtVersionManager * vm = QtVersionManager::instance();
     QString directory = QFileInfo(project->file()->fileName()).absolutePath();
     QString importVersion =  QtVersionManager::findQMakeBinaryFromMakefile(directory);
@@ -155,7 +156,7 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
     resize(605, 490);
     // Import Page
     importPage = new QWizardPage(this);
-    importPage->setTitle(tr("Import existing settings"));
+    importPage->setTitle(tr("Import existing build settings"));
     QVBoxLayout *importLayout = new QVBoxLayout(importPage);
     importLabel = new QLabel(importPage);
 

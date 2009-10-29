@@ -45,8 +45,8 @@ struct BaseCommunicationStarterPrivate;
  * connection attempt in start() fails, the
  * virtual initializeStartupResources() is called to initialize resources
  * required to pull up the communication (namely Bluetooth listeners).
- * The base class can be used as is to prompt the user to launch TRK for a serial
- * communication as this requires no further resource setup. */
+ * The base class can be used as is to prompt the user to launch App TRK for a
+ * serial communication as this requires no further resource setup. */
 
 class BaseCommunicationStarter : public QObject {
     Q_OBJECT

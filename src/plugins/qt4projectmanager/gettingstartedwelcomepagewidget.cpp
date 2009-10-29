@@ -337,7 +337,8 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
                        "target in the combo box."));
         tips.append(tr("You can use Qt Creator with a number of <a href=\"qthelp://com.nokia.qtcreator/doc/creator-version-control.html\">"
                        "revision control systems</a> such as Subversion, Perforce, CVS and Git."));
-        tips.append(tr("In the editor, <tt>F2</tt> toggles declaration and definition while <tt>F4</tt> toggles header file and source file."));
+        tips.append(tr("In the editor, <tt>F2</tt> follows symbol definition, <tt>Shift+F2</tt> toggles declaration and definition "
+                       "while <tt>F4</tt> toggles header file and source file."));
     }
     return tips;
 }

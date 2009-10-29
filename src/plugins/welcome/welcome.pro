@@ -2,12 +2,13 @@ TEMPLATE = lib
 TARGET = Welcome
 QT += network
 include(../../qtcreatorplugin.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
+include(welcome_dependencies.pri)
 HEADERS += welcomeplugin.h \
     welcomemode.h \
     rssfetcher.h \
     communitywelcomepagewidget.h \
-    communitywelcomepage.h
+    communitywelcomepage.h \
+    welcome_global.h
 SOURCES += welcomeplugin.cpp \
     welcomemode.cpp \
     rssfetcher.cpp \

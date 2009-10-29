@@ -263,8 +263,29 @@ bool CheckDeclaration::visit(AsmDefinitionAST *)
     return false;
 }
 
-bool CheckDeclaration::visit(ExceptionDeclarationAST *)
+bool CheckDeclaration::visit(ExceptionDeclarationAST *ast)
 {
+    FullySpecifiedType ty = semantic()->check(ast->type_specifier, _scope);
+    FullySpecifiedType qualTy = ty.qualifiedType();
+
+    Name *name = 0;
+    FullySpecifiedType declTy = semantic()->check(ast->declarator, qualTy,
+                                                  _scope, &name);
+
+    unsigned location = locationOfDeclaratorId(ast->declarator);
+    if (! location) {
+        if (ast->declarator)
+            location = ast->declarator->firstToken();
+        else
+            location = ast->firstToken();
+    }
+
+    Declaration *symbol = control()->newDeclaration(location, name);
+    symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
+    symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
+    symbol->setType(declTy);
+    _scope->enterSymbol(symbol);
+
     return false;
 }
 

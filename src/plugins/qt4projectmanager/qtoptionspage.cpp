@@ -126,6 +126,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     m_ui->mwcPath->setPromptDialogTitle(tr("Select Carbide Install Directory"));
     m_ui->s60SDKPath->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->s60SDKPath->setPromptDialogTitle(tr("Select S60 SDK Root"));
+    m_ui->gccePath->setExpectedKind(Utils::PathChooser::Directory);
+    m_ui->gccePath->setPromptDialogTitle(tr("Select the CSL Arm Toolchain (GCCE) Directory"));
 
     m_ui->addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_ui->delButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
@@ -174,6 +176,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
             this, SLOT(updateCurrentMwcDirectory()));
     connect(m_ui->s60SDKPath, SIGNAL(changed(QString)),
             this, SLOT(updateCurrentS60SDKDirectory()));
+    connect(m_ui->gccePath, SIGNAL(changed(QString)),
+            this, SLOT(updateCurrentGcceDirectory()));
 #endif
 
     connect(m_ui->addButton, SIGNAL(clicked()),
@@ -396,6 +400,7 @@ void QtOptionsPageWidget::updateState()
     m_ui->mingwPath->setEnabled(enabled);
     m_ui->mwcPath->setEnabled(enabled);
     m_ui->s60SDKPath->setEnabled(enabled && !isAutodetected);
+    m_ui->gccePath->setEnabled(enabled);
 
     const bool hasLog = enabled && !m_ui->qtdirList->currentItem()->data(2, Qt::UserRole).toString().isEmpty();
     m_ui->showLogButton->setEnabled(hasLog);
@@ -423,6 +428,8 @@ void QtOptionsPageWidget::makeS60Visible(bool visible)
     m_ui->mwcPath->setVisible(visible);
     m_ui->s60SDKLabel->setVisible(visible);
     m_ui->s60SDKPath->setVisible(visible);
+    m_ui->gcceLabel->setVisible(visible);
+    m_ui->gccePath->setVisible(visible);
 }
 
 void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
@@ -472,6 +479,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeS60Visible(true);
             m_ui->mwcPath->setPath(m_versions.at(index)->mwcDirectory());
             m_ui->s60SDKPath->setPath(m_versions.at(index)->s60SDKDirectory());
+            m_ui->gccePath->setPath(m_versions.at(index)->gcceDirectory());
 #endif
         } else if (types.contains(ProjectExplorer::ToolChain::INVALID)) {
             makeMSVCVisible(false);
@@ -697,6 +705,15 @@ void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
     if (currentItemIndex < 0)
         return;
     m_versions[currentItemIndex]->setS60SDKDirectory(m_ui->s60SDKPath->path());
+}
+void QtOptionsPageWidget::updateCurrentGcceDirectory()
+{
+    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
+    Q_ASSERT(currentItem);
+    int currentItemIndex = indexForTreeItem(currentItem);
+    if (currentItemIndex < 0)
+        return;
+    m_versions[currentItemIndex]->setGcceDirectory(m_ui->gccePath->path());
 }
 #endif
 

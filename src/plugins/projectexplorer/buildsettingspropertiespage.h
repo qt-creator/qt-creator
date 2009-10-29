@@ -101,6 +101,8 @@ private slots:
     void cloneConfiguration();
     void deleteConfiguration();
     void updateAddButtonMenu();
+    void checkMakeActiveLabel();
+    void makeActive();
 
 private:
     void cloneConfiguration(const QString &toClone);
@@ -113,6 +115,7 @@ private:
     BuildSettingsSubWidgets *m_subWidgets;
     QString m_buildConfiguration;
     QMenu *m_addButtonMenu;
+    QLabel *m_makeActiveLabel;
 };
 
 } // namespace Internal

@@ -160,6 +160,7 @@ private:
     QTextCodec::ConverterState m_outputCodecState;
 
     QByteArray m_inbuffer;
+    bool m_busy;
 
     QProcess m_gdbProc;
     AbstractGdbAdapter *m_gdbAdapter;
@@ -251,8 +252,6 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     void handleResultRecord(GdbResponse *response);
     void handleStop1(const GdbResponse &response);
     void handleStop1(const GdbMi &data);
-    void handleStop2(const GdbResponse &response);
-    void handleStop2(const GdbMi &data);
     StackFrame parseStackFrame(const GdbMi &mi, int level);
 
     virtual bool isSynchroneous() const;
@@ -271,7 +270,6 @@ private: ////////// Inferior Management //////////
 
     // This should be always the last call in a function.
     Q_SLOT virtual void attemptBreakpointSynchronization();
-    void attemptBreakpointSynchronization2(const GdbResponse &);
 
     virtual void stepExec();
     virtual void stepOutExec();
@@ -323,7 +321,8 @@ private: ////////// View & Data Stuff //////////
     virtual void loadSymbols(const QString &moduleName);
     virtual void loadAllSymbols();
     virtual QList<Symbol> moduleSymbols(const QString &moduleName);
-    void reloadModules();
+    virtual void reloadModules();
+    void reloadModulesInternal();
     void handleModulesList(const GdbResponse &response);
 
     bool m_modulesListOutdated;
@@ -331,8 +330,8 @@ private: ////////// View & Data Stuff //////////
     //
     // Register specific stuff
     //
-    Q_SLOT void reloadRegisters();
-    void setRegisterValue(int nr, const QString &value);
+    Q_SLOT virtual void reloadRegisters();
+    virtual void setRegisterValue(int nr, const QString &value);
     void handleRegisterListNames(const GdbResponse &response);
     void handleRegisterListValues(const GdbResponse &response);
 
@@ -351,10 +350,16 @@ private: ////////// View & Data Stuff //////////
     //
     // Source file specific stuff
     //
-    void reloadSourceFiles();
+    virtual void reloadSourceFiles();
+    void reloadSourceFilesInternal();
     void handleQuerySources(const GdbResponse &response);
 
     QString fullName(const QString &fileName);
+#ifdef Q_OS_WIN
+    QString cleanupFullName(const QString &fileName);
+#else
+    QString cleanupFullName(const QString &fileName) { return fileName; }
+#endif
 
     // awful hack to keep track of used files
     QMap<QString, QString> m_shortToFullName;
@@ -372,7 +377,7 @@ private: ////////// View & Data Stuff //////////
     void handleStackListThreads(const GdbResponse &response);
     void handleStackFrame(const GdbResponse &response);
     Q_SLOT void reloadStack(bool forceGotoLocation);
-    Q_SLOT void reloadFullStack();
+    Q_SLOT virtual void reloadFullStack();
     int currentFrame() const;
 
     QList<GdbMi> m_currentFunctionArgs;
@@ -396,7 +401,7 @@ private: ////////// View & Data Stuff //////////
     void handleChildren(const WatchData &parent, const GdbMi &child,
         QList<WatchData> *insertions);
 
-    void updateWatchData(const WatchData &data);
+    void virtual updateWatchData(const WatchData &data);
     Q_SLOT void updateWatchDataHelper(const WatchData &data);
     void rebuildModel();
     bool showToolTip();
@@ -417,7 +422,6 @@ private: ////////// View & Data Stuff //////////
     void handleEvaluateExpression(const GdbResponse &response);
     //void handleToolTip(const GdbResponse &response);
     void handleQueryDebuggingHelper(const GdbResponse &response);
-    void handleDebuggingHelperValue1(const GdbResponse &response);
     void handleDebuggingHelperValue2(const GdbResponse &response);
     void handleDebuggingHelperValue3(const GdbResponse &response);
     void handleDebuggingHelperEditValue(const GdbResponse &response);

@@ -449,7 +449,7 @@ QHelpEngine* HelpPlugin::helpEngine() const
 
 void HelpPlugin::createRightPaneSideBar()
 {
-    QAction *switchToHelpMode = new QAction("Go to Help Mode", this);
+    QAction *switchToHelpMode = new QAction(tr("Go to Help Mode"), this);
     m_rightPaneBackwardAction =
         new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
         tr("Previous"), this);

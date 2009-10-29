@@ -37,6 +37,11 @@
 
 #include <QtCore/QProcess>
 
+QT_BEGIN_NAMESPACE
+class QMessageBox;
+class QWidget;
+QT_END_NAMESPACE
+
 namespace Debugger {
     class DebuggerStartParameters;
 }
@@ -57,7 +62,7 @@ public:
     ~S60DeviceRunConfiguration();
 
     QString type() const;
-    bool isEnabled() const;
+    bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *configurationWidget();
     void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     void restore(const ProjectExplorer::PersistentSettingsReader &reader);
@@ -92,6 +97,7 @@ private slots:
     void invalidateCachedTargetInformation();
 
 private:
+    ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
     void updateTarget();
 
     QString m_proFilePath;
@@ -134,6 +140,8 @@ public:
     virtual void stop();
     virtual bool isRunning() const;
 
+    static QMessageBox *createTrkWaitingMessageBox(const QString &port, QWidget *parent = 0);
+
 protected:
     virtual void initLauncher(const QString &executable, trk::Launcher *) = 0;
     virtual void handleLauncherFinished() = 0;
@@ -162,8 +170,10 @@ private slots:
     void printInstallingNotice();
     void printInstallFailed(const QString &filename, const QString &errorMessage);
     void launcherFinished();
+    void slotLauncherStateChanged(int);
+    void slotWaitingForTrkClosed();
 
-private:    
+private:        
     bool createPackageFileFromTemplate(QString *errorMessage);
 
     QString m_serialPortName;

@@ -91,6 +91,9 @@
    </item>
    <item>
     <widget class="QLabel" name="stateLabel">
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
   </layout>

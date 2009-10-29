@@ -1713,7 +1713,7 @@ case 337: {
         const int errorState = state_stack[tos];
 
         // automatic insertion of `;'
-        if (t_action(errorState, T_AUTOMATIC_SEMICOLON) && automatic(driver, yytoken)) {
+        if (yytoken != -1 && t_action(errorState, T_AUTOMATIC_SEMICOLON) && automatic(driver, yytoken)) {
             SavedToken &tk = token_buffer[0];
             tk.token = yytoken;
             tk.dval = yylval;
@@ -1749,7 +1749,7 @@ case 337: {
         token_buffer[1].loc   = yylloc  = location(lexer);
 
         if (t_action(errorState, yytoken)) {
-            const QString msg = qApp->translate("QmlParser", "Unexpected token `%1'").arg(QLatin1String(spell[token_buffer[0].token]));
+            const QString msg = qApp->translate("QmlParser", "Unexpected token '%1'").arg(QLatin1String(spell[token_buffer[0].token]));
             diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
             action = errorState;
@@ -1777,7 +1777,7 @@ case 337: {
         for (int *tk = tokens; *tk != EOF_SYMBOL; ++tk) {
             int a = t_action(errorState, *tk);
             if (a > 0 && t_action(a, yytoken)) {
-                const QString msg = qApp->translate("QmlParser", "Expected token `%1'").arg(QLatin1String(spell[*tk]));
+                const QString msg = qApp->translate("QmlParser", "Expected token '%1'").arg(QLatin1String(spell[*tk]));
                 diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
                 yytoken = *tk;
@@ -1800,7 +1800,7 @@ case 337: {
 
             int a = t_action(errorState, tk);
             if (a > 0 && t_action(a, yytoken)) {
-                const QString msg = qApp->translate("QmlParser", "Expected token `%1'").arg(QLatin1String(spell[tk]));
+                const QString msg = qApp->translate("QmlParser", "Expected token '%1'").arg(QLatin1String(spell[tk]));
                 diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
                 yytoken = tk;

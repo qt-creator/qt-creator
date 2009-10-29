@@ -35,6 +35,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QPair>
@@ -151,23 +152,30 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, -1, 0, -1);
-    QHBoxLayout *hbox = new QHBoxLayout();
-    hbox->addWidget(new QLabel(tr("Edit Build Configuration:"), this));
-    m_buildConfigurationComboBox = new QComboBox(this);
-    m_buildConfigurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    hbox->addWidget(m_buildConfigurationComboBox);
 
-    m_addButton = new QPushButton(this);
-    m_addButton->setText(tr("Add"));
-    m_addButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    hbox->addWidget(m_addButton);
+    { // Edit Build Configuration row
+        QHBoxLayout *hbox = new QHBoxLayout();
+        hbox->addWidget(new QLabel(tr("Edit Build Configuration:"), this));
+        m_buildConfigurationComboBox = new QComboBox(this);
+        m_buildConfigurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        hbox->addWidget(m_buildConfigurationComboBox);
 
-    m_removeButton = new QPushButton(this);
-    m_removeButton->setText(tr("Remove"));
-    m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    hbox->addWidget(m_removeButton);
-    hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
-    vbox->addLayout(hbox);
+        m_addButton = new QPushButton(this);
+        m_addButton->setText(tr("Add"));
+        m_addButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        hbox->addWidget(m_addButton);
+
+        m_removeButton = new QPushButton(this);
+        m_removeButton->setText(tr("Remove"));
+        m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        hbox->addWidget(m_removeButton);
+        hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
+        vbox->addLayout(hbox);
+    }
+
+    m_makeActiveLabel = new QLabel(this);
+    m_makeActiveLabel->setVisible(false);
+    vbox->addWidget(m_makeActiveLabel);
 
     m_subWidgets = new BuildSettingsSubWidgets(this);
     vbox->addWidget(m_subWidgets);
@@ -178,6 +186,9 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
 
     m_buildConfiguration = m_project->activeBuildConfiguration()->name();
 
+    connect(m_makeActiveLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(makeActive()));
+
     connect(m_buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(currentIndexChanged(int)));
 
@@ -186,10 +197,19 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
 
     connect(m_project, SIGNAL(buildConfigurationDisplayNameChanged(const QString &)),
             this, SLOT(buildConfigurationDisplayNameChanged(const QString &)));
+
+    connect(m_project, SIGNAL(activeBuildConfigurationChanged()),
+            this, SLOT(checkMakeActiveLabel()));
+
     if (m_project->buildConfigurationFactory())
         connect(m_project->buildConfigurationFactory(), SIGNAL(availableCreationTypesChanged()), SLOT(updateAddButtonMenu()));
 
     updateBuildSettings();
+}
+
+void BuildSettingsWidget::makeActive()
+{
+    m_project->setActiveBuildConfiguration(m_project->buildConfiguration(m_buildConfiguration));
 }
 
 void BuildSettingsWidget::updateAddButtonMenu()
@@ -272,6 +292,18 @@ void BuildSettingsWidget::activeBuildConfigurationChanged()
         if (BuildConfigWidget *buildStepWidget = qobject_cast<BuildConfigWidget*>(widget)) {
             buildStepWidget->init(m_buildConfiguration);
         }
+    }
+    checkMakeActiveLabel();
+}
+
+void BuildSettingsWidget::checkMakeActiveLabel()
+{
+    m_makeActiveLabel->setVisible(false);
+    if (!m_project->activeBuildConfiguration() || m_project->activeBuildConfiguration()->name() != m_buildConfiguration) {
+        BuildConfiguration *bc = m_project->buildConfiguration(m_buildConfiguration);
+        QTC_ASSERT(bc, return);
+        m_makeActiveLabel->setText(tr("<a href=\"#\">Make %1 active.</a>").arg(bc->displayName()));
+        m_makeActiveLabel->setVisible(true);
     }
 }
 

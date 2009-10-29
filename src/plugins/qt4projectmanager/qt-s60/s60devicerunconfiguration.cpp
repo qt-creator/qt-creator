@@ -50,6 +50,9 @@
 
 #include <debugger/debuggermanager.h>
 
+#include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
+
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
@@ -98,6 +101,14 @@ QString S60DeviceRunConfiguration::type() const
     return QLatin1String("Qt4ProjectManager.DeviceRunConfiguration");
 }
 
+ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType(
+        ProjectExplorer::BuildConfiguration *configuration) const
+{
+    if (const Qt4Project *pro = qobject_cast<const Qt4Project*>(project()))
+        return pro->toolChainType(configuration);
+    return ProjectExplorer::ToolChain::INVALID;
+}
+
 ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType() const
 {
     if (const Qt4Project *pro = qobject_cast<const Qt4Project*>(project()))
@@ -105,9 +116,9 @@ ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainTy
     return ProjectExplorer::ToolChain::INVALID;
 }
 
-bool S60DeviceRunConfiguration::isEnabled() const
+bool S60DeviceRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
-    const ToolChain::ToolChainType type = toolChainType();
+    const ToolChain::ToolChainType type = toolChainType(configuration);
     return type == ToolChain::GCCE || type == ToolChain::RVCT_ARMV5 || type == ToolChain::RVCT_ARMV6;
 }
 
@@ -446,6 +457,11 @@ S60DeviceRunControlBase::~S60DeviceRunControlBase()
 void S60DeviceRunControlBase::start()
 {
     emit started();
+    if (m_serialPortName.isEmpty()) {
+        error(this, tr("There is no device plugged in."));
+        emit finished();
+        return;
+    }
 
     emit addToOutputWindow(this, tr("Creating %1.sisx ...").arg(QDir::toNativeSeparators(m_baseFileName)));
     emit addToOutputWindow(this, tr("Executable file: %1").arg(m_executableFileName));
@@ -472,10 +488,23 @@ void S60DeviceRunControlBase::start()
     m_makesis->start(m_makesisTool, QStringList(m_packageFile), QIODevice::ReadOnly);
 }
 
+static inline void stopProcess(QProcess *p)
+{
+    const int timeOutMS = 200;
+    if (p->state() != QProcess::Running)
+        return;
+    p->terminate();
+    if (p->waitForFinished(timeOutMS))
+        return;
+    p->kill();
+}
+
 void S60DeviceRunControlBase::stop()
 {
-    m_makesis->kill();
-    m_signsis->kill();
+    if (m_makesis)
+        stopProcess(m_makesis);
+    if (m_signsis)
+        stopProcess(m_signsis);
     if (m_launcher)
         m_launcher->terminate();
 }
@@ -529,6 +558,7 @@ void S60DeviceRunControlBase::makesisProcessFinished()
 {
     if (m_makesis->exitCode() != 0) {
         error(this, tr("An error occurred while creating the package."));
+        stop();
         emit finished();
         return;
     }
@@ -557,6 +587,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
 {
     if (m_signsis->exitCode() != 0) {
         error(this, tr("An error occurred while creating the package."));
+        stop();
         emit finished();
         return;
     }
@@ -570,6 +601,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
     connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
     connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(printInstallFailed(QString,QString)));
     connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
+    connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
 
     //TODO sisx destination and file path user definable
     m_launcher->setTrkServerName(m_serialPortName);
@@ -593,18 +625,17 @@ void S60DeviceRunControlBase::signsisProcessFinished()
         break;
     case trk::PromptStartCommunicationCanceled:
     case trk::PromptStartCommunicationError:
-        delete m_launcher;
-        m_launcher = 0;
         error(this, errorMessage);
+        stop();
         emit finished();
         return;
     };
 
     if (!m_launcher->startServer(&errorMessage)) {
-        delete m_launcher;
-        m_launcher = 0;
+
         error(this, tr("Could not connect to phone on port '%1': %2\n"
-                       "Check if the phone is connected and the TRK application is running.").arg(m_serialPortName, errorMessage));
+                       "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage));
+        stop();
         emit finished();
     }
 }
@@ -657,6 +688,37 @@ void S60DeviceRunControlBase::launcherFinished()
     handleLauncherFinished();
 }
 
+QMessageBox *S60DeviceRunControlBase::createTrkWaitingMessageBox(const QString &port, QWidget *parent)
+{
+    const QString title  = QCoreApplication::translate("Qt4ProjectManager::Internal::S60DeviceRunControlBase",
+                                                       "Waiting for App TRK");
+    const QString text = QCoreApplication::translate("Qt4ProjectManager::Internal::S60DeviceRunControlBase",
+                                                     "Please start App TRK on %1.").arg(port);
+    QMessageBox *rc = new QMessageBox(QMessageBox::Information, title, text,
+                                      QMessageBox::Cancel, parent);
+    return rc;
+}
+
+void S60DeviceRunControlBase::slotLauncherStateChanged(int s)
+{
+    if (s == trk::Launcher::WaitingForTrk) {
+        QMessageBox *mb = S60DeviceRunControlBase::createTrkWaitingMessageBox(m_launcher->trkServerName(),
+                                                     Core::ICore::instance()->mainWindow());
+        connect(m_launcher, SIGNAL(stateChanged(int)), mb, SLOT(close()));
+        connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTrkClosed()));
+        mb->open();
+    }
+}
+
+void S60DeviceRunControlBase::slotWaitingForTrkClosed()
+{
+    if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk) {
+        stop();
+        error(this, tr("Canceled."));        
+        emit finished();
+    }
+}
+
 void S60DeviceRunControlBase::processFailed(const QString &program, QProcess::ProcessError errorCode)
 {
     QString errorString;
@@ -671,6 +733,7 @@ void S60DeviceRunControlBase::processFailed(const QString &program, QProcess::Pr
         errorString = tr("An error has occurred while running %1.");
     }
     error(this, errorString.arg(program));
+    stop();
     emit finished();
 }
 

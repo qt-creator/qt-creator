@@ -76,11 +76,11 @@ QString S60EmulatorRunConfiguration::type() const
     return "Qt4ProjectManager.EmulatorRunConfiguration";
 }
 
-bool S60EmulatorRunConfiguration::isEnabled() const
+bool S60EmulatorRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
     Qt4Project *pro = qobject_cast<Qt4Project*>(project());
     QTC_ASSERT(pro, return false);
-    ToolChain::ToolChainType type = pro->toolChainType(pro->activeBuildConfiguration());
+    ToolChain::ToolChainType type = pro->toolChainType(configuration);
     return type == ToolChain::WINSCW;
 }
 

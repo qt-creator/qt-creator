@@ -54,6 +54,8 @@
 #include <QtGui/QStyle>
 #include <QtGui/QApplication>
 #include <QtGui/QSpacerItem>
+#include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
 
 Q_DECLARE_METATYPE(Qt4ProjectManager::Internal::CommunicationDevice)
 
@@ -196,6 +198,7 @@ void S60DeviceRunConfigurationWidget::updateSerialDevices()
         if (newPortName != previousRunConfigurationPortName)
             m_runConfiguration->setSerialPortName(newPortName);
     }
+    updateSummary();
 }
 
 CommunicationDevice S60DeviceRunConfigurationWidget::device(int i) const
@@ -288,66 +291,72 @@ void S60DeviceRunConfigurationWidget::setDeviceInfoLabel(const QString &message,
     m_deviceInfoLabel->adjustSize();
 }
 
-void S60DeviceRunConfigurationWidget::updateDeviceInfo()
+void S60DeviceRunConfigurationWidget::slotLauncherStateChanged(int s)
 {
-    QString message;
-    setDeviceInfoLabel(tr("Connecting..."));
-    const bool ok = getDeviceInfo(&message);
-    setDeviceInfoLabel(message, !ok);
+    switch (s) {
+    case trk::Launcher::WaitingForTrk: {
+        // Entered trk wait state..open message box
+        QMessageBox *mb = S60DeviceRunControlBase::createTrkWaitingMessageBox(m_infoLauncher->trkServerName(), this);
+        connect(m_infoLauncher, SIGNAL(stateChanged(int)), mb, SLOT(close()));
+        connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTrkClosed()));
+        mb->open();
+    }
+        break;
+    case trk::Launcher::DeviceDescriptionReceived: // All ok, done
+        setDeviceInfoLabel(m_infoLauncher->deviceDescription());
+        m_deviceInfoButton->setEnabled(true);
+        m_infoLauncher->deleteLater();
+        break;
+    }
 }
 
-bool S60DeviceRunConfigurationWidget::getDeviceInfo(QString *message)
+void S60DeviceRunConfigurationWidget::slotWaitingForTrkClosed()
 {
-    message->clear();
-    // Do a launcher run with the ping protocol. Instantiate launcher on heap
-    // as not to introduce delays when destructing a device with timeout
-    trk::Launcher *launcher = new trk::Launcher(trk::Launcher::ActionPingOnly, QSharedPointer<trk::TrkDevice>(), this);
+    if (m_infoLauncher && m_infoLauncher->state() == trk::Launcher::WaitingForTrk) {
+        m_infoLauncher->deleteLater();
+        clearDeviceInfo();
+        m_deviceInfoButton->setEnabled(true);
+    }
+}
+
+void S60DeviceRunConfigurationWidget::updateDeviceInfo()
+{
+    QTC_ASSERT(!m_infoLauncher, return)
+    setDeviceInfoLabel(tr("Connecting..."));
+    // Do a launcher run with the ping protocol. Prompt to connect and
+    // go asynchronous afterwards to pop up launch trk box if a timeout occurs.
+    m_infoLauncher = new trk::Launcher(trk::Launcher::ActionPingOnly, QSharedPointer<trk::TrkDevice>(), this);
+    connect(m_infoLauncher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
     const CommunicationDevice commDev = currentDevice();
-    launcher->setSerialFrame(commDev.type == SerialPortCommunication);
-    launcher->setTrkServerName(commDev.portName);
+    m_infoLauncher->setSerialFrame(commDev.type == SerialPortCommunication);
+    m_infoLauncher->setTrkServerName(commDev.portName);
     // Prompt user
+    QString message;
     const trk::PromptStartCommunicationResult src =
-            S60RunConfigBluetoothStarter::startCommunication(launcher->trkDevice(),
+            S60RunConfigBluetoothStarter::startCommunication(m_infoLauncher->trkDevice(),
                                                              commDev.portName,
                                                              commDev.type, this,
-                                                             message);
+                                                             &message);
     switch (src) {
     case trk::PromptStartCommunicationConnected:
         break;
     case trk::PromptStartCommunicationCanceled:
-        launcher->deleteLater();
-        return true;
+        clearDeviceInfo();
+        m_infoLauncher->deleteLater();
+        return;
     case trk::PromptStartCommunicationError:
-        launcher->deleteLater();
-        return false;
+        setDeviceInfoLabel(message, true);
+        m_infoLauncher->deleteLater();
+        return;
     };
-    if (!launcher->startServer(message)) {
-        launcher->deleteLater();
-        return false;
+    if (!m_infoLauncher->startServer(&message)) {
+        setDeviceInfoLabel(message, true);
+        m_infoLauncher->deleteLater();        
+        return;
     }
-    // Set up event loop in the foreground with a timer to quit in case of  timeout.
-    QEventLoop eventLoop;
-    if (!m_infoTimeOutTimer) {
-        m_infoTimeOutTimer = new QTimer(this);
-        m_infoTimeOutTimer->setInterval(3000);
-        m_infoTimeOutTimer->setSingleShot(true);
-    }
-    connect(m_infoTimeOutTimer, SIGNAL(timeout()), &eventLoop, SLOT(quit()));
-    connect(launcher, SIGNAL(finished()), &eventLoop, SLOT(quit()));
-    // Go!
-    QApplication::setOverrideCursor(Qt::BusyCursor);
-    m_infoTimeOutTimer->start();
-    eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
-    m_infoTimeOutTimer->disconnect();
-    QApplication::restoreOverrideCursor();
-    // Anything received?
-    *message = launcher->deviceDescription();
-    launcher->deleteLater();
-    if (message->isEmpty()) {
-        *message = tr("A timeout occurred while querying the device. Check whether Trk is running");
-        return false;
-    }
-    return true;
+    // Wait for either timeout or results
+    m_deviceInfoButton->setEnabled(false);
+    return;
 }
 
 } // namespace Internal

@@ -17,7 +17,12 @@ bool checkUninitialized = false;
 #include "gdb/gdbmi.h"
 
 #include <sys/types.h>
-#include <unistd.h>
+
+#ifdef Q_OS_WIN
+#    include <windows.h>
+#else
+#    include <unistd.h>
+#endif
 
 
 #undef NS
@@ -43,9 +48,11 @@ bool checkUninitialized = false;
 
 #define gettid()  QString("0x%1").arg((qulonglong)(void *)currentThread(), 0, 16)
 
-using namespace Debugger;
-using namespace Debugger::Internal;
-
+#ifdef Q_OS_WIN
+QString gdbBinary = "c:\\MinGw\\bin\\gdb.exe";
+#else
+QString gdbBinary = "./gdb";
+#endif
 
 class Foo
 {
@@ -88,6 +95,7 @@ private:
 
 
 /////////////////////////////////////////////////////////////////////////
+//
 //
 // Helper stuff
 //
@@ -135,7 +143,10 @@ class Thread : public QThread
 
 public:
     Thread(tst_Gdb *test);
+    void startup(QProcess *proc);
     void run();
+
+    QString errorString() const { return  m_errorString; }
 
 public slots:
     void readStandardOutput();
@@ -157,6 +168,7 @@ public:
     int m_line; // line extracted from last "*stopped" message
     QProcess *m_proc; // owned
     tst_Gdb *m_test; // not owned
+    QString m_errorString;
 };
 
 class tst_Gdb : public QObject
@@ -166,7 +178,6 @@ class tst_Gdb : public QObject
 public:
     tst_Gdb();
 
-    void initTestCase() {}
     void cleanupTestCase();
     void prepare(const QByteArray &function);
     void run(const QByteArray &label, const QByteArray &expected,
@@ -177,80 +188,85 @@ signals:
     void writeToGdb(const QByteArray &ba);
 
 private slots:
-    void dumpArray();
-    void dumpMisc();
-    void dumpFoo();
-    void dumpQByteArray();
-    void dumpQChar();
-    void dumpQList_char_star();
-    void dumpQList_char();
-    void dumpQList_int();
-    void dumpQList_QString();
-    void dumpQList_QString3();
-    void dumpQList_Int3();
-    void dumpQStack();
-    void dumpQString();
-    void dumpQStringList();
-    void dumpQWeakPointer();
-    void dumpQVector();
+    void initTestCase();
+    void dump_array();
+    void dump_misc();
+    void dump_Foo();
+    void dump_QByteArray();
+    void dump_QChar();
+    void dump_QList_char();
+    void dump_QList_char_star();
+    void dump_QList_int();
+    void dump_QList_int_star();
+    void dump_QList_QString();
+    void dump_QList_QString3();
+    void dump_QList_Int3();
+    void dump_QStack();
+    void dump_QString();
+    void dump_QStringList();
+    void dump_QWeakPointer_11();
+    void dump_QWeakPointer_12();
+    void dump_QWeakPointer_13();
+    void dump_QWeakPointer_2();
+    void dump_QVector();
 
-    void dumpQHash();
+    void dump_QHash();
 
 public slots:
     void dumperCompatibility();
 #if 0
-    void dumpQAbstractItemAndModelIndex();
-    void dumpQAbstractItemModel();
-    void dumpQDateTime();
-    void dumpQDir();
-    void dumpQFile();
-    void dumpQFileInfo();
-    void dumpQHashNode();
-    void dumpQImage();
-    void dumpQImageData();
-    void dumpQLinkedList();
-    void dumpQLocale();
-    void dumpQMap();
-    void dumpQMapNode();
-    void dumpQObject();
-    void dumpQObjectChildList();
-    void dumpQObjectMethodList();
-    void dumpQObjectPropertyList();
-    void dumpQObjectSignal();
-    void dumpQObjectSignalList();
-    void dumpQObjectSlot();
-    void dumpQObjectSlotList();
-    void dumpQPixmap();
-    void dumpQSharedPointer();
-    void dumpQTextCodec();
-    void dumpQVariant_invalid();
-    void dumpQVariant_QString();
-    void dumpQVariant_QStringList();
+    void dump_QAbstractItemAndModelIndex();
+    void dump_QAbstractItemModel();
+    void dump_QDateTime();
+    void dump_QDir();
+    void dump_QFile();
+    void dump_QFileInfo();
+    void dump_QHashNode();
+    void dump_QImage();
+    void dump_QImageData();
+    void dump_QLinkedList();
+    void dump_QLocale();
+    void dump_QMap();
+    void dump_QMapNode();
+    void dump_QObject();
+    void dump_QObjectChildList();
+    void dump_QObjectMethodList();
+    void dump_QObjectPropertyList();
+    void dump_QObjectSignal();
+    void dump_QObjectSignalList();
+    void dump_QObjectSlot();
+    void dump_QObjectSlotList();
+    void dump_QPixmap();
+    void dump_QSharedPointer();
+    void dump_QTextCodec();
+    void dump_QVariant_invalid();
+    void dump_QVariant_QString();
+    void dump_QVariant_QStringList();
     void dumpStdVector();
 #endif
 
 private:
 #if 0
-    void dumpQAbstractItemHelper(QModelIndex &index);
-    void dumpQAbstractItemModelHelper(QAbstractItemModel &m);
-    void dumpQDateTimeHelper(const QDateTime &d);
-    void dumpQFileHelper(const QString &name, bool exists);
-    template <typename K, typename V> void dumpQHashNodeHelper(QHash<K, V> &hash);
-    void dumpQImageHelper(const QImage &img);
-    void dumpQImageDataHelper(QImage &img);
-    template <typename T> void dumpQLinkedListHelper(QLinkedList<T> &l);
-    void dumpQLocaleHelper(QLocale &loc);
-    template <typename K, typename V> void dumpQMapHelper(QMap<K, V> &m);
-    template <typename K, typename V> void dumpQMapNodeHelper(QMap<K, V> &m);
-    void dumpQObjectChildListHelper(QObject &o);
-    void dumpQObjectSignalHelper(QObject &o, int sigNum);
+    void dump_QAbstractItemHelper(QModelIndex &index);
+    void dump_QAbstractItemModelHelper(QAbstractItemModel &m);
+    void dump_QDateTimeHelper(const QDateTime &d);
+    void dump_QFileHelper(const QString &name, bool exists);
+    template <typename K, typename V> void dump_QHashNodeHelper(QHash<K, V> &hash);
+    void dump_QImageHelper(const QImage &img);
+    void dump_QImageDataHelper(QImage &img);
+    template <typename T> void dump_QLinkedListHelper(QLinkedList<T> &l);
+    void dump_QLocaleHelper(QLocale &loc);
+    template <typename K, typename V> void dump_QMapHelper(QMap<K, V> &m);
+    template <typename K, typename V> void dump_QMapNodeHelper(QMap<K, V> &m);
+    void dump_QObjectChildListHelper(QObject &o);
+    void dump_QObjectSignalHelper(QObject &o, int sigNum);
 #if QT_VERSION >= 0x040500
     template <typename T>
-    void dumpQSharedPointerHelper(QSharedPointer<T> &ptr);
+    void dump_QSharedPointerHelper(QSharedPointer<T> &ptr);
     template <typename T>
-    void dumpQWeakPointerHelper(QWeakPointer<T> &ptr);
+    void dump_QWeakPointerHelper(QWeakPointer<T> &ptr);
 #endif
-    void dumpQTextCodecHelper(QTextCodec *codec);
+    void dump_QTextCodecHelper(QTextCodec *codec);
 #endif
 
 private:
@@ -454,16 +470,22 @@ void getMapNodeParams(size_t &nodeSize, size_t &valOffset)
 //
 /////////////////////////////////////////////////////////////////////////
 
-Thread::Thread(tst_Gdb *test)
+Thread::Thread(tst_Gdb *test) : m_proc(0), m_test(test)
 {
-    moveToThread(this);
-    m_test = test;
-    m_proc = 0;
-    m_proc = new QProcess;
-    m_proc->moveToThread(this);
+#ifdef Q_OS_WIN
+    qDebug() << "\nTHREAD CREATED" << GetCurrentProcessId() << GetCurrentThreadId();
+#else
     qDebug() << "\nTHREAD CREATED" << getpid() << gettid();
+#endif
+    moveToThread(this);
     connect(m_test, SIGNAL(writeToGdb(QByteArray)),
-        this, SLOT(writeToGdbRequested(QByteArray)));
+            this, SLOT(writeToGdbRequested(QByteArray)), Qt::QueuedConnection);
+}
+
+void Thread::startup(QProcess *proc)
+{
+    m_proc = proc;
+    m_proc->moveToThread(this);
     connect(m_proc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(handleGdbError(QProcess::ProcessError)));
     connect(m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
@@ -567,9 +589,6 @@ void Thread::handleGdbStarted()
 
 void Thread::run()
 {
-    //qDebug() << "\nTHREAD RUN" << getpid() << gettid();
-    m_proc->start("./gdb -i mi --args ./tst_gdb run");
-    m_proc->waitForStarted();
     m_proc->write("break main\n");
     m_proc->write("run\n");
     m_proc->write("handle SIGSTOP stop pass\n");
@@ -587,11 +606,32 @@ void Thread::run()
 tst_Gdb::tst_Gdb()
     : m_thread(this)
 {
-    // FIXME: Wait until gdb proc is running.
-    QTest::qWait(600);
 
-    QFile file("tst_gdb.cpp");
-    Q_ASSERT(file.open(QIODevice::ReadOnly));
+}
+
+void tst_Gdb::initTestCase()
+{
+    //qDebug() << "\nTHREAD RUN" << getpid() << gettid();
+    QProcess *gdbProc = new QProcess;
+    QStringList args;
+    args << QLatin1String("-i")
+            << QLatin1String("mi") << QLatin1String("--args")
+            << qApp->applicationFilePath();
+    qDebug() << "Starting" << gdbBinary << args;
+    gdbProc->start(gdbBinary, args);
+    if (!gdbProc->waitForStarted()) {
+        const QString msg = QString::fromLatin1("Unable to run %1: %2").arg(gdbBinary, gdbProc->errorString());
+        delete gdbProc;
+        QSKIP(msg.toLatin1().constData(), SkipAll);
+    }
+
+    const QString fileName = "tst_gdb.cpp";
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        const QString msg = QString::fromLatin1("Unable to open %1: %2").arg(fileName, file.errorString());
+        QSKIP(msg.toLatin1().constData(), SkipAll);
+    }
+
     QByteArray funcName;
     const QByteArrayList bal = file.readAll().split('\n');
     Q_ASSERT(bal.size() > 100);
@@ -605,6 +645,7 @@ tst_Gdb::tst_Gdb()
             m_lineForLabel[funcName + ba.mid(7, pos - 8)] = i + 1;
         }
     }
+    m_thread.startup(gdbProc);
 }
 
 void tst_Gdb::prepare(const QByteArray &function)
@@ -712,16 +753,16 @@ void tst_Gdb::cleanupTestCase()
 
 ///////////////////////////// Foo structure /////////////////////////////////
 
-void dumpFoo()
+void dump_Foo()
 {
     /* A */ Foo f;
     /* B */ f.doit();
     /* D */ (void) 0;
 }
 
-void tst_Gdb::dumpFoo()
+void tst_Gdb::dump_Foo()
 {
-    prepare("dumpFoo");
+    prepare("dump_Foo");
     next();
     run("B","{iname='local.f',addr='-',name='f',type='Foo',"
             "value='-',numchild='5'}", "", 0);
@@ -742,19 +783,19 @@ void tst_Gdb::dumpFoo()
 
 ///////////////////////////// Array ///////////////////////////////////////
 
-void dumpArray_char()
+void dump_array_char()
 {
     /* A */ const char s[] = "XYZ";
     /* B */ (void) &s; }
 
-void dumpArray_int()
+void dump_array_int()
 {
     /* A */ int s[] = {1, 2, 3};
     /* B */ (void) s; }
 
-void tst_Gdb::dumpArray()
+void tst_Gdb::dump_array()
 {
-    prepare("dumpArray_char");
+    prepare("dump_array_char");
     next();
     // FIXME: numchild should be '4', not '1'
     run("B","{iname='local.s',addr='-',name='s',type='char [4]',"
@@ -765,7 +806,7 @@ void tst_Gdb::dumpArray()
             "{value='0 '\\\\000''}]}",
             "local.s");
 
-    prepare("dumpArray_int");
+    prepare("dump_array_int");
     next();
     // FIXME: numchild should be '3', not '1'
     run("B","{iname='local.s',addr='-',name='s',type='int [3]',"
@@ -779,16 +820,16 @@ void tst_Gdb::dumpArray()
 
 ///////////////////////////// Misc stuff /////////////////////////////////
 
-void dumpMisc()
+void dump_misc()
 {
     /* A */ int *s = new int(1);
     /* B */ *s += 1;
     /* D */ (void) 0;
 }
 
-void tst_Gdb::dumpMisc()
+void tst_Gdb::dump_misc()
 {
-    prepare("dumpMisc");
+    prepare("dump_misc");
     next();
     run("B","{iname='local.s',addr='-',name='s',type='int *',"
             "value='-',numchild='1'}", "", 0);
@@ -798,7 +839,7 @@ void tst_Gdb::dumpMisc()
 }
 
 #if 0
-void tst_Gdb::dumpQAbstractItemHelper(QModelIndex &index)
+void tst_Gdb::dump_QAbstractItemHelper(QModelIndex &index)
 {
     const QAbstractItemModel *model = index.model();
     const QString &rowStr = N(index.row());
@@ -834,7 +875,7 @@ void tst_Gdb::dumpQAbstractItemHelper(QModelIndex &index)
     testDumper(expected, &index, NS"QAbstractItem", true, indexSpecValue);
 }
 
-void tst_Gdb::dumpQAbstractItemAndModelIndex()
+void tst_Gdb::dump_QAbstractItemAndModelIndex()
 {
     class PseudoTreeItemModel : public QAbstractItemModel
     {
@@ -928,7 +969,7 @@ void tst_Gdb::dumpQAbstractItemAndModelIndex()
 
     // Case 2: ModelIndex with one child.
     QModelIndex index2 = m2.index(0, 0);
-    dumpQAbstractItemHelper(index2);
+    dump_QAbstractItemHelper(index2);
 
     qDebug() << "FIXME: invalid indices should not have children";
     testDumper(QByteArray("type='$T',value='(0, 0)',numchild='5',children=["
@@ -946,7 +987,7 @@ void tst_Gdb::dumpQAbstractItemAndModelIndex()
 
     // Case 3: ModelIndex with two children.
     QModelIndex index3 = m2.index(1, 0);
-    dumpQAbstractItemHelper(index3);
+    dump_QAbstractItemHelper(index3);
 
     testDumper(QByteArray("type='$T',value='(1, 0)',numchild='5',children=["
         "{name='row',value='1',type='int',numchild='0'},"
@@ -982,7 +1023,7 @@ void tst_Gdb::dumpQAbstractItemAndModelIndex()
         &index4, NS"QModelIndex", true);
 }
 
-void tst_Gdb::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
+void tst_Gdb::dump_QAbstractItemModelHelper(QAbstractItemModel &m)
 {
     QByteArray address = ptrToBa(&m);
     QByteArray expected = QByteArray("tiname='iname',addr='%',"
@@ -1015,55 +1056,55 @@ void tst_Gdb::dumpQAbstractItemModelHelper(QAbstractItemModel &m)
     testDumper(expected, &m, NS"QAbstractItemModel", true);
 }
 
-void tst_Gdb::dumpQAbstractItemModel()
+void tst_Gdb::dump_QAbstractItemModel()
 {
     // Case 1: No rows, one column.
     QStringList strList;
     QStringListModel model(strList);
-    dumpQAbstractItemModelHelper(model);
+    dump_QAbstractItemModelHelper(model);
 
     // Case 2: One row, one column.
     strList << "String 1";
     model.setStringList(strList);
-    dumpQAbstractItemModelHelper(model);
+    dump_QAbstractItemModelHelper(model);
 
     // Case 3: Two rows, one column.
     strList << "String 2";
     model.setStringList(strList);
-    dumpQAbstractItemModelHelper(model);
+    dump_QAbstractItemModelHelper(model);
 
     // Case 4: No rows, two columns.
     QStandardItemModel model2(0, 2);
-    dumpQAbstractItemModelHelper(model2);
+    dump_QAbstractItemModelHelper(model2);
 
     // Case 5: One row, two columns.
     QStandardItem item1("Item (0,0)");
     QStandardItem item2("(Item (0,1)");
     model2.appendRow(QList<QStandardItem *>() << &item1 << &item2);
-    dumpQAbstractItemModelHelper(model2);
+    dump_QAbstractItemModelHelper(model2);
 
     // Case 6: Two rows, two columns
     QStandardItem item3("Item (1,0");
     QStandardItem item4("Item (1,1)");
     model2.appendRow(QList<QStandardItem *>() << &item3 << &item4);
-    dumpQAbstractItemModelHelper(model);
+    dump_QAbstractItemModelHelper(model);
 }
 #endif
 
-void dumpQByteArrayTest()
+void dump_QByteArray()
 {
     /* A */ QByteArray ba;                       // Empty object.
     /* B */ ba.append('a');                      // One element.
     /* C */ ba.append('b');                      // Two elements.
     /* D */ ba = QByteArray(101, 'a');           // > 100 elements.
-    /* E */ ba = QByteArray("abc\a\n\r\e\'\"?"); // Mixed.
+    /* E */ ba = QByteArray("abc\a\n\r\033\'\"?"); // Mixed.
     /* F */ (void) 0;
 }
 
-void tst_Gdb::dumpQByteArray()
+void tst_Gdb::dump_QByteArray()
 {
-    prepare("dumpQByteArrayTest");
-    if (1 || checkUninitialized)
+    prepare("dump_QByteArray");
+    if (checkUninitialized)
         run("A","{iname='local.ba',addr='-',name='ba',type='"NS"QByteArray',"
             "value='<not in scope>',numchild='0'}");
     next();
@@ -1095,7 +1136,7 @@ void tst_Gdb::dumpQByteArray()
             "local.ba");
 }
 
-void dumpQCharTest()
+void dump_QChar()
 {
     /* A */ QChar c('X');               // Printable ASCII character.
     /* B */ c = QChar(0x600);           // Printable non-ASCII character.
@@ -1104,9 +1145,9 @@ void dumpQCharTest()
     /* E */ c = QChar::fromAscii('?');  // The replacement character.
     /* F */ (void) 0; }
 
-void tst_Gdb::dumpQChar()
+void tst_Gdb::dump_QChar()
 {
-    prepare("dumpQCharTest");
+    prepare("dump_QChar");
     next();
 
     // Case 1: Printable ASCII character.
@@ -1135,7 +1176,7 @@ void tst_Gdb::dumpQChar()
 }
 
 #if 0
-void tst_Gdb::dumpQDateTimeHelper(const QDateTime &d)
+void tst_Gdb::dump_QDateTimeHelper(const QDateTime &d)
 {
     QByteArray value;
     if (d.isNull())
@@ -1161,18 +1202,18 @@ void tst_Gdb::dumpQDateTimeHelper(const QDateTime &d)
     testDumper(expected, &d, NS"QDateTime", true);
 }
 
-void tst_Gdb::dumpQDateTime()
+void tst_Gdb::dump_QDateTime()
 {
     // Case 1: Null object.
     QDateTime d;
-    dumpQDateTimeHelper(d);
+    dump_QDateTimeHelper(d);
 
     // Case 2: Non-null object.
     d = QDateTime::currentDateTime();
-    dumpQDateTimeHelper(d);
+    dump_QDateTimeHelper(d);
 }
 
-void tst_Gdb::dumpQDir()
+void tst_Gdb::dump_QDir()
 {
     // Case 1: Current working directory.
     QDir dir = QDir::current();
@@ -1193,7 +1234,7 @@ void tst_Gdb::dumpQDir()
         &dir, NS"QDir", true);
 }
 
-void tst_Gdb::dumpQFileHelper(const QString &name, bool exists)
+void tst_Gdb::dump_QFileHelper(const QString &name, bool exists)
 {
     QFile file(name);
     QByteArray filenameAsBase64 = utfToBase64(name);
@@ -1205,21 +1246,21 @@ void tst_Gdb::dumpQFileHelper(const QString &name, bool exists)
         &file, NS"QFile", true);
 }
 
-void tst_Gdb::dumpQFile()
+void tst_Gdb::dump_QFile()
 {
     // Case 1: Empty file name => Does not exist.
-    dumpQFileHelper("", false);
+    dump_QFileHelper("", false);
 
     // Case 2: File that is known to exist.
     QTemporaryFile file;
     file.open();
-    dumpQFileHelper(file.fileName(), true);
+    dump_QFileHelper(file.fileName(), true);
 
     // Case 3: File with a name that most likely does not exist.
-    dumpQFileHelper("jfjfdskjdflsdfjfdls", false);
+    dump_QFileHelper("jfjfdskjdflsdfjfdls", false);
 }
 
-void tst_Gdb::dumpQFileInfo()
+void tst_Gdb::dump_QFileInfo()
 {
     QFileInfo fi(".");
     QByteArray expected("value='%',valueencoded='2',type='$T',numchild='3',"
@@ -1304,7 +1345,7 @@ void tst_Gdb::dumpQFileInfo()
     testDumper(expected, &fi, NS"QFileInfo", true);
 }
 
-void tst_Gdb::dumpQHash()
+void tst_Gdb::dump_QHash()
 {
     QHash<QString, QList<int> > hash;
     hash.insert("Hallo", QList<int>());
@@ -1314,7 +1355,7 @@ void tst_Gdb::dumpQHash()
 }
 
 template <typename K, typename V>
-void tst_Gdb::dumpQHashNodeHelper(QHash<K, V> &hash)
+void tst_Gdb::dump_QHashNodeHelper(QHash<K, V> &hash)
 {
     typename QHash<K, V>::iterator it = hash.begin();
     typedef QHashNode<K, V> HashNode;
@@ -1335,30 +1376,30 @@ void tst_Gdb::dumpQHashNodeHelper(QHash<K, V> &hash)
         getMapType<K, V>(), "", sizeof(it.key()), sizeof(it.value()));
 }
 
-void tst_Gdb::dumpQHashNode()
+void tst_Gdb::dump_QHashNode()
 {
     // Case 1: simple type -> simple type.
     QHash<int, int> hash1;
     hash1[2] = 3;
-    dumpQHashNodeHelper(hash1);
+    dump_QHashNodeHelper(hash1);
 
     // Case 2: simple type -> composite type.
     QHash<int, QString> hash2;
     hash2[5] = "String 7";
-    dumpQHashNodeHelper(hash2);
+    dump_QHashNodeHelper(hash2);
 
     // Case 3: composite type -> simple type
     QHash<QString, int> hash3;
     hash3["String 11"] = 13;
-    dumpQHashNodeHelper(hash3);
+    dump_QHashNodeHelper(hash3);
 
     // Case 4: composite type -> composite type
     QHash<QString, QString> hash4;
     hash4["String 17"] = "String 19";
-    dumpQHashNodeHelper(hash4);
+    dump_QHashNodeHelper(hash4);
 }
 
-void tst_Gdb::dumpQImageHelper(const QImage &img)
+void tst_Gdb::dump_QImageHelper(const QImage &img)
 {
     QByteArray expected = "value='(%x%)',type='"NS"QImage',numchild='1',"
         "children=[{name='data',type='"NS"QImageData',addr='%'}]"
@@ -1368,22 +1409,22 @@ void tst_Gdb::dumpQImageHelper(const QImage &img)
     testDumper(expected, &img, NS"QImage", true);
 }
 
-void tst_Gdb::dumpQImage()
+void tst_Gdb::dump_QImage()
 {
     // Case 1: Null image.
     QImage img;
-    dumpQImageHelper(img);
+    dump_QImageHelper(img);
 
     // Case 2: Normal image.
     img = QImage(3, 700, QImage::Format_RGB555);
-    dumpQImageHelper(img);
+    dump_QImageHelper(img);
 
     // Case 3: Invalid image.
     img = QImage(100, 0, QImage::Format_Invalid);
-    dumpQImageHelper(img);
+    dump_QImageHelper(img);
 }
 
-void tst_Gdb::dumpQImageDataHelper(QImage &img)
+void tst_Gdb::dump_QImageDataHelper(QImage &img)
 {
     const QByteArray ba(QByteArray::fromRawData((const char*) img.bits(), img.numBytes()));
     QByteArray expected = QByteArray("tiname='$I',addr='$A',type='"NS"QImageData',").
@@ -1393,23 +1434,23 @@ void tst_Gdb::dumpQImageDataHelper(QImage &img)
     testDumper(expected, &img, NS"QImageData", false);
 }
 
-void tst_Gdb::dumpQImageData()
+void tst_Gdb::dump_QImageData()
 {
     // Case 1: Null image.
     QImage img;
-    dumpQImageDataHelper(img);
+    dump_QImageDataHelper(img);
 
     // Case 2: Normal image.
     img = QImage(3, 700, QImage::Format_RGB555);
-    dumpQImageDataHelper(img);
+    dump_QImageDataHelper(img);
 
     // Case 3: Invalid image.
     img = QImage(100, 0, QImage::Format_Invalid);
-    dumpQImageDataHelper(img);
+    dump_QImageDataHelper(img);
 }
 
 template <typename T>
-void tst_Gdb::dumpQLinkedListHelper(QLinkedList<T> &l)
+void tst_Gdb::dump_QLinkedListHelper(QLinkedList<T> &l)
 {
     const int size = qMin(l.size(), 1000);
     const QString &sizeStr = N(size);
@@ -1448,35 +1489,35 @@ void tst_Gdb::dumpQLinkedListHelper(QLinkedList<T> &l)
     testDumper(expected, &l, NS"QLinkedList", true, elemTypeStr);
 }
 
-void tst_Gdb::dumpQLinkedList()
+void tst_Gdb::dump_QLinkedList()
 {
     // Case 1: Simple element type.
     QLinkedList<int> l;
 
     // Case 1.1: Empty list.
-    dumpQLinkedListHelper(l);
+    dump_QLinkedListHelper(l);
 
     // Case 1.2: One element.
     l.append(2);
-    dumpQLinkedListHelper(l);
+    dump_QLinkedListHelper(l);
 
     // Case 1.3: Two elements
     l.append(3);
-    dumpQLinkedListHelper(l);
+    dump_QLinkedListHelper(l);
 
     // Case 2: Composite element type.
     QLinkedList<QString> l2;
 
     // Case 2.1: Empty list.
-    dumpQLinkedListHelper(l2);
+    dump_QLinkedListHelper(l2);
 
     // Case 2.2: One element.
     l2.append("Teststring 1");
-    dumpQLinkedListHelper(l2);
+    dump_QLinkedListHelper(l2);
 
     // Case 2.3: Two elements.
     l2.append("Teststring 2");
-    dumpQLinkedListHelper(l2);
+    dump_QLinkedListHelper(l2);
 
     // Case 2.4: > 1000 elements.
     for (int i = 3; i <= 1002; ++i)
@@ -1487,11 +1528,11 @@ void tst_Gdb::dumpQLinkedList()
     l3.append(new int(5));
     l3.append(new int(7));
     l3.append(0);
-    dumpQLinkedListHelper(l3);
+    dump_QLinkedListHelper(l3);
 }
 
     #if 0
-    void tst_Gdb::dumpQLinkedList()
+    void tst_Gdb::dump_QLinkedList()
     {
         // Case 1: Simple element type.
         QLinkedList<int> l;
@@ -1566,12 +1607,12 @@ void tst_Gdb::dumpQLinkedList()
         l3.append(new int(5));
         l3.append(new int(7));
         l3.append(0);
-        //dumpQLinkedListHelper(l3);
+        //dump_QLinkedListHelper(l3);
         testDumper("", &l, NS"QLinkedList", true, NS"QString");
     }
     #endif
 
-void tst_Gdb::dumpQLocaleHelper(QLocale &loc)
+void tst_Gdb::dump_QLocaleHelper(QLocale &loc)
 {
     QByteArray expected = QByteArray("value='%',type='$T',numchild='8',"
             "children=[{name='country',%},"
@@ -1602,23 +1643,23 @@ void tst_Gdb::dumpQLocaleHelper(QLocale &loc)
     testDumper(expected, &loc, NS"QLocale", true);
 }
 
-void tst_Gdb::dumpQLocale()
+void tst_Gdb::dump_QLocale()
 {
     QLocale english(QLocale::English);
-    dumpQLocaleHelper(english);
+    dump_QLocaleHelper(english);
 
     QLocale german(QLocale::German);
-    dumpQLocaleHelper(german);
+    dump_QLocaleHelper(german);
 
     QLocale chinese(QLocale::Chinese);
-    dumpQLocaleHelper(chinese);
+    dump_QLocaleHelper(chinese);
 
     QLocale swahili(QLocale::Swahili);
-    dumpQLocaleHelper(swahili);
+    dump_QLocaleHelper(swahili);
 }
 
 template <typename K, typename V>
-        void tst_Gdb::dumpQMapHelper(QMap<K, V> &map)
+        void tst_Gdb::dump_QMapHelper(QMap<K, V> &map)
 {
     QByteArray sizeStr(valToString(map.size()));
     size_t nodeSize;
@@ -1669,71 +1710,71 @@ template <typename K, typename V>
                true, getMapType<K,V>(), "", 0, 0, nodeSize, valOff);
 }
 
-void tst_Gdb::dumpQMap()
+void tst_Gdb::dump_QMap()
 {
     // Case 1: Simple type -> simple type.
     QMap<int, int> map1;
 
     // Case 1.1: Empty map.
-    dumpQMapHelper(map1);
+    dump_QMapHelper(map1);
 
     // Case 1.2: One element.
     map1[2] = 3;
-    dumpQMapHelper(map1);
+    dump_QMapHelper(map1);
 
     // Case 1.3: Two elements.
     map1[3] = 5;
-    dumpQMapHelper(map1);
+    dump_QMapHelper(map1);
 
     // Case 2: Simple type -> composite type.
     QMap<int, QString> map2;
 
     // Case 2.1: Empty Map.
-    dumpQMapHelper(map2);
+    dump_QMapHelper(map2);
 
     // Case 2.2: One element.
     map2[5] = "String 7";
-    dumpQMapHelper(map2);
+    dump_QMapHelper(map2);
 
     // Case 2.3: Two elements.
     map2[7] = "String 11";
-    dumpQMapHelper(map2);
+    dump_QMapHelper(map2);
 
     // Case 3: Composite type -> simple type.
     QMap<QString, int> map3;
 
     // Case 3.1: Empty map.
-    dumpQMapHelper(map3);
+    dump_QMapHelper(map3);
 
     // Case 3.2: One element.
     map3["String 13"] = 11;
-    dumpQMapHelper(map3);
+    dump_QMapHelper(map3);
 
     // Case 3.3: Two elements.
     map3["String 17"] = 13;
-    dumpQMapHelper(map3);
+    dump_QMapHelper(map3);
 
     // Case 4: Composite type -> composite type.
     QMap<QString, QString> map4;
 
     // Case 4.1: Empty map.
-    dumpQMapHelper(map4);
+    dump_QMapHelper(map4);
 
     // Case 4.2: One element.
     map4["String 19"] = "String 23";
-    dumpQMapHelper(map4);
+    dump_QMapHelper(map4);
 
     // Case 4.3: Two elements.
     map4["String 29"] = "String 31";
-    dumpQMapHelper(map4);
+    dump_QMapHelper(map4);
 
     // Case 4.4: Different value, same key (multimap functionality).
     map4["String 29"] = "String 37";
-    dumpQMapHelper(map4);
+    dump_QMapHelper(map4);
 }
 
 template <typename K, typename V>
-        void tst_Gdb::dumpQMapNodeHelper(QMap<K, V> &m)
+        void tst_Gdb::dump_QMapNodeHelper(QMap<K, V> &m)
 {
     typename QMap<K, V>::iterator it = m.begin();
     const K &key = it.key();
@@ -1753,30 +1794,30 @@ template <typename K, typename V>
                true, getMapType<K,V>(), "", 0, 0, nodeSize, valOffset);
 }
 
-void tst_Gdb::dumpQMapNode()
+void tst_Gdb::dump_QMapNode()
 {
     // Case 1: simple type -> simple type.
     QMap<int, int> map;
     map[2] = 3;
-    dumpQMapNodeHelper(map);
+    dump_QMapNodeHelper(map);
 
     // Case 2: simple type -> composite type.
     QMap<int, QString> map2;
     map2[3] = "String 5";
-    dumpQMapNodeHelper(map2);
+    dump_QMapNodeHelper(map2);
 
     // Case 3: composite type -> simple type.
     QMap<QString, int> map3;
     map3["String 7"] = 11;
-    dumpQMapNodeHelper(map3);
+    dump_QMapNodeHelper(map3);
 
     // Case 4: composite type -> composite type.
     QMap<QString, QString> map4;
     map4["String 13"] = "String 17";
-    dumpQMapNodeHelper(map4);
+    dump_QMapNodeHelper(map4);
 }
 
-void tst_Gdb::dumpQObject()
+void tst_Gdb::dump_QObject()
 {
     QObject parent;
     testDumper("value='',valueencoded='2',type='$T',displayedtype='QObject',"
@@ -1835,7 +1876,7 @@ void tst_Gdb::dumpQObject()
         &child, NS"QObject", false);
 }
 
-void tst_Gdb::dumpQObjectChildListHelper(QObject &o)
+void tst_Gdb::dump_QObjectChildListHelper(QObject &o)
 {
     const QObjectList children = o.children();
     const int size = children.size();
@@ -1855,22 +1896,22 @@ void tst_Gdb::dumpQObjectChildListHelper(QObject &o)
     testDumper(expected, &o, NS"QObjectChildList", true);
 }
 
-void tst_Gdb::dumpQObjectChildList()
+void tst_Gdb::dump_QObjectChildList()
 {
     // Case 1: Object with no children.
     QObject o;
-    dumpQObjectChildListHelper(o);
+    dump_QObjectChildListHelper(o);
 
     // Case 2: Object with one child.
     QObject o2(&o);
-    dumpQObjectChildListHelper(o);
+    dump_QObjectChildListHelper(o);
 
     // Case 3: Object with two children.
     QObject o3(&o);
-    dumpQObjectChildListHelper(o);
+    dump_QObjectChildListHelper(o);
 }
 
-void tst_Gdb::dumpQObjectMethodList()
+void tst_Gdb::dump_QObjectMethodList()
 {
     QStringListModel m;
     testDumper("addr='<synthetic>',type='$T',numchild='20',"
@@ -1898,7 +1939,7 @@ void tst_Gdb::dumpQObjectMethodList()
     &m, NS"QObjectMethodList", true);
 }
 
-void tst_Gdb::dumpQObjectPropertyList()
+void tst_Gdb::dump_QObjectPropertyList()
 {
     // Case 1: Model without a parent.
     QStringListModel m(QStringList() << "Test1" << "Test2");
@@ -1951,7 +1992,7 @@ public:
 
 typedef QVector<QObjectPrivate::ConnectionList> ConnLists;
 
-void tst_Gdb::dumpQObjectSignalHelper(QObject &o, int sigNum)
+void tst_Gdb::dump_QObjectSignalHelper(QObject &o, int sigNum)
 {
     //qDebug() << o.objectName() << sigNum;
     QByteArray expected("addr='<synthetic>',numchild='1',type='"NS"QObjectSignal'");
@@ -1995,7 +2036,7 @@ void tst_Gdb::dumpQObjectSignalHelper(QObject &o, int sigNum)
     testDumper(expected, &o, NS"QObjectSignal", true, "", "", sigNum);
 }
 
-void tst_Gdb::dumpQObjectSignal()
+void tst_Gdb::dump_QObjectSignal()
 {
     // Case 1: Simple QObject.
     QObject o;
@@ -2007,7 +2048,7 @@ void tst_Gdb::dumpQObjectSignal()
     // Case 2: QAbstractItemModel with no connections.
     QStringListModel m(QStringList() << "Test1" << "Test2");
     for (int signalIndex = 0; signalIndex < 17; ++signalIndex)
-        dumpQObjectSignalHelper(m, signalIndex);
+        dump_QObjectSignalHelper(m, signalIndex);
 
     // Case 3: QAbstractItemModel with connections to itself and to another
     //         object, using different connection types.
@@ -2027,10 +2068,10 @@ void tst_Gdb::dumpQObjectSignal()
             &m, SLOT(revert()), Qt::UniqueConnection);
 #endif
     for (int signalIndex = 0; signalIndex < 17; ++signalIndex)
-        dumpQObjectSignalHelper(m, signalIndex);
+        dump_QObjectSignalHelper(m, signalIndex);
 }
 
-void tst_Gdb::dumpQObjectSignalList()
+void tst_Gdb::dump_QObjectSignalList()
 {
     // Case 1: Simple QObject.
     QObject o;
@@ -2120,7 +2161,7 @@ QByteArray slotIndexList(const QObject *ob)
     return slotIndices;
 }
 
-void tst_Gdb::dumpQObjectSlot()
+void tst_Gdb::dump_QObjectSlot()
 {
     // Case 1: Simple QObject.
     QObject o;
@@ -2176,7 +2217,7 @@ void tst_Gdb::dumpQObjectSlot()
 
 }
 
-void tst_Gdb::dumpQObjectSlotList()
+void tst_Gdb::dump_QObjectSlotList()
 {
     // Case 1: Simple QObject.
     QObject o;
@@ -2227,7 +2268,7 @@ void tst_Gdb::dumpQObjectSlotList()
         &m, NS"QObjectSlotList", true);
 }
 
-void tst_Gdb::dumpQPixmap()
+void tst_Gdb::dump_QPixmap()
 {
     // Case 1: Null Pixmap.
     QPixmap p;
@@ -2255,7 +2296,7 @@ void tst_Gdb::dumpQPixmap()
 
 #if QT_VERSION >= 0x040500
 template<typename T>
-void tst_Gdb::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
+void tst_Gdb::dump_QSharedPointerHelper(QSharedPointer<T> &ptr)
 {
     struct Cheater : public QSharedPointer<T>
     {
@@ -2294,54 +2335,54 @@ void tst_Gdb::dumpQSharedPointerHelper(QSharedPointer<T> &ptr)
 }
 #endif
 
-void tst_Gdb::dumpQSharedPointer()
+void tst_Gdb::dump_QSharedPointer()
 {
 #if QT_VERSION >= 0x040500
     // Case 1: Simple type.
     // Case 1.1: Null pointer.
     QSharedPointer<int> simplePtr;
-    dumpQSharedPointerHelper(simplePtr);
+    dump_QSharedPointerHelper(simplePtr);
 
     // Case 1.2: Non-null pointer,
     QSharedPointer<int> simplePtr2(new int(99));
-    dumpQSharedPointerHelper(simplePtr2);
+    dump_QSharedPointerHelper(simplePtr2);
 
     // Case 1.3: Shared pointer.
     QSharedPointer<int> simplePtr3 = simplePtr2;
-    dumpQSharedPointerHelper(simplePtr2);
+    dump_QSharedPointerHelper(simplePtr2);
 
     // Case 1.4: Weak pointer.
     QWeakPointer<int> simplePtr4(simplePtr2);
-    dumpQSharedPointerHelper(simplePtr2);
+    dump_QSharedPointerHelper(simplePtr2);
 
     // Case 2: Composite type.
     // Case 1.1: Null pointer.
     QSharedPointer<QString> compositePtr;
     // TODO: This case is not handled in gdbmacros.cpp (segfault!)
-    //dumpQSharedPointerHelper(compoistePtr);
+    //dump_QSharedPointerHelper(compoistePtr);
 
     // Case 1.2: Non-null pointer,
     QSharedPointer<QString> compositePtr2(new QString("Test"));
-    dumpQSharedPointerHelper(compositePtr2);
+    dump_QSharedPointerHelper(compositePtr2);
 
     // Case 1.3: Shared pointer.
     QSharedPointer<QString> compositePtr3 = compositePtr2;
-    dumpQSharedPointerHelper(compositePtr2);
+    dump_QSharedPointerHelper(compositePtr2);
 
     // Case 1.4: Weak pointer.
     QWeakPointer<QString> compositePtr4(compositePtr2);
-    dumpQSharedPointerHelper(compositePtr2);
+    dump_QSharedPointerHelper(compositePtr2);
 #endif
 }
 
-void tst_Gdb::dumpQVariant_invalid()
+void tst_Gdb::dump_QVariant_invalid()
 {
     QVariant v;
     testDumper("value='(invalid)',type='$T',numchild='0'",
         &v, NS"QVariant", false);
 }
 
-void tst_Gdb::dumpQVariant_QString()
+void tst_Gdb::dump_QVariant_QString()
 {
     QVariant v = "abc";
     testDumper("value='KFFTdHJpbmcpICJhYmMi',valueencoded='5',type='$T',"
@@ -2356,7 +2397,7 @@ void tst_Gdb::dumpQVariant_QString()
 */
 }
 
-void tst_Gdb::dumpQVariant_QStringList()
+void tst_Gdb::dump_QVariant_QStringList()
 {
     QVariant v = QStringList() << "Hi";
     testDumper("value='(QStringList) ',type='$T',numchild='1',"
@@ -2366,7 +2407,7 @@ void tst_Gdb::dumpQVariant_QStringList()
         &v, NS"QVariant", true);
 }
 
-void tst_Gdb::dumpStdVector()
+void tst_Gdb::dump_StdVector()
 {
     std::vector<std::list<int> *> vector;
     QByteArray inner = "std::list<int> *";
@@ -2393,7 +2434,7 @@ void tst_Gdb::dumpStdVector()
     vector.push_back(0);
 }
 
-void tst_Gdb::dumpQTextCodecHelper(QTextCodec *codec)
+void tst_Gdb::dump_QTextCodecHelper(QTextCodec *codec)
 {
     const QByteArray name = codec->name().toBase64();
     QByteArray expected = QByteArray("value='%',valueencoded='1',type='$T',"
@@ -2403,51 +2444,20 @@ void tst_Gdb::dumpQTextCodecHelper(QTextCodec *codec)
     testDumper(expected, codec, NS"QTextCodec", true);
 }
 
-void tst_Gdb::dumpQTextCodec()
+void tst_Gdb::dump_QTextCodec()
 {
     const QList<QByteArray> &codecNames = QTextCodec::availableCodecs();
     foreach (const QByteArray &codecName, codecNames)
-        dumpQTextCodecHelper(QTextCodec::codecForName(codecName));
+        dump_QTextCodecHelper(QTextCodec::codecForName(codecName));
 }
 
-#if QT_VERSION >= 0x040500
-template <typename T1, typename T2>
-        size_t offsetOf(const T1 *klass, const T2 *member)
-{
-    return static_cast<size_t>(reinterpret_cast<const char *>(member) -
-                               reinterpret_cast<const char *>(klass));
-}
-
-template <typename T>
-void tst_Gdb::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
-{
-    typedef QtSharedPointer::ExternalRefCountData Data;
-    const size_t dataOffset = 0;
-    const Data *d = *reinterpret_cast<const Data **>(
-            reinterpret_cast<const char **>(&ptr) + dataOffset);
-    const int *weakRefPtr = reinterpret_cast<const int *>(&d->weakref);
-    const int *strongRefPtr = reinterpret_cast<const int *>(&d->strongref);
-    T *data = ptr.toStrongRef().data();
-    const QString dataStr = valToString(*data);
-    QByteArray expected("value='");
-    if (isSimpleType<T>())
-        expected.append(dataStr);
-    expected.append("',valuedisabled='true',numchild='1',children=[{name='data',addr='").
-        append(ptrToBa(data)).append("',type='").append(typeToString<T>()).
-        append("',value='").append(dataStr).append("'},{name='weakref',value='").
-        append(valToString(*weakRefPtr)).append("',type='int',addr='").
-        append(ptrToBa(weakRefPtr)).append("',numchild='0'},{name='strongref',value='").
-        append(valToString(*strongRefPtr)).append("',type='int',addr='").
-        append(ptrToBa(strongRefPtr)).append("',numchild='0'}]");
-    testDumper(expected, &ptr, NS"QWeakPointer", true, typeToString<T>());
-}
-#endif
 #endif // #if 0
 
 ///////////////////////////// QWeakPointer /////////////////////////////////
 
 #if QT_VERSION >= 0x040500
-void dumpQWeakPointer_11()
+
+void dump_QWeakPointer_11()
 {
     // Case 1: Simple type.
     // Case 1.1: Null pointer.
@@ -2456,7 +2466,23 @@ void dumpQWeakPointer_11()
     /* B */ (void) 0;
 }
 
-void dumpQWeakPointer_12()
+void tst_Gdb::dump_QWeakPointer_11()
+{
+    // Case 1.1: Null pointer.
+    prepare("dump_QWeakPointer_11");
+    if (checkUninitialized)
+        run("A","{iname='local.sp',addr='-',name='sp',"
+            "type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'}");
+    next();
+    next();
+    run("B","{iname='local.sp',addr='-',name='sp',"
+            "type='"NS"QSharedPointer<int>',value='<null>',numchild='0'},"
+            "{iname='local.wp',addr='-',name='wp',"
+            "type='"NS"QWeakPointer<int>',value='<null>',numchild='0'}");
+}
+
+
+void dump_QWeakPointer_12()
 {
     // Case 1.2: Weak pointer is unique.
     /* A */ QSharedPointer<int> sp(new int(99));
@@ -2464,103 +2490,118 @@ void dumpQWeakPointer_12()
     /* B */ (void) 0;
 }
 
-void dumpQWeakPointer_13()
+void tst_Gdb::dump_QWeakPointer_12()
+{
+    // Case 1.2: Weak pointer is unique.
+    prepare("dump_QWeakPointer_12");
+    if (checkUninitialized)
+        run("A","{iname='local.sp',addr='-',name='sp',"
+            "type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'}");
+    next();
+    next();
+    run("B","{iname='local.sp',addr='-',name='sp',"
+            "type='"NS"QSharedPointer<int>',value='',numchild='3'},"
+            "{iname='local.wp',addr='-',name='wp',"
+            "type='"NS"QWeakPointer<int>',value='',numchild='3'}");
+    run("B","{iname='local.sp',addr='-',name='sp',"
+            "type='"NS"QSharedPointer<int>',value='',numchild='3',children=["
+                "{name='data',type='int',value='99',numchild='0'},"
+                "{name='weakref',value='2',type='int',numchild='0'},"
+                "{name='strongref',value='2',type='int',numchild='0'}]},"
+            "{iname='local.wp',addr='-',name='wp',"
+            "type='"NS"QWeakPointer<int>',value='',numchild='3',children=["
+                "{name='data',type='int',value='99',numchild='0'},"
+                "{name='weakref',value='2',type='int',numchild='0'},"
+                "{name='strongref',value='2',type='int',numchild='0'}]}",
+            "local.sp,local.wp");
+}
+
+
+void dump_QWeakPointer_13()
 {
     // Case 1.3: There are other weak pointers.
     /* A */ QSharedPointer<int> sp(new int(99));
     /*   */ QWeakPointer<int> wp = sp.toWeakRef();
+    /*   */ QWeakPointer<int> wp2 = sp.toWeakRef();
     /* B */ (void) 0;
 }
 
-void dumpQWeakPointer_14()
+void tst_Gdb::dump_QWeakPointer_13()
 {
-    // Case 1.4: There are other strong shared pointers as well.
-    /* A */ QSharedPointer<int> sp(new int(99));
-    /*   */ QSharedPointer<int> sp2(sp);
-    /* B */ (void) 0;
+    // Case 1.3: There are other weak pointers.
+    prepare("dump_QWeakPointer_13");
+    if (checkUninitialized)
+        run("A","{iname='local.sp',addr='-',name='sp',"
+            "type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'}");
+    next();
+    next();
+    next();
+    run("B","{iname='local.sp',addr='-',name='sp',"
+              "type='"NS"QSharedPointer<int>',value='',numchild='3'},"
+            "{iname='local.wp',addr='-',name='wp',"
+              "type='"NS"QWeakPointer<int>',value='',numchild='3'},"
+            "{iname='local.wp2',addr='-',name='wp2',"
+              "type='"NS"QWeakPointer<int>',value='',numchild='3'}");
+    run("B","{iname='local.sp',addr='-',name='sp',"
+              "type='"NS"QSharedPointer<int>',value='',numchild='3',children=["
+                "{name='data',type='int',value='99',numchild='0'},"
+                "{name='weakref',value='3',type='int',numchild='0'},"
+                "{name='strongref',value='3',type='int',numchild='0'}]},"
+            "{iname='local.wp',addr='-',name='wp',"
+              "type='"NS"QWeakPointer<int>',value='',numchild='3',children=["
+                "{name='data',type='int',value='99',numchild='0'},"
+                "{name='weakref',value='3',type='int',numchild='0'},"
+                "{name='strongref',value='3',type='int',numchild='0'}]},"
+            "{iname='local.wp2',addr='-',name='wp2',"
+              "type='"NS"QWeakPointer<int>',value='',numchild='3'}",
+            "local.sp,local.wp");
 }
 
-void dumpQWeakPointer_2()
+
+void dump_QWeakPointer_2()
 {
     // Case 2: Composite type.
     /* A */ QSharedPointer<QString> sp(new QString("Test"));
     /*   */ QWeakPointer<QString> wp = sp.toWeakRef();
     /* B */ (void) 0;
 }
-#endif
 
-void tst_Gdb::dumpQWeakPointer()
+void tst_Gdb::dump_QWeakPointer_2()
 {
-#if QT_VERSION >= 0x040500
-
-return;
-
-    // Case 1.1: Null pointer.
-    prepare("dumpQWeakPointer_11");
+    // Case 2: Composite type.
+    prepare("dump_QWeakPointer_2");
     if (checkUninitialized)
         run("A","{iname='local.sp',addr='-',name='sp',"
-            "type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'}");
+        "type='"NS"QSharedPointer<"NS"QString>',value='<not in scope>',numchild='0'}");
+    next();
     next();
     run("B","{iname='local.sp',addr='-',name='sp',"
-            "type='"NS"QSharedPointer<int>',value='<0 items>',numchild='1'}");
-
-/*
-    //,numchild='1',children=[{name='data',addr='").
-        append(ptrToBa(data)).append("',type='").append(typeToString<T>()).
-        append("',value='").append(dataStr).append("'},{name='weakref',value='").
-        append(valToString(*weakRefPtr)).append("',type='int',addr='").
-        append(ptrToBa(weakRefPtr)).append("',numchild='0'},{name='strongref',value='").
-        append(valToString(*strongRefPtr)).append("',type='int',addr='").
-        append(ptrToBa(strongRefPtr)).append("',numchild='0'}]");
-
-    // Case 1.2: Weak pointer is unique.
-void tst_Gdb::dumpQWeakPointerHelper(QWeakPointer<T> &ptr)
-{
-    typedef QtSharedPointer::ExternalRefCountData Data;
-    const size_t dataOffset = 0;
-    const Data *d = *reinterpret_cast<const Data **>(
-            reinterpret_cast<const char **>(&ptr) + dataOffset);
-    const int *weakRefPtr = reinterpret_cast<const int *>(&d->weakref);
-    const int *strongRefPtr = reinterpret_cast<const int *>(&d->strongref);
-    T *data = ptr.toStrongRef().data();
-    const QString dataStr = valToString(*data);
-    QByteArray expected("value='");
-    if (isSimpleType<T>())
-        expected.append(dataStr);
-    expected.append("',valuedisabled='true',numchild='1',children=[{name='data',addr='").
-        append(ptrToBa(data)).append("',type='").append(typeToString<T>()).
-        append("',value='").append(dataStr).append("'},{name='weakref',value='").
-        append(valToString(*weakRefPtr)).append("',type='int',addr='").
-        append(ptrToBa(weakRefPtr)).append("',numchild='0'},{name='strongref',value='").
-        append(valToString(*strongRefPtr)).append("',type='int',addr='").
-        append(ptrToBa(strongRefPtr)).append("',numchild='0'}]");
-    testDumper(expected, &ptr, NS"QWeakPointer", true, typeToString<T>());
+          "type='"NS"QSharedPointer<"NS"QString>',value='',numchild='3',children=["
+            "{name='data',type='"NS"QString',"
+                "valueencoded='7',value='5400650073007400',numchild='0'},"
+            "{name='weakref',value='2',type='int',numchild='0'},"
+            "{name='strongref',value='2',type='int',numchild='0'}]},"
+        "{iname='local.wp',addr='-',name='wp',"
+          "type='"NS"QWeakPointer<"NS"QString>',value='',numchild='3',children=["
+            "{name='data',type='"NS"QString',"
+                "valueencoded='7',value='5400650073007400',numchild='0'},"
+            "{name='weakref',value='2',type='int',numchild='0'},"
+            "{name='strongref',value='2',type='int',numchild='0'}]}",
+        "local.sp,local.wp");
 }
 
+#else // before Qt 4.5
 
-    QSharedPointer<int> sp(new int(99));
-    wp = sp.toWeakRef();
-    dumpQWeakPointerHelper(wp);
+void tst_Gdb::dump_QWeakPointer_11() {}
+void tst_Gdb::dump_QWeakPointer_12() {}
+void tst_Gdb::dump_QWeakPointer_13() {}
+void tst_Gdb::dump_QWeakPointer_2() {}
 
-    // Case 1.3: There are other weak pointers.
-    QWeakPointer<int> wp2 = sp.toWeakRef();
-    dumpQWeakPointerHelper(wp);
-
-    // Case 1.4: There are other strong shared pointers as well.
-    QSharedPointer<int> sp2(sp);
-    dumpQWeakPointerHelper(wp);
-
-    // Case 2: Composite type.
-    QSharedPointer<QString> spS(new QString("Test"));
-    QWeakPointer<QString> wpS = spS.toWeakRef();
-    dumpQWeakPointerHelper(wpS);
-*/
 #endif
-}
 
 ///////////////////////////// QHash<QString, QString> //////////////////////////////
 
-void dumpQHash_QString_QString()
+void dump_QHash_QString_QString()
 {
     /* A */ QHash<QString, QString> h;
     /* B */ h["hello"] = "world";
@@ -2568,7 +2609,7 @@ void dumpQHash_QString_QString()
     /* D */ (void) 0;
 }
 
-void dumpQHash_int_int()
+void dump_QHash_int_int()
 {
     /* A */ QHash<int, int> h;
     /* B */ h[43] = 44;
@@ -2576,7 +2617,7 @@ void dumpQHash_int_int()
     /* D */ (void) 0;
 }
 
-void tst_Gdb::dumpQHash()
+void tst_Gdb::dump_QHash()
 {
     // Need to check the following combinations:
     // int-key optimization, small value
@@ -2590,7 +2631,7 @@ void tst_Gdb::dumpQHash()
     // complex key
     //struct NodeL  { void *next; uint h; void *k; void *v; } nodeL
 
-    prepare("dumpQHash_int_int");
+    prepare("dump_QHash_int_int");
     if (checkUninitialized)
         run("A","{iname='local.h',addr='-',name='h',"
             "type='"NS"QHash<int, int>',value='<not in scope>',"
@@ -2605,7 +2646,7 @@ void tst_Gdb::dumpQHash()
             "{name='45',value='46'}]}",
             "local.h");
 
-    prepare("dumpQHash_QString_QString");
+    prepare("dump_QHash_QString_QString");
     if (checkUninitialized)
         run("A","{iname='local.h',addr='-',name='h',"
             "type='"NS"QHash<"NS"QString, "NS"QString>',value='<not in scope>',"
@@ -2638,7 +2679,7 @@ void tst_Gdb::dumpQHash()
 
 ///////////////////////////// QList<int> /////////////////////////////////
 
-void dumpQList_int()
+void dump_QList_int()
 {
     /* A */ QList<int> list;
     /* B */ list.append(1);
@@ -2646,9 +2687,9 @@ void dumpQList_int()
     /* D */ (void) 0;
 }
 
-void tst_Gdb::dumpQList_int()
+void tst_Gdb::dump_QList_int()
 {
-    prepare("dumpQList_int");
+    prepare("dump_QList_int");
     if (checkUninitialized)
         run("A","{iname='local.list',addr='-',name='list',"
                 "type='"NS"QList<int>',value='<not in scope>',numchild='0'}");
@@ -2672,18 +2713,46 @@ void tst_Gdb::dumpQList_int()
 }
 
 
+///////////////////////////// QList<int *> /////////////////////////////////
+
+void dump_QList_int_star()
+{
+    /* A */ QList<int *> list;
+    /* B */ list.append(new int(1));
+    /* C */ list.append(0);
+    /* D */ list.append(new int(2));
+    /* E */ (void) 0;
+}
+
+void tst_Gdb::dump_QList_int_star()
+{
+    prepare("dump_QList_int_star");
+    if (checkUninitialized)
+        run("A","{iname='local.list',addr='-',name='list',"
+                "type='"NS"QList<int*>',value='<not in scope>',numchild='0'}");
+    next();
+    next();
+    next();
+    next();
+    run("E","{iname='local.list',addr='-',name='list',"
+            "type='"NS"QList<int*>',value='<3 items>',numchild='3',"
+            "childtype='int',childnumchild='0',children=["
+            "{value='1'},{value='<null>',type='int *'},{value='2'}]}", "local.list");
+}
+
+
 ///////////////////////////// QList<char> /////////////////////////////////
 
-void dumpQList_char()
+void dump_QList_char()
 {
     /* A */ QList<char> list;
     /* B */ list.append('a');
     /* C */ (void) 0;
 }
 
-void tst_Gdb::dumpQList_char()
+void tst_Gdb::dump_QList_char()
 {
-    prepare("dumpQList_char");
+    prepare("dump_QList_char");
     if (checkUninitialized)
         run("A","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<char>',value='<not in scope>',numchild='0'}");
@@ -2702,7 +2771,7 @@ void tst_Gdb::dumpQList_char()
 
 ///////////////////////////// QList<const char *> /////////////////////////////////
 
-void dumpQList_char_star()
+void dump_QList_char_star()
 {
     /* A */ QList<const char *> list;
     /* B */ list.append("a");
@@ -2711,9 +2780,9 @@ void dumpQList_char_star()
     /* E */ (void) 0;
 }
 
-void tst_Gdb::dumpQList_char_star()
+void tst_Gdb::dump_QList_char_star()
 {
-    prepare("dumpQList_char_star");
+    prepare("dump_QList_char_star");
     if (checkUninitialized)
         run("A","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<char const*>',value='<not in scope>',numchild='0'}");
@@ -2740,16 +2809,16 @@ void tst_Gdb::dumpQList_char_star()
 
 ///////////////////////////// QList<QString> /////////////////////////////////////
 
-void dumpQList_QString()
+void dump_QList_QString()
 {
     /* A */ QList<QString> list;
     /* B */ list.append("Hallo");
     /* C */ (void) 0;
 }
 
-void tst_Gdb::dumpQList_QString()
+void tst_Gdb::dump_QList_QString()
 {
-    prepare("dumpQList_QString");
+    prepare("dump_QList_QString");
     if (0 && checkUninitialized)
         run("A","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<"NS"QString>',value='<not in scope>',numchild='0'}");
@@ -2768,16 +2837,16 @@ void tst_Gdb::dumpQList_QString()
 
 ///////////////////////////// QList<QString3> ///////////////////////////////////
 
-void dumpQList_QString3()
+void dump_QList_QString3()
 {
     /* A */ QList<QString3> list;
     /* B */ list.append(QString3());
     /* C */ (void) 0;
 }
 
-void tst_Gdb::dumpQList_QString3()
+void tst_Gdb::dump_QList_QString3()
 {
-    prepare("dumpQList_QString3");
+    prepare("dump_QList_QString3");
     if (checkUninitialized)
         run("A","{iname='local.list',addr='-',name='list',"
             "type='"NS"QList<QString3>',value='<not in scope>',numchild='0'}");
@@ -2806,16 +2875,16 @@ void tst_Gdb::dumpQList_QString3()
 
 ///////////////////////////// QList<Int3> /////////////////////////////////////
 
-void dumpQList_Int3()
+void dump_QList_Int3()
 {
     /* A */ QList<Int3> list;
     /* B */ list.append(Int3());
     /* C */ (void) 0;
 }
 
-void tst_Gdb::dumpQList_Int3()
+void tst_Gdb::dump_QList_Int3()
 {
-    prepare("dumpQList_Int3");
+    prepare("dump_QList_Int3");
     if (checkUninitialized)
         run("A","{iname='local.list',addr='-',name='list',"
                 "type='"NS"QList<Int3>',value='<not in scope>',numchild='0'}");
@@ -2840,7 +2909,7 @@ void tst_Gdb::dumpQList_Int3()
 
 ///////////////////////////// QVector /////////////////////////////////
 
-void dumpQStack()
+void dump_QStack()
 {
     /* A */ QStack<int> v;
     /* B */ v.append(3);
@@ -2848,9 +2917,9 @@ void dumpQStack()
     /* D */ (void) 0;
 }
 
-void tst_Gdb::dumpQStack()
+void tst_Gdb::dump_QStack()
 {
-    prepare("dumpQStack");
+    prepare("dump_QStack");
     if (checkUninitialized)
         run("A","{iname='local.v',addr='-',name='v',type='"NS"QStack<int>',"
             "value='<not in scope>',numchild='0'}");
@@ -2878,7 +2947,7 @@ void tst_Gdb::dumpQStack()
 
 ///////////////////////////// QString /////////////////////////////////////
 
-void dumpQString()
+void dump_QString()
 {
     /* A */ QString s;
     /* B */ s = "hallo"; 
@@ -2886,9 +2955,9 @@ void dumpQString()
     /* D */ (void) 0;
 }
 
-void tst_Gdb::dumpQString()
+void tst_Gdb::dump_QString()
 {
-    prepare("dumpQString");
+    prepare("dump_QString");
     if (checkUninitialized)
         run("A","{iname='local.s',addr='-',name='s',type='"NS"QString',"
                 "value='<not in scope>',numchild='0'}");
@@ -2920,7 +2989,7 @@ void tst_Gdb::dumpQString()
 
 ///////////////////////////// QStringList /////////////////////////////////
 
-void dumpQStringList()
+void dump_QStringList()
 {
     /* A */ QStringList s;
     /* B */ s.append("hello");
@@ -2928,9 +2997,9 @@ void dumpQStringList()
     /* D */ (void) 0;
 }
 
-void tst_Gdb::dumpQStringList()
+void tst_Gdb::dump_QStringList()
 {
-    prepare("dumpQStringList");
+    prepare("dump_QStringList");
     if (checkUninitialized)
         run("A","{iname='local.s',addr='-',name='s',type='"NS"QStringList',"
             "value='<not in scope>',numchild='0'}");
@@ -2961,7 +3030,7 @@ void tst_Gdb::dumpQStringList()
 
 ///////////////////////////// QVector /////////////////////////////////
 
-void dumpQVector()
+void dump_QVector()
 {
     /* A */ QVector<double> v;
     /* B */ v.append(3.14);
@@ -2969,9 +3038,9 @@ void dumpQVector()
     /* D */ (void) 0;
 }
 
-void tst_Gdb::dumpQVector()
+void tst_Gdb::dump_QVector()
 {
-    prepare("dumpQVector");
+    prepare("dump_QVector");
     if (checkUninitialized)
         run("A","{iname='local.v',addr='-',name='v',type='"NS"QVector<double>',"
             "value='<not in scope>',numchild='0'}");
@@ -3008,6 +3077,31 @@ int main(int argc, char *argv[])
         // We are the debugged process, recursively called and steered
         // by our spawning alter ego.
         return 0;
+    }
+
+    if (argc == 2 && QByteArray(argv[1]) == "debug") {
+        dump_array_char();
+        dump_array_int();
+        dump_Foo();
+        dump_misc();
+        dump_QByteArray();
+        dump_QChar();
+        dump_QHash_int_int();
+        dump_QList_char();
+        dump_QList_char_star();
+        dump_QList_int();
+        dump_QList_int_star();
+        dump_QList_Int3();
+        dump_QList_QString();
+        dump_QList_QString3();
+        dump_QStack();
+        dump_QString();
+        dump_QStringList();
+        dump_QVector();
+        dump_QWeakPointer_11();
+        dump_QWeakPointer_12();
+        dump_QWeakPointer_13();
+        dump_QWeakPointer_2();
     }
 
     try {

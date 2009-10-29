@@ -757,17 +757,21 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // http://sourceware.org/ml/gdb/2007-05/msg00038.html
         // Name=hexname,TextSeg=textaddr[,DataSeg=dataaddr]
         sendGdbServerAck();
-        QByteArray response = "m";
-        // FIXME: Limit packet length by using qsDllInfo packages?
-        for (int i = 0; i != m_session.libraries.size(); ++i) {
-            if (i)
-                response += ';';
-            const Library &lib = m_session.libraries.at(i);
-            response += "Name=" + lib.name.toHex()
-                + ",TextSeg=" + hexNumber(lib.codeseg)
-                + ",DataSeg=" + hexNumber(lib.dataseg);
+        if (!m_session.libraries.isEmpty()) {
+            QByteArray response = "m";
+            // FIXME: Limit packet length by using qsDllInfo packages?
+            for (int i = 0; i != m_session.libraries.size(); ++i) {
+                if (i)
+                    response += ';';
+                const Library &lib = m_session.libraries.at(i);
+                response += "Name=" + lib.name.toHex()
+                            + ",TextSeg=" + hexNumber(lib.codeseg)
+                            + ",DataSeg=" + hexNumber(lib.dataseg);
+            }
+            sendGdbServerMessage(response, "library information transfered");
+        } else {
+            sendGdbServerMessage("l", "library information transfer finished");
         }
-        sendGdbServerMessage(response, "library information transfered");
     }
 
     else if (cmd == "qsDllInfo") {
@@ -1109,7 +1113,7 @@ void TrkGdbAdapter::handleCpuType(const TrkResult &result)
 void TrkGdbAdapter::handleDeleteProcess(const TrkResult &result)
 {
     Q_UNUSED(result);
-    logMessage("TRK Process killed");
+    logMessage("Inferior process killed");
     //sendTrkMessage(0x01, TrkCB(handleDeleteProcess2)); // Ping
     sendTrkMessage(0x02, TrkCB(handleDeleteProcess2)); // Disconnect
 }
@@ -1117,7 +1121,7 @@ void TrkGdbAdapter::handleDeleteProcess(const TrkResult &result)
 void TrkGdbAdapter::handleDeleteProcess2(const TrkResult &result)
 {
     Q_UNUSED(result);
-    logMessage("process killed");
+    logMessage("App TRK disconnected");
     sendGdbServerAck();
     sendGdbServerMessage("", "process killed");
 }
@@ -1452,9 +1456,9 @@ void TrkGdbAdapter::handleTrkVersionsStartGdb(const TrkResult &result)
     QTextStream str(&logMsg);
     str << "Versions: ";
     if (result.data.size() >= 5) {
-        str << "Trk version " << int(result.data.at(1)) << '.'
+        str << "App TRK version " << int(result.data.at(1)) << '.'
             << int(result.data.at(2))
-            << ", Protocol version " << int(result.data.at(3))
+            << ", TRK protocol version " << int(result.data.at(3))
              << '.' << int(result.data.at(4));
     }
     logMessage(logMsg);
@@ -1469,7 +1473,7 @@ void TrkGdbAdapter::handleTrkVersionsStartGdb(const TrkResult &result)
 
 void TrkGdbAdapter::handleDisconnect(const TrkResult & /*result*/)
 {
-    logMessage(QLatin1String("Trk disconnected"));
+    logMessage(QLatin1String("App TRK disconnected"));
 }
 
 void TrkGdbAdapter::readMemory(uint addr, uint len, bool buffered)
@@ -1614,7 +1618,7 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
     if (record.resultClass == GdbResultDone) {
         emit inferiorPrepared();
     } else {
-        QString msg = tr("Connecting to trk server adapter failed:\n")
+        QString msg = tr("Connecting to TRK server adapter failed:\n")
             + _(record.data.findChild("msg").data());
         emit inferiorStartFailed(msg);
     }

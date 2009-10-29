@@ -62,14 +62,10 @@ bool MakeStep::init(const QString &name)
     Environment environment = project()->environment(bc);
     setEnvironment(name, environment);
 
-    QString workingDirectory;
-    if (bc->value("useShadowBuild").toBool())
-        workingDirectory = bc->value("buildDirectory").toString();
-    if (workingDirectory.isEmpty())
-        workingDirectory = QFileInfo(project()->file()->fileName()).absolutePath();
+    Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
+    QString workingDirectory = qt4project->buildDirectory(bc);
     setWorkingDirectory(name, workingDirectory);
 
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
     QString makeCmd = qt4project->makeCommand(bc);
     if (!value(name, "makeCmd").toString().isEmpty())
         makeCmd = value(name, "makeCmd").toString();
@@ -106,10 +102,10 @@ bool MakeStep::init(const QString &name)
     // but for now this is the least invasive change
     ProjectExplorer::ToolChain *toolchain = qt4project->toolChain(bc);
 
-    ProjectExplorer::ToolChain::ToolChainType t =  ProjectExplorer::ToolChain::UNKNOWN;
+    ProjectExplorer::ToolChain::ToolChainType type =  ProjectExplorer::ToolChain::UNKNOWN;
     if (toolchain)
-        t = toolchain->type();
-    if (t != ProjectExplorer::ToolChain::MSVC && t != ProjectExplorer::ToolChain::WINCE) {
+        type = toolchain->type();
+    if (type != ProjectExplorer::ToolChain::MSVC && type != ProjectExplorer::ToolChain::WINCE) {
         if (value(name, "makeCmd").toString().isEmpty())
             args << "-w";
     }
@@ -117,8 +113,7 @@ bool MakeStep::init(const QString &name)
     setEnabled(name, true);
     setArguments(name, args);
 
-    ProjectExplorer::ToolChain::ToolChainType type = qt4project->toolChain(bc)->type();
-    if ( type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
+    if (type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
         setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_MSVC);
     else
         setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_GCC);
@@ -179,6 +174,9 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     connect(makeStep, SIGNAL(changed()),
             this, SLOT(update()));
+    connect(makeStep->project(), SIGNAL(buildDirectoryChanged()),
+            this, SLOT(updateDetails()));
+
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateMakeOverrideLabel()));
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
@@ -194,14 +192,9 @@ void MakeStepConfigWidget::updateMakeOverrideLabel()
 
 void MakeStepConfigWidget::updateDetails()
 {
-    // TODO reduce heavy code duplication
-    QString workingDirectory;
     Qt4Project *pro = static_cast<Qt4Project *>(m_makeStep->project());
     ProjectExplorer::BuildConfiguration *bc = pro->buildConfiguration(m_buildConfiguration);
-    if (bc->value("useShadowBuild").toBool())
-        workingDirectory = bc->value("buildDirectory").toString();
-    if (workingDirectory.isEmpty())
-        workingDirectory = QFileInfo(pro->file()->fileName()).absolutePath();
+    QString workingDirectory = pro->buildDirectory(bc);
 
     QString makeCmd = pro->makeCommand(bc);
     if (!m_makeStep->value(m_buildConfiguration, "makeCmd").toString().isEmpty())

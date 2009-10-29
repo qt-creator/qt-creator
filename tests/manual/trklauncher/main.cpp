@@ -126,7 +126,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-    QCoreApplication::setApplicationName(QLatin1String("trklauncher"));
+    QCoreApplication::setApplicationName(QLatin1String("TRKlauncher"));
     QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
 
     bool bluetooth;

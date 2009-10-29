@@ -131,8 +131,8 @@ void TermGdbAdapter::startInferiorPhase2()
 
 void TermGdbAdapter::interruptInferior()
 {
-    debugMessage(_("TRYING TO INTERUPT INFERIOR"));
     const qint64 attachedPID = m_engine->inferiorPid();
+    QTC_ASSERT(attachedPID > 0, return);
     if (!interruptProcess(attachedPID))
         debugMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
 }
