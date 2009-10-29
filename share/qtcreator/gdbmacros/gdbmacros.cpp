@@ -633,7 +633,7 @@ QDumper &QDumper::put(const void *p)
     if (p) {
         // Pointer is 'long long' on WIN_64, only
         static const char *printFormat = sizeof(quintptr) == sizeof(long) ? "0x%lx" : "0x%llx";
-        pos += sprintf(outBuffer + pos, printFormat, reinterpret_cast<quintptr>(p));
+        pos += sprintf(outBuffer + pos, printFormat, p);
     } else {
         pos += sprintf(outBuffer + pos, "<null>");
     }
@@ -1068,8 +1068,7 @@ static void qDumpQAbstractItem(QDumper &d)
        mm->p = mm->m = 0;       
        static const char *printFormat = sizeof(quintptr) == sizeof(long) ?
                                         "%d,%d,0x%lx,0x%lx" : "%d,%d,0x%llx,0x%llx";
-       sscanf(d.templateParameters[0], printFormat, &mm->r, &mm->c,
-	      reinterpret_cast<quintptr*>(&mm->p), reinterpret_cast<quintptr*>(&mm->m));
+       sscanf(d.templateParameters[0], printFormat, &mm->r, &mm->c, &mm->p, &mm->m);
     }
     const QAbstractItemModel *m = mi.model();
     const int rowCount = m->rowCount(mi);
