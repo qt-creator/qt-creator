@@ -238,6 +238,7 @@ public:
     static QString extractSpecFromArgumentList(const QStringList &list);
 signals:
     void targetInformationChanged();
+    void qtVersionChanged(ProjectExplorer::BuildConfiguration *);
 
 public slots:
     void update();
