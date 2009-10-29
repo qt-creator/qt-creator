@@ -55,6 +55,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
 #include <QtGui/QRadioButton>
+#include <QtGui/QToolButton>
 
 using namespace ProjectExplorer;
 
@@ -82,6 +83,8 @@ private slots:
 #endif
 
     void updateTargetInformation();
+    
+    void updateSimulatorPath();
     void updateVisibleSimulatorParameter();
 
 private:
@@ -250,6 +253,9 @@ static const QLatin1String LastDeployedKey("LastDeployed");
 static const QLatin1String DebuggingHelpersLastDeployedKey(
     "DebuggingHelpersLastDeployed");
 
+static const QLatin1String SimulatorPath("SimulatorPath");
+static const QLatin1String IsUserSetSimulator("IsUserSetSimulator");
+
 #if USE_SSL_PASSWORD
 static const QLatinString RemoteUserPasswordKey("RemoteUserPassword");
 static const QLatinString RemoteHostRequiresPasswordKey(
@@ -262,6 +268,7 @@ MaemoRunConfiguration::MaemoRunConfiguration(Project *project,
     , m_proFilePath(proFilePath)
     , m_cachedTargetInformationValid(false)
     , m_cachedSimulatorInformationValid(false)
+    , m_isUserSetSimulator(false)
     , m_remotePortSim(22)
     , m_remotePortDevice(22)
     , qemu(0)
@@ -348,7 +355,9 @@ void MaemoRunConfiguration::save(PersistentSettingsWriter &writer) const
     writer.saveValue(DebuggingHelpersLastDeployedKey,
         m_debuggingHelpersLastDeployed);
 
-    writer.saveValue("Runtime", m_simulatorPath);
+    writer.saveValue(SimulatorPath, m_simulatorPath);
+    writer.saveValue(IsUserSetSimulator, m_isUserSetSimulator);
+
     const QDir &dir = QFileInfo(project()->file()->fileName()).absoluteDir();
     writer.saveValue("ProFile", dir.relativeFilePath(m_proFilePath));
 
@@ -383,7 +392,9 @@ void MaemoRunConfiguration::restore(const PersistentSettingsReader &reader)
     m_debuggingHelpersLastDeployed =
         reader.restoreValue(DebuggingHelpersLastDeployedKey).toDateTime();
 
-    m_simulatorPath = reader.restoreValue("Runtime").toString();
+    m_simulatorPath = reader.restoreValue(SimulatorPath).toString();
+    m_isUserSetSimulator = reader.restoreValue(IsUserSetSimulator).toBool();
+
     const QDir &dir = QFileInfo(project()->file()->fileName()).absoluteDir();
     m_proFilePath = dir.filePath(reader.restoreValue("ProFile").toString());
 }
@@ -611,16 +622,17 @@ void MaemoRunConfiguration::invalidateCachedTargetInformation()
     emit targetInformationChanged();
 }
 
-void MaemoRunConfiguration::setSimulatorPath(const QString &path)
+void MaemoRunConfiguration::setUserSimulatorPath(const QString &path)
 {
-    qDebug("MaemoRunConfiguration::setSimulatorPath() called, "
+    qDebug("MaemoRunConfiguration::setUserSimulatorPath() called, "
         "m_simulatorPath: %s, new path: %s", qPrintable(m_simulatorPath),
         qPrintable(path));
 
-    if (m_simulatorPath != path)
+    m_isUserSetSimulator = true;
+    if (m_userSimulatorPath != path)
         m_cachedSimulatorInformationValid = false;
 
-    m_simulatorPath = path;
+    m_userSimulatorPath = path;
     emit cachedSimulatorInformationChanged();
 }
 
@@ -628,6 +640,15 @@ void MaemoRunConfiguration::invalidateCachedSimulatorInformation()
 {
     qDebug("MaemoRunConfiguration::invalidateCachedSimulatorInformation() "
         "called");
+
+    m_cachedSimulatorInformationValid = false;
+    emit cachedSimulatorInformationChanged();
+}
+
+void MaemoRunConfiguration::resetCachedSimulatorInformation()
+{
+    m_userSimulatorPath.clear();
+    m_isUserSetSimulator = false;
 
     m_cachedSimulatorInformationValid = false;
     emit cachedSimulatorInformationChanged();
@@ -732,47 +753,56 @@ void MaemoRunConfiguration::updateTarget()
 
 void MaemoRunConfiguration::updateSimulatorInformation()
 {
-    qDebug("MaemoRunConfiguration::updateSimulatorInformation() called");
-
     if (m_cachedSimulatorInformationValid)
         return;
 
     m_simulator = QString::null;
     m_simulatorArgs == QString::null;
     m_cachedSimulatorInformationValid = true;
-    m_visibleSimulatorParameter = tr("Please select a Maemo simulator.");
+    m_simulatorPath = QDir::toNativeSeparators(m_userSimulatorPath);
+    m_visibleSimulatorParameter = tr("Could not autodetect target simulator, "
+        "please choose one on your own.");
+
+    if (!m_isUserSetSimulator)
+        m_simulatorPath = QDir::toNativeSeparators(toolchain()->simulatorRoot());
 
     if (!m_simulatorPath.isEmpty()) {
         m_visibleSimulatorParameter = tr("'%1' is not a valid Maemo simulator.")
             .arg(m_simulatorPath);
     }
 
-    const QStringList &files = QDir(m_simulatorPath).entryList(QDir::Files
-        | QDir::NoSymLinks | QDir::NoDotAndDotDot);
-    if (files.count() >= 2) {
-        const QLatin1String info("information");
-        if (files.contains(info)) {
-            QFile file(m_simulatorPath + QLatin1Char('/') + info);
-            if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                QMap<QString, QString> map;
-                QTextStream stream(&file);
-                while (!stream.atEnd()) {
-                    const QString &line = stream.readLine().trimmed();
-                    const int index = line.indexOf(QLatin1Char('='));
-                    map.insert(line.mid(0, index).remove(QLatin1Char('\'')),
-                        line.mid(index + 1).remove(QLatin1Char('\'')));
-                }
+    QDir dir(m_simulatorPath);
+    if (dir.exists(m_simulatorPath)) {
+        const QStringList &files = dir.entryList(QDir::Files | QDir::NoSymLinks
+            | QDir::NoDotAndDotDot);
+        if (files.count() >= 2) {
+            const QLatin1String info("information");
+            if (files.contains(info)) {
+                QFile file(m_simulatorPath + QLatin1Char('/') + info);
+                if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                    QMap<QString, QString> map;
+                    QTextStream stream(&file);
+                    while (!stream.atEnd()) {
+                        const QString &line = stream.readLine().trimmed();
+                        const int index = line.indexOf(QLatin1Char('='));
+                        map.insert(line.mid(0, index).remove(QLatin1Char('\'')),
+                            line.mid(index + 1).remove(QLatin1Char('\'')));
+                    }
 
-                m_simulator = map.value(QLatin1String("runcommand"));
-                m_simulatorArgs = map.value(QLatin1String("runcommand_args"));
+                    m_simulator = map.value(QLatin1String("runcommand"));
+                    m_simulatorArgs = map.value(QLatin1String("runcommand_args"));
 
-                m_visibleSimulatorParameter = m_simulator
+                    m_visibleSimulatorParameter = m_simulator
 #ifdef Q_OS_WIN
-                    + QLatin1String(".exe")
+                        + QLatin1String(".exe")
 #endif
-                    + QLatin1Char(' ') + m_simulatorArgs;
+                        + QLatin1Char(' ') + m_simulatorArgs;
+                }
             }
         }
+    } else {
+        m_visibleSimulatorParameter = tr("'%1' could not be found. Please "
+            "choose a simulator on your own.").arg(m_simulatorPath);
     }
 
     emit cachedSimulatorInformationChanged();
@@ -856,10 +886,28 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_chooseSimPathLabel = new QLabel(tr("Choose simulator:"));
     m_simPathChooser = new Utils::PathChooser;
     m_simPathChooser->setPath(m_runConfiguration->simulatorPath());
-    mainLayout->addRow(m_chooseSimPathLabel, m_simPathChooser);
+
+    QHBoxLayout *pathLayout = new QHBoxLayout;
+    pathLayout->addWidget(m_simPathChooser);
+
+    QToolButton *resetButton = new QToolButton();
+    resetButton->setToolTip(tr("Reset to default"));
+    resetButton->setIcon(QIcon(":/core/images/reset.png"));
+    pathLayout->addWidget(resetButton);
+
+    mainLayout->addRow(m_chooseSimPathLabel, pathLayout);
     m_simParamsNameLabel = new QLabel(tr("Simulator command line:"));
     m_simParamsValueLabel= new QLabel(m_runConfiguration->visibleSimulatorParameter());
     mainLayout->addRow(m_simParamsNameLabel, m_simParamsValueLabel);
+
+    connect(m_simPathChooser, SIGNAL(changed(QString)), m_runConfiguration,
+        SLOT(setUserSimulatorPath(QString)));
+    connect(m_runConfiguration, SIGNAL(cachedSimulatorInformationChanged()),
+        this, SLOT(updateSimulatorPath()));
+    connect(m_runConfiguration, SIGNAL(cachedSimulatorInformationChanged()),
+        this, SLOT(updateVisibleSimulatorParameter()));
+    connect(resetButton, SIGNAL(clicked()), m_runConfiguration,
+        SLOT(resetCachedSimulatorInformation()));
 
     m_hostNameLineEdit = new QLineEdit(m_runConfiguration->remoteHostName());
     mainLayout->addRow(tr("Remote host name:"), m_hostNameLineEdit);
@@ -878,6 +926,11 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_passwordLineEdit->setEchoMode(QLineEdit::Password);
     m_passwordLineEdit->setEnabled(m_passwordCheckBox->isChecked());
     mainLayout->addRow(m_passwordCheckBox, m_passwordLineEdit);
+
+    connect(m_passwordCheckBox, SIGNAL(stateChanged(int)), this,
+        SLOT(passwordUseChanged()));
+    connect(m_passwordLineEdit, SIGNAL(textEdited(QString)), this,
+        SLOT(passwordEdited(QString)));
 #endif
 
     connect(m_configNameLineEdit, SIGNAL(textEdited(QString)), this,
@@ -892,18 +945,8 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         SLOT(hostNameEdited(QString)));
     connect(m_userLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(userNameEdited(QString)));
-#if USE_SSL_PASSWORD
-    connect(m_passwordCheckBox, SIGNAL(stateChanged(int)), this,
-        SLOT(passwordUseChanged()));
-    connect(m_passwordLineEdit, SIGNAL(textEdited(QString)), this,
-        SLOT(passwordEdited(QString)));
-#endif
     connect(m_portLineEdit, SIGNAL(textEdited(QString)), this,
         SLOT(portEdited(QString)));
-    connect(m_simPathChooser, SIGNAL(changed(QString)), m_runConfiguration,
-        SLOT(setSimulatorPath(QString)));
-    connect(m_runConfiguration, SIGNAL(cachedSimulatorInformationChanged()),
-        this, SLOT(updateVisibleSimulatorParameter()));
     if (m_runConfiguration->remoteHostIsSimulator())
         m_simButton->setChecked(true);
     else
@@ -923,6 +966,11 @@ void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
 void MaemoRunConfigurationWidget::updateTargetInformation()
 {
     m_executableLabel->setText(m_runConfiguration->executable());
+}
+
+void MaemoRunConfigurationWidget::updateSimulatorPath()
+{
+    m_simPathChooser->setPath(m_runConfiguration->simulatorPath());
 }
 
 void MaemoRunConfigurationWidget::updateVisibleSimulatorParameter()
@@ -1017,7 +1065,7 @@ QString MaemoRunConfigurationFactory::displayNameForType(
     const QString &type) const
 {
     const int size = QString::fromLocal8Bit("MaemoRunConfiguration.").size();
-    return tr("%1 on Maemo device").arg(QFileInfo(type.mid(size))
+    return tr("%1 on Maemo Device").arg(QFileInfo(type.mid(size))
         .completeBaseName());
 }
 
