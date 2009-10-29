@@ -174,6 +174,9 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     connect(makeStep, SIGNAL(changed()),
             this, SLOT(update()));
+    connect(makeStep->project(), SIGNAL(buildDirectoryChanged()),
+            this, SLOT(updateDetails()));
+
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateMakeOverrideLabel()));
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
@@ -189,7 +192,6 @@ void MakeStepConfigWidget::updateMakeOverrideLabel()
 
 void MakeStepConfigWidget::updateDetails()
 {
-    // TODO reduce heavy code duplication
     Qt4Project *pro = static_cast<Qt4Project *>(m_makeStep->project());
     ProjectExplorer::BuildConfiguration *bc = pro->buildConfiguration(m_buildConfiguration);
     QString workingDirectory = pro->buildDirectory(bc);

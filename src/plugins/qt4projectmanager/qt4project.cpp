@@ -1004,7 +1004,7 @@ void Qt4Project::updateActiveRunConfiguration()
         }
     }
     emit runConfigurationsEnabledStateChanged();
-    emit invalidateCachedTargetInformation();
+    emit targetInformationChanged();
 }
 
 ProjectExplorer::ToolChain::ToolChainType Qt4Project::toolChainType(BuildConfiguration *configuration) const
@@ -1205,6 +1205,11 @@ void Qt4Project::notifyChanged(const QString &name)
 void Qt4Project::invalidateCachedTargetInformation()
 {
     emit targetInformationChanged();
+}
+
+void Qt4Project::emitBuildDirectoryChanged()
+{
+    emit buildDirectoryChanged();
 }
 
 // We match -spec and -platfrom separetly

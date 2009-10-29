@@ -72,30 +72,6 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->invalidQtWarningLabel->setVisible(false);
 
-    connect(m_ui->nameLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(changeConfigName(QString)));
-
-    connect(m_ui->shadowBuildCheckBox, SIGNAL(clicked(bool)),
-            this, SLOT(shadowBuildCheckBoxClicked(bool)));
-
-    connect(m_ui->shadowBuildDirEdit, SIGNAL(beforeBrowsing()),
-            this, SLOT(onBeforeBeforeShadowBuildDirBrowsed()));
-
-    connect(m_ui->shadowBuildDirEdit, SIGNAL(changed(QString)),
-            this, SLOT(shadowBuildLineEditTextChanged()));
-
-    connect(m_ui->qtVersionComboBox, SIGNAL(currentIndexChanged(QString)),
-            this, SLOT(qtVersionComboBoxCurrentIndexChanged(QString)));
-
-    connect(m_ui->toolChainComboBox, SIGNAL(activated(int)),
-            this, SLOT(selectToolChain(int)));
-
-    connect(m_ui->importLabel, SIGNAL(linkActivated(QString)),
-            this, SLOT(importLabelClicked()));
-
-    connect(m_ui->manageQtVersionPushButtons, SIGNAL(clicked()),
-            this, SLOT(manageQtVersions()));
-
     QtVersionManager *vm = QtVersionManager::instance();
 
     connect(vm, SIGNAL(qtVersionsChanged()),
@@ -147,6 +123,31 @@ void Qt4ProjectConfigWidget::init(const QString &buildConfiguration)
     if (debug)
         qDebug() << "Qt4ProjectConfigWidget::init() for"<<buildConfiguration;
 
+    disconnect(m_ui->nameLineEdit, SIGNAL(textEdited(QString)),
+            this, SLOT(changeConfigName(QString)));
+
+    disconnect(m_ui->shadowBuildCheckBox, SIGNAL(clicked(bool)),
+            this, SLOT(shadowBuildCheckBoxClicked(bool)));
+
+    disconnect(m_ui->shadowBuildDirEdit, SIGNAL(beforeBrowsing()),
+            this, SLOT(onBeforeBeforeShadowBuildDirBrowsed()));
+
+    disconnect(m_ui->shadowBuildDirEdit, SIGNAL(changed(QString)),
+            this, SLOT(shadowBuildLineEditTextChanged()));
+
+    disconnect(m_ui->qtVersionComboBox, SIGNAL(currentIndexChanged(QString)),
+            this, SLOT(qtVersionComboBoxCurrentIndexChanged(QString)));
+
+    disconnect(m_ui->toolChainComboBox, SIGNAL(activated(int)),
+            this, SLOT(selectToolChain(int)));
+
+    disconnect(m_ui->importLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(importLabelClicked()));
+
+    disconnect(m_ui->manageQtVersionPushButtons, SIGNAL(clicked()),
+            this, SLOT(manageQtVersions()));
+
+
     m_buildConfiguration = buildConfiguration;
     ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(buildConfiguration);
     m_ui->nameLineEdit->setText(bc->displayName());
@@ -161,6 +162,31 @@ void Qt4ProjectConfigWidget::init(const QString &buildConfiguration)
     updateImportLabel();
     updateToolChainCombo();
     updateDetails();
+
+    connect(m_ui->nameLineEdit, SIGNAL(textEdited(QString)),
+            this, SLOT(changeConfigName(QString)));
+
+    connect(m_ui->shadowBuildCheckBox, SIGNAL(clicked(bool)),
+            this, SLOT(shadowBuildCheckBoxClicked(bool)));
+
+    connect(m_ui->shadowBuildDirEdit, SIGNAL(beforeBrowsing()),
+            this, SLOT(onBeforeBeforeShadowBuildDirBrowsed()));
+
+    connect(m_ui->shadowBuildDirEdit, SIGNAL(changed(QString)),
+            this, SLOT(shadowBuildLineEditTextChanged()));
+
+    connect(m_ui->qtVersionComboBox, SIGNAL(currentIndexChanged(QString)),
+            this, SLOT(qtVersionComboBoxCurrentIndexChanged(QString)));
+
+    connect(m_ui->toolChainComboBox, SIGNAL(activated(int)),
+            this, SLOT(selectToolChain(int)));
+
+    connect(m_ui->importLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(importLabelClicked()));
+
+    connect(m_ui->manageQtVersionPushButtons, SIGNAL(clicked()),
+            this, SLOT(manageQtVersions()));
+
 }
 
 void Qt4ProjectConfigWidget::changeConfigName(const QString &newName)
@@ -222,6 +248,7 @@ void Qt4ProjectConfigWidget::shadowBuildCheckBoxClicked(bool checked)
         bc->setValue("buildDirectory", m_ui->shadowBuildDirEdit->path());
     else
         bc->setValue("buildDirectory", QVariant(QString::null));
+    m_pro->buildDirectoryChanged();
     updateDetails();
     updateImportLabel();
 }
@@ -262,9 +289,11 @@ void Qt4ProjectConfigWidget::shadowBuildLineEditTextChanged()
     // if the directory already exists
     // check if we have a build in there and
     // offer to import it
-    updateImportLabel();
 
+    m_pro->buildDirectoryChanged();
     m_pro->invalidateCachedTargetInformation();
+
+    updateImportLabel();
     updateDetails();
 }
 

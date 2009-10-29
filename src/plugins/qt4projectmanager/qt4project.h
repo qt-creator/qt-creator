@@ -72,6 +72,7 @@ namespace Internal {
     class Qt4RunConfiguration;
     class GCCPreprocessor;
     struct Qt4ProjectFiles;
+    class Qt4ProjectConfigWidget;
 
     class CodeModelInfo
     {
@@ -266,6 +267,10 @@ private:
     static void findProFile(const QString& fileName, Internal::Qt4ProFileNode *root, QList<Internal::Qt4ProFileNode *> &list);
     static bool hasSubNode(Internal::Qt4PriFileNode *root, const QString &path);
 
+    // called by Qt4ProjectConfigWidget
+    // TODO remove once there's a setBuildDirectory call
+    void emitBuildDirectoryChanged();
+
     QList<Internal::Qt4ProFileNode *> m_applicationProFileChange;
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;
 
@@ -296,6 +301,7 @@ private:
     mutable ProjectExplorer::ToolChain *m_toolChain;
 
     friend class Qt4ProjectFile;
+    friend class Internal::Qt4ProjectConfigWidget;
 };
 
 } // namespace Qt4ProjectManager

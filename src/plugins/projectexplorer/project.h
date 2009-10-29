@@ -144,6 +144,7 @@ public:
     static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
 signals:
     void fileListChanged();
+    void buildDirectoryChanged();
 
 // TODO clean up signal names
 // might be better to also have
