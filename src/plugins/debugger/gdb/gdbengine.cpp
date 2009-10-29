@@ -1355,7 +1355,7 @@ void GdbEngine::shutdown()
         // fall-through
     case InferiorStopFailed: // Tough luck, I guess. But unreachable as of now anyway.
         setState(EngineShuttingDown);
-        m_gdbProc.terminate();
+        m_gdbProc.kill();
         break;
     }
 }
@@ -1383,7 +1383,7 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
     } else {
         QString msg = m_gdbAdapter->msgGdbStopFailed(_(response.data.findChild("msg").data()));
         debugMessage(_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
-        m_gdbProc.terminate();
+        m_gdbProc.kill();
     }
 }
 
@@ -4232,7 +4232,7 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
     case QProcess::WriteError:
     case QProcess::Timedout:
     default:
-        m_gdbProc.terminate();
+        m_gdbProc.kill();
         setState(EngineShuttingDown, true);
         showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"),
                        errorMessage(error));
@@ -4325,7 +4325,7 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
     setState(AdapterStartFailed, true);
 
     // No point in being friendly here ...
-    m_gdbProc.terminate();
+    m_gdbProc.kill();
 
     if (!msg.isEmpty())
         showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), msg);
