@@ -887,10 +887,10 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
         // fullname="/data5/dev/ide/main/bin/gdbmacros/gdbmacros.cpp"},
         GdbMi files = response.data.findChild("files");
         foreach (const GdbMi &item, files.children()) {
-            QString fileName = QString::fromLocal8Bit(item.findChild("file").data());
             GdbMi fullName = item.findChild("fullname");
             if (fullName.isValid()) {
                 QString full = cleanupFullName(QString::fromLocal8Bit(fullName.data()));
+                QString fileName = QString::fromLocal8Bit(item.findChild("file").data());
                 m_shortToFullName[fileName] = full;
                 m_fullToShortName[full] = fileName;
             }
