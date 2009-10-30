@@ -514,7 +514,7 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="-133"/>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
-        <translation>Es wurde ein &lt;b&gt;Build im Quellverzeichnis&lt;/b&gt; festgestellt, der Shadow-Builds verhindert. Das Build-Verzeichnis kann nicht in Qt Creator geändert werden. Wenn Sie einen Shadow-Build wünschen, bereinigen Sie bitte das Quellverzeichnis und öffnen Sie das Projekt noch einmal.</translation>
+        <translation>Es wurde ein &lt;b&gt;Build im Quellverzeichnis %1&lt;/b&gt; festgestellt, der Shadow-Builds verhindert. Das Build-Verzeichnis kann nicht in Qt Creator geändert werden. Wenn Sie einen Shadow-Build wünschen, bereinigen Sie bitte das Quellverzeichnis und öffnen Sie das Projekt noch einmal.</translation>
     </message>
 </context>
 <context>
@@ -10396,7 +10396,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+6"/>
         <source>The active build configuration builds a target that cannot be used by the active run configuration.</source>
-        <translation>Die aktive Build-Konfiguration erstellt ein Ziel, was von der aktive Ausführungskonfiguration nicht verwendet werden kann.</translation>
+        <translation>Die aktive Build-Konfiguration erstellt ein Ziel, das von der aktiven Ausführungskonfiguration nicht verwendet werden kann.</translation>
     </message>
     <message>
         <location line="+13"/>
