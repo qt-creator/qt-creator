@@ -201,7 +201,7 @@ bool Launcher::startServer(QString *errorMessage)
     }
     setState(Connecting);
     // Set up the temporary 'waiting' state if we do not get immediate connection
-    QTimer::singleShot(200, this, SLOT(slotWaitingForTrk()));
+    QTimer::singleShot(1000, this, SLOT(slotWaitingForTrk()));
     d->m_device->sendTrkInitialPing();
     d->m_device->sendTrkMessage(TrkDisconnect); // Disconnect, as trk might be still connected
     d->m_device->sendTrkMessage(TrkSupported, TrkCallback(this, &Launcher::handleSupportMask));
