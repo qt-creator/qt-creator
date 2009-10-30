@@ -121,6 +121,7 @@ private: ////////// General State //////////
 
     DebuggerStartParametersPtr m_startParameters;
     QSharedPointer<TrkOptions> m_trkOptions;
+    bool m_registerNamesListed;
 
 private: ////////// Gdb Process Management //////////
 
@@ -461,7 +462,6 @@ private: ////////// Convenience Functions //////////
     void showMessageBox(int icon, const QString &title, const QString &text);
     void debugMessage(const QString &msg);
     QMainWindow *mainWindow() const;
-
 };
 
 } // namespace Internal
