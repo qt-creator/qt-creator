@@ -12575,12 +12575,12 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4project.cpp" line="+252"/>
         <source>Using Default Qt Version</source>
-        <translation>Es wird die Vorgabe-Qt-Version benutzt</translation>
+        <translation>Vorgabe-Qt-Version verwenden</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Using Qt Version &quot;%1&quot;</source>
-        <translation>Es wird die Qt-Version &quot;%1&quot; benutzt</translation>
+        <translation>Qt-Version &quot;%1&quot; verwenden</translation>
     </message>
     <message>
         <location line="+26"/>
