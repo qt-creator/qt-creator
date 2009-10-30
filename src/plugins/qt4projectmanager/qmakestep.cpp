@@ -64,7 +64,7 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
     arguments << project()->file()->fileName();
     arguments << "-r";
 
-    if (!arguments.contains("-spec"))
+    if (!additonalArguments.contains("-spec"))
         arguments << "-spec" << "default";
 
 #ifdef Q_OS_WIN
