@@ -48,9 +48,11 @@ namespace Internal {
 CVSEditor::CVSEditor(const VCSBase::VCSBaseEditorParameters *type,
                                    QWidget *parent) :
     VCSBase::VCSBaseEditor(type, parent),
-    m_revisionPattern(QLatin1String(CVS_REVISION_AT_START_PATTERN".*$"))
+    m_revisionAnnotationPattern(QLatin1String(CVS_REVISION_AT_START_PATTERN".*$")),
+    m_revisionLogPattern(QLatin1String("^revision  *("CVS_REVISION_PATTERN")$"))
 {
-    QTC_ASSERT(m_revisionPattern.isValid(), return);
+    QTC_ASSERT(m_revisionAnnotationPattern.isValid(), return);
+    QTC_ASSERT(m_revisionLogPattern.isValid(), return);
 }
 
 QSet<QString> CVSEditor::annotationChanges() const
@@ -79,16 +81,31 @@ QSet<QString> CVSEditor::annotationChanges() const
 
 QString CVSEditor::changeUnderCursor(const QTextCursor &c) const
 {
-
-    // Check for a revision number at the beginning of the line.
-    // Note that "cursor.select(QTextCursor::WordUnderCursor)" will
-    // only select the part up until the dot.
-    // Check if we are at the beginning of a line within a reasonable offset.
-    const QTextBlock block = c.block();
-    if (c.atBlockStart() || (c.position() - block.position() < 3)) {
-        const QString line = block.text();
-        if (m_revisionPattern.exactMatch(line))
-            return m_revisionPattern.cap(1);
+    // Try to match "1.1" strictly:
+    // 1) Annotation: Check for a revision number at the beginning of the line.
+    //    Note that "cursor.select(QTextCursor::WordUnderCursor)" will
+    //    only select the part up until the dot.
+    //    Check if we are at the beginning of a line within a reasonable offset.
+    // 2) Log: check for lines like "revision 1.1", cursor past "revision"
+    switch (contentType()) {
+    case VCSBase::RegularCommandOutput:
+    case VCSBase::DiffOutput:
+        break;
+    case VCSBase::AnnotateOutput: {
+            const QTextBlock block = c.block();
+            if (c.atBlockStart() || (c.position() - block.position() < 3)) {
+                const QString line = block.text();
+                if (m_revisionAnnotationPattern.exactMatch(line))
+                    return m_revisionAnnotationPattern.cap(1);
+            }
+        }
+        break;
+    case VCSBase::LogOutput: {
+            const QTextBlock block = c.block();
+            if (c.position() - block.position() > 8 && m_revisionLogPattern.exactMatch(block.text()))
+                return m_revisionLogPattern.cap(1);
+        }
+        break;
     }
     return QString();
 }
