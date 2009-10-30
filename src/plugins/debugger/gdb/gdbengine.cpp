@@ -596,7 +596,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 
 void GdbEngine::readGdbStandardError()
 {
-    qWarning() << "Unexpected gdb stderr:" << m_gdbProc.readAllStandardError();
+    QByteArray err = m_gdbProc.readAllStandardError();
+    if (err == "Undefined command: \"bb\".  Try \"help\".\n")
+        return;
+    qWarning() << "Unexpected gdb stderr:" << err;
 }
 
 void GdbEngine::readGdbStandardOutput()
