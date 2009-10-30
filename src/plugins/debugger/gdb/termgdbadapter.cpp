@@ -114,8 +114,9 @@ void TermGdbAdapter::startInferior()
 
 void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
 {
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+        setState(InferiorStopped);
         debugMessage(_("INFERIOR ATTACHED"));
         emit inferiorPrepared();
     } else if (response.resultClass == GdbResultError) {

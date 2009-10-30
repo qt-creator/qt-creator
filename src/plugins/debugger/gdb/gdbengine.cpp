@@ -889,6 +889,7 @@ void GdbEngine::updateAll()
 {
     QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
     tryLoadDebuggingHelpers();
+    reloadModulesInternal();
     postCommand(_("-stack-list-frames"), WatchUpdate, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     manager()->stackHandler()->setCurrentIndex(0);
@@ -1009,6 +1010,11 @@ void GdbEngine::handleAqcuiredInferior()
 
 void GdbEngine::handleStopResponse(const GdbMi &data)
 {
+    // This is gdb 7+'s initial *stopped in response to attach.
+    // For consistency, we just discard it.
+    if (state() == InferiorStarting)
+        return;
+
     const QByteArray reason = data.findChild("reason").data();
 
     if (isExitedReason(reason)) {
@@ -1051,16 +1057,12 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
-    bool initHelpers = true;
     if (state() == InferiorRunning) {
         // Stop triggered by a breakpoint or otherwise not directly
         // initiated by the user.
         setState(InferiorStopping);
     } else {
-        if (state() == InferiorStarting)
-            initHelpers = false;
-        else
-            QTC_ASSERT(state() == InferiorStopping, qDebug() << state());
+        QTC_ASSERT(state() == InferiorStopping, qDebug() << state());
     }
     setState(InferiorStopped);
 
@@ -1138,8 +1140,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         }
     }
 
-    if (initHelpers && m_debuggingHelperState != DebuggingHelperUninitialized)
-        initHelpers = false;
+    bool initHelpers = (m_debuggingHelperState == DebuggingHelperUninitialized);
     // Don't load helpers on stops triggered by signals unless it's
     // an intentional trap.
     if (initHelpers && reason == "signal-received"
