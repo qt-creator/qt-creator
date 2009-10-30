@@ -2052,7 +2052,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+46"/>
         <source>New Project...</source>
         <translation>Nowy projekt...</translation>
     </message>
@@ -2524,7 +2524,7 @@ It also automatically sets the correct Qt version.</source>
     <message>
         <location line="+1"/>
         <source>You can fine tune the &lt;tt&gt;Find&lt;/tt&gt; function by selecting &amp;quot;Whole Words&amp;quot; or &amp;quot;Case Sensitive&amp;quot;. Simply click on the icons on the right end of the line edit.</source>
-        <translation>Możesz wyregulować działanie funkcji &lt;tt&gt;Znajdź&lt;/tt&gt; poprzez wybranie &amp;quot;Tylko całe słowa&amp;quot; lub &amp;quot;Uwzględniaj wielkość liter&amp;quot;.W tym celu naciśnij ikonę w prawym końcu pola edycyjnego.</translation>
+        <translation type="unfinished">Możesz wyregulować działanie funkcji &lt;tt&gt;Znajdź&lt;/tt&gt; poprzez wybranie &amp;quot;Tylko całe słowa&amp;quot; lub &amp;quot;Uwzględniaj wielkość liter&amp;quot;. W tym celu naciśnij ikonę w prawym końcu pola edycyjnego.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -2589,8 +2589,12 @@ It also automatically sets the correct Qt version.</source>
     </message>
     <message>
         <location line="+2"/>
+        <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; follows symbol definition, &lt;tt&gt;Shift+F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
+        <translation>Naciśnięcie w edytorze &lt;tt&gt;F2&lt;/tt&gt; powoduje skok do definicji symbolu, &lt;tt&gt;Shift+F2&lt;/tt&gt; przełącza między deklaracją a definicją, zaś &lt;tt&gt;F4&lt;/tt&gt; przełącza między plikiem nagłówkowym a plikiem źródłowym.</translation>
+    </message>
+    <message>
         <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
-        <translation>Naciśnięcie w edytorze &lt;tt&gt;F2&lt;/tt&gt; przełącza między deklaracją a definicją, zaś &lt;tt&gt;F4&lt;/tt&gt; przełącza między plikiem nagłówkowym a plikiem źródłowym.</translation>
+        <translation type="obsolete">Naciśnięcie w edytorze &lt;tt&gt;F2&lt;/tt&gt; przełącza między deklaracją a definicją, zaś &lt;tt&gt;F4&lt;/tt&gt; przełącza między plikiem nagłówkowym a plikiem źródłowym.</translation>
     </message>
 </context>
 <context>
@@ -2715,13 +2719,13 @@ It also automatically sets the correct Qt version.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+47"/>
-        <location line="+65"/>
+        <location line="+23"/>
+        <location line="+115"/>
         <source>Default Qt Version (%1)</source>
         <translation>Domyślna wersja Qt (%1)</translation>
     </message>
     <message>
-        <location line="-61"/>
+        <location line="-111"/>
         <source>No Qt Version set</source>
         <translation>Nie ustawiono wersji Qt</translation>
     </message>
@@ -2826,6 +2830,11 @@ p, li { white-space: pre-wrap; }
         <location/>
         <source>Carbide Directory:</source>
         <translation>Katalog Carbide:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>CLS/GCCE Directory:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4861,7 +4870,7 @@ Czy chcesz je nadpisać?</translation>
     <message>
         <location line="+4"/>
         <source>Split Side by Side</source>
-        <translation type="unfinished"></translation>
+        <translation>Podziel sąsiadująco</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -4974,7 +4983,7 @@ Czy chcesz je nadpisać?</translation>
     <message>
         <location line="+92"/>
         <source>&lt;b&gt;Warning:&lt;/b&gt; You are changing a read-only file.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Ostrzeżenie:&lt;/b&gt; Zmieniasz plik który jest tylko do odczytu.</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -5004,7 +5013,7 @@ Czy chcesz je nadpisać?</translation>
     <message>
         <location line="+197"/>
         <source>You will lose your current changes if you proceed reverting %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Utracisz swoje bieżące zmiany</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -5099,11 +5108,6 @@ Czy chcesz je nadpisać?</translation>
     <name>Core::Internal::EditorView</name>
     <message id="===============EditorView====================">
         <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="-442"/>
-        <source>Go Back</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
         <source>Go Back</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7572,7 +7576,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
         <translation>Wczytywanie %1...</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+44"/>
         <source>Running...</source>
         <translation>Uruchamianie...</translation>
     </message>
@@ -7603,7 +7607,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
         <translation>Uruchomienie programu zakończone niepowodzeniem: %1</translation>
     </message>
     <message>
-        <location line="+128"/>
+        <location line="+122"/>
         <source>Jumped. Stopped.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7633,12 +7637,12 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
         <translation>Ładowanie %1...</translation>
     </message>
     <message>
-        <location line="+76"/>
+        <location line="+79"/>
         <source>Stopped at breakpoint.</source>
         <translation>Zatrzymano w pułapce.</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+9"/>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7655,17 +7659,17 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+110"/>
+        <location line="+101"/>
         <source>Stopped.</source>
         <translation>Zatrzymano.</translation>
     </message>
     <message>
-        <location line="-108"/>
+        <location line="-99"/>
         <source>Stopped: &quot;%1&quot;</source>
         <translation>Zatrzymano: &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+61"/>
+        <location line="+52"/>
         <source>The debugger you are using identifies itself as:</source>
         <translation>Debugger którego używasz identyfikuje się jako:</translation>
     </message>
@@ -7679,7 +7683,7 @@ Debugowanie najprawdopodobniej nie będzie działało poprawnie.
 Zaleca się użycie gdb wersji 6.7 lub późniejszej.</translation>
     </message>
     <message>
-        <location line="+257"/>
+        <location line="+260"/>
         <source>Continuing after temporary stop...</source>
         <translation>Kontynuowanie po tymczasowym zatrzymaniu...</translation>
     </message>
@@ -7729,13 +7733,13 @@ Zaleca się użycie gdb wersji 6.7 lub późniejszej.</translation>
         <translation type="unfinished">Nie można uruchomić &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <location line="+68"/>
+        <location line="+74"/>
         <source>&lt;unknown&gt;</source>
         <extracomment>End address of loaded module</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+45"/>
         <location line="+8"/>
         <source>Retrieving data for stack view...</source>
         <translation type="unfinished"></translation>
@@ -7851,7 +7855,7 @@ Zaleca się użycie gdb wersji 6.7 lub późniejszej.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2915"/>
+        <location line="-2932"/>
         <source>Execution Error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7862,7 +7866,7 @@ Zaleca się użycie gdb wersji 6.7 lub późniejszej.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+990"/>
+        <location line="+1007"/>
         <source>Jumping out of bogus frame...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7887,17 +7891,17 @@ Zaleca się użycie gdb wersji 6.7 lub późniejszej.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+30"/>
         <source>Inferior start failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-2922"/>
+        <location line="-2938"/>
         <source>Inferior shutdown failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2942"/>
+        <location line="+2958"/>
         <source>Adapter crashed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7993,9 +7997,14 @@ Zaleca się użycie gdb wersji 6.7 lub późniejszej.</translation>
     </message>
     <message>
         <location line="+24"/>
+        <source>Connecting to TRK server adapter failed:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Connecting to trk server adapter failed:
 </source>
-        <translation>Nie można połączyć się z adapterem serwera trk:
+        <translation type="obsolete">Nie można połączyć się z adapterem serwera trk:
 </translation>
     </message>
 </context>
@@ -8015,9 +8024,13 @@ Zaleca się użycie gdb wersji 6.7 lub późniejszej.</translation>
 <context>
     <name>Debugger::Internal::TrkOptionsPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/trkoptionspage.cpp" line="+43"/>
         <source>Symbian Trk</source>
-        <translation>Symbian Trk</translation>
+        <translation type="obsolete">Symbian Trk</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/debugger/gdb/trkoptionspage.cpp" line="+43"/>
+        <source>Symbian TRK</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10948,7 +10961,7 @@ Rebuilding the project might help.</source>
 <context>
     <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.cpp" line="+80"/>
+        <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.cpp" line="+81"/>
         <source>Build Settings</source>
         <translation>Ustawienia budowania</translation>
     </message>
@@ -10956,7 +10969,7 @@ Rebuilding the project might help.</source>
 <context>
     <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
-        <location line="+75"/>
+        <location line="+77"/>
         <source>Edit Build Configuration:</source>
         <translation>Zmodyfikuj konfigurację budowania:</translation>
     </message>
@@ -10971,7 +10984,7 @@ Rebuilding the project might help.</source>
         <translation>Usuń</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+49"/>
         <source>&amp;Clone Selected</source>
         <translation>S&amp;klonuj wybraną</translation>
     </message>
@@ -10986,7 +10999,12 @@ Rebuilding the project might help.</source>
         <translation>Kroki procesu czyszczenia</translation>
     </message>
     <message>
-        <location line="+69"/>
+        <location line="+48"/>
+        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+33"/>
         <source>Clone configuration</source>
         <translation>Sklonuj konfigurację</translation>
     </message>
@@ -11446,7 +11464,7 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+256"/>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+257"/>
         <source>Projects</source>
         <translation>Projekty</translation>
     </message>
@@ -11679,7 +11697,7 @@ Reason: %2</source>
         <translation>Nowy projekt</translation>
     </message>
     <message>
-        <location line="+867"/>
+        <location line="+900"/>
         <source>New File</source>
         <comment>Title of dialog</comment>
         <translation>Nowy plik</translation>
@@ -11766,6 +11784,49 @@ do systemu kontroli wersji (%2)?</translation>
         <location line="+1"/>
         <source>Could not delete file %1.</source>
         <translation>Nie można usunąć pliku %1.</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::BuildConfigDialog</name>
+    <message>
+        <location line="+212"/>
+        <source>Change build configuration &amp;&amp; continue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Cancel</source>
+        <translation type="unfinished">Anuluj</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Continue anyway</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Run configuration doesn&apos;t match build configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The active build configuration builds a target that cannot be used by the active run configuration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>This can happen if the active build configuration uses the wrong Qt version and/or tool chain for the active run configuration (e.g. running in Symbian emulator requires building with WINSCW tool chain).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Choose build configuration:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>No valid build configuration found.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11928,6 +11989,11 @@ do systemu kontroli wersji (%2)?</translation>
         <location line="+1"/>
         <source>Remove</source>
         <translation>Usuń</translation>
+    </message>
+    <message>
+        <location line="+133"/>
+        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12380,12 +12446,12 @@ do systemu kontroli wersji (%2)?</translation>
 <context>
     <name>Qt4ProjectManager::MakeStepConfigWidget</name>
     <message>
-        <location line="+54"/>
+        <location line="+57"/>
         <source>Override %1:</source>
         <translation>Nadpisanie %1:</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+18"/>
         <source>&lt;b&gt;Make Step:&lt;/b&gt; %1 not found in the environment.</source>
         <translation>&lt;b&gt;Krok Make:&lt;/b&gt; Nie odnaleziono %1 w środowisku.</translation>
     </message>
@@ -12486,7 +12552,7 @@ do systemu kontroli wersji (%2)?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceRunConfiguration</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfiguration.cpp" line="+81"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfiguration.cpp" line="+84"/>
         <source>%1 on Symbian Device</source>
         <translation>%1 na urządzeniu Symbian</translation>
     </message>
@@ -12496,7 +12562,7 @@ do systemu kontroli wersji (%2)?</translation>
         <translation>Konfiguracja procesu uruchamiania urządzenia QtS60</translation>
     </message>
     <message>
-        <location line="+197"/>
+        <location line="+205"/>
         <source>Could not parse %1. The QtS60 Device run configuration %2 can not be started.</source>
         <translation>Nie można przetworzyć %1. Nie można rozpocząć konfiguracji procesu uruchamiania %2 dla urządzenia QtS60.</translation>
     </message>
@@ -12504,7 +12570,7 @@ do systemu kontroli wersji (%2)?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfigurationwidget.cpp" line="+73"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfigurationwidget.cpp" line="+75"/>
         <source>Device:</source>
         <translation>Urządzenie:</translation>
     </message>
@@ -12554,7 +12620,7 @@ do systemu kontroli wersji (%2)?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+125"/>
+        <location line="+126"/>
         <source>&lt;No Device&gt;</source>
         <extracomment>Summary text of S60 device run configuration</extracomment>
         <translation>&lt;Brak urządzenia&gt;</translation>
@@ -12575,14 +12641,9 @@ do systemu kontroli wersji (%2)?</translation>
         <translation>Podsumowanie: Uruchomiono na &quot;%1&quot; %2</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+50"/>
         <source>Connecting...</source>
         <translation>Łączenie...</translation>
-    </message>
-    <message>
-        <location line="+53"/>
-        <source>A timeout occurred while querying the device. Check whether Trk is running</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12597,6 +12658,11 @@ do systemu kontroli wersji (%2)?</translation>
     <name>Qt4ProjectManager::Internal::S60DeviceRunControlBase</name>
     <message>
         <location line="+83"/>
+        <source>There is no device plugged in.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Creating %1.sisx ...</source>
         <translation>Tworzenie %1.sisx ...</translation>
     </message>
@@ -12612,12 +12678,12 @@ do systemu kontroli wersji (%2)?</translation>
     </message>
     <message>
         <location line="+12"/>
-        <location line="+76"/>
+        <location line="+90"/>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
     </message>
     <message>
-        <location line="-41"/>
+        <location line="-42"/>
         <source>Could not read template package file &apos;%1&apos;</source>
         <translation>Nie można odczytać pliku z pakietem szablonów &quot;%1&quot;</translation>
     </message>
@@ -12628,26 +12694,31 @@ do systemu kontroli wersji (%2)?</translation>
     </message>
     <message>
         <location line="+16"/>
-        <location line="+28"/>
+        <location line="+29"/>
         <source>An error occurred while creating the package.</source>
         <translation>Wystąpił błąd podczas tworzenia pakietu.</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+26"/>
         <source>Package: %1
 Deploying application to &apos;%2&apos;...</source>
         <translation>Pakiet: %1
 Umieszczanie aplikacji w &quot;%2&quot;...</translation>
     </message>
     <message>
-        <location line="+23"/>
         <source>Could not connect to phone on port &apos;%1&apos;: %2
 Check if the phone is connected and the TRK application is running.</source>
-        <translation>Nie można nawiązać połączenia z telefonem na porcie &quot;%1&quot;: %2
+        <translation type="obsolete">Nie można nawiązać połączenia z telefonem na porcie &quot;%1&quot;: %2
 Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+21"/>
+        <source>Could not connect to phone on port &apos;%1&apos;: %2
+Check if the phone is connected and App TRK is running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Could not create file %1 on device: %2</source>
         <translation>Nie można utworzyć pliku %1 na urządzeniu: %2</translation>
     </message>
@@ -12687,7 +12758,22 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
         <translation>Nie można zainstalować z pakietu %1 na urządzeniu: %2</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+12"/>
+        <source>Waiting for App TRK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Please start App TRK on %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Canceled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>Failed to start %1.</source>
         <translation>Nie można uruchomić %1.</translation>
     </message>
@@ -12705,7 +12791,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceRunControl</name>
     <message>
-        <location line="+37"/>
+        <location line="+38"/>
         <source>Finished.</source>
         <translation>Zakończono.</translation>
     </message>
@@ -12816,7 +12902,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
 <context>
     <name>Qt4ProjectManager::Internal::S60Manager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60manager.cpp" line="+111"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60manager.cpp" line="+113"/>
         <source>Run in Emulator</source>
         <translation>Uruchom w emulatorze</translation>
     </message>
@@ -12929,7 +13015,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
         <translation>Używając wersji &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+26"/>
         <source>New configuration</source>
         <translation>Nowa konfiguracja</translation>
     </message>
@@ -12939,7 +13025,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
         <translation>Nazwa nowej konfiguracji:</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+7"/>
         <source>%1 Debug</source>
         <translation>%1 Debug</translation>
     </message>
@@ -13280,6 +13366,11 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+2"/>
+        <source>Select the CSL Arm Toolchain (GCCE) Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+11"/>
         <source>Auto-detected</source>
         <translation>Automatycznie wykryte</translation>
@@ -13290,7 +13381,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
         <translation>Ustawione ręcznie</translation>
     </message>
     <message>
-        <location line="+142"/>
+        <location line="+144"/>
         <source>Building helpers</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13301,7 +13392,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+120"/>
+        <location line="+124"/>
         <source>The Qt Version identified by %1 is not installed. Run make install</source>
         <translation>Wersja Qt identyfikowana przez %1 nie jest zainstalowana. Uruchom &quot;make install&quot;</translation>
     </message>
@@ -13319,7 +13410,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
 <context>
     <name>Qt4ProjectManager::QtVersionManager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+332"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+351"/>
         <source>&lt;not found&gt;</source>
         <translation>&lt;nie znaleziony&gt;</translation>
     </message>
@@ -13373,7 +13464,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
 <context>
     <name>QApplication</name>
     <message>
-        <location line="+862"/>
+        <location line="+872"/>
         <source>The Qt Version has no toolchain.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16007,13 +16098,13 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qmleditor/parser/qmljsparser.cpp" line="+1752"/>
-        <source>Unexpected token `%1&apos;</source>
+        <source>Unexpected token &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+28"/>
         <location line="+23"/>
-        <source>Expected token `%1&apos;</source>
+        <source>Expected token &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16031,12 +16122,12 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <location line="+16"/>
-        <source>Waiting for TRK</source>
+        <source>Waiting for App TRK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Waiting for TRK to start on %1...</source>
+        <source>Waiting for App TRK to start on %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
