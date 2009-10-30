@@ -36,6 +36,7 @@
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 namespace Debugger {
 namespace Internal {
@@ -79,7 +80,7 @@ QString StackFrame::toToolTip() const
     str << "<html><body><table>"
         << "<tr><td>" << StackHandler::tr("Address:") << "</td><td>" <<  address << "</td></tr>"
         << "<tr><td>" << StackHandler::tr("Function:") << "</td><td>" << function << "</td></tr>"
-        << "<tr><td>" << StackHandler::tr("File:") << "</td><td>" << file << "</td></tr>"
+        << "<tr><td>" << StackHandler::tr("File:") << "</td><td>" << QDir::toNativeSeparators(file) << "</td></tr>"
         << "<tr><td>" << StackHandler::tr("Line:") << "</td><td>" << line << "</td></tr>"
         << "<tr><td>" << StackHandler::tr("From:") << "</td><td>" << from << "</td></tr>"
         << "<tr><td>" << StackHandler::tr("To:") << "</td><td>" << to << "</td></tr>"
