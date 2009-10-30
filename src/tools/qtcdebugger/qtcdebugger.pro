@@ -1,6 +1,5 @@
 TARGET = qtcdebugger
 TEMPLATE = app
-CONFIG += console
 SOURCES += main.cpp
 
 LIBS *= -lpsapi
