@@ -1941,7 +1941,7 @@
         \o  Mac OS 10.4 and later
     \endlist
 
-    \note Building the sources requires \bold{Qt 4.5.0} or later.
+    \note Building the sources requires \bold{Qt 4.6.0} or later.
 */
 
 
