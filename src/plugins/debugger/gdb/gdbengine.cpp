@@ -2312,8 +2312,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         #endif
 
         // Initialize top frame to the first valid frame.
-        // FIXME: Check for QFile(frame.fullname).isReadable()?
-        const bool isValid = !frame.file.isEmpty() && !frame.function.isEmpty();
+        const bool isValid = frame.isUsable() && !frame.function.isEmpty();
         if (isValid && targetFrame == -1)
             targetFrame = i;
     }
