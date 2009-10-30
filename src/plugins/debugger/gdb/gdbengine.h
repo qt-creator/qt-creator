@@ -294,6 +294,10 @@ private: ////////// Inferior Management //////////
     void handleInferiorPidChanged(qint64 pid) { manager()->notifyInferiorPidChanged(pid); }
     void maybeHandleInferiorPidChanged(const QString &pid);
 
+#ifdef Q_OS_LINUX
+    QByteArray m_entryPoint;
+#endif
+
 private: ////////// View & Data Stuff //////////
 
     virtual void selectThread(int index);

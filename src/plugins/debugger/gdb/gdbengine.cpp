@@ -285,6 +285,9 @@ void GdbEngine::initializeVariables()
     m_currentFunctionArgs.clear();
     m_currentFrame.clear();
     m_dumperHelper.clear();
+#ifdef Q_OS_LINUX
+    m_entryPoint.clear();
+#endif
 }
 
 QString GdbEngine::errorMessage(QProcess::ProcessError error)
@@ -1068,16 +1071,19 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
 #ifdef Q_OS_LINUX
     // For some reason, attaching to a stopped process causes *two* stops
-    // when trying to continue (kernel 2.6.24-23-ubuntu).
+    // when trying to continue (kernel i386 2.6.24-23-ubuntu, gdb 6.8).
     // Interestingly enough, on MacOSX no signal is delivered at all.
-    if (reason == "signal-received"
-        && data.findChild("signal-name").data() == "SIGSTOP") {
-        GdbMi frameData = data.findChild("frame");
-        if (frameData.findChild("func").data() == "_start"
-            && frameData.findChild("from").data() == "/lib/ld-linux.so.2") {
-            continueInferiorInternal();
-            return;
+    if (!m_entryPoint.isEmpty()) {
+        if (reason == "signal-received"
+            && data.findChild("signal-name").data() == "SIGSTOP") {
+            GdbMi frameData = data.findChild("frame");
+            if (frameData.findChild("addr").data() == m_entryPoint) {
+                continueInferiorInternal();
+                return;
+            }
         }
+        // We are past the initial stops. No need to waste time on further checks.
+        m_entryPoint.clear();
     }
 #endif
 

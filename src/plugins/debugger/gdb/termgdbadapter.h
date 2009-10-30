@@ -60,6 +60,9 @@ public:
 
 private:
     void handleStubAttached(const GdbResponse &response);
+#ifdef Q_OS_LINUX
+    void handleEntryPoint(const GdbResponse &response);
+#endif
 
     Q_SLOT void handleInferiorStarted();
     Q_SLOT void stubExited();
