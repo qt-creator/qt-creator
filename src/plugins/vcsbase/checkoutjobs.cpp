@@ -94,9 +94,16 @@ void ProcessCheckoutJob::slotOutput()
     emit output(s);
 }
 
-void ProcessCheckoutJob::slotError(QProcess::ProcessError /* error */)
+void ProcessCheckoutJob::slotError(QProcess::ProcessError error)
 {
-    emit failed(d->process.errorString());
+    switch (error) {
+    case QProcess::FailedToStart:
+        emit failed(tr("Unable to start %1: %2").arg(d->binary, d->process.errorString()));
+        break;
+    default:
+        emit failed(d->process.errorString());
+        break;
+    }
 }
 
 void ProcessCheckoutJob::slotFinished (int exitCode, QProcess::ExitStatus exitStatus)
