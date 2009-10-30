@@ -11815,7 +11815,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+12"/>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
-        <translation>Debug-Version des Frameworks verwenden (DYLD_IMAGE_SUFFIX=_debug)</translation>
+        <translation>Debug-Version von Frameworks verwenden (DYLD_IMAGE_SUFFIX=_debug)</translation>
     </message>
 </context>
 <context>
