@@ -214,11 +214,21 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(m_ui.buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(buildConfigurationChanged()));
     connect(step, SIGNAL(changed()),
             this, SLOT(update()));
+    connect(step->project(), SIGNAL(qtVersionChanged(ProjectExplorer::BuildConfiguration *)),
+            this, SLOT(qtVersionChanged(ProjectExplorer::BuildConfiguration *)));
 }
 
 QString QMakeStepConfigWidget::summaryText() const
 {
     return m_summaryText;
+}
+
+void QMakeStepConfigWidget::qtVersionChanged(ProjectExplorer::BuildConfiguration *bc)
+{
+    if (bc && bc->name() == m_buildConfiguration) {
+        updateTitleLabel();
+        updateEffectiveQMakeCall();
+    }
 }
 
 void QMakeStepConfigWidget::updateTitleLabel()

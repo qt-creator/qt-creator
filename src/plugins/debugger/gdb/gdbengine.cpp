@@ -258,6 +258,7 @@ void GdbEngine::initializeVariables()
     m_gdbBuildVersion = -1;
     m_isMacGdb = false;
     m_isSynchroneous = false;
+    m_registerNamesListed = false;
 
     m_fullToShortName.clear();
     m_shortToFullName.clear();
@@ -2430,6 +2431,11 @@ void GdbEngine::handleStackListThreads(const GdbResponse &response)
 
 void GdbEngine::reloadRegisters()
 {
+    if (!m_registerNamesListed) {
+        postCommand(_("-data-list-register-names"), CB(handleRegisterListNames));
+        m_registerNamesListed = true;
+    }
+
     if (m_gdbAdapter->isTrkAdapter()) {
         // FIXME: remove that special case. This is only to prevent
         // gdb from asking for the values of the fixed point registers
@@ -2458,8 +2464,10 @@ void GdbEngine::setRegisterValue(int nr, const QString &value)
 
 void GdbEngine::handleRegisterListNames(const GdbResponse &response)
 {
-    if (response.resultClass != GdbResultDone)
+    if (response.resultClass != GdbResultDone) {
+        m_registerNamesListed = false;
         return;
+    }
 
     QList<Register> registers;
     foreach (const GdbMi &item, response.data.findChild("register-names").children())
@@ -4204,7 +4212,6 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
 
     postCommand(_("set breakpoint pending on"));
     postCommand(_("set print elements 10000"));
-    postCommand(_("-data-list-register-names"), CB(handleRegisterListNames));
 
     //postCommand(_("set substitute-path /var/tmp/qt-x11-src-4.5.0 "
     //    "/home/sandbox/qtsdk-2009.01/qt"));

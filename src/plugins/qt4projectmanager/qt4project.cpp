@@ -973,6 +973,7 @@ int Qt4Project::qtVersionId(BuildConfiguration *configuration) const
 void Qt4Project::setQtVersion(BuildConfiguration *configuration, int id)
 {
     configuration->setValue(KEY_QT_VERSION_ID, id);
+    emit qtVersionChanged(configuration);
     updateActiveRunConfiguration();
 }
 

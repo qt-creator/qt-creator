@@ -107,6 +107,7 @@ private slots:
     void qmakeArgumentsLineEditTextEdited();
     void buildConfigurationChanged();
     void update();
+    void qtVersionChanged(ProjectExplorer::BuildConfiguration *bc);
 private:
     void updateTitleLabel();
     void updateEffectiveQMakeCall();
