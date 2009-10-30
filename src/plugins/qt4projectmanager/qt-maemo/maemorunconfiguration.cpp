@@ -102,6 +102,7 @@ private:
     QCheckBox *m_passwordCheckBox;
     QRadioButton *m_hwButton;
     QRadioButton *m_simButton;
+    QToolButton *m_resetButton;
     Utils::PathChooser *m_simPathChooser;
     MaemoRunConfiguration *m_runConfiguration;
 };
@@ -890,10 +891,10 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     QHBoxLayout *pathLayout = new QHBoxLayout;
     pathLayout->addWidget(m_simPathChooser);
 
-    QToolButton *resetButton = new QToolButton();
-    resetButton->setToolTip(tr("Reset to default"));
-    resetButton->setIcon(QIcon(":/core/images/reset.png"));
-    pathLayout->addWidget(resetButton);
+    m_resetButton = new QToolButton();
+    m_resetButton->setToolTip(tr("Reset to default"));
+    m_resetButton->setIcon(QIcon(":/core/images/reset.png"));
+    pathLayout->addWidget(m_resetButton);
 
     mainLayout->addRow(m_chooseSimPathLabel, pathLayout);
     m_simParamsNameLabel = new QLabel(tr("Simulator command line:"));
@@ -906,7 +907,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         this, SLOT(updateSimulatorPath()));
     connect(m_runConfiguration, SIGNAL(cachedSimulatorInformationChanged()),
         this, SLOT(updateVisibleSimulatorParameter()));
-    connect(resetButton, SIGNAL(clicked()), m_runConfiguration,
+    connect(m_resetButton, SIGNAL(clicked()), m_runConfiguration,
         SLOT(resetCachedSimulatorInformation()));
 
     m_hostNameLineEdit = new QLineEdit(m_runConfiguration->remoteHostName());
@@ -986,6 +987,7 @@ void MaemoRunConfigurationWidget::hostTypeChanged()
     m_simPathChooser->setVisible(isSimulator);
     m_simParamsNameLabel->setVisible(isSimulator);
     m_simParamsValueLabel->setVisible(isSimulator);
+    m_resetButton->setVisible(isSimulator);
 
     m_runConfiguration->setRemoteHostIsSimulator(isSimulator);
     m_argsLineEdit->setText(m_runConfiguration->arguments().join(" "));
