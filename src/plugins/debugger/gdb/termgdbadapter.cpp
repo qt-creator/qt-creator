@@ -114,10 +114,14 @@ void TermGdbAdapter::startInferior()
 
 void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
 {
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+        setState(InferiorStopped);
         debugMessage(_("INFERIOR ATTACHED"));
         emit inferiorPrepared();
+#ifdef Q_OS_LINUX
+        m_engine->postCommand(_("-stack-list-frames 0 0"), CB(handleEntryPoint));
+#endif
     } else if (response.resultClass == GdbResultError) {
         QString msg = _(response.data.findChild("msg").data());
         emit inferiorStartFailed(msg);
@@ -128,6 +132,17 @@ void TermGdbAdapter::startInferiorPhase2()
 {
     m_engine->continueInferiorInternal();
 }
+
+#ifdef Q_OS_LINUX
+void TermGdbAdapter::handleEntryPoint(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        GdbMi stack = response.data.findChild("stack");
+        if (stack.isValid() && stack.childCount() == 1)
+            m_engine->m_entryPoint = stack.childAt(0).findChild("addr").data();
+    }
+}
+#endif
 
 void TermGdbAdapter::interruptInferior()
 {

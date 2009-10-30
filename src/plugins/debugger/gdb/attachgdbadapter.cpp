@@ -77,17 +77,9 @@ void AttachGdbAdapter::startInferior()
 
 void AttachGdbAdapter::handleAttach(const GdbResponse &response)
 {
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        // We don't know the exact 6.8.50 build where gdb started emitting
-        // *stopped here, so allow for some slack.
-        if (m_engine->m_gdbVersion < 60850) {
-            QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-            setState(InferiorStopped);
-        } else if (m_engine->m_gdbVersion < 70000 && state() == InferiorStarting) {
-            setState(InferiorStopped);
-        } else {
-            QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
-        }
+        setState(InferiorStopped);
         debugMessage(_("INFERIOR ATTACHED"));
         showStatusMessage(msgAttachedToStoppedInferior());
         emit inferiorPrepared();

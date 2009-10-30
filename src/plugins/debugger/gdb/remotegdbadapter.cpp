@@ -182,8 +182,9 @@ void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 
 void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
 {
+    QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+        setState(InferiorStopped);
         // gdb server will stop the remote application itself.
         debugMessage(_("INFERIOR STARTED"));
         showStatusMessage(msgAttachedToStoppedInferior());

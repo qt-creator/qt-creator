@@ -285,6 +285,9 @@ void GdbEngine::initializeVariables()
     m_currentFunctionArgs.clear();
     m_currentFrame.clear();
     m_dumperHelper.clear();
+#ifdef Q_OS_LINUX
+    m_entryPoint.clear();
+#endif
 }
 
 QString GdbEngine::errorMessage(QProcess::ProcessError error)
@@ -889,6 +892,7 @@ void GdbEngine::updateAll()
 {
     QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
     tryLoadDebuggingHelpers();
+    reloadModulesInternal();
     postCommand(_("-stack-list-frames"), WatchUpdate, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     manager()->stackHandler()->setCurrentIndex(0);
@@ -1017,6 +1021,11 @@ void GdbEngine::handleAqcuiredInferior()
 
 void GdbEngine::handleStopResponse(const GdbMi &data)
 {
+    // This is gdb 7+'s initial *stopped in response to attach.
+    // For consistency, we just discard it.
+    if (state() == InferiorStarting)
+        return;
+
     const QByteArray reason = data.findChild("reason").data();
 
     if (isExitedReason(reason)) {
@@ -1059,31 +1068,30 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
-    bool initHelpers = true;
     if (state() == InferiorRunning) {
         // Stop triggered by a breakpoint or otherwise not directly
         // initiated by the user.
         setState(InferiorStopping);
     } else {
-        if (state() == InferiorStarting)
-            initHelpers = false;
-        else
-            QTC_ASSERT(state() == InferiorStopping, qDebug() << state());
+        QTC_ASSERT(state() == InferiorStopping, qDebug() << state());
     }
     setState(InferiorStopped);
 
 #ifdef Q_OS_LINUX
     // For some reason, attaching to a stopped process causes *two* stops
-    // when trying to continue (kernel 2.6.24-23-ubuntu).
+    // when trying to continue (kernel i386 2.6.24-23-ubuntu, gdb 6.8).
     // Interestingly enough, on MacOSX no signal is delivered at all.
-    if (reason == "signal-received"
-        && data.findChild("signal-name").data() == "SIGSTOP") {
-        GdbMi frameData = data.findChild("frame");
-        if (frameData.findChild("func").data() == "_start"
-            && frameData.findChild("from").data() == "/lib/ld-linux.so.2") {
-            continueInferiorInternal();
-            return;
+    if (!m_entryPoint.isEmpty()) {
+        if (reason == "signal-received"
+            && data.findChild("signal-name").data() == "SIGSTOP") {
+            GdbMi frameData = data.findChild("frame");
+            if (frameData.findChild("addr").data() == m_entryPoint) {
+                continueInferiorInternal();
+                return;
+            }
         }
+        // We are past the initial stops. No need to waste time on further checks.
+        m_entryPoint.clear();
     }
 #endif
 
@@ -1146,8 +1154,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         }
     }
 
-    if (initHelpers && m_debuggingHelperState != DebuggingHelperUninitialized)
-        initHelpers = false;
+    bool initHelpers = (m_debuggingHelperState == DebuggingHelperUninitialized);
     // Don't load helpers on stops triggered by signals unless it's
     // an intentional trap.
     if (initHelpers && reason == "signal-received") {
@@ -1333,16 +1340,12 @@ QString GdbEngine::fullName(const QString &fileName)
 QString GdbEngine::cleanupFullName(const QString &fileName)
 {
     QTC_ASSERT(!fileName.isEmpty(), return QString())
-    if (m_gdbVersion < 60800) {
-        // The symbian gdb 6.4 seems to deliver "fullnames" which
-        // a) have no drive letter and b) are not normalized.
-        QFileInfo fi(fileName);
-        if (!fi.isReadable())
-            return QString();
-        return QDir::cleanPath(fi.absoluteFilePath());
-    } else {
-        return fileName;
-    }
+    // Gdb on windows often delivers "fullnames" which
+    // a) have no drive letter and b) are not normalized.
+    QFileInfo fi(fileName);
+    if (!fi.isReadable())
+        return QString();
+    return QDir::cleanPath(fi.absoluteFilePath());
 }
 #endif
 
@@ -2271,9 +2274,11 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
     //qDebug() << "HANDLING FRAME:" << frameMi.toString();
     StackFrame frame;
     frame.level = level;
-    // We might want to fall back to "file" once we have a mapping which
-    // is more complete than gdb's own ...
-    frame.file = cleanupFullName(QFile::decodeName(frameMi.findChild("fullname").data()));
+    GdbMi fullName = frameMi.findChild("fullname");
+    if (fullName.isValid())
+        frame.file = cleanupFullName(QFile::decodeName(fullName.data()));
+    else
+        frame.file = QFile::decodeName(frameMi.findChild("file").data());
     frame.function = _(frameMi.findChild("func").data());
     frame.from = _(frameMi.findChild("from").data());
     frame.line = frameMi.findChild("line").data().toInt();
@@ -2327,8 +2332,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         #endif
 
         // Initialize top frame to the first valid frame.
-        // FIXME: Check for QFile(frame.fullname).isReadable()?
-        const bool isValid = !frame.file.isEmpty() && !frame.function.isEmpty();
+        const bool isValid = frame.isUsable() && !frame.function.isEmpty();
         if (isValid && targetFrame == -1)
             targetFrame = i;
     }

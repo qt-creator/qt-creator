@@ -632,8 +632,8 @@ QDumper &QDumper::put(const void *p)
 {
     if (p) {
         // Pointer is 'long long' on WIN_64, only
-        static const char *printFormat = sizeof(quintptr) == sizeof(long) ? "0x%lx" : "0x%llx";
-        pos += sprintf(outBuffer + pos, printFormat, reinterpret_cast<quintptr>(p));
+        static const char *printFormat = sizeof(void *) == sizeof(long) ? "0x%lx" : "0x%llx";
+        pos += sprintf(outBuffer + pos, printFormat, p);
     } else {
         pos += sprintf(outBuffer + pos, "<null>");
     }
@@ -1066,10 +1066,9 @@ static void qDumpQAbstractItem(QDumper &d)
        ModelIndex *mm = reinterpret_cast<ModelIndex *>(&mi);
        mm->r = mm->c = 0;
        mm->p = mm->m = 0;       
-       static const char *printFormat = sizeof(quintptr) == sizeof(long) ?
+       static const char *printFormat = sizeof(void *) == sizeof(long) ?
                                         "%d,%d,0x%lx,0x%lx" : "%d,%d,0x%llx,0x%llx";
-       sscanf(d.templateParameters[0], printFormat, &mm->r, &mm->c,
-	      reinterpret_cast<quintptr*>(&mm->p), reinterpret_cast<quintptr*>(&mm->m));
+       sscanf(d.templateParameters[0], printFormat, &mm->r, &mm->c, &mm->p, &mm->m);
     }
     const QAbstractItemModel *m = mi.model();
     const int rowCount = m->rowCount(mi);
@@ -2146,10 +2145,10 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
         break;
     #endif
     default: {
-        static const char *qTypeFormat = sizeof(quintptr) == sizeof(long) ?
+        static const char *qTypeFormat = sizeof(void *) == sizeof(long) ?
                                             "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)0x%lx)" :
                                             "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)0x%llx)";
-        static const char *nonQTypeFormat = sizeof(quintptr) == sizeof(long) ?
+        static const char *nonQTypeFormat = sizeof(void *) == sizeof(long) ?
                                             "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)0x%lx)" :
                                             "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)0x%llx)";
         char buf[1000];

@@ -70,9 +70,9 @@ void CheckoutWizardDialog::slotTerminated(bool success)
 
 void CheckoutWizardDialog::start(const QSharedPointer<AbstractCheckoutJob> &job)
 {
-    m_progressPage->start(job);
     // No "back" available while running.
     button(QWizard::BackButton)->setEnabled(false);
+    m_progressPage->start(job);
 }
 
 void CheckoutWizardDialog::reject()
