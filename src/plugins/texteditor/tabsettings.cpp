@@ -230,7 +230,7 @@ int TabSettings::indentedColumn(int column, bool doIndent) const
 }
 
 bool TabSettings::guessSpacesForTabs(const QTextBlock& _block) const {
-    if (m_autoSpacesForTabs && _block.isValid()) {
+    if (m_spacesForTabs && m_autoSpacesForTabs && _block.isValid()) {
         QVector<QTextBlock> currentBlocks(2, _block); // [0] looks back; [1] looks forward
         int maxLookAround = 100;
         while (maxLookAround-- > 0) {
