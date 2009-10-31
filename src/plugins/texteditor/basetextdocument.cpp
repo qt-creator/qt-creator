@@ -336,7 +336,7 @@ void BaseTextDocument::cleanWhitespace(QTextCursor& cursor, bool cleanIndentatio
                 } else {
                     int column = m_tabSettings.columnAt(blockText, firstNonSpace);
                     cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, firstNonSpace);
-                    QString indentationString = m_tabSettings.indentationString(0, column);
+                    QString indentationString = m_tabSettings.indentationString(0, column, block);
                     cursor.insertText(indentationString);
                 }
             }
