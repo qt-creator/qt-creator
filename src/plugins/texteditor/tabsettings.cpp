@@ -231,19 +231,26 @@ int TabSettings::indentedColumn(int column, bool doIndent) const
 
 bool TabSettings::guessSpacesForTabs(const QTextBlock& _block) const {
     if (m_autoSpacesForTabs && _block.isValid()) {
-        QTextBlock block = _block;
-        const QTextDocument* doc = block.document();
-        int maxLookBack = 100;
-        while (block.isValid() && block != doc->begin() && maxLookBack-- > 0) {
-            block = block.previous();
-            if (block.text().isEmpty())
-                continue;
-            QChar firstChar = block.text().at(0);
-            if (firstChar == QLatin1Char(' ')) {
-                return true;
-            } else if (firstChar == QLatin1Char('\t')) {
-                return false;
+        QVector<QTextBlock> currentBlocks(2, _block); // [0] looks back; [1] looks forward
+        int maxLookAround = 100;
+        while (maxLookAround-- > 0) {
+            currentBlocks[0] = currentBlocks.at(0).previous();
+            currentBlocks[1] = currentBlocks.at(1).next();
+            bool done = true;
+            foreach(QTextBlock block, currentBlocks) {
+                if (block.isValid())
+                    done = false;
+                if (!block.isValid() || block.text().isEmpty())
+                    continue;
+                QChar firstChar = block.text().at(0);
+                if (firstChar == QLatin1Char(' ')) {
+                    return true;
+                } else if (firstChar == QLatin1Char('\t')) {
+                    return false;
+                }
             }
+            if (done)
+                break;
         }
     }
     return m_spacesForTabs;

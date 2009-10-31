@@ -50,10 +50,10 @@
              <bool>false</bool>
             </property>
             <property name="toolTip">
-             <string>Automatically determine whether to insert spaces or tabs based on the previous line in the file</string>
+             <string>Automatically determine based on the nearest indented line (previous line preferred over next line)</string>
             </property>
             <property name="text">
-             <string>Based on the previous line</string>
+             <string>Based on the surrounding lines</string>
             </property>
            </widget>
           </item>
