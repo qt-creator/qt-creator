@@ -327,7 +327,7 @@ void BaseTextDocument::cleanWhitespace(QTextCursor& cursor, bool cleanIndentatio
                 cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, trailing);
                 cursor.removeSelectedText();
             }
-            if (cleanIndentation && !m_tabSettings.isIndentationClean(blockText)) {
+            if (cleanIndentation && !m_tabSettings.isIndentationClean(block)) {
                 cursor.setPosition(block.position());
                 int firstNonSpace = m_tabSettings.firstNonSpace(blockText);
                 if (firstNonSpace == blockText.length()) {

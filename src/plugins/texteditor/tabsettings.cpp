@@ -149,10 +149,12 @@ int TabSettings::trailingWhitespaces(const QString &text) const
     return i;
 }
 
-bool TabSettings::isIndentationClean(const QString &text) const
+bool TabSettings::isIndentationClean(const QTextBlock &block) const
 {
     int i = 0;
     int spaceCount = 0;
+    QString text = block.text();
+    bool spacesForTabs = guessSpacesForTabs(block);
     while (i < text.size()) {
         QChar c = text.at(i);
         if (!c.isSpace())
@@ -160,10 +162,10 @@ bool TabSettings::isIndentationClean(const QString &text) const
 
         if (c == QLatin1Char(' ')) {
             ++spaceCount;
-            if (!m_spacesForTabs && spaceCount == m_tabSize)
+            if (!spacesForTabs && spaceCount == m_tabSize)
                 return false;
         } else if (c == QLatin1Char('\t')) {
-            if (m_spacesForTabs || spaceCount != m_indentSize)
+            if (spacesForTabs || spaceCount != m_indentSize)
                 return false;
             spaceCount = 0;
         }

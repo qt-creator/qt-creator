@@ -72,7 +72,7 @@ struct TEXTEDITOR_EXPORT TabSettings
     void reindentLine(QTextBlock block, int delta) const;
 
     int trailingWhitespaces(const QString &text) const;
-    bool isIndentationClean(const QString &text) const;
+    bool isIndentationClean(const QTextBlock &block) const;
     bool tabShouldIndent(const QTextDocument *document, QTextCursor cursor, int *suggestedPosition = 0) const;
     bool guessSpacesForTabs(const QTextBlock& block) const;
 
