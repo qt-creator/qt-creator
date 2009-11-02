@@ -115,8 +115,10 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
     case InferiorStarting:
     case InferiorStartFailed:
     case InferiorRunningRequested:
+    case InferiorRunningRequested_Kill:
     case InferiorRunning:
     case InferiorStopping:
+    case InferiorStopping_Kill:
     case InferiorStopped:
     case InferiorShuttingDown:
     case InferiorShutDown:
@@ -649,6 +651,16 @@ void GdbEngine::interruptInferior()
     m_gdbAdapter->interruptInferior();
 }
 
+void GdbEngine::interruptInferiorTemporarily()
+{
+    interruptInferior();
+    foreach (const GdbCommand &cmd, m_commandsToRunOnTemporaryBreak)
+        if (cmd.flags & LosesChild) {
+            setState(InferiorStopping_Kill);
+            break;
+        }
+}
+
 void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
 {
     const qint64 pid = pid0.toLongLong();
@@ -731,12 +743,20 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
             debugMessage(_("QUEUING COMMAND ") + cmd.command);
             m_commandsToRunOnTemporaryBreak.append(cmd);
             if (state() == InferiorStopping) {
+                if (cmd.flags & LosesChild)
+                    setState(InferiorStopping_Kill);
                 debugMessage(_("CHILD ALREADY BEING INTERRUPTED"));
+            } else if (state() == InferiorStopping_Kill) {
+                debugMessage(_("CHILD ALREADY BEING INTERRUPTED (KILL PENDING)"));
             } else if (state() == InferiorRunningRequested) {
+                if (cmd.flags & LosesChild)
+                    setState(InferiorRunningRequested_Kill);
                 debugMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT"));
+            } else if (state() == InferiorRunningRequested_Kill) {
+                debugMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT (KILL PENDING)"));
             } else if (state() == InferiorRunning) {
                 showStatusMessage(tr("Stopping temporarily."), 1000);
-                interruptInferior();
+                interruptInferiorTemporarily();
             } else {
                 qDebug() << "ATTEMPTING TO QUEUE COMMAND IN INAPPROPRIATE STATE" << state();
             }
@@ -775,6 +795,9 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
     gdbInputAvailable(LogInput, cmd.command);
 
     m_gdbAdapter->write(cmd.command.toLatin1() + "\r\n");
+
+    if (cmd.flags & LosesChild)
+        setState(InferiorShuttingDown);
 }
 
 void GdbEngine::handleResultRecord(GdbResponse *response)
@@ -888,7 +911,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
     // This is done after the command callbacks so the running-requesting commands
     // can assert on the right state.
     if (state() == InferiorRunning && !m_commandsToRunOnTemporaryBreak.isEmpty())
-        interruptInferior();
+        interruptInferiorTemporarily();
 
     // Continue only if there are no commands wire anymore, so this will
     // be fully synchroneous.
@@ -1075,11 +1098,16 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        QTC_ASSERT(state() == InferiorStopping, qDebug() << state())
+        QTC_ASSERT(state() == InferiorStopping || state() == InferiorStopping_Kill,
+                   qDebug() << state())
         setState(InferiorStopped);
         flushQueuedCommands();
-        QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
-        m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
+        if (state() == InferiorStopped) {
+            QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
+            m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
+        } else {
+            QTC_ASSERT(state() == InferiorShuttingDown, qDebug() << state())
+        }
         return;
     }
 
@@ -1321,6 +1349,12 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
         // The "running" state is picked up in handleResponse()
         QTC_ASSERT(state() == InferiorRunning, /**/);
     } else {
+        if (state() == InferiorRunningRequested_Kill) {
+            setState(InferiorStopped);
+            m_commandsToRunOnTemporaryBreak.clear();
+            shutdown();
+            return;
+        }
         QTC_ASSERT(state() == InferiorRunningRequested, /**/);
         setState(InferiorStopped);
         QByteArray msg = response.data.findChild("msg").data();
@@ -1370,6 +1404,8 @@ void GdbEngine::shutdown()
     case EngineStarting: // We can't get here, really
     case InferiorShuttingDown: // Will auto-trigger further shutdown steps
     case EngineShuttingDown: // Do not disturb! :)
+    case InferiorRunningRequested_Kill:
+    case InferiorStopping_Kill:
         break;
     case AdapterStarting: // GDB is up, adapter is "doing something"
         setState(AdapterStartFailed);
@@ -1389,8 +1425,7 @@ void GdbEngine::shutdown()
     case InferiorStopped:
         // FIXME set some timeout?
         postCommand(_(m_gdbAdapter->inferiorShutdownCommand()),
-                    NeedsStop, CB(handleInferiorShutdown));
-        setState(InferiorShuttingDown); // Do it after posting the command!
+                    NeedsStop | LosesChild, CB(handleInferiorShutdown));
         break;
     case AdapterStarted: // We can't get here, really
     case InferiorStartFailed:

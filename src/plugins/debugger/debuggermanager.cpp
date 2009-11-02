@@ -192,9 +192,11 @@ const char *DebuggerManager::stateName(int s)
         SN(InferiorStarting)
         SN(InferiorStartFailed)
         SN(InferiorRunningRequested)
+        SN(InferiorRunningRequested_Kill)
         SN(InferiorRunning)
         SN(InferiorUnrunnable)
         SN(InferiorStopping)
+        SN(InferiorStopping_Kill)
         SN(InferiorStopped)
         SN(InferiorStopFailed)
         SN(InferiorShuttingDown)
@@ -1578,11 +1580,17 @@ static bool isAllowedTransition(int from, int to)
         return to == EngineShuttingDown;
 
     case InferiorRunningRequested:
+        return to == InferiorRunning || to == InferiorStopped
+            || to == InferiorRunningRequested_Kill;
+    case InferiorRunningRequested_Kill:
         return to == InferiorRunning || to == InferiorStopped;
     case InferiorRunning:
         return to == InferiorStopping;
 
     case InferiorStopping:
+        return to == InferiorStopped || to == InferiorStopFailed
+            || to == InferiorStopping_Kill;
+    case InferiorStopping_Kill:
         return to == InferiorStopped || to == InferiorStopFailed;
     case InferiorStopped:
         return to == InferiorRunningRequested || to == InferiorShuttingDown;
@@ -1705,6 +1713,8 @@ bool DebuggerManager::debuggerActionsEnabled() const
     case AdapterStarted:
     case AdapterStartFailed:
     case InferiorStartFailed:
+    case InferiorRunningRequested_Kill:
+    case InferiorStopping_Kill:
     case InferiorStopFailed:
     case InferiorShuttingDown:
     case InferiorShutDown:
