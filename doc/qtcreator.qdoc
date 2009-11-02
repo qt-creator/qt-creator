@@ -1430,7 +1430,8 @@
     \title CMake Support in Qt Creator
 
     Since Qt Creator 1.1, support for \c CMake project files is available.
-
+    Qt Creator 1.3 supports the Microsoft Toolchain if the cmake version
+    is at least 2.8.
 
     \section1 Opening CMake Projects
 
@@ -1453,9 +1454,9 @@
 
     \section1 Building CMake Projects
 
-    Qt Creator builds \c CMake Projects by running \c make or \c mingw32-make,
-    depending on your platform. The build errors and warnings are parsed and
-    displayed in the \gui{Build Issues} output pane.
+    Qt Creator builds \c CMake Projects by running \c make, \c mingw32-make, or
+    \c nmake depending on your platform. The build errors and warnings are
+    parsed and displayed in the \gui{Build Issues} output pane.
 
     By default Qt Creator builds the \e{all} target. You can specify which
     targets to build in \gui{Project} mode, under \gui{Build Settings}.
@@ -1464,7 +1465,6 @@
 
     Qt Creator supports multiple build configurations. Also, the build
     directory can be modified after the initial import.
-
 
     \section1 Running CMake Projects
     Qt Creator automatically adds \gui{Run Configurations} for all targets
