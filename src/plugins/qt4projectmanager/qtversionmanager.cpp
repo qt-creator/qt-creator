@@ -1049,9 +1049,18 @@ void QtVersion::updateMkSpec() const
     }
 #endif
 
-    int index = qMax(mkspec.lastIndexOf('/'), mkspec.lastIndexOf('\\'));
-    if (index >= 0)
-        mkspec = mkspec.mid(index+1).trimmed();
+    QString mkspecdir = versionInfo().value("QMAKE_MKSPECS");
+    if (mkspecdir.isEmpty())
+        mkspecdir = versionInfo().value("QT_INSTALL_DATA") + "/mkspecs";
+
+    if (mkspec.startsWith(mkspecdir)) {
+        mkspec = mkspec.mid(mkspecdir.length() + 1);
+        qDebug() << "Setting mkspec to"<<mkspec;
+    } else {
+        int index = qMax(mkspec.lastIndexOf('/'), mkspec.lastIndexOf('\\'));
+        if (index >= 0)
+            mkspec = mkspec.mid(index+1).trimmed();
+    }
 
     m_mkspec = mkspec;
     m_mkspecUpToDate = true;
