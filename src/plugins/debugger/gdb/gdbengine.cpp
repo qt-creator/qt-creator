@@ -808,6 +808,8 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 debugMessage(_("APPLYING WORKAROUND #4"));
                 setState(InferiorStopping);
                 setState(InferiorStopped);
+                setState(InferiorShuttingDown);
+                setState(InferiorShutDown);
                 showStatusMessage(tr("Executable failed: %1")
                     .arg(QString::fromLocal8Bit(msg)));
                 shutdown();
