@@ -484,7 +484,8 @@ DebuggerPlugin::DebuggerPlugin()
     m_cmdLineEnabledEngines(AllEngineTypes),
     m_cmdLineAttachPid(0),
     m_cmdLineWinCrashEvent(0),
-    m_toggleLockedAction(0)
+    m_toggleLockedAction(0),
+    m_peStartDebuggingAction(0)
 {}
 
 DebuggerPlugin::~DebuggerPlugin()
@@ -669,6 +670,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     Core::ActionContainer *mstart =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
 
+    // Register an action "Continue" under a different context  (Gdb Running)
+    // in the action manager under the "Start Debugging" action's id.
+    // Activating this context will then cause the "Start Debugging" action
+    // to switch to "Continue".
     Core::Command *cmd = 0;
     const DebuggerManagerActions actions = m_manager->debuggerManagerActions();
     cmd = am->registerAction(actions.continueAction,
@@ -803,6 +808,14 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     QAction *resetToSimpleAction = viewsMenu->menu()->addAction(tr("Reset to default layout"));
     connect(resetToSimpleAction, SIGNAL(triggered()),
         m_manager, SLOT(setSimpleDockWidgetArrangement()));
+
+    // Retrieve "Start debugging" action from Project explorer.
+    if (const Core::Command *dcmd = am->command(QLatin1String(ProjectExplorer::Constants::DEBUG))) {
+        m_peStartDebuggingAction = dcmd->action();
+    } else {
+        *errorMessage = QLatin1String("Internal error: Cannot access external actions");
+        return false;
+    }
 
     // FIXME:
     addAutoReleasedObject(new CommonOptionsPage);
@@ -1157,6 +1170,7 @@ void DebuggerPlugin::handleStateChanged(int state)
     } else {
         core->removeAdditionalContext(m_gdbRunningContext);
         core->updateContext();
+        m_peStartDebuggingAction->setEnabled(state == DebuggerNotReady);        
     }
 
     const bool started = state == InferiorRunning
