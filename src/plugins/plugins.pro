@@ -34,7 +34,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_genericprojectmanager \
             plugin_duieditor \
             plugin_qmlprojectmanager \
-            plugin_mercurial\
+            plugin_mercurial \
             debugger/dumper.pro
 
 plugin_coreplugin.subdir = coreplugin
