@@ -226,6 +226,7 @@ private: ////////// Gdb Command Management //////////
                      const char *callbackName,
                      const QVariant &cookie = QVariant());
     void postCommandHelper(const GdbCommand &cmd);
+    void flushQueuedCommands();
     void setTokenBarrier();
 
     QHash<int, GdbCommand> m_cookieForToken;

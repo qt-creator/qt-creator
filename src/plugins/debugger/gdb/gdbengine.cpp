@@ -746,6 +746,17 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
     }
 }
 
+void GdbEngine::flushQueuedCommands()
+{
+    showStatusMessage(tr("Processing queued commands."), 1000);
+    while (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
+        GdbCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
+        debugMessage(_("RUNNING QUEUED COMMAND %1 %2")
+            .arg(cmd.command).arg(_(cmd.callbackName)));
+        flushCommand(cmd);
+    }
+}
+
 void GdbEngine::flushCommand(const GdbCommand &cmd0)
 {
     GdbCommand cmd = cmd0;
@@ -1066,13 +1077,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         QTC_ASSERT(state() == InferiorStopping, qDebug() << state())
         setState(InferiorStopped);
-        showStatusMessage(tr("Processing queued commands."), 1000);
-        while (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
-            GdbCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
-            debugMessage(_("RUNNING QUEUED COMMAND %1 %2")
-                .arg(cmd.command).arg(_(cmd.callbackName)));
-            flushCommand(cmd);
-        }
+        flushQueuedCommands();
         QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
         m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
         return;
@@ -1320,6 +1325,8 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
         setState(InferiorStopped);
         QByteArray msg = response.data.findChild("msg").data();
         if (msg.startsWith("Cannot find bounds of current function")) {
+            if (!m_commandsToRunOnTemporaryBreak.isEmpty())
+                flushQueuedCommands();
             showStatusMessage(tr("Stopped."), 5000);
             //showStatusMessage(tr("No debug information available. "
             //  "Leaving function..."));
@@ -1327,6 +1334,7 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
         } else {
             showMessageBox(QMessageBox::Critical, tr("Execution Error"),
                            tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
+            m_commandsToRunOnTemporaryBreak.clear();
             shutdown();
         }
     }
