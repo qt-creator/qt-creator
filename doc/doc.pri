@@ -1,24 +1,21 @@
-QDOC_BIN = $$[QT_INSTALL_BINS]/qdoc3
-win32:QDOC_BIN = $$replace(QDOC_BIN, "/", "\\")
+QDOC_BIN = $$targetPath($$[QT_INSTALL_BINS]/qdoc3)
+HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator)
 
-unix {
-    QDOC = SRCDIR=$$PWD OUTDIR=$$OUT_PWD/doc/html $$QDOC_BIN 
-    HELPGENERATOR = $$[QT_INSTALL_BINS]/qhelpgenerator
-} else {
+equals(QMAKE_DIR_SEP, /) {   # unix, mingw+msys
+    QDOC = SRCDIR=$$PWD OUTDIR=$$OUT_PWD/doc/html $$QDOC_BIN
+} else:win32-g++* {   # just mingw
+    # The lack of spaces in front of the && is necessary!
     QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$OUT_PWD/doc/html&& $$QDOC_BIN
-    # Always run qhelpgenerator inside its own cmd; this is a workaround for
-    # an unusual bug which causes qhelpgenerator.exe to do nothing
-    HELPGENERATOR = cmd /C $$replace($$list($$[QT_INSTALL_BINS]/qhelpgenerator.exe), "/", "\\")
+} else {   # nmake
+    QDOC = set SRCDIR=$$PWD $$escape_expand(\n\t) \
+           set OUTDIR=$$OUT_PWD/doc/html $$escape_expand(\n\t) \
+           $$QDOC_BIN
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
 QCH_FILE = $$IDE_DOC_PATH/qtcreator.qch
 
-unix {
 html_docs.commands = $$QDOC $$PWD/qtcreator.qdocconf
-} else {
-html_docs.commands = \"$$QDOC $$PWD/qtcreator.qdocconf\"
-}
 html_docs.depends += $$PWD/qtcreator.qdoc $$PWD/qtcreator.qdocconf
 html_docs.files = $$QHP_FILE
 
