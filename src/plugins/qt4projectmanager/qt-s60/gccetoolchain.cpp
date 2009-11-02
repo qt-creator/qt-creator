@@ -79,7 +79,10 @@ QString GCCEToolChain::makeCommand() const
 
 bool GCCEToolChain::equals(ToolChain *other) const
 {
+    GCCEToolChain *otherGCCE = static_cast<GCCEToolChain *>(other);
     return (other->type() == type()
-            && m_deviceId == static_cast<GCCEToolChain *>(other)->m_deviceId
-            && m_deviceName == static_cast<GCCEToolChain *>(other)->m_deviceName);
+            && m_deviceId == otherGCCE->m_deviceId
+            && m_deviceName == otherGCCE->m_deviceName
+            && m_deviceRoot == otherGCCE->m_deviceRoot
+            && m_gcceCommand == otherGCCE->m_gcceCommand);
 }
