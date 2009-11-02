@@ -43,6 +43,8 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 #include <utils/stylehelper.h>
@@ -4710,6 +4712,23 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
 
     connect(editor, SIGNAL(cursorPositionChanged()), this, SLOT(updateCursorPosition()));
 }
+
+void BaseTextEditor::appendStandardContextMenuActions(QMenu *menu)
+{
+    menu->addSeparator();
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+
+    QAction *a = am->command(Core::Constants::CUT)->action();
+    if (a && a->isEnabled())
+        menu->addAction(a);
+    a = am->command(Core::Constants::COPY)->action();
+    if (a && a->isEnabled())
+        menu->addAction(a);
+    a = am->command(Core::Constants::PASTE)->action();
+    if (a && a->isEnabled())
+        menu->addAction(a);
+}
+
 
 BaseTextEditorEditable::~BaseTextEditorEditable()
 {
