@@ -1,4 +1,4 @@
-<plugin name="Mercurial" version="1.2.91" compatVersion="1.2.91">
+<plugin name="Mercurial" version="1.3.80" compatVersion="1.3.80">
     <vendor>Brian McGillion</vendor>
     <copyright>(C) 2008-2009 Brian McGillion</copyright>
     <license>
@@ -19,9 +19,9 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Mercurial integration.</description>
     <url>http://www.qtsoftware.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.2.91"/>
-        <dependency name="ProjectExplorer" version="1.2.91"/>
-        <dependency name="Core" version="1.2.91"/>
-        <dependency name="VCSBase" version="1.2.91"/>
+        <dependency name="TextEditor" version="1.3.80"/>
+        <dependency name="ProjectExplorer" version="1.3.80"/>
+        <dependency name="Core" version="1.3.80"/>
+        <dependency name="VCSBase" version="1.3.80"/>
     </dependencyList>
 </plugin>
