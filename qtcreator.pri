@@ -60,6 +60,7 @@ macx {
     IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH
     IDE_LIBEXEC_PATH = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/Resources
     IDE_DATA_PATH    = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/Resources
+    IDE_DOC_PATH     = $$IDE_DATA_PATH/doc
     contains(QT_CONFIG, ppc):CONFIG += ppc x86
     copydata = 1
 } else {
@@ -74,6 +75,7 @@ macx {
     IDE_PLUGIN_PATH  = $$IDE_LIBRARY_PATH/plugins
     IDE_LIBEXEC_PATH = $$IDE_APP_PATH # FIXME
     IDE_DATA_PATH    = $$IDE_BUILD_TREE/share/qtcreator
+    IDE_DOC_PATH     = $$IDE_BUILD_TREE/share/doc/qtcreator
     !isEqual(IDE_SOURCE_TREE, $$IDE_BUILD_TREE):copydata = 1
 }
 
