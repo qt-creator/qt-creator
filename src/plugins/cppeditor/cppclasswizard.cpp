@@ -155,7 +155,7 @@ CppClassWizardParameters  CppClassWizardDialog::parameters() const
     rc.sourceFile = ncw->sourceFileName();
     rc.baseClass = ncw->baseClassName();
     rc.path = ncw->path();
-    rc.inheritsQObject = ncw->inheritsQObject();
+    rc.classType = ncw->classType();
     return rc;
 }
 
@@ -217,7 +217,8 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
                                              QString *header, QString *source)
 {
     // TODO:
-    //  Quite a bit of this code has been copied from FormClassWizardParameters::generateCpp.
+    //  Quite a bit of this code has been copied from FormClassWizardParameters::generateCpp
+    //  and is duplicated in the library wizard.
     //  Maybe more of it could be merged into Utils.
 
     const QString indent = QString(4, QLatin1Char(' '));
@@ -239,10 +240,27 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
 
     const QRegExp qtClassExpr(QLatin1String("^Q[A-Z3].+"));
     QTC_ASSERT(qtClassExpr.isValid(), /**/);
-    const bool superIsQtClass = qtClassExpr.exactMatch(params.baseClass);
+    // Determine parent QObject type for Qt types. Provide base
+    // class in case the user did not specify one.
+    QString parentQObjectClass;
+    bool defineQObjectMacro = false;
+    switch(params.classType) {
+    case Utils::NewClassWidget::ClassInheritsQObject:
+        parentQObjectClass = QLatin1String("QObject");
+        defineQObjectMacro = true;
+        break;
+    case Utils::NewClassWidget::ClassInheritsQWidget:
+        parentQObjectClass = QLatin1String("QWidget");
+        defineQObjectMacro = true;
+        break;
+    }
+    const QString baseClass = params.baseClass.isEmpty()
+                              && params.classType != Utils::NewClassWidget::NoClassType ?
+                              parentQObjectClass : params.baseClass;
+    const bool superIsQtClass = qtClassExpr.exactMatch(baseClass);
     if (superIsQtClass) {
         headerStr << '\n';
-        Utils::writeIncludeFileDirective(params.baseClass, true, headerStr);
+        Utils::writeIncludeFileDirective(baseClass, true, headerStr);
     }
 
     const QString namespaceIndent = Utils::writeOpeningNameSpaces(namespaceList, QString(), headerStr);
@@ -250,15 +268,24 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     // Class declaration
     headerStr << '\n';
     headerStr << namespaceIndent << "class " << unqualifiedClassName;
-    if (!params.baseClass.isEmpty())
-        headerStr << " : public " << params.baseClass << "\n";
+    if (!baseClass.isEmpty())
+        headerStr << " : public " << baseClass << "\n";
     else
         headerStr << "\n";
     headerStr << namespaceIndent << "{\n";
-    if (params.inheritsQObject)
+    if (defineQObjectMacro)
         headerStr << namespaceIndent << "Q_OBJECT\n";
     headerStr << namespaceIndent << "public:\n"
-              << namespaceIndent << indent << unqualifiedClassName << "();\n";
+              << namespaceIndent << indent;
+    // Constructor
+    if (parentQObjectClass.isEmpty()) {
+        headerStr << unqualifiedClassName << "();\n";
+    } else {
+        headerStr << "explicit " << unqualifiedClassName << '(' << parentQObjectClass
+                << " *parent = 0);\n";
+    }
+    if (defineQObjectMacro)
+        headerStr << '\n' << namespaceIndent << "signals:\n\n" << namespaceIndent << "public slots:\n\n";
     headerStr << namespaceIndent << "};\n";
 
     Utils::writeClosingNameSpaces(namespaceList, QString(), headerStr);
@@ -274,7 +301,15 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     Utils::writeOpeningNameSpaces(namespaceList, QString(), sourceStr);
 
     // Constructor
-    sourceStr << '\n' << namespaceIndent << unqualifiedClassName << "::" << unqualifiedClassName << "()\n";
+    sourceStr << '\n' << namespaceIndent ;
+    if (parentQObjectClass.isEmpty()) {
+        sourceStr << unqualifiedClassName << "::" << unqualifiedClassName << "()\n";
+    } else {
+        sourceStr << unqualifiedClassName << "::" << unqualifiedClassName
+                << '(' << parentQObjectClass << " *parent) :\n"
+                << namespaceIndent << indent << baseClass << "(parent)\n";
+    }
+
     sourceStr << namespaceIndent << "{\n" << namespaceIndent << "}\n";
 
     Utils::writeClosingNameSpaces(namespaceList, QString(), sourceStr);

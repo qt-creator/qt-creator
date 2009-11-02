@@ -74,7 +74,7 @@ struct CppClassWizardParameters
     QString sourceFile;
     QString baseClass;
     QString path;
-    bool inheritsQObject;
+    int classType;
 };
 
 class CppClassWizardDialog : public QWizard

@@ -57,6 +57,7 @@ FormClassWizardPage::FormClassWizardPage(QWidget * parent) :
     m_ui->newClassWidget->setBaseClassInputVisible(false);
     m_ui->newClassWidget->setNamespacesEnabled(true);
     m_ui->newClassWidget->setAllowDirectories(true);
+    m_ui->newClassWidget->setClassTypeComboVisible(false);
 
     connect(m_ui->newClassWidget, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
     connect(m_ui->settingsToolButton, SIGNAL(clicked()), this, SLOT(slotSettings()));

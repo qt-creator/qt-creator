@@ -66,7 +66,8 @@ public:
     bool formInputCheckable() const;
     bool formInputChecked() const;
     QStringList baseClassChoices() const;
-    bool lowerCaseFiles() const;
+    bool lowerCaseFiles() const;    
+    bool isClassTypeComboVisible() const;
 
     void setSuffixes(const QString &header, const QString &source,  const QString &form = QString());
 
@@ -79,6 +80,7 @@ public slots:
     void setFormInputCheckable(bool checkable);
     void setFormInputChecked(bool checked);
     void setLowerCaseFiles(bool l);
+    void setClassTypeComboVisible(bool v);
 
 private:
     Utils::NewClassWidget *m_newClassWidget;

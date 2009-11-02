@@ -122,6 +122,7 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
 
     m_d->m_ui.generateFormCheckBox->setChecked(true);
     setFormInputCheckable(false, true);
+    setClassType(NoClassType);
 }
 
 NewClassWidget::~NewClassWidget()
@@ -170,17 +171,6 @@ void NewClassWidget::setBaseClassInputVisible(bool visible)
     m_d->m_baseClassInputVisible = visible;
     m_d->m_ui.baseClassLabel->setVisible(visible);
     m_d->m_ui.baseClassComboBox->setVisible(visible);
-}
-
-void NewClassWidget::setQObjectCheckBoxVisible(bool visible)
-{
-    m_d->m_qobjectCheckBoxVisible = visible;
-    m_d->m_ui.qobjectCheckBox->setVisible(visible);
-}
-
-bool NewClassWidget::isQObjectCheckBoxVisible() const
-{
-    return m_d->m_qobjectCheckBoxVisible;
 }
 
 void NewClassWidget::setBaseClassEditable(bool editable)
@@ -370,16 +360,6 @@ void NewClassWidget::setAllowDirectories(bool v)
     }
 }
 
-bool NewClassWidget::inheritsQObject() const
-{
-    return m_d->m_ui.qobjectCheckBox->isChecked();
-}
-
-void NewClassWidget::setInheritsQObject(bool v)
-{
-    m_d->m_ui.qobjectCheckBox->setChecked(v);
-}
-
 bool NewClassWidget::lowerCaseFiles() const
 {
     return m_d->m_ui.classLineEdit->lowerCaseFileName();
@@ -388,6 +368,27 @@ bool NewClassWidget::lowerCaseFiles() const
 void NewClassWidget::setLowerCaseFiles(bool v)
 {
     m_d->m_ui.classLineEdit->setLowerCaseFileName(v);
+}
+
+NewClassWidget::ClassType NewClassWidget::classType() const
+{
+    return static_cast<ClassType>(m_d->m_ui.classTypeComboBox->currentIndex());
+}
+
+void NewClassWidget::setClassType(ClassType ct)
+{
+    m_d->m_ui.classTypeComboBox->setCurrentIndex(ct);
+}
+
+bool NewClassWidget::isClassTypeComboVisible() const
+{
+    return m_d->m_ui.classTypeLabel->isVisible();
+}
+
+void NewClassWidget::setClassTypeComboVisible(bool v)
+{
+    m_d->m_ui.classTypeLabel->setVisible(v);
+    m_d->m_ui.classTypeComboBox->setVisible(v);
 }
 
 void NewClassWidget::slotValidChanged()

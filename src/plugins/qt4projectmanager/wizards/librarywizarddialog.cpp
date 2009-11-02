@@ -169,6 +169,7 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
 
     m_filesPage->setNamespacesEnabled(true);
     m_filesPage->setFormFileInputVisible(false);
+    m_filesPage->setClassTypeComboVisible(false);
     setPage(FilePageId, m_filesPage);
 
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
