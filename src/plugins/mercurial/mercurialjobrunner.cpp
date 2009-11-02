@@ -39,6 +39,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QString>
 #include <QtCore/QSettings>
+#include <QtCore/QDebug>
 
 using namespace Mercurial::Internal;
 using namespace Mercurial;

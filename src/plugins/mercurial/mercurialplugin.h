@@ -49,11 +49,11 @@ class ICore;
 class IVersionControl;
 class IEditorFactory;
 class IEditor;
+} // namespace Core
 
 namespace Utils {
 class ParameterAction;
 } //namespace Utils
-} // namespace Core
 
 namespace ProjectExplorer {
 class ProjectExplorerPlugin;
@@ -166,12 +166,12 @@ private:
     QTemporaryFile *changeLog;
 
     //Menu Items (file actions)
-    Core::Utils::ParameterAction *annotateFile;
-    Core::Utils::ParameterAction *diffFile;
-    Core::Utils::ParameterAction *logFile;
-    Core::Utils::ParameterAction *renameFile;
-    Core::Utils::ParameterAction *revertFile;
-    Core::Utils::ParameterAction *statusFile;
+    Utils::ParameterAction *annotateFile;
+    Utils::ParameterAction *diffFile;
+    Utils::ParameterAction *logFile;
+    Utils::ParameterAction *renameFile;
+    Utils::ParameterAction *revertFile;
+    Utils::ParameterAction *statusFile;
 
     //submit editor actions
     QAction *editorCommit;

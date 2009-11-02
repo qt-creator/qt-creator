@@ -41,7 +41,7 @@ namespace Internal {
   Some extra fields have been added to the standard SubmitEditorWidget,
   to help to conform to the commit style that is used by both git and Mercurial*/
 
-class MercurialCommitWidget : public Core::Utils::SubmitEditorWidget
+class MercurialCommitWidget : public Utils::SubmitEditorWidget
 {
 
 public:

@@ -51,6 +51,7 @@
 
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/project.h>
 #include <utils/parameteraction.h>
 
 #include <vcsbase/basevcseditorfactory.h>
@@ -245,33 +246,33 @@ void MercurialPlugin::createFileActions(QList<int> &context)
 {
     Core::Command *command;
 
-    annotateFile = new Core::Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    annotateFile = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(annotateFile, Constants::ANNOTATE, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(annotateFile, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
     mercurialContainer->addAction(command);
 
-    diffFile = new Core::Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    diffFile = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(diffFile, Constants::DIFF, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr(Constants::MENUKEY) + tr(Constants::MODIFIER) + "D"));
     connect(diffFile, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     mercurialContainer->addAction(command);
 
-    logFile = new Core::Utils::ParameterAction(tr("Log Current File"), tr("Log \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    logFile = new Utils::ParameterAction(tr("Log Current File"), tr("Log \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(logFile, Constants::LOG, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr(Constants::MENUKEY) + tr(Constants::MODIFIER) + "L"));
     connect(logFile, SIGNAL(triggered()), this, SLOT(logCurrentFile()));
     mercurialContainer->addAction(command);
 
-    revertFile = new Core::Utils::ParameterAction(tr("Revert Current File"), tr("Revert \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    revertFile = new Utils::ParameterAction(tr("Revert Current File"), tr("Revert \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(revertFile, Constants::REVERT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(revertFile, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
     mercurialContainer->addAction(command);
 
-    statusFile = new Core::Utils::ParameterAction(tr("Status Current File"), tr("Status \"%1\""), Core::Utils::ParameterAction::AlwaysEnabled, this);
+    statusFile = new Utils::ParameterAction(tr("Status Current File"), tr("Status \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(statusFile, Constants::STATUS, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr(Constants::MENUKEY) + tr(Constants::MODIFIER) + "S"));

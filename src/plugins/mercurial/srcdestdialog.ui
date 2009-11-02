@@ -44,7 +44,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="Core::Utils::PathChooser" name="localPathChooser" native="true">
+      <widget class="Utils::PathChooser" name="localPathChooser" native="true">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -76,7 +76,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Core::Utils::PathChooser</class>
+   <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
