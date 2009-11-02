@@ -321,6 +321,8 @@ public:
     void setMimeType(const QString &mt);
 
 
+    void appendStandardContextMenuActions(QMenu *menu);
+
     // Works only in conjunction with a syntax highlighter that puts
     // parentheses into text block user data
     void setParenthesesMatchingEnabled(bool b);
