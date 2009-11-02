@@ -1410,7 +1410,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
     QString output;
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, &output);
     if (!directory.isEmpty())
-        output += DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), mkspec(), env);
+        output += DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), env);
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
     delete tc;
     return output;
