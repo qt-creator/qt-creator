@@ -34,6 +34,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_genericprojectmanager \
             plugin_qmleditor \
             plugin_qmlprojectmanager \
+            plugin_mercurial \
             debugger/dumper.pro
 
 plugin_coreplugin.subdir = coreplugin
@@ -178,3 +179,9 @@ plugin_qmlprojectmanager.depends = plugin_texteditor
 plugin_qmlprojectmanager.depends += plugin_projectexplorer
 plugin_qmlprojectmanager.depends += plugin_help
 plugin_qmlprojectmanager.depends += plugin_qmleditor
+
+plugin_mercurial.subdir = mercurial
+plugin_mercurial.depends = plugin_texteditor
+plugin_mercurial.depends = plugin_vcsbase
+plugin_mercurial.depends += plugin_projectexplorer
+plugin_mercurial.depends += plugin_coreplugin
