@@ -176,8 +176,9 @@ private: ////////// Gdb Command Management //////////
         RebuildModel = 4, // Trigger model rebuild when no such commands are pending any more
         WatchUpdate = Discardable | RebuildModel,
         EmbedToken = 8,   // Expand %1 in the command to the command token
-        RunRequest = 16,  // Callback expect GdbResultRunning instead of GdbResultDone
-        ExitRequest = 32  // Callback expect GdbResultExit instead of GdbResultDone
+        RunRequest = 16,  // Callback expects GdbResultRunning instead of GdbResultDone
+        ExitRequest = 32, // Callback expects GdbResultExit instead of GdbResultDone
+        LosesChild = 64   // Auto-set inferior shutdown related states
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
     private:
@@ -283,6 +284,7 @@ private: ////////// Inferior Management //////////
     void autoContinueInferior();
     virtual void continueInferior();
     virtual void interruptInferior();
+    void interruptInferiorTemporarily();
 
     virtual void runToLineExec(const QString &fileName, int lineNumber);
     virtual void runToFunctionExec(const QString &functionName);

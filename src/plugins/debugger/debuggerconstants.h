@@ -75,9 +75,11 @@ enum DebuggerState
     InferiorStartFailed,
 
     InferiorRunningRequested,   // Debuggee requested to run
+    InferiorRunningRequested_Kill, // Debuggee requested to run, but want to kill it
     InferiorRunning,            // Debuggee running
 
     InferiorStopping,           // Debuggee running, stop requested
+    InferiorStopping_Kill,      // Debuggee running, stop requested, want to kill it
     InferiorStopped,            // Debuggee stopped
     InferiorStopFailed,         // Debuggee not stopped, will kill debugger
 
