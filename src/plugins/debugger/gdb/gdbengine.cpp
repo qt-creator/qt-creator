@@ -730,9 +730,15 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
             // Queue the commands that we cannot send at once.
             debugMessage(_("QUEUING COMMAND ") + cmd.command);
             m_commandsToRunOnTemporaryBreak.append(cmd);
-            if (state() != InferiorStopping) {
+            if (state() == InferiorStopping) {
+                debugMessage(_("CHILD ALREADY BEING INTERRUPTED"));
+            } else if (state() == InferiorRunningRequested) {
+                debugMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT"));
+            } else if (state() == InferiorRunning) {
                 showStatusMessage(tr("Stopping temporarily."), 1000);
-                interruptInferior(); // FIXME: race condition between gdb and kill()
+                interruptInferior();
+            } else {
+                qDebug() << "ATTEMPTING TO QUEUE COMMAND IN INAPPROPRIATE STATE" << state();
             }
         }
     } else if (!cmd.command.isEmpty()) {
@@ -865,6 +871,13 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         PENDING_DEBUG("   OTHER (OUT):" << cmd.command << "=>" << cmd.callbackName
                       << "LEAVES PENDING AT" << m_pendingRequests);
     }
+
+    // Commands were queued, but we were in RunningRequested state, so the interrupt
+    // was postponed.
+    // This is done after the command callbacks so the running-requesting commands
+    // can assert on the right state.
+    if (state() == InferiorRunning && !m_commandsToRunOnTemporaryBreak.isEmpty())
+        interruptInferior();
 
     // Continue only if there are no commands wire anymore, so this will
     // be fully synchroneous.
