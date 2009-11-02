@@ -966,6 +966,8 @@ static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
 
 void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
 {
+    if (d->m_state != DebuggerNotReady)
+        return;
     d->m_startParameters = sp;
     d->m_inferiorPid = d->m_startParameters->attachPID > 0
         ? d->m_startParameters->attachPID : 0;
