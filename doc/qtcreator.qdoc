@@ -1974,7 +1974,15 @@
         \o Setting breakpoints in code that is compiled into the binary more
            than once does not work.
 
-           \endlist
+        \o On Linux and Windows, Installing Qt with one user account and
+        then using it with another requires other users to manually set
+        the Qt version. On Windows, setting the MinGW location is
+        required as well. The same applies to the location of GDB for Symbian.
+        A workaround is to copy %APPDATA%/Nokia/qtcreator.ini (Windows) or
+        $HOME/.config/Nokia/QtCreator.ini (Linux) from the directory
+        of the user who installed Creator to the other user.
+        This issues does not exist on Mac OS X.
+    \endlist
 
 
     \section1 Known Issues of Version 1.2.0 and 1.2.1
