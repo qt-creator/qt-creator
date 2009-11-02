@@ -143,7 +143,6 @@ private:
     QAction *m_attachExternalAction;
     QAction *m_attachCoreAction;
     QAction *m_detachAction;
-    QAction *m_peStartDebuggingAction;
 };
 
 } // namespace Internal
