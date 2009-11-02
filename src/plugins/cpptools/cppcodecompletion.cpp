@@ -212,12 +212,21 @@ protected:
     { _item = newCompletionItem(name->unqualifiedNameId()); }
 };
 
+struct CompleteFunctionDeclaration
+{
+    explicit CompleteFunctionDeclaration(Function *f = 0)
+        : function(f)
+    {}
+
+    Function *function;
+};
 
 } // namespace Internal
 } // namespace CppTools
 
 using namespace CppTools::Internal;
 
+Q_DECLARE_METATYPE(CompleteFunctionDeclaration)
 
 void FakeToolTipFrame::paintEvent(QPaintEvent *)
 {
@@ -1071,18 +1080,13 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
                     Overview overview;
                     overview.setShowArgumentNames(true);
 
-                    // get rid of parentheses and cv-qualifiers
-                    QString completion = overview(f->type());
-                    if (f->isVolatile() || f->isConst())
-                        completion = completion.mid(1, completion.lastIndexOf(')') - 1);
-                    else
-                        completion = completion.mid(1, completion.size() - 2);
+                    // gets: "parameter list) cv-spec",
+                    QString completion = overview(f->type()).mid(1);
 
-                    if (completion.size()) {
-                        TextEditor::CompletionItem item(this);
-                        item.text = completion;
-                        m_completions.append(item);
-                    }
+                    TextEditor::CompletionItem item(this);
+                    item.text = completion;
+                    item.data = QVariant::fromValue(CompleteFunctionDeclaration(f));
+                    m_completions.append(item);
                 }
                 return true;
             }
@@ -1559,6 +1563,14 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                     }
                 }
             }
+        }
+
+        if (m_autoInsertBrackets && item.data.canConvert<CompleteFunctionDeclaration>()) {
+            // everything from the closing parenthesis on are extra chars, to
+            // make sure an auto-inserted ")" gets replaced by ") const" if necessary
+            int closingParen = toInsert.lastIndexOf(QLatin1Char(')'));
+            extraChars = toInsert.mid(closingParen);
+            toInsert.truncate(closingParen);
         }
     }
 
