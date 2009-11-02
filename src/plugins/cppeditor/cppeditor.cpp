@@ -1579,7 +1579,8 @@ void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedCha
             tabSettings().indentLine(block, indent);
             return;
         } else if ((firstToken.is(T_PUBLIC) || firstToken.is(T_PROTECTED) || firstToken.is(T_PRIVATE) ||
-                    firstToken.is(T_Q_SIGNALS) || firstToken.is(T_Q_SLOTS)) && tk[1].is(T_COLON)) {
+                    firstToken.is(T_Q_SIGNALS) || firstToken.is(T_Q_SLOTS)) &&
+                    tk.size() > 1 && tk[1].is(T_COLON)) {
             const int startOfBlock = tk.startOfBlock(0);
             if (startOfBlock != 0) {
                 const int indent = tk.indentation(startOfBlock);

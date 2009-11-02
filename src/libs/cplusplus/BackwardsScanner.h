@@ -69,6 +69,8 @@ public:
 
     int previousBlockState(const QTextBlock &block) const;
 
+    int size() const;
+
 private:
     const SimpleToken &fetchToken(int i);
 
