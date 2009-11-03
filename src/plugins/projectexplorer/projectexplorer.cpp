@@ -1554,7 +1554,9 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro)
             d->m_buildManager->buildProjects(projects, configurations(projects));
         }
     } else {
-        executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
+        // TODO this ignores RunConfiguration::isEnabled()
+        if (saveModifiedFiles())
+            executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
     }
 }
 
@@ -1579,7 +1581,9 @@ void ProjectExplorerPlugin::debugProject()
             updateRunAction();
         }
     } else {
-        executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE);
+        // TODO this ignores RunConfiguration::isEnabled()
+        if (saveModifiedFiles())
+            executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE);
     }
 }
 
