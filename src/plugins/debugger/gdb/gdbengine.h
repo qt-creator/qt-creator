@@ -49,6 +49,7 @@
 QT_BEGIN_NAMESPACE
 class QAction;
 class QAbstractItemModel;
+class QTimer;
 class QWidget;
 class QMainWindow;
 QT_END_NAMESPACE
@@ -228,9 +229,12 @@ private: ////////// Gdb Command Management //////////
                      const QVariant &cookie = QVariant());
     void postCommandHelper(const GdbCommand &cmd);
     void flushQueuedCommands();
+    Q_SLOT void commandTimeout();
     void setTokenBarrier();
 
     QHash<int, GdbCommand> m_cookieForToken;
+    QTimer *m_commandTimer;
+    enum { COMMAND_TIMEOUT = 20000 };
 
     QByteArray m_pendingConsoleStreamOutput;
     QByteArray m_pendingLogStreamOutput;
