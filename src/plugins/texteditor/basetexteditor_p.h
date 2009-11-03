@@ -204,7 +204,8 @@ public:
     int m_visibleWrapColumn;
 
     QTextCharFormat m_linkFormat;
-    bool m_showingLink;
+    BaseTextEditor::Link m_currentLink;
+    bool m_linkPressed;
 
     QTextCharFormat m_ifdefedOutFormat;
 
