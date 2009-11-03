@@ -78,11 +78,6 @@
 
 #include <climits>
 
-// FIXME: Restrict this as soon the availableUndoSteps has been merged to Qt
-//#if QT_VERSION < 0x040600
-#define availableUndoSteps revision
-//#endif
-
 //#define DEBUG_KEY  1
 #if DEBUG_KEY
 #   define KEY_DEBUG(s) qDebug() << s

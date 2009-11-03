@@ -57,6 +57,12 @@ const char * const DEBUGGER_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("Debugger", "D
 
 namespace Internal {
     enum { debug = 0 };
+#ifdef Q_OS_MAC
+    const char * const LD_PRELOAD_ENV_VAR = "DYLD_INSERT_LIBRARIES";
+#else
+    const char * const LD_PRELOAD_ENV_VAR = "LD_PRELOAD";
+#endif
+
 }
 } // namespace Constants
 
@@ -75,9 +81,11 @@ enum DebuggerState
     InferiorStartFailed,
 
     InferiorRunningRequested,   // Debuggee requested to run
+    InferiorRunningRequested_Kill, // Debuggee requested to run, but want to kill it
     InferiorRunning,            // Debuggee running
 
     InferiorStopping,           // Debuggee running, stop requested
+    InferiorStopping_Kill,      // Debuggee running, stop requested, want to kill it
     InferiorStopped,            // Debuggee stopped
     InferiorStopFailed,         // Debuggee not stopped, will kill debugger
 

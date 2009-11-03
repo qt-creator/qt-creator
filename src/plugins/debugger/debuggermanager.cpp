@@ -192,9 +192,11 @@ const char *DebuggerManager::stateName(int s)
         SN(InferiorStarting)
         SN(InferiorStartFailed)
         SN(InferiorRunningRequested)
+        SN(InferiorRunningRequested_Kill)
         SN(InferiorRunning)
         SN(InferiorUnrunnable)
         SN(InferiorStopping)
+        SN(InferiorStopping_Kill)
         SN(InferiorStopped)
         SN(InferiorStopFailed)
         SN(InferiorShuttingDown)
@@ -292,7 +294,8 @@ DebuggerManager *DebuggerManagerPrivate::instance = 0;
 
 DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager)
   : m_startParameters(new DebuggerStartParameters),
-    m_disassemblerViewAgent(manager)
+    m_disassemblerViewAgent(manager),
+    m_engine(0)
 {
     m_inferiorPid = 0;
 }
@@ -953,6 +956,8 @@ static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
 
 void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
 {
+    if (d->m_state != DebuggerNotReady)
+        return;
     d->m_startParameters = sp;
     d->m_inferiorPid = d->m_startParameters->attachPID > 0
         ? d->m_startParameters->attachPID : 0;
@@ -1563,11 +1568,17 @@ static bool isAllowedTransition(int from, int to)
         return to == EngineShuttingDown;
 
     case InferiorRunningRequested:
+        return to == InferiorRunning || to == InferiorStopped
+            || to == InferiorRunningRequested_Kill;
+    case InferiorRunningRequested_Kill:
         return to == InferiorRunning || to == InferiorStopped;
     case InferiorRunning:
         return to == InferiorStopping;
 
     case InferiorStopping:
+        return to == InferiorStopped || to == InferiorStopFailed
+            || to == InferiorStopping_Kill;
+    case InferiorStopping_Kill:
         return to == InferiorStopped || to == InferiorStopFailed;
     case InferiorStopped:
         return to == InferiorRunningRequested || to == InferiorShuttingDown;
@@ -1690,6 +1701,8 @@ bool DebuggerManager::debuggerActionsEnabled() const
     case AdapterStarted:
     case AdapterStartFailed:
     case InferiorStartFailed:
+    case InferiorRunningRequested_Kill:
+    case InferiorStopping_Kill:
     case InferiorStopFailed:
     case InferiorShuttingDown:
     case InferiorShutDown:

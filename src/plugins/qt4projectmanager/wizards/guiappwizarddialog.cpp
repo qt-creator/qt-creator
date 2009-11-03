@@ -74,6 +74,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
     setPage(ModulesPageId, m_modulesPage);
 
     m_filesPage->setFormInputCheckable(true);
+    m_filesPage->setClassTypeComboVisible(false);
     setPage(FilesPageId, m_filesPage);
 
     foreach (QWizardPage *p, extensionPages)

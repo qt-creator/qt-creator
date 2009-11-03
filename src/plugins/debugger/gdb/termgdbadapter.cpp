@@ -69,6 +69,15 @@ TermGdbAdapter::~TermGdbAdapter()
     m_stubProc.disconnect(); // Avoid spurious state transitions from late exiting stub
 }
 
+AbstractGdbAdapter::DumperHandling TermGdbAdapter::dumperHandling() const
+{
+#ifdef Q_OS_WIN    
+    return DumperLoadedByGdb;
+#else
+    return DumperLoadedByAdapter; // Handles loading itself via LD_PRELOAD
+#endif
+}
+
 void TermGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
@@ -82,7 +91,17 @@ void TermGdbAdapter::startAdapter()
 //    m_stubProc.blockSignals(false);
 
     m_stubProc.setWorkingDirectory(startParameters().workingDir);
-    m_stubProc.setEnvironment(startParameters().environment);
+    // Set environment + dumper preload.
+    QStringList environment = startParameters().environment;
+    if (dumperHandling() == DumperLoadedByGdbPreload
+        && m_engine->checkDebuggingHelpers()) {
+        QString var = QLatin1String(Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR);
+        var += QLatin1Char('=');
+        var += m_engine->qtDumperLibraryName();
+        environment.push_back(var);
+        m_engine->setDebuggingHelperState(DebuggingHelperLoadTried);
+    }
+    m_stubProc.setEnvironment(environment);
     // FIXME: Starting the stub implies starting the inferior. This is
     // fairly unclean as far as the state machine and error reporting go.
     if (!m_stubProc.start(startParameters().executable,

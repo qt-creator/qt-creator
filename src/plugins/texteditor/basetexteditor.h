@@ -321,6 +321,8 @@ public:
     void setMimeType(const QString &mt);
 
 
+    void appendStandardContextMenuActions(QMenu *menu);
+
     // Works only in conjunction with a syntax highlighter that puts
     // parentheses into text block user data
     void setParenthesesMatchingEnabled(bool b);
@@ -536,6 +538,9 @@ protected:
         bool isValid() const
         { return !(pos == -1 || length == -1); }
 
+        bool operator==(const Link &other) const
+        { return pos == other.pos && length == other.length; }
+
         int pos;           // Link position
         int length;        // Link length
 
@@ -591,6 +596,7 @@ private:
 
     QTextBlock collapsedBlockAt(const QPoint &pos, QRect *box = 0) const;
 
+    void updateLink(QMouseEvent *e);
     void showLink(const Link &);
     void clearLink();
 

@@ -176,8 +176,9 @@ private: ////////// Gdb Command Management //////////
         RebuildModel = 4, // Trigger model rebuild when no such commands are pending any more
         WatchUpdate = Discardable | RebuildModel,
         EmbedToken = 8,   // Expand %1 in the command to the command token
-        RunRequest = 16,  // Callback expect GdbResultRunning instead of GdbResultDone
-        ExitRequest = 32  // Callback expect GdbResultExit instead of GdbResultDone
+        RunRequest = 16,  // Callback expects GdbResultRunning instead of GdbResultDone
+        ExitRequest = 32, // Callback expects GdbResultExit instead of GdbResultDone
+        LosesChild = 64   // Auto-set inferior shutdown related states
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
     private:
@@ -226,6 +227,7 @@ private: ////////// Gdb Command Management //////////
                      const char *callbackName,
                      const QVariant &cookie = QVariant());
     void postCommandHelper(const GdbCommand &cmd);
+    void flushQueuedCommands();
     void setTokenBarrier();
 
     QHash<int, GdbCommand> m_cookieForToken;
@@ -282,6 +284,7 @@ private: ////////// Inferior Management //////////
     void autoContinueInferior();
     virtual void continueInferior();
     virtual void interruptInferior();
+    void interruptInferiorTemporarily();
 
     virtual void runToLineExec(const QString &fileName, int lineNumber);
     virtual void runToFunctionExec(const QString &functionName);
@@ -446,8 +449,9 @@ private: ////////// View & Data Stuff //////////
     QMap<QString, QString> m_varToType;
 
 private: ////////// Dumper Management //////////
-
-    bool startModeAllowsDumpers() const;
+    QString qtDumperLibraryName() const;
+    bool checkDebuggingHelpers();
+    void setDebuggingHelperState(DebuggingHelperState);
     void tryLoadDebuggingHelpers();
     void tryQueryDebuggingHelpers();
     Q_SLOT void recheckDebuggingHelperAvailability();

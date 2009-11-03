@@ -115,7 +115,10 @@ QString WINSCWToolChain::makeCommand() const
 
 bool WINSCWToolChain::equals(ToolChain *other) const
 {
+    WINSCWToolChain *otherWINSCW = static_cast<WINSCWToolChain *>(other);
     return (other->type() == type()
-            && m_deviceId == static_cast<WINSCWToolChain *>(other)->m_deviceId
-            && m_deviceName == static_cast<WINSCWToolChain *>(other)->m_deviceName);
+            && m_deviceId == otherWINSCW->m_deviceId
+            && m_deviceName == otherWINSCW->m_deviceName
+            && m_deviceRoot == otherWINSCW->m_deviceRoot
+            && m_carbidePath == otherWINSCW->m_carbidePath);
 }

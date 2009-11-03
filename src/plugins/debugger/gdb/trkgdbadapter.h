@@ -164,7 +164,8 @@ public:
         QIODevice::OpenMode mode = QIODevice::ReadWrite);
     void write(const QByteArray &data);
     bool isTrkAdapter() const { return true; }
-    bool dumpersAvailable() const { return false; }
+
+    virtual DumperHandling dumperHandling() const { return DumperNotAvailable; }
 
 private:
     void startAdapter();

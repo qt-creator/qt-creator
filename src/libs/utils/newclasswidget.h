@@ -57,7 +57,7 @@ class QTCREATOR_UTILS_EXPORT NewClassWidget : public QWidget
     Q_PROPERTY(bool baseClassEditable READ isBaseClassEditable WRITE setBaseClassEditable DESIGNABLE false)
     Q_PROPERTY(bool formInputVisible READ isFormInputVisible WRITE setFormInputVisible DESIGNABLE true)
     Q_PROPERTY(bool pathInputVisible READ isPathInputVisible WRITE setPathInputVisible DESIGNABLE true)
-    Q_PROPERTY(bool qobjectCheckBoxVisible READ isQObjectCheckBoxVisible WRITE setQObjectCheckBoxVisible DESIGNABLE true)
+    Q_PROPERTY(bool classTypeComboVisible READ isClassTypeComboVisible WRITE setClassTypeComboVisible DESIGNABLE true)
     Q_PROPERTY(QString className READ className WRITE setClassName DESIGNABLE true)
     Q_PROPERTY(QString baseClassName READ baseClassName WRITE setBaseClassName DESIGNABLE true)
     Q_PROPERTY(QString sourceFileName READ sourceFileName DESIGNABLE false)
@@ -71,11 +71,14 @@ class QTCREATOR_UTILS_EXPORT NewClassWidget : public QWidget
     Q_PROPERTY(bool formInputCheckable READ formInputCheckable WRITE setFormInputCheckable DESIGNABLE true)
     Q_PROPERTY(bool formInputChecked READ formInputChecked WRITE setFormInputChecked DESIGNABLE true)
     Q_PROPERTY(bool allowDirectories READ allowDirectories WRITE setAllowDirectories)
-    Q_PROPERTY(bool inheritsQObject READ inheritsQObject WRITE setInheritsQObject)
     Q_PROPERTY(bool lowerCaseFiles READ lowerCaseFiles WRITE setLowerCaseFiles)
+    Q_PROPERTY(ClassType classType READ classType WRITE setClassType)
     // Utility "USER" property for wizards containing file names.
     Q_PROPERTY(QStringList files READ files DESIGNABLE false USER true)
+    Q_ENUMS(ClassType)
 public:
+    enum ClassType { NoClassType, ClassInheritsQObject, ClassInheritsQWidget };
+
     explicit NewClassWidget(QWidget *parent = 0);
     ~NewClassWidget();
 
@@ -84,7 +87,6 @@ public:
     bool isBaseClassEditable() const;
     bool isFormInputVisible() const;
     bool isPathInputVisible() const;
-    bool isQObjectCheckBoxVisible() const;
     bool formInputCheckable() const;
     bool formInputChecked() const;
 
@@ -98,9 +100,10 @@ public:
     QString sourceExtension() const;
     QString headerExtension() const;
     QString formExtension() const;
-    bool inheritsQObject() const;
     bool allowDirectories() const;
     bool lowerCaseFiles() const;
+    ClassType classType() const;
+    bool isClassTypeComboVisible() const;
 
     bool isValid(QString *error = 0) const;
 
@@ -118,7 +121,6 @@ public slots:
     void setPathInputVisible(bool visible);
     void setFormInputCheckable(bool v);
     void setFormInputChecked(bool v);
-    void setQObjectCheckBoxVisible(bool v);
 
     /**
      * The name passed into the new class widget will be reformatted to be a
@@ -131,9 +133,10 @@ public slots:
     void setSourceExtension(const QString &e);
     void setHeaderExtension(const QString &e);
     void setFormExtension(const QString &e);
-    void setInheritsQObject(bool v);
     void setAllowDirectories(bool v);
     void setLowerCaseFiles(bool v);
+    void setClassType(ClassType ct);
+    void setClassTypeComboVisible(bool v);
 
     /**
      * Suggest a class name from the base class by stripping the leading 'Q'
@@ -152,7 +155,6 @@ private slots:
     void slotActivated();
     void classNameEdited();
     void slotFormInputChecked();
-
 
 private:
     void setFormInputCheckable(bool checkable, bool force);

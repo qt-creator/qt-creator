@@ -115,8 +115,10 @@ static bool stateAcceptsGdbCommands(DebuggerState state)
     case InferiorStarting:
     case InferiorStartFailed:
     case InferiorRunningRequested:
+    case InferiorRunningRequested_Kill:
     case InferiorRunning:
     case InferiorStopping:
+    case InferiorStopping_Kill:
     case InferiorStopped:
     case InferiorShuttingDown:
     case InferiorShutDown:
@@ -596,7 +598,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 
 void GdbEngine::readGdbStandardError()
 {
-    qWarning() << "Unexpected gdb stderr:" << m_gdbProc.readAllStandardError();
+    QByteArray err = m_gdbProc.readAllStandardError();
+    if (err == "Undefined command: \"bb\".  Try \"help\".\n")
+        return;
+    qWarning() << "Unexpected gdb stderr:" << err;
 }
 
 void GdbEngine::readGdbStandardOutput()
@@ -644,6 +649,16 @@ void GdbEngine::interruptInferior()
 
     debugMessage(_("TRYING TO INTERRUPT INFERIOR"));
     m_gdbAdapter->interruptInferior();
+}
+
+void GdbEngine::interruptInferiorTemporarily()
+{
+    interruptInferior();
+    foreach (const GdbCommand &cmd, m_commandsToRunOnTemporaryBreak)
+        if (cmd.flags & LosesChild) {
+            setState(InferiorStopping_Kill);
+            break;
+        }
 }
 
 void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
@@ -727,12 +742,37 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
             // Queue the commands that we cannot send at once.
             debugMessage(_("QUEUING COMMAND ") + cmd.command);
             m_commandsToRunOnTemporaryBreak.append(cmd);
-            if (state() != InferiorStopping) {
+            if (state() == InferiorStopping) {
+                if (cmd.flags & LosesChild)
+                    setState(InferiorStopping_Kill);
+                debugMessage(_("CHILD ALREADY BEING INTERRUPTED"));
+            } else if (state() == InferiorStopping_Kill) {
+                debugMessage(_("CHILD ALREADY BEING INTERRUPTED (KILL PENDING)"));
+            } else if (state() == InferiorRunningRequested) {
+                if (cmd.flags & LosesChild)
+                    setState(InferiorRunningRequested_Kill);
+                debugMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT"));
+            } else if (state() == InferiorRunningRequested_Kill) {
+                debugMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT (KILL PENDING)"));
+            } else if (state() == InferiorRunning) {
                 showStatusMessage(tr("Stopping temporarily."), 1000);
-                interruptInferior(); // FIXME: race condition between gdb and kill()
+                interruptInferiorTemporarily();
+            } else {
+                qDebug() << "ATTEMPTING TO QUEUE COMMAND IN INAPPROPRIATE STATE" << state();
             }
         }
     } else if (!cmd.command.isEmpty()) {
+        flushCommand(cmd);
+    }
+}
+
+void GdbEngine::flushQueuedCommands()
+{
+    showStatusMessage(tr("Processing queued commands."), 1000);
+    while (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
+        GdbCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
+        debugMessage(_("RUNNING QUEUED COMMAND %1 %2")
+            .arg(cmd.command).arg(_(cmd.callbackName)));
         flushCommand(cmd);
     }
 }
@@ -755,6 +795,9 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
     gdbInputAvailable(LogInput, cmd.command);
 
     m_gdbAdapter->write(cmd.command.toLatin1() + "\r\n");
+
+    if (cmd.flags & LosesChild)
+        setState(InferiorShuttingDown);
 }
 
 void GdbEngine::handleResultRecord(GdbResponse *response)
@@ -805,6 +848,8 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 debugMessage(_("APPLYING WORKAROUND #4"));
                 setState(InferiorStopping);
                 setState(InferiorStopped);
+                setState(InferiorShuttingDown);
+                setState(InferiorShutDown);
                 showStatusMessage(tr("Executable failed: %1")
                     .arg(QString::fromLocal8Bit(msg)));
                 shutdown();
@@ -860,6 +905,13 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         PENDING_DEBUG("   OTHER (OUT):" << cmd.command << "=>" << cmd.callbackName
                       << "LEAVES PENDING AT" << m_pendingRequests);
     }
+
+    // Commands were queued, but we were in RunningRequested state, so the interrupt
+    // was postponed.
+    // This is done after the command callbacks so the running-requesting commands
+    // can assert on the right state.
+    if (state() == InferiorRunning && !m_commandsToRunOnTemporaryBreak.isEmpty())
+        interruptInferiorTemporarily();
 
     // Continue only if there are no commands wire anymore, so this will
     // be fully synchroneous.
@@ -1054,17 +1106,16 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        QTC_ASSERT(state() == InferiorStopping, qDebug() << state())
+        QTC_ASSERT(state() == InferiorStopping || state() == InferiorStopping_Kill,
+                   qDebug() << state())
         setState(InferiorStopped);
-        showStatusMessage(tr("Processing queued commands."), 1000);
-        while (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
-            GdbCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
-            debugMessage(_("RUNNING QUEUED COMMAND %1 %2")
-                .arg(cmd.command).arg(_(cmd.callbackName)));
-            flushCommand(cmd);
+        flushQueuedCommands();
+        if (state() == InferiorStopped) {
+            QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
+            m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
+        } else {
+            QTC_ASSERT(state() == InferiorShuttingDown, qDebug() << state())
         }
-        QTC_ASSERT(m_commandsDoneCallback == 0, /**/);
-        m_commandsDoneCallback = &GdbEngine::autoContinueInferior;
         return;
     }
 
@@ -1154,7 +1205,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         }
     }
 
-    bool initHelpers = (m_debuggingHelperState == DebuggingHelperUninitialized);
+    bool initHelpers = m_debuggingHelperState == DebuggingHelperUninitialized
+                       || m_debuggingHelperState == DebuggingHelperLoadTried;
     // Don't load helpers on stops triggered by signals unless it's
     // an intentional trap.
     if (initHelpers && reason == "signal-received") {
@@ -1311,10 +1363,18 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
         // The "running" state is picked up in handleResponse()
         QTC_ASSERT(state() == InferiorRunning, /**/);
     } else {
+        if (state() == InferiorRunningRequested_Kill) {
+            setState(InferiorStopped);
+            m_commandsToRunOnTemporaryBreak.clear();
+            shutdown();
+            return;
+        }
         QTC_ASSERT(state() == InferiorRunningRequested, /**/);
         setState(InferiorStopped);
         QByteArray msg = response.data.findChild("msg").data();
         if (msg.startsWith("Cannot find bounds of current function")) {
+            if (!m_commandsToRunOnTemporaryBreak.isEmpty())
+                flushQueuedCommands();
             showStatusMessage(tr("Stopped."), 5000);
             //showStatusMessage(tr("No debug information available. "
             //  "Leaving function..."));
@@ -1322,6 +1382,7 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
         } else {
             showMessageBox(QMessageBox::Critical, tr("Execution Error"),
                            tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
+            m_commandsToRunOnTemporaryBreak.clear();
             shutdown();
         }
     }
@@ -1357,6 +1418,8 @@ void GdbEngine::shutdown()
     case EngineStarting: // We can't get here, really
     case InferiorShuttingDown: // Will auto-trigger further shutdown steps
     case EngineShuttingDown: // Do not disturb! :)
+    case InferiorRunningRequested_Kill:
+    case InferiorStopping_Kill:
         break;
     case AdapterStarting: // GDB is up, adapter is "doing something"
         setState(AdapterStartFailed);
@@ -1376,8 +1439,7 @@ void GdbEngine::shutdown()
     case InferiorStopped:
         // FIXME set some timeout?
         postCommand(_(m_gdbAdapter->inferiorShutdownCommand()),
-                    NeedsStop, CB(handleInferiorShutdown));
-        setState(InferiorShuttingDown); // Do it after posting the command!
+                    NeedsStop | LosesChild, CB(handleInferiorShutdown));
         break;
     case AdapterStarted: // We can't get here, really
     case InferiorStartFailed:
@@ -1482,7 +1544,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerStartParametersPtr &s
     case AttachCore:
         return new CoreGdbAdapter(this);
     case StartRemote:
-        return new RemoteGdbAdapter(this);
+        return new RemoteGdbAdapter(this, sp->toolChainType);
     case AttachExternal:
         return new AttachGdbAdapter(this);
     default:
@@ -1509,7 +1571,7 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     m_gdbAdapter = createAdapter(sp);
     connectAdapter();
 
-    if (startModeAllowsDumpers())
+    if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable)
         connectDebuggingHelperActions();
 
     m_gdbAdapter->startAdapter();
@@ -2722,7 +2784,7 @@ bool GdbEngine::hasDebuggingHelperForType(const QString &type) const
     if (!theDebuggerBoolSetting(UseDebuggingHelpers))
         return false;
 
-    if (!startModeAllowsDumpers()) {
+    if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperNotAvailable) {
         // "call" is not possible in gdb when looking at core files
         return type == __("QString") || type.endsWith(__("::QString"))
             || type == __("QStringList") || type.endsWith(__("::QStringList"));
@@ -2764,7 +2826,7 @@ void GdbEngine::runDirectDebuggingHelper(const WatchData &data, bool dumpChildre
 
 void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
 {
-    if (!startModeAllowsDumpers()) {
+    if (m_debuggingHelperState != DebuggingHelperAvailable) {
         runDirectDebuggingHelper(data0, dumpChildren);
         return;
     }
@@ -3800,14 +3862,50 @@ void GdbEngine::assignValueInDebugger(const QString &expression, const QString &
     postCommand(_("-var-assign assign ") + value, Discardable, CB(handleVarAssign));
 }
 
+QString GdbEngine::qtDumperLibraryName() const
+{
+    return m_manager->qtDumperLibraryName();
+}
+
+bool GdbEngine::checkDebuggingHelpers()
+{
+    if (!manager()->qtDumperLibraryEnabled())
+        return false;
+    const QString lib = qtDumperLibraryName();
+    //qDebug() << "DUMPERLIB:" << lib;
+    const QFileInfo fi(lib);
+    if (!fi.exists()) {
+        const QStringList &locations = manager()->qtDumperLibraryLocations();
+        const QString loc = locations.join(QLatin1String(", "));
+        const QString msg = tr("The debugging helper library was not found at %1.").arg(loc);
+        debugMessage(msg);
+        manager()->showQtDumperLibraryWarning(msg);
+        return false;
+    }
+    return true;
+}
+
+void GdbEngine::setDebuggingHelperState(DebuggingHelperState s)
+{
+    m_debuggingHelperState = s;
+}
+
 void GdbEngine::tryLoadDebuggingHelpers()
 {
     if (isSynchroneous())
         return;
-
-    if (m_debuggingHelperState != DebuggingHelperUninitialized)
+    switch (m_debuggingHelperState) {
+    case DebuggingHelperUninitialized:
+        break;
+    case DebuggingHelperLoadTried:
+        tryQueryDebuggingHelpers();
         return;
-    if (!startModeAllowsDumpers()) {
+    case DebuggingHelperAvailable:
+    case DebuggingHelperUnavailable:
+        return;
+    }
+
+    if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperNotAvailable) {
         // Load at least gdb macro based dumpers.
         QFile file(_(":/gdb/gdbmacros.txt"));
         file.open(QIODevice::ReadOnly);
@@ -3821,25 +3919,13 @@ void GdbEngine::tryLoadDebuggingHelpers()
 
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
     m_debuggingHelperState = DebuggingHelperUnavailable;
-    if (!manager()->qtDumperLibraryEnabled())
+    if (!checkDebuggingHelpers())
         return;
-    const QString lib = manager()->qtDumperLibraryName();
-    const QStringList &locations = manager()->qtDumperLibraryLocations();
-    //qDebug() << "DUMPERLIB:" << lib;
-    // @TODO: same in CDB engine...
-    const QFileInfo fi(lib);
-    if (!fi.exists()) {
-        const QString loc = locations.join(QLatin1String(", "));
-        const QString msg = tr("The debugging helper library was not found at %1.").arg(loc);
-        debugMessage(msg);
-        manager()->showQtDumperLibraryWarning(msg);
-        return;
-    }
 
     m_debuggingHelperState = DebuggingHelperLoadTried;
     const QString dlopenLib =
         (startParameters().startMode == StartRemote)
-            ? startParameters().remoteDumperLib : lib;
+            ? startParameters().remoteDumperLib : manager()->qtDumperLibraryName();
 #if defined(Q_OS_WIN)
     if (m_dumperInjectionLoad) {
         /// Launch asynchronous remote thread to load.
@@ -3892,27 +3978,18 @@ void GdbEngine::tryLoadDebuggingHelpers()
 
 void GdbEngine::tryQueryDebuggingHelpers()
 {
-#if !X
     // retrieve list of dumpable classes
     postCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
     postCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
-#else
-    m_debuggingHelperState = DebuggingHelperUnavailable;
-#endif
 }
 
 void GdbEngine::recheckDebuggingHelperAvailability()
 {
-    if (startModeAllowsDumpers()) {
+    if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
         // retreive list of dumpable classes
         postCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
         postCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
     }
-}
-
-bool GdbEngine::startModeAllowsDumpers() const
-{
-    return m_gdbAdapter->dumpersAvailable();
 }
 
 void GdbEngine::watchPoint(const QPoint &pnt)
@@ -4272,7 +4349,15 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
               ).arg(scriptFileName));
         }
     }
-
+    if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperLoadedByGdbPreload
+        && checkDebuggingHelpers()) {        
+        QString cmd = _("set environment ");
+        cmd += _(Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR);
+        cmd += _c(' ');
+        cmd += manager()->qtDumperLibraryName();
+        postCommand(cmd);
+        m_debuggingHelperState = DebuggingHelperLoadTried;
+    }
     return true;
 }
 

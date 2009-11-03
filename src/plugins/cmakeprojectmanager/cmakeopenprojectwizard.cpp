@@ -85,7 +85,6 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     setPage(CMakeRunPageId, new CMakeRunPage(this));
 
     setStartId(startid);
-    setOption(QWizard::NoCancelButton);
     init();
 }
 
@@ -101,7 +100,6 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
         addPage(new CMakeRunPage(this, CMakeRunPage::Recreate, buildDirectory));
     else
         addPage(new CMakeRunPage(this, CMakeRunPage::Update, buildDirectory));
-    setOption(QWizard::NoCancelButton);
     init();
 }
 

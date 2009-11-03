@@ -295,6 +295,11 @@ void RunSettingsWidget::initRunConfigurationComboBox()
 void RunSettingsWidget::showRunConfigurationWidget(int index)
 {
     Q_ASSERT(m_project);
+    if (index == -1) {
+        delete m_runConfigurationWidget;
+        m_runConfigurationWidget = 0;
+        return;
+    }
     QSharedPointer<RunConfiguration> selectedRunConfiguration =
             m_runConfigurationsModel->runConfigurations().at(index);
 

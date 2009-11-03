@@ -180,7 +180,7 @@
 /*! \contentspage index.html
     \previouspage creator-quick-tour.html
     \page creator-code-editor.html
-    \nextpage creator-build-settings.html
+    \nextpage creator-project-pane.html
 
     \title The Code Editor
 
@@ -318,10 +318,10 @@
 /*!
     \contentspage index.html
     \previouspage creator-code-editor.html
-    \page creator-build-settings.html
+    \page creator-project-pane.html
     \nextpage creator-version-management.html
 
-    \title Build Settings
+    \title Project Settings
 
     \table
         \row
@@ -330,56 +330,63 @@
                 \l{CMake Support in Qt Creator}.
     \endtable
 
-    To modify the build settings of your project, switch to the \gui{Projects}
-    mode using the mouse or with \key{Ctrl+4}.
+    To modify the project settings of your project, switch to the \gui{Projects}
+    mode using the mouse or \key{Ctrl+4}.
 
-    \image qtcreator-buildsettingstab.png
+    \image qtcreator-projectpane.png
 
-    Action items to create, clone, or delete build configurations can be found
-    at the bottom of the dialog. You can have as many build configurations as
-    needed. By default Qt Creator creates a \bold{debug} and \bold{release}
-    build configuration. Both these configurations use the
-    \l{glossary-default-qt}{Default Qt Version}.
+    The project pane is divided into two areas. At the top the currently active
+    settings are shown. The active build or run configuration for all projects
+    can be changed there. The bottom area allows you to quickly get an overview
+    of the build, run and editor settings as well as the dependencies between your
+    projects. It also allows you to edit those settings.
 
-    In the tree on the left, a list of build configurations and their settings
-    are displayed. The screenshot above shows the \bold{debug} and
-    \bold{release} configurations and their corresponding settings:
-    \bold{Build Environment} and \bold{Build Steps}.
+    \section1 Build Settings
 
-    When you select a build configuration in the tree, a configuration page for
-    general build settings will be displayed. Here you can specify which
-    \l{glossary-project-qt}{Qt version} to use to build your project, whether
+    Build configurations allow you to quickly switch between different build
+    settings. By default Qt Creator Qt Creator creates a \bold{debug} and
+    \bold{release} build configuration. Both these configurations use the
+    \l{glossary-default-qt}{Default Qt Version}. Action items to create, clone,
+    or delete build configurations can be found at the top. You can have as
+    many build configurations as needed. To edit settings click on the
+    \gui{Show Details} button. Here you can specify which
+    \l{glossary-project-qt}{Qt version} to use to build your project, or whether
     to \l{glossary-shadow-build}{shadow build} the project, for instance.
 
-    \image qtcreator-buildenvironment.png
+    \image qtcreator-ppbuildsettings.png
 
-    In the \bold{Build Environment} page you can specify the environment used
+    The build system of Qt Creator is built on top of \c qmake and \c make. The
+    settings for \c qmake and \c make can be changed. Qt Creator will run the
+    make command using the correct Qt version.
+
+    In the \bold{Build Environment} section you can specify the environment used
     for building. By default the environment in which Qt Creator was started
     is used and modified to include the Qt version. Depending on the selected
     Qt version, Qt Creator will automatically set the necessary environment
     variables.
 
-    \image qtcreator-buildsteps.png
+    \section1 Run Settings
 
-    The build system of Qt Creator is built on top of \c qmake and \c make. The
-    settings for \c qmake and \c make can be changed in the
-    \bold{Build Settings} page. Qt Creator will run the make command using the
-    correct Qt version.
+    \image qtcreator-pprunsettings.png
+    Qt Creator automatically creates run configurations for your project.
+    These run configurations derive their executable
+    from the parsed .pro files. You can also create \bold{custom executable}
+    run configurations where you can freely set the executable to be run.
 
     \section1 Dependencies
 
     If you have multiple projects loaded in your session, you can configure
     dependencies between them. This will affect the build order of your
-    projects. To do this, go the the \bold{Dependencies} tab after selecting
+    projects. To do this, go the the \bold{Dependencies} section after selecting
     the project for which you want to configure the dependencies, and then use
     the checkboxes to check which of the other projects is a dependency.
-
+    \note This is unrelated to the dependencies inside a qmake project.
 */
 
 
 /*!
     \contentspage index.html
-    \previouspage creator-build-settings.html
+    \previouspage creator-project-pane.html
     \page creator-version-management.html
     \nextpage creator-creating-project.html
 
@@ -1423,7 +1430,8 @@
     \title CMake Support in Qt Creator
 
     Since Qt Creator 1.1, support for \c CMake project files is available.
-
+    Qt Creator 1.3 supports the Microsoft Toolchain if the cmake version
+    is at least 2.8.
 
     \section1 Opening CMake Projects
 
@@ -1446,9 +1454,9 @@
 
     \section1 Building CMake Projects
 
-    Qt Creator builds \c CMake Projects by running \c make or \c mingw32-make,
-    depending on your platform. The build errors and warnings are parsed and
-    displayed in the \gui{Build Issues} output pane.
+    Qt Creator builds \c CMake Projects by running \c make, \c mingw32-make, or
+    \c nmake depending on your platform. The build errors and warnings are
+    parsed and displayed in the \gui{Build Issues} output pane.
 
     By default Qt Creator builds the \e{all} target. You can specify which
     targets to build in \gui{Project} mode, under \gui{Build Settings}.
@@ -1457,7 +1465,6 @@
 
     Qt Creator supports multiple build configurations. Also, the build
     directory can be modified after the initial import.
-
 
     \section1 Running CMake Projects
     Qt Creator automatically adds \gui{Run Configurations} for all targets

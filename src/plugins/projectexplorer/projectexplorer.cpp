@@ -1559,7 +1559,9 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro)
             d->m_buildManager->buildProjects(projects, configurations(projects));
         }
     } else {
-        executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
+        // TODO this ignores RunConfiguration::isEnabled()
+        if (saveModifiedFiles())
+            executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
     }
 }
 
@@ -1584,7 +1586,9 @@ void ProjectExplorerPlugin::debugProject()
             updateRunAction();
         }
     } else {
-        executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE);
+        // TODO this ignores RunConfiguration::isEnabled()
+        if (saveModifiedFiles())
+            executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE);
     }
 }
 
@@ -2166,8 +2170,6 @@ BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
     ));
     descriptiveText->setWordWrap(true);
     vlayout->addWidget(descriptiveText);
-    QHBoxLayout *hlayout = new QHBoxLayout;
-    hlayout->addWidget(new QLabel(tr("Choose build configuration:")));
     m_configCombo = new QComboBox;
     QSharedPointer<RunConfiguration> activeRun = m_project->activeRunConfiguration();
     foreach (BuildConfiguration *config, m_project->buildConfigurations()) {
@@ -2181,10 +2183,12 @@ BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
         m_changeBuildConfiguration->setEnabled(false);
     }
 
-
-    hlayout->addWidget(m_configCombo);
-    hlayout->addStretch(10);
-    vlayout->addLayout(hlayout);
+    QFormLayout *formlayout = new QFormLayout;
+    formlayout->addRow(ActiveConfigurationWidget::tr("Active run configuration"),
+                       // ^ avoiding a new translatable string for active run configuration
+                       new QLabel(activeRun->name()));
+    formlayout->addRow(tr("Choose build configuration:"), m_configCombo);
+    vlayout->addLayout(formlayout);
     vlayout->addWidget(buttonBox);
     m_cancel->setDefault(true);
 }

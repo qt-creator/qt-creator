@@ -52,7 +52,7 @@ class CoreGdbAdapter : public AbstractGdbAdapter
 public:
     CoreGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    bool dumpersAvailable() const { return false; }
+    virtual DumperHandling dumperHandling() const { return DumperNotAvailable; }
 
     void startAdapter();
     void startInferior();

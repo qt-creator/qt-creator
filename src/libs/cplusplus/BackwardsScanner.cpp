@@ -131,6 +131,11 @@ int BackwardsScanner::previousBlockState(const QTextBlock &block) const
     return 0;
 }
 
+int BackwardsScanner::size() const
+{
+    return _tokens.size();
+}
+
 int BackwardsScanner::startOfMatchingBrace(int index) const
 {
     const BackwardsScanner &tk = *this;

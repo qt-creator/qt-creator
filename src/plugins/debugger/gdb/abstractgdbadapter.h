@@ -48,6 +48,11 @@ class AbstractGdbAdapter : public QObject
     Q_OBJECT
 
 public:
+    enum  DumperHandling { DumperNotAvailable,
+                           DumperLoadedByAdapter,
+                           DumperLoadedByGdbPreload,
+                           DumperLoadedByGdb };
+
     AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0);
     virtual ~AbstractGdbAdapter();
 
@@ -61,7 +66,7 @@ public:
     virtual void shutdown();
     virtual const char *inferiorShutdownCommand() const;
 
-    virtual bool dumpersAvailable() const = 0;
+    virtual DumperHandling dumperHandling() const = 0;
 
     static QString msgGdbStopFailed(const QString &why);
     static QString msgInferiorStopFailed(const QString &why);

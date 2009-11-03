@@ -34,6 +34,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QMessageBox>
@@ -51,8 +52,9 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, QObject *parent)
-    : AbstractGdbAdapter(engine, parent)
+RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, int toolChainType, QObject *parent) :
+    AbstractGdbAdapter(engine, parent),
+    m_toolChainType(toolChainType)
 {
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(uploadProcError(QProcess::ProcessError)));
@@ -60,6 +62,23 @@ RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, QObject *parent)
         this, SLOT(readUploadStandardOutput()));
     connect(&m_uploadProc, SIGNAL(readyReadStandardError()),
         this, SLOT(readUploadStandardError()));
+}
+
+AbstractGdbAdapter::DumperHandling RemoteGdbAdapter::dumperHandling() const
+{
+    switch (m_toolChainType) {
+    case ProjectExplorer::ToolChain::MinGW:
+    case ProjectExplorer::ToolChain::MSVC:
+    case ProjectExplorer::ToolChain::WINCE:
+    case ProjectExplorer::ToolChain::WINSCW:
+    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        return DumperLoadedByGdb;
+    default:
+        break;
+    }
+    return DumperLoadedByGdbPreload;
 }
 
 void RemoteGdbAdapter::startAdapter()

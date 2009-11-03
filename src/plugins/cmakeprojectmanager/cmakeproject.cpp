@@ -648,7 +648,8 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         // and the cmake command line
 
         CMakeOpenProjectWizard copw(m_manager, sourceDirectory(), ProjectExplorer::Environment::systemEnvironment());
-        copw.exec();
+        if (copw.exec() != QDialog::Accepted)
+            return false;
 
         qDebug()<<"ccd.buildDirectory()"<<copw.buildDirectory();
 
@@ -690,7 +691,8 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
                                         buildDirectory(activeBC),
                                         mode,
                                         environment(activeBC));
-            copw.exec();
+            if (copw.exec() != QDialog::Accepted)
+                return false;
             activeBC->setValue("msvcVersion", copw.msvcVersion());
         }
     }

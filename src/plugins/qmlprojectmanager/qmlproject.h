@@ -175,7 +175,8 @@ private:
 private:
     QmlProject *m_project;
     QString m_scriptFile;
-    QString m_qmlViewer;
+    QString m_qmlViewerCustomPath;
+    QString m_qmlViewerDefaultPath;
     QString m_qmlViewerArgs;
     QLatin1String m_type;
 };
