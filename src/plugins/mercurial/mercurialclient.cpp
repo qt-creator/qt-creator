@@ -78,7 +78,7 @@ bool MercurialClient::add(const QString &filename)
 {
     QFileInfo file(filename);
     QStringList args;
-    args << "add" << file.absoluteFilePath();
+    args << QLatin1String("add") << file.absoluteFilePath();
 
     return hgProcessSync(file, args);
 }
@@ -87,7 +87,7 @@ bool MercurialClient::remove(const QString &filename)
 {
     QFileInfo file(filename);
     QStringList args;
-    args << "remove" << file.absoluteFilePath();
+    args << QLatin1String("remove") << file.absoluteFilePath();
 
     return hgProcessSync(file, args);
 }
@@ -95,15 +95,15 @@ bool MercurialClient::remove(const QString &filename)
 bool MercurialClient::manifestSync(const QString &filename)
 {
     QFileInfo file(filename);
-    QStringList args("manifest");
+    QStringList args(QLatin1String("manifest"));
 
     QByteArray output;
     hgProcessSync(file, args, &output);
 
-    QStringList files = QString::fromLocal8Bit(output).split('\n');
+    const QStringList files = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
 
-    foreach (QString fileName, files) {
-        QFileInfo managedFile(filename);
+    foreach (const QString &fileName, files) {
+        const QFileInfo managedFile(fileName);
         if (file == managedFile)
             return true;
     }
@@ -145,18 +145,18 @@ bool MercurialClient::hgProcessSync(const QFileInfo &file, const QStringList &ar
 QString MercurialClient::branchQuerySync(const QFileInfo &repositoryRoot)
 {
     QByteArray output;
-    if (hgProcessSync(repositoryRoot, QStringList("branch"), &output))
+    if (hgProcessSync(repositoryRoot, QStringList(QLatin1String("branch")), &output))
         return QTextCodec::codecForLocale()->toUnicode(output).trimmed();
 
-    return QString("Unknown Branch");
+    return QLatin1String("Unknown Branch");
 }
 
 void MercurialClient::annotate(const QFileInfo &file)
 {
     QStringList args;
-    args << "annotate" << "-u" << "-c" << "-d" << file.absoluteFilePath();
+    args << QLatin1String("annotate") << QLatin1String("-u") << QLatin1String("-c") << QLatin1String("-d") << file.absoluteFilePath();
 
-    const QString kind = Constants::ANNOTATELOG;
+    const QString kind = QLatin1String(Constants::ANNOTATELOG);
     const QString title = tr("Hg Annotate %1").arg(file.fileName());
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, file.absolutePath(), true,
@@ -172,7 +172,8 @@ void MercurialClient::diff(const QFileInfo &fileOrDir)
     QString id;
     QString workingPath;
 
-    args << "diff" << "-g" << "-p" << "-U 8";
+    args << QLatin1String("diff") << QLatin1String("-g") << QLatin1String("-p")
+         << QLatin1String("-U 8");
 
     if (!fileOrDir.isDir()) {
         args.append(fileOrDir.absoluteFilePath());
@@ -183,7 +184,7 @@ void MercurialClient::diff(const QFileInfo &fileOrDir)
         workingPath = fileOrDir.absoluteFilePath();
     }
 
-    const QString kind = Constants::DIFFLOG;
+    const QString kind = QLatin1String(Constants::DIFFLOG);
     const QString title = tr("Hg diff %1").arg(fileOrDir.isDir() ? id : fileOrDir.fileName());
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, workingPath, true,
@@ -195,11 +196,9 @@ void MercurialClient::diff(const QFileInfo &fileOrDir)
 
 void MercurialClient::log(const QFileInfo &fileOrDir)
 {
-    QStringList args;
+    QStringList args(QLatin1String("log"));
     QString id;
     QString workingDir;
-
-    args << "log";
 
     if (!fileOrDir.isDir()) {
         args.append(fileOrDir.absoluteFilePath());
@@ -210,7 +209,7 @@ void MercurialClient::log(const QFileInfo &fileOrDir)
         workingDir = fileOrDir.absoluteFilePath();
     }
 
-    const QString kind = Constants::FILELOG;
+    const QString kind = QLatin1String(Constants::FILELOG);
     const QString title = tr("Hg log %1").arg(fileOrDir.isDir() ? id : fileOrDir.fileName());
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, workingDir, true,
@@ -222,15 +221,14 @@ void MercurialClient::log(const QFileInfo &fileOrDir)
 
 void MercurialClient::revert(const QFileInfo &fileOrDir, const QString &revision)
 {
-    QStringList args;
-    args << "revert";
+    QStringList args(QLatin1String("revert"));
 
     if (!revision.isEmpty())
-        args << "-r" << revision;
+        args << QLatin1String("-r") << revision;
     if (!fileOrDir.isDir())
         args.append(fileOrDir.absoluteFilePath());
     else
-        args.append("--all");
+        args.append(QLatin1String("--all"));
 
     QSharedPointer<HgTask> job(new HgTask(fileOrDir.isDir() ? fileOrDir.absoluteFilePath() :
                                           fileOrDir.absolutePath(), args, false));
@@ -240,7 +238,7 @@ void MercurialClient::revert(const QFileInfo &fileOrDir, const QString &revision
 void MercurialClient::status(const QFileInfo &fileOrDir)
 {
     QStringList args;
-    args << "status";
+    args << QLatin1String("status");
     if (!fileOrDir.isDir())
         args.append(fileOrDir.absoluteFilePath());
 
@@ -266,19 +264,19 @@ void MercurialClient::statusParser(const QByteArray &data)
 
     QStringList rawStatusList = QTextCodec::codecForLocale()->toUnicode(data).split(QLatin1Char('\n'));
 
-    foreach (QString string, rawStatusList) {
+    foreach (const QString &string, rawStatusList) {
         QPair<QString, QString> status;
 
-        if (string.startsWith('M'))
-            status.first = "Modified";
-        else if (string.startsWith('A'))
-            status.first = "Added";
-        else if (string.startsWith('R'))
-            status.first = "Removed";
-        else if (string.startsWith('!'))
-            status.first = "Deleted";
-        else if (string.startsWith('?'))
-            status.first = "Untracked";
+        if (string.startsWith(QLatin1Char('M')))
+            status.first = QLatin1String("Modified");
+        else if (string.startsWith(QLatin1Char('A')))
+            status.first = QLatin1String("Added");
+        else if (string.startsWith(QLatin1Char('R')))
+            status.first = QLatin1String("Removed");
+        else if (string.startsWith(QLatin1Char('!')))
+            status.first = QLatin1String("Deleted");
+        else if (string.startsWith(QLatin1Char('?')))
+            status.first = QLatin1String("Untracked");
         else
             continue;
 
@@ -294,10 +292,8 @@ void MercurialClient::statusParser(const QByteArray &data)
 void MercurialClient::import(const QFileInfo &repositoryRoot, const QStringList &files)
 {
     QStringList args;
-    args << "import" << "--no-commit";
-
-    foreach (QString file, files)
-        args.append(file);
+    args << QLatin1String("import") << QLatin1String("--no-commit");
+    args += files;
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
     jobManager->enqueueJob(job);
@@ -306,7 +302,7 @@ void MercurialClient::import(const QFileInfo &repositoryRoot, const QStringList 
 void MercurialClient::pull(const QFileInfo &repositoryRoot, const QString &repository)
 {
     QStringList args;
-    args << "pull";
+    args << QLatin1String("pull");
     if (!repository.isEmpty())
         args.append(repository);
 
@@ -317,7 +313,7 @@ void MercurialClient::pull(const QFileInfo &repositoryRoot, const QString &repos
 void MercurialClient::push(const QFileInfo &repositoryRoot, const QString &repository)
 {
     QStringList args;
-    args << "push";
+    args << QLatin1String("push");
     if (!repository.isEmpty())
         args.append(repository);
 
@@ -328,13 +324,13 @@ void MercurialClient::push(const QFileInfo &repositoryRoot, const QString &repos
 void MercurialClient::incoming(const QFileInfo &repositoryRoot, const QString &repository)
 {
     QStringList args;
-    args << "incoming" << "-g" << "-p";
+    args << QLatin1String("incoming") << QLatin1String("-g") << QLatin1String("-p");
     if (!repository.isEmpty())
         args.append(repository);
 
     QString id = MercurialPlugin::instance()->currentProjectName();
 
-    const QString kind = Constants::DIFFLOG;
+    const QString kind = QLatin1String(Constants::DIFFLOG);
     const QString title = tr("Hg incoming %1").arg(id);
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, repositoryRoot.absoluteFilePath(),
@@ -347,11 +343,11 @@ void MercurialClient::incoming(const QFileInfo &repositoryRoot, const QString &r
 void MercurialClient::outgoing(const QFileInfo &repositoryRoot)
 {
     QStringList args;
-    args << "outgoing" << "-g" << "-p";
+    args << QLatin1String("outgoing") << QLatin1String("-g") << QLatin1String("-p");
 
     QString id = MercurialPlugin::instance()->currentProjectName();
 
-    const QString kind = Constants::DIFFLOG;
+    const QString kind = QLatin1String(Constants::DIFFLOG);
     const QString title = tr("Hg outgoing %1").arg(id);
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, repositoryRoot.absoluteFilePath(), true,
@@ -364,9 +360,10 @@ void MercurialClient::outgoing(const QFileInfo &repositoryRoot)
 void MercurialClient::view(const QString &source, const QString &id)
 {
     QStringList args;
-    args << "log" << "-p" << "-g" << "-r" << id;
+    args << QLatin1String("log") << QLatin1String("-p") << QLatin1String("-g")
+         << QLatin1String("-r") << id;
 
-    const QString kind = Constants::DIFFLOG;
+    const QString kind = QLatin1String(Constants::DIFFLOG);
     const QString title = tr("Hg log %1").arg(id);
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, source,
@@ -378,9 +375,7 @@ void MercurialClient::view(const QString &source, const QString &id)
 
 void MercurialClient::update(const QFileInfo &repositoryRoot, const QString &revision)
 {
-    QStringList args;
-
-    args << "update";
+    QStringList args(QLatin1String("update"));
     if (!revision.isEmpty())
         args << revision;
 
@@ -393,7 +388,8 @@ void MercurialClient::commit(const QFileInfo &repositoryRoot, const QStringList 
 {
     QStringList args;
 
-    args << "commit" << "-u" << commiterInfo << "-l" << commitMessageFile << files;
+    args << QLatin1String("commit") << QLatin1String("-u") << commiterInfo
+         << QLatin1String("-l") << commitMessageFile << files;
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
     jobManager->enqueueJob(job);
 }
@@ -424,13 +420,14 @@ VCSBase::VCSBaseEditor *MercurialClient::createVCSEditor(const QString &kind, QS
 {
     VCSBase::VCSBaseEditor *baseEditor = 0;
     Core::IEditor* outputEditor = locateEditor(core, registerDynamicProperty, dynamicPropertyValue);
+    const QString progressMsg = tr("Working...");
     if (outputEditor) {
         // Exists already
-        outputEditor->createNew(tr("Working..."));
+        outputEditor->createNew(progressMsg);
         baseEditor = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(baseEditor, return 0);
     } else {
-        outputEditor = core->editorManager()->openEditorWithContents(kind, &title, tr("Working..."));
+        outputEditor = core->editorManager()->openEditorWithContents(kind, &title, progressMsg);
         outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(baseEditor, return 0);

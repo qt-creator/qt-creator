@@ -74,14 +74,6 @@ const char * const DIFFEXT = "diff";
 const char * const COMMITKIND = "Mercurial Commit Log Editor";
 const char * const COMMITMIMETYPE = "application/vnd.nokia.text.scs_mercurial_commitlog";
 
-#ifndef Q_WS_MAC
-const char * const MODIFIER = "Alt+";
-const char * const MENUKEY = "Alt+H, ";
-#else
-const char * const MODIFIER = "Meta+";
-const char * const MENUKEY = "Meta+H, ";
-#endif
-
 //menu items
 //File menu actions
 const char * const ANNOTATE = "Mercurial.Annotate";

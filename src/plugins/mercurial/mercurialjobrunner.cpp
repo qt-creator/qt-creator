@@ -36,9 +36,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 
 #include <QtCore/QProcess>
-#include <QtCore/QTime>
 #include <QtCore/QString>
-#include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
 using namespace Mercurial::Internal;
@@ -99,7 +97,7 @@ void MercurialJobRunner::restart()
 
 void MercurialJobRunner::getSettings()
 {
-    MercurialSettings *settings = MercurialPlugin::instance()->settings();
+    const MercurialSettings *settings = MercurialPlugin::instance()->settings();
     binary = settings->binary();
     timeout = settings->timeout();
     standardArguments = settings->standardArguments();

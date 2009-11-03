@@ -42,49 +42,49 @@ MercurialSettings::MercurialSettings()
     readSettings();
 }
 
-QString MercurialSettings::binary()
+QString MercurialSettings::binary() const
 {
     return bin;
 }
 
-QString MercurialSettings::application()
+QString MercurialSettings::application() const
 {
     return app;
 }
 
-QStringList MercurialSettings::standardArguments()
+QStringList MercurialSettings::standardArguments() const
 {
     return standardArgs;
 }
 
-QString MercurialSettings::userName()
+QString MercurialSettings::userName() const
 {
     return user;
 }
 
-QString MercurialSettings::email()
+QString MercurialSettings::email() const
 {
     return mail;
 }
 
-int MercurialSettings::logCount()
+int MercurialSettings::logCount() const
 {
     return m_logCount;
 }
 
-int MercurialSettings::timeout()
+int MercurialSettings::timeout() const
 {
     //return timeout is in Ms
     return m_timeout * 1000;
 }
 
-int MercurialSettings::timeoutSeconds()
+int MercurialSettings::timeoutSeconds() const
 {
     //return timeout in seconds (as the user specifies on the options page
     return m_timeout;
 }
 
-bool MercurialSettings::prompt()
+bool MercurialSettings::prompt() const
 {
     return m_prompt;
 }
@@ -94,13 +94,13 @@ void MercurialSettings::writeSettings(const QString &application, const QString 
 {
     QSettings *settings = Core::ICore::instance()->settings();
     if (settings) {
-        settings->beginGroup("Mercurial");
-        settings->setValue(Constants::MERCURIALPATH, application);
-        settings->setValue(Constants::MERCURIALUSERNAME, userName);
-        settings->setValue(Constants::MERCURIALEMAIL, email);
-        settings->setValue(Constants::MERCURIALLOGCOUNT, logCount);
-        settings->setValue(Constants::MERCURIALTIMEOUT, timeout);
-        settings->setValue(Constants::MERCURIALPROMPTSUBMIT, prompt);
+        settings->beginGroup(QLatin1String("Mercurial"));
+        settings->setValue(QLatin1String(Constants::MERCURIALPATH), application);
+        settings->setValue(QLatin1String(Constants::MERCURIALUSERNAME), userName);
+        settings->setValue(QLatin1String(Constants::MERCURIALEMAIL), email);
+        settings->setValue(QLatin1String(Constants::MERCURIALLOGCOUNT), logCount);
+        settings->setValue(QLatin1String(Constants::MERCURIALTIMEOUT), timeout);
+        settings->setValue(QLatin1String(Constants::MERCURIALPROMPTSUBMIT), prompt);
         settings->endGroup();
     }
 
@@ -117,13 +117,14 @@ void MercurialSettings::readSettings()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     if (settings) {
-        settings->beginGroup("Mercurial");
-        app = settings->value(Constants::MERCURIALPATH, Constants::MERCURIALDEFAULT).toString();
-        user = settings->value(Constants::MERCURIALUSERNAME, QString()).toString();
-        mail = settings->value(Constants::MERCURIALEMAIL, QString()).toString();
-        m_logCount = settings->value(Constants::MERCURIALLOGCOUNT, 0).toInt();
-        m_timeout = settings->value(Constants::MERCURIALTIMEOUT, 30).toInt();
-        m_prompt = settings->value(Constants::MERCURIALPROMPTSUBMIT, true).toBool();
+        settings->beginGroup(QLatin1String("Mercurial"));
+        app = settings->value(QLatin1String(Constants::MERCURIALPATH),
+                              QLatin1String(Constants::MERCURIALDEFAULT)).toString();
+        user = settings->value(QLatin1String(Constants::MERCURIALUSERNAME), QString()).toString();
+        mail = settings->value(QLatin1String(Constants::MERCURIALEMAIL), QString()).toString();
+        m_logCount = settings->value(QLatin1String(Constants::MERCURIALLOGCOUNT), 0).toInt();
+        m_timeout = settings->value(QLatin1String(Constants::MERCURIALTIMEOUT), 30).toInt();
+        m_prompt = settings->value(QLatin1String(Constants::MERCURIALPROMPTSUBMIT), true).toBool();
         settings->endGroup();
     }
 

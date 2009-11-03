@@ -41,15 +41,15 @@ class MercurialSettings
 public:
     MercurialSettings();
 
-    QString binary();
-    QString application();
-    QStringList standardArguments();
-    QString userName();
-    QString email();
-    int logCount();
-    int timeout();
-    int timeoutSeconds();
-    bool prompt();
+    QString binary() const;
+    QString application() const;
+    QStringList standardArguments() const;
+    QString userName() const;
+    QString email() const;
+    int logCount() const;
+    int timeout() const;
+    int timeoutSeconds() const;
+    bool prompt() const;
     void writeSettings(const QString &application, const QString &userName,
                        const QString &email, int logCount, int timeout, bool prompt);
 private:

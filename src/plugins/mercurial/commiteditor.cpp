@@ -63,11 +63,11 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
     fileModel = new VCSBase::SubmitFileModel(this);
 
     //TODO Messy tidy this up
-    typedef QPair<QString, QString> PAIR;
+    typedef QPair<QString, QString> StringStringPair;
     QStringList shouldTrack;
 
-    foreach (PAIR status, repoStatus) {
-        if (status.first == "Untracked")
+    foreach (const StringStringPair &status, repoStatus) {
+        if (status.first == QLatin1String("Untracked"))
             shouldTrack.append(status.second);
         else
             fileModel->addFile(status.second, status.first, false);
@@ -76,8 +76,8 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
     VCSBase::VCSBaseSubmitEditor::filterUntrackedFilesOfProject(repositoryRoot.absoluteFilePath(),
                                                                 &shouldTrack);
 
-    foreach (QString track, shouldTrack) {
-        foreach (PAIR status, repoStatus) {
+    foreach (const QString &track, shouldTrack) {
+        foreach (const StringStringPair &status, repoStatus) {
             if (status.second == track)
                 fileModel->addFile(status.second, status.first, false);
         }

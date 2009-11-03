@@ -47,11 +47,11 @@ using namespace Mercurial;
 
 MercurialEditor::MercurialEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent)
         : VCSBase::VCSBaseEditor(type, parent),
-        exactIdentifier12(Constants::CHANGEIDEXACT12),
-        exactIdentifier40(Constants::CHANGEIDEXACT40),
-        changesetIdentifier12(Constants::CHANGESETID12),
-        changesetIdentifier40(Constants::CHANGESETID40),
-        diffIdentifier(Constants::DIFFIDENTIFIER)
+        exactIdentifier12(QLatin1String(Constants::CHANGEIDEXACT12)),
+        exactIdentifier40(QLatin1String(Constants::CHANGEIDEXACT40)),
+        changesetIdentifier12(QLatin1String(Constants::CHANGESETID12)),
+        changesetIdentifier40(QLatin1String(Constants::CHANGESETID40)),
+        diffIdentifier(QLatin1String(Constants::DIFFIDENTIFIER))
 {
 }
 

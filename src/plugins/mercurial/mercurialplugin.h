@@ -136,13 +136,12 @@ private:
     void createMenu();
     void createSubmitEditorActions();
     void createSeparator(const QList<int> &context, const QString &id);
-    void createFileActions(QList<int> &context);
-    void createDirectoryActions(QList<int> &context);
-    void createRepositoryActions(QList<int> &context);
-    void createRepositoryManagementActions(QList<int> &context);
-    void createLessUsedActions(QList<int> &context);
+    void createFileActions(const QList<int> &context);
+    void createDirectoryActions(const QList<int> &context);
+    void createRepositoryActions(const QList<int> &context);
+    void createRepositoryManagementActions(const QList<int> &context);
+    void createLessUsedActions(const QList<int> &context);
     void deleteCommitLog();
-    //QString getSettingsByKey(const char * const key);
 
     //Variables
     static MercurialPlugin *m_instance;

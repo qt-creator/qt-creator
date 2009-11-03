@@ -201,10 +201,10 @@ MercurialSettings *MercurialPlugin::settings()
 
 void MercurialPlugin::createMenu()
 {
-    QList<int> context = QList<int>()<< core->uniqueIDManager()->uniqueIdentifier(Core::Constants::C_GLOBAL);
+    QList<int> context = QList<int>()<< core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Core::Constants::C_GLOBAL));
 
     // Create menu item for Mercurial
-    mercurialContainer = actionManager->createMenu("Mercurial.MercurialMenu");
+    mercurialContainer = actionManager->createMenu(QLatin1String("Mercurial.MercurialMenu"));
     QMenu *menu = mercurialContainer->menu();
     menu->setTitle(tr("Mercurial"));
 
@@ -214,17 +214,17 @@ void MercurialPlugin::createMenu()
     }
 
     createFileActions(context);
-    createSeparator(context, "FileDirSeperator");
+    createSeparator(context, QLatin1String("FileDirSeperator"));
     createDirectoryActions(context);
-    createSeparator(context, "DirRepoSeperator");
+    createSeparator(context, QLatin1String("DirRepoSeperator"));
     createRepositoryActions(context);
-    createSeparator(context, "Repository Management");
+    createSeparator(context, QLatin1String("Repository Management"));
     createRepositoryManagementActions(context);
-    createSeparator(context, "LessUsedfunctionality");
+    createSeparator(context, QLatin1String("LessUsedfunctionality"));
     createLessUsedActions(context);
 
     // Request the Tools menu and add the Mercurial menu to it
-    Core::ActionContainer *toolsMenu = actionManager->actionContainer(Core::Constants::M_TOOLS);
+    Core::ActionContainer *toolsMenu = actionManager->actionContainer(QLatin1String(Core::Constants::M_TOOLS));
     toolsMenu->addMenu(mercurialContainer);
 
     connect(core, SIGNAL(contextChanged(Core::IContext *)), this, SLOT(updateActions()));
@@ -233,40 +233,40 @@ void MercurialPlugin::createMenu()
 
 }
 
-void MercurialPlugin::createFileActions(QList<int> &context)
+void MercurialPlugin::createFileActions(const QList<int> &context)
 {
     Core::Command *command;
 
     annotateFile = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
-    command = actionManager->registerAction(annotateFile, Constants::ANNOTATE, context);
+    command = actionManager->registerAction(annotateFile, QLatin1String(Constants::ANNOTATE), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(annotateFile, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
     mercurialContainer->addAction(command);
 
     diffFile = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
-    command = actionManager->registerAction(diffFile, Constants::DIFF, context);
+    command = actionManager->registerAction(diffFile, QLatin1String(Constants::DIFF), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(tr(Constants::MENUKEY) + tr(Constants::MODIFIER) + "D"));
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+D")));
     connect(diffFile, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     mercurialContainer->addAction(command);
 
     logFile = new Utils::ParameterAction(tr("Log Current File"), tr("Log \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
-    command = actionManager->registerAction(logFile, Constants::LOG, context);
+    command = actionManager->registerAction(logFile, QLatin1String(Constants::LOG), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(tr(Constants::MENUKEY) + tr(Constants::MODIFIER) + "L"));
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+L")));
     connect(logFile, SIGNAL(triggered()), this, SLOT(logCurrentFile()));
     mercurialContainer->addAction(command);
 
     revertFile = new Utils::ParameterAction(tr("Revert Current File"), tr("Revert \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
-    command = actionManager->registerAction(revertFile, Constants::REVERT, context);
+    command = actionManager->registerAction(revertFile, QLatin1String(Constants::REVERT), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(revertFile, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
     mercurialContainer->addAction(command);
 
     statusFile = new Utils::ParameterAction(tr("Status Current File"), tr("Status \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
-    command = actionManager->registerAction(statusFile, Constants::STATUS, context);
+    command = actionManager->registerAction(statusFile, QLatin1String(Constants::STATUS), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(tr(Constants::MENUKEY) + tr(Constants::MODIFIER) + "S"));
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+S")));
     connect(statusFile, SIGNAL(triggered()), this, SLOT(statusCurrentFile()));
     mercurialContainer->addAction(command);
 }
@@ -299,32 +299,32 @@ void MercurialPlugin::statusCurrentFile()
     client->status(currentFile());
 }
 
-void MercurialPlugin::createDirectoryActions(QList<int> &context)
+void MercurialPlugin::createDirectoryActions(const QList<int> &context)
 {
     QAction *action;
     Core::Command *command;
 
     action = new QAction(tr("Diff"), this);
     actionList.append(action);
-    command = actionManager->registerAction(action, Constants::DIFFMULTI, context);
+    command = actionManager->registerAction(action, QLatin1String(Constants::DIFFMULTI), context);
     connect(action, SIGNAL(triggered()), this, SLOT(diffRepository()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Log"), this);
     actionList.append(action);
-    command = actionManager->registerAction(action, Constants::LOGMULTI, context);
+    command = actionManager->registerAction(action, QLatin1String(Constants::LOGMULTI), context);
     connect(action, SIGNAL(triggered()), this, SLOT(logRepository()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Revert"), this);
     actionList.append(action);
-    command = actionManager->registerAction(action, Constants::REVERTMULTI, context);
+    command = actionManager->registerAction(action, QLatin1String(Constants::REVERTMULTI), context);
     connect(action, SIGNAL(triggered()), this, SLOT(revertMulti()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Status"), this);
     actionList.append(action);
-    command = actionManager->registerAction(action, Constants::STATUSMULTI, context);
+    command = actionManager->registerAction(action, QLatin1String(Constants::STATUSMULTI), context);
     connect(action, SIGNAL(triggered()), this, SLOT(statusMulti()));
     mercurialContainer->addAction(command);
 }
@@ -352,48 +352,48 @@ void MercurialPlugin::statusMulti()
     client->status(currentProjectRoot());
 }
 
-void MercurialPlugin::createRepositoryActions(QList<int> &context)
+void MercurialPlugin::createRepositoryActions(const QList<int> &context)
 {
     QAction *action = new QAction(tr("Pull"), this);
     actionList.append(action);
-    Core::Command *command = actionManager->registerAction(action, Constants::PULL, context);
+    Core::Command *command = actionManager->registerAction(action, QLatin1String(Constants::PULL), context);
     connect(action, SIGNAL(triggered()), this, SLOT(pull()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Push"), this);
     actionList.append(action);
-    command = actionManager->registerAction(action, Constants::PUSH, context);
+    command = actionManager->registerAction(action, QLatin1String(Constants::PUSH), context);
     connect(action, SIGNAL(triggered()), this, SLOT(push()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Update"), this);
     actionList.append(action);
-    command = actionManager->registerAction(action, Constants::UPDATE, context);
+    command = actionManager->registerAction(action, QLatin1String(Constants::UPDATE), context);
     connect(action, SIGNAL(triggered()), this, SLOT(update()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Import"), this);
     actionList.append(action);
-    command = actionManager->registerAction(action, Constants::IMPORT, context);
+    command = actionManager->registerAction(action, QLatin1String(Constants::IMPORT), context);
     connect(action, SIGNAL(triggered()), this, SLOT(import()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Incoming"), this);
     actionList.append(action);
-    command = actionManager->registerAction(action, Constants::INCOMING, context);
+    command = actionManager->registerAction(action, QLatin1String(Constants::INCOMING), context);
     connect(action, SIGNAL(triggered()), this, SLOT(incoming()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Outgoing"), this);
     actionList.append(action);
-    command = actionManager->registerAction(action, Constants::OUTGOING, context);
+    command = actionManager->registerAction(action, QLatin1String(Constants::OUTGOING), context);
     connect(action, SIGNAL(triggered()), this, SLOT(outgoing()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Commit"), this);
     actionList.append(action);
-    command = actionManager->registerAction(action, Constants::COMMIT, context);
-    command->setDefaultKeySequence(QKeySequence(tr(Constants::MENUKEY) + tr(Constants::MODIFIER) + "C"));
+    command = actionManager->registerAction(action, QLatin1String(Constants::COMMIT), context);
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+C")));
     connect(action, SIGNAL(triggered()), this, SLOT(commit()));
     mercurialContainer->addAction(command);
 }
@@ -401,7 +401,7 @@ void MercurialPlugin::createRepositoryActions(QList<int> &context)
 void MercurialPlugin::pull()
 {
     SrcDestDialog dialog;
-    dialog.setWindowTitle("Pull Source");
+    dialog.setWindowTitle(tr("Pull Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
     QString repository = dialog.getRepositoryString();
@@ -411,7 +411,7 @@ void MercurialPlugin::pull()
 void MercurialPlugin::push()
 {
     SrcDestDialog dialog;
-    dialog.setWindowTitle("Push Destination");
+    dialog.setWindowTitle(tr("Push Destination"));
     if (dialog.exec() != QDialog::Accepted)
         return;
     QString repository = dialog.getRepositoryString();
@@ -421,7 +421,7 @@ void MercurialPlugin::push()
 void MercurialPlugin::update()
 {
     RevertDialog updateDialog;
-    updateDialog.setWindowTitle("Update");
+    updateDialog.setWindowTitle(tr("Update"));
     if (updateDialog.exec() != QDialog::Accepted)
         return;
     client->update(currentProjectRoot(), updateDialog.revision());
@@ -443,7 +443,7 @@ void MercurialPlugin::import()
 void MercurialPlugin::incoming()
 {
     SrcDestDialog dialog;
-    dialog.setWindowTitle("Incoming Source");
+    dialog.setWindowTitle(tr("Incoming Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
     QString repository = dialog.getRepositoryString();
@@ -457,21 +457,21 @@ void MercurialPlugin::outgoing()
 
 void MercurialPlugin::createSubmitEditorActions()
 {
-    QList<int> context = QList<int>()<< core->uniqueIDManager()->uniqueIdentifier(Constants::COMMITKIND);
+    QList<int> context = QList<int>()<< core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::COMMITKIND));
     Core::Command *command;
 
     editorCommit = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    command = actionManager->registerAction(editorCommit, Constants::COMMIT, context);
+    command = actionManager->registerAction(editorCommit, QLatin1String(Constants::COMMIT), context);
     connect(editorCommit, SIGNAL(triggered()), this, SLOT(commitFromEditor()));
 
     editorDiff = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff Selected Files"), this);
-    command = actionManager->registerAction(editorDiff, Constants::DIFFEDITOR, context);
+    command = actionManager->registerAction(editorDiff, QLatin1String(Constants::DIFFEDITOR), context);
 
     editorUndo = new QAction(tr("&Undo"), this);
-    command = actionManager->registerAction(editorUndo, Core::Constants::UNDO, context);
+    command = actionManager->registerAction(editorUndo, QLatin1String(Core::Constants::UNDO), context);
 
     editorRedo = new QAction(tr("&Redo"), this);
-    command = actionManager->registerAction(editorRedo, Core::Constants::REDO, context);
+    command = actionManager->registerAction(editorRedo, QLatin1String(Core::Constants::REDO), context);
 }
 
 void MercurialPlugin::commit()
@@ -506,7 +506,7 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
     }
 
     Core::IEditor *editor = core->editorManager()->openEditor(changeLog->fileName(),
-                                                              Constants::COMMITKIND);
+                                                              QLatin1String(Constants::COMMITKIND));
     if (!editor) {
         outputWindow->appendError(tr("Unable to create an editor for the commit."));
         return;
@@ -535,8 +535,8 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
 
 void MercurialPlugin::diffFromEditorSelected(const QStringList &files)
 {
-    foreach (QString file, files) {
-        QFileInfo toDiff(QDir(currentProjectRoot().absoluteFilePath()).absoluteFilePath(file));
+    foreach (const QString &file, files) {
+        const QFileInfo toDiff(QDir(currentProjectRoot().absoluteFilePath()).absoluteFilePath(file));
         client->diff(toDiff);
     }
 }
@@ -596,7 +596,7 @@ void MercurialPlugin::deleteCommitLog()
     }
 }
 
-void MercurialPlugin::createRepositoryManagementActions(QList<int> &context)
+void MercurialPlugin::createRepositoryManagementActions(const QList<int> &context)
 {
     //TODO create menu for these options
     Q_UNUSED(context);
@@ -608,7 +608,7 @@ void MercurialPlugin::createRepositoryManagementActions(QList<int> &context)
     //    mercurialContainer->addAction(command);
 }
 
-void MercurialPlugin::createLessUsedActions(QList<int> &context)
+void MercurialPlugin::createLessUsedActions(const QList<int> &context)
 {
     //TODO create menue for these options
     Q_UNUSED(context);
