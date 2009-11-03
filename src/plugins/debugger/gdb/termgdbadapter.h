@@ -51,7 +51,7 @@ public:
     TermGdbAdapter(GdbEngine *engine, QObject *parent = 0);
     ~TermGdbAdapter();
 
-    bool dumpersAvailable() const { return true; }
+    virtual DumperHandling dumperHandling() const;
 
     void startAdapter();
     void startInferior();
