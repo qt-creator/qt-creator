@@ -4245,6 +4245,9 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     m_gdbProc.disconnect(); // From any previous runs
 
     QString location = gdb;
+    const QByteArray env = qgetenv("QTC_DEBUGGER_PATH");
+    if (!env.isEmpty())
+        location = QString::fromLatin1(env);
     if (location.isEmpty())
         location = theDebuggerStringSetting(GdbLocation);
     QStringList gdbArgs;
