@@ -57,6 +57,12 @@ const char * const DEBUGGER_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("Debugger", "D
 
 namespace Internal {
     enum { debug = 0 };
+#ifdef Q_OS_MAC
+    const char * const LD_PRELOAD_ENV_VAR = "DYLD_INSERT_LIBRARIES";
+#else
+    const char * const LD_PRELOAD_ENV_VAR = "LD_PRELOAD";
+#endif
+
 }
 } // namespace Constants
 

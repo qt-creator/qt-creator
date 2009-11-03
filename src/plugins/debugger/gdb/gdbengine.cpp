@@ -4328,7 +4328,10 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     }
     if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperLoadedByGdbPreload
         && checkDebuggingHelpers()) {        
-        const QString cmd = QLatin1String("set environment LD_PRELOAD ") + manager()->qtDumperLibraryName();
+        QString cmd = _("set environment ");
+        cmd += _(Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR);
+        cmd += _c(' ');
+        cmd += manager()->qtDumperLibraryName();
         postCommand(cmd);
         m_debuggingHelperState = DebuggingHelperLoadTried;
     }
