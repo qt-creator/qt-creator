@@ -38,8 +38,6 @@
 namespace Mercurial {
 namespace Internal {
 
-class mercurialPlugin;
-
 class RevertDialog : public QDialog
 {
     Q_OBJECT
@@ -47,12 +45,13 @@ public:
     RevertDialog(QWidget *parent = 0);
     ~RevertDialog();
 
+    QString revision() const;
+
 protected:
     void changeEvent(QEvent *e);
 
 private:
     Ui::RevertDialog *m_ui;
-    friend class MercurialPlugin;
 };
 
 } // namespace Internal

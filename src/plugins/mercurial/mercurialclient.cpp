@@ -45,6 +45,8 @@
 #include <QtCore/QProcess>
 #include <QtCore/QTextCodec>
 #include <QtCore/QtDebug>
+#include <QtCore/QFileInfo>
+#include <QtCore/QByteArray>
 
 using namespace Mercurial::Internal;
 using namespace Mercurial;
@@ -249,12 +251,11 @@ void MercurialClient::status(const QFileInfo &fileOrDir)
 
 void MercurialClient::statusWithSignal(const QFileInfo &repositoryRoot)
 {
-    QStringList args;
-    args << "status";
+    const QStringList args(QLatin1String("status"));
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, true));
-    connect(job.data(), SIGNAL(rawData(const QByteArray &)),
-            this, SLOT(statusParser(const QByteArray &)));
+    connect(job.data(), SIGNAL(rawData(QByteArray)),
+            this, SLOT(statusParser(QByteArray)));
 
     jobManager->enqueueJob(job);
 }

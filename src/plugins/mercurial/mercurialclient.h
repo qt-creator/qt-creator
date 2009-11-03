@@ -31,9 +31,11 @@
 #define MERCURIALCLIENT_H
 
 #include <QtCore/QObject>
-#include <QtCore/QFileInfo>
-#include <QtCore/QByteArray>
 #include <QtCore/QPair>
+
+QT_BEGIN_NAMESPACE
+class QFileInfo;
+QT_END_NAMESPACE
 
 namespace Core {
 class ICore;

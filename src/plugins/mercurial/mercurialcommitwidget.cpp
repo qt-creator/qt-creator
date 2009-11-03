@@ -133,7 +133,7 @@ void MercurialCommitWidget::setFields(const QString &repositoryRoot, const QStri
 QString MercurialCommitWidget::committer()
 {
     QString user = mercurialCommitPanelUi.authorLineEdit->text() + QLatin1String(" <") +
-                   mercurialCommitPanelUi.emailLineEdit->text() + QLatin1String(">");
+                   mercurialCommitPanelUi.emailLineEdit->text() + QLatin1Char('>');
     return user;
 }
 

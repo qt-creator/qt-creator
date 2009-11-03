@@ -4,7 +4,6 @@ include(../../qtcreatorplugin.pri)
 include(mercurial_dependencies.pri)
 SOURCES += mercurialplugin.cpp \
     optionspage.cpp \
-    mercurialoutputwindow.cpp \
     mercurialcontrol.cpp \
     mercurialclient.cpp \
     mercurialjobrunner.cpp \
@@ -20,7 +19,6 @@ SOURCES += mercurialplugin.cpp \
 HEADERS += mercurialplugin.h \
     constants.h \
     optionspage.h \
-    mercurialoutputwindow.h \
     mercurialcontrol.h \
     mercurialclient.h \
     mercurialjobrunner.h \

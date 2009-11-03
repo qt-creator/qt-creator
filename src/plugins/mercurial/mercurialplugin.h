@@ -63,7 +63,6 @@ class Project;
 namespace Mercurial {
 namespace Internal {
 
-class MercurialOutputWindow;
 class OptionsPage;
 class MercurialClient;
 class MercurialControl;
@@ -86,8 +85,6 @@ public:
     bool closeEditor(Core::IEditor *editor);
 
     MercurialSettings *settings();
-    MercurialOutputWindow *outputPane();
-
 
 private slots:
     // File menu action Slots
@@ -150,7 +147,6 @@ private:
     //Variables
     static MercurialPlugin *m_instance;
     MercurialSettings *mercurialSettings;
-    MercurialOutputWindow *outputWindow;
     OptionsPage *optionsPage;
     MercurialClient *client;
 

@@ -35,11 +35,11 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <vcsbase/diffhighlighter.h>
 
-#include <QtCore/QSet>
 #include <QtCore/QString>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
 #include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
 using namespace Mercurial::Internal;
@@ -97,15 +97,15 @@ VCSBase::BaseAnnotationHighlighter *MercurialEditor::createAnnotationHighlighter
 
 QString MercurialEditor::fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const
 {
-    QString filechangeId("+++ b/");
+   const QString filechangeId(QLatin1String("+++ b/"));
     QTextBlock::iterator iterator;
     for (iterator = diffFileSpec.begin(); !(iterator.atEnd()); iterator++) {
         QTextFragment fragment = iterator.fragment();
         if(fragment.isValid()) {
             if (fragment.text().startsWith(filechangeId)) {
-                QFileInfo sourceFile(source());
-                QDir repository(MercurialClient::findTopLevelForFile(sourceFile));
-                QString filename = fragment.text().remove(0, filechangeId.size());
+                const QFileInfo sourceFile(source());
+                const QDir repository(MercurialClient::findTopLevelForFile(sourceFile));
+                const QString filename = fragment.text().remove(0, filechangeId.size());
                 return repository.absoluteFilePath(filename);
             }
         }

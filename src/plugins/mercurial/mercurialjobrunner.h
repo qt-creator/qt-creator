@@ -51,8 +51,8 @@ class HgTask : public QObject
 {
     Q_OBJECT
 public:
-    HgTask(const QString &workingDir, QStringList &arguments, bool emitRaw=false);
-    HgTask(const QString &workingDir, QStringList &arguments,
+    HgTask(const QString &workingDir, const QStringList &arguments, bool emitRaw=false);
+    HgTask(const QString &workingDir, const QStringList &arguments,
            VCSBase::VCSBaseEditor *editor);
 
     bool shouldEmit() { return emitRaw; }
@@ -64,9 +64,9 @@ signals:
     void rawData(const QByteArray &data);
 
 private:
-    QString m_repositoryRoot;
-    QStringList arguments;
-    bool emitRaw;
+    const QString m_repositoryRoot;
+    const QStringList arguments;
+    const bool emitRaw;
     VCSBase::VCSBaseEditor *editor;
 };
 
@@ -77,19 +77,19 @@ class MercurialJobRunner : public QThread
 public:
     MercurialJobRunner();
     ~MercurialJobRunner();
-    void enqueueJob(QSharedPointer<HgTask> &job);
+    void enqueueJob(const QSharedPointer<HgTask> &job);
     void restart();
 
 protected:
     void run();
 
 signals:
-    void error(const QByteArray &error);
-    void info(const QString &notice);
+    void commandStarted(const QString &notice);
+    void error(const QString &error);
     void output(const QByteArray &output);
 
 private:
-    void task(QSharedPointer<HgTask> &job);
+    void task(const QSharedPointer<HgTask> &job);
     void stop();
     void getSettings();
 

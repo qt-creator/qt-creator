@@ -119,8 +119,8 @@ void MercurialSettings::readSettings()
     if (settings) {
         settings->beginGroup("Mercurial");
         app = settings->value(Constants::MERCURIALPATH, Constants::MERCURIALDEFAULT).toString();
-        user = settings->value(Constants::MERCURIALUSERNAME, "").toString();
-        mail = settings->value(Constants::MERCURIALEMAIL, "").toString();
+        user = settings->value(Constants::MERCURIALUSERNAME, QString()).toString();
+        mail = settings->value(Constants::MERCURIALEMAIL, QString()).toString();
         m_logCount = settings->value(Constants::MERCURIALLOGCOUNT, 0).toInt();
         m_timeout = settings->value(Constants::MERCURIALTIMEOUT, 30).toInt();
         m_prompt = settings->value(Constants::MERCURIALPROMPTSUBMIT, true).toBool();

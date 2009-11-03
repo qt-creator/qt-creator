@@ -51,7 +51,7 @@ void SrcDestDialog::setPathChooserKind(Utils::PathChooser::Kind kind)
     m_ui->localPathChooser->setExpectedKind(kind);
 }
 
-QString SrcDestDialog::getRepositoryString()
+QString SrcDestDialog::getRepositoryString() const
 {
     if (m_ui->defaultButton->isChecked())
         return QString();

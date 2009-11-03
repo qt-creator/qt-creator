@@ -31,7 +31,6 @@
 #define CLONEWIZARD_H
 
 #include <vcsbase/basecheckoutwizard.h>
-#include <vcsbase/checkoutjobs.h>
 
 #include <QtGui/QIcon>
 
@@ -53,7 +52,7 @@ protected:
                                                            QString *checkoutPath);
 
 private:
-    QIcon m_icon;
+    const QIcon m_icon;
 };
 
 } //namespace Internal

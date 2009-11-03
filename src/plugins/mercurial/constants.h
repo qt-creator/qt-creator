@@ -33,7 +33,7 @@
 namespace Mercurial {
 namespace Constants {
 
-enum { debug = 1 };
+enum { debug = 0 };
 const char * const MERCURIAL = "mercurial";
 const char * const MECURIALREPO = ".hg";
 const char * const MERCURIALDEFAULT = "hg";
@@ -52,9 +52,6 @@ const char * const CHANGESETID40 = " ([a-f0-9]{40,40}) ";
 const char * const CHANGEIDEXACT12 = "[a-f0-9]{12,12}"; //match 12 hex chars a
 const char * const CHANGEIDEXACT40 = "[a-f0-9]{40,40}";
 const char * const DIFFIDENTIFIER = "^[-+]{3,3} [ab]{1,1}.*"; // match e.g. +++ b/filename
-//Errors
-const char * const ERRORSTARTING = "Unable to start Mercurial Process";
-const char * const TIMEDOUT = "Timed out waiting for Mercurail Process to Finish";
 
 //BaseEditorParameters
 const char * const COMMANDLOG = "Mercurial Command Log Editor";

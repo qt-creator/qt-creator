@@ -29,10 +29,10 @@
 
 #include "mercurialjobrunner.h"
 #include "mercurialplugin.h"
-#include "mercurialoutputwindow.h"
 #include "constants.h"
 #include "mercurialsettings.h"
 
+#include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseeditor.h>
 
 #include <QtCore/QProcess>
@@ -44,7 +44,7 @@
 using namespace Mercurial::Internal;
 using namespace Mercurial;
 
-HgTask::HgTask(const QString &repositoryRoot, QStringList &arguments, bool emitRaw)
+HgTask::HgTask(const QString &repositoryRoot, const QStringList &arguments, bool emitRaw)
         :   m_repositoryRoot(repositoryRoot),
         arguments(arguments),
         emitRaw(emitRaw),
@@ -52,23 +52,22 @@ HgTask::HgTask(const QString &repositoryRoot, QStringList &arguments, bool emitR
 {
 }
 
-HgTask::HgTask(const QString &repositoryRoot, QStringList &arguments, VCSBase::VCSBaseEditor *editor)
+HgTask::HgTask(const QString &repositoryRoot, const QStringList &arguments, VCSBase::VCSBaseEditor *editor)
         :   m_repositoryRoot(repositoryRoot),
         arguments(arguments),
         emitRaw(false),
         editor(editor)
 
 {
-
 }
 
-
-MercurialJobRunner::MercurialJobRunner()
-        :   keepRunning(true)
+MercurialJobRunner::MercurialJobRunner() :
+    plugin(MercurialPlugin::instance()),
+    keepRunning(true)
 {
-    plugin = MercurialPlugin::instance();
-    connect(this, SIGNAL(error(const QByteArray &)), plugin->outputPane(), SLOT(append(const QByteArray &)));
-    connect(this, SIGNAL(info(const QString &)), plugin->outputPane(), SLOT(append(const QString &)));
+    VCSBase::VCSBaseOutputWindow *ow = VCSBase::VCSBaseOutputWindow::instance();
+    connect(this, SIGNAL(error(QString)), ow, SLOT(appendError(QString)), Qt::QueuedConnection);
+    connect(this, SIGNAL(commandStarted(QString)), ow, SLOT(appendCommand(QString)), Qt::QueuedConnection);
 }
 
 MercurialJobRunner::~MercurialJobRunner()
@@ -106,7 +105,7 @@ void MercurialJobRunner::getSettings()
     standardArguments = settings->standardArguments();
 }
 
-void MercurialJobRunner::enqueueJob(QSharedPointer<HgTask> &job)
+void MercurialJobRunner::enqueueJob(const QSharedPointer<HgTask> &job)
 {
     mutex.lock();
     jobs.enqueue(job);
@@ -135,28 +134,32 @@ void MercurialJobRunner::run()
     }
 }
 
-void MercurialJobRunner::task(QSharedPointer<HgTask> &job)
+void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
 {
     HgTask *taskData = job.data();
 
-    if (taskData->shouldEmit())
+    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+
+    if (taskData->shouldEmit()) {
         //Call the job's signal so the Initator of the job can process the data
         //Because the QSharedPointer that holds the HgTask will go out of scope and hence be deleted
         //we have to block and wait until the signal is delivered
-        connect(this, SIGNAL(output(const QByteArray&)), taskData, SIGNAL(rawData(const QByteArray&)),
+        connect(this, SIGNAL(output(QByteArray)), taskData, SIGNAL(rawData(QByteArray)),
                 Qt::BlockingQueuedConnection);
-    else if (taskData->displayEditor())
+    } else if (taskData->displayEditor()) {
         //An editor has been created to display the data so send it there
-        connect(this, SIGNAL(output(const QByteArray&)), taskData->displayEditor(), SLOT(setPlainTextData(const QByteArray&)));
-    else
+        connect(this, SIGNAL(output(QByteArray)),
+                taskData->displayEditor(), SLOT(setPlainTextData(QByteArray)),
+                Qt::QueuedConnection);
+    } else {
         //Just output the data to the  Mercurial output window
-        connect(this, SIGNAL(output(const QByteArray &)), plugin->outputPane(), SLOT(append(const QByteArray &)));
+        connect(this, SIGNAL(output(QByteArray)), outputWindow, SLOT(appendData(QByteArray)),
+                Qt::QueuedConnection);
+    }
 
-    QString time = QTime::currentTime().toString(QLatin1String("HH:mm"));
-    QString starting = tr("%1 Calling: %2 %3\n").arg(time, "hg", taskData->args().join(" "));
-
+    const QString starting = tr("Executing: %1 %2\n").arg(binary, taskData->args().join(QString(QLatin1Char(' '))));
+    emit commandStarted(starting);
     //infom the user of what we are going to try and perform
-    emit info(starting);
 
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO << "Repository root is " << taskData->repositoryRoot();
@@ -170,8 +173,7 @@ void MercurialJobRunner::task(QSharedPointer<HgTask> &job)
     hgProcess.start(binary, args);
 
     if (!hgProcess.waitForStarted()) {
-        QByteArray errorArray(Constants::ERRORSTARTING);
-        emit error(errorArray);
+        emit error(tr("Unable to start mercurial process '%1': %2").arg(binary, hgProcess.errorString()));
         return;
     }
 
@@ -179,28 +181,26 @@ void MercurialJobRunner::task(QSharedPointer<HgTask> &job)
 
     if (!hgProcess.waitForFinished(timeout)) {
         hgProcess.terminate();
-        QByteArray errorArray(Constants::TIMEDOUT);
-        emit error(errorArray);
+        emit error(tr("Timed out waiting for mercurial process to finish."));
         return;
     }
 
     if ((hgProcess.exitStatus() == QProcess::NormalExit) && (hgProcess.exitCode() == 0)) {
-        QByteArray stdout = hgProcess.readAllStandardOutput();
+        QByteArray stdOutput= hgProcess.readAllStandardOutput();
         /*
           * sometimes success means output is actually on error channel (stderr)
           * e.g. "hg revert" outputs "no changes needed to 'file'" on stderr if file has not changed
           * from revision specified
           */
-        if (stdout == "")
-            stdout = hgProcess.readAllStandardError();
-        emit output(stdout);
+        if (stdOutput.isEmpty())
+            stdOutput = hgProcess.readAllStandardError();
+        emit output(stdOutput);
     } else {
-        QByteArray stderr = hgProcess.readAllStandardError();
-        emit error(stderr);
+        emit error(QString::fromLocal8Bit(hgProcess.readAllStandardError()));
     }
 
     hgProcess.close();
     //the signal connection is to last only for the duration of a job/task.  next time a new
     //output signal connection must be made
-    disconnect(this, SIGNAL(output(const QByteArray &)), 0, 0);
+    disconnect(this, SIGNAL(output(QByteArray)), 0, 0);
 }

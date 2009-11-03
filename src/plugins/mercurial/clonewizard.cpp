@@ -32,13 +32,15 @@
 #include "mercurialplugin.h"
 #include "mercurialsettings.h"
 
+#include <vcsbase/checkoutjobs.h>
+
 #include <QtCore/QDebug>
 
 using namespace Mercurial::Internal;
 
 CloneWizard::CloneWizard(QObject *parent)
         :   VCSBase::BaseCheckoutWizard(parent),
-        m_icon(QIcon(":/mercurial/images/hg.png"))
+        m_icon(QIcon(QLatin1String(":/mercurial/images/hg.png")))
 {
 }
 
@@ -80,8 +82,8 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<
     QString path = page->path();
     QString directory = page->directory();
 
-    args << "clone" << page->repository() << directory;
-    *checkoutPath = path + "/" + directory;
+    args << QLatin1String("clone") << page->repository() << directory;
+    *checkoutPath = path + QLatin1Char('/') + directory;
 
     return QSharedPointer<VCSBase::AbstractCheckoutJob>(new VCSBase::ProcessCheckoutJob(settings->binary(),
                                                                                         args, path));

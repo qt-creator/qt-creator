@@ -29,7 +29,6 @@
 
 #include "mercurialplugin.h"
 #include "optionspage.h"
-#include "mercurialoutputwindow.h"
 #include "constants.h"
 #include "mercurialclient.h"
 #include "mercurialcontrol.h"
@@ -57,6 +56,7 @@
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QtCore/QtPlugin>
 #include <QtGui/QAction>
@@ -123,7 +123,6 @@ MercurialPlugin *MercurialPlugin::m_instance = 0;
 
 MercurialPlugin::MercurialPlugin()
         :   mercurialSettings(new MercurialSettings),
-        outputWindow(0),
         optionsPage(0),
         client(0),
         mercurialVC(0),
@@ -163,9 +162,6 @@ bool MercurialPlugin::initialize(const QStringList &arguments, QString *error_me
     optionsPage = new OptionsPage();
     addAutoReleasedObject(optionsPage);
 
-    outputWindow = new MercurialOutputWindow();
-    addAutoReleasedObject(outputWindow);
-
     client = new MercurialClient();
     connect(optionsPage, SIGNAL(settingsChanged()), client, SLOT(settingsChanged()));
 
@@ -196,11 +192,6 @@ void MercurialPlugin::extensionsInitialized()
     if (projectExplorer)
         connect(projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
                 this, SLOT(currentProjectChanged(ProjectExplorer::Project *)));
-}
-
-MercurialOutputWindow *MercurialPlugin::outputPane()
-{
-    return outputWindow;
 }
 
 MercurialSettings *MercurialPlugin::settings()
@@ -300,8 +291,7 @@ void MercurialPlugin::revertCurrentFile()
     RevertDialog reverter;
     if (reverter.exec() != QDialog::Accepted)
         return;
-    const QString revision = reverter.m_ui->revisionLineEdit->text();
-    client->revert(currentFile(), revision);
+    client->revert(currentFile(), reverter.revision());
 }
 
 void MercurialPlugin::statusCurrentFile()
@@ -354,8 +344,7 @@ void MercurialPlugin::revertMulti()
     RevertDialog reverter;
     if (reverter.exec() != QDialog::Accepted)
         return;
-    const QString revision = reverter.m_ui->revisionLineEdit->text();
-    client->revert(currentProjectRoot(), revision);
+    client->revert(currentProjectRoot(), reverter.revision());
 }
 
 void MercurialPlugin::statusMulti()
@@ -435,8 +424,7 @@ void MercurialPlugin::update()
     updateDialog.setWindowTitle("Update");
     if (updateDialog.exec() != QDialog::Accepted)
         return;
-    const QString revision = updateDialog.m_ui->revisionLineEdit->text();
-    client->update(currentProjectRoot(), revision);
+    client->update(currentProjectRoot(), updateDialog.revision());
 }
 
 void MercurialPlugin::import()
@@ -491,19 +479,21 @@ void MercurialPlugin::commit()
     if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
         return;
 
-    connect(client, SIGNAL(parsedStatus(const QList<QPair<QString,QString> > &)),
-            this, SLOT(showCommitWidget(const QList<QPair<QString,QString> > &)));
+    connect(client, SIGNAL(parsedStatus(QList<QPair<QString,QString> >)),
+            this, SLOT(showCommitWidget(QList<QPair<QString,QString> >)));
     client->statusWithSignal(currentProjectRoot());
 }
 
 void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &status)
 {
+
+    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     //Once we receive our data release the connection so it can be reused elsewhere
-    disconnect(client, SIGNAL(parsedStatus(const QList<QPair<QString,QString> > &)),
-               this, SLOT(showCommitWidget(const QList<QPair<QString,QString> > &)));
+    disconnect(client, SIGNAL(parsedStatus(QList<QPair<QString,QString> >)),
+               this, SLOT(showCommitWidget(QList<QPair<QString,QString> >)));
 
     if (status.isEmpty()) {
-        outputWindow->append(tr("There are no changes to commit"));
+        outputWindow->appendError(tr("There are no changes to commit."));
         return;
     }
 
@@ -511,14 +501,14 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
 
     changeLog = new QTemporaryFile(this);
     if (!changeLog->open()) {
-        outputWindow->append(tr("Unable to generate a Tempory File for the Commit Editor"));
+        outputWindow->appendError(tr("Unable to generate a temporary file for the commit editor."));
         return;
     }
 
     Core::IEditor *editor = core->editorManager()->openEditor(changeLog->fileName(),
                                                               Constants::COMMITKIND);
     if (!editor) {
-        outputWindow->append(tr("Unable to generate an Editor for the commit"));
+        outputWindow->appendError(tr("Unable to create an editor for the commit."));
         return;
     }
 
@@ -527,11 +517,11 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
     CommitEditor *commitEditor = qobject_cast<CommitEditor *>(editor);
 
     if (!commitEditor) {
-        outputWindow->append(tr("Unable to generate a Commit Editor"));
+        outputWindow->appendError(tr("Unable to create a commit editor."));
         return;
     }
-
-    commitEditor->setDisplayName(tr("Commit changes for \"") + currentProjectName() + tr("\""));
+    const QString msg = tr("Commit changes for \"%1\".").arg(currentProjectName());
+    commitEditor->setDisplayName(msg);
 
     QString branch = client->branchQuerySync(currentProjectRoot());
 

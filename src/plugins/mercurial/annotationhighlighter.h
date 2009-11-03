@@ -31,6 +31,7 @@
 #define ANNOTATIONHIGHLIGHTER_H
 
 #include <vcsbase/baseannotationhighlighter.h>
+#include <QtCore/QRegExp>
 
 namespace Mercurial {
 namespace Internal {

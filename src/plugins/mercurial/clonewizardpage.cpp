@@ -34,17 +34,18 @@ using namespace Mercurial::Internal;
 CloneWizardPage::CloneWizardPage(QWidget *parent)
         : VCSBase::BaseCheckoutWizardPage(parent)
 {
-    setRepositoryLabel("Clone URL:");
+    setRepositoryLabel(tr("Clone URL:"));
 }
 
 QString CloneWizardPage::directoryFromRepository(const QString &repository) const
 {
-    //mercruial repositories are generally of the form protocol://repositoryUrl/repository/
+    //mercurial repositories are generally of the form protocol://repositoryUrl/repository/
     //we are just looking for repository.
+    const QChar slash = QLatin1Char('/');
     QString repo = repository.trimmed();
-    if (repo.endsWith('/'))
-        repo = repo.remove(-1, 1);
+    if (repo.endsWith(slash))
+        repo.truncate(repo.size() - 1);
 
     //Take the basename or the repository url
-    return repo.mid(repo.lastIndexOf('/') + 1);
+    return repo.mid(repo.lastIndexOf(slash) + 1);
 }

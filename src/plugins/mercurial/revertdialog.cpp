@@ -54,3 +54,8 @@ void RevertDialog::changeEvent(QEvent *e)
         break;
     }
 }
+
+QString RevertDialog::revision() const
+{
+    return m_ui->revisionLineEdit->text();
+}
