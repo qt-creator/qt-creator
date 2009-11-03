@@ -307,7 +307,8 @@ DebuggerManager *DebuggerManagerPrivate::instance = 0;
 
 DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager)
   : m_startParameters(new DebuggerStartParameters),
-    m_disassemblerViewAgent(manager)
+    m_disassemblerViewAgent(manager),
+    m_engine(0)
 {
     m_inferiorPid = 0;
 }
