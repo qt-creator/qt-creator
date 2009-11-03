@@ -58,6 +58,15 @@ PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
         engine, SLOT(readDebugeeOutput(QByteArray)));
 }
 
+AbstractGdbAdapter::DumperHandling PlainGdbAdapter::dumperHandling() const
+{
+#ifdef Q_OS_WIN
+    return DumperLoadedByGdb;
+#else
+    return DumperLoadedByGdbPreload;
+#endif
+}
+
 void PlainGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());

@@ -50,7 +50,7 @@ class PlainGdbAdapter : public AbstractGdbAdapter
 public:
     PlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    bool dumpersAvailable() const { return true; }
+    virtual DumperHandling dumperHandling() const;
 
     void startAdapter();
     void startInferior();

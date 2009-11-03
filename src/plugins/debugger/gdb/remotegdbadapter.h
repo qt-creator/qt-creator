@@ -46,9 +46,9 @@ class RemoteGdbAdapter : public AbstractGdbAdapter
     Q_OBJECT
 
 public:
-    RemoteGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    RemoteGdbAdapter(GdbEngine *engine, int toolChainType, QObject *parent = 0);
 
-    bool dumpersAvailable() const { return true; }
+    virtual DumperHandling dumperHandling() const;
 
     void startAdapter();
     void startInferior();
@@ -66,6 +66,8 @@ private:
 #endif
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleTargetRemote(const GdbResponse &response);
+
+    const int m_toolChainType;
 
     QProcess m_uploadProc;
 };

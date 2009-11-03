@@ -446,8 +446,9 @@ private: ////////// View & Data Stuff //////////
     QMap<QString, QString> m_varToType;
 
 private: ////////// Dumper Management //////////
-
-    bool startModeAllowsDumpers() const;
+    QString qtDumperLibraryName() const;
+    bool checkDebuggingHelpers();
+    void setDebuggingHelperState(DebuggingHelperState);
     void tryLoadDebuggingHelpers();
     void tryQueryDebuggingHelpers();
     Q_SLOT void recheckDebuggingHelperAvailability();

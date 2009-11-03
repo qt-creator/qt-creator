@@ -1149,7 +1149,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         }
     }
 
-    bool initHelpers = (m_debuggingHelperState == DebuggingHelperUninitialized);
+    bool initHelpers = m_debuggingHelperState == DebuggingHelperUninitialized
+                       || m_debuggingHelperState == DebuggingHelperLoadTried;
     // Don't load helpers on stops triggered by signals unless it's
     // an intentional trap.
     if (initHelpers && reason == "signal-received"
@@ -1471,7 +1472,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerStartParametersPtr &s
     case AttachCore:
         return new CoreGdbAdapter(this);
     case StartRemote:
-        return new RemoteGdbAdapter(this);
+        return new RemoteGdbAdapter(this, sp->toolChainType);
     case AttachExternal:
         return new AttachGdbAdapter(this);
     default:
@@ -1498,7 +1499,7 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     m_gdbAdapter = createAdapter(sp);
     connectAdapter();
 
-    if (startModeAllowsDumpers())
+    if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable)
         connectDebuggingHelperActions();
 
     m_gdbAdapter->startAdapter();
@@ -2711,7 +2712,7 @@ bool GdbEngine::hasDebuggingHelperForType(const QString &type) const
     if (!theDebuggerBoolSetting(UseDebuggingHelpers))
         return false;
 
-    if (!startModeAllowsDumpers()) {
+    if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperNotAvailable) {
         // "call" is not possible in gdb when looking at core files
         return type == __("QString") || type.endsWith(__("::QString"))
             || type == __("QStringList") || type.endsWith(__("::QStringList"));
@@ -2753,7 +2754,7 @@ void GdbEngine::runDirectDebuggingHelper(const WatchData &data, bool dumpChildre
 
 void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
 {
-    if (!startModeAllowsDumpers()) {
+    if (m_debuggingHelperState != DebuggingHelperAvailable) {
         runDirectDebuggingHelper(data0, dumpChildren);
         return;
     }
@@ -3789,14 +3790,50 @@ void GdbEngine::assignValueInDebugger(const QString &expression, const QString &
     postCommand(_("-var-assign assign ") + value, Discardable, CB(handleVarAssign));
 }
 
+QString GdbEngine::qtDumperLibraryName() const
+{
+    return m_manager->qtDumperLibraryName();
+}
+
+bool GdbEngine::checkDebuggingHelpers()
+{
+    if (!manager()->qtDumperLibraryEnabled())
+        return false;
+    const QString lib = qtDumperLibraryName();
+    //qDebug() << "DUMPERLIB:" << lib;
+    const QFileInfo fi(lib);
+    if (!fi.exists()) {
+        const QStringList &locations = manager()->qtDumperLibraryLocations();
+        const QString loc = locations.join(QLatin1String(", "));
+        const QString msg = tr("The debugging helper library was not found at %1.").arg(loc);
+        debugMessage(msg);
+        manager()->showQtDumperLibraryWarning(msg);
+        return false;
+    }
+    return true;
+}
+
+void GdbEngine::setDebuggingHelperState(DebuggingHelperState s)
+{
+    m_debuggingHelperState = s;
+}
+
 void GdbEngine::tryLoadDebuggingHelpers()
 {
     if (isSynchroneous())
         return;
-
-    if (m_debuggingHelperState != DebuggingHelperUninitialized)
+    switch (m_debuggingHelperState) {
+    case DebuggingHelperUninitialized:
+        break;
+    case DebuggingHelperLoadTried:
+        tryQueryDebuggingHelpers();
         return;
-    if (!startModeAllowsDumpers()) {
+    case DebuggingHelperAvailable:
+    case DebuggingHelperUnavailable:
+        return;
+    }
+
+    if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperNotAvailable) {
         // Load at least gdb macro based dumpers.
         QFile file(_(":/gdb/gdbmacros.txt"));
         file.open(QIODevice::ReadOnly);
@@ -3810,22 +3847,11 @@ void GdbEngine::tryLoadDebuggingHelpers()
 
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
     m_debuggingHelperState = DebuggingHelperUnavailable;
-    if (!manager()->qtDumperLibraryEnabled())
+    if (!checkDebuggingHelpers())
         return;
-    const QString lib = manager()->qtDumperLibraryName();
-    const QStringList &locations = manager()->qtDumperLibraryLocations();
-    //qDebug() << "DUMPERLIB:" << lib;
-    // @TODO: same in CDB engine...
-    const QFileInfo fi(lib);
-    if (!fi.exists()) {
-        const QString loc = locations.join(QLatin1String(", "));
-        const QString msg = tr("The debugging helper library was not found at %1.").arg(loc);
-        debugMessage(msg);
-        manager()->showQtDumperLibraryWarning(msg);
-        return;
-    }
 
     m_debuggingHelperState = DebuggingHelperLoadTried;
+    const QString lib = manager()->qtDumperLibraryName();
 #if defined(Q_OS_WIN)
     if (m_dumperInjectionLoad) {
         /// Launch asynchronous remote thread to load.
@@ -3871,27 +3897,18 @@ void GdbEngine::tryLoadDebuggingHelpers()
 
 void GdbEngine::tryQueryDebuggingHelpers()
 {
-#if !X
     // retrieve list of dumpable classes
     postCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
     postCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
-#else
-    m_debuggingHelperState = DebuggingHelperUnavailable;
-#endif
 }
 
 void GdbEngine::recheckDebuggingHelperAvailability()
 {
-    if (startModeAllowsDumpers()) {
+    if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
         // retreive list of dumpable classes
         postCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
         postCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
     }
-}
-
-bool GdbEngine::startModeAllowsDumpers() const
-{
-    return m_gdbAdapter->dumpersAvailable();
 }
 
 void GdbEngine::watchPoint(const QPoint &pnt)
@@ -4251,7 +4268,12 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
               ).arg(scriptFileName));
         }
     }
-
+    if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperLoadedByGdbPreload
+        && checkDebuggingHelpers()) {        
+        const QString cmd = QLatin1String("set environment LD_PRELOAD ") + manager()->qtDumperLibraryName();
+        postCommand(cmd);
+        m_debuggingHelperState = DebuggingHelperLoadTried;
+    }
     return true;
 }
 
