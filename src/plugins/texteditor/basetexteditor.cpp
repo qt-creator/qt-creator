@@ -648,6 +648,9 @@ void BaseTextEditor::slotSelectionChanged()
         d->m_blockSelectionExtraX = 0;
     if (!d->m_selectBlockAnchor.isNull() && !textCursor().hasSelection())
         d->m_selectBlockAnchor = QTextCursor();
+
+    // Clear any link which might be showing when the selection changes
+    clearLink();
 }
 
 void BaseTextEditor::gotoBlockStart()
@@ -1470,7 +1473,7 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_requestMarkEnabled(true),
     m_lineSeparatorsAllowed(false),
     m_visibleWrapColumn(0),
-    m_showingLink(false),
+    m_linkPressed(false),
     m_editable(0),
     m_actionHack(0),
     m_inBlockSelectionMode(false),
@@ -2864,35 +2867,11 @@ void BaseTextEditorPrivate::clearVisibleCollapsedBlock()
     }
 }
 
-
 void BaseTextEditor::mouseMoveEvent(QMouseEvent *e)
 {
     d->m_lastEventWasBlockSelectionEvent = (e->modifiers() & Qt::AltModifier);
 
-    bool linkFound = false;
-
-    if (d->m_mouseNavigationEnabled && e->modifiers() & Qt::ControlModifier) {
-        // Link emulation behaviour for 'go to definition'
-        const QTextCursor cursor = cursorForPosition(e->pos());
-
-        // Check that the mouse was actually on the text somewhere
-        bool onText = cursorRect(cursor).right() >= e->x();
-        if (!onText) {
-            QTextCursor nextPos = cursor;
-            nextPos.movePosition(QTextCursor::Right);
-            onText = cursorRect(nextPos).right() >= e->x();
-        }
-
-        const Link link = findLinkAt(cursor, false);
-
-        if (onText && link.isValid()) {
-            showLink(link);
-            linkFound = true;
-        }
-    }
-
-    if (!linkFound)
-        clearLink();
+    updateLink(e);
 
     if (e->buttons() == Qt::NoButton) {
         const QTextBlock collapsedBlock = collapsedBlockAt(e->pos());
@@ -2936,16 +2915,23 @@ void BaseTextEditor::mousePressEvent(QMouseEvent *e)
             toggleBlockVisible(collapsedBlock);
             viewport()->setCursor(Qt::IBeamCursor);
         }
+
+        updateLink(e);
+
+        if (d->m_currentLink.isValid())
+            d->m_linkPressed = true;
     }
     QPlainTextEdit::mousePressEvent(e);
 }
 
 void BaseTextEditor::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (d->m_mouseNavigationEnabled && e->modifiers() & Qt::ControlModifier
+    if (d->m_mouseNavigationEnabled
+        && d->m_linkPressed
+        && e->modifiers() & Qt::ControlModifier
         && !(e->modifiers() & Qt::ShiftModifier)
-        && e->button() == Qt::LeftButton) {
-
+        && e->button() == Qt::LeftButton
+        ) {
         const QTextCursor cursor = cursorForPosition(e->pos());
         if (openLink(findLinkAt(cursor))) {
             clearLink();
@@ -3461,8 +3447,39 @@ bool BaseTextEditor::openLink(const Link &link)
     return openEditorAt(link.fileName, link.line, link.column);
 }
 
+void BaseTextEditor::updateLink(QMouseEvent *e)
+{
+    bool linkFound = false;
+
+    if (d->m_mouseNavigationEnabled && e->modifiers() & Qt::ControlModifier) {
+        // Link emulation behaviour for 'go to definition'
+        const QTextCursor cursor = cursorForPosition(e->pos());
+
+        // Check that the mouse was actually on the text somewhere
+        bool onText = cursorRect(cursor).right() >= e->x();
+        if (!onText) {
+            QTextCursor nextPos = cursor;
+            nextPos.movePosition(QTextCursor::Right);
+            onText = cursorRect(nextPos).right() >= e->x();
+        }
+
+        const Link link = findLinkAt(cursor, false);
+
+        if (onText && link.isValid()) {
+            showLink(link);
+            linkFound = true;
+        }
+    }
+
+    if (!linkFound)
+        clearLink();
+}
+
 void BaseTextEditor::showLink(const Link &link)
 {
+    if (d->m_currentLink == link)
+        return;
+
     QTextEdit::ExtraSelection sel;
     sel.cursor = textCursor();
     sel.cursor.setPosition(link.pos);
@@ -3471,25 +3488,26 @@ void BaseTextEditor::showLink(const Link &link)
     sel.format.setFontUnderline(true);
     setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
     viewport()->setCursor(Qt::PointingHandCursor);
-    d->m_showingLink = true;
+    d->m_currentLink = link;
+    d->m_linkPressed = false;
 }
 
 void BaseTextEditor::clearLink()
 {
-    if (!d->m_showingLink)
+    if (!d->m_currentLink.isValid())
         return;
 
     setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
     viewport()->setCursor(Qt::IBeamCursor);
-    d->m_showingLink = false;
+    d->m_currentLink = Link();
+    d->m_linkPressed = false;
 }
 
 void BaseTextEditorPrivate::updateMarksBlock(const QTextBlock &block)
 {
     if (const TextBlockUserData *userData = TextEditDocumentLayout::testUserData(block))
-       foreach (ITextMark *mrk, userData->marks()) {
+        foreach (ITextMark *mrk, userData->marks())
             mrk->updateBlock(block);
-        }
 }
 
 void BaseTextEditorPrivate::updateMarksLineNumber()
