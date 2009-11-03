@@ -193,6 +193,11 @@ GdbEngine::GdbEngine(DebuggerManager *manager) :
     m_trkOptions->fromSettings(Core::ICore::instance()->settings());
     m_gdbAdapter = 0;
 
+    m_commandTimer = new QTimer(this);
+    m_commandTimer->setSingleShot(true);
+    m_commandTimer->setInterval(COMMAND_TIMEOUT);
+    connect(m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
+
     // Needs no resetting in initializeVariables()
     m_busy = false;
 
@@ -606,6 +611,9 @@ void GdbEngine::readGdbStandardError()
 
 void GdbEngine::readGdbStandardOutput()
 {
+    if (m_commandTimer->isActive())
+        m_commandTimer->start(); // Retrigger
+
     int newstart = 0;
     int scan = m_inbuffer.size();
 
@@ -796,8 +804,25 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
 
     m_gdbAdapter->write(cmd.command.toLatin1() + "\r\n");
 
+    m_commandTimer->start();
+
     if (cmd.flags & LosesChild)
         setState(InferiorShuttingDown);
+}
+
+void GdbEngine::commandTimeout()
+{
+    // FIXME this needs a proper message box
+    debugMessage(_("TIMED OUT WAITING FOR GDB REPLY. COMMANDS STILL IN PROGRESS:"));
+    QList<int> keys = m_cookieForToken.keys();
+    qSort(keys);
+    foreach (int key, keys) {
+        const GdbCommand &cmd = m_cookieForToken[key];
+        debugMessage(_("  %1: %2 => %3").arg(key).arg(cmd.command).arg(_(cmd.callbackName)));
+    }
+    // This is an entirely undefined state, so we just pull the emergency brake.
+    setState(EngineShuttingDown, true);
+    m_gdbProc.kill();
 }
 
 void GdbEngine::handleResultRecord(GdbResponse *response)
@@ -927,6 +952,9 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
     } else {
         PENDING_DEBUG("MISSING TOKENS: " << m_cookieForToken.keys());
     }
+
+    if (m_cookieForToken.isEmpty())
+        m_commandTimer->stop();
 }
 
 void GdbEngine::executeDebuggerCommand(const QString &command)
@@ -1412,7 +1440,6 @@ void GdbEngine::shutdown()
         m_gdbAdapter->shutdown();
         // fall-through
     case AdapterStartFailed: // Adapter "did something", but it did not help
-        // FIXME set some timeout?
         if (m_gdbProc.state() == QProcess::Running) {
             postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleGdbExit));
         } else {
@@ -1423,7 +1450,6 @@ void GdbEngine::shutdown()
     case InferiorRunning:
     case InferiorStopping:
     case InferiorStopped:
-        // FIXME set some timeout?
         postCommand(_(m_gdbAdapter->inferiorShutdownCommand()),
                     NeedsStop | LosesChild, CB(handleInferiorShutdown));
         break;
@@ -1432,7 +1458,6 @@ void GdbEngine::shutdown()
     case InferiorShutDown:
     case InferiorShutdownFailed: // Whatever
     case InferiorUnrunnable:
-        // FIXME set some timeout?
         postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleGdbExit));
         setState(EngineShuttingDown); // Do it after posting the command!
         break;
