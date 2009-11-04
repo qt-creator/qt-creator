@@ -101,72 +101,81 @@ void WinGuiProcess::run()
     ZeroMemory(m_pid, sizeof(PROCESS_INFORMATION));
 
     m_exitCode = 0;
+    bool started = false;
 
     HANDLE bufferReadyEvent = NULL;
     HANDLE dataReadyEvent = NULL;
     HANDLE sharedFile = NULL;
-    LPVOID sharedMem = NULL;
+    LPVOID sharedMem = 0;
 
-    bool dbgInterface = setupDebugInterface(bufferReadyEvent, dataReadyEvent, sharedFile, sharedMem);
+    do {
 
-    QString cmdLine = createWinCommandline(m_program, m_args);
-    bool success = CreateProcessW(0, (WCHAR*)cmdLine.utf16(),
-                                  0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT,
-                                  environment().isEmpty() ? 0
-                                  : createWinEnvironment(fixWinEnvironment(environment())).data(),
-                                  workingDirectory().isEmpty() ? 0
-                                  : (WCHAR*)QDir::convertSeparators(workingDirectory()).utf16(),
-                                  &si, m_pid);
+        const bool dbgInterface = setupDebugInterface(bufferReadyEvent, dataReadyEvent, sharedFile, sharedMem);
 
-    if (!success) {
-        emit processError(tr("The process could not be started!"));
-        delete m_pid;
-        m_pid = 0;
-        return;
-    }
+        const QString cmdLine = createWinCommandline(m_program, m_args);
+        started = CreateProcessW(0, (WCHAR*)cmdLine.utf16(),
+                                      0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT,
+                                      environment().isEmpty() ? 0
+                                          : createWinEnvironment(fixWinEnvironment(environment())).data(),
+                                          workingDirectory().isEmpty() ? 0
+                                              : (WCHAR*)QDir::convertSeparators(workingDirectory()).utf16(),
+                                              &si, m_pid);
 
-    if (!dbgInterface) {
-        emit receivedDebugOutput(tr("Cannot retrieve debugging output!"));
-        WaitForSingleObject(m_pid->hProcess, INFINITE);
-    } else {
-        LPSTR  message;
-        LPDWORD processId;
-        HANDLE toWaitFor[2];
+        if (!started) {
+            emit processError(tr("The process could not be started!"));
+            break;
+        }
 
-        message = reinterpret_cast<LPSTR>(sharedMem) + sizeof(DWORD);
-        processId = reinterpret_cast<LPDWORD>(sharedMem);
+        if (!dbgInterface) {
+            emit receivedDebugOutput(tr("Cannot retrieve debugging output!"));
+            WaitForSingleObject(m_pid->hProcess, INFINITE);
+        } else {
+            LPSTR  message;
+            LPDWORD processId;
+            HANDLE toWaitFor[2];
 
-        SetEvent(bufferReadyEvent);
+            message = reinterpret_cast<LPSTR>(sharedMem) + sizeof(DWORD);
+            processId = reinterpret_cast<LPDWORD>(sharedMem);
 
-        toWaitFor[0] = dataReadyEvent;
-        toWaitFor[1] = m_pid->hProcess;
+            SetEvent(bufferReadyEvent);
 
-        for (bool stop = false; !stop;) {
-            DWORD ret = WaitForMultipleObjects(2, toWaitFor, FALSE, INFINITE);
+            toWaitFor[0] = dataReadyEvent;
+            toWaitFor[1] = m_pid->hProcess;
 
-            switch (ret) {
-            case WAIT_OBJECT_0 + 0:
-                if (*processId == m_pid->dwProcessId)
-                    emit receivedDebugOutput(QString::fromLocal8Bit(message));
-                SetEvent(bufferReadyEvent);
-                break;
-            case WAIT_OBJECT_0 + 1:
-                stop = true;
-                break;
+            for (bool stop = false; !stop;) {
+                DWORD ret = WaitForMultipleObjects(2, toWaitFor, FALSE, INFINITE);
+
+                switch (ret) {
+                case WAIT_OBJECT_0 + 0:
+                    if (*processId == m_pid->dwProcessId)
+                        emit receivedDebugOutput(QString::fromLocal8Bit(message));
+                    SetEvent(bufferReadyEvent);
+                    break;
+                case WAIT_OBJECT_0 + 1:
+                    stop = true;
+                    break;
+                }
             }
         }
+    } while (false);
+
+    if (started) {
+        GetExitCodeProcess(m_pid->hProcess, &m_exitCode);
+        emit processFinished(static_cast<int>(m_exitCode));
     }
 
-    GetExitCodeProcess(m_pid->hProcess, &m_exitCode);
-    emit processFinished(static_cast<int>(m_exitCode));
-
-    UnmapViewOfFile(sharedMem);
-    CloseHandle(sharedFile);
-    CloseHandle(bufferReadyEvent);
-    CloseHandle(dataReadyEvent);
-    CloseHandle(m_pid->hProcess);
-    CloseHandle(m_pid->hThread);
-
+    if (sharedMem)
+        UnmapViewOfFile(sharedMem);
+    if (sharedFile != NULL)
+        CloseHandle(sharedFile);
+    if (bufferReadyEvent != NULL)
+        CloseHandle(bufferReadyEvent);
+    if (dataReadyEvent != NULL)
+        CloseHandle(dataReadyEvent);
+    if (m_pid->hProcess != NULL)
+        CloseHandle(m_pid->hProcess);
+    if  (m_pid->hThread != NULL)
+        CloseHandle(m_pid->hThread);
     delete m_pid;
     m_pid = 0;
 }
