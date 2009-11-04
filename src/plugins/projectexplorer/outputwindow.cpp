@@ -391,6 +391,7 @@ OutputWindow::OutputWindow(QWidget *parent)
 OutputWindow::~OutputWindow()
 {
     Core::ICore::instance()->removeContextObject(m_outputWindowContext);
+    delete m_outputWindowContext;
 }
 
 void OutputWindow::showEvent(QShowEvent *e)
