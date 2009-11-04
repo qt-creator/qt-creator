@@ -1990,8 +1990,9 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
     if (d->m_visibleWrapColumn > 0) {
         lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
-        painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()),
-                         d->m_ifdefedOutFormat.background());
+        if (lineX < viewportRect.width())
+            painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()),
+                             d->m_ifdefedOutFormat.background());
     }
 
 //    // keep right margin clean from full-width selection
