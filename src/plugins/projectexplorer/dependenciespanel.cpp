@@ -283,7 +283,7 @@ DependenciesPanel::DependenciesPanel(SessionManager *session, Project *project)
 
 DependenciesPanel::~DependenciesPanel()
 {
-    delete m_widget;
+
 }
 
 QString DependenciesPanel::name() const
