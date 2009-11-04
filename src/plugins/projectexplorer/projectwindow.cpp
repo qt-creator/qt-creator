@@ -737,6 +737,8 @@ ProjectWindow::ProjectWindow(QWidget *parent)
 
 ProjectWindow::~ProjectWindow()
 {
+    qDeleteAll(m_panels);
+    m_panels.clear();
 }
 
 void ProjectWindow::projectAdded()
@@ -775,6 +777,9 @@ void ProjectWindow::showProperties(Project *project)
     // Remove the tabs from the tab widget first
     m_panelsWidget->clear();
 
+    qDeleteAll(m_panels);
+    m_panels.clear();
+
     m_panelsWidget->addWidget(tr("Active Build and Run Configurations"), m_activeConfigurationWidget);
     m_panelsWidget->addWidget(m_spacerBetween);
     m_panelsWidget->addWidget(m_projectChooser);
@@ -788,6 +793,7 @@ void ProjectWindow::showProperties(Project *project)
                 if (debug)
                   qDebug() << "ProjectWindow - setting up project properties tab " << panel->name();
                 m_panelsWidget->addWidget(panel->name(), panel->widget());
+                m_panels.push_back(panel);
             }
         }
     }
