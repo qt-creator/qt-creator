@@ -39,6 +39,11 @@ ProjectWelcomePage::ProjectWelcomePage()
 
 }
 
+ProjectWelcomePage::~ProjectWelcomePage()
+{
+
+}
+
 QWidget* ProjectWelcomePage::page()
 {
     return m_page;

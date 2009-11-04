@@ -207,6 +207,7 @@ ProjectExplorerPlugin::ProjectExplorerPlugin()
 ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
     removeObject(d->m_welcomePlugin);
+    delete d->m_welcomePlugin;
     removeObject(this);
     delete d;
 }
