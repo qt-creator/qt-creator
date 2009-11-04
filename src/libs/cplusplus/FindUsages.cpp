@@ -59,6 +59,7 @@ void FindUsages::setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBi
 
 QList<int> FindUsages::operator()(Symbol *symbol, Identifier *id, AST *ast)
 {
+    _processed.clear();
     _references.clear();
     _declSymbol = symbol;
     _id = id;
@@ -92,6 +93,9 @@ QString FindUsages::matchingLine(const Token &tk) const
 
 void FindUsages::reportResult(unsigned tokenIndex, const QList<Symbol *> &candidates)
 {
+    if (_processed.contains(tokenIndex))
+        return;
+
     const bool isStrongResult = checkCandidates(candidates);
 
     if (isStrongResult)
@@ -100,6 +104,11 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<Symbol *> &candid
 
 void FindUsages::reportResult(unsigned tokenIndex)
 {
+    if (_processed.contains(tokenIndex))
+        return;
+
+    _processed.insert(tokenIndex);
+
     const Token &tk = tokenAt(tokenIndex);
     const QString lineText = matchingLine(tk);
 
