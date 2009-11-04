@@ -114,6 +114,7 @@ private:
     QList<int> _references;
     LookupContext _previousContext;
     int _inSimpleDeclaration;
+    QSet<unsigned> _processed;
 };
 
 } // end of namespace CPlusPlus
