@@ -399,7 +399,9 @@ void QtOptionsPageWidget::updateState()
     m_ui->qmakePath->setEnabled(enabled && !isAutodetected);
     m_ui->mingwPath->setEnabled(enabled);
     m_ui->mwcPath->setEnabled(enabled);
-    m_ui->s60SDKPath->setEnabled(enabled && !isAutodetected);
+    bool s60SDKPathEnabled = enabled &&
+                             (isAutodetected ? version->s60SDKDirectory().isEmpty() : true);
+    m_ui->s60SDKPath->setEnabled(s60SDKPathEnabled);
     m_ui->gccePath->setEnabled(enabled);
 
     const bool hasLog = enabled && !m_ui->qtdirList->currentItem()->data(2, Qt::UserRole).toString().isEmpty();
