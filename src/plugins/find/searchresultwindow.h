@@ -103,9 +103,6 @@ public:
 
     void setTextEditorFont(const QFont &font);
 
-    void setShowReplaceUI(bool show);
-    bool isShowingReplaceUI() const;
-
     void setTextToReplace(const QString &textToReplace);
     QString textToReplace() const;
 
@@ -114,17 +111,18 @@ public:
 
 public slots:
     void clearContents();
-    void showNoMatchesFound();
     void addResult(const QString &fileName, int lineNumber, const QString &lineText,
                    int searchTermStart, int searchTermLength, const QVariant &userData = QVariant());
+    void finishSearch();
 
 private slots:
     void handleExpandCollapseToolButton(bool checked);
     void handleJumpToSearchResult(int index, bool checked);
     void handleReplaceButton();
-    void setReplaceUIEnabled(bool enabled);
+    void showNoMatchesFound();
 
 private:
+    void setShowReplaceUI(bool show);
     void readSettings();
     void writeSettings();
     QList<SearchResultItem> checkedItems() const;
@@ -140,6 +138,7 @@ private:
     SearchResult *m_currentSearch;
     QList<SearchResultItem> m_items;
     bool m_isShowingReplaceUI;
+    bool m_focusReplaceEdit;
 };
 
 } // namespace Find
