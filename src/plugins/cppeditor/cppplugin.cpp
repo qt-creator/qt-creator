@@ -43,6 +43,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <texteditor/completionsupport.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
@@ -55,7 +56,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
 #include <QtGui/QMenu>
-#include <QtGui/QAction>
 
 using namespace CppEditor::Internal;
 
@@ -211,18 +211,18 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     contextMenu->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
-    QAction *findUsagesAction = new QAction(tr("Find Usages"), this);
-    cmd = am->registerAction(findUsagesAction, Constants::FIND_USAGES, context);
+    m_findUsagesAction = new QAction(tr("Find Usages"), this);
+    cmd = am->registerAction(m_findUsagesAction, Constants::FIND_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
-    connect(findUsagesAction, SIGNAL(triggered()), this, SLOT(findUsages()));
+    connect(m_findUsagesAction, SIGNAL(triggered()), this, SLOT(findUsages()));
     contextMenu->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
-    QAction *renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol under Cursor"), this);
-    cmd = am->registerAction(renameSymbolUnderCursorAction,
+    m_renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol under Cursor"), this);
+    cmd = am->registerAction(m_renameSymbolUnderCursorAction,
         Constants::RENAME_SYMBOL_UNDER_CURSOR, context);
     cmd->setDefaultKeySequence(QKeySequence("CTRL+SHIFT+R"));
-    connect(renameSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(renameSymbolUnderCursor()));
+    connect(m_renameSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(renameSymbolUnderCursor()));
     contextMenu->addAction(cmd);
     am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
@@ -244,7 +244,10 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-
+    connect(core->progressManager(), SIGNAL(taskStarted(QString)),
+            this, SLOT(onTaskStarted(QString)));
+    connect(core->progressManager(), SIGNAL(allTasksFinished(QString)),
+            this, SLOT(onAllTasksFinished(QString)));
     readSettings();
     return true;
 }
@@ -298,6 +301,22 @@ void CppPlugin::findUsages()
     CPPEditor *editor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
     if (editor)
         editor->findUsages();
+}
+
+void CppPlugin::onTaskStarted(const QString &type)
+{
+    if (type == CppTools::Constants::TASK_INDEX) {
+        m_renameSymbolUnderCursorAction->setEnabled(false);
+        m_findUsagesAction->setEnabled(false);
+    }
+}
+
+void CppPlugin::onAllTasksFinished(const QString &type)
+{
+    if (type == CppTools::Constants::TASK_INDEX) {
+        m_renameSymbolUnderCursorAction->setEnabled(true);
+        m_findUsagesAction->setEnabled(true);
+    }
 }
 
 Q_EXPORT_PLUGIN(CppPlugin)

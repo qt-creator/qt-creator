@@ -30,11 +30,12 @@
 #ifndef CPPPLUGIN_H
 #define CPPPLUGIN_H
 
-#include <QtCore/QtPlugin>
-#include <QtCore/QStringList>
-
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+
+#include <QtCore/QtPlugin>
+#include <QtCore/QStringList>
+#include <QtGui/QAction>
 
 namespace TextEditor {
 class TextEditorActionHandler;
@@ -74,6 +75,8 @@ private slots:
     void switchDeclarationDefinition();
     void jumpToDefinition();
     void renameSymbolUnderCursor();
+    void onTaskStarted(const QString &type);
+    void onAllTasksFinished(const QString &type);
     void findUsages();
 
 private:
@@ -85,6 +88,8 @@ private:
 
     TextEditor::TextEditorActionHandler *m_actionHandler;
     bool m_sortedMethodOverview;
+    QAction *m_renameSymbolUnderCursorAction;
+    QAction *m_findUsagesAction;
 };
 
 class CppEditorFactory : public Core::IEditorFactory
