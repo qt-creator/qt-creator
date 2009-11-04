@@ -73,6 +73,11 @@ StackWindow::StackWindow(DebuggerManager *manager, QWidget *parent)
         this, SLOT(showAddressColumn(bool)));
 }
 
+StackWindow::~StackWindow()
+{
+    delete m_disassemblerAgent;
+}
+
 void StackWindow::showAddressColumn(bool on)
 {
     setColumnHidden(4, !on);
