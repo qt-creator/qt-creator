@@ -57,16 +57,21 @@ void ProgressManagerPrivate::init()
 
 void ProgressManagerPrivate::cancelTasks(const QString &type)
 {
+    bool found = false;
     QMap<QFutureWatcher<void> *, QString>::iterator task = m_runningTasks.begin();
     while (task != m_runningTasks.end()) {
         if (task.value() != type) {
             ++task;
             continue;
         }
+        found = true;
         disconnect(task.key(), SIGNAL(finished()), this, SLOT(taskFinished()));
         task.key()->cancel();
         delete task.key();
         task = m_runningTasks.erase(task);
+    }
+    if (found) {
+        emit allTasksFinished(type);
     }
 }
 
@@ -88,6 +93,7 @@ FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, con
     m_runningTasks.insert(watcher, type);
     connect(watcher, SIGNAL(finished()), this, SLOT(taskFinished()));
     watcher->setFuture(future);
+    emit taskStarted(type);
     return m_progressView->addTask(future, title, type, persistency);
 }
 
@@ -101,6 +107,11 @@ void ProgressManagerPrivate::taskFinished()
     QObject *taskObject = sender();
     QTC_ASSERT(taskObject, return);
     QFutureWatcher<void> *task = static_cast<QFutureWatcher<void> *>(taskObject);
+    QString type = m_runningTasks.value(task);
     m_runningTasks.remove(task);
     delete task;
+
+    if (!m_runningTasks.values().contains(type)) {
+        emit allTasksFinished(type);
+    }
 }

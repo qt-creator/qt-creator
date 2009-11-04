@@ -51,6 +51,10 @@ public:
 
 public slots:
     virtual void cancelTasks(const QString &type) = 0;
+
+signals:
+    void taskStarted(const QString &type);
+    void allTasksFinished(const QString &type);
 };
 
 } // namespace Core
