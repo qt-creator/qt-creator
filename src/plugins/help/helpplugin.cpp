@@ -491,7 +491,7 @@ void HelpPlugin::createRightPaneSideBar()
     addAutoReleasedObject(new Core::BaseRightPaneWidget(m_rightPaneSideBar));
 
     rightPaneLayout->addWidget(w);
-    m_helpViewerForSideBar = new HelpViewer(m_helpEngine, 0);
+    m_helpViewerForSideBar = new HelpViewer(m_helpEngine, 0, m_rightPaneSideBar);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate();
     agg->add(m_helpViewerForSideBar);
     agg->add(new HelpViewerFindSupport(m_helpViewerForSideBar));

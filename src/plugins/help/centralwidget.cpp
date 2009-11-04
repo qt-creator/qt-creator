@@ -220,7 +220,7 @@ void CentralWidget::setSource(const QUrl &url)
         qobject_cast<HelpViewer*>(tabWidget->widget(lastTabPage));
 
     if (!viewer && !lastViewer) {
-        viewer = new HelpViewer(helpEngine, this);
+        viewer = new HelpViewer(helpEngine, this, this);
         viewer->installEventFilter(this);
         lastTabPage = tabWidget->addTab(viewer, QString());
         tabWidget->setCurrentIndex(lastTabPage);
@@ -428,7 +428,7 @@ void CentralWidget::setGlobalActions(const QList<QAction*> &actions)
 
 void CentralWidget::setSourceInNewTab(const QUrl &url, int zoom)
 {
-    HelpViewer* viewer = new HelpViewer(helpEngine, this);
+    HelpViewer* viewer = new HelpViewer(helpEngine, this, this);
     viewer->installEventFilter(this);
     viewer->setZoom(zoom);
     viewer->setSource(url);
@@ -448,7 +448,7 @@ void CentralWidget::setSourceInNewTab(const QUrl &url, int zoom)
 
 HelpViewer *CentralWidget::newEmptyTab()
 {
-    HelpViewer* viewer = new HelpViewer(helpEngine, this);
+    HelpViewer* viewer = new HelpViewer(helpEngine, this, this);
     viewer->installEventFilter(this);
     viewer->setFocus(Qt::OtherFocusReason);
 #if defined(QT_NO_WEBKIT)
