@@ -152,6 +152,25 @@ ClassBinding *NamespaceBinding::findClassBinding(Name *name, QSet<Binding *> *pr
     if (processed->contains(this))
         return 0;
 
+    if (const QualifiedNameId *q = name->asQualifiedNameId()) {
+        Binding *current = this;
+
+        for (unsigned i = 0; i < q->nameCount(); ++i) {
+            Identifier *nameId = q->nameAt(i)->identifier();
+            if (! nameId)
+                return 0;
+
+            QSet<Binding *> visited;
+            Binding *binding = current->findClassOrNamespaceBinding(nameId, &visited); // ### TODO: check recursion.
+            if (! binding)
+                return 0;
+
+            current = binding;
+        }
+
+        return current->asClassBinding();
+    }
+
     processed->insert(this);
 
     Identifier *id = name->identifier();
