@@ -199,6 +199,8 @@ DisassemblerViewAgent::~DisassemblerViewAgent()
     d->locationMark = 0;
     delete d;
     d = 0;
+    delete d->locationMark;
+    d->locationMark = 0;
 }
 
 void DisassemblerViewAgent::cleanup()
