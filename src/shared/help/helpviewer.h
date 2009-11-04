@@ -130,7 +130,7 @@ class HelpViewer : public QTextBrowser
     Q_OBJECT
 
 public:
-    HelpViewer(QHelpEngine *helpEngine, Help::Internal::CentralWidget *parent);
+    HelpViewer(QHelpEngine *helpEngine, Help::Internal::CentralWidget *central, QWidget *parent);
     void setSource(const QUrl &url);
 
     void zoomIn(int range = 1);

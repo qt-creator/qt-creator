@@ -378,13 +378,13 @@ void HelpViewer::setLoadFinished(bool ok)
 
 #else  // !defined(QT_NO_WEBKIT)
 
-HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *parent)
+HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *central, QWidget *parent)
     : QTextBrowser(parent)
     , zoomCount(0)
     , controlPressed(false)
     , lastAnchor(QString())
     , helpEngine(engine)
-    , parentWidget(parent)
+    , parentWidget(central)
 {
    document()->setDocumentMargin(8);
 }
