@@ -1639,7 +1639,7 @@ static void qDumpQList(QDumper &d)
     }
     qCheckAccess(pdata);
 
-    d.putItemCount("value", n);
+    d.putItemCount("value", nn);
     d.putItem("valueeditable", "false");
     d.putItem("numchild", n);
     if (d.dumpChildren) {
