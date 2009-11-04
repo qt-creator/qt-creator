@@ -195,6 +195,8 @@ DisassemblerViewAgent::~DisassemblerViewAgent()
     if (d->editor)
         d->editor->deleteLater();
     d->editor = 0;
+    delete d->locationMark;
+    d->locationMark = 0;
     delete d;
     d = 0;
 }

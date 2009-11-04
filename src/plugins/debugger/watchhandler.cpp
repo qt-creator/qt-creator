@@ -41,6 +41,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QEvent>
+
 #include <QtCore/QtAlgorithms>
 #include <QtCore/QTextStream>
 #include <QtCore/QTimer>
@@ -361,6 +362,11 @@ WatchModel::WatchModel(WatchHandler *handler, WatchType type)
     }
 }
 
+WatchModel::~WatchModel()
+{
+    delete m_root;
+}
+
 WatchItem *WatchModel::rootItem() const
 {
     return m_root;
@@ -420,7 +426,7 @@ void WatchModel::removeOutdated()
 void WatchModel::removeOutdatedHelper(WatchItem *item)
 {
     if (item->generation < generationCounter) {
-        removeItem(item);
+        destroyItem(item);
     } else {
         foreach (WatchItem *child, item->children)
             removeOutdatedHelper(child);
@@ -428,7 +434,7 @@ void WatchModel::removeOutdatedHelper(WatchItem *item)
     }
 }
 
-void WatchModel::removeItem(WatchItem *item)
+void WatchModel::destroyItem(WatchItem *item)
 {
     WatchItem *parent = item->parent;
     QModelIndex index = watchIndex(parent);
@@ -437,6 +443,7 @@ void WatchModel::removeItem(WatchItem *item)
     beginRemoveRows(index, n, n);
     parent->children.removeAt(n);
     endRemoveRows();
+    delete item;
 }
 
 static QString parentName(const QString &iname)
@@ -1187,7 +1194,7 @@ void WatchHandler::removeData(const QString &iname)
         return;
     WatchItem *item = model->findItem(iname, model->m_root);
     if (item)
-        model->removeItem(item);
+        model->destroyItem(item);
 }
 
 void WatchHandler::watchExpression()
@@ -1302,7 +1309,7 @@ void WatchHandler::removeWatchExpression(const QString &exp)
     m_watcherNames.remove(exp);
     foreach (WatchItem *item, m_watchers->rootItem()->children) {
         if (item->exp == exp) {
-            m_watchers->removeItem(item);
+            m_watchers->destroyItem(item);
             saveWatchers();
             break;
         }

@@ -68,6 +68,7 @@ CodepasterPlugin::CodepasterPlugin()
 
 CodepasterPlugin::~CodepasterPlugin()
 {
+    qDeleteAll(m_protocols);
 }
 
 bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_message)
