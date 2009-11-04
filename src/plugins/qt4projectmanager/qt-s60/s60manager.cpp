@@ -132,8 +132,10 @@ S60Manager::S60Manager(QObject *parent)
 S60Manager::~S60Manager()
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    for (int i = m_pluginObjects.size() - 1; i >= 0; i--)
+    for (int i = m_pluginObjects.size() - 1; i >= 0; i--) {
         pm->removeObject(m_pluginObjects.at(i));
+        delete m_pluginObjects.at(i);
+    }
 }
 
 void S60Manager::addAutoReleasedObject(QObject *o)

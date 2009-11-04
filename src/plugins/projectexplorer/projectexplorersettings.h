@@ -35,17 +35,23 @@ namespace Internal {
 
 struct ProjectExplorerSettings
 {
+    ProjectExplorerSettings() : buildBeforeRun(true), saveBeforeBuild(false),
+                                showCompilerOutput(false), useJom(true) {}
+
     bool buildBeforeRun;
     bool saveBeforeBuild;
     bool showCompilerOutput;
     bool useJom;
-    bool operator==(const ProjectExplorerSettings &other) const {
-        return this->buildBeforeRun == other.buildBeforeRun
-                && this->saveBeforeBuild == other.saveBeforeBuild
-                && this->showCompilerOutput == other.showCompilerOutput
-                && this->useJom == other.useJom;
-    }
 };
+
+inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerSettings &p2)
+{
+    return p1.buildBeforeRun == p2.buildBeforeRun
+            && p1.saveBeforeBuild == p2.saveBeforeBuild
+            && p1.showCompilerOutput == p2.showCompilerOutput
+            && p1.useJom == p2.useJom;
+}
+
 
 } // namespace ProjectExplorer
 } // namespace Internal
