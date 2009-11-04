@@ -121,6 +121,7 @@ void BaseFileFind::displayResult(int index) {
 
 void BaseFileFind::searchFinished()
 {
+    m_resultWindow->finishSearch();
     m_isSearching = false;
     m_resultLabel = 0;
     emit changed();

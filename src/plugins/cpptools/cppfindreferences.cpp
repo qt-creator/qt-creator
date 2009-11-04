@@ -350,6 +350,7 @@ void CppFindReferences::displayResult(int index)
 
 void CppFindReferences::searchFinished()
 {
+    _resultWindow->finishSearch();
     emit changed();
 }
 
