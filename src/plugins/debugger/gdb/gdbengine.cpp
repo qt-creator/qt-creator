@@ -742,7 +742,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
     }
 
     if ((cmd.flags & NeedsStop) || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        if (state() == InferiorStopped
+        if (state() == InferiorStopped || state() == InferiorUnrunnable
             || state() == InferiorStarting || state() == AdapterStarted) {
             // Can be safely sent now.
             flushCommand(cmd);
