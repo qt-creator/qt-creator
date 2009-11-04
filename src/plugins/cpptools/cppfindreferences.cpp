@@ -62,7 +62,8 @@ using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
 CppFindReferences::CppFindReferences(CppTools::CppModelManagerInterface *modelManager)
-    : _modelManager(modelManager),
+    : QObject(modelManager),
+      _modelManager(modelManager),
       _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
 {
     m_watcher.setPendingResultsLimit(1);
