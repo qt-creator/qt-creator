@@ -249,7 +249,21 @@ static void applyChanges(QTextDocument *doc, const QString &text, const QList<Fi
     foreach (const Find::SearchResultItem &item, items) {
         const int blockNumber = item.lineNumber - 1;
         QTextCursor tc(doc->findBlockByNumber(blockNumber));
-        tc.setPosition(tc.position() + item.searchTermStart);
+
+        const int cursorPosition = tc.position() + item.searchTermStart;
+
+        int cursorIndex = 0;
+        for (; cursorIndex < cursors.size(); ++cursorIndex) {
+            const QTextCursor &tc = cursors.at(cursorIndex);
+
+            if (tc.position() == cursorPosition)
+                break;
+        }
+
+        if (cursorIndex != cursors.size())
+            continue; // skip this change.
+
+        tc.setPosition(cursorPosition);
         tc.setPosition(tc.position() + item.searchTermLength,
                        QTextCursor::KeepAnchor);
         cursors.append(tc);
