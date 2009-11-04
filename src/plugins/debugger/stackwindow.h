@@ -50,6 +50,7 @@ class StackWindow : public QTreeView
 
 public:
     StackWindow(DebuggerManager *manager, QWidget *parent = 0);
+    ~StackWindow();
 
 signals:
     void frameActivated(int);
