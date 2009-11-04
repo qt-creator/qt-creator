@@ -3174,23 +3174,13 @@ void GdbEngine::handleVarCreate(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         data.variable = data.iname;
         setWatchDataType(data, response.data.findChild("type"));
-        if (hasDebuggingHelperForType(data.type)) {
-            // we do not trust gdb if we have a custom dumper
-            if (response.data.findChild("children").isValid())
-                data.setChildrenUnneeded();
-            else if (manager()->watchHandler()->isExpandedIName(data.iname))
-                data.setChildrenNeeded();
-            insertData(data);
-        } else {
-            if (response.data.findChild("children").isValid())
-                data.setChildrenUnneeded();
-            else if (manager()->watchHandler()->isExpandedIName(data.iname))
-                data.setChildrenNeeded();
-            setWatchDataChildCount(data, response.data.findChild("numchild"));
-            //if (data.isValueNeeded() && data.childCount > 0)
-            //    data.setValue(QString());
-            insertData(data);
-        }
+        if (manager()->watchHandler()->isExpandedIName(data.iname)
+                && !response.data.findChild("children").isValid())
+            data.setChildrenNeeded();
+        else
+            data.setChildrenUnneeded();
+        setWatchDataChildCount(data, response.data.findChild("numchild"));
+        insertData(data);
     } else {
         data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
         if (data.isWatcher()) {
@@ -3635,7 +3625,8 @@ void GdbEngine::insertData(const WatchData &data0)
 void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
     const WatchData &parent)
 {
-    //qDebug() <<  "VAR_LIST_CHILDREN: APPENDEE" << data.toString();
+    //qDebug() <<  "VAR_LIST_CHILDREN: PARENT" << parent.toString();
+    //qDebug() <<  "VAR_LIST_CHILDREN: ITEM" << item.toString();
     QByteArray exp = item.findChild("exp").data();
     QByteArray name = item.findChild("name").data();
     if (isAccessSpecifier(_(exp))) {
