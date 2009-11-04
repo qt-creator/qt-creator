@@ -546,8 +546,6 @@ void Qt4Project::updateCodeModel()
     if (debug)
         qDebug()<<"Qt4Project::updateCodeModel()";
 
-    // TODO figure out the correct ordering of #include directories
-
     CppTools::CppModelManagerInterface *modelmanager =
         ExtensionSystem::PluginManager::instance()
             ->getObject<CppTools::CppModelManagerInterface>();
@@ -582,7 +580,7 @@ void Qt4Project::updateCodeModel()
     const QString newQtIncludePath = versionInfo.value(QLatin1String("QT_INSTALL_HEADERS"));
     const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
 
-    predefinedIncludePaths.prepend(newQtIncludePath);
+    predefinedIncludePaths.append(newQtIncludePath);
     QDir dir(newQtIncludePath);
     foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs)) {
         const QString path = info.fileName();
@@ -590,7 +588,7 @@ void Qt4Project::updateCodeModel()
         if (path == QLatin1String("Qt"))
             continue; // skip $QT_INSTALL_HEADERS/Qt. There's no need to include it.
         else if (path.startsWith(QLatin1String("Qt")) || path == QLatin1String("phonon"))
-            predefinedIncludePaths.prepend(info.absoluteFilePath());
+            predefinedIncludePaths.append(info.absoluteFilePath());
     }
 
     FindQt4ProFiles findQt4ProFiles;
@@ -600,13 +598,13 @@ void Qt4Project::updateCodeModel()
     QStringList allFrameworkPaths = predefinedFrameworkPaths;
 
 #ifdef Q_OS_MAC
-    allFrameworkPaths.prepend(newQtLibsPath);
+    allFrameworkPaths.append(newQtLibsPath);
     // put QtXXX.framework/Headers directories in include path since that qmake's behavior
     QDir frameworkDir(newQtLibsPath);
     foreach (QFileInfo info, frameworkDir.entryInfoList(QDir::Dirs)) {
         if (! info.fileName().startsWith(QLatin1String("Qt")))
             continue;
-        allIncludePaths.prepend(info.absoluteFilePath()+"/Headers");
+        allIncludePaths.append(info.absoluteFilePath()+"/Headers");
     }
 #endif
 
@@ -643,9 +641,9 @@ void Qt4Project::updateCodeModel()
         const QStringList proIncludePaths = pro->variableValue(IncludePathVar);
         foreach (const QString &includePath, proIncludePaths) {
             if (!allIncludePaths.contains(includePath))
-                allIncludePaths.prepend(includePath);
+                allIncludePaths.append(includePath);
             if (!info.includes.contains(includePath))
-                info.includes.prepend(includePath);
+                info.includes.append(includePath);
         }
 
         { // Pkg Config support
@@ -657,13 +655,13 @@ void Qt4Project::updateCodeModel()
                 process.waitForFinished();
                 QString result = process.readAllStandardOutput();
                 foreach(const QString &part, result.trimmed().split(' ', QString::SkipEmptyParts)) {
-                    info.includes.prepend(part.mid(2)); // Chop off "-I"
+                    info.includes.append(part.mid(2)); // Chop off "-I"
                 }
             }
         }
 
         // Add mkspec directory
-        info.includes.prepend(qtVersion(activeBuildConfiguration())->mkspecPath());
+        info.includes.append(qtVersion(activeBuildConfiguration())->mkspecPath());
 
         info.frameworkPaths = allFrameworkPaths;
 
@@ -677,7 +675,7 @@ void Qt4Project::updateCodeModel()
     }
 
     // Add mkspec directory
-    allIncludePaths.prepend(qtVersion(activeBuildConfiguration())->mkspecPath());
+    allIncludePaths.append(qtVersion(activeBuildConfiguration())->mkspecPath());
 
     // Dump things out
     // This is debugging output...
