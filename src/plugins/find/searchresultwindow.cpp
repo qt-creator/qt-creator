@@ -53,7 +53,8 @@ static const QString SETTINGSKEYEXPANDRESULTS("ExpandResults");
 
 SearchResultWindow::SearchResultWindow()
     : m_currentSearch(0),
-    m_isShowingReplaceUI(false)
+    m_isShowingReplaceUI(false),
+    m_focusReplaceEdit(false)
 {
     m_widget = new QStackedWidget;
     m_widget->setWindowTitle(name());
@@ -124,15 +125,13 @@ void SearchResultWindow::setShowReplaceUI(bool show)
     m_isShowingReplaceUI = show;
 }
 
-bool SearchResultWindow::isShowingReplaceUI() const
-{
-    return m_isShowingReplaceUI;
-}
-
 void SearchResultWindow::handleReplaceButton()
 {
     QTC_ASSERT(m_currentSearch, return);
-    m_currentSearch->replaceButtonClicked(m_replaceTextEdit->text(), checkedItems());
+    // check if button is actually enabled, because this is also triggered
+    // by pressing return in replace line edit
+    if (m_replaceButton->isEnabled())
+        m_currentSearch->replaceButtonClicked(m_replaceTextEdit->text(), checkedItems());
 }
 
 QList<SearchResultItem> SearchResultWindow::checkedItems() const
@@ -177,9 +176,19 @@ SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndRep
     return m_currentSearch;
 }
 
+void SearchResultWindow::finishSearch()
+{
+    if (m_items.count()) {
+        m_replaceButton->setEnabled(true);
+    } else {
+        showNoMatchesFound();
+    }
+}
+
 void SearchResultWindow::clearContents()
 {
-    setReplaceUIEnabled(false);
+    m_replaceTextEdit->setEnabled(false);
+    m_replaceButton->setEnabled(false);
     m_replaceTextEdit->clear();
     m_searchResultTreeView->clear();
     m_items.clear();
@@ -189,7 +198,8 @@ void SearchResultWindow::clearContents()
 
 void SearchResultWindow::showNoMatchesFound()
 {
-    setReplaceUIEnabled(false);
+    m_replaceTextEdit->setEnabled(false);
+    m_replaceButton->setEnabled(false);
     m_widget->setCurrentWidget(m_noMatchesFoundDisplay);
 }
 
@@ -220,7 +230,8 @@ void SearchResultWindow::setFocus()
             m_searchResultTreeView->setFocus();
         } else {
             if (!m_widget->focusWidget()
-                    || m_widget->focusWidget() == m_replaceTextEdit) {
+                    || m_widget->focusWidget() == m_replaceTextEdit
+                    || m_focusReplaceEdit) {
                 m_replaceTextEdit->setFocus();
             } else {
                 m_searchResultTreeView->setFocus();
@@ -257,18 +268,14 @@ void SearchResultWindow::addResult(const QString &fileName, int lineNumber, cons
     m_items.append(item);
     m_searchResultTreeView->appendResultLine(index, fileName, lineNumber, rowText, searchTermStart, searchTermLength);
     if (index == 0) {
-        setReplaceUIEnabled(true);
-        // We didn't have an item before, set the focus to the m_searchResultTreeView
+        m_replaceTextEdit->setEnabled(true);
+        // We didn't have an item before, set the focus to the search widget
+        m_focusReplaceEdit = true;
         setFocus();
+        m_focusReplaceEdit = false;
         m_searchResultTreeView->selectionModel()->select(m_searchResultTreeView->model()->index(0, 0, QModelIndex()), QItemSelectionModel::Select);
         emit navigateStateChanged();
     }
-}
-
-void SearchResultWindow::setReplaceUIEnabled(bool enabled)
-{
-    m_replaceTextEdit->setEnabled(enabled);
-    m_replaceButton->setEnabled(enabled);
 }
 
 void SearchResultWindow::handleExpandCollapseToolButton(bool checked)

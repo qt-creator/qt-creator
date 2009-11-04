@@ -230,14 +230,14 @@ bool HelpPage::acceptNavigationRequest(QWebFrame *,
     return false;
 }
 
-HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *parent)
+HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *central, QWidget *parent)
     : QWebView(parent)
     , helpEngine(engine)
-    , parentWidget(parent)
+    , parentWidget(central)
     , multiTabsAllowed(true)
     , loadFinished(false)
 {
-    setPage(new HelpPage(parent, helpEngine, this));
+    setPage(new HelpPage(central, helpEngine, this));
     settings()->setAttribute(QWebSettings::PluginsEnabled, false);
     settings()->setAttribute(QWebSettings::JavaEnabled, false);
 
@@ -245,7 +245,7 @@ HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *paren
 
     QAction* action = pageAction(QWebPage::OpenLinkInNewWindow);
     action->setText(tr("Open Link in New Tab"));
-    if (!parent) {
+    if (!central) {
         multiTabsAllowed = false;
         action->setVisible(false);
     }
@@ -378,13 +378,13 @@ void HelpViewer::setLoadFinished(bool ok)
 
 #else  // !defined(QT_NO_WEBKIT)
 
-HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *parent)
+HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *central, QWidget *parent)
     : QTextBrowser(parent)
     , zoomCount(0)
     , controlPressed(false)
     , lastAnchor(QString())
     , helpEngine(engine)
-    , parentWidget(parent)
+    , parentWidget(central)
 {
    document()->setDocumentMargin(8);
 }

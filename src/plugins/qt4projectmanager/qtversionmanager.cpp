@@ -395,8 +395,7 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
     }
     qDeleteAll(m_versions);
     m_versions.clear();
-    foreach(QtVersion *version, newVersions)
-        m_versions.append(new QtVersion(*version));
+    m_versions = newVersions;
     if (versionPathsChanged)
         updateDocumentation();
     updateUniqueIdToIndexMap();
@@ -415,8 +414,6 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
     updateExamples();
     writeVersionsIntoSettings();
 }
-
-
 
 ///
 /// QtVersion

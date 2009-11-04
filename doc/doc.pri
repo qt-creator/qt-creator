@@ -27,9 +27,8 @@ qch_docs.depends += html_docs
 qch_docs.files = $$QCH_FILE
 
 unix:!macx {
-    system("mkdir -p `dirname $$QCH_FILE` && touch $$QCH_FILE")
-
     qch_docs.path = /share/doc/qtcreator
+    qch_docs.CONFIG += no_check_exist
     INSTALLS += qch_docs
 }
 

@@ -62,7 +62,8 @@ using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
 CppFindReferences::CppFindReferences(CppTools::CppModelManagerInterface *modelManager)
-    : _modelManager(modelManager),
+    : QObject(modelManager),
+      _modelManager(modelManager),
       _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
 {
     m_watcher.setPendingResultsLimit(1);
@@ -249,7 +250,21 @@ static void applyChanges(QTextDocument *doc, const QString &text, const QList<Fi
     foreach (const Find::SearchResultItem &item, items) {
         const int blockNumber = item.lineNumber - 1;
         QTextCursor tc(doc->findBlockByNumber(blockNumber));
-        tc.setPosition(tc.position() + item.searchTermStart);
+
+        const int cursorPosition = tc.position() + item.searchTermStart;
+
+        int cursorIndex = 0;
+        for (; cursorIndex < cursors.size(); ++cursorIndex) {
+            const QTextCursor &tc = cursors.at(cursorIndex);
+
+            if (tc.position() == cursorPosition)
+                break;
+        }
+
+        if (cursorIndex != cursors.size())
+            continue; // skip this change.
+
+        tc.setPosition(cursorPosition);
         tc.setPosition(tc.position() + item.searchTermLength,
                        QTextCursor::KeepAnchor);
         cursors.append(tc);
@@ -335,6 +350,7 @@ void CppFindReferences::displayResult(int index)
 
 void CppFindReferences::searchFinished()
 {
+    _resultWindow->finishSearch();
     emit changed();
 }
 

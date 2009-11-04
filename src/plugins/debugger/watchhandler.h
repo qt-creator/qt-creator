@@ -180,6 +180,7 @@ class WatchModel : public QAbstractItemModel
 
 private:
     explicit WatchModel(WatchHandler *handler, WatchType type);
+    virtual ~WatchModel();
 
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
@@ -209,7 +210,7 @@ private:
     void removeOutdated();
     void removeOutdatedHelper(WatchItem *item);
     WatchItem *rootItem() const;
-    void removeItem(WatchItem *item);
+    void destroyItem(WatchItem *item);
 
     void emitDataChanged(int column,
         const QModelIndex &parentIndex = QModelIndex());

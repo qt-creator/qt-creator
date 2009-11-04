@@ -207,6 +207,7 @@ ProjectExplorerPlugin::ProjectExplorerPlugin()
 ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
     removeObject(d->m_welcomePlugin);
+    delete d->m_welcomePlugin;
     removeObject(this);
     delete d;
 }
@@ -1869,16 +1870,14 @@ void ProjectExplorerPlugin::showInGraphicalShell()
 {
     QTC_ASSERT(d->m_currentNode, return)
 #if defined(Q_OS_WIN)
-    QString explorer = Environment::systemEnvironment().searchInPath("explorer.exe");
+    const QString explorer = Environment::systemEnvironment().searchInPath("explorer.exe");
     if (explorer.isEmpty()) {
         QMessageBox::warning(Core::ICore::instance()->mainWindow(),
                              tr("Launching Windows Explorer failed"),
                              tr("Could not find explorer.exe in path to launch Windows Explorer."));
         return;
     }
-    QProcess::execute(explorer,
-                      QStringList() << QString("/select,%1")
-                      .arg(QDir::toNativeSeparators(d->m_currentNode->path())));
+    QProcess::startDetached(explorer, QStringList(QLatin1String("/select,") + QDir::toNativeSeparators(d->m_currentNode->path())));
 #elif defined(Q_OS_MAC)
     QProcess::execute("/usr/bin/osascript", QStringList()
                       << "-e"
@@ -1889,15 +1888,15 @@ void ProjectExplorerPlugin::showInGraphicalShell()
                       << "tell application \"Finder\" to activate");
 #else
     // we cannot select a file here, because no file browser really supports it...
-    QFileInfo fileInfo(d->m_currentNode->path());
-    QString xdgopen = Environment::systemEnvironment().searchInPath("xdg-open");
+    const QFileInfo fileInfo(d->m_currentNode->path());
+    const QString xdgopen = Environment::systemEnvironment().searchInPath("xdg-open");
     if (xdgopen.isEmpty()) {
         QMessageBox::warning(Core::ICore::instance()->mainWindow(),
                              tr("Launching a file explorer failed"),
                              tr("Could not find xdg-open to launch the native file explorer."));
         return;
     }
-    QProcess::execute(xdgopen, QStringList() <<  fileInfo.path());
+    QProcess::startDetached(xdgopen, QStringList(fileInfo.path()));
 #endif
 }
 

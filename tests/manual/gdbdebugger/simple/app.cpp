@@ -157,6 +157,12 @@ public:
 void testArray()
 {
     X xxx;
+    (void *) 0;
+    double d[3][3];
+    for (int i = 0; i != 3; ++i)
+        for (int j = 0; j != 3; ++j)
+            d[i][j] = i + j;
+
     char c[20];
     c[0] = 'a';
     c[1] = 'b';

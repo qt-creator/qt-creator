@@ -42,6 +42,7 @@ class ProjectWelcomePage : public Utils::IWelcomePage
     Q_OBJECT
 public:
     ProjectWelcomePage();
+    ~ProjectWelcomePage();
 
     QWidget *page();
     QString title() const { return tr("Develop"); }

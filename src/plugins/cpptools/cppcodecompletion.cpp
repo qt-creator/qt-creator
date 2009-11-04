@@ -1124,14 +1124,6 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &ba
                                                     m_completionOperator,
                                                     &replacedDotOperator);
 
-    if (replacedDotOperator) {
-        // Replace . with ->
-        int length = m_editor->position() - m_startPosition + 1;
-        m_editor->setCurPos(m_startPosition - 1);
-        m_editor->replace(length, QLatin1String("->"));
-        ++m_startPosition;
-    }
-
     QList<Symbol *> classObjectCandidates;
     foreach (const TypeOfExpression::Result &r, classObjectResults) {
         FullySpecifiedType ty = r.first.simplified();
@@ -1148,6 +1140,14 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &ba
                     classObjectCandidates.append(klass);
             }
         }
+    }
+
+    if (replacedDotOperator && ! classObjectCandidates.isEmpty()) {
+        // Replace . with ->
+        int length = m_editor->position() - m_startPosition + 1;
+        m_editor->setCurPos(m_startPosition - 1);
+        m_editor->replace(length, QLatin1String("->"));
+        ++m_startPosition;
     }
 
     completeClass(classObjectCandidates, context, /*static lookup = */ false);

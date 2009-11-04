@@ -193,6 +193,11 @@ GdbEngine::GdbEngine(DebuggerManager *manager) :
     m_trkOptions->fromSettings(Core::ICore::instance()->settings());
     m_gdbAdapter = 0;
 
+    m_commandTimer = new QTimer(this);
+    m_commandTimer->setSingleShot(true);
+    m_commandTimer->setInterval(COMMAND_TIMEOUT);
+    connect(m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
+
     // Needs no resetting in initializeVariables()
     m_busy = false;
 
@@ -606,6 +611,9 @@ void GdbEngine::readGdbStandardError()
 
 void GdbEngine::readGdbStandardOutput()
 {
+    if (m_commandTimer->isActive())
+        m_commandTimer->start(); // Retrigger
+
     int newstart = 0;
     int scan = m_inbuffer.size();
 
@@ -734,7 +742,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
     }
 
     if ((cmd.flags & NeedsStop) || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
-        if (state() == InferiorStopped
+        if (state() == InferiorStopped || state() == InferiorUnrunnable
             || state() == InferiorStarting || state() == AdapterStarted) {
             // Can be safely sent now.
             flushCommand(cmd);
@@ -796,8 +804,25 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
 
     m_gdbAdapter->write(cmd.command.toLatin1() + "\r\n");
 
+    m_commandTimer->start();
+
     if (cmd.flags & LosesChild)
         setState(InferiorShuttingDown);
+}
+
+void GdbEngine::commandTimeout()
+{
+    // FIXME this needs a proper message box
+    debugMessage(_("TIMED OUT WAITING FOR GDB REPLY. COMMANDS STILL IN PROGRESS:"));
+    QList<int> keys = m_cookieForToken.keys();
+    qSort(keys);
+    foreach (int key, keys) {
+        const GdbCommand &cmd = m_cookieForToken[key];
+        debugMessage(_("  %1: %2 => %3").arg(key).arg(cmd.command).arg(_(cmd.callbackName)));
+    }
+    // This is an entirely undefined state, so we just pull the emergency brake.
+    setState(EngineShuttingDown, true);
+    m_gdbProc.kill();
 }
 
 void GdbEngine::handleResultRecord(GdbResponse *response)
@@ -927,6 +952,9 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
     } else {
         PENDING_DEBUG("MISSING TOKENS: " << m_cookieForToken.keys());
     }
+
+    if (m_cookieForToken.isEmpty())
+        m_commandTimer->stop();
 }
 
 void GdbEngine::executeDebuggerCommand(const QString &command)
@@ -1426,7 +1454,6 @@ void GdbEngine::shutdown()
         m_gdbAdapter->shutdown();
         // fall-through
     case AdapterStartFailed: // Adapter "did something", but it did not help
-        // FIXME set some timeout?
         if (m_gdbProc.state() == QProcess::Running) {
             postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleGdbExit));
         } else {
@@ -1437,7 +1464,6 @@ void GdbEngine::shutdown()
     case InferiorRunning:
     case InferiorStopping:
     case InferiorStopped:
-        // FIXME set some timeout?
         postCommand(_(m_gdbAdapter->inferiorShutdownCommand()),
                     NeedsStop | LosesChild, CB(handleInferiorShutdown));
         break;
@@ -1446,7 +1472,6 @@ void GdbEngine::shutdown()
     case InferiorShutDown:
     case InferiorShutdownFailed: // Whatever
     case InferiorUnrunnable:
-        // FIXME set some timeout?
         postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleGdbExit));
         setState(EngineShuttingDown); // Do it after posting the command!
         break;
@@ -3246,23 +3271,13 @@ void GdbEngine::handleVarCreate(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         data.variable = data.iname;
         setWatchDataType(data, response.data.findChild("type"));
-        if (hasDebuggingHelperForType(data.type)) {
-            // we do not trust gdb if we have a custom dumper
-            if (response.data.findChild("children").isValid())
-                data.setChildrenUnneeded();
-            else if (manager()->watchHandler()->isExpandedIName(data.iname))
-                data.setChildrenNeeded();
-            insertData(data);
-        } else {
-            if (response.data.findChild("children").isValid())
-                data.setChildrenUnneeded();
-            else if (manager()->watchHandler()->isExpandedIName(data.iname))
-                data.setChildrenNeeded();
-            setWatchDataChildCount(data, response.data.findChild("numchild"));
-            //if (data.isValueNeeded() && data.childCount > 0)
-            //    data.setValue(QString());
-            insertData(data);
-        }
+        if (manager()->watchHandler()->isExpandedIName(data.iname)
+                && !response.data.findChild("children").isValid())
+            data.setChildrenNeeded();
+        else
+            data.setChildrenUnneeded();
+        setWatchDataChildCount(data, response.data.findChild("numchild"));
+        insertData(data);
     } else {
         data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
         if (data.isWatcher()) {
@@ -3707,7 +3722,8 @@ void GdbEngine::insertData(const WatchData &data0)
 void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
     const WatchData &parent)
 {
-    //qDebug() <<  "VAR_LIST_CHILDREN: APPENDEE" << data.toString();
+    //qDebug() <<  "VAR_LIST_CHILDREN: PARENT" << parent.toString();
+    //qDebug() <<  "VAR_LIST_CHILDREN: ITEM" << item.toString();
     QByteArray exp = item.findChild("exp").data();
     QByteArray name = item.findChild("name").data();
     if (isAccessSpecifier(_(exp))) {
@@ -4243,6 +4259,9 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     m_gdbProc.disconnect(); // From any previous runs
 
     QString location = gdb;
+    const QByteArray env = qgetenv("QTC_DEBUGGER_PATH");
+    if (!env.isEmpty())
+        location = QString::fromLatin1(env);
     if (location.isEmpty())
         location = theDebuggerStringSetting(GdbLocation);
     QStringList gdbArgs;
