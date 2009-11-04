@@ -1200,6 +1200,14 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
             break;
     }
 
+    if (LA() == T___ASM__ && LA(2) == T_LPAREN) { // ### store the asm specifier in the AST
+        consumeToken(); // skip __asm__
+        consumeToken(); // skip T_LPAREN
+
+        if (skipUntil(T_RPAREN))
+            consumeToken(); // skip T_RPAREN
+    }
+
     SpecifierAST **spec_ptr = &node->post_attributes;
     while (LA() == T___ATTRIBUTE__) {
         parseAttributeSpecifier(*spec_ptr);
