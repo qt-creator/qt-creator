@@ -11037,8 +11037,8 @@ al VCS (%2)?</translation>
     </message>
     <message>
         <location/>
-        <source>MinGw Directory:</source>
-        <translation>Cartella MinGw:</translation>
+        <source>MinGW Directory:</source>
+        <translation>Cartella MinGW:</translation>
     </message>
     <message>
         <location/>

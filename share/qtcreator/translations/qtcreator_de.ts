@@ -11926,8 +11926,8 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <location/>
-        <source>MinGw Directory:</source>
-        <translation>MinGw-Verzeichnis:</translation>
+        <source>MinGW Directory:</source>
+        <translation>MinGW-Verzeichnis:</translation>
     </message>
     <message>
         <location/>
