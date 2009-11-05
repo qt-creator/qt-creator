@@ -1,5 +1,5 @@
 bin/qmake
-lib/libQtCore.so.4.5.2
+lib/libQtCore.so
 %%
 lib/libQtCore.la
 lib/libQt3Support.la
@@ -7,6 +7,7 @@ lib/libQtCLucene.la
 lib/libQtDBus.la
 lib/libQtGui.la
 lib/libQtHelp.la
+lib/libQtMultimedia.la
 lib/libQtNetwork.la
 lib/libQtOpenGL.la
 lib/libQtScript.la
@@ -27,6 +28,7 @@ lib/libQtDesignerComponents.prl
 lib/libQtDesigner.prl
 lib/libQtGui.prl
 lib/libQtHelp.prl
+lib/libQtMultimedia.prl
 lib/libQtNetwork.prl
 lib/libQtOpenGL.prl
 lib/libQtScript.prl
@@ -47,6 +49,7 @@ lib/pkgconfig/QtDesignerComponents.pc
 lib/pkgconfig/QtDesigner.pc
 lib/pkgconfig/QtGui.pc
 lib/pkgconfig/QtHelp.pc
+lib/pkgconfig/QtMultimedia.pc
 lib/pkgconfig/QtNetwork.pc
 lib/pkgconfig/QtOpenGL.pc
 lib/pkgconfig/QtScript.pc
