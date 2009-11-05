@@ -132,8 +132,17 @@ void MercurialCommitWidget::setFields(const QString &repositoryRoot, const QStri
 
 QString MercurialCommitWidget::committer()
 {
-    QString user = mercurialCommitPanelUi.authorLineEdit->text() + QLatin1String(" <") +
-                   mercurialCommitPanelUi.emailLineEdit->text() + QLatin1Char('>');
+    const QString author = mercurialCommitPanelUi.authorLineEdit->text();
+    const QString email = mercurialCommitPanelUi.emailLineEdit->text();
+    if (author.isEmpty())
+        return QString();
+
+    QString user = author;
+    if (!email.isEmpty()) {
+        user += QLatin1String(" <");
+        user += email;
+        user += QLatin1Char('>');
+    }
     return user;
 }
 

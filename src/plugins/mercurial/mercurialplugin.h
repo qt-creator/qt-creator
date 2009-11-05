@@ -83,6 +83,7 @@ public:
     QString currentProjectName();
     QFileInfo currentProjectRoot();
     bool closeEditor(Core::IEditor *editor);
+    QStringList standardArguments() const;
 
     MercurialSettings *settings();
 

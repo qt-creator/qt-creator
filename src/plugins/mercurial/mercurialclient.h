@@ -88,8 +88,8 @@ private slots:
     void statusParser(const QByteArray &data);
 
 private:
-    bool hgProcessSync(const QFileInfo &file, const QStringList &args,
-                       QByteArray *output=0) const;
+    bool executeHgSynchronously(const QFileInfo &file, const QStringList &args,
+                                QByteArray *output=0) const;
 
     MercurialJobRunner *jobManager;
     Core::ICore *core;

@@ -38,6 +38,7 @@
 
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QSharedPointer>
@@ -80,7 +81,7 @@ bool MercurialClient::add(const QString &filename)
     QStringList args;
     args << QLatin1String("add") << file.absoluteFilePath();
 
-    return hgProcessSync(file, args);
+    return executeHgSynchronously(file, args);
 }
 
 bool MercurialClient::remove(const QString &filename)
@@ -89,7 +90,7 @@ bool MercurialClient::remove(const QString &filename)
     QStringList args;
     args << QLatin1String("remove") << file.absoluteFilePath();
 
-    return hgProcessSync(file, args);
+    return executeHgSynchronously(file, args);
 }
 
 bool MercurialClient::manifestSync(const QString &filename)
@@ -98,7 +99,7 @@ bool MercurialClient::manifestSync(const QString &filename)
     QStringList args(QLatin1String("manifest"));
 
     QByteArray output;
-    hgProcessSync(file, args, &output);
+    executeHgSynchronously(file, args, &output);
 
     const QStringList files = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
 
@@ -111,25 +112,31 @@ bool MercurialClient::manifestSync(const QString &filename)
     return false;
 }
 
-bool MercurialClient::hgProcessSync(const QFileInfo &file, const QStringList &args,
-                                    QByteArray *output) const
+bool MercurialClient::executeHgSynchronously(const QFileInfo &file, const QStringList &args,
+                                             QByteArray *output) const
 {
     QProcess hgProcess;
     hgProcess.setWorkingDirectory(file.isDir() ? file.absoluteFilePath() : file.absolutePath());
 
-    MercurialSettings *settings = MercurialPlugin::instance()->settings();
-    QStringList arguments = settings->standardArguments();
-    arguments << args;
+    const MercurialSettings *settings = MercurialPlugin::instance()->settings();
+    const QString binary = settings->binary();
+    const QStringList arguments = MercurialPlugin::instance()->standardArguments() + args;
 
-    hgProcess.start(settings->binary(), arguments);
+    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+    outputWindow->appendCommand(MercurialJobRunner::msgExecute(binary, arguments));
 
-    if (!hgProcess.waitForStarted())
+    hgProcess.start(binary, arguments);
+
+    if (!hgProcess.waitForStarted()) {
+        outputWindow->appendError(MercurialJobRunner::msgStartFailed(binary, hgProcess.errorString()));
         return false;
+    }
 
     hgProcess.closeWriteChannel();
 
     if (!hgProcess.waitForFinished(settings->timeout())) {
         hgProcess.terminate();
+        outputWindow->appendError(MercurialJobRunner::msgTimeout(settings->timeout()));
         return false;
     }
 
@@ -145,7 +152,7 @@ bool MercurialClient::hgProcessSync(const QFileInfo &file, const QStringList &ar
 QString MercurialClient::branchQuerySync(const QFileInfo &repositoryRoot)
 {
     QByteArray output;
-    if (hgProcessSync(repositoryRoot, QStringList(QLatin1String("branch")), &output))
+    if (executeHgSynchronously(repositoryRoot, QStringList(QLatin1String("branch")), &output))
         return QTextCodec::codecForLocale()->toUnicode(output).trimmed();
 
     return QLatin1String("Unknown Branch");
@@ -237,8 +244,7 @@ void MercurialClient::revert(const QFileInfo &fileOrDir, const QString &revision
 
 void MercurialClient::status(const QFileInfo &fileOrDir)
 {
-    QStringList args;
-    args << QLatin1String("status");
+    QStringList args(QLatin1String("status"));
     if (!fileOrDir.isDir())
         args.append(fileOrDir.absoluteFilePath());
 
@@ -301,8 +307,7 @@ void MercurialClient::import(const QFileInfo &repositoryRoot, const QStringList 
 
 void MercurialClient::pull(const QFileInfo &repositoryRoot, const QString &repository)
 {
-    QStringList args;
-    args << QLatin1String("pull");
+    QStringList args(QLatin1String("pull"));
     if (!repository.isEmpty())
         args.append(repository);
 
@@ -312,8 +317,7 @@ void MercurialClient::pull(const QFileInfo &repositoryRoot, const QString &repos
 
 void MercurialClient::push(const QFileInfo &repositoryRoot, const QString &repository)
 {
-    QStringList args;
-    args << QLatin1String("push");
+    QStringList args(QLatin1String("push"));
     if (!repository.isEmpty())
         args.append(repository);
 
@@ -384,12 +388,12 @@ void MercurialClient::update(const QFileInfo &repositoryRoot, const QString &rev
 }
 
 void MercurialClient::commit(const QFileInfo &repositoryRoot, const QStringList &files,
-                             const QString &commiterInfo, const QString &commitMessageFile)
+                             const QString &committerInfo, const QString &commitMessageFile)
 {
-    QStringList args;
-
-    args << QLatin1String("commit") << QLatin1String("-u") << commiterInfo
-         << QLatin1String("-l") << commitMessageFile << files;
+    QStringList args(QLatin1String("commit"));
+    if (!committerInfo.isEmpty())
+        args << QLatin1String("-u") << committerInfo;
+    args << QLatin1String("-l") << commitMessageFile << files;
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
     jobManager->enqueueJob(job);
 }

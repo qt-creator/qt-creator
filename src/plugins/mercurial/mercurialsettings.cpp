@@ -31,7 +31,6 @@
 #include "constants.h"
 
 #include <coreplugin/icore.h>
-
 #include <QtCore/QSettings>
 
 
@@ -134,11 +133,5 @@ void MercurialSettings::readSettings()
 void MercurialSettings::setBinAndArgs()
 {
     standardArgs.clear();
-
-#ifdef Q_OS_WIN
-    bin = QLatin1String("cmd.exe");
-    standardArgs << "/c" << app;
-#else
     bin = app;
-#endif
 }

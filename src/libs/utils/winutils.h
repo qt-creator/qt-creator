@@ -47,5 +47,10 @@ enum WinDLLVersionType { WinDLLFileVersion, WinDLLProductVersion };
 QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
                                                 const QString &name,
                                                 QString *errorMessage);
+
+// Return the short (8.3) file name
+QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name,
+                                                QString *errorMessage);
+
 } // namespace Utils
 #endif // WINUTILS_H

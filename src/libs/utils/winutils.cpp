@@ -55,6 +55,17 @@ QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error)
     return rc;
 }
 
+
+static inline QString msgCannotLoad(const char *lib, const QString &why)
+{
+    return QString::fromLatin1("Unable load %1: %2").arg(QLatin1String(lib), why);
+}
+
+static inline QString msgCannotResolve(const char *lib)
+{
+    return QString::fromLatin1("Unable to resolve all required symbols in  %1").arg(QLatin1String(lib));
+}
+
 QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
                                                 const QString &name,
                                                 QString *errorMessage)
@@ -67,7 +78,7 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
     const char *versionDLLC = "version.dll";
     QLibrary versionLib(QLatin1String(versionDLLC), 0);
     if (!versionLib.load()) {
-        *errorMessage = QString::fromLatin1("Unable load %1: %2").arg(QLatin1String(versionDLLC), versionLib.errorString());
+        *errorMessage = msgCannotLoad(versionDLLC, versionLib.errorString());
         return QString();
     }
     // MinGW requires old-style casts
@@ -75,7 +86,7 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
     GetFileVersionInfoWProtoType getFileVersionInfoW = (GetFileVersionInfoWProtoType)(versionLib.resolve("GetFileVersionInfoW"));
     VerQueryValueWProtoType verQueryValueW = (VerQueryValueWProtoType)(versionLib.resolve("VerQueryValueW"));
     if (!getFileVersionInfoSizeW || !getFileVersionInfoW || !verQueryValueW) {
-        *errorMessage = QString::fromLatin1("Unable to resolve all required symbols in  %1").arg(QLatin1String(versionDLLC));
+        *errorMessage = msgCannotResolve(versionDLLC);
         return QString();
     }
 
@@ -108,6 +119,39 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
         QTextStream(&rc) << HIWORD(versionInfo->dwProductVersionMS) << '.' << LOWORD(versionInfo->dwProductVersionMS);
         break;
     }
+    return rc;
+}
+
+QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name, QString *errorMessage)
+{
+    typedef DWORD (APIENTRY *GetShortPathNameProtoType)(LPCTSTR, LPTSTR, DWORD);
+
+    if (name.isEmpty())
+        return name;
+
+    const char *kernel32DLLC = "kernel32.dll";
+
+    QLibrary kernel32Lib(kernel32DLLC, 0);
+    if (!kernel32Lib.isLoaded() && !kernel32Lib.load()) {
+        *errorMessage = msgCannotLoad(kernel32DLLC, kernel32Lib.errorString());
+        return QString();
+    }
+
+    // MinGW requires old-style casts
+    GetShortPathNameProtoType getShortPathNameW = (GetShortPathNameProtoType)(kernel32Lib.resolve("GetShortPathNameW"));
+    if (!getShortPathNameW) {
+        *errorMessage = msgCannotResolve(kernel32DLLC);
+        return QString();
+    }
+    // Determine length, then convert.
+    const LPCTSTR nameC = reinterpret_cast<LPCTSTR>(name.utf16()); // MinGW
+    const DWORD length = (*getShortPathNameW)(nameC, NULL, 0);
+    if (length == 0)
+        return name;
+    TCHAR *buffer = new TCHAR[length];
+    (*getShortPathNameW)(nameC, buffer, length);
+    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer), length);
+    delete [] buffer;
     return rc;
 }
 

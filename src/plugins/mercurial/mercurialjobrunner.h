@@ -70,7 +70,8 @@ private:
     VCSBase::VCSBaseEditor *editor;
 };
 
-
+/* A job queue running in a separate thread, executing commands
+ * and emitting status/log  signals. */
 class MercurialJobRunner : public QThread
 {
     Q_OBJECT
@@ -79,6 +80,10 @@ public:
     ~MercurialJobRunner();
     void enqueueJob(const QSharedPointer<HgTask> &job);
     void restart();
+
+    static QString msgExecute(const QString &binary, const QStringList &args);
+    static QString msgStartFailed(const QString &binary, const QString &why);
+    static QString msgTimeout(int timeoutMS);
 
 protected:
     void run();

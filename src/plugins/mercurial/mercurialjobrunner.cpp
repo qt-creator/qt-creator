@@ -132,6 +132,21 @@ void MercurialJobRunner::run()
     }
 }
 
+QString MercurialJobRunner::msgExecute(const QString &binary, const QStringList &args)
+{
+    return tr("Executing: %1 %2\n").arg(binary, args.join(QString(QLatin1Char(' '))));
+}
+
+QString MercurialJobRunner::msgStartFailed(const QString &binary, const QString &why)
+{
+    return tr("Unable to start mercurial process '%1': %2").arg(binary, why);
+}
+
+QString MercurialJobRunner::msgTimeout(int timeoutMS)
+{
+    return tr("Timed out after %1ms waiting for mercurial process to finish.").arg(timeoutMS);
+}
+
 void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
 {
     HgTask *taskData = job.data();
@@ -155,8 +170,8 @@ void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
                 Qt::QueuedConnection);
     }
 
-    const QString starting = tr("Executing: %1 %2\n").arg(binary, taskData->args().join(QString(QLatin1Char(' '))));
-    emit commandStarted(starting);
+    const QStringList args = standardArguments + taskData->args();
+    emit commandStarted(msgExecute(binary, args));
     //infom the user of what we are going to try and perform
 
     if (Constants::debug)
@@ -165,13 +180,11 @@ void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
     QProcess hgProcess;
     hgProcess.setWorkingDirectory(taskData->repositoryRoot());
 
-    QStringList args = standardArguments;
-    args << taskData->args();
 
     hgProcess.start(binary, args);
 
-    if (!hgProcess.waitForStarted()) {
-        emit error(tr("Unable to start mercurial process '%1': %2").arg(binary, hgProcess.errorString()));
+    if (!hgProcess.waitForStarted()) {        
+        emit error(msgStartFailed(binary, hgProcess.errorString()));
         return;
     }
 
@@ -179,7 +192,7 @@ void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
 
     if (!hgProcess.waitForFinished(timeout)) {
         hgProcess.terminate();
-        emit error(tr("Timed out waiting for mercurial process to finish."));
+        emit error(msgTimeout(timeout));
         return;
     }
 

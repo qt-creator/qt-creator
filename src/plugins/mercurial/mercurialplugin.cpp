@@ -199,6 +199,11 @@ MercurialSettings *MercurialPlugin::settings()
     return mercurialSettings;
 }
 
+QStringList MercurialPlugin::standardArguments() const
+{
+    return mercurialSettings->standardArguments();
+}
+
 void MercurialPlugin::createMenu()
 {
     QList<int> context = QList<int>()<< core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Core::Constants::C_GLOBAL));
@@ -316,7 +321,7 @@ void MercurialPlugin::createDirectoryActions(const QList<int> &context)
     connect(action, SIGNAL(triggered()), this, SLOT(logRepository()));
     mercurialContainer->addAction(command);
 
-    action = new QAction(tr("Revert"), this);
+    action = new QAction(tr("Revert..."), this);
     actionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::REVERTMULTI), context);
     connect(action, SIGNAL(triggered()), this, SLOT(revertMulti()));
@@ -354,43 +359,43 @@ void MercurialPlugin::statusMulti()
 
 void MercurialPlugin::createRepositoryActions(const QList<int> &context)
 {
-    QAction *action = new QAction(tr("Pull"), this);
+    QAction *action = new QAction(tr("Pull..."), this);
     actionList.append(action);
     Core::Command *command = actionManager->registerAction(action, QLatin1String(Constants::PULL), context);
     connect(action, SIGNAL(triggered()), this, SLOT(pull()));
     mercurialContainer->addAction(command);
 
-    action = new QAction(tr("Push"), this);
+    action = new QAction(tr("Push..."), this);
     actionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::PUSH), context);
     connect(action, SIGNAL(triggered()), this, SLOT(push()));
     mercurialContainer->addAction(command);
 
-    action = new QAction(tr("Update"), this);
+    action = new QAction(tr("Update..."), this);
     actionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::UPDATE), context);
     connect(action, SIGNAL(triggered()), this, SLOT(update()));
     mercurialContainer->addAction(command);
 
-    action = new QAction(tr("Import"), this);
+    action = new QAction(tr("Import..."), this);
     actionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::IMPORT), context);
     connect(action, SIGNAL(triggered()), this, SLOT(import()));
     mercurialContainer->addAction(command);
 
-    action = new QAction(tr("Incoming"), this);
+    action = new QAction(tr("Incoming..."), this);
     actionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::INCOMING), context);
     connect(action, SIGNAL(triggered()), this, SLOT(incoming()));
     mercurialContainer->addAction(command);
 
-    action = new QAction(tr("Outgoing"), this);
+    action = new QAction(tr("Outgoing..."), this);
     actionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::OUTGOING), context);
     connect(action, SIGNAL(triggered()), this, SLOT(outgoing()));
     mercurialContainer->addAction(command);
 
-    action = new QAction(tr("Commit"), this);
+    action = new QAction(tr("Commit..."), this);
     actionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::COMMIT), context);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+C")));
