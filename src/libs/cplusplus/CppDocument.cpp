@@ -147,6 +147,16 @@ void Document::setRevision(unsigned revision)
     _revision = revision;
 }
 
+QDateTime Document::lastModified() const
+{
+    return _lastModified;
+}
+
+void Document::setLastModified(const QDateTime &lastModified)
+{
+    _lastModified = lastModified;
+}
+
 QString Document::fileName() const
 {
     return _fileName;
@@ -447,6 +457,8 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
     Document::Ptr newDoc = Document::create(fileName);
 
     if (Document::Ptr thisDocument = value(fileName)) {
+        newDoc->_revision = thisDocument->_revision;
+        newDoc->_lastModified = thisDocument->_lastModified;
         newDoc->_includes = thisDocument->_includes;
         newDoc->_definedMacros = thisDocument->_definedMacros;
         newDoc->_macroUses = thisDocument->_macroUses;

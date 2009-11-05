@@ -83,9 +83,6 @@ public:
 
     static CppModelManagerInterface *instance();
 
-    virtual void GC() = 0;
-    virtual void updateSourceFiles(const QStringList &sourceFiles) = 0;
-
     virtual QMap<QString, QString> workingCopy() const = 0;
     virtual CPlusPlus::Snapshot snapshot() const = 0;
 
@@ -104,6 +101,11 @@ public:
 
     virtual void renameUsages(CPlusPlus::Symbol *symbol) = 0;
     virtual void findUsages(CPlusPlus::Symbol *symbol) = 0;
+
+public Q_SLOTS:
+    void updateModifiedSourceFiles();
+    virtual void updateSourceFiles(const QStringList &sourceFiles) = 0;    
+    virtual void GC() = 0;
 };
 
 class CPPTOOLS_EXPORT AbstractEditorSupport
