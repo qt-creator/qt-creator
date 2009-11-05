@@ -514,11 +514,10 @@ QString QtVersion::toHtml() const
         << "</b></td><td>" << m_qmakeCommand << "</td></tr>";
     updateVersionInfo();
     if (m_defaultConfigIsDebug || m_defaultConfigIsDebugAndRelease) {
-        str << "<tr><td><b>" << QtVersionManager::tr("Default:") << "</b></td><td>";
-        if (m_defaultConfigIsDebug)
-            str << "debug";
+        str << "<tr><td><b>" << QtVersionManager::tr("Default:") << "</b></td><td>"
+            << (m_defaultConfigIsDebug ? "debug" : "release");
         if (m_defaultConfigIsDebugAndRelease)
-                    str << "default_and_release";
+            str << " debug_and_release";
         str << "</td></tr>";
     } // default config.
     if (!qmakeCXX().isEmpty())
