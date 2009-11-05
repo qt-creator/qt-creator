@@ -1105,7 +1105,8 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             setState(InferiorStopping);
         } else {
             // The user triggered a stop, but meanwhile the app simply exited ...
-            QTC_ASSERT(state() == InferiorStopping, qDebug() << state());
+            QTC_ASSERT(state() == InferiorStopping || state() == InferiorStopping_Kill,
+                       qDebug() << state());
         }
         setState(InferiorStopped);
         QString msg;
