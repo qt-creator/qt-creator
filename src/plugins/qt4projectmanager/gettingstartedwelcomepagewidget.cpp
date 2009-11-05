@@ -332,9 +332,6 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
         tips.append(tr("Within a session, you can add "
                        "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies\">dependencies</a> between projects."));
         tips.append(tr("You can set the preferred editor encoding for every project in <tt>Projects -> Editor Settings -> Default Encoding</tt>."));
-        tips.append(tr("You can modify the binary that is being executed when you press the <tt>Run</tt> button: Add a <tt>Custom Executable</tt> "
-                       "by clicking the <tt>+</tt> button in <tt>Projects -> Run Settings -> Run Configuration</tt> and then select the new "
-                       "target in the combo box."));
         tips.append(tr("You can use Qt Creator with a number of <a href=\"qthelp://com.nokia.qtcreator/doc/creator-version-control.html\">"
                        "revision control systems</a> such as Subversion, Perforce, CVS and Git."));
         tips.append(tr("In the editor, <tt>F2</tt> follows symbol definition, <tt>Shift+F2</tt> toggles declaration and definition "
