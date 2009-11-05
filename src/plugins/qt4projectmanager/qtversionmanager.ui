@@ -179,7 +179,7 @@ p, li { white-space: pre-wrap; }
       <item row="3" column="0">
        <widget class="QLabel" name="mingwLabel">
         <property name="text">
-         <string>MinGw Directory:</string>
+         <string>MinGW Directory:</string>
         </property>
        </widget>
       </item>

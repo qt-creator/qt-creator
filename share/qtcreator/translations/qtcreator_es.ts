@@ -11067,8 +11067,8 @@ al control de versiones (%2)?</translation>
     </message>
     <message>
         <location/>
-        <source>MinGw Directory:</source>
-        <translation>Directorio de MinGw:</translation>
+        <source>MinGW Directory:</source>
+        <translation>Directorio de MinGW:</translation>
     </message>
     <message>
         <location/>

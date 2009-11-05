@@ -10770,7 +10770,7 @@ v sistem za nadzor različic (%2)?</translation>
     </message>
     <message>
         <location/>
-        <source>MinGw Directory:</source>
+        <source>MinGW Directory:</source>
         <translation>Mapa z MinGW:</translation>
     </message>
     <message>

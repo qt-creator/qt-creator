@@ -2799,7 +2799,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location/>
-        <source>MinGw Directory:</source>
+        <source>MinGW Directory:</source>
         <translation>Katalog MinGW:</translation>
     </message>
     <message>

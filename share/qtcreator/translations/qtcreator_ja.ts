@@ -11041,8 +11041,8 @@ to version control (%2)?</source>
     </message>
     <message>
         <location/>
-        <source>MinGw Directory:</source>
-        <translation>MinGw ディレクトリ:</translation>
+        <source>MinGW Directory:</source>
+        <translation>MinGW ディレクトリ:</translation>
     </message>
     <message>
         <location/>
