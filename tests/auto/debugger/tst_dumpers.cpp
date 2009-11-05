@@ -145,6 +145,7 @@ private slots:
     void dumpQImageData();
     void dumpQLinkedList();
     void dumpQList_int();
+    void dumpQList_int_star();
     void dumpQList_char();
     void dumpQList_QString();
     void dumpQList_QString3();
@@ -1390,6 +1391,22 @@ void tst_Debugger::dumpQList_int()
         "{addr='" + str(&ilist.at(0)) + "',value='1'},"
         "{addr='" + str(&ilist.at(1)) + "',value='2'}]",
         &ilist, NS"QList", true, "int");
+}
+
+void tst_Debugger::dumpQList_int_star()
+{
+    QList<int *> ilist;
+    testDumper("value='<0 items>',valueeditable='false',numchild='0',"
+        "internal='1',children=[]",
+        &ilist, NS"QList", true, "int*");
+    ilist.append(new int(1));
+    ilist.append(0);
+    testDumper("value='<2 items>',valueeditable='false',numchild='2',"
+        "internal='1',childtype='int*',childnumchild='1',children=["
+        "{saddr='" + str(&ilist.at(0)) + "',addr='" + str(deref(&ilist.at(0))) +
+            "',type='int',value='1'},"
+        "{saddr='" + str(&ilist.at(1)) + "',value='<null>',numchild='0'}]",
+        &ilist, NS"QList", true, "int*");
 }
 
 void tst_Debugger::dumpQList_char()
