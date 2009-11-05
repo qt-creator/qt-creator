@@ -3,10 +3,11 @@
 bool checkUninitialized = false;
 //#define DO_DEBUG 1
 
+#include "gdb/gdbmi.h"
+
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
-
 
 /*
 #include <QtGui/QBitmap>
@@ -23,8 +24,9 @@ bool checkUninitialized = false;
 
 #include <QtTest/QtTest>
 
-#include "gdb/gdbmi.h"
-
+#ifdef Q_OS_WIN
+#    include <windows.h>
+#endif
 
 #undef NS
 #ifdef QT_NAMESPACE
@@ -593,6 +595,9 @@ tst_Gdb::tst_Gdb()
 
 void tst_Gdb::initTestCase()
 {
+#ifndef Q_CC_GNU
+    QSKIP("gdb test not applicable for compiler", SkipAll);
+#endif   
     //qDebug() << "\nTHREAD RUN" << getpid() << gettid();
     QProcess *gdbProc = new QProcess;
     QStringList args;

@@ -108,7 +108,6 @@ SearchResultWindow::~SearchResultWindow()
 void SearchResultWindow::setTextToReplace(const QString &textToReplace)
 {
     m_replaceTextEdit->setText(textToReplace);
-    m_replaceTextEdit->selectAll();
 }
 
 QString SearchResultWindow::textToReplace() const
@@ -233,6 +232,7 @@ void SearchResultWindow::setFocus()
                     || m_widget->focusWidget() == m_replaceTextEdit
                     || m_focusReplaceEdit) {
                 m_replaceTextEdit->setFocus();
+                m_replaceTextEdit->selectAll();
             } else {
                 m_searchResultTreeView->setFocus();
             }

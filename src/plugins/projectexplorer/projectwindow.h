@@ -191,6 +191,7 @@ private:
     QWidget *m_projectChooser;
     QLabel *m_noprojectLabel;
     PanelsWidget *m_panelsWidget;
+    QList<PropertiesPanel *> m_panels;
 };
 
 

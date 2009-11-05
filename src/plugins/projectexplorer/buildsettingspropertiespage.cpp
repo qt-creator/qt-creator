@@ -73,7 +73,7 @@ BuildSettingsPanel::BuildSettingsPanel(Project *project)
 
 BuildSettingsPanel::~BuildSettingsPanel()
 {
-    delete m_widget;
+
 }
 
 QString BuildSettingsPanel::name() const

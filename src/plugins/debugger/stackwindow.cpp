@@ -75,8 +75,7 @@ StackWindow::StackWindow(DebuggerManager *manager, QWidget *parent)
 
 StackWindow::~StackWindow()
 {
-    // FIXME: leak
-    //delete m_disassemblerAgent;
+    delete m_disassemblerAgent;
 }
 
 void StackWindow::showAddressColumn(bool on)

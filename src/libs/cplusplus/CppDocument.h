@@ -40,6 +40,7 @@
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
+#include <QDateTime>
 
 namespace CPlusPlus {
 
@@ -62,6 +63,9 @@ public:
 
     unsigned revision() const;
     void setRevision(unsigned revision);
+
+    QDateTime lastModified() const;
+    void setLastModified(const QDateTime &lastModified);
 
     QString fileName() const;
 
@@ -310,6 +314,7 @@ private:
     QList<MacroUse> _macroUses;
     QList<UndefinedMacroUse> _undefinedMacroUses;
     QByteArray _source;
+    QDateTime _lastModified;
     unsigned _revision;
 
     friend class Snapshot;

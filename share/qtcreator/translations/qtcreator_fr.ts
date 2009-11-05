@@ -10356,7 +10356,7 @@ to version control (%2)?</source>
     </message>
     <message>
         <location/>
-        <source>MinGw Directory:</source>
+        <source>MinGW Directory:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

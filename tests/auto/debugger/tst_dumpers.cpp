@@ -392,7 +392,7 @@ static void testDumper(QByteArray expected0, const void *data, QByteArray outert
         extraInt0, extraInt1, extraInt2, extraInt3);
     QString expected(expected0);
     char buf[100];
-    sprintf(buf, pointerPrintFormat(), (uintptr_t)data);
+    sprintf(buf, pointerPrintFormat(), (quintptr)data);
     if ((!expected.startsWith('t') && !expected.startsWith('f'))
             || expected.startsWith("type"))
         expected = "tiname='$I',addr='$A'," + expected;
@@ -422,7 +422,7 @@ static void testDumper(QByteArray expected0, const void *data, QByteArray outert
 QByteArray str(const void *p)
 {
     char buf[100];
-    sprintf(buf, pointerPrintFormat(), (uintptr_t)p);
+    sprintf(buf, pointerPrintFormat(), (quintptr)p);
     return buf;
 }
 
@@ -1554,6 +1554,7 @@ template <typename K, typename V>
 
 void tst_Debugger::dumpQMap()
 {
+    qDebug() << "QMap<int, int>";
     // Case 1: Simple type -> simple type.
     QMap<int, int> map1;
 
@@ -1569,6 +1570,7 @@ void tst_Debugger::dumpQMap()
     dumpQMapHelper(map1);
 
     // Case 2: Simple type -> composite type.
+    qDebug() << "QMap<int, QString>";
     QMap<int, QString> map2;
 
     // Case 2.1: Empty Map.
@@ -1583,6 +1585,7 @@ void tst_Debugger::dumpQMap()
     dumpQMapHelper(map2);
 
     // Case 3: Composite type -> simple type.
+    qDebug() << "QMap<QString, int>";
     QMap<QString, int> map3;
 
     // Case 3.1: Empty map.

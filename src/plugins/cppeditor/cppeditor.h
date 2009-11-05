@@ -235,6 +235,9 @@ private Q_SLOTS:
     void updateSemanticInfo(const SemanticInfo &semanticInfo);
 
 private:
+    bool showWarningMessage() const;
+    void setShowWarningMessage(bool showWarningMessage);
+
     CPlusPlus::Symbol *markSymbols();
     bool sortedMethodOverview() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol);

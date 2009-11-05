@@ -55,7 +55,7 @@ EditorSettingsPanel::EditorSettingsPanel(Project *project)
 
 EditorSettingsPanel::~EditorSettingsPanel()
 {
-    delete m_widget;
+
 }
 
 QString EditorSettingsPanel::name() const

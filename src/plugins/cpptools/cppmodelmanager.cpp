@@ -562,6 +562,10 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     doc = Document::create(fileName);
     doc->setRevision(m_revision);
 
+    QFileInfo info(fileName);
+    if (info.exists())
+        doc->setLastModified(info.lastModified());
+
     Document::Ptr previousDoc = switchDocument(doc);
 
     const QByteArray preprocessedCode = preprocess(fileName, contents);
@@ -587,6 +591,26 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
     return previousDoc;
 }
 
+
+
+void CppTools::CppModelManagerInterface::updateModifiedSourceFiles()
+{
+    const Snapshot snapshot = this->snapshot();
+    QStringList sourceFiles;
+
+    foreach (const Document::Ptr doc, snapshot) {
+        const QDateTime lastModified = doc->lastModified();
+
+        if (! lastModified.isNull()) {
+            QFileInfo fileInfo(doc->fileName());
+
+            if (fileInfo.exists() && fileInfo.lastModified() != lastModified)
+                sourceFiles.append(doc->fileName());
+        }
+    }
+
+    updateSourceFiles(sourceFiles);
+}
 
 CppTools::CppModelManagerInterface *CppTools::CppModelManagerInterface::instance()
 {

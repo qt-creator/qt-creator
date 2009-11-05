@@ -12389,8 +12389,8 @@ to version control (%2)?</source>
     </message>
     <message>
         <location/>
-        <source>MinGw Directory:</source>
-        <translation>Каталог MinGw:</translation>
+        <source>MinGW Directory:</source>
+        <translation>Каталог MinGW:</translation>
     </message>
     <message>
         <location/>

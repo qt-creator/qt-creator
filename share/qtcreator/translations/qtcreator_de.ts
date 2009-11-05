@@ -350,7 +350,7 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeproject.cpp" line="+702"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeproject.cpp" line="+704"/>
         <source>&amp;Change</source>
         <translation>&amp;Ändern</translation>
     </message>
@@ -358,7 +358,7 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+125"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+123"/>
         <source>CMake Wizard</source>
         <translation>CMake Assistent</translation>
     </message>
@@ -1052,7 +1052,7 @@
 <context>
     <name>CodePaster::CodepasterPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/cpasterplugin.cpp" line="+109"/>
+        <location filename="../../../src/plugins/cpaster/cpasterplugin.cpp" line="+110"/>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Code Pasting</translation>
     </message>
@@ -2583,7 +2583,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>CppTools::Internal::CppFindReferences</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppfindreferences.cpp" line="+238"/>
+        <location filename="../../../src/plugins/cpptools/cppfindreferences.cpp" line="+239"/>
         <source>Searching...</source>
         <translation>Suche...</translation>
     </message>
@@ -2599,7 +2599,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>CppTools::Internal::CppModelManager</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+295"/>
+        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+319"/>
         <source>Scanning</source>
         <translation>Suche</translation>
     </message>
@@ -2633,7 +2633,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppcodecompletion.cpp" line="+434"/>
+        <location filename="../../../src/plugins/cpptools/cppcodecompletion.cpp" line="+443"/>
         <source>%1 of %2</source>
         <translation>%1 von %2</translation>
     </message>
@@ -2680,18 +2680,18 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Debugger::DebuggerManager</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+451"/>
+        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+454"/>
         <source>Continue</source>
         <translation>Fortsetzen</translation>
     </message>
     <message>
         <location line="+3"/>
-        <location line="+1207"/>
+        <location line="+1215"/>
         <source>Interrupt</source>
         <translation>Anhalten</translation>
     </message>
     <message>
-        <location line="-1204"/>
+        <location line="-1212"/>
         <source>Reset Debugger</source>
         <translation>Debugger zurücksetzen</translation>
     </message>
@@ -2767,7 +2767,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Diese Anwendung erfordert den Debugger &apos;%1&apos;, der gegenwärtig deaktiviert ist.</translation>
     </message>
     <message>
-        <location line="+123"/>
+        <location line="+125"/>
         <source>Starting debugger for tool chain &apos;%1&apos;...</source>
         <translation>Starte Debugger für Toolchain &apos;%1&apos;...</translation>
     </message>
@@ -2822,7 +2822,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Ausgabe-Hilfsbibliothek nicht gefunden</translation>
     </message>
     <message>
-        <location line="+166"/>
+        <location line="+172"/>
         <source>Stop Debugger</source>
         <translation>Debugger anhalten</translation>
     </message>
@@ -3764,7 +3764,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Debugger::Internal::GdbEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+293"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+304"/>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>Der Start des Gdb-Prozesses schlug fehl. Entweder fehlt die ausführbare Datei &apos;%1&apos; oder die Berechtigungen sind nicht ausreichend.</translation>
     </message>
@@ -3824,17 +3824,17 @@ Sollen sie überschrieben werden?</translation>
         <translation>Thread %1 ausgewählt.</translation>
     </message>
     <message>
-        <location line="+269"/>
+        <location line="+297"/>
         <source>Stopping temporarily.</source>
         <translation>Temporär Anhalten.</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+88"/>
         <source>Process failed to start.</source>
         <translation>Der Prozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
-        <location line="+387"/>
+        <location line="+417"/>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;p&gt;Der Prozess wurde nach Erhalt eines Signals vom Betriebssystem angehalten.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Name des Signals : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Bedeutung : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
@@ -3850,17 +3850,17 @@ Sollen sie überschrieben werden?</translation>
         <translation>Signal erhalten</translation>
     </message>
     <message>
-        <location line="-671"/>
+        <location line="-763"/>
         <source>Reading %1...</source>
         <translation>Lese %1...</translation>
     </message>
     <message>
-        <location line="+415"/>
+        <location line="+504"/>
         <source>Jumped. Stopped.</source>
         <translation>Sprung ausgeführt/ Angehalten.</translation>
     </message>
     <message>
-        <location line="+161"/>
+        <location line="+164"/>
         <source>Loading %1...</source>
         <translation>Lade %1...</translation>
     </message>
@@ -3889,13 +3889,13 @@ Das Debuggen wird wahrscheinlich nicht richtig funktionieren.
 Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     </message>
     <message>
-        <location line="-210"/>
+        <location line="-560"/>
         <source>Processing queued commands.</source>
         <translation>Kommando-Warteschlange wird abgearbeitet.</translation>
     </message>
     <message>
-        <location line="+154"/>
-        <location line="+101"/>
+        <location line="+504"/>
+        <location line="+109"/>
         <source>Stopped.</source>
         <translation>Angehalten.</translation>
     </message>
@@ -3912,17 +3912,17 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 </translation>
     </message>
     <message>
-        <location line="+2505"/>
+        <location line="+2484"/>
         <source>The debugging helper library was not found at %1.</source>
         <translation>Die Ausgabe-Hilfsbibliothek konnte nicht unter %1 gefunden werden.</translation>
     </message>
     <message>
-        <location line="+335"/>
+        <location line="+369"/>
         <source>Unable to start gdb &apos;%1&apos;: %2</source>
         <translation>Der gdb-Debugger &apos;%1&apos; kann nicht ausgeführt werden: %2</translation>
     </message>
     <message>
-        <location line="+91"/>
+        <location line="+90"/>
         <source>Cannot find debugger initialization script</source>
         <translation>Das Initalisierungsskript konnte nicht gefunden werden</translation>
     </message>
@@ -3932,7 +3932,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Auf die in den Debugger-Einstellungen angegebene Skriptdatei &apos;%1&apos; kann nicht zugegriffen werden. Wenn kein Skript benötigt wird, können Sie die Einstellung rücksetzen, um diese Warnung zu umgehen.</translation>
     </message>
     <message>
-        <location line="-2138"/>
+        <location line="-2155"/>
         <source>Unable to run &apos;%1&apos;: %2</source>
         <translation>&apos;%1&apos; kann nicht ausgeführt werden: %2</translation>
     </message>
@@ -3949,7 +3949,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Daten der Stack-Anzeige werden empfangen...</translation>
     </message>
     <message numerus="yes">
-        <location line="+495"/>
+        <location line="+503"/>
         <source>Retrieving data for watch view (%n requests pending)...</source>
         <translation>
             <numerusform>Daten der für die Anzeige der lokalen Variablen werden empfangen (noch eine austehende Anfrage) ...</numerusform>
@@ -3957,7 +3957,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+633"/>
+        <location line="+623"/>
         <source>&lt;%n items&gt;</source>
         <extracomment>In string list</extracomment>
         <translation>
@@ -3966,7 +3966,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         </translation>
     </message>
     <message>
-        <location line="-309"/>
+        <location line="-299"/>
         <source>Finished retrieving data.</source>
         <translation>Alle Daten erhalten.</translation>
     </message>
@@ -3984,7 +3984,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         </translation>
     </message>
     <message>
-        <location line="-2752"/>
+        <location line="-2855"/>
         <source>An unknown error in the Gdb process occurred. </source>
         <translation>Im Gdb-Prozess trat ein unbekannter Fehler auf.</translation>
     </message>
@@ -3994,23 +3994,25 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Läuft...</translation>
     </message>
     <message>
-        <location line="+91"/>
+        <location line="+97"/>
         <source>Stop requested...</source>
         <translation>Stop angefordert...</translation>
     </message>
     <message>
-        <location line="+141"/>
-        <location line="+16"/>
+        <location line="+197"/>
+        <location line="+29"/>
+        <location line="+3"/>
         <source>Executable failed</source>
         <translation>Fehler bei Ausführung</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-7"/>
+        <location line="+8"/>
         <source>Executable failed: %1</source>
         <translation>Fehler bei Ausführung: %1</translation>
     </message>
     <message>
-        <location line="+211"/>
+        <location line="+227"/>
         <source>Program exited with exit code %1.</source>
         <translation>Das Programm wurde beendet, Rückgabewert %1.</translation>
     </message>
@@ -4025,7 +4027,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Das Programm wurde normal beendet.</translation>
     </message>
     <message>
-        <location line="+482"/>
+        <location line="+483"/>
         <source>Continuing after temporary stop...</source>
         <translation>Setze nach temporärem Anhalten fort...</translation>
     </message>
@@ -4070,12 +4072,12 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Ausführung bis Funktion %1 angefordert...</translation>
     </message>
     <message>
-        <location line="+706"/>
+        <location line="+708"/>
         <source>Jumping out of bogus frame...</source>
         <translation>Verlasse ungültigen Stack-Frame...</translation>
     </message>
     <message>
-        <location line="+907"/>
+        <location line="+903"/>
         <source>Custom dumper setup: %1</source>
         <translation>Ausgabe-Hilfsbibliothek-Initialisierung: %1</translation>
     </message>
@@ -4090,7 +4092,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>&lt;überlagert&gt;</translation>
     </message>
     <message>
-        <location line="+133"/>
+        <location line="+134"/>
         <source>&lt;n/a&gt;</source>
         <translation>&lt;k.a.&gt;</translation>
     </message>
@@ -4106,14 +4108,14 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>&lt;keine Angabe&gt;</translation>
     </message>
     <message>
-        <location line="+333"/>
+        <location line="+349"/>
         <location line="+25"/>
         <location line="+14"/>
         <source>Disassembler failed: %1</source>
         <translation>Fehler beim Disassemblieren: %1</translation>
     </message>
     <message>
-        <location line="+145"/>
+        <location line="+155"/>
         <source>Gdb I/O Error</source>
         <translation>Gdb Ein/Ausgabefehler</translation>
     </message>
@@ -4158,12 +4160,12 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Der Start des zu debuggenden Prozesses schlug fehl</translation>
     </message>
     <message>
-        <location line="-2938"/>
+        <location line="-2963"/>
         <source>Inferior shutdown failed</source>
         <translation>Das Beenden des zu debuggenden Prozesses schlug fehl</translation>
     </message>
     <message>
-        <location line="+2958"/>
+        <location line="+2983"/>
         <source>Adapter crashed</source>
         <translation>Der Adapter ist abgestürzt</translation>
     </message>
@@ -4321,7 +4323,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 <context>
     <name>Debugger::Internal::PlainGdbAdapter</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/plaingdbadapter.cpp" line="+70"/>
+        <location filename="../../../src/plugins/debugger/gdb/plaingdbadapter.cpp" line="+79"/>
         <source>Cannot set up communication with child process: %1</source>
         <translation>Die Kommunikation mit dem untergeordneten Prozesss konnte nicht hergestellt werden: %1</translation>
     </message>
@@ -4402,7 +4404,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 <context>
     <name>Debugger::Internal::RemoteGdbAdapter</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/remotegdbadapter.cpp" line="+93"/>
+        <location filename="../../../src/plugins/debugger/gdb/remotegdbadapter.cpp" line="+112"/>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>Das Hochladen schlug fehl. Eine mögliche Ursache könnte ein fehlendes Shell-Programm sein.</translation>
     </message>
@@ -4504,7 +4506,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 <context>
     <name>Debugger::Internal::StackHandler</name>
     <message>
-        <location filename="../../../src/plugins/debugger/stackhandler.cpp" line="+142"/>
+        <location filename="../../../src/plugins/debugger/stackhandler.cpp" line="+143"/>
         <source>...</source>
         <translation></translation>
     </message>
@@ -4583,7 +4585,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Stack</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+41"/>
         <source>Copy contents to clipboard</source>
         <translation>Inhalt in Zwischenablage kopieren</translation>
     </message>
@@ -4713,7 +4715,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Der Prozess wurde gestartet, PID: 0x%1, Thread-Id: 0x%2, Code-Segment: 0x%3, Datensegment: 0x%4.</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+25"/>
         <source>Connecting to TRK server adapter failed:
 </source>
         <translation>Die Verbindung zum TRK-Server-Adapter schlug fehl:
@@ -4766,7 +4768,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 <context>
     <name>Debugger::Internal::WatchData</name>
     <message>
-        <location filename="../../../src/plugins/debugger/watchhandler.cpp" line="+71"/>
+        <location filename="../../../src/plugins/debugger/watchhandler.cpp" line="+72"/>
         <location line="+250"/>
         <source>&lt;not in scope&gt;</source>
         <translation>&lt;nicht im Bereich&gt;</translation>
@@ -4805,12 +4807,12 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Interner Name</translation>
     </message>
     <message>
-        <location line="+1116"/>
+        <location line="+1122"/>
         <source>&lt;Edit&gt;</source>
         <translation>&lt;Editieren&gt;</translation>
     </message>
     <message>
-        <location line="-1084"/>
+        <location line="-1090"/>
         <source>Root</source>
         <translation>Wurzelelement</translation>
     </message>
@@ -4848,7 +4850,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 <context>
     <name>Debugger::Internal::WatchModel</name>
     <message>
-        <location line="+447"/>
+        <location line="+453"/>
         <source>decimal</source>
         <translation>dezimal</translation>
     </message>
@@ -5110,7 +5112,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 <context>
     <name>Designer::Internal::FormClassWizardPage</name>
     <message>
-        <location filename="../../../src/plugins/designer/cpp/formclasswizardpage.cpp" line="+148"/>
+        <location filename="../../../src/plugins/designer/cpp/formclasswizardpage.cpp" line="+149"/>
         <source>%1 - Error</source>
         <translation>%1 - Fehler</translation>
     </message>
@@ -5653,7 +5655,7 @@ Grund: %3</translation>
 <context>
     <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
-        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+944"/>
+        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+939"/>
         <source>Not implemented in FakeVim</source>
         <translation>In FakeVim nicht implementiert</translation>
     </message>
@@ -6075,7 +6077,7 @@ Grund: %3</translation>
         <translation>Suchergebnisse</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/find/searchresultwindow.cpp" line="+67"/>
+        <location filename="../../../src/plugins/find/searchresultwindow.cpp" line="+68"/>
         <source>No matches found!</source>
         <translation>Es wurden keine Treffer gefunden!</translation>
     </message>
@@ -6529,6 +6531,7 @@ Grund: %3</translation>
     <message>
         <location filename="../../../src/plugins/git/gitclient.cpp" line="+71"/>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
+        <translatorcomment>Not used.</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9206,6 +9209,7 @@ Fehler: %2</translation>
 <context>
     <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
     <message>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+2181"/>
         <location filename="../../../src/plugins/projectexplorer/projectwindow.cpp" line="+181"/>
         <source>Active run configuration</source>
         <translation>Aktive Ausführungskonfiguration</translation>
@@ -9776,7 +9780,7 @@ Fehler: %2</translation>
 <context>
     <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectwelcomepage.h" line="+47"/>
+        <location filename="../../../src/plugins/projectexplorer/projectwelcomepage.h" line="+48"/>
         <source>Develop</source>
         <translation>Entwicklung</translation>
     </message>
@@ -9833,7 +9837,7 @@ Fehler: %2</translation>
     </message>
     <message>
         <location line="-38"/>
-        <location line="+105"/>
+        <location line="+110"/>
         <source>Active Build and Run Configurations</source>
         <translation>Aktive Build- und Ausführungskonfigurationen</translation>
     </message>
@@ -9913,7 +9917,7 @@ Fehler: %2</translation>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location line="+133"/>
+        <location line="+138"/>
         <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;#&quot;&gt;Setze %1 aktiv.&lt;/a&gt;</translation>
     </message>
@@ -9995,12 +9999,12 @@ Fehler: %2</translation>
 <context>
     <name>ProjectExplorer::Internal::WinGuiProcess</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/winguiprocess.cpp" line="+122"/>
+        <location filename="../../../src/plugins/projectexplorer/winguiprocess.cpp" line="+125"/>
         <source>The process could not be started!</source>
         <translation>Der Prozess konnte nicht gestartet werden!</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+5"/>
         <source>Cannot retrieve debugging output!</source>
         <translation>Es konnte keine Debugausgabe erhalten werden!</translation>
     </message>
@@ -10044,7 +10048,7 @@ Fehler: %2</translation>
 <context>
     <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+257"/>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="-1923"/>
         <source>Projects</source>
         <translation>Projekte</translation>
     </message>
@@ -10277,7 +10281,7 @@ Fehler: %2</translation>
         <translation>Bereinigen unter Ausschluss der Abhängigkeiten</translation>
     </message>
     <message>
-        <location line="+1181"/>
+        <location line="+1185"/>
         <source>New File</source>
         <comment>Title of dialog</comment>
         <translation>Neue Datei</translation>
@@ -10336,7 +10340,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>Windows Explorer konnte nicht gestartet werden, da die Datei explorer.exe nicht im Pfad gefunden werden konnte.</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+18"/>
         <source>Launching a file explorer failed</source>
         <translation>Das Starten des Datei-Browsers schlug fehl</translation>
     </message>
@@ -10399,12 +10403,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>Die aktive Build-Konfiguration erstellt ein Ziel, das von der aktiven Ausführungskonfiguration nicht verwendet werden kann.</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+29"/>
         <source>Choose build configuration:</source>
         <translation>Build-Konfiguration wählen:</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="-9"/>
         <source>No valid build configuration found.</source>
         <translation>Es konnte keine gültige Build-Konfiguration gefunden werden.</translation>
     </message>
@@ -10716,19 +10720,19 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlproject.cpp" line="+339"/>
-        <location line="+106"/>
+        <location line="+107"/>
         <source>QML Viewer</source>
         <translation>QML-Betrachter</translation>
     </message>
     <message>
         <location line="-31"/>
         <location line="+40"/>
-        <location line="+60"/>
+        <location line="+46"/>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Aktuelle Datei&gt;</translation>
     </message>
     <message>
-        <location line="-68"/>
+        <location line="-54"/>
         <source>QML Viewer arguments:</source>
         <translation>Kommandozeilenargumente für QML-Betrachter:</translation>
     </message>
@@ -11220,23 +11224,23 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <location line="-5"/>
         <source>Alt</source>
         <comment>Shortcut key</comment>
-        <translation>Alt-Taste</translation>
+        <translation>Alt</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Ctrl</source>
         <comment>Shortcut key</comment>
-        <translation>Ctrl</translation>
+        <translation>Strg</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Welcome&lt;/li&gt;&lt;li&gt;2 - Edit&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projects&lt;/li&gt;&lt;li&gt;5 - Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Output&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>Sie können zwischen den Modi von Qt Crator umschalten, indem Sie &lt;tt&gt;Ctrl+Nummber&lt;/tt&gt; verwenden: &lt;ul&gt;&lt;li&gt;1 - Willkommen&lt;/li&gt;&lt;li&gt;2 - Editieren&lt;/li&gt;&lt;li&gt;3 - Debuggen&lt;/li&gt;&lt;li&gt;4 - Projekte&lt;/li&gt;&lt;li&gt;5 - Hilfe&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Ausgabe&lt;/li&gt;&lt;/ul&gt;</translation>
+        <translation> Sie können mit &lt;tt&gt;Strg+Nummer&lt;/tt&gt; zwischen den Modi von Qt Creator umschalten: &lt;ul&gt;&lt;li&gt;1 - Willkommen&lt;/li&gt;&lt;li&gt;2 - Editieren&lt;/li&gt;&lt;li&gt;3 - Debuggen&lt;/li&gt;&lt;li&gt;4 - Projekte&lt;/li&gt;&lt;li&gt;5 - Hilfe&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Ausgabe&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>You can show and hide the side bar using &lt;tt&gt;%1+0&lt;tt&gt;.</source>
-        <translation>Sie können die Seitenleiste mit &lt;tt&gt;%1+0&lt;tt&gt; anzeigen oder zuklappen.</translation>
+        <translation>Sie können die Seitenleiste mit &lt;tt&gt;%1+0&lt;/tt&gt; anzeigen oder zuklappen.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11246,12 +11250,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+2"/>
         <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <translation>Wenn Sie eine &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;externe Bibliothek&lt;/a&gt;, hinzufügen, bietet Qt Creator automatisch Syntax-Hervorhebung und Code-Vervollständigung.</translation>
+        <translation>Wenn Sie eine &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;externe Bibliothek&lt;/a&gt; hinzufügen, bietet Qt Creator automatisch Syntax-Hervorhebung und Code-Vervollständigung.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>The code completion is CamelCase-aware. For example, to complete &lt;tt&gt;namespaceUri&lt;/tt&gt; you can just type &lt;tt&gt;nU&lt;/tt&gt; and hit &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
-        <translation>Die Code-Vervollständigung versteht CamelCase. Sie können zum Beipiel statt &lt;tt&gt;namespaceUri&lt;/tt&gt; einfach &lt;tt&gt;nU&lt;/tt&gt; schreiben und danach &lt;tt&gt;Strg+Leertaste&lt;/tt&gt; drucken.</translation>
+        <translation>Die Code-Vervollständigung versteht CamelCase. Sie können zum Beipiel statt &lt;tt&gt;namespaceUri&lt;/tt&gt; einfach &lt;tt&gt;nU&lt;/tt&gt; schreiben und danach &lt;tt&gt;Strg+Leertaste&lt;/tt&gt; drücken.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -11271,12 +11275,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+2"/>
         <source>You can switch between the output pane by hitting &lt;tt&gt;%1+n&lt;/tt&gt; where n is the number denoted on the buttons at the window bottom:&lt;ul&gt;&lt;li&gt;1 - Build Issues&lt;/li&gt;&lt;li&gt;2 - Search Results&lt;/li&gt;&lt;li&gt;3 - Application Output&lt;/li&gt;&lt;li&gt;4 - Compile Output&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>Sie können ywischen den Ausgabepanelen umschalten, in dem Sie &lt;tt&gt;%1+n&lt;/tt&gt; drücken, wobei n die Zahl ist, die auf den Schaltflächen am unteren Fensterrand befindet: &lt;ul&gt;&lt;li&gt;1 - Build-Probleme&lt;/li&gt;&lt;li&gt;2 - Suchergebnisse&lt;/li&gt;&lt;li&gt;3 - Ausgabe der Anwendung&lt;/li&gt;&lt;li&gt;4 - Kompilierung&lt;/li&gt;&lt;/ul&gt;</translation>
+        <translation>Sie können zwischen den Ausgabepanelen umschalten, in dem Sie &lt;tt&gt;%1+n&lt;/tt&gt; drücken, wobei n die Zahl ist, die auf den Schaltflächen am unteren Fensterrand befindet: &lt;ul&gt;&lt;li&gt;1 - Build-Probleme&lt;/li&gt;&lt;li&gt;2 - Suchergebnisse&lt;/li&gt;&lt;li&gt;3 - Ausgabe der Anwendung&lt;/li&gt;&lt;li&gt;4 - Kompilierung&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
-        <translation>Mit der &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;) können Sie schnell nach Methoden, Klassen, Hilfe und anderem suchen.</translation>
+        <translation type="unfinished">Mit der &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-navigation.html&quot;&gt;Locator-Leiste&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;) können Sie schnell nach Methoden, Klassen, Hilfe und anderem suchen.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -11294,12 +11298,11 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>Sie können ihre Encoding-Vorgabe für den Editor für jedes Projekt in &lt;tt&gt;Projekte -&gt; Editoreinstellungen -&gt; Encoding-Vorgabe&lt;/tt&gt; einstellen.</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>You can modify the binary that is being executed when you press the &lt;tt&gt;Run&lt;/tt&gt; button: Add a &lt;tt&gt;Custom Executable&lt;/tt&gt; by clicking the &lt;tt&gt;+&lt;/tt&gt; button in &lt;tt&gt;Projects -&gt; Run Settings -&gt; Run Configuration&lt;/tt&gt; and then select the new target in the combo box.</source>
-        <translation>Sie können die auszuführende Datei bestimmen die ausgeführt wird, wenn Sie auf die &lt;tt&gt;Ausführen&lt;/tt&gt;-Schaltlfläche klicken: Fügen Sie dazu eine &lt;tt&gt;Benutzerdefinierte ausführbare Datei&lt;/tt&gt; unter  &lt;tt&gt;Projekte -&gt;Ausführung -&gt; Ausführungskonfiguration&lt;/tt&gt; hinzu, indem Sie auf die &lt;tt&gt;+&lt;/tt&gt;-Schaltfläche klicken und wählen Sie die neue Konfiguration aus der Auswahl.</translation>
+        <translation type="obsolete">Sie können die Datei bestimmen, die bei Klick auf die Schaltfläche &lt;tt&gt;Ausführen&lt;/tt&gt; gestartet wird: Fügen Sie dazu eine &lt;tt&gt;Benutzerdefinierte ausführbare Datei&lt;/tt&gt; unter &lt;tt&gt;Projekte -&gt;Ausführung -&gt; Ausführungskonfiguration&lt;/tt&gt; hinzu, indem Sie auf die &lt;tt&gt;+&lt;/tt&gt;-Schaltfläche klicken und die neue Konfiguration auswählen.</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+1"/>
         <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
         <translation>Sie können Qt Creator mit einer Reihe von  &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;Revisionskontrollsystemen&lt;/a&gt; wie Subversion, Perforce, CVS oder Git verwenden.</translation>
     </message>
@@ -11558,7 +11561,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::QMakeStepFactory</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="+336"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="+346"/>
         <source>QMake</source>
         <translation>QMake</translation>
     </message>
@@ -11926,8 +11929,8 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <location/>
-        <source>MinGw Directory:</source>
-        <translation>MinGw-Verzeichnis:</translation>
+        <source>MinGW Directory:</source>
+        <translation>MinGW-Verzeichnis:</translation>
     </message>
     <message>
         <location/>
@@ -12529,7 +12532,7 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
 <context>
     <name>Qt4ProjectManager::QMakeStep</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="-232"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="-242"/>
         <source>
 &lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Preferences &lt;/b&gt;&lt;/font&gt;
 </source>
@@ -12555,7 +12558,7 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
 <context>
     <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
     <message>
-        <location line="+78"/>
+        <location line="+88"/>
         <source>&lt;b&gt;QMake:&lt;/b&gt; No Qt version set. QMake can not be run.</source>
         <translation>&lt;b&gt;QMake:&lt;/b&gt; Es ist keine Qt-Version gesetzt. QMake kann nicht ausgeführt werden.</translation>
     </message>
@@ -12651,7 +12654,7 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
         <translation>Qt aus PATH</translation>
     </message>
     <message>
-        <location line="+147"/>
+        <location line="+144"/>
         <source>Name:</source>
         <translation>Name:</translation>
     </message>
@@ -13911,7 +13914,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <name>TextEditor::BaseFileFind</name>
     <message>
         <location filename="../../../src/plugins/texteditor/basefilefind.cpp" line="+119"/>
-        <location line="+20"/>
+        <location line="+21"/>
         <source>%1 found</source>
         <translation>%1 gefunden</translation>
     </message>
@@ -13942,7 +13945,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextEditor</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+252"/>
+        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+254"/>
         <source>Print Document</source>
         <translation>Dokument drucken</translation>
     </message>
@@ -13960,7 +13963,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextEditorEditable</name>
     <message>
-        <location line="+4275"/>
+        <location line="+4311"/>
         <source>Line: %1, Col: %2</source>
         <translation>Zeile: %1, Spalte: %2</translation>
     </message>
@@ -14819,12 +14822,11 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Intel C++-Compiler (Linux)</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>MinGW</source>
-        <translation>MinGW</translation>
+        <translation type="obsolete">MinGW</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+4"/>
         <source>Microsoft Visual C++</source>
         <translation>Microsoft Visual C++</translation>
     </message>
@@ -15057,7 +15059,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
 <context>
     <name>Utils::NewClassWidget</name>
     <message>
-        <location filename="../../../src/libs/utils/newclasswidget.cpp" line="+416"/>
+        <location filename="../../../src/libs/utils/newclasswidget.cpp" line="+417"/>
         <source>Invalid base class name</source>
         <translation>Der Name der Basisklasse ist ungültig</translation>
     </message>
@@ -15115,6 +15117,21 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <location/>
         <source>Inherits QObject</source>
         <translation>Erbt von Klasse QObject</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Type information:</source>
+        <translation>Typinformation:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>None</source>
+        <translation>Keine</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Inherits QWidget</source>
+        <translation>Erbt von Klasse QWidget</translation>
     </message>
 </context>
 <context>
@@ -15361,7 +15378,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Checkout begonnen...</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>Failed.</source>
         <translation>Fehlgeschlagen.</translation>
     </message>
@@ -15402,7 +15419,12 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
 <context>
     <name>VCSBase::ProcessCheckoutJob</name>
     <message>
-        <location filename="../../../src/plugins/vcsbase/checkoutjobs.cpp" line="+109"/>
+        <location filename="../../../src/plugins/vcsbase/checkoutjobs.cpp" line="+101"/>
+        <source>Unable to start %1: %2</source>
+        <translation>%1 kann nicht gestartet werden: %2</translation>
+    </message>
+    <message>
+        <location line="+15"/>
         <source>The process terminated with exit code %1.</source>
         <translation>Der Prozess wurde beendet, Rückgabewert %1.</translation>
     </message>
@@ -15808,7 +15830,7 @@ Qt Centre</translation>
 <context>
     <name>Debugger::Internal::TermGdbAdapter</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/termgdbadapter.cpp" line="+142"/>
+        <location filename="../../../src/plugins/debugger/gdb/termgdbadapter.cpp" line="+176"/>
         <source>Debugger Error</source>
         <translation>Debugger-Fehler</translation>
     </message>
@@ -15990,6 +16012,48 @@ Qt Centre</translation>
         <location line="+5"/>
         <source>%1: Connection attempt %2 failed: %3 (retrying)...</source>
         <translation>%1: Verbindung im Versuch %2 fehlgeschlagen: %3 (wird wiederholt)...</translation>
+    </message>
+</context>
+<context>
+    <name>trk::Session</name>
+    <message>
+        <location filename="../../../src/shared/trk/trkutils.cpp" line="+79"/>
+        <source>CPU: v%1.%2%3%4</source>
+        <extracomment>CPU description of an S60 device %1 major verison, %2 minor version %3 real name of major verison, %4 real name of minor version</extracomment>
+        <translation>CPU: v%1.%2%3%4</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>App TRK: v%1.%2 TRK protocol: v%3.%4</source>
+        <translation>App TRK: v%1.%2 TRK-Protokoll: v%3.%4</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>%1, %2%3%4, %5</source>
+        <extracomment>s60description description of an S60 device %1 CPU description, %2 endianness %3 default type size (if any), %4 float size (if any) %5 TRK version</extracomment>
+        <translation>%1, %2%3%4, %5</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>big endian</source>
+        <translation>big endian</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>little endian</source>
+        <translation>little endian</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>, type size: %1</source>
+        <extracomment>will be inserted into s60description</extracomment>
+        <translation>, Typgröße: %1</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>, float size: %1</source>
+        <extracomment>will be inserted into s60description</extracomment>
+        <translation>, Gleitkomma-Größe: %1</translation>
     </message>
 </context>
 </TS>
