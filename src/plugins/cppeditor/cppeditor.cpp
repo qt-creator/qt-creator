@@ -81,6 +81,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 #include <QtCore/QStack>
+#include <QtCore/QSettings>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QHeaderView>
@@ -765,8 +766,32 @@ void CPPEditor::renameUsages()
     renameUsagesNow();
 }
 
+bool CPPEditor::showWarningMessage() const
+{
+    // Restore settings
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->beginGroup(QLatin1String("CppEditor"));
+    settings->beginGroup(QLatin1String("Rename"));
+    const bool showWarningMessage = settings->value(QLatin1String("ShowWarningMessage"), true).toBool();
+    settings->endGroup();
+    settings->endGroup();
+    return showWarningMessage;
+}
+
+void CPPEditor::setShowWarningMessage(bool showWarningMessage)
+{
+    // Restore settings
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->beginGroup(QLatin1String("CppEditor"));
+    settings->beginGroup(QLatin1String("Rename"));
+    settings->setValue(QLatin1String("ShowWarningMessage"), showWarningMessage);
+    settings->endGroup();
+    settings->endGroup();
+}
+
 void CPPEditor::hideRenameNotification()
 {
+    setShowWarningMessage(false);
     Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
 }
 
@@ -774,10 +799,12 @@ void CPPEditor::renameUsagesNow()
 {
     if (Symbol *canonicalSymbol = markSymbols()) {
         if (canonicalSymbol->identifier() != 0) {
-            Core::EditorManager::instance()->showEditorInfoBar(QLatin1String("CppEditor.Rename"),
-                                                               tr("This change cannot be undone."),
-                                                               tr("Yes, I know what I am doing."),
-                                                               this, SLOT(hideRenameNotification()));
+            if (showWarningMessage()) {
+                Core::EditorManager::instance()->showEditorInfoBar(QLatin1String("CppEditor.Rename"),
+                                                                   tr("This change cannot be undone."),
+                                                                   tr("Yes, I know what I am doing."),
+                                                                   this, SLOT(hideRenameNotification()));
+            }
 
             m_modelManager->renameUsages(canonicalSymbol);
         }
