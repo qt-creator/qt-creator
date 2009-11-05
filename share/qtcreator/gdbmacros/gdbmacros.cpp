@@ -1613,31 +1613,28 @@ static void qDumpQList(QDumper &d)
     // This uses the knowledge that QList<T> has only a single member
     // of type  union { QListData p; QListData::Data *d; };
 
-    const QListData &ldata = *reinterpret_cast<const QListData*>(d.data);
-    const QListData::Data *pdata =
-        *reinterpret_cast<const QListData::Data* const*>(d.data);
-    const int nn = ldata.size();
+    const QListData &pdata = *reinterpret_cast<const QListData*>(d.data);
+    const int nn = pdata.size();
     if (nn < 0)
         return;
     const bool innerTypeIsPointer = isPointerType(d.innerType);
     const int n = qMin(nn, 1000);
     if (nn > 0) {
-        if (ldata.d->begin < 0)
+        if (pdata.d->begin < 0)
             return;
-        if (ldata.d->begin > ldata.d->end)
+        if (pdata.d->begin > pdata.d->end)
             return;
 #if QT_VERSION >= 0x040400
-        if (ldata.d->ref._q_value <= 0)
+        if (pdata.d->ref._q_value <= 0)
             return;
 #endif
-        qCheckAccess(ldata.d->array);
+        qCheckAccess(pdata.d->array);
         // Additional checks on pointer arrays
         if (innerTypeIsPointer)
             for (int i = 0; i != n; ++i)
-                if (const void *p = ldata.d->array + i + pdata->begin)
+                if (const void *p = pdata.d->array + i + pdata.d->begin)
                     qCheckPointer(deref(p));
     }
-    qCheckAccess(pdata);
 
     d.putItemCount("value", nn);
     d.putItem("valueeditable", "false");
@@ -1658,7 +1655,7 @@ static void qDumpQList(QDumper &d)
         for (int i = 0; i != n; ++i) {
             d.beginHash();
             if (innerTypeIsPointer) {
-                void *p = ldata.d->array + i + pdata->begin;
+                void *p = pdata.d->array + i + pdata.d->begin;
                 d.putItem("saddr", p);
                 if (*(void**)p) {
                     //d.putItem("value","@").put(p);
@@ -1668,7 +1665,7 @@ static void qDumpQList(QDumper &d)
                     d.putItem("numchild", "0");
                 }
             } else {
-                void *p = ldata.d->array + i + pdata->begin;
+                void *p = pdata.d->array + i + pdata.d->begin;
                 if (isInternal) {
                     //qDumpInnerValue(d, d.innerType, p);
                     d.putItem("addr", p);
