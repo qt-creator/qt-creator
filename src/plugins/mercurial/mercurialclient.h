@@ -32,6 +32,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QPair>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
@@ -49,6 +50,7 @@ namespace Mercurial {
 namespace Internal {
 
 class MercurialJobRunner;
+class HgTask;
 
 class MercurialClient : public QObject
 {
@@ -90,6 +92,7 @@ private slots:
 private:
     bool executeHgSynchronously(const QFileInfo &file, const QStringList &args,
                                 QByteArray *output=0) const;
+    void enqueueJob(const QSharedPointer<HgTask> &);
 
     MercurialJobRunner *jobManager;
     Core::ICore *core;

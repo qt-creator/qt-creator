@@ -30,6 +30,8 @@
 #ifndef MERCURIALPLUGIN_H
 #define MERCURIALPLUGIN_H
 
+#include "mercurialsettings.h"
+
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/icorelistener.h>
 
@@ -85,7 +87,8 @@ public:
     bool closeEditor(Core::IEditor *editor);
     QStringList standardArguments() const;
 
-    MercurialSettings *settings();
+    const MercurialSettings &settings() const;
+    void setSettings(const MercurialSettings &settings);
 
 private slots:
     // File menu action Slots
@@ -146,7 +149,7 @@ private:
 
     //Variables
     static MercurialPlugin *m_instance;
-    MercurialSettings *mercurialSettings;
+    MercurialSettings mercurialSettings;
     OptionsPage *optionsPage;
     MercurialClient *client;
 

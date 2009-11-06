@@ -31,6 +31,7 @@
 #include "mercurialsettings.h"
 #include "mercurialplugin.h"
 
+#include <coreplugin/icore.h>
 #include <utils/pathchooser.h>
 #include <vcsbase/vcsbaseconstants.h>
 
@@ -45,24 +46,26 @@ OptionsPageWidget::OptionsPageWidget(QWidget *parent) :
     m_ui.commandChooser->setPromptDialogTitle(tr("Mercurial Command"));
 }
 
-void OptionsPageWidget::updateOptions()
+MercurialSettings OptionsPageWidget::settings() const
 {
-    MercurialSettings *settings = MercurialPlugin::instance()->settings();
-    m_ui.commandChooser->setPath(settings->application());
-    m_ui.defaultUsernameLineEdit->setText(settings->userName());
-    m_ui.defaultEmailLineEdit->setText(settings->email());
-    m_ui.logEntriesCount->setValue(settings->logCount());
-    m_ui.timeout->setValue(settings->timeoutSeconds());
-    m_ui.promptOnSubmitCheckBox->setChecked(settings->prompt());
+    MercurialSettings rc;
+    rc.setBinary(m_ui.commandChooser->path());
+    rc.setUserName(m_ui.defaultUsernameLineEdit->text().trimmed());
+    rc.setEmail(m_ui.defaultEmailLineEdit->text().trimmed());
+    rc.setLogCount(m_ui.logEntriesCount->value());
+    rc.setTimeoutSeconds(m_ui.timeout->value());
+    rc.setPrompt(m_ui.promptOnSubmitCheckBox->isChecked());
+    return rc;
 }
 
-void OptionsPageWidget::saveOptions()
+void OptionsPageWidget::setSettings(const MercurialSettings &s)
 {
-    MercurialSettings *settings = MercurialPlugin::instance()->settings();
-
-    settings->writeSettings(m_ui.commandChooser->path(), m_ui.defaultUsernameLineEdit->text(),
-                            m_ui.defaultEmailLineEdit->text(), m_ui.logEntriesCount->value(),
-                            m_ui.timeout->value(), m_ui.promptOnSubmitCheckBox->isChecked());
+    m_ui.commandChooser->setPath(s.binary());
+    m_ui.defaultUsernameLineEdit->setText(s.userName());
+    m_ui.defaultEmailLineEdit->setText(s.email());
+    m_ui.logEntriesCount->setValue(s.logCount());
+    m_ui.timeout->setValue(s.timeoutSeconds());
+    m_ui.promptOnSubmitCheckBox->setChecked(s.prompt());
 }
 
 OptionsPage::OptionsPage()
@@ -93,7 +96,7 @@ QWidget *OptionsPage::createPage(QWidget *parent)
 {
     if (!optionsPageWidget)
         optionsPageWidget = new OptionsPageWidget(parent);
-    optionsPageWidget.data()->updateOptions();
+    optionsPageWidget->setSettings(MercurialPlugin::instance()->settings());
     return optionsPageWidget;
 }
 
@@ -101,8 +104,13 @@ void OptionsPage::apply()
 {
     if (!optionsPageWidget)
         return;
-    optionsPageWidget.data()->saveOptions();
-    //assume success and emit signal that settings are changed;
-    emit settingsChanged();
+    MercurialPlugin *plugin = MercurialPlugin::instance();
+    const MercurialSettings newSettings = optionsPageWidget->settings();
+    if (newSettings != plugin->settings()) {
+        //assume success and emit signal that settings are changed;
+        plugin->setSettings(newSettings);
+        newSettings.writeSettings(Core::ICore::instance()->settings());
+        emit settingsChanged();
+    }
 }
 
