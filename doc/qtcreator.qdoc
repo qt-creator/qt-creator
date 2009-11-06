@@ -1095,8 +1095,9 @@
     watchers, registers, etc, Qt Creator comes with additional features to make
     debugging Qt-based applications easy. The debugger frontend knows about the
     internal layout of several Qt classes such as QString, the QTL containers,
-    and most importantly QObject (and classes derived from it). Therefore, it
-    is able to present Qt's data clearly.
+    and most importantly QObject (and classes derived from it), as well as 
+    most containers of the C++ Standard Library, and is therefore able to
+    present their contents in a useful way.
 
 
     \section1 Debugger Engine Installation Notes
@@ -1262,7 +1263,7 @@
     parameters of the function in that frame as well as the local variables.
 
     Compound variables of struct or class type will be displayed as
-    "expandable" in the view. C lick on the "+" to expand the entry and show
+    "expandable" in the view. Click on the "+" to expand the entry and show
     all members. Together with the display of value and type, the user can
     examine and traverse the low-level layout of an object's data.
 
@@ -1291,8 +1292,8 @@
 
     The \gui{Locals and Watchers} view also provides access to the most
     powerful feature of the debugger: comprehensive display of data belonging
-    to Qt's basic objects. To enable this feature, select \gui{Use Custom
-    Display for Qt Objects} from the \gui Debug menu.The
+    to Qt's basic objects. To enable this feature, select \gui{Use
+    debugging helper} from the \gui Debug menu.The
     \gui{Locals and Watchers} view will be re-organized to provide a high-level
     view of the objects. For example, in case of QObject, instead of displaying
     a pointer to some private data structure, you will see a list of children,
