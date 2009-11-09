@@ -88,6 +88,11 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
     m_context = m_scriptcontext;
     m_context << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 
+    m_actionHandler = new TextEditor::TextEditorActionHandler(QtScriptEditor::Constants::C_QTSCRIPTEDITOR,
+          TextEditor::TextEditorActionHandler::Format
+        | TextEditor::TextEditorActionHandler::UnCommentSelection
+        | TextEditor::TextEditorActionHandler::UnCollapseAll);
+
     registerActions();
 
     m_editor = new QtScriptEditorFactory(m_context, this);
@@ -104,10 +109,6 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
                                               wizardParameters, this);
     addObject(m_wizard);
 
-    m_actionHandler = new TextEditor::TextEditorActionHandler(QtScriptEditor::Constants::C_QTSCRIPTEDITOR,
-          TextEditor::TextEditorActionHandler::Format
-        | TextEditor::TextEditorActionHandler::UnCommentSelection
-        | TextEditor::TextEditorActionHandler::UnCollapseAll);
 
     m_completion = new QtScriptCodeCompletion();
     addAutoReleasedObject(m_completion);
@@ -145,8 +146,13 @@ void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEdit
 
 void QtScriptEditorPlugin::registerActions()
 {
-//    Core::ActionManager *am = Core::ICore::instance()->actionManager();
-//    Core::ActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
+    m_actionHandler->initializeActions();
+    Core::ActionManager *am =  Core::ICore::instance()->actionManager();
+    Core::ActionContainer *contextMenu= am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
+    Core::Command *cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);
+    contextMenu->addAction(cmd);
+    cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    contextMenu->addAction(cmd);
 }
 
 Q_EXPORT_PLUGIN(QtScriptEditorPlugin)

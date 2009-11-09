@@ -29,11 +29,14 @@
 
 #include "qtscripteditorfactory.h"
 #include "qtscripteditor.h"
-#include "qtscripteditoractionhandler.h"
 #include "qtscripteditorconstants.h"
 #include "qtscripteditorplugin.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+
+#include <texteditor/texteditorconstants.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
@@ -45,14 +48,12 @@ QtScriptEditorFactory::QtScriptEditorFactory(const Context &context, QObject *pa
   : Core::IEditorFactory(parent),
     m_kind(QLatin1String(C_QTSCRIPTEDITOR)),
     m_mimeTypes(QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE)),
-    m_context(context),
-    m_actionHandler(new QtScriptEditorActionHandler)
+    m_context(context)
 {
 }
 
 QtScriptEditorFactory::~QtScriptEditorFactory()
 {
-    delete m_actionHandler;
 }
 
 QString QtScriptEditorFactory::kind() const
