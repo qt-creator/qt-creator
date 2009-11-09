@@ -40,6 +40,7 @@
 #include "parser/javascriptast_p.h"
 
 #include <indenter.h>
+#include <utils/uncommentselection.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -406,6 +407,11 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
     appendStandardContextMenuActions(menu);
     menu->exec(e->globalPos());
     delete menu;
+}
+
+void ScriptEditor::unCommentSelection()
+{
+    Utils::unCommentSelection(this);
 }
 
 } // namespace Internal

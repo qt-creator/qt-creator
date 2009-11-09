@@ -63,8 +63,6 @@ private:
     const QString m_kind;
     const QStringList m_mimeTypes;
     const Context m_context;
-
-    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 } // namespace Internal

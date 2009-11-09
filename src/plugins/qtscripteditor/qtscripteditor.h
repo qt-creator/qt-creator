@@ -95,6 +95,8 @@ public:
     QList<Declaration> declarations() const;
     QStringList words() const;
 
+    void unCommentSelection(); // from basetexteditor
+
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
 

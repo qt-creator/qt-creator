@@ -746,7 +746,7 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
 
 void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
 {
-    QMenu *menu = createStandardContextMenu();
+    QMenu *menu = new QMenu();
 
     if (Core::ActionContainer *mcontext = Core::ICore::instance()->actionManager()->actionContainer(QmlEditor::Constants::M_CONTEXT)) {
         QMenu *contextMenu = mcontext->menu();
@@ -761,6 +761,8 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
         QAction *a = menu->addAction(tr("Rename id '%1'...").arg(id));
         connect(a, SIGNAL(triggered()), this, SLOT(renameIdUnderCursor()));
     }
+
+    appendStandardContextMenuActions(menu);
 
     menu->exec(e->globalPos());
     menu->deleteLater();
