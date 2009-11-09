@@ -118,6 +118,7 @@ public:
     QString symbolFileName;
     QString serverStartScript;
     int toolChainType;
+    QString qtInstallPath;
 
     QString dumperLibrary;
     QStringList dumperLibraryLocations;
