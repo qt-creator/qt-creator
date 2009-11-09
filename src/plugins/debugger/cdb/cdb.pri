@@ -4,7 +4,7 @@
 win32 {
 contains(QMAKE_CXX, cl) {
 
-CDB_PATH=$$(CDB_PATH)
+CDB_PATH="$$(CDB_PATH)"
 isEmpty(CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows/sdk"
 
 !exists($$CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x86)/sdk"
