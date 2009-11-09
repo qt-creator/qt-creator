@@ -4427,6 +4427,21 @@ void GdbEngine::handleAdapterStarted()
 
 void GdbEngine::handleInferiorPrepared()
 {
+    const QString qtInstallPath = m_startParameters->qtInstallPath;
+    if (!qtInstallPath.isEmpty()) {
+        QString qtBuildPath =
+        #if defined(Q_OS_WIN)
+            _("C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.6/qt");
+        #elif defined(Q_OS_MAC)
+            QString();
+        #else    
+            _("/var/tmp/qt-x11-src-4.6.0");
+        #endif
+        if (!qtBuildPath.isEmpty())
+        postCommand(_("set substitute-path %1 %2")
+            .arg(qtBuildPath).arg(qtInstallPath));
+    }
+
     // Initial attempt to set breakpoints
     showStatusMessage(tr("Setting breakpoints..."));
     attemptBreakpointSynchronization();
