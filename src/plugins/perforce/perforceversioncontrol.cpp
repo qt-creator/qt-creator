@@ -94,5 +94,15 @@ QString PerforceVersionControl::findTopLevelForDirectory(const QString &director
     return m_plugin->findTopLevelForDirectory(directory);
 }
 
+void PerforceVersionControl::emitRepositoryChanged(const QString &s)
+{
+    emit repositoryChanged(s);
+}
+
+void PerforceVersionControl::emitFilesChanged(const QStringList &l)
+{
+    emit filesChanged(l);
+}
+
 } // Internal
 } // Perforce

@@ -47,6 +47,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 
 #include <QtCore/QtConcurrentRun>
@@ -97,6 +98,11 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     // Objects
     m_modelManager = new CppModelManager(this);
+    Core::VCSManager *vcsManager = core->vcsManager();
+    connect(vcsManager, SIGNAL(repositoryChanged(QString)),
+            m_modelManager, SLOT(updateModifiedSourceFiles()));
+    connect(vcsManager, SIGNAL(filesChanged(QStringList)),
+            m_modelManager, SLOT(updateModifiedSourceFiles()));
     addAutoReleasedObject(m_modelManager);
 
     m_completion = new CppCodeCompletion(m_modelManager);

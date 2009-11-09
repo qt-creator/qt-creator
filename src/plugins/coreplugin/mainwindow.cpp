@@ -126,7 +126,7 @@ MainWindow::MainWindow() :
     m_progressManager(new ProgressManagerPrivate()),
     m_scriptManager(new ScriptManagerPrivate(this)),
     m_variableManager(new VariableManager(this)),
-    m_vcsManager(new VCSManager()),
+    m_vcsManager(new VCSManager),
     m_viewManager(0),
     m_modeManager(0),
     m_mimeDatabase(new MimeDatabase),
@@ -346,6 +346,7 @@ void MainWindow::extensionsInitialized()
     OutputPaneManager::instance()->init();
 
     m_actionManager->initialize();
+    m_vcsManager->extensionsInitialized();
     readSettings();
     updateContext();
 

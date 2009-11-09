@@ -57,6 +57,8 @@ public:
     virtual bool vcsAdd(const QString &fileName);
     virtual bool vcsDelete(const QString &filename);
 
+    void emitFilesChanged(const QStringList &);
+
 signals:
     void enabledChanged(bool);
 

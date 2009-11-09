@@ -96,3 +96,13 @@ QString SubversionControl::findTopLevelForDirectory(const QString &directory) co
 {
     return m_plugin->findTopLevelForDirectory(directory);
 }
+
+void SubversionControl::emitRepositoryChanged(const QString &s)
+{
+    emit repositoryChanged(s);
+}
+
+void SubversionControl::emitFilesChanged(const QStringList &l)
+{
+    emit filesChanged(l);
+}

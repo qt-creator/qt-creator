@@ -102,6 +102,12 @@ public:
     virtual void renameUsages(CPlusPlus::Symbol *symbol) = 0;
     virtual void findUsages(CPlusPlus::Symbol *symbol) = 0;
 
+    virtual bool isIndexing() const = 0;
+
+signals:
+    void indexingStarted();
+    void indexingFinished();
+
 public Q_SLOTS:
     void updateModifiedSourceFiles();
     virtual void updateSourceFiles(const QStringList &sourceFiles) = 0;    
