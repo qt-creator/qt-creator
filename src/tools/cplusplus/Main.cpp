@@ -4,6 +4,7 @@
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QTextBlock>
+#include <QDir>
 #include <QDebug>
 
 #include <Control.h>
@@ -163,6 +164,75 @@ private:
     Overview oo;
 };
 
+void generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
+{
+    QFileInfo fileAST_h(cplusplusDir, QLatin1String("AST.h"));
+    Q_ASSERT(fileAST_h.exists());
+
+    const QString fileName = fileAST_h.absoluteFilePath();
+
+    QFile file(fileName);
+    if (! file.open(QFile::ReadOnly))
+        return;
+
+    const QString source = QTextStream(&file).readAll();
+    file.close();
+
+    QTextDocument document;
+    document.setPlainText(source);
+
+    Document::Ptr doc = Document::create(fileName);
+    const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fileName);
+    doc->setSource(preprocessedCode);
+    doc->check();
+
+    FindASTNodes process(doc, &document);
+    ASTNodes astNodes = process(doc->translationUnit()->ast());
+
+    RemoveCastMethods removeCastMethods(doc, &document);
+
+    QList<QTextCursor> baseCastMethodCursors = removeCastMethods(astNodes.base);
+    QMap<ClassSpecifierAST *, QList<QTextCursor> > cursors;
+    QMap<ClassSpecifierAST *, QString> replacementCastMethods;
+
+    Overview oo;
+
+    QStringList castMethods;
+    foreach (ClassSpecifierAST *classAST, astNodes.deriveds) {
+        cursors[classAST] = removeCastMethods(classAST);
+        const QString className = oo(classAST->symbol->name());
+        const QString methodName = QLatin1String("as") + className.mid(0, className.length() - 3);
+        replacementCastMethods[classAST] = QString("    virtual %1 *%2() { return this; }\n").arg(className, methodName);
+        castMethods.append(QString("    virtual %1 *%2() { return 0; }\n").arg(className, methodName));
+    }
+
+    if (! baseCastMethodCursors.isEmpty()) {
+        castMethods.sort();
+        for (int i = 0; i < baseCastMethodCursors.length(); ++i) {
+            baseCastMethodCursors[i].removeSelectedText();
+        }
+
+        baseCastMethodCursors.first().insertText(castMethods.join(QLatin1String("")));
+    }
+
+    for (int classIndex = 0; classIndex < astNodes.deriveds.size(); ++classIndex) {
+        ClassSpecifierAST *classAST = astNodes.deriveds.at(classIndex);
+
+        // remove the cast methods.
+        QList<QTextCursor> c = cursors.value(classAST);
+        for (int i = 0; i < c.length(); ++i) {
+            c[i].removeSelectedText();
+        }
+
+        astNodes.endOfPublicClassSpecifiers[classIndex].insertText(replacementCastMethods.value(classAST));
+    }
+
+    if (file.open(QFile::WriteOnly)) {
+        QTextStream out(&file);
+        out << document.toPlainText();
+    }
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
@@ -170,70 +240,12 @@ int main(int argc, char *argv[])
     files.removeFirst();
 
     if (files.isEmpty()) {
-        std::cerr << "Usage: cplusplus AST.h" << std::endl;
+        std::cerr << "Usage: cplusplus [path to C++ front-end]" << std::endl;
         return EXIT_FAILURE;
     }
 
+    QDir cplusplusDir(files.first());
     Snapshot snapshot;
 
-    //const QString configuration = QLatin1String("#define CPLUSPLUS_EXPORT\n");
-
-    foreach (const QString &fileName, files) {
-        QFile file(fileName);
-        if (! file.open(QFile::ReadOnly))
-            continue;
-
-        const QString source = QTextStream(&file).readAll();
-        QTextDocument document;
-        document.setPlainText(source);
-
-        Document::Ptr doc = Document::create(fileName);
-        //doc->control()->setDiagnosticClient(0);
-        const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fileName);
-        doc->setSource(preprocessedCode);
-        doc->check();
-
-        FindASTNodes process(doc, &document);
-        ASTNodes astNodes = process(doc->translationUnit()->ast());
-
-        RemoveCastMethods removeCastMethods(doc, &document);
-
-        QList<QTextCursor> baseCastMethodCursors = removeCastMethods(astNodes.base);
-        QMap<ClassSpecifierAST *, QList<QTextCursor> > cursors;
-        QMap<ClassSpecifierAST *, QString> replacementCastMethods;
-
-        Overview oo;
-
-        QStringList castMethods;
-        foreach (ClassSpecifierAST *classAST, astNodes.deriveds) {
-            cursors[classAST] = removeCastMethods(classAST);
-            const QString className = oo(classAST->symbol->name());
-            const QString methodName = QLatin1String("as") + className.mid(0, className.length() - 3);
-            replacementCastMethods[classAST] = QString("    virtual %1 *%2() { return this; }\n").arg(className, methodName);
-            castMethods.append(QString("    virtual %1 *%2() { return 0; }").arg(className, methodName));
-        }
-
-        if (! baseCastMethodCursors.isEmpty()) {
-            castMethods.sort();
-            for (int i = 0; i < baseCastMethodCursors.length(); ++i) {
-                baseCastMethodCursors[i].removeSelectedText();
-            }
-
-            baseCastMethodCursors.first().insertText(castMethods.join(QLatin1String("\n")));
-        }
-
-        for (int classIndex = 0; classIndex < astNodes.deriveds.size(); ++classIndex) {
-            ClassSpecifierAST *classAST = astNodes.deriveds.at(classIndex);
-
-            // remove the cast methods.
-            QList<QTextCursor> c = cursors.value(classAST);
-            for (int i = 0; i < c.length(); ++i) {
-                c[i].removeSelectedText();
-            }
-
-            astNodes.endOfPublicClassSpecifiers[classIndex].insertText(replacementCastMethods.value(classAST));
-        }
-
-        std::cout << qPrintable(document.toPlainText());
-    }
+    generateAST_H(snapshot, cplusplusDir);
 }
