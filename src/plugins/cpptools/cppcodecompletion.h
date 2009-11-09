@@ -115,7 +115,7 @@ private:
 
     bool completeConstructorOrFunction(const QList<CPlusPlus::TypeOfExpression::Result> &,
                                        const CPlusPlus::LookupContext &,
-                                       int endOfExpression);
+                                       int endOfExpression, bool toolTipOnly);
 
     bool completeMember(const QList<CPlusPlus::TypeOfExpression::Result> &,
                         const CPlusPlus::LookupContext &context);
