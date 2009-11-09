@@ -425,7 +425,6 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand, int id,
     m_isAutodetected(isAutodetected),
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
-    m_mkspecUpToDate(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
@@ -448,7 +447,6 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand,
     m_isAutodetected(isAutodetected),
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
-    m_mkspecUpToDate(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
@@ -467,7 +465,6 @@ QtVersion::QtVersion(const QString &qmakeCommand, bool isAutodetected, const QSt
     : m_isAutodetected(isAutodetected),
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
-    m_mkspecUpToDate(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
@@ -487,7 +484,6 @@ QtVersion::QtVersion()
     m_id(-1),
     m_isAutodetected(false),
     m_hasDebuggingHelper(false),
-    m_mkspecUpToDate(false),
     m_toolChainUpToDate(false),
     m_versionInfoUpToDate(false),
     m_notInstalled(false),
@@ -519,7 +515,7 @@ QString QtVersion::toHtml() const
         << "</b></td><td>" << mkspec() << "</td></tr>";
     str << "<tr><td><b>" << QtVersionManager::tr("qmake:")
         << "</b></td><td>" << m_qmakeCommand << "</td></tr>";
-    updateVersionInfo();
+    updateToolChainAndMkspec();
     if (m_defaultConfigIsDebug || m_defaultConfigIsDebugAndRelease) {
         str << "<tr><td><b>" << QtVersionManager::tr("Default:") << "</b></td><td>"
             << (m_defaultConfigIsDebug ? "debug" : "release");
@@ -559,13 +555,13 @@ QString QtVersion::sourcePath() const
 
 QString QtVersion::mkspec() const
 {
-    updateMkSpec();
+    updateToolChainAndMkspec();
     return m_mkspec;
 }
 
 QString QtVersion::mkspecPath() const
 {
-    updateMkSpec();
+    updateToolChainAndMkspec();
     return m_mkspecFullPath;
 }
 
@@ -592,7 +588,6 @@ void QtVersion::setQMakeCommand(const QString& qmakeCommand)
     m_qmakeCommand = m_qmakeCommand.toLower();
 #endif
     m_designerCommand = m_linguistCommand = m_uicCommand = QString::null;
-    m_mkspecUpToDate = false;
     m_toolChainUpToDate = false;
     // TODO do i need to optimize this?
     m_versionInfoUpToDate = false;
@@ -629,6 +624,9 @@ void QtVersion::updateSourcePath()
         }
     }
     m_sourcePath = QDir::cleanPath(m_sourcePath);
+#ifdef Q_OS_WIN
+    m_sourcePath = m_sourcePath.toLower();
+#endif
 }
 
 // Returns the version that was used to build the project in that directory
@@ -835,7 +833,6 @@ void QtVersionManager::parseParts(const QStringList &parts, QList<QMakeAssignmen
 #endif
 }
 
-
 /// This function extracts all the CONFIG+=debug, CONFIG+=release
 QtVersion::QmakeBuildConfig QtVersionManager::qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments, QtVersion::QmakeBuildConfig defaultBuildConfig)
 {
@@ -950,29 +947,6 @@ void QtVersion::updateVersionInfo() const
             if (fi.exists())
                 m_hasDemos = true;
         }
-
-        // Parse qconfigpri
-        QString baseDir = m_versionInfo.value("QT_INSTALL_DATA");
-        QFile qconfigpri(baseDir + QLatin1String("/mkspecs/qconfig.pri"));
-        if (qconfigpri.exists()) {
-            qconfigpri.open(QIODevice::ReadOnly | QIODevice::Text);
-            QTextStream stream(&qconfigpri);
-            while (!stream.atEnd()) {
-                QString line = stream.readLine().trimmed();
-                if (line.startsWith(QLatin1String("CONFIG"))) {
-                    m_defaultConfigIsDebugAndRelease = false;
-                    QStringList values = line.split(QLatin1Char('=')).at(1).trimmed().split(" ");
-                    foreach(const QString &value, values) {
-                        if (value == "debug")
-                            m_defaultConfigIsDebug = true;
-                        else if (value == "release")
-                            m_defaultConfigIsDebug = false;
-                        else if (value == "build_all")
-                            m_defaultConfigIsDebugAndRelease = true;
-                    }
-                }
-            }
-        }
     }
     m_versionInfoUpToDate = true;
 }
@@ -981,86 +955,6 @@ bool QtVersion::isInstalled() const
 {
     updateVersionInfo();
     return !m_notInstalled;
-}
-
-void QtVersion::updateMkSpec() const
-{
-    if (m_mkspecUpToDate)
-        return;
-    //qDebug()<<"Finding mkspec for"<<path();
-
-    QString mkspec = "default";
-    // no .qmake.cache so look at the default mkspec
-    m_mkspecFullPath = versionInfo().value("QMAKE_MKSPECS");
-    if (m_mkspecFullPath.isEmpty())
-        m_mkspecFullPath = versionInfo().value("QT_INSTALL_DATA") + "/mkspecs/default";
-    else
-        m_mkspecFullPath = m_mkspecFullPath + "/default";
-//     qDebug() << "default mkspec is located at" << m_mkspecFullPath;
-#ifdef Q_OS_WIN
-    QFile f2(m_mkspecFullPath + "/qmake.conf");
-    if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
-        while (!f2.atEnd()) {
-            QByteArray line = f2.readLine();
-            if (line.startsWith("QMAKESPEC_ORIGINAL")) {
-                const QList<QByteArray> &temp = line.split('=');
-                if (temp.size() == 2) {
-                    mkspec = temp.at(1).trimmed();
-                }
-                break;
-            }
-        }
-        f2.close();
-    }
-#elif defined(Q_OS_MAC)
-    QFile f2(m_mkspecFullPath + "/qmake.conf");
-    if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
-        while (!f2.atEnd()) {
-            QByteArray line = f2.readLine();
-            if (line.startsWith("MAKEFILE_GENERATOR")) {
-                const QList<QByteArray> &temp = line.split('=');
-                if (temp.size() == 2) {
-                    const QByteArray &value = temp.at(1);
-                    if (value.contains("XCODE")) {
-                        // we don't want to generate xcode projects...
-//                      qDebug() << "default mkspec is xcode, falling back to g++";
-                        mkspec = "macx-g++";
-                    } else {
-                        //resolve mkspec link
-                        QFileInfo f3(m_mkspecFullPath);
-                        if (f3.isSymLink()) {
-                            mkspec = f3.symLinkTarget();
-                        }
-                    }
-                }
-                break;
-            }
-        }
-        f2.close();
-    }
-#else
-    QFileInfo f2(m_mkspecFullPath);
-    if (f2.isSymLink()) {
-        mkspec = f2.symLinkTarget();
-    }
-#endif
-
-    QString mkspecdir = versionInfo().value("QMAKE_MKSPECS");
-    if (mkspecdir.isEmpty())
-        mkspecdir = versionInfo().value("QT_INSTALL_DATA") + "/mkspecs";
-
-    if (mkspec.startsWith(mkspecdir)) {
-        mkspec = mkspec.mid(mkspecdir.length() + 1);
-        qDebug() << "Setting mkspec to"<<mkspec;
-    } else {
-        int index = qMax(mkspec.lastIndexOf('/'), mkspec.lastIndexOf('\\'));
-        if (index >= 0)
-            mkspec = mkspec.mid(index+1).trimmed();
-    }
-
-    m_mkspec = mkspec;
-    m_mkspecUpToDate = true;
-//    qDebug()<<"mkspec for "<<versionInfo().value("QT_INSTALL_DATA")<<" is "<<mkspec;
 }
 
 QString QtVersion::findQtBinary(const QStringList &possibleCommands) const
@@ -1128,7 +1022,7 @@ QString QtVersion::linguistCommand() const
 
 QList<QSharedPointer<ProjectExplorer::ToolChain> > QtVersion::toolChains() const
 {
-    updateToolChain();
+    updateToolChainAndMkspec();
     return m_toolChains;
 }
 
@@ -1157,24 +1051,105 @@ ProjectExplorer::ToolChain::ToolChainType QtVersion::defaultToolchainType() cons
 }
 
 // if none, then it's INVALID everywhere this function is called
-void QtVersion::updateToolChain() const
+void QtVersion::updateToolChainAndMkspec() const
 {
     if (m_toolChainUpToDate)
         return;
 
+    if (!isValid())
+        return;
+
     m_toolChains.clear();
 
-    QString mkspecPath = versionInfo().value("QMAKE_MKSPECS");
-    if (mkspecPath.isEmpty())
-        mkspecPath = versionInfo().value("QT_INSTALL_DATA") + "/mkspecs/default";
-    else
-        mkspecPath = mkspecPath + "/default";
+    qDebug()<<"Finding mkspec for"<<qmakeCommand();
+
+    // no .qmake.cache so look at the default mkspec
+
+    QString baseMkspecDir = versionInfo().value("QMAKE_MKSPECS");
+    if (baseMkspecDir.isEmpty())
+        baseMkspecDir = versionInfo().value("QT_INSTALL_DATA") + "/mkspecs";
+
+    QString mkspecFullPath = baseMkspecDir + "/default";
+
+    // qDebug() << "default mkspec is located at" << mkspecFullPath;
+
+#ifdef Q_OS_WIN
+    QFile f2(mkspecFullPath + "/qmake.conf");
+    if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
+        while (!f2.atEnd()) {
+            QByteArray line = f2.readLine();
+            if (line.startsWith("QMAKESPEC_ORIGINAL")) {
+                const QList<QByteArray> &temp = line.split('=');
+                if (temp.size() == 2) {
+                    mkspecFullPath = temp.at(1).trimmed();
+                }
+                break;
+            }
+        }
+        f2.close();
+    }
+#elif defined(Q_OS_MAC)
+    QFile f2(mkspecFullPath + "/qmake.conf");
+    if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
+        while (!f2.atEnd()) {
+            QByteArray line = f2.readLine();
+            if (line.startsWith("MAKEFILE_GENERATOR")) {
+                const QList<QByteArray> &temp = line.split('=');
+                if (temp.size() == 2) {
+                    const QByteArray &value = temp.at(1);
+                    if (value.contains("XCODE")) {
+                        // we don't want to generate xcode projects...
+//                      qDebug() << "default mkspec is xcode, falling back to g++";
+                        mkspecFullPath = baseMkspecDir + "/macx-g++";
+                    }
+                    //resolve mkspec link
+                    QFileInfo f3(mkspecFullPath);
+                    while (f3.isSymLink()) {
+                        mkspecFullPath = f3.symLinkTarget();
+                        f3.setFile(mkspecFullPath);
+                    }
+                }
+                break;
+            }
+        }
+        f2.close();
+    }
+#else
+    QFileInfo f2(mkspecFullPath);
+    while (f2.isSymLink()) {
+        mkspecFullPath = f2.symLinkTarget();
+        f2.setFile(mkspecFullPath);
+    }
+#endif
+
+#ifdef Q_OS_WIN
+    m_mkspecFullPath = m_mkspecFullPath.toLower()
+#endif
+
+    m_mkspecFullPath = mkspecFullPath;
+    QString mkspec = m_mkspecFullPath;
+
+    if (mkspec.startsWith(baseMkspecDir)) {
+        mkspec = mkspec.mid(baseMkspecDir.length() + 1);
+        qDebug() << "Setting mkspec to"<<mkspec;
+    } else {
+        QString sourceMkSpecPath = sourcePath() + "/mkspecs";
+        if (mkspec.startsWith(sourceMkSpecPath)) {
+            mkspec = mkspec.mid(sourceMkSpecPath.length() + 1);
+        } else {
+            // Do nothing
+        }
+    }
+
+    m_mkspec = mkspec;
+
+    qDebug()<<"mkspec for "<<qmakeCommand()<<" is "<<m_mkspec<<m_mkspecFullPath;
 
     ProFileReader *reader = new ProFileReader();
     reader->setQtVersion(this);
     reader->setCumulative(false);
     reader->setParsePreAndPostFiles(false);
-    reader->readProFile(mkspecPath + "/qmake.conf");
+    reader->readProFile(m_mkspecFullPath + "/qmake.conf");
     QString qmakeCXX = reader->value("QMAKE_CXX");
     QString makefileGenerator = reader->value("MAKEFILE_GENERATOR");
     QString ce_sdk = reader->values("CE_SDK").join(QLatin1String(" "));
@@ -1225,8 +1200,19 @@ void QtVersion::updateToolChain() const
     }
 
     if (m_toolChains.isEmpty()) {
-        qDebug()<<"Could not create ToolChain for"<<mkspecPath<<qmakeCXX;
+        qDebug()<<"Could not create ToolChain for"<<m_mkspecFullPath<<qmakeCXX;
         qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
+    }
+
+    QStringList configValues = reader->values("CONFIG");
+    m_defaultConfigIsDebugAndRelease = false;
+    foreach(const QString &value, configValues) {
+        if (value == "debug")
+            m_defaultConfigIsDebug = true;
+        else if (value == "release")
+            m_defaultConfigIsDebug = false;
+        else if (value == "build_all")
+            m_defaultConfigIsDebugAndRelease = true;
     }
 
     delete reader;
@@ -1305,13 +1291,14 @@ int QtVersion::getUniqueId()
 
 bool QtVersion::isValid() const
 {
-    return (!(m_id == -1 || m_qmakeCommand == QString::null
-        || m_name == QString::null) && !m_notInstalled);
+    updateVersionInfo();
+    return (!(m_id == -1 || qmakeCommand() == QString::null
+        || name() == QString::null) && !m_notInstalled);
 }
 
 QtVersion::QmakeBuildConfig QtVersion::defaultBuildConfig() const
 {
-    updateVersionInfo();
+    updateToolChainAndMkspec();
     QtVersion::QmakeBuildConfig result = QtVersion::QmakeBuildConfig(0);
     if (m_defaultConfigIsDebugAndRelease)
         result = QtVersion::BuildAll;
@@ -1415,7 +1402,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
     QString output;
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, &output);
     if (!directory.isEmpty())
-        output += DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), env);
+        output += DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), mkspec(), env);
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
     return output;
 }

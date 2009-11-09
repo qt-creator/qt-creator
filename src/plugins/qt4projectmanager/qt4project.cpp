@@ -1001,6 +1001,58 @@ ProjectExplorer::ToolChain::ToolChainType Qt4Project::toolChainType(BuildConfigu
     return type;
 }
 
+QString Qt4Project::extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version)
+{
+    int index = list.indexOf("-spec");
+    if (index == -1)
+        index = list.indexOf("-platform");
+    if (index == -1)
+        return QString();
+
+    ++index;
+
+    if (index >= list.length())
+        return QString();
+
+    QString baseMkspecDir = version->versionInfo().value("QMAKE_MKSPECS");
+    if (baseMkspecDir.isEmpty())
+        baseMkspecDir = version->versionInfo().value("QT_INSTALL_DATA") + "/mkspecs";
+
+    QString parsedSpec = QDir::cleanPath(list.at(index));
+    // if the path is relative it can be
+    // relative to the working directory (as found in the Makefiles)
+    // or relatively to the mkspec directory
+    // if it is the former we need to get the canonical form
+    // for the other one we don't need to do anything
+    if (QFileInfo(parsedSpec).isRelative()) {
+        if(QFileInfo(directory + "/" + parsedSpec).exists()) {
+            parsedSpec = QDir::cleanPath(directory + "/" + parsedSpec);
+        } else {
+            parsedSpec = baseMkspecDir + "/" + parsedSpec;
+        }
+    }
+
+    QFileInfo f2(parsedSpec);
+    while (f2.isSymLink()) {
+        parsedSpec = f2.symLinkTarget();
+        f2.setFile(parsedSpec);
+    }
+
+    if (parsedSpec.startsWith(baseMkspecDir)) {
+        parsedSpec = parsedSpec.mid(baseMkspecDir.length() + 1);
+    } else {
+        QString sourceMkSpecPath = version->sourcePath() + "/mkspecs";
+        if (parsedSpec.startsWith(sourceMkSpecPath)) {
+            parsedSpec = sourceMkSpecPath.mid(sourceMkSpecPath.length() + 1);
+        }
+    }
+#ifdef Q_OS_WIN
+    parsedSpec = parsedSpec.toLower();
+#endif
+    return parsedSpec;
+
+}
+
 BuildConfigWidget *Qt4Project::createConfigWidget()
 {
     return new Qt4ProjectConfigWidget(this);
@@ -1235,16 +1287,31 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(BuildConfiguration *confi
                 // now compare arguments lists
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own
-
-                QStringList actualArgs = removeSpecFromArgumentList(qs->value(configuration->name(), "qmakeArgs").toStringList());
-                QStringList parsedArgs = removeSpecFromArgumentList(result.second);
-                if (debug) {
-                    qDebug()<<"Actual args:"<<actualArgs;
-                    qDebug()<<"Parsed args:"<<parsedArgs;
+                QString actualSpec = extractSpecFromArgumentList(qs->value(configuration->name(), "qmakeArgs").toStringList(), workingDirectory, version);
+                if (actualSpec.isEmpty()) {
+                    // Easy one the user has choosen not to override the settings
+                    actualSpec = version->mkspec();
                 }
 
-                if (actualArgs == parsedArgs)
-                    return true;
+                QString parsedSpec = extractSpecFromArgumentList(result.second, workingDirectory, version);
+                QStringList actualArgs = removeSpecFromArgumentList(qs->value(configuration->name(), "qmakeArgs").toStringList());
+                QStringList parsedArgs = removeSpecFromArgumentList(result.second);
+
+//                if (debug) {
+                    qDebug()<<"Actual args:"<<actualArgs;
+                    qDebug()<<"Parsed args:"<<parsedArgs;
+                    qDebug()<<"Actual spec:"<<actualSpec;
+                    qDebug()<<"Parsed spec:"<<parsedSpec;
+//                }
+
+                if (actualArgs == parsedArgs) {
+                    // Specs match exactly
+                    if (actualSpec == parsedSpec)
+                        return true;
+                    // Actual spec is the default one
+                    if (actualSpec == version->mkspec()  && (parsedSpec == "default" || parsedSpec.isEmpty()))
+                        return true;
+                }
             }
         }
     }

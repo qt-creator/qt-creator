@@ -67,6 +67,17 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
                 QtVersionManager::scanMakeFile(directory, m_importVersion->defaultBuildConfig());
         m_importBuildConfig = result.first;
         m_additionalArguments = Qt4Project::removeSpecFromArgumentList(result.second);
+
+        QString parsedSpec = Qt4Project::extractSpecFromArgumentList(result.second, directory, m_importVersion);
+        QString versionSpec = m_importVersion->mkspec();
+
+        // Compare mkspecs and add to additional arguments
+        if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == "default") {
+            // using the default spec, don't modify additional arguments
+        } else {
+            m_additionalArguments.prepend(parsedSpec);
+            m_additionalArguments.prepend("-spec");
+        }
     }
 
     // So now we have the version and the configuration for that version

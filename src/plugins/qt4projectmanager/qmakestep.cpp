@@ -65,7 +65,7 @@ QStringList QMakeStep::arguments(const QString &buildConfiguration)
     arguments << "-r";
 
     if (!additonalArguments.contains("-spec"))
-        arguments << "-spec" << "default";
+        arguments << "-spec" << m_pro->qtVersion(bc)->mkspec();
 
 #ifdef Q_OS_WIN
     ToolChain::ToolChainType type = m_pro->toolChainType(bc);

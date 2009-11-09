@@ -223,6 +223,8 @@ void Qt4ProjectConfigWidget::shadowBuildCheckBoxClicked(bool checked)
     else
         bc->setValue("buildDirectory", QVariant(QString::null));
     updateDetails();
+    m_pro->invalidateCachedTargetInformation();
+    updateImportLabel();
 }
 
 void Qt4ProjectConfigWidget::updateImportLabel()
@@ -286,7 +288,15 @@ void Qt4ProjectConfigWidget::importLabelClicked()
             QPair<QtVersion::QmakeBuildConfig, QStringList> result =
                     QtVersionManager::scanMakeFile(directory, version->defaultBuildConfig());
             QtVersion::QmakeBuildConfig qmakeBuildConfig = result.first;
-            QStringList additionalArguments = result.second;
+            QStringList additionalArguments = Qt4Project::removeSpecFromArgumentList(result.second);
+            QString parsedSpec = Qt4Project::extractSpecFromArgumentList(result.second, directory, version);
+            QString versionSpec = version->mkspecPath();
+            if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == "default") {
+                // using the default spec, don't modify additional arguments
+            } else {
+                additionalArguments.prepend(parsedSpec);
+                additionalArguments.prepend("-spec");
+            }
 
             // So we got all the information now apply it...
             m_pro->setQtVersion(bc, version->uniqueId());

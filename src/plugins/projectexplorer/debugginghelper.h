@@ -53,7 +53,7 @@ public:
 
     // Build the helpers and return the output log/errormessage.
     static QString buildDebuggingHelperLibrary(const QString &qmakePath, const QString &make, const Environment &env);
-    static QString buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const Environment &env);
+    static QString buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const QString &mkspec, const Environment &env);
 
     // Copy the source files to a target location and return the chosen target location.
     static QString copyDebuggingHelperLibrary(const QString &qtInstallData, QString *errorMessage);

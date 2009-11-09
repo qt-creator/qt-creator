@@ -142,10 +142,9 @@ private:
     static int getUniqueId();
     // Also used by QtOptionsPageWidget
     void updateSourcePath();
-    void updateMkSpec() const;
     void updateVersionInfo() const;
     QString findQtBinary(const QStringList &possibleName) const;
-    void updateToolChain() const;
+    void updateToolChainAndMkspec() const;
     QString m_name;
     QString m_sourcePath;
     QString m_mingwDirectory;
@@ -160,11 +159,9 @@ private:
     QString m_gcceDirectory;
 #endif
 
-    mutable bool m_mkspecUpToDate;
+    mutable bool m_toolChainUpToDate;
     mutable QString m_mkspec; // updated lazily
     mutable QString m_mkspecFullPath;
-
-    mutable bool m_toolChainUpToDate;
     mutable QList<QSharedPointer<ProjectExplorer::ToolChain> > m_toolChains;
 
     mutable bool m_versionInfoUpToDate;

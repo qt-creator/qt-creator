@@ -132,7 +132,7 @@ QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &qmake
     const QString directory = copyDebuggingHelperLibrary(qtInstallDataDir(qmakePath), &errorMessage);
     if (directory.isEmpty())
         return errorMessage;
-    return buildDebuggingHelperLibrary(directory, make, qmakePath, env);
+    return buildDebuggingHelperLibrary(directory, make, qmakePath, QString::null, env);
 }
 
 // Copy helper source files to a target directory, replacing older files.
@@ -188,7 +188,7 @@ QString DebuggingHelperLibrary::copyDebuggingHelperLibrary(const QString &qtInst
     return QString();
 }
 
-QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const Environment &env)
+QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &directory, const QString &makeCommand, const QString &qmakeCommand, const QString &mkspec, const Environment &env)
 {
     QString output;
     const QChar newline = QLatin1Char('\n');
@@ -218,7 +218,7 @@ QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &direc
     output += QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary", "Running %1 ...\n").arg(qmakeCommand);
 
     QStringList makeArgs;
-    makeArgs << QLatin1String("-spec")<< QString(QLatin1String("default")) << QLatin1String("gdbmacros.pro");
+    makeArgs << QLatin1String("-spec")<< (mkspec.isEmpty() ? QString(QLatin1String("default")) : mkspec) << QLatin1String("gdbmacros.pro");
     proc.start(qmakeCommand, makeArgs);
     proc.waitForFinished();
 
