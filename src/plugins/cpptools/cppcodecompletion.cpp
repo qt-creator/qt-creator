@@ -862,7 +862,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
         if (! resolvedTypes.isEmpty()) {
             if (m_completionOperator == T_LPAREN &&
-                completeConstructorOrFunction(resolvedTypes, context, endOfExpression)) {
+                completeConstructorOrFunction(resolvedTypes, context, endOfExpression, false)) {
                 return m_startPosition;
 
             } else if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
@@ -901,7 +901,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             // If it's a class, add completions for the constructors
             foreach (const TypeOfExpression::Result &result, results) {
                 if (result.first->isClassType()) {
-                    if (completeConstructorOrFunction(results, context, endOfExpression))
+                    if (completeConstructorOrFunction(results, context, endOfExpression, true))
                         return m_startPosition;
                     break;
                 }
@@ -915,7 +915,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
 bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpression::Result> &results,
                                                       const LookupContext &context,
-                                                      int endOfExpression)
+                                                      int endOfExpression, bool toolTipOnly)
 {
     QList<Function *> functions;
 
@@ -1004,15 +1004,17 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
         }
     }
 
-    if (! functions.isEmpty()) {
-        // There are two options:
-        // 1. If this is a function call, we want to pop up a tooltip that shows the user
-        // the possible overloads with their argument types and names.
-        // 2. If this is a function definition, we want to offer autocompletion of
-        // the function signature.
+    // There are two different kinds of completion we want to provide:
+    // 1. If this is a function call, we want to pop up a tooltip that shows the user
+    // the possible overloads with their argument types and names.
+    // 2. If this is a function definition, we want to offer autocompletion of
+    // the function signature.
 
-        // Here we evaluate a first criterion: function definitions will only
-        // happen in class or namespace scope.
+    // check if function signature autocompletion is appropriate
+    if (! functions.isEmpty() && ! toolTipOnly) {
+
+        // function definitions will only happen in class or namespace scope,
+        // so get the current location's enclosing scope.
 
         // get current line and column
         TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(m_editor->widget());
@@ -1034,16 +1036,16 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
             unsigned endLine, endColumn;
             context.thisDocument()->translationUnit()->getPosition(sc->owner()->endOffset(), &endLine, &endColumn);
 
-            if (startLine <= line && line <= endLine)
+            if (startLine <= line && line <= endLine) {
                 if ((startLine != line || startColumn <= column)
                     && (endLine != line || column <= endColumn))
                     break;
+            }
 
             sc = sc->enclosingScope();
         }
 
-        if (sc && (sc->isClassScope() || sc->isNamespaceScope()))
-        {
+        if (sc && (sc->isClassScope() || sc->isNamespaceScope())) {
             // It may still be a function call. If the whole line parses as a function
             // declaration, we should be certain that it isn't.
             bool autocompleteSignature = false;
@@ -1087,7 +1089,9 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
                 return true;
             }
         }
+    }
 
+    if (! functions.empty()) {
         // set up function call tooltip
 
         // Recreate if necessary
