@@ -2489,8 +2489,6 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     int markWidth = 0;
     if (d->m_marksVisible)
         markWidth += fm.lineSpacing();
-//     if (documentLayout->doubleMarkCount)
-//         markWidth += fm.lineSpacing() / 3;
 
     const int collapseColumnWidth = d->m_codeFoldingVisible ? collapseBoxWidth(fm): 0;
     const int extraAreaWidth = d->m_extraArea->width() - collapseColumnWidth;
@@ -2517,6 +2515,12 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
             // invisible blocks do have zero line count
             nextVisibleBlock = doc->findBlockByLineNumber(nextVisibleBlock.firstLineNumber());
             nextVisibleBlockNumber = nextVisibleBlock.blockNumber();
+        }
+
+        if (bottom < e->rect().top()) {
+            block = nextVisibleBlock;
+            blockNumber = nextVisibleBlockNumber;
+            continue;
         }
 
         painter.setPen(pal.color(QPalette::Dark));
