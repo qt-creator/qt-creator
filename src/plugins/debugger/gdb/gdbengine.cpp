@@ -1270,6 +1270,11 @@ void GdbEngine::handleStop1(const GdbMi &data)
     if (m_sourcesListOutdated)
         reloadSourceFilesInternal(); // This needs to be done before fullName() may need it
 
+    // Older gdb versions do not produce "library loaded" messages
+    // so the breakpoint update is not triggered.
+    if (m_gdbVersion < 70000 && !m_isMacGdb)
+        postCommand(_("-break-list"), CB(handleBreakList));
+
     QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
         showStatusMessage(tr("Stopped at breakpoint."));

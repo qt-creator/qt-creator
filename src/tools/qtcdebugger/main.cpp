@@ -363,19 +363,25 @@ bool startCreatorAsDebugger(QString *errorMessage)
     return true;
 }
 
+bool readDefaultDebugger(QString *defaultDebugger,
+                         QString *errorMessage)
+{
+    bool success = false;
+    HKEY handle;
+    if (openRegistryKey(HKEY_LOCAL_MACHINE, optIsWow ? debuggerWow32RegistryKeyC : debuggerRegistryKeyC,
+                        false, &handle, errorMessage)) {
+        success = registryReadStringKey(handle, debuggerRegistryDefaultValueNameC,
+                                        defaultDebugger, errorMessage);
+        RegCloseKey(handle);
+    }
+    return success;
+}
+
 bool startDefaultDebugger(QString *errorMessage)
 {
-    // Read out default value
-    HKEY handle;
-    if (!openRegistryKey(HKEY_LOCAL_MACHINE, optIsWow ? debuggerWow32RegistryKeyC : debuggerRegistryKeyC,
-                         false, &handle, errorMessage))
-        return false;
     QString defaultDebugger;
-    if (!registryReadStringKey(handle, debuggerRegistryDefaultValueNameC, &defaultDebugger, errorMessage)) {
-        RegCloseKey(handle);
+    if (!readDefaultDebugger(&defaultDebugger, errorMessage))
         return false;
-    }
-    RegCloseKey(handle);
     // binary, replace placeholders by pid/event id
     if (debug)
         qDebug() << "Default" << defaultDebugger;
@@ -401,10 +407,13 @@ bool startDefaultDebugger(QString *errorMessage)
 
 bool chooseDebugger(QString *errorMessage)
 {
+    QString defaultDebugger;
     const QString msg = QString::fromLatin1("The application \"%1\" (process id %2)  crashed. Would you like to debug it?").arg(getProcessBaseName(argProcessId)).arg(argProcessId);
     QMessageBox msgBox(QMessageBox::Information, QLatin1String(titleC), msg, QMessageBox::Cancel);
     QPushButton *creatorButton = msgBox.addButton(QLatin1String("Debug with Qt Creator"), QMessageBox::AcceptRole);
     QPushButton *defaultButton = msgBox.addButton(QLatin1String("Debug with default debugger"), QMessageBox::AcceptRole);
+    defaultButton->setEnabled(readDefaultDebugger(&defaultDebugger, errorMessage)
+                              && !defaultDebugger.isEmpty());
     msgBox.exec();
     if (msgBox.clickedButton() == creatorButton) {
         // Just in case, default to standard
@@ -444,12 +453,12 @@ static bool registerDebuggerKey(const WCHAR *key,
     do {
         if (!openRegistryKey(HKEY_LOCAL_MACHINE, key, true, &handle, errorMessage))
             break;
+        // Save old key, which might be missing
         QString oldDebugger;
-        if (!registryReadStringKey(handle, debuggerRegistryValueNameC, &oldDebugger, errorMessage))
-            break;
+        registryReadStringKey(handle, debuggerRegistryValueNameC, &oldDebugger, errorMessage);
         if (oldDebugger.contains(QLatin1String(applicationFileC), Qt::CaseInsensitive)) {
             *errorMessage = QLatin1String("The program is already registered as post mortem debugger.");
-            return false;
+            break;
         }
         if (!registryWriteStringKey(handle, debuggerRegistryDefaultValueNameC, oldDebugger, errorMessage))
             break;
@@ -483,11 +492,24 @@ static bool unregisterDebuggerKey(const WCHAR *key, QString *errorMessage)
     do {
         if (!openRegistryKey(HKEY_LOCAL_MACHINE, key, true, &handle, errorMessage))
             break;
+        QString debugger;
+        registryReadStringKey(handle, debuggerRegistryValueNameC, &debugger, errorMessage);
+        if (!(debugger.isEmpty()
+              || debugger.contains(QLatin1String(applicationFileC), Qt::CaseInsensitive))) {
+            *errorMessage = QLatin1String("The program is not registered as post mortem debugger.");
+            break;
+        }
         QString oldDebugger;
         if (!registryReadStringKey(handle, debuggerRegistryDefaultValueNameC, &oldDebugger, errorMessage))
             break;
-        if (!registryWriteStringKey(handle, debuggerRegistryValueNameC, oldDebugger, errorMessage))
-            break;
+        // Re-register old debugger or delete key if it was empty.
+        if (oldDebugger.isEmpty()) {
+            if (!registryDeleteValue(handle, debuggerRegistryValueNameC, errorMessage))
+                break;
+        } else {
+            if (!registryWriteStringKey(handle, debuggerRegistryValueNameC, oldDebugger, errorMessage))
+                break;
+        }
         if (!registryDeleteValue(handle, debuggerRegistryDefaultValueNameC, errorMessage))
             break;
         success = true;
