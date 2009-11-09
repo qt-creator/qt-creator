@@ -121,8 +121,7 @@ static inline const VCSBase::VCSBaseEditorParameters *findType(int ie)
 
 MercurialPlugin *MercurialPlugin::m_instance = 0;
 
-MercurialPlugin::MercurialPlugin()
-        :   mercurialSettings(new MercurialSettings),
+MercurialPlugin::MercurialPlugin() :
         optionsPage(0),
         client(0),
         mercurialVC(0),
@@ -137,11 +136,6 @@ MercurialPlugin::~MercurialPlugin()
     if (client) {
         delete client;
         client = 0;
-    }
-
-    if (mercurialSettings) {
-        delete mercurialSettings;
-        mercurialSettings = 0;
     }
 
     deleteCommitLog();
@@ -161,6 +155,7 @@ bool MercurialPlugin::initialize(const QStringList &arguments, QString *error_me
 
     optionsPage = new OptionsPage();
     addAutoReleasedObject(optionsPage);
+    mercurialSettings.readSettings(core->settings());
 
     client = new MercurialClient();
     connect(optionsPage, SIGNAL(settingsChanged()), client, SLOT(settingsChanged()));
@@ -194,14 +189,21 @@ void MercurialPlugin::extensionsInitialized()
                 this, SLOT(currentProjectChanged(ProjectExplorer::Project *)));
 }
 
-MercurialSettings *MercurialPlugin::settings()
+const MercurialSettings &MercurialPlugin::settings() const
 {
     return mercurialSettings;
 }
 
+void MercurialPlugin::setSettings(const MercurialSettings &settings)
+{
+    if (settings != mercurialSettings) {
+        mercurialSettings = settings;
+    }
+}
+
 QStringList MercurialPlugin::standardArguments() const
 {
-    return mercurialSettings->standardArguments();
+    return mercurialSettings.standardArguments();
 }
 
 void MercurialPlugin::createMenu()
@@ -530,8 +532,8 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
 
     QString branch = client->branchQuerySync(currentProjectRoot());
 
-    commitEditor->setFields(currentProjectRoot(), branch, mercurialSettings->userName(),
-                            mercurialSettings->email(), status);
+    commitEditor->setFields(currentProjectRoot(), branch, mercurialSettings.userName(),
+                            mercurialSettings.email(), status);
 
     commitEditor->registerActions(editorUndo, editorRedo, editorCommit, editorDiff);
     connect(commitEditor, SIGNAL(diffSelectedFiles(const QStringList &)),
@@ -564,11 +566,11 @@ bool MercurialPlugin::closeEditor(Core::IEditor *editor)
     if (!editorFile || !commitEditor)
         return true;
 
-    bool dummyPrompt = settings()->prompt();
+    bool dummyPrompt = mercurialSettings.prompt();
     const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult response =
             commitEditor->promptSubmit(tr("Close commit editor"), tr("Do you want to commit the changes?"),
                                        tr("Message check failed. Do you want to proceed?"),
-                                       &dummyPrompt, settings()->prompt());
+                                       &dummyPrompt, mercurialSettings.prompt());
 
     switch (response) {
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:

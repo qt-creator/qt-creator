@@ -76,15 +76,15 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<
     if (!page)
         return QSharedPointer<VCSBase::AbstractCheckoutJob>();
 
-    MercurialSettings *settings = MercurialPlugin::instance()->settings();
+    const MercurialSettings &settings = MercurialPlugin::instance()->settings();
 
-    QStringList args = settings->standardArguments();
+    QStringList args = settings.standardArguments();
     QString path = page->path();
     QString directory = page->directory();
 
     args << QLatin1String("clone") << page->repository() << directory;
     *checkoutPath = path + QLatin1Char('/') + directory;
 
-    return QSharedPointer<VCSBase::AbstractCheckoutJob>(new VCSBase::ProcessCheckoutJob(settings->binary(),
+    return QSharedPointer<VCSBase::AbstractCheckoutJob>(new VCSBase::ProcessCheckoutJob(settings.binary(),
                                                                                         args, path));
 }

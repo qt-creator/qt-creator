@@ -40,13 +40,16 @@
 namespace Mercurial {
 namespace Internal {
 
+class MercurialSettings;
+
 class OptionsPageWidget : public QWidget
 {
     Q_OBJECT
 public:
     explicit OptionsPageWidget(QWidget *parent = 0);
-    void updateOptions();
-    void saveOptions();
+
+    MercurialSettings settings() const;
+    void setSettings(const MercurialSettings &s);
 
 private:
     Ui::OptionsPage m_ui;

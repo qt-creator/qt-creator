@@ -97,10 +97,10 @@ void MercurialJobRunner::restart()
 
 void MercurialJobRunner::getSettings()
 {
-    const MercurialSettings *settings = MercurialPlugin::instance()->settings();
-    binary = settings->binary();
-    timeout = settings->timeout();
-    standardArguments = settings->standardArguments();
+    const MercurialSettings &settings = MercurialPlugin::instance()->settings();
+    binary = settings.binary();
+    timeout = settings.timeoutMilliSeconds();
+    standardArguments = settings.standardArguments();
 }
 
 void MercurialJobRunner::enqueueJob(const QSharedPointer<HgTask> &job)
@@ -142,9 +142,9 @@ QString MercurialJobRunner::msgStartFailed(const QString &binary, const QString 
     return tr("Unable to start mercurial process '%1': %2").arg(binary, why);
 }
 
-QString MercurialJobRunner::msgTimeout(int timeoutMS)
+QString MercurialJobRunner::msgTimeout(int timeoutSeconds)
 {
-    return tr("Timed out after %1ms waiting for mercurial process to finish.").arg(timeoutMS);
+    return tr("Timed out after %1s waiting for mercurial process to finish.").arg(timeoutSeconds);
 }
 
 void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
@@ -192,7 +192,7 @@ void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
 
     if (!hgProcess.waitForFinished(timeout)) {
         hgProcess.terminate();
-        emit error(msgTimeout(timeout));
+        emit error(msgTimeout(timeout / 1000));
         return;
     }
 

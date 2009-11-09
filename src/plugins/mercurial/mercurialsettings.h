@@ -33,6 +33,10 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
+
 namespace Mercurial {
 namespace Internal {
 
@@ -42,31 +46,49 @@ public:
     MercurialSettings();
 
     QString binary() const;
-    QString application() const;
+    void setBinary(const QString &);
+
+    // Calculated.
     QStringList standardArguments() const;
+
     QString userName() const;
+    void setUserName(const QString &);
+
     QString email() const;
+    void setEmail(const QString &);
+
     int logCount() const;
-    int timeout() const;
+    void setLogCount(int l);
+
+    int timeoutMilliSeconds() const;
     int timeoutSeconds() const;
+    void setTimeoutSeconds(int s);
+
     bool prompt() const;
-    void writeSettings(const QString &application, const QString &userName,
-                       const QString &email, int logCount, int timeout, bool prompt);
+    void setPrompt(bool b);
+
+    void writeSettings(QSettings *settings) const;
+    void readSettings(const QSettings *settings);
+
+    bool equals(const MercurialSettings &rhs) const;
+
 private:
 
     void readSettings();
-    void setBinAndArgs();
 
-    QString bin; // used because windows requires cmd.exe to run the mercurial binary
-                 // in this case the actual mercurial binary will be part of the standard args
-    QString app; // this is teh actual mercurial executable
-    QStringList standardArgs;
-    QString user;
-    QString mail;
+    QString m_binary;
+    QStringList m_standardArguments;
+    QString m_user;
+    QString m_mail;
     int m_logCount;
-    int m_timeout;
+    int m_timeoutSeconds;
     bool m_prompt;
 };
+
+inline bool operator==(const MercurialSettings &s1, const MercurialSettings &s2)
+{ return s1.equals(s2); }
+inline bool operator!=(const MercurialSettings &s1, const MercurialSettings &s2)
+{ return !s1.equals(s2); }
 
 } //namespace Internal
 } //namespace Mercurial

@@ -83,7 +83,7 @@ public:
 
     static QString msgExecute(const QString &binary, const QStringList &args);
     static QString msgStartFailed(const QString &binary, const QString &why);
-    static QString msgTimeout(int timeoutMS);
+    static QString msgTimeout(int timeoutSeconds);
 
 protected:
     void run();

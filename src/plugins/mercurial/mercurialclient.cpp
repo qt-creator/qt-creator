@@ -60,11 +60,10 @@ inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property
     return 0;
 }
 
-MercurialClient::MercurialClient()
-        : core(Core::ICore::instance())
+MercurialClient::MercurialClient() :
+    jobManager(0),
+    core(Core::ICore::instance())
 {
-    jobManager = new MercurialJobRunner();
-    jobManager->start();
 }
 
 MercurialClient::~MercurialClient()
@@ -118,9 +117,9 @@ bool MercurialClient::executeHgSynchronously(const QFileInfo &file, const QStrin
     QProcess hgProcess;
     hgProcess.setWorkingDirectory(file.isDir() ? file.absoluteFilePath() : file.absolutePath());
 
-    const MercurialSettings *settings = MercurialPlugin::instance()->settings();
-    const QString binary = settings->binary();
-    const QStringList arguments = MercurialPlugin::instance()->standardArguments() + args;
+    const MercurialSettings &settings = MercurialPlugin::instance()->settings();
+    const QString binary = settings.binary();
+    const QStringList arguments = settings.standardArguments() + args;
 
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     outputWindow->appendCommand(MercurialJobRunner::msgExecute(binary, arguments));
@@ -134,9 +133,9 @@ bool MercurialClient::executeHgSynchronously(const QFileInfo &file, const QStrin
 
     hgProcess.closeWriteChannel();
 
-    if (!hgProcess.waitForFinished(settings->timeout())) {
+    if (!hgProcess.waitForFinished(settings.timeoutMilliSeconds())) {
         hgProcess.terminate();
-        outputWindow->appendError(MercurialJobRunner::msgTimeout(settings->timeout()));
+        outputWindow->appendError(MercurialJobRunner::msgTimeout(settings.timeoutSeconds()));
         return false;
     }
 
@@ -170,7 +169,7 @@ void MercurialClient::annotate(const QFileInfo &file)
                                                      "annotate", file.absoluteFilePath());
 
     QSharedPointer<HgTask> job(new HgTask(file.absolutePath(), args, editor));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::diff(const QFileInfo &fileOrDir)
@@ -198,7 +197,7 @@ void MercurialClient::diff(const QFileInfo &fileOrDir)
                                                      "diff", id);
 
     QSharedPointer<HgTask> job(new HgTask(workingPath, args, editor));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::log(const QFileInfo &fileOrDir)
@@ -223,7 +222,7 @@ void MercurialClient::log(const QFileInfo &fileOrDir)
                                                      "log", id);
 
     QSharedPointer<HgTask> job(new HgTask(workingDir, args, editor));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::revert(const QFileInfo &fileOrDir, const QString &revision)
@@ -239,7 +238,7 @@ void MercurialClient::revert(const QFileInfo &fileOrDir, const QString &revision
 
     QSharedPointer<HgTask> job(new HgTask(fileOrDir.isDir() ? fileOrDir.absoluteFilePath() :
                                           fileOrDir.absolutePath(), args, false));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::status(const QFileInfo &fileOrDir)
@@ -250,7 +249,7 @@ void MercurialClient::status(const QFileInfo &fileOrDir)
 
     QSharedPointer<HgTask> job(new HgTask(fileOrDir.isDir() ? fileOrDir.absoluteFilePath() :
                                           fileOrDir.absolutePath(), args, false));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::statusWithSignal(const QFileInfo &repositoryRoot)
@@ -261,7 +260,7 @@ void MercurialClient::statusWithSignal(const QFileInfo &repositoryRoot)
     connect(job.data(), SIGNAL(rawData(QByteArray)),
             this, SLOT(statusParser(QByteArray)));
 
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::statusParser(const QByteArray &data)
@@ -302,7 +301,7 @@ void MercurialClient::import(const QFileInfo &repositoryRoot, const QStringList 
     args += files;
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::pull(const QFileInfo &repositoryRoot, const QString &repository)
@@ -312,7 +311,7 @@ void MercurialClient::pull(const QFileInfo &repositoryRoot, const QString &repos
         args.append(repository);
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::push(const QFileInfo &repositoryRoot, const QString &repository)
@@ -322,7 +321,7 @@ void MercurialClient::push(const QFileInfo &repositoryRoot, const QString &repos
         args.append(repository);
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::incoming(const QFileInfo &repositoryRoot, const QString &repository)
@@ -341,7 +340,7 @@ void MercurialClient::incoming(const QFileInfo &repositoryRoot, const QString &r
                                                      true, "incoming", id);
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, editor));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::outgoing(const QFileInfo &repositoryRoot)
@@ -358,7 +357,7 @@ void MercurialClient::outgoing(const QFileInfo &repositoryRoot)
                                                      "outgoing", id);
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, editor));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::view(const QString &source, const QString &id)
@@ -374,7 +373,7 @@ void MercurialClient::view(const QString &source, const QString &id)
                                                      true, "view", id);
 
     QSharedPointer<HgTask> job(new HgTask(source, args, editor));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::update(const QFileInfo &repositoryRoot, const QString &revision)
@@ -384,7 +383,7 @@ void MercurialClient::update(const QFileInfo &repositoryRoot, const QString &rev
         args << revision;
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 void MercurialClient::commit(const QFileInfo &repositoryRoot, const QStringList &files,
@@ -395,7 +394,7 @@ void MercurialClient::commit(const QFileInfo &repositoryRoot, const QStringList 
         args << QLatin1String("-u") << committerInfo;
     args << QLatin1String("-l") << commitMessageFile << files;
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
-    jobManager->enqueueJob(job);
+    enqueueJob(job);
 }
 
 QString MercurialClient::findTopLevelForFile(const QFileInfo &file)
@@ -442,4 +441,13 @@ VCSBase::VCSBaseEditor *MercurialClient::createVCSEditor(const QString &kind, QS
 
     core->editorManager()->activateEditor(outputEditor);
     return baseEditor;
+}
+
+void MercurialClient::enqueueJob(const QSharedPointer<HgTask> &job)
+{
+    if (!jobManager) {
+        jobManager = new MercurialJobRunner();
+        jobManager->start();
+    }
+    jobManager->enqueueJob(job);
 }
