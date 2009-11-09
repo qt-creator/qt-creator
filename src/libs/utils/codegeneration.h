@@ -40,6 +40,10 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+// Convert a file name to a Cpp identifier (stripping invalid characters
+// or replacing them by an underscore).
+QTCREATOR_UTILS_EXPORT QString fileNameToCppIdentifier(const QString &s);
+
 QTCREATOR_UTILS_EXPORT QString headerGuard(const QString &file);
 
 QTCREATOR_UTILS_EXPORT
