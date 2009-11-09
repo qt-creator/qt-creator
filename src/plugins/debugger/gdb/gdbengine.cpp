@@ -285,6 +285,8 @@ void GdbEngine::initializeVariables()
 
     m_inbuffer.clear();
 
+    m_commandTimer->stop();
+
     // ConverterState has no reset() function.
     m_outputCodecState.~ConverterState();
     new (&m_outputCodecState) QTextCodec::ConverterState();
@@ -1456,6 +1458,7 @@ void GdbEngine::shutdown()
     case InferiorRunning:
     case InferiorStopping:
     case InferiorStopped:
+        m_commandsToRunOnTemporaryBreak.clear();
         postCommand(_(m_gdbAdapter->inferiorShutdownCommand()),
                     NeedsStop | LosesChild, CB(handleInferiorShutdown));
         break;
@@ -1496,6 +1499,7 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultExit) {
         debugMessage(_("GDB CLAIMS EXIT; WAITING"));
+        m_commandsDoneCallback = 0;
         // don't set state here, this will be handled in handleGdbFinished()
     } else {
         QString msg = m_gdbAdapter->msgGdbStopFailed(_(response.data.findChild("msg").data()));
