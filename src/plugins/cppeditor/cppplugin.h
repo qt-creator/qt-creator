@@ -75,8 +75,8 @@ private slots:
     void switchDeclarationDefinition();
     void jumpToDefinition();
     void renameSymbolUnderCursor();
-    void onTaskStarted(const QString &type);
-    void onAllTasksFinished(const QString &type);
+    void onCppModelIndexingStarted();
+    void onCppModelIndexingFinished();
     void findUsages();
 
 private:
@@ -90,6 +90,7 @@ private:
     bool m_sortedMethodOverview;
     QAction *m_renameSymbolUnderCursorAction;
     QAction *m_findUsagesAction;
+    QAction *m_updateCodeModelAction;
 };
 
 class CppEditorFactory : public Core::IEditorFactory
