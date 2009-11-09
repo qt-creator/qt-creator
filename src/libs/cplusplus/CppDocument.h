@@ -341,6 +341,7 @@ public:
     QStringList dependsOn(const QString &fileName) const;
 
     void insert(Document::Ptr doc);
+    Document::Ptr value(const QString &fileName) const;
 
     using _Base::insert;
 
