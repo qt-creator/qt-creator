@@ -104,6 +104,7 @@ bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configu
             && type != ProjectExplorer::ToolChain::RVCT_ARMV5
             && type != ProjectExplorer::ToolChain::RVCT_ARMV6;
 #else
+    Q_UNUSED(configuration);
     return true;
 #endif
 }

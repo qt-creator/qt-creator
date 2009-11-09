@@ -40,6 +40,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 
+#if 0
 static QAction *actionFromId(const QString &id)
 {
     Core::Command *cmd = Core::ICore::instance()->actionManager()->command(id);
@@ -47,22 +48,20 @@ static QAction *actionFromId(const QString &id)
         return 0;
     return cmd->action();
 }
+#endif
 
 namespace QtScriptEditor {
 namespace Internal {
 
 QtScriptEditorActionHandler::QtScriptEditorActionHandler()
   : TextEditor::TextEditorActionHandler(QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR),
-                                        Format),
-    m_runAction(0)
+                                        Format)
 {
 }
 
 void QtScriptEditorActionHandler::createActions()
 {
     TextEditor::TextEditorActionHandler::createActions();
-    m_runAction = actionFromId(QLatin1String(QtScriptEditor::Constants::RUN));
-    connect(m_runAction, SIGNAL(triggered()), this, SLOT(run()));
 }
 
 
