@@ -22,6 +22,34 @@
 
 using namespace CPlusPlus;
 
+QTextCursor createCursor(TranslationUnit *unit, AST *ast, QTextDocument *document)
+{
+    unsigned startLine, startColumn, endLine, endColumn;
+    unit->getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
+    unit->getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
+
+    QTextCursor tc(document);
+    tc.setPosition(document->findBlockByNumber(startLine - 1).position());
+    tc.setPosition(document->findBlockByNumber(endLine - 1).position() + endColumn - 1,
+                   QTextCursor::KeepAnchor);
+
+    int charsToSkip = 0;
+    forever {
+        QChar ch = document->characterAt(tc.position() + charsToSkip);
+
+        if (! ch.isSpace())
+            break;
+
+        ++charsToSkip;
+
+        if (ch == QChar::ParagraphSeparator)
+            break;
+    }
+
+    tc.setPosition(tc.position() + charsToSkip, QTextCursor::KeepAnchor);
+    return tc;
+}
+
 class ASTNodes
 {
 public:
@@ -73,25 +101,8 @@ protected:
 
                 Q_ASSERT(accessDeclaration != 0);
 
-                unsigned endLine, endColumn;
-                getTokenEndPosition(accessDeclaration->lastToken() - 1, &endLine, &endColumn);
-
-                QTextCursor tc(document);
-                tc.setPosition(document->findBlockByNumber(endLine - 1).position() + endColumn - 1);
-
-                int charsToSkip = 0;
-                forever {
-                    QChar ch = document->characterAt(tc.position() + charsToSkip);
-                    if (! ch.isSpace())
-                        break;
-
-                    ++charsToSkip;
-
-                    if (ch == QChar::ParagraphSeparator)
-                        break;
-                }
-
-                tc.setPosition(tc.position() + charsToSkip);
+                QTextCursor tc = createCursor(translationUnit(), accessDeclaration, document);
+                tc.setPosition(tc.position());
 
                 _nodes.endOfPublicClassSpecifiers.append(tc);
             }
@@ -127,29 +138,8 @@ protected:
 
         if (functionName.length() > 3 && functionName.startsWith(QLatin1String("as"))
             && functionName.at(2).isUpper()) {
-            unsigned startLine, startColumn, endLine, endColumn;
-            getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
-            getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
 
-            QTextCursor tc(document);
-            tc.setPosition(document->findBlockByNumber(startLine - 1).position());
-            tc.setPosition(document->findBlockByNumber(endLine - 1).position() + endColumn - 1,
-                           QTextCursor::KeepAnchor);
-
-            int charsToSkip = 0;
-            forever {
-                QChar ch = document->characterAt(tc.position() + charsToSkip);
-
-                if (! ch.isSpace())
-                    break;
-
-                ++charsToSkip;
-
-                if (ch == QChar::ParagraphSeparator)
-                    break;
-            }
-
-            tc.setPosition(tc.position() + charsToSkip, QTextCursor::KeepAnchor);
+            QTextCursor tc = createCursor(translationUnit(), ast, document);
 
             //qDebug() << qPrintable(tc.selectedText());
             _cursors.append(tc);
@@ -164,8 +154,10 @@ private:
     Overview oo;
 };
 
-void generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
+QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
 {
+    QStringList astDerivedClasses;
+
     QFileInfo fileAST_h(cplusplusDir, QLatin1String("AST.h"));
     Q_ASSERT(fileAST_h.exists());
 
@@ -173,7 +165,7 @@ void generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
 
     QFile file(fileName);
     if (! file.open(QFile::ReadOnly))
-        return;
+        return astDerivedClasses;
 
     const QString source = QTextStream(&file).readAll();
     file.close();
@@ -204,6 +196,8 @@ void generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
         const QString methodName = QLatin1String("as") + className.mid(0, className.length() - 3);
         replacementCastMethods[classAST] = QString("    virtual %1 *%2() { return this; }\n").arg(className, methodName);
         castMethods.append(QString("    virtual %1 *%2() { return 0; }\n").arg(className, methodName));
+
+        astDerivedClasses.append(className);
     }
 
     if (! baseCastMethodCursors.isEmpty()) {
@@ -231,6 +225,85 @@ void generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
         QTextStream out(&file);
         out << document.toPlainText();
     }
+
+    return astDerivedClasses;
+}
+
+class FindASTForwards: protected ASTVisitor
+{
+public:
+    FindASTForwards(Document::Ptr doc, QTextDocument *document)
+        : ASTVisitor(doc->control()), document(document)
+    {}
+
+    QList<QTextCursor> operator()(AST *ast)
+    {
+        accept(ast);
+        return _cursors;
+    }
+
+protected:
+    bool visit(SimpleDeclarationAST *ast)
+    {
+        if (ElaboratedTypeSpecifierAST *e = ast->decl_specifier_seq->asElaboratedTypeSpecifier()) {
+            if (tokenKind(e->classkey_token) == T_CLASS && !ast->declarators) {
+                QString className = oo(e->name->name);
+
+                if (className.length() > 3 && className.endsWith(QLatin1String("AST"))) {
+                    QTextCursor tc = createCursor(translationUnit(), ast, document);
+                    _cursors.append(tc);
+                }
+            }
+        }
+
+        return true;
+    }
+
+private:
+    QTextDocument *document;
+    QList<QTextCursor> _cursors;
+    Overview oo;
+};
+
+void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const QStringList &astDerivedClasses)
+{
+    QFileInfo fileASTFwd_h(cplusplusDir, QLatin1String("ASTfwd.h"));
+    Q_ASSERT(fileASTFwd_h.exists());
+
+    const QString fileName = fileASTFwd_h.absoluteFilePath();
+
+    QFile file(fileName);
+    if (! file.open(QFile::ReadOnly))
+        return;
+
+    const QString source = QTextStream(&file).readAll();
+    file.close();
+
+    QTextDocument document;
+    document.setPlainText(source);
+
+    Document::Ptr doc = Document::create(fileName);
+    const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fileName);
+    doc->setSource(preprocessedCode);
+    doc->check();
+
+    FindASTForwards process(doc, &document);
+    QList<QTextCursor> cursors = process(doc->translationUnit()->ast());
+
+    for (int i = 0; i < cursors.length(); ++i)
+        cursors[i].removeSelectedText();
+
+    QString replacement;
+    foreach (const QString &astDerivedClass, astDerivedClasses) {
+        replacement += QString(QLatin1String("class %1;\n")).arg(astDerivedClass);
+    }
+
+    cursors.first().insertText(replacement);
+
+    if (file.open(QFile::WriteOnly)) {
+        QTextStream out(&file);
+        out << document.toPlainText();
+    }
 }
 
 int main(int argc, char *argv[])
@@ -247,5 +320,7 @@ int main(int argc, char *argv[])
     QDir cplusplusDir(files.first());
     Snapshot snapshot;
 
-    generateAST_H(snapshot, cplusplusDir);
+    QStringList astDerivedClasses = generateAST_H(snapshot, cplusplusDir);
+    astDerivedClasses.sort();
+    generateASTFwd_h(snapshot, cplusplusDir, astDerivedClasses);
 }
