@@ -106,4 +106,5 @@ void GccParser::stdError(const QString & line)
         //qDebug()<<"m_regExpInclude"<<m_regExpIncluded.cap(1)<<m_regExpIncluded.cap(2);
     } else if (lne.startsWith(QLatin1String("collect2:"))) {
         emit addToTaskWindow("", ProjectExplorer::BuildParserInterface::Error, -1, lne);
-    }}
+    }
+}

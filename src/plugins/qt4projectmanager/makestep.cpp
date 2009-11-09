@@ -115,6 +115,13 @@ bool MakeStep::init(const QString &name)
 
     if (type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
         setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_MSVC);
+    else if (ProjectExplorer::ToolChain::GCCE == type)
+        setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_ABLD_GCCE);
+    else if (ProjectExplorer::ToolChain::WINSCW == type)
+        setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_ABLD_WINSCW);
+    else if (ProjectExplorer::ToolChain::RVCT_ARMV5 == type ||
+             ProjectExplorer::ToolChain::RVCT_ARMV6 == type)
+        setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_ABLD_RVCT);
     else
         setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_GCC);
 
