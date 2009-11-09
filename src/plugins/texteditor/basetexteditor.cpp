@@ -3415,6 +3415,16 @@ void BaseTextEditor::reindent(QTextDocument *doc, const QTextCursor &cursor)
         const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
 
         const TabSettings &ts = d->m_document->tabSettings();
+
+        // skip empty blocks
+        while (block.isValid() && block != end) {
+            QString bt = block.text();
+            if (ts.firstNonSpace(bt) < bt.size())
+                break;
+            indentBlock(doc, block, QChar::Null);
+            block = block.next();
+        }
+
         int previousIndentation = ts.indentationColumn(block.text());
         indentBlock(doc, block, QChar::Null);
         int currentIndentation = ts.indentationColumn(block.text());
