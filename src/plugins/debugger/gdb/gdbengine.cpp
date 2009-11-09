@@ -427,6 +427,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             }
             if (asyncClass == "stopped") {
                 handleStopResponse(result);
+                m_pendingLogStreamOutput.clear();
+                m_pendingConsoleStreamOutput.clear();
             } else if (asyncClass == "running") {
                 // Archer has 'thread-id="all"' here
             } else if (asyncClass == "library-loaded") {
