@@ -759,6 +759,7 @@ void GitPlugin::updateActions()
         m_statusProjectAction->setEnabled(false);
         m_logProjectAction->setParameter(repository);
         m_logProjectAction->setEnabled(false);
+        m_undoProjectAction->setEnabled(false);
         return;
     }
 
@@ -778,6 +779,7 @@ void GitPlugin::updateActions()
     m_statusProjectAction->setParameter(project);
     m_logProjectAction->setEnabled(enabled);
     m_logProjectAction->setParameter(project);
+    m_undoProjectAction->setEnabled(enabled);
 }
 
 void GitPlugin::showCommit()
