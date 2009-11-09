@@ -47,9 +47,6 @@ private:
 
 private slots:
     void run();
-
-private:
-    QAction *m_runAction;
 };
 
 } // namespace Internal

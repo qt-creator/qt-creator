@@ -145,18 +145,8 @@ void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEdit
 
 void QtScriptEditorPlugin::registerActions()
 {
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
-    Core::ActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
-
-    QAction *action = new QAction(this);
-    action->setSeparator(true);
-    Core::Command *cmd = am->registerAction(action, QtScriptEditor::Constants::RUN_SEP, m_scriptcontext);
-    mcontext->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-
-    action = new QAction(tr("Run"), this);
-    cmd = am->registerAction(action, QtScriptEditor::Constants::RUN, m_scriptcontext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
-    mcontext->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+//    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+//    Core::ActionContainer *mcontext = am->createMenu(QtScriptEditor::Constants::M_CONTEXT);
 }
 
 Q_EXPORT_PLUGIN(QtScriptEditorPlugin)
