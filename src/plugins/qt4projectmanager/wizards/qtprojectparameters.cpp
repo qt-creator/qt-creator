@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "qtprojectparameters.h"
+#include <utils/codegeneration.h>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QDir>
@@ -108,7 +109,7 @@ QString createMacro(const QString &name, const QString &suffix)
     if (extensionPosition != -1)
         rc.truncate(extensionPosition);
     rc += suffix;
-    return rc;
+    return Utils::fileNameToCppIdentifier(rc);
 }
 
 QString QtProjectParameters::exportMacro(const QString &projectName)
