@@ -2537,7 +2537,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppcurrentdocumentfilter.h" line="+53"/>
         <source>Methods in current Document</source>
-        <translation>Methoden im aktuellenDokument</translation>
+        <translation>Methoden im aktuellen Dokument</translation>
     </message>
 </context>
 <context>
@@ -14355,7 +14355,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/plugins/texteditor/linenumberfilter.h" line="+52"/>
         <source>Line in current document</source>
-        <translation>Zeile im aktuellenDokument</translation>
+        <translation>Zeile im aktuellen Dokument</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/texteditor/linenumberfilter.cpp" line="+55"/>
