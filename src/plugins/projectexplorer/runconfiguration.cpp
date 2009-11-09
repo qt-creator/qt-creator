@@ -61,7 +61,8 @@ bool RunConfiguration::isEnabled() const
 {
     if (!m_project)
         return false;
-    if (!m_project->activeBuildConfiguration())
+    if (m_project->hasBuildSettings()
+        && !m_project->activeBuildConfiguration())
         return false;
     return isEnabled(m_project->activeBuildConfiguration());
 }
