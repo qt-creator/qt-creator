@@ -197,9 +197,17 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     m_running(false),
     m_trkDevice(new trk::TrkDevice),
     m_gdbAckMode(true),
-    m_verbose(2),
+    m_verbose(0),
     m_bufferedMemoryRead(true)
 {
+    const QByteArray trkVerbose = qgetenv("QTC_TRK_VERBOSE");
+    if (!trkVerbose.isEmpty()) {
+        bool ok;
+        m_verbose = trkVerbose.toInt(&ok);
+        if (!ok)
+            m_verbose = 1;
+    }
+
     m_gdbServer = 0;
     m_gdbConnection = 0;
 #ifdef Q_OS_WIN
