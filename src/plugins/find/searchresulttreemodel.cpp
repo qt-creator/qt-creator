@@ -243,7 +243,7 @@ QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) con
         break;
     case ItemDataRoles::FileNameRole:
     case Qt::ToolTipRole:
-        result = file->fileName();
+        result = QDir::toNativeSeparators(file->fileName());
         break;
     case ItemDataRoles::ResultLinesCountRole:
         result = file->childrenCount();
@@ -270,6 +270,10 @@ QVariant SearchResultTreeModel::headerData(int section, Qt::Orientation orientat
 
 void SearchResultTreeModel::appendResultFile(const QString &fileName)
 {
+#ifdef Q_OS_WIN
+    if (fileName.contains(QLatin1Char('\\')))
+        qWarning("SearchResultTreeModel::appendResultFile: File name with native separators added %s.\n", qPrintable(fileName));
+#endif
     m_lastAppendedResultFile = new SearchResultFile(fileName, m_rootItem);
 
     if (m_showReplaceUI) {

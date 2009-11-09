@@ -532,7 +532,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
         return;
 
     QString contents = tryIncludeFile(fileName, type);
-
+    fileName = QDir::cleanPath(fileName);
     if (m_currentDoc) {
         m_currentDoc->addIncludeFile(fileName, line);
 

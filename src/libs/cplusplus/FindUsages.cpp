@@ -121,8 +121,7 @@ void FindUsages::reportResult(unsigned tokenIndex)
     const int len = tk.f.length;
 
     if (_future) {
-        const QString path = QDir::toNativeSeparators(_doc->fileName());
-        _future->reportResult(Usage(path, line, lineText, col, len));
+        _future->reportResult(Usage(_doc->fileName(), line, lineText, col, len));
     }
 
     _references.append(tokenIndex);
