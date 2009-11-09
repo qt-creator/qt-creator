@@ -57,7 +57,6 @@ private:
     QString m_deviceId;
     QString m_deviceName;
     QString m_deviceRoot;
-    QByteArray m_predefinedMacros;
     QList<ProjectExplorer::HeaderPath> m_systemHeaderPaths;
 };
 
