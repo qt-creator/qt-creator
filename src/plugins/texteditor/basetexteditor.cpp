@@ -4654,6 +4654,7 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
     }
 
     cursor.beginEditBlock();
+    cursor.removeSelectedText();
 
     bool insertAtBeginningOfLine = ts.cursorIsAtBeginningOfLine(cursor);
 
@@ -4663,8 +4664,6 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
         if (text.isEmpty())
             return;
     }
-
-    cursor.removeSelectedText();
 
     int reindentBlockStart = cursor.blockNumber() + (insertAtBeginningOfLine?0:1);
 
