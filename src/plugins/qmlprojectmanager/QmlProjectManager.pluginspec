@@ -19,10 +19,9 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Qml support</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.3.80"/>
         <dependency name="ProjectExplorer" version="1.3.80"/>
-        <dependency name="CppTools" version="1.3.80"/>
-        <dependency name="CppEditor" version="1.3.80"/>
+        <dependency name="TextEditor" version="1.3.80"/>
+        <dependency name="QmlEditor" version="1.3.80"/>
         <dependency name="Help" version="1.3.80"/>
     </dependencyList>
 </plugin>
