@@ -16,11 +16,236 @@
 #include <Literals.h>
 #include <CppDocument.h>
 #include <Overview.h>
+#include <Names.h>
+#include <Scope.h>
 
 #include <iostream>
 #include <cstdlib>
 
 using namespace CPlusPlus;
+
+class SearchListNodes: protected ASTVisitor
+{
+    QList<QByteArray> _listNodes;
+
+public:
+    SearchListNodes(Control *control)
+        : ASTVisitor(control)
+    { }
+
+    QList<QByteArray> operator()(AST *ast)
+    {
+        _listNodes.clear();
+        accept(ast);
+        return _listNodes;
+    }
+
+protected:
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        const QString className = oo(ast->symbol->name());
+        
+        if (! (className.length() > 3 && className.endsWith(QLatin1String("AST"))))
+            return true;
+
+        for (unsigned i = 0; i < ast->symbol->memberCount(); ++i) {
+            Symbol *member = ast->symbol->memberAt(i);
+            Name *memberName = member->name();
+
+            if (! memberName)
+                continue;
+            else if (! memberName->identifier())
+                continue;
+            
+            if (! qstrcmp("next", memberName->identifier()->chars())) {
+                _listNodes.append(className.toUtf8());
+                break;
+            }
+        }
+
+        return true;
+    }
+
+private:
+    Overview oo;
+};
+
+class VisitCG: protected ASTVisitor
+{
+    QDir _cplusplusDir;
+    QList<QByteArray> _listNodes;
+    QTextStream *out;
+
+public:
+    VisitCG(const QDir &cplusplusDir, Control *control)
+        : ASTVisitor(control), _cplusplusDir(cplusplusDir), out(0)
+    { }
+
+    void operator()(AST *ast)
+    {
+        QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTVisit.cpp"));
+
+        QFile file(fileInfo.absoluteFilePath());
+        if (! file.open(QFile::WriteOnly))
+            return;
+
+        QTextStream output(&file);
+        out = &output;
+
+        *out <<
+            "/**************************************************************************\n"
+            "**\n"
+            "** This file is part of Qt Creator\n"
+            "**\n"
+            "** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).\n"
+            "**\n"
+            "** Contact: Nokia Corporation (qt-info@nokia.com)\n"
+            "**\n"
+            "** Commercial Usage\n"
+            "**\n"
+            "** Licensees holding valid Qt Commercial licenses may use this file in\n"
+            "** accordance with the Qt Commercial License Agreement provided with the\n"
+            "** Software or, alternatively, in accordance with the terms contained in\n"
+            "** a written agreement between you and Nokia.\n"
+            "**\n"
+            "** GNU Lesser General Public License Usage\n"
+            "**\n"
+            "** Alternatively, this file may be used under the terms of the GNU Lesser\n"
+            "** General Public License version 2.1 as published by the Free Software\n"
+            "** Foundation and appearing in the file LICENSE.LGPL included in the\n"
+            "** packaging of this file.  Please review the following information to\n"
+            "** ensure the GNU Lesser General Public License version 2.1 requirements\n"
+            "** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\n"
+            "**\n"
+            "** If you are unsure which license is appropriate for your use, please\n"
+            "** contact the sales department at http://qt.nokia.com/contact.\n"
+            "**\n"
+            "**************************************************************************/\n"
+            "\n"
+            "#include \"AST.h\"\n"
+            "#include \"ASTVisitor.h\"\n"
+            "\n"
+            "using namespace CPlusPlus;\n" << endl;
+
+        SearchListNodes listNodes(control());
+        _listNodes = listNodes(ast);
+
+        accept(ast);
+    }
+
+protected:
+    using ASTVisitor::visit;
+
+    QMap<QByteArray, ClassSpecifierAST *> classMap;
+
+    QByteArray id_cast(NameAST *name)
+    {
+        if (! name)
+            return QByteArray();
+
+        Identifier *id = identifier(name->asSimpleName()->identifier_token);
+
+        return QByteArray::fromRawData(id->chars(), id->size());
+    }
+
+    void visitMembers(Class *klass)
+    {
+        const QByteArray className = klass->name()->identifier()->chars();
+
+        // *out << "        // visit " << className.constData() << endl;
+        for (unsigned i = 0; i < klass->memberCount(); ++i) {
+            Symbol *member = klass->memberAt(i);
+            if (! member->name())
+                continue;
+
+            Identifier *id = member->name()->identifier();
+
+            if (! id)
+                continue;
+
+            const QByteArray memberName = QByteArray::fromRawData(id->chars(), id->size());
+            if (member->type().isUnsigned() && memberName.endsWith("_token")) {
+                // nothing to do. The member is a token.
+
+            } else if (PointerType *ptrTy = member->type()->asPointerType()) {
+
+                if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
+                    QByteArray typeName = namedTy->name()->identifier()->chars();
+
+                    if (_listNodes.contains(typeName) && memberName != "next") {
+                        *out
+                                << "        for (" << typeName.constData() << " *it = "
+                                << memberName.constData() << "; it; it = it->next)" << endl
+                                << "            accept(it, visitor);" << endl;
+
+                    } else if (typeName.endsWith("AST") && memberName != "next") {
+                        *out << "        accept(" << memberName.constData() << ", visitor);" << endl;
+                    }
+                }
+            }
+        }
+
+        for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
+            const QByteArray baseClassName = klass->baseClassAt(i)->identifier()->chars();
+
+            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0)) {
+                visitMembers(baseClassSpec->symbol);
+            }
+        }
+    }
+
+    bool checkMethod(Symbol *accept0Method) const
+    {
+        Declaration *decl = accept0Method->asDeclaration();
+        if (! decl)
+            return false;
+
+        Function *funTy = decl->type()->asFunctionType();
+        if (! funTy)
+            return false;
+
+        else if (funTy->isPureVirtual())
+            return false;
+
+        return true;
+    }
+
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        Class *klass = ast->symbol;
+        const QByteArray className = id_cast(ast->name);
+
+        Identifier *visit_id = control()->findOrInsertIdentifier("accept0");
+        Symbol *accept0Method = klass->members()->lookat(visit_id);
+        for (; accept0Method; accept0Method = accept0Method->next()) {
+            if (accept0Method->identifier() != visit_id)
+                continue;
+
+            if (checkMethod(accept0Method))
+                break;
+        }
+
+        if (! accept0Method)
+            return true;
+
+        classMap.insert(className, ast);
+
+        *out
+                << "void " << className.constData() << "::accept0(ASTVisitor *visitor)" << endl
+                << "{" << endl
+                << "    if (visitor->visit(this)) {" << endl;
+
+        visitMembers(klass);
+
+        *out
+                << "    }" << endl
+                << "    visitor->endVisit(this);" << endl
+                << "}" << endl
+                << endl;
+
+        return true;
+    }
+};
 
 QTextCursor createCursor(TranslationUnit *unit, AST *ast, QTextDocument *document)
 {
@@ -225,6 +450,9 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
         QTextStream out(&file);
         out << document.toPlainText();
     }
+
+    VisitCG cg(cplusplusDir, doc->control());
+    cg(doc->translationUnit()->ast());
 
     return astDerivedClasses;
 }
