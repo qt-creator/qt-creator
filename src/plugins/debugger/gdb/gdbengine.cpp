@@ -1152,14 +1152,21 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     setState(InferiorStopped);
 
 #ifdef Q_OS_LINUX
-    // For some reason, attaching to a stopped process causes *two* stops
-    // when trying to continue (kernel i386 2.6.24-23-ubuntu, gdb 6.8).
-    // Interestingly enough, on MacOSX no signal is delivered at all.
     if (!m_entryPoint.isEmpty()) {
-        if (reason == "signal-received"
-            && data.findChild("signal-name").data() == "SIGSTOP") {
-            GdbMi frameData = data.findChild("frame");
-            if (frameData.findChild("addr").data() == m_entryPoint) {
+        GdbMi frameData = data.findChild("frame");
+        if (frameData.findChild("addr").data() == m_entryPoint) {
+            if (reason == "signal-received"
+                && data.findChild("signal-name").data() == "SIGSTOP") {
+                // For some reason, attaching to a stopped process causes *two* stops
+                // when trying to continue (kernel i386 2.6.24-23-ubuntu, gdb 6.8).
+                // Interestingly enough, on MacOSX no signal is delivered at all.
+                continueInferiorInternal();
+                return;
+            }
+            if (reason.isEmpty()) { // tbreak does that
+                // For programs without -pthread under gdb <= 6.8.
+                if (!inferiorPid())
+                    postCommand(_("info proc"), CB(handleInfoProc));
                 continueInferiorInternal();
                 return;
             }
@@ -1324,6 +1331,18 @@ void GdbEngine::handleStop1(const GdbMi &data)
     //
     manager()->reloadRegisters();
 }
+
+#ifdef Q_OS_LINUX
+void GdbEngine::handleInfoProc(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        static QRegExp re(_("\\bprocess ([0-9]+)\n"));
+        QTC_ASSERT(re.isValid(), return);
+        if (re.indexIn(_(response.data.findChild("consolestreamoutput").data())) != -1)
+            maybeHandleInferiorPidChanged(re.cap(1));
+    }
+}
+#endif
 
 void GdbEngine::handleShowVersion(const GdbResponse &response)
 {

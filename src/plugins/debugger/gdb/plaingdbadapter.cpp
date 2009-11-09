@@ -110,6 +110,13 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
+#ifdef Q_OS_LINUX
+        // Old gdbs do not announce the PID for programs without pthreads.
+        // Note that successfully preloading the debugging helpers will
+        // automatically load pthreads, so this will be unnecessary.
+        if (m_engine->m_gdbVersion < 70000)
+            m_engine->postCommand(_("info target"), CB(handleInfoTarget));
+#endif
         emit inferiorPrepared();
     } else {
         QString msg = tr("Starting executable failed:\n") +
@@ -117,6 +124,29 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
         emit inferiorStartFailed(msg);
     }
 }
+
+#ifdef Q_OS_LINUX
+void PlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        // [some leading stdout here]
+        // >&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
+        // [some trailing stdout here]
+        QString msg = _(response.data.findChild("consolestreamoutput").data());
+        QRegExp needle(_("\\bEntry point: 0x([0-9a-f]+)\\b"));
+        if (needle.indexIn(msg) != -1) {
+            m_engine->m_entryPoint =
+                    "0x" + needle.cap(1).toLatin1().rightJustified(sizeof(void *) * 2, '0');
+            m_engine->postCommand(_("tbreak *0x") + needle.cap(1));
+            // Do nothing here - inferiorPrepared handles the sequencing.
+        } else {
+            emit inferiorStartFailed(_("Parsing start address failed"));
+        }
+    } else if (response.resultClass == GdbResultError) {
+        emit inferiorStartFailed(_("Fetching start address failed"));
+    }
+}
+#endif
 
 void PlainGdbAdapter::startInferiorPhase2()
 {
