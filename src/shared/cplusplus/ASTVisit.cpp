@@ -958,14 +958,6 @@ void ObjCMessageArgumentAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void ObjCMessageArgumentListAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(arg, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void ObjCMessageExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

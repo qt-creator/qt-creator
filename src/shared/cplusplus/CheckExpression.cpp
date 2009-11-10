@@ -369,7 +369,7 @@ bool CheckExpression::visit(ObjCMessageExpressionAST *ast)
     semantic()->check(ast->receiver_expression, _scope);
     (void) semantic()->check(ast->selector, _scope);
 
-    accept(ast->argument_list);
+    accept(ast->argument_list); // ### not necessary.
     return false;
 }
 

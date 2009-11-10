@@ -3257,7 +3257,7 @@ bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArg
         ObjCSelectorArgumentListAST *lastSelector = selAst;
 
         ObjCMessageArgumentListAST *argAst = new (_pool) ObjCMessageArgumentListAST;
-        argAst->arg = messageArgument;
+        argAst->value = messageArgument;
         ObjCMessageArgumentListAST *lastArgument = argAst;
 
         while (parseObjCSelectorArg(selectorArgument, messageArgument)) {
@@ -3268,11 +3268,11 @@ bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArg
 
             lastArgument->next = new (_pool) ObjCMessageArgumentListAST;
             lastArgument = lastArgument->next;
-            lastArgument->arg = messageArgument;
+            lastArgument->value = messageArgument;
         }
 
         if (LA() == T_COMMA) {
-            ExpressionAST **lastExpression = &(lastArgument->arg->parameter_value_expression);
+            ExpressionAST **lastExpression = &(lastArgument->value->parameter_value_expression);
 
             while (LA() == T_COMMA) {
                 BinaryExpressionAST *binaryExpression = new (_pool) BinaryExpressionAST;

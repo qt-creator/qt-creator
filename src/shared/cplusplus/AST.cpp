@@ -1959,25 +1959,6 @@ unsigned ObjCMessageExpressionAST::lastToken() const
     return lbracket_token + 1;
 }
 
-unsigned ObjCMessageArgumentListAST::firstToken() const
-{
-    if (arg)
-        return arg->firstToken();
-    // ### assert?
-    return 0;
-}
-
-unsigned ObjCMessageArgumentListAST::lastToken() const
-{
-    for (const ObjCMessageArgumentListAST *it = this; it; it = it->next) {
-        if (! it->next && it->arg) {
-            return it->arg->lastToken();
-        }
-    }
-    // ### assert?
-    return 0;
-}
-
 unsigned ObjCMessageArgumentAST::firstToken() const
 {
     return parameter_value_expression->firstToken();

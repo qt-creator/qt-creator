@@ -91,6 +91,13 @@ public:
 
     void accept(AST *ast);
 
+    template <typename _Tp>
+    void accept(List<_Tp> *it)
+    {
+        for (; it; it = it->next)
+            accept(it->value);
+    }
+
     virtual bool preVisit(AST *) { return true; }
     virtual void postVisit(AST *) {}
 

@@ -2211,22 +2211,6 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ObjCMessageArgumentListAST: public AST
-{
-public:
-    ObjCMessageArgumentAST *arg;
-    ObjCMessageArgumentListAST *next;
-
-public:
-    virtual ObjCMessageArgumentListAST *asObjCMessageArgumentList() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
 class CPLUSPLUS_EXPORT ObjCMessageExpressionAST: public ExpressionAST
 {
 public:
