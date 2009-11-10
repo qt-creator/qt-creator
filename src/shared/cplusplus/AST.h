@@ -2502,22 +2502,6 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ObjCSynthesizedPropertyListAST: public AST
-{
-public:
-    ObjCSynthesizedPropertyAST *synthesized_property;
-    ObjCSynthesizedPropertyListAST *next;
-
-public:
-    virtual ObjCSynthesizedPropertyListAST *asObjCSynthesizedPropertyList() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
 class CPLUSPLUS_EXPORT ObjCSynthesizedPropertiesDeclarationAST: public DeclarationAST
 {
 public:

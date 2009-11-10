@@ -4577,13 +4577,13 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
             ast->synthesized_token = consumeToken();
             ObjCSynthesizedPropertyListAST *last = new (_pool) ObjCSynthesizedPropertyListAST;
             ast->property_identifiers = last;
-            last->synthesized_property = new (_pool) ObjCSynthesizedPropertyAST;
-            match(T_IDENTIFIER, &(last->synthesized_property->property_identifier));
+            last->value = new (_pool) ObjCSynthesizedPropertyAST;
+            match(T_IDENTIFIER, &(last->value->property_identifier));
 
             if (LA() == T_EQUAL) {
-                last->synthesized_property->equals_token = consumeToken();
+                last->value->equals_token = consumeToken();
 
-                match(T_IDENTIFIER, &(last->synthesized_property->property_alias_identifier));
+                match(T_IDENTIFIER, &(last->value->property_alias_identifier));
             }
 
             while (LA() == T_COMMA) {
@@ -4592,13 +4592,13 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
                 last->next = new (_pool) ObjCSynthesizedPropertyListAST;
                 last = last->next;
 
-                last->synthesized_property = new (_pool) ObjCSynthesizedPropertyAST;
-                match(T_IDENTIFIER, &(last->synthesized_property->property_identifier));
+                last->value = new (_pool) ObjCSynthesizedPropertyAST;
+                match(T_IDENTIFIER, &(last->value->property_identifier));
 
                 if (LA() == T_EQUAL) {
-                    last->synthesized_property->equals_token = consumeToken();
+                    last->value->equals_token = consumeToken();
 
-                    match(T_IDENTIFIER, &(last->synthesized_property->property_alias_identifier));
+                    match(T_IDENTIFIER, &(last->value->property_alias_identifier));
                 }
             }
 

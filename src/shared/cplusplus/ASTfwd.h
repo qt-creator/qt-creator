@@ -148,7 +148,6 @@ class ObjCSelectorWithoutArgumentsAST;
 class ObjCSynchronizedStatementAST;
 class ObjCSynthesizedPropertiesDeclarationAST;
 class ObjCSynthesizedPropertyAST;
-class ObjCSynthesizedPropertyListAST;
 class ObjCTypeNameAST;
 class ObjCVisibilityDeclarationAST;
 class OperatorAST;
@@ -201,6 +200,7 @@ typedef List<ObjCMessageArgumentAST *> ObjCMessageArgumentListAST;
 typedef List<ObjCSelectorArgumentAST *> ObjCSelectorArgumentListAST;
 typedef List<ObjCPropertyAttributeAST *> ObjCPropertyAttributeListAST;
 typedef List<ObjCMessageArgumentDeclarationAST *> ObjCMessageArgumentDeclarationListAST;
+typedef List<ObjCSynthesizedPropertyAST *> ObjCSynthesizedPropertyListAST;
 
 typedef ExpressionListAST TemplateArgumentListAST;
 

@@ -1098,14 +1098,6 @@ void ObjCSynthesizedPropertyAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void ObjCSynthesizedPropertyListAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(synthesized_property, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void ObjCSynthesizedPropertiesDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

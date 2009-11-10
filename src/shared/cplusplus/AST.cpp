@@ -2207,25 +2207,6 @@ unsigned ObjCSynthesizedPropertyAST::lastToken() const
         return property_identifier + 1;
 }
 
-unsigned ObjCSynthesizedPropertyListAST::firstToken() const
-{
-    if (synthesized_property)
-        return synthesized_property->firstToken();
-    // ### assert?
-    return 0;
-}
-
-unsigned ObjCSynthesizedPropertyListAST::lastToken() const
-{
-    for (const ObjCSynthesizedPropertyListAST *it = this; it; it = it->next) {
-        if (! it->next && it->synthesized_property) {
-            return it->synthesized_property->lastToken();
-        }
-    }
-    // ### assert?
-    return 0;
-}
-
 unsigned ObjCSynthesizedPropertiesDeclarationAST::firstToken() const
 {
     return synthesized_token;
