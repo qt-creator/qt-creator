@@ -660,6 +660,7 @@ void FakeVimHandler::Private::restoreWidget()
 EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
     const QString &text)
 {
+    //qDebug() << " CURSOR POS: " << m_undoCursorPosition;
     m_undoCursorPosition[m_tc.document()->availableUndoSteps()] = m_tc.position();
     //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
     if (m_mode == InsertMode)
@@ -2591,7 +2592,7 @@ void FakeVimHandler::Private::removeText(const Range &range)
             beginEditBlock();
             for (int i = beginLine; i <= endLine && block.isValid(); ++i) {
                 int bCol = qMin(beginColumn, block.length() - 1);
-                int eCol = qMin(endColumn, block.length() - 1);
+                int eCol = qMin(endColumn + 1, block.length() - 1);
                 tc.setPosition(block.position() + bCol, MoveAnchor);
                 tc.setPosition(block.position() + eCol, KeepAnchor);
                 fixMarks(block.position() + bCol, tc.selectionStart() - tc.selectionEnd());
@@ -2635,7 +2636,8 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
         case RangeBlockMode: {
             beginEditBlock();
             QTextBlock block = m_tc.block();
-            moveRight();
+            if (afterCursor)
+                moveRight();
             QTextCursor tc = m_tc;
             const int col = tc.position() - block.position();
             //for (int i = lines.size(); --i >= 0; ) {
@@ -2644,10 +2646,10 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                 tc.movePosition(StartOfLine, MoveAnchor);
                 if (col >= block.length()) {
                     tc.movePosition(EndOfLine, MoveAnchor);
-                    fixMarks(position(), QString(col - line.size() + 1, QChar(' ')).length());
+                    fixMarks(position(), col - line.size() + 1);
                     tc.insertText(QString(col - line.size() + 1, QChar(' ')));
                 } else {
-                    tc.movePosition(Right, MoveAnchor, col);
+                    tc.movePosition(Right, MoveAnchor, col - 1 + afterCursor);
                 }
                 qDebug() << "INSERT " << line << " AT " << tc.position()
                     << "COL: " << col;
@@ -2656,12 +2658,13 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                 tc.movePosition(StartOfLine, MoveAnchor);
                 tc.movePosition(Down, MoveAnchor, 1);
                 if (tc.position() >= lastPositionInDocument() - 1) {
-                    fixMarks(position(), QString(QChar('\n')).length());
+                    fixMarks(position(), 1);
                     tc.insertText(QString(QChar('\n')));
                     tc.movePosition(Up, MoveAnchor, 1);
                 }
                 block = block.next();
             }
+            moveLeft();
             endEditBlock();
             break;
         }
@@ -2727,6 +2730,7 @@ QWidget *FakeVimHandler::Private::editor() const
 
 void FakeVimHandler::Private::undo()
 {
+    //qDebug() << " CURSOR POS: " << m_undoCursorPosition;
     int current = m_tc.document()->availableUndoSteps();
     //endEditBlock();
     EDITOR(undo());
