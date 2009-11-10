@@ -668,7 +668,9 @@ void tst_AST::objc_msg_send_expression()
             QVERIFY(declarator);
             QVERIFY(!declarator->attributes);
 
-            QVERIFY(declarator->ptr_operators && !declarator->ptr_operators->next && declarator->ptr_operators->asPointer() && !declarator->ptr_operators->asPointer()->cv_qualifier_seq);
+            QVERIFY(declarator->ptr_operators && !declarator->ptr_operators->next
+                    &&   declarator->ptr_operators->value->asPointer()
+                    && ! declarator->ptr_operators->value->asPointer()->cv_qualifier_seq);
 
             QVERIFY(declarator->core_declarator && declarator->core_declarator->asDeclaratorId());
             NameAST *objNameId = declarator->core_declarator->asDeclaratorId()->name;

@@ -68,9 +68,9 @@ CheckDeclarator::~CheckDeclarator()
 { }
 
 FullySpecifiedType CheckDeclarator::check(DeclaratorAST *declarator,
-                                               FullySpecifiedType type,
-                                               Scope *scope,
-                                               Name **name)
+                                          const FullySpecifiedType &type,
+                                          Scope *scope,
+                                          Name **name)
 {
     FullySpecifiedType previousType = switchFullySpecifiedType(type);
     Scope *previousScope = switchScope(scope);
@@ -83,9 +83,9 @@ FullySpecifiedType CheckDeclarator::check(DeclaratorAST *declarator,
     return switchFullySpecifiedType(previousType);
 }
 
-FullySpecifiedType CheckDeclarator::check(PtrOperatorAST *ptrOperators,
-                                               FullySpecifiedType type,
-                                               Scope *scope)
+FullySpecifiedType CheckDeclarator::check(PtrOperatorListAST *ptrOperators,
+                                          const FullySpecifiedType &type,
+                                          Scope *scope)
 {
     FullySpecifiedType previousType = switchFullySpecifiedType(type);
     Scope *previousScope = switchScope(scope);
@@ -110,7 +110,7 @@ DeclaratorAST *CheckDeclarator::switchDeclarator(DeclaratorAST *declarator)
     return previousDeclarator;
 }
 
-FullySpecifiedType CheckDeclarator::switchFullySpecifiedType(FullySpecifiedType type)
+FullySpecifiedType CheckDeclarator::switchFullySpecifiedType(const FullySpecifiedType &type)
 {
     FullySpecifiedType previousType = _fullySpecifiedType;
     _fullySpecifiedType = type;

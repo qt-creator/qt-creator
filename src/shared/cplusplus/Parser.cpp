@@ -661,7 +661,7 @@ bool Parser::parseConversionFunctionId(NameAST *&node)
     if (! parseTypeSpecifier(type_specifier)) {
         return false;
     }
-    PtrOperatorAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
+    PtrOperatorListAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
     while (parsePtrOperator(*ptr_operators_tail))
         ptr_operators_tail = &(*ptr_operators_tail)->next;
 
@@ -956,19 +956,19 @@ bool Parser::parseCvQualifiers(SpecifierAST *&node)
     return start != cursor();
 }
 
-bool Parser::parsePtrOperator(PtrOperatorAST *&node)
+bool Parser::parsePtrOperator(PtrOperatorListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_AMPER) {
         ReferenceAST *ast = new (_pool) ReferenceAST;
         ast->amp_token = consumeToken();
-        node = ast;
+        node = new (_pool) PtrOperatorListAST(ast);
         return true;
     } else if (LA() == T_STAR) {
         PointerAST *ast = new (_pool) PointerAST;
         ast->star_token = consumeToken();
         parseCvQualifiers(ast->cv_qualifier_seq);
-        node = ast;
+        node = new (_pool) PtrOperatorListAST(ast);
         return true;
     } else if (LA() == T_COLON_COLON || LA() == T_IDENTIFIER) {
         unsigned scope_or_identifier_token = cursor();
@@ -985,7 +985,7 @@ bool Parser::parsePtrOperator(PtrOperatorAST *&node)
             ast->nested_name_specifier = nested_name_specifiers;
             ast->star_token = consumeToken();
             parseCvQualifiers(ast->cv_qualifier_seq);
-            node = ast;
+            node = new (_pool) PtrOperatorListAST(ast);
             return true;
         }
         rewind(scope_or_identifier_token);
@@ -1082,7 +1082,7 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
         attribute_ptr = &(*attribute_ptr)->next;
     }
 
-    PtrOperatorAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
+    PtrOperatorListAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
     while (parsePtrOperator(*ptr_operators_tail))
         ptr_operators_tail = &(*ptr_operators_tail)->next;
 
@@ -1219,7 +1219,8 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
 bool Parser::parseAbstractCoreDeclarator(DeclaratorAST *&node)
 {
     DEBUG_THIS_RULE();
-    PtrOperatorAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
+
+    PtrOperatorListAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
     while (parsePtrOperator(*ptr_operators_tail))
         ptr_operators_tail = &(*ptr_operators_tail)->next;
 
@@ -3799,12 +3800,15 @@ bool Parser::parseNewTypeId(NewTypeIdAST *&node)
 
     NewTypeIdAST *ast = new (_pool) NewTypeIdAST;
     ast->type_specifier = typeSpec;
-    PtrOperatorAST **ptrop_it = &ast->ptr_operators;
+
+    PtrOperatorListAST **ptrop_it = &ast->ptr_operators;
     while (parsePtrOperator(*ptrop_it))
         ptrop_it = &(*ptrop_it)->next;
+
     NewArrayDeclaratorListAST **it = &ast->new_array_declarators;
     while (parseNewArrayDeclarator(*it))
         it = &(*it)->next;
+
     node = ast;
     return true;
 }

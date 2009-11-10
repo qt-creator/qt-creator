@@ -409,8 +409,9 @@ bool FindUsages::visit(ParameterDeclarationAST *ast)
         for (SpecifierAST *attr = declarator->attributes; attr; attr = attr->next)
             accept(attr);
 
-        for (PtrOperatorAST *ptr_op = declarator->ptr_operators; ptr_op; ptr_op = ptr_op->next)
-            accept(ptr_op);
+        for (PtrOperatorListAST *it = declarator->ptr_operators; it; it = it->next) {
+            accept(it->value);
+        }
 
         if (! _inSimpleDeclaration) // visit the core declarator only if we are not in simple-declaration.
             accept(declarator->core_declarator);

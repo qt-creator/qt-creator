@@ -69,8 +69,7 @@ void DeclaratorAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         for (SpecifierAST *it = attributes; it; it = it->next)
             accept(it, visitor);
-        for (PtrOperatorAST *it = ptr_operators; it; it = it->next)
-            accept(it, visitor);
+        accept(ptr_operators, visitor);
         accept(core_declarator, visitor);
         accept(postfix_declarators, visitor);
         for (SpecifierAST *it = post_attributes; it; it = it->next)
@@ -472,8 +471,7 @@ void ConversionFunctionIdAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         for (SpecifierAST *it = type_specifier; it; it = it->next)
             accept(it, visitor);
-        for (PtrOperatorAST *it = ptr_operators; it; it = it->next)
-            accept(it, visitor);
+        accept(ptr_operators, visitor);
     }
     visitor->endVisit(this);
 }
@@ -560,8 +558,7 @@ void NewTypeIdAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         for (SpecifierAST *it = type_specifier; it; it = it->next)
             accept(it, visitor);
-        for (PtrOperatorAST *it = ptr_operators; it; it = it->next)
-            accept(it, visitor);
+        accept(ptr_operators, visitor);
         accept(new_array_declarators, visitor);
     }
     visitor->endVisit(this);

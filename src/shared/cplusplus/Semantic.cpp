@@ -130,7 +130,7 @@ FullySpecifiedType Semantic::check(DeclaratorAST *declarator, FullySpecifiedType
                                    Scope *scope, Name **name)
 { return d->checkDeclarator->check(declarator, type, scope, name); }
 
-FullySpecifiedType Semantic::check(PtrOperatorAST *ptrOperators, FullySpecifiedType type,
+FullySpecifiedType Semantic::check(PtrOperatorListAST *ptrOperators, FullySpecifiedType type,
                                    Scope *scope)
 { return d->checkDeclarator->check(ptrOperators, type, scope); }
 

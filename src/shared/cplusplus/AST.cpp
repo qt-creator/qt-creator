@@ -483,10 +483,8 @@ unsigned ConversionFunctionIdAST::firstToken() const
 
 unsigned ConversionFunctionIdAST::lastToken() const
 {
-    for (PtrOperatorAST *it = ptr_operators; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (ptr_operators)
+        return ptr_operators->lastToken();
 
     for (SpecifierAST *it = type_specifier; it; it = it->next) {
         if (! it->next)
@@ -566,10 +564,8 @@ unsigned DeclaratorAST::lastToken() const
     if (core_declarator)
         return core_declarator->lastToken();
 
-    for (PtrOperatorAST *it = ptr_operators; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (ptr_operators)
+        return ptr_operators->lastToken();
 
     for (SpecifierAST *it = attributes; it; it = it->next) {
         if (! it->next)
@@ -1176,12 +1172,10 @@ unsigned NewTypeIdAST::lastToken() const
     if (new_array_declarators)
         return new_array_declarators->lastToken();
 
-    for (PtrOperatorAST *it = ptr_operators; it; it = it->next) {
-        if (it->next)
-            return it->lastToken();
-    }
+    else if (ptr_operators)
+        return ptr_operators->lastToken();
 
-    if (type_specifier)
+    else if (type_specifier)
         return type_specifier->lastToken();
 
     // ### assert?

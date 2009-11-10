@@ -63,20 +63,20 @@ public:
     virtual ~CheckDeclarator();
 
     FullySpecifiedType check(DeclaratorAST *declarator,
-                                  FullySpecifiedType type,
-                                  Scope *scope,
-                                  Name **name);
+                             const FullySpecifiedType &type,
+                             Scope *scope,
+                             Name **name);
 
-    FullySpecifiedType check(PtrOperatorAST *ptrOperators,
-                                  FullySpecifiedType type,
-                                  Scope *scope);
+    FullySpecifiedType check(PtrOperatorListAST *ptrOperators,
+                             const FullySpecifiedType &type,
+                             Scope *scope);
 
     FullySpecifiedType check(ObjCMethodPrototypeAST *methodPrototype,
                              Scope *scope);
 
 protected:
     DeclaratorAST *switchDeclarator(DeclaratorAST *declarator);
-    FullySpecifiedType switchFullySpecifiedType(FullySpecifiedType type);
+    FullySpecifiedType switchFullySpecifiedType(const FullySpecifiedType &type);
     Scope *switchScope(Scope *scope);
     Name **switchName(Name **name);
 

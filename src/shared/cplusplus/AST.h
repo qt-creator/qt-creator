@@ -371,7 +371,7 @@ class CPLUSPLUS_EXPORT DeclaratorAST: public AST
 {
 public:
     SpecifierAST *attributes;
-    PtrOperatorAST *ptr_operators;
+    PtrOperatorListAST *ptr_operators;
     CoreDeclaratorAST *core_declarator;
     PostfixDeclaratorListAST *postfix_declarators;
     SpecifierAST *post_attributes;
@@ -1198,7 +1198,7 @@ class CPLUSPLUS_EXPORT ConversionFunctionIdAST: public NameAST
 public:
     unsigned operator_token;
     SpecifierAST *type_specifier;
-    PtrOperatorAST *ptr_operators;
+    PtrOperatorListAST *ptr_operators;
 
 public:
     virtual ConversionFunctionIdAST *asConversionFunctionId() { return this; }
@@ -1379,7 +1379,7 @@ class CPLUSPLUS_EXPORT NewTypeIdAST: public AST
 {
 public:
     SpecifierAST *type_specifier;
-    PtrOperatorAST *ptr_operators;
+    PtrOperatorListAST *ptr_operators;
     NewArrayDeclaratorListAST *new_array_declarators;
 
 public:
@@ -1592,11 +1592,7 @@ protected:
 class CPLUSPLUS_EXPORT PtrOperatorAST: public AST
 {
 public:
-    PtrOperatorAST *next;
-
-public:
     virtual PtrOperatorAST *asPtrOperator() { return this; }
-
 };
 
 class CPLUSPLUS_EXPORT PointerToMemberAST: public PtrOperatorAST

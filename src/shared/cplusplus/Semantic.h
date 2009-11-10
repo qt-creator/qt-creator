@@ -71,7 +71,7 @@ public:
     FullySpecifiedType check(DeclaratorAST *declarator, FullySpecifiedType type,
                              Scope *scope, Name **name = 0); // ### ugly
 
-    FullySpecifiedType check(PtrOperatorAST *ptrOperators, FullySpecifiedType type,
+    FullySpecifiedType check(PtrOperatorListAST *ptrOperators, FullySpecifiedType type,
                              Scope *scope);
 
     FullySpecifiedType check(ObjCMethodPrototypeAST *methodPrototype, Scope *scope);

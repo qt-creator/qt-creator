@@ -165,7 +165,7 @@ public:
     bool parsePostfixExpressionInternal(ExpressionAST *&node);
     bool parsePrimaryExpression(ExpressionAST *&node);
     bool parseNestedExpression(ExpressionAST *&node);
-    bool parsePtrOperator(PtrOperatorAST *&node);
+    bool parsePtrOperator(PtrOperatorListAST *&node);
     bool parseRelationalExpression(ExpressionAST *&node);
     bool parseShiftExpression(ExpressionAST *&node);
     bool parseStatement(StatementAST *&node);
