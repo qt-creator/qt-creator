@@ -170,6 +170,7 @@ private slots:
     void initTestCase();
     void dump_array();
     void dump_misc();
+    void dump_typedef();
     void dump_std_list();
     void dump_std_vector();
     void dump_std_string();
@@ -186,6 +187,7 @@ private slots:
     void dump_QList_QString();
     void dump_QList_QString3();
     void dump_QList_Int3();
+    void dump_QMap_int_int();
     void dump_QMap_QString_QString();
     void dump_QPoint();
     void dump_QRect();
@@ -828,6 +830,29 @@ void tst_Gdb::dump_misc()
     run("B","{iname='local.s',name='s',type='int *',"
             "value='-',numchild='1',children=[{iname='local.s.*',"
             "name='*s',type='int',value='1',numchild='0'}]}", "local.s", 0);
+}
+
+
+///////////////////////////// typedef  ////////////////////////////////////
+
+void dump_typedef()
+{
+    /* A */ typedef QMap<uint, double> T;
+    /* B */ T t;
+    /* C */ t[11] = 13.0;
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dump_typedef()
+{
+    prepare("dump_typedef");
+    next(2);
+    run("D","{iname='local.t',name='t',type='T',"
+            "basetype='"NS"QMap<unsigned int, double>',"
+            "value='-',numchild='1',"
+            "childtype='"NS"QMapNode<unsigned int, double>',children=["
+                "{type='unsigned int',name='11',type='double',"
+                    "value='13',numchild='0',type='double'}]}", "local.t");
 }
 
 #if 0
@@ -2702,6 +2727,40 @@ void tst_Gdb::dump_QList_Int3()
 }
 
 
+///////////////////////////// QMap<int, int> //////////////////////////////
+
+void dump_QMap_int_int()
+{
+    /* A */ QMap<int, int> h;
+    /* B */ h[12] = 34;
+    /* C */ h[14] = 54;
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dump_QMap_int_int()
+{
+    prepare("dump_QMap_int_int");
+    if (checkUninitialized)
+        run("A","{iname='local.h',name='h',"
+            "type='"NS"QMap<int, int>',value='<not in scope>',"
+            "numchild='0'}");
+    next();
+    run("B","{iname='local.h',name='h',"
+            "type='"NS"QMap<int, int>',value='<0 items>',"
+            "numchild='0'}");
+    next();
+    next();
+    run("D","{iname='local.h',name='h',"
+            "type='"NS"QMap<int, int>',value='<2 items>',"
+            "numchild='2'}");
+    run("D","{iname='local.h',name='h',"
+            "type='"NS"QMap<int, int>',value='<2 items>',"
+            "numchild='2',childtype='int',childnumchild='0',"
+            "children=[{name='12',value='34'},{name='14',value='54'}]}",
+            "local.h,local.h.0,local.h.1");
+}
+
+
 ///////////////////////////// QMap<QString, QString> //////////////////////////////
 
 void dump_QMap_QString_QString()
@@ -3475,6 +3534,7 @@ int main(int argc, char *argv[])
         dump_std_wstring();
         dump_Foo();
         dump_misc();
+        dump_typedef();
         dump_QByteArray();
         dump_QChar();
         dump_QHash_int_int();
@@ -3486,6 +3546,7 @@ int main(int argc, char *argv[])
         dump_QList_Int3();
         dump_QList_QString();
         dump_QList_QString3();
+        dump_QMap_int_int();
         dump_QMap_QString_QString();
         dump_QPoint();
         dump_QRect();
