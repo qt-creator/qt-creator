@@ -84,8 +84,8 @@ public:
     bool parseAsmOperand();
     bool parseAsmClobberList();
     bool parseAssignmentExpression(ExpressionAST *&node);
-    bool parseBaseClause(BaseSpecifierAST *&node);
-    bool parseBaseSpecifier(BaseSpecifierAST *&node);
+    bool parseBaseClause(BaseSpecifierListAST *&node);
+    bool parseBaseSpecifier(BaseSpecifierListAST *&node);
     bool parseBlockDeclaration(DeclarationAST *&node);
     bool parseCppCastExpression(ExpressionAST *&node);
     bool parseCastExpression(ExpressionAST *&node);

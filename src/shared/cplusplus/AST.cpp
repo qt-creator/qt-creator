@@ -382,15 +382,13 @@ unsigned ClassSpecifierAST::lastToken() const
     if (lbrace_token)
         return lbrace_token + 1;
 
-    for (BaseSpecifierAST *it = base_clause; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    else if (base_clause_list)
+        return base_clause_list->lastToken();
 
-    if (colon_token)
+    else if (colon_token)
         return colon_token + 1;
 
-    if (name)
+    else if (name)
         return name->lastToken();
 
     for (SpecifierAST *it = attributes; it; it = it->next) {

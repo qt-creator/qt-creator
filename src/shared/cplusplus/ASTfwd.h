@@ -195,6 +195,8 @@ typedef List<ExpressionAST *> ExpressionListAST;
 typedef List<DeclarationAST *> DeclarationListAST;
 typedef List<StatementAST *> StatementListAST;
 typedef List<DeclaratorAST *> DeclaratorListAST;
+typedef List<BaseSpecifierAST *> BaseSpecifierListAST;
+
 typedef List<NameAST *> ObjCIdentifierListAST;
 typedef List<ObjCMessageArgumentAST *> ObjCMessageArgumentListAST;
 typedef List<ObjCSelectorArgumentAST *> ObjCSelectorArgumentListAST;

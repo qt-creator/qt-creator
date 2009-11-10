@@ -121,9 +121,9 @@ void tst_AST::template_id_1()
     QCOMPARE(ast->asTemplateId()->identifier_token, 1U);
     QCOMPARE(ast->asTemplateId()->less_token, 2U);
     QVERIFY(ast->asTemplateId()->template_arguments != 0);
-    QVERIFY(ast->asTemplateId()->template_arguments->template_argument != 0);
-    QVERIFY(ast->asTemplateId()->template_arguments->template_argument->asNumericLiteral() != 0);
-    QCOMPARE(ast->asTemplateId()->template_arguments->template_argument->asNumericLiteral()->literal_token, 3U);
+    QVERIFY(ast->asTemplateId()->template_arguments->value != 0);
+    QVERIFY(ast->asTemplateId()->template_arguments->value->asNumericLiteral() != 0);
+    QCOMPARE(ast->asTemplateId()->template_arguments->value->asNumericLiteral()->literal_token, 3U);
     QVERIFY(ast->asTemplateId()->template_arguments->next == 0);
     QCOMPARE(ast->asTemplateId()->greater_token, 4U);
 }
@@ -471,7 +471,7 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QVERIFY(simple_named_ty != 0);
     QCOMPARE(simple_named_ty->identifier_token, 1U);
 
-    DeclaratorAST *declarator = simple_decl->declarators->declarator;
+    DeclaratorAST *declarator = simple_decl->declarators->value;
     QVERIFY(declarator != 0);
     QVERIFY(declarator->core_declarator != 0);
     QVERIFY(declarator->postfix_declarators != 0);
@@ -664,7 +664,7 @@ void tst_AST::objc_msg_send_expression()
 
         {// check the assignment
             QVERIFY(simpleDecl->declarators && !simpleDecl->declarators->next);
-            DeclaratorAST *declarator = simpleDecl->declarators->declarator;
+            DeclaratorAST *declarator = simpleDecl->declarators->value;
             QVERIFY(declarator);
             QVERIFY(!declarator->attributes);
 

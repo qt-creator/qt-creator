@@ -1550,17 +1550,23 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
     unsigned colon_token = 0;
 
     if (LA() == T_COLON || LA() == T_LBRACE) {
-        BaseSpecifierAST *base_clause = 0;
+        BaseSpecifierListAST *base_clause_list = 0;
+
         if (LA() == T_COLON) {
             colon_token = cursor();
-            parseBaseClause(base_clause);
+
+            parseBaseClause(base_clause_list);
+
             if (LA() != T_LBRACE) {
                 _translationUnit->error(cursor(), "expected `{' before `%s'", tok().spell());
-                unsigned saved = cursor();
+
+                const unsigned saved = cursor();
+
                 for (int n = 0; n < 3 && LA() != T_EOF_SYMBOL; ++n, consumeToken()) {
                     if (LA() == T_LBRACE)
                         break;
                 }
+
                 if (LA() != T_LBRACE)
                     rewind(saved);
             }
@@ -1571,7 +1577,7 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
         ast->attributes = attributes;
         ast->name = name;
         ast->colon_token = colon_token;
-        ast->base_clause = base_clause;
+        ast->base_clause_list = base_clause_list;
 
         if (LA() == T_LBRACE)
             ast->lbrace_token = consumeToken();
@@ -1778,13 +1784,14 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node,
     return true;
 }
 
-bool Parser::parseBaseClause(BaseSpecifierAST *&node)
+bool Parser::parseBaseClause(BaseSpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
-    if (LA() == T_COLON) {
-        consumeToken();
 
-        BaseSpecifierAST **ast = &node;
+    if (LA() == T_COLON) {
+        consumeToken(); // ### remove me
+
+        BaseSpecifierListAST **ast = &node;
         if (parseBaseSpecifier(*ast)) {
             ast = &(*ast)->next;
 
@@ -1895,7 +1902,7 @@ bool Parser::parseExpressionList(ExpressionListAST *&node)
     return false;
 }
 
-bool Parser::parseBaseSpecifier(BaseSpecifierAST *&node)
+bool Parser::parseBaseSpecifier(BaseSpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     BaseSpecifierAST *ast = new (_pool) BaseSpecifierAST;
@@ -1918,7 +1925,9 @@ bool Parser::parseBaseSpecifier(BaseSpecifierAST *&node)
     parseName(ast->name);
     if (! ast->name)
         _translationUnit->error(cursor(), "expected class-name");
-    node = ast;
+
+    node = new (_pool) BaseSpecifierListAST;
+    node->value = ast;
     return true;
 }
 

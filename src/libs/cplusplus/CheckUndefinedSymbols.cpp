@@ -286,11 +286,6 @@ void CheckUndefinedSymbols::endVisit(TemplateDeclarationAST *)
 
 bool CheckUndefinedSymbols::visit(ClassSpecifierAST *ast)
 {
-    if (ast->base_clause) {
-        unsigned line, col;
-        getTokenStartPosition(ast->firstToken(), &line, &col);
-    }
-
     bool hasQ_OBJECT_CHECK = false;
 
     if (ast->symbol) {

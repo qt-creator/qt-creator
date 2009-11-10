@@ -478,7 +478,6 @@ public:
     unsigned virtual_token;
     unsigned access_specifier_token;
     NameAST *name;
-    BaseSpecifierAST *next;
 
 public: // annotations
     BaseClass *symbol;
@@ -571,7 +570,7 @@ public:
     SpecifierAST *attributes;
     NameAST *name;
     unsigned colon_token;
-    BaseSpecifierAST *base_clause;
+    BaseSpecifierListAST *base_clause_list;
     unsigned lbrace_token;
     DeclarationListAST *member_specifiers;
     unsigned rbrace_token;

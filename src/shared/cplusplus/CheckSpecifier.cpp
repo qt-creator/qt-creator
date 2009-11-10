@@ -328,7 +328,8 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     _scope->enterSymbol(klass);
     _fullySpecifiedType.setType(klass);
 
-    for (BaseSpecifierAST *base = ast->base_clause; base; base = base->next) {
+    for (BaseSpecifierListAST *it = ast->base_clause_list; it; it = it->next) {
+        BaseSpecifierAST *base = it->value;
         Name *baseClassName = semantic()->check(base->name, _scope);
         BaseClass *baseClass = control()->newBaseClass(ast->firstToken(), baseClassName);
         base->symbol = baseClass;

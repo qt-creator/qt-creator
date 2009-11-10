@@ -163,8 +163,7 @@ void ClassSpecifierAST::accept0(ASTVisitor *visitor)
         for (SpecifierAST *it = attributes; it; it = it->next)
             accept(it, visitor);
         accept(name, visitor);
-        for (BaseSpecifierAST *it = base_clause; it; it = it->next)
-            accept(it, visitor);
+        accept(base_clause_list, visitor);
         for (DeclarationListAST *it = member_specifiers; it; it = it->next)
             accept(it, visitor);
     }
