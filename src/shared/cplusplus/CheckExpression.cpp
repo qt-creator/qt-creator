@@ -251,8 +251,8 @@ bool CheckExpression::visit(TypeConstructorCallAST *ast)
 bool CheckExpression::visit(PostfixExpressionAST *ast)
 {
     FullySpecifiedType exprTy = semantic()->check(ast->base_expression, _scope);
-    for (PostfixAST *fx = ast->postfix_expressions; fx; fx = fx->next) {
-        accept(fx); // ### not exactly.
+    for (PostfixListAST *it = ast->postfix_expressions; it; it = it->next) {
+        accept(it->value); // ### not exactly.
     }
     return false;
 }

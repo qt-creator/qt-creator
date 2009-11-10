@@ -208,8 +208,8 @@ bool ResolveExpression::visit(PostfixExpressionAST *ast)
 {
     accept(ast->base_expression);
 
-    for (PostfixAST *fx = ast->postfix_expressions; fx; fx = fx->next) {
-        accept(fx);
+    for (PostfixListAST *it = ast->postfix_expressions; it; it = it->next) {
+        accept(it->value);
     }
 
     return false;

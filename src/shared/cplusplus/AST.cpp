@@ -1331,10 +1331,8 @@ unsigned PostfixExpressionAST::firstToken() const
 
 unsigned PostfixExpressionAST::lastToken() const
 {
-    for (PostfixAST *it = postfix_expressions; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (postfix_expressions)
+        return postfix_expressions->lastToken();
     return base_expression->lastToken();
 }
 

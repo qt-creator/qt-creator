@@ -574,7 +574,7 @@ void tst_AST::normal_array_access()
 
     {
         QVERIFY(postfixExpr->postfix_expressions && !postfixExpr->postfix_expressions->next);
-        ArrayAccessAST *rhs = postfixExpr->postfix_expressions->asArrayAccess();
+        ArrayAccessAST *rhs = postfixExpr->postfix_expressions->value->asArrayAccess();
         QVERIFY(rhs && rhs->expression);
         SimpleNameAST *b = rhs->expression->asSimpleName();
         QVERIFY(b);
@@ -620,7 +620,7 @@ void tst_AST::array_access_with_nested_expression()
 
     {
         QVERIFY(postfixExpr->postfix_expressions && !postfixExpr->postfix_expressions->next);
-        ArrayAccessAST *rhs = postfixExpr->postfix_expressions->asArrayAccess();
+        ArrayAccessAST *rhs = postfixExpr->postfix_expressions->value->asArrayAccess();
         QVERIFY(rhs && rhs->expression);
         SimpleNameAST *b = rhs->expression->asSimpleName();
         QVERIFY(b);

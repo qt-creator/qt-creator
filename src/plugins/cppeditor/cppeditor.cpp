@@ -318,10 +318,11 @@ protected:
     virtual bool visit(PostfixExpressionAST *ast)
     {
         accept(ast->base_expression);
-        for (PostfixAST *it = ast->postfix_expressions; it; it = it->next) {
-            if (it->asMemberAccess() != 0)
+        for (PostfixListAST *it = ast->postfix_expressions; it; it = it->next) {
+            PostfixAST *fx = it->value;
+            if (fx->asMemberAccess() != 0)
                 continue; // skip members
-            accept(it);
+            accept(fx);
         }
         return false;
     }

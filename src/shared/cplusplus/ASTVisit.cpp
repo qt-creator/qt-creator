@@ -662,8 +662,7 @@ void PostfixExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(base_expression, visitor);
-        for (PostfixAST *it = postfix_expressions; it; it = it->next)
-            accept(it, visitor);
+        accept(postfix_expressions, visitor);
     }
     visitor->endVisit(this);
 }

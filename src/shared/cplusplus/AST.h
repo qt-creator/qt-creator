@@ -66,6 +66,10 @@ public:
         : value(_Tp()), next(0)
     { }
 
+    List(const _Tp &value)
+        : value(value), next(0)
+    { }
+
     unsigned firstToken() const
     {
         if (value)
@@ -1460,11 +1464,7 @@ protected:
 class CPLUSPLUS_EXPORT PostfixAST: public AST
 {
 public:
-    PostfixAST *next;
-
-public:
     virtual PostfixAST *asPostfix() { return this; }
-
 };
 
 class CPLUSPLUS_EXPORT CallAST: public PostfixAST
@@ -1592,7 +1592,7 @@ class CPLUSPLUS_EXPORT PostfixExpressionAST: public ExpressionAST
 {
 public:
     ExpressionAST *base_expression;
-    PostfixAST *postfix_expressions;
+    PostfixListAST *postfix_expressions;
 
 public:
     virtual PostfixExpressionAST *asPostfixExpression() { return this; }
