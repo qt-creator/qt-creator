@@ -40,7 +40,6 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/AST.cpp \
-    $$PWD/ASTClone.cpp \
     $$PWD/ASTVisit.cpp \
     $$PWD/ASTVisitor.cpp \
     $$PWD/Array.cpp \
