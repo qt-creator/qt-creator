@@ -2114,27 +2114,6 @@ unsigned ObjCPropertyAttributeAST::lastToken() const
     return attribute_identifier_token + 1;
 }
 
-unsigned ObjCPropertyAttributeListAST::firstToken() const
-{
-    if (attr)
-        return attr->firstToken();
-    else if (next)
-        return next->lastToken();
-    else
-        // ### Assert?
-        return 0;
-}
-
-unsigned ObjCPropertyAttributeListAST::lastToken() const
-{
-    for (const ObjCPropertyAttributeListAST *it = this; it; it = it->next) {
-        if (! it->next && it->attr)
-            return it->attr->lastToken();
-    }
-    // ### assert?
-    return 0;
-}
-
 unsigned ObjCPropertyDeclarationAST::firstToken() const
 {
     if (attributes)
@@ -2153,8 +2132,8 @@ unsigned ObjCPropertyDeclarationAST::lastToken() const
         return property_attributes->lastToken();
     else if (lparen_token)
         return lparen_token + 1;
-    else
-        return property_token + 1;
+    
+    return property_token + 1;
 }
 
 unsigned ObjCMessageArgumentDeclarationAST::firstToken() const
@@ -2213,8 +2192,7 @@ unsigned ObjCMethodPrototypeAST::lastToken() const
         return arguments->lastToken();
     else if (type_name)
         return type_name->lastToken();
-    else
-        return method_type_token + 1;
+    return method_type_token + 1;
 }
 
 unsigned ObjCMethodDeclarationAST::firstToken() const

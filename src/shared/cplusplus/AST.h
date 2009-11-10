@@ -2405,22 +2405,6 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ObjCPropertyAttributeListAST: public AST
-{
-public:
-    ObjCPropertyAttributeAST *attr;
-    ObjCPropertyAttributeListAST *next;
-
-public:
-    virtual ObjCPropertyAttributeListAST *asObjCPropertyAttributeList() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
 class CPLUSPLUS_EXPORT ObjCPropertyDeclarationAST: public DeclarationAST
 {
 public:

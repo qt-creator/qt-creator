@@ -1047,14 +1047,6 @@ void ObjCPropertyAttributeAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void ObjCPropertyAttributeListAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(attr, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void ObjCPropertyDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

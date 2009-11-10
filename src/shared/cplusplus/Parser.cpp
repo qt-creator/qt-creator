@@ -4845,14 +4845,14 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *a
         ObjCPropertyAttributeAST *property_attribute = 0;
         if (parseObjCPropertyAttribute(property_attribute)) {
             ast->property_attributes = new (_pool) ObjCPropertyAttributeListAST;
-            ast->property_attributes->attr = property_attribute;
+            ast->property_attributes->value = property_attribute;
             ObjCPropertyAttributeListAST *last = ast->property_attributes;
 
             while (LA() == T_COMMA) {
                 consumeToken(); // consume T_COMMA
                 last->next = new (_pool) ObjCPropertyAttributeListAST;
                 last = last->next;
-                if (!parseObjCPropertyAttribute(last->attr)) {
+                if (!parseObjCPropertyAttribute(last->value)) {
                     _translationUnit->error(_tokenIndex, "expected token `%s' got `%s'",
                                             Token::name(T_IDENTIFIER), tok().spell());
                     while (LA() != T_RPAREN)

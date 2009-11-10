@@ -719,7 +719,7 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
     int propAttrs = None;
 
     for (ObjCPropertyAttributeListAST *iter= ast->property_attributes; iter; iter = iter->next) {
-        ObjCPropertyAttributeAST *attrAst = iter->attr;
+        ObjCPropertyAttributeAST *attrAst = iter->value;
         if (!attrAst)
             continue;
 
