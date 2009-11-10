@@ -1159,7 +1159,6 @@ class CPLUSPLUS_EXPORT NestedNameSpecifierAST: public AST
 public:
     NameAST *class_or_namespace_name;
     unsigned scope_token;
-    NestedNameSpecifierAST *next;
 
 public:
     virtual NestedNameSpecifierAST *asNestedNameSpecifier() { return this; }

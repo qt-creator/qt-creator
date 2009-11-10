@@ -236,7 +236,7 @@ bool CheckDeclarator::visit(PointerAST *ast)
     return false;
 }
 
-bool CheckDeclarator::visit(ReferenceAST *ast)
+bool CheckDeclarator::visit(ReferenceAST *)
 {
     ReferenceType *refTy = control()->referenceType(_fullySpecifiedType);
     FullySpecifiedType ty(refTy);
