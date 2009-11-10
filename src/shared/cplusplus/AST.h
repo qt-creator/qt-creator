@@ -296,7 +296,7 @@ public:
     unsigned attribute_token;
     unsigned first_lparen_token;
     unsigned second_lparen_token;
-    AttributeAST *attributes;
+    AttributeListAST *attributes;
     unsigned first_rparen_token;
     unsigned second_rparen_token;
 
@@ -318,7 +318,6 @@ public:
     unsigned tag_token;
     ExpressionListAST *expression_list;
     unsigned rparen_token;
-    AttributeAST *next;
 
 public:
     virtual AttributeAST *asAttribute() { return this; }

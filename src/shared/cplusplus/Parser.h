@@ -190,7 +190,7 @@ public:
 
     bool parseBuiltinTypeSpecifier(SpecifierAST *&node);
     bool parseAttributeSpecifier(SpecifierAST *&node);
-    bool parseAttributeList(AttributeAST *&node);
+    bool parseAttributeList(AttributeListAST *&node);
 
     bool parseSimpleTypeSpecifier(SpecifierAST *&node)
     { return parseDeclSpecifierSeq(node, true, true); }

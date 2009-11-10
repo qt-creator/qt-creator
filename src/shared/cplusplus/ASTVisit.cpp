@@ -42,8 +42,7 @@ void SimpleSpecifierAST::accept0(ASTVisitor *visitor)
 void AttributeSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (AttributeAST *it = attributes; it; it = it->next)
-            accept(it, visitor);
+        accept(attributes, visitor);
     }
     visitor->endVisit(this);
 }

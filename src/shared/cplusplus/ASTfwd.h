@@ -201,6 +201,7 @@ typedef List<MemInitializerAST *> MemInitializerListAST;
 typedef List<NewArrayDeclaratorAST *> NewArrayDeclaratorListAST;
 typedef List<PostfixAST *> PostfixListAST;
 typedef List<PostfixDeclaratorAST *> PostfixDeclaratorListAST;
+typedef List<AttributeAST *> AttributeListAST;
 
 typedef List<NameAST *> ObjCIdentifierListAST;
 typedef List<ObjCMessageArgumentAST *> ObjCMessageArgumentListAST;

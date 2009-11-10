@@ -2689,32 +2689,24 @@ bool Parser::parseAttributeSpecifier(SpecifierAST *&node)
     return true;
 }
 
-bool Parser::parseAttributeList(AttributeAST *&node)
+bool Parser::parseAttributeList(AttributeListAST *&node) // ### create the AST
 {
     DEBUG_THIS_RULE();
-    AttributeAST **attribute_ptr = &node;
-    while (LA() == T_IDENTIFIER || LA() == T_CONST) {
-        AttributeAST *ast = new (_pool) AttributeAST;
-        ast->identifier_token = consumeToken();
-        if (LA() == T_LPAREN) {
-            ast->lparen_token = consumeToken();
-            if (LA() == T_IDENTIFIER && (LA(2) == T_COMMA || LA(2) == T_RPAREN)) {
-                ast->tag_token = consumeToken();
-                if (LA() == T_COMMA)
-                    parseExpressionList(ast->expression_list);
-            } else {
-                parseExpressionList(ast->expression_list);
-            }
-            match(T_RPAREN, &ast->rparen_token);
+
+    while (LA() == T_CONST || LA() == T_IDENTIFIER) {
+        if (LA() == T_CONST)
+            consumeToken();
+        else if (LA() == T_IDENTIFIER) {
+            ExpressionAST *expression = 0;
+            parseExpression(expression);
         }
-        *attribute_ptr = ast;
 
         if (LA() != T_COMMA)
             break;
 
-        consumeToken();
-        attribute_ptr = &(*attribute_ptr)->next;
+        consumeToken(); // skip T_COMMA
     }
+
     return true;
 }
 
