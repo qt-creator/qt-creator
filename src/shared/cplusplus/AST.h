@@ -375,9 +375,6 @@ public:
 class CPLUSPLUS_EXPORT PostfixDeclaratorAST: public AST
 {
 public:
-    PostfixDeclaratorAST *next;
-
-public:
     virtual PostfixDeclaratorAST *asPostfixDeclarator() { return this; }
 };
 
@@ -387,7 +384,7 @@ public:
     SpecifierAST *attributes;
     PtrOperatorAST *ptr_operators;
     CoreDeclaratorAST *core_declarator;
-    PostfixDeclaratorAST *postfix_declarators;
+    PostfixDeclaratorListAST *postfix_declarators;
     SpecifierAST *post_attributes;
     unsigned equals_token;
     ExpressionAST *initializer;

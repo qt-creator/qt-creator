@@ -484,7 +484,7 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QVERIFY(decl_id->name->asSimpleName() != 0);
     QCOMPARE(decl_id->name->asSimpleName()->identifier_token, 2U);
 
-    FunctionDeclaratorAST *fun_declarator = declarator->postfix_declarators->asFunctionDeclarator();
+    FunctionDeclaratorAST *fun_declarator = declarator->postfix_declarators->value->asFunctionDeclarator();
     QVERIFY(fun_declarator != 0);
     QCOMPARE(fun_declarator->lparen_token, 3U);
     QVERIFY(fun_declarator->parameters != 0);

@@ -1127,7 +1127,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
     if (! parseCoreDeclarator(node))
         return false;
 
-    PostfixDeclaratorAST **postfix_ptr = &node->postfix_declarators;
+    PostfixDeclaratorListAST **postfix_ptr = &node->postfix_declarators;
 
     for (;;) {
         unsigned startOfPostDeclarator = cursor();
@@ -1155,7 +1155,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
                                 ast->parameters = parameter_declaration_clause;
                                 ast->as_cpp_initializer = initializer;
                                 ast->rparen_token = rparen_token;
-                                *postfix_ptr = ast;
+                                *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
                                 postfix_ptr = &(*postfix_ptr)->next;
 
                                 blockErrors(blocked);
@@ -1185,7 +1185,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
             ast->rparen_token = consumeToken();
             parseCvQualifiers(ast->cv_qualifier_seq);
             parseExceptionSpecification(ast->exception_specification);
-            *postfix_ptr = ast;
+            *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
             postfix_ptr = &(*postfix_ptr)->next;
         } else if (LA() == T_LBRACKET) {
             ArrayDeclaratorAST *ast = new (_pool) ArrayDeclaratorAST;
@@ -1193,7 +1193,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
             if (LA() == T_RBRACKET || parseConstantExpression(ast->expression)) {
                 match(T_RBRACKET, &ast->rbracket_token);
             }
-            *postfix_ptr = ast;
+            *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
             postfix_ptr = &(*postfix_ptr)->next;
         } else
             break;
@@ -1257,7 +1257,7 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node)
     if (! parseAbstractCoreDeclarator(node))
         return false;
 
-    PostfixDeclaratorAST *postfix_declarators = 0,
+    PostfixDeclaratorListAST *postfix_declarators = 0,
         **postfix_ptr = &postfix_declarators;
 
     for (;;) {
@@ -1270,7 +1270,7 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node)
             }
             parseCvQualifiers(ast->cv_qualifier_seq);
             parseExceptionSpecification(ast->exception_specification);
-            *postfix_ptr = ast;
+            *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
             postfix_ptr = &(*postfix_ptr)->next;
         } else if (LA() == T_LBRACKET) {
             ArrayDeclaratorAST *ast = new (_pool) ArrayDeclaratorAST;
@@ -1279,7 +1279,7 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node)
                 if (LA() == T_RBRACKET)
                     ast->rbracket_token = consumeToken();
             }
-            *postfix_ptr = ast;
+            *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
             postfix_ptr = &(*postfix_ptr)->next;
         } else
             break;
@@ -2206,7 +2206,7 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast) const
         } else if (DeclaratorListAST *declarators = declaration->declarators) {
             // no decl_specifiers...
             if (DeclaratorAST *declarator = declarators->value) {
-                if (declarator->postfix_declarators && declarator->postfix_declarators->asFunctionDeclarator()
+                if (declarator->postfix_declarators && declarator->postfix_declarators->value->asFunctionDeclarator()
                                                      && ! declarator->initializer) {
                     return false;
                 }                

@@ -205,7 +205,6 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
             fun->setVolatile(true);
     }
 
-    accept(ast->next);
     return false;
 }
 
@@ -215,7 +214,6 @@ bool CheckDeclarator::visit(ArrayDeclaratorAST *ast)
     FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
     FullySpecifiedType arrTy(ty);
     _fullySpecifiedType = ty;
-    accept(ast->next);
     return false;
 }
 
@@ -226,7 +224,6 @@ bool CheckDeclarator::visit(PointerToMemberAST *ast)
     FullySpecifiedType ty(ptrTy);
     _fullySpecifiedType = ty;
     applyCvQualifiers(ast->cv_qualifier_seq);
-    accept(ast->next);
     return false;
 }
 
@@ -236,7 +233,6 @@ bool CheckDeclarator::visit(PointerAST *ast)
     FullySpecifiedType ty(ptrTy);
     _fullySpecifiedType = ty;
     applyCvQualifiers(ast->cv_qualifier_seq);
-    accept(ast->next);
     return false;
 }
 
@@ -245,7 +241,6 @@ bool CheckDeclarator::visit(ReferenceAST *ast)
     ReferenceType *refTy = control()->referenceType(_fullySpecifiedType);
     FullySpecifiedType ty(refTy);
     _fullySpecifiedType = ty;
-    accept(ast->next);
     return false;
 }
 

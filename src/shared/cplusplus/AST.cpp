@@ -560,10 +560,8 @@ unsigned DeclaratorAST::lastToken() const
             return it->lastToken();
     }
 
-    for (PostfixDeclaratorAST *it = postfix_declarators; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (postfix_declarators)
+        return postfix_declarators->lastToken();
 
     if (core_declarator)
         return core_declarator->lastToken();

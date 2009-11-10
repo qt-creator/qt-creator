@@ -1073,7 +1073,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
                 doc->check();
                 if (SimpleDeclarationAST *sd = doc->translationUnit()->ast()->asSimpleDeclaration()) {
                     if (sd->declarators->value->postfix_declarators
-                        && sd->declarators->value->postfix_declarators->asFunctionDeclarator()) {
+                        && sd->declarators->value->postfix_declarators->value->asFunctionDeclarator()) {
                         autocompleteSignature = true;
                     }
                 }

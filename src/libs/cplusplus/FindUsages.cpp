@@ -416,8 +416,8 @@ bool FindUsages::visit(ParameterDeclarationAST *ast)
         if (! _inSimpleDeclaration) // visit the core declarator only if we are not in simple-declaration.
             accept(declarator->core_declarator);
 
-        for (PostfixDeclaratorAST *fx_op = declarator->postfix_declarators; fx_op; fx_op = fx_op->next)
-            accept(fx_op);
+        for (PostfixDeclaratorListAST *it = declarator->postfix_declarators; it; it = it->next)
+            accept(it->value);
 
         for (SpecifierAST *spec = declarator->post_attributes; spec; spec = spec->next)
             accept(spec);
