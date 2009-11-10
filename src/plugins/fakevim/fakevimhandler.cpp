@@ -214,6 +214,12 @@ struct Range
         : beginPos(qMin(b, e)), endPos(qMax(b, e)), rangemode(m)
     {}
 
+    QString toString() const 
+    {
+        return QString("%1-%2 (mode: %3)").arg(beginPos).arg(endPos)
+            .arg(rangemode);
+    }
+
     int beginPos;
     int endPos;
     RangeMode rangemode;
@@ -1947,7 +1953,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
                 firstPositionInLine(endLine), RangeLineMode);
             QString contents = text(range);
             m_tc = tc;
-            qDebug() << "LINES: " << beginLine << endLine;
+            //qDebug() << "LINES: " << beginLine << endLine;
             bool handled = false;
             emit q->writeFileRequested(&handled, fileName, contents);
             // nobody cared, so act ourselves
@@ -2500,8 +2506,12 @@ QString FakeVimHandler::Private::text(const Range &range) const
     }
     if (range.rangemode == RangeLineMode) {
         QTextCursor tc = m_tc;
-        tc.setPosition(firstPositionInLine(lineForPosition(range.beginPos)), MoveAnchor);
-        tc.setPosition(firstPositionInLine(lineForPosition(range.endPos)+1), KeepAnchor);
+        int firstPos = firstPositionInLine(lineForPosition(range.beginPos));
+        int lastLine = lineForPosition(range.endPos);
+        int lastPos = lastLine == m_tc.document()->lastBlock().blockNumber() + 1
+            ? lastPositionInDocument() : firstPositionInLine(lastLine + 1);
+        tc.setPosition(firstPos, MoveAnchor);
+        tc.setPosition(lastPos, KeepAnchor);
         return tc.selection().toPlainText();
     }
     // FIXME: Performance?
