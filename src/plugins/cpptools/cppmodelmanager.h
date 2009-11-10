@@ -111,8 +111,6 @@ public:
     void setHeaderSuffixes(const QStringList &suffixes)
     { m_headerSuffixes = suffixes; }
 
-    virtual bool isIndexing() const;
-
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
 
@@ -131,8 +129,6 @@ private Q_SLOTS:
     void onProjectAdded(ProjectExplorer::Project *project);
     void postEditorUpdate();
     void updateEditorSelections();
-    void onTaskStarted(const QString &type);
-    void onAllTasksFinished(const QString &type);
 
 private:
     QMap<QString, QString> buildWorkingCopyList();
@@ -179,13 +175,10 @@ private:
                       CppPreprocessor *preproc,
                       QStringList files);
 
-    void setIndexing(bool);
-
 private:
     Core::ICore *m_core;
     CPlusPlus::Snapshot m_snapshot;
 
-    bool m_indexing;
     // cache
     bool m_dirty;
     QStringList m_projectFiles;

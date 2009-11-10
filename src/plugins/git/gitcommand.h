@@ -73,7 +73,6 @@ Q_SIGNALS:
     void outputData(const QByteArray&);
     void errorText(const QString&);
     void finished(bool ok, const QVariant &cookie);
-    void success();
 
 private:
     struct Job {

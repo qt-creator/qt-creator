@@ -574,7 +574,6 @@ void SubversionPlugin::revertCurrentFile()
     const SubversionResponse revertResponse = runSvn(args, subversionShortTimeOut, true);
     if (!revertResponse.error) {
         fcb.setModifiedReload(true);
-        m_versionControl->emitFilesChanged(QStringList(file));
     }
 }
 
@@ -751,10 +750,7 @@ void SubversionPlugin::updateProject()
     QStringList args(QLatin1String("update"));
     args.push_back(QLatin1String(nonInteractiveOptionC));
     args.append(topLevels);
-    const SubversionResponse response = runSvn(args, subversionLongTimeOut, true);
-    if (!response.error)
-        foreach(const QString &repo, topLevels)
-            m_versionControl->emitRepositoryChanged(repo);
+    runSvn(args, subversionLongTimeOut, true);
 }
 
 void SubversionPlugin::annotateCurrentFile()

@@ -59,7 +59,6 @@ namespace CVS {
 namespace Internal {
 
 class CVSSubmitEditor;
-class CVSControl;
 
 struct CVSResponse
 {
@@ -154,7 +153,7 @@ private:
     void cleanCommitMessageFile();
 
     CVSSettings m_settings;
-    CVSControl *m_versionControl;
+    Core::IVersionControl *m_versionControl;
     QString m_commitMessageFileName;
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;

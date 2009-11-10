@@ -106,10 +106,6 @@ public:
      */
     virtual bool vcsDelete(const QString &filename) = 0;
 
-signals:
-    void repositoryChanged(const QString &repository);
-    void filesChanged(const QStringList &files);
-
     // TODO: ADD A WAY TO DETECT WHETHER A FILE IS MANAGED, e.g
     // virtual bool sccManaged(const QString &filename) = 0;
 };

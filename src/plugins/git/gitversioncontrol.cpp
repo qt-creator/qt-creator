@@ -96,10 +96,5 @@ QString GitVersionControl::findTopLevelForDirectory(const QString &directory) co
     return GitClient::findRepositoryForDirectory(directory);
 }
 
-void GitVersionControl::emitFilesChanged(const QStringList &l)
-{
-    emit filesChanged(l);
-}
-
 } // Internal
 } // Git

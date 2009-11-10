@@ -43,7 +43,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <texteditor/completionsupport.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
@@ -112,11 +112,7 @@ CppPlugin *CppPlugin::m_instance = 0;
 
 CppPlugin::CppPlugin() :
     m_actionHandler(0),
-    m_sortedMethodOverview(false),
-    m_renameSymbolUnderCursorAction(0),
-    m_findUsagesAction(0),
-    m_updateCodeModelAction(0)
-
+    m_sortedMethodOverview(false)
 {
     m_instance = this;
 }
@@ -162,17 +158,6 @@ bool CppPlugin::sortedMethodOverview() const
     return m_sortedMethodOverview;
 }
 
-static inline
-        Core::Command *createSeparator(Core::ActionManager *am,
-                                       QObject *parent,
-                                       const QList<int> &context,
-                                       const char *id)
-{
-    QAction *separator = new QAction(parent);
-    separator->setSeparator(true);
-    return am->registerAction(separator, QLatin1String(id), context);
-}
-
 bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     Core::ICore *core = Core::ICore::instance();
@@ -207,7 +192,6 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     Core::ActionContainer *contextMenu= am->createMenu(CppEditor::Constants::M_CONTEXT);
 
     Core::Command *cmd;
-    Core::ActionContainer *cppToolsMenu = am->actionContainer(QLatin1String(CppTools::Constants::M_TOOLS_CPP));
 
     QAction *jumpToDefinition = new QAction(tr("Follow Symbol under Cursor"), this);
     cmd = am->registerAction(jumpToDefinition,
@@ -216,7 +200,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     connect(jumpToDefinition, SIGNAL(triggered()),
             this, SLOT(jumpToDefinition()));
     contextMenu->addAction(cmd);
-    cppToolsMenu->addAction(cmd);
+    am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
     QAction *switchDeclarationDefinition = new QAction(tr("Switch between Method Declaration/Definition"), this);
     cmd = am->registerAction(switchDeclarationDefinition,
@@ -225,14 +209,14 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     connect(switchDeclarationDefinition, SIGNAL(triggered()),
             this, SLOT(switchDeclarationDefinition()));
     contextMenu->addAction(cmd);
-    cppToolsMenu->addAction(cmd);
+    am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
     m_findUsagesAction = new QAction(tr("Find Usages"), this);
     cmd = am->registerAction(m_findUsagesAction, Constants::FIND_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
     connect(m_findUsagesAction, SIGNAL(triggered()), this, SLOT(findUsages()));
     contextMenu->addAction(cmd);
-    cppToolsMenu->addAction(cmd);
+    am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
     m_renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol under Cursor"), this);
     cmd = am->registerAction(m_renameSymbolUnderCursorAction,
@@ -240,17 +224,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cmd->setDefaultKeySequence(QKeySequence("CTRL+SHIFT+R"));
     connect(m_renameSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(renameSymbolUnderCursor()));
     contextMenu->addAction(cmd);
-    cppToolsMenu->addAction(cmd);
-
-    // Update context in global context
-    QList<int> globalContext;
-    globalContext.append(Core::Constants::C_GLOBAL_ID);
-    cppToolsMenu->addAction(createSeparator(am, this, globalContext, CppEditor::Constants::SEPARATOR2));
-    m_updateCodeModelAction = new QAction(tr("Update code model"), this);
-    cmd = am->registerAction(m_updateCodeModelAction, QLatin1String(Constants::UPDATE_CODEMODEL), globalContext);
-    CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance();
-    connect(m_updateCodeModelAction, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
-    cppToolsMenu->addAction(cmd);
+    am->actionContainer(CppTools::Constants::M_TOOLS_CPP)->addAction(cmd);
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format
@@ -259,7 +233,10 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     m_actionHandler->initializeActions();
     
-    contextMenu->addAction(createSeparator(am, this, context, CppEditor::Constants::SEPARATOR));
+    QAction *separator = new QAction(this);
+    separator->setSeparator(true);
+    cmd = am->registerAction(separator, CppEditor::Constants::SEPARATOR, context);
+    contextMenu->addAction(cmd);
 
     cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);
     contextMenu->addAction(cmd);
@@ -267,8 +244,10 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    connect(cppModelManager, SIGNAL(indexingStarted()), this, SLOT(onCppModelIndexingStarted()));
-    connect(cppModelManager, SIGNAL(indexingFinished()), this, SLOT(onCppModelIndexingFinished()));
+    connect(core->progressManager(), SIGNAL(taskStarted(QString)),
+            this, SLOT(onTaskStarted(QString)));
+    connect(core->progressManager(), SIGNAL(allTasksFinished(QString)),
+            this, SLOT(onAllTasksFinished(QString)));
     readSettings();
     return true;
 }
@@ -324,18 +303,20 @@ void CppPlugin::findUsages()
         editor->findUsages();
 }
 
-void CppPlugin::onCppModelIndexingStarted()
+void CppPlugin::onTaskStarted(const QString &type)
 {
-    m_renameSymbolUnderCursorAction->setEnabled(false);
-    m_findUsagesAction->setEnabled(false);
-    m_updateCodeModelAction->setEnabled(false);
+    if (type == CppTools::Constants::TASK_INDEX) {
+        m_renameSymbolUnderCursorAction->setEnabled(false);
+        m_findUsagesAction->setEnabled(false);
+    }
 }
 
-void CppPlugin::onCppModelIndexingFinished()
+void CppPlugin::onAllTasksFinished(const QString &type)
 {
-    m_renameSymbolUnderCursorAction->setEnabled(true);
-    m_findUsagesAction->setEnabled(true);
-    m_updateCodeModelAction->setEnabled(true);
+    if (type == CppTools::Constants::TASK_INDEX) {
+        m_renameSymbolUnderCursorAction->setEnabled(true);
+        m_findUsagesAction->setEnabled(true);
+    }
 }
 
 Q_EXPORT_PLUGIN(CppPlugin)
