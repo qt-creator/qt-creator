@@ -131,7 +131,6 @@ class ObjCFastEnumerationAST;
 class ObjCInstanceVariablesDeclarationAST;
 class ObjCMessageArgumentAST;
 class ObjCMessageArgumentDeclarationAST;
-class ObjCMessageArgumentDeclarationListAST;
 class ObjCMessageExpressionAST;
 class ObjCMethodDeclarationAST;
 class ObjCMethodPrototypeAST;
@@ -201,6 +200,7 @@ typedef List<NameAST *> ObjCIdentifierListAST;
 typedef List<ObjCMessageArgumentAST *> ObjCMessageArgumentListAST;
 typedef List<ObjCSelectorArgumentAST *> ObjCSelectorArgumentListAST;
 typedef List<ObjCPropertyAttributeAST *> ObjCPropertyAttributeListAST;
+typedef List<ObjCMessageArgumentDeclarationAST *> ObjCMessageArgumentDeclarationListAST;
 
 typedef ExpressionListAST TemplateArgumentListAST;
 

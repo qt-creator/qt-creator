@@ -1069,14 +1069,6 @@ void ObjCMessageArgumentDeclarationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void ObjCMessageArgumentDeclarationListAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(argument_declaration, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void ObjCMethodPrototypeAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

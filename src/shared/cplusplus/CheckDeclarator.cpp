@@ -267,7 +267,7 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
     if (ast->selector && ast->selector->asObjCSelectorWithArguments()) {
         // TODO: add arguments (EV)
         for (ObjCMessageArgumentDeclarationListAST *it = ast->arguments; it; it = it->next) {
-            ObjCMessageArgumentDeclarationAST *argDecl = it->argument_declaration;
+            ObjCMessageArgumentDeclarationAST *argDecl = it->value;
 
             semantic()->check(argDecl, method->arguments());
         }

@@ -2155,28 +2155,6 @@ unsigned ObjCMessageArgumentDeclarationAST::lastToken() const
     return 0;
 }
 
-unsigned ObjCMessageArgumentDeclarationListAST::firstToken() const
-{
-    if (argument_declaration)
-        return argument_declaration->firstToken();
-    else if (next)
-        return next->firstToken();
-    else
-        // ### Assert?
-        return 0;
-}
-
-unsigned ObjCMessageArgumentDeclarationListAST::lastToken() const
-{
-    for (const ObjCMessageArgumentDeclarationListAST *it = this; it; it = it->next) {
-        if (! it->next && it->argument_declaration) {
-            return it->argument_declaration->lastToken();
-        }
-    }
-    // ### assert?
-    return 0;
-}
-
 unsigned ObjCMethodPrototypeAST::firstToken() const
 {
     return method_type_token;

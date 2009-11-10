@@ -2445,22 +2445,6 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationListAST: public AST
-{
-public:
-    ObjCMessageArgumentDeclarationAST *argument_declaration;
-    ObjCMessageArgumentDeclarationListAST *next;
-
-public:
-    virtual ObjCMessageArgumentDeclarationListAST *asObjCMessageArgumentDeclarationList() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
 class CPLUSPLUS_EXPORT ObjCMethodPrototypeAST: public AST
 {
 public:

@@ -4899,7 +4899,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
         sel->selector_arguments->value = argument;
 
         ast->arguments = new (_pool) ObjCMessageArgumentDeclarationListAST;
-        ast->arguments->argument_declaration = declaration;
+        ast->arguments->value = declaration;
         ObjCMessageArgumentDeclarationListAST *lastArg = ast->arguments;
 
         while (parseObjCKeywordDeclaration(argument, declaration)) {
@@ -4909,7 +4909,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
 
             lastArg->next = new (_pool) ObjCMessageArgumentDeclarationListAST;
             lastArg = lastArg->next;
-            lastArg->argument_declaration = declaration;
+            lastArg->value = declaration;
         }
 
         while (LA() == T_COMMA) {
