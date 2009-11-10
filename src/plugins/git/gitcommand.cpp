@@ -177,8 +177,6 @@ void GitCommand::run()
         emit errorText(error);
 
     emit finished(ok, m_cookie);
-    if (ok)
-        emit success();
     // As it is used asynchronously, we need to delete ourselves
     this->deleteLater();
 }

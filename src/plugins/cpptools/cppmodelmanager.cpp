@@ -595,8 +595,6 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
 
 void CppTools::CppModelManagerInterface::updateModifiedSourceFiles()
 {
-    if (isIndexing())
-        return;
     const Snapshot snapshot = this->snapshot();
     QStringList sourceFiles;
 
@@ -632,8 +630,7 @@ CppTools::CppModelManagerInterface *CppTools::CppModelManagerInterface::instance
 */
 
 CppModelManager::CppModelManager(QObject *parent)
-    : CppModelManagerInterface(parent),
-      m_indexing(false)
+    : CppModelManagerInterface(parent)
 {
     m_findReferences = new CppFindReferences(this);
 
@@ -678,11 +675,6 @@ CppModelManager::CppModelManager(QObject *parent)
 
     connect(m_core->editorManager(), SIGNAL(editorAboutToClose(Core::IEditor *)),
         this, SLOT(editorAboutToClose(Core::IEditor *)));
-
-    connect(m_core->progressManager(), SIGNAL(taskStarted(QString)),
-            this, SLOT(onTaskStarted(QString)));
-    connect(m_core->progressManager(), SIGNAL(allTasksFinished(QString)),
-            this, SLOT(onAllTasksFinished(QString)));
 }
 
 CppModelManager::~CppModelManager()
@@ -879,7 +871,7 @@ QStringList CppModelManager::includesInPath(const QString &path) const
 
 QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles)
 {
-    if (!m_indexing && !sourceFiles.isEmpty() && qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull()) {
+    if (! sourceFiles.isEmpty() && qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull()) {
         const QMap<QString, QString> workingCopy = buildWorkingCopyList();
 
         CppPreprocessor *preproc = new CppPreprocessor(this);
@@ -905,7 +897,7 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
 
         m_synchronizer.addFuture(result);
 
-        if (sourceFiles.count() > 1) {            
+        if (sourceFiles.count() > 1) {
             m_core->progressManager()->addTask(result, tr("Indexing"),
                             CppTools::Constants::TASK_INDEX,
                             Core::ProgressManager::CloseOnSuccess);
@@ -1399,31 +1391,4 @@ void CppModelManager::GC()
     protectSnapshot.unlock();
 }
 
-bool CppModelManager::isIndexing() const
-{
-    return m_indexing;
-}
 
-void CppModelManager::setIndexing(bool v)
-{
-    if (m_indexing == v)
-        return;
-    m_indexing = v;
-    if (v) {
-        emit indexingStarted();
-    } else {
-        emit indexingFinished();
-    }
-}
-
-void CppModelManager::onTaskStarted(const QString &type)
-{
-    if (type == QLatin1String(CppTools::Constants::TASK_INDEX))
-        setIndexing(true);
-}
-
-void CppModelManager::onAllTasksFinished(const QString &type)
-{
-    if (type == QLatin1String(CppTools::Constants::TASK_INDEX))
-        setIndexing(false);
-}
