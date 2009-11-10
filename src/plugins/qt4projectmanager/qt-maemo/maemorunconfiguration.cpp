@@ -342,7 +342,7 @@ void MaemoRunConfiguration::save(PersistentSettingsWriter &writer) const
     writer.saveValue(RemoteUserNameKeySim, m_remoteUserNameSim);
     writer.saveValue(RemotePortKeySim, m_remotePortSim);
 
-    writer.saveValue(ArgumentsKeyDevice, m_remoteUserNameDevice);
+    writer.saveValue(ArgumentsKeyDevice, m_argumentsDevice);
     writer.saveValue(RemoteHostNameKeyDevice, m_remoteHostNameDevice);
     writer.saveValue(RemoteUserNameKeyDevice, m_remoteUserNameDevice);
     writer.saveValue(RemotePortKeyDevice, m_remotePortDevice);
