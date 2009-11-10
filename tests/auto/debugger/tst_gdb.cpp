@@ -105,9 +105,19 @@ private:
 typedef QList<QByteArray> QByteArrayList;
 
 struct Int3 {
-    Int3() { i1 = 42; i2 = 43; i3 = 44; }
+    Int3(int base = 0) { i1 = 42 + base; i2 = 43 + base; i3 = 44 + base; }
     int i1, i2, i3;
 };
+
+uint qHash(const Int3 &i)
+{
+    return (i.i1 ^ i.i2) ^ i.i3;
+}
+
+bool operator==(const Int3 &a, const Int3 &b)
+{
+    return a.i1 == b.i1 && a.i2 == b.i2 && a.i3 == b.i3;
+}
 
 struct QString3 {
     QString3() { s1 = "a"; s2 = "b"; s3 = "c"; }
@@ -193,6 +203,8 @@ private slots:
     void dump_QRect();
     void dump_QSharedPointer();
     void dump_QSize();
+    void dump_QSet_int();
+    void dump_QSet_Int3();
     void dump_QStack();
     void dump_QString();
     void dump_QStringList();
@@ -217,8 +229,6 @@ public slots:
     void dump_QImageData();
     void dump_QLinkedList();
     void dump_QLocale();
-    void dump_QMap();
-    void dump_QMapNode();
     void dump_QObject();
     void dump_QObjectChildList();
     void dump_QObjectMethodList();
@@ -1737,50 +1747,6 @@ void tst_Gdb::dump_QMap()
     dump_QMapHelper(map4);
 }
 
-template <typename K, typename V>
-        void tst_Gdb::dump_QMapNodeHelper(QMap<K, V> &m)
-{
-    typename QMap<K, V>::iterator it = m.begin();
-    const K &key = it.key();
-    const V &val = it.value();
-    //const char * const keyType = typeToString(key);
-    QByteArray expected = QByteArray("value='',numchild='2',"
-        "children=[{name='key',addr='").append(ptrToBa(&key)).
-        append("',type='").append(typeToString<K>()).append("',value='").
-        append(valToString(key)).append("'},{name='value',addr='").
-        append(ptrToBa(&val)).append("',type='").append(typeToString<V>()).
-        append("',value='").append(valToString(val)).
-        append("'}]");
-    size_t nodeSize;
-    size_t valOffset;
-    getMapNodeParams<K, V>(nodeSize, valOffset);
-    testDumper(expected, *reinterpret_cast<QMapData **>(&it), NS"QMapNode",
-               true, getMapType<K,V>(), "", 0, 0, nodeSize, valOffset);
-}
-
-void tst_Gdb::dump_QMapNode()
-{
-    // Case 1: simple type -> simple type.
-    QMap<int, int> map;
-    map[2] = 3;
-    dump_QMapNodeHelper(map);
-
-    // Case 2: simple type -> composite type.
-    QMap<int, QString> map2;
-    map2[3] = "String 5";
-    dump_QMapNodeHelper(map2);
-
-    // Case 3: composite type -> simple type.
-    QMap<QString, int> map3;
-    map3["String 7"] = 11;
-    dump_QMapNodeHelper(map3);
-
-    // Case 4: composite type -> composite type.
-    QMap<QString, QString> map4;
-    map4["String 13"] = "String 17";
-    dump_QMapNodeHelper(map4);
-}
-
 void tst_Gdb::dump_QObject()
 {
     QObject parent;
@@ -2852,6 +2818,57 @@ void tst_Gdb::dump_QRect()
         "local.p,local.f");
 }
 
+
+///////////////////////////// QSet<int> ///////////////////////////////////
+
+void dump_QSet_int()
+{
+    /* A */ QSet<int> h;
+    /* B */ h.insert(42);
+    /* C */ h.insert(44);
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dump_QSet_int()
+{
+    prepare("dump_QSet_int");
+    if (checkUninitialized)
+        run("A","{iname='local.h',name='h',"
+            "type='"NS"QSet<int>',value='<not in scope>',"
+            "numchild='0'}");
+    next(3);
+    run("D","{iname='local.h',name='h',"
+            "type='"NS"QSet<int>',value='<2 items>',numchild='2',"
+            "childtype='int',childnumchild='0',children=["
+            "{value='42'},{value='44'}]}", "local.h");
+}
+
+
+///////////////////////////// QSet<Int3> ///////////////////////////////////
+
+void dump_QSet_Int3()
+{
+    /* A */ QSet<Int3> h;
+    /* B */ h.insert(Int3(42));
+    /* C */ h.insert(Int3(44));
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dump_QSet_Int3()
+{
+    prepare("dump_QSet_Int3");
+    if (checkUninitialized)
+        run("A","{iname='local.h',name='h',"
+            "type='"NS"QSet<Int3>',value='<not in scope>',"
+            "numchild='0'}");
+    next(3);
+    run("D","{iname='local.h',name='h',"
+            "type='"NS"QSet<Int3>',value='<2 items>',numchild='2',"
+            "childtype='Int3',children=["
+            "{value='{...}',numchild='3'},{value='{...}',numchild='3'}]}", "local.h");
+}
+
+
 ///////////////////////////// QSize /////////////////////////////////
 
 #if QT_VERSION >= 0x040500
@@ -3550,6 +3567,8 @@ int main(int argc, char *argv[])
         dump_QMap_QString_QString();
         dump_QPoint();
         dump_QRect();
+        dump_QSet_int();
+        dump_QSet_Int3();
         dump_QSharedPointer();
         dump_QSize();
         dump_QStack();
