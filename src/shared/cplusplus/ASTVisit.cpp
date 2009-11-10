@@ -565,8 +565,7 @@ void NewTypeIdAST::accept0(ASTVisitor *visitor)
             accept(it, visitor);
         for (PtrOperatorAST *it = ptr_operators; it; it = it->next)
             accept(it, visitor);
-        for (NewArrayDeclaratorAST *it = new_array_declarators; it; it = it->next)
-            accept(it, visitor);
+        accept(new_array_declarators, visitor);
     }
     visitor->endVisit(this);
 }

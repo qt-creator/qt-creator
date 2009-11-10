@@ -146,7 +146,7 @@ public:
     bool parseNestedNameSpecifierOpt(NestedNameSpecifierAST *&name, bool acceptTemplateId);
     bool parseNamespace(DeclarationAST *&node);
     bool parseNamespaceAliasDefinition(DeclarationAST *&node);
-    bool parseNewArrayDeclarator(NewArrayDeclaratorAST *&node);
+    bool parseNewArrayDeclarator(NewArrayDeclaratorListAST *&node);
     bool parseNewExpression(ExpressionAST *&node);
     bool parseNewPlacement(NewPlacementAST *&node);
     bool parseNewInitializer(NewInitializerAST *&node);

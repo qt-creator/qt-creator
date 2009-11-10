@@ -1175,10 +1175,8 @@ unsigned NewTypeIdAST::firstToken() const
 
 unsigned NewTypeIdAST::lastToken() const
 {
-    for (NewArrayDeclaratorAST *it = new_array_declarators; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (new_array_declarators)
+        return new_array_declarators->lastToken();
 
     for (PtrOperatorAST *it = ptr_operators; it; it = it->next) {
         if (it->next)

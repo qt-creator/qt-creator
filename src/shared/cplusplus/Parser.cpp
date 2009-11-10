@@ -3810,7 +3810,7 @@ bool Parser::parseNewTypeId(NewTypeIdAST *&node)
     PtrOperatorAST **ptrop_it = &ast->ptr_operators;
     while (parsePtrOperator(*ptrop_it))
         ptrop_it = &(*ptrop_it)->next;
-    NewArrayDeclaratorAST **it = &ast->new_array_declarators;
+    NewArrayDeclaratorListAST **it = &ast->new_array_declarators;
     while (parseNewArrayDeclarator(*it))
         it = &(*it)->next;
     node = ast;
@@ -3818,7 +3818,7 @@ bool Parser::parseNewTypeId(NewTypeIdAST *&node)
 }
 
 
-bool Parser::parseNewArrayDeclarator(NewArrayDeclaratorAST *&node)
+bool Parser::parseNewArrayDeclarator(NewArrayDeclaratorListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() != T_LBRACKET)
@@ -3828,7 +3828,9 @@ bool Parser::parseNewArrayDeclarator(NewArrayDeclaratorAST *&node)
     ast->lbracket_token = consumeToken();
     parseExpression(ast->expression);
     match(T_RBRACKET, &ast->rbracket_token);
-    node = ast;
+
+    node = new (_pool) NewArrayDeclaratorListAST;
+    node->value = ast;
     return true;
 }
 

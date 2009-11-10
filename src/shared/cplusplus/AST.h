@@ -1333,7 +1333,6 @@ public:
     unsigned lbracket_token;
     ExpressionAST *expression;
     unsigned rbracket_token;
-    NewArrayDeclaratorAST *next;
 
 public:
     virtual NewArrayDeclaratorAST *asNewArrayDeclarator() { return this; }
@@ -1392,7 +1391,7 @@ class CPLUSPLUS_EXPORT NewTypeIdAST: public AST
 public:
     SpecifierAST *type_specifier;
     PtrOperatorAST *ptr_operators;
-    NewArrayDeclaratorAST *new_array_declarators;
+    NewArrayDeclaratorListAST *new_array_declarators;
 
 public:
     virtual NewTypeIdAST *asNewTypeId() { return this; }

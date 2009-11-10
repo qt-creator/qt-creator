@@ -207,8 +207,10 @@ bool CheckExpression::visit(NewExpressionAST *ast)
     if (ast->new_type_id) {
         FullySpecifiedType ty = semantic()->check(ast->new_type_id->type_specifier, _scope);
 
-        for (NewArrayDeclaratorAST *it = ast->new_type_id->new_array_declarators; it; it = it->next) {
-            FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
+        for (NewArrayDeclaratorListAST *it = ast->new_type_id->new_array_declarators; it; it = it->next) {
+            if (NewArrayDeclaratorAST *declarator = it->value) {
+                FullySpecifiedType exprTy = semantic()->check(declarator->expression, _scope);
+            }
         }
     }
 

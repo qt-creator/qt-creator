@@ -198,6 +198,7 @@ typedef List<DeclaratorAST *> DeclaratorListAST;
 typedef List<BaseSpecifierAST *> BaseSpecifierListAST;
 typedef List<EnumeratorAST *> EnumeratorListAST;
 typedef List<MemInitializerAST *> MemInitializerListAST;
+typedef List<NewArrayDeclaratorAST *> NewArrayDeclaratorListAST;
 
 typedef List<NameAST *> ObjCIdentifierListAST;
 typedef List<ObjCMessageArgumentAST *> ObjCMessageArgumentListAST;
