@@ -240,7 +240,7 @@ protected:
 
         else if (TemplateIdAST *template_id = name->asTemplateId()) {
             for (TemplateArgumentListAST *it = template_id->template_arguments; it; it = it->next) {
-                accept(it->template_argument);
+                accept(it->value);
             }
         }
     }
@@ -277,7 +277,7 @@ protected:
     virtual bool visit(TemplateIdAST *ast)
     {
         for (TemplateArgumentListAST *arg = ast->template_arguments; arg; arg = arg->next)
-            accept(arg->template_argument);
+            accept(arg->value);
 
         unsigned line, column;
         getTokenStartPosition(ast->firstToken(), &line, &column);

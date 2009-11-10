@@ -1504,22 +1504,6 @@ unsigned SwitchStatementAST::lastToken() const
     return switch_token + 1;
 }
 
-
-unsigned TemplateArgumentListAST::firstToken() const
-{
-    return template_argument->firstToken();
-}
-
-unsigned TemplateArgumentListAST::lastToken() const
-{
-    for (const TemplateArgumentListAST *it = this; it; it = it->next) {
-        if (! it->next && it->template_argument)
-            return it->template_argument->lastToken();
-    }
-    return 0;
-}
-
-
 unsigned TemplateDeclarationAST::firstToken() const
 {
     if (export_token)
@@ -1561,8 +1545,8 @@ unsigned TemplateIdAST::lastToken() const
         return greater_token + 1;
 
     for (TemplateArgumentListAST *it = template_arguments; it; it = it->next) {
-        if (! it->next && it->template_argument)
-            return it->template_argument->lastToken();
+        if (! it->next && it->value)
+            return it->value->lastToken();
     }
 
     if (less_token)

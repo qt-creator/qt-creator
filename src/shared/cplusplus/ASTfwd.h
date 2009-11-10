@@ -179,7 +179,6 @@ class SpecifierAST;
 class StatementAST;
 class StringLiteralAST;
 class SwitchStatementAST;
-class TemplateArgumentListAST;
 class TemplateDeclarationAST;
 class TemplateIdAST;
 class TemplateTypeParameterAST;
@@ -202,6 +201,7 @@ typedef List<ExpressionAST *> ExpressionListAST;
 typedef List<DeclarationAST *> DeclarationListAST;
 typedef List<StatementAST *> StatementListAST;
 typedef List<DeclaratorAST *> DeclaratorListAST;
+typedef ExpressionListAST TemplateArgumentListAST;
 
 } // end of namespace CPlusPlus
 

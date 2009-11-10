@@ -301,7 +301,7 @@ bool FindUsages::visit(QualifiedNameAST *ast)
                 if (template_id) {
                     for (TemplateArgumentListAST *template_arguments = template_id->template_arguments;
                          template_arguments; template_arguments = template_arguments->next) {
-                        accept(template_arguments->template_argument);
+                        accept(template_arguments->value);
                     }
                 }
             }
@@ -335,7 +335,7 @@ bool FindUsages::visit(QualifiedNameAST *ast)
 
                 for (TemplateArgumentListAST *template_arguments = template_id->template_arguments;
                      template_arguments; template_arguments = template_arguments->next) {
-                    accept(template_arguments->template_argument);
+                    accept(template_arguments->value);
                 }
             }
         }
@@ -395,7 +395,7 @@ bool FindUsages::visit(TemplateIdAST *ast)
 
     for (TemplateArgumentListAST *template_arguments = ast->template_arguments;
          template_arguments; template_arguments = template_arguments->next) {
-        accept(template_arguments->template_argument);
+        accept(template_arguments->value);
     }
 
     return false;

@@ -172,7 +172,6 @@ public:
     virtual bool visit(SizeofExpressionAST *) { return true; }
     virtual bool visit(StringLiteralAST *) { return true; }
     virtual bool visit(SwitchStatementAST *) { return true; }
-    virtual bool visit(TemplateArgumentListAST *) { return true; }
     virtual bool visit(TemplateDeclarationAST *) { return true; }
     virtual bool visit(TemplateIdAST *) { return true; }
     virtual bool visit(TemplateTypeParameterAST *) { return true; }
@@ -304,7 +303,6 @@ public:
     virtual void endVisit(SizeofExpressionAST *) { }
     virtual void endVisit(StringLiteralAST *) { }
     virtual void endVisit(SwitchStatementAST *) { }
-    virtual void endVisit(TemplateArgumentListAST *) { }
     virtual void endVisit(TemplateDeclarationAST *) { }
     virtual void endVisit(TemplateIdAST *) { }
     virtual void endVisit(TemplateTypeParameterAST *) { }

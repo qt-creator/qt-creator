@@ -716,14 +716,14 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
     ExpressionAST *template_argument = 0;
     if (parseTemplateArgument(template_argument)) {
         *template_argument_ptr = new (_pool) TemplateArgumentListAST;
-        (*template_argument_ptr)->template_argument = template_argument;
+        (*template_argument_ptr)->value = template_argument;
         template_argument_ptr = &(*template_argument_ptr)->next;
         while (LA() == T_COMMA) {
             consumeToken(); // consume T_COMMA
 
             if (parseTemplateArgument(template_argument)) {
                 *template_argument_ptr = new (_pool) TemplateArgumentListAST;
-                (*template_argument_ptr)->template_argument = template_argument;
+                (*template_argument_ptr)->value = template_argument;
                 template_argument_ptr = &(*template_argument_ptr)->next;
             }
         }
@@ -3365,8 +3365,8 @@ bool Parser::parseNameId(NameAST *&name)
     else if (LA() == T_LPAREN) {
         // a template-id followed by a T_LPAREN
         if (TemplateArgumentListAST *template_arguments = template_id->template_arguments) {
-            if (! template_arguments->next && template_arguments->template_argument &&
-                    template_arguments->template_argument->asBinaryExpression()) {
+            if (! template_arguments->next && template_arguments->value &&
+                    template_arguments->value->asBinaryExpression()) {
 
                 unsigned saved = cursor();
                 ExpressionAST *expr = 0;

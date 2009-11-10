@@ -781,14 +781,6 @@ void SwitchStatementAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void TemplateArgumentListAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(template_argument, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void TemplateDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

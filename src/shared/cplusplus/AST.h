@@ -1851,22 +1851,6 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT TemplateArgumentListAST: public AST
-{
-public:
-    ExpressionAST *template_argument;
-    TemplateArgumentListAST *next;
-
-public:
-    virtual TemplateArgumentListAST *asTemplateArgumentList() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
 class CPLUSPLUS_EXPORT TemplateDeclarationAST: public DeclarationAST
 {
 public:
