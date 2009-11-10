@@ -2949,7 +2949,7 @@ bool Parser::parseTryBlockStatement(StatementAST *&node)
         TryBlockStatementAST *ast = new (_pool) TryBlockStatementAST;
         ast->try_token = consumeToken();
         parseCompoundStatement(ast->statement);
-        CatchClauseAST **catch_clause_ptr = &ast->catch_clause_seq;
+        CatchClauseListAST **catch_clause_ptr = &ast->catch_clause_list;
         while (parseCatchClause(*catch_clause_ptr))
             catch_clause_ptr = &(*catch_clause_ptr)->next;
         node = ast;
@@ -2958,7 +2958,7 @@ bool Parser::parseTryBlockStatement(StatementAST *&node)
     return false;
 }
 
-bool Parser::parseCatchClause(CatchClauseAST *&node)
+bool Parser::parseCatchClause(CatchClauseListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_CATCH) {
@@ -2968,7 +2968,7 @@ bool Parser::parseCatchClause(CatchClauseAST *&node)
         parseExceptionDeclaration(ast->exception_declaration);
         match(T_RPAREN, &ast->rparen_token);
         parseCompoundStatement(ast->statement);
-        node = ast;
+        node = new (_pool) CatchClauseListAST(ast);
         return true;
     }
     return false;

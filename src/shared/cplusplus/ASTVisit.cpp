@@ -804,8 +804,7 @@ void TryBlockStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(statement, visitor);
-        for (CatchClauseAST *it = catch_clause_seq; it; it = it->next)
-            accept(it, visitor);
+        accept(catch_clause_list, visitor);
     }
     visitor->endVisit(this);
 }

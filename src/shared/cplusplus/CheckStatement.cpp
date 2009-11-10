@@ -273,8 +273,8 @@ bool CheckStatement::visit(SwitchStatementAST *ast)
 bool CheckStatement::visit(TryBlockStatementAST *ast)
 {
     semantic()->check(ast->statement, _scope);
-    for (CatchClauseAST *c = ast->catch_clause_seq; c; c = c->next) {
-        semantic()->check(c, _scope);
+    for (CatchClauseListAST *it = ast->catch_clause_list; it; it = it->next) {
+        semantic()->check(it->value, _scope);
     }
     return false;
 }

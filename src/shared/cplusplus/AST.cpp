@@ -1616,12 +1616,10 @@ unsigned TryBlockStatementAST::firstToken() const
 
 unsigned TryBlockStatementAST::lastToken() const
 {
-    for (CatchClauseAST *it = catch_clause_seq; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (catch_clause_list)
+        return catch_clause_list->lastToken();
 
-    if (statement)
+    else if (statement)
         return statement->lastToken();
 
     return try_token + 1;

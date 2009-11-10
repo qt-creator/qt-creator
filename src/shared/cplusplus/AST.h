@@ -1899,7 +1899,7 @@ class CPLUSPLUS_EXPORT TryBlockStatementAST: public StatementAST
 public:
     unsigned try_token;
     StatementAST *statement;
-    CatchClauseAST *catch_clause_seq;
+    CatchClauseListAST *catch_clause_list;
 
 public:
     virtual TryBlockStatementAST *asTryBlockStatement() { return this; }
@@ -1919,7 +1919,6 @@ public:
     ExceptionDeclarationAST *exception_declaration;
     unsigned rparen_token;
     StatementAST *statement;
-    CatchClauseAST *next;
 
 public: // annotations
     Block *symbol;

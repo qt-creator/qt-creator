@@ -181,7 +181,7 @@ public:
     bool parseTemplateParameterList(DeclarationListAST *&node);
     bool parseThrowExpression(ExpressionAST *&node);
     bool parseTryBlockStatement(StatementAST *&node);
-    bool parseCatchClause(CatchClauseAST *&node);
+    bool parseCatchClause(CatchClauseListAST *&node);
     bool parseTypeId(ExpressionAST *&node);
     bool parseTypeIdList(ExpressionListAST *&node);
     bool parseTypenameTypeParameter(DeclarationAST *&node);
