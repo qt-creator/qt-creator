@@ -1290,8 +1290,8 @@ void GdbEngine::handleStop1(const GdbMi &data)
                     "signal from the Operating System.<p>"
                     "<table><tr><td>Signal name : </td><td>%1</td></tr>"
                     "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
-                    .arg(name.isEmpty() ? tr(" <Unknown> ") : _(name))
-                    .arg(meaning.isEmpty() ? tr(" <Unknown> ") : _(meaning));
+                    .arg(name.isEmpty() ? tr(" <Unknown> ", "name") : _(name))
+                    .arg(meaning.isEmpty() ? tr(" <Unknown> ", "meaning") : _(meaning));
                 showMessageBox(QMessageBox::Information,
                     tr("Signal received"), msg);
             }
@@ -2292,7 +2292,7 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
                 module.symbolsRead = (item.findChild("state").data() == "Y");
                 module.startAddress = _(item.findChild("loaded_addr").data());
                 //: End address of loaded module
-                module.endAddress = tr("<unknown>");
+                module.endAddress = tr("<unknown>", "address");
                 modules.append(module);
             }
         }
