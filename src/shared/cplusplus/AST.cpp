@@ -2047,25 +2047,6 @@ unsigned ObjCSelectorArgumentAST::lastToken() const
         return name_token + 1;
 }
 
-unsigned ObjCSelectorArgumentListAST::firstToken() const
-{
-    if (argument)
-        return argument->firstToken();
-
-    // ### assert?
-    return 0;
-}
-
-unsigned ObjCSelectorArgumentListAST::lastToken() const
-{
-    for (const ObjCSelectorArgumentListAST *it = this; it; it = it->next)
-        if (!it->next && it->argument)
-            return it->argument->lastToken();
-
-    // ### assert?
-    return 0;
-}
-
 unsigned ObjCSelectorWithArgumentsAST::firstToken() const
 {
     return selector_arguments->firstToken();

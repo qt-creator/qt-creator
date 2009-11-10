@@ -144,7 +144,6 @@ class ObjCProtocolForwardDeclarationAST;
 class ObjCProtocolRefsAST;
 class ObjCSelectorAST;
 class ObjCSelectorArgumentAST;
-class ObjCSelectorArgumentListAST;
 class ObjCSelectorExpressionAST;
 class ObjCSelectorWithArgumentsAST;
 class ObjCSelectorWithoutArgumentsAST;
@@ -201,6 +200,7 @@ typedef List<StatementAST *> StatementListAST;
 typedef List<DeclaratorAST *> DeclaratorListAST;
 typedef List<NameAST *> ObjCIdentifierListAST;
 typedef List<ObjCMessageArgumentAST *> ObjCMessageArgumentListAST;
+typedef List<ObjCSelectorArgumentAST *> ObjCSelectorArgumentListAST;
 
 typedef ExpressionListAST TemplateArgumentListAST;
 

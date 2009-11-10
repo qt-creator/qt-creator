@@ -3180,16 +3180,16 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&node)
         ast->selector = args;
         ObjCSelectorArgumentListAST *last = new (_pool) ObjCSelectorArgumentListAST;
         args->selector_arguments = last;
-        last->argument = new (_pool) ObjCSelectorArgumentAST;
-        last->argument->name_token = identifier_token;
-        last->argument->colon_token = consumeToken();
+        last->value = new (_pool) ObjCSelectorArgumentAST;
+        last->value->name_token = identifier_token;
+        last->value->colon_token = consumeToken();
 
         while (LA() != T_RPAREN) {
             last->next = new (_pool) ObjCSelectorArgumentListAST;
             last = last->next;
-            last->argument = new (_pool) ObjCSelectorArgumentAST;
-            match(T_IDENTIFIER, &(last->argument->name_token));
-            match(T_COLON, &(last->argument->colon_token));
+            last->value = new (_pool) ObjCSelectorArgumentAST;
+            match(T_IDENTIFIER, &(last->value->name_token));
+            match(T_COLON, &(last->value->colon_token));
         }
     } else {
         ObjCSelectorWithoutArgumentsAST *args = new (_pool) ObjCSelectorWithoutArgumentsAST;
@@ -3253,7 +3253,7 @@ bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArg
 
     if (parseObjCSelectorArg(selectorArgument, messageArgument)) {
         ObjCSelectorArgumentListAST *selAst = new (_pool) ObjCSelectorArgumentListAST;
-        selAst->argument = selectorArgument;
+        selAst->value = selectorArgument;
         ObjCSelectorArgumentListAST *lastSelector = selAst;
 
         ObjCMessageArgumentListAST *argAst = new (_pool) ObjCMessageArgumentListAST;
@@ -3264,7 +3264,7 @@ bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArg
             // accept the selector args.
             lastSelector->next = new (_pool) ObjCSelectorArgumentListAST;
             lastSelector = lastSelector->next;
-            lastSelector->argument = selectorArgument;
+            lastSelector->value = selectorArgument;
 
             lastArgument->next = new (_pool) ObjCMessageArgumentListAST;
             lastArgument = lastArgument->next;
@@ -4896,7 +4896,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
         ast->selector = sel;
         ObjCSelectorArgumentListAST *lastSel = new (_pool) ObjCSelectorArgumentListAST;
         sel->selector_arguments = lastSel;
-        sel->selector_arguments->argument = argument;
+        sel->selector_arguments->value = argument;
 
         ast->arguments = new (_pool) ObjCMessageArgumentDeclarationListAST;
         ast->arguments->argument_declaration = declaration;
@@ -4905,7 +4905,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
         while (parseObjCKeywordDeclaration(argument, declaration)) {
             lastSel->next = new (_pool) ObjCSelectorArgumentListAST;
             lastSel = lastSel->next;
-            lastSel->argument = argument;
+            lastSel->value = argument;
 
             lastArg->next = new (_pool) ObjCMessageArgumentDeclarationListAST;
             lastArg = lastArg->next;
@@ -4982,9 +4982,9 @@ bool Parser::parseObjCPropertyAttribute(ObjCPropertyAttributeAST *&node)
         match(T_EQUAL, &(node->equals_token));
         ObjCSelectorWithArgumentsAST *selector = new (_pool) ObjCSelectorWithArgumentsAST;
         selector->selector_arguments = new (_pool) ObjCSelectorArgumentListAST;
-        selector->selector_arguments->argument = new (_pool) ObjCSelectorArgumentAST;
-        match(T_IDENTIFIER, &(selector->selector_arguments->argument->name_token));
-        match(T_COLON, &(selector->selector_arguments->argument->colon_token));
+        selector->selector_arguments->value = new (_pool) ObjCSelectorArgumentAST;
+        match(T_IDENTIFIER, &(selector->selector_arguments->value->name_token));
+        match(T_COLON, &(selector->selector_arguments->value->colon_token));
         node->method_selector = selector;
         return true;
     }

@@ -1006,14 +1006,6 @@ void ObjCSelectorArgumentAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void ObjCSelectorArgumentListAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(argument, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void ObjCSelectorWithArgumentsAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

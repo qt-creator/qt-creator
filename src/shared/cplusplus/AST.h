@@ -2323,22 +2323,6 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT ObjCSelectorArgumentListAST: public AST
-{
-public:
-    ObjCSelectorArgumentAST *argument;
-    ObjCSelectorArgumentListAST *next;
-
-public:
-    virtual ObjCSelectorArgumentListAST *asObjCSelectorArgumentList() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
 class CPLUSPLUS_EXPORT ObjCSelectorWithArgumentsAST: public ObjCSelectorAST
 {
 public:

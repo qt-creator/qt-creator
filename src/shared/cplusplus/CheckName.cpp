@@ -389,7 +389,7 @@ bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
 {
     std::vector<Name *> names;
     for (ObjCSelectorArgumentListAST *it = ast->selector_arguments; it; it = it->next) {
-        Identifier *id =  identifier(it->argument->name_token);
+        Identifier *id =  identifier(it->value->name_token);
         Name *name = control()->nameId(id);
 
         names.push_back(name);
