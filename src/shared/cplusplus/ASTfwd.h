@@ -87,7 +87,6 @@ class DeclarationAST;
 class DeclarationStatementAST;
 class DeclaratorAST;
 class DeclaratorIdAST;
-class DeclaratorListAST;
 class DeleteExpressionAST;
 class DestructorNameAST;
 class DoStatementAST;
@@ -202,6 +201,7 @@ class WhileStatementAST;
 typedef List<ExpressionAST *> ExpressionListAST;
 typedef List<DeclarationAST *> DeclarationListAST;
 typedef List<StatementAST *> StatementListAST;
+typedef List<DeclaratorAST *> DeclaratorListAST;
 
 } // end of namespace CPlusPlus
 

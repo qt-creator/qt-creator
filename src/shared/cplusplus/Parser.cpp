@@ -2158,7 +2158,7 @@ bool Parser::isPointerDeclaration(DeclarationStatementAST *ast) const
         if (SpecifierAST *spec = declaration->decl_specifier_seq) {
             if (spec->asNamedTypeSpecifier() && ! spec->next) {
                 if (DeclaratorListAST *declarators = declaration->declarators) {
-                    if (DeclaratorAST *declarator = declarators->declarator) {
+                    if (DeclaratorAST *declarator = declarators->value) {
                         if (declarator->ptr_operators && declarator->equals_token && declarator->initializer) {
                             return true;
                         }
@@ -2180,7 +2180,7 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast) const
         if (SpecifierAST *spec = declaration->decl_specifier_seq) {
             if (spec->asNamedTypeSpecifier() && ! spec->next) {
                 if (DeclaratorListAST *declarators = declaration->declarators) {
-                    if (DeclaratorAST *declarator = declarators->declarator) {
+                    if (DeclaratorAST *declarator = declarators->value) {
                         if (declarator->core_declarator &&
                             declarator->core_declarator->asNestedDeclarator()) {
                             // recognized name(id-expression)
@@ -2192,7 +2192,7 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast) const
 
         } else if (DeclaratorListAST *declarators = declaration->declarators) {
             // no decl_specifiers...
-            if (DeclaratorAST *declarator = declarators->declarator) {
+            if (DeclaratorAST *declarator = declarators->value) {
                 if (declarator->postfix_declarators && declarator->postfix_declarators->asFunctionDeclarator()
                                                      && ! declarator->initializer) {
                     return false;
@@ -2849,7 +2849,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
 
     if (declarator) {
         *declarator_ptr = new (_pool) DeclaratorListAST;
-        (*declarator_ptr)->declarator = declarator;
+        (*declarator_ptr)->value = declarator;
         declarator_ptr = &(*declarator_ptr)->next;
     }
 
@@ -2860,7 +2860,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
             declarator = 0;
             if (parseInitDeclarator(declarator, acceptStructDeclarator)) {
                 *declarator_ptr = new (_pool) DeclaratorListAST;
-                (*declarator_ptr)->declarator = declarator;
+                (*declarator_ptr)->value = declarator;
                 declarator_ptr = &(*declarator_ptr)->next;
             }
         }

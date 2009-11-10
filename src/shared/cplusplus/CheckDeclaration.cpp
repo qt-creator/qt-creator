@@ -173,13 +173,13 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
     List<Declaration *> **decl_it = &ast->symbols;
     for (DeclaratorListAST *it = ast->declarators; it; it = it->next) {
         Name *name = 0;
-        FullySpecifiedType declTy = semantic()->check(it->declarator, qualTy,
+        FullySpecifiedType declTy = semantic()->check(it->value, qualTy,
                                                       _scope, &name);
 
-        unsigned location = locationOfDeclaratorId(it->declarator);
+        unsigned location = locationOfDeclaratorId(it->value);
         if (! location) {
-            if (it->declarator)
-                location = it->declarator->firstToken();
+            if (it->value)
+                location = it->value->firstToken();
             else
                 location = ast->firstToken();
         }
@@ -226,8 +226,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         else if (ty.isTypedef())
             symbol->setStorage(Symbol::Typedef);
 
-        if (it->declarator && it->declarator->initializer) {
-            FullySpecifiedType initTy = semantic()->check(it->declarator->initializer, _scope);
+        if (it->value && it->value->initializer) {
+            FullySpecifiedType initTy = semantic()->check(it->value->initializer, _scope);
         }
 
         *decl_it = new (translationUnit()->memoryPool()) List<Declaration *>();

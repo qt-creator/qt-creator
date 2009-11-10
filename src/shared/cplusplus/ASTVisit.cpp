@@ -271,14 +271,6 @@ void ArrayDeclaratorAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void DeclaratorListAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(declarator, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void DeleteExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

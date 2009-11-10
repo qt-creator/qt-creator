@@ -608,25 +608,6 @@ unsigned DeclaratorIdAST::lastToken() const
     return name->lastToken();
 }
 
-
-unsigned DeclaratorListAST::firstToken() const
-{
-    return declarator->firstToken();
-}
-
-unsigned DeclaratorListAST::lastToken() const
-{
-    for (const DeclaratorListAST *it = this; it; it = it->next) {
-        if (! it->next) {
-            if (it->declarator)
-                return it->declarator->lastToken();
-        }
-    }
-
-    return 0;
-}
-
-
 unsigned DeleteExpressionAST::firstToken() const
 {
     if (scope_token)

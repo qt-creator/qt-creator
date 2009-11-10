@@ -786,22 +786,6 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT DeclaratorListAST: public AST
-{
-public:
-    DeclaratorAST *declarator;
-    DeclaratorListAST *next;
-
-public:
-    virtual DeclaratorListAST *asDeclaratorList() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
 class CPLUSPLUS_EXPORT DeleteExpressionAST: public ExpressionAST
 {
 public:
