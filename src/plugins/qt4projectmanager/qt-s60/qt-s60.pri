@@ -14,7 +14,8 @@
         $$PWD/s60runconfigbluetoothstarter.cpp \
         $$PWD/s60buildparserfactory.cpp \
         $$PWD/abldparser.cpp \
-        $$PWD/rvctparser.cpp
+        $$PWD/rvctparser.cpp \
+        $$PWD/winscwparser.cpp
     HEADERS += $$PWD/s60devices.h \
         $$PWD/s60devicespreferencepane.h \
         $$PWD/s60manager.h \
@@ -28,7 +29,8 @@
         $$PWD/s60runconfigbluetoothstarter.h \
         $$PWD/s60buildparserfactory.h \
         $$PWD/abldparser.h \
-        $$PWD/rvctparser.h
+        $$PWD/rvctparser.h \
+        $$PWD/winscwparser.h
     FORMS += $$PWD/s60devicespreferencepane.ui
     OTHER_FILES += $$PWD/qt-s60-todo.txt
     include(../../../shared/trk/trk.pri)||error("could not include trk.pri")

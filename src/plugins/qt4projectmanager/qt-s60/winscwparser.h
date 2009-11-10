@@ -27,35 +27,30 @@
 **
 **************************************************************************/
 
-#include "s60buildparserfactory.h"
-#include "abldparser.h"
-#include "rvctparser.h"
-#include "winscwparser.h"
+#ifndef WINSCWPARSER_H
+#define WINSCWPARSER_H
 
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/buildparserinterface.h>
 
-using namespace Qt4ProjectManager::Internal;
+#include <QtCore/QRegExp>
 
-S60ParserFactory::~S60ParserFactory()
+namespace Qt4ProjectManager {
+
+class WinscwParser : public ProjectExplorer::BuildParserInterface
 {
-}
+    Q_OBJECT
 
-bool S60ParserFactory::canCreate(const QString & name) const
-{
-    return ((name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_ABLD_GCCE)) ||
-            (name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_ABLD_WINSCW)) ||
-            (name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_ABLD_RVCT)) ||
-            (name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_RVCT)) ||
-            (name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_WINSCW)));
-}
+public:
+    WinscwParser();
+    QString name() const;
+    virtual void stdOutput(const QString & line);
+    virtual void stdError(const QString & line);
+private:
+    QString m_fileName;
+    QRegExp m_linkerProblem;
+    QRegExp m_makeDir;
+};
 
-ProjectExplorer::BuildParserInterface * S60ParserFactory::create(const QString & name) const
-{
-    if (name ==  QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_RVCT))
-        return new RvctParser();
-    if (name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_WINSCW))
-        return new WinscwParser();
+} // namespace Qt4ProjectManager
 
-    return new AbldParser(name);
-}
-
+#endif // WINSCWPARSER_H

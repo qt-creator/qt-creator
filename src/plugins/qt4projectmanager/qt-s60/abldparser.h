@@ -50,6 +50,14 @@ public:
 private:
     ProjectExplorer::BuildParserInterface * m_subparser;
     const QString m_name;
+
+    QRegExp m_perlIssue;
+
+    QString m_currentFile;
+    int m_currentLine;
+
+    bool m_waitingForStdErrContinuation;
+    bool m_waitingForStdOutContinuation;
 };
 
 } // namespace Qt4ProjectExplorer

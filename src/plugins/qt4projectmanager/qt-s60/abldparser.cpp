@@ -35,29 +35,30 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <QDebug>
-
 using namespace Qt4ProjectManager;
 using namespace ProjectExplorer;
 
 AbldParser::AbldParser(const QString &name) :
-    m_name(name)
+    m_name(name),
+    m_currentLine(-1),
+    m_waitingForStdErrContinuation(false),
+    m_waitingForStdOutContinuation(false)
 {
+    m_perlIssue.setPattern("^(WARNING|ERROR):\\s([^\\(\\)]+[^\\d])\\((\\d+)\\) : (.+)$");
+    m_perlIssue.setMinimal(true);
+
     // Now look for new parser
     QList<IBuildParserFactory *> buildParserFactories =
             ExtensionSystem::PluginManager::instance()->getObjects<ProjectExplorer::IBuildParserFactory>();
 
     QString subparser_name;
 
-    if ((m_name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_ABLD_GCCE)) ||
-        (m_name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_ABLD_WINSCW)))
-    {
+    if ((m_name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_ABLD_GCCE)))
         subparser_name = QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_GCC);
-    }
+    else if ((m_name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_ABLD_WINSCW)))
+        subparser_name = QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_WINSCW);
     else if (m_name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_ABLD_RVCT))
-    {
         subparser_name = QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_RVCT);
-    }
 
     QTC_ASSERT(!subparser_name.isNull(), return);
 
@@ -91,6 +92,8 @@ QString AbldParser::name() const
 
 void AbldParser::stdOutput(const QString &line)
 {
+    m_waitingForStdErrContinuation = false;
+
     QString lne = line.trimmed();
     // possible ABLD.bat errors:
     if (lne.startsWith("Is Perl, version ")) {
@@ -101,6 +104,43 @@ void AbldParser::stdOutput(const QString &line)
                 lne);
         return;
     }
+    if (lne.startsWith("FATAL ERROR:")) {
+        emit addToTaskWindow(QString(), ProjectExplorer::BuildParserInterface::Error,
+                             -1, lne.mid(12));
+        m_waitingForStdOutContinuation = false;
+        return;
+    }
+
+    if (m_perlIssue.indexIn(lne) > -1) {
+        m_waitingForStdOutContinuation = true;
+        ProjectExplorer::BuildParserInterface::PatternType type;
+        if (m_perlIssue.cap(1) == QLatin1String("WARNING"))
+            type = ProjectExplorer::BuildParserInterface::Warning;
+        else if (m_perlIssue.cap(1) == QLatin1String("ERROR"))
+            type = ProjectExplorer::BuildParserInterface::Error;
+        else
+            type = ProjectExplorer::BuildParserInterface::Unknown;
+
+        m_currentFile = m_perlIssue.cap(2);
+        m_currentLine = m_perlIssue.cap(3).toInt();
+
+        emit addToTaskWindow(m_currentFile, type,
+                             m_currentLine, m_perlIssue.cap(4));
+        return;
+    }
+
+    if (lne.isEmpty()) {
+        m_waitingForStdOutContinuation = false;
+        return;
+    }
+
+    if (m_waitingForStdOutContinuation) {
+        emit addToTaskWindow(m_currentFile,
+                             ProjectExplorer::BuildParserInterface::Unknown,
+                             m_currentLine, lne);
+        m_waitingForStdOutContinuation = true;
+        return;
+    }
 
     QTC_ASSERT(0 != m_subparser, return);
     // pass on to compiler output parser:
@@ -109,6 +149,8 @@ void AbldParser::stdOutput(const QString &line)
 
 void AbldParser::stdError(const QString &line)
 {
+    m_waitingForStdOutContinuation = false;
+
     QString lne = line.trimmed();
 
     // possible abld.pl errors:
@@ -120,6 +162,48 @@ void AbldParser::stdError(const QString &line)
                 ProjectExplorer::BuildParserInterface::Error,
                 -1, // linenumber
                 lne);
+        return;
+    }
+
+    if (lne.startsWith("Died at ")) {
+        emit addToTaskWindow(QString(),
+                             ProjectExplorer::BuildParserInterface::Error,
+                             -1, lne);
+        m_waitingForStdErrContinuation = false;
+        return;
+    }
+
+    if (lne.startsWith("MMPFILE \"")) {
+        m_currentFile = lne.mid(9, lne.size() - 10);
+        m_waitingForStdErrContinuation = false;
+        return;
+    }
+    if (lne.isEmpty()) {
+        m_waitingForStdErrContinuation = false;
+        return;
+    }
+    if (lne.startsWith("WARNING: ")) {
+        QString description = lne.mid(9);
+        emit addToTaskWindow(m_currentFile,
+                             ProjectExplorer::BuildParserInterface::Warning,
+                             -1, description);
+        m_waitingForStdErrContinuation = true;
+        return;
+    }
+    if (lne.startsWith("ERROR: ")) {
+        QString description = lne.mid(7);
+        emit addToTaskWindow(m_currentFile,
+                             ProjectExplorer::BuildParserInterface::Error,
+                             -1, description);
+        m_waitingForStdErrContinuation = true;
+        return;
+    }
+    if (m_waitingForStdErrContinuation)
+    {
+        emit addToTaskWindow(m_currentFile,
+                             ProjectExplorer::BuildParserInterface::Unknown,
+                             -1, lne);
+        m_waitingForStdErrContinuation = true;
         return;
     }
 

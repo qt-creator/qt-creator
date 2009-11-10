@@ -180,6 +180,7 @@ const char * const RESOURCE_MIMETYPE = "application/vnd.nokia.xml.qt.resource";
 const char * const BUILD_PARSER_MSVC        = "BuildParser.MSVC";
 const char * const BUILD_PARSER_GCC         = "BuildParser.Gcc";
 const char * const BUILD_PARSER_RVCT        = "BuildParser.Rvct";
+const char * const BUILD_PARSER_WINSCW      = "BuildParser.Winscw";
 const char * const BUILD_PARSER_ABLD_GCCE   = "BuildParser.ABLD.Gcce";
 const char * const BUILD_PARSER_ABLD_WINSCW = "BuildParser.ABLD.Winscw";
 const char * const BUILD_PARSER_ABLD_RVCT   = "BuildParser.ABLD.Rvct";

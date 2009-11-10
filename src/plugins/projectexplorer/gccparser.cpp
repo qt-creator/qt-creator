@@ -30,8 +30,6 @@
 #include "gccparser.h"
 #include "projectexplorerconstants.h"
 
-#include <QDebug>
-
 using namespace ProjectExplorer;
 
 GccParser::GccParser()
@@ -70,14 +68,13 @@ void GccParser::stdOutput(const QString & line)
 void GccParser::stdError(const QString & line)
 {
     QString lne = line.trimmed();
-     if (m_regExpLinker.indexIn(lne) > -1) {
+    if (m_regExpLinker.indexIn(lne) > -1) {
         QString description = m_regExpLinker.cap(2);
         emit addToTaskWindow(
-            m_regExpLinker.cap(1), //filename
-            ProjectExplorer::BuildParserInterface::Error,
-            -1, //linenumber
-            description);
-        //qDebug()<<"m_regExpLinker"<<m_regExpLinker.cap(2);
+                m_regExpLinker.cap(1), //filename
+                ProjectExplorer::BuildParserInterface::Error,
+                -1, //linenumber
+                description);
     } else if (m_regExp.indexIn(lne) > -1) {
         ProjectExplorer::BuildParserInterface::PatternType type;
         if (m_regExp.cap(5) == "warning")
@@ -89,22 +86,25 @@ void GccParser::stdError(const QString & line)
 
         QString description =  m_regExp.cap(6);
 
-        //qDebug()<<"m_regExp"<<m_regExp.cap(1)<<m_regExp.cap(2)<<m_regExp.cap(5);
-
         emit addToTaskWindow(
-            m_regExp.cap(1), //filename
-            type,
-            m_regExp.cap(2).toInt(), //line number
-            description);
+                m_regExp.cap(1), //filename
+                type,
+                m_regExp.cap(2).toInt(), //line number
+                description);
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
         emit addToTaskWindow(
-            m_regExpIncluded.cap(1), //filename
-            ProjectExplorer::BuildParserInterface::Unknown,
-            m_regExpIncluded.cap(2).toInt(), //linenumber
-            lne //description
-            );
-        //qDebug()<<"m_regExpInclude"<<m_regExpIncluded.cap(1)<<m_regExpIncluded.cap(2);
+                m_regExpIncluded.cap(1), //filename
+                ProjectExplorer::BuildParserInterface::Unknown,
+                m_regExpIncluded.cap(2).toInt(), //linenumber
+                lne //description
+                );
     } else if (lne.startsWith(QLatin1String("collect2:"))) {
         emit addToTaskWindow("", ProjectExplorer::BuildParserInterface::Error, -1, lne);
+    } else if (lne.startsWith(QLatin1String("ERROR:"))) {
+        // Triggered by cpp on windows.
+        emit addToTaskWindow(QString(), ProjectExplorer::BuildParserInterface::Error, -1, lne);
+    } else if (lne == QLatin1String("* cpp failed")) {
+        // Triggered by cpp/make on windows.
+        emit addToTaskWindow(QString(), ProjectExplorer::BuildParserInterface::Error, -1, lne);
     }
 }
