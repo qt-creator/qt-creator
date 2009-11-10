@@ -59,7 +59,7 @@ public:
             TranslationUnitAST *ast = unit->ast()->asTranslationUnit();
             QVERIFY(ast);
             for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
-                sem.check(decl->declaration, globals);
+                sem.check(decl->value, globals);
             }
         }
 

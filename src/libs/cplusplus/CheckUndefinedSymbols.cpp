@@ -104,7 +104,7 @@ bool CheckUndefinedSymbols::isType(const QByteArray &name) const
         TemplateDeclarationAST *templateDeclaration = _templateDeclarationStack.at(i);
 
         for (DeclarationListAST *it = templateDeclaration->template_parameters; it; it = it->next) {
-            DeclarationAST *templateParameter = it->declaration;
+            DeclarationAST *templateParameter = it->value;
 
             if (templateParameterName(templateParameter) == name)
                 return true;

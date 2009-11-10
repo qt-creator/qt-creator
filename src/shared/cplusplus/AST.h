@@ -362,22 +362,6 @@ public:
     virtual DeclarationAST *asDeclaration() { return this; }
 };
 
-class CPLUSPLUS_EXPORT DeclarationListAST: public AST
-{
-public:
-    DeclarationAST *declaration;
-    DeclarationListAST *next;
-
-public:
-    virtual DeclarationListAST *asDeclarationList() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
 class CPLUSPLUS_EXPORT CoreDeclaratorAST: public AST
 {
 public:

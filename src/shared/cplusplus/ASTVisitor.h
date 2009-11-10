@@ -228,9 +228,6 @@ public:
     virtual bool visit(ObjCFastEnumerationAST *) { return true; }
     virtual bool visit(ObjCSynchronizedStatementAST *) { return true; }
 
-    virtual bool visit(DeclarationListAST *) { return true; }
-    virtual void endVisit(DeclarationListAST *) { }
-
     virtual void endVisit(AccessDeclarationAST *) { }
     virtual void endVisit(ArrayAccessAST *) { }
     virtual void endVisit(ArrayDeclaratorAST *) { }

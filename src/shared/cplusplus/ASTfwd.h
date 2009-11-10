@@ -84,7 +84,6 @@ class CoreDeclaratorAST;
 class CppCastExpressionAST;
 class CtorInitializerAST;
 class DeclarationAST;
-class DeclarationListAST;
 class DeclarationStatementAST;
 class DeclaratorAST;
 class DeclaratorIdAST;
@@ -202,7 +201,7 @@ class UsingDirectiveAST;
 class WhileStatementAST;
 
 typedef List<ExpressionAST *> ExpressionListAST;
-
+typedef List<DeclarationAST *> DeclarationListAST;
 
 } // end of namespace CPlusPlus
 

@@ -552,21 +552,6 @@ unsigned CtorInitializerAST::lastToken() const
     return colon_token + 1;
 }
 
-unsigned DeclarationListAST::firstToken() const
-{
-    return declaration->firstToken();
-}
-
-unsigned DeclarationListAST::lastToken() const
-{
-    for (const DeclarationListAST *it = this; it; it = it->next) {
-        if (! it->next)
-            return it->declaration->lastToken();
-    }
-
-    return 0;
-}
-
 unsigned DeclaratorAST::firstToken() const
 {
     if (attributes)
@@ -1642,7 +1627,7 @@ unsigned TemplateTypeParameterAST::lastToken() const
 
     for (DeclarationListAST *it = template_parameters; it; it = it->next) {
         if (! it->next)
-            return it->declaration->lastToken();
+            return it->value->lastToken();
     }
 
     if (less_token)

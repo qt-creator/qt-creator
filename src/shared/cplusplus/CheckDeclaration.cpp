@@ -363,7 +363,7 @@ bool CheckDeclaration::visit(MemInitializerAST *ast)
 bool CheckDeclaration::visit(LinkageBodyAST *ast)
 {
     for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
-       semantic()->check(decl->declaration, _scope);
+       semantic()->check(decl->value, _scope);
     }
     return false;
 }
@@ -428,7 +428,7 @@ bool CheckDeclaration::visit(TemplateDeclarationAST *ast)
     Scope *scope = new Scope(_scope->owner());
 
     for (DeclarationListAST *param = ast->template_parameters; param; param = param->next) {
-       semantic()->check(param->declaration, scope);
+       semantic()->check(param->value, scope);
     }
 
     semantic()->check(ast->declaration, _scope,
@@ -547,7 +547,7 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
 
     int previousObjCVisibility = semantic()->switchObjCVisibility(Function::Public);
     for (DeclarationListAST *it = ast->member_declarations; it; it = it->next) {
-        semantic()->check(it->declaration, protocol->members());
+        semantic()->check(it->value, protocol->members());
     }
     (void) semantic()->switchObjCVisibility(previousObjCVisibility);
 
@@ -626,14 +626,14 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
 
     if (ast->inst_vars_decl) {
         for (DeclarationListAST *it = ast->inst_vars_decl->instance_variables; it; it = it->next) {
-            semantic()->check(it->declaration, klass->members());
+            semantic()->check(it->value, klass->members());
         }
     }
 
     (void) semantic()->switchObjCVisibility(Function::Public);
 
     for (DeclarationListAST *it = ast->member_declarations; it; it = it->next) {
-        semantic()->check(it->declaration, klass->members());
+        semantic()->check(it->value, klass->members());
     }
 
     (void) semantic()->switchObjCVisibility(previousObjCVisibility);

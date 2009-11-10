@@ -497,12 +497,12 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QCOMPARE(param_clause->dot_dot_dot_token, 0U);
 
     // check the parameter
-    DeclarationListAST *declarations = param_clause->parameter_declarations->asDeclarationList();
+    DeclarationListAST *declarations = param_clause->parameter_declarations;
     QVERIFY(declarations);
-    QVERIFY(declarations->declaration);
+    QVERIFY(declarations->value);
     QVERIFY(! declarations->next);
 
-    ParameterDeclarationAST *param = declarations->declaration->asParameterDeclaration();
+    ParameterDeclarationAST *param = declarations->value->asParameterDeclaration();
     QVERIFY(param);
     QVERIFY(param->type_specifier != 0);
     QVERIFY(param->type_specifier->next == 0);

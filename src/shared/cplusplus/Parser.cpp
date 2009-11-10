@@ -435,7 +435,7 @@ bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
 
         if (parseDeclaration(declaration)) {
             *decl = new (_pool) DeclarationListAST;
-            (*decl)->declaration = declaration;
+            (*decl)->value = declaration;
             decl = &(*decl)->next;
         } else {
             rewind(start_declaration + 1);
@@ -562,7 +562,7 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
             DeclarationAST *declaration = 0;
             if (parseDeclaration(declaration)) {
                 *declaration_ptr = new (_pool) DeclarationListAST;
-                (*declaration_ptr)->declaration = declaration;
+                (*declaration_ptr)->value = declaration;
                 declaration_ptr = &(*declaration_ptr)->next;
             } else {
                 rewind(start_declaration + 1);
@@ -1340,7 +1340,7 @@ bool Parser::parseTemplateParameterList(DeclarationListAST *&node)
     DeclarationAST *declaration = 0;
     if (parseTemplateParameter(declaration)) {
         *template_parameter_ptr = new (_pool) DeclarationListAST;
-        (*template_parameter_ptr)->declaration = declaration;
+        (*template_parameter_ptr)->value = declaration;
         template_parameter_ptr = &(*template_parameter_ptr)->next;
 
         while (LA() == T_COMMA) {
@@ -1349,7 +1349,7 @@ bool Parser::parseTemplateParameterList(DeclarationListAST *&node)
             declaration = 0;
             if (parseTemplateParameter(declaration)) {
                 *template_parameter_ptr = new (_pool) DeclarationListAST;
-                (*template_parameter_ptr)->declaration = declaration;
+                (*template_parameter_ptr)->value = declaration;
                 template_parameter_ptr = &(*template_parameter_ptr)->next;
             }
         }
@@ -1480,7 +1480,7 @@ bool Parser::parseParameterDeclarationList(DeclarationListAST *&node)
     DeclarationAST *declaration = 0;
     if (parseParameterDeclaration(declaration)) {
         *parameter_declaration_ptr = new (_pool) DeclarationListAST;
-        (*parameter_declaration_ptr)->declaration = declaration;
+        (*parameter_declaration_ptr)->value = declaration;
         parameter_declaration_ptr = &(*parameter_declaration_ptr)->next;
         while (LA() == T_COMMA) {
             consumeToken();
@@ -1491,7 +1491,7 @@ bool Parser::parseParameterDeclarationList(DeclarationListAST *&node)
             declaration = 0;
             if (parseParameterDeclaration(declaration)) {
                 *parameter_declaration_ptr = new (_pool) DeclarationListAST;
-                (*parameter_declaration_ptr)->declaration = declaration;
+                (*parameter_declaration_ptr)->value = declaration;
                 parameter_declaration_ptr = &(*parameter_declaration_ptr)->next;
             }
         }
@@ -1587,7 +1587,7 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
             DeclarationAST *declaration = 0;
             if (parseMemberSpecification(declaration)) {
                 *declaration_ptr = new (_pool) DeclarationListAST;
-                (*declaration_ptr)->declaration = declaration;
+                (*declaration_ptr)->value = declaration;
                 declaration_ptr = &(*declaration_ptr)->next;
             } else {
                 rewind(start_declaration + 1);
@@ -4380,7 +4380,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
         DeclarationAST *declaration = 0;
         while (parseObjCInterfaceMemberDeclaration(declaration)) {
             *nextMembers = new (_pool) DeclarationListAST;
-            (*nextMembers)->declaration = declaration;
+            (*nextMembers)->value = declaration;
             nextMembers = &((*nextMembers)->next);
         }
 
@@ -4411,7 +4411,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
         DeclarationAST *declaration = 0;
         while (parseObjCInterfaceMemberDeclaration(declaration)) {
             *nextMembers = new (_pool) DeclarationListAST;
-            (*nextMembers)->declaration = declaration;
+            (*nextMembers)->value = declaration;
             nextMembers = &((*nextMembers)->next);
         }
 
@@ -4482,7 +4482,7 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
         DeclarationAST *declaration = 0;
         while (parseObjCInterfaceMemberDeclaration(declaration)) {
             *nextMembers = new (_pool) DeclarationListAST;
-            (*nextMembers)->declaration = declaration;
+            (*nextMembers)->value = declaration;
             nextMembers = &((*nextMembers)->next);
         }
 
@@ -4650,7 +4650,7 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
 
         if (declaration) {
             *next = new (_pool) DeclarationListAST;
-            (*next)->declaration = declaration;
+            (*next)->value = declaration;
             next = &((*next)->next);
         }
     }
@@ -4738,7 +4738,7 @@ bool Parser::parseObjClassInstanceVariables(ObjCInstanceVariablesDeclarationAST 
         const unsigned start = cursor();
 
         *next = new (_pool) DeclarationListAST;
-        parseObjCInstanceVariableDeclaration((*next)->declaration);
+        parseObjCInstanceVariableDeclaration((*next)->value);
 
         if (start == cursor()) {
             // skip stray token.

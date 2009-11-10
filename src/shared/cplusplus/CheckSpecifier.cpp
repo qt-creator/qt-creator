@@ -347,7 +347,7 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
 
     for (DeclarationListAST *member = ast->member_specifiers; member; member = member->next) {
-        semantic()->check(member->declaration, klass->members());
+        semantic()->check(member->value, klass->members());
     }
 
     (void) semantic()->switchMethodKey(previousMethodKey);
