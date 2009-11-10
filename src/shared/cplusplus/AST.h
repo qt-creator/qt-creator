@@ -146,11 +146,9 @@ public:
     virtual CppCastExpressionAST *asCppCastExpression() { return 0; }
     virtual CtorInitializerAST *asCtorInitializer() { return 0; }
     virtual DeclarationAST *asDeclaration() { return 0; }
-    virtual DeclarationListAST *asDeclarationList() { return 0; }
     virtual DeclarationStatementAST *asDeclarationStatement() { return 0; }
     virtual DeclaratorAST *asDeclarator() { return 0; }
     virtual DeclaratorIdAST *asDeclaratorId() { return 0; }
-    virtual DeclaratorListAST *asDeclaratorList() { return 0; }
     virtual DeleteExpressionAST *asDeleteExpression() { return 0; }
     virtual DestructorNameAST *asDestructorName() { return 0; }
     virtual DoStatementAST *asDoStatement() { return 0; }
@@ -168,7 +166,6 @@ public:
     virtual FunctionDeclaratorAST *asFunctionDeclarator() { return 0; }
     virtual FunctionDefinitionAST *asFunctionDefinition() { return 0; }
     virtual GotoStatementAST *asGotoStatement() { return 0; }
-    virtual ObjCIdentifierListAST *asIdentifierList() { return 0; }
     virtual IfStatementAST *asIfStatement() { return 0; }
     virtual LabeledStatementAST *asLabeledStatement() { return 0; }
     virtual LinkageBodyAST *asLinkageBody() { return 0; }
@@ -196,13 +193,10 @@ public:
     virtual ObjCInstanceVariablesDeclarationAST *asObjCInstanceVariablesDeclaration() { return 0; }
     virtual ObjCMessageArgumentAST *asObjCMessageArgument() { return 0; }
     virtual ObjCMessageArgumentDeclarationAST *asObjCMessageArgumentDeclaration() { return 0; }
-    virtual ObjCMessageArgumentDeclarationListAST *asObjCMessageArgumentDeclarationList() { return 0; }
-    virtual ObjCMessageArgumentListAST *asObjCMessageArgumentList() { return 0; }
     virtual ObjCMessageExpressionAST *asObjCMessageExpression() { return 0; }
     virtual ObjCMethodDeclarationAST *asObjCMethodDeclaration() { return 0; }
     virtual ObjCMethodPrototypeAST *asObjCMethodPrototype() { return 0; }
     virtual ObjCPropertyAttributeAST *asObjCPropertyAttribute() { return 0; }
-    virtual ObjCPropertyAttributeListAST *asObjCPropertyAttributeList() { return 0; }
     virtual ObjCPropertyDeclarationAST *asObjCPropertyDeclaration() { return 0; }
     virtual ObjCProtocolDeclarationAST *asObjCProtocolDeclaration() { return 0; }
     virtual ObjCProtocolExpressionAST *asObjCProtocolExpression() { return 0; }
@@ -210,14 +204,12 @@ public:
     virtual ObjCProtocolRefsAST *asObjCProtocolRefs() { return 0; }
     virtual ObjCSelectorAST *asObjCSelector() { return 0; }
     virtual ObjCSelectorArgumentAST *asObjCSelectorArgument() { return 0; }
-    virtual ObjCSelectorArgumentListAST *asObjCSelectorArgumentList() { return 0; }
     virtual ObjCSelectorExpressionAST *asObjCSelectorExpression() { return 0; }
     virtual ObjCSelectorWithArgumentsAST *asObjCSelectorWithArguments() { return 0; }
     virtual ObjCSelectorWithoutArgumentsAST *asObjCSelectorWithoutArguments() { return 0; }
     virtual ObjCSynchronizedStatementAST *asObjCSynchronizedStatement() { return 0; }
     virtual ObjCSynthesizedPropertiesDeclarationAST *asObjCSynthesizedPropertiesDeclaration() { return 0; }
     virtual ObjCSynthesizedPropertyAST *asObjCSynthesizedProperty() { return 0; }
-    virtual ObjCSynthesizedPropertyListAST *asObjCSynthesizedPropertyList() { return 0; }
     virtual ObjCTypeNameAST *asObjCTypeName() { return 0; }
     virtual ObjCVisibilityDeclarationAST *asObjCVisibilityDeclaration() { return 0; }
     virtual OperatorAST *asOperator() { return 0; }
@@ -241,10 +233,8 @@ public:
     virtual SizeofExpressionAST *asSizeofExpression() { return 0; }
     virtual SpecifierAST *asSpecifier() { return 0; }
     virtual StatementAST *asStatement() { return 0; }
-    virtual StatementListAST *asStatementList() { return 0; }
     virtual StringLiteralAST *asStringLiteral() { return 0; }
     virtual SwitchStatementAST *asSwitchStatement() { return 0; }
-    virtual TemplateArgumentListAST *asTemplateArgumentList() { return 0; }
     virtual TemplateDeclarationAST *asTemplateDeclaration() { return 0; }
     virtual TemplateIdAST *asTemplateId() { return 0; }
     virtual TemplateTypeParameterAST *asTemplateTypeParameter() { return 0; }

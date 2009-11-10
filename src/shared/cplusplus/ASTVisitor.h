@@ -199,34 +199,28 @@ public:
     virtual bool visit(QtMethodAST *) { return true; }
 
     // ObjC++
-    virtual bool visit(ObjCIdentifierListAST *) { return true; }
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
     virtual bool visit(ObjCClassForwardDeclarationAST *) { return true; }
     virtual bool visit(ObjCProtocolDeclarationAST *) { return true; }
     virtual bool visit(ObjCProtocolForwardDeclarationAST *) { return true; }
     virtual bool visit(ObjCProtocolRefsAST *) { return true; }
     virtual bool visit(ObjCMessageExpressionAST *) { return true; }
-    virtual bool visit(ObjCMessageArgumentListAST *) { return true; }
     virtual bool visit(ObjCMessageArgumentAST *) { return true; }
     virtual bool visit(ObjCProtocolExpressionAST *) { return true; }
     virtual bool visit(ObjCTypeNameAST *) { return true; }
     virtual bool visit(ObjCEncodeExpressionAST *) { return true; }
     virtual bool visit(ObjCSelectorWithoutArgumentsAST *) { return true; }
     virtual bool visit(ObjCSelectorArgumentAST *) { return true; }
-    virtual bool visit(ObjCSelectorArgumentListAST *) { return true; }
     virtual bool visit(ObjCSelectorWithArgumentsAST *) { return true; }
     virtual bool visit(ObjCSelectorExpressionAST *) { return true; }
     virtual bool visit(ObjCInstanceVariablesDeclarationAST *) { return true; }
     virtual bool visit(ObjCVisibilityDeclarationAST *) { return true; }
     virtual bool visit(ObjCPropertyAttributeAST *) { return true; }
-    virtual bool visit(ObjCPropertyAttributeListAST *) { return true; }
     virtual bool visit(ObjCPropertyDeclarationAST *) { return true; }
     virtual bool visit(ObjCMethodPrototypeAST *) { return true; }
     virtual bool visit(ObjCMethodDeclarationAST *) { return true; }
-    virtual bool visit(ObjCMessageArgumentDeclarationListAST *) { return true; }
     virtual bool visit(ObjCMessageArgumentDeclarationAST *) { return true; }
     virtual bool visit(ObjCSynthesizedPropertyAST *) { return true; }
-    virtual bool visit(ObjCSynthesizedPropertyListAST *) { return true; }
     virtual bool visit(ObjCSynthesizedPropertiesDeclarationAST *) { return true; }
     virtual bool visit(ObjCDynamicPropertiesDeclarationAST *) { return true; }
     virtual bool visit(ObjCFastEnumerationAST *) { return true; }
@@ -330,34 +324,28 @@ public:
     virtual void endVisit(QtMethodAST *) { }
 
     // ObjC++
-    virtual void endVisit(ObjCIdentifierListAST *) { }
     virtual void endVisit(ObjCClassDeclarationAST *) { }
     virtual void endVisit(ObjCClassForwardDeclarationAST *) { }
     virtual void endVisit(ObjCProtocolDeclarationAST *) { }
     virtual void endVisit(ObjCProtocolForwardDeclarationAST *) { }
     virtual void endVisit(ObjCProtocolRefsAST *) { }
     virtual void endVisit(ObjCMessageExpressionAST *) { }
-    virtual void endVisit(ObjCMessageArgumentListAST *) { }
     virtual void endVisit(ObjCMessageArgumentAST *) { }
     virtual void endVisit(ObjCProtocolExpressionAST *) { }
     virtual void endVisit(ObjCTypeNameAST *) { }
     virtual void endVisit(ObjCEncodeExpressionAST *) { }
     virtual void endVisit(ObjCSelectorWithoutArgumentsAST *) { }
     virtual void endVisit(ObjCSelectorArgumentAST *) { }
-    virtual void endVisit(ObjCSelectorArgumentListAST *) { }
     virtual void endVisit(ObjCSelectorWithArgumentsAST *) { }
     virtual void endVisit(ObjCSelectorExpressionAST *) { }
     virtual void endVisit(ObjCInstanceVariablesDeclarationAST *) { }
     virtual void endVisit(ObjCVisibilityDeclarationAST *) { }
     virtual void endVisit(ObjCPropertyAttributeAST *) { }
-    virtual void endVisit(ObjCPropertyAttributeListAST *) { }
     virtual void endVisit(ObjCPropertyDeclarationAST *) { }
     virtual void endVisit(ObjCMethodPrototypeAST *) { }
     virtual void endVisit(ObjCMethodDeclarationAST *) { }
-    virtual void endVisit(ObjCMessageArgumentDeclarationListAST *) { }
     virtual void endVisit(ObjCMessageArgumentDeclarationAST *) { }
     virtual void endVisit(ObjCSynthesizedPropertyAST *) { }
-    virtual void endVisit(ObjCSynthesizedPropertyListAST *) { }
     virtual void endVisit(ObjCSynthesizedPropertiesDeclarationAST *) { }
     virtual void endVisit(ObjCDynamicPropertiesDeclarationAST *) { }
     virtual void endVisit(ObjCFastEnumerationAST *) { }
