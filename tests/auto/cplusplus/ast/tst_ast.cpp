@@ -396,10 +396,10 @@ void tst_AST::while_condition_statement()
     // check condition
     ConditionAST *condition = stmt->condition->asCondition();
     QVERIFY(condition != 0);
-    QVERIFY(condition->type_specifier != 0);
-    QVERIFY(condition->type_specifier->value->asSimpleSpecifier() != 0);
-    QCOMPARE(condition->type_specifier->value->asSimpleSpecifier()->specifier_token, 3U);
-    QVERIFY(condition->type_specifier->next == 0);
+    QVERIFY(condition->type_specifiers != 0);
+    QVERIFY(condition->type_specifiers->value->asSimpleSpecifier() != 0);
+    QCOMPARE(condition->type_specifiers->value->asSimpleSpecifier()->specifier_token, 3U);
+    QVERIFY(condition->type_specifiers->next == 0);
     QVERIFY(condition->declarator != 0);
     QVERIFY(condition->declarator->core_declarator != 0);
     QVERIFY(condition->declarator->core_declarator->asDeclaratorId() != 0);

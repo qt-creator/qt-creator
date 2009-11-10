@@ -100,16 +100,13 @@ unsigned AttributeAST::lastToken() const
     if (rparen_token)
         return rparen_token + 1;
 
-    for (ExpressionListAST *it = expression_list; it->value && it->next; it = it->next) {
-        if (! it->next && it->value) {
-            return it->value->lastToken();
-        }
-    }
+    else if (expression_list)
+        return expression_list->lastToken();
 
-    if (tag_token)
+    else if (tag_token)
         return tag_token + 1;
 
-    if (lparen_token)
+    else if (lparen_token)
         return lparen_token + 1;
 
     return identifier_token + 1;
@@ -172,10 +169,8 @@ unsigned ArrayInitializerAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    for (ExpressionListAST *it = expression_list; it; it = it->next) {
-        if (! it->next && it->value)
-            return it->value->lastToken();
-    }
+    else if (expression_list)
+        return expression_list->lastToken();
 
     return lbrace_token + 1;
 }
@@ -302,10 +297,10 @@ unsigned CallAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
-    for (ExpressionListAST *it = expression_list; it; it = it->next) {
-        if (! it->next && it->value)
-            return it->value->lastToken();
-    }
+
+    else if (expression_list)
+        return expression_list->lastToken();
+
     return lparen_token + 1;
 }
 
@@ -374,12 +369,10 @@ unsigned ClassSpecifierAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    for (DeclarationListAST *it = member_specifiers; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    else if (member_specifiers)
+        return member_specifiers->lastToken();
 
-    if (lbrace_token)
+    else if (lbrace_token)
         return lbrace_token + 1;
 
     else if (base_clause_list)
@@ -416,8 +409,8 @@ unsigned CompoundStatementAST::lastToken() const
 
 unsigned ConditionAST::firstToken() const
 {
-    if (type_specifier)
-        return type_specifier->firstToken();
+    if (type_specifiers)
+        return type_specifiers->firstToken();
 
     return declarator->firstToken();
 }
@@ -427,8 +420,8 @@ unsigned ConditionAST::lastToken() const
     if (declarator)
         return declarator->lastToken();
 
-    else if (type_specifier)
-        return type_specifier->lastToken();
+    else if (type_specifiers)
+        return type_specifiers->lastToken();
 
     // ### assert?
     return 0;
@@ -738,13 +731,12 @@ unsigned ExceptionSpecificationAST::lastToken() const
     if (rparen_token)
         return rparen_token + 1;
 
-    for (ExpressionListAST *it = type_ids; it; it = it->next) {
-        if (! it->next && it->value)
-            return it->value->lastToken();
-    }
+    else if (type_ids)
+        return type_ids->lastToken();
 
-    if (dot_dot_dot_token)
+    else if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
+
     else if (lparen_token)
         return lparen_token + 1;
 
@@ -942,10 +934,8 @@ unsigned LinkageBodyAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    for (DeclarationListAST *it = declarations; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    else if (declarations)
+        return declarations->lastToken();
 
     return lbrace_token + 1;
 }
@@ -1457,12 +1447,16 @@ unsigned SwitchStatementAST::lastToken() const
 {
     if (statement)
         return statement->lastToken();
+
     else if (rparen_token)
         return rparen_token + 1;
+
     else if (condition)
         return condition->lastToken();
+
     else if (lparen_token)
         return lparen_token + 1;
+
     return switch_token + 1;
 }
 
@@ -1470,6 +1464,7 @@ unsigned TemplateDeclarationAST::firstToken() const
 {
     if (export_token)
         return export_token;
+
     return template_token;
 }
 
@@ -1477,21 +1472,23 @@ unsigned TemplateDeclarationAST::lastToken() const
 {
     if (declaration)
         return declaration->lastToken();
+
     else if (greater_token)
         return greater_token + 1;
 
-    for (DeclarationListAST *it = template_parameters; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    else if (template_parameters)
+        return template_parameters->lastToken();
 
-    if (less_token)
+    else if (less_token)
         return less_token + 1;
+
     else if (template_token)
         return template_token + 1;
+
     else if (export_token)
         return export_token + 1;
 
+    // ### assert(0);
     return 0;
 }
 
@@ -1506,12 +1503,10 @@ unsigned TemplateIdAST::lastToken() const
     if (greater_token)
         return greater_token + 1;
 
-    for (TemplateArgumentListAST *it = template_arguments; it; it = it->next) {
-        if (! it->next && it->value)
-            return it->value->lastToken();
-    }
+    else if (template_arguments)
+        return template_arguments->lastToken();
 
-    if (less_token)
+    else if (less_token)
         return less_token + 1;
 
     return identifier_token + 1;
@@ -1527,21 +1522,23 @@ unsigned TemplateTypeParameterAST::lastToken() const
 {
     if (type_id)
         return type_id->lastToken();
+
     else if (equal_token)
         return equal_token + 1;
+
     else if (name)
         return name->lastToken();
+
     else if (class_token)
         return class_token + 1;
+
     else if (greater_token)
         return greater_token + 1;
 
-    for (DeclarationListAST *it = template_parameters; it; it = it->next) {
-        if (! it->next)
-            return it->value->lastToken();
-    }
+    else if (template_parameters)
+        return template_parameters->lastToken();
 
-    if (less_token)
+    else if (less_token)
         return less_token + 1;
 
     return template_token + 1;
@@ -1571,7 +1568,6 @@ unsigned ThrowExpressionAST::lastToken() const
     return throw_token + 1;
 }
 
-
 unsigned TranslationUnitAST::firstToken() const
 {
     return declarations->firstToken();
@@ -1579,13 +1575,12 @@ unsigned TranslationUnitAST::firstToken() const
 
 unsigned TranslationUnitAST::lastToken() const
 {
-    for (DeclarationListAST *it = declarations; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (declarations)
+        return declarations->lastToken();
+
+    // ### assert(0);
     return 0;
 }
-
 
 unsigned TryBlockStatementAST::firstToken() const
 {
@@ -1674,13 +1669,12 @@ unsigned TypenameCallExpressionAST::lastToken() const
     if (rparen_token)
         return rparen_token + 1;
 
-    for (ExpressionListAST *it = expression_list; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    else if (expression_list)
+        return expression_list->lastToken();
 
-    if (lparen_token)
+    else if (lparen_token)
         return lparen_token + 1;
+
     else if (name)
         return name->lastToken();
 
@@ -1761,12 +1755,16 @@ unsigned WhileStatementAST::lastToken() const
 {
     if (statement)
         return statement->lastToken();
+
     else if (rparen_token)
         return rparen_token + 1;
+
     else if (condition)
         return condition->lastToken();
+
     else if (lparen_token)
         return lparen_token + 1;
+
     return while_token + 1;
 }
 
@@ -1775,6 +1773,7 @@ unsigned ObjCClassForwardDeclarationAST::firstToken() const
 {
     if (attributes)
         return attributes->firstToken();
+
     return class_token;
 }
 
@@ -1783,10 +1782,8 @@ unsigned ObjCClassForwardDeclarationAST::lastToken() const
     if (semicolon_token)
         return semicolon_token + 1;
 
-    for (ObjCIdentifierListAST *it = identifier_list; it; it = it->next) {
-        if (! it->next && it->value)
-            return it->value->lastToken();
-    }
+    else if (identifier_list)
+        return identifier_list->lastToken();
 
     return class_token + 1;
 }
@@ -1795,6 +1792,7 @@ unsigned ObjCProtocolForwardDeclarationAST::firstToken() const
 {
     if (attributes)
         return attributes->firstToken();
+
     return protocol_token;
 }
 
@@ -1803,10 +1801,8 @@ unsigned ObjCProtocolForwardDeclarationAST::lastToken() const
     if (semicolon_token)
         return semicolon_token + 1;
 
-    for (ObjCIdentifierListAST *it = identifier_list; it; it = it->next) {
-        if (! it->next && it->value)
-            return it->value->lastToken();
-    }
+    else if (identifier_list)
+        return identifier_list->lastToken();
 
     return protocol_token + 1;
 }
@@ -1880,12 +1876,11 @@ unsigned ObjCProtocolRefsAST::firstToken() const
 
 unsigned ObjCProtocolRefsAST::lastToken() const
 {
-    if (greater_token) return greater_token + 1;
+    if (greater_token)
+        return greater_token + 1;
 
-    for (ObjCIdentifierListAST *it = identifier_list; it; it = it->next) {
-        if (! it->next && it->value)
-            return it->value->lastToken();
-    }
+    else if (identifier_list)
+        return identifier_list->lastToken();
 
     return less_token + 1;
 }

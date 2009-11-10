@@ -2274,7 +2274,7 @@ bool Parser::parseCondition(ExpressionAST *&node)
         if (parseInitDeclarator(declarator, /*acceptStructDeclarator=*/false)) {
             if (declarator->initializer) {
                 ConditionAST *ast = new (_pool) ConditionAST;
-                ast->type_specifier = type_specifier;
+                ast->type_specifiers = type_specifier;
                 ast->declarator = declarator;
                 node = ast;
                 blockErrors(blocked);

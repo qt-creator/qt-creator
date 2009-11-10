@@ -119,7 +119,7 @@ bool CheckExpression::visit(CastExpressionAST *ast)
 
 bool CheckExpression::visit(ConditionAST *ast)
 {
-    FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifier, _scope);
+    FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifiers, _scope);
     Name *name = 0;
     FullySpecifiedType declTy = semantic()->check(ast->declarator, typeSpecTy.qualifiedType(),
                                                   _scope, &name);

@@ -366,8 +366,8 @@ protected:
     {
         accept(ast->parameters);
 
-        for (SpecifierAST *spec = ast->cv_qualifier_seq; spec; spec = spec->next)
-            accept(spec);
+        for (SpecifierListAST *it = ast->cv_qualifier_seq; it; it = it->next)
+            accept(it->value);
 
         accept(ast->exception_specification);
 

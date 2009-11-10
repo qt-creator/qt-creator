@@ -377,8 +377,9 @@ int main(int argc, char *argv[])
 
     Namespace *globalNamespace = control.newNamespace(0, 0);
     Semantic sem(&control);
-    for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
-        sem.check(decl->declaration, globalNamespace->members());
+    for (DeclarationListAST *it = ast->declarations; it; it = it->next) {
+        DeclarationAST *declaration = it->value;
+        sem.check(declaration, globalNamespace->members());
     }
 
     return EXIT_SUCCESS;

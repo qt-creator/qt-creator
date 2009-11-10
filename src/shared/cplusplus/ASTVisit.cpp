@@ -50,8 +50,7 @@ void AttributeSpecifierAST::accept0(ASTVisitor *visitor)
 void AttributeAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (ExpressionListAST *it = expression_list; it; it = it->next)
-            accept(it, visitor);
+        accept(expression_list, visitor);
     }
     visitor->endVisit(this);
 }
@@ -173,8 +172,7 @@ void CaseStatementAST::accept0(ASTVisitor *visitor)
 void CompoundStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (StatementListAST *it = statements; it; it = it->next)
-            accept(it, visitor);
+        accept(statements, visitor);
     }
     visitor->endVisit(this);
 }
@@ -182,7 +180,7 @@ void CompoundStatementAST::accept0(ASTVisitor *visitor)
 void ConditionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(type_specifier, visitor);
+        accept(type_specifiers, visitor);
         accept(declarator, visitor);
     }
     visitor->endVisit(this);
@@ -320,8 +318,7 @@ void ExceptionDeclarationAST::accept0(ASTVisitor *visitor)
 void ExceptionSpecificationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (ExpressionListAST *it = type_ids; it; it = it->next)
-            accept(it, visitor);
+        accept(type_ids, visitor);
     }
     visitor->endVisit(this);
 }
@@ -390,8 +387,7 @@ void IfStatementAST::accept0(ASTVisitor *visitor)
 void ArrayInitializerAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (ExpressionListAST *it = expression_list; it; it = it->next)
-            accept(it, visitor);
+        accept(expression_list, visitor);
     }
     visitor->endVisit(this);
 }
@@ -407,8 +403,7 @@ void LabeledStatementAST::accept0(ASTVisitor *visitor)
 void LinkageBodyAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (DeclarationListAST *it = declarations; it; it = it->next)
-            accept(it, visitor);
+        accept(declarations, visitor);
     }
     visitor->endVisit(this);
 }
@@ -481,8 +476,7 @@ void DestructorNameAST::accept0(ASTVisitor *visitor)
 void TemplateIdAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (TemplateArgumentListAST *it = template_arguments; it; it = it->next)
-            accept(it, visitor);
+        accept(template_arguments, visitor);
     }
     visitor->endVisit(this);
 }
@@ -507,8 +501,7 @@ void NamespaceAliasDefinitionAST::accept0(ASTVisitor *visitor)
 void NewPlacementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (ExpressionListAST *it = expression_list; it; it = it->next)
-            accept(it, visitor);
+        accept(expression_list, visitor);
     }
     visitor->endVisit(this);
 }
@@ -570,8 +563,7 @@ void ParameterDeclarationAST::accept0(ASTVisitor *visitor)
 void ParameterDeclarationClauseAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (DeclarationListAST *it = parameter_declarations; it; it = it->next)
-            accept(it, visitor);
+        accept(parameter_declarations, visitor);
     }
     visitor->endVisit(this);
 }
@@ -579,8 +571,7 @@ void ParameterDeclarationClauseAST::accept0(ASTVisitor *visitor)
 void CallAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (ExpressionListAST *it = expression_list; it; it = it->next)
-            accept(it, visitor);
+        accept(expression_list, visitor);
     }
     visitor->endVisit(this);
 }
@@ -620,8 +611,7 @@ void TypenameCallExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(name, visitor);
-        for (ExpressionListAST *it = expression_list; it; it = it->next)
-            accept(it, visitor);
+        accept(expression_list, visitor);
     }
     visitor->endVisit(this);
 }
@@ -753,8 +743,7 @@ void SwitchStatementAST::accept0(ASTVisitor *visitor)
 void TemplateDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (DeclarationListAST *it = template_parameters; it; it = it->next)
-            accept(it, visitor);
+        accept(template_parameters, visitor);
         accept(declaration, visitor);
     }
     visitor->endVisit(this);
@@ -771,8 +760,7 @@ void ThrowExpressionAST::accept0(ASTVisitor *visitor)
 void TranslationUnitAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (DeclarationListAST *it = declarations; it; it = it->next)
-            accept(it, visitor);
+        accept(declarations, visitor);
     }
     visitor->endVisit(this);
 }
@@ -816,8 +804,7 @@ void TypenameTypeParameterAST::accept0(ASTVisitor *visitor)
 void TemplateTypeParameterAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (DeclarationListAST *it = template_parameters; it; it = it->next)
-            accept(it, visitor);
+        accept(template_parameters, visitor);
         accept(name, visitor);
         accept(type_id, visitor);
     }
@@ -921,8 +908,7 @@ void ObjCMessageExpressionAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(receiver_expression, visitor);
         accept(selector, visitor);
-        for (ObjCMessageArgumentListAST *it = argument_list; it; it = it->next)
-            accept(it, visitor);
+        accept(argument_list, visitor);
     }
     visitor->endVisit(this);
 }
@@ -967,8 +953,7 @@ void ObjCSelectorArgumentAST::accept0(ASTVisitor *visitor)
 void ObjCSelectorWithArgumentsAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (ObjCSelectorArgumentListAST *it = selector_arguments; it; it = it->next)
-            accept(it, visitor);
+        accept(selector_arguments, visitor);
     }
     visitor->endVisit(this);
 }
@@ -984,8 +969,7 @@ void ObjCSelectorExpressionAST::accept0(ASTVisitor *visitor)
 void ObjCInstanceVariablesDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (DeclarationListAST *it = instance_variables; it; it = it->next)
-            accept(it, visitor);
+        accept(instance_variables, visitor);
     }
     visitor->endVisit(this);
 }
@@ -1054,8 +1038,7 @@ void ObjCSynthesizedPropertyAST::accept0(ASTVisitor *visitor)
 void ObjCSynthesizedPropertiesDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (ObjCSynthesizedPropertyListAST *it = property_identifiers; it; it = it->next)
-            accept(it, visitor);
+        accept(property_identifiers, visitor);
     }
     visitor->endVisit(this);
 }
@@ -1063,8 +1046,7 @@ void ObjCSynthesizedPropertiesDeclarationAST::accept0(ASTVisitor *visitor)
 void ObjCDynamicPropertiesDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (ObjCIdentifierListAST *it = property_identifiers; it; it = it->next)
-            accept(it, visitor);
+        accept(property_identifiers, visitor);
     }
     visitor->endVisit(this);
 }

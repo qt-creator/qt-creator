@@ -81,15 +81,18 @@ public:
 
     unsigned lastToken() const
     {
-        unsigned token = 0;
+        _Tp lastValue = 0;
 
         for (const List *it = this; it; it = it->next) {
             if (it->value)
-                token = it->value->lastToken();
+                lastValue = it->value;
         }
 
-        // assert(token != 0);
-        return token;
+        if (lastValue)
+            return lastValue->lastToken();
+
+        // ### assert(0);
+        return 0;
     }
 
     _Tp value;
@@ -616,7 +619,7 @@ protected:
 class CPLUSPLUS_EXPORT ConditionAST: public ExpressionAST
 {
 public:
-    SpecifierListAST *type_specifier;
+    SpecifierListAST *type_specifiers;
     DeclaratorAST *declarator;
 
 public:
