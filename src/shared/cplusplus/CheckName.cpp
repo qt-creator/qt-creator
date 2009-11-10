@@ -82,17 +82,19 @@ Name *CheckName::check(NameAST *name, Scope *scope)
     return switchName(previousName);
 }
 
-Name *CheckName::check(NestedNameSpecifierAST *nested_name_specifier, Scope *scope)
+Name *CheckName::check(NestedNameSpecifierListAST *nested_name_specifier_list, Scope *scope)
 {
     Name *previousName = switchName(0);
     Scope *previousScope = switchScope(scope);
 
     std::vector<Name *> names;
-    for (NestedNameSpecifierAST *it = nested_name_specifier;
-            it; it = it->next) {
-        names.push_back(semantic()->check(it->class_or_namespace_name, _scope));
+    for (NestedNameSpecifierListAST *it = nested_name_specifier_list; it; it = it->next) {
+        NestedNameSpecifierAST *nested_name_specifier = it->value;
+        names.push_back(semantic()->check(nested_name_specifier->class_or_namespace_name, _scope));
     }
-    _name = control()->qualifiedNameId(&names[0], names.size());
+
+    if (! names.empty())
+        _name = control()->qualifiedNameId(&names[0], names.size());
 
     (void) switchScope(previousScope);
     return switchName(previousName);
@@ -137,9 +139,9 @@ Scope *CheckName::switchScope(Scope *scope)
 bool CheckName::visit(QualifiedNameAST *ast)
 {
     std::vector<Name *> names;
-    for (NestedNameSpecifierAST *it = ast->nested_name_specifier;
-            it; it = it->next) {
-        names.push_back(semantic()->check(it->class_or_namespace_name, _scope));
+    for (NestedNameSpecifierListAST *it = ast->nested_name_specifier; it; it = it->next) {
+        NestedNameSpecifierAST *nested_name_specifier = it->value;
+        names.push_back(semantic()->check(nested_name_specifier->class_or_namespace_name, _scope));
     }
     names.push_back(semantic()->check(ast->unqualified_name, _scope));
     _name = control()->qualifiedNameId(&names[0], names.size(),

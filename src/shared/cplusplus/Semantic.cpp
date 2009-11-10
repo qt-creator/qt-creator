@@ -152,7 +152,7 @@ void Semantic::check(StatementAST *statement, Scope *scope)
 Name *Semantic::check(NameAST *name, Scope *scope)
 { return d->checkName->check(name, scope); }
 
-Name *Semantic::check(NestedNameSpecifierAST *name, Scope *scope)
+Name *Semantic::check(NestedNameSpecifierListAST *name, Scope *scope)
 { return d->checkName->check(name, scope); }
 
 Name *Semantic::check(ObjCSelectorAST *args, Scope *scope)

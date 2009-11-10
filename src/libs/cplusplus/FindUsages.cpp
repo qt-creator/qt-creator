@@ -288,8 +288,8 @@ void FindUsages::checkExpression(unsigned startToken, unsigned endToken)
 
 bool FindUsages::visit(QualifiedNameAST *ast)
 {
-    for (NestedNameSpecifierAST *nested_name_specifier = ast->nested_name_specifier;
-         nested_name_specifier; nested_name_specifier = nested_name_specifier->next) {
+    for (NestedNameSpecifierListAST *it = ast->nested_name_specifier; it; it = it->next) {
+        NestedNameSpecifierAST *nested_name_specifier = it->value;
 
         if (NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name) {
             SimpleNameAST *simple_name = class_or_namespace_name->asSimpleName();
@@ -299,9 +299,8 @@ bool FindUsages::visit(QualifiedNameAST *ast)
                 template_id = class_or_namespace_name->asTemplateId();
 
                 if (template_id) {
-                    for (TemplateArgumentListAST *template_arguments = template_id->template_arguments;
-                         template_arguments; template_arguments = template_arguments->next) {
-                        accept(template_arguments->value);
+                    for (TemplateArgumentListAST *arg_it = template_id->template_arguments; arg_it; arg_it = arg_it->next) {
+                        accept(arg_it->value);
                     }
                 }
             }

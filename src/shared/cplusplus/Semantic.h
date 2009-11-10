@@ -84,7 +84,7 @@ public:
 
     Name *check(NameAST *name, Scope *scope);
 
-    Name *check(NestedNameSpecifierAST *name, Scope *scope);
+    Name *check(NestedNameSpecifierListAST *name, Scope *scope);
 
     Name *check(ObjCSelectorAST *args, Scope *scope);
     FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope);

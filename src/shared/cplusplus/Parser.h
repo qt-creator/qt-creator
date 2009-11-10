@@ -142,8 +142,8 @@ public:
     bool parseClassOrNamespaceName(NameAST *&node);
     bool parseNameId(NameAST *&node);
     bool parseName(NameAST *&node, bool acceptTemplateId = true);
-    bool parseNestedNameSpecifier(NestedNameSpecifierAST *&node, bool acceptTemplateId);
-    bool parseNestedNameSpecifierOpt(NestedNameSpecifierAST *&name, bool acceptTemplateId);
+    bool parseNestedNameSpecifier(NestedNameSpecifierListAST *&node, bool acceptTemplateId);
+    bool parseNestedNameSpecifierOpt(NestedNameSpecifierListAST *&name, bool acceptTemplateId);
     bool parseNamespace(DeclarationAST *&node);
     bool parseNamespaceAliasDefinition(DeclarationAST *&node);
     bool parseNewArrayDeclarator(NewArrayDeclaratorListAST *&node);

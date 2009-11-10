@@ -453,8 +453,7 @@ void NestedNameSpecifierAST::accept0(ASTVisitor *visitor)
 void QualifiedNameAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (NestedNameSpecifierAST *it = nested_name_specifier; it; it = it->next)
-            accept(it, visitor);
+        accept(nested_name_specifier, visitor);
         accept(unqualified_name, visitor);
     }
     visitor->endVisit(this);
@@ -668,8 +667,8 @@ void PostfixExpressionAST::accept0(ASTVisitor *visitor)
 void PointerToMemberAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (NestedNameSpecifierAST *it = nested_name_specifier; it; it = it->next)
-            accept(it, visitor);
+        accept(nested_name_specifier, visitor);
+
         for (SpecifierAST *it = cv_qualifier_seq; it; it = it->next)
             accept(it, visitor);
     }

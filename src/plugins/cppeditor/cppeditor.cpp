@@ -308,8 +308,8 @@ protected:
 
     virtual bool visit(QualifiedNameAST *ast)
     {
-        for (NestedNameSpecifierAST *it = ast->nested_name_specifier; it; it = it->next)
-            searchUsesInTemplateArguments(it->class_or_namespace_name);
+        for (NestedNameSpecifierListAST *it = ast->nested_name_specifier; it; it = it->next)
+            searchUsesInTemplateArguments(it->value->class_or_namespace_name);
 
         searchUsesInTemplateArguments(ast->unqualified_name);
         return false;

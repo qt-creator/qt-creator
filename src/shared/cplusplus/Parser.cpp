@@ -348,28 +348,30 @@ bool Parser::parseTemplateId(NameAST *&node)
     return false;
 }
 
-bool Parser::parseNestedNameSpecifier(NestedNameSpecifierAST *&node,
+bool Parser::parseNestedNameSpecifier(NestedNameSpecifierListAST *&node,
                                       bool /*acceptTemplateId*/)
 {
     DEBUG_THIS_RULE();
-    NestedNameSpecifierAST **nested_name_specifier = &node;
+    NestedNameSpecifierListAST **nested_name_specifier = &node;
     NameAST *class_or_namespace_name = 0;
-    if (parseClassOrNamespaceName(class_or_namespace_name) &&
-            LA() == T_COLON_COLON) {
+    if (parseClassOrNamespaceName(class_or_namespace_name) && LA() == T_COLON_COLON) {
         unsigned scope_token = consumeToken();
-        *nested_name_specifier = new (_pool) NestedNameSpecifierAST;
-        (*nested_name_specifier)->class_or_namespace_name
-                = class_or_namespace_name;
-        (*nested_name_specifier)->scope_token = scope_token;
 
+        NestedNameSpecifierAST *name = new (_pool) NestedNameSpecifierAST;
+        name->class_or_namespace_name = class_or_namespace_name;
+        name->scope_token = scope_token;
+
+        *nested_name_specifier = new (_pool) NestedNameSpecifierListAST(name);
         nested_name_specifier = &(*nested_name_specifier)->next;
 
-        while (parseClassOrNamespaceName(class_or_namespace_name) &&
-               LA() == T_COLON_COLON) {
+        while (parseClassOrNamespaceName(class_or_namespace_name) && LA() == T_COLON_COLON) {
             scope_token = consumeToken();
-            *nested_name_specifier = new (_pool) NestedNameSpecifierAST;
-            (*nested_name_specifier)->class_or_namespace_name = class_or_namespace_name;
-            (*nested_name_specifier)->scope_token = scope_token;
+
+            name = new (_pool) NestedNameSpecifierAST;
+            name->class_or_namespace_name = class_or_namespace_name;
+            name->scope_token = scope_token;
+
+            *nested_name_specifier = new (_pool) NestedNameSpecifierListAST(name);
             nested_name_specifier = &(*nested_name_specifier)->next;
         }
 
@@ -382,8 +384,7 @@ bool Parser::parseNestedNameSpecifier(NestedNameSpecifierAST *&node,
     return false;
 }
 
-bool Parser::parseNestedNameSpecifierOpt(NestedNameSpecifierAST *&name,
-        bool acceptTemplateId)
+bool Parser::parseNestedNameSpecifierOpt(NestedNameSpecifierListAST *&name, bool acceptTemplateId)
 {
     DEBUG_THIS_RULE();
     unsigned start = cursor();
@@ -399,7 +400,7 @@ bool Parser::parseName(NameAST *&node, bool acceptTemplateId)
     if (LA() == T_COLON_COLON)
         global_scope_token = consumeToken();
 
-    NestedNameSpecifierAST *nested_name_specifier = 0;
+    NestedNameSpecifierListAST *nested_name_specifier = 0;
     parseNestedNameSpecifierOpt(nested_name_specifier,
                                 /*acceptTemplateId=*/ true);
 
@@ -976,13 +977,12 @@ bool Parser::parsePtrOperator(PtrOperatorAST *&node)
         if (LA() == T_COLON_COLON)
             global_scope_token = consumeToken();
 
-        NestedNameSpecifierAST *nested_name_specifier = 0;
-        bool has_nested_name_specifier = parseNestedNameSpecifier(
-                nested_name_specifier, true);
+        NestedNameSpecifierListAST *nested_name_specifiers = 0;
+        bool has_nested_name_specifier = parseNestedNameSpecifier(nested_name_specifiers, true);
         if (has_nested_name_specifier && LA() == T_STAR) {
             PointerToMemberAST *ast = new (_pool) PointerToMemberAST;
             ast->global_scope_token = global_scope_token;
-            ast->nested_name_specifier = nested_name_specifier;
+            ast->nested_name_specifier = nested_name_specifiers;
             ast->star_token = consumeToken();
             parseCvQualifiers(ast->cv_qualifier_seq);
             node = ast;

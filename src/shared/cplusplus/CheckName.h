@@ -62,7 +62,7 @@ public:
     virtual ~CheckName();
 
     Name *check(NameAST *name, Scope *scope);
-    Name *check(NestedNameSpecifierAST *name, Scope *scope);
+    Name *check(NestedNameSpecifierListAST *name, Scope *scope);
     Name *check(ObjCSelectorAST *args, Scope *scope);
     void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);
 

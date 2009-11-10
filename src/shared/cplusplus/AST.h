@@ -1175,7 +1175,7 @@ class CPLUSPLUS_EXPORT QualifiedNameAST: public NameAST
 {
 public:
     unsigned global_scope_token;
-    NestedNameSpecifierAST *nested_name_specifier;
+    NestedNameSpecifierListAST *nested_name_specifier;
     NameAST *unqualified_name;
 
 public:
@@ -1614,7 +1614,7 @@ class CPLUSPLUS_EXPORT PointerToMemberAST: public PtrOperatorAST
 {
 public:
     unsigned global_scope_token;
-    NestedNameSpecifierAST *nested_name_specifier;
+    NestedNameSpecifierListAST *nested_name_specifier;
     unsigned star_token;
     SpecifierAST *cv_qualifier_seq;
 

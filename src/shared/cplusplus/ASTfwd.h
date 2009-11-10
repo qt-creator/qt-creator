@@ -202,6 +202,7 @@ typedef List<NewArrayDeclaratorAST *> NewArrayDeclaratorListAST;
 typedef List<PostfixAST *> PostfixListAST;
 typedef List<PostfixDeclaratorAST *> PostfixDeclaratorListAST;
 typedef List<AttributeAST *> AttributeListAST;
+typedef List<NestedNameSpecifierAST *> NestedNameSpecifierListAST;
 
 typedef List<NameAST *> ObjCIdentifierListAST;
 typedef List<ObjCMessageArgumentAST *> ObjCMessageArgumentListAST;

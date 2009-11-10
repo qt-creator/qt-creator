@@ -1299,12 +1299,10 @@ unsigned PointerToMemberAST::lastToken() const
     if (star_token)
         return star_token + 1;
 
-    for (NestedNameSpecifierAST *it = nested_name_specifier; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    else if (nested_name_specifier)
+        return nested_name_specifier->lastToken();
 
-    if (global_scope_token)
+    else if (global_scope_token)
         return global_scope_token + 1;
 
     return 0;
@@ -1349,10 +1347,8 @@ unsigned QualifiedNameAST::lastToken() const
     if (unqualified_name)
         return unqualified_name->lastToken();
 
-    for (NestedNameSpecifierAST *it = nested_name_specifier; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (nested_name_specifier)
+        return nested_name_specifier->lastToken();
 
     if (global_scope_token)
         return global_scope_token + 1;
