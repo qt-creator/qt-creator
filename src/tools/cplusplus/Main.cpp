@@ -24,6 +24,37 @@
 
 using namespace CPlusPlus;
 
+static const char copyrightHeader[] =
+"/**************************************************************************\n"
+"**\n"
+"** This file is part of Qt Creator\n"
+"**\n"
+"** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).\n"
+"**\n"
+"** Contact: Nokia Corporation (qt-info@nokia.com)\n"
+"**\n"
+"** Commercial Usage\n"
+"**\n"
+"** Licensees holding valid Qt Commercial licenses may use this file in\n"
+"** accordance with the Qt Commercial License Agreement provided with the\n"
+"** Software or, alternatively, in accordance with the terms contained in\n"
+"** a written agreement between you and Nokia.\n"
+"**\n"
+"** GNU Lesser General Public License Usage\n"
+"**\n"
+"** Alternatively, this file may be used under the terms of the GNU Lesser\n"
+"** General Public License version 2.1 as published by the Free Software\n"
+"** Foundation and appearing in the file LICENSE.LGPL included in the\n"
+"** packaging of this file.  Please review the following information to\n"
+"** ensure the GNU Lesser General Public License version 2.1 requirements\n"
+"** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\n"
+"**\n"
+"** If you are unsure which license is appropriate for your use, please\n"
+"** contact the sales department at http://qt.nokia.com/contact.\n"
+"**\n"
+"**************************************************************************/\n"
+;
+
 class SearchListNodes: protected ASTVisitor
 {
     QList<QByteArray> _listNodes;
@@ -92,35 +123,7 @@ public:
         QTextStream output(&file);
         out = &output;
 
-        *out <<
-            "/**************************************************************************\n"
-            "**\n"
-            "** This file is part of Qt Creator\n"
-            "**\n"
-            "** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).\n"
-            "**\n"
-            "** Contact: Nokia Corporation (qt-info@nokia.com)\n"
-            "**\n"
-            "** Commercial Usage\n"
-            "**\n"
-            "** Licensees holding valid Qt Commercial licenses may use this file in\n"
-            "** accordance with the Qt Commercial License Agreement provided with the\n"
-            "** Software or, alternatively, in accordance with the terms contained in\n"
-            "** a written agreement between you and Nokia.\n"
-            "**\n"
-            "** GNU Lesser General Public License Usage\n"
-            "**\n"
-            "** Alternatively, this file may be used under the terms of the GNU Lesser\n"
-            "** General Public License version 2.1 as published by the Free Software\n"
-            "** Foundation and appearing in the file LICENSE.LGPL included in the\n"
-            "** packaging of this file.  Please review the following information to\n"
-            "** ensure the GNU Lesser General Public License version 2.1 requirements\n"
-            "** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\n"
-            "**\n"
-            "** If you are unsure which license is appropriate for your use, please\n"
-            "** contact the sales department at http://qt.nokia.com/contact.\n"
-            "**\n"
-            "**************************************************************************/\n"
+        *out << copyrightHeader <<
             "\n"
             "#include \"AST.h\"\n"
             "#include \"ASTVisitor.h\"\n"
