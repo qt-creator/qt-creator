@@ -1123,7 +1123,7 @@ void QtVersion::updateToolChainAndMkspec() const
 #endif
 
 #ifdef Q_OS_WIN
-    m_mkspecFullPath = m_mkspecFullPath.toLower()
+    m_mkspecFullPath = m_mkspecFullPath.toLower();
 #endif
 
     m_mkspecFullPath = mkspecFullPath;
