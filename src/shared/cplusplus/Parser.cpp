@@ -4297,20 +4297,20 @@ bool Parser::parseObjCClassForwardDeclaration(DeclarationAST *&node)
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
 
-    ast->identifier_list = new (_pool) IdentifierListAST;
+    ast->identifier_list = new (_pool) ObjCIdentifierListAST;
     SimpleNameAST *name = new (_pool) SimpleNameAST;
     name->identifier_token = identifier_token;
-    ast->identifier_list->name = name;
-    IdentifierListAST **nextId = &(ast->identifier_list->next);
+    ast->identifier_list->value = name;
+    ObjCIdentifierListAST **nextId = &(ast->identifier_list->next);
 
     while (LA() == T_COMMA) {
         consumeToken(); // consume T_COMMA
         match(T_IDENTIFIER, &identifier_token);
 
-        *nextId = new (_pool) IdentifierListAST;
+        *nextId = new (_pool) ObjCIdentifierListAST;
         name = new (_pool) SimpleNameAST;
         name->identifier_token = identifier_token;
-        (*nextId)->name = name;
+        (*nextId)->value = name;
         nextId = &((*nextId)->next);
     }
 
@@ -4447,20 +4447,20 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
         ObjCProtocolForwardDeclarationAST *ast = new (_pool) ObjCProtocolForwardDeclarationAST;
         ast->attributes = attributes;
         ast->protocol_token = protocol_token;
-        ast->identifier_list = new (_pool) IdentifierListAST;
+        ast->identifier_list = new (_pool) ObjCIdentifierListAST;
         SimpleNameAST *name = new (_pool) SimpleNameAST;
         name->identifier_token = identifier_token;
-        ast->identifier_list->name = name;
-        IdentifierListAST **nextId = &(ast->identifier_list->next);
+        ast->identifier_list->value = name;
+        ObjCIdentifierListAST **nextId = &(ast->identifier_list->next);
 
         while (LA() == T_COMMA) {
             consumeToken(); // consume T_COMMA
             match(T_IDENTIFIER, &identifier_token);
 
-            *nextId = new (_pool) IdentifierListAST;
+            *nextId = new (_pool) ObjCIdentifierListAST;
             name = new (_pool) SimpleNameAST;
             name->identifier_token = identifier_token;
-            (*nextId)->name = name;
+            (*nextId)->value = name;
             nextId = &((*nextId)->next);
         }
 
@@ -4611,20 +4611,20 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
         case T_AT_DYNAMIC: {
             ObjCDynamicPropertiesDeclarationAST *ast = new (_pool) ObjCDynamicPropertiesDeclarationAST;
             ast->dynamic_token = consumeToken();
-            ast->property_identifiers = new (_pool) IdentifierListAST;
+            ast->property_identifiers = new (_pool) ObjCIdentifierListAST;
             SimpleNameAST *name = new (_pool) SimpleNameAST;
             match(T_IDENTIFIER, &(name->identifier_token));
-            ast->property_identifiers->name = name;
+            ast->property_identifiers->value = name;
 
-            IdentifierListAST *last = ast->property_identifiers;
+            ObjCIdentifierListAST *last = ast->property_identifiers;
             while (LA() == T_COMMA) {
                 consumeToken(); // consume T_COMMA
 
-                last->next = new (_pool) IdentifierListAST;
+                last->next = new (_pool) ObjCIdentifierListAST;
                 last = last->next;
                 name = new (_pool) SimpleNameAST;
                 match(T_IDENTIFIER, &name->identifier_token);
-                last->name = name;
+                last->value = name;
             }
 
             match(T_SEMICOLON, &(ast->semicolon_token));
@@ -4696,20 +4696,20 @@ bool Parser::parseObjCProtocolRefs(ObjCProtocolRefsAST *&node)
 
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
-    ast->identifier_list = new (_pool) IdentifierListAST;
+    ast->identifier_list = new (_pool) ObjCIdentifierListAST;
     SimpleNameAST *name = new (_pool) SimpleNameAST;
     name->identifier_token = identifier_token;
-    ast->identifier_list->name = name;
-    IdentifierListAST **nextId = &(ast->identifier_list->next);
+    ast->identifier_list->value = name;
+    ObjCIdentifierListAST **nextId = &(ast->identifier_list->next);
 
     while (LA() == T_COMMA) {
         consumeToken(); // consume T_COMMA
         match(T_IDENTIFIER, &identifier_token);
 
-        *nextId = new (_pool) IdentifierListAST;
+        *nextId = new (_pool) ObjCIdentifierListAST;
         name = new (_pool) SimpleNameAST;
         name->identifier_token = identifier_token;
-        (*nextId)->name = name;
+        (*nextId)->value = name;
         nextId = &((*nextId)->next);
     }
 

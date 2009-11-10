@@ -192,7 +192,7 @@ public:
     virtual bool visit(QtMethodAST *) { return true; }
 
     // ObjC++
-    virtual bool visit(IdentifierListAST *) { return true; }
+    virtual bool visit(ObjCIdentifierListAST *) { return true; }
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
     virtual bool visit(ObjCClassForwardDeclarationAST *) { return true; }
     virtual bool visit(ObjCProtocolDeclarationAST *) { return true; }
@@ -323,7 +323,7 @@ public:
     virtual void endVisit(QtMethodAST *) { }
 
     // ObjC++
-    virtual void endVisit(IdentifierListAST *) { }
+    virtual void endVisit(ObjCIdentifierListAST *) { }
     virtual void endVisit(ObjCClassDeclarationAST *) { }
     virtual void endVisit(ObjCClassForwardDeclarationAST *) { }
     virtual void endVisit(ObjCProtocolDeclarationAST *) { }

@@ -164,7 +164,7 @@ public:
     virtual FunctionDeclaratorAST *asFunctionDeclarator() { return 0; }
     virtual FunctionDefinitionAST *asFunctionDefinition() { return 0; }
     virtual GotoStatementAST *asGotoStatement() { return 0; }
-    virtual IdentifierListAST *asIdentifierList() { return 0; }
+    virtual ObjCIdentifierListAST *asIdentifierList() { return 0; }
     virtual IfStatementAST *asIfStatement() { return 0; }
     virtual LabeledStatementAST *asLabeledStatement() { return 0; }
     virtual LinkageBodyAST *asLinkageBody() { return 0; }
@@ -2084,30 +2084,12 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-
-// ObjC++
-class CPLUSPLUS_EXPORT IdentifierListAST: public AST
-{
-public:
-    NameAST *name;
-    IdentifierListAST *next;
-
-public:
-    virtual IdentifierListAST *asIdentifierList() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
 class CPLUSPLUS_EXPORT ObjCClassForwardDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierAST *attributes;
     unsigned class_token;
-    IdentifierListAST *identifier_list;
+    ObjCIdentifierListAST *identifier_list;
     unsigned semicolon_token;
 
 public: // annotations
@@ -2158,7 +2140,7 @@ class CPLUSPLUS_EXPORT ObjCProtocolForwardDeclarationAST: public DeclarationAST
 public:
     SpecifierAST *attributes;
     unsigned protocol_token;
-    IdentifierListAST *identifier_list;
+    ObjCIdentifierListAST *identifier_list;
     unsigned semicolon_token;
 
 public: // annotations
@@ -2201,7 +2183,7 @@ class CPLUSPLUS_EXPORT ObjCProtocolRefsAST: public AST
 {
 public:
     unsigned less_token;
-    IdentifierListAST *identifier_list;
+    ObjCIdentifierListAST *identifier_list;
     unsigned greater_token;
 
 public:
@@ -2621,7 +2603,7 @@ class CPLUSPLUS_EXPORT ObjCDynamicPropertiesDeclarationAST: public DeclarationAS
 {
 public:
     unsigned dynamic_token;
-    IdentifierListAST *property_identifiers;
+    ObjCIdentifierListAST *property_identifiers;
     unsigned semicolon_token;
 
 public:

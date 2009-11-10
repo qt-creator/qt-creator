@@ -104,7 +104,6 @@ class ForeachStatementAST;
 class FunctionDeclaratorAST;
 class FunctionDefinitionAST;
 class GotoStatementAST;
-class IdentifierListAST;
 class IfStatementAST;
 class LabeledStatementAST;
 class LinkageBodyAST;
@@ -201,6 +200,8 @@ typedef List<ExpressionAST *> ExpressionListAST;
 typedef List<DeclarationAST *> DeclarationListAST;
 typedef List<StatementAST *> StatementListAST;
 typedef List<DeclaratorAST *> DeclaratorListAST;
+typedef List<NameAST *> ObjCIdentifierListAST;
+
 typedef ExpressionListAST TemplateArgumentListAST;
 
 } // end of namespace CPlusPlus

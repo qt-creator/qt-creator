@@ -501,14 +501,14 @@ bool CheckDeclaration::visit(ObjCProtocolForwardDeclarationAST *ast)
     const unsigned sourceLocation = ast->firstToken();
 
     List<ObjCForwardProtocolDeclaration *> **symbolIter = &ast->symbols;
-    for (IdentifierListAST *it = ast->identifier_list; it; it = it->next) {
+    for (ObjCIdentifierListAST *it = ast->identifier_list; it; it = it->next) {
         unsigned declarationLocation;
-        if (it->name)
-            declarationLocation = it->name->firstToken();
+        if (it->value)
+            declarationLocation = it->value->firstToken();
         else
             declarationLocation = sourceLocation;
 
-        Name *protocolName = semantic()->check(it->name, _scope);
+        Name *protocolName = semantic()->check(it->value, _scope);
         ObjCForwardProtocolDeclaration *fwdProtocol = control()->newObjCForwardProtocolDeclaration(sourceLocation, protocolName);
         fwdProtocol->setStartOffset(tokenAt(ast->firstToken()).offset);
         fwdProtocol->setEndOffset(tokenAt(ast->lastToken()).offset);
@@ -537,8 +537,8 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
     protocol->setEndOffset(tokenAt(ast->lastToken()).offset);
 
     if (ast->protocol_refs && ast->protocol_refs->identifier_list) {
-        for (IdentifierListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
-            NameAST* name = iter->name;
+        for (ObjCIdentifierListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
+            NameAST* name = iter->value;
             Name *protocolName = semantic()->check(name, _scope);
             ObjCBaseProtocol *baseProtocol = control()->newObjCBaseProtocol(name->firstToken(), protocolName);
             protocol->addProtocol(baseProtocol);
@@ -562,14 +562,14 @@ bool CheckDeclaration::visit(ObjCClassForwardDeclarationAST *ast)
     const unsigned sourceLocation = ast->firstToken();
 
     List<ObjCForwardClassDeclaration *> **symbolIter = &ast->symbols;
-    for (IdentifierListAST *it = ast->identifier_list; it; it = it->next) {
+    for (ObjCIdentifierListAST *it = ast->identifier_list; it; it = it->next) {
         unsigned declarationLocation;
-        if (it->name)
-            declarationLocation = it->name->firstToken();
+        if (it->value)
+            declarationLocation = it->value->firstToken();
         else
             declarationLocation = sourceLocation;
 
-        Name *className = semantic()->check(it->name, _scope);
+        Name *className = semantic()->check(it->value, _scope);
         ObjCForwardClassDeclaration *fwdClass = control()->newObjCForwardClassDeclaration(sourceLocation, className);
         fwdClass->setStartOffset(tokenAt(ast->firstToken()).offset);
         fwdClass->setEndOffset(tokenAt(ast->lastToken()).offset);
@@ -612,8 +612,8 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
     }
 
     if (ast->protocol_refs && ast->protocol_refs->identifier_list) {
-        for (IdentifierListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
-            NameAST* name = iter->name;
+        for (ObjCIdentifierListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
+            NameAST* name = iter->value;
             Name *protocolName = semantic()->check(name, _scope);
             ObjCBaseProtocol *baseProtocol = control()->newObjCBaseProtocol(name->firstToken(), protocolName);
             klass->addProtocol(baseProtocol);

@@ -1816,26 +1816,6 @@ unsigned WhileStatementAST::lastToken() const
 }
 
 // ObjC++
-unsigned IdentifierListAST::firstToken() const
-{
-    if (name)
-        return name->firstToken();
-    // ### assert?
-    return 0;
-}
-
-unsigned IdentifierListAST::lastToken() const
-{
-    for (const IdentifierListAST *it = this; it; it = it->next) {
-        if (! it->next && it->name) {
-            return it->name->lastToken();
-        }
-    }
-    // ### assert?
-    return 0;
-}
-
-
 unsigned ObjCClassForwardDeclarationAST::firstToken() const
 {
     if (attributes)
@@ -1848,9 +1828,9 @@ unsigned ObjCClassForwardDeclarationAST::lastToken() const
     if (semicolon_token)
         return semicolon_token + 1;
 
-    for (IdentifierListAST *it = identifier_list; it; it = it->next) {
-        if (! it->next && it->name)
-            return it->name->lastToken();
+    for (ObjCIdentifierListAST *it = identifier_list; it; it = it->next) {
+        if (! it->next && it->value)
+            return it->value->lastToken();
     }
 
     return class_token + 1;
@@ -1868,9 +1848,9 @@ unsigned ObjCProtocolForwardDeclarationAST::lastToken() const
     if (semicolon_token)
         return semicolon_token + 1;
 
-    for (IdentifierListAST *it = identifier_list; it; it = it->next) {
-        if (! it->next && it->name)
-            return it->name->lastToken();
+    for (ObjCIdentifierListAST *it = identifier_list; it; it = it->next) {
+        if (! it->next && it->value)
+            return it->value->lastToken();
     }
 
     return protocol_token + 1;
@@ -1949,9 +1929,9 @@ unsigned ObjCProtocolRefsAST::lastToken() const
 {
     if (greater_token) return greater_token + 1;
 
-    for (IdentifierListAST *it = identifier_list; it; it = it->next) {
-        if (! it->next && it->name)
-            return it->name->lastToken();
+    for (ObjCIdentifierListAST *it = identifier_list; it; it = it->next) {
+        if (! it->next && it->value)
+            return it->value->lastToken();
     }
 
     return less_token + 1;

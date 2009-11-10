@@ -890,20 +890,12 @@ void WhileStatementAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void IdentifierListAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(name, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void ObjCClassForwardDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         for (SpecifierAST *it = attributes; it; it = it->next)
             accept(it, visitor);
-        for (IdentifierListAST *it = identifier_list; it; it = it->next)
+        for (ObjCIdentifierListAST *it = identifier_list; it; it = it->next)
             accept(it, visitor);
     }
     visitor->endVisit(this);
@@ -930,7 +922,7 @@ void ObjCProtocolForwardDeclarationAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         for (SpecifierAST *it = attributes; it; it = it->next)
             accept(it, visitor);
-        for (IdentifierListAST *it = identifier_list; it; it = it->next)
+        for (ObjCIdentifierListAST *it = identifier_list; it; it = it->next)
             accept(it, visitor);
     }
     visitor->endVisit(this);
@@ -952,7 +944,7 @@ void ObjCProtocolDeclarationAST::accept0(ASTVisitor *visitor)
 void ObjCProtocolRefsAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (IdentifierListAST *it = identifier_list; it; it = it->next)
+        for (ObjCIdentifierListAST *it = identifier_list; it; it = it->next)
             accept(it, visitor);
     }
     visitor->endVisit(this);
@@ -1158,7 +1150,7 @@ void ObjCSynthesizedPropertiesDeclarationAST::accept0(ASTVisitor *visitor)
 void ObjCDynamicPropertiesDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (IdentifierListAST *it = property_identifiers; it; it = it->next)
+        for (ObjCIdentifierListAST *it = property_identifiers; it; it = it->next)
             accept(it, visitor);
     }
     visitor->endVisit(this);
