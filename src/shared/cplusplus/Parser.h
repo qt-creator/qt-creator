@@ -111,7 +111,7 @@ public:
     bool parseDoStatement(StatementAST *&node);
     bool parseElaboratedTypeSpecifier(SpecifierAST *&node);
     bool parseEnumSpecifier(SpecifierAST *&node);
-    bool parseEnumerator(EnumeratorAST *&node);
+    bool parseEnumerator(EnumeratorListAST *&node);
     bool parseEqualityExpression(ExpressionAST *&node);
     bool parseExceptionDeclaration(ExceptionDeclarationAST *&node);
     bool parseExceptionSpecification(ExceptionSpecificationAST *&node);
@@ -134,8 +134,8 @@ public:
     bool parseLinkageSpecification(DeclarationAST *&node);
     bool parseLogicalAndExpression(ExpressionAST *&node);
     bool parseLogicalOrExpression(ExpressionAST *&node);
-    bool parseMemInitializer(MemInitializerAST *&node);
-    bool parseMemInitializerList(MemInitializerAST *&node);
+    bool parseMemInitializer(MemInitializerListAST *&node);
+    bool parseMemInitializerList(MemInitializerListAST *&node);
     bool parseMemberSpecification(DeclarationAST *&node);
     bool parseMultiplicativeExpression(ExpressionAST *&node);
     bool parseTemplateId(NameAST *&node);

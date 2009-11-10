@@ -387,8 +387,8 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
     e->setVisibility(semantic()->currentVisibility());
     _scope->enterSymbol(e);
     _fullySpecifiedType.setType(e);
-    for (EnumeratorAST *enumerator = ast->enumerators; enumerator;
-            enumerator = enumerator->next) {
+    for (EnumeratorListAST *it = ast->enumerators; it; it = it->next) {
+        EnumeratorAST *enumerator = it->value;
         Identifier *id = identifier(enumerator->identifier_token);
         if (! id)
             continue;

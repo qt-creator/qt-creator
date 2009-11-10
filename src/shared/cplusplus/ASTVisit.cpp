@@ -220,8 +220,7 @@ void CppCastExpressionAST::accept0(ASTVisitor *visitor)
 void CtorInitializerAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (MemInitializerAST *it = member_initializers; it; it = it->next)
-            accept(it, visitor);
+        accept(member_initializers, visitor);
     }
     visitor->endVisit(this);
 }
@@ -307,8 +306,7 @@ void EnumSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(name, visitor);
-        for (EnumeratorAST *it = enumerators; it; it = it->next)
-            accept(it, visitor);
+        accept(enumerators, visitor);
     }
     visitor->endVisit(this);
 }

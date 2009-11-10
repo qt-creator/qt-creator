@@ -1308,7 +1308,7 @@ bool Parser::parseEnumSpecifier(SpecifierAST *&node)
             ast->name = name;
             ast->lbrace_token = consumeToken();
             unsigned comma_token = 0;
-            EnumeratorAST **enumerator_ptr = &ast->enumerators;
+            EnumeratorListAST **enumerator_ptr = &ast->enumerators;
             while (int tk = LA()) {
                 if (tk == T_RBRACE)
                     break;
@@ -1722,7 +1722,7 @@ bool Parser::parseExceptionSpecification(ExceptionSpecificationAST *&node)
     return false;
 }
 
-bool Parser::parseEnumerator(EnumeratorAST *&node)
+bool Parser::parseEnumerator(EnumeratorListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_IDENTIFIER) {
@@ -1733,7 +1733,9 @@ bool Parser::parseEnumerator(EnumeratorAST *&node)
             ast->equal_token = consumeToken();
             parseConstantExpression(ast->expression);
         }
-        node = ast;
+
+        node = new (_pool) EnumeratorListAST;
+        node->value = ast;
         return true;
     }
     return false;
@@ -1820,10 +1822,10 @@ bool Parser::parseInitializer(ExpressionAST *&node, unsigned *equals_token)
     return false;
 }
 
-bool Parser::parseMemInitializerList(MemInitializerAST *&node)
+bool Parser::parseMemInitializerList(MemInitializerListAST *&node)
 {
     DEBUG_THIS_RULE();
-    MemInitializerAST **initializer = &node;
+    MemInitializerListAST **initializer = &node;
 
     if (parseMemInitializer(*initializer)) {
         initializer = &(*initializer)->next;
@@ -1838,7 +1840,7 @@ bool Parser::parseMemInitializerList(MemInitializerAST *&node)
     return false;
 }
 
-bool Parser::parseMemInitializer(MemInitializerAST *&node)
+bool Parser::parseMemInitializer(MemInitializerListAST *&node)
 {
     DEBUG_THIS_RULE();
     NameAST *name = 0;
@@ -1849,7 +1851,9 @@ bool Parser::parseMemInitializer(MemInitializerAST *&node)
         parseExpression(ast->expression);
         if (LA() == T_RPAREN)
             ast->rparen_token = consumeToken();
-        node = ast;
+
+        node = new (_pool) MemInitializerListAST;
+        node->value = ast;
         return true;
     }
     return false;

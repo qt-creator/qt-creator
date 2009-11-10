@@ -527,10 +527,8 @@ unsigned CtorInitializerAST::firstToken() const
 
 unsigned CtorInitializerAST::lastToken() const
 {
-    for (MemInitializerAST *it = member_initializers; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (member_initializers)
+        return member_initializers->lastToken();
     return colon_token + 1;
 }
 
@@ -697,10 +695,8 @@ unsigned EnumSpecifierAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    for (EnumeratorAST *it = enumerators; it; it = it->next) {
-        if (! it->next)
-            return it->lastToken();
-    }
+    if (enumerators)
+        return enumerators->lastToken();
 
     if (lbrace_token)
         return lbrace_token + 1;

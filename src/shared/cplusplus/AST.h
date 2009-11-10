@@ -686,7 +686,7 @@ class CPLUSPLUS_EXPORT CtorInitializerAST: public AST
 {
 public:
     unsigned colon_token;
-    MemInitializerAST *member_initializers;
+    MemInitializerListAST *member_initializers;
 
 public:
     virtual CtorInitializerAST *asCtorInitializer() { return this; }
@@ -862,7 +862,7 @@ public:
     unsigned enum_token;
     NameAST *name;
     unsigned lbrace_token;
-    EnumeratorAST *enumerators;
+    EnumeratorListAST *enumerators;
     unsigned rbrace_token;
 
 public:
@@ -881,7 +881,6 @@ public:
     unsigned identifier_token;
     unsigned equal_token;
     ExpressionAST *expression;
-    EnumeratorAST *next;
 
 public:
     virtual EnumeratorAST *asEnumerator() { return this; }
@@ -1134,7 +1133,6 @@ public:
     unsigned lparen_token;
     ExpressionAST *expression;
     unsigned rparen_token;
-    MemInitializerAST *next;
 
 public:
     virtual MemInitializerAST *asMemInitializer() { return this; }
