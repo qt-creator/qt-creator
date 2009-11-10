@@ -89,7 +89,7 @@ public:
     bool parseBlockDeclaration(DeclarationAST *&node);
     bool parseCppCastExpression(ExpressionAST *&node);
     bool parseCastExpression(ExpressionAST *&node);
-    bool parseClassSpecifier(SpecifierAST *&node);
+    bool parseClassSpecifier(SpecifierListAST *&node);
     bool parseCommaExpression(ExpressionAST *&node);
     bool parseCompoundStatement(StatementAST *&node);
     bool parseBreakStatement(StatementAST *&node);
@@ -100,7 +100,7 @@ public:
     bool parseConditionalExpression(ExpressionAST *&node);
     bool parseConstantExpression(ExpressionAST *&node);
     bool parseCtorInitializer(CtorInitializerAST *&node);
-    bool parseCvQualifiers(SpecifierAST *&node);
+    bool parseCvQualifiers(SpecifierListAST *&node);
     bool parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node);
     bool parseDeclaration(DeclarationAST *&node);
     bool parseSimpleDeclaration(DeclarationAST *&node, bool acceptStructDeclarator = false);
@@ -109,8 +109,8 @@ public:
     bool parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer = false);
     bool parseDeleteExpression(ExpressionAST *&node);
     bool parseDoStatement(StatementAST *&node);
-    bool parseElaboratedTypeSpecifier(SpecifierAST *&node);
-    bool parseEnumSpecifier(SpecifierAST *&node);
+    bool parseElaboratedTypeSpecifier(SpecifierListAST *&node);
+    bool parseEnumSpecifier(SpecifierListAST *&node);
     bool parseEnumerator(EnumeratorListAST *&node);
     bool parseEqualityExpression(ExpressionAST *&node);
     bool parseExceptionDeclaration(ExceptionDeclarationAST *&node);
@@ -188,17 +188,17 @@ public:
     bool parseTemplateTypeParameter(DeclarationAST *&node);
     bool parseTypeParameter(DeclarationAST *&node);
 
-    bool parseBuiltinTypeSpecifier(SpecifierAST *&node);
-    bool parseAttributeSpecifier(SpecifierAST *&node);
+    bool parseBuiltinTypeSpecifier(SpecifierListAST *&node);
+    bool parseAttributeSpecifier(SpecifierListAST *&node);
     bool parseAttributeList(AttributeListAST *&node);
 
-    bool parseSimpleTypeSpecifier(SpecifierAST *&node)
+    bool parseSimpleTypeSpecifier(SpecifierListAST *&node)
     { return parseDeclSpecifierSeq(node, true, true); }
 
-    bool parseTypeSpecifier(SpecifierAST *&node)
+    bool parseTypeSpecifier(SpecifierListAST *&node)
     { return parseDeclSpecifierSeq(node, true); }
 
-    bool parseDeclSpecifierSeq(SpecifierAST *&node,
+    bool parseDeclSpecifierSeq(SpecifierListAST *&node,
                                bool onlyTypeSpecifiers = false,
                                bool simplified = false);
     bool parseUnaryExpression(ExpressionAST *&node);
@@ -214,9 +214,9 @@ public:
     bool parseObjCExpression(ExpressionAST *&node);
     bool parseObjCClassForwardDeclaration(DeclarationAST *&node);
     bool parseObjCInterface(DeclarationAST *&node,
-                            SpecifierAST *attributes = 0);
+                            SpecifierListAST *attributes = 0);
     bool parseObjCProtocol(DeclarationAST *&node,
-                           SpecifierAST *attributes = 0);
+                           SpecifierListAST *attributes = 0);
 
     bool parseObjCSynchronizedStatement(StatementAST *&node);
     bool parseObjCEncodeExpression(ExpressionAST *&node);
@@ -236,7 +236,7 @@ public:
     bool parseObjCInterfaceMemberDeclaration(DeclarationAST *&node);
     bool parseObjCInstanceVariableDeclaration(DeclarationAST *&node);
     bool parseObjCPropertyDeclaration(DeclarationAST *&node,
-                                      SpecifierAST *attributes = 0);
+                                      SpecifierListAST *attributes = 0);
     bool parseObjCImplementation(DeclarationAST *&node);
     bool parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node);
     bool parseObjCPropertyAttribute(ObjCPropertyAttributeAST *&node);
@@ -264,7 +264,7 @@ public:
     void match(int kind, unsigned *token);
 
     bool maybeAmbiguousStatement(DeclarationStatementAST *ast) const;
-    bool maybeForwardOrClassDeclaration(SpecifierAST *decl_specifier_seq) const;
+    bool maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq) const;
     bool isPointerDeclaration(DeclarationStatementAST *ast) const;
 
 private:

@@ -402,16 +402,15 @@ bool FindUsages::visit(TemplateIdAST *ast)
 
 bool FindUsages::visit(ParameterDeclarationAST *ast)
 {
-    for (SpecifierAST *spec = ast->type_specifier; spec; spec = spec->next)
-        accept(spec);
+    for (SpecifierListAST *it = ast->type_specifier; it; it = it->next)
+        accept(it->value);
 
     if (DeclaratorAST *declarator = ast->declarator) {
-        for (SpecifierAST *attr = declarator->attributes; attr; attr = attr->next)
-            accept(attr);
-
-        for (PtrOperatorListAST *it = declarator->ptr_operators; it; it = it->next) {
+        for (SpecifierListAST *it = declarator->attributes; it; it = it->next)
             accept(it->value);
-        }
+
+        for (PtrOperatorListAST *it = declarator->ptr_operators; it; it = it->next)
+            accept(it->value);
 
         if (! _inSimpleDeclaration) // visit the core declarator only if we are not in simple-declaration.
             accept(declarator->core_declarator);
@@ -419,8 +418,8 @@ bool FindUsages::visit(ParameterDeclarationAST *ast)
         for (PostfixDeclaratorListAST *it = declarator->postfix_declarators; it; it = it->next)
             accept(it->value);
 
-        for (SpecifierAST *spec = declarator->post_attributes; spec; spec = spec->next)
-            accept(spec);
+        for (SpecifierListAST *it = declarator->post_attributes; it; it = it->next)
+            accept(it->value);
 
         accept(declarator->initializer);
     }
@@ -439,8 +438,8 @@ bool FindUsages::visit(FunctionDeclaratorAST *ast)
 {
     accept(ast->parameters);
 
-    for (SpecifierAST *spec = ast->cv_qualifier_seq; spec; spec = spec->next)
-        accept(spec);
+    for (SpecifierListAST *it = ast->cv_qualifier_seq; it; it = it->next)
+        accept(it->value);
 
     accept(ast->exception_specification);
 

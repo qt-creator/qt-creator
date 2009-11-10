@@ -244,9 +244,8 @@ void CheckUndefinedSymbols::endVisit(FunctionDeclaratorAST *)
     _functionDeclaratorStack.removeLast();
 }
 
-bool CheckUndefinedSymbols::visit(TypeofSpecifierAST *ast)
+bool CheckUndefinedSymbols::visit(TypeofSpecifierAST *)
 {
-    accept(ast->next);
     return false;
 }
 
@@ -425,9 +424,9 @@ bool CheckUndefinedSymbols::visit(CastExpressionAST *ast)
 {
     if (ast->lparen_token && ast->type_id && ast->rparen_token && ast->expression) {
         if (TypeIdAST *cast_type_id = ast->type_id->asTypeId()) {
-            SpecifierAST *type_specifier = cast_type_id->type_specifier;
+            SpecifierListAST *type_specifier = cast_type_id->type_specifier;
             if (! cast_type_id->declarator && type_specifier && ! type_specifier->next &&
-                type_specifier->asNamedTypeSpecifier() && ast->expression &&
+                type_specifier->value->asNamedTypeSpecifier() && ast->expression &&
                 ast->expression->asUnaryExpression()) {
                 // this ast node is ambigious, e.g.
                 //   (a) + b
@@ -448,9 +447,9 @@ bool CheckUndefinedSymbols::visit(SizeofExpressionAST *ast)
 {
     if (ast->lparen_token && ast->expression && ast->rparen_token) {
         if (TypeIdAST *type_id = ast->expression->asTypeId()) {
-            SpecifierAST *type_specifier = type_id->type_specifier;
+            SpecifierListAST *type_specifier = type_id->type_specifier;
             if (! type_id->declarator && type_specifier && ! type_specifier->next &&
-                type_specifier->asNamedTypeSpecifier()) {
+                type_specifier->value->asNamedTypeSpecifier()) {
                 // this sizeof expression is ambiguos, e.g.
                 // sizeof (a)
                 //   `a' can be a typeid or a nested-expression.

@@ -259,9 +259,6 @@ protected:
 class CPLUSPLUS_EXPORT SpecifierAST: public AST
 {
 public:
-    SpecifierAST *next;
-
-public:
     virtual SpecifierAST *asSpecifier() { return this; }
 };
 
@@ -370,11 +367,11 @@ public:
 class CPLUSPLUS_EXPORT DeclaratorAST: public AST
 {
 public:
-    SpecifierAST *attributes;
+    SpecifierListAST *attributes;
     PtrOperatorListAST *ptr_operators;
     CoreDeclaratorAST *core_declarator;
     PostfixDeclaratorListAST *postfix_declarators;
-    SpecifierAST *post_attributes;
+    SpecifierListAST *post_attributes;
     unsigned equals_token;
     ExpressionAST *initializer;
 
@@ -392,7 +389,7 @@ class CPLUSPLUS_EXPORT SimpleDeclarationAST: public DeclarationAST
 {
 public:
     unsigned qt_invokable_token;
-    SpecifierAST *decl_specifier_seq;
+    SpecifierListAST *decl_specifier_seq;
     DeclaratorListAST *declarators;
     unsigned semicolon_token;
 
@@ -557,7 +554,7 @@ class CPLUSPLUS_EXPORT ClassSpecifierAST: public SpecifierAST
 {
 public:
     unsigned classkey_token;
-    SpecifierAST *attributes;
+    SpecifierListAST *attributes;
     NameAST *name;
     unsigned colon_token;
     BaseSpecifierListAST *base_clause_list;
@@ -619,7 +616,7 @@ protected:
 class CPLUSPLUS_EXPORT ConditionAST: public ExpressionAST
 {
 public:
-    SpecifierAST *type_specifier;
+    SpecifierListAST *type_specifier;
     DeclaratorAST *declarator;
 
 public:
@@ -741,7 +738,7 @@ public:
     unsigned lparen_token;
     ParameterDeclarationClauseAST *parameters;
     unsigned rparen_token;
-    SpecifierAST *cv_qualifier_seq;
+    SpecifierListAST *cv_qualifier_seq;
     ExceptionSpecificationAST *exception_specification;
     ExpressionAST *as_cpp_initializer;
 
@@ -885,7 +882,7 @@ protected:
 class CPLUSPLUS_EXPORT ExceptionDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierAST *type_specifier;
+    SpecifierListAST *type_specifier;
     DeclaratorAST *declarator;
     unsigned dot_dot_dot_token;
 
@@ -954,7 +951,7 @@ class CPLUSPLUS_EXPORT FunctionDefinitionAST: public DeclarationAST
 {
 public:
     unsigned qt_invokable_token;
-    SpecifierAST *decl_specifier_seq;
+    SpecifierListAST *decl_specifier_seq;
     DeclaratorAST *declarator;
     CtorInitializerAST *ctor_initializer;
     StatementAST *function_body;
@@ -978,7 +975,7 @@ public:
     unsigned foreach_token;
     unsigned lparen_token;
     // declaration
-    SpecifierAST *type_specifiers;
+    SpecifierListAST *type_specifiers;
     DeclaratorAST *declarator;
     // or an expression
     ExpressionAST *initializer;
@@ -1197,7 +1194,7 @@ class CPLUSPLUS_EXPORT ConversionFunctionIdAST: public NameAST
 {
 public:
     unsigned operator_token;
-    SpecifierAST *type_specifier;
+    SpecifierListAST *type_specifier;
     PtrOperatorListAST *ptr_operators;
 
 public:
@@ -1264,7 +1261,7 @@ class CPLUSPLUS_EXPORT NamespaceAST: public DeclarationAST
 public:
     unsigned namespace_token;
     unsigned identifier_token;
-    SpecifierAST *attributes;
+    SpecifierListAST *attributes;
     DeclarationAST *linkage_body;
 
 public: // annotations
@@ -1378,7 +1375,7 @@ protected:
 class CPLUSPLUS_EXPORT NewTypeIdAST: public AST
 {
 public:
-    SpecifierAST *type_specifier;
+    SpecifierListAST *type_specifier;
     PtrOperatorListAST *ptr_operators;
     NewArrayDeclaratorListAST *new_array_declarators;
 
@@ -1412,7 +1409,7 @@ protected:
 class CPLUSPLUS_EXPORT ParameterDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierAST *type_specifier;
+    SpecifierListAST *type_specifier;
     DeclaratorAST *declarator;
     unsigned equal_token;
     ExpressionAST *expression;
@@ -1558,7 +1555,7 @@ protected:
 class CPLUSPLUS_EXPORT TypeConstructorCallAST: public ExpressionAST
 {
 public:
-    SpecifierAST *type_specifier;
+    SpecifierListAST *type_specifier;
     unsigned lparen_token;
     ExpressionListAST *expression_list;
     unsigned rparen_token;
@@ -1601,7 +1598,7 @@ public:
     unsigned global_scope_token;
     NestedNameSpecifierListAST *nested_name_specifier;
     unsigned star_token;
-    SpecifierAST *cv_qualifier_seq;
+    SpecifierListAST *cv_qualifier_seq;
 
 public:
     virtual PointerToMemberAST *asPointerToMember() { return this; }
@@ -1617,7 +1614,7 @@ class CPLUSPLUS_EXPORT PointerAST: public PtrOperatorAST
 {
 public:
     unsigned star_token;
-    SpecifierAST *cv_qualifier_seq;
+    SpecifierListAST *cv_qualifier_seq;
 
 public:
     virtual PointerAST *asPointer() { return this; }
@@ -1921,7 +1918,7 @@ protected:
 class CPLUSPLUS_EXPORT TypeIdAST: public ExpressionAST
 {
 public:
-    SpecifierAST *type_specifier;
+    SpecifierListAST *type_specifier;
     DeclaratorAST *declarator;
 
 public:
@@ -2063,7 +2060,7 @@ protected:
 class CPLUSPLUS_EXPORT ObjCClassForwardDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierAST *attributes;
+    SpecifierListAST *attributes;
     unsigned class_token;
     ObjCIdentifierListAST *identifier_list;
     unsigned semicolon_token;
@@ -2084,7 +2081,7 @@ protected:
 class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierAST *attributes;
+    SpecifierListAST *attributes;
     unsigned interface_token;
     unsigned implementation_token;
     NameAST *class_name;
@@ -2114,7 +2111,7 @@ protected:
 class CPLUSPLUS_EXPORT ObjCProtocolForwardDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierAST *attributes;
+    SpecifierListAST *attributes;
     unsigned protocol_token;
     ObjCIdentifierListAST *identifier_list;
     unsigned semicolon_token;
@@ -2135,7 +2132,7 @@ protected:
 class CPLUSPLUS_EXPORT ObjCProtocolDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierAST *attributes;
+    SpecifierListAST *attributes;
     unsigned protocol_token;
     NameAST *name;
     ObjCProtocolRefsAST *protocol_refs;
@@ -2384,7 +2381,7 @@ protected:
 class CPLUSPLUS_EXPORT ObjCPropertyDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierAST *attributes;
+    SpecifierListAST *attributes;
     unsigned property_token;
     unsigned lparen_token;
     ObjCPropertyAttributeListAST *property_attributes;
@@ -2405,7 +2402,7 @@ class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationAST: public NameAST
 {
 public:
     ObjCTypeNameAST* type_name;
-    SpecifierAST *attributes;
+    SpecifierListAST *attributes;
     unsigned param_name_token;
 
 public: // annotations
@@ -2429,7 +2426,7 @@ public:
     ObjCSelectorAST *selector;
     ObjCMessageArgumentDeclarationListAST *arguments;
     unsigned dot_dot_dot_token;
-    SpecifierAST *attributes;
+    SpecifierListAST *attributes;
 
 public: // annotations
     ObjCMethod *symbol;
@@ -2519,7 +2516,7 @@ public:
     unsigned lparen_token;
 
     // declaration
-    SpecifierAST *type_specifiers;
+    SpecifierListAST *type_specifiers;
     DeclaratorAST *declarator;
     // or an expression
     ExpressionAST *initializer;

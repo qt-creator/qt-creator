@@ -196,9 +196,9 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
     FullySpecifiedType funTy(fun);
     _fullySpecifiedType = funTy;
 
-    for (SpecifierAST *it = ast->cv_qualifier_seq; it; it = it->next) {
-        SimpleSpecifierAST *cv = static_cast<SimpleSpecifierAST *>(it);
-        int k = tokenKind(cv->specifier_token);
+    for (SpecifierListAST *it = ast->cv_qualifier_seq; it; it = it->next) {
+        SimpleSpecifierAST *cv = static_cast<SimpleSpecifierAST *>(it->value);
+        const int k = tokenKind(cv->specifier_token);
         if (k == T_CONST)
             fun->setConst(true);
         else if (k == T_VOLATILE)
@@ -278,9 +278,10 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
     return false;
 }
 
-void CheckDeclarator::applyCvQualifiers(SpecifierAST *cv)
+void CheckDeclarator::applyCvQualifiers(SpecifierListAST *it)
 {
-    for (; cv; cv = cv->next) {
+    for (; it; it = it->next) {
+        SpecifierAST *cv = it->value;
         SimpleSpecifierAST *spec = static_cast<SimpleSpecifierAST *>(cv);
         switch (translationUnit()->tokenKind(spec->specifier_token)) {
         case T_VOLATILE:

@@ -397,8 +397,8 @@ void tst_AST::while_condition_statement()
     ConditionAST *condition = stmt->condition->asCondition();
     QVERIFY(condition != 0);
     QVERIFY(condition->type_specifier != 0);
-    QVERIFY(condition->type_specifier->asSimpleSpecifier() != 0);
-    QCOMPARE(condition->type_specifier->asSimpleSpecifier()->specifier_token, 3U);
+    QVERIFY(condition->type_specifier->value->asSimpleSpecifier() != 0);
+    QCOMPARE(condition->type_specifier->value->asSimpleSpecifier()->specifier_token, 3U);
     QVERIFY(condition->type_specifier->next == 0);
     QVERIFY(condition->declarator != 0);
     QVERIFY(condition->declarator->core_declarator != 0);
@@ -463,7 +463,7 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QVERIFY(simple_decl->declarators->next == 0);
     QCOMPARE(simple_decl->semicolon_token, 6U);
 
-    NamedTypeSpecifierAST *named_ty = simple_decl->decl_specifier_seq->asNamedTypeSpecifier();
+    NamedTypeSpecifierAST *named_ty = simple_decl->decl_specifier_seq->value->asNamedTypeSpecifier();
     QVERIFY(named_ty != 0);
     QVERIFY(named_ty->name != 0);
 
@@ -506,10 +506,10 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QVERIFY(param);
     QVERIFY(param->type_specifier != 0);
     QVERIFY(param->type_specifier->next == 0);
-    QVERIFY(param->type_specifier->asNamedTypeSpecifier() != 0);
-    QVERIFY(param->type_specifier->asNamedTypeSpecifier()->name != 0);
-    QVERIFY(param->type_specifier->asNamedTypeSpecifier()->name->asSimpleName() != 0);
-    QCOMPARE(param->type_specifier->asNamedTypeSpecifier()->name->asSimpleName()->identifier_token, 4U);
+    QVERIFY(param->type_specifier->value->asNamedTypeSpecifier() != 0);
+    QVERIFY(param->type_specifier->value->asNamedTypeSpecifier()->name != 0);
+    QVERIFY(param->type_specifier->value->asNamedTypeSpecifier()->name->asSimpleName() != 0);
+    QCOMPARE(param->type_specifier->value->asNamedTypeSpecifier()->name->asSimpleName()->identifier_token, 4U);
 }
 
 void tst_AST::objc_attributes_followed_by_at_keyword()
@@ -655,7 +655,7 @@ void tst_AST::objc_msg_send_expression()
 
         {// check the type (NSObject)
             QVERIFY(simpleDecl->decl_specifier_seq && !simpleDecl->decl_specifier_seq->next);
-            NamedTypeSpecifierAST *namedType = simpleDecl->decl_specifier_seq->asNamedTypeSpecifier();
+            NamedTypeSpecifierAST *namedType = simpleDecl->decl_specifier_seq->value->asNamedTypeSpecifier();
             QVERIFY(namedType && namedType->name);
             SimpleNameAST *typeName = namedType->name->asSimpleName();
             QVERIFY(typeName);

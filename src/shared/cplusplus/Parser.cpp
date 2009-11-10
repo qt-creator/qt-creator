@@ -502,7 +502,7 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
     default: {
         if (_objCEnabled && LA() == T___ATTRIBUTE__) {
             const unsigned start = cursor();
-            SpecifierAST *attributes = 0, **attr = &attributes;
+            SpecifierListAST *attributes = 0, **attr = &attributes;
             while (parseAttributeSpecifier(*attr))
                 attr = &(*attr)->next;
             if (LA() == T_AT_INTERFACE)
@@ -602,7 +602,7 @@ bool Parser::parseNamespace(DeclarationAST *&node)
     ast->namespace_token = namespace_token;
     if (LA() == T_IDENTIFIER)
         ast->identifier_token = consumeToken();
-    SpecifierAST **attr_ptr = &ast->attributes;
+    SpecifierListAST **attr_ptr = &ast->attributes;
     while (LA() == T___ATTRIBUTE__) {
         parseAttributeSpecifier(*attr_ptr);
         attr_ptr = &(*attr_ptr)->next;
@@ -657,7 +657,7 @@ bool Parser::parseConversionFunctionId(NameAST *&node)
     if (LA() != T_OPERATOR)
         return false;
     unsigned operator_token = consumeToken();
-    SpecifierAST *type_specifier = 0;
+    SpecifierListAST *type_specifier = 0;
     if (! parseTypeSpecifier(type_specifier)) {
         return false;
     }
@@ -931,11 +931,13 @@ bool Parser::parseOperator(OperatorAST *&node) // ### FIXME
     return true;
 }
 
-bool Parser::parseCvQualifiers(SpecifierAST *&node)
+bool Parser::parseCvQualifiers(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
+
     unsigned start = cursor();
-    SpecifierAST **ast = &node;
+
+    SpecifierListAST **ast = &node;
     while (*ast)
         ast = &(*ast)->next;
 
@@ -943,7 +945,7 @@ bool Parser::parseCvQualifiers(SpecifierAST *&node)
         if (tk == T_CONST || tk == T_VOLATILE) {
             SimpleSpecifierAST *spec = new (_pool) SimpleSpecifierAST;
             spec->specifier_token = consumeToken();
-            *ast = spec;
+            *ast = new (_pool) SpecifierListAST(spec);
             ast = &(*ast)->next;
         } else if(LA() == T___ATTRIBUTE__) {
             parseAttributeSpecifier(*ast);
@@ -1007,24 +1009,24 @@ bool Parser::parseTemplateArgument(ExpressionAST *&node)
     return parsed;
 }
 
-bool Parser::parseDeclSpecifierSeq(SpecifierAST *&decl_specifier_seq,
+bool Parser::parseDeclSpecifierSeq(SpecifierListAST *&decl_specifier_seq,
                                    bool onlyTypeSpecifiers,
                                    bool simplified)
 {
     DEBUG_THIS_RULE();
     bool has_type_specifier = false;
     NameAST *named_type_specifier = 0;
-    SpecifierAST **decl_specifier_seq_ptr = &decl_specifier_seq;
+    SpecifierListAST **decl_specifier_seq_ptr = &decl_specifier_seq;
     for (;;) {
         if (lookAtCVQualifier()) {
             SimpleSpecifierAST *spec = new (_pool) SimpleSpecifierAST;
             spec->specifier_token = consumeToken();
-            *decl_specifier_seq_ptr = spec;
+            *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(spec);
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
         } else if (! onlyTypeSpecifiers && lookAtStorageClassSpecifier()) {
             SimpleSpecifierAST *spec = new (_pool) SimpleSpecifierAST;
             spec->specifier_token = consumeToken();
-            *decl_specifier_seq_ptr = spec;
+            *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(spec);
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
         } else if (! named_type_specifier && lookAtBuiltinTypeSpecifier()) {
             parseBuiltinTypeSpecifier(*decl_specifier_seq_ptr);
@@ -1036,7 +1038,7 @@ bool Parser::parseDeclSpecifierSeq(SpecifierAST *&decl_specifier_seq,
                 return false;
             NamedTypeSpecifierAST *spec = new (_pool) NamedTypeSpecifierAST;
             spec->name = named_type_specifier;
-            *decl_specifier_seq_ptr = spec;
+            *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(spec);
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
             has_type_specifier = true;
         } else if (! simplified && ! has_type_specifier && (LA() == T_TYPENAME ||
@@ -1075,8 +1077,8 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
 {
     DEBUG_THIS_RULE();
     unsigned start = cursor();
-    SpecifierAST *attributes = 0;
-    SpecifierAST **attribute_ptr = &attributes;
+    SpecifierListAST *attributes = 0;
+    SpecifierListAST **attribute_ptr = &attributes;
     while (LA() == T___ATTRIBUTE__) {
         parseAttributeSpecifier(*attribute_ptr);
         attribute_ptr = &(*attribute_ptr)->next;
@@ -1207,7 +1209,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
             consumeToken(); // skip T_RPAREN
     }
 
-    SpecifierAST **spec_ptr = &node->post_attributes;
+    SpecifierListAST **spec_ptr = &node->post_attributes;
     while (LA() == T___ATTRIBUTE__) {
         parseAttributeSpecifier(*spec_ptr);
         spec_ptr = &(*spec_ptr)->next;
@@ -1296,7 +1298,7 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node)
     return true;
 }
 
-bool Parser::parseEnumSpecifier(SpecifierAST *&node)
+bool Parser::parseEnumSpecifier(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_ENUM) {
@@ -1327,7 +1329,7 @@ bool Parser::parseEnumSpecifier(SpecifierAST *&node)
                     match(T_COMMA, &comma_token);
             }
             match(T_RBRACE, &ast->rbrace_token);
-            node = ast;
+            node = new (_pool) SpecifierListAST(ast);
             return true;
         }
     }
@@ -1428,7 +1430,7 @@ bool Parser::parseTypeParameter(DeclarationAST *&node)
 bool Parser::parseTypeId(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
-    SpecifierAST *type_specifier = 0;
+    SpecifierListAST *type_specifier = 0;
     if (parseTypeSpecifier(type_specifier)) {
         TypeIdAST *ast = new (_pool) TypeIdAST;
         ast->type_specifier = type_specifier;
@@ -1504,7 +1506,7 @@ bool Parser::parseParameterDeclarationList(DeclarationListAST *&node)
 bool Parser::parseParameterDeclaration(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
-    SpecifierAST *decl_specifier_seq = 0;
+    SpecifierListAST *decl_specifier_seq = 0;
     if (parseDeclSpecifierSeq(decl_specifier_seq)) {
         ParameterDeclarationAST *ast = new (_pool) ParameterDeclarationAST;
         ast->type_specifier = decl_specifier_seq;
@@ -1520,7 +1522,7 @@ bool Parser::parseParameterDeclaration(DeclarationAST *&node)
     return false;
 }
 
-bool Parser::parseClassSpecifier(SpecifierAST *&node)
+bool Parser::parseClassSpecifier(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (! lookAtClassKey())
@@ -1528,7 +1530,7 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
 
     unsigned classkey_token = consumeToken();
 
-    SpecifierAST *attributes = 0, **attr_ptr = &attributes;
+    SpecifierListAST *attributes = 0, **attr_ptr = &attributes;
     while (LA() == T___ATTRIBUTE__) {
         parseAttributeSpecifier(*attr_ptr);
         attr_ptr = &(*attr_ptr)->next;
@@ -1601,7 +1603,7 @@ bool Parser::parseClassSpecifier(SpecifierAST *&node)
                 skipUntilDeclaration();
             }
         }
-        node = ast;
+        node = new (_pool) SpecifierListAST(ast);
         parsed = true;
     }
 
@@ -1684,19 +1686,17 @@ bool Parser::parseCtorInitializer(CtorInitializerAST *&node)
     return false;
 }
 
-bool Parser::parseElaboratedTypeSpecifier(SpecifierAST *&node)
+bool Parser::parseElaboratedTypeSpecifier(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (lookAtClassKey() || LA() == T_ENUM || LA() == T_TYPENAME) {
         unsigned classkey_token = consumeToken();
         NameAST *name = 0;
         if (parseName(name)) {
-            ElaboratedTypeSpecifierAST *ast =
-                    new (_pool) ElaboratedTypeSpecifierAST;
-
+            ElaboratedTypeSpecifierAST *ast = new (_pool) ElaboratedTypeSpecifierAST;
             ast->classkey_token = classkey_token;
             ast->name = name;
-            node = ast;
+            node = new (_pool) SpecifierListAST(ast);
             return true;
         }
     }
@@ -2169,8 +2169,8 @@ bool Parser::isPointerDeclaration(DeclarationStatementAST *ast) const
         return false;
 
     if (SimpleDeclarationAST *declaration = ast->declaration->asSimpleDeclaration()) {
-        if (SpecifierAST *spec = declaration->decl_specifier_seq) {
-            if (spec->asNamedTypeSpecifier() && ! spec->next) {
+        if (SpecifierListAST *spec = declaration->decl_specifier_seq) {
+            if (spec->value->asNamedTypeSpecifier() && ! spec->next) {
                 if (DeclaratorListAST *declarators = declaration->declarators) {
                     if (DeclaratorAST *declarator = declarators->value) {
                         if (declarator->ptr_operators && declarator->equals_token && declarator->initializer) {
@@ -2191,8 +2191,8 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast) const
         return false;
 
     if (SimpleDeclarationAST *declaration = ast->declaration->asSimpleDeclaration()) {
-        if (SpecifierAST *spec = declaration->decl_specifier_seq) {
-            if (spec->asNamedTypeSpecifier() && ! spec->next) {
+        if (SpecifierListAST *spec = declaration->decl_specifier_seq) {
+            if (spec->value->asNamedTypeSpecifier() && ! spec->next) {
                 if (DeclaratorListAST *declarators = declaration->declarators) {
                     if (DeclaratorAST *declarator = declarators->value) {
                         if (declarator->core_declarator &&
@@ -2268,7 +2268,7 @@ bool Parser::parseCondition(ExpressionAST *&node)
     unsigned start = cursor();
 
     bool blocked = blockErrors(true);
-    SpecifierAST *type_specifier = 0;
+    SpecifierListAST *type_specifier = 0;
     if (parseTypeSpecifier(type_specifier)) {
         DeclaratorAST *declarator = 0;
         if (parseInitDeclarator(declarator, /*acceptStructDeclarator=*/false)) {
@@ -2673,7 +2673,7 @@ bool Parser::lookAtClassKey() const
     }
 }
 
-bool Parser::parseAttributeSpecifier(SpecifierAST *&node)
+bool Parser::parseAttributeSpecifier(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() != T___ATTRIBUTE__)
@@ -2686,7 +2686,7 @@ bool Parser::parseAttributeSpecifier(SpecifierAST *&node)
     parseAttributeList(ast->attributes);
     match(T_RPAREN, &ast->first_rparen_token);
     match(T_RPAREN, &ast->second_rparen_token);
-    node = ast;
+    node = new (_pool) SpecifierListAST(ast);
     return true;
 }
 
@@ -2711,7 +2711,7 @@ bool Parser::parseAttributeList(AttributeListAST *&node) // ### create the AST
     return true;
 }
 
-bool Parser::parseBuiltinTypeSpecifier(SpecifierAST *&node)
+bool Parser::parseBuiltinTypeSpecifier(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T___ATTRIBUTE__) {
@@ -2724,18 +2724,18 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierAST *&node)
             if (parseTypeId(ast->expression) && LA() == T_RPAREN) {
                 ast->lparen_token = lparen_token;
                 ast->rparen_token = consumeToken();
-                node = ast;
+                node = new (_pool) SpecifierListAST(ast);
                 return true;
             }
             rewind(lparen_token);
         }
         parseUnaryExpression(ast->expression);
-        node = ast;
+        node = new (_pool) SpecifierListAST(ast);
         return true;
     } else if (lookAtBuiltinTypeSpecifier()) {
         SimpleSpecifierAST *ast = new (_pool) SimpleSpecifierAST;
         ast->specifier_token = consumeToken();
-        node = ast;
+        node = new (_pool) SpecifierListAST(ast);
         return true;
     }
     return false;
@@ -2755,14 +2755,14 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
     bool has_complex_type_specifier = false;
     unsigned startOfNamedTypeSpecifier = 0;
     NameAST *named_type_specifier = 0;
-    SpecifierAST *decl_specifier_seq = 0,
+    SpecifierListAST *decl_specifier_seq = 0,
          **decl_specifier_seq_ptr = &decl_specifier_seq;
     for (;;) {
         if (lookAtCVQualifier() || lookAtFunctionSpecifier()
                 || lookAtStorageClassSpecifier()) {
             SimpleSpecifierAST *spec = new (_pool) SimpleSpecifierAST;
             spec->specifier_token = consumeToken();
-            *decl_specifier_seq_ptr = spec;
+            *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(spec);
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
         } else if (LA() == T___ATTRIBUTE__) {
             parseAttributeSpecifier(*decl_specifier_seq_ptr);
@@ -2777,7 +2777,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
             if (parseName(named_type_specifier)) {
                 NamedTypeSpecifierAST *spec = new (_pool) NamedTypeSpecifierAST;
                 spec->name = named_type_specifier;
-                *decl_specifier_seq_ptr = spec;
+                *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(spec);
                 decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
                 has_type_specifier = true;
             } else {
@@ -2834,7 +2834,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
         rewind(startOfNamedTypeSpecifier);
         named_type_specifier = 0;
         // pop the named type specifier from the decl-specifier-seq
-        SpecifierAST **spec_ptr = &decl_specifier_seq;
+        SpecifierListAST **spec_ptr = &decl_specifier_seq;
         for (; *spec_ptr; spec_ptr = &(*spec_ptr)->next) {
             if (! (*spec_ptr)->next) {
                 *spec_ptr = 0;
@@ -2907,13 +2907,13 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
     return false;
 }
 
-bool Parser::maybeForwardOrClassDeclaration(SpecifierAST *decl_specifier_seq) const
+bool Parser::maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq) const
 {
     // look at the decl_specifier for possible fwd or class declarations.
-    if (SpecifierAST *spec = decl_specifier_seq) {
-        if (! spec->next && (spec->asElaboratedTypeSpecifier() ||
-                             spec->asEnumSpecifier() ||
-                             spec->asClassSpecifier()))
+    if (SpecifierListAST *spec = decl_specifier_seq) {
+        if (! spec->next && (spec->value->asElaboratedTypeSpecifier() ||
+                             spec->value->asEnumSpecifier() ||
+                             spec->value->asClassSpecifier()))
             return true;
     }
 
@@ -2985,7 +2985,7 @@ bool Parser::parseExceptionDeclaration(ExceptionDeclarationAST *&node)
         return true;
     }
 
-    SpecifierAST *type_specifier = 0;
+    SpecifierListAST *type_specifier = 0;
     if (parseTypeSpecifier(type_specifier)) {
         ExceptionDeclarationAST *ast = new (_pool) ExceptionDeclarationAST;
         ast->type_specifier = type_specifier;
@@ -3539,7 +3539,7 @@ bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
 
     default: {
         unsigned start = cursor();
-        SpecifierAST *type_specifier = 0;
+        SpecifierListAST *type_specifier = 0;
         bool blocked = blockErrors(true);
         if (lookAtBuiltinTypeSpecifier() &&
                 parseSimpleTypeSpecifier(type_specifier) &&
@@ -3794,7 +3794,7 @@ bool Parser::parseNewExpression(ExpressionAST *&node)
 bool Parser::parseNewTypeId(NewTypeIdAST *&node)
 {
     DEBUG_THIS_RULE();
-    SpecifierAST *typeSpec = 0;
+    SpecifierListAST *typeSpec = 0;
     if (! parseTypeSpecifier(typeSpec))
         return false;
 
@@ -4346,11 +4346,11 @@ bool Parser::parseObjCClassForwardDeclaration(DeclarationAST *&node)
 //                             T_AT_END
 //
 bool Parser::parseObjCInterface(DeclarationAST *&node,
-                                SpecifierAST *attributes)
+                                SpecifierListAST *attributes)
 {
     DEBUG_THIS_RULE();
     if (! attributes && LA() == T___ATTRIBUTE__) {
-        SpecifierAST **attr = &attributes;
+        SpecifierListAST **attr = &attributes;
         while (parseAttributeSpecifier(*attr))
             attr = &(*attr)->next;
     }
@@ -4436,11 +4436,11 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
 // objc-protocol ::= T_AT_PROTOCOL (T_IDENTIFIER @ T_COMMA) T_SEMICOLON
 //
 bool Parser::parseObjCProtocol(DeclarationAST *&node,
-                               SpecifierAST *attributes)
+                               SpecifierListAST *attributes)
 {
     DEBUG_THIS_RULE();
     if (! attributes && LA() == T___ATTRIBUTE__) {
-        SpecifierAST **attr = &attributes;
+        SpecifierListAST **attr = &attributes;
         while (parseAttributeSpecifier(*attr))
             attr = &(*attr)->next;
     }
@@ -4840,7 +4840,7 @@ bool Parser::parseObjCInstanceVariableDeclaration(DeclarationAST *&node)
 // objc-property-declaration ::=
 //    T_AT_PROPERTY T_LPAREN (property-attribute @ T_COMMA) T_RPAREN simple-declaration
 //
-bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *attributes)
+bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierListAST *attributes)
 {
     DEBUG_THIS_RULE();
     if (LA() != T_AT_PROPERTY)
@@ -4943,7 +4943,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
         _translationUnit->error(cursor(), "expected a selector");
     }
 
-    SpecifierAST **attr = &(ast->attributes);
+    SpecifierListAST **attr = &ast->attributes;
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
@@ -5050,7 +5050,7 @@ bool Parser::parseObjCKeywordDeclaration(ObjCSelectorArgumentAST *&argument, Obj
 
     parseObjCTypeName(node->type_name);
 
-    SpecifierAST **attr = &(node->attributes);
+    SpecifierListAST **attr = &node->attributes;
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 

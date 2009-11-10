@@ -146,7 +146,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
     }
 
     if (! ast->declarators && ast->decl_specifier_seq && ! ast->decl_specifier_seq->next) {
-        if (ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_seq->asElaboratedTypeSpecifier()) {
+        if (ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_seq->value->asElaboratedTypeSpecifier()) {
 
             unsigned sourceLocation = elab_type_spec->firstToken();
 

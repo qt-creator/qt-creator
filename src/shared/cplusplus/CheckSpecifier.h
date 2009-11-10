@@ -62,12 +62,12 @@ public:
     CheckSpecifier(Semantic *semantic);
     virtual ~CheckSpecifier();
 
-    FullySpecifiedType check(SpecifierAST *specifier, Scope *scope);
+    FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope);
     FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope);
 
 protected:
-    SpecifierAST *switchSpecifier(SpecifierAST *specifier);
-    FullySpecifiedType switchFullySpecifiedType(FullySpecifiedType type);
+    SpecifierListAST *switchSpecifier(SpecifierListAST *specifier);
+    FullySpecifiedType switchFullySpecifiedType(const FullySpecifiedType &type);
     Scope *switchScope(Scope *scope);
 
     using ASTVisitor::visit;
@@ -83,7 +83,7 @@ protected:
     virtual bool visit(ObjCTypeNameAST *ast);
 
 private:
-    SpecifierAST *_specifier;
+    SpecifierListAST *_specifier;
     FullySpecifiedType _fullySpecifiedType;
     Scope *_scope;
 };

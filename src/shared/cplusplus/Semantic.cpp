@@ -120,7 +120,7 @@ Semantic::~Semantic()
 Control *Semantic::control() const
 { return d->control; }
 
-FullySpecifiedType Semantic::check(SpecifierAST *specifier, Scope *scope)
+FullySpecifiedType Semantic::check(SpecifierListAST *specifier, Scope *scope)
 { return d->checkSpecifier->check(specifier, scope); }
 
 void Semantic::check(DeclarationAST *declaration, Scope *scope, TemplateParameters *templateParameters)

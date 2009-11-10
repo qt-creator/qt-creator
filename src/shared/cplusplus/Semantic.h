@@ -66,7 +66,7 @@ public:
 
     Control *control() const;
 
-    FullySpecifiedType check(SpecifierAST *specifier, Scope *scope);
+    FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope);
 
     FullySpecifiedType check(DeclaratorAST *declarator, FullySpecifiedType type,
                              Scope *scope, Name **name = 0); // ### ugly

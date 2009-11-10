@@ -69,11 +69,11 @@ CheckSpecifier::CheckSpecifier(Semantic *semantic)
 CheckSpecifier::~CheckSpecifier()
 { }
 
-FullySpecifiedType CheckSpecifier::check(SpecifierAST *specifier, Scope *scope)
+FullySpecifiedType CheckSpecifier::check(SpecifierListAST *specifier, Scope *scope)
 {
     FullySpecifiedType previousType = switchFullySpecifiedType(FullySpecifiedType());
     Scope *previousScope = switchScope(scope);
-    SpecifierAST *previousSpecifier = switchSpecifier(specifier);
+    SpecifierListAST *previousSpecifier = switchSpecifier(specifier);
     accept(specifier);
     (void) switchSpecifier(previousSpecifier);
     (void) switchScope(previousScope);
@@ -91,14 +91,14 @@ FullySpecifiedType CheckSpecifier::check(ObjCTypeNameAST *typeName, Scope *scope
     return switchFullySpecifiedType(previousType);
 }
 
-SpecifierAST *CheckSpecifier::switchSpecifier(SpecifierAST *specifier)
+SpecifierListAST *CheckSpecifier::switchSpecifier(SpecifierListAST *specifier)
 {
-    SpecifierAST *previousSpecifier = _specifier;
+    SpecifierListAST *previousSpecifier = _specifier;
     _specifier = specifier;
     return previousSpecifier;
 }
 
-FullySpecifiedType CheckSpecifier::switchFullySpecifiedType(FullySpecifiedType type)
+FullySpecifiedType CheckSpecifier::switchFullySpecifiedType(const FullySpecifiedType &type)
 {
     FullySpecifiedType previousType = _fullySpecifiedType;
     _fullySpecifiedType = type;
@@ -301,7 +301,7 @@ bool CheckSpecifier::visit(SimpleSpecifierAST *ast)
         default:
             break;
     } // switch
-    accept(ast->next);
+
     return false;
 }
 
@@ -354,7 +354,6 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     (void) semantic()->switchMethodKey(previousMethodKey);
     (void) semantic()->switchVisibility(previousVisibility);
 
-    accept(ast->next);
     return false;
 }
 
@@ -362,7 +361,6 @@ bool CheckSpecifier::visit(NamedTypeSpecifierAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
     _fullySpecifiedType.setType(control()->namedType(name));
-    accept(ast->next);
     return false;
 }
 
@@ -370,7 +368,6 @@ bool CheckSpecifier::visit(ElaboratedTypeSpecifierAST *ast)
 {
     Name *name = semantic()->check(ast->name, _scope);
     _fullySpecifiedType.setType(control()->namedType(name));
-    accept(ast->next);
     return false;
 }
 
@@ -397,20 +394,17 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
                                                          enumeratorName);
         e->addMember(decl);
     }
-    accept(ast->next);
     return false;
 }
 
 bool CheckSpecifier::visit(TypeofSpecifierAST *ast)
 {
     semantic()->check(ast->expression, _scope);
-    accept(ast->next);
     return false;
 }
 
 bool CheckSpecifier::visit(AttributeSpecifierAST *ast)
 {
-    accept(ast->next);
     return false;
 }
 

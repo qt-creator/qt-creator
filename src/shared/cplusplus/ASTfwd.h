@@ -205,6 +205,7 @@ typedef List<AttributeAST *> AttributeListAST;
 typedef List<NestedNameSpecifierAST *> NestedNameSpecifierListAST;
 typedef List<CatchClauseAST *> CatchClauseListAST;
 typedef List<PtrOperatorAST *> PtrOperatorListAST;
+typedef List<SpecifierAST *> SpecifierListAST;
 
 typedef List<NameAST *> ObjCIdentifierListAST;
 typedef List<ObjCMessageArgumentAST *> ObjCMessageArgumentListAST;
