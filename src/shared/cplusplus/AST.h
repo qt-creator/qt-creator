@@ -53,11 +53,10 @@
 #include "ASTfwd.h"
 #include "MemoryPool.h"
 
-
 namespace CPlusPlus {
 
 template <typename _Tp>
-class List: public Managed
+class CPLUSPLUS_EXPORT List: public Managed
 {
     List(const List &other);
     void operator =(const List &other);
@@ -66,6 +65,28 @@ public:
     List()
         : value(_Tp()), next(0)
     { }
+
+    unsigned firstToken() const
+    {
+        if (value)
+            return value->firstToken();
+
+        // ### assert(0);
+        return 0;
+    }
+
+    unsigned lastToken() const
+    {
+        unsigned token = 0;
+
+        for (const List *it = this; it; it = it->next) {
+            if (it->value)
+                token = it->value->lastToken();
+        }
+
+        // assert(token != 0);
+        return token;
+    }
 
     _Tp value;
     List *next;
@@ -84,6 +105,13 @@ public:
 
     static void accept(AST *ast, ASTVisitor *visitor)
     { if (ast) ast->accept(visitor); }
+
+    template <typename _Tp>
+    static void accept(List<_Tp> *it, ASTVisitor *visitor)
+    {
+        for (; it; it = it->next)
+            accept(it->value, visitor);
+    }
 
     virtual unsigned firstToken() const = 0;
     virtual unsigned lastToken() const = 0;
@@ -129,7 +157,6 @@ public:
     virtual ExceptionDeclarationAST *asExceptionDeclaration() { return 0; }
     virtual ExceptionSpecificationAST *asExceptionSpecification() { return 0; }
     virtual ExpressionAST *asExpression() { return 0; }
-    virtual ExpressionListAST *asExpressionList() { return 0; }
     virtual ExpressionOrDeclarationStatementAST *asExpressionOrDeclarationStatement() { return 0; }
     virtual ExpressionStatementAST *asExpressionStatement() { return 0; }
     virtual ForStatementAST *asForStatement() { return 0; }
@@ -288,7 +315,6 @@ public:
     ExpressionListAST *expression_list;
     unsigned rparen_token;
     AttributeAST *next;
-    unsigned comma_token;
 
 public:
     virtual AttributeAST *asAttribute() { return this; }
@@ -322,21 +348,18 @@ class CPLUSPLUS_EXPORT StatementAST: public AST
 {
 public:
     virtual StatementAST *asStatement() { return this; }
-
 };
 
 class CPLUSPLUS_EXPORT ExpressionAST: public AST
 {
 public:
     virtual ExpressionAST *asExpression() { return this; }
-
 };
 
 class CPLUSPLUS_EXPORT DeclarationAST: public AST
 {
 public:
     virtual DeclarationAST *asDeclaration() { return this; }
-
 };
 
 class CPLUSPLUS_EXPORT DeclarationListAST: public AST
@@ -359,7 +382,6 @@ class CPLUSPLUS_EXPORT CoreDeclaratorAST: public AST
 {
 public:
     virtual CoreDeclaratorAST *asCoreDeclarator() { return this; }
-
 };
 
 class CPLUSPLUS_EXPORT PostfixDeclaratorAST: public AST
@@ -369,7 +391,6 @@ public:
 
 public:
     virtual PostfixDeclaratorAST *asPostfixDeclarator() { return this; }
-
 };
 
 class CPLUSPLUS_EXPORT DeclaratorAST: public AST
@@ -385,23 +406,6 @@ public:
 
 public:
     virtual DeclaratorAST *asDeclarator() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
-class CPLUSPLUS_EXPORT ExpressionListAST: public AST
-{
-public:
-    unsigned comma_token;
-    ExpressionAST *expression;
-    ExpressionListAST *next;
-
-public:
-    virtual ExpressionListAST *asExpressionList() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -487,7 +491,6 @@ protected:
 class CPLUSPLUS_EXPORT BaseSpecifierAST: public AST
 {
 public:
-    unsigned comma_token;
     unsigned virtual_token;
     unsigned access_specifier_token;
     NameAST *name;
@@ -818,7 +821,6 @@ protected:
 class CPLUSPLUS_EXPORT DeclaratorListAST: public AST
 {
 public:
-    unsigned comma_token;
     DeclaratorAST *declarator;
     DeclaratorListAST *next;
 
@@ -925,7 +927,6 @@ protected:
 class CPLUSPLUS_EXPORT EnumeratorAST: public AST
 {
 public:
-    unsigned comma_token;
     unsigned identifier_token;
     unsigned equal_token;
     ExpressionAST *expression;
@@ -1178,7 +1179,6 @@ protected:
 class CPLUSPLUS_EXPORT MemInitializerAST: public AST
 {
 public:
-    unsigned comma_token;
     NameAST *name;
     unsigned lparen_token;
     ExpressionAST *expression;
@@ -1902,7 +1902,6 @@ protected:
 class CPLUSPLUS_EXPORT TemplateArgumentListAST: public AST
 {
 public:
-    unsigned comma_token;
     ExpressionAST *template_argument;
     TemplateArgumentListAST *next;
 
@@ -2155,7 +2154,6 @@ class CPLUSPLUS_EXPORT IdentifierListAST: public AST
 {
 public:
     NameAST *name;
-    unsigned comma_token;
     IdentifierListAST *next;
 
 public:
@@ -2525,7 +2523,6 @@ class CPLUSPLUS_EXPORT ObjCPropertyAttributeListAST: public AST
 {
 public:
     ObjCPropertyAttributeAST *attr;
-    unsigned comma_token;
     ObjCPropertyAttributeListAST *next;
 
 public:
@@ -2655,7 +2652,6 @@ class CPLUSPLUS_EXPORT ObjCSynthesizedPropertyListAST: public AST
 {
 public:
     ObjCSynthesizedPropertyAST *synthesized_property;
-    unsigned comma_token;
     ObjCSynthesizedPropertyListAST *next;
 
 public:

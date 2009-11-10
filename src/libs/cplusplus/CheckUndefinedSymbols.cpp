@@ -380,15 +380,8 @@ bool CheckUndefinedSymbols::visit(BaseSpecifierAST *base)
                 resolvedBaseClassName = true;
         }
 
-        if (! resolvedBaseClassName) {
-            const char *token = "after `:'";
-
-            if (base->comma_token)
-                token = "after `,'";
-
-            translationUnit()->warning(nameAST->firstToken(),
-                                       "expected class-name %s token", token);
-        }
+        if (! resolvedBaseClassName)
+            translationUnit()->warning(nameAST->firstToken(), "expected class-name");
     }
 
     return true;

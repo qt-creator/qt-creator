@@ -118,12 +118,6 @@ void ResolveExpression::addResult(const Result &r)
 QList<Scope *> ResolveExpression::visibleScopes(const Result &result) const
 { return _context.visibleScopes(result); }
 
-bool ResolveExpression::visit(ExpressionListAST *)
-{
-    // nothing to do.
-    return false;
-}
-
 bool ResolveExpression::visit(BinaryExpressionAST *ast)
 {
     accept(ast->left_expression);

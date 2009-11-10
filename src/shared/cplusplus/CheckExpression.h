@@ -71,7 +71,6 @@ protected:
 
     using ASTVisitor::visit;
 
-    virtual bool visit(ExpressionListAST *ast);
     virtual bool visit(BinaryExpressionAST *ast);
     virtual bool visit(CastExpressionAST *ast);
     virtual bool visit(ConditionAST *ast);

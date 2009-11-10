@@ -100,14 +100,6 @@ Scope *CheckExpression::switchScope(Scope *scope)
     return previousScope;
 }
 
-bool CheckExpression::visit(ExpressionListAST *ast)
-{
-    for (ExpressionListAST *it = ast; it; it = it->next) {
-        FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
-    }
-    return false;
-}
-
 bool CheckExpression::visit(BinaryExpressionAST *ast)
 {
     FullySpecifiedType leftExprTy = semantic()->check(ast->left_expression, _scope);
@@ -161,7 +153,7 @@ bool CheckExpression::visit(DeleteExpressionAST *ast)
 bool CheckExpression::visit(ArrayInitializerAST *ast)
 {
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
-        FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
+        FullySpecifiedType exprTy = semantic()->check(it->value, _scope);
     }
     return false;
 }
@@ -206,7 +198,7 @@ bool CheckExpression::visit(NewExpressionAST *ast)
 {
     if (ast->new_placement) {
         for (ExpressionListAST *it = ast->new_placement->expression_list; it; it = it->next) {
-            FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
+            FullySpecifiedType exprTy = semantic()->check(it->value, _scope);
         }
     }
 
@@ -239,7 +231,7 @@ bool CheckExpression::visit(TypenameCallExpressionAST *ast)
     (void) semantic()->check(ast->name, _scope);
 
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
-        FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
+        FullySpecifiedType exprTy = semantic()->check(it->value, _scope);
         (void) exprTy;
     }
     return false;
@@ -249,7 +241,7 @@ bool CheckExpression::visit(TypeConstructorCallAST *ast)
 {
     FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifier, _scope);
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
-        FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
+        FullySpecifiedType exprTy = semantic()->check(it->value, _scope);
     }
     return false;
 }
@@ -350,7 +342,7 @@ bool CheckExpression::visit(CompoundLiteralAST *ast)
 bool CheckExpression::visit(CallAST *ast)
 {
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
-        FullySpecifiedType exprTy = semantic()->check(it->expression, _scope);
+        FullySpecifiedType exprTy = semantic()->check(it->value, _scope);
     }
     return false;
 }

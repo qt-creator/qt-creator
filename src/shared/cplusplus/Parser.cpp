@@ -719,11 +719,10 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
         (*template_argument_ptr)->template_argument = template_argument;
         template_argument_ptr = &(*template_argument_ptr)->next;
         while (LA() == T_COMMA) {
-            unsigned comma_token = consumeToken();
+            consumeToken(); // consume T_COMMA
 
             if (parseTemplateArgument(template_argument)) {
                 *template_argument_ptr = new (_pool) TemplateArgumentListAST;
-                (*template_argument_ptr)->comma_token = comma_token;
                 (*template_argument_ptr)->template_argument = template_argument;
                 template_argument_ptr = &(*template_argument_ptr)->next;
             }
@@ -1320,7 +1319,6 @@ bool Parser::parseEnumSpecifier(SpecifierAST *&node)
                 }
 
                 if (parseEnumerator(*enumerator_ptr)) {
-                    (*enumerator_ptr)->comma_token = comma_token;
                     enumerator_ptr = &(*enumerator_ptr)->next;
                 }
 
@@ -1791,12 +1789,10 @@ bool Parser::parseBaseClause(BaseSpecifierAST *&node)
             ast = &(*ast)->next;
 
             while (LA() == T_COMMA) {
-                unsigned comma_token = consumeToken();
+                consumeToken(); // consume T_COMMA
 
-                if (parseBaseSpecifier(*ast)) {
-                    (*ast)->comma_token = comma_token;
+                if (parseBaseSpecifier(*ast))
                     ast = &(*ast)->next;
-                }
             }
         }
 
@@ -1825,12 +1821,10 @@ bool Parser::parseMemInitializerList(MemInitializerAST *&node)
     if (parseMemInitializer(*initializer)) {
         initializer = &(*initializer)->next;
         while (LA() == T_COMMA) {
-            unsigned comma_token = consumeToken();
+            consumeToken(); // consume T_COMMA
 
-            if (parseMemInitializer(*initializer)) {
-                (*initializer)->comma_token = comma_token;
+            if (parseMemInitializer(*initializer))
                 initializer = &(*initializer)->next;
-            }
         }
         return true;
     }
@@ -1861,14 +1855,14 @@ bool Parser::parseTypeIdList(ExpressionListAST *&node)
     ExpressionAST *typeId = 0;
     if (parseTypeId(typeId)) {
         *expression_list_ptr = new (_pool) ExpressionListAST;
-        (*expression_list_ptr)->expression = typeId;
+        (*expression_list_ptr)->value = typeId;
         expression_list_ptr = &(*expression_list_ptr)->next;
         while (LA() == T_COMMA) {
             consumeToken();
 
             if (parseTypeId(typeId)) {
                 *expression_list_ptr = new (_pool) ExpressionListAST;
-                (*expression_list_ptr)->expression = typeId;
+                (*expression_list_ptr)->value = typeId;
                 expression_list_ptr = &(*expression_list_ptr)->next;
             }
         }
@@ -1885,15 +1879,14 @@ bool Parser::parseExpressionList(ExpressionListAST *&node)
     ExpressionAST *expression = 0;
     if (parseAssignmentExpression(expression)) {
         *expression_list_ptr = new (_pool) ExpressionListAST;
-        (*expression_list_ptr)->expression = expression;
+        (*expression_list_ptr)->value = expression;
         expression_list_ptr = &(*expression_list_ptr)->next;
         while (LA() == T_COMMA) {
-            unsigned comma_token = consumeToken();
+            consumeToken(); // consume T_COMMA
 
             if (parseExpression(expression)) {
                 *expression_list_ptr = new (_pool) ExpressionListAST;
-                (*expression_list_ptr)->comma_token = comma_token;
-                (*expression_list_ptr)->expression = expression;
+                (*expression_list_ptr)->value = expression;
                 expression_list_ptr = &(*expression_list_ptr)->next;
             }
         }
@@ -1936,15 +1929,14 @@ bool Parser::parseInitializerList(ExpressionListAST *&node)
     ExpressionAST *initializer = 0;
     if (parseInitializerClause(initializer)) {
         *initializer_ptr = new (_pool) ExpressionListAST;
-        (*initializer_ptr)->expression = initializer;
+        (*initializer_ptr)->value = initializer;
         initializer_ptr = &(*initializer_ptr)->next;
         while (LA() == T_COMMA) {
-            unsigned comma_token = consumeToken();
+            consumeToken(); // consume T_COMMA
             initializer = 0;
             parseInitializerClause(initializer);
             *initializer_ptr = new (_pool) ExpressionListAST;
-            (*initializer_ptr)->comma_token = comma_token;
-            (*initializer_ptr)->expression = initializer;
+            (*initializer_ptr)->value = initializer;
             initializer_ptr = &(*initializer_ptr)->next;
         }
     }
@@ -2695,10 +2687,8 @@ bool Parser::parseAttributeList(AttributeAST *&node)
             ast->lparen_token = consumeToken();
             if (LA() == T_IDENTIFIER && (LA(2) == T_COMMA || LA(2) == T_RPAREN)) {
                 ast->tag_token = consumeToken();
-                if (LA() == T_COMMA) {
-                    ast->comma_token = consumeToken();
+                if (LA() == T_COMMA)
                     parseExpressionList(ast->expression_list);
-                }
             } else {
                 parseExpressionList(ast->expression_list);
             }
@@ -2865,11 +2855,11 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
 
     if (LA() == T_COMMA || LA() == T_SEMICOLON || has_complex_type_specifier) {
         while (LA() == T_COMMA) {
-            unsigned comma_token = consumeToken();
+            consumeToken(); // consume T_COMMA
+
             declarator = 0;
             if (parseInitDeclarator(declarator, acceptStructDeclarator)) {
                 *declarator_ptr = new (_pool) DeclaratorListAST;
-                (*declarator_ptr)->comma_token = comma_token;
                 (*declarator_ptr)->declarator = declarator;
                 declarator_ptr = &(*declarator_ptr)->next;
             }
@@ -4314,11 +4304,10 @@ bool Parser::parseObjCClassForwardDeclaration(DeclarationAST *&node)
     IdentifierListAST **nextId = &(ast->identifier_list->next);
 
     while (LA() == T_COMMA) {
-        unsigned comma_token = consumeToken();
+        consumeToken(); // consume T_COMMA
         match(T_IDENTIFIER, &identifier_token);
 
         *nextId = new (_pool) IdentifierListAST;
-        (*nextId)->comma_token = comma_token;
         name = new (_pool) SimpleNameAST;
         name->identifier_token = identifier_token;
         (*nextId)->name = name;
@@ -4465,11 +4454,10 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
         IdentifierListAST **nextId = &(ast->identifier_list->next);
 
         while (LA() == T_COMMA) {
-            unsigned comma_token = consumeToken();
+            consumeToken(); // consume T_COMMA
             match(T_IDENTIFIER, &identifier_token);
 
             *nextId = new (_pool) IdentifierListAST;
-            (*nextId)->comma_token = comma_token;
             name = new (_pool) SimpleNameAST;
             name->identifier_token = identifier_token;
             (*nextId)->name = name;
@@ -4599,7 +4587,8 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
             }
 
             while (LA() == T_COMMA) {
-                last->comma_token = consumeToken();
+                consumeToken(); // consume T_COMMA
+
                 last->next = new (_pool) ObjCSynthesizedPropertyListAST;
                 last = last->next;
 
@@ -4629,11 +4618,12 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
 
             IdentifierListAST *last = ast->property_identifiers;
             while (LA() == T_COMMA) {
-                last->comma_token = consumeToken();
+                consumeToken(); // consume T_COMMA
+
                 last->next = new (_pool) IdentifierListAST;
                 last = last->next;
                 name = new (_pool) SimpleNameAST;
-                match(T_IDENTIFIER, &(name->identifier_token));
+                match(T_IDENTIFIER, &name->identifier_token);
                 last->name = name;
             }
 
@@ -4713,11 +4703,10 @@ bool Parser::parseObjCProtocolRefs(ObjCProtocolRefsAST *&node)
     IdentifierListAST **nextId = &(ast->identifier_list->next);
 
     while (LA() == T_COMMA) {
-        unsigned comma_token = consumeToken();
+        consumeToken(); // consume T_COMMA
         match(T_IDENTIFIER, &identifier_token);
 
         *nextId = new (_pool) IdentifierListAST;
-        (*nextId)->comma_token = comma_token;
         name = new (_pool) SimpleNameAST;
         name->identifier_token = identifier_token;
         (*nextId)->name = name;
@@ -4860,7 +4849,7 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierAST *a
             ObjCPropertyAttributeListAST *last = ast->property_attributes;
 
             while (LA() == T_COMMA) {
-                last->comma_token = consumeToken();
+                consumeToken(); // consume T_COMMA
                 last->next = new (_pool) ObjCPropertyAttributeListAST;
                 last = last->next;
                 if (!parseObjCPropertyAttribute(last->attr)) {

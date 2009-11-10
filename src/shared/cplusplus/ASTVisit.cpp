@@ -90,14 +90,6 @@ void DeclaratorAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void ExpressionListAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(expression, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void SimpleDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

@@ -53,6 +53,8 @@
 
 namespace CPlusPlus {
 
+template <typename _Tp> class List;
+
 class AST;
 class ASTVisitor;
 
@@ -97,7 +99,6 @@ class EnumeratorAST;
 class ExceptionDeclarationAST;
 class ExceptionSpecificationAST;
 class ExpressionAST;
-class ExpressionListAST;
 class ExpressionOrDeclarationStatementAST;
 class ExpressionStatementAST;
 class ForStatementAST;
@@ -199,6 +200,9 @@ class UnaryExpressionAST;
 class UsingAST;
 class UsingDirectiveAST;
 class WhileStatementAST;
+
+typedef List<ExpressionAST *> ExpressionListAST;
+
 
 } // end of namespace CPlusPlus
 

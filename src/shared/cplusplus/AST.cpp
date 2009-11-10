@@ -100,10 +100,9 @@ unsigned AttributeAST::lastToken() const
     if (rparen_token)
         return rparen_token + 1;
 
-    for (ExpressionListAST *it = expression_list;
-            it->expression && it->next; it = it->next) {
-        if (! it->next && it->expression) {
-            return it->expression->lastToken();
+    for (ExpressionListAST *it = expression_list; it->value && it->next; it = it->next) {
+        if (! it->next && it->value) {
+            return it->value->lastToken();
         }
     }
 
@@ -174,8 +173,8 @@ unsigned ArrayInitializerAST::lastToken() const
         return rbrace_token + 1;
 
     for (ExpressionListAST *it = expression_list; it; it = it->next) {
-        if (! it->next && it->expression)
-            return it->expression->lastToken();
+        if (! it->next && it->value)
+            return it->value->lastToken();
     }
 
     return lbrace_token + 1;
@@ -304,8 +303,8 @@ unsigned CallAST::lastToken() const
     if (rparen_token)
         return rparen_token + 1;
     for (ExpressionListAST *it = expression_list; it; it = it->next) {
-        if (! it->next && it->expression)
-            return it->expression->lastToken();
+        if (! it->next && it->value)
+            return it->value->lastToken();
     }
     return lparen_token + 1;
 }
@@ -643,9 +642,6 @@ unsigned DeclaratorIdAST::lastToken() const
 
 unsigned DeclaratorListAST::firstToken() const
 {
-    if (comma_token)
-        return comma_token;
-
     return declarator->firstToken();
 }
 
@@ -655,8 +651,6 @@ unsigned DeclaratorListAST::lastToken() const
         if (! it->next) {
             if (it->declarator)
                 return it->declarator->lastToken();
-            else if (it->comma_token)
-                return it->comma_token + 1;
         }
     }
 
@@ -818,8 +812,8 @@ unsigned ExceptionSpecificationAST::lastToken() const
         return rparen_token + 1;
 
     for (ExpressionListAST *it = type_ids; it; it = it->next) {
-        if (! it->next && it->expression)
-            return it->expression->lastToken();
+        if (! it->next && it->value)
+            return it->value->lastToken();
     }
 
     if (dot_dot_dot_token)
@@ -829,22 +823,6 @@ unsigned ExceptionSpecificationAST::lastToken() const
 
     return throw_token + 1;
 }
-
-
-unsigned ExpressionListAST::firstToken() const
-{
-    return expression->firstToken();
-}
-
-unsigned ExpressionListAST::lastToken() const
-{
-    for (const ExpressionListAST *it = this; it; it = it->next) {
-        if (! it->next)
-            return it->expression->lastToken();
-    }
-    return 0;
-}
-
 
 unsigned ExpressionOrDeclarationStatementAST::firstToken() const
 {
@@ -1908,8 +1886,8 @@ unsigned IdentifierListAST::firstToken() const
 {
     if (name)
         return name->firstToken();
-    else
-        return comma_token;
+    // ### assert?
+    return 0;
 }
 
 unsigned IdentifierListAST::lastToken() const
@@ -2264,8 +2242,6 @@ unsigned ObjCPropertyAttributeListAST::firstToken() const
 {
     if (attr)
         return attr->firstToken();
-    else if (comma_token)
-        return comma_token;
     else if (next)
         return next->lastToken();
     else
@@ -2276,12 +2252,8 @@ unsigned ObjCPropertyAttributeListAST::firstToken() const
 unsigned ObjCPropertyAttributeListAST::lastToken() const
 {
     for (const ObjCPropertyAttributeListAST *it = this; it; it = it->next) {
-        if (! it->next && (comma_token || it->attr)) {
-            if (comma_token)
-                return comma_token + 1;
-            else
-                return it->attr->lastToken();
-        }
+        if (! it->next && it->attr)
+            return it->attr->lastToken();
     }
     // ### assert?
     return 0;
@@ -2407,8 +2379,8 @@ unsigned ObjCSynthesizedPropertyListAST::firstToken() const
 {
     if (synthesized_property)
         return synthesized_property->firstToken();
-    else
-        return comma_token;
+    // ### assert?
+    return 0;
 }
 
 unsigned ObjCSynthesizedPropertyListAST::lastToken() const

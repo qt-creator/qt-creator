@@ -131,7 +131,6 @@ public:
     virtual bool visit(EnumeratorAST *) { return true; }
     virtual bool visit(ExceptionDeclarationAST *) { return true; }
     virtual bool visit(ExceptionSpecificationAST *) { return true; }
-    virtual bool visit(ExpressionListAST *) { return true; }
     virtual bool visit(ExpressionOrDeclarationStatementAST *) { return true; }
     virtual bool visit(ExpressionStatementAST *) { return true; }
     virtual bool visit(ForeachStatementAST *) { return true; }
@@ -269,7 +268,6 @@ public:
     virtual void endVisit(EnumeratorAST *) { }
     virtual void endVisit(ExceptionDeclarationAST *) { }
     virtual void endVisit(ExceptionSpecificationAST *) { }
-    virtual void endVisit(ExpressionListAST *) { }
     virtual void endVisit(ExpressionOrDeclarationStatementAST *) { }
     virtual void endVisit(ExpressionStatementAST *) { }
     virtual void endVisit(ForeachStatementAST *) { }
