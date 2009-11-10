@@ -133,8 +133,8 @@ Name **CheckDeclarator::switchName(Name **name)
 
 bool CheckDeclarator::visit(DeclaratorAST *ast)
 {
-    accept(ast->ptr_operators);
-    accept(ast->postfix_declarators);
+    accept(ast->ptr_operator_list);
+    accept(ast->postfix_declarator_list);
     accept(ast->core_declarator);
 
     if (ast->initializer) {
@@ -172,7 +172,7 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
         fun->setVirtual(true);
 
     if (ast->parameters) {
-        DeclarationListAST *parameter_declarations = ast->parameters->parameter_declarations;
+        DeclarationListAST *parameter_declarations = ast->parameters->parameter_declaration_list;
         for (DeclarationListAST *decl = parameter_declarations; decl; decl = decl->next) {
             semantic()->check(decl->value, fun->arguments());
         }
@@ -196,7 +196,7 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
     FullySpecifiedType funTy(fun);
     _fullySpecifiedType = funTy;
 
-    for (SpecifierListAST *it = ast->cv_qualifier_seq; it; it = it->next) {
+    for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next) {
         SimpleSpecifierAST *cv = static_cast<SimpleSpecifierAST *>(it->value);
         const int k = tokenKind(cv->specifier_token);
         if (k == T_CONST)
@@ -219,11 +219,11 @@ bool CheckDeclarator::visit(ArrayDeclaratorAST *ast)
 
 bool CheckDeclarator::visit(PointerToMemberAST *ast)
 {
-    Name *memberName = semantic()->check(ast->nested_name_specifier, _scope);
+    Name *memberName = semantic()->check(ast->nested_name_specifier_list, _scope);
     PointerToMemberType *ptrTy = control()->pointerToMemberType(memberName, _fullySpecifiedType);
     FullySpecifiedType ty(ptrTy);
     _fullySpecifiedType = ty;
-    applyCvQualifiers(ast->cv_qualifier_seq);
+    applyCvQualifiers(ast->cv_qualifier_list);
     return false;
 }
 
@@ -232,7 +232,7 @@ bool CheckDeclarator::visit(PointerAST *ast)
     PointerType *ptrTy = control()->pointerType(_fullySpecifiedType);
     FullySpecifiedType ty(ptrTy);
     _fullySpecifiedType = ty;
-    applyCvQualifiers(ast->cv_qualifier_seq);
+    applyCvQualifiers(ast->cv_qualifier_list);
     return false;
 }
 
@@ -261,7 +261,7 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
 
     if (ast->selector && ast->selector->asObjCSelectorWithArguments()) {
         // TODO: add arguments (EV)
-        for (ObjCMessageArgumentDeclarationListAST *it = ast->arguments; it; it = it->next) {
+        for (ObjCMessageArgumentDeclarationListAST *it = ast->argument_list; it; it = it->next) {
             ObjCMessageArgumentDeclarationAST *argDecl = it->value;
 
             semantic()->check(argDecl, method->arguments());

@@ -58,7 +58,7 @@ public:
             Semantic sem(unit->control());
             TranslationUnitAST *ast = unit->ast()->asTranslationUnit();
             QVERIFY(ast);
-            for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
+            for (DeclarationListAST *decl = ast->declaration_list; decl; decl = decl->next) {
                 sem.check(decl->value, globals);
             }
         }

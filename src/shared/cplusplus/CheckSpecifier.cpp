@@ -347,7 +347,7 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     int previousVisibility = semantic()->switchVisibility(visibility);
     int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
 
-    for (DeclarationListAST *member = ast->member_specifiers; member; member = member->next) {
+    for (DeclarationListAST *member = ast->member_specifier_list; member; member = member->next) {
         semantic()->check(member->value, klass->members());
     }
 
@@ -384,7 +384,7 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
     e->setVisibility(semantic()->currentVisibility());
     _scope->enterSymbol(e);
     _fullySpecifiedType.setType(e);
-    for (EnumeratorListAST *it = ast->enumerators; it; it = it->next) {
+    for (EnumeratorListAST *it = ast->enumerator_list; it; it = it->next) {
         EnumeratorAST *enumerator = it->value;
         Identifier *id = identifier(enumerator->identifier_token);
         if (! id)

@@ -1072,8 +1072,8 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
             if (doc->parse(Document::ParseDeclaration)) {
                 doc->check();
                 if (SimpleDeclarationAST *sd = doc->translationUnit()->ast()->asSimpleDeclaration()) {
-                    if (sd->declarators->value->postfix_declarators
-                        && sd->declarators->value->postfix_declarators->value->asFunctionDeclarator()) {
+                    if (sd->declarator_list && sd->declarator_list->value->postfix_declarator_list
+                        && sd->declarator_list->value->postfix_declarator_list->value->asFunctionDeclarator()) {
                         autocompleteSignature = true;
                     }
                 }

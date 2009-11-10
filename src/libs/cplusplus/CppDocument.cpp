@@ -413,7 +413,7 @@ void Document::check(CheckMode mode)
         return; // nothing to do.
 
     if (TranslationUnitAST *ast = _translationUnit->ast()->asTranslationUnit()) {
-        for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
+        for (DeclarationListAST *decl = ast->declaration_list; decl; decl = decl->next) {
             semantic.check(decl->value, globals);
         }
     } else if (ExpressionAST *ast = _translationUnit->ast()->asExpression()) {

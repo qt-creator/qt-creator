@@ -334,7 +334,7 @@ bool Parser::parseTemplateId(NameAST *&node)
         ast->identifier_token = consumeToken();
         ast->less_token = consumeToken();
         if (LA() == T_GREATER || parseTemplateArgumentList(
-                ast->template_arguments)) {
+                ast->template_argument_list)) {
             if (LA() == T_GREATER) {
                 ast->greater_token = consumeToken();
                 node = ast;
@@ -414,7 +414,7 @@ bool Parser::parseName(NameAST *&node, bool acceptTemplateId)
 
         QualifiedNameAST *ast = new (_pool) QualifiedNameAST;
         ast->global_scope_token = global_scope_token;
-        ast->nested_name_specifier = nested_name_specifier;
+        ast->nested_name_specifier_list = nested_name_specifier;
         ast->unqualified_name = unqualified_name;
         node = ast;
         return true;
@@ -427,7 +427,7 @@ bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
 {
     DEBUG_THIS_RULE();
     TranslationUnitAST *ast = new (_pool) TranslationUnitAST;
-    DeclarationListAST **decl = &ast->declarations;
+    DeclarationListAST **decl = &ast->declaration_list;
 
     while (LA()) {
         unsigned start_declaration = cursor();
@@ -553,7 +553,7 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
     if (LA() == T_LBRACE) {
         LinkageBodyAST *ast = new (_pool) LinkageBodyAST;
         ast->lbrace_token = consumeToken();
-        DeclarationListAST **declaration_ptr = &ast->declarations;
+        DeclarationListAST **declaration_ptr = &ast->declaration_list;
 
         while (int tk = LA()) {
             if (tk == T_RBRACE)
@@ -602,7 +602,7 @@ bool Parser::parseNamespace(DeclarationAST *&node)
     ast->namespace_token = namespace_token;
     if (LA() == T_IDENTIFIER)
         ast->identifier_token = consumeToken();
-    SpecifierListAST **attr_ptr = &ast->attributes;
+    SpecifierListAST **attr_ptr = &ast->attribute_list;
     while (LA() == T___ATTRIBUTE__) {
         parseAttributeSpecifier(*attr_ptr);
         attr_ptr = &(*attr_ptr)->next;
@@ -667,8 +667,8 @@ bool Parser::parseConversionFunctionId(NameAST *&node)
 
     ConversionFunctionIdAST *ast = new (_pool) ConversionFunctionIdAST;
     ast->operator_token = operator_token;
-    ast->type_specifier = type_specifier;
-    ast->ptr_operators = ptr_operators;
+    ast->type_specifier_list = type_specifier;
+    ast->ptr_operator_list = ptr_operators;
     node = ast;
     return true;
 }
@@ -850,7 +850,7 @@ bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
 
     if (LA() == T_LESS) {
         ast->less_token = consumeToken();
-        if (LA() == T_GREATER || parseTemplateParameterList(ast->template_parameters))
+        if (LA() == T_GREATER || parseTemplateParameterList(ast->template_parameter_list))
             match(T_GREATER, &ast->greater_token);
     }
 
@@ -969,7 +969,7 @@ bool Parser::parsePtrOperator(PtrOperatorListAST *&node)
     } else if (LA() == T_STAR) {
         PointerAST *ast = new (_pool) PointerAST;
         ast->star_token = consumeToken();
-        parseCvQualifiers(ast->cv_qualifier_seq);
+        parseCvQualifiers(ast->cv_qualifier_list);
         node = new (_pool) PtrOperatorListAST(ast);
         return true;
     } else if (LA() == T_COLON_COLON || LA() == T_IDENTIFIER) {
@@ -984,9 +984,9 @@ bool Parser::parsePtrOperator(PtrOperatorListAST *&node)
         if (has_nested_name_specifier && LA() == T_STAR) {
             PointerToMemberAST *ast = new (_pool) PointerToMemberAST;
             ast->global_scope_token = global_scope_token;
-            ast->nested_name_specifier = nested_name_specifiers;
+            ast->nested_name_specifier_list = nested_name_specifiers;
             ast->star_token = consumeToken();
-            parseCvQualifiers(ast->cv_qualifier_seq);
+            parseCvQualifiers(ast->cv_qualifier_list);
             node = new (_pool) PtrOperatorListAST(ast);
             return true;
         }
@@ -1095,8 +1095,8 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
             DeclaratorIdAST *declarator_id = new (_pool) DeclaratorIdAST;
             declarator_id->name = name;
             DeclaratorAST *ast = new (_pool) DeclaratorAST;
-            ast->attributes = attributes;
-            ast->ptr_operators = ptr_operators;
+            ast->attribute_list = attributes;
+            ast->ptr_operator_list = ptr_operators;
             ast->core_declarator = declarator_id;
             node = ast;
             return true;
@@ -1113,7 +1113,7 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
             nested_declarator->declarator = declarator;
             nested_declarator->rparen_token = consumeToken();
             DeclaratorAST *ast = new (_pool) DeclaratorAST;
-            ast->ptr_operators = ptr_operators;
+            ast->ptr_operator_list = ptr_operators;
             ast->core_declarator = nested_declarator;
             node = ast;
             return true;
@@ -1129,7 +1129,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
     if (! parseCoreDeclarator(node))
         return false;
 
-    PostfixDeclaratorListAST **postfix_ptr = &node->postfix_declarators;
+    PostfixDeclaratorListAST **postfix_ptr = &node->postfix_declarator_list;
 
     for (;;) {
         unsigned startOfPostDeclarator = cursor();
@@ -1185,7 +1185,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
             }
 
             ast->rparen_token = consumeToken();
-            parseCvQualifiers(ast->cv_qualifier_seq);
+            parseCvQualifiers(ast->cv_qualifier_list);
             parseExceptionSpecification(ast->exception_specification);
             *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
             postfix_ptr = &(*postfix_ptr)->next;
@@ -1209,7 +1209,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
             consumeToken(); // skip T_RPAREN
     }
 
-    SpecifierListAST **spec_ptr = &node->post_attributes;
+    SpecifierListAST **spec_ptr = &node->post_attribute_list;
     while (LA() == T___ATTRIBUTE__) {
         parseAttributeSpecifier(*spec_ptr);
         spec_ptr = &(*spec_ptr)->next;
@@ -1237,7 +1237,7 @@ bool Parser::parseAbstractCoreDeclarator(DeclaratorAST *&node)
             nested_declarator->declarator = declarator;
             nested_declarator->rparen_token = consumeToken();
             DeclaratorAST *ast = new (_pool) DeclaratorAST;
-            ast->ptr_operators = ptr_operators;
+            ast->ptr_operator_list = ptr_operators;
             ast->core_declarator = nested_declarator;
             node = ast;
             return true;
@@ -1247,7 +1247,7 @@ bool Parser::parseAbstractCoreDeclarator(DeclaratorAST *&node)
     rewind(after_ptr_operators);
     if (ptr_operators) {
         DeclaratorAST *ast = new (_pool) DeclaratorAST;
-        ast->ptr_operators = ptr_operators;
+        ast->ptr_operator_list = ptr_operators;
         node = ast;
     }
 
@@ -1271,7 +1271,7 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node)
                 if (LA() == T_RPAREN)
                     ast->rparen_token = consumeToken();
             }
-            parseCvQualifiers(ast->cv_qualifier_seq);
+            parseCvQualifiers(ast->cv_qualifier_list);
             parseExceptionSpecification(ast->exception_specification);
             *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
             postfix_ptr = &(*postfix_ptr)->next;
@@ -1292,7 +1292,7 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node)
         if (! node)
             node = new (_pool) DeclaratorAST;
 
-        node->postfix_declarators = postfix_declarators;
+        node->postfix_declarator_list = postfix_declarators;
     }
 
     return true;
@@ -1311,7 +1311,7 @@ bool Parser::parseEnumSpecifier(SpecifierListAST *&node)
             ast->name = name;
             ast->lbrace_token = consumeToken();
             unsigned comma_token = 0;
-            EnumeratorListAST **enumerator_ptr = &ast->enumerators;
+            EnumeratorListAST **enumerator_ptr = &ast->enumerator_list;
             while (int tk = LA()) {
                 if (tk == T_RBRACE)
                     break;
@@ -1397,7 +1397,7 @@ bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
         ast->template_token = consumeToken();
         if (LA() == T_LESS)
             ast->less_token = consumeToken();
-        parseTemplateParameterList(ast->template_parameters);
+        parseTemplateParameterList(ast->template_parameter_list);
         if (LA() == T_GREATER)
             ast->greater_token = consumeToken();
         if (LA() == T_CLASS)
@@ -1433,7 +1433,7 @@ bool Parser::parseTypeId(ExpressionAST *&node)
     SpecifierListAST *type_specifier = 0;
     if (parseTypeSpecifier(type_specifier)) {
         TypeIdAST *ast = new (_pool) TypeIdAST;
-        ast->type_specifier = type_specifier;
+        ast->type_specifier_list = type_specifier;
         parseAbstractDeclarator(ast->declarator);
         node = ast;
         return true;
@@ -1465,7 +1465,7 @@ bool Parser::parseParameterDeclarationClause(ParameterDeclarationClauseAST *&nod
 
     if (parameter_declarations || dot_dot_dot_token) {
         ParameterDeclarationClauseAST *ast = new (_pool) ParameterDeclarationClauseAST;
-        ast->parameter_declarations = parameter_declarations;
+        ast->parameter_declaration_list = parameter_declarations;
         ast->dot_dot_dot_token = dot_dot_dot_token;
         node = ast;
     }
@@ -1509,7 +1509,7 @@ bool Parser::parseParameterDeclaration(DeclarationAST *&node)
     SpecifierListAST *decl_specifier_seq = 0;
     if (parseDeclSpecifierSeq(decl_specifier_seq)) {
         ParameterDeclarationAST *ast = new (_pool) ParameterDeclarationAST;
-        ast->type_specifier = decl_specifier_seq;
+        ast->type_specifier_list = decl_specifier_seq;
         parseDeclaratorOrAbstractDeclarator(ast->declarator);
         if (LA() == T_EQUAL) {
             ast->equal_token = consumeToken();
@@ -1577,7 +1577,7 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
 
         ClassSpecifierAST *ast = new (_pool) ClassSpecifierAST;
         ast->classkey_token = classkey_token;
-        ast->attributes = attributes;
+        ast->attribute_list = attributes;
         ast->name = name;
         ast->colon_token = colon_token;
         ast->base_clause_list = base_clause_list;
@@ -1585,7 +1585,7 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
         if (LA() == T_LBRACE)
             ast->lbrace_token = consumeToken();
 
-        DeclarationListAST **declaration_ptr = &ast->member_specifiers;
+        DeclarationListAST **declaration_ptr = &ast->member_specifier_list;
         while (int tk = LA()) {
             if (tk == T_RBRACE) {
                 ast->rbrace_token = consumeToken();
@@ -1679,7 +1679,7 @@ bool Parser::parseCtorInitializer(CtorInitializerAST *&node)
         CtorInitializerAST *ast = new (_pool) CtorInitializerAST;
         ast->colon_token = colon_token;
 
-        parseMemInitializerList(ast->member_initializers);
+        parseMemInitializerList(ast->member_initializer_list);
         node = ast;
         return true;
     }
@@ -1714,7 +1714,7 @@ bool Parser::parseExceptionSpecification(ExceptionSpecificationAST *&node)
         if (LA() == T_DOT_DOT_DOT)
             ast->dot_dot_dot_token = consumeToken();
         else
-            parseTypeIdList(ast->type_ids);
+            parseTypeIdList(ast->type_id_list);
         if (LA() == T_RPAREN)
             ast->rparen_token = consumeToken();
         node = ast;
@@ -1763,7 +1763,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node,
     }
 
     if (acceptStructDeclarator && node &&
-            ! node->postfix_declarators &&
+            ! node->postfix_declarator_list &&
             node->core_declarator &&
             node->core_declarator->asNestedDeclarator()) {
         rewind(start);
@@ -1771,7 +1771,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node,
     }
 
     if (acceptStructDeclarator && LA() == T_COLON
-            && (! node || ! node->postfix_declarators)) {
+            && (! node || ! node->postfix_declarator_list)) {
         unsigned colon_token = consumeToken();
         ExpressionAST *expression = 0;
         if (parseConstantExpression(expression) && (LA() == T_COMMA ||
@@ -2169,11 +2169,11 @@ bool Parser::isPointerDeclaration(DeclarationStatementAST *ast) const
         return false;
 
     if (SimpleDeclarationAST *declaration = ast->declaration->asSimpleDeclaration()) {
-        if (SpecifierListAST *spec = declaration->decl_specifier_seq) {
+        if (SpecifierListAST *spec = declaration->decl_specifier_list) {
             if (spec->value->asNamedTypeSpecifier() && ! spec->next) {
-                if (DeclaratorListAST *declarators = declaration->declarators) {
+                if (DeclaratorListAST *declarators = declaration->declarator_list) {
                     if (DeclaratorAST *declarator = declarators->value) {
-                        if (declarator->ptr_operators && declarator->equals_token && declarator->initializer) {
+                        if (declarator->ptr_operator_list && declarator->equals_token && declarator->initializer) {
                             return true;
                         }
                     }
@@ -2191,9 +2191,9 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast) const
         return false;
 
     if (SimpleDeclarationAST *declaration = ast->declaration->asSimpleDeclaration()) {
-        if (SpecifierListAST *spec = declaration->decl_specifier_seq) {
+        if (SpecifierListAST *spec = declaration->decl_specifier_list) {
             if (spec->value->asNamedTypeSpecifier() && ! spec->next) {
-                if (DeclaratorListAST *declarators = declaration->declarators) {
+                if (DeclaratorListAST *declarators = declaration->declarator_list) {
                     if (DeclaratorAST *declarator = declarators->value) {
                         if (declarator->core_declarator &&
                             declarator->core_declarator->asNestedDeclarator()) {
@@ -2204,10 +2204,10 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast) const
                 }
             }
 
-        } else if (DeclaratorListAST *declarators = declaration->declarators) {
+        } else if (DeclaratorListAST *declarators = declaration->declarator_list) {
             // no decl_specifiers...
             if (DeclaratorAST *declarator = declarators->value) {
-                if (declarator->postfix_declarators && declarator->postfix_declarators->value->asFunctionDeclarator()
+                if (declarator->postfix_declarator_list && declarator->postfix_declarator_list->value->asFunctionDeclarator()
                                                      && ! declarator->initializer) {
                     return false;
                 }                
@@ -2274,7 +2274,7 @@ bool Parser::parseCondition(ExpressionAST *&node)
         if (parseInitDeclarator(declarator, /*acceptStructDeclarator=*/false)) {
             if (declarator->initializer) {
                 ConditionAST *ast = new (_pool) ConditionAST;
-                ast->type_specifiers = type_specifier;
+                ast->type_specifier_list = type_specifier;
                 ast->declarator = declarator;
                 node = ast;
                 blockErrors(blocked);
@@ -2333,11 +2333,11 @@ bool Parser::parseForeachStatement(StatementAST *&node)
         unsigned startOfTypeSpecifier = cursor();
         bool blocked = blockErrors(true);
 
-        if (parseTypeSpecifier(ast->type_specifiers))
+        if (parseTypeSpecifier(ast->type_specifier_list))
             parseDeclarator(ast->declarator);
 
-        if (! ast->type_specifiers || ! ast->declarator) {
-            ast->type_specifiers = 0;
+        if (! ast->type_specifier_list || ! ast->declarator) {
+            ast->type_specifier_list = 0;
             ast->declarator = 0;
 
             blockErrors(blocked);
@@ -2376,20 +2376,20 @@ bool Parser::parseForStatement(StatementAST *&node)
         ast->for_token = for_token;
         ast->lparen_token = lparen_token;
 
-        if (parseTypeSpecifier(ast->type_specifiers))
+        if (parseTypeSpecifier(ast->type_specifier_list))
             parseDeclarator(ast->declarator);
 
-        if ((ast->type_specifiers || ast->declarator) && !peekAtObjCContextKeyword(Token_in)) {
+        if ((ast->type_specifier_list || ast->declarator) && !peekAtObjCContextKeyword(Token_in)) {
             // woops, probably parsed too much: "in" got parsed as a declarator. Let's redo it:
-            ast->type_specifiers = 0;
+            ast->type_specifier_list = 0;
             ast->declarator = 0;
 
             rewind(startOfTypeSpecifier);
             parseDeclarator(ast->declarator);
         }
 
-        if (! ast->type_specifiers || ! ast->declarator) {
-            ast->type_specifiers = 0;
+        if (! ast->type_specifier_list || ! ast->declarator) {
+            ast->type_specifier_list = 0;
             ast->declarator = 0;
 
             rewind(startOfTypeSpecifier);
@@ -2441,7 +2441,7 @@ bool Parser::parseCompoundStatement(StatementAST *&node)
     if (LA() == T_LBRACE) {
         CompoundStatementAST *ast = new (_pool) CompoundStatementAST;
         ast->lbrace_token = consumeToken();
-        StatementListAST **statement_ptr = &ast->statements;
+        StatementListAST **statement_ptr = &ast->statement_list;
         while (int tk = LA()) {
             if (tk == T_RBRACE)
                 break;
@@ -2586,7 +2586,7 @@ bool Parser::parseDeclarationStatement(StatementAST *&node)
         return false;
 
     if (SimpleDeclarationAST *simpleDeclaration = declaration->asSimpleDeclaration()) {
-        if (! simpleDeclaration->decl_specifier_seq) {
+        if (! simpleDeclaration->decl_specifier_list) {
             rewind(start);
             return false;
         }
@@ -2683,7 +2683,7 @@ bool Parser::parseAttributeSpecifier(SpecifierListAST *&node)
     ast->attribute_token = consumeToken();
     match(T_LPAREN, &ast->first_lparen_token);
     match(T_LPAREN, &ast->second_lparen_token);
-    parseAttributeList(ast->attributes);
+    parseAttributeList(ast->attribute_list);
     match(T_RPAREN, &ast->first_rparen_token);
     match(T_RPAREN, &ast->second_rparen_token);
     node = new (_pool) SpecifierListAST(ast);
@@ -2872,8 +2872,8 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
         }
         SimpleDeclarationAST *ast = new (_pool) SimpleDeclarationAST;
         ast->qt_invokable_token = qt_invokable_token;
-        ast->decl_specifier_seq = decl_specifier_seq;
-        ast->declarators = declarator_list;
+        ast->decl_specifier_list = decl_specifier_seq;
+        ast->declarator_list = declarator_list;
         match(T_SEMICOLON, &ast->semicolon_token);
         node = ast;
         return true;
@@ -2885,7 +2885,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
         if (LA() == T_LBRACE) {
             FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
             ast->qt_invokable_token = qt_invokable_token;
-            ast->decl_specifier_seq = decl_specifier_seq;
+            ast->decl_specifier_list = decl_specifier_seq;
             ast->declarator = firstDeclarator;
             ast->ctor_initializer = ctor_initializer;
             parseFunctionBody(ast->function_body);
@@ -2894,7 +2894,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
         } else if (LA() == T_TRY) {
             FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
             ast->qt_invokable_token = qt_invokable_token;
-            ast->decl_specifier_seq = decl_specifier_seq;
+            ast->decl_specifier_list = decl_specifier_seq;
             ast->declarator = firstDeclarator;
             ast->ctor_initializer = ctor_initializer;
             parseTryBlockStatement(ast->function_body);
@@ -2988,7 +2988,7 @@ bool Parser::parseExceptionDeclaration(ExceptionDeclarationAST *&node)
     SpecifierListAST *type_specifier = 0;
     if (parseTypeSpecifier(type_specifier)) {
         ExceptionDeclarationAST *ast = new (_pool) ExceptionDeclarationAST;
-        ast->type_specifier = type_specifier;
+        ast->type_specifier_list = type_specifier;
         parseDeclaratorOrAbstractDeclarator(ast->declarator);
         node = ast;
         return true;
@@ -3185,7 +3185,7 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&node)
         ObjCSelectorWithArgumentsAST *args = new (_pool) ObjCSelectorWithArgumentsAST;
         ast->selector = args;
         ObjCSelectorArgumentListAST *last = new (_pool) ObjCSelectorArgumentListAST;
-        args->selector_arguments = last;
+        args->selector_argument_list = last;
         last->value = new (_pool) ObjCSelectorArgumentAST;
         last->value->name_token = identifier_token;
         last->value->colon_token = consumeToken();
@@ -3290,7 +3290,7 @@ bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArg
         }
 
         ObjCSelectorWithArgumentsAST *selWithArgs = new (_pool) ObjCSelectorWithArgumentsAST;
-        selWithArgs->selector_arguments = selAst;
+        selWithArgs->selector_argument_list = selAst;
 
         selNode = selWithArgs;
         argNode = argAst;
@@ -3370,7 +3370,7 @@ bool Parser::parseNameId(NameAST *&name)
 
     else if (LA() == T_LPAREN) {
         // a template-id followed by a T_LPAREN
-        if (TemplateArgumentListAST *template_arguments = template_id->template_arguments) {
+        if (TemplateArgumentListAST *template_arguments = template_id->template_argument_list) {
             if (! template_arguments->next && template_arguments->value &&
                     template_arguments->value->asBinaryExpression()) {
 
@@ -3550,7 +3550,7 @@ bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
             if (LA() == T_RPAREN) {
                 unsigned rparen_token = consumeToken();
                 TypeConstructorCallAST *ast = new (_pool) TypeConstructorCallAST;
-                ast->type_specifier = type_specifier;
+                ast->type_specifier_list = type_specifier;
                 ast->lparen_token = lparen_token;
                 ast->expression_list = expression_list;
                 ast->rparen_token = rparen_token;
@@ -3630,7 +3630,7 @@ bool Parser::parsePostfixExpression(ExpressionAST *&node)
         if (postfix_expressions) {
             PostfixExpressionAST *ast = new (_pool) PostfixExpressionAST;
             ast->base_expression = node;
-            ast->postfix_expressions = postfix_expressions;
+            ast->postfix_expression_list = postfix_expressions;
             node = ast;
         }
         return true;
@@ -3799,13 +3799,13 @@ bool Parser::parseNewTypeId(NewTypeIdAST *&node)
         return false;
 
     NewTypeIdAST *ast = new (_pool) NewTypeIdAST;
-    ast->type_specifier = typeSpec;
+    ast->type_specifier_list = typeSpec;
 
-    PtrOperatorListAST **ptrop_it = &ast->ptr_operators;
+    PtrOperatorListAST **ptrop_it = &ast->ptr_operator_list;
     while (parsePtrOperator(*ptrop_it))
         ptrop_it = &(*ptrop_it)->next;
 
-    NewArrayDeclaratorListAST **it = &ast->new_array_declarators;
+    NewArrayDeclaratorListAST **it = &ast->new_array_declarator_list;
     while (parseNewArrayDeclarator(*it))
         it = &(*it)->next;
 
@@ -4370,7 +4370,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
                                     "invalid attributes for category interface declaration");
 
         ObjCClassDeclarationAST *ast = new (_pool) ObjCClassDeclarationAST;
-        ast->attributes = attributes;
+        ast->attribute_list = attributes;
         ast->interface_token = objc_interface_token;
         SimpleNameAST *class_name = new (_pool) SimpleNameAST;
         class_name->identifier_token= identifier_token;
@@ -4387,7 +4387,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
 
         parseObjCProtocolRefs(ast->protocol_refs);
 
-        DeclarationListAST **nextMembers = &(ast->member_declarations);
+        DeclarationListAST **nextMembers = &(ast->member_declaration_list);
         DeclarationAST *declaration = 0;
         while (parseObjCInterfaceMemberDeclaration(declaration)) {
             *nextMembers = new (_pool) DeclarationListAST;
@@ -4402,7 +4402,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
     } else {
         // a class interface declaration
         ObjCClassDeclarationAST *ast = new (_pool) ObjCClassDeclarationAST;
-        ast->attributes = attributes;
+        ast->attribute_list = attributes;
         ast->interface_token = objc_interface_token;
         SimpleNameAST* class_name = new (_pool) SimpleNameAST;
         class_name->identifier_token = identifier_token;
@@ -4418,7 +4418,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
         parseObjCProtocolRefs(ast->protocol_refs);
         parseObjClassInstanceVariables(ast->inst_vars_decl);
 
-        DeclarationListAST **nextMembers = &(ast->member_declarations);
+        DeclarationListAST **nextMembers = &(ast->member_declaration_list);
         DeclarationAST *declaration = 0;
         while (parseObjCInterfaceMemberDeclaration(declaration)) {
             *nextMembers = new (_pool) DeclarationListAST;
@@ -4456,7 +4456,7 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
         // a protocol forward declaration
 
         ObjCProtocolForwardDeclarationAST *ast = new (_pool) ObjCProtocolForwardDeclarationAST;
-        ast->attributes = attributes;
+        ast->attribute_list = attributes;
         ast->protocol_token = protocol_token;
         ast->identifier_list = new (_pool) ObjCIdentifierListAST;
         SimpleNameAST *name = new (_pool) SimpleNameAST;
@@ -4481,7 +4481,7 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
     } else {
         // a protocol definition
         ObjCProtocolDeclarationAST *ast = new (_pool) ObjCProtocolDeclarationAST;
-        ast->attributes = attributes;
+        ast->attribute_list = attributes;
         ast->protocol_token = protocol_token;
         SimpleNameAST *name = new (_pool) SimpleNameAST;
         name->identifier_token = identifier_token;
@@ -4489,7 +4489,7 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
 
         parseObjCProtocolRefs(ast->protocol_refs);
 
-        DeclarationListAST **nextMembers = &(ast->member_declarations);
+        DeclarationListAST **nextMembers = &(ast->member_declaration_list);
         DeclarationAST *declaration = 0;
         while (parseObjCInterfaceMemberDeclaration(declaration)) {
             *nextMembers = new (_pool) DeclarationListAST;
@@ -4532,7 +4532,7 @@ bool Parser::parseObjCImplementation(DeclarationAST *&node)
         ast->category_name = category_name;
         match(T_RPAREN, &(ast->rparen_token));
 
-        parseObjCMethodDefinitionList(ast->member_declarations);
+        parseObjCMethodDefinitionList(ast->member_declaration_list);
         match(T_AT_END, &(ast->end_token));
 
         node = ast;
@@ -4552,7 +4552,7 @@ bool Parser::parseObjCImplementation(DeclarationAST *&node)
         }
 
         parseObjClassInstanceVariables(ast->inst_vars_decl);
-        parseObjCMethodDefinitionList(ast->member_declarations);
+        parseObjCMethodDefinitionList(ast->member_declaration_list);
         match(T_AT_END, &(ast->end_token));
 
         node = ast;
@@ -4587,7 +4587,7 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
             ObjCSynthesizedPropertiesDeclarationAST *ast = new (_pool) ObjCSynthesizedPropertiesDeclarationAST;
             ast->synthesized_token = consumeToken();
             ObjCSynthesizedPropertyListAST *last = new (_pool) ObjCSynthesizedPropertyListAST;
-            ast->property_identifiers = last;
+            ast->property_identifier_list = last;
             last->value = new (_pool) ObjCSynthesizedPropertyAST;
             match(T_IDENTIFIER, &(last->value->property_identifier));
 
@@ -4622,12 +4622,12 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
         case T_AT_DYNAMIC: {
             ObjCDynamicPropertiesDeclarationAST *ast = new (_pool) ObjCDynamicPropertiesDeclarationAST;
             ast->dynamic_token = consumeToken();
-            ast->property_identifiers = new (_pool) ObjCIdentifierListAST;
+            ast->property_identifier_list = new (_pool) ObjCIdentifierListAST;
             SimpleNameAST *name = new (_pool) SimpleNameAST;
             match(T_IDENTIFIER, &(name->identifier_token));
-            ast->property_identifiers->value = name;
+            ast->property_identifier_list->value = name;
 
-            ObjCIdentifierListAST *last = ast->property_identifiers;
+            ObjCIdentifierListAST *last = ast->property_identifier_list;
             while (LA() == T_COMMA) {
                 consumeToken(); // consume T_COMMA
 
@@ -4742,7 +4742,7 @@ bool Parser::parseObjClassInstanceVariables(ObjCInstanceVariablesDeclarationAST 
     ObjCInstanceVariablesDeclarationAST *ast = new (_pool) ObjCInstanceVariablesDeclarationAST;
     match(T_LBRACE, &(ast->lbrace_token));
 
-    for (DeclarationListAST **next = &(ast->instance_variables); LA(); next = &((*next)->next)) {
+    for (DeclarationListAST **next = &(ast->instance_variable_list); LA(); next = &((*next)->next)) {
         if (LA() == T_RBRACE)
             break;
 
@@ -4847,7 +4847,7 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierListAS
         return false;
 
     ObjCPropertyDeclarationAST *ast = new (_pool) ObjCPropertyDeclarationAST;
-    ast->attributes = attributes;
+    ast->attribute_list = attributes;
     ast->property_token = consumeToken();
 
     if (LA() == T_LPAREN) {
@@ -4855,9 +4855,9 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierListAS
 
         ObjCPropertyAttributeAST *property_attribute = 0;
         if (parseObjCPropertyAttribute(property_attribute)) {
-            ast->property_attributes = new (_pool) ObjCPropertyAttributeListAST;
-            ast->property_attributes->value = property_attribute;
-            ObjCPropertyAttributeListAST *last = ast->property_attributes;
+            ast->property_attribute_list = new (_pool) ObjCPropertyAttributeListAST;
+            ast->property_attribute_list->value = property_attribute;
+            ObjCPropertyAttributeListAST *last = ast->property_attribute_list;
 
             while (LA() == T_COMMA) {
                 consumeToken(); // consume T_COMMA
@@ -4906,12 +4906,12 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
         ObjCSelectorWithArgumentsAST *sel = new (_pool) ObjCSelectorWithArgumentsAST;
         ast->selector = sel;
         ObjCSelectorArgumentListAST *lastSel = new (_pool) ObjCSelectorArgumentListAST;
-        sel->selector_arguments = lastSel;
-        sel->selector_arguments->value = argument;
+        sel->selector_argument_list = lastSel;
+        sel->selector_argument_list->value = argument;
 
-        ast->arguments = new (_pool) ObjCMessageArgumentDeclarationListAST;
-        ast->arguments->value = declaration;
-        ObjCMessageArgumentDeclarationListAST *lastArg = ast->arguments;
+        ast->argument_list = new (_pool) ObjCMessageArgumentDeclarationListAST;
+        ast->argument_list->value = declaration;
+        ObjCMessageArgumentDeclarationListAST *lastArg = ast->argument_list;
 
         while (parseObjCKeywordDeclaration(argument, declaration)) {
             lastSel->next = new (_pool) ObjCSelectorArgumentListAST;
@@ -4943,7 +4943,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
         _translationUnit->error(cursor(), "expected a selector");
     }
 
-    SpecifierListAST **attr = &ast->attributes;
+    SpecifierListAST **attr = &ast->attribute_list;
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
@@ -4992,10 +4992,10 @@ bool Parser::parseObjCPropertyAttribute(ObjCPropertyAttributeAST *&node)
         node->attribute_identifier_token = consumeToken();
         match(T_EQUAL, &(node->equals_token));
         ObjCSelectorWithArgumentsAST *selector = new (_pool) ObjCSelectorWithArgumentsAST;
-        selector->selector_arguments = new (_pool) ObjCSelectorArgumentListAST;
-        selector->selector_arguments->value = new (_pool) ObjCSelectorArgumentAST;
-        match(T_IDENTIFIER, &(selector->selector_arguments->value->name_token));
-        match(T_COLON, &(selector->selector_arguments->value->colon_token));
+        selector->selector_argument_list = new (_pool) ObjCSelectorArgumentListAST;
+        selector->selector_argument_list->value = new (_pool) ObjCSelectorArgumentAST;
+        match(T_IDENTIFIER, &(selector->selector_argument_list->value->name_token));
+        match(T_COLON, &(selector->selector_argument_list->value->colon_token));
         node->method_selector = selector;
         return true;
     }
@@ -5050,7 +5050,7 @@ bool Parser::parseObjCKeywordDeclaration(ObjCSelectorArgumentAST *&argument, Obj
 
     parseObjCTypeName(node->type_name);
 
-    SpecifierListAST **attr = &node->attributes;
+    SpecifierListAST **attr = &node->attribute_list;
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 

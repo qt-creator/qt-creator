@@ -239,7 +239,7 @@ protected:
             return;
 
         else if (TemplateIdAST *template_id = name->asTemplateId()) {
-            for (TemplateArgumentListAST *it = template_id->template_arguments; it; it = it->next) {
+            for (TemplateArgumentListAST *it = template_id->template_argument_list; it; it = it->next) {
                 accept(it->value);
             }
         }
@@ -276,7 +276,7 @@ protected:
 
     virtual bool visit(TemplateIdAST *ast)
     {
-        for (TemplateArgumentListAST *arg = ast->template_arguments; arg; arg = arg->next)
+        for (TemplateArgumentListAST *arg = ast->template_argument_list; arg; arg = arg->next)
             accept(arg->value);
 
         unsigned line, column;
@@ -308,7 +308,7 @@ protected:
 
     virtual bool visit(QualifiedNameAST *ast)
     {
-        for (NestedNameSpecifierListAST *it = ast->nested_name_specifier; it; it = it->next)
+        for (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list; it; it = it->next)
             searchUsesInTemplateArguments(it->value->class_or_namespace_name);
 
         searchUsesInTemplateArguments(ast->unqualified_name);
@@ -318,7 +318,7 @@ protected:
     virtual bool visit(PostfixExpressionAST *ast)
     {
         accept(ast->base_expression);
-        for (PostfixListAST *it = ast->postfix_expressions; it; it = it->next) {
+        for (PostfixListAST *it = ast->postfix_expression_list; it; it = it->next) {
             PostfixAST *fx = it->value;
             if (fx->asMemberAccess() != 0)
                 continue; // skip members
@@ -366,7 +366,7 @@ protected:
     {
         accept(ast->parameters);
 
-        for (SpecifierListAST *it = ast->cv_qualifier_seq; it; it = it->next)
+        for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next)
             accept(it->value);
 
         accept(ast->exception_specification);
@@ -439,7 +439,7 @@ public:
         if (ast) {
             if (ast->declarator) {
                 _visitFunctionDeclarator = true;
-                accept(ast->declarator->postfix_declarators);
+                accept(ast->declarator->postfix_declarator_list);
             }
 
             _visitFunctionDeclarator = false;

@@ -103,7 +103,7 @@ bool CheckUndefinedSymbols::isType(const QByteArray &name) const
     for (int i = _templateDeclarationStack.size() - 1; i != - 1; --i) {
         TemplateDeclarationAST *templateDeclaration = _templateDeclarationStack.at(i);
 
-        for (DeclarationListAST *it = templateDeclaration->template_parameters; it; it = it->next) {
+        for (DeclarationListAST *it = templateDeclaration->template_parameter_list; it; it = it->next) {
             DeclarationAST *templateParameter = it->value;
 
             if (templateParameterName(templateParameter) == name)
@@ -424,7 +424,7 @@ bool CheckUndefinedSymbols::visit(CastExpressionAST *ast)
 {
     if (ast->lparen_token && ast->type_id && ast->rparen_token && ast->expression) {
         if (TypeIdAST *cast_type_id = ast->type_id->asTypeId()) {
-            SpecifierListAST *type_specifier = cast_type_id->type_specifier;
+            SpecifierListAST *type_specifier = cast_type_id->type_specifier_list;
             if (! cast_type_id->declarator && type_specifier && ! type_specifier->next &&
                 type_specifier->value->asNamedTypeSpecifier() && ast->expression &&
                 ast->expression->asUnaryExpression()) {
@@ -447,7 +447,7 @@ bool CheckUndefinedSymbols::visit(SizeofExpressionAST *ast)
 {
     if (ast->lparen_token && ast->expression && ast->rparen_token) {
         if (TypeIdAST *type_id = ast->expression->asTypeId()) {
-            SpecifierListAST *type_specifier = type_id->type_specifier;
+            SpecifierListAST *type_specifier = type_id->type_specifier_list;
             if (! type_id->declarator && type_specifier && ! type_specifier->next &&
                 type_specifier->value->asNamedTypeSpecifier()) {
                 // this sizeof expression is ambiguos, e.g.
@@ -455,9 +455,9 @@ bool CheckUndefinedSymbols::visit(SizeofExpressionAST *ast)
                 //   `a' can be a typeid or a nested-expression.
                 return false;
             } else if (type_id->declarator
-                       &&   type_id->declarator->postfix_declarators
-                       && ! type_id->declarator->postfix_declarators->next
-                       &&   type_id->declarator->postfix_declarators->value->asArrayDeclarator() != 0) {
+                       &&   type_id->declarator->postfix_declarator_list
+                       && ! type_id->declarator->postfix_declarator_list->next
+                       &&   type_id->declarator->postfix_declarator_list->value->asArrayDeclarator() != 0) {
                 // this sizeof expression is ambiguos, e.g.
                 // sizeof(a[10])
                 //   `a' can be a typeid or an expression.

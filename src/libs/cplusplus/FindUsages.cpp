@@ -288,7 +288,7 @@ void FindUsages::checkExpression(unsigned startToken, unsigned endToken)
 
 bool FindUsages::visit(QualifiedNameAST *ast)
 {
-    for (NestedNameSpecifierListAST *it = ast->nested_name_specifier; it; it = it->next) {
+    for (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list; it; it = it->next) {
         NestedNameSpecifierAST *nested_name_specifier = it->value;
 
         if (NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name) {
@@ -299,7 +299,7 @@ bool FindUsages::visit(QualifiedNameAST *ast)
                 template_id = class_or_namespace_name->asTemplateId();
 
                 if (template_id) {
-                    for (TemplateArgumentListAST *arg_it = template_id->template_arguments; arg_it; arg_it = arg_it->next) {
+                    for (TemplateArgumentListAST *arg_it = template_id->template_argument_list; arg_it; arg_it = arg_it->next) {
                         accept(arg_it->value);
                     }
                 }
@@ -332,7 +332,7 @@ bool FindUsages::visit(QualifiedNameAST *ast)
             if (template_id) {
                 identifier_token = template_id->identifier_token;
 
-                for (TemplateArgumentListAST *template_arguments = template_id->template_arguments;
+                for (TemplateArgumentListAST *template_arguments = template_id->template_argument_list;
                      template_arguments; template_arguments = template_arguments->next) {
                     accept(template_arguments->value);
                 }
@@ -392,7 +392,7 @@ bool FindUsages::visit(TemplateIdAST *ast)
         reportResult(ast->identifier_token, candidates);
     }
 
-    for (TemplateArgumentListAST *template_arguments = ast->template_arguments;
+    for (TemplateArgumentListAST *template_arguments = ast->template_argument_list;
          template_arguments; template_arguments = template_arguments->next) {
         accept(template_arguments->value);
     }
@@ -402,23 +402,23 @@ bool FindUsages::visit(TemplateIdAST *ast)
 
 bool FindUsages::visit(ParameterDeclarationAST *ast)
 {
-    for (SpecifierListAST *it = ast->type_specifier; it; it = it->next)
+    for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next)
         accept(it->value);
 
     if (DeclaratorAST *declarator = ast->declarator) {
-        for (SpecifierListAST *it = declarator->attributes; it; it = it->next)
+        for (SpecifierListAST *it = declarator->attribute_list; it; it = it->next)
             accept(it->value);
 
-        for (PtrOperatorListAST *it = declarator->ptr_operators; it; it = it->next)
+        for (PtrOperatorListAST *it = declarator->ptr_operator_list; it; it = it->next)
             accept(it->value);
 
         if (! _inSimpleDeclaration) // visit the core declarator only if we are not in simple-declaration.
             accept(declarator->core_declarator);
 
-        for (PostfixDeclaratorListAST *it = declarator->postfix_declarators; it; it = it->next)
+        for (PostfixDeclaratorListAST *it = declarator->postfix_declarator_list; it; it = it->next)
             accept(it->value);
 
-        for (SpecifierListAST *it = declarator->post_attributes; it; it = it->next)
+        for (SpecifierListAST *it = declarator->post_attribute_list; it; it = it->next)
             accept(it->value);
 
         accept(declarator->initializer);
@@ -438,7 +438,7 @@ bool FindUsages::visit(FunctionDeclaratorAST *ast)
 {
     accept(ast->parameters);
 
-    for (SpecifierListAST *it = ast->cv_qualifier_seq; it; it = it->next)
+    for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next)
         accept(it->value);
 
     accept(ast->exception_specification);

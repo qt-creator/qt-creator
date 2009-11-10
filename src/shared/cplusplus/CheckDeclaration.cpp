@@ -136,7 +136,7 @@ unsigned CheckDeclaration::locationOfDeclaratorId(DeclaratorAST *declarator) con
 
 bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 {
-    FullySpecifiedType ty = semantic()->check(ast->decl_specifier_seq, _scope);
+    FullySpecifiedType ty = semantic()->check(ast->decl_specifier_list, _scope);
     FullySpecifiedType qualTy = ty.qualifiedType();
 
     if (_templateParameters && ty) {
@@ -145,8 +145,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         }
     }
 
-    if (! ast->declarators && ast->decl_specifier_seq && ! ast->decl_specifier_seq->next) {
-        if (ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_seq->value->asElaboratedTypeSpecifier()) {
+    if (! ast->declarator_list && ast->decl_specifier_list && ! ast->decl_specifier_list->next) {
+        if (ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_list->value->asElaboratedTypeSpecifier()) {
 
             unsigned sourceLocation = elab_type_spec->firstToken();
 
@@ -171,7 +171,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
     const bool isQ_SIGNAL = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SIGNAL;
 
     List<Declaration *> **decl_it = &ast->symbols;
-    for (DeclaratorListAST *it = ast->declarators; it; it = it->next) {
+    for (DeclaratorListAST *it = ast->declarator_list; it; it = it->next) {
         Name *name = 0;
         FullySpecifiedType declTy = semantic()->check(it->value, qualTy,
                                                       _scope, &name);
@@ -208,7 +208,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         symbol->setType(control()->integerType(IntegerType::Int));
         symbol->setType(declTy);
 
-        if (_templateParameters && it == ast->declarators && ty && ! ty->isClassType())
+        if (_templateParameters && it == ast->declarator_list && ty && ! ty->isClassType())
             symbol->setTemplateParameters(_templateParameters);
 
         symbol->setVisibility(semantic()->currentVisibility());
@@ -265,7 +265,7 @@ bool CheckDeclaration::visit(AsmDefinitionAST *)
 
 bool CheckDeclaration::visit(ExceptionDeclarationAST *ast)
 {
-    FullySpecifiedType ty = semantic()->check(ast->type_specifier, _scope);
+    FullySpecifiedType ty = semantic()->check(ast->type_specifier_list, _scope);
     FullySpecifiedType qualTy = ty.qualifiedType();
 
     Name *name = 0;
@@ -291,7 +291,7 @@ bool CheckDeclaration::visit(ExceptionDeclarationAST *ast)
 
 bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
 {
-    FullySpecifiedType ty = semantic()->check(ast->decl_specifier_seq, _scope);
+    FullySpecifiedType ty = semantic()->check(ast->decl_specifier_list, _scope);
     FullySpecifiedType qualTy = ty.qualifiedType();
     Name *name = 0;
     FullySpecifiedType funTy = semantic()->check(ast->declarator, qualTy,
@@ -362,7 +362,7 @@ bool CheckDeclaration::visit(MemInitializerAST *ast)
 
 bool CheckDeclaration::visit(LinkageBodyAST *ast)
 {
-    for (DeclarationListAST *decl = ast->declarations; decl; decl = decl->next) {
+    for (DeclarationListAST *decl = ast->declaration_list; decl; decl = decl->next) {
        semantic()->check(decl->value, _scope);
     }
     return false;
@@ -410,7 +410,7 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
     }
 
     Name *argName = 0;
-    FullySpecifiedType ty = semantic()->check(ast->type_specifier, _scope);
+    FullySpecifiedType ty = semantic()->check(ast->type_specifier_list, _scope);
     FullySpecifiedType argTy = semantic()->check(ast->declarator, ty.qualifiedType(),
                                                  _scope, &argName);
     FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
@@ -427,7 +427,7 @@ bool CheckDeclaration::visit(TemplateDeclarationAST *ast)
 {
     Scope *scope = new Scope(_scope->owner());
 
-    for (DeclarationListAST *param = ast->template_parameters; param; param = param->next) {
+    for (DeclarationListAST *param = ast->template_parameter_list; param; param = param->next) {
        semantic()->check(param->value, scope);
     }
 
@@ -546,7 +546,7 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
     }
 
     int previousObjCVisibility = semantic()->switchObjCVisibility(Function::Public);
-    for (DeclarationListAST *it = ast->member_declarations; it; it = it->next) {
+    for (DeclarationListAST *it = ast->member_declaration_list; it; it = it->next) {
         semantic()->check(it->value, protocol->members());
     }
     (void) semantic()->switchObjCVisibility(previousObjCVisibility);
@@ -625,14 +625,14 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
     int previousObjCVisibility = semantic()->switchObjCVisibility(Function::Protected);
 
     if (ast->inst_vars_decl) {
-        for (DeclarationListAST *it = ast->inst_vars_decl->instance_variables; it; it = it->next) {
+        for (DeclarationListAST *it = ast->inst_vars_decl->instance_variable_list; it; it = it->next) {
             semantic()->check(it->value, klass->members());
         }
     }
 
     (void) semantic()->switchObjCVisibility(Function::Public);
 
-    for (DeclarationListAST *it = ast->member_declarations; it; it = it->next) {
+    for (DeclarationListAST *it = ast->member_declaration_list; it; it = it->next) {
         semantic()->check(it->value, klass->members());
     }
 
@@ -718,7 +718,7 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
 {
     int propAttrs = None;
 
-    for (ObjCPropertyAttributeListAST *iter= ast->property_attributes; iter; iter = iter->next) {
+    for (ObjCPropertyAttributeListAST *iter= ast->property_attribute_list; iter; iter = iter->next) {
         ObjCPropertyAttributeAST *attrAst = iter->value;
         if (!attrAst)
             continue;

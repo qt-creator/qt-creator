@@ -119,7 +119,7 @@ bool CheckExpression::visit(CastExpressionAST *ast)
 
 bool CheckExpression::visit(ConditionAST *ast)
 {
-    FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifiers, _scope);
+    FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifier_list, _scope);
     Name *name = 0;
     FullySpecifiedType declTy = semantic()->check(ast->declarator, typeSpecTy.qualifiedType(),
                                                   _scope, &name);
@@ -205,9 +205,9 @@ bool CheckExpression::visit(NewExpressionAST *ast)
     FullySpecifiedType typeIdTy = semantic()->check(ast->type_id, _scope);
 
     if (ast->new_type_id) {
-        FullySpecifiedType ty = semantic()->check(ast->new_type_id->type_specifier, _scope);
+        FullySpecifiedType ty = semantic()->check(ast->new_type_id->type_specifier_list, _scope);
 
-        for (NewArrayDeclaratorListAST *it = ast->new_type_id->new_array_declarators; it; it = it->next) {
+        for (NewArrayDeclaratorListAST *it = ast->new_type_id->new_array_declarator_list; it; it = it->next) {
             if (NewArrayDeclaratorAST *declarator = it->value) {
                 FullySpecifiedType exprTy = semantic()->check(declarator->expression, _scope);
             }
@@ -241,7 +241,7 @@ bool CheckExpression::visit(TypenameCallExpressionAST *ast)
 
 bool CheckExpression::visit(TypeConstructorCallAST *ast)
 {
-    FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifier, _scope);
+    FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifier_list, _scope);
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
         FullySpecifiedType exprTy = semantic()->check(it->value, _scope);
     }
@@ -251,7 +251,7 @@ bool CheckExpression::visit(TypeConstructorCallAST *ast)
 bool CheckExpression::visit(PostfixExpressionAST *ast)
 {
     FullySpecifiedType exprTy = semantic()->check(ast->base_expression, _scope);
-    for (PostfixListAST *it = ast->postfix_expressions; it; it = it->next) {
+    for (PostfixListAST *it = ast->postfix_expression_list; it; it = it->next) {
         accept(it->value); // ### not exactly.
     }
     return false;
@@ -301,7 +301,7 @@ bool CheckExpression::visit(ThrowExpressionAST *ast)
 
 bool CheckExpression::visit(TypeIdAST *ast)
 {
-    FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifier, _scope);
+    FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifier_list, _scope);
     FullySpecifiedType declTy = semantic()->check(ast->declarator, typeSpecTy.qualifiedType(),
                                                   _scope);
     _fullySpecifiedType = declTy;

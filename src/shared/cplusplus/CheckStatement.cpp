@@ -104,7 +104,7 @@ bool CheckStatement::visit(CompoundStatementAST *ast)
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
-    for (StatementListAST *it = ast->statements; it; it = it->next) {
+    for (StatementListAST *it = ast->statement_list; it; it = it->next) {
         semantic()->check(it->value, _scope);
     }
     (void) switchScope(previousScope);
@@ -149,8 +149,8 @@ bool CheckStatement::visit(ForeachStatementAST *ast)
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
-    if (ast->type_specifiers && ast->declarator) {
-        FullySpecifiedType ty = semantic()->check(ast->type_specifiers, _scope);
+    if (ast->type_specifier_list && ast->declarator) {
+        FullySpecifiedType ty = semantic()->check(ast->type_specifier_list, _scope);
         Name *name = 0;
         ty = semantic()->check(ast->declarator, ty, _scope, &name);
         unsigned location = ast->declarator->firstToken();
@@ -178,8 +178,8 @@ bool CheckStatement::visit(ObjCFastEnumerationAST *ast)
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
-    if (ast->type_specifiers && ast->declarator) {
-        FullySpecifiedType ty = semantic()->check(ast->type_specifiers, _scope);
+    if (ast->type_specifier_list && ast->declarator) {
+        FullySpecifiedType ty = semantic()->check(ast->type_specifier_list, _scope);
         Name *name = 0;
         ty = semantic()->check(ast->declarator, ty, _scope, &name);
         unsigned location = ast->declarator->firstToken();

@@ -170,8 +170,8 @@ bool ResolveExpression::visit(NewExpressionAST *ast)
 {
     if (ast->new_type_id) {
         Scope *scope = _context.expressionDocument()->globalSymbols();
-        FullySpecifiedType ty = sem.check(ast->new_type_id->type_specifier, scope);
-        ty = sem.check(ast->new_type_id->ptr_operators, ty, scope);
+        FullySpecifiedType ty = sem.check(ast->new_type_id->type_specifier_list, scope);
+        ty = sem.check(ast->new_type_id->ptr_operator_list, ty, scope);
         FullySpecifiedType ptrTy(control()->pointerType(ty));
         addResult(ptrTy);
     }
@@ -208,7 +208,7 @@ bool ResolveExpression::visit(PostfixExpressionAST *ast)
 {
     accept(ast->base_expression);
 
-    for (PostfixListAST *it = ast->postfix_expressions; it; it = it->next) {
+    for (PostfixListAST *it = ast->postfix_expression_list; it; it = it->next) {
         accept(it->value);
     }
 

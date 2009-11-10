@@ -139,7 +139,7 @@ Scope *CheckName::switchScope(Scope *scope)
 bool CheckName::visit(QualifiedNameAST *ast)
 {
     std::vector<Name *> names;
-    for (NestedNameSpecifierListAST *it = ast->nested_name_specifier; it; it = it->next) {
+    for (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list; it; it = it->next) {
         NestedNameSpecifierAST *nested_name_specifier = it->value;
         names.push_back(semantic()->check(nested_name_specifier->class_or_namespace_name, _scope));
     }
@@ -335,8 +335,8 @@ bool CheckName::visit(OperatorFunctionIdAST *ast)
 
 bool CheckName::visit(ConversionFunctionIdAST *ast)
 {
-    FullySpecifiedType ty = semantic()->check(ast->type_specifier, _scope);
-    ty = semantic()->check(ast->ptr_operators, ty, _scope);
+    FullySpecifiedType ty = semantic()->check(ast->type_specifier_list, _scope);
+    ty = semantic()->check(ast->ptr_operator_list, ty, _scope);
     _name = control()->conversionNameId(ty);
     return false;
 }
@@ -361,7 +361,7 @@ bool CheckName::visit(TemplateIdAST *ast)
 {
     Identifier *id = identifier(ast->identifier_token);
     std::vector<FullySpecifiedType> templateArguments;
-    for (TemplateArgumentListAST *it = ast->template_arguments; it;
+    for (TemplateArgumentListAST *it = ast->template_argument_list; it;
             it = it->next) {
         ExpressionAST *arg = it->value;
         FullySpecifiedType exprTy = semantic()->check(arg, _scope);
@@ -390,7 +390,7 @@ bool CheckName::visit(ObjCSelectorWithoutArgumentsAST *ast)
 bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
 {
     std::vector<Name *> names;
-    for (ObjCSelectorArgumentListAST *it = ast->selector_arguments; it; it = it->next) {
+    for (ObjCSelectorArgumentListAST *it = ast->selector_argument_list; it; it = it->next) {
         Identifier *id =  identifier(it->value->name_token);
         Name *name = control()->nameId(id);
 

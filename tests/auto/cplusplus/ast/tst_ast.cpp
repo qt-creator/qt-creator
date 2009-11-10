@@ -120,11 +120,11 @@ void tst_AST::template_id_1()
     QVERIFY(ast->asTemplateId() != 0);
     QCOMPARE(ast->asTemplateId()->identifier_token, 1U);
     QCOMPARE(ast->asTemplateId()->less_token, 2U);
-    QVERIFY(ast->asTemplateId()->template_arguments != 0);
-    QVERIFY(ast->asTemplateId()->template_arguments->value != 0);
-    QVERIFY(ast->asTemplateId()->template_arguments->value->asNumericLiteral() != 0);
-    QCOMPARE(ast->asTemplateId()->template_arguments->value->asNumericLiteral()->literal_token, 3U);
-    QVERIFY(ast->asTemplateId()->template_arguments->next == 0);
+    QVERIFY(ast->asTemplateId()->template_argument_list != 0);
+    QVERIFY(ast->asTemplateId()->template_argument_list->value != 0);
+    QVERIFY(ast->asTemplateId()->template_argument_list->value->asNumericLiteral() != 0);
+    QCOMPARE(ast->asTemplateId()->template_argument_list->value->asNumericLiteral()->literal_token, 3U);
+    QVERIFY(ast->asTemplateId()->template_argument_list->next == 0);
     QCOMPARE(ast->asTemplateId()->greater_token, 4U);
 }
 
@@ -149,9 +149,9 @@ void tst_AST::new_expression_1()
     QVERIFY(expr->new_type_id != 0);
     QVERIFY(expr->new_initializer == 0);
 
-    QVERIFY(expr->new_type_id->type_specifier != 0);
-    QVERIFY(expr->new_type_id->ptr_operators == 0);
-    QVERIFY(expr->new_type_id->new_array_declarators == 0);
+    QVERIFY(expr->new_type_id->type_specifier_list != 0);
+    QVERIFY(expr->new_type_id->ptr_operator_list == 0);
+    QVERIFY(expr->new_type_id->new_array_declarator_list == 0);
 }
 
 void tst_AST::new_expression_2()
@@ -374,7 +374,7 @@ void tst_AST::while_statement()
     CompoundStatementAST *body_stmt = stmt->statement->asCompoundStatement();
     QVERIFY(body_stmt != 0);
     QCOMPARE(body_stmt->lbrace_token, 5U);
-    QVERIFY(body_stmt->statements == 0);
+    QVERIFY(body_stmt->statement_list == 0);
     QCOMPARE(body_stmt->rbrace_token, 6U);
 }
 
@@ -396,17 +396,17 @@ void tst_AST::while_condition_statement()
     // check condition
     ConditionAST *condition = stmt->condition->asCondition();
     QVERIFY(condition != 0);
-    QVERIFY(condition->type_specifiers != 0);
-    QVERIFY(condition->type_specifiers->value->asSimpleSpecifier() != 0);
-    QCOMPARE(condition->type_specifiers->value->asSimpleSpecifier()->specifier_token, 3U);
-    QVERIFY(condition->type_specifiers->next == 0);
+    QVERIFY(condition->type_specifier_list != 0);
+    QVERIFY(condition->type_specifier_list->value->asSimpleSpecifier() != 0);
+    QCOMPARE(condition->type_specifier_list->value->asSimpleSpecifier()->specifier_token, 3U);
+    QVERIFY(condition->type_specifier_list->next == 0);
     QVERIFY(condition->declarator != 0);
     QVERIFY(condition->declarator->core_declarator != 0);
     QVERIFY(condition->declarator->core_declarator->asDeclaratorId() != 0);
     QVERIFY(condition->declarator->core_declarator->asDeclaratorId()->name != 0);
     QVERIFY(condition->declarator->core_declarator->asDeclaratorId()->name->asSimpleName() != 0);
     QCOMPARE(condition->declarator->core_declarator->asDeclaratorId()->name->asSimpleName()->identifier_token, 4U);
-    QVERIFY(condition->declarator->postfix_declarators == 0);
+    QVERIFY(condition->declarator->postfix_declarator_list == 0);
     QVERIFY(condition->declarator->initializer != 0);
     QVERIFY(condition->declarator->initializer->asSimpleName() != 0);
     QCOMPARE(condition->declarator->initializer->asSimpleName()->identifier_token, 6U);
@@ -415,7 +415,7 @@ void tst_AST::while_condition_statement()
     CompoundStatementAST *body_stmt = stmt->statement->asCompoundStatement();
     QVERIFY(body_stmt != 0);
     QCOMPARE(body_stmt->lbrace_token, 8U);
-    QVERIFY(body_stmt->statements == 0);
+    QVERIFY(body_stmt->statement_list == 0);
     QCOMPARE(body_stmt->rbrace_token, 9U);
 }
 
@@ -439,7 +439,7 @@ void tst_AST::for_statement()
     QVERIFY(stmt->statement != 0);
     QVERIFY(stmt->statement->asCompoundStatement() != 0);
     QCOMPARE(stmt->statement->asCompoundStatement()->lbrace_token, 6U);
-    QVERIFY(stmt->statement->asCompoundStatement()->statements == 0);
+    QVERIFY(stmt->statement->asCompoundStatement()->statement_list == 0);
     QCOMPARE(stmt->statement->asCompoundStatement()->rbrace_token, 7U);
 }
 
@@ -457,13 +457,13 @@ void tst_AST::cpp_initializer_or_function_declaration()
     SimpleDeclarationAST *simple_decl = stmt->declaration->asSimpleDeclaration();
     QVERIFY(simple_decl != 0);
 
-    QVERIFY(simple_decl->decl_specifier_seq != 0);
-    QVERIFY(simple_decl->decl_specifier_seq->next == 0);
-    QVERIFY(simple_decl->declarators != 0);
-    QVERIFY(simple_decl->declarators->next == 0);
+    QVERIFY(simple_decl->decl_specifier_list != 0);
+    QVERIFY(simple_decl->decl_specifier_list->next == 0);
+    QVERIFY(simple_decl->declarator_list != 0);
+    QVERIFY(simple_decl->declarator_list->next == 0);
     QCOMPARE(simple_decl->semicolon_token, 6U);
 
-    NamedTypeSpecifierAST *named_ty = simple_decl->decl_specifier_seq->value->asNamedTypeSpecifier();
+    NamedTypeSpecifierAST *named_ty = simple_decl->decl_specifier_list->value->asNamedTypeSpecifier();
     QVERIFY(named_ty != 0);
     QVERIFY(named_ty->name != 0);
 
@@ -471,11 +471,11 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QVERIFY(simple_named_ty != 0);
     QCOMPARE(simple_named_ty->identifier_token, 1U);
 
-    DeclaratorAST *declarator = simple_decl->declarators->value;
+    DeclaratorAST *declarator = simple_decl->declarator_list->value;
     QVERIFY(declarator != 0);
     QVERIFY(declarator->core_declarator != 0);
-    QVERIFY(declarator->postfix_declarators != 0);
-    QVERIFY(declarator->postfix_declarators->next == 0);
+    QVERIFY(declarator->postfix_declarator_list != 0);
+    QVERIFY(declarator->postfix_declarator_list->next == 0);
     QVERIFY(declarator->initializer == 0);
 
     DeclaratorIdAST *decl_id = declarator->core_declarator->asDeclaratorId();
@@ -484,7 +484,7 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QVERIFY(decl_id->name->asSimpleName() != 0);
     QCOMPARE(decl_id->name->asSimpleName()->identifier_token, 2U);
 
-    FunctionDeclaratorAST *fun_declarator = declarator->postfix_declarators->value->asFunctionDeclarator();
+    FunctionDeclaratorAST *fun_declarator = declarator->postfix_declarator_list->value->asFunctionDeclarator();
     QVERIFY(fun_declarator != 0);
     QCOMPARE(fun_declarator->lparen_token, 3U);
     QVERIFY(fun_declarator->parameters != 0);
@@ -492,24 +492,24 @@ void tst_AST::cpp_initializer_or_function_declaration()
 
     // check the formal arguments
     ParameterDeclarationClauseAST *param_clause = fun_declarator->parameters;
-    QVERIFY(param_clause->parameter_declarations != 0);
-    QVERIFY(param_clause->parameter_declarations->next == 0);
+    QVERIFY(param_clause->parameter_declaration_list != 0);
+    QVERIFY(param_clause->parameter_declaration_list->next == 0);
     QCOMPARE(param_clause->dot_dot_dot_token, 0U);
 
     // check the parameter
-    DeclarationListAST *declarations = param_clause->parameter_declarations;
+    DeclarationListAST *declarations = param_clause->parameter_declaration_list;
     QVERIFY(declarations);
     QVERIFY(declarations->value);
     QVERIFY(! declarations->next);
 
     ParameterDeclarationAST *param = declarations->value->asParameterDeclaration();
     QVERIFY(param);
-    QVERIFY(param->type_specifier != 0);
-    QVERIFY(param->type_specifier->next == 0);
-    QVERIFY(param->type_specifier->value->asNamedTypeSpecifier() != 0);
-    QVERIFY(param->type_specifier->value->asNamedTypeSpecifier()->name != 0);
-    QVERIFY(param->type_specifier->value->asNamedTypeSpecifier()->name->asSimpleName() != 0);
-    QCOMPARE(param->type_specifier->value->asNamedTypeSpecifier()->name->asSimpleName()->identifier_token, 4U);
+    QVERIFY(param->type_specifier_list != 0);
+    QVERIFY(param->type_specifier_list->next == 0);
+    QVERIFY(param->type_specifier_list->value->asNamedTypeSpecifier() != 0);
+    QVERIFY(param->type_specifier_list->value->asNamedTypeSpecifier()->name != 0);
+    QVERIFY(param->type_specifier_list->value->asNamedTypeSpecifier()->name->asSimpleName() != 0);
+    QCOMPARE(param->type_specifier_list->value->asNamedTypeSpecifier()->name->asSimpleName()->identifier_token, 4U);
 }
 
 void tst_AST::objc_attributes_followed_by_at_keyword()
@@ -553,7 +553,7 @@ void tst_AST::normal_array_access()
     FunctionDefinitionAST *func = ast->asFunctionDefinition();
     QVERIFY(func);
 
-    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
+    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statement_list;
     QVERIFY(bodyStatements);
     QVERIFY(bodyStatements->next);
     QVERIFY(bodyStatements->next->next);
@@ -573,8 +573,8 @@ void tst_AST::normal_array_access()
     }
 
     {
-        QVERIFY(postfixExpr->postfix_expressions && !postfixExpr->postfix_expressions->next);
-        ArrayAccessAST *rhs = postfixExpr->postfix_expressions->value->asArrayAccess();
+        QVERIFY(postfixExpr->postfix_expression_list && !postfixExpr->postfix_expression_list->next);
+        ArrayAccessAST *rhs = postfixExpr->postfix_expression_list->value->asArrayAccess();
         QVERIFY(rhs && rhs->expression);
         SimpleNameAST *b = rhs->expression->asSimpleName();
         QVERIFY(b);
@@ -597,7 +597,7 @@ void tst_AST::array_access_with_nested_expression()
     FunctionDefinitionAST *func = ast->asFunctionDefinition();
     QVERIFY(func);
 
-    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
+    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statement_list;
     QVERIFY(bodyStatements && bodyStatements->next && bodyStatements->next->next && bodyStatements->next->next->value);
     ExpressionAST *expr = bodyStatements->next->next->value->asReturnStatement()->expression;
     QVERIFY(expr);
@@ -619,8 +619,8 @@ void tst_AST::array_access_with_nested_expression()
     }
 
     {
-        QVERIFY(postfixExpr->postfix_expressions && !postfixExpr->postfix_expressions->next);
-        ArrayAccessAST *rhs = postfixExpr->postfix_expressions->value->asArrayAccess();
+        QVERIFY(postfixExpr->postfix_expression_list && !postfixExpr->postfix_expression_list->next);
+        ArrayAccessAST *rhs = postfixExpr->postfix_expression_list->value->asArrayAccess();
         QVERIFY(rhs && rhs->expression);
         SimpleNameAST *b = rhs->expression->asSimpleName();
         QVERIFY(b);
@@ -642,7 +642,7 @@ void tst_AST::objc_msg_send_expression()
     FunctionDefinitionAST *func = ast->asFunctionDefinition();
     QVERIFY(func);
 
-    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
+    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statement_list;
     QVERIFY(bodyStatements && bodyStatements->next && !bodyStatements->next->next && bodyStatements->next->value);
 
     {// check the NSObject declaration
@@ -654,8 +654,8 @@ void tst_AST::objc_msg_send_expression()
         QVERIFY(simpleDecl);
 
         {// check the type (NSObject)
-            QVERIFY(simpleDecl->decl_specifier_seq && !simpleDecl->decl_specifier_seq->next);
-            NamedTypeSpecifierAST *namedType = simpleDecl->decl_specifier_seq->value->asNamedTypeSpecifier();
+            QVERIFY(simpleDecl->decl_specifier_list && !simpleDecl->decl_specifier_list->next);
+            NamedTypeSpecifierAST *namedType = simpleDecl->decl_specifier_list->value->asNamedTypeSpecifier();
             QVERIFY(namedType && namedType->name);
             SimpleNameAST *typeName = namedType->name->asSimpleName();
             QVERIFY(typeName);
@@ -663,22 +663,22 @@ void tst_AST::objc_msg_send_expression()
         }
 
         {// check the assignment
-            QVERIFY(simpleDecl->declarators && !simpleDecl->declarators->next);
-            DeclaratorAST *declarator = simpleDecl->declarators->value;
+            QVERIFY(simpleDecl->declarator_list && !simpleDecl->declarator_list->next);
+            DeclaratorAST *declarator = simpleDecl->declarator_list->value;
             QVERIFY(declarator);
-            QVERIFY(!declarator->attributes);
+            QVERIFY(!declarator->attribute_list);
 
-            QVERIFY(declarator->ptr_operators && !declarator->ptr_operators->next
-                    &&   declarator->ptr_operators->value->asPointer()
-                    && ! declarator->ptr_operators->value->asPointer()->cv_qualifier_seq);
+            QVERIFY(declarator->ptr_operator_list && !declarator->ptr_operator_list->next
+                    &&   declarator->ptr_operator_list->value->asPointer()
+                    && ! declarator->ptr_operator_list->value->asPointer()->cv_qualifier_list);
 
             QVERIFY(declarator->core_declarator && declarator->core_declarator->asDeclaratorId());
             NameAST *objNameId = declarator->core_declarator->asDeclaratorId()->name;
             QVERIFY(objNameId && objNameId->asSimpleName());
             QCOMPARE(QLatin1String(unit->identifier(objNameId->asSimpleName()->identifier_token)->chars()), QLatin1String("obj"));
 
-            QVERIFY(!declarator->postfix_declarators);
-            QVERIFY(!declarator->post_attributes);
+            QVERIFY(!declarator->postfix_declarator_list);
+            QVERIFY(!declarator->post_attribute_list);
             ExpressionAST *initializer = declarator->initializer;
             QVERIFY(initializer);
 
@@ -729,7 +729,7 @@ void tst_AST::objc_msg_send_expression_without_selector()
     FunctionDefinitionAST *func = ast->asFunctionDefinition();
     QVERIFY(func);
 
-    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
+    StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statement_list;
     QVERIFY(bodyStatements && bodyStatements->next);
     QVERIFY(bodyStatements->next->value);
     QVERIFY(bodyStatements->next->value->asReturnStatement());

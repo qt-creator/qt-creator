@@ -80,8 +80,8 @@ unsigned AttributeSpecifierAST::lastToken() const
         return second_rparen_token + 1;
     else if (first_rparen_token)
         return first_rparen_token + 1;
-    else if (attributes)
-        return attributes->lastToken();
+    else if (attribute_list)
+        return attribute_list->lastToken();
     else if (second_lparen_token)
         return second_lparen_token + 1;
     else if (first_lparen_token)
@@ -369,8 +369,8 @@ unsigned ClassSpecifierAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    else if (member_specifiers)
-        return member_specifiers->lastToken();
+    else if (member_specifier_list)
+        return member_specifier_list->lastToken();
 
     else if (lbrace_token)
         return lbrace_token + 1;
@@ -384,8 +384,8 @@ unsigned ClassSpecifierAST::lastToken() const
     else if (name)
         return name->lastToken();
 
-    else if (attributes)
-        return attributes->lastToken();
+    else if (attribute_list)
+        return attribute_list->lastToken();
 
     return classkey_token + 1;
 }
@@ -400,8 +400,8 @@ unsigned CompoundStatementAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    else if (statements)
-        return statements->lastToken();
+    else if (statement_list)
+        return statement_list->lastToken();
 
     return lbrace_token + 1;
 }
@@ -409,8 +409,8 @@ unsigned CompoundStatementAST::lastToken() const
 
 unsigned ConditionAST::firstToken() const
 {
-    if (type_specifiers)
-        return type_specifiers->firstToken();
+    if (type_specifier_list)
+        return type_specifier_list->firstToken();
 
     return declarator->firstToken();
 }
@@ -420,8 +420,8 @@ unsigned ConditionAST::lastToken() const
     if (declarator)
         return declarator->lastToken();
 
-    else if (type_specifiers)
-        return type_specifiers->lastToken();
+    else if (type_specifier_list)
+        return type_specifier_list->lastToken();
 
     // ### assert?
     return 0;
@@ -470,11 +470,11 @@ unsigned ConversionFunctionIdAST::firstToken() const
 
 unsigned ConversionFunctionIdAST::lastToken() const
 {
-    if (ptr_operators)
-        return ptr_operators->lastToken();
+    if (ptr_operator_list)
+        return ptr_operator_list->lastToken();
 
-    else if (type_specifier)
-        return type_specifier->lastToken();
+    else if (type_specifier_list)
+        return type_specifier_list->lastToken();
 
     return operator_token + 1;
 }
@@ -510,23 +510,23 @@ unsigned CtorInitializerAST::firstToken() const
 
 unsigned CtorInitializerAST::lastToken() const
 {
-    if (member_initializers)
-        return member_initializers->lastToken();
+    if (member_initializer_list)
+        return member_initializer_list->lastToken();
     return colon_token + 1;
 }
 
 unsigned DeclaratorAST::firstToken() const
 {
-    if (attributes)
-        return attributes->firstToken();
-    if (ptr_operators)
-        return ptr_operators->firstToken();
+    if (attribute_list)
+        return attribute_list->firstToken();
+    if (ptr_operator_list)
+        return ptr_operator_list->firstToken();
     else if (core_declarator)
         return core_declarator->firstToken();
-    else if (postfix_declarators)
-        return postfix_declarators->firstToken();
-    else if (attributes)
-        return attributes->firstToken();
+    else if (postfix_declarator_list)
+        return postfix_declarator_list->firstToken();
+    else if (attribute_list)
+        return attribute_list->firstToken();
     else if (initializer)
         return initializer->firstToken();
     // ### assert?
@@ -538,20 +538,20 @@ unsigned DeclaratorAST::lastToken() const
     if (initializer)
         return initializer->lastToken();
 
-    else if (post_attributes)
-        return post_attributes->lastToken();
+    else if (post_attribute_list)
+        return post_attribute_list->lastToken();
 
-    else if (postfix_declarators)
-        return postfix_declarators->lastToken();
+    else if (postfix_declarator_list)
+        return postfix_declarator_list->lastToken();
 
     else if (core_declarator)
         return core_declarator->lastToken();
 
-    else if (ptr_operators)
-        return ptr_operators->lastToken();
+    else if (ptr_operator_list)
+        return ptr_operator_list->lastToken();
 
-    else if (attributes)
-        return attributes->lastToken();
+    else if (attribute_list)
+        return attribute_list->lastToken();
 
     // ### assert?
     return 0;
@@ -670,8 +670,8 @@ unsigned EnumSpecifierAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    if (enumerators)
-        return enumerators->lastToken();
+    if (enumerator_list)
+        return enumerator_list->lastToken();
 
     if (lbrace_token)
         return lbrace_token + 1;
@@ -699,8 +699,8 @@ unsigned EnumeratorAST::lastToken() const
 
 unsigned ExceptionDeclarationAST::firstToken() const
 {
-    if (type_specifier)
-        return type_specifier->firstToken();
+    if (type_specifier_list)
+        return type_specifier_list->firstToken();
     if (declarator)
         return declarator->firstToken();
     return dot_dot_dot_token;
@@ -714,8 +714,8 @@ unsigned ExceptionDeclarationAST::lastToken() const
     else if (declarator)
         return declarator->lastToken();
 
-    else if (type_specifier)
-        return type_specifier->lastToken();
+    else if (type_specifier_list)
+        return type_specifier_list->lastToken();
 
     return 0;
 }
@@ -731,8 +731,8 @@ unsigned ExceptionSpecificationAST::lastToken() const
     if (rparen_token)
         return rparen_token + 1;
 
-    else if (type_ids)
-        return type_ids->lastToken();
+    else if (type_id_list)
+        return type_id_list->lastToken();
 
     else if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
@@ -826,8 +826,8 @@ unsigned FunctionDeclaratorAST::lastToken() const
     if (exception_specification)
         return exception_specification->lastToken();
 
-    else if (cv_qualifier_seq)
-        return cv_qualifier_seq->lastToken();
+    else if (cv_qualifier_list)
+        return cv_qualifier_list->lastToken();
 
     else if (rparen_token)
         return rparen_token + 1;
@@ -841,8 +841,8 @@ unsigned FunctionDeclaratorAST::lastToken() const
 
 unsigned FunctionDefinitionAST::firstToken() const
 {
-    if (decl_specifier_seq)
-        return decl_specifier_seq->firstToken();
+    if (decl_specifier_list)
+        return decl_specifier_list->firstToken();
     else if (declarator)
         return declarator->firstToken();
     else if (ctor_initializer)
@@ -861,8 +861,8 @@ unsigned FunctionDefinitionAST::lastToken() const
     else if (declarator)
         return declarator->lastToken();
 
-    else if (decl_specifier_seq)
-        return decl_specifier_seq->lastToken();
+    else if (decl_specifier_list)
+        return decl_specifier_list->lastToken();
 
     // ### assert
     return 0;
@@ -934,8 +934,8 @@ unsigned LinkageBodyAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    else if (declarations)
-        return declarations->lastToken();
+    else if (declaration_list)
+        return declaration_list->lastToken();
 
     return lbrace_token + 1;
 }
@@ -1010,8 +1010,8 @@ unsigned NamespaceAST::lastToken() const
     if (linkage_body)
         return linkage_body->lastToken();
 
-    else if (attributes)
-        return attributes->lastToken();
+    else if (attribute_list)
+        return attribute_list->lastToken();
 
     else if (identifier_token)
         return identifier_token + 1;
@@ -1140,19 +1140,19 @@ unsigned NewInitializerAST::lastToken() const
 
 unsigned NewTypeIdAST::firstToken() const
 {
-    return type_specifier->firstToken();
+    return type_specifier_list->firstToken();
 }
 
 unsigned NewTypeIdAST::lastToken() const
 {
-    if (new_array_declarators)
-        return new_array_declarators->lastToken();
+    if (new_array_declarator_list)
+        return new_array_declarator_list->lastToken();
 
-    else if (ptr_operators)
-        return ptr_operators->lastToken();
+    else if (ptr_operator_list)
+        return ptr_operator_list->lastToken();
 
-    else if (type_specifier)
-        return type_specifier->lastToken();
+    else if (type_specifier_list)
+        return type_specifier_list->lastToken();
 
     // ### assert?
     return 0;
@@ -1200,7 +1200,7 @@ unsigned OperatorFunctionIdAST::lastToken() const
 
 unsigned ParameterDeclarationAST::firstToken() const
 {
-    return type_specifier->firstToken();
+    return type_specifier_list->firstToken();
 }
 
 unsigned ParameterDeclarationAST::lastToken() const
@@ -1214,8 +1214,8 @@ unsigned ParameterDeclarationAST::lastToken() const
     else if (declarator)
         return declarator->lastToken();
 
-    else if (type_specifier)
-        return type_specifier->lastToken();
+    else if (type_specifier_list)
+        return type_specifier_list->lastToken();
 
     // ### assert?
     return 0;
@@ -1224,8 +1224,8 @@ unsigned ParameterDeclarationAST::lastToken() const
 
 unsigned ParameterDeclarationClauseAST::firstToken() const
 {
-    if (parameter_declarations)
-        return parameter_declarations->firstToken();
+    if (parameter_declaration_list)
+        return parameter_declaration_list->firstToken();
     return dot_dot_dot_token;
 }
 
@@ -1233,7 +1233,7 @@ unsigned ParameterDeclarationClauseAST::lastToken() const
 {
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
-    return parameter_declarations->lastToken();
+    return parameter_declaration_list->lastToken();
 }
 
 
@@ -1244,8 +1244,8 @@ unsigned PointerAST::firstToken() const
 
 unsigned PointerAST::lastToken() const
 {
-    if (cv_qualifier_seq)
-        return cv_qualifier_seq->lastToken();
+    if (cv_qualifier_list)
+        return cv_qualifier_list->lastToken();
 
     return star_token + 1;
 }
@@ -1255,21 +1255,21 @@ unsigned PointerToMemberAST::firstToken() const
 {
     if (global_scope_token)
         return global_scope_token;
-    else if (nested_name_specifier)
-        return nested_name_specifier->firstToken();
+    else if (nested_name_specifier_list)
+        return nested_name_specifier_list->firstToken();
     return star_token;
 }
 
 unsigned PointerToMemberAST::lastToken() const
 {
-    if (cv_qualifier_seq)
-        return cv_qualifier_seq->lastToken();
+    if (cv_qualifier_list)
+        return cv_qualifier_list->lastToken();
 
     else if (star_token)
         return star_token + 1;
 
-    else if (nested_name_specifier)
-        return nested_name_specifier->lastToken();
+    else if (nested_name_specifier_list)
+        return nested_name_specifier_list->lastToken();
 
     else if (global_scope_token)
         return global_scope_token + 1;
@@ -1297,8 +1297,8 @@ unsigned PostfixExpressionAST::firstToken() const
 
 unsigned PostfixExpressionAST::lastToken() const
 {
-    if (postfix_expressions)
-        return postfix_expressions->lastToken();
+    if (postfix_expression_list)
+        return postfix_expression_list->lastToken();
     return base_expression->lastToken();
 }
 
@@ -1307,8 +1307,8 @@ unsigned QualifiedNameAST::firstToken() const
 {
     if (global_scope_token)
         return global_scope_token;
-    else if (nested_name_specifier)
-        return nested_name_specifier->firstToken();
+    else if (nested_name_specifier_list)
+        return nested_name_specifier_list->firstToken();
     return unqualified_name->firstToken();
 }
 
@@ -1317,8 +1317,8 @@ unsigned QualifiedNameAST::lastToken() const
     if (unqualified_name)
         return unqualified_name->lastToken();
 
-    if (nested_name_specifier)
-        return nested_name_specifier->lastToken();
+    if (nested_name_specifier_list)
+        return nested_name_specifier_list->lastToken();
 
     if (global_scope_token)
         return global_scope_token + 1;
@@ -1355,10 +1355,10 @@ unsigned ReturnStatementAST::lastToken() const
 
 unsigned SimpleDeclarationAST::firstToken() const
 {
-    if (decl_specifier_seq)
-        return decl_specifier_seq->firstToken();
-    else if (declarators)
-        return declarators->firstToken();
+    if (decl_specifier_list)
+        return decl_specifier_list->firstToken();
+    else if (declarator_list)
+        return declarator_list->firstToken();
     return semicolon_token;
 }
 
@@ -1367,11 +1367,11 @@ unsigned SimpleDeclarationAST::lastToken() const
     if (semicolon_token)
         return semicolon_token + 1;
 
-    else if (declarators)
-        return declarators->lastToken();
+    else if (declarator_list)
+        return declarator_list->lastToken();
 
-    else if (decl_specifier_seq)
-        return decl_specifier_seq->lastToken();
+    else if (decl_specifier_list)
+        return decl_specifier_list->lastToken();
 
     // ### assert(0);
     return 0;
@@ -1476,8 +1476,8 @@ unsigned TemplateDeclarationAST::lastToken() const
     else if (greater_token)
         return greater_token + 1;
 
-    else if (template_parameters)
-        return template_parameters->lastToken();
+    else if (template_parameter_list)
+        return template_parameter_list->lastToken();
 
     else if (less_token)
         return less_token + 1;
@@ -1503,8 +1503,8 @@ unsigned TemplateIdAST::lastToken() const
     if (greater_token)
         return greater_token + 1;
 
-    else if (template_arguments)
-        return template_arguments->lastToken();
+    else if (template_argument_list)
+        return template_argument_list->lastToken();
 
     else if (less_token)
         return less_token + 1;
@@ -1535,8 +1535,8 @@ unsigned TemplateTypeParameterAST::lastToken() const
     else if (greater_token)
         return greater_token + 1;
 
-    else if (template_parameters)
-        return template_parameters->lastToken();
+    else if (template_parameter_list)
+        return template_parameter_list->lastToken();
 
     else if (less_token)
         return less_token + 1;
@@ -1570,13 +1570,13 @@ unsigned ThrowExpressionAST::lastToken() const
 
 unsigned TranslationUnitAST::firstToken() const
 {
-    return declarations->firstToken();
+    return declaration_list->firstToken();
 }
 
 unsigned TranslationUnitAST::lastToken() const
 {
-    if (declarations)
-        return declarations->lastToken();
+    if (declaration_list)
+        return declaration_list->lastToken();
 
     // ### assert(0);
     return 0;
@@ -1601,7 +1601,7 @@ unsigned TryBlockStatementAST::lastToken() const
 
 unsigned TypeConstructorCallAST::firstToken() const
 {
-    return type_specifier->firstToken();
+    return type_specifier_list->firstToken();
 }
 
 unsigned TypeConstructorCallAST::lastToken() const
@@ -1615,8 +1615,8 @@ unsigned TypeConstructorCallAST::lastToken() const
     else if (lparen_token)
         return lparen_token + 1;
 
-    else if (type_specifier)
-        return type_specifier->lastToken();
+    else if (type_specifier_list)
+        return type_specifier_list->lastToken();
 
     // ### assert(0);
     return 0;
@@ -1625,7 +1625,7 @@ unsigned TypeConstructorCallAST::lastToken() const
 
 unsigned TypeIdAST::firstToken() const
 {
-    return type_specifier->firstToken();
+    return type_specifier_list->firstToken();
 }
 
 unsigned TypeIdAST::lastToken() const
@@ -1633,8 +1633,8 @@ unsigned TypeIdAST::lastToken() const
     if (declarator)
         return declarator->lastToken();
 
-    else if (type_specifier)
-        return type_specifier->lastToken();
+    else if (type_specifier_list)
+        return type_specifier_list->lastToken();
 
     // ### assert(0);
     return 0;
@@ -1771,8 +1771,8 @@ unsigned WhileStatementAST::lastToken() const
 // ObjC++
 unsigned ObjCClassForwardDeclarationAST::firstToken() const
 {
-    if (attributes)
-        return attributes->firstToken();
+    if (attribute_list)
+        return attribute_list->firstToken();
 
     return class_token;
 }
@@ -1790,8 +1790,8 @@ unsigned ObjCClassForwardDeclarationAST::lastToken() const
 
 unsigned ObjCProtocolForwardDeclarationAST::firstToken() const
 {
-    if (attributes)
-        return attributes->firstToken();
+    if (attribute_list)
+        return attribute_list->firstToken();
 
     return protocol_token;
 }
@@ -1809,8 +1809,8 @@ unsigned ObjCProtocolForwardDeclarationAST::lastToken() const
 
 unsigned ObjCClassDeclarationAST::firstToken() const
 {
-    if (attributes)
-        return attributes->firstToken();
+    if (attribute_list)
+        return attribute_list->firstToken();
 
     if (interface_token)
         return interface_token;
@@ -1821,7 +1821,7 @@ unsigned ObjCClassDeclarationAST::firstToken() const
 unsigned ObjCClassDeclarationAST::lastToken() const
 {
     if (end_token)                   return end_token + 1;
-    if (member_declarations)         return member_declarations->lastToken();
+    if (member_declaration_list)         return member_declaration_list->lastToken();
     if (inst_vars_decl)              return inst_vars_decl->lastToken();
     if (protocol_refs)
         return protocol_refs->lastToken();
@@ -1844,8 +1844,8 @@ unsigned ObjCClassDeclarationAST::lastToken() const
 
 unsigned ObjCProtocolDeclarationAST::firstToken() const
 {
-    if (attributes)
-        return attributes->firstToken();
+    if (attribute_list)
+        return attribute_list->firstToken();
     return protocol_token;
 }
 
@@ -1854,8 +1854,8 @@ unsigned ObjCProtocolDeclarationAST::lastToken() const
     if (end_token)
         return end_token + 1;
 
-    else if (member_declarations)
-        return member_declarations->lastToken();
+    else if (member_declaration_list)
+        return member_declaration_list->lastToken();
 
     else if (protocol_refs)
         return protocol_refs->lastToken();
@@ -1863,8 +1863,8 @@ unsigned ObjCProtocolDeclarationAST::lastToken() const
     else if (name)
         return name->lastToken();
 
-    else if (attributes)
-        return attributes->lastToken();
+    else if (attribute_list)
+        return attribute_list->lastToken();
 
     return protocol_token + 1;
 }
@@ -1997,12 +1997,12 @@ unsigned ObjCSelectorArgumentAST::lastToken() const
 
 unsigned ObjCSelectorWithArgumentsAST::firstToken() const
 {
-    return selector_arguments->firstToken();
+    return selector_argument_list->firstToken();
 }
 
 unsigned ObjCSelectorWithArgumentsAST::lastToken() const
 {
-    return selector_arguments->lastToken();
+    return selector_argument_list->lastToken();
 }
 
 unsigned ObjCSelectorExpressionAST::firstToken() const
@@ -2031,8 +2031,8 @@ unsigned ObjCInstanceVariablesDeclarationAST::lastToken() const
     if (rbrace_token)
         return rbrace_token + 1;
 
-    if (instance_variables)
-        return instance_variables->lastToken();
+    if (instance_variable_list)
+        return instance_variable_list->lastToken();
 
     return lbrace_token + 1;
 }
@@ -2064,8 +2064,8 @@ unsigned ObjCPropertyAttributeAST::lastToken() const
 
 unsigned ObjCPropertyDeclarationAST::firstToken() const
 {
-    if (attributes)
-        return attributes->firstToken();
+    if (attribute_list)
+        return attribute_list->firstToken();
 
     return property_token;
 }
@@ -2076,8 +2076,8 @@ unsigned ObjCPropertyDeclarationAST::lastToken() const
         return simple_declaration->lastToken();
     else if (rparen_token)
         return rparen_token + 1;
-    else if (property_attributes)
-        return property_attributes->lastToken();
+    else if (property_attribute_list)
+        return property_attribute_list->lastToken();
     else if (lparen_token)
         return lparen_token + 1;
     
@@ -2110,12 +2110,12 @@ unsigned ObjCMethodPrototypeAST::firstToken() const
 
 unsigned ObjCMethodPrototypeAST::lastToken() const
 {
-    if (attributes)
-        return attributes->lastToken();
+    if (attribute_list)
+        return attribute_list->lastToken();
     else if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
-    else if (arguments)
-        return arguments->lastToken();
+    else if (argument_list)
+        return argument_list->lastToken();
     else if (type_name)
         return type_name->lastToken();
     return method_type_token + 1;
@@ -2164,8 +2164,8 @@ unsigned ObjCSynthesizedPropertiesDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
-    else if (property_identifiers)
-        return property_identifiers->lastToken();
+    else if (property_identifier_list)
+        return property_identifier_list->lastToken();
     else
         return synthesized_token + 1;
 }
@@ -2179,8 +2179,8 @@ unsigned ObjCDynamicPropertiesDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
-    else if (property_identifiers)
-        return property_identifiers->lastToken();
+    else if (property_identifier_list)
+        return property_identifier_list->lastToken();
     else
         return dynamic_token + 1;
 }
@@ -2204,8 +2204,8 @@ unsigned ObjCFastEnumerationAST::lastToken() const
         return initializer->lastToken();
     else if (declarator)
         return declarator->lastToken();
-    else if (type_specifiers)
-        return type_specifiers->lastToken();
+    else if (type_specifier_list)
+        return type_specifier_list->lastToken();
     else if (lparen_token)
         return lparen_token + 1;
     else
