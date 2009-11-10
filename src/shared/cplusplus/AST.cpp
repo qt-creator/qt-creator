@@ -401,22 +401,6 @@ unsigned ClassSpecifierAST::lastToken() const
     return classkey_token + 1;
 }
 
-
-unsigned StatementListAST::firstToken() const
-{
-    return statement->firstToken();
-}
-
-unsigned StatementListAST::lastToken() const
-{
-    for (const StatementListAST *it = this; it; it = it->next) {
-        if (! it->next)
-            return it->statement->lastToken();
-    }
-
-    return 0;
-}
-
 unsigned CompoundStatementAST::firstToken() const
 {
     return lbrace_token;
@@ -429,7 +413,7 @@ unsigned CompoundStatementAST::lastToken() const
 
     for (StatementListAST *it = statements; it; it = it->next) {
         if (! it->next)
-            return it->statement->lastToken();
+            return it->value->lastToken();
     }
 
     return lbrace_token + 1;

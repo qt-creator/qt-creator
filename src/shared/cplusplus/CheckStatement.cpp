@@ -105,7 +105,7 @@ bool CheckStatement::visit(CompoundStatementAST *ast)
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
     for (StatementListAST *it = ast->statements; it; it = it->next) {
-        semantic()->check(it->statement, _scope);
+        semantic()->check(it->value, _scope);
     }
     (void) switchScope(previousScope);
     return false;

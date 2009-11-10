@@ -2439,7 +2439,7 @@ bool Parser::parseCompoundStatement(StatementAST *&node)
                 skipUntilStatement();
             } else {
                 *statement_ptr = new (_pool) StatementListAST;
-                (*statement_ptr)->statement = statement;
+                (*statement_ptr)->value = statement;
                 statement_ptr = &(*statement_ptr)->next;
             }
         }

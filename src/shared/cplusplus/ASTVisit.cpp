@@ -180,14 +180,6 @@ void CaseStatementAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void StatementListAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(statement, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void CompoundStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

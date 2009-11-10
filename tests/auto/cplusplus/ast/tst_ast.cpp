@@ -557,8 +557,8 @@ void tst_AST::normal_array_access()
     QVERIFY(bodyStatements);
     QVERIFY(bodyStatements->next);
     QVERIFY(bodyStatements->next->next);
-    QVERIFY(bodyStatements->next->next->statement);
-    ExpressionAST *expr = bodyStatements->next->next->statement->asReturnStatement()->expression;
+    QVERIFY(bodyStatements->next->next->value);
+    ExpressionAST *expr = bodyStatements->next->next->value->asReturnStatement()->expression;
     QVERIFY(expr);
 
     PostfixExpressionAST *postfixExpr = expr->asPostfixExpression();
@@ -598,8 +598,8 @@ void tst_AST::array_access_with_nested_expression()
     QVERIFY(func);
 
     StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
-    QVERIFY(bodyStatements && bodyStatements->next && bodyStatements->next->next && bodyStatements->next->next->statement);
-    ExpressionAST *expr = bodyStatements->next->next->statement->asReturnStatement()->expression;
+    QVERIFY(bodyStatements && bodyStatements->next && bodyStatements->next->next && bodyStatements->next->next->value);
+    ExpressionAST *expr = bodyStatements->next->next->value->asReturnStatement()->expression;
     QVERIFY(expr);
 
     CastExpressionAST *castExpr = expr->asCastExpression();
@@ -643,10 +643,10 @@ void tst_AST::objc_msg_send_expression()
     QVERIFY(func);
 
     StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
-    QVERIFY(bodyStatements && bodyStatements->next && !bodyStatements->next->next && bodyStatements->next->statement);
+    QVERIFY(bodyStatements && bodyStatements->next && !bodyStatements->next->next && bodyStatements->next->value);
 
     {// check the NSObject declaration
-        DeclarationStatementAST *firstStatement = bodyStatements->statement->asDeclarationStatement();
+        DeclarationStatementAST *firstStatement = bodyStatements->value->asDeclarationStatement();
         QVERIFY(firstStatement);
         DeclarationAST *objDecl = firstStatement->declaration;
         QVERIFY(objDecl);
@@ -692,7 +692,7 @@ void tst_AST::objc_msg_send_expression()
     }
 
     {// check the return statement
-        ExpressionAST *expr = bodyStatements->next->statement->asReturnStatement()->expression;
+        ExpressionAST *expr = bodyStatements->next->value->asReturnStatement()->expression;
         QVERIFY(expr);
 
         ObjCMessageExpressionAST *msgExpr = expr->asObjCMessageExpression();
@@ -729,9 +729,9 @@ void tst_AST::objc_msg_send_expression_without_selector()
 
     StatementListAST *bodyStatements = func->function_body->asCompoundStatement()->statements;
     QVERIFY(bodyStatements && bodyStatements->next);
-    QVERIFY(bodyStatements->next->statement);
-    QVERIFY(bodyStatements->next->statement->asReturnStatement());
-    QVERIFY(!bodyStatements->next->statement->asReturnStatement()->expression);
+    QVERIFY(bodyStatements->next->value);
+    QVERIFY(bodyStatements->next->value->asReturnStatement());
+    QVERIFY(!bodyStatements->next->value->asReturnStatement()->expression);
 }
 
 QTEST_APPLESS_MAIN(tst_AST)

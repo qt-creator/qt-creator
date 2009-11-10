@@ -607,22 +607,6 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
 };
 
-class CPLUSPLUS_EXPORT StatementListAST: public AST
-{
-public:
-    StatementAST *statement;
-    StatementListAST *next;
-
-public:
-    virtual StatementListAST *asStatementList() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-};
-
 class CPLUSPLUS_EXPORT CompoundStatementAST: public StatementAST
 {
 public:
