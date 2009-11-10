@@ -1034,9 +1034,16 @@ static inline QString msgStepFailed(unsigned long executionStatus, int threadId,
     return QString::fromLatin1("Thread %1: Unable to step into: %2").arg(threadId).arg(why);
 }
 
-// Step with  DEBUG_STATUS_STEP_OVER ('p'-command) or
+// Step out has to be done via executing 'gu'. TODO: Remove once it is
+// accessible via normal API for SetExecutionStatus().
+
+enum { CdbExtendedExecutionStatusStepOut = 7452347 };
+
+// Step with  DEBUG_STATUS_STEP_OVER ('p'-command),
 // DEBUG_STATUS_STEP_INTO ('t'-trace-command) or
+// CdbExtendedExecutionStatusStepOut ("gu"-command)
 // its reverse equivalents in the case of single threads.
+
 bool CdbDebugEngine::step(unsigned long executionStatus)
 {
     if (debugCDBExecution)
@@ -1068,7 +1075,7 @@ bool CdbDebugEngine::step(unsigned long executionStatus)
     m_d->setCodeLevel(); // Step by instruction or source line
     setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
     bool success = false;
-    if (sameThread) { // Step event-triggering thread, use fast API
+    if (sameThread && executionStatus != CdbExtendedExecutionStatusStepOut) { // Step event-triggering thread, use fast API
         const HRESULT hr = m_d->m_cif.debugControl->SetExecutionStatus(executionStatus);
         success = SUCCEEDED(hr);
         if (!success)
@@ -1077,8 +1084,18 @@ bool CdbDebugEngine::step(unsigned long executionStatus)
         // Need to use a command to explicitly specify the current thread
         QString command;
         QTextStream str(&command);
-        str << '~' << m_d->m_currentThreadId << ' '
-                << (executionStatus == DEBUG_STATUS_STEP_OVER ? 'p' : 't');
+        str << '~' << m_d->m_currentThreadId << ' ';
+        switch (executionStatus) {
+        case DEBUG_STATUS_STEP_OVER:
+            str << 'p';
+            break;
+        case DEBUG_STATUS_STEP_INTO:
+            str << 't';            
+            break;
+        case CdbExtendedExecutionStatusStepOut:
+            str << "gu";
+            break;
+        }
         manager()->showDebuggerOutput(tr("Stepping %1").arg(command));
         const HRESULT hr = m_d->m_cif.debugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, command.toLatin1().constData(), DEBUG_EXECUTE_ECHO);
         success = SUCCEEDED(hr);
@@ -1121,44 +1138,8 @@ void CdbDebugEngine::nextIExec()
 
 void CdbDebugEngine::stepOutExec()
 {
-    if (debugCDBExecution)
-        qDebug() << "stepOutExec";
-   // emulate gdb 'exec-finish' (exec until return of current function)
-   // by running up to address of the above stack frame (mostly works).
-   const StackHandler* sh = manager()->stackHandler();
-   const int idx = sh->currentIndex() + 1;
-   const QList<StackFrame> stackframes = sh->frames();
-   if (idx < 0 || idx >= stackframes.size()) {
-       warning(QString::fromLatin1("Cannot step out of stack frame %1.").arg(idx));
-       return;
-   }
-   // Set a temporary breakpoint and continue
-   const StackFrame& frame = stackframes.at(idx);
-   bool success = false;
-   QString errorMessage;
-   do {
-       const ULONG64 address = frame.address.toULongLong(&success, 16);
-       if (!success) {
-           errorMessage = QLatin1String("Cannot obtain address from stack frame");
-           break;
-       }
-       manager()->showDebuggerOutput(LogMisc, tr("Running to 0x%1...").arg(address, 0, 16));
-       IDebugBreakpoint2* pBP;
-       HRESULT hr = m_d->m_cif.debugControl->AddBreakpoint2(DEBUG_BREAKPOINT_CODE, DEBUG_ANY_ID, &pBP);
-       if (FAILED(hr) || !pBP) {
-           errorMessage = QString::fromLatin1("Cannot create temporary breakpoint: %1").arg(msgDebugEngineComResult(hr));
-           break;
-       }
-
-       pBP->SetOffset(address);
-       pBP->AddFlags(DEBUG_BREAKPOINT_ENABLED);
-       pBP->AddFlags(DEBUG_BREAKPOINT_ONE_SHOT);
-       if (!m_d->continueInferior(&errorMessage))
-           break;
-       success = true;
-   } while (false);
-   if (!success)
-       warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
+    if (!manager()->isReverseDebugging())
+        step(CdbExtendedExecutionStatusStepOut);
 }
 
 void CdbDebugEngine::continueInferior()
