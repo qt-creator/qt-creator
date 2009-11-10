@@ -3415,7 +3415,11 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
             data1.name = _(name.data());
         else
             data1.name = QString::number(i);
-        data1.iname = data.iname + _c('.') + data1.name;
+        GdbMi iname = child.findChild("iname");
+        if (iname.isValid())
+            data1.iname = _(iname.data());
+        else
+            data1.iname = data.iname + _c('.') + data1.name;
         if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
             data1.name = _c('[') + data1.name + _c(']');
         QByteArray key = child.findChild("key").data();
