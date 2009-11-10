@@ -1153,6 +1153,33 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
     setState(InferiorStopped);
 
+    // Due to LD_PRELOADing the dumpers, these events can occur even before
+    // reaching the entry point. So handle it before the entry point hacks below.
+    if (reason.isEmpty() && m_gdbVersion < 70000 && !m_isMacGdb) {
+        // On Linux it reports "Stopped due to shared library event\n", but
+        // on Windows it simply forgets about it. Thus, we identify the response
+        // based on it having no frame information.
+        if (!data.findChild("frame").isValid()) {
+            m_modulesListOutdated = m_sourcesListOutdated = true;
+            // Each stop causes a roundtrip and button flicker, so prevent
+            // a flood of useless stops. Will be automatically re-enabled.
+            postCommand(_("set stop-on-solib-events 0"));
+#if 0
+            // The related code (handleAqcuiredInferior()) is disabled as well.
+            if (theDebuggerBoolSetting(SelectedPluginBreakpoints)) {
+                QString dataStr = _(data.toString());
+                debugMessage(_("SHARED LIBRARY EVENT: ") + dataStr);
+                QString pat = theDebuggerStringSetting(SelectedPluginBreakpointsPattern);
+                debugMessage(_("PATTERN: ") + pat);
+                postCommand(_("sharedlibrary ") + pat);
+                showStatusMessage(tr("Loading %1...").arg(dataStr));
+            }
+#endif
+            continueInferiorInternal();
+            return;
+        }
+    }
+
 #ifdef Q_OS_LINUX
     if (!m_entryPoint.isEmpty()) {
         GdbMi frameData = data.findChild("frame");
@@ -1175,27 +1202,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         }
         // We are past the initial stops. No need to waste time on further checks.
         m_entryPoint.clear();
-    }
-#endif
-
-#if 0
-    // The related code (handleAqcuiredInferior()) is disabled as well.
-    // When re-enabling, try something to avoid spurious source list updates
-    // due to unrelated no-reason stops.
-    const QByteArray &msg = data.findChild("consolestreamoutput").data();
-    if (msg.contains("Stopped due to shared library event") || reason.isEmpty()) {
-        m_modulesListOutdated = m_sourcesListOutdated = true;
-        if (theDebuggerBoolSetting(SelectedPluginBreakpoints)) {
-            QString dataStr = _(data.toString());
-            debugMessage(_("SHARED LIBRARY EVENT: ") + dataStr);
-            QString pat = theDebuggerStringSetting(SelectedPluginBreakpointsPattern);
-            debugMessage(_("PATTERN: ") + pat);
-            postCommand(_("sharedlibrary ") + pat);
-            continueInferiorInternal();
-            showStatusMessage(tr("Loading %1...").arg(dataStr));
-            return;
-        }
-        // fall through
     }
 #endif
 
@@ -1268,11 +1274,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
         reloadModulesInternal(); // This is for display only
     if (m_sourcesListOutdated)
         reloadSourceFilesInternal(); // This needs to be done before fullName() may need it
-
-    // Older gdb versions do not produce "library loaded" messages
-    // so the breakpoint update is not triggered.
-    if (m_gdbVersion < 70000 && !m_isMacGdb)
-        postCommand(_("-break-list"), CB(handleBreakList));
 
     QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
@@ -2249,6 +2250,8 @@ void GdbEngine::reloadModulesInternal()
 {
     m_modulesListOutdated = false;
     postCommand(_("info shared"), NeedsStop, CB(handleModulesList));
+    if (m_gdbVersion < 70000 && !m_isMacGdb)
+        postCommand(_("set stop-on-solib-events 1"));
 }
 
 void GdbEngine::handleModulesList(const GdbResponse &response)
@@ -2317,6 +2320,8 @@ void GdbEngine::reloadSourceFilesInternal()
     m_sourcesListOutdated = false;
     postCommand(_("-file-list-exec-source-files"), NeedsStop, CB(handleQuerySources));
     postCommand(_("-break-list"), CB(handleBreakList));
+    if (m_gdbVersion < 70000 && !m_isMacGdb)
+        postCommand(_("set stop-on-solib-events 1"));
 }
 
 
