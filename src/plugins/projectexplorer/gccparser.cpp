@@ -29,6 +29,7 @@
 
 #include "gccparser.h"
 #include "projectexplorerconstants.h"
+#include "taskwindow.h"
 
 using namespace ProjectExplorer;
 
@@ -72,17 +73,18 @@ void GccParser::stdError(const QString & line)
         QString description = m_regExpLinker.cap(2);
         emit addToTaskWindow(
                 m_regExpLinker.cap(1), //filename
-                ProjectExplorer::BuildParserInterface::Error,
+                TaskWindow::Error,
                 -1, //linenumber
                 description);
+        //qDebug()<<"m_regExpLinker"<<m_regExpLinker.cap(2);
     } else if (m_regExp.indexIn(lne) > -1) {
-        ProjectExplorer::BuildParserInterface::PatternType type;
+        TaskWindow::TaskType type;
         if (m_regExp.cap(5) == "warning")
-            type = ProjectExplorer::BuildParserInterface::Warning;
+            type = TaskWindow::Warning;
         else if (m_regExp.cap(5) == "error")
-            type = ProjectExplorer::BuildParserInterface::Error;
+            type = TaskWindow::Error;
         else
-            type = ProjectExplorer::BuildParserInterface::Unknown;
+            type = TaskWindow::Unknown;
 
         QString description =  m_regExp.cap(6);
 
@@ -94,7 +96,7 @@ void GccParser::stdError(const QString & line)
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
         emit addToTaskWindow(
                 m_regExpIncluded.cap(1), //filename
-                ProjectExplorer::BuildParserInterface::Unknown,
+                TaskWindow::Unknown,
                 m_regExpIncluded.cap(2).toInt(), //linenumber
                 lne //description
                 );

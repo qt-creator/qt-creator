@@ -29,44 +29,69 @@
 
 #include "taskwindow.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <extensionsystem/pluginmanager.h>
-#include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
-#include <projectexplorerconstants.h>
+#include <texteditor/itexteditor.h>
 
 #include <QtCore/QDir>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QHeaderView>
-#include <QtGui/QListView>
-#include <QtGui/QPainter>
-#include <QtCore/QAbstractItemModel>
-#include <QtGui/QSortFilterProxyModel>
+#include <QtCore/QFileInfo>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
-#include <QtGui/QFont>
-#include <QtGui/QFontMetrics>
-#include <QtGui/QTextLayout>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QListView>
+#include <QtGui/QPainter>
+#include <QtGui/QStyledItemDelegate>
+#include <QtGui/QSortFilterProxyModel>
+
 #include <QDebug>
 
-using namespace ProjectExplorer::Internal;
+namespace ProjectExplorer {
+namespace Internal {
 
-// Internal Struct for TaskModel
-struct TaskItem
+class TaskView : public QListView
 {
-    QString description;
-    QString file;
-    int line;
-    bool fileNotFound;
-    ProjectExplorer::BuildParserInterface::PatternType type;
+public:
+    TaskView(QWidget *parent = 0);
+    ~TaskView();
+    void resizeEvent(QResizeEvent *e);
+    void keyPressEvent(QKeyEvent *e);
 };
 
-class ProjectExplorer::Internal::TaskModel : public QAbstractItemModel
+class TaskDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+public:
+    TaskDelegate(QObject * parent = 0);
+    ~TaskDelegate();
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+    // TaskView uses this method if the size of the taskview changes
+    void emitSizeHintChanged(const QModelIndex &index);
+
+public slots:
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
+private:
+    void generateGradientPixmap(int width, int height, QColor color, bool selected) const;
+};
+
+class TaskWindowContext : public Core::IContext
+{
+public:
+    TaskWindowContext(QWidget *widget);
+    virtual QList<int> context() const;
+    virtual QWidget *widget();
+private:
+    QWidget *m_taskList;
+    QList<int> m_context;
+};
+
+class TaskModel : public QAbstractItemModel
 {
 public:
     // Model stuff
@@ -76,25 +101,34 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    void clear();
-    void addTask(ProjectExplorer::BuildParserInterface::PatternType type,
-                         const QString &description, const QString &file, int line);
+
+    void addCategory(const QString &categoryId, const QString &categoryName);
+
+    QList<TaskWindow::Task> tasks(const QString &categoryId = QString()) const;
+    void addTask(const TaskWindow::Task &task);
+    void clearTasks(const QString &categoryId = QString());
+
     int sizeOfFile();
     int sizeOfLineNumber();
     void setFileNotFound(const QModelIndex &index, bool b);
 
     enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type };
 
-    QIcon iconFor(ProjectExplorer::BuildParserInterface::PatternType type);
+    QIcon iconFor(TaskWindow::TaskType type);
+
 private:
-    QList<TaskItem> m_items;
+    QHash<QString,QString> m_categories; // category id -> display name
+    QList<TaskWindow::Task> m_tasks;   // all tasks (in order of insertion)
+    QMap<QString,QList<TaskWindow::Task> > m_tasksInCategory; // categoryId->tasks
+
+    QHash<QString,bool> m_fileNotFound;
     int m_maxSizeOfFileName;
     QIcon m_errorIcon;
     QIcon m_warningIcon;
     QIcon m_unspecifiedIcon;
 };
 
-class ProjectExplorer::Internal::TaskFilterModel : public QSortFilterProxyModel
+class TaskFilterModel : public QSortFilterProxyModel
 {
 public:
     TaskFilterModel(TaskModel *sourceModel, QObject *parent = 0);
@@ -119,6 +153,14 @@ private:
     bool m_includeWarnings;
     bool m_includeErrors;
 };
+
+} // Internal
+} // ProjectExplorer
+
+
+using namespace ProjectExplorer;
+using namespace ProjectExplorer::Internal;
+
 
 ////
 //  TaskView
@@ -164,17 +206,31 @@ TaskModel::TaskModel()
 
 }
 
-void TaskModel::addTask(ProjectExplorer::BuildParserInterface::PatternType type, const QString &description, const QString &file, int line)
+void TaskModel::addCategory(const QString &categoryId, const QString &categoryName)
 {
-    TaskItem task;
-    task.description = description;
-    task.file = file;
-    task.line = line;
-    task.type = type;
-    task.fileNotFound = false;
+    Q_ASSERT(!categoryId.isEmpty());
+    m_categories.insert(categoryId, categoryName);
+}
 
-    beginInsertRows(QModelIndex(), m_items.size(), m_items.size());
-    m_items.append(task);
+QList<TaskWindow::Task> TaskModel::tasks(const QString &categoryId) const
+{
+    if (categoryId.isEmpty()) {
+        return m_tasks;
+    } else {
+        return m_tasksInCategory.value(categoryId);
+    }
+}
+
+void TaskModel::addTask(const TaskWindow::Task &task)
+{
+    Q_ASSERT(m_categories.keys().contains(task.category));
+
+    QList<TaskWindow::Task> tasksInCategory = m_tasksInCategory.value(task.category);
+    tasksInCategory.append(task);
+    m_tasksInCategory.insert(task.category, tasksInCategory);
+
+    beginInsertRows(QModelIndex(), m_tasks.size(), m_tasks.size());
+    m_tasks.append(task);
     endInsertRows();
 
     QFont font;
@@ -182,18 +238,48 @@ void TaskModel::addTask(ProjectExplorer::BuildParserInterface::PatternType type,
     QString filename = task.file;
     int pos = filename.lastIndexOf("/");
     if (pos != -1)
-        filename = file.mid(pos +1);
+        filename = task.file.mid(pos +1);
+
     m_maxSizeOfFileName = qMax(m_maxSizeOfFileName, fm.width(filename));
 }
+//
+//void TaskModel::removeTask(const ITaskWindow::Task &task)
+//{
+//    Q_ASSERT(m_tasks.contains(task));
+//    int index = m_tasks.indexOf(task);
+//    beginRemoveRows(QModelIndex(), index, index);
+//    m_tasks.removeAt(index);
+//    endRemoveRows();
+//}
 
-void TaskModel::clear()
+void TaskModel::clearTasks(const QString &categoryId)
 {
-    if (m_items.isEmpty())
-        return;
-    beginRemoveRows(QModelIndex(), 0, m_items.size() -1);
-    m_items.clear();
-    endRemoveRows();
-    m_maxSizeOfFileName = 0;
+    if (categoryId.isEmpty()) {
+        if (m_tasks.size() == 0)
+            return;
+        beginRemoveRows(QModelIndex(), 0, m_tasks.size() -1);
+        m_tasks.clear();
+        m_tasksInCategory.clear();
+        endRemoveRows();
+        m_maxSizeOfFileName = 0;
+    } else {
+        // TODO: Optimize this for consecutive rows
+        foreach (const TaskWindow::Task &task, m_tasksInCategory.value(categoryId)) {
+            int index = m_tasks.indexOf(task);
+            Q_ASSERT(index >= 0);
+            beginRemoveRows(QModelIndex(), index, index);
+
+            m_tasks.removeAt(index);
+
+            QList<TaskWindow::Task> tasksInCategory = m_tasksInCategory.value(categoryId);
+            tasksInCategory.removeOne(task);
+            m_tasksInCategory.insert(categoryId, tasksInCategory);
+
+            endRemoveRows();
+        }
+
+        // what to do with m_maxSizeOfFileName ?
+    }
 }
 
 
@@ -212,7 +298,7 @@ QModelIndex TaskModel::parent(const QModelIndex &child) const
 
 int TaskModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_items.count();
+    return parent.isValid() ? 0 : m_tasks.count();
 }
 
 int TaskModel::columnCount(const QModelIndex &parent) const
@@ -222,27 +308,27 @@ int TaskModel::columnCount(const QModelIndex &parent) const
 
 QVariant TaskModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_items.size() || index.column() != 0)
+    if (!index.isValid() || index.row() >= m_tasks.size() || index.column() != 0)
         return QVariant();
 
     if (role == TaskModel::File)
-        return m_items.at(index.row()).file;
+        return m_tasks.at(index.row()).file;
     else if (role == TaskModel::Line)
-        return m_items.at(index.row()).line;
+        return m_tasks.at(index.row()).line;
     else if (role == TaskModel::Description)
-        return m_items.at(index.row()).description;
+        return m_tasks.at(index.row()).description;
     else if (role == TaskModel::FileNotFound)
-        return m_items.at(index.row()).fileNotFound;
+        return m_fileNotFound.value(m_tasks.at(index.row()).file);
     else if (role == TaskModel::Type)
-        return (int)m_items.at(index.row()).type;
+        return (int)m_tasks.at(index.row()).type;
     return QVariant();
 }
 
-QIcon TaskModel::iconFor(ProjectExplorer::BuildParserInterface::PatternType type)
+QIcon TaskModel::iconFor(TaskWindow::TaskType type)
 {
-    if (type == ProjectExplorer::BuildParserInterface::Error)
+    if (type == TaskWindow::Error)
         return m_errorIcon;
-    else if (type == ProjectExplorer::BuildParserInterface::Warning)
+    else if (type == TaskWindow::Warning)
         return m_warningIcon;
     else
         return m_unspecifiedIcon;
@@ -262,8 +348,8 @@ int TaskModel::sizeOfLineNumber()
 
 void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
 {
-    if (idx.isValid() && idx.row() < m_items.size()) {
-        m_items[idx.row()].fileNotFound = b;
+    if (idx.isValid() && idx.row() < m_tasks.size()) {
+        m_fileNotFound.insert(m_tasks[idx.row()].file, b);
         emit dataChanged(idx, idx);
     }
 }
@@ -288,15 +374,15 @@ TaskModel *TaskFilterModel::taskModel() const
 bool TaskFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-    ProjectExplorer::BuildParserInterface::PatternType type = ProjectExplorer::BuildParserInterface::PatternType(index.data(TaskModel::Type).toInt());
+    TaskWindow::TaskType type = TaskWindow::TaskType(index.data(TaskModel::Type).toInt());
     switch (type) {
-    case ProjectExplorer::BuildParserInterface::Unknown:
+    case TaskWindow::Unknown:
         return m_includeUnknowns;
 
-    case ProjectExplorer::BuildParserInterface::Warning:
+    case TaskWindow::Warning:
         return m_includeWarnings;
 
-    case ProjectExplorer::BuildParserInterface::Error:
+    case TaskWindow::Error:
         return m_includeErrors;
     }
 
@@ -308,7 +394,7 @@ bool TaskFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
 // TaskWindow
 /////
 
-static QToolButton *createFilterButton(ProjectExplorer::BuildParserInterface::PatternType type,
+static QToolButton *createFilterButton(TaskWindow::TaskType type,
                                        const QString &toolTip, TaskModel *model,
                                        QObject *receiver, const char *slot)
 {
@@ -359,12 +445,11 @@ TaskWindow::TaskWindow()
 
     connect(m_copyAction, SIGNAL(triggered()), SLOT(copy()));
 
-    m_filterWarningsButton = createFilterButton(ProjectExplorer::BuildParserInterface::Warning,
+    m_filterWarningsButton = createFilterButton(TaskWindow::Warning,
                                                 tr("Show Warnings"), m_model,
                                                 this, SLOT(setShowWarnings(bool)));
 
-    m_errorCount = 0;
-    m_currentTask = -1;
+    updateActions();
 }
 
 TaskWindow::~TaskWindow()
@@ -386,12 +471,11 @@ QWidget *TaskWindow::outputWidget(QWidget *)
     return m_listview;
 }
 
-void TaskWindow::clearContents()
+void TaskWindow::clearTasks(const QString &categoryId)
 {
-    m_errorCount = 0;
-    m_currentTask = -1;
-    m_model->clear();
-    m_copyAction->setEnabled(false);
+    m_model->clearTasks(categoryId);
+
+    updateActions();
     emit tasksChanged();
     navigateStateChanged();
 }
@@ -400,16 +484,19 @@ void TaskWindow::visibilityChanged(bool /* b */)
 {
 }
 
-void TaskWindow::addItem(ProjectExplorer::BuildParserInterface::PatternType type,
-                         const QString &description, const QString &file, int line)
+void TaskWindow::addCategory(const QString &categoryId, const QString &displayName)
 {
-    m_model->addTask(type, description, file, line);
-    if (type == ProjectExplorer::BuildParserInterface::Error)
-        ++m_errorCount;
-    m_copyAction->setEnabled(true);
+    Q_ASSERT(!categoryId.isEmpty());
+    m_model->addCategory(categoryId, displayName);
+}
+
+void TaskWindow::addTask(const Task &task)
+{
+    m_model->addTask(task);
+
+    updateActions();
     emit tasksChanged();
-    if (m_model->rowCount() == 1)
-        navigateStateChanged();
+    navigateStateChanged();
 }
 
 void TaskWindow::showTaskInFile(const QModelIndex &index)
@@ -440,10 +527,10 @@ void TaskWindow::copy()
     QString description = index.data(TaskModel::Description).toString();
     QString type;
     switch (index.data(TaskModel::Type).toInt()) {
-    case ProjectExplorer::BuildParserInterface::Error:
+    case TaskWindow::Error:
         type = "error: ";
         break;
-    case ProjectExplorer::BuildParserInterface::Warning:
+    case TaskWindow::Warning:
         type = "warning: ";
         break;
     }
@@ -457,19 +544,31 @@ void TaskWindow::setShowWarnings(bool show)
     m_filter->setFilterIncludesUnknowns(show); // "Unknowns" are often associated with warnings
 }
 
-int TaskWindow::numberOfTasks() const
+int TaskWindow::taskCount(const QString &categoryId) const
 {
-    return m_model->rowCount(QModelIndex());
+    return m_model->tasks(categoryId).count();
 }
 
-int TaskWindow::numberOfErrors() const
+int TaskWindow::errorTaskCount(const QString &categoryId) const
 {
-    return m_errorCount;
+    int errorTaskCount = 0;
+
+    foreach (const Task &task, m_model->tasks(categoryId)) {
+        if (task.type == TaskWindow::Error)
+            ++ errorTaskCount;
+    }
+
+    return errorTaskCount;
 }
 
 int TaskWindow::priorityInStatusBar() const
 {
     return 90;
+}
+
+void TaskWindow::clearContents()
+{
+    clearTasks();
 }
 
 bool TaskWindow::hasFocus()
@@ -539,6 +638,11 @@ void TaskWindow::goToPrev()
 bool TaskWindow::canNavigate()
 {
     return true;
+}
+
+void TaskWindow::updateActions()
+{
+    m_copyAction->setEnabled(m_model->tasks().count() > 0);
 }
 
 /////
@@ -636,7 +740,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     painter->setPen(textColor);
 
     TaskModel *model = static_cast<TaskFilterModel *>(view->model())->taskModel();
-    ProjectExplorer::BuildParserInterface::PatternType type = ProjectExplorer::BuildParserInterface::PatternType(index.data(TaskModel::Type).toInt());
+    TaskWindow::TaskType type = TaskWindow::TaskType(index.data(TaskModel::Type).toInt());
     QIcon icon = model->iconFor(type);
     painter->drawPixmap(2, opt.rect.top() + 2, icon.pixmap(16, 16));
 
@@ -727,3 +831,22 @@ QWidget *TaskWindowContext::widget()
     return m_taskList;
 }
 
+
+//
+// functions
+//
+bool ProjectExplorer::operator==(const TaskWindow::Task &t1, const TaskWindow::Task &t2)
+{
+    return t1.type == t2.type
+            && t1.line == t2.line
+            && t1.description == t2.description
+            && t1.file == t2.file
+            && t1.category == t2.category;
+}
+
+uint ProjectExplorer::qHash(const TaskWindow::Task &task)
+{
+    return qHash(task.file) + task.line;
+}
+
+#include "taskwindow.moc"

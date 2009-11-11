@@ -42,10 +42,10 @@ namespace ProjectExplorer {
 
 namespace Internal {
     class CompileOutputWindow;
-    class TaskWindow;
     class BuildProgressFuture;
 }
 
+class TaskWindow;
 class BuildStep;
 class Project;
 class ProjectExplorerPlugin;
@@ -109,7 +109,7 @@ private:
     void decrementActiveBuildSteps(Project *pro);
 
     Internal::CompileOutputWindow *m_outputWindow;
-    Internal::TaskWindow *m_taskWindow;
+    TaskWindow *m_taskWindow;
 
     QList<BuildStep *> m_buildQueue;
     QStringList m_configurations; // the corresponding configuration to the m_buildQueue

@@ -79,12 +79,12 @@ void MsvcParser::stdOutput(const QString & line)
     }
 }
 
-ProjectExplorer::BuildParserInterface::PatternType MsvcParser::toType(int number)
+TaskWindow::TaskType MsvcParser::toType(int number)
 {
     if (number == 0)
-        return ProjectExplorer::BuildParserInterface::Unknown;
+        return TaskWindow::Unknown;
     else if (number > 4000 && number < 5000)
-        return ProjectExplorer::BuildParserInterface::Warning;
+        return TaskWindow::Warning;
     else
-        return ProjectExplorer::BuildParserInterface::Error;
+        return TaskWindow::Error;
 }

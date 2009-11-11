@@ -82,12 +82,12 @@ void BuildProgress::updateState()
 {
     if (!m_taskWindow)
         return;
-    int errors = m_taskWindow->numberOfErrors();
+    int errors = m_taskWindow->errorTaskCount();
     bool haveErrors = (errors > 0);
     m_errorIcon->setEnabled(haveErrors);
     m_errorLabel->setEnabled(haveErrors);
     m_errorLabel->setText(QString("%1").arg(errors));
-    int warnings = m_taskWindow->numberOfTasks()-errors;
+    int warnings = m_taskWindow->taskCount()-errors;
     bool haveWarnings = (warnings > 0);
     m_warningIcon->setEnabled(haveWarnings);
     m_warningLabel->setEnabled(haveWarnings);

@@ -41,8 +41,6 @@ class PROJECTEXPLORER_EXPORT BuildParserInterface : public QObject
 {
     Q_OBJECT
 public:
-    enum PatternType { Unknown, Warning, Error };
-
     virtual ~BuildParserInterface() {}
     virtual QString name() const = 0;
 

@@ -189,6 +189,9 @@ const char * const BUILD_PARSER_ABLD_RVCT   = "BuildParser.ABLD.Rvct";
 const char * const PROJECTEXPLORER_CATEGORY            = "ProjectExplorer";
 const char * const PROJECTEXPLORER_PAGE                = "ProjectExplorer.ProjectExplorer";
 
+// task categories
+const char * const TASK_CATEGORY_COMPILE = "Task.Category.Compile";
+
 } // namespace Constants
 } // namespace ProjectExplorer
 

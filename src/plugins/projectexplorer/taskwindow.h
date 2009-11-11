@@ -32,15 +32,15 @@
 
 #include "buildparserinterface.h"
 
-#include <coreplugin/ioutputpane.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/ioutputpane.h>
 
-#include <QtGui/QTreeWidget>
-#include <QtGui/QStyledItemDelegate>
-#include <QtGui/QListView>
+#include <QtCore/QModelIndex>
+#include <QtGui/QAction>
 #include <QtGui/QToolButton>
 
 namespace ProjectExplorer {
+
 namespace Internal {
 
 class TaskModel;
@@ -48,7 +48,9 @@ class TaskFilterModel;
 class TaskView;
 class TaskWindowContext;
 
-class TaskWindow : public Core::IOutputPane
+} // namespace Internal
+
+class PROJECTEXPLORER_EXPORT TaskWindow : public Core::IOutputPane
 {
     Q_OBJECT
 
@@ -56,6 +58,35 @@ public:
     TaskWindow();
     ~TaskWindow();
 
+    enum TaskType {
+        Unknown,
+        Error,
+        Warning
+    };
+
+    struct Task {
+        Task(TaskType type_, const QString &description_,
+             const QString &file_, int line_, const QString &category_) :
+            type(type_), description(description_), file(file_), line(line_), category(category_)
+        { }
+
+        TaskType type;
+        QString description;
+        QString file;
+        int line;
+        QString category;
+    };
+
+    void addCategory(const QString &categoryId, const QString &displayName);
+
+    void addTask(const Task &task);
+    void clearTasks(const QString &categoryId = QString());
+
+    int taskCount(const QString &categoryId = QString()) const;
+    int errorTaskCount(const QString &categoryId = QString()) const;
+
+
+    // IOutputPane
     QWidget *outputWidget(QWidget *);
     QList<QWidget*> toolBarWidgets() const;
 
@@ -64,21 +95,15 @@ public:
     void clearContents();
     void visibilityChanged(bool visible);
 
-    void addItem(BuildParserInterface::PatternType type,
-        const QString &description, const QString &file, int line);
-
-    int numberOfTasks() const;
-    int numberOfErrors() const;
-
     bool canFocus();
     bool hasFocus();
     void setFocus();
 
+    bool canNavigate();
     bool canNext();
     bool canPrevious();
     void goToNext();
     void goToPrev();
-    bool canNavigate();
 
 signals:
     void tasksChanged();
@@ -89,59 +114,20 @@ private slots:
     void setShowWarnings(bool);
 
 private:
+    void updateActions();
     int sizeHintForColumn(int column) const;
 
-    int m_errorCount;
-    int m_currentTask;
-
-    TaskModel *m_model;
-    TaskFilterModel *m_filter;
-    TaskView *m_listview;
-    TaskWindowContext *m_taskWindowContext;
+    Internal::TaskModel *m_model;
+    Internal::TaskFilterModel *m_filter;
+    Internal::TaskView *m_listview;
+    Internal::TaskWindowContext *m_taskWindowContext;
     QAction *m_copyAction;
     QToolButton *m_filterWarningsButton;
 };
 
-class TaskView : public QListView
-{
-public:
-    TaskView(QWidget *parent = 0);
-    ~TaskView();
-    void resizeEvent(QResizeEvent *e);
-    void keyPressEvent(QKeyEvent *e);
-};
+bool operator==(const TaskWindow::Task &t1, const TaskWindow::Task &t2);
+uint qHash(const TaskWindow::Task &task);
 
-class TaskDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-public:
-    TaskDelegate(QObject * parent = 0);
-    ~TaskDelegate();
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-
-    // TaskView uses this method if the size of the taskview changes
-    void emitSizeHintChanged(const QModelIndex &index);
-
-public slots:
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
-
-private:
-    void generateGradientPixmap(int width, int height, QColor color, bool selected) const;
-};
-
-class TaskWindowContext : public Core::IContext
-{
-public:
-    TaskWindowContext(QWidget *widget);
-    virtual QList<int> context() const;
-    virtual QWidget *widget();
-private:
-    QWidget *m_taskList;
-    QList<int> m_context;
-};
-
-} //namespace Internal
 } //namespace ProjectExplorer
 
 #endif // TASKWINDOW_H

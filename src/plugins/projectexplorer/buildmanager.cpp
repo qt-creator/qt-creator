@@ -86,6 +86,8 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     m_taskWindow = new TaskWindow;
     pm->addObject(m_taskWindow);
 
+    m_taskWindow->addCategory(Constants::TASK_CATEGORY_COMPILE, tr("Compile", "Category for compiler isses listened under 'Build Issues'"));
+
     connect(m_taskWindow, SIGNAL(tasksChanged()),
             this, SIGNAL(tasksChanged()));
 
@@ -179,7 +181,7 @@ void BuildManager::toggleTaskWindow()
 
 bool BuildManager::tasksAvailable() const
 {
-    return m_taskWindow->numberOfTasks() > 0;
+    return m_taskWindow->taskCount() > 0;
 }
 
 void BuildManager::gotoTaskWindow()
@@ -221,7 +223,7 @@ void BuildManager::startBuildQueue()
 
 void BuildManager::showBuildResults()
 {
-    if (m_taskWindow->numberOfTasks() != 0)
+    if (m_taskWindow->taskCount() != 0)
         toggleTaskWindow();
     else
         toggleOutputWindow();
@@ -230,7 +232,9 @@ void BuildManager::showBuildResults()
 
 void BuildManager::addToTaskWindow(const QString &file, int type, int line, const QString &description)
 {
-    m_taskWindow->addItem(BuildParserInterface::PatternType(type), description, file, line);
+    TaskWindow::Task task(TaskWindow::TaskType(type), description, file, line,
+                           Constants::TASK_CATEGORY_COMPILE);
+    m_taskWindow->addTask(task);
 }
 
 void BuildManager::addToOutputWindow(const QString &string)

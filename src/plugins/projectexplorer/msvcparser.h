@@ -31,6 +31,7 @@
 #define MSVCPARSER_H
 
 #include "buildparserinterface.h"
+#include "taskwindow.h"
 
 #include <QtCore/QRegExp>
 
@@ -47,7 +48,7 @@ public:
     virtual void stdOutput(const QString & line);
     virtual void stdError(const QString & line);
 private:
-    ProjectExplorer::BuildParserInterface::PatternType toType(int number);
+    TaskWindow::TaskType toType(int number);
     QRegExp m_compileRegExp;
     QRegExp m_linkRegExp;
 };
