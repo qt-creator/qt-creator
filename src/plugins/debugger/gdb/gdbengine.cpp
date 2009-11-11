@@ -1184,23 +1184,20 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (!m_entryPoint.isEmpty()) {
         GdbMi frameData = data.findChild("frame");
         if (frameData.findChild("addr").data() == m_entryPoint) {
-            if (reason == "signal-received"
-                && data.findChild("signal-name").data() == "SIGSTOP") {
-                // For some reason, attaching to a stopped process causes *two* stops
-                // when trying to continue (kernel i386 2.6.24-23-ubuntu, gdb 6.8).
-                // Interestingly enough, on MacOSX no signal is delivered at all.
-                continueInferiorInternal();
-                return;
-            }
-            if (reason.isEmpty()) { // tbreak does that
-                // For programs without -pthread under gdb <= 6.8.
-                if (!inferiorPid())
-                    postCommand(_("info proc"), CB(handleInfoProc));
-                continueInferiorInternal();
-                return;
-            }
+            // There are two expected reasons for getting here:
+            // 1) For some reason, attaching to a stopped process causes *two* SIGSTOPs
+            //    when trying to continue (kernel i386 2.6.24-23-ubuntu, gdb 6.8).
+            //    Interestingly enough, on MacOSX no signal is delivered at all.
+            // 2) The explicit tbreak at the entry point we set to query the PID.
+            //    Gdb <= 6.8 reports a frame but no reason, 6.8.50+ reports everything.
+            // The case of the user really setting a breakpoint at _start is simply
+            // unsupported.
+            if (!inferiorPid()) // For programs without -pthread under gdb <= 6.8.
+                postCommand(_("info proc"), CB(handleInfoProc));
+            continueInferiorInternal();
+            return;
         }
-        // We are past the initial stops. No need to waste time on further checks.
+        // We are past the initial stop(s). No need to waste time on further checks.
         m_entryPoint.clear();
     }
 #endif
