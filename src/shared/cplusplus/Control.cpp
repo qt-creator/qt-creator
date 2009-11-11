@@ -129,6 +129,7 @@ public:
         delete_array_entries(objcForwardClassDeclarations);
         delete_array_entries(objcForwardProtocolDeclarations);
         delete_array_entries(objcMethods);
+        delete_array_entries(objcPropertyDeclarations);
     }
 
     NameId *findOrInsertNameId(Identifier *id)
@@ -393,6 +394,13 @@ public:
         return method;
     }
 
+    ObjCPropertyDeclaration *newObjCPropertyDeclaration(unsigned sourceLocation, Name *name)
+    {
+        ObjCPropertyDeclaration *decl = new ObjCPropertyDeclaration(translationUnit, sourceLocation, name);
+        objcPropertyDeclarations.push_back(decl);
+        return decl;
+    }
+
     Enum *newEnum(unsigned sourceLocation, Name *name)
     {
         Enum *e = new Enum(translationUnit,
@@ -577,6 +585,7 @@ public:
     std::vector<ObjCForwardClassDeclaration *> objcForwardClassDeclarations;
     std::vector<ObjCForwardProtocolDeclaration *> objcForwardProtocolDeclarations;
     std::vector<ObjCMethod *> objcMethods;
+    std::vector<ObjCPropertyDeclaration *> objcPropertyDeclarations;
 
     // ObjC context keywords:
     Identifier *objcGetterId;
@@ -786,6 +795,9 @@ ObjCForwardProtocolDeclaration *Control::newObjCForwardProtocolDeclaration(unsig
 
 ObjCMethod *Control::newObjCMethod(unsigned sourceLocation, Name *name)
 { return d->newObjCMethod(sourceLocation, name); }
+
+ObjCPropertyDeclaration *Control::newObjCPropertyDeclaration(unsigned sourceLocation, Name *name)
+{ return d->newObjCPropertyDeclaration(sourceLocation, name); }
 
 Identifier *Control::objcGetterId() const
 { return d->objcGetterId; }

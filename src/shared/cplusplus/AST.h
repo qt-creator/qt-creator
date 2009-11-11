@@ -2391,6 +2391,9 @@ public:
     unsigned rparen_token;
     DeclarationAST *simple_declaration;
 
+public: // annotations
+    List<ObjCPropertyDeclaration *> *symbols;
+
 public:
     virtual ObjCPropertyDeclarationAST *asObjCPropertyDeclaration() { return this; }
 

@@ -169,6 +169,9 @@ public:
     /// Creates a new Objective-C method symbol.
     ObjCMethod *newObjCMethod(unsigned sourceLocation, Name *name = 0);
 
+    /// Creates a new Objective-C @property declaration symbol.
+    ObjCPropertyDeclaration *newObjCPropertyDeclaration(unsigned sourceLocation, Name *name);
+
     // Objective-C specific context keywords.
     Identifier *objcGetterId() const;
     Identifier *objcSetterId() const;

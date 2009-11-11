@@ -228,6 +228,9 @@ public:
     /// Returns true if this Symbol is an Objective-C method declaration.
     bool isObjCMethod() const;
 
+    /// Returns true if this Symbol is an Objective-C @property declaration.
+    bool isObjCPropertyDeclaration() const;
+
     virtual const ScopedSymbol *asScopedSymbol() const { return 0; }
     virtual const Enum *asEnum() const { return 0; }
     virtual const Function *asFunction() const { return 0; }
@@ -247,6 +250,7 @@ public:
     virtual const ObjCProtocol *asObjCProtocol() const { return 0; }
     virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const { return 0; }
     virtual const ObjCMethod *asObjCMethod() const { return 0; }
+    virtual const ObjCPropertyDeclaration *asObjCPropertyDeclaration() const { return 0; }
 
     virtual ScopedSymbol *asScopedSymbol() { return 0; }
     virtual Enum *asEnum() { return 0; }
@@ -267,6 +271,7 @@ public:
     virtual ObjCProtocol *asObjCProtocol() { return 0; }
     virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() { return 0; }
     virtual ObjCMethod *asObjCMethod() { return 0; }
+    virtual ObjCPropertyDeclaration *asObjCPropertyDeclaration() { return 0; }
 
     /// Returns this Symbol's type.
     virtual FullySpecifiedType type() const = 0;

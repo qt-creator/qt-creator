@@ -88,6 +88,7 @@ public:
     virtual bool visit(ObjCProtocol *) { return true; }
     virtual bool visit(ObjCForwardProtocolDeclaration *) { return true; }
     virtual bool visit(ObjCMethod *) { return true; }
+    virtual bool visit(ObjCPropertyDeclaration *) { return true; }
 };
 
 } // end of namespace CPlusPlus

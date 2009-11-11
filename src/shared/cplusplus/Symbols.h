@@ -729,6 +729,75 @@ private:
     Scope *_arguments;
 };
 
+class CPLUSPLUS_EXPORT ObjCPropertyDeclaration: public Symbol
+{
+public:
+    enum PropertyAttributes {
+        None = 0,
+        Assign = 1 << 0,
+        Retain = 1 << 1,
+        Copy = 1 << 2,
+        ReadOnly = 1 << 3,
+        ReadWrite = 1 << 4,
+        Getter = 1 << 5,
+        Setter = 1 << 6,
+        NonAtomic = 1 << 7,
+
+        WritabilityMask = ReadOnly | ReadWrite,
+        SetterSemanticsMask = Assign | Retain | Copy,
+    };
+
+public:
+    ObjCPropertyDeclaration(TranslationUnit *translationUnit,
+                            unsigned sourceLocation,
+                            Name *name);
+    virtual ~ObjCPropertyDeclaration();
+
+    bool hasAttribute(int attribute) const
+    { return _propertyAttributes & attribute; }
+
+    void setAttributes(int attributes)
+    { _propertyAttributes = attributes; }
+
+    bool hasGetter() const
+    { return hasAttribute(Getter); }
+
+    bool hasSetter() const
+    { return hasAttribute(Setter); }
+
+    Name *getterName() const
+    { return _getterName; }
+
+    void setGetterName(Name *getterName)
+    { _getterName = getterName; }
+
+    Name *setterName() const
+    { return _setterName; }
+
+    void setSetterName(Name *setterName)
+    { _setterName = setterName; }
+
+    void setType(const FullySpecifiedType &type)
+    { _type = type; }
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    virtual const ObjCPropertyDeclaration *asOObjCPropertyDeclaration() const
+    { return this; }
+
+    virtual ObjCPropertyDeclaration *asObjCPropertyDeclaration()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+
+private:
+    FullySpecifiedType _type;
+    int _propertyAttributes;
+    Name *_getterName, *_setterName;
+};
+
 } // end of namespace CPlusPlus
 
 

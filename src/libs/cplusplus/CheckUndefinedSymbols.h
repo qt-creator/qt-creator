@@ -96,6 +96,7 @@ protected:
 
     virtual bool visit(ObjCClassDeclarationAST *ast);
     virtual bool visit(ObjCProtocolRefsAST *ast);
+    virtual bool visit(ObjCPropertyDeclarationAST *ast);
 
 private:
     Document::Ptr _doc;

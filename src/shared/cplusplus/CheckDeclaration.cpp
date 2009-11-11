@@ -682,21 +682,6 @@ bool CheckDeclaration::visit(ObjCVisibilityDeclarationAST *ast)
     return false;
 }
 
-enum PropertyAttributes {
-    None = 0,
-    Assign = 1 << 0,
-    Retain = 1 << 1,
-    Copy = 1 << 2,
-    ReadOnly = 1 << 3,
-    ReadWrite = 1 << 4,
-    Getter = 1 << 5,
-    Setter = 1 << 6,
-    NonAtomic = 1 << 7,
-
-    WritabilityMask = ReadOnly | ReadWrite,
-    SetterSemanticsMask = Assign | Retain | Copy,
-};
-
 bool CheckDeclaration::checkPropertyAttribute(ObjCPropertyAttributeAST *attrAst,
                                               int &flags,
                                               int attr)
@@ -714,7 +699,17 @@ bool CheckDeclaration::checkPropertyAttribute(ObjCPropertyAttributeAST *attrAst,
 
 bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
 {
-    int propAttrs = None;
+    semantic()->check(ast->simple_declaration, _scope);
+    SimpleDeclarationAST *simpleDecl = ast->simple_declaration->asSimpleDeclaration();
+
+    if (!simpleDecl) {
+        translationUnit()->warning(ast->simple_declaration->firstToken(),
+                                   "invalid type for property declaration");
+        return false;
+    }
+
+    int propAttrs = ObjCPropertyDeclaration::None;
+    Name *getterName = 0, *setterName = 0;
 
     for (ObjCPropertyAttributeListAST *iter= ast->property_attribute_list; iter; iter = iter->next) {
         ObjCPropertyAttributeAST *attrAst = iter->value;
@@ -723,45 +718,57 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
 
         Identifier *attrId = identifier(attrAst->attribute_identifier_token);
         if (attrId == control()->objcGetterId()) {
-            if (checkPropertyAttribute(attrAst, propAttrs, Getter)) {
-                // TODO: find method declaration for getter
+            if (checkPropertyAttribute(attrAst, propAttrs, ObjCPropertyDeclaration::Getter)) {
+                getterName = semantic()->check(attrAst->method_selector, _scope);
             }
         } else if (attrId == control()->objcSetterId()) {
-            if (checkPropertyAttribute(attrAst, propAttrs, Setter)) {
-                // TODO: find method declaration for setter
+            if (checkPropertyAttribute(attrAst, propAttrs, ObjCPropertyDeclaration::Setter)) {
+                setterName = semantic()->check(attrAst->method_selector, _scope);
             }
         } else if (attrId == control()->objcReadwriteId()) {
-            checkPropertyAttribute(attrAst, propAttrs, ReadWrite);
+            checkPropertyAttribute(attrAst, propAttrs, ObjCPropertyDeclaration::ReadWrite);
         } else if (attrId == control()->objcReadonlyId()) {
-            checkPropertyAttribute(attrAst, propAttrs, ReadOnly);
+            checkPropertyAttribute(attrAst, propAttrs, ObjCPropertyDeclaration::ReadOnly);
         } else if (attrId == control()->objcAssignId()) {
-            checkPropertyAttribute(attrAst, propAttrs, Assign);
+            checkPropertyAttribute(attrAst, propAttrs, ObjCPropertyDeclaration::Assign);
         } else if (attrId == control()->objcRetainId()) {
-            checkPropertyAttribute(attrAst, propAttrs, Retain);
+            checkPropertyAttribute(attrAst, propAttrs, ObjCPropertyDeclaration::Retain);
         } else if (attrId == control()->objcCopyId()) {
-            checkPropertyAttribute(attrAst, propAttrs, Copy);
+            checkPropertyAttribute(attrAst, propAttrs, ObjCPropertyDeclaration::Copy);
         } else if (attrId == control()->objcNonatomicId()) {
-            checkPropertyAttribute(attrAst, propAttrs, NonAtomic);
+            checkPropertyAttribute(attrAst, propAttrs, ObjCPropertyDeclaration::NonAtomic);
         }
     }
 
-    if (propAttrs & ReadOnly && propAttrs & ReadWrite)
+    if (propAttrs & ObjCPropertyDeclaration::ReadOnly &&
+        propAttrs & ObjCPropertyDeclaration::ReadWrite)
         // Should this be an error instead of only a warning?
         translationUnit()->warning(ast->property_token,
                                    "property can have at most one attribute \"readonly\" or \"readwrite\" specified");
-    int setterSemAttrs = propAttrs & SetterSemanticsMask;
+    int setterSemAttrs = propAttrs & ObjCPropertyDeclaration::SetterSemanticsMask;
     if (setterSemAttrs
-            && setterSemAttrs != Assign
-            && setterSemAttrs != Retain
-            && setterSemAttrs != Copy) {
+            && setterSemAttrs != ObjCPropertyDeclaration::Assign
+            && setterSemAttrs != ObjCPropertyDeclaration::Retain
+            && setterSemAttrs != ObjCPropertyDeclaration::Copy) {
         // Should this be an error instead of only a warning?
         translationUnit()->warning(ast->property_token,
                                    "property can have at most one attribute \"assign\", \"retain\", or \"copy\" specified");
     }
 
-    // TODO: Check if the next line is correct (EV)
-    semantic()->check(ast->simple_declaration, _scope);
+    List<ObjCPropertyDeclaration *> **lastSymbols = &ast->symbols;
+    for (List<Declaration*> *iter = simpleDecl->symbols; iter; iter = iter->next) {
+        ObjCPropertyDeclaration *propDecl = control()->newObjCPropertyDeclaration(ast->firstToken(),
+                                                                                  iter->value->name());
+        propDecl->setType(iter->value->type());
+        propDecl->setAttributes(propAttrs);
+        propDecl->setGetterName(getterName);
+        propDecl->setSetterName(setterName);
+        _scope->enterSymbol(propDecl);
+
+        *lastSymbols = new (translationUnit()->memoryPool()) List<ObjCPropertyDeclaration *>();
+        (*lastSymbols)->value = propDecl;
+        lastSymbols = &(*lastSymbols)->next;
+    }
+
     return false;
 }
-
-

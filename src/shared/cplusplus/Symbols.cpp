@@ -820,4 +820,23 @@ void ObjCMethod::visitSymbol0(SymbolVisitor *visitor)
     }
 }
 
+ObjCPropertyDeclaration::ObjCPropertyDeclaration(TranslationUnit *translationUnit,
+                                                 unsigned sourceLocation,
+                                                 Name *name):
+    Symbol(translationUnit, sourceLocation, name),
+    _propertyAttributes(None),
+    _getterName(0),
+    _setterName(0)
+{}
 
+ObjCPropertyDeclaration::~ObjCPropertyDeclaration()
+{}
+
+FullySpecifiedType ObjCPropertyDeclaration::type() const
+{ return _type; }
+
+void ObjCPropertyDeclaration::visitSymbol0(SymbolVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+}

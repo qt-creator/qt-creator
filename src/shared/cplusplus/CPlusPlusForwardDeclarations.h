@@ -130,6 +130,7 @@ class ObjCForwardClassDeclaration;
 class ObjCProtocol;
 class ObjCForwardProtocolDeclaration;
 class ObjCMethod;
+class ObjCPropertyDeclaration;
 
 } // end of namespace CPlusPlus
 

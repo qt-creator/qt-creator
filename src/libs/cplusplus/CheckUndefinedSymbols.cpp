@@ -518,3 +518,16 @@ bool CheckUndefinedSymbols::visit(ObjCProtocolRefsAST *ast)
 
     return false;
 }
+
+bool CheckUndefinedSymbols::visit(ObjCPropertyDeclarationAST *ast)
+{
+    for (List<ObjCPropertyDeclaration *> *iter = ast->symbols; iter; iter = iter->next) {
+        if (Name *getterName = iter->value->getterName())
+            ; // FIXME: resolve the symbol for the name, and check its signature.
+
+        if (Name *setterName = iter->value->setterName())
+            ; // FIXME: resolve the symbol for the name, and check its signature.
+    }
+
+    return false;
+}

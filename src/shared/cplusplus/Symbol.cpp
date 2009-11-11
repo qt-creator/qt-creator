@@ -488,4 +488,5 @@ bool Symbol::isObjCForwardProtocolDeclaration() const
 bool Symbol::isObjCMethod() const
 { return asObjCMethod() != 0; }
 
-
+bool Symbol::isObjCPropertyDeclaration() const
+{ return asObjCPropertyDeclaration() != 0; }
