@@ -1406,7 +1406,6 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
     } else {
         if (state() == InferiorRunningRequested_Kill) {
             setState(InferiorStopped);
-            m_commandsToRunOnTemporaryBreak.clear();
             shutdown();
             return;
         }
@@ -1423,7 +1422,6 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
         } else {
             showMessageBox(QMessageBox::Critical, tr("Execution Error"),
                            tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
-            m_commandsToRunOnTemporaryBreak.clear();
             shutdown();
         }
     }
@@ -1468,6 +1466,7 @@ void GdbEngine::shutdown()
         // fall-through
     case AdapterStartFailed: // Adapter "did something", but it did not help
         if (m_gdbProc.state() == QProcess::Running) {
+            m_commandsToRunOnTemporaryBreak.clear();
             postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleGdbExit));
         } else {
             setState(DebuggerNotReady);
@@ -1486,6 +1485,7 @@ void GdbEngine::shutdown()
     case InferiorShutDown:
     case InferiorShutdownFailed: // Whatever
     case InferiorUnrunnable:
+        m_commandsToRunOnTemporaryBreak.clear();
         postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleGdbExit));
         setState(EngineShuttingDown); // Do it after posting the command!
         break;
