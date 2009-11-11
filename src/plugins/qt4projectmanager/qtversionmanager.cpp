@@ -1065,6 +1065,10 @@ void QtVersion::updateToolChainAndMkspec() const
     if (baseMkspecDir.isEmpty())
         baseMkspecDir = versionInfo().value("QT_INSTALL_DATA") + "/mkspecs";
 
+#ifdef Q_OS_WIN
+    baseMkspecDir = baseMkspecDir.toLower();
+#endif
+
     QString mkspecFullPath = baseMkspecDir + "/default";
 
     // qDebug() << "default mkspec is located at" << mkspecFullPath;
@@ -1119,7 +1123,7 @@ void QtVersion::updateToolChainAndMkspec() const
 #endif
 
 #ifdef Q_OS_WIN
-    m_mkspecFullPath = m_mkspecFullPath.toLower();
+    mkspecFullPath = mkspecFullPath.toLower();
 #endif
 
     m_mkspecFullPath = mkspecFullPath;

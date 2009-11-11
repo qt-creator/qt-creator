@@ -1014,11 +1014,15 @@ QString Qt4Project::extractSpecFromArgumentList(const QStringList &list, QString
     if (index >= list.length())
         return QString();
 
-    QString baseMkspecDir = version->versionInfo().value("QMAKE_MKSPECS");
+    QString baseMkspecDir = version->versionInfo().value("QMAKE_MKSPECS");    
     if (baseMkspecDir.isEmpty())
         baseMkspecDir = version->versionInfo().value("QT_INSTALL_DATA") + "/mkspecs";
 
     QString parsedSpec = QDir::cleanPath(list.at(index));
+#ifdef Q_OS_WIN
+    baseMkspecDir = baseMkspecDir.toLower();
+    parsedSpec = parsedSpec.toLower();
+#endif
     // if the path is relative it can be
     // relative to the working directory (as found in the Makefiles)
     // or relatively to the mkspec directory
@@ -1027,6 +1031,9 @@ QString Qt4Project::extractSpecFromArgumentList(const QStringList &list, QString
     if (QFileInfo(parsedSpec).isRelative()) {
         if(QFileInfo(directory + "/" + parsedSpec).exists()) {
             parsedSpec = QDir::cleanPath(directory + "/" + parsedSpec);
+#ifdef Q_OS_WIN
+            parsedSpec = parsedSpec.toLower();
+#endif
         } else {
             parsedSpec = baseMkspecDir + "/" + parsedSpec;
         }
@@ -1043,7 +1050,7 @@ QString Qt4Project::extractSpecFromArgumentList(const QStringList &list, QString
     } else {
         QString sourceMkSpecPath = version->sourcePath() + "/mkspecs";
         if (parsedSpec.startsWith(sourceMkSpecPath)) {
-            parsedSpec = sourceMkSpecPath.mid(sourceMkSpecPath.length() + 1);
+            parsedSpec = parsedSpec.mid(sourceMkSpecPath.length() + 1);
         }
     }
 #ifdef Q_OS_WIN
@@ -1309,7 +1316,9 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(BuildConfiguration *confi
                     if (actualSpec == parsedSpec)
                         return true;
                     // Actual spec is the default one
-                    if (actualSpec == version->mkspec()  && (parsedSpec == "default" || parsedSpec.isEmpty()))
+                    qDebug()<<"AS vs VS"<<actualSpec<<version->mkspec();
+                    if ((actualSpec == version->mkspec() || actualSpec == "default")
+                        && (parsedSpec == version->mkspec() || parsedSpec == "default" || parsedSpec.isEmpty()))
                         return true;
                 }
             }
