@@ -101,12 +101,12 @@ void GccParser::stdError(const QString & line)
                 lne //description
                 );
     } else if (lne.startsWith(QLatin1String("collect2:"))) {
-        emit addToTaskWindow("", ProjectExplorer::BuildParserInterface::Error, -1, lne);
+        emit addToTaskWindow("", TaskWindow::Error, -1, lne);
     } else if (lne.startsWith(QLatin1String("ERROR:"))) {
         // Triggered by cpp on windows.
-        emit addToTaskWindow(QString(), ProjectExplorer::BuildParserInterface::Error, -1, lne);
+        emit addToTaskWindow(QString(), TaskWindow::Error, -1, lne);
     } else if (lne == QLatin1String("* cpp failed")) {
         // Triggered by cpp/make on windows.
-        emit addToTaskWindow(QString(), ProjectExplorer::BuildParserInterface::Error, -1, lne);
+        emit addToTaskWindow(QString(), TaskWindow::Error, -1, lne);
     }
 }
