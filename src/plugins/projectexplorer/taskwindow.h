@@ -112,6 +112,8 @@ private slots:
     void showTaskInFile(const QModelIndex &index);
     void copy();
     void setShowWarnings(bool);
+    void updateCategoriesMenu();
+    void filterCategoryTriggered(QAction *action);
 
 private:
     void updateActions();
@@ -123,6 +125,8 @@ private:
     Internal::TaskWindowContext *m_taskWindowContext;
     QAction *m_copyAction;
     QToolButton *m_filterWarningsButton;
+    QToolButton *m_categoriesButton;
+    QMenu *m_categoriesMenu;
 };
 
 bool operator==(const TaskWindow::Task &t1, const TaskWindow::Task &t2);

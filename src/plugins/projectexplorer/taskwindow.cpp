@@ -102,6 +102,8 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
+    QStringList categoryIds() const;
+    QString categoryDisplayName(const QString &categoryId) const;
     void addCategory(const QString &categoryId, const QString &categoryName);
 
     QList<TaskWindow::Task> tasks(const QString &categoryId = QString()) const;
@@ -112,7 +114,7 @@ public:
     int sizeOfLineNumber();
     void setFileNotFound(const QModelIndex &index, bool b);
 
-    enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type };
+    enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type, Category };
 
     QIcon iconFor(TaskWindow::TaskType type);
 
@@ -144,6 +146,9 @@ public:
     bool filterIncludesErrors() const { return m_includeErrors; }
     void setFilterIncludesErrors(bool b) { m_includeErrors = b; invalidateFilter(); }
 
+    QStringList filteredCategories() const { return m_categoryIds; }
+    void setFilteredCategories(const QStringList &categoryIds) { m_categoryIds = categoryIds; invalidateFilter(); }
+
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
@@ -152,6 +157,7 @@ private:
     bool m_includeUnknowns;
     bool m_includeWarnings;
     bool m_includeErrors;
+    QStringList m_categoryIds;
 };
 
 } // Internal
@@ -321,7 +327,19 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
         return m_fileNotFound.value(m_tasks.at(index.row()).file);
     else if (role == TaskModel::Type)
         return (int)m_tasks.at(index.row()).type;
+    else if (role == TaskModel::Category)
+        return m_tasks.at(index.row()).category;
     return QVariant();
+}
+
+QStringList TaskModel::categoryIds() const
+{
+    return m_categories.keys();
+}
+
+QString TaskModel::categoryDisplayName(const QString &categoryId) const
+{
+    return m_categories.value(categoryId);
 }
 
 QIcon TaskModel::iconFor(TaskWindow::TaskType type)
@@ -373,21 +391,27 @@ TaskModel *TaskFilterModel::taskModel() const
 
 bool TaskFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
+    bool accept = true;
+
     QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
     TaskWindow::TaskType type = TaskWindow::TaskType(index.data(TaskModel::Type).toInt());
     switch (type) {
     case TaskWindow::Unknown:
-        return m_includeUnknowns;
-
+        accept = m_includeUnknowns;
+        break;
     case TaskWindow::Warning:
-        return m_includeWarnings;
-
+        accept = m_includeWarnings;
+        break;
     case TaskWindow::Error:
-        return m_includeErrors;
+        accept = m_includeErrors;
+        break;
     }
 
-    // Not one of the three supported types -- shouldn't happen, but we'll let it slide.
-    return true;
+    const QString &categoryId = index.data(TaskModel::Category).toString();
+    if (m_categoryIds.contains(categoryId))
+        accept = false;
+
+    return accept;
 }
 
 /////
@@ -449,6 +473,17 @@ TaskWindow::TaskWindow()
                                                 tr("Show Warnings"), m_model,
                                                 this, SLOT(setShowWarnings(bool)));
 
+    m_categoriesMenu = new QMenu;
+    connect(m_categoriesMenu, SIGNAL(aboutToShow()), this, SLOT(updateCategoriesMenu()));
+    connect(m_categoriesMenu, SIGNAL(triggered(QAction*)), this, SLOT(filterCategoryTriggered(QAction*)));
+
+    m_categoriesButton = new QToolButton;
+    m_categoriesButton->setText(tr("categories"));
+    m_categoriesButton->setToolTip(tr("Filter by categories"));
+    m_categoriesButton->setAutoRaise(true);
+    m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
+    m_categoriesButton->setMenu(m_categoriesMenu);
+
     updateActions();
 }
 
@@ -463,7 +498,7 @@ TaskWindow::~TaskWindow()
 
 QList<QWidget*> TaskWindow::toolBarWidgets() const
 {
-    return QList<QWidget*>() << m_filterWarningsButton;
+    return QList<QWidget*>() << m_filterWarningsButton << m_categoriesButton;
 }
 
 QWidget *TaskWindow::outputWidget(QWidget *)
@@ -542,6 +577,42 @@ void TaskWindow::setShowWarnings(bool show)
 {
     m_filter->setFilterIncludesWarnings(show);
     m_filter->setFilterIncludesUnknowns(show); // "Unknowns" are often associated with warnings
+}
+
+void TaskWindow::updateCategoriesMenu()
+{
+    m_categoriesMenu->clear();
+
+    const QStringList filteredCategories = m_filter->filteredCategories();
+
+    foreach (const QString &categoryId, m_model->categoryIds()) {
+        const QString categoryName = m_model->categoryDisplayName(categoryId);
+
+        QAction *action = new QAction(m_categoriesMenu);
+        action->setCheckable(true);
+        action->setText(categoryName);
+        action->setData(categoryId);
+        action->setChecked(!filteredCategories.contains(categoryId));
+
+        m_categoriesMenu->addAction(action);
+    }
+}
+
+void TaskWindow::filterCategoryTriggered(QAction *action)
+{
+    QString categoryId = action->data().toString();
+    Q_ASSERT(!categoryId.isEmpty());
+
+    QStringList categories = m_filter->filteredCategories();
+    Q_ASSERT(m_filter->filteredCategories().contains(categoryId) == action->isChecked());
+
+    if (action->isChecked()) {
+        categories.removeOne(categoryId);
+    } else {
+        categories.append(categoryId);
+    }
+
+    m_filter->setFilteredCategories(categories);
 }
 
 int TaskWindow::taskCount(const QString &categoryId) const
