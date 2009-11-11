@@ -378,12 +378,14 @@ bool CheckName::visit(TemplateIdAST *ast)
 
 bool CheckName::visit(ObjCSelectorWithoutArgumentsAST *ast)
 {
-    std::vector<Name *> names;
-    Identifier *id = control()->findOrInsertIdentifier(spell(ast->name_token));
-    NameId *nameId = control()->nameId(id);
-    names.push_back(nameId);
-    _name = control()->selectorNameId(&names[0], names.size(), false);
-    ast->selector_name = _name;
+    if (ast->name_token) {
+        std::vector<Name *> names;
+        Identifier *id = control()->findOrInsertIdentifier(spell(ast->name_token));
+        NameId *nameId = control()->nameId(id);
+        names.push_back(nameId);
+        _name = control()->selectorNameId(&names[0], names.size(), false);
+        ast->selector_name = _name;
+    }
 
     return false;
 }
@@ -392,9 +394,14 @@ bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
 {
     std::vector<Name *> names;
     for (ObjCSelectorArgumentListAST *it = ast->selector_argument_list; it; it = it->next) {
-        Identifier *id = control()->findOrInsertIdentifier(spell(it->value->name_token));
-        NameId *nameId = control()->nameId(id);
-        names.push_back(nameId);
+        if (it->value->name_token) {
+            Identifier *id = control()->findOrInsertIdentifier(spell(it->value->name_token));
+            NameId *nameId = control()->nameId(id);
+            names.push_back(nameId);
+        } else {
+            // we have an incomplete name due, probably due to error recovery. So, back out completely
+            return false;
+        }
     }
 
     if (!names.empty()) {
