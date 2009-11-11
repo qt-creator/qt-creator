@@ -40,6 +40,10 @@ WinscwParser::WinscwParser()
     m_linkerProblem.setPattern("^(\\S*)\\(\\S+\\):\\s(.+)$");
     m_linkerProblem.setMinimal(true);
 
+    // WINSCW issue:
+    m_compilerProblem.setPattern("^([^\\(\\)]+[^\\d]):(\\d+):\\s(.+)$");
+    m_compilerProblem.setMinimal(true);
+
     //make[4]: Entering directory `/home/kkoehne/dev/ide-explorer/src/plugins/qtscripteditor'
     m_makeDir.setPattern("^make.*: (\\w+) directory .(.+).$");
     m_makeDir.setMinimal(true);
@@ -47,7 +51,7 @@ WinscwParser::WinscwParser()
 
 QString WinscwParser::name() const
 {
-    return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_RVCT);
+    return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_WINSCW);
 }
 
 void WinscwParser::stdOutput(const QString &line)
@@ -59,43 +63,34 @@ void WinscwParser::stdOutput(const QString &line)
             emit leaveDirectory(m_makeDir.cap(2));
         else
             emit enterDirectory(m_makeDir.cap(2));
-    }
-
-    if (!m_fileName.isNull() &&
-        lne.startsWith(m_fileName))
-    {
-        int file_name_size(m_fileName.size());
-        int second_colon = lne.indexOf(':', file_name_size + 1);
-        if (second_colon < 0)
-        {
-            m_fileName = lne + ':';
-            return;
-        }
-
-        QString file_name(lne.left(file_name_size - 1));
-        QString line_info(lne.mid(file_name_size, second_colon - file_name_size));
-        QString description(lne.mid(second_colon + 1));
-
-        emit addToTaskWindow(
-                file_name,
-                TaskWindow::Error,
-                line_info.toInt(),
-                description);
         return;
     }
 
-    m_fileName = lne + ':';
+    if (m_compilerProblem.indexIn(lne) > -1) {
+        QString fileName(m_compilerProblem.cap(1));
+        int lineNumber(m_compilerProblem.cap(2).toInt());
+        QString description(m_compilerProblem.cap(3));
+        TaskWindow::TaskType type(TaskWindow::Error);
+
+        if (description.startsWith("warning: ")) {
+            type = TaskWindow::Warning;
+            description = description.mid(9);
+        }
+
+        emit addToTaskWindow(fileName, type, lineNumber, description);
+    }
 }
 
 void WinscwParser::stdError(const QString &line)
 {
     QString lne = line.trimmed();
+
     if (m_linkerProblem.indexIn(lne) > -1) {
-       QString description = m_linkerProblem.cap(2);
-       emit addToTaskWindow(
-           m_linkerProblem.cap(1), //filename
-           TaskWindow::Error,
-           -1, //linenumber
-           description);
-   }
+        QString description = m_linkerProblem.cap(2);
+        emit addToTaskWindow(
+                m_linkerProblem.cap(1), //filename
+                TaskWindow::Error,
+                -1, //linenumber
+                description);
+    }
 }

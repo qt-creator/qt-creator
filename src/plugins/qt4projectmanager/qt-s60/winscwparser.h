@@ -46,7 +46,7 @@ public:
     virtual void stdOutput(const QString & line);
     virtual void stdError(const QString & line);
 private:
-    QString m_fileName;
+    QRegExp m_compilerProblem;
     QRegExp m_linkerProblem;
     QRegExp m_makeDir;
 };
