@@ -30,13 +30,13 @@
 #ifndef GCCPARSER_H
 #define GCCPARSER_H
 
-#include "buildparserinterface.h"
+#include "ibuildparser.h"
 
 #include <QtCore/QRegExp>
 
 namespace ProjectExplorer {
 
-class GccParser : public ProjectExplorer::BuildParserInterface
+class GccParser : public ProjectExplorer::IBuildParser
 {
     Q_OBJECT
 

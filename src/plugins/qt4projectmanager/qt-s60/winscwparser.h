@@ -30,13 +30,13 @@
 #ifndef WINSCWPARSER_H
 #define WINSCWPARSER_H
 
-#include <projectexplorer/buildparserinterface.h>
+#include <projectexplorer/ibuildparser.h>
 
 #include <QtCore/QRegExp>
 
 namespace Qt4ProjectManager {
 
-class WinscwParser : public ProjectExplorer::BuildParserInterface
+class WinscwParser : public ProjectExplorer::IBuildParser
 {
     Q_OBJECT
 

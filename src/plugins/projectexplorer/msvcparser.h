@@ -30,14 +30,14 @@
 #ifndef MSVCPARSER_H
 #define MSVCPARSER_H
 
-#include "buildparserinterface.h"
+#include "ibuildparser.h"
 #include "taskwindow.h"
 
 #include <QtCore/QRegExp>
 
 namespace ProjectExplorer {
 
-class MsvcParser :  public ProjectExplorer::BuildParserInterface
+class MsvcParser :  public ProjectExplorer::IBuildParser
 {
     Q_OBJECT
 

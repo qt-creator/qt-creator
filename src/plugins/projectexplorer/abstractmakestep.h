@@ -65,7 +65,7 @@ private slots:
 private:
     Project *m_project;
     QString m_buildParserName;
-    ProjectExplorer::BuildParserInterface *m_buildParser;
+    ProjectExplorer::IBuildParser *m_buildParser;
     QString m_buildConfiguration;
     QSet<QString> m_openDirectories;
 };

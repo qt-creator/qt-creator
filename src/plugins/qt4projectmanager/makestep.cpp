@@ -38,7 +38,7 @@
 #include <QtCore/QFileInfo>
 
 using ProjectExplorer::IBuildParserFactory;
-using ProjectExplorer::BuildParserInterface;
+using ProjectExplorer::IBuildParser;
 using ProjectExplorer::Environment;
 using ExtensionSystem::PluginManager;
 using namespace Qt4ProjectManager;

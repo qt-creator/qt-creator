@@ -30,13 +30,13 @@
 #ifndef RVCTPARSER_H
 #define RVCTPARSER_H
 
-#include <projectexplorer/buildparserinterface.h>
+#include <projectexplorer/ibuildparser.h>
 
 #include <QtCore/QRegExp>
 
 namespace Qt4ProjectManager {
 
-class RvctParser : public ProjectExplorer::BuildParserInterface
+class RvctParser : public ProjectExplorer::IBuildParser
 {
     Q_OBJECT
 

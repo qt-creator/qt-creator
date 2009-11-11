@@ -31,7 +31,6 @@
 #include <utils/qtcassert.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/buildparserinterface.h>
 #include <projectexplorer/taskwindow.h>
 
 #include <extensionsystem/pluginmanager.h>

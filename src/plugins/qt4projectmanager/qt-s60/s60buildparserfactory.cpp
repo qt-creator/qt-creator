@@ -49,7 +49,7 @@ bool S60ParserFactory::canCreate(const QString & name) const
             (name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_WINSCW)));
 }
 
-ProjectExplorer::BuildParserInterface * S60ParserFactory::create(const QString & name) const
+ProjectExplorer::IBuildParser * S60ParserFactory::create(const QString & name) const
 {
     if (name ==  QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_RVCT))
         return new RvctParser();

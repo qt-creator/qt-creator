@@ -44,7 +44,7 @@ bool GccParserFactory::canCreate(const QString & name) const
     return (name == Constants::BUILD_PARSER_GCC);
 }
 
-ProjectExplorer::BuildParserInterface * GccParserFactory::create(const QString & name) const
+ProjectExplorer::IBuildParser * GccParserFactory::create(const QString & name) const
 {
     Q_UNUSED(name)
     return new GccParser();
@@ -59,7 +59,7 @@ bool MsvcParserFactory::canCreate(const QString & name) const
     return (name == Constants::BUILD_PARSER_MSVC);
 }
 
-ProjectExplorer::BuildParserInterface * MsvcParserFactory::create(const QString & name) const
+ProjectExplorer::IBuildParser * MsvcParserFactory::create(const QString & name) const
 {
     Q_UNUSED(name)
     return new MsvcParser();

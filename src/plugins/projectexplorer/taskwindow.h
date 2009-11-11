@@ -30,7 +30,7 @@
 #ifndef TASKWINDOW_H
 #define TASKWINDOW_H
 
-#include "buildparserinterface.h"
+#include "ibuildparser.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/ioutputpane.h>

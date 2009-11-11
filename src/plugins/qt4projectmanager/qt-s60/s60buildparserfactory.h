@@ -30,7 +30,7 @@
 #ifndef S60BUILDPARSERFACTORY_H
 #define S60BUILDPARSERFACTORY_H
 
-#include <projectexplorer/buildparserinterface.h>
+#include <projectexplorer/ibuildparser.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -42,7 +42,7 @@ public:
     S60ParserFactory() {}
     virtual ~S60ParserFactory();
     virtual bool canCreate(const QString & name) const;
-    virtual ProjectExplorer::BuildParserInterface * create(const QString & name) const;
+    virtual ProjectExplorer::IBuildParser * create(const QString & name) const;
 };
 
 } // namespace Internal

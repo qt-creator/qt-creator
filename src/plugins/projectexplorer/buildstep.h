@@ -30,7 +30,7 @@
 #ifndef BUILDSTEP_H
 #define BUILDSTEP_H
 
-#include "buildparserinterface.h"
+#include "ibuildparser.h"
 #include "projectexplorer_export.h"
 
 #include <QtGui/QWidget>

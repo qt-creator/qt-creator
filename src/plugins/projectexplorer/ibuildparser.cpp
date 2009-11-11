@@ -27,45 +27,12 @@
 **
 **************************************************************************/
 
-#ifndef BUILDPARSERINTERFACE_H
-#define BUILDPARSERINTERFACE_H
+#include "ibuildparser.h"
 
-#include "projectexplorer_export.h"
+using namespace ProjectExplorer;
 
-#include <QtCore/QObject>
-#include <QtCore/QStack>
-
-namespace ProjectExplorer {
-
-class PROJECTEXPLORER_EXPORT BuildParserInterface : public QObject
+IBuildParserFactory::~IBuildParserFactory()
 {
-    Q_OBJECT
-public:
-    virtual ~BuildParserInterface() {}
-    virtual QString name() const = 0;
+}
 
-    virtual void stdOutput(const QString & line) = 0;
-    virtual void stdError(const QString & line) = 0;
 
-Q_SIGNALS:
-    void enterDirectory(const QString &dir);
-    void leaveDirectory(const QString &dir);
-    void addToOutputWindow(const QString & string);
-    void addToTaskWindow(const QString & filename, int type, int lineNumber, const QString & description);
-};
-
-class PROJECTEXPLORER_EXPORT IBuildParserFactory
-    : public QObject
-{
-    Q_OBJECT
-
-public:
-    IBuildParserFactory() {}
-    virtual ~IBuildParserFactory();
-    virtual bool canCreate(const QString & name) const = 0;
-    virtual BuildParserInterface * create(const QString & name) const = 0;
-};
-
-} // namespace ProjectExplorer
-
-#endif // BUILDPARSERINTERFACE_H

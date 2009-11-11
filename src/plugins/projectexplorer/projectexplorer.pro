@@ -19,7 +19,7 @@ HEADERS += projectexplorer.h \
     session.h \
     dependenciespanel.h \
     allprojectsfilter.h \
-    buildparserinterface.h \
+    ibuildparser.h \
     projectexplorerconstants.h \
     projectexplorersettings.h \
     corelistenercheckingforrunningbuild.h \
@@ -84,7 +84,7 @@ SOURCES += projectexplorer.cpp \
     pluginfilefactory.cpp \
     buildstep.cpp \
     buildconfiguration.cpp \
-    buildparserinterface.cpp \
+    ibuildparser.cpp \
     environment.cpp \
     buildsettingspropertiespage.cpp \
     environmenteditmodel.cpp \

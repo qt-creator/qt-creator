@@ -30,7 +30,7 @@
 #ifndef BUILDPARSERFACTORY_H
 #define BUILDPARSERFACTORY_H
 
-#include <projectexplorer/buildparserinterface.h>
+#include <projectexplorer/ibuildparser.h>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -42,7 +42,7 @@ public:
     GccParserFactory() {}
     virtual ~GccParserFactory();
     virtual bool canCreate(const QString & name) const;
-    virtual ProjectExplorer::BuildParserInterface * create(const QString & name) const;
+    virtual ProjectExplorer::IBuildParser * create(const QString & name) const;
 };
 
 class MsvcParserFactory : public ProjectExplorer::IBuildParserFactory
@@ -52,7 +52,7 @@ public:
     MsvcParserFactory() {}
     virtual ~MsvcParserFactory();
     virtual bool canCreate(const QString & name) const;
-    virtual ProjectExplorer::BuildParserInterface * create(const QString & name) const;
+    virtual ProjectExplorer::IBuildParser * create(const QString & name) const;
 };
 
 } // namespace Internal
