@@ -90,6 +90,7 @@ private:
     bool m_sortedMethodOverview;
     QAction *m_renameSymbolUnderCursorAction;
     QAction *m_findUsagesAction;
+    QAction *m_updateCodeModelAction;
 };
 
 class CppEditorFactory : public Core::IEditorFactory

@@ -57,7 +57,8 @@ struct VCSManagerPrivate {
     QMap<QString, IVersionControl *> m_cachedMatches;
 };
 
-VCSManager::VCSManager() :
+VCSManager::VCSManager(QObject *parent) :
+   QObject(parent),
    m_d(new VCSManagerPrivate)
 {
 }
@@ -65,6 +66,17 @@ VCSManager::VCSManager() :
 VCSManager::~VCSManager()
 {
     delete m_d;
+}
+
+void VCSManager::extensionsInitialized()
+{
+    // Change signal connections
+    foreach (IVersionControl *versionControl, allVersionControls()) {
+        connect(versionControl, SIGNAL(filesChanged(QStringList)),
+                this, SIGNAL(filesChanged(QStringList)));
+        connect(versionControl, SIGNAL(repositoryChanged(QString)),
+                this, SIGNAL(repositoryChanged(QString)));
+    }
 }
 
 void VCSManager::setVCSEnabled(const QString &directory)
