@@ -246,21 +246,32 @@ bool CheckDeclarator::visit(ReferenceAST *)
 
 bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
 {
+    if (!ast)
+        return false;
+
+    if (!ast->selector) {
+        // TODO: (EV) this currently happens when parsing:
+        //   + (id<NSSomeProtocol>) zoo;
+        // where the parser will start doing template magic. We'll need to disambiguate this case.
+        return false;
+    }
+
     FullySpecifiedType returnType = semantic()->check(ast->type_name, _scope);
 
     unsigned location = ast->firstToken();
 
-    Name *name = semantic()->check(ast->selector, _scope);
+    semantic()->check(ast->selector, _scope);
 
-    ObjCMethod *method = control()->newObjCMethod(location, name);
+    ObjCMethod *method = control()->newObjCMethod(location, ast->selector->selector_name);
     ast->symbol = method;
     method->setSourceLocation(location);
     method->setScope(_scope);
     method->setVisibility(semantic()->currentVisibility());
     method->setReturnType(returnType);
+    if (semantic()->isObjCClassMethod(tokenKind(ast->method_type_token)))
+        method->setStorage(Symbol::Static);
 
     if (ast->selector && ast->selector->asObjCSelectorWithArguments()) {
-        // TODO: add arguments (EV)
         for (ObjCMessageArgumentDeclarationListAST *it = ast->argument_list; it; it = it->next) {
             ObjCMessageArgumentDeclarationAST *argDecl = it->value;
 
@@ -272,8 +283,6 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
     }
 
     _fullySpecifiedType = FullySpecifiedType(method);
-
-    // TODO: check which specifiers are allowed here (EV)
 
     return false;
 }

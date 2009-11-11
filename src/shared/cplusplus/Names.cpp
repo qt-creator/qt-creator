@@ -289,7 +289,9 @@ void SelectorNameId::accept0(NameVisitor *visitor)
 
 Identifier *SelectorNameId::identifier() const
 {
-    // FIXME: (EV)
+    if (! _nameCount)
+        return 0;
+
     return nameAt(0)->identifier();
 }
 

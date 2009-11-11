@@ -232,9 +232,7 @@ bool Semantic::isObjCClassMethod(int tokenKind) const
     case T_PLUS:
         return true;
     case T_MINUS:
-        return false;
     default:
-        // TODO EV: assert here?
         return false;
     }
 }

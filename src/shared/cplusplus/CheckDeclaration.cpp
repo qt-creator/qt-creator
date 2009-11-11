@@ -662,14 +662,12 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
         Declaration *decl = control()->newDeclaration(ast->firstToken(), methodType->name());
         decl->setType(methodType);
         symbol = decl;
+        symbol->setStorage(methodType->storage());
     }
 
     symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
     symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
     symbol->setVisibility(semantic()->currentVisibility());
-
-    if (semantic()->isObjCClassMethod(ast->method_prototype->method_type_token))
-        symbol->setStorage(Symbol::Static);
 
     _scope->enterSymbol(symbol);
 

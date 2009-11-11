@@ -75,12 +75,20 @@ public:
     QList<Symbol *> resolveClassOrNamespace(Name *name) const
     { return resolveClassOrNamespace(name, visibleScopes()); }
 
+    QList<Symbol *> resolveObjCClass(Name *name) const
+    { return resolveObjCClass(name, visibleScopes()); }
+
+    QList<Symbol *> resolveObjCProtocol(Name *name) const
+    { return resolveObjCProtocol(name, visibleScopes()); }
+
     enum ResolveMode {
         ResolveSymbol           = 0x01,
         ResolveClass            = 0x02,
         ResolveNamespace        = 0x04,
         ResolveClassOrNamespace = ResolveClass  | ResolveNamespace,
-        ResolveAll              = ResolveSymbol | ResolveClassOrNamespace
+        ResolveObjCClass        = 0x08,
+        ResolveObjCProtocol     = 0x10,
+        ResolveAll              = ResolveSymbol | ResolveClassOrNamespace | ResolveObjCClass | ResolveObjCProtocol
     };
 
     QList<Symbol *> resolve(Name *name, const QList<Scope *> &visibleScopes,
@@ -94,6 +102,12 @@ public:
 
     QList<Symbol *> resolveClassOrNamespace(Name *name, const QList<Scope *> &visibleScopes) const
     { return resolve(name, visibleScopes, ResolveClassOrNamespace); }
+
+    QList<Symbol *> resolveObjCClass(Name *name, const QList<Scope *> &visibleScopes) const
+    { return resolve(name, visibleScopes, ResolveObjCClass); }
+
+    QList<Symbol *> resolveObjCProtocol(Name *name, const QList<Scope *> &visibleScopes) const
+    { return resolve(name, visibleScopes, ResolveObjCProtocol); }
 
     QList<Scope *> visibleScopes() const
     { return _visibleScopes; }
@@ -127,6 +141,14 @@ public:
     void expandObjCMethod(ObjCMethod *method,
                           const QList<Scope *> &visibleScopes,
                           QList<Scope *> *expandedScopes) const;
+
+    void expandObjCClass(ObjCClass *klass,
+                         const QList<Scope *> &visibleScopes,
+                         QList<Scope *> *expandedScopes) const;
+
+    void expandObjCProtocol(ObjCProtocol *protocol,
+                            const QList<Scope *> &visibleScopes,
+                            QList<Scope *> *expandedScopes) const;
 
     void expandEnumOrAnonymousSymbol(ScopedSymbol *scopedSymbol,
                                      QList<Scope *> *expandedScopes) const;

@@ -70,6 +70,7 @@ private slots:
     void assignment_2();
 
     // objc++
+    void objc_simple_class();
     void objc_attributes_followed_by_at_keyword();
     void objc_protocol_forward_declaration_1();
     void objc_protocol_definition_1();
@@ -510,6 +511,20 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QVERIFY(param->type_specifier_list->value->asNamedTypeSpecifier()->name != 0);
     QVERIFY(param->type_specifier_list->value->asNamedTypeSpecifier()->name->asSimpleName() != 0);
     QCOMPARE(param->type_specifier_list->value->asNamedTypeSpecifier()->name->asSimpleName()->identifier_token, 4U);
+}
+
+void tst_AST::objc_simple_class()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+                                                          "@interface Zoo {} +(id)alloc;-(id)init;@end\n"
+                                                          "@implementation Zoo\n"
+                                                          "+(id)alloc{}\n"
+                                                          "-(id)init{}\n"
+                                                          "@end\n"
+                                                          ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast);
 }
 
 void tst_AST::objc_attributes_followed_by_at_keyword()

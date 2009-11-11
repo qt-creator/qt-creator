@@ -31,11 +31,13 @@ public:
     { control.setDiagnosticClient(&diag); }
 
     TranslationUnit *parse(const QByteArray &source,
-                           TranslationUnit::ParseMode mode)
+                           TranslationUnit::ParseMode mode,
+                           bool enableObjc)
     {
         StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
         unit->setSource(source.constData(), source.length());
+        unit->setObjCEnabled(enableObjc);
         unit->parse(mode);
         return unit;
     }
@@ -76,19 +78,24 @@ public:
             : errorCount(0)
         { }
 
-        virtual void report(int, StringLiteral *,
-                            unsigned, unsigned,
-                            const char *, va_list)
-        { ++errorCount; }
+        virtual void report(int level,
+                            StringLiteral *fileName,
+                            unsigned line, unsigned column,
+                            const char *format, va_list ap)
+        {
+            ++errorCount;
+
+            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' '<<QString().sprintf(format, ap);
+        }
     };
 
     Diagnostic diag;
 
 
-    QSharedPointer<Document> document(const QByteArray &source)
+    QSharedPointer<Document> document(const QByteArray &source, bool enableObjc = false)
     {
         diag.errorCount = 0; // reset the error count.
-        TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit);
+        TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit, enableObjc);
         QSharedPointer<Document> doc(new Document(unit));
         doc->check();
         doc->errorCount = diag.errorCount;
@@ -110,6 +117,8 @@ private slots:
     void template_instance_1();
 
     void expression_under_cursor_1();
+
+    void objcClass_1();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -436,6 +445,43 @@ void tst_Semantic::expression_under_cursor_1()
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("bar"));
+}
+
+void tst_Semantic::objcClass_1()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "@interface Zoo {} +(id)alloc;-(id)init;@end\n"
+                                            "@implementation Zoo\n"
+                                            "+(id)alloc{}\n"
+                                            "-(id)init{}\n"
+                                            "-(void)dealloc{}\n"
+                                            "@end\n",
+                                            true);
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->symbolCount(), 2U);
+
+    ObjCClass *iface = doc->globals->symbolAt(0)->asObjCClass();
+    QVERIFY(iface);
+    QVERIFY(iface->isInterface());
+    QCOMPARE(iface->memberCount(), 2U);
+
+    ObjCClass *impl = doc->globals->symbolAt(1)->asObjCClass();
+    QVERIFY(impl);
+    QVERIFY(!impl->isInterface());
+    QCOMPARE(impl->memberCount(), 3U);
+
+    ObjCMethod *allocMethod = impl->memberAt(0)->asObjCMethod();
+    QVERIFY(allocMethod);
+    QVERIFY(allocMethod->name() && allocMethod->name()->identifier());
+    QCOMPARE(QLatin1String(allocMethod->name()->identifier()->chars()), QLatin1String("alloc"));
+    QVERIFY(allocMethod->isStatic());
+
+    ObjCMethod *deallocMethod = impl->memberAt(2)->asObjCMethod();
+    QVERIFY(deallocMethod);
+    QVERIFY(deallocMethod->name() && deallocMethod->name()->identifier());
+    QCOMPARE(QLatin1String(deallocMethod->name()->identifier()->chars()), QLatin1String("dealloc"));
+    QVERIFY(!deallocMethod->isStatic());
 }
 
 QTEST_APPLESS_MAIN(tst_Semantic)

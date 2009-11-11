@@ -89,8 +89,10 @@ bool LookupContext::maybeValidSymbol(Symbol *symbol,
                                      ResolveMode mode,
                                      const QList<Symbol *> &candidates)
 {
-    if (((mode & ResolveNamespace) && symbol->isNamespace()) ||
-        ((mode & ResolveClass)     && symbol->isClass())     ||
+    if (((mode & ResolveNamespace)    && symbol->isNamespace())    ||
+        ((mode & ResolveClass)        && symbol->isClass())        ||
+        ((mode & ResolveObjCClass)    && symbol->isObjCClass())    ||
+        ((mode & ResolveObjCProtocol) && symbol->isObjCProtocol()) ||
          (mode & ResolveSymbol)) {
         return ! candidates.contains(symbol);
     }
@@ -527,6 +529,69 @@ void LookupContext::expandObjCMethod(ObjCMethod *method,
         expandedScopes->append(method->arguments());
 }
 
+void LookupContext::expandObjCClass(ObjCClass *klass,
+                                    const QList<Scope *> &visibleScopes,
+                                    QList<Scope *> *expandedScopes) const
+{
+    {// expand other @interfaces, @implementations and categories for this class:
+        const QList<Symbol *> classList = resolveObjCClass(klass->name(), visibleScopes);
+        foreach (Symbol *otherClass, classList) {
+            if (otherClass == klass)
+                continue;
+            expand(otherClass->asObjCClass()->members(), visibleScopes, expandedScopes);
+        }
+    }
+
+    // expand definitions in the currect class:
+    for (unsigned i = 0; i < klass->memberCount(); ++i) {
+        Symbol *symbol = klass->memberAt(i);
+        if (Class *nestedClass = symbol->asClass()) {
+            if (! nestedClass->name()) {
+                expand(nestedClass->members(), visibleScopes, expandedScopes);
+            }
+        } else if (Enum *e = symbol->asEnum()) {
+            expand(e->members(), visibleScopes, expandedScopes);
+        }
+    }
+
+    // expand the base class:
+    if (ObjCBaseClass *baseClass = klass->baseClass()) {
+        Name *baseClassName = baseClass->name();
+        const QList<Symbol *> baseClassCandidates = resolveObjCClass(baseClassName,
+                                                                     visibleScopes);
+
+        for (int j = 0; j < baseClassCandidates.size(); ++j) {
+            if (ObjCClass *baseClassSymbol = baseClassCandidates.at(j)->asObjCClass())
+                expand(baseClassSymbol->members(), visibleScopes, expandedScopes);
+        }
+    }
+
+    // expand the protocols:
+    for (unsigned i = 0; i < klass->protocolCount(); ++i) {
+        Name *protocolName = klass->protocolAt(i)->name();
+        const QList<Symbol *> protocolCandidates = resolveObjCProtocol(protocolName, visibleScopes);
+        for (int j = 0; j < protocolCandidates.size(); ++j) {
+            if (ObjCProtocol *protocolSymbol = protocolCandidates.at(j)->asObjCProtocol())
+                expandObjCProtocol(protocolSymbol, visibleScopes, expandedScopes);
+        }
+    }
+}
+
+void LookupContext::expandObjCProtocol(ObjCProtocol *protocol, const QList<Scope *> &visibleScopes, QList<Scope *> *expandedScopes) const
+{
+    // First expand the protocol itself
+    expand(protocol->members(), visibleScopes, expandedScopes);
+
+    // Then do the same for any incorporated protocol
+    for (unsigned i = 0; i < protocol->protocolCount(); ++i) {
+        ObjCBaseProtocol *baseProtocol = protocol->protocolAt(i);
+        const QList<Symbol *> protocolList = resolveObjCProtocol(baseProtocol->name(), visibleScopes);
+        foreach (Symbol *symbol, protocolList)
+            if (ObjCProtocol *protocolSymbol = symbol->asObjCProtocol())
+                expandObjCProtocol(protocolSymbol, visibleScopes, expandedScopes);
+    }
+}
+
 void LookupContext::expand(Scope *scope,
                            const QList<Scope *> &visibleScopes,
                            QList<Scope *> *expandedScopes) const
@@ -546,6 +611,8 @@ void LookupContext::expand(Scope *scope,
         expandFunction(fun, visibleScopes, expandedScopes);
     } else if (ObjCMethod *meth = scope->owner()->asObjCMethod()) {
         expandObjCMethod(meth, visibleScopes, expandedScopes);
+    } else if (ObjCClass *objcKlass = scope->owner()->asObjCClass()) {
+        expandObjCClass(objcKlass, visibleScopes, expandedScopes);
     }
 }
 

@@ -106,6 +106,8 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
             return startOfExpression(tk, index - 2);
         } else if (tk[index - 2].is(T_DOT_STAR) || tk[index - 2].is(T_ARROW_STAR)) {
             return startOfExpression(tk, index - 2);
+//        } else if (tk[index - 2].is(T_IDENTIFIER) && tk[index - 3].is(T_LBRACKET)) {
+//            return index - 3;
         }
         return index - 1;
     } else if (tk[index - 1].is(T_RPAREN)) {

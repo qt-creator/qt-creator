@@ -40,6 +40,7 @@ BackwardsScanner::BackwardsScanner(const QTextCursor &cursor, const QString &suf
 {
     _tokenize.setQtMocRunEnabled(true);
     _tokenize.setSkipComments(true);
+    _tokenize.setObjCEnabled(true);
     _text = _block.text().left(cursor.position() - cursor.block().position());
 
     if (! suffix.isEmpty())

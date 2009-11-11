@@ -61,6 +61,8 @@ public:
     QList<Result> resolveMember(Name *memberName, Class *klass,
                                 Name *className = 0) const;
 
+    QList<Result> resolveMember(Name *memberName, ObjCClass *klass) const;
+
 protected:
     QList<Result> switchResults(const QList<Result> &symbols);
 
@@ -109,6 +111,9 @@ protected:
     virtual bool visit(PostIncrDecrAST *ast);
     virtual bool visit(MemberAccessAST *ast);
 
+    // Objective-C expressions
+    virtual bool visit(ObjCMessageExpressionAST *ast);
+
     QList<Scope *> visibleScopes(const Result &result) const;
 
 private:
@@ -134,6 +139,16 @@ private:
 
 private:
     QList<ResolveExpression::Result> _blackList;
+};
+
+class CPLUSPLUS_EXPORT ResolveObjCClass
+{
+public:
+    ResolveObjCClass();
+
+    QList<Symbol *> operator()(Name *name,
+                               const ResolveExpression::Result &p,
+                               const LookupContext &context);
 };
 
 

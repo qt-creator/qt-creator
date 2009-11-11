@@ -368,7 +368,7 @@ bool CheckExpression::visit(MemberAccessAST *ast)
 
 bool CheckExpression::visit(ObjCMessageExpressionAST *ast)
 {
-    semantic()->check(ast->receiver_expression, _scope);
+    (void) semantic()->check(ast->receiver_expression, _scope);
     (void) semantic()->check(ast->selector, _scope);
 
     accept(ast->argument_list); // ### not necessary.

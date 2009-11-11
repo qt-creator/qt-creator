@@ -245,6 +245,9 @@ Symbol *Scope::lookat(Identifier *id) const
                 break;
         } else if (identity->isQualifiedNameId()) {
             assert(0);
+        } else if (SelectorNameId *selectorNameId = identity->asSelectorNameId()) {
+            if (selectorNameId->identifier()->isEqualTo(id))
+                break;
         }
     }
     return symbol;

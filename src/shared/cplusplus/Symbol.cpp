@@ -104,6 +104,9 @@ protected:
     virtual void visit(QualifiedNameId *name)
     { _value = operator()(name->unqualifiedNameId()); }
 
+    virtual void visit(SelectorNameId *name)
+    { _value = name->identifier()->hashCode(); }
+
 private:
     unsigned _value;
 };
@@ -150,6 +153,9 @@ protected:
 
     virtual void visit(QualifiedNameId *name)
     { _identity = name->unqualifiedNameId(); }
+
+    virtual void visit(SelectorNameId *name)
+    { _identity = name; }
 
 private:
     Name *_identity;
@@ -460,6 +466,12 @@ bool Symbol::isArgument() const
 
 bool Symbol::isBaseClass() const
 { return asBaseClass() != 0; }
+
+bool Symbol::isObjCBaseClass() const
+{ return asObjCBaseClass() != 0; }
+
+bool Symbol::isObjCBaseProtocol() const
+{ return asObjCBaseProtocol() != 0; }
 
 bool Symbol::isObjCClass() const
 { return asObjCClass() != 0; }

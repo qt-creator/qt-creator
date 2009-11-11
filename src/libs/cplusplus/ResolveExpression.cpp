@@ -738,8 +738,64 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
 }
 
 
+QList<ResolveExpression::Result>
+ResolveExpression::resolveMember(Name *memberName, ObjCClass *klass) const
+{
+    QList<Result> results;
+
+    if (!memberName || !klass)
+        return results;
+
+    QList<Scope *> scopes;
+    _context.expand(klass->members(), _context.visibleScopes(), &scopes);
+
+    QList<Symbol *> candidates = _context.resolve(memberName, scopes);
+
+    foreach (Symbol *candidate, candidates) {
+        FullySpecifiedType ty = candidate->type();
+
+        results.append(Result(ty, candidate));
+    }
+
+    return removeDuplicates(results);
+}
+
 bool ResolveExpression::visit(PostIncrDecrAST *)
 {
+    return false;
+}
+
+bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
+{
+    QList<Result> receiverResults = operator()(ast->receiver_expression);
+
+    if (!receiverResults.isEmpty()) {
+        Result result = receiverResults.first();
+        FullySpecifiedType ty = result.first.simplified();
+        Name *klassName = 0;
+
+        if (const ObjCClass *classTy = ty->asObjCClassType()) {
+            // static access, e.g.:
+            // [NSObject description];
+            klassName = classTy->name();
+        } else if (const PointerType *ptrTy = ty->asPointerType()) {
+            const FullySpecifiedType pointeeTy = ptrTy->elementType();
+            if (pointeeTy && pointeeTy->isNamedType()) {
+                // dynamic access, e.g.:
+                // NSObject *obj = ...; [obj release];
+                klassName = pointeeTy->asNamedType()->name();
+            }
+        }
+
+        if (klassName&&ast->selector && ast->selector->selector_name) {
+            ResolveObjCClass resolveObjCClass;
+            QList<Symbol *> resolvedSymbols = resolveObjCClass(klassName, result, _context);
+            foreach (Symbol *resolvedSymbol, resolvedSymbols)
+                if (ObjCClass *klass = resolvedSymbol->asObjCClass())
+                    _results.append(resolveMember(ast->selector->selector_name, klass));
+        }
+    }
+
     return false;
 }
 
@@ -804,6 +860,38 @@ QList<Symbol *> ResolveClass::resolveClass(Name *name,
                         const ResolveExpression::Result r(retTy, decl);
                         resolvedSymbols += resolveClass(namedTy->name(), r, context);
                     }
+                }
+            }
+        }
+    }
+
+    return resolvedSymbols;
+}
+
+ResolveObjCClass::ResolveObjCClass()
+{}
+
+QList<Symbol *> ResolveObjCClass::operator ()(Name *name,
+                                              const ResolveExpression::Result &p,
+                                              const LookupContext &context)
+{
+    QList<Symbol *> resolvedSymbols;
+
+    const QList<Symbol *> candidates =
+            context.resolve(name, context.visibleScopes(p));
+
+    foreach (Symbol *candidate, candidates) {
+        if (ObjCClass *klass = candidate->asObjCClass()) {
+            if (resolvedSymbols.contains(klass))
+                continue; // we already know about `klass'
+            resolvedSymbols.append(klass);
+        } else if (candidate->isTypedef()) {
+            if (Declaration *decl = candidate->asDeclaration()) {
+                if (decl->type()->isObjCClassType()) {
+                    ObjCClass *klass = decl->type()->asObjCClassType();
+                    if (resolvedSymbols.contains(klass))
+                        continue;
+                    resolvedSymbols.append(klass);
                 }
             }
         }
