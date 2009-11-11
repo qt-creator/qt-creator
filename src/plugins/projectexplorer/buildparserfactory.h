@@ -55,6 +55,16 @@ public:
     virtual ProjectExplorer::IBuildParser * create(const QString & name) const;
 };
 
+class QMakeParserFactory : public ProjectExplorer::IBuildParserFactory
+{
+    Q_OBJECT
+public:
+    QMakeParserFactory() {}
+    virtual ~QMakeParserFactory();
+    virtual bool canCreate(const QString & name) const;
+    virtual ProjectExplorer::IBuildParser * create(const QString & name) const;
+};
+
 } // namespace Internal
 } // namespace ProjectExplorer
 

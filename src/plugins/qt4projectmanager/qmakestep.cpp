@@ -38,6 +38,8 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <QFileDialog>
 #include <QDir>
 #include <QFile>
@@ -48,7 +50,7 @@ using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
 
 QMakeStep::QMakeStep(Qt4Project *project)
-    : AbstractProcessStep(project), m_pro(project), m_forced(false)
+    : AbstractMakeStep(project), m_pro(project), m_forced(false)
 {
 }
 
@@ -137,6 +139,8 @@ bool QMakeStep::init(const QString &name)
     setCommand(name, program);
     setArguments(name, args);
     setEnvironment(name, m_pro->environment(bc));
+
+    setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_QMAKE);
     return AbstractProcessStep::init(name);
 }
 

@@ -27,56 +27,27 @@
 **
 **************************************************************************/
 
-#include "buildparserfactory.h"
+#ifndef QMAKEPARSER_H
+#define QMAKEPARSER_H
 
-#include "projectexplorerconstants.h"
-#include "gccparser.h"
-#include "msvcparser.h"
-#include "qmakeparser.h"
+#include "ibuildparser.h"
 
-using namespace ProjectExplorer::Internal;
+#include <QtCore/QRegExp>
 
-GccParserFactory::~GccParserFactory()
+namespace ProjectExplorer {
+
+class QMakeParser : public ProjectExplorer::IBuildParser
 {
-}
+    Q_OBJECT
 
-bool GccParserFactory::canCreate(const QString & name) const
-{
-    return (name == Constants::BUILD_PARSER_GCC);
-}
+public:
+    QMakeParser();
+    QString name() const;
+    virtual void stdOutput(const QString & line);
+    virtual void stdError(const QString & line);
+private:
+};
 
-ProjectExplorer::IBuildParser * GccParserFactory::create(const QString & name) const
-{
-    Q_UNUSED(name)
-    return new GccParser();
-}
+} // namespace ProjectExplorer
 
-MsvcParserFactory::~MsvcParserFactory()
-{
-}
-
-bool MsvcParserFactory::canCreate(const QString & name) const
-{
-    return (name == Constants::BUILD_PARSER_MSVC);
-}
-
-ProjectExplorer::IBuildParser * MsvcParserFactory::create(const QString & name) const
-{
-    Q_UNUSED(name)
-    return new MsvcParser();
-}
-
-QMakeParserFactory::~QMakeParserFactory()
-{
-}
-
-bool QMakeParserFactory::canCreate(const QString & name) const
-{
-    return (name == Constants::BUILD_PARSER_QMAKE);
-}
-
-ProjectExplorer::IBuildParser * QMakeParserFactory::create(const QString & name) const
-{
-    Q_UNUSED(name)
-    return new QMakeParser();
-}
+#endif // QMAKEPARSER_H

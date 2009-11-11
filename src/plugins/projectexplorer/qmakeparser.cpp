@@ -27,56 +27,32 @@
 **
 **************************************************************************/
 
-#include "buildparserfactory.h"
-
-#include "projectexplorerconstants.h"
-#include "gccparser.h"
-#include "msvcparser.h"
 #include "qmakeparser.h"
+#include "projectexplorerconstants.h"
+#include "taskwindow.h"
 
-using namespace ProjectExplorer::Internal;
+using namespace ProjectExplorer;
 
-GccParserFactory::~GccParserFactory()
+QMakeParser::QMakeParser()
 {
 }
 
-bool GccParserFactory::canCreate(const QString & name) const
+QString QMakeParser::name() const
 {
-    return (name == Constants::BUILD_PARSER_GCC);
+    return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_QMAKE);
 }
 
-ProjectExplorer::IBuildParser * GccParserFactory::create(const QString & name) const
-{
-    Q_UNUSED(name)
-    return new GccParser();
-}
-
-MsvcParserFactory::~MsvcParserFactory()
+void QMakeParser::stdOutput(const QString & line)
 {
 }
 
-bool MsvcParserFactory::canCreate(const QString & name) const
+void QMakeParser::stdError(const QString & line)
 {
-    return (name == Constants::BUILD_PARSER_MSVC);
-}
-
-ProjectExplorer::IBuildParser * MsvcParserFactory::create(const QString & name) const
-{
-    Q_UNUSED(name)
-    return new MsvcParser();
-}
-
-QMakeParserFactory::~QMakeParserFactory()
-{
-}
-
-bool QMakeParserFactory::canCreate(const QString & name) const
-{
-    return (name == Constants::BUILD_PARSER_QMAKE);
-}
-
-ProjectExplorer::IBuildParser * QMakeParserFactory::create(const QString & name) const
-{
-    Q_UNUSED(name)
-    return new QMakeParser();
+    QString lne(line.trimmed());
+    if (lne.startsWith("Project ERROR:"))
+    {
+        lne = lne.mid(15);
+        emit addToTaskWindow(QString(), TaskWindow::Error, -1, lne);
+        return;
+    }
 }
