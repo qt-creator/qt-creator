@@ -77,7 +77,7 @@ QByteArray RVCTToolChain::predefinedMacros()
 {
     // see http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0205f/Babbacdb.html
     updateVersion();
-    QByteArray ba = QString::fromLocal8Bit(
+    QByteArray ba = QString::fromLatin1(
         "#define __arm__arm__\n"
         "#define __ARMCC_VERSION %1%2%3%4\n"
         "#define __ARRAY_OPERATORS\n"
@@ -93,10 +93,11 @@ QByteArray RVCTToolChain::predefinedMacros()
         "#define __TARGET_FEATURE_HALFWORD\n"
         "#define __TARGET_FEATURE_THUMB\n"
         "#define _WCHAR_T\n"
+        "#define __SYMBIAN32__\n"
         ).arg(m_major, 1, 10, QLatin1Char('0'))
         .arg(m_minor, 1, 10, QLatin1Char('0'))
         .arg("0")
-        .arg(m_build, 3, 10, QLatin1Char('0')).toLocal8Bit();
+        .arg(m_build, 3, 10, QLatin1Char('0')).toLatin1();
     return ba;
 }
 

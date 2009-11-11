@@ -51,6 +51,17 @@ ToolChain::ToolChainType GCCEToolChain::type() const
     return ToolChain::GCCE;
 }
 
+QByteArray GCCEToolChain::predefinedMacros()
+{
+    if (m_predefinedMacros.isEmpty()) {
+        ProjectExplorer::GccToolChain::predefinedMacros();
+        m_predefinedMacros += "\n"
+                "#define __GCCE__\n"
+                "#define __SYMBIAN32__\n";
+    }
+    return m_predefinedMacros;
+}
+
 QList<HeaderPath> GCCEToolChain::systemHeaderPaths()
 {
     if (m_systemHeaderPaths.isEmpty()) {

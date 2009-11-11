@@ -2489,8 +2489,6 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     int markWidth = 0;
     if (d->m_marksVisible)
         markWidth += fm.lineSpacing();
-//     if (documentLayout->doubleMarkCount)
-//         markWidth += fm.lineSpacing() / 3;
 
     const int collapseColumnWidth = d->m_codeFoldingVisible ? collapseBoxWidth(fm): 0;
     const int extraAreaWidth = d->m_extraArea->width() - collapseColumnWidth;
@@ -2517,6 +2515,12 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
             // invisible blocks do have zero line count
             nextVisibleBlock = doc->findBlockByLineNumber(nextVisibleBlock.firstLineNumber());
             nextVisibleBlockNumber = nextVisibleBlock.blockNumber();
+        }
+
+        if (bottom < e->rect().top()) {
+            block = nextVisibleBlock;
+            blockNumber = nextVisibleBlockNumber;
+            continue;
         }
 
         painter.setPen(pal.color(QPalette::Dark));
@@ -3411,6 +3415,16 @@ void BaseTextEditor::reindent(QTextDocument *doc, const QTextCursor &cursor)
         const QTextBlock end = doc->findBlock(cursor.selectionEnd()).next();
 
         const TabSettings &ts = d->m_document->tabSettings();
+
+        // skip empty blocks
+        while (block.isValid() && block != end) {
+            QString bt = block.text();
+            if (ts.firstNonSpace(bt) < bt.size())
+                break;
+            indentBlock(doc, block, QChar::Null);
+            block = block.next();
+        }
+
         int previousIndentation = ts.indentationColumn(block.text());
         indentBlock(doc, block, QChar::Null);
         int currentIndentation = ts.indentationColumn(block.text());
@@ -4654,6 +4668,7 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
     }
 
     cursor.beginEditBlock();
+    cursor.removeSelectedText();
 
     bool insertAtBeginningOfLine = ts.cursorIsAtBeginningOfLine(cursor);
 
@@ -4663,8 +4678,6 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
         if (text.isEmpty())
             return;
     }
-
-    cursor.removeSelectedText();
 
     int reindentBlockStart = cursor.blockNumber() + (insertAtBeginningOfLine?0:1);
 

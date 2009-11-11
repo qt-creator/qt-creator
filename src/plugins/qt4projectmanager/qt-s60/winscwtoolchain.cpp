@@ -29,6 +29,8 @@
 
 #include "winscwtoolchain.h"
 
+#include <QtCore/QByteArray>
+#include <QtCore/QString>
 #include <QtDebug>
 
 using namespace ProjectExplorer;
@@ -50,8 +52,7 @@ ToolChain::ToolChainType WINSCWToolChain::type() const
 
 QByteArray WINSCWToolChain::predefinedMacros()
 {
-    // TODO
-    return m_predefinedMacros;
+    return QByteArray("#define __SYMBIAN32__\n");
 }
 
 QList<HeaderPath> WINSCWToolChain::systemHeaderPaths()
@@ -67,10 +68,8 @@ QList<HeaderPath> WINSCWToolChain::systemHeaderPaths()
 QStringList WINSCWToolChain::systemIncludes() const
 {
     if (m_carbidePath.isEmpty()) {
-        qDebug() << "no carbide path set";
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         QString symIncludesValue = env.value("MWCSYM2INCLUDES");
-        qDebug() << "includes:" << symIncludesValue.split(";");
         if (!symIncludesValue.isEmpty())
             return symIncludesValue.split(";");
     } else {

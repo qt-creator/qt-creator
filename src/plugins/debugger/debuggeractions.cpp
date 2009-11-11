@@ -233,8 +233,8 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setSettingsKey(debugModeGroup, QLatin1String("UseCodeModel"));
     item->setText(tr("Use code model"));
     item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
+    item->setDefaultValue(true);
+    item->setValue(true);
     instance->insertItem(UseCodeModel, item);
 
     item = new SavedAction(instance);

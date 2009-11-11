@@ -56,6 +56,7 @@ namespace Subversion {
 namespace Internal {
 
 class SubversionSubmitEditor;
+class SubversionControl;
 
 struct SubversionResponse
 {
@@ -131,7 +132,7 @@ private:
     const QStringList m_svnDirectories;
 
     SubversionSettings m_settings;
-    Core::IVersionControl *m_versionControl;
+    SubversionControl *m_versionControl;
     QString m_commitMessageFileName;
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;

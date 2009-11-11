@@ -132,105 +132,122 @@ void StyleHelper::setBaseColor(const QColor &color)
     }
 }
 
-void StyleHelper::verticalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)
+static void verticalGradientHelper(QPainter *p, const QRect &spanRect, const QRect &rect)
 {
-    QString key;
-    key.sprintf("mh_toolbar %d %d %d %d %d", spanRect.width(), spanRect.height(), clipRect.width(),
-                                             clipRect.height(), StyleHelper::baseColor().rgb());;
-    QPixmap pixmap;
-    QPainter *p = painter;
-    QRect rect = clipRect;
-    if (StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
-        pixmap = QPixmap(clipRect.size());
-        p = new QPainter(&pixmap);
-        rect = QRect(0, 0, clipRect.width(), clipRect.height());
-    }
-
     QColor base = StyleHelper::baseColor();
     QLinearGradient grad(spanRect.topRight(), spanRect.topLeft());
-    grad.setColorAt(0, highlightColor());
+    grad.setColorAt(0, StyleHelper::highlightColor());
     grad.setColorAt(0.301, base);
-    grad.setColorAt(1, shadowColor());
+    grad.setColorAt(1, StyleHelper::shadowColor());
     p->fillRect(rect, grad);
 
     QColor light(255, 255, 255, 80);
     p->setPen(light);
     p->drawLine(rect.topRight() - QPoint(1, 0), rect.bottomRight() - QPoint(1, 0));
-
-    if (StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
-        painter->drawPixmap(clipRect.topLeft(), pixmap);
-        p->end();
-        delete p;
-        QPixmapCache::insert(key, pixmap);
-    }
-
 }
 
-void StyleHelper::horizontalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)
+void StyleHelper::verticalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)
 {
-    QString key;
-    key.sprintf("mh_toolbar %d %d %d %d %d", spanRect.width(), spanRect.height(),
-                clipRect.width(), clipRect.height(), StyleHelper::baseColor().rgb());
-    QPixmap pixmap;
-    QPainter *p = painter;
-    QRect rect = clipRect;
-    if (StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
-        pixmap = QPixmap(clipRect.size());
-        p = new QPainter(&pixmap);
-        rect = QRect(0, 0, clipRect.width(), clipRect.height());
-    }
+    if (StyleHelper::usePixmapCache()) {
+        QString key;
+        key.sprintf("mh_vertical %d %d %d %d %d",
+            spanRect.width(), spanRect.height(), clipRect.width(),
+            clipRect.height(), StyleHelper::baseColor().rgb());;
 
+        QPixmap pixmap;
+        if (!QPixmapCache::find(key, pixmap)) {
+            pixmap = QPixmap(clipRect.size());
+            QPainter p(&pixmap);
+            QRect rect(0, 0, clipRect.width(), clipRect.height());
+            verticalGradientHelper(&p, spanRect, rect);
+            p.end();
+            QPixmapCache::insert(key, pixmap);
+        }
+
+        painter->drawPixmap(clipRect.topLeft(), pixmap);
+    } else {
+        verticalGradientHelper(painter, spanRect, clipRect);
+    }
+}
+
+static void horizontalGradientHelper(QPainter *p, const QRect &spanRect, const
+QRect &rect)
+{
     QColor base = StyleHelper::baseColor();
     QLinearGradient grad(rect.topLeft(), rect.bottomLeft());
-    grad.setColorAt(0, highlightColor().lighter(120));
-    if (rect.height() == navigationWidgetHeight()) {
-        grad.setColorAt(0.4, highlightColor());
+    grad.setColorAt(0, StyleHelper::highlightColor().lighter(120));
+    if (rect.height() == StyleHelper::navigationWidgetHeight()) {
+        grad.setColorAt(0.4, StyleHelper::highlightColor());
         grad.setColorAt(0.401, base);
     }
-    grad.setColorAt(1, shadowColor());
+    grad.setColorAt(1, StyleHelper::shadowColor());
     p->fillRect(rect, grad);
 
     QLinearGradient shadowGradient(spanRect.topLeft(), spanRect.topRight());
     shadowGradient.setColorAt(0, QColor(0, 0, 0, 30));
-    QColor highlight = highlightColor().lighter(130);
+    QColor highlight = StyleHelper::highlightColor().lighter(130);
     highlight.setAlpha(100);
     shadowGradient.setColorAt(0.7, highlight);
     shadowGradient.setColorAt(1, QColor(0, 0, 0, 40));
     p->fillRect(rect, shadowGradient);
 
-    if (StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
+}
+
+void StyleHelper::horizontalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)
+{
+    if (StyleHelper::usePixmapCache()) {
+        QString key;
+        key.sprintf("mh_horizontal %d %d %d %d %d",
+            spanRect.width(), spanRect.height(), clipRect.width(),
+            clipRect.height(), StyleHelper::baseColor().rgb());
+
+        QPixmap pixmap;
+        if (!QPixmapCache::find(key, pixmap)) {
+            pixmap = QPixmap(clipRect.size());
+            QPainter p(&pixmap);
+            QRect rect = QRect(0, 0, clipRect.width(), clipRect.height());
+            horizontalGradientHelper(&p, spanRect, rect);
+            p.end();
+            QPixmapCache::insert(key, pixmap);
+        }
+
         painter->drawPixmap(clipRect.topLeft(), pixmap);
-        p->end();
-        delete p;
-        QPixmapCache::insert(key, pixmap);
+
+    } else {
+        horizontalGradientHelper(painter, spanRect, clipRect);
     }
+}
+
+static void menuGradientHelper(QPainter *p, const QRect &spanRect, const QRect &rect)
+{
+    QLinearGradient grad(spanRect.topLeft(), spanRect.bottomLeft());
+    QColor menuColor = StyleHelper::mergedColors(StyleHelper::baseColor(), QColor(244, 244, 244), 25);
+    grad.setColorAt(0, menuColor.lighter(112));
+    grad.setColorAt(1, menuColor);
+    p->fillRect(rect, grad);
 }
 
 void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)
 {
-    QString key;
-    key.sprintf("mh_toolbar %d %d %d %d %d", spanRect.width(), spanRect.height(), clipRect.width(),
-                                             clipRect.height(), StyleHelper::baseColor().rgb());;
-    QPixmap pixmap;
-    QPainter *p = painter;
-    QRect rect = clipRect;
-    if (StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
-        pixmap = QPixmap(clipRect.size());
-        p = new QPainter(&pixmap);
-        rect = QRect(0, 0, clipRect.width(), clipRect.height());
-    }
+    if (StyleHelper::usePixmapCache()) {
+        QString key;
+        key.sprintf("mh_menu %d %d %d %d %d",
+            spanRect.width(), spanRect.height(), clipRect.width(),
+            clipRect.height(), StyleHelper::baseColor().rgb());
 
-    QLinearGradient grad(spanRect.topLeft(), spanRect.bottomLeft());
-    QColor menuColor = mergedColors(StyleHelper::baseColor(), QColor(244, 244, 244), 25);
-    grad.setColorAt(0, menuColor.lighter(112));
-    grad.setColorAt(1, menuColor);
-    p->fillRect(rect, grad);
+        QPixmap pixmap;
+        if (!QPixmapCache::find(key, pixmap)) {
+            pixmap = QPixmap(clipRect.size());
+            QPainter p(&pixmap);
+            QRect rect = QRect(0, 0, clipRect.width(), clipRect.height());
+            menuGradientHelper(&p, spanRect, rect);
+            p.end();
+            QPixmapCache::insert(key, pixmap);
+        }
 
-    if (StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
         painter->drawPixmap(clipRect.topLeft(), pixmap);
-        p->end();
-        delete p;
-        QPixmapCache::insert(key, pixmap);
+    } else {
+        menuGradientHelper(painter, spanRect, clipRect);
     }
 }
 

@@ -110,6 +110,8 @@ bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configu
     if (type == ProjectExplorer::ToolChain::GCC_MAEMO)
         return false;
 #endif
+#else
+    Q_UNUSED(configuration);
 #endif
     return true;
 }

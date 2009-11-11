@@ -62,6 +62,9 @@ public:
 private:
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleExecRun(const GdbResponse &response);
+#ifdef Q_OS_LINUX
+    void handleInfoTarget(const GdbResponse &response);
+#endif
 
     OutputCollector m_outputCollector;
 };

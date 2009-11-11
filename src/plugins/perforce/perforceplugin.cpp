@@ -454,6 +454,8 @@ void PerforcePlugin::revertCurrentFile()
     Core::FileChangeBlocker fcb(fileName);
     fcb.setModifiedReload(true);
     PerforceResponse result2 = runP4Cmd(QStringList() << QLatin1String("revert") << fileName, QStringList(), CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+    if (!result2.error)
+        m_versionControl->emitFilesChanged(QStringList(fileName));
 }
 
 void PerforcePlugin::diffCurrentFile()
@@ -514,7 +516,10 @@ void PerforcePlugin::updateCheckout(const QStringList &dirs)
 {
     QStringList args(QLatin1String("sync"));
     args.append(dirs);
-    runP4Cmd(args, QStringList(), CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+    const PerforceResponse resp = runP4Cmd(args, QStringList(), CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+    if (!dirs.empty())
+        foreach(const QString &dir, dirs)
+            m_versionControl->emitRepositoryChanged(dir);
 }
 
 void PerforcePlugin::printOpenedFileList()

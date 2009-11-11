@@ -33,6 +33,7 @@
 #include "core_global.h"
 
 #include <QtCore/QString>
+#include <QtCore/QObject>
 
 namespace Core {
 
@@ -49,12 +50,15 @@ class IVersionControl;
 // for the topmost directory it manages. This information is cached and
 // VCSManager thus knows pretty fast which IVersionControl * is responsible.
 
-class CORE_EXPORT VCSManager
+class CORE_EXPORT VCSManager : public QObject
 {
+    Q_OBJECT
     Q_DISABLE_COPY(VCSManager)
 public:
-    VCSManager();
+    explicit VCSManager(QObject *parent = 0);
     virtual ~VCSManager();
+
+    void extensionsInitialized();
 
     IVersionControl *findVersionControlForDirectory(const QString &directory);
 
@@ -68,6 +72,10 @@ public:
     // from revision control Calls sccDelete on the file. Returns false
     // if a failure occurs
     bool showDeleteDialog(const QString &fileName);
+
+signals:
+    void repositoryChanged(const QString &repository);
+    void filesChanged(const QStringList &files);
 
 private:
     VCSManagerPrivate *m_d;

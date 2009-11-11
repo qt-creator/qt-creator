@@ -41,6 +41,7 @@ class GCCEToolChain : public ProjectExplorer::GccToolChain
 {
 public:
     GCCEToolChain(S60Devices::Device device, const QString &gcceCommand);
+    QByteArray predefinedMacros();
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
     void addToEnvironment(ProjectExplorer::Environment &env);
     ProjectExplorer::ToolChain::ToolChainType type() const;

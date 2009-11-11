@@ -142,6 +142,7 @@ GitPlugin::GitPlugin() :
     m_stashListAction(0),
     m_branchListAction(0),
     m_gitClient(0),
+    m_versionControl(0),
     m_changeSelectionDialog(0),
     m_submitActionTriggered(false)
 {
@@ -215,8 +216,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     addAutoReleasedObject(new GitSubmitEditorFactory(&submitParameters));
 
-    GitVersionControl *versionControl = new GitVersionControl(m_gitClient);
-    addAutoReleasedObject(versionControl);
+    m_versionControl = new GitVersionControl(m_gitClient);
+    addAutoReleasedObject(m_versionControl);
 
     addAutoReleasedObject(new CloneWizard);
     addAutoReleasedObject(new Gitorious::Internal::GitoriousCloneWizard);
@@ -232,8 +233,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->menu()->setTitle(tr("&Git"));
     toolsContainer->addMenu(gitContainer);
     if (QAction *ma = gitContainer->menu()->menuAction()) {
-        ma->setEnabled(versionControl->isEnabled());
-        connect(versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
+        ma->setEnabled(m_versionControl->isEnabled());
+        connect(m_versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
     }
 
     Core::Command *command;
@@ -396,6 +397,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 void GitPlugin::extensionsInitialized()
 {
+}
+
+GitVersionControl *GitPlugin::versionControl() const
+{
+    return m_versionControl;
 }
 
 void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList &staged)
@@ -753,6 +759,7 @@ void GitPlugin::updateActions()
         m_statusProjectAction->setEnabled(false);
         m_logProjectAction->setParameter(repository);
         m_logProjectAction->setEnabled(false);
+        m_undoProjectAction->setEnabled(false);
         return;
     }
 
@@ -772,6 +779,7 @@ void GitPlugin::updateActions()
     m_statusProjectAction->setParameter(project);
     m_logProjectAction->setEnabled(enabled);
     m_logProjectAction->setParameter(project);
+    m_undoProjectAction->setEnabled(enabled);
 }
 
 void GitPlugin::showCommit()

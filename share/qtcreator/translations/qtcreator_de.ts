@@ -70,7 +70,7 @@
     <message>
         <location filename="../../../src/plugins/bineditor/bineditorplugin.cpp" line="+446"/>
         <source>&amp;Undo</source>
-        <translation>&amp;Rückgangig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -360,7 +360,7 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+123"/>
         <source>CMake Wizard</source>
-        <translation>CMake Assistent</translation>
+        <translation>CMake-Assistent</translation>
     </message>
 </context>
 <context>
@@ -696,7 +696,7 @@
     <message>
         <location line="+3"/>
         <source>&amp;Undo</source>
-        <translation>&amp;Rückgangig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -734,7 +734,7 @@
         <translation>Die Datei wurde geändert. Möchten Sie die Änderungen rückgängig machen?</translation>
     </message>
     <message>
-        <location line="+78"/>
+        <location line="+80"/>
         <source>The commit list spans several repositories (%1). Please commit them one by one.</source>
         <translation>Die abzugebenden Dateien umfassen mehrere Repositories. Bitte geben Sie sie einzeln ab.</translation>
     </message>
@@ -754,7 +754,7 @@
         <translation>Es konnte keine temporäre Datei erstellt werden: %1</translation>
     </message>
     <message>
-        <location line="+105"/>
+        <location line="+108"/>
         <source>Project status</source>
         <translation>Status des Projekts</translation>
     </message>
@@ -796,7 +796,7 @@
     <message>
         <location line="+3"/>
         <source>The process terminated abnormally.</source>
-        <translation>Der Prozess wurde in unnormaler Weise beendet.</translation>
+        <translation type="unfinished">Der Prozess wurde in anormaler Weise beendet.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -907,7 +907,7 @@
 <context>
     <name>CVSPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="-1039"/>
+        <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="-1044"/>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation>Das Repository der Datei &apos;%1&apos; konnte nicht gefunden werden</translation>
     </message>
@@ -1170,7 +1170,7 @@
         <location/>
         <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
  reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <translation>Diese Option bewirkt, dass &apos;Einzelschritt in&apos; in bestimmten Situationen mehrere Schritte zusammenfaßt, was das Debuggen beschleunigt. Zum Beispiel wird der Code des atomaren Referenzzählung übersprungen; und bei der Emission eines Signals gelangt man zum verbundenen Slot.</translation>
+        <translation>Diese Option bewirkt, dass &apos;Einzelschritt in&apos; in bestimmten Situationen mehrere Schritte zusammenfasst, was das Debuggen beschleunigt. Zum Beispiel wird der Code des atomaren Referenzzählung übersprungen; und bei der Emission eines Signals gelangt man zum verbundenen Slot.</translation>
     </message>
     <message>
         <location/>
@@ -1190,7 +1190,7 @@
     <message>
         <location/>
         <source>Use alternating row colors in debug views</source>
-        <translation>Alternierende Farben für Debugansichten benutzen</translation>
+        <translation>Alternierende Farben für Debug-Ansichten benutzen</translation>
     </message>
     <message>
         <location/>
@@ -1670,7 +1670,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+7"/>
         <source>Split Top/Bottom</source>
-        <translation>Open/unten teilen</translation>
+        <translation type="unfinished">Oben/unten teilen</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -1863,7 +1863,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Ausgaben</translation>
     </message>
     <message>
-        <location line="+161"/>
+        <location line="+162"/>
         <source>&amp;File</source>
         <translation>&amp;Datei</translation>
     </message>
@@ -1949,7 +1949,7 @@ Sollen sie überschrieben werden?</translation>
         <location line="+5"/>
         <location line="+4"/>
         <source>&amp;Undo</source>
-        <translation>&amp;Rückgangig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -2194,7 +2194,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+35"/>
         <source>Plugin Details of %1</source>
-        <translation>Pluginbeschreibung zu %1</translation>
+        <translation>Beschreibung zu %1</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -2342,19 +2342,19 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>CppEditor::Internal::CPPEditor</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+615"/>
+        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+616"/>
         <source>Sort alphabetically</source>
         <translation>Alphabetisch sortieren</translation>
     </message>
     <message>
-        <location line="+163"/>
+        <location line="+188"/>
         <source>This change cannot be undone.</source>
         <translation>Diese Änderung kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Yes, I know what I am doing.</source>
-        <translation>Ja, Ich bin mir dessen bewußt.</translation>
+        <translation>Ja, Ich bin mir dessen bewusst.</translation>
     </message>
 </context>
 <context>
@@ -2402,7 +2402,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>CppEditor::Internal::CppPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppplugin.cpp" line="+174"/>
+        <location filename="../../../src/plugins/cppeditor/cppplugin.cpp" line="+189"/>
         <source>C++</source>
         <translation>C++</translation>
     </message>
@@ -2437,7 +2437,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Erzeugt C++-Header- und Quelldatei für eine neue Klasse</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+12"/>
         <source>Follow Symbol under Cursor</source>
         <translation>Symbol unter Einfügemarke verfolgen</translation>
     </message>
@@ -2460,6 +2460,11 @@ Sollen sie überschrieben werden?</translation>
         <location line="+5"/>
         <source>Rename Symbol under Cursor</source>
         <translation>Symbol unter Einfügemarke umbenennen</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Update code model</source>
+        <translation>Code-Modell aktualisieren</translation>
     </message>
 </context>
 <context>
@@ -2537,7 +2542,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location filename="../../../src/plugins/cpptools/cppcurrentdocumentfilter.h" line="+53"/>
         <source>Methods in current Document</source>
-        <translation>Methoden im aktuellenDokument</translation>
+        <translation>Methoden im aktuellen Dokument</translation>
     </message>
 </context>
 <context>
@@ -2583,7 +2588,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>CppTools::Internal::CppFindReferences</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppfindreferences.cpp" line="+239"/>
+        <location filename="../../../src/plugins/cpptools/cppfindreferences.cpp" line="+235"/>
         <source>Searching...</source>
         <translation>Suche...</translation>
     </message>
@@ -2599,7 +2604,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>CppTools::Internal::CppModelManager</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+319"/>
+        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+327"/>
         <source>Scanning</source>
         <translation>Suche</translation>
     </message>
@@ -2620,7 +2625,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+120"/>
+        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+126"/>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
     </message>
@@ -2858,7 +2863,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="-58"/>
         <source>Process ID</source>
-        <translation>Prozess-Id&apos;</translation>
+        <translation>Prozess-Id</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2986,7 +2991,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+6"/>
         <source>Breakpoint will only be hit after being ignored so many times.</source>
-        <translation>Der Haltepunkt wird ausgelöst, nachdem er vorherh so viele Male übersprungen wurde.</translation>
+        <translation>Der Haltepunkt wird ausgelöst, nachdem er vorher so viele Male übersprungen wurde.</translation>
     </message>
 </context>
 <context>
@@ -3156,7 +3161,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Die Ausführung des Prozesses kann nicht fortgesetzt werden: %1</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+31"/>
         <source>Reverse stepping is not implemented.</source>
         <translation>Die Funktionalität für &apos;Einzelschritt rückwärts&apos; ist nicht implementiert.</translation>
     </message>
@@ -3166,17 +3171,16 @@ Sollen sie überschrieben werden?</translation>
         <translation>Für den Thread %1 ist kein Einzelschritt möglich.</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+37"/>
         <source>Stepping %1</source>
         <translation>Führe Schritt aus (%1)</translation>
     </message>
     <message>
-        <location line="+63"/>
         <source>Running to 0x%1...</source>
-        <translation>Ausführung bis zur Adresse 0x%1...</translation>
+        <translation type="obsolete">Ausführung bis zur Adresse 0x%1...</translation>
     </message>
     <message>
-        <location line="+67"/>
+        <location line="+94"/>
         <source>Running requested...</source>
         <translation>Fortsetzung angefordert...</translation>
     </message>
@@ -3257,7 +3261,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+1"/>
         <source>debugger call</source>
-        <translation>Debuggeraufruf</translation>
+        <translation>Debugger-Aufruf</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -3557,7 +3561,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Debugger::Internal::DebuggerRunControlFactory</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerrunner.cpp" line="+79"/>
+        <location filename="../../../src/plugins/debugger/debuggerrunner.cpp" line="+80"/>
         <source>Debug</source>
         <translation>Debuggen</translation>
     </message>
@@ -3565,7 +3569,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Debugger::Internal::DebuggerRunControl</name>
     <message>
-        <location line="+108"/>
+        <location line="+123"/>
         <source>Debugger</source>
         <translation>Debugger</translation>
     </message>
@@ -3575,7 +3579,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location filename="../../../src/plugins/debugger/debuggeractions.cpp" line="+118"/>
         <source>Debugger properties...</source>
-        <translation>Debuggereinstellungen...</translation>
+        <translation>Debugger-Einstellungen...</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -3710,7 +3714,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+9"/>
         <source>Show address data in stack view when debugging</source>
-        <translation>Addressen im Stack-Fenster anzeigen</translation>
+        <translation>Adressen im Stack-Fenster anzeigen</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3776,7 +3780,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+3"/>
         <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
-        <translation>Zeitüberschreitung bei der letzten waitFor...()-Funktion. Der Status des QProcess ist unverändert, und waitFor...() kann nocheinmal gerufen.</translation>
+        <translation>Zeitüberschreitung bei der letzten waitFor...()-Funktion. Der Status des QProcess ist unverändert, und waitFor...() kann noch einmal gerufen.</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -3834,7 +3838,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Der Prozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
-        <location line="+417"/>
+        <location line="+423"/>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;p&gt;Der Prozess wurde nach Erhalt eines Signals vom Betriebssystem angehalten.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Name des Signals : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Bedeutung : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
@@ -3850,7 +3854,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Signal erhalten</translation>
     </message>
     <message>
-        <location line="-763"/>
+        <location line="-769"/>
         <source>Reading %1...</source>
         <translation>Lese %1...</translation>
     </message>
@@ -3860,12 +3864,12 @@ Sollen sie überschrieben werden?</translation>
         <translation>Sprung ausgeführt/ Angehalten.</translation>
     </message>
     <message>
-        <location line="+164"/>
+        <location line="+165"/>
         <source>Loading %1...</source>
         <translation>Lade %1...</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+84"/>
         <source>Stopped at breakpoint.</source>
         <translation>An Haltepunkt angehalten.</translation>
     </message>
@@ -3889,12 +3893,12 @@ Das Debuggen wird wahrscheinlich nicht richtig funktionieren.
 Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     </message>
     <message>
-        <location line="-560"/>
+        <location line="-566"/>
         <source>Processing queued commands.</source>
         <translation>Kommando-Warteschlange wird abgearbeitet.</translation>
     </message>
     <message>
-        <location line="+504"/>
+        <location line="+510"/>
         <location line="+109"/>
         <source>Stopped.</source>
         <translation>Angehalten.</translation>
@@ -3984,7 +3988,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         </translation>
     </message>
     <message>
-        <location line="-2855"/>
+        <location line="-2861"/>
         <source>An unknown error in the Gdb process occurred. </source>
         <translation>Im Gdb-Prozess trat ein unbekannter Fehler auf.</translation>
     </message>
@@ -4012,7 +4016,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Fehler bei Ausführung: %1</translation>
     </message>
     <message>
-        <location line="+227"/>
+        <location line="+228"/>
         <source>Program exited with exit code %1.</source>
         <translation>Das Programm wurde beendet, Rückgabewert %1.</translation>
     </message>
@@ -4027,7 +4031,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Das Programm wurde normal beendet.</translation>
     </message>
     <message>
-        <location line="+483"/>
+        <location line="+488"/>
         <source>Continuing after temporary stop...</source>
         <translation>Setze nach temporärem Anhalten fort...</translation>
     </message>
@@ -4074,7 +4078,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+708"/>
         <source>Jumping out of bogus frame...</source>
-        <translation>Verlasse ungültigen Stack-Frame...</translation>
+        <translation>Verlasse ungültigen Stack-Rahmen...</translation>
     </message>
     <message>
         <location line="+903"/>
@@ -4145,27 +4149,27 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
         <translation>Der Start des Adapters schlug fehl</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+39"/>
         <source>Setting breakpoints...</source>
         <translation>Setze Haltepunkte...</translation>
     </message>
     <message>
-        <location line="-8"/>
+        <location line="-23"/>
         <source>Starting inferior...</source>
         <translation>Starte zu debuggenden Prozess...</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+45"/>
         <source>Inferior start failed</source>
         <translation>Der Start des zu debuggenden Prozesses schlug fehl</translation>
     </message>
     <message>
-        <location line="-2963"/>
+        <location line="-2978"/>
         <source>Inferior shutdown failed</source>
         <translation>Das Beenden des zu debuggenden Prozesses schlug fehl</translation>
     </message>
     <message>
-        <location line="+2983"/>
+        <location line="+2998"/>
         <source>Adapter crashed</source>
         <translation>Der Adapter ist abgestürzt</translation>
     </message>
@@ -4325,7 +4329,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/gdb/plaingdbadapter.cpp" line="+79"/>
         <source>Cannot set up communication with child process: %1</source>
-        <translation>Die Kommunikation mit dem untergeordneten Prozesss konnte nicht hergestellt werden: %1</translation>
+        <translation>Die Kommunikation mit dem untergeordneten Prozess konnte nicht hergestellt werden: %1</translation>
     </message>
     <message>
         <location line="+36"/>
@@ -4481,16 +4485,29 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     </message>
 </context>
 <context>
+    <name>Debugger::Internal::SourceFilesModel</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/sourcefileswindow.cpp" line="+98"/>
+        <source>Internal name</source>
+        <translation>Interner Name</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Full name</source>
+        <translation>Vollständiger Name</translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::SourceFilesWindow</name>
     <message>
-        <location filename="../../../src/plugins/debugger/sourcefileswindow.cpp" line="+175"/>
+        <location line="+76"/>
         <source>Source Files</source>
         <translation>Quelldateien</translation>
     </message>
     <message>
         <location line="+27"/>
         <source>Reload data</source>
-        <translation>Daten akualisieren</translation>
+        <translation>Daten aktualisieren</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -4710,7 +4727,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
 <context>
     <name>Debugger::Internal::TrkGdbAdapter</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/trkgdbadapter.cpp" line="+1597"/>
+        <location filename="../../../src/plugins/debugger/gdb/trkgdbadapter.cpp" line="+1605"/>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
         <translation>Der Prozess wurde gestartet, PID: 0x%1, Thread-Id: 0x%2, Code-Segment: 0x%3, Datensegment: 0x%4.</translation>
     </message>
@@ -4742,7 +4759,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location/>
         <source>Communication</source>
-        <translation>Kommunkation</translation>
+        <translation>Kommunikation</translation>
     </message>
     <message>
         <location/>
@@ -5485,7 +5502,7 @@ It also automatically sets the correct Qt version.</source>
     <message>
         <location line="+2"/>
         <source>Could not open file for read: %1</source>
-        <translation>Die Datei konnte nicht zum Lesen geöffnen werden: %1</translation>
+        <translation>Die Datei konnte nicht zum Lesen geöffnet werden: %1</translation>
     </message>
     <message>
         <location line="+16"/>
@@ -5655,17 +5672,17 @@ Grund: %3</translation>
 <context>
     <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
-        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+939"/>
+        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+946"/>
         <source>Not implemented in FakeVim</source>
         <translation>In FakeVim nicht implementiert</translation>
     </message>
     <message>
-        <location line="-695"/>
+        <location line="-696"/>
         <source>E20: Mark &apos;%1&apos; not set</source>
         <translation>E20: Die Marke &apos;%1&apos; ist nicht gesetzt</translation>
     </message>
     <message>
-        <location line="+671"/>
+        <location line="+672"/>
         <source>%1%2%</source>
         <translation>%1%2%</translation>
     </message>
@@ -5738,7 +5755,7 @@ Grund: %3</translation>
         <translation>Die Suche hat den Anfang erreicht, setze am Ende fort</translation>
     </message>
     <message>
-        <location line="+575"/>
+        <location line="+582"/>
         <source>Already at oldest change</source>
         <translation>Älteste Änderung erreicht</translation>
     </message>
@@ -5878,7 +5895,7 @@ Grund: %3</translation>
     <message>
         <location/>
         <source>Incremental search:</source>
-        <translation>Inkrimentelle Suche:</translation>
+        <translation>Inkrementelle Suche:</translation>
     </message>
 </context>
 <context>
@@ -6018,7 +6035,7 @@ Grund: %3</translation>
     <message>
         <location line="+5"/>
         <source>Replace &amp;&amp; Find Previous</source>
-        <translation>Ersetzen und rückwarts weitersuchen</translation>
+        <translation>Ersetzen und rückwärts weitersuchen</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -6529,7 +6546,7 @@ Grund: %3</translation>
 <context>
     <name>Git::Internal::GitClient</name>
     <message>
-        <location filename="../../../src/plugins/git/gitclient.cpp" line="+71"/>
+        <location filename="../../../src/plugins/git/gitclient.cpp" line="+76"/>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translatorcomment>Not used.</translatorcomment>
         <translation type="unfinished"></translation>
@@ -6558,7 +6575,7 @@ Grund: %3</translation>
         <translation>Warte auf Daten...</translation>
     </message>
     <message>
-        <location line="+100"/>
+        <location line="+101"/>
         <source>Git Diff</source>
         <translation>Git Diff</translation>
     </message>
@@ -6583,7 +6600,7 @@ Grund: %3</translation>
         <translation>Git Blame %1</translation>
     </message>
     <message numerus="yes">
-        <location line="+56"/>
+        <location line="+58"/>
         <source>Unable to add %n file(s) to %1: %2</source>
         <translation>
             <numerusform>Keine der %n Dateien konnte zu %1 hinzugefügt werden: %2</numerusform>
@@ -6622,7 +6639,7 @@ Grund: %3</translation>
         <translation>Das Kommando &apos;show&apos; konnte nicht ausgeführt werden: %1: %2</translation>
     </message>
     <message>
-        <location line="+148"/>
+        <location line="+149"/>
         <source>Changes</source>
         <translation>Änderungen</translation>
     </message>
@@ -6672,12 +6689,12 @@ Grund: %3</translation>
         <translation>Die Datei wurde geändert. Möchten Sie die Änderungen rückgängig machen?</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+26"/>
         <source>The file is not modified.</source>
         <translation>Datei ungeändert.</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+23"/>
         <source>There are no modified files.</source>
         <translation>Es gibt keine geänderten Dateien.</translation>
     </message>
@@ -6685,7 +6702,7 @@ Grund: %3</translation>
 <context>
     <name>Git::Internal::GitPlugin</name>
     <message>
-        <location filename="../../../src/plugins/git/gitplugin.cpp" line="+232"/>
+        <location filename="../../../src/plugins/git/gitplugin.cpp" line="+233"/>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
     </message>
@@ -6897,7 +6914,7 @@ Grund: %3</translation>
     <message>
         <location line="+3"/>
         <source>&amp;Undo</source>
-        <translation>&amp;Rückgangig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6905,7 +6922,7 @@ Grund: %3</translation>
         <translation>&amp;Wiederholen</translation>
     </message>
     <message>
-        <location line="+60"/>
+        <location line="+65"/>
         <source>Could not find working directory</source>
         <translation>Das Arbeitsverzeichnis konnte nicht gefunden werden.</translation>
     </message>
@@ -7655,7 +7672,7 @@ Grund: %3</translation>
     <message>
         <location line="+3"/>
         <source>Open Link in New Tab	Ctrl+LMB</source>
-        <translation>Link in neuem Reiter öffnen\t(Ctrl+Linke Maustaste)</translation>
+        <translation>Link in neuem Reiter öffnen (Strg+Linke Maustaste)</translation>
     </message>
 </context>
 <context>
@@ -7681,7 +7698,7 @@ Grund: %3</translation>
     <message>
         <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="+76"/>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
-        <translation>Sie können eine Zeile mittels &lt;Ctrl-Return&gt; ausführen.</translation>
+        <translation>Sie können eine Zeile mittels &lt;Strg+Return&gt; ausführen.</translation>
     </message>
 </context>
 <context>
@@ -7865,12 +7882,12 @@ in your .pro file.</source>
     <message>
         <location line="+1"/>
         <source>C Header file</source>
-        <translation>C-Headerdatei</translation>
+        <translation>C-Header-Datei</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>C++ Header file</source>
-        <translation>C++-Headerdatei</translation>
+        <translation>C++-Header-Datei</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -8584,7 +8601,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+3"/>
         <source>&amp;Undo</source>
-        <translation>&amp;Rückgangig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -8602,7 +8619,7 @@ p, li { white-space: pre-wrap; }
         <translation>Die Datei wurde geändert. Möchten Sie die Änderungen rückgängig machen?</translation>
     </message>
     <message>
-        <location line="+93"/>
+        <location line="+98"/>
         <source>Another submit is currently executed.</source>
         <translation>Es läuft bereits ein Submit-Vorgang.</translation>
     </message>
@@ -8651,7 +8668,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+3"/>
         <source>The process terminated abnormally.</source>
-        <translation>Der Prozess wurde in unnormaler Weise beendet.</translation>
+        <translation>Der Prozess wurde in abnormaler Weise beendet.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -8782,7 +8799,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>P4 Port:</source>
-        <translation>P4 Portnummer:</translation>
+        <translation>P4 Port-Nummer:</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/perforce/settingspage.cpp" line="+106"/>
@@ -8861,7 +8878,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+33"/>
         <source>Plugin Details of %1</source>
-        <translation>Pluginbeschreibung zu %1</translation>
+        <translation>Beschreibung zu %1</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -8953,7 +8970,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+6"/>
         <source>Plugin initialization failed: %1</source>
-        <translation>Die Initialisierungs des Plugins schlug fehl: %1</translation>
+        <translation>Die Initialisierung des Plugins schlug fehl: %1</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -10006,7 +10023,7 @@ Fehler: %2</translation>
     <message>
         <location line="+5"/>
         <source>Cannot retrieve debugging output!</source>
-        <translation>Es konnte keine Debugausgabe erhalten werden!</translation>
+        <translation>Es konnte keine Debug-Ausgabe erhalten werden!</translation>
     </message>
 </context>
 <context>
@@ -11024,12 +11041,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwizard.cpp" line="+43"/>
         <source>Qt4 Designer Custom Widget</source>
-        <translation>Benutzerdefinertes Widget für Qt4 Designer</translation>
+        <translation>Benutzerdefiniertes Widget für Qt4 Designer</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a Qt4 Designer Custom Widget or a Custom Widget Collection.</source>
-        <translation>Erstellt ein oder mehrere benutzerdefinerte Widgets für Qt4 Designer.</translation>
+        <translation>Erstellt ein oder mehrere benutzerdefinierte Widgets für Qt4 Designer.</translation>
     </message>
 </context>
 <context>
@@ -11037,7 +11054,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwizarddialog.cpp" line="+56"/>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
-        <translation>Dieser Wizard erstellt ein Projekt mit einem oder mehreren benutzerdefinerten Widgets für Qt4 Designer.</translation>
+        <translation>Dieser Wizard erstellt ein Projekt mit einem oder mehreren benutzerdefinierten Widgets für Qt4 Designer.</translation>
     </message>
 </context>
 <context>
@@ -11405,7 +11422,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/plugingenerator.cpp" line="+60"/>
         <source>Cannot open icon file %1.</source>
-        <translation>DIe Icon-Datei %1 kann nicht geöffnet werden.</translation>
+        <translation>Die Icon-Datei %1 kann nicht geöffnet werden.</translation>
     </message>
     <message>
         <location line="+102"/>
@@ -11733,7 +11750,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <name>Qt4ProjectManager::Internal::Qt4RunConfiguration</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4runconfiguration.cpp" line="+72"/>
-        <location line="+458"/>
+        <location line="+459"/>
         <source>Qt4RunConfiguration</source>
         <translation>Qt4RunConfiguration</translation>
     </message>
@@ -11880,7 +11897,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Datei:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Letzte Änderung:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Größe:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location line="+124"/>
+        <location line="+126"/>
         <source>The Qt Version identified by %1 is not installed. Run make install</source>
         <translation>Die Qt-Version %1 ist nicht installiert. Führen Sie make install aus</translation>
     </message>
@@ -12182,7 +12199,7 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
     <message>
         <location line="+8"/>
         <source>Debugger for Symbian Platform</source>
-        <translation>Debugger für Symbian-Platform</translation>
+        <translation>Debugger für Symbian-Plattform</translation>
     </message>
     <message>
         <location line="+12"/>
@@ -12552,7 +12569,7 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
     <message>
         <location line="+40"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration unchanged, skipping QMake step.&lt;/font&gt;</source>
-        <translation>&lt;font color=&quot;#0000ff&quot;&gt;Konfiguration unverändert, übersrpinge QMake-Schritt.&lt;/font&gt;</translation>
+        <translation>&lt;font color=&quot;#0000ff&quot;&gt;Konfiguration unverändert, überspringe QMake-Schritt.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -12643,7 +12660,7 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
 <context>
     <name>Qt4ProjectManager::QtVersionManager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+351"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+347"/>
         <source>&lt;not found&gt;</source>
         <translation>&lt;nicht gefunden&gt;</translation>
     </message>
@@ -12679,7 +12696,7 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
         <translation>Vorgabe:</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+7"/>
         <source>Compiler:</source>
         <translation>Compiler:</translation>
     </message>
@@ -12697,7 +12714,7 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
 <context>
     <name>QApplication</name>
     <message>
-        <location line="+872"/>
+        <location line="+870"/>
         <source>The Qt Version has no toolchain.</source>
         <translation>Dieser Qt-Version ist keine Toolchain zugeordnet.</translation>
     </message>
@@ -12868,15 +12885,14 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
 <context>
     <name>QtScriptEditor::Internal::QtScriptEditorActionHandler</name>
     <message>
-        <location filename="../../../src/plugins/qtscripteditor/qtscripteditoractionhandler.cpp" line="+96"/>
         <source>Qt Script Error</source>
-        <translation>Fehler in Qt-Skript</translation>
+        <translation type="obsolete">Fehler in Qt-Skript</translation>
     </message>
 </context>
 <context>
     <name>QtScriptEditor::Internal::QtScriptEditorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/qtscripteditor/qtscripteditorplugin.cpp" line="+97"/>
+        <location filename="../../../src/plugins/qtscripteditor/qtscripteditorplugin.cpp" line="+102"/>
         <source>Creates a Qt Script file.</source>
         <translation>Erzeugt eine Qt-Skript-Datei.</translation>
     </message>
@@ -12891,20 +12907,18 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
         <translation>Qt</translation>
     </message>
     <message>
-        <location line="+56"/>
         <source>Run</source>
-        <translation>Ausführen</translation>
+        <translation type="obsolete">Ausführen</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Ctrl+R</source>
-        <translation>Ctrl+R</translation>
+        <translation type="obsolete">Ctrl+R</translation>
     </message>
 </context>
 <context>
     <name>QtScriptEditor::Internal::ScriptEditor</name>
     <message>
-        <location filename="../../../src/plugins/qtscripteditor/qtscripteditor.cpp" line="+228"/>
+        <location filename="../../../src/plugins/qtscripteditor/qtscripteditor.cpp" line="+229"/>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Symbol auswählen&gt;</translation>
     </message>
@@ -13271,7 +13285,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location line="+12"/>
         <source>&amp;Undo</source>
-        <translation>&amp;Rückgangig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -13544,14 +13558,12 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>SourceFilesModel</name>
     <message>
-        <location filename="../../../src/plugins/debugger/sourcefileswindow.cpp" line="-112"/>
         <source>Internal name</source>
-        <translation>Interner Name</translation>
+        <translation type="obsolete">Interner Name</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Full name</source>
-        <translation>Vollständiger Name</translation>
+        <translation type="obsolete">Vollständiger Name</translation>
     </message>
 </context>
 <context>
@@ -13802,7 +13814,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location line="+3"/>
         <source>&amp;Undo</source>
-        <translation>&amp;Rückgangig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -13825,12 +13837,12 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>Die Überprüfung der Beschreibung schlug fehl. Möchten Sie den Commit trotzdem ausführen?</translation>
     </message>
     <message>
-        <location line="+204"/>
+        <location line="+205"/>
         <source>The commit list spans several repositories (%1). Please commit them one by one.</source>
         <translation>Die abzugebenden Dateien umfassen mehrere Repositories (%1). Bitte geben Sie sie einzeln ab.</translation>
     </message>
     <message>
-        <location line="+283"/>
+        <location line="+286"/>
         <source>Executing: %1 %2
 </source>
         <extracomment>Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
@@ -13838,12 +13850,12 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 </translation>
     </message>
     <message>
-        <location line="-363"/>
+        <location line="-367"/>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>Die Datei wurde geändert. Möchten Sie sie zurücksetzen?</translation>
     </message>
     <message>
-        <location line="+98"/>
+        <location line="+99"/>
         <source>Another commit is currently being executed.</source>
         <translation>Es läuft bereits ein Abgabevorgang.</translation>
     </message>
@@ -13858,7 +13870,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>Es konnte keine temporäre Datei erstellt werden: %1</translation>
     </message>
     <message>
-        <location line="+186"/>
+        <location line="+189"/>
         <source>Describe</source>
         <translation>Beschreibe</translation>
     </message>
@@ -13881,7 +13893,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location line="+3"/>
         <source>The process terminated abnormally.</source>
-        <translation>Der Prozess wurde in unnormaler Weise beendet.</translation>
+        <translation>Der Prozess wurde in anormaler Weise beendet.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -13963,7 +13975,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextEditorEditable</name>
     <message>
-        <location line="+4311"/>
+        <location line="+4324"/>
         <source>Line: %1, Col: %2</source>
         <translation>Zeile: %1, Spalte: %2</translation>
     </message>
@@ -14202,7 +14214,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location filename="../../../src/plugins/texteditor/codecselector.cpp" line="+72"/>
         <source>Text Encoding</source>
-        <translation>Text Encoding</translation>
+        <translation>Text-Encoding</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -14355,7 +14367,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/plugins/texteditor/linenumberfilter.h" line="+52"/>
         <source>Line in current document</source>
-        <translation>Zeile im aktuellenDokument</translation>
+        <translation>Zeile im aktuellen Dokument</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/texteditor/linenumberfilter.cpp" line="+55"/>
@@ -14411,7 +14423,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/plugins/texteditor/texteditoractionhandler.cpp" line="+117"/>
         <source>&amp;Undo</source>
-        <translation>&amp;Rückgangig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -15569,7 +15581,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
 <context>
     <name>VCSManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/vcsmanager.cpp" line="+132"/>
+        <location filename="../../../src/plugins/coreplugin/vcsmanager.cpp" line="+144"/>
         <source>Version Control</source>
         <translation>Versionskontrolle</translation>
     </message>

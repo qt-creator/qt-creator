@@ -285,6 +285,8 @@ void GdbEngine::initializeVariables()
 
     m_inbuffer.clear();
 
+    m_commandTimer->stop();
+
     // ConverterState has no reset() function.
     m_outputCodecState.~ConverterState();
     new (&m_outputCodecState) QTextCodec::ConverterState();
@@ -425,6 +427,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             }
             if (asyncClass == "stopped") {
                 handleStopResponse(result);
+                m_pendingLogStreamOutput.clear();
+                m_pendingConsoleStreamOutput.clear();
             } else if (asyncClass == "running") {
                 // Archer has 'thread-id="all"' here
             } else if (asyncClass == "library-loaded") {
@@ -1157,42 +1161,52 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
     setState(InferiorStopped);
 
-#ifdef Q_OS_LINUX
-    // For some reason, attaching to a stopped process causes *two* stops
-    // when trying to continue (kernel i386 2.6.24-23-ubuntu, gdb 6.8).
-    // Interestingly enough, on MacOSX no signal is delivered at all.
-    if (!m_entryPoint.isEmpty()) {
-        if (reason == "signal-received"
-            && data.findChild("signal-name").data() == "SIGSTOP") {
-            GdbMi frameData = data.findChild("frame");
-            if (frameData.findChild("addr").data() == m_entryPoint) {
-                continueInferiorInternal();
-                return;
-            }
-        }
-        // We are past the initial stops. No need to waste time on further checks.
-        m_entryPoint.clear();
-    }
-#endif
-
+    // Due to LD_PRELOADing the dumpers, these events can occur even before
+    // reaching the entry point. So handle it before the entry point hacks below.
+    if (reason.isEmpty() && m_gdbVersion < 70000 && !m_isMacGdb) {
+        // On Linux it reports "Stopped due to shared library event\n", but
+        // on Windows it simply forgets about it. Thus, we identify the response
+        // based on it having no frame information.
+        if (!data.findChild("frame").isValid()) {
+            m_modulesListOutdated = m_sourcesListOutdated = true;
+            // Each stop causes a roundtrip and button flicker, so prevent
+            // a flood of useless stops. Will be automatically re-enabled.
+            postCommand(_("set stop-on-solib-events 0"));
 #if 0
-    // The related code (handleAqcuiredInferior()) is disabled as well.
-    // When re-enabling, try something to avoid spurious source list updates
-    // due to unrelated no-reason stops.
-    const QByteArray &msg = data.findChild("consolestreamoutput").data();
-    if (msg.contains("Stopped due to shared library event") || reason.isEmpty()) {
-        m_modulesListOutdated = m_sourcesListOutdated = true;
-        if (theDebuggerBoolSetting(SelectedPluginBreakpoints)) {
-            QString dataStr = _(data.toString());
-            debugMessage(_("SHARED LIBRARY EVENT: ") + dataStr);
-            QString pat = theDebuggerStringSetting(SelectedPluginBreakpointsPattern);
-            debugMessage(_("PATTERN: ") + pat);
-            postCommand(_("sharedlibrary ") + pat);
+            // The related code (handleAqcuiredInferior()) is disabled as well.
+            if (theDebuggerBoolSetting(SelectedPluginBreakpoints)) {
+                QString dataStr = _(data.toString());
+                debugMessage(_("SHARED LIBRARY EVENT: ") + dataStr);
+                QString pat = theDebuggerStringSetting(SelectedPluginBreakpointsPattern);
+                debugMessage(_("PATTERN: ") + pat);
+                postCommand(_("sharedlibrary ") + pat);
+                showStatusMessage(tr("Loading %1...").arg(dataStr));
+            }
+#endif
             continueInferiorInternal();
-            showStatusMessage(tr("Loading %1...").arg(dataStr));
             return;
         }
-        // fall through
+    }
+
+#ifdef Q_OS_LINUX
+    if (!m_entryPoint.isEmpty()) {
+        GdbMi frameData = data.findChild("frame");
+        if (frameData.findChild("addr").data() == m_entryPoint) {
+            // There are two expected reasons for getting here:
+            // 1) For some reason, attaching to a stopped process causes *two* SIGSTOPs
+            //    when trying to continue (kernel i386 2.6.24-23-ubuntu, gdb 6.8).
+            //    Interestingly enough, on MacOSX no signal is delivered at all.
+            // 2) The explicit tbreak at the entry point we set to query the PID.
+            //    Gdb <= 6.8 reports a frame but no reason, 6.8.50+ reports everything.
+            // The case of the user really setting a breakpoint at _start is simply
+            // unsupported.
+            if (!inferiorPid()) // For programs without -pthread under gdb <= 6.8.
+                postCommand(_("info proc"), CB(handleInfoProc));
+            continueInferiorInternal();
+            return;
+        }
+        // We are past the initial stop(s). No need to waste time on further checks.
+        m_entryPoint.clear();
     }
 #endif
 
@@ -1270,11 +1284,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
     if (m_sourcesListOutdated)
         reloadSourceFilesInternal(); // This needs to be done before fullName() may need it
 
-    // Older gdb versions do not produce "library loaded" messages
-    // so the breakpoint update is not triggered.
-    if (m_gdbVersion < 70000 && !m_isMacGdb)
-        postCommand(_("-break-list"), CB(handleBreakList));
-
     QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
         showStatusMessage(tr("Stopped at breakpoint."));
@@ -1292,8 +1301,8 @@ void GdbEngine::handleStop1(const GdbMi &data)
                     "signal from the Operating System.<p>"
                     "<table><tr><td>Signal name : </td><td>%1</td></tr>"
                     "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
-                    .arg(name.isEmpty() ? tr(" <Unknown> ") : _(name))
-                    .arg(meaning.isEmpty() ? tr(" <Unknown> ") : _(meaning));
+                    .arg(name.isEmpty() ? tr(" <Unknown> ", "name") : _(name))
+                    .arg(meaning.isEmpty() ? tr(" <Unknown> ", "meaning") : _(meaning));
                 showMessageBox(QMessageBox::Information,
                     tr("Signal received"), msg);
             }
@@ -1336,6 +1345,18 @@ void GdbEngine::handleStop1(const GdbMi &data)
     //
     manager()->reloadRegisters();
 }
+
+#ifdef Q_OS_LINUX
+void GdbEngine::handleInfoProc(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        static QRegExp re(_("\\bprocess ([0-9]+)\n"));
+        QTC_ASSERT(re.isValid(), return);
+        if (re.indexIn(_(response.data.findChild("consolestreamoutput").data())) != -1)
+            maybeHandleInferiorPidChanged(re.cap(1));
+    }
+}
+#endif
 
 void GdbEngine::handleShowVersion(const GdbResponse &response)
 {
@@ -1399,7 +1420,6 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
     } else {
         if (state() == InferiorRunningRequested_Kill) {
             setState(InferiorStopped);
-            m_commandsToRunOnTemporaryBreak.clear();
             shutdown();
             return;
         }
@@ -1416,7 +1436,6 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
         } else {
             showMessageBox(QMessageBox::Critical, tr("Execution Error"),
                            tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
-            m_commandsToRunOnTemporaryBreak.clear();
             shutdown();
         }
     }
@@ -1461,6 +1480,7 @@ void GdbEngine::shutdown()
         // fall-through
     case AdapterStartFailed: // Adapter "did something", but it did not help
         if (m_gdbProc.state() == QProcess::Running) {
+            m_commandsToRunOnTemporaryBreak.clear();
             postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleGdbExit));
         } else {
             setState(DebuggerNotReady);
@@ -1470,6 +1490,7 @@ void GdbEngine::shutdown()
     case InferiorRunning:
     case InferiorStopping:
     case InferiorStopped:
+        m_commandsToRunOnTemporaryBreak.clear();
         postCommand(_(m_gdbAdapter->inferiorShutdownCommand()),
                     NeedsStop | LosesChild, CB(handleInferiorShutdown));
         break;
@@ -1478,6 +1499,7 @@ void GdbEngine::shutdown()
     case InferiorShutDown:
     case InferiorShutdownFailed: // Whatever
     case InferiorUnrunnable:
+        m_commandsToRunOnTemporaryBreak.clear();
         postCommand(_("-gdb-exit"), GdbEngine::ExitRequest, CB(handleGdbExit));
         setState(EngineShuttingDown); // Do it after posting the command!
         break;
@@ -1510,6 +1532,7 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultExit) {
         debugMessage(_("GDB CLAIMS EXIT; WAITING"));
+        m_commandsDoneCallback = 0;
         // don't set state here, this will be handled in handleGdbFinished()
     } else {
         QString msg = m_gdbAdapter->msgGdbStopFailed(_(response.data.findChild("msg").data()));
@@ -2238,6 +2261,8 @@ void GdbEngine::reloadModulesInternal()
 {
     m_modulesListOutdated = false;
     postCommand(_("info shared"), NeedsStop, CB(handleModulesList));
+    if (m_gdbVersion < 70000 && !m_isMacGdb)
+        postCommand(_("set stop-on-solib-events 1"));
 }
 
 void GdbEngine::handleModulesList(const GdbResponse &response)
@@ -2278,7 +2303,7 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
                 module.symbolsRead = (item.findChild("state").data() == "Y");
                 module.startAddress = _(item.findChild("loaded_addr").data());
                 //: End address of loaded module
-                module.endAddress = tr("<unknown>");
+                module.endAddress = tr("<unknown>", "address");
                 modules.append(module);
             }
         }
@@ -2306,6 +2331,8 @@ void GdbEngine::reloadSourceFilesInternal()
     m_sourcesListOutdated = false;
     postCommand(_("-file-list-exec-source-files"), NeedsStop, CB(handleQuerySources));
     postCommand(_("-break-list"), CB(handleBreakList));
+    if (m_gdbVersion < 70000 && !m_isMacGdb)
+        postCommand(_("set stop-on-solib-events 1"));
 }
 
 
@@ -4450,6 +4477,21 @@ void GdbEngine::handleAdapterStarted()
 
 void GdbEngine::handleInferiorPrepared()
 {
+    const QString qtInstallPath = m_startParameters->qtInstallPath;
+    if (!qtInstallPath.isEmpty()) {
+        QString qtBuildPath =
+        #if defined(Q_OS_WIN)
+            _("C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.6/qt");
+        #elif defined(Q_OS_MAC)
+            QString();
+        #else    
+            _("/var/tmp/qt-x11-src-4.6.0");
+        #endif
+        if (!qtBuildPath.isEmpty())
+        postCommand(_("set substitute-path %1 %2")
+            .arg(qtBuildPath).arg(qtInstallPath));
+    }
+
     // Initial attempt to set breakpoints
     showStatusMessage(tr("Setting breakpoints..."));
     attemptBreakpointSynchronization();

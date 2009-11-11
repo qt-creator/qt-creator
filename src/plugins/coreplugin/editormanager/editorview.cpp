@@ -343,6 +343,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
 {
     if (!editor || m_container->count() <= 0
         || m_container->indexOf(editor->widget()) == -1) {
+        updateEditorStatus(0);
         // ### TODO the combo box m_editorList should show an empty item
         return;
     }
@@ -376,6 +377,13 @@ void EditorView::updateEditorStatus(IEditor *editor)
 {
     static const QIcon lockedIcon(QLatin1String(":/core/images/locked.png"));
     static const QIcon unlockedIcon(QLatin1String(":/core/images/unlocked.png"));
+
+    m_lockButton->setVisible(editor != 0);
+
+    if (!editor) {
+        m_editorList->setToolTip(QString());
+        return;
+    }
 
     if (editor->file()->isReadOnly()) {
         m_lockButton->setIcon(lockedIcon);

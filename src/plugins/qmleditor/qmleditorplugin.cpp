@@ -114,6 +114,13 @@ bool QmlEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
         | TextEditor::TextEditorActionHandler::UnCollapseAll);
     m_actionHandler->initializeActions();
 
+    Core::ActionManager *am =  core->actionManager();
+    Core::ActionContainer *contextMenu= am->createMenu(QmlEditor::Constants::M_CONTEXT);
+    Core::Command *cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);
+    contextMenu->addAction(cmd);
+    cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    contextMenu->addAction(cmd);
+
     m_completion = new QmlCodeCompletion(m_modelManager);
     addAutoReleasedObject(m_completion);
 

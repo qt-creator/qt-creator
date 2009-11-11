@@ -110,7 +110,6 @@ static void find_helper(QFutureInterface<Usage> &future,
     Q_ASSERT(symbolId != 0);
 
     const QString sourceFile = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
-
     QStringList files(sourceFile);
 
     if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
@@ -126,9 +125,7 @@ static void find_helper(QFutureInterface<Usage> &future,
     } else {
         files += snapshot.dependsOn(sourceFile);
     }
-
     files.removeDuplicates();
-
     //qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();
 
     future.setProgressRange(0, files.size());
@@ -232,7 +229,6 @@ void CppFindReferences::findAll_helper(Symbol *symbol)
     const QMap<QString, QString> wl = _modelManager->workingCopy();
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
-
     QFuture<Usage> result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
     m_watcher.setFuture(result);
 

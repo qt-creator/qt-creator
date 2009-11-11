@@ -121,6 +121,7 @@ public:
     QString debuggerCommand;
     int toolChainType;
     QString remoteDumperLib;
+    QString qtInstallPath;
 
     QString dumperLibrary;
     QStringList dumperLibraryLocations;

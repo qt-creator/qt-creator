@@ -109,7 +109,7 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
     painter->setPen(isSelected ?
         option.palette.color(cg, QPalette::HighlightedText) : Qt::darkGray);
     painter->drawText(lineNumberAreaRect.adjusted(0, 0, -lineNumberAreaHorizontalPadding, 0),
-        Qt::AlignRight, QString::number(lineNumber));
+        Qt::AlignRight | Qt::AlignVCenter, QString::number(lineNumber));
 
     return lineNumberAreaWidth;
 }

@@ -96,3 +96,14 @@ QString CVSControl::findTopLevelForDirectory(const QString &directory) const
 {
     return m_plugin->findTopLevelForDirectory(directory);
 }
+
+void CVSControl::emitRepositoryChanged(const QString &s)
+{
+    emit repositoryChanged(s);
+}
+
+void CVSControl::emitFilesChanged(const QStringList &l)
+{
+    emit filesChanged(l);
+}
+

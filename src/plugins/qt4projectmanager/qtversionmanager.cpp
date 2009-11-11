@@ -128,11 +128,9 @@ QtVersionManager::QtVersionManager()
                                            autodetectionSource);
         version->setMingwDirectory(s->value("MingwDirectory").toString());
         version->setMsvcVersion(s->value("msvcVersion").toString());
-#ifdef QTCREATOR_WITH_S60
         version->setMwcDirectory(s->value("MwcDirectory").toString());
         version->setS60SDKDirectory(s->value("S60SDKDirectory").toString());
         version->setGcceDirectory(s->value("GcceDirectory").toString());
-#endif
         m_versions.append(version);
     }
     s->endArray();
@@ -266,11 +264,9 @@ void QtVersionManager::writeVersionsIntoSettings()
         s->setValue("isAutodetected", version->isAutodetected());
         if (version->isAutodetected())
             s->setValue("autodetectionSource", version->autodetectionSource());
-#ifdef QTCREATOR_WITH_S60
         s->setValue("MwcDirectory", version->mwcDirectory());
         s->setValue("S60SDKDirectory", version->s60SDKDirectory());
         s->setValue("GcceDirectory", version->gcceDirectory());
-#endif
     }
     s->endArray();
 }
@@ -1219,7 +1215,6 @@ void QtVersion::updateToolChainAndMkspec() const
     m_toolChainUpToDate = true;
 }
 
-#ifdef QTCREATOR_WITH_S60
 QString QtVersion::mwcDirectory() const
 {
     return m_mwcDirectory;
@@ -1248,7 +1243,6 @@ void QtVersion::setGcceDirectory(const QString &directory)
 {
     m_gcceDirectory = directory;
 }
-#endif
 
 QString QtVersion::mingwDirectory() const
 {

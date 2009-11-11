@@ -42,6 +42,7 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QBitArray>
+#include <QtCore/QDir>
 #include <QtCore/QtDebug>
 
 /*!
@@ -108,7 +109,7 @@ private:
 
 
 Document::Document(const QString &fileName)
-    : _fileName(fileName),
+    : _fileName(QDir::cleanPath(fileName)),
       _globalNamespace(0),
       _revision(0)
 {
@@ -173,7 +174,7 @@ QStringList Document::includedFiles() const
 
 void Document::addIncludeFile(const QString &fileName, unsigned line)
 {
-    _includes.append(Include(fileName, line));
+    _includes.append(Include(QDir::cleanPath(fileName), line));
 }
 
 void Document::appendMacro(const Macro &macro)
@@ -568,4 +569,9 @@ QStringList Snapshot::dependsOn(const QString &fileName) const
     }
 
     return deps;
+}
+
+Document::Ptr Snapshot::value(const QString &fileName) const
+{
+    return QMap<QString, Document::Ptr>::value(QDir::cleanPath(fileName));
 }

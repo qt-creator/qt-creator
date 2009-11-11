@@ -31,6 +31,7 @@
 
 #include "debuggermanager.h"
 
+#include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -139,6 +140,21 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
         runConfiguration->dumperLibrary();
     m_startParameters->dumperLibraryLocations =
         runConfiguration->dumperLibraryLocations();
+
+    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(
+            runConfiguration->environment());
+    if (!qmakePath.isEmpty()) {
+        QProcess proc;
+        QStringList args;
+        args.append(QLatin1String("-query"));
+        args.append(QLatin1String("QT_INSTALL_HEADERS"));
+        proc.start(qmakePath, args);
+        proc.waitForFinished();
+        QByteArray ba = proc.readAllStandardOutput().trimmed();
+        QFileInfo fi(QString::fromLocal8Bit(ba) + "/..");
+        m_startParameters->qtInstallPath = fi.absoluteFilePath();
+    }
+
 }
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager, const DebuggerStartParametersPtr &startParameters)

@@ -40,6 +40,7 @@
 #include "parser/javascriptast_p.h"
 
 #include <indenter.h>
+#include <utils/uncommentselection.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -395,7 +396,7 @@ void ScriptEditor::createToolBar(ScriptEditorEditable *editable)
 
 void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
 {
-    QMenu *menu = createStandardContextMenu();
+    QMenu *menu = new QMenu();
 
     if (Core::ActionContainer *mcontext = Core::ICore::instance()->actionManager()->actionContainer(QtScriptEditor::Constants::M_CONTEXT)) {
         QMenu *contextMenu = mcontext->menu();
@@ -403,8 +404,14 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
             menu->addAction(action);
     }
 
+    appendStandardContextMenuActions(menu);
     menu->exec(e->globalPos());
     delete menu;
+}
+
+void ScriptEditor::unCommentSelection()
+{
+    Utils::unCommentSelection(this);
 }
 
 } // namespace Internal
