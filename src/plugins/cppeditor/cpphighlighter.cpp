@@ -61,7 +61,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     SimpleLexer tokenize;
     tokenize.setQtMocRunEnabled(false);
-    tokenize.setObjCEnabled(true);
+    tokenize.setObjCEnabled(false);
 
     int initialState = state;
     const QList<SimpleToken> tokens = tokenize(text, initialState);
