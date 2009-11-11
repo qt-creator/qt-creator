@@ -1304,19 +1304,19 @@ bool Qt4Project::compareBuildConfigurationToImportFrom(BuildConfiguration *confi
                 QStringList actualArgs = removeSpecFromArgumentList(qs->value(configuration->name(), "qmakeArgs").toStringList());
                 QStringList parsedArgs = removeSpecFromArgumentList(result.second);
 
-//                if (debug) {
+                if (debug) {
                     qDebug()<<"Actual args:"<<actualArgs;
                     qDebug()<<"Parsed args:"<<parsedArgs;
                     qDebug()<<"Actual spec:"<<actualSpec;
                     qDebug()<<"Parsed spec:"<<parsedSpec;
-//                }
+                }
 
                 if (actualArgs == parsedArgs) {
                     // Specs match exactly
                     if (actualSpec == parsedSpec)
                         return true;
                     // Actual spec is the default one
-                    qDebug()<<"AS vs VS"<<actualSpec<<version->mkspec();
+//                    qDebug()<<"AS vs VS"<<actualSpec<<version->mkspec();
                     if ((actualSpec == version->mkspec() || actualSpec == "default")
                         && (parsedSpec == version->mkspec() || parsedSpec == "default" || parsedSpec.isEmpty()))
                         return true;

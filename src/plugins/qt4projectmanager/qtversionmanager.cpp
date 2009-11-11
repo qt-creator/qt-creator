@@ -1057,7 +1057,7 @@ void QtVersion::updateToolChainAndMkspec() const
 
     m_toolChains.clear();
 
-    qDebug()<<"Finding mkspec for"<<qmakeCommand();
+//    qDebug()<<"Finding mkspec for"<<qmakeCommand();
 
     // no .qmake.cache so look at the default mkspec
 
@@ -1131,7 +1131,7 @@ void QtVersion::updateToolChainAndMkspec() const
 
     if (mkspec.startsWith(baseMkspecDir)) {
         mkspec = mkspec.mid(baseMkspecDir.length() + 1);
-        qDebug() << "Setting mkspec to"<<mkspec;
+//        qDebug() << "Setting mkspec to"<<mkspec;
     } else {
         QString sourceMkSpecPath = sourcePath() + "/mkspecs";
         if (mkspec.startsWith(sourceMkSpecPath)) {
@@ -1143,7 +1143,7 @@ void QtVersion::updateToolChainAndMkspec() const
 
     m_mkspec = mkspec;
 
-    qDebug()<<"mkspec for "<<qmakeCommand()<<" is "<<m_mkspec<<m_mkspecFullPath;
+//    qDebug()<<"mkspec for "<<qmakeCommand()<<" is "<<m_mkspec<<m_mkspecFullPath;
 
     ProFileReader *reader = new ProFileReader();
     reader->setQtVersion(this);
