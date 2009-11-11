@@ -36,6 +36,7 @@
 #include <QtGui/QFont>
 #include <QtGui/QPixmap>
 
+using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 BuildProgress::BuildProgress(TaskWindow *taskWindow)

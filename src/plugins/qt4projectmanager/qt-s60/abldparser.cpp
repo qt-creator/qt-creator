@@ -32,6 +32,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildparserinterface.h>
+#include <projectexplorer/taskwindow.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -99,13 +100,13 @@ void AbldParser::stdOutput(const QString &line)
     if (lne.startsWith("Is Perl, version ")) {
         emit addToTaskWindow(
                 QString(), //filename
-                ProjectExplorer::BuildParserInterface::Error,
+                TaskWindow::Error,
                 -1, //linenumber
                 lne);
         return;
     }
     if (lne.startsWith("FATAL ERROR:")) {
-        emit addToTaskWindow(QString(), ProjectExplorer::BuildParserInterface::Error,
+        emit addToTaskWindow(QString(), TaskWindow::Error,
                              -1, lne.mid(12));
         m_waitingForStdOutContinuation = false;
         return;
@@ -113,13 +114,13 @@ void AbldParser::stdOutput(const QString &line)
 
     if (m_perlIssue.indexIn(lne) > -1) {
         m_waitingForStdOutContinuation = true;
-        ProjectExplorer::BuildParserInterface::PatternType type;
+        TaskWindow::TaskType type;
         if (m_perlIssue.cap(1) == QLatin1String("WARNING"))
-            type = ProjectExplorer::BuildParserInterface::Warning;
+            type = TaskWindow::Warning;
         else if (m_perlIssue.cap(1) == QLatin1String("ERROR"))
-            type = ProjectExplorer::BuildParserInterface::Error;
+            type = TaskWindow::Error;
         else
-            type = ProjectExplorer::BuildParserInterface::Unknown;
+            type = TaskWindow::Unknown;
 
         m_currentFile = m_perlIssue.cap(2);
         m_currentLine = m_perlIssue.cap(3).toInt();
@@ -136,7 +137,7 @@ void AbldParser::stdOutput(const QString &line)
 
     if (m_waitingForStdOutContinuation) {
         emit addToTaskWindow(m_currentFile,
-                             ProjectExplorer::BuildParserInterface::Unknown,
+                             TaskWindow::Unknown,
                              m_currentLine, lne);
         m_waitingForStdOutContinuation = true;
         return;
@@ -159,7 +160,7 @@ void AbldParser::stdError(const QString &line)
         lne.startsWith("Platform ")) {
         emit addToTaskWindow(
                 QString(), // filename,
-                ProjectExplorer::BuildParserInterface::Error,
+                TaskWindow::Error,
                 -1, // linenumber
                 lne);
         return;
@@ -167,7 +168,7 @@ void AbldParser::stdError(const QString &line)
 
     if (lne.startsWith("Died at ")) {
         emit addToTaskWindow(QString(),
-                             ProjectExplorer::BuildParserInterface::Error,
+                             TaskWindow::Error,
                              -1, lne);
         m_waitingForStdErrContinuation = false;
         return;
@@ -185,7 +186,7 @@ void AbldParser::stdError(const QString &line)
     if (lne.startsWith("WARNING: ")) {
         QString description = lne.mid(9);
         emit addToTaskWindow(m_currentFile,
-                             ProjectExplorer::BuildParserInterface::Warning,
+                             TaskWindow::Warning,
                              -1, description);
         m_waitingForStdErrContinuation = true;
         return;
@@ -193,7 +194,7 @@ void AbldParser::stdError(const QString &line)
     if (lne.startsWith("ERROR: ")) {
         QString description = lne.mid(7);
         emit addToTaskWindow(m_currentFile,
-                             ProjectExplorer::BuildParserInterface::Error,
+                             TaskWindow::Error,
                              -1, description);
         m_waitingForStdErrContinuation = true;
         return;
@@ -201,7 +202,7 @@ void AbldParser::stdError(const QString &line)
     if (m_waitingForStdErrContinuation)
     {
         emit addToTaskWindow(m_currentFile,
-                             ProjectExplorer::BuildParserInterface::Unknown,
+                             TaskWindow::Unknown,
                              -1, lne);
         m_waitingForStdErrContinuation = true;
         return;

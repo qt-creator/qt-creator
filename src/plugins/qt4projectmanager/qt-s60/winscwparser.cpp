@@ -29,8 +29,10 @@
 
 #include "winscwparser.h"
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/taskwindow.h>
 
 using namespace Qt4ProjectManager;
+using namespace ProjectExplorer;
 
 WinscwParser::WinscwParser()
 {
@@ -76,7 +78,7 @@ void WinscwParser::stdOutput(const QString &line)
 
         emit addToTaskWindow(
                 file_name,
-                ProjectExplorer::BuildParserInterface::Error,
+                TaskWindow::Error,
                 line_info.toInt(),
                 description);
         return;
@@ -92,7 +94,7 @@ void WinscwParser::stdError(const QString &line)
        QString description = m_linkerProblem.cap(2);
        emit addToTaskWindow(
            m_linkerProblem.cap(1), //filename
-           ProjectExplorer::BuildParserInterface::Error,
+           TaskWindow::Error,
            -1, //linenumber
            description);
    }

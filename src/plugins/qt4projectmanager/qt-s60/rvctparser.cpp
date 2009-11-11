@@ -29,7 +29,9 @@
 
 #include "rvctparser.h"
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/taskwindow.h>
 
+using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 
 RvctParser::RvctParser() :
@@ -77,17 +79,17 @@ void RvctParser::stdError(const QString &line)
        QString description = m_linkerProblem.cap(2);
        emit addToTaskWindow(
            m_linkerProblem.cap(1), //filename
-           ProjectExplorer::BuildParserInterface::Error,
+           TaskWindow::Error,
            -1, //linenumber
            description);
    } else if (m_warningOrError.indexIn(lne) > -1) {
-       ProjectExplorer::BuildParserInterface::PatternType type;
+       TaskWindow::TaskType type;
        if (m_warningOrError.cap(4) == "Warning")
-           type = ProjectExplorer::BuildParserInterface::Warning;
+           type = TaskWindow::Warning;
        else if (m_warningOrError.cap(4) == "Error")
-           type = ProjectExplorer::BuildParserInterface::Error;
+           type = TaskWindow::Error;
        else
-           type = ProjectExplorer::BuildParserInterface::Unknown;
+           type = TaskWindow::Unknown;
 
        QString description =  m_warningOrError.cap(5);
 
@@ -107,7 +109,7 @@ void RvctParser::stdError(const QString &line)
        // additional information on the problem.
        emit addToTaskWindow(
            m_lastFile, //filesname
-           ProjectExplorer::BuildParserInterface::Unknown,
+           TaskWindow::Unknown,
            m_lastLine, //linenumber
            lne //description
        );
