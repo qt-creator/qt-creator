@@ -398,8 +398,8 @@ ScriptEditor::ScriptEditor(QWidget *parent) :
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<QmlModelManagerInterface>();
 
     if (m_modelManager) {
-        connect(m_modelManager, SIGNAL(documentUpdated(QmlDocument::Ptr)),
-                this, SLOT(onDocumentUpdated(QmlDocument::Ptr)));
+        connect(m_modelManager, SIGNAL(documentUpdated(QmlEditor::QmlDocument::Ptr)),
+                this, SLOT(onDocumentUpdated(QmlEditor::QmlDocument::Ptr)));
     }
 }
 
@@ -447,7 +447,7 @@ void ScriptEditor::updateDocumentNow()
     m_modelManager->updateSourceFiles(QStringList() << fileName);
 }
 
-void ScriptEditor::onDocumentUpdated(QmlDocument::Ptr doc)
+void ScriptEditor::onDocumentUpdated(QmlEditor::QmlDocument::Ptr doc)
 {
     if (file()->fileName() != doc->fileName())
         return;

@@ -32,8 +32,10 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QSharedPointer>
 
 #include <qmleditor/qmleditor_global.h>
+#include <qmleditor/qmldocument.h>
 
 namespace QmlEditor {
 
@@ -49,6 +51,9 @@ public:
 
     virtual Snapshot snapshot() const = 0;
     virtual void updateSourceFiles(const QStringList &files) = 0;
+
+signals:
+    void documentUpdated(QmlEditor::QmlDocument::Ptr doc);
 };
 
 }

@@ -35,10 +35,9 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
-#include "qmleditor_global.h"
-#include "qmljsengine_p.h"
-#include "qmljsastfwd_p.h"
-#include "qmlsymbol.h"
+#include <qmleditor/qmleditor_global.h>
+#include <qmleditor/parser/qmljsengine_p.h>
+#include <qmleditor/qmlsymbol.h>
 
 namespace QmlEditor {
 

@@ -4,7 +4,7 @@
 #include <QList>
 #include <QString>
 
-#include "qmljsastfwd_p.h"
+#include <qmleditor/parser/qmljsastfwd_p.h>
 
 namespace QmlEditor {
 

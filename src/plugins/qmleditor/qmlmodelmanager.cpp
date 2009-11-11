@@ -52,9 +52,10 @@ QmlModelManager::QmlModelManager(QObject *parent):
 {
     m_synchronizer.setCancelOnWait(true);
 
-    qRegisterMetaType<QmlDocument::Ptr>("QmlDocument::Ptr");
+    qRegisterMetaType<QmlEditor::QmlDocument::Ptr>("QmlEditor::QmlDocument::Ptr");
 
-    connect(this, SIGNAL(documentUpdated(QmlDocument::Ptr)), this, SLOT(onDocumentUpdated(QmlDocument::Ptr)));
+    connect(this, SIGNAL(documentUpdated(QmlEditor::QmlDocument::Ptr)),
+            this, SLOT(onDocumentUpdated(QmlEditor::QmlDocument::Ptr)));
 }
 
 Snapshot QmlModelManager::snapshot() const
@@ -122,7 +123,7 @@ QMap<QString, QString> QmlModelManager::buildWorkingCopyList()
 void QmlModelManager::emitDocumentUpdated(QmlDocument::Ptr doc)
 { emit documentUpdated(doc); }
 
-void QmlModelManager::onDocumentUpdated(QmlDocument::Ptr doc)
+void QmlModelManager::onDocumentUpdated(QmlEditor::QmlDocument::Ptr doc)
 {
     QMutexLocker locker(&m_mutex);
 

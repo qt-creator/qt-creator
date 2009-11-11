@@ -35,19 +35,26 @@
 #include "qmlprojectfileseditor.h"
 #include "qmlproject.h"
 #include "qmlmakestep.h"
+#include "qmltaskmanager.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
 #include <texteditor/texteditoractionhandler.h>
 
+#include <projectexplorer/taskwindow.h>
+#include <qmleditor/qmlmodelmanagerinterface.h>
+
 #include <QtCore/QtPlugin>
 
 using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
 
-QmlProjectPlugin::QmlProjectPlugin()
-    : m_projectFilesEditorFactory(0)
+QmlProjectPlugin::QmlProjectPlugin() :
+        m_projectFilesEditorFactory(0),
+        m_qmlTaskManager(0)
 { }
 
 QmlProjectPlugin::~QmlProjectPlugin()
@@ -76,6 +83,8 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     m_projectFilesEditorFactory = new ProjectFilesFactory(manager, actionHandler);
     addObject(m_projectFilesEditorFactory);
 
+    m_qmlTaskManager = new QmlTaskManager(this);
+
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new QmlRunConfigurationFactory);
     addAutoReleasedObject(new QmlNewProjectWizard);
@@ -86,6 +95,15 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 }
 
 void QmlProjectPlugin::extensionsInitialized()
-{ }
+{
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    ProjectExplorer::TaskWindow *taskWindow = pluginManager->getObject<ProjectExplorer::TaskWindow>();
+    m_qmlTaskManager->setTaskWindow(taskWindow);
+
+    QmlEditor::QmlModelManagerInterface *modelManager = pluginManager->getObject<QmlEditor::QmlModelManagerInterface>();
+    Q_ASSERT(modelManager);
+    connect(modelManager, SIGNAL(documentUpdated(QmlEditor::QmlDocument::Ptr)),
+            m_qmlTaskManager, SLOT(documentUpdated(QmlEditor::QmlDocument::Ptr)));
+}
 
 Q_EXPORT_PLUGIN(QmlProjectPlugin)

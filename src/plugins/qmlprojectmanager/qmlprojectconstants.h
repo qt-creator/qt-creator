@@ -49,6 +49,8 @@ const char *const PROJECT_KIND       = "QML";
 const char *const FILES_EDITOR       = ".qmlproject Editor";
 const char *const FILES_MIMETYPE     = QMLMIMETYPE;
 
+const char *const TASK_CATEGORY_QML = "Task.Category.Qml";
+
 } // namespace Constants
 } // namespace QmlProjectManager
 

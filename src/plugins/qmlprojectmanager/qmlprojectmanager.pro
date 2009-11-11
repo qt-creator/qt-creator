@@ -10,6 +10,7 @@ HEADERS = qmlproject.h \
     qmlprojectwizard.h \
     qmlnewprojectwizard.h \
     qmlprojectfileseditor.h \
+    qmltaskmanager.h \
     qmlmakestep.h
 SOURCES = qmlproject.cpp \
     qmlprojectplugin.cpp \
@@ -18,6 +19,7 @@ SOURCES = qmlproject.cpp \
     qmlprojectwizard.cpp \
     qmlnewprojectwizard.cpp \
     qmlprojectfileseditor.cpp \
+    qmltaskmanager.cpp \
     qmlmakestep.cpp
 RESOURCES += qmlproject.qrc
 

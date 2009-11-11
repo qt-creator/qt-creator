@@ -113,7 +113,7 @@ public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
 private slots:
-    void onDocumentUpdated(QmlDocument::Ptr doc);
+    void onDocumentUpdated(QmlEditor::QmlDocument::Ptr doc);
 
     void updateDocument();
     void updateDocumentNow();

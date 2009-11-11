@@ -38,6 +38,7 @@ namespace QmlProjectManager {
 namespace Internal {
 
 class ProjectFilesFactory;
+class QmlTaskManager;
 
 class QmlProjectPlugin: public ExtensionSystem::IPlugin
 {
@@ -52,6 +53,7 @@ public:
 
 private:
     ProjectFilesFactory *m_projectFilesEditorFactory;
+    QmlTaskManager *m_qmlTaskManager;
 };
 
 } // namespace Internal

@@ -58,13 +58,11 @@ public:
 
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
-
-    void documentUpdated(QmlDocument::Ptr doc);
     void aboutToRemoveFiles(const QStringList &files);
 
 private Q_SLOTS:
     // this should be executed in the GUI thread.
-    void onDocumentUpdated(QmlDocument::Ptr doc);
+    void onDocumentUpdated(QmlEditor::QmlDocument::Ptr doc);
 
 protected:
     QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);

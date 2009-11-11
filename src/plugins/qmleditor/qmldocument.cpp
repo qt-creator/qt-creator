@@ -32,8 +32,8 @@
 #include "qmljsast_p.h"
 #include "qmljslexer_p.h"
 #include "qmljsparser_p.h"
-#include "qmljsengine_p.h"
 #include "qmljsnodepool_p.h"
+#include "qmljsastfwd_p.h"
 
 using namespace QmlEditor;
 using namespace QmlJS;
