@@ -290,7 +290,7 @@ void Qt4ProjectConfigWidget::importLabelClicked()
             QtVersion::QmakeBuildConfig qmakeBuildConfig = result.first;
             QStringList additionalArguments = Qt4Project::removeSpecFromArgumentList(result.second);
             QString parsedSpec = Qt4Project::extractSpecFromArgumentList(result.second, directory, version);
-            QString versionSpec = version->mkspecPath();
+            QString versionSpec = version->mkspec();
             if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == "default") {
                 // using the default spec, don't modify additional arguments
             } else {
