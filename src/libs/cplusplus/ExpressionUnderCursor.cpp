@@ -106,8 +106,45 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
             return startOfExpression(tk, index - 2);
         } else if (tk[index - 2].is(T_DOT_STAR) || tk[index - 2].is(T_ARROW_STAR)) {
             return startOfExpression(tk, index - 2);
-//        } else if (tk[index - 2].is(T_IDENTIFIER) && tk[index - 3].is(T_LBRACKET)) {
-//            return index - 3;
+        } else if (tk[index - 2].is(T_LBRACKET)) {
+            // array subscription:
+            //     array[i
+            return index - 1;
+        } else if (tk[index - 2].is(T_COLON)) {
+            // either of:
+            //     cond ? expr1 : id
+            // or:
+            //     [receiver messageParam:id
+            // and in both cases, the id (and only the id) is what we want, so:
+            return index - 1;
+        } else if (tk[index - 2].is(T_IDENTIFIER) && tk[index - 3].is(T_LBRACKET)) {
+            // Very common Objective-C case:
+            //     [receiver message
+            // which we handle immediately:
+            return index - 3;
+        } else {
+            // See if we are handling an Objective-C messaging expression in the form of:
+            //     [receiver messageParam1:expression messageParam2
+            // or:
+            //     [receiver messageParam1:expression messageParam2:expression messageParam3
+            // ... etc
+            int i = index - 1;
+            while (tk[i].isNot(T_EOF_SYMBOL)) {
+                if (tk[i].is(T_LBRACKET))
+                    break;
+                if (tk[i].is(T_LBRACE) || tk[i].is(T_RBRACE))
+                    break;
+                else if (tk[i].is(T_RBRACKET))
+                    i = tk.startOfMatchingBrace(i + 1) - 1;
+                else
+                    --i;
+            }
+
+            int j = i;
+            while (tk[j].is(T_LBRACKET))
+                ++j;
+            if (tk[j].is(T_IDENTIFIER) && tk[j + 1].is(T_IDENTIFIER))
+                return i;
         }
         return index - 1;
     } else if (tk[index - 1].is(T_RPAREN)) {

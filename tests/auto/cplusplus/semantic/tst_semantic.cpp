@@ -78,7 +78,7 @@ public:
             : errorCount(0)
         { }
 
-        virtual void report(int level,
+        virtual void report(int /*level*/,
                             StringLiteral *fileName,
                             unsigned line, unsigned column,
                             const char *format, va_list ap)
@@ -117,6 +117,15 @@ private slots:
     void template_instance_1();
 
     void expression_under_cursor_1();
+
+    void bracketed_expression_under_cursor_1();
+    void bracketed_expression_under_cursor_2();
+    void bracketed_expression_under_cursor_3();
+    void bracketed_expression_under_cursor_4();
+    void bracketed_expression_under_cursor_5();
+    void bracketed_expression_under_cursor_6();
+    void bracketed_expression_under_cursor_7();
+    void bracketed_expression_under_cursor_8();
 
     void objcClass_1();
 };
@@ -445,6 +454,134 @@ void tst_Semantic::expression_under_cursor_1()
     const QString expression = expressionUnderCursor(tc);
 
     QCOMPARE(expression, QString("bar"));
+}
+
+void tst_Semantic::bracketed_expression_under_cursor_1()
+{
+    const QString plainText = "int i = 0, j[1], k = j[i";
+
+    QTextDocument textDocument;
+    textDocument.setPlainText(plainText);
+
+    QTextCursor tc(&textDocument);
+    tc.movePosition(QTextCursor::End);
+
+    ExpressionUnderCursor expressionUnderCursor;
+    const QString expression = expressionUnderCursor(tc);
+
+    QCOMPARE(expression, QString("i"));
+}
+
+void tst_Semantic::bracketed_expression_under_cursor_2()
+{
+    const QString plainText = "[receiver msg";
+
+    QTextDocument textDocument;
+    textDocument.setPlainText(plainText);
+
+    QTextCursor tc(&textDocument);
+    tc.movePosition(QTextCursor::End);
+
+    ExpressionUnderCursor expressionUnderCursor;
+    const QString expression = expressionUnderCursor(tc);
+
+    QCOMPARE(expression, plainText);
+}
+
+void tst_Semantic::bracketed_expression_under_cursor_3()
+{
+    const QString plainText = "[receiver msgParam1:0 msgParam2";
+
+    QTextDocument textDocument;
+    textDocument.setPlainText(plainText);
+
+    QTextCursor tc(&textDocument);
+    tc.movePosition(QTextCursor::End);
+
+    ExpressionUnderCursor expressionUnderCursor;
+    const QString expression = expressionUnderCursor(tc);
+
+    QCOMPARE(expression, plainText);
+}
+
+void tst_Semantic::bracketed_expression_under_cursor_4()
+{
+    const QString plainText = "[receiver msgParam1:0 msgParam2:@\"zoo\" msgParam3";
+
+    QTextDocument textDocument;
+    textDocument.setPlainText(plainText);
+
+    QTextCursor tc(&textDocument);
+    tc.movePosition(QTextCursor::End);
+
+    ExpressionUnderCursor expressionUnderCursor;
+    const QString expression = expressionUnderCursor(tc);
+
+    QCOMPARE(expression, plainText);
+}
+
+void tst_Semantic::bracketed_expression_under_cursor_5()
+{
+    const QString plainText = "if ([receiver message";
+
+    QTextDocument textDocument;
+    textDocument.setPlainText(plainText);
+
+    QTextCursor tc(&textDocument);
+    tc.movePosition(QTextCursor::End);
+
+    ExpressionUnderCursor expressionUnderCursor;
+    const QString expression = expressionUnderCursor(tc);
+
+    QCOMPARE(expression, QString("[receiver message"));
+}
+
+void tst_Semantic::bracketed_expression_under_cursor_6()
+{
+    const QString plainText = "if ([receiver msgParam1:1 + i[1] msgParam2";
+
+    QTextDocument textDocument;
+    textDocument.setPlainText(plainText);
+
+    QTextCursor tc(&textDocument);
+    tc.movePosition(QTextCursor::End);
+
+    ExpressionUnderCursor expressionUnderCursor;
+    const QString expression = expressionUnderCursor(tc);
+
+    QCOMPARE(expression, QString("[receiver msgParam1:1 + i[1] msgParam2"));
+}
+
+void tst_Semantic::bracketed_expression_under_cursor_7()
+{
+    const QString plainText = "int i = 0, j[1], k = j[(i == 0) ? 0 : i";
+
+    QTextDocument textDocument;
+    textDocument.setPlainText(plainText);
+
+    QTextCursor tc(&textDocument);
+    tc.movePosition(QTextCursor::End);
+
+    ExpressionUnderCursor expressionUnderCursor;
+    const QString expression = expressionUnderCursor(tc);
+
+    QCOMPARE(expression, QString("i"));
+}
+
+void tst_Semantic::bracketed_expression_under_cursor_8()
+{
+    const QString plainText = "[[receiver msg] param1:[receiver msg] param2";
+
+    QTextDocument textDocument;
+    textDocument.setPlainText(plainText);
+
+    QTextCursor tc(&textDocument);
+    tc.movePosition(QTextCursor::End);
+
+    ExpressionUnderCursor expressionUnderCursor;
+    const QString expression = expressionUnderCursor(tc);
+
+    QCOMPARE(expression, plainText);
 }
 
 void tst_Semantic::objcClass_1()
