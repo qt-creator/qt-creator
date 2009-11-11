@@ -317,18 +317,22 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.row() >= m_tasks.size() || index.column() != 0)
         return QVariant();
 
-    if (role == TaskModel::File)
+    if (role == TaskModel::File) {
         return m_tasks.at(index.row()).file;
-    else if (role == TaskModel::Line)
-        return m_tasks.at(index.row()).line;
-    else if (role == TaskModel::Description)
+    } else if (role == TaskModel::Line) {
+        if (m_tasks.at(index.row()).line <= 0)
+            return QVariant();
+        else
+            return m_tasks.at(index.row()).line;
+    } else if (role == TaskModel::Description) {
         return m_tasks.at(index.row()).description;
-    else if (role == TaskModel::FileNotFound)
+    } else if (role == TaskModel::FileNotFound) {
         return m_fileNotFound.value(m_tasks.at(index.row()).file);
-    else if (role == TaskModel::Type)
+    } else if (role == TaskModel::Type) {
         return (int)m_tasks.at(index.row()).type;
-    else if (role == TaskModel::Category)
+    } else if (role == TaskModel::Category) {
         return m_tasks.at(index.row()).category;
+    }
     return QVariant();
 }
 
