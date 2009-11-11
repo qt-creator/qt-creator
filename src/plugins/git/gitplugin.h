@@ -59,6 +59,7 @@ namespace Git {
 namespace Internal {
 
 class GitPlugin;
+class GitVersionControl;
 class GitClient;
 class ChangeSelectionDialog;
 class GitSubmitEditor;
@@ -96,6 +97,7 @@ public:
     void setSettings(const GitSettings &s);
 
     GitClient *gitClient() const;
+    GitVersionControl *versionControl() const;
 
 public slots:
     void updateActions();
@@ -159,6 +161,7 @@ private:
     QAction *m_branchListAction;
 
     GitClient                   *m_gitClient;
+    GitVersionControl           *m_versionControl;
     ChangeSelectionDialog       *m_changeSelectionDialog;
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;

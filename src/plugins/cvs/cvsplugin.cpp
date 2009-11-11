@@ -551,9 +551,11 @@ void CVSPlugin::revertCurrentFile()
     QStringList args(QLatin1String("update"));
     args.push_back(QLatin1String("-C"));
 
-    const CVSResponse revertResponse = runCVS(args, QStringList(file), cvsShortTimeOut, true);
+    const QStringList files = QStringList(file);
+    const CVSResponse revertResponse = runCVS(args, files, cvsShortTimeOut, true);
     if (revertResponse.result == CVSResponse::Ok) {
         fcb.setModifiedReload(true);
+        m_versionControl->emitFilesChanged(files);
     }
 }
 
@@ -734,7 +736,10 @@ void CVSPlugin::updateProject()
     if (!topLevels.empty()) {
         QStringList args(QLatin1String("update"));
         args.push_back(QLatin1String("-dR"));
-        runCVS(args, topLevels, cvsLongTimeOut, true);
+        const CVSResponse response = runCVS(args, topLevels, cvsLongTimeOut, true);
+        if (response.result == CVSResponse::Ok)
+            foreach(const QString &topLevel, topLevels)
+                m_versionControl->emitRepositoryChanged(topLevel);
     }
 }
 
