@@ -326,6 +326,7 @@ void Qt4ProjectConfigWidget::importLabelClicked()
     }
     setupQtVersionsComboBox();
     updateDetails();
+    updateImportLabel();
 }
 
 void Qt4ProjectConfigWidget::qtVersionComboBoxCurrentIndexChanged(const QString &)
