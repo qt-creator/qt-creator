@@ -87,6 +87,7 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     pm->addObject(m_taskWindow);
 
     m_taskWindow->addCategory(Constants::TASK_CATEGORY_COMPILE, tr("Compile", "Category for compiler isses listened under 'Build Issues'"));
+    m_taskWindow->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM, tr("Buildsystem", "Category for build system isses listened under 'Build Issues'"));
 
     connect(m_taskWindow, SIGNAL(tasksChanged()),
             this, SIGNAL(tasksChanged()));
@@ -126,8 +127,8 @@ void BuildManager::cancel()
         // (And we want those to be before the cancel message.)
         QTimer::singleShot(0, this, SLOT(emitCancelMessage()));
 
-        disconnect(m_currentBuildStep, SIGNAL(addToTaskWindow(QString, int, int, QString)),
-                   this, SLOT(addToTaskWindow(QString, int, int, QString)));
+        disconnect(m_currentBuildStep, SIGNAL(addToTaskWindow(ProjectExplorer::TaskWindow::Task)),
+                   this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
         disconnect(m_currentBuildStep, SIGNAL(addToOutputWindow(QString)),
                    this, SLOT(addToOutputWindow(QString)));
         decrementActiveBuildSteps(m_currentBuildStep->project());
@@ -230,10 +231,8 @@ void BuildManager::showBuildResults()
     //toggleTaskWindow();
 }
 
-void BuildManager::addToTaskWindow(const QString &file, int type, int line, const QString &description)
+void BuildManager::addToTaskWindow(const ProjectExplorer::TaskWindow::Task &task)
 {
-    TaskWindow::Task task(TaskWindow::TaskType(type), description, file, line,
-                           Constants::TASK_CATEGORY_COMPILE);
     m_taskWindow->addTask(task);
 }
 
@@ -247,8 +246,8 @@ void BuildManager::nextBuildQueue()
     if (m_canceling)
         return;
 
-    disconnect(m_currentBuildStep, SIGNAL(addToTaskWindow(QString, int, int, QString)),
-                this, SLOT(addToTaskWindow(QString, int, int, QString)));
+    disconnect(m_currentBuildStep, SIGNAL(addToTaskWindow(ProjectExplorer::TaskWindow::Task)),
+               this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
     disconnect(m_currentBuildStep, SIGNAL(addToOutputWindow(QString)),
                this, SLOT(addToOutputWindow(QString)));
 
@@ -290,8 +289,8 @@ void BuildManager::nextStep()
         m_buildQueue.pop_front();
         m_configurations.pop_front();
 
-        connect(m_currentBuildStep, SIGNAL(addToTaskWindow(QString, int, int, QString)),
-                this, SLOT(addToTaskWindow(QString, int, int, QString)));
+        connect(m_currentBuildStep, SIGNAL(addToTaskWindow(ProjectExplorer::TaskWindow::Task)),
+                this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
         connect(m_currentBuildStep, SIGNAL(addToOutputWindow(QString)),
                 this, SLOT(addToOutputWindow(QString)));
 

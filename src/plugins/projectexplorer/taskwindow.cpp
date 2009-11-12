@@ -47,8 +47,6 @@
 #include <QtGui/QStyledItemDelegate>
 #include <QtGui/QSortFilterProxyModel>
 
-#include <QDebug>
-
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -487,6 +485,8 @@ TaskWindow::TaskWindow()
     m_categoriesButton->setAutoRaise(true);
     m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
     m_categoriesButton->setMenu(m_categoriesMenu);
+
+    qRegisterMetaType<ProjectExplorer::TaskWindow::Task>("ProjectExplorer::TaskWindow::Task");
 
     updateActions();
 }

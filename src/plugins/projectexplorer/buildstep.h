@@ -126,7 +126,7 @@ protected:
     QMap<QString, QVariant> valuesToMap(const QString & buildConfiguration);
 
 Q_SIGNALS:
-    void addToTaskWindow(const QString &filename, int type, int linenumber, const QString &description);
+    void addToTaskWindow(const ProjectExplorer::TaskWindow::Task &task);
     // The string is added to the output window
     // It should be in html format, that is properly escaped
     void addToOutputWindow(const QString &string);

@@ -192,6 +192,7 @@ const char * const PROJECTEXPLORER_PAGE                = "ProjectExplorer.Projec
 
 // task categories
 const char * const TASK_CATEGORY_COMPILE = "Task.Category.Compile";
+const char * const TASK_CATEGORY_BUILDSYSTEM = "Task.Category.Buildsystem";
 
 } // namespace Constants
 } // namespace ProjectExplorer

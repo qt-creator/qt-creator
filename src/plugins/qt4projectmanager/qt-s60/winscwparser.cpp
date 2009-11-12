@@ -67,17 +67,16 @@ void WinscwParser::stdOutput(const QString &line)
     }
 
     if (m_compilerProblem.indexIn(lne) > -1) {
-        QString fileName(m_compilerProblem.cap(1));
-        int lineNumber(m_compilerProblem.cap(2).toInt());
-        QString description(m_compilerProblem.cap(3));
-        TaskWindow::TaskType type(TaskWindow::Error);
-
-        if (description.startsWith("warning: ")) {
-            type = TaskWindow::Warning;
-            description = description.mid(9);
+        TaskWindow::Task task(TaskWindow::Error,
+                              m_compilerProblem.cap(3) /* description */,
+                              m_compilerProblem.cap(1) /* filename */,
+                              m_compilerProblem.cap(2).toInt() /* linenumber */,
+                              Constants::TASK_CATEGORY_COMPILE);
+        if (task.description.startsWith("warning: ")) {
+            task.type = TaskWindow::Warning;
+            task.description = task.description.mid(9);
         }
-
-        emit addToTaskWindow(fileName, type, lineNumber, description);
+        emit addToTaskWindow(task);
     }
 }
 
@@ -86,11 +85,10 @@ void WinscwParser::stdError(const QString &line)
     QString lne = line.trimmed();
 
     if (m_linkerProblem.indexIn(lne) > -1) {
-        QString description = m_linkerProblem.cap(2);
-        emit addToTaskWindow(
-                m_linkerProblem.cap(1), //filename
-                TaskWindow::Error,
-                -1, //linenumber
-                description);
+        emit addToTaskWindow(TaskWindow::Task(TaskWindow::Error,
+                                              m_linkerProblem.cap(2) /* description */,
+                                              m_linkerProblem.cap(1) /* filename */,
+                                              -1 /* linenumber */,
+                                              Constants::TASK_CATEGORY_COMPILE));
     }
 }

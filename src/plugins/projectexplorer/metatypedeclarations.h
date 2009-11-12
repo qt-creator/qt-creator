@@ -62,4 +62,6 @@ Q_DECLARE_METATYPE(QList<ProjectExplorer::Internal::CommandQObject*>)
 Q_DECLARE_METATYPE(ProjectExplorer::IBuildParser*)
 
 Q_DECLARE_METATYPE(ProjectExplorer::GlobalConfigManagerInterface*)
+Q_DECLARE_METATYPE(ProjectExplorer::TaskWindow::Task)
+
 #endif // PROJECTEXPLORERMETATYPEDECLARATIONS_H

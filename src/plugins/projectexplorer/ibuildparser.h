@@ -31,9 +31,10 @@
 #define IBUILDPARSER_H
 
 #include "projectexplorer_export.h"
+#include "taskwindow.h"
 
 #include <QtCore/QObject>
-#include <QtCore/QStack>
+#include <QtCore/QString>
 
 namespace ProjectExplorer {
 
@@ -51,7 +52,7 @@ Q_SIGNALS:
     void enterDirectory(const QString &dir);
     void leaveDirectory(const QString &dir);
     void addToOutputWindow(const QString & string);
-    void addToTaskWindow(const QString & filename, int type, int lineNumber, const QString & description);
+    void addToTaskWindow(const ProjectExplorer::TaskWindow::Task &task);
 };
 
 class PROJECTEXPLORER_EXPORT IBuildParserFactory

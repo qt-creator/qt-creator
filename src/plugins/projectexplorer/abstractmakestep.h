@@ -32,6 +32,7 @@
 
 #include "projectexplorer_export.h"
 #include "abstractprocessstep.h"
+#include "taskwindow.h"
 
 namespace ProjectExplorer {
 class BuildStep;
@@ -59,7 +60,7 @@ protected:
     void setBuildParser(const QString &parser);
     QString buildParser() const;
 private slots:
-    void slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description);
+    void slotAddToTaskWindow(const ProjectExplorer::TaskWindow::Task &task);
     void addDirectory(const QString &dir);
     void removeDirectory(const QString &dir);
 private:

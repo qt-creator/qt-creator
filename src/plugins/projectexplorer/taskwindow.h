@@ -30,7 +30,7 @@
 #ifndef TASKWINDOW_H
 #define TASKWINDOW_H
 
-#include "ibuildparser.h"
+#include "projectexplorer_export.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/ioutputpane.h>
@@ -65,9 +65,13 @@ public:
     };
 
     struct Task {
+        Task() : type(Unknown), line(-1)
+        { }
         Task(TaskType type_, const QString &description_,
              const QString &file_, int line_, const QString &category_) :
             type(type_), description(description_), file(file_), line(line_), category(category_)
+        { }
+        ~Task()
         { }
 
         TaskType type;

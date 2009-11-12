@@ -74,44 +74,35 @@ void RvctParser::stdOutput(const QString &line)
 void RvctParser::stdError(const QString &line)
 {
     QString lne = line.trimmed();
-
     if (m_linkerProblem.indexIn(lne) > -1) {
-       QString description = m_linkerProblem.cap(2);
-       emit addToTaskWindow(
-           m_linkerProblem.cap(1), //filename
-           TaskWindow::Error,
-           -1, //linenumber
-           description);
+       emit addToTaskWindow(TaskWindow::Task(TaskWindow::Error,
+                                             m_linkerProblem.cap(2) /* description */,
+                                             m_linkerProblem.cap(1) /* filename */,
+                                             -1 /* linenumber */,
+                                             Constants::TASK_CATEGORY_COMPILE));
    } else if (m_warningOrError.indexIn(lne) > -1) {
-       TaskWindow::TaskType type;
-       if (m_warningOrError.cap(4) == "Warning")
-           type = TaskWindow::Warning;
-       else if (m_warningOrError.cap(4) == "Error")
-           type = TaskWindow::Error;
-       else
-           type = TaskWindow::Unknown;
-
-       QString description =  m_warningOrError.cap(5);
-
-       m_additionalInfo = true;
        m_lastFile = m_warningOrError.cap(1);
        m_lastLine = m_warningOrError.cap(2).toInt();
 
-       emit addToTaskWindow(
-           m_lastFile, //filename
-           type,
-           m_lastLine, //line number
-           description);
+       TaskWindow::Task task(TaskWindow::Unknown,
+                             m_warningOrError.cap(5) /* description */,
+                             m_lastFile, m_lastLine,
+                             Constants::TASK_CATEGORY_COMPILE);
+       if (m_warningOrError.cap(4) == "Warning")
+           task.type = TaskWindow::Warning;
+       else if (m_warningOrError.cap(4) == "Error")
+           task.type = TaskWindow::Error;
+
+       m_additionalInfo = true;
+
+       emit addToTaskWindow(task);
    } else if (m_doneWithFile.indexIn(lne) > -1) {
        m_additionalInfo = false;
    } else if (m_additionalInfo) {
        // Report any lines after a error/warning message as these contain
        // additional information on the problem.
-       emit addToTaskWindow(
-           m_lastFile, //filesname
-           TaskWindow::Unknown,
-           m_lastLine, //linenumber
-           lne //description
-       );
+       emit addToTaskWindow(TaskWindow::Task(TaskWindow::Unknown, lne,
+                                             m_lastFile,  m_lastLine,
+                                             Constants::TASK_CATEGORY_COMPILE));
    }
 }

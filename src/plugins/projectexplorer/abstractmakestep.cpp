@@ -97,24 +97,25 @@ void AbstractMakeStep::setBuildParser(const QString &parser)
 
     if (m_buildParser) {
         m_buildParserName = parser;
-        connect(m_buildParser, SIGNAL(addToOutputWindow(const QString &)),
-                this, SIGNAL(addToOutputWindow(const QString &)),
+        connect(m_buildParser, SIGNAL(addToOutputWindow(QString)),
+                this, SIGNAL(addToOutputWindow(QString)),
                 Qt::DirectConnection);
-        connect(m_buildParser, SIGNAL(addToTaskWindow(const QString &, int, int, const QString &)),
-                this, SLOT(slotAddToTaskWindow(const QString &, int, int, const QString &)),
+        connect(m_buildParser, SIGNAL(addToTaskWindow(ProjectExplorer::TaskWindow::Task)),
+                this, SLOT(slotAddToTaskWindow(ProjectExplorer::TaskWindow::Task)),
                 Qt::DirectConnection);
-        connect(m_buildParser, SIGNAL(enterDirectory(const QString &)),
-                this, SLOT(addDirectory(const QString &)),
+        connect(m_buildParser, SIGNAL(enterDirectory(QString)),
+                this, SLOT(addDirectory(QString)),
                 Qt::DirectConnection);
-        connect(m_buildParser, SIGNAL(leaveDirectory(const QString &)),
-                this, SLOT(removeDirectory(const QString &)),
+        connect(m_buildParser, SIGNAL(leaveDirectory(QString)),
+                this, SLOT(removeDirectory(QString)),
                 Qt::DirectConnection);
     }
 }
 
-void AbstractMakeStep::slotAddToTaskWindow(const QString & fn, int type, int linenumber, const QString & description)
+void AbstractMakeStep::slotAddToTaskWindow(const TaskWindow::Task &task)
 {
-    QString filePath = fn;
+    TaskWindow::Task editable(task);
+    QString filePath = QDir::cleanPath(task.file.trimmed());
     if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
         // We have no save way to decide which file in which subfolder
         // is meant. Therefore we apply following heuristics:
@@ -122,8 +123,6 @@ void AbstractMakeStep::slotAddToTaskWindow(const QString & fn, int type, int lin
         //    (Enter directory xxx, Leave directory xxx...) + current directory
         // 3. Check if file is unique in whole project
         // 4. Otherwise give up
-
-        filePath = filePath.trimmed();
 
         QList<QFileInfo> possibleFiles;
         foreach (const QString &dir, m_openDirectories) {
@@ -151,7 +150,7 @@ void AbstractMakeStep::slotAddToTaskWindow(const QString & fn, int type, int lin
             }
         }
         if (possibleFiles.count() == 1) {
-            filePath = possibleFiles.first().filePath();
+            editable.file = possibleFiles.first().filePath();
         } else {
             // More then one filename, so do a better compare
             // Chop of any "../"
@@ -166,12 +165,12 @@ void AbstractMakeStep::slotAddToTaskWindow(const QString & fn, int type, int lin
                 }
             }
             if (count == 1)
-                filePath = possibleFilePath;
+                editable.file = possibleFilePath;
             else
                 qWarning() << "Could not find absolute location of file " << filePath;
         }
     }
-    emit addToTaskWindow(filePath, type, linenumber, description);
+    emit addToTaskWindow(editable);
 }
 
 void AbstractMakeStep::addDirectory(const QString &dir)

@@ -31,6 +31,7 @@
 #define BUILDMANAGER_H
 
 #include "projectexplorer_export.h"
+#include "taskwindow.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
@@ -45,7 +46,6 @@ namespace Internal {
     class BuildProgressFuture;
 }
 
-class TaskWindow;
 class BuildStep;
 class Project;
 class ProjectExplorerPlugin;
@@ -92,7 +92,7 @@ signals:
     void tasksChanged();
 
 private slots:
-    void addToTaskWindow(const QString &file, int type, int line, const QString &description);
+    void addToTaskWindow(const ProjectExplorer::TaskWindow::Task &task);
     void addToOutputWindow(const QString &string);
 
     void nextBuildQueue();

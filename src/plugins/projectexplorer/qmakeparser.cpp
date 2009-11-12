@@ -52,7 +52,11 @@ void QMakeParser::stdError(const QString & line)
     if (lne.startsWith("Project ERROR:"))
     {
         lne = lne.mid(15);
-        emit addToTaskWindow(QString(), TaskWindow::Error, -1, lne);
+        emit addToTaskWindow(TaskWindow::Task(TaskWindow::Error,
+                                              lne /* description */,
+                                              QString() /* filename */,
+                                              -1 /* linenumber */,
+                                              Constants::TASK_CATEGORY_BUILDSYSTEM));
         return;
     }
 }

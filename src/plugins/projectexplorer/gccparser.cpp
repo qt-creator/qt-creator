@@ -71,42 +71,36 @@ void GccParser::stdError(const QString & line)
     QString lne = line.trimmed();
     if (m_regExpLinker.indexIn(lne) > -1) {
         QString description = m_regExpLinker.cap(2);
-        emit addToTaskWindow(
-                m_regExpLinker.cap(1), //filename
-                TaskWindow::Error,
-                -1, //linenumber
-                description);
-        //qDebug()<<"m_regExpLinker"<<m_regExpLinker.cap(2);
+        emit addToTaskWindow(TaskWindow::Task(TaskWindow::Error,
+                                              description,
+                                              m_regExpLinker.cap(1) /* filename */,
+                                              -1 /* linenumber */,
+                                              Constants::TASK_CATEGORY_COMPILE));
     } else if (m_regExp.indexIn(lne) > -1) {
-        TaskWindow::TaskType type;
+        TaskWindow::Task task(TaskWindow::Unknown,
+                              m_regExp.cap(6) /* description */,
+                              m_regExp.cap(1) /* filename */,
+                              m_regExp.cap(2).toInt() /* line number */,
+                              Constants::TASK_CATEGORY_COMPILE);
         if (m_regExp.cap(5) == "warning")
-            type = TaskWindow::Warning;
+            task.type = TaskWindow::Warning;
         else if (m_regExp.cap(5) == "error")
-            type = TaskWindow::Error;
-        else
-            type = TaskWindow::Unknown;
+            task.type = TaskWindow::Error;
 
-        QString description =  m_regExp.cap(6);
-
-        emit addToTaskWindow(
-                m_regExp.cap(1), //filename
-                type,
-                m_regExp.cap(2).toInt(), //line number
-                description);
+        emit addToTaskWindow(task);
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
-        emit addToTaskWindow(
-                m_regExpIncluded.cap(1), //filename
-                TaskWindow::Unknown,
-                m_regExpIncluded.cap(2).toInt(), //linenumber
-                lne //description
-                );
-    } else if (lne.startsWith(QLatin1String("collect2:"))) {
-        emit addToTaskWindow("", TaskWindow::Error, -1, lne);
-    } else if (lne.startsWith(QLatin1String("ERROR:"))) {
-        // Triggered by cpp on windows.
-        emit addToTaskWindow(QString(), TaskWindow::Error, -1, lne);
-    } else if (lne == QLatin1String("* cpp failed")) {
-        // Triggered by cpp/make on windows.
-        emit addToTaskWindow(QString(), TaskWindow::Error, -1, lne);
+        emit addToTaskWindow(TaskWindow::Task(TaskWindow::Unknown,
+                                              lne /* description */,
+                                              m_regExpIncluded.cap(1) /* filename */,
+                                              m_regExpIncluded.cap(2).toInt() /* linenumber */,
+                                              Constants::TASK_CATEGORY_COMPILE));
+    } else if (lne.startsWith(QLatin1String("collect2:")) ||
+               lne.startsWith(QLatin1String("ERROR:")) ||
+               lne == QLatin1String("* cpp failed")) {
+        emit addToTaskWindow(TaskWindow::Task(TaskWindow::Error,
+                                              lne /* description */,
+                                              QString() /* filename */,
+                                              -1 /* linenumber */,
+                                              Constants::TASK_CATEGORY_COMPILE));
     }
 }
