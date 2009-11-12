@@ -60,7 +60,8 @@ PlainGdbAdapter::PlainGdbAdapter(GdbEngine *engine, QObject *parent)
 
 AbstractGdbAdapter::DumperHandling PlainGdbAdapter::dumperHandling() const
 {
-#ifdef Q_OS_WIN
+    // LD_PRELOAD fails for System-Qt on Mac.
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     return DumperLoadedByGdb;
 #else
     return DumperLoadedByGdbPreload;
