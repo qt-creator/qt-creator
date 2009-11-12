@@ -33,9 +33,6 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QList>
 
-namespace QWorkbench {
-class FileInterface;
-}
 namespace ProjectExplorer {
 class ProjectInterface;
 class IProjectManager;
@@ -48,9 +45,6 @@ namespace Internal {
 class CommandQObject;
 }
 }
-
-Q_DECLARE_METATYPE(QWorkbench::FileInterface*)
-Q_DECLARE_METATYPE(QList<QWorkbench::FileInterface*>)
 
 Q_DECLARE_METATYPE(ProjectExplorer::Project*)
 Q_DECLARE_METATYPE(QList<ProjectExplorer::Project*>)
