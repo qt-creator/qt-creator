@@ -48,6 +48,7 @@
 
 #include "AST.h"
 #include "ASTVisitor.h"
+#include "ASTMatcher.h"
 #include "MemoryPool.h"
 
 #include <cassert>
@@ -67,6 +68,22 @@ void AST::accept(ASTVisitor *visitor)
     if (visitor->preVisit(this))
         accept0(visitor);
     visitor->postVisit(this);
+}
+
+bool AST::match(AST *ast, AST *pattern, ASTMatcher *matcher)
+{
+    if (ast == pattern)
+        return true;
+
+    else if (! ast || ! pattern)
+        return false;
+
+    return ast->match(pattern, matcher);
+}
+
+bool AST::match(AST *pattern, ASTMatcher *matcher)
+{
+    return match0(pattern, matcher);
 }
 
 unsigned AttributeSpecifierAST::firstToken() const

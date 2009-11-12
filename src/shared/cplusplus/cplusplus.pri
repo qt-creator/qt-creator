@@ -5,6 +5,7 @@ INCLUDEPATH += $$PWD
 HEADERS += \
     $$PWD/AST.h \
     $$PWD/ASTVisitor.h \
+    $$PWD/ASTMatcher.h \
     $$PWD/ASTfwd.h \
     $$PWD/Array.h \
     $$PWD/CPlusPlusForwardDeclarations.h \
@@ -41,7 +42,9 @@ HEADERS += \
 SOURCES += \
     $$PWD/AST.cpp \
     $$PWD/ASTVisit.cpp \
+    $$PWD/ASTMatch0.cpp \
     $$PWD/ASTVisitor.cpp \
+    $$PWD/ASTMatcher.cpp \
     $$PWD/Array.cpp \
     $$PWD/CheckDeclaration.cpp \
     $$PWD/CheckDeclarator.cpp \

@@ -55,56 +55,9 @@ static const char copyrightHeader[] =
 "**************************************************************************/\n"
 ;
 
-class SearchListNodes: protected ASTVisitor
-{
-    QList<QByteArray> _listNodes;
-
-public:
-    SearchListNodes(Control *control)
-        : ASTVisitor(control)
-    { }
-
-    QList<QByteArray> operator()(AST *ast)
-    {
-        _listNodes.clear();
-        accept(ast);
-        return _listNodes;
-    }
-
-protected:
-    virtual bool visit(ClassSpecifierAST *ast)
-    {
-        const QString className = oo(ast->symbol->name());
-        
-        if (! (className.length() > 3 && className.endsWith(QLatin1String("AST"))))
-            return true;
-
-        for (unsigned i = 0; i < ast->symbol->memberCount(); ++i) {
-            Symbol *member = ast->symbol->memberAt(i);
-            Name *memberName = member->name();
-
-            if (! memberName)
-                continue;
-            else if (! memberName->identifier())
-                continue;
-            
-            if (! qstrcmp("next", memberName->identifier()->chars())) {
-                _listNodes.append(className.toUtf8());
-                break;
-            }
-        }
-
-        return true;
-    }
-
-private:
-    Overview oo;
-};
-
 class VisitCG: protected ASTVisitor
 {
     QDir _cplusplusDir;
-    QList<QByteArray> _listNodes;
     QTextStream *out;
 
 public:
@@ -129,9 +82,6 @@ public:
             "#include \"ASTVisitor.h\"\n"
             "\n"
             "using namespace CPlusPlus;\n" << endl;
-
-        SearchListNodes listNodes(control());
-        _listNodes = listNodes(ast);
 
         accept(ast);
     }
@@ -175,13 +125,7 @@ protected:
                 if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                     QByteArray typeName = namedTy->name()->identifier()->chars();
 
-                    if (_listNodes.contains(typeName) && memberName != "next") {
-                        *out
-                                << "        for (" << typeName.constData() << " *it = "
-                                << memberName.constData() << "; it; it = it->next)" << endl
-                                << "            accept(it, visitor);" << endl;
-
-                    } else if (typeName.endsWith("AST") && memberName != "next") {
+                    if (typeName.endsWith("AST") && memberName != "next") {
                         *out << "        accept(" << memberName.constData() << ", visitor);" << endl;
                     }
                 }
@@ -243,6 +187,153 @@ protected:
         *out
                 << "    }" << endl
                 << "    visitor->endVisit(this);" << endl
+                << "}" << endl
+                << endl;
+
+        return true;
+    }
+};
+
+class MatchCG: protected ASTVisitor
+{
+    QDir _cplusplusDir;
+    QTextStream *out;
+
+public:
+    MatchCG(const QDir &cplusplusDir, Control *control)
+        : ASTVisitor(control), _cplusplusDir(cplusplusDir), out(0)
+    { }
+
+    void operator()(AST *ast)
+    {
+        QFileInfo fileInfo(_cplusplusDir, QLatin1String("ASTMatch0.cpp"));
+
+        QFile file(fileInfo.absoluteFilePath());
+        if (! file.open(QFile::WriteOnly))
+            return;
+
+        QTextStream output(&file);
+        out = &output;
+
+        *out << copyrightHeader <<
+            "\n"
+            "#include \"AST.h\"\n"
+            "#include \"ASTMatcher.h\"\n"
+            "\n"
+            "using namespace CPlusPlus;\n" << endl;
+
+        accept(ast);
+    }
+
+protected:
+    using ASTVisitor::visit;
+
+    QMap<QByteArray, ClassSpecifierAST *> classMap;
+
+    QByteArray id_cast(NameAST *name)
+    {
+        if (! name)
+            return QByteArray();
+
+        Identifier *id = identifier(name->asSimpleName()->identifier_token);
+
+        return QByteArray::fromRawData(id->chars(), id->size());
+    }
+
+    void visitMembers(Class *klass)
+    {
+        Overview oo;
+        const QString className = oo(klass->name());
+
+        *out << "    if (" << className << " *_other = pattern->as" << className.left(className.length() - 3) << "()) {" << endl;
+
+        *out << "        if (! matcher->match(this, _other))" << endl
+                << "            return false;" << endl;
+
+        for (unsigned i = 0; i < klass->memberCount(); ++i) {
+            Symbol *member = klass->memberAt(i);
+            if (! member->name())
+                continue;
+
+            Identifier *id = member->name()->identifier();
+
+            if (! id)
+                continue;
+
+            const QByteArray memberName = QByteArray::fromRawData(id->chars(), id->size());
+            if (member->type().isUnsigned() && memberName.endsWith("_token")) {
+                // nothing to do here.
+
+            } else if (PointerType *ptrTy = member->type()->asPointerType()) {
+
+                if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
+                    QByteArray typeName = namedTy->name()->identifier()->chars();
+
+                    if (typeName.endsWith("AST")) {
+                        *out << "        if (! match(" << memberName << ", _other->" << memberName << ", matcher))" << endl
+                                << "            return false;" << endl;
+
+                    }
+                }
+            }
+        }
+
+        for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
+            const QByteArray baseClassName = klass->baseClassAt(i)->identifier()->chars();
+
+            if (ClassSpecifierAST *baseClassSpec = classMap.value(baseClassName, 0)) {
+                visitMembers(baseClassSpec->symbol);
+            }
+        }
+
+        *out << "        return true;" << endl;
+        *out << "    }" << endl;
+    }
+
+    bool checkMethod(Symbol *accept0Method) const
+    {
+        Declaration *decl = accept0Method->asDeclaration();
+        if (! decl)
+            return false;
+
+        Function *funTy = decl->type()->asFunctionType();
+        if (! funTy)
+            return false;
+
+        else if (funTy->isPureVirtual())
+            return false;
+
+        return true;
+    }
+
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        Class *klass = ast->symbol;
+        const QByteArray className = id_cast(ast->name);
+
+        Identifier *match0_id = control()->findOrInsertIdentifier("match0");
+        Symbol *accept0Method = klass->members()->lookat(match0_id);
+        for (; accept0Method; accept0Method = accept0Method->next()) {
+            if (accept0Method->identifier() != match0_id)
+                continue;
+
+            if (checkMethod(accept0Method))
+                break;
+        }
+
+        if (! accept0Method)
+            return true;
+
+        classMap.insert(className, ast);
+
+        *out
+                << "bool " << className.constData() << "::match0(AST *pattern, ASTMatcher *matcher)" << endl
+                << "{" << endl;
+
+        visitMembers(klass);
+
+        *out
+                << "    return false;" << endl
                 << "}" << endl
                 << endl;
 
@@ -317,8 +408,8 @@ protected:
                 _nodes.deriveds.append(ast);
 
                 AccessDeclarationAST *accessDeclaration = 0;
-                for (DeclarationListAST *it = ast->member_specifiers; it; it = it->next) {
-                    if (AccessDeclarationAST *decl = it->declaration->asAccessDeclaration()) {
+                for (DeclarationListAST *it = ast->member_specifier_list; it; it = it->next) {
+                    if (AccessDeclarationAST *decl = it->value->asAccessDeclaration()) {
                         if (tokenKind(decl->access_specifier_token) == T_PUBLIC)
                             accessDeclaration = decl;
                     }
@@ -457,6 +548,9 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
     VisitCG cg(cplusplusDir, doc->control());
     cg(doc->translationUnit()->ast());
 
+    MatchCG cg2(cplusplusDir, doc->control());
+    cg2(doc->translationUnit()->ast());
+
     return astDerivedClasses;
 }
 
@@ -476,8 +570,11 @@ public:
 protected:
     bool visit(SimpleDeclarationAST *ast)
     {
-        if (ElaboratedTypeSpecifierAST *e = ast->decl_specifier_seq->asElaboratedTypeSpecifier()) {
-            if (tokenKind(e->classkey_token) == T_CLASS && !ast->declarators) {
+        if (! ast->decl_specifier_list)
+            return false;
+
+        if (ElaboratedTypeSpecifierAST *e = ast->decl_specifier_list->value->asElaboratedTypeSpecifier()) {
+            if (tokenKind(e->classkey_token) == T_CLASS && !ast->declarator_list) {
                 QString className = oo(e->name->name);
 
                 if (className.length() > 3 && className.endsWith(QLatin1String("AST"))) {

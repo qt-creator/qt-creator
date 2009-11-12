@@ -2419,7 +2419,7 @@ bool Parser::parseForStatement(StatementAST *&node)
     ast->for_token = for_token;
     ast->lparen_token = lparen_token;
     parseForInitStatement(ast->initializer);
-    parseExpression(ast->condition);
+    parseCondition(ast->condition);
     match(T_SEMICOLON, &ast->semicolon_token);
     parseExpression(ast->expression);
     match(T_RPAREN, &ast->rparen_token);

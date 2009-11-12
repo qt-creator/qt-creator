@@ -120,6 +120,26 @@ public:
             accept(it->value, visitor);
     }
 
+    static bool match(AST *ast, AST *pattern, ASTMatcher *matcher);
+    bool match(AST *pattern, ASTMatcher *matcher);
+
+    template <typename _Tp>
+    static bool match(List<_Tp> *it, List<_Tp> *patternIt, ASTMatcher *matcher)
+    {
+        while (it && patternIt) {
+            if (! match(it->value, patternIt->value, matcher))
+                return false;
+
+            it = it->next;
+            patternIt = patternIt->next;
+        }
+
+        if (! it && ! patternIt)
+            return true;
+
+        return false;
+    }
+
     virtual unsigned firstToken() const = 0;
     virtual unsigned lastToken() const = 0;
 
@@ -255,8 +275,10 @@ public:
     virtual UsingAST *asUsing() { return 0; }
     virtual UsingDirectiveAST *asUsingDirective() { return 0; }
     virtual WhileStatementAST *asWhileStatement() { return 0; }
+
 protected:
     virtual void accept0(ASTVisitor *visitor) = 0;
+    virtual bool match0(AST *, ASTMatcher *) = 0;
 };
 
 class CPLUSPLUS_EXPORT SpecifierAST: public AST
@@ -278,6 +300,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT AttributeSpecifierAST: public SpecifierAST
@@ -298,6 +321,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT AttributeAST: public AST
@@ -317,6 +341,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT TypeofSpecifierAST: public SpecifierAST
@@ -335,6 +360,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT StatementAST: public AST
@@ -386,6 +412,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT SimpleDeclarationAST: public DeclarationAST
@@ -407,6 +434,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT EmptyDeclarationAST: public DeclarationAST
@@ -422,6 +450,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT AccessDeclarationAST: public DeclarationAST
@@ -439,6 +468,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT AsmDefinitionAST: public DeclarationAST
@@ -460,6 +490,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT BaseSpecifierAST: public AST
@@ -480,6 +511,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT CompoundLiteralAST: public ExpressionAST
@@ -498,6 +530,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT QtMethodAST: public ExpressionAST
@@ -516,6 +549,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT BinaryExpressionAST: public ExpressionAST
@@ -533,6 +567,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT CastExpressionAST: public ExpressionAST
@@ -551,6 +586,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ClassSpecifierAST: public SpecifierAST
@@ -576,6 +612,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT CaseStatementAST: public StatementAST
@@ -594,6 +631,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT CompoundStatementAST: public StatementAST
@@ -614,6 +652,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ConditionAST: public ExpressionAST
@@ -630,6 +669,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ConditionalExpressionAST: public ExpressionAST
@@ -649,6 +689,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT CppCastExpressionAST: public ExpressionAST
@@ -670,6 +711,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT CtorInitializerAST: public AST
@@ -686,6 +728,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT DeclarationStatementAST: public StatementAST
@@ -701,6 +744,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT DeclaratorIdAST: public CoreDeclaratorAST
@@ -716,6 +760,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NestedDeclaratorAST: public CoreDeclaratorAST
@@ -733,6 +778,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT FunctionDeclaratorAST: public PostfixDeclaratorAST
@@ -756,6 +802,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ArrayDeclaratorAST: public PostfixDeclaratorAST
@@ -773,6 +820,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT DeleteExpressionAST: public ExpressionAST
@@ -792,6 +840,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT DoStatementAST: public StatementAST
@@ -813,6 +862,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NamedTypeSpecifierAST: public SpecifierAST
@@ -828,6 +878,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ElaboratedTypeSpecifierAST: public SpecifierAST
@@ -844,6 +895,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT EnumSpecifierAST: public SpecifierAST
@@ -863,6 +915,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT EnumeratorAST: public AST
@@ -880,6 +933,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ExceptionDeclarationAST: public DeclarationAST
@@ -897,6 +951,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ExceptionSpecificationAST: public AST
@@ -916,6 +971,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ExpressionOrDeclarationStatementAST: public StatementAST
@@ -932,6 +988,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ExpressionStatementAST: public StatementAST
@@ -948,6 +1005,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT FunctionDefinitionAST: public DeclarationAST
@@ -970,6 +1028,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ForeachStatementAST: public StatementAST
@@ -998,6 +1057,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ForStatementAST: public StatementAST
@@ -1023,6 +1083,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT IfStatementAST: public StatementAST
@@ -1047,6 +1108,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ArrayInitializerAST: public ExpressionAST
@@ -1064,6 +1126,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT LabeledStatementAST: public StatementAST
@@ -1081,6 +1144,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT LinkageBodyAST: public DeclarationAST
@@ -1097,6 +1161,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT LinkageSpecificationAST: public DeclarationAST
@@ -1114,6 +1179,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT MemInitializerAST: public AST
@@ -1132,6 +1198,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NameAST: public ExpressionAST
@@ -1158,6 +1225,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT QualifiedNameAST: public NameAST
@@ -1175,6 +1243,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT OperatorFunctionIdAST: public NameAST
@@ -1191,6 +1260,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ConversionFunctionIdAST: public NameAST
@@ -1208,6 +1278,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT SimpleNameAST: public NameAST
@@ -1223,6 +1294,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT DestructorNameAST: public NameAST
@@ -1239,6 +1311,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT TemplateIdAST: public NameAST
@@ -1257,6 +1330,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NamespaceAST: public DeclarationAST
@@ -1278,6 +1352,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NamespaceAliasDefinitionAST: public DeclarationAST
@@ -1297,6 +1372,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NewPlacementAST: public AST
@@ -1314,6 +1390,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NewArrayDeclaratorAST: public AST
@@ -1331,6 +1408,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NewExpressionAST: public ExpressionAST
@@ -1356,6 +1434,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NewInitializerAST: public AST
@@ -1373,6 +1452,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NewTypeIdAST: public AST
@@ -1390,6 +1470,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT OperatorAST: public AST
@@ -1407,6 +1488,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ParameterDeclarationAST: public DeclarationAST
@@ -1428,6 +1510,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ParameterDeclarationClauseAST: public AST
@@ -1444,6 +1527,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT PostfixAST: public AST
@@ -1467,6 +1551,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ArrayAccessAST: public PostfixAST
@@ -1484,6 +1569,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT PostIncrDecrAST: public PostfixAST
@@ -1499,6 +1585,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT MemberAccessAST: public PostfixAST
@@ -1516,6 +1603,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT TypeidExpressionAST: public ExpressionAST
@@ -1534,6 +1622,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT TypenameCallExpressionAST: public ExpressionAST
@@ -1553,6 +1642,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT TypeConstructorCallAST: public ExpressionAST
@@ -1571,6 +1661,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT PostfixExpressionAST: public ExpressionAST
@@ -1587,6 +1678,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT PtrOperatorAST: public AST
@@ -1611,6 +1703,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT PointerAST: public PtrOperatorAST
@@ -1627,6 +1720,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ReferenceAST: public PtrOperatorAST
@@ -1642,6 +1736,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT BreakStatementAST: public StatementAST
@@ -1658,6 +1753,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ContinueStatementAST: public StatementAST
@@ -1674,6 +1770,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT GotoStatementAST: public StatementAST
@@ -1691,6 +1788,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ReturnStatementAST: public StatementAST
@@ -1708,6 +1806,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT SizeofExpressionAST: public ExpressionAST
@@ -1726,6 +1825,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NumericLiteralAST: public ExpressionAST
@@ -1741,6 +1841,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT BoolLiteralAST: public ExpressionAST
@@ -1756,6 +1857,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ThisExpressionAST: public ExpressionAST
@@ -1771,6 +1873,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT NestedExpressionAST: public ExpressionAST
@@ -1788,6 +1891,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT StringLiteralAST: public ExpressionAST
@@ -1804,6 +1908,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT SwitchStatementAST: public StatementAST
@@ -1826,6 +1931,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT TemplateDeclarationAST: public DeclarationAST
@@ -1846,6 +1952,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ThrowExpressionAST: public ExpressionAST
@@ -1862,6 +1969,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT TranslationUnitAST: public AST
@@ -1877,6 +1985,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT TryBlockStatementAST: public StatementAST
@@ -1894,6 +2003,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT CatchClauseAST: public StatementAST
@@ -1916,6 +2026,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT TypeIdAST: public ExpressionAST
@@ -1932,6 +2043,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT TypenameTypeParameterAST: public DeclarationAST
@@ -1953,6 +2065,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT TemplateTypeParameterAST: public DeclarationAST
@@ -1978,6 +2091,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT UnaryExpressionAST: public ExpressionAST
@@ -1994,6 +2108,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT UsingAST: public DeclarationAST
@@ -2015,6 +2130,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT UsingDirectiveAST: public DeclarationAST
@@ -2036,6 +2152,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT WhileStatementAST: public StatementAST
@@ -2058,6 +2175,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCClassForwardDeclarationAST: public DeclarationAST
@@ -2079,6 +2197,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
@@ -2109,6 +2228,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCProtocolForwardDeclarationAST: public DeclarationAST
@@ -2130,6 +2250,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCProtocolDeclarationAST: public DeclarationAST
@@ -2153,6 +2274,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCProtocolRefsAST: public AST
@@ -2170,6 +2292,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCMessageArgumentAST: public AST
@@ -2185,6 +2308,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCMessageExpressionAST: public ExpressionAST
@@ -2204,6 +2328,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCProtocolExpressionAST: public ExpressionAST
@@ -2222,6 +2347,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCTypeNameAST: public AST
@@ -2240,6 +2366,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCEncodeExpressionAST: public ExpressionAST
@@ -2256,6 +2383,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCSelectorAST: public AST
@@ -2281,6 +2409,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCSelectorArgumentAST: public AST
@@ -2297,6 +2426,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCSelectorWithArgumentsAST: public ObjCSelectorAST
@@ -2312,6 +2442,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCSelectorExpressionAST: public ExpressionAST
@@ -2330,6 +2461,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCInstanceVariablesDeclarationAST: public AST
@@ -2347,6 +2479,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCVisibilityDeclarationAST: public DeclarationAST
@@ -2362,6 +2495,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCPropertyAttributeAST: public AST
@@ -2379,6 +2513,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCPropertyDeclarationAST: public DeclarationAST
@@ -2402,6 +2537,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationAST: public NameAST
@@ -2422,6 +2558,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCMethodPrototypeAST: public AST
@@ -2445,6 +2582,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCMethodDeclarationAST: public DeclarationAST
@@ -2462,6 +2600,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCSynthesizedPropertyAST: public AST
@@ -2479,6 +2618,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCSynthesizedPropertiesDeclarationAST: public DeclarationAST
@@ -2496,6 +2636,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCDynamicPropertiesDeclarationAST: public DeclarationAST
@@ -2513,6 +2654,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCFastEnumerationAST: public StatementAST
@@ -2543,6 +2685,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT ObjCSynchronizedStatementAST: public StatementAST
@@ -2562,6 +2705,7 @@ public:
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 } // end of namespace CPlusPlus

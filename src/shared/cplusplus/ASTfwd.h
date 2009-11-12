@@ -57,6 +57,7 @@ template <typename _Tp> class List;
 
 class AST;
 class ASTVisitor;
+class ASTMatcher;
 
 class AccessDeclarationAST;
 class ArrayAccessAST;
