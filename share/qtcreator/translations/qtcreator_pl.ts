@@ -2842,8 +2842,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location/>
-        <source>CLS/GCCE Directory:</source>
-        <translation>Katalog CLS/GCCE:</translation>
+        <source>CSL/GCCE Directory:</source>
+        <translation>Katalog CSL/GCCE:</translation>
     </message>
     <message>
         <location/>

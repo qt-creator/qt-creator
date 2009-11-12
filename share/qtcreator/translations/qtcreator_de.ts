@@ -12009,8 +12009,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location/>
-        <source>CLS/GCCE Directory:</source>
-        <translation>CLS/GCCE:</translation>
+        <source>CSL/GCCE Directory:</source>
+        <translation>CSL/GCCE:</translation>
     </message>
 </context>
 <context>

@@ -12444,8 +12444,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location/>
-        <source>CLS/GCCE Directory:</source>
-        <translation>Каталог CLS/GCCE:</translation>
+        <source>CSL/GCCE Directory:</source>
+        <translation>Каталог CSL/GCCE:</translation>
     </message>
 </context>
 <context>
