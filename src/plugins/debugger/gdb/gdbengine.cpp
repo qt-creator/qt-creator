@@ -1153,6 +1153,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
     setState(InferiorStopped);
 
+#if 0 // See http://vladimir_prus.blogspot.com/2007/12/debugger-stories-pending-breakpoints.html
     // Due to LD_PRELOADing the dumpers, these events can occur even before
     // reaching the entry point. So handle it before the entry point hacks below.
     if (reason.isEmpty() && m_gdbVersion < 70000 && !m_isMacGdb) {
@@ -1179,6 +1180,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             return;
         }
     }
+#endif
 
 #ifdef Q_OS_LINUX
     if (!m_entryPoint.isEmpty()) {
@@ -1271,6 +1273,12 @@ void GdbEngine::handleStop1(const GdbMi &data)
         reloadModulesInternal(); // This is for display only
     if (m_sourcesListOutdated)
         reloadSourceFilesInternal(); // This needs to be done before fullName() may need it
+
+    // Older gdb versions do not produce "library loaded" messages
+    // so the breakpoint update is not triggered.
+    if (m_gdbVersion < 70000 && !m_isMacGdb && !m_sourcesListUpdating
+        && manager()->breakHandler()->size() > 0)
+        postCommand(_("-break-list"), CB(handleBreakList));
 
     QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
@@ -2247,8 +2255,10 @@ void GdbEngine::reloadModulesInternal()
 {
     m_modulesListOutdated = false;
     postCommand(_("info shared"), NeedsStop, CB(handleModulesList));
+#if 0
     if (m_gdbVersion < 70000 && !m_isMacGdb)
         postCommand(_("set stop-on-solib-events 1"));
+#endif
 }
 
 void GdbEngine::handleModulesList(const GdbResponse &response)
@@ -2317,8 +2327,10 @@ void GdbEngine::reloadSourceFilesInternal()
     m_sourcesListOutdated = false;
     postCommand(_("-file-list-exec-source-files"), NeedsStop, CB(handleQuerySources));
     postCommand(_("-break-list"), CB(handleBreakList));
+#if 0
     if (m_gdbVersion < 70000 && !m_isMacGdb)
         postCommand(_("set stop-on-solib-events 1"));
+#endif
 }
 
 
