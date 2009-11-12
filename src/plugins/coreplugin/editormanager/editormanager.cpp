@@ -385,7 +385,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+V,Alt+I")));
     advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
     connect(m_d->m_openInExternalEditorAction, SIGNAL(triggered()), this, SLOT(openInExternalEditor()));
-    
+
     // Connect to VariableManager for CURRENT_DOCUMENT variable setting
     VariableManager *vm = VariableManager::instance();
     connect(this, SIGNAL(currentEditorChanged(Core::IEditor *)),
@@ -1472,7 +1472,7 @@ void EditorManager::updateActions()
     QString quotedName;
     if (!fName.isEmpty())
         quotedName = '"' + fName + '"';
-    m_d->m_saveAsAction->setText(tr("Save %1 As...").arg(quotedName));
+    m_d->m_saveAsAction->setText(tr("Save %1 &As...").arg(quotedName));
     m_d->m_saveAction->setText(tr("&Save %1").arg(quotedName));
     m_d->m_revertToSavedAction->setText(tr("Revert %1 to Saved").arg(quotedName));
 

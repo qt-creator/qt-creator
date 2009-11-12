@@ -575,7 +575,7 @@ void MainWindow::registerDefaultActions()
     connect(m_openAction, SIGNAL(triggered()), this, SLOT(openFile()));
 
     // Open With Action
-    m_openWithAction = new QAction(tr("&Open File With..."), this);
+    m_openWithAction = new QAction(tr("Open File &With..."), this);
     cmd = am->registerAction(m_openWithAction, Constants::OPEN_WITH, m_globalContext);
     mfile->addAction(cmd, Constants::G_FILE_OPEN);
     connect(m_openWithAction, SIGNAL(triggered()), this, SLOT(openFileWith()));
@@ -583,7 +583,7 @@ void MainWindow::registerDefaultActions()
     // File->Recent Files Menu
     ActionContainer *ac = am->createMenu(Constants::M_FILE_RECENTFILES);
     mfile->addMenu(ac, Constants::G_FILE_OPEN);
-    ac->menu()->setTitle(tr("Recent Files"));
+    ac->menu()->setTitle(tr("Recent &Files"));
 
     // Save Action
     QAction *tmpaction = new QAction(QIcon(Constants::ICON_SAVEFILE), tr("&Save"), this);

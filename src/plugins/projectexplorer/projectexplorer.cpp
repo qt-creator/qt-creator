@@ -505,7 +505,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // recent projects menu
     Core::ActionContainer *mrecent =
         am->createMenu(Constants::M_RECENTPROJECTS);
-    mrecent->menu()->setTitle(tr("Recent Projects"));
+    mrecent->menu()->setTitle(tr("Recent P&rojects"));
     mfile->addMenu(mrecent, Core::Constants::G_FILE_OPEN);
     connect(mfile->menu(), SIGNAL(aboutToShow()),
         this, SLOT(updateRecentProjectMenu()));
