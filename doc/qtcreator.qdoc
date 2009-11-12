@@ -397,7 +397,7 @@
 
     Qt Creator automatically detects if \c qmake is in the environment variable
     \c PATH. This \l{glossary-system-qt}{version of Qt} is referred to as
-    \bold{Auto-detected Qt}. If you intend to use only one version of Qt - it is
+    \bold{Qt in PATH}. If you intend to use only one version of Qt - it is
     already in your path and correctly set up for command line usage - you do
     not need to manually configure your Qt version.
 
@@ -413,7 +413,8 @@
             \i \image qtcreator-qt4-qtversions.png
                On Linux and Mac OS X, simply set the \gui{Path to QMake}
                to the \c qmake binary of the Qt installation. If a Qt is
-               found in the \c PATH environment variable, it will show up.
+               found in the \c PATH environment variable, it will show up
+	       automatically as \gui{Qt in PATH}.
                
                On both platforms, the platforms Gnu Compiler Collection (GCC)
                is used to compile Qt. On Mac OS, the GCC compiler is part of XCode.
@@ -445,13 +446,20 @@
         \row
             \i \image qtcreator-qt4-qtversions-win-symbian.png
                If you are using Qt for Symbian and your S60 SDK is registered
-               with \c devices.exe, Qt Creator will detect the Qt version automatically.
-               A known issue is that you cannot just point Creator to \c qmake.exe of Qt for Symbian.
-               You can add the path to the Metrowerks Compiler (\gui {MWC Directory})
-               if you want to use to build for the emulator. This requires Carbide 2.0
-               to be installed. the MWC directory should then point to the directory 
-               of your Carbide installation. However, this not needed for compiling for
-               the device.
+               with \c devices.exe, Qt Creator will detect the Qt version
+	       automatically. These are shown in the \bold{Auto-detected}
+	       section in the options dialog.
+	       You can also manually add Qt for Symbian versions. In this case
+	       you need to tell Qt Creator the path to the S60 SDK
+	       it is supposed to use with these Qt installations.
+               Add the path to your Carbide C++ install, version 2.0
+	       or later, if you want to build for the emulator
+	       (\c WINSCW tool chain).
+	       If you want to use \c GCCE to build for your device,
+	       you might need to add the path to the
+	       \c{CSL Arm Toolchain} directory (\gui{CSL/GCCE Directory}),
+	       if the compiler is not found in the \c PATH environment
+	       variable.
         \endtable
     
     \note By default projects are compiled with the
@@ -1600,19 +1608,17 @@
     For each detected S60 SDK with Qt, a special entry is made in the Qt Version Management settings
     \gui{Tools -> Options... -> Qt4 -> Qt Versions}.
 
-    \e{Note that you must use one of these special Qt version entries for building projects
-    for the emulator or devices. You can not just point Qt Creator to the qmake executable
-    like you would do for a desktop version of Qt.}
+    \e{Note that if you manually add a Qt version for Symbian, you must
+    also manually specify the S60 SDK to use for this version.}
 
     \image qtcreator-qt4-qtversions-win-symbian.png
 
     If you want to run your applications in the Symbian Emulator, you need to point Qt Creator
-    to the Metrowerks Compiler that you want to use, by setting the \gui{MWC Directory}
+    to the Metrowerks Compiler that you want to use, by setting the \gui{Carbide Directory}
     of the Qt version to the corresponding Carbide.c++ installation directory.
 
     You can check what S60 SDKs and corresponding Qt versions are found in the
     \gui{Tools -> Options... -> Qt4 -> S60 SDKs} preference page.
-    At the moment it is not possible to override the autodetected settings.
 
     \image qtcreator-qt4-s60sdks.png
 
@@ -1667,12 +1673,11 @@
     When something goes wrong check the following things:
     \list
         \o Is the device run configuration selected as the active run configuration?
-        \o Did you build your application with one of the special Qt versions created for the
-            S60 SDKs?
         \o Is the device connected via USB in \e{PC Suite} mode?
         \o Is App TRK running on the device, using the USB connection, and does it have status
             \e{connected}?
         \o Is your device detected and selected in the run configuration details?
+	\o Are the settings for the Qt version you use to build your project correct? Check the path to the S60 SDK, and if you need to specify the path to your compiler tool chain.
     \endlist
 
     If neither of this helps to solve your problem, search the qt-creator@trolltech.com
@@ -1887,11 +1892,12 @@
         \row
             \o
                 \raw HTML
-                Auto-detected&nbsp;Qt
+                Qt&nbsp;in&nbsp;PATH
                 \endraw
                 \target glossary-system-qt
-            \o  The version of Qt installed on your system. This is the Qt
-                version for the \c qmake command found in your \c PATH.
+            \o  This is the Qt
+                version for the \c qmake command found in your \c PATH
+		environment variable.
 
         \row
             \o
