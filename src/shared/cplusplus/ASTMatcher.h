@@ -36,34 +36,11 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT ASTMatcher
 {
 public:
-    ASTMatcher(Control *control);
+    ASTMatcher(TranslationUnit *translationUnit, TranslationUnit *patternTranslationUnit);
     virtual ~ASTMatcher();
 
-    Control *control() const;
     TranslationUnit *translationUnit() const;
-
-    unsigned tokenCount() const;
-    const Token &tokenAt(unsigned index) const;
-    int tokenKind(unsigned index) const;
-    const char *spell(unsigned index) const;
-    Identifier *identifier(unsigned index) const;
-    Literal *literal(unsigned index) const;
-    NumericLiteral *numericLiteral(unsigned index) const;
-    StringLiteral *stringLiteral(unsigned index) const;
-
-    void getPosition(unsigned offset,
-                     unsigned *line,
-                     unsigned *column = 0,
-                     StringLiteral **fileName = 0) const;
-
-    void getTokenPosition(unsigned index,
-                          unsigned *line,
-                          unsigned *column = 0,
-                          StringLiteral **fileName = 0) const;
-
-    void getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const;
-
-    void getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const;
+    TranslationUnit *patternTranslationUnit() const;
 
     bool matchToken(unsigned index, unsigned otherIndex) const;
 
@@ -191,7 +168,8 @@ public:
     virtual bool match(ObjCSynchronizedStatementAST *node, ObjCSynchronizedStatementAST *pattern);
 
 private:
-    Control *_control;
+    TranslationUnit *_translationUnit;
+    TranslationUnit *_patternTranslationUnit;
 };
 
 } // end of namespace CPlusPlus

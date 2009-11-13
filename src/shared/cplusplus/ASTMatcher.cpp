@@ -34,65 +34,23 @@
 
 using namespace CPlusPlus;
 
-ASTMatcher::ASTMatcher(Control *control)
-    : _control(control)
+ASTMatcher::ASTMatcher(TranslationUnit *translationUnit, TranslationUnit *patternTranslationUnit)
+    : _translationUnit(translationUnit), _patternTranslationUnit(patternTranslationUnit)
 { }
 
 ASTMatcher::~ASTMatcher()
 { }
 
-Control *ASTMatcher::control() const
-{ return _control; }
-
 TranslationUnit *ASTMatcher::translationUnit() const
-{ return _control->translationUnit(); }
+{ return _translationUnit; }
 
-unsigned ASTMatcher::tokenCount() const
-{ return translationUnit()->tokenCount(); }
+TranslationUnit *ASTMatcher::patternTranslationUnit() const
+{ return _patternTranslationUnit; }
 
-const Token &ASTMatcher::tokenAt(unsigned index) const
-{ return translationUnit()->tokenAt(index); }
-
-int ASTMatcher::tokenKind(unsigned index) const
-{ return translationUnit()->tokenKind(index); }
-
-const char *ASTMatcher::spell(unsigned index) const
-{ return translationUnit()->spell(index); }
-
-Identifier *ASTMatcher::identifier(unsigned index) const
-{ return translationUnit()->identifier(index); }
-
-Literal *ASTMatcher::literal(unsigned index) const
-{ return translationUnit()->literal(index); }
-
-NumericLiteral *ASTMatcher::numericLiteral(unsigned index) const
-{ return translationUnit()->numericLiteral(index); }
-
-StringLiteral *ASTMatcher::stringLiteral(unsigned index) const
-{ return translationUnit()->stringLiteral(index); }
-
-void ASTMatcher::getPosition(unsigned offset,
-                             unsigned *line,
-                             unsigned *column,
-                             StringLiteral **fileName) const
-{ translationUnit()->getPosition(offset, line, column, fileName); }
-
-void ASTMatcher::getTokenPosition(unsigned index,
-                                  unsigned *line,
-                                  unsigned *column,
-                                  StringLiteral **fileName) const
-{ translationUnit()->getTokenPosition(index, line, column, fileName); }
-
-void ASTMatcher::getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const
-{ getPosition(tokenAt(index).begin(), line, column); }
-
-void ASTMatcher::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const
-{ getPosition(tokenAt(index).end(), line, column); }
-
-bool ASTMatcher::matchToken(unsigned index, unsigned otherIndex) const
+bool ASTMatcher::matchToken(unsigned tokenIndex, unsigned patternTokenIndex) const
 {
-    const Token &token = tokenAt(index);
-    const Token &otherToken = tokenAt(otherIndex);
+    const Token &token = _translationUnit->tokenAt(tokenIndex);
+    const Token &otherToken = _patternTranslationUnit->tokenAt(patternTokenIndex);
     if (token.f.kind != otherToken.f.kind)
         return false;
     else if (token.is(T_IDENTIFIER)) {
