@@ -379,8 +379,8 @@ QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
         }
     }
 
-    for (int i = m_includePaths.size() - 1; i != -1; --i) {
-        QString path = m_includePaths.at(i);
+    foreach (const QString &includePath, m_includePaths) {
+        QString path = includePath;
         path += QLatin1Char('/');
         path += fileName;
         path = QDir::cleanPath(path);
