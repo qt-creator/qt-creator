@@ -78,6 +78,8 @@ public:
     unsigned hashCode() const;
     static unsigned hashCode(const char *chars, unsigned size);
 
+    bool isEqualTo(const Literal *other) const;
+
 private:
     char *_chars;
     unsigned _size;
@@ -131,8 +133,6 @@ class CPLUSPLUS_EXPORT Identifier: public Literal
 public:
     Identifier(const char *chars, unsigned size);
     virtual ~Identifier();
-
-    bool isEqualTo(const Identifier *other) const;
 };
 
 } // end of namespace CPlusPlus

@@ -57,6 +57,9 @@ bool ASTMatcher::matchToken(unsigned tokenIndex, unsigned patternTokenIndex) con
     else if (token.is(T_IDENTIFIER)) {
         if (! token.identifier->isEqualTo(otherToken.identifier))
             return false;
+    } else if (token.isLiteral()) {
+        if (! token.literal->isEqualTo(otherToken.literal))
+            return false;
     }
     return true;
 }

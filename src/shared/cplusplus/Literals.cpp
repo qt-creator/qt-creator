@@ -72,6 +72,19 @@ Literal::Literal(const char *chars, unsigned size)
 Literal::~Literal()
 { delete[] _chars; }
 
+bool Literal::isEqualTo(const Literal *other) const
+{
+    if (! other)
+        return false;
+    else if (this == other)
+        return true;
+    else if (hashCode() != other->hashCode())
+        return false;
+    else if (size() != other->size())
+        return false;
+    return ! strcmp(chars(), other->chars());
+}
+
 Literal::iterator Literal::begin() const
 { return _chars; }
 
@@ -213,18 +226,4 @@ Identifier::Identifier(const char *chars, unsigned size)
 
 Identifier::~Identifier()
 { }
-
-bool Identifier::isEqualTo(const Identifier *other) const
-{
-    if (! other)
-        return false;
-    else if (this == other)
-        return true;
-    else if (hashCode() != other->hashCode())
-        return false;
-    else if (size() != other->size())
-        return false;
-    return ! strcmp(chars(), other->chars());
-}
-
 
