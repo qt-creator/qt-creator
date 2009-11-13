@@ -63,7 +63,9 @@ public:
 
     void getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const;
 
-    void getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const;    virtual bool match(AccessDeclarationAST *node, AccessDeclarationAST *pattern);
+    void getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const;
+
+    virtual bool match(AccessDeclarationAST *node, AccessDeclarationAST *pattern);
     virtual bool match(ArrayAccessAST *node, ArrayAccessAST *pattern);
     virtual bool match(ArrayDeclaratorAST *node, ArrayDeclaratorAST *pattern);
     virtual bool match(ArrayInitializerAST *node, ArrayInitializerAST *pattern);
