@@ -463,59 +463,6 @@ void FunctionArgumentWidget::updateHintText()
     m_popupFrame->move(pos);
 }
 
-CppQuickFixCollector::CppQuickFixCollector(CppModelManager *modelManager)
-    : _modelManager(modelManager), _editor(0)
-{ }
-
-CppQuickFixCollector::~CppQuickFixCollector()
-{ }
-
-bool CppQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editor)
-{ return _modelManager->isCppEditor(editor); }
-
-bool CppQuickFixCollector::triggersCompletion(TextEditor::ITextEditable *)
-{ return false; }
-
-int CppQuickFixCollector::startCompletion(TextEditor::ITextEditable *editor)
-{
-    _editor = editor;
-
-    if (CppEditorSupport *extra = _modelManager->editorSupport(editor)) {
-        const QList<QuickFixOperationPtr> quickFixes = extra->quickFixes();
-        if (! quickFixes.isEmpty()) {
-            int i = 0;
-            foreach (QuickFixOperationPtr op, quickFixes) {
-                TextEditor::CompletionItem item(this);
-                item.text = op->description();
-                item.data = QVariant::fromValue(i);
-                _completions.append(item);
-                ++i;
-            }
-            return editor->position();
-        }
-    }
-    return -1;
-}
-
-void CppQuickFixCollector::completions(QList<TextEditor::CompletionItem> *completions)
-{
-    completions->append(_completions);
-}
-
-void CppQuickFixCollector::complete(const TextEditor::CompletionItem &item)
-{
-    CppEditorSupport *extra = _modelManager->editorSupport(_editor);
-    const QList<QuickFixOperationPtr> quickFixes = extra->quickFixes();
-    QuickFixOperationPtr quickFix = quickFixes.at(item.data.toInt());
-    TextEditor::BaseTextEditor *ed = qobject_cast<TextEditor::BaseTextEditor *>(_editor->widget());
-    quickFix->apply(ed->textCursor());
-}
-
-void CppQuickFixCollector::cleanup()
-{
-    _completions.clear();
-}
-
 CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
     : ICompletionCollector(manager),
       m_manager(manager),

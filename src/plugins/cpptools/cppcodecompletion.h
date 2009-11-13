@@ -55,27 +55,6 @@ namespace Internal {
 class CppModelManager;
 class FunctionArgumentWidget;
 
-class CppQuickFixCollector: public TextEditor::IQuickFixCollector
-{
-    Q_OBJECT
-
-public:
-    CppQuickFixCollector(CppModelManager *modelManager);
-    virtual ~CppQuickFixCollector();
-
-    virtual bool supportsEditor(TextEditor::ITextEditable *editor);
-    virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
-    virtual int startCompletion(TextEditor::ITextEditable *editor);
-    virtual void completions(QList<TextEditor::CompletionItem> *completions);
-    virtual void complete(const TextEditor::CompletionItem &item);
-    virtual void cleanup();
-
-private:
-    CppModelManager *_modelManager;
-    TextEditor::ITextEditable *_editor;
-    QList<TextEditor::CompletionItem> _completions;
-};
-
 class CppCodeCompletion : public TextEditor::ICompletionCollector
 {
     Q_OBJECT

@@ -31,7 +31,6 @@
 #include "cppeditorconstants.h"
 #include "cppplugin.h"
 #include "cpphighlighter.h"
-
 #include <cpptools/cpptoolsplugin.h>
 
 #include <AST.h>

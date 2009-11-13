@@ -14,13 +14,15 @@ HEADERS += cppplugin.h \
     cppeditorconstants.h \
     cppeditorenums.h \
     cppeditor_global.h \
-    cppclasswizard.h
+    cppclasswizard.h \
+    cppquickfix.h
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
     cpphighlighter.cpp \
     cpphoverhandler.cpp \
     cppfilewizard.cpp \
-    cppclasswizard.cpp
+    cppclasswizard.cpp \
+    cppquickfix.cpp
 RESOURCES += cppeditor.qrc
 
 OTHER_FILES += CppEditor.pluginspec CppEditor.mimetypes.xml

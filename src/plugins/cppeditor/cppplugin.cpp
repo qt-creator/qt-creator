@@ -34,6 +34,7 @@
 #include "cppeditorenums.h"
 #include "cppfilewizard.h"
 #include "cpphoverhandler.h"
+#include "cppquickfix.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -183,6 +184,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     addAutoReleasedObject(new CppEditorFactory(this));
     addAutoReleasedObject(new CppHoverHandler);
+    addAutoReleasedObject(new CPPQuickFixCollector);
 
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
 

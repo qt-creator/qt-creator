@@ -108,8 +108,6 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     m_completion = new CppCodeCompletion(m_modelManager);
     addAutoReleasedObject(m_completion);
 
-    addAutoReleasedObject(new CppQuickFixCollector(m_modelManager));
-
     CppLocatorFilter *locatorFilter = new CppLocatorFilter(m_modelManager,
                                                                  core->editorManager());
     addAutoReleasedObject(locatorFilter);
