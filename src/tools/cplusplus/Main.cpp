@@ -387,6 +387,19 @@ public:
                 << endl
                 << "void ASTMatcher::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const" << endl
                 << "{ getPosition(tokenAt(index).end(), line, column); }" << endl
+                << endl
+                << "bool ASTMatcher::matchToken(unsigned index, unsigned otherIndex) const" << endl
+                << "{" << endl
+                << "    const Token &token = tokenAt(index);" << endl
+                << "    const Token &otherToken = tokenAt(otherIndex);" << endl
+                << "    if (token.f.kind != otherToken.f.kind)" << endl
+                << "        return false;" << endl
+                << "    else if (token.is(T_IDENTIFIER)) {" << endl
+                << "        if (token.identifier != otherToken.identifier)" << endl
+                << "            return false;" << endl
+                << "    }" << endl
+                << "    return true;" << endl
+                << "}" << endl
                 << endl;
 
         accept(ast);
@@ -425,7 +438,7 @@ protected:
             if (member->type().isUnsigned() && memberName.endsWith("_token")) {
                 // nothing to do. The member is a token.
 
-                *out << "    if (node->" << memberName << " != pattern->" << memberName << ")" << endl
+                *out << "    if (! matchToken(node->" << memberName << ", pattern->" << memberName << "))" << endl
                         << "        return false;" << endl;
 
             } else if (PointerType *ptrTy = member->type()->asPointerType()) {
