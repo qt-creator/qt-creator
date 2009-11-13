@@ -1622,14 +1622,12 @@
 
     \image qtcreator-qt4-s60sdks.png
 
-    \section2 Setting up Your Project
+    \section2 Building your Project
 
     After installing all the prerequisites and checking the setup in Qt Creator as described
     above, you need to make some settings for your project.
     \e{Note that the only supported build system for Qt for Symbian applications in Qt Creator
     is qmake.}
-
-    \section3 Building your Project
 
     Before you can build your project for the Symbian Platform you need to create build
     configurations for it.
@@ -1650,11 +1648,26 @@
 
     \image qtcreator-symbian-change-buildconfiguration.png
 
+    \section2 Running your Project
+
+    \section3 Running your Project in the Emulator
+
+    Similar to the build configuration setup for your project you need to create a run
+    configuration for running your project in the Symbian emulator: Switch to \gui{Projects mode}
+    and in \gui{Run Settings} you will find the \gui{Add -> YourApplication in Symbian Emulator}
+    button.
+
+    \image qtcreator-symbian-add-run-in-emulator.png
+
+    To start your project in the emulator select this run configuration as the active configuration
+    at the top of \gui{Projects mode} and press the run button.
+
+    \image qtcreator-symbian-change-run-in-emulator.png
+
     \section3 Running your Project on the Device
 
-    Similar to the build configuration setup for your project you need to create a run configuration
-    for running your project on a Symbian device. Add a new run configuration in \gui{Projects mode}
-    via \gui{Run Settings}, \gui{Add -> YourApplication on Symbian Device} button.
+    To run your project on a real Symbian device, just add another run configuration in
+    \gui{Projects mode} via \gui{Run Settings}, \gui{Add -> YourApplication on Symbian Device} button.
 
     \image qtcreator-symbian-add-runconfiguration.png
 
@@ -1670,14 +1683,24 @@
 
     \image qtcreator-symbian-change-runconfiguration.png
 
+    \section2 Troubleshooting
+
     When something goes wrong check the following things:
     \list
-        \o Is the device run configuration selected as the active run configuration?
+        \o Did you build your application with one of the special Qt versions created for the
+            S60 SDKs?
+        \o Are the settings for the Qt version you use to build your project correct? Check the
+            path to the S60 SDK, and if you need to specify the path to your compiler tool chain.
+        \o Is the emulator/device run configuration selected as the active run configuration?
+        \o Did you build using the right toolchain, i. e. WINSCW for running in the Emulator,
+            GCCE or RVCT for running on the device?
+        \o If the emulator process could not be started, try closing Creator and starting the
+            application directly from your file manager. Having done this, Creator should be
+            able to run your projects in the Emulator.
         \o Is the device connected via USB in \e{PC Suite} mode?
         \o Is App TRK running on the device, using the USB connection, and does it have status
             \e{connected}?
         \o Is your device detected and selected in the run configuration details?
-	\o Are the settings for the Qt version you use to build your project correct? Check the path to the S60 SDK, and if you need to specify the path to your compiler tool chain.
     \endlist
 
     If neither of this helps to solve your problem, search the qt-creator@trolltech.com
