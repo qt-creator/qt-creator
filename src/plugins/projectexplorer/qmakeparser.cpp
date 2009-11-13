@@ -44,6 +44,7 @@ QString QMakeParser::name() const
 
 void QMakeParser::stdOutput(const QString & line)
 {
+    Q_UNUSED(line)
 }
 
 void QMakeParser::stdError(const QString & line)
