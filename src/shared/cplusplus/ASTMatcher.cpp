@@ -89,8 +89,6 @@ void ASTMatcher::getTokenStartPosition(unsigned index, unsigned *line, unsigned 
 void ASTMatcher::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const
 { getPosition(tokenAt(index).end(), line, column); }
 
-
-
 bool ASTMatcher::match(SimpleSpecifierAST *node, SimpleSpecifierAST *pattern)
 {
     if (node->specifier_token != pattern->specifier_token)

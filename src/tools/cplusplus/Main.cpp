@@ -325,12 +325,69 @@ public:
         QTextStream output(&file);
         out = &output;
 
-        *out << copyrightHeader <<
-            "\n"
-            "#include \"AST.h\"\n"
-            "#include \"ASTMatcher.h\"\n"
-            "\n"
-            "using namespace CPlusPlus;\n" << endl;
+        *out << copyrightHeader << endl
+                << "#include \"AST.h\"" << endl
+                << "#include \"ASTMatcher.h\"" << endl
+                << "#include \"Control.h\"" << endl
+                << "#include \"TranslationUnit.h\"" << endl
+                << endl
+                << "using namespace CPlusPlus;" << endl
+                << endl
+                << "ASTMatcher::ASTMatcher(Control *control)" << endl
+                << "    : _control(control)" << endl
+                << "{ }" << endl
+                << endl
+                << "ASTMatcher::~ASTMatcher()" << endl
+                << "{ }" << endl
+                << endl
+                << "Control *ASTMatcher::control() const" << endl
+                << "{ return _control; }" << endl
+                << endl
+                << "TranslationUnit *ASTMatcher::translationUnit() const" << endl
+                << "{ return _control->translationUnit(); }" << endl
+                << endl
+                << "unsigned ASTMatcher::tokenCount() const" << endl
+                << "{ return translationUnit()->tokenCount(); }" << endl
+                << endl
+                << "const Token &ASTMatcher::tokenAt(unsigned index) const" << endl
+                << "{ return translationUnit()->tokenAt(index); }" << endl
+                << endl
+                << "int ASTMatcher::tokenKind(unsigned index) const" << endl
+                << "{ return translationUnit()->tokenKind(index); }" << endl
+                << endl
+                << "const char *ASTMatcher::spell(unsigned index) const" << endl
+                << "{ return translationUnit()->spell(index); }" << endl
+                << endl
+                << "Identifier *ASTMatcher::identifier(unsigned index) const" << endl
+                << "{ return translationUnit()->identifier(index); }" << endl
+                << endl
+                << "Literal *ASTMatcher::literal(unsigned index) const" << endl
+                << "{ return translationUnit()->literal(index); }" << endl
+                << endl
+                << "NumericLiteral *ASTMatcher::numericLiteral(unsigned index) const" << endl
+                << "{ return translationUnit()->numericLiteral(index); }" << endl
+                << endl
+                << "StringLiteral *ASTMatcher::stringLiteral(unsigned index) const" << endl
+                << "{ return translationUnit()->stringLiteral(index); }" << endl
+                << endl
+                << "void ASTMatcher::getPosition(unsigned offset," << endl
+                << "                             unsigned *line," << endl
+                << "                             unsigned *column," << endl
+                << "                             StringLiteral **fileName) const" << endl
+                << "{ translationUnit()->getPosition(offset, line, column, fileName); }" << endl
+                << endl
+                << "void ASTMatcher::getTokenPosition(unsigned index," << endl
+                << "                                  unsigned *line," << endl
+                << "                                  unsigned *column," << endl
+                << "                                  StringLiteral **fileName) const" << endl
+                << "{ translationUnit()->getTokenPosition(index, line, column, fileName); }" << endl
+                << endl
+                << "void ASTMatcher::getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const" << endl
+                << "{ getPosition(tokenAt(index).begin(), line, column); }" << endl
+                << endl
+                << "void ASTMatcher::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const" << endl
+                << "{ getPosition(tokenAt(index).end(), line, column); }" << endl
+                << endl;
 
         accept(ast);
     }
