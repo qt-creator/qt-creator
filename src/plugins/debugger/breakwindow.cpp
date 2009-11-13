@@ -280,7 +280,7 @@ void BreakWindow::deleteBreakpoints(QList<int> list)
     const int firstRow = list.front();
     qSort(list.begin(), list.end());
     for (int i = list.size(); --i >= 0; )
-        emit breakpointDeleted(i);
+        emit breakpointDeleted(list.at(i));
 
     const int row = qMax(firstRow, model()->rowCount() - list.size() - 1);
     if (row >= 0)
