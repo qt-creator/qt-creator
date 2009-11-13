@@ -983,8 +983,8 @@ unsigned MemInitializerAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
-    else if (expression)
-        return expression->lastToken();
+    else if (expression_list)
+        return expression_list->lastToken();
     else if (lparen_token)
         return lparen_token + 1;
     return name->lastToken();

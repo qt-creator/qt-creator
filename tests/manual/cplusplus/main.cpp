@@ -38,6 +38,7 @@
 #include <Symbols.h>
 #include <Names.h>
 #include <CoreTypes.h>
+#include <CppDocument.h>
 
 #include <QFile>
 #include <QList>
@@ -50,54 +51,62 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <sstream>
 
 using namespace CPlusPlus;
+
+class ForEachBinaryExpression: protected ASTVisitor
+{
+    Document::Ptr doc;
+    Document::Ptr pattern;
+
+public:
+    ForEachBinaryExpression(Document::Ptr doc, Document::Ptr pattern)
+        : ASTVisitor(doc->control()), doc(doc), pattern(pattern) {}
+
+    void operator()() { accept(doc->translationUnit()->ast()); }
+
+protected:
+    using ASTVisitor::visit;
+
+    virtual bool visit(BinaryExpressionAST *ast)
+    {
+        ASTMatcher matcher(doc->translationUnit(), pattern->translationUnit());
+
+        if (ast->match(ast, pattern->translationUnit()->ast(), &matcher)) {
+            translationUnit()->warning(ast->binary_op_token, "binary expression");
+        }
+
+        return true;
+    }
+};
 
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    QStringList args = app.arguments();
-    const QString appName = args.first();
-    args.removeFirst();
+    QStringList files = app.arguments();
+    files.removeFirst();
 
-    foreach (const QString &arg, args) {
-        if (arg == QLatin1String("--help")) {
-            const QFileInfo appInfo(appName);
-            const QByteArray appFileName = QFile::encodeName(appInfo.fileName());
+    Document::Ptr pattern = Document::create("<pattern>");
+    pattern->setSource("__y < __x");
+    pattern->parse(Document::ParseExpression);
 
-            printf("Usage: %s [options]\n"
-                   "  --help                    Display this information\n",
-                   appFileName.constData());
+    foreach (const QString &fileName, files) {
+        QFile file(fileName);
+        if (! file.open(QFile::ReadOnly))
+            continue;
 
-            return EXIT_SUCCESS;
-        }
-    }
+        const QByteArray source = file.readAll();
+        file.close();
 
-    QFile in;
-    if (! in.open(stdin, QFile::ReadOnly))
-        return EXIT_FAILURE;
+        Document::Ptr doc = Document::create(fileName);
+        doc->control()->setDiagnosticClient(0);
+        doc->setSource(source);
+        doc->parse();
 
-    const QByteArray source = in.readAll();
+        ForEachBinaryExpression forEachBinaryExpression(doc, pattern);
 
-    Control control;
-    StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
-    TranslationUnit unit(&control, fileId);
-    unit.setObjCEnabled(true);
-    unit.setSource(source.constData(), source.size());
-    unit.parse();
-    if (! unit.ast())
-        return EXIT_FAILURE;
-
-    TranslationUnitAST *ast = unit.ast()->asTranslationUnit();
-    Q_ASSERT(ast != 0);
-
-    Namespace *globalNamespace = control.newNamespace(0, 0);
-    Semantic sem(&control);
-    for (DeclarationListAST *it = ast->declaration_list; it; it = it->next) {
-        DeclarationAST *declaration = it->value;
-        sem.check(declaration, globalNamespace->members());
+        forEachBinaryExpression();
     }
 
     return EXIT_SUCCESS;

@@ -221,7 +221,7 @@ bool FindUsages::visit(MemInitializerAST *ast)
             reportResult(simple->identifier_token, candidates);
         }
     }
-    accept(ast->expression);
+    accept(ast->expression_list);
     return false;
 }
 

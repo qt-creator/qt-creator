@@ -1187,7 +1187,7 @@ class CPLUSPLUS_EXPORT MemInitializerAST: public AST
 public:
     NameAST *name;
     unsigned lparen_token;
-    ExpressionAST *expression;
+    ExpressionListAST *expression_list;
     unsigned rparen_token;
 
 public:

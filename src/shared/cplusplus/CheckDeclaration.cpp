@@ -356,7 +356,9 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
 bool CheckDeclaration::visit(MemInitializerAST *ast)
 {
     (void) semantic()->check(ast->name, _scope);
-    FullySpecifiedType ty = semantic()->check(ast->expression, _scope);
+    for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
+        FullySpecifiedType ty = semantic()->check(it->value, _scope);
+    }
     return false;
 }
 

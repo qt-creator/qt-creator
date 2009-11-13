@@ -31,6 +31,7 @@
 #include "ASTMatcher.h"
 #include "Control.h"
 #include "TranslationUnit.h"
+#include "Literals.h"
 
 using namespace CPlusPlus;
 
@@ -54,7 +55,7 @@ bool ASTMatcher::matchToken(unsigned tokenIndex, unsigned patternTokenIndex) con
     if (token.f.kind != otherToken.f.kind)
         return false;
     else if (token.is(T_IDENTIFIER)) {
-        if (token.identifier != otherToken.identifier)
+        if (! token.identifier->isEqualTo(otherToken.identifier))
             return false;
     }
     return true;
@@ -636,7 +637,7 @@ bool ASTMatcher::match(MemInitializerAST *node, MemInitializerAST *pattern)
         return false;
     if (! matchToken(node->lparen_token, pattern->lparen_token))
         return false;
-    if (! AST::match(node->expression, pattern->expression, this))
+    if (! AST::match(node->expression_list, pattern->expression_list, this))
         return false;
     if (! matchToken(node->rparen_token, pattern->rparen_token))
         return false;

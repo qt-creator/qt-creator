@@ -420,7 +420,7 @@ void MemInitializerAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(name, visitor);
-        accept(expression, visitor);
+        accept(expression_list, visitor);
     }
     visitor->endVisit(this);
 }

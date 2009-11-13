@@ -6,7 +6,7 @@
 #define   restrict
 #define __restrict
 #define __restrict__
-#define __weak
+// #define __weak
 #define __builtin_va_arg(a,b) ((b)0)
 #define __stdcall
 #define __fastcall

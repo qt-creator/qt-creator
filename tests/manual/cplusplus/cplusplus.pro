@@ -1,8 +1,8 @@
-QT = core
+QT = core gui
 macx:CONFIG -= app_bundle
 TARGET = cplusplus0
 
-include(../../../src/shared/cplusplus/cplusplus.pri)
+include(../../../src/libs/cplusplus/cplusplus-lib.pri)
 
 # Input
 SOURCES += main.cpp

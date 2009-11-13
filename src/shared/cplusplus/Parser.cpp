@@ -1849,7 +1849,7 @@ bool Parser::parseMemInitializer(MemInitializerListAST *&node)
         MemInitializerAST *ast = new (_pool) MemInitializerAST;
         ast->name = name;
         ast->lparen_token = consumeToken();
-        parseExpression(ast->expression);
+        parseExpressionList(ast->expression_list);
         if (LA() == T_RPAREN)
             ast->rparen_token = consumeToken();
 
@@ -1896,7 +1896,7 @@ bool Parser::parseExpressionList(ExpressionListAST *&node)
         while (LA() == T_COMMA) {
             consumeToken(); // consume T_COMMA
 
-            if (parseExpression(expression)) {
+            if (parseAssignmentExpression(expression)) {
                 *expression_list_ptr = new (_pool) ExpressionListAST;
                 (*expression_list_ptr)->value = expression;
                 expression_list_ptr = &(*expression_list_ptr)->next;

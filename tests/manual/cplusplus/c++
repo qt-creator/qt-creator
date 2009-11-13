@@ -1,3 +1,5 @@
 #!/bin/sh
 me=$(dirname $0)
-${CPP-gcc} -xc++ -E -include $me/conf.c++ $* | $me/cplusplus0
+${CPP-gcc} -U__BLOCKS__ -xc++ -E -include $me/conf.c++ $* > $me/file.i
+$me/cplusplus0 $me/file.i
+
