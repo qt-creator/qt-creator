@@ -7,6 +7,7 @@ bool checkUninitialized = false;
 
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
+#include <QtCore/QSignalMapper>
 #include <QtCore/QWaitCondition>
 
 /*
@@ -190,6 +191,7 @@ private slots:
     void dump_QChar();
     void dump_QHash_int_int();
     void dump_QHash_QString_QString();
+    void dump_QLinkedList_int();
     void dump_QList_char();
     void dump_QList_char_star();
     void dump_QList_int();
@@ -199,6 +201,7 @@ private slots:
     void dump_QList_Int3();
     void dump_QMap_int_int();
     void dump_QMap_QString_QString();
+    void dump_QObject();
     void dump_QPoint();
     void dump_QRect();
     void dump_QSharedPointer();
@@ -208,6 +211,7 @@ private slots:
     void dump_QStack();
     void dump_QString();
     void dump_QStringList();
+    void dump_QTextCodec();
     void dump_QVariant();
     void dump_QVector();
     void dump_QWeakPointer_11();
@@ -229,16 +233,7 @@ public slots:
     void dump_QImageData();
     void dump_QLinkedList();
     void dump_QLocale();
-    void dump_QObject();
-    void dump_QObjectChildList();
-    void dump_QObjectMethodList();
-    void dump_QObjectPropertyList();
-    void dump_QObjectSignal();
-    void dump_QObjectSignalList();
-    void dump_QObjectSlot();
-    void dump_QObjectSlotList();
     void dump_QPixmap();
-    void dump_QTextCodec();
 #endif
 
 private:
@@ -1422,170 +1417,9 @@ void tst_Gdb::dump_QImageData()
     img = QImage(100, 0, QImage::Format_Invalid);
     dump_QImageDataHelper(img);
 }
+#endif // 0
 
-template <typename T>
-void tst_Gdb::dump_QLinkedListHelper(QLinkedList<T> &l)
-{
-    const int size = qMin(l.size(), 1000);
-    const QString &sizeStr = N(size);
-    const QByteArray elemTypeStr = typeToString<T>();
-    QByteArray expected = QByteArray("value='<").append(sizeStr).
-        append(" items>',valuedisabled='true',numchild='").append(sizeStr).
-        append("',childtype='").append(elemTypeStr).append("',childnumchild='").
-        append(typeToNumchild<T>()).append("',children=[");
-    typename QLinkedList<T>::const_iterator iter = l.constBegin();
-    for (int i = 0; i < size; ++i, ++iter) {
-        expected.append("{");
-        const T &curElem = *iter;
-        if (isPointer<T>()) {
-            const QString typeStr = stripPtrType(typeToString<T>());
-            const QByteArray addrStr = valToString(curElem);
-            if (curElem != 0) {
-                expected.append("addr='").append(addrStr).append("',saddr='").
-                        append(addrStr).append("',type='").append(typeStr).
-                        append("',value='").
-                        append(derefValToString(curElem)).append("'");
-            } else {
-                expected.append("addr='").append(ptrToBa(&curElem)).append("',type='").
-                    append(typeStr).append("',value='<null>',numchild='0'");
-            }
-        } else {
-            expected.append("addr='").append(ptrToBa(&curElem)).
-                append("',value='").append(valToString(curElem)).append("'");
-        }
-        expected.append("}");
-        if (i < size - 1)
-            expected.append(",");
-    }
-    if (size < l.size())
-        expected.append(",...");
-    expected.append("]");
-    testDumper(expected, &l, NS"QLinkedList", true, elemTypeStr);
-}
-
-void tst_Gdb::dump_QLinkedList()
-{
-    // Case 1: Simple element type.
-    QLinkedList<int> l;
-
-    // Case 1.1: Empty list.
-    dump_QLinkedListHelper(l);
-
-    // Case 1.2: One element.
-    l.append(2);
-    dump_QLinkedListHelper(l);
-
-    // Case 1.3: Two elements
-    l.append(3);
-    dump_QLinkedListHelper(l);
-
-    // Case 2: Composite element type.
-    QLinkedList<QString> l2;
-
-    // Case 2.1: Empty list.
-    dump_QLinkedListHelper(l2);
-
-    // Case 2.2: One element.
-    l2.append("Teststring 1");
-    dump_QLinkedListHelper(l2);
-
-    // Case 2.3: Two elements.
-    l2.append("Teststring 2");
-    dump_QLinkedListHelper(l2);
-
-    // Case 2.4: > 1000 elements.
-    for (int i = 3; i <= 1002; ++i)
-        l2.append("Test " + N(i));
-
-    // Case 3: Pointer type.
-    QLinkedList<int *> l3;
-    l3.append(new int(5));
-    l3.append(new int(7));
-    l3.append(0);
-    dump_QLinkedListHelper(l3);
-}
-
-    #if 0
-    void tst_Gdb::dump_QLinkedList()
-    {
-        // Case 1: Simple element type.
-        QLinkedList<int> l;
-
-        // Case 1.1: Empty list.
-        testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
-            "childtype='int',childnumchild='0',children=[]",
-            &l, NS"QLinkedList", true, "int");
-
-        // Case 1.2: One element.
-        l.append(2);
-        testDumper("value='<1 items>',valuedisabled='true',numchild='1',"
-            "childtype='int',childnumchild='0',children=[{addr='%',value='2'}]"
-                << ptrToBa(l.constBegin().operator->()),
-            &l, NS"QLinkedList", true, "int");
-
-        // Case 1.3: Two elements
-        l.append(3);
-        QByteArray it0 = ptrToBa(l.constBegin().operator->());
-        QByteArray it1 = ptrToBa(l.constBegin().operator++().operator->());
-        testDumper("value='<2 items>',valuedisabled='true',numchild='2',"
-            "childtype='int',childnumchild='0',children=[{addr='%',value='2'},"
-            "{addr='%',value='3'}]" << it0 << it1,
-            &l, NS"QLinkedList", true, "int");
-
-        // Case 2: Composite element type.
-        QLinkedList<QString> l2;
-        QLinkedList<QString>::const_iterator iter;
-
-        // Case 2.1: Empty list.
-        testDumper("value='<0 items>',valuedisabled='true',numchild='0',"
-            "childtype='"NS"QString',childnumchild='0',children=[]",
-            &l2, NS"QLinkedList", true, NS"QString");
-
-        // Case 2.2: One element.
-        l2.append("Teststring 1");
-        iter = l2.constBegin();
-        qDebug() << *iter;
-        testDumper("value='<1 items>',valuedisabled='true',numchild='1',"
-            "childtype='"NS"QString',childnumchild='0',children=[{addr='%',value='%',}]"
-                << ptrToBa(iter.operator->()) << utfToBase64(*iter),
-            &l2, NS"QLinkedList", true, NS"QString");
-
-        // Case 2.3: Two elements.
-        QByteArray expected = "value='<2 items>',valuedisabled='true',numchild='2',"
-            "childtype='int',childnumchild='0',children=[";
-        iter = l2.constBegin();
-        expected.append("{addr='%',%},"
-            << ptrToBa(iter.operator->()) << utfToBase64(*iter));
-        ++iter;
-        expected.append("{addr='%',%}]"
-            << ptrToBa(iter.operator->()) << utfToBase64(*iter));
-        testDumper(expected,
-            &l, NS"QLinkedList", true, NS"QString");
-
-        // Case 2.4: > 1000 elements.
-        for (int i = 3; i <= 1002; ++i)
-            l2.append("Test " + N(i));
-
-        expected = "value='<1002 items>',valuedisabled='true',"
-            "numchild='1002',childtype='"NS"QString',childnumchild='0',children=['";
-        iter = l2.constBegin();
-        for (int i = 0; i < 1002; ++i, ++iter)
-            expected.append("{addr='%',value='%'},"
-                << ptrToBa(iter.operator->()) << utfToBase64(*iter));
-        expected.append(",...]");
-        testDumper(expected, &l, NS"QLinkedList", true, NS"QString");
-
-
-        // Case 3: Pointer type.
-        QLinkedList<int *> l3;
-        l3.append(new int(5));
-        l3.append(new int(7));
-        l3.append(0);
-        //dump_QLinkedListHelper(l3);
-        testDumper("", &l, NS"QLinkedList", true, NS"QString");
-    }
-    #endif
-
+#if 0
 void tst_Gdb::dump_QLocaleHelper(QLocale &loc)
 {
     QByteArray expected = QByteArray("value='%',type='$T',numchild='8',"
@@ -1684,72 +1518,63 @@ template <typename K, typename V>
                true, getMapType<K,V>(), "", 0, 0, nodeSize, valOff);
 }
 
-void tst_Gdb::dump_QMap()
+#endif
+
+
+void dump_QObject()
 {
-    // Case 1: Simple type -> simple type.
-    QMap<int, int> map1;
+    /* B */ QObject ob;
+    /* D */ ob.setObjectName("An Object");
+    /* E */ QObject::connect(&ob, SIGNAL(destroyed()), qApp, SLOT(quit()));
+    /* F */ QObject::disconnect(&ob, SIGNAL(destroyed()), qApp, SLOT(quit()));
+    /* G */ ob.setObjectName("A renamed Object");
+    /* H */ (void) 0; }
 
-    // Case 1.1: Empty map.
-    dump_QMapHelper(map1);
-
-    // Case 1.2: One element.
-    map1[2] = 3;
-    dump_QMapHelper(map1);
-
-    // Case 1.3: Two elements.
-    map1[3] = 5;
-    dump_QMapHelper(map1);
-
-    // Case 2: Simple type -> composite type.
-    QMap<int, QString> map2;
-
-    // Case 2.1: Empty Map.
-    dump_QMapHelper(map2);
-
-    // Case 2.2: One element.
-    map2[5] = "String 7";
-    dump_QMapHelper(map2);
-
-    // Case 2.3: Two elements.
-    map2[7] = "String 11";
-    dump_QMapHelper(map2);
-
-    // Case 3: Composite type -> simple type.
-    QMap<QString, int> map3;
-
-    // Case 3.1: Empty map.
-    dump_QMapHelper(map3);
-
-    // Case 3.2: One element.
-    map3["String 13"] = 11;
-    dump_QMapHelper(map3);
-
-    // Case 3.3: Two elements.
-    map3["String 17"] = 13;
-    dump_QMapHelper(map3);
-
-    // Case 4: Composite type -> composite type.
-    QMap<QString, QString> map4;
-
-    // Case 4.1: Empty map.
-    dump_QMapHelper(map4);
-
-    // Case 4.2: One element.
-    map4["String 19"] = "String 23";
-    dump_QMapHelper(map4);
-
-    // Case 4.3: Two elements.
-    map4["String 29"] = "String 31";
-    dump_QMapHelper(map4);
-
-    // Case 4.4: Different value, same key (multimap functionality).
-    map4["String 29"] = "String 37";
-    dump_QMapHelper(map4);
+void dump_QObject1()
+{
+    /* A */ QObject parent;
+    /* B */ QObject child(&parent);
+    /* C */ parent.setObjectName("A Parent");
+    /* D */ child.setObjectName("A Child");
+    /* H */ (void) 0;
 }
 
 void tst_Gdb::dump_QObject()
 {
-    QObject parent;
+    prepare("dump_QObject");
+    if (checkUninitialized)
+        run("A","{iname='local.ob',name='ob',"
+            "type='"NS"QObject',value='<not in scope>',"
+            "numchild='0'}");
+    next(3);
+    
+    run("F","{iname='local.ob',name='ob',type='"NS"QObject',valueencoded='7',"
+      "value='41006e0020004f0062006a00650063007400',numchild='4',children=["
+        "{name='parent',type='"NS"QObject *',"
+            "value='0x0',numchild='0'},"
+        "{name='children',type='"NS"QObject::QObjectList',"
+            "value='<0 items>',numchild='0',children=[]},"
+        "{name='properties',value='<1 items>',type='',numchild='1',children=["
+            "{name='objectName',type='"NS"QString',valueencoded='7',"
+                "value='41006e0020004f0062006a00650063007400',numchild='0'}]},"
+        "{name='connections',value='<0 items>',type='',numchild='0',"
+            "children=[]},"
+        "{name='signals',value='<2 items>',type='',numchild='2',"
+            "childnumchild='0',children=["
+            "{name='signal 0',type='',value='destroyed(QObject*)'},"
+            "{name='signal 1',type='',value='destroyed()'}]},"
+        "{name='slots',value='<2 items>',type='',numchild='2',"
+            "childnumchild='0',children=["
+            "{name='slot 0',type='',value='deleteLater()'},"
+            "{name='slot 1',type='',value='_q_reregisterTimers(void*)'}]}]}",
+        "local.ob"
+        ",local.ob.children"
+        ",local.ob.properties"
+        ",local.ob.connections"
+        ",local.ob.signals"
+        ",local.ob.slots"
+    );
+#if 0
     testDumper("value='',valueencoded='2',type='$T',displayedtype='QObject',"
         "numchild='4'",
         &parent, NS"QObject", false);
@@ -1804,8 +1629,10 @@ void tst_Gdb::dump_QObject()
     testDumper("value='QQAgAHIAZQBuAGEAbQBlAGQAIABDAGgAaQBsAGQA',valueencoded='2',"
         "type='$T',displayedtype='QObject',numchild='4'",
         &child, NS"QObject", false);
+#endif
 }
 
+#if 0
 void tst_Gdb::dump_QObjectChildListHelper(QObject &o)
 {
     const QObjectList children = o.children();
@@ -2226,159 +2053,6 @@ void tst_Gdb::dump_QPixmap()
 
 #endif // #if 0
 
-///////////////////////////// std::list<int> //////////////////////////////
-
-void dump_std_list()
-{
-    /* A */ std::list<int> list;
-    /* B */ list.push_back(45);
-    /* C */ list.push_back(46);
-    /* D */ list.push_back(47);
-    /* E */ (void) 0;
-}
-
-void tst_Gdb::dump_std_list()
-{
-    prepare("dump_std_list");
-    if (checkUninitialized)
-        run("A","{iname='local.list',name='list',"
-            "numchild='0'}");
-    next();
-    run("B", "{iname='local.list',name='list',"
-            "type='std::list<int, std::allocator<int> >',"
-            "value='<0 items>',numchild='0',children=[]}",
-            "local.list");
-    next();
-    run("C", "{iname='local.list',name='list',"
-            "type='std::list<int, std::allocator<int> >',"
-            "value='<1 items>',numchild='1',"
-            "childtype='int',childnumchild='0',children=[{value='45'}]}",
-            "local.list");
-    next();
-    run("D", "{iname='local.list',name='list',"
-            "type='std::list<int, std::allocator<int> >',"
-            "value='<2 items>',numchild='2',"
-            "childtype='int',childnumchild='0',children=["
-                "{value='45'},{value='46'}]}",
-            "local.list");
-    next();
-    run("E", "{iname='local.list',name='list',"
-            "type='std::list<int, std::allocator<int> >',"
-            "value='<3 items>',numchild='3',"
-            "childtype='int',childnumchild='0',children=["
-                "{value='45'},{value='46'},{value='47'}]}",
-            "local.list");
-}
-
-
-///////////////////////////// std::string //////////////////////////////////
-
-void dump_std_string()
-{
-    /* A */ std::string str;
-    /* B */ str = "Hallo";
-    /* C */ (void) 0;
-}
-
-void tst_Gdb::dump_std_string()
-{
-    prepare("dump_std_string");
-    if (checkUninitialized)
-        run("A","{iname='local.str',name='str',"
-            "numchild='0'}");
-    next();
-    run("B","{iname='local.str',name='str',type='std::string',"
-            "valueencoded='6',value='',numchild='0'}");
-    next();
-    run("C","{iname='local.str',name='str',type='std::string',"
-            "valueencoded='6',value='48616c6c6f',numchild='0'}");
-}
-
-
-///////////////////////////// std::wstring //////////////////////////////////
-
-void dump_std_wstring()
-{
-    /* A */ std::wstring str;
-    /* B */ str = L"Hallo";
-    /* C */ (void) 0;
-}
-
-void tst_Gdb::dump_std_wstring()
-{
-    prepare("dump_std_wstring");
-    if (checkUninitialized)
-        run("A","{iname='local.str',name='str',"
-            "numchild='0'}");
-    next();
-    run("B","{iname='local.str',name='str',type='std::string',valueencoded='6',"
-            "value='',numchild='0'}");
-    next();
-    if (sizeof(wchar_t) == 2)
-        run("C","{iname='local.str',name='str',type='std::string',valueencoded='6',"
-            "value='00480061006c006c006f',numchild='0'}");
-    else
-        run("C","{iname='local.str',name='str',type='std::string',valueencoded='6',"
-            "value='00000048000000610000006c0000006c0000006f',numchild='0'}");
-}
-
-
-///////////////////////////// std::vector<int> //////////////////////////////
-
-void dump_std_vector()
-{
-    /* A */ std::vector<std::list<int> *> vector;
-            std::list<int> list;
-    /* B */ list.push_back(45);
-    /* C */ vector.push_back(new std::list<int>(list));
-    /* D */ vector.push_back(0);
-    /* E */ (void) 0;
-}
-
-void tst_Gdb::dump_std_vector()
-{
-    #define LIST "std::list<int, std::allocator<int> >"
-    #define VECTOR "std::vector<"LIST"*, std::allocator<"LIST"*> >"
-
-    prepare("dump_std_vector");
-    if (checkUninitialized)
-        run("A","{iname='local.vector',name='vector',"
-            "numchild='0'}");
-    next(2);
-    run("B","{iname='local.vector',name='vector',type='"VECTOR"',"
-            "value='<0 items>',numchild='0'},"
-        "{iname='local.list',name='list',type='"LIST"',"
-            "value='<0 items>',numchild='0'}");
-    next(3);
-    run("E","{iname='local.vector',name='vector',type='"VECTOR"',"
-            "value='<2 items>',numchild='2',childtype='"LIST" *',"
-            "childnumchild='1',children=[{type='"LIST"',value='<2 items>',"
-                "numchild='2'},{value='<null>',numchild='0'}]},"
-        "{iname='local.list',name='list',type='"LIST"',"
-            "value='<0 items>',numchild='0'}",
-        "local.vector,local.vector.0");
-}
-
-#if 0
-void tst_Gdb::dump_QTextCodecHelper(QTextCodec *codec)
-{
-    const QByteArray name = codec->name().toBase64();
-    QByteArray expected = QByteArray("value='%',valueencoded='1',type='$T',"
-        "numchild='2',children=[{name='name',value='%',type='"NS"QByteArray',"
-        "numchild='0',valueencoded='1'},{name='mibEnum',%}]")
-        << name << name << generateIntSpec(codec->mibEnum());
-    testDumper(expected, codec, NS"QTextCodec", true);
-}
-
-void tst_Gdb::dump_QTextCodec()
-{
-    const QList<QByteArray> &codecNames = QTextCodec::availableCodecs();
-    foreach (const QByteArray &codecName, codecNames)
-        dump_QTextCodecHelper(QTextCodec::codecForName(codecName));
-}
-
-#endif // #if 0
-
 ///////////////////////////// QHash<int, int> //////////////////////////////
 
 void dump_QHash_int_int()
@@ -2459,6 +2133,31 @@ void tst_Gdb::dump_QHash_QString_QString()
                      "value='77006f0072006c006400',numchild='0'}]}"
             "]}",
             "local.h,local.h.0,local.h.1");
+}
+
+
+///////////////////////////// QLinkedList<int> ///////////////////////////////////
+
+void dump_QLinkedList_int()
+{
+    /* A */ QLinkedList<int> h;
+    /* B */ h.append(42);
+    /* C */ h.append(44);
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dump_QLinkedList_int()
+{
+    prepare("dump_QLinkedList_int");
+    if (checkUninitialized)
+        run("A","{iname='local.h',name='h',"
+            "type='"NS"QLinkedList<int>',value='<not in scope>',"
+            "numchild='0'}");
+    next(3);
+    run("D","{iname='local.h',name='h',"
+            "type='"NS"QLinkedList<int>',value='<2 items>',numchild='2',"
+            "childtype='int',childnumchild='0',children=["
+            "{value='42'},{value='44'}]}", "local.h");
 }
 
 
@@ -3114,6 +2813,26 @@ void tst_Gdb::dump_QStringList()
 }
 
 
+///////////////////////////// QTextCodec /////////////////////////////////
+
+void dump_QTextCodec()
+{
+    /* A */ QTextCodec *codec = QTextCodec::codecForName("UTF-16");
+    /* D */ (void) codec; }
+
+void tst_Gdb::dump_QTextCodec()
+{
+    // FIXME
+    prepare("dump_QTextCodec");
+    next();
+    run("D","{iname='local.codec',name='codec',type='"NS"QTextCodec *',"
+            "value='-',numchild='1',children=[{iname='local.codec.*',"
+            "name='*codec',type='"NS"QTextCodec',"
+            "value='{...}',numchild='0',children=[]}]}",
+        "local.codec,local.codec.*");
+}
+
+
 ///////////////////////////// QVector /////////////////////////////////
 
 void dump_QVector()
@@ -3528,6 +3247,140 @@ void tst_Gdb::dump_QWeakPointer_2() {}
 #endif
 
 
+///////////////////////////// std::list<int> //////////////////////////////
+
+void dump_std_list()
+{
+    /* A */ std::list<int> list;
+    /* B */ list.push_back(45);
+    /* C */ list.push_back(46);
+    /* D */ list.push_back(47);
+    /* E */ (void) 0;
+}
+
+void tst_Gdb::dump_std_list()
+{
+    prepare("dump_std_list");
+    if (checkUninitialized)
+        run("A","{iname='local.list',name='list',"
+            "numchild='0'}");
+    next();
+    run("B", "{iname='local.list',name='list',"
+            "type='std::list<int, std::allocator<int> >',"
+            "value='<0 items>',numchild='0',children=[]}",
+            "local.list");
+    next();
+    run("C", "{iname='local.list',name='list',"
+            "type='std::list<int, std::allocator<int> >',"
+            "value='<1 items>',numchild='1',"
+            "childtype='int',childnumchild='0',children=[{value='45'}]}",
+            "local.list");
+    next();
+    run("D", "{iname='local.list',name='list',"
+            "type='std::list<int, std::allocator<int> >',"
+            "value='<2 items>',numchild='2',"
+            "childtype='int',childnumchild='0',children=["
+                "{value='45'},{value='46'}]}",
+            "local.list");
+    next();
+    run("E", "{iname='local.list',name='list',"
+            "type='std::list<int, std::allocator<int> >',"
+            "value='<3 items>',numchild='3',"
+            "childtype='int',childnumchild='0',children=["
+                "{value='45'},{value='46'},{value='47'}]}",
+            "local.list");
+}
+
+
+///////////////////////////// std::string //////////////////////////////////
+
+void dump_std_string()
+{
+    /* A */ std::string str;
+    /* B */ str = "Hallo";
+    /* C */ (void) 0;
+}
+
+void tst_Gdb::dump_std_string()
+{
+    prepare("dump_std_string");
+    if (checkUninitialized)
+        run("A","{iname='local.str',name='str',"
+            "numchild='0'}");
+    next();
+    run("B","{iname='local.str',name='str',type='std::string',"
+            "valueencoded='6',value='',numchild='0'}");
+    next();
+    run("C","{iname='local.str',name='str',type='std::string',"
+            "valueencoded='6',value='48616c6c6f',numchild='0'}");
+}
+
+
+///////////////////////////// std::wstring //////////////////////////////////
+
+void dump_std_wstring()
+{
+    /* A */ std::wstring str;
+    /* B */ str = L"Hallo";
+    /* C */ (void) 0;
+}
+
+void tst_Gdb::dump_std_wstring()
+{
+    prepare("dump_std_wstring");
+    if (checkUninitialized)
+        run("A","{iname='local.str',name='str',"
+            "numchild='0'}");
+    next();
+    run("B","{iname='local.str',name='str',type='std::string',valueencoded='6',"
+            "value='',numchild='0'}");
+    next();
+    if (sizeof(wchar_t) == 2)
+        run("C","{iname='local.str',name='str',type='std::string',valueencoded='6',"
+            "value='00480061006c006c006f',numchild='0'}");
+    else
+        run("C","{iname='local.str',name='str',type='std::string',valueencoded='6',"
+            "value='00000048000000610000006c0000006c0000006f',numchild='0'}");
+}
+
+
+///////////////////////////// std::vector<int> //////////////////////////////
+
+void dump_std_vector()
+{
+    /* A */ std::vector<std::list<int> *> vector;
+            std::list<int> list;
+    /* B */ list.push_back(45);
+    /* C */ vector.push_back(new std::list<int>(list));
+    /* D */ vector.push_back(0);
+    /* E */ (void) 0;
+}
+
+void tst_Gdb::dump_std_vector()
+{
+    #define LIST "std::list<int, std::allocator<int> >"
+    #define VECTOR "std::vector<"LIST"*, std::allocator<"LIST"*> >"
+
+    prepare("dump_std_vector");
+    if (checkUninitialized)
+        run("A","{iname='local.vector',name='vector',"
+            "numchild='0'}");
+    next(2);
+    run("B","{iname='local.vector',name='vector',type='"VECTOR"',"
+            "value='<0 items>',numchild='0'},"
+        "{iname='local.list',name='list',type='"LIST"',"
+            "value='<0 items>',numchild='0'}");
+    next(3);
+    run("E","{iname='local.vector',name='vector',type='"VECTOR"',"
+            "value='<2 items>',numchild='2',childtype='"LIST" *',"
+            "childnumchild='1',children=[{type='"LIST"',value='<2 items>',"
+                "numchild='2'},{value='<null>',numchild='0'}]},"
+        "{iname='local.list',name='list',type='"LIST"',"
+            "value='<0 items>',numchild='0'}",
+        "local.vector,local.vector.0");
+}
+
+
 /////////////////////////////////////////////////////////////////////////
 //
 // Main
@@ -3556,6 +3409,7 @@ int main(int argc, char *argv[])
         dump_QChar();
         dump_QHash_int_int();
         dump_QHash_QString_QString();
+        dump_QLinkedList_int();
         dump_QList_char();
         dump_QList_char_star();
         dump_QList_int();
@@ -3565,6 +3419,7 @@ int main(int argc, char *argv[])
         dump_QList_QString3();
         dump_QMap_int_int();
         dump_QMap_QString_QString();
+        dump_QObject();
         dump_QPoint();
         dump_QRect();
         dump_QSet_int();
@@ -3574,6 +3429,7 @@ int main(int argc, char *argv[])
         dump_QStack();
         dump_QString();
         dump_QStringList();
+        dump_QTextCodec();
         dump_QVariant();
         dump_QVector();
         dump_QWeakPointer_11();
