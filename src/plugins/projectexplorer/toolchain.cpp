@@ -123,6 +123,10 @@ QString ToolChain::toolChainName(ToolChainType tc)
         return QCoreApplication::translate("ToolChain", "WINSCW");
     case GCCE:
         return QCoreApplication::translate("ToolChain", "GCCE");
+    case GCCE_GNUPOC:
+        return QCoreApplication::translate("ToolChain", "GCCE/GnuPoc");
+    case RVCT_ARMV6_GNUPOC:
+        return QCoreApplication::translate("ToolChain", "RVCT (ARMV6)/GnuPoc");
     case RVCT_ARMV5:
         return QCoreApplication::translate("ToolChain", "RVCT (ARMV5)");
     case RVCT_ARMV6:

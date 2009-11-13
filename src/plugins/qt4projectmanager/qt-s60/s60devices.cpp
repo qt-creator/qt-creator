@@ -28,6 +28,9 @@
 **************************************************************************/
 
 #include "s60devices.h"
+#include "gccetoolchain.h"
+
+#include <projectexplorer/environment.h>
 
 #include <QtCore/QSettings>
 #include <QtCore/QXmlStreamReader>
@@ -81,10 +84,47 @@ S60Devices::S60Devices(QObject *parent)
 {
 }
 
+// GNU-Poc stuff
+static const char *gnuPocRootC = "GNUPOC_ROOT";
+
+static inline QString msgEnvVarNotSet(const char *var)
+{
+    return QString::fromLatin1("The environment variable %1 is not set.").arg(QLatin1String(var));
+}
+
+static inline QString msgEnvVarDirNotExist(const QString &dir, const char *var)
+{
+    return QString::fromLatin1("The directory %1 pointed to by the environment variable %2 is not set.").arg(dir, QLatin1String(var));
+}
+
 bool S60Devices::readLinux()
 {
-    m_errorString = QLatin1String("not implemented.");
-    return false;
+    // Detect GNUPOC_ROOT/EPOC ROOT
+    const QByteArray gnuPocRootA = qgetenv(gnuPocRootC);
+    if (gnuPocRootA.isEmpty()) {
+        m_errorString = msgEnvVarNotSet(gnuPocRootC);
+        return false;
+    }
+
+    const QDir gnuPocRootDir(QString::fromLocal8Bit(gnuPocRootA));
+    if (!gnuPocRootDir.exists()) {
+        m_errorString = msgEnvVarDirNotExist(gnuPocRootDir.absolutePath(), gnuPocRootC);
+        return false;
+    }
+
+    const QDir epocDir(gnuPocRootDir.absolutePath() + QLatin1String("/symbian-sdks/5.0"));
+    if (!epocDir.exists()) {
+        m_errorString = QString::fromLatin1("EPOC could not be found at %1.").arg(epocDir.absolutePath());
+        return false;
+    }
+    // Check Qt
+    Device device;
+    device.id = device.name = QLatin1String("GnuPoc");
+    device.epocRoot = epocDir.absolutePath();
+    device.toolsRoot = gnuPocRootDir.absolutePath();
+    device.isDefault = true;
+    m_devices.push_back(device);
+    return true;
 }
 
 bool S60Devices::read()
@@ -162,6 +202,8 @@ bool S60Devices::readWin()
 bool S60Devices::detectQtForDevices()
 {
     for (int i = 0; i < m_devices.size(); ++i) {
+        if (!m_devices[i].qt.isEmpty())
+            continue;
         QFile qtDll(QString("%1/epoc32/release/winscw/udeb/QtCore.dll").arg(m_devices[i].epocRoot));
         if (!qtDll.exists() || !qtDll.open(QIODevice::ReadOnly)) {
             m_devices[i].qt = QString();
@@ -235,6 +277,57 @@ QString S60Devices::cleanedRootPath(const QString &deviceRoot)
         path += QChar('\\');
     }
     return path;
+}
+
+// S60ToolChainMixin
+S60ToolChainMixin::S60ToolChainMixin(const S60Devices::Device &d) :
+    m_device(d)
+{
+}
+
+const S60Devices::Device & S60ToolChainMixin::device() const
+{
+    return m_device;
+}
+
+bool S60ToolChainMixin::equals(const  S60ToolChainMixin &rhs) const
+{
+    return m_device.id == rhs.m_device.id
+           && m_device.name == rhs.m_device.name;
+}
+
+QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::epocHeaderPaths() const
+{
+    QList<ProjectExplorer::HeaderPath> rc;
+    rc << ProjectExplorer::HeaderPath(m_device.epocRoot + QLatin1String("\\epoc32\\include"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(m_device.epocRoot + QLatin1String("\\epoc32\\include\\stdapis"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(m_device.epocRoot + QLatin1String("\\epoc32\\include\\stdapis\\sys"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(m_device.epocRoot + QLatin1String("\\epoc32\\include\\variant"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath);
+    return rc;
+}
+
+void S60ToolChainMixin::addEpocToEnvironment(ProjectExplorer::Environment *env) const
+{
+    env->prependOrSetPath(m_device.epocRoot + QLatin1String("\\epoc32\\tools")); // e.g. make.exe
+    env->prependOrSetPath(m_device.epocRoot + QLatin1String("\\epoc32\\gcc\\bin")); // e.g. gcc.exe
+    env->set(QLatin1String("EPOCDEVICE"), m_device.id + QLatin1Char(':') + m_device.name);
+    env->set(QLatin1String("EPOCROOT"), S60Devices::cleanedRootPath(m_device.epocRoot));
+}
+
+QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::gnuPocHeaderPaths() const
+{
+    return QList<ProjectExplorer::HeaderPath>(); // TODO:
+}
+
+void S60ToolChainMixin::addGnuPocToEnvironment(ProjectExplorer::Environment *env) const
+{
+    env->prependOrSetPath(m_device.toolsRoot + QLatin1String("/bin"));
+    //  # trailing "/" is required!
+    env->set(QLatin1String("EPOCROOT"),  m_device.epocRoot + QLatin1Char('/'));
 }
 
 QDebug operator<<(QDebug db, const S60Devices::Device &d)

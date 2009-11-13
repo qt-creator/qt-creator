@@ -56,6 +56,8 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
+enum { debug = 0 };
+
 // Format information about a file
 static QString lsFile(const QString &f)
 {
@@ -317,13 +319,18 @@ void S60DeviceRunConfiguration::updateTarget()
     m_packageTemplateFileName = QDir::cleanPath(
             m_workingDir + QLatin1Char('/') + m_targetName + QLatin1String("_template.pkg"));
 
-    ToolChain::ToolChainType toolchain = pro->toolChainType(pro->activeBuildConfiguration());
-    if (toolchain == ToolChain::GCCE)
+    switch (pro->toolChainType(pro->activeBuildConfiguration())) {
+    case ToolChain::GCCE:
+    case ToolChain::GCCE_GNUPOC:
         m_platform = QLatin1String("gcce");
-    else if (toolchain == ToolChain::RVCT_ARMV5)
+        break;
+    case ToolChain::RVCT_ARMV5:
         m_platform = QLatin1String("armv5");
-    else
+        break;
+    default: // including ToolChain::RVCT_ARMV6_GNUPOC:
         m_platform = QLatin1String("armv6");
+        break;
+    }
     if (projectBuildConfiguration & QtVersion::DebugBuild)
         m_target = QLatin1String("udeb");
     else
@@ -396,8 +403,9 @@ QSharedPointer<RunConfiguration> S60DeviceRunConfigurationFactory::create(Projec
 
 S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfiguration> &runConfiguration) :
     RunControl(runConfiguration),    
+    m_toolChain(ProjectExplorer::ToolChain::INVALID),
     m_makesis(new QProcess(this)),
-    m_signsis(new QProcess(this)),
+    m_signsis(0),
     m_launcher(0)
 {    
     connect(m_makesis, SIGNAL(readyReadStandardError()),
@@ -409,21 +417,12 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfigu
     connect(m_makesis, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(makesisProcessFinished()));
 
-    connect(m_signsis, SIGNAL(readyReadStandardError()),
-            this, SLOT(readStandardError()));
-    connect(m_signsis, SIGNAL(readyReadStandardOutput()),
-            this, SLOT(readStandardOutput()));
-    connect(m_signsis, SIGNAL(error(QProcess::ProcessError)),
-            this, SLOT(signsisProcessFailed()));
-    connect(m_signsis, SIGNAL(finished(int,QProcess::ExitStatus)),
-            this, SLOT(signsisProcessFinished()));
-
     Qt4Project *project = qobject_cast<Qt4Project *>(runConfiguration->project());
     QTC_ASSERT(project, return);
 
     QSharedPointer<S60DeviceRunConfiguration> s60runConfig = runConfiguration.objectCast<S60DeviceRunConfiguration>();
     QTC_ASSERT(s60runConfig, return);
-
+    m_toolChain = s60runConfig->toolChainType();
     m_serialPortName = s60runConfig->serialPortName();
     m_serialPortFriendlyName = S60Manager::instance()->serialDeviceLister()->friendlyNameForPort(m_serialPortName);
     m_communicationType = s60runConfig->communicationType();
@@ -437,13 +436,42 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfigu
     m_useCustomSignature = (s60runConfig->signingMode() == S60DeviceRunConfiguration::SignCustom);
     m_customSignaturePath = s60runConfig->customSignaturePath();
     m_customKeyPath = s60runConfig->customKeyPath();
-    m_toolsDirectory = S60Manager::instance()->deviceForQtVersion(
-            project->qtVersion(project->activeBuildConfiguration())).toolsRoot
-            + "/epoc32/tools";
-    m_executableFileName = lsFile(s60runConfig->localExecutableFileName());
-    m_makesisTool = m_toolsDirectory + "/makesis.exe";
+
+    ProjectExplorer::BuildConfiguration *const activeBuildConf = project->activeBuildConfiguration();
+    const S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(project->qtVersion(activeBuildConf));
+    switch (m_toolChain) {
+    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC: {
+            // 'sis' is a make target here. Set up with correct environment
+            ProjectExplorer::ToolChain *toolchain = project->toolChain(activeBuildConf);
+            m_makesisTool = toolchain->makeCommand();
+            m_toolsDirectory = device.epocRoot + QLatin1String("/epoc32/tools");
+            ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+            toolchain->addToEnvironment(env);
+            m_makesis->setEnvironment(env.toStringList());
+        }
+        break;
+    default:        
+        m_toolsDirectory = device.toolsRoot + QLatin1String("/epoc32/tools");        
+        m_makesisTool = m_toolsDirectory + "/makesis.exe";
+        // Set up signing packages
+        m_signsis = new QProcess(this);
+        connect(m_signsis, SIGNAL(readyReadStandardError()),
+                this, SLOT(readStandardError()));
+        connect(m_signsis, SIGNAL(readyReadStandardOutput()),
+                this, SLOT(readStandardOutput()));
+        connect(m_signsis, SIGNAL(error(QProcess::ProcessError)),
+                this, SLOT(signsisProcessFailed()));
+        connect(m_signsis, SIGNAL(finished(int,QProcess::ExitStatus)),
+                this, SLOT(signsisProcessFinished()));
+        break;
+    }
+    m_executableFileName = s60runConfig->localExecutableFileName();
     m_packageFilePath = s60runConfig->packageFileName();
     m_packageFile = QFileInfo(m_packageFilePath).fileName();
+    if (debug)
+        qDebug() << "S60DeviceRunControlBase" << m_targetName << ProjectExplorer::ToolChain::toolChainName(m_toolChain)
+                 << m_serialPortName << m_communicationType << m_workingDirectory;
 }
 
 S60DeviceRunControlBase::~S60DeviceRunControlBase()
@@ -464,7 +492,7 @@ void S60DeviceRunControlBase::start()
     }
 
     emit addToOutputWindow(this, tr("Creating %1.sisx ...").arg(QDir::toNativeSeparators(m_baseFileName)));
-    emit addToOutputWindow(this, tr("Executable file: %1").arg(m_executableFileName));
+    emit addToOutputWindow(this, tr("Executable file: %1").arg(lsFile(m_executableFileName)));
 
     QString errorMessage;
     QString settingsCategory;
@@ -478,14 +506,27 @@ void S60DeviceRunControlBase::start()
         return;
     }
 
-    if (!createPackageFileFromTemplate(&errorMessage)) {
-        error(this, errorMessage);
-        emit finished();
-        return;
+    QStringList makeSisArgs;
+    switch (m_toolChain) {
+    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC:
+        makeSisArgs.push_back(QLatin1String("sis"));
+        break;
+    default:
+        makeSisArgs.push_back(m_packageFile);
+        if (!createPackageFileFromTemplate(&errorMessage)) {
+            error(this, errorMessage);
+            emit finished();
+            return;
+        }
+        break;
     }
+
     m_makesis->setWorkingDirectory(m_workingDirectory);
-    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(m_makesisTool), m_packageFile));
-    m_makesis->start(m_makesisTool, QStringList(m_packageFile), QIODevice::ReadOnly);
+    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(m_makesisTool), m_packageFile));    
+    if (debug)
+        qDebug() << m_makesisTool <<  makeSisArgs << m_workingDirectory;
+    m_makesis->start(m_makesisTool, makeSisArgs, QIODevice::ReadOnly);
 }
 
 static inline void stopProcess(QProcess *p)
@@ -551,7 +592,7 @@ bool S60DeviceRunControlBase::createPackageFileFromTemplate(QString *errorMessag
 
 void S60DeviceRunControlBase::makesisProcessFailed()
 {
-    processFailed("makesis.exe", m_makesis->error());
+    processFailed(m_makesisTool, m_makesis->error());
 }
 
 void S60DeviceRunControlBase::makesisProcessFinished()
@@ -562,6 +603,19 @@ void S60DeviceRunControlBase::makesisProcessFinished()
         emit finished();
         return;
     }
+    switch (m_toolChain) {
+    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC:
+        startDeployment();
+        break;
+    default:
+        startSigning();
+        break;
+    }
+}
+
+void S60DeviceRunControlBase::startSigning()
+{
     QString signsisTool = m_toolsDirectory + QLatin1String("/signsis.exe");
     QString sisFile = QFileInfo(m_baseFileName + QLatin1String(".sis")).fileName();
     QString sisxFile = QFileInfo(m_baseFileName + QLatin1String(".sisx")).fileName();
@@ -589,8 +643,13 @@ void S60DeviceRunControlBase::signsisProcessFinished()
         error(this, tr("An error occurred while creating the package."));
         stop();
         emit finished();
-        return;
+    } else {
+        startDeployment();
     }
+}
+
+void S60DeviceRunControlBase::startDeployment()
+{
     m_launcher = new trk::Launcher();
     connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
     connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(printConnectFailed(QString)));

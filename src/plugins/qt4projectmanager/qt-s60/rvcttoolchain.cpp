@@ -33,12 +33,13 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-RVCTToolChain::RVCTToolChain(S60Devices::Device device, ToolChain::ToolChainType type)
-    : m_versionUpToDate(false),
-    m_deviceId(device.id),
-    m_deviceName(device.name),
-    m_deviceRoot(device.epocRoot),
-    m_type(type)
+RVCTToolChain::RVCTToolChain(const S60Devices::Device &device, ToolChain::ToolChainType type) :
+    m_mixin(device),
+    m_type(type),
+    m_versionUpToDate(false),
+    m_major(0),
+    m_minor(0),
+    m_build(0)
 {
 }
 
@@ -109,31 +110,40 @@ QList<HeaderPath> RVCTToolChain::systemHeaderPaths()
         QString rvctInclude = env.value(QString::fromLatin1("RVCT%1%2INC").arg(m_major).arg(m_minor));
         if (!rvctInclude.isEmpty())
             m_systemHeaderPaths.append(HeaderPath(rvctInclude, HeaderPath::GlobalHeaderPath));
-        m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
-        m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\stdapis").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
-        m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\stdapis\\sys").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
-        m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\variant").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
+        switch (m_type) {
+        case ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC:
+            m_systemHeaderPaths += m_mixin.gnuPocHeaderPaths();
+            break;
+        default:
+            m_systemHeaderPaths += m_mixin.epocHeaderPaths();
+            break;
+        }
     }
     return m_systemHeaderPaths;
 }
 
 void RVCTToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
-    env.prependOrSetPath(QString("%1\\epoc32\\tools").arg(m_deviceRoot)); // e.g. make.exe
-    env.prependOrSetPath(QString("%1\\epoc32\\gcc\\bin").arg(m_deviceRoot)); // e.g. gcc.exe
-    env.set("EPOCDEVICE", QString("%1:%2").arg(m_deviceId, m_deviceName));
-    env.set("EPOCROOT", S60Devices::cleanedRootPath(m_deviceRoot));
+    switch (m_type) {
+    case ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC:
+        m_mixin.addGnuPocToEnvironment(&env);
+        break;
+    default:
+        m_mixin.addEpocToEnvironment(&env);
+        break;
+    }
 }
 
 QString RVCTToolChain::makeCommand() const
 {
-    return "make";
+    return QLatin1String("make");
 }
 
-bool RVCTToolChain::equals(ToolChain *other) const
+bool RVCTToolChain::equals(ToolChain *otherIn) const
 {
-    return (other->type() == type()
-            && m_deviceId == static_cast<RVCTToolChain *>(other)->m_deviceId
-            && m_deviceName == static_cast<RVCTToolChain *>(other)->m_deviceName);
+    if (otherIn->type() != type())
+        return false;
+    const RVCTToolChain *other = static_cast<const RVCTToolChain *>(otherIn);
+    return other->m_mixin == m_mixin;
 }
 

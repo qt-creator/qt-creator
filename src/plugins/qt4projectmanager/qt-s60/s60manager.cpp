@@ -155,6 +155,15 @@ QString S60Manager::deviceIdFromDetectionSource(const QString &autoDetectionSour
     return QString();
 }
 
+static inline QString qmakeFromQtDir(const QString &qtDir)
+{
+    QString qmake = qtDir + QLatin1String("/bin/qmake");
+#ifdef Q_OS_WIN
+    qmake += QLatin1String(".exe");
+#endif
+    return qmake;
+}
+
 void S60Manager::updateQtVersions()
 {
     // This assumes that the QtVersionManager has already read
@@ -176,11 +185,11 @@ void S60Manager::updateQtVersions()
             }
         }
         if (deviceVersion) {
-            deviceVersion->setQMakeCommand(device.qt+"/bin/qmake.exe");
+            deviceVersion->setQMakeCommand(qmakeFromQtDir(device.qt));
             deviceVersion->setName(QString("%1 (Qt %2)").arg(device.id, deviceVersion->qtVersionString()));
             handledVersions.append(deviceVersion);
         } else {
-            deviceVersion = new QtVersion(QString("%1 (Qt %2)").arg(device.id), device.qt+"/bin/qmake.exe",
+            deviceVersion = new QtVersion(QString("%1 (Qt %2)").arg(device.id), qmakeFromQtDir(device.qt),
                                           true, QString("%1.%2").arg(S60_AUTODETECTION_SOURCE, device.id));
             deviceVersion->setName(deviceVersion->name().arg(deviceVersion->qtVersionString()));
             versionsToAdd.append(deviceVersion);
@@ -211,7 +220,12 @@ ProjectExplorer::ToolChain *S60Manager::createGCCEToolChain(const Qt4ProjectMana
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
     env.prependOrSetPath(version->gcceDirectory()+"/bin");
     QString gcceCommandPath= env.searchInPath(GCCE_COMMAND);
-    return new GCCEToolChain(deviceForQtVersion(version), gcceCommandPath);
+    return new GCCEToolChain(deviceForQtVersion(version), gcceCommandPath, ProjectExplorer::ToolChain::GCCE);
+}
+
+ProjectExplorer::ToolChain *S60Manager::createGCCE_GnuPocToolChain(const Qt4ProjectManager::QtVersion *version) const
+{
+    return new GCCEToolChain(deviceForQtVersion(version), QLatin1String("arm-none-symbianelf-g++"), ProjectExplorer::ToolChain::GCCE_GNUPOC);
 }
 
 ProjectExplorer::ToolChain *S60Manager::createRVCTToolChain(

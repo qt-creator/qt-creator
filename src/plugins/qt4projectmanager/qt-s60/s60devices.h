@@ -30,6 +30,8 @@
 #ifndef S60DEVICES_H
 #define S60DEVICES_H
 
+#include <projectexplorer/toolchain.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QList>
@@ -75,6 +77,35 @@ private:
     QString m_errorString;
     QList<Device> m_devices;
 };
+
+/* Mixin for the toolchains with convenience functions for EPOC
+ * (Windows) and GnuPoc (Linux). */
+
+class S60ToolChainMixin {
+    Q_DISABLE_COPY(S60ToolChainMixin)
+public:
+    explicit S60ToolChainMixin(const S60Devices::Device &device);
+
+    const S60Devices::Device &device() const;
+
+    // Epoc
+    QList<ProjectExplorer::HeaderPath> epocHeaderPaths() const;
+    void addEpocToEnvironment(ProjectExplorer::Environment *env) const;
+
+    // GnuPoc
+    QList<ProjectExplorer::HeaderPath> gnuPocHeaderPaths() const;
+    void addGnuPocToEnvironment(ProjectExplorer::Environment *env) const;
+
+    bool equals(const S60ToolChainMixin &rhs) const;
+
+private:
+    const S60Devices::Device m_device;
+};
+
+inline bool operator==(const S60ToolChainMixin &s1, const S60ToolChainMixin &s2)
+{ return s1.equals(s2); }
+inline bool operator!=(const S60ToolChainMixin &s1, const S60ToolChainMixin &s2)
+{ return !s1.equals(s2); }
 
 QDebug operator<<(QDebug dbg, const S60Devices::Device &d);
 QDebug operator<<(QDebug dbg, const S60Devices &d);

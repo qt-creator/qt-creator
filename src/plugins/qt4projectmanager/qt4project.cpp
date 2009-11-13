@@ -505,24 +505,37 @@ QString Qt4Project::makeCommand(BuildConfiguration *configuration) const
     return tc ? tc->makeCommand() : "make";
 }
 
+#ifdef QTCREATOR_WITH_S60
+static inline QString symbianMakeTarget(QtVersion::QmakeBuildConfig buildConfig,
+                                        const QString &type)
+{
+    QString rc = (buildConfig & QtVersion::DebugBuild) ?
+                 QLatin1String("debug-") : QLatin1String("release-");
+    rc += type;
+    return rc;
+}
+#endif
+
 QString Qt4Project::defaultMakeTarget(BuildConfiguration *configuration) const
 {
 #ifdef QTCREATOR_WITH_S60
     ToolChain *tc = toolChain(configuration);
     if (!tc)
         return QString::null;
-    QtVersion::QmakeBuildConfig buildConfig
+    const QtVersion::QmakeBuildConfig buildConfig
             = QtVersion::QmakeBuildConfig(activeBuildConfiguration()->value("buildConfiguration").toInt());
 
-    if (tc->type() == ToolChain::GCCE) {
-        if (!(buildConfig & QtVersion::DebugBuild)) {
-            return "release-gcce";
-        }
-        return "debug-gcce";
-    } else if (tc->type() == ToolChain::RVCT_ARMV5) {
-        return (buildConfig & QtVersion::DebugBuild ? "debug-" : "release-") + QLatin1String("armv5");
-    } else if (tc->type() == ToolChain::RVCT_ARMV6) {
-        return (buildConfig & QtVersion::DebugBuild ? "debug-" : "release-") + QLatin1String("armv6");
+    switch (tc->type()) {
+    case ToolChain::GCCE:
+    case ToolChain::GCCE_GNUPOC:
+        return symbianMakeTarget(buildConfig, QLatin1String("gcce"));
+    case ToolChain::RVCT_ARMV5:
+        return symbianMakeTarget(buildConfig, QLatin1String("armv5"));
+    case ToolChain::RVCT_ARMV6:
+    case ToolChain::RVCT_ARMV6_GNUPOC:
+        return symbianMakeTarget(buildConfig, QLatin1String("armv6"));
+    default:
+        break;
     }
 #else
     Q_UNUSED(configuration);

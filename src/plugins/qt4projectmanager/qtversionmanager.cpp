@@ -1049,6 +1049,7 @@ ProjectExplorer::ToolChain::ToolChainType QtVersion::defaultToolchainType() cons
 // if none, then it's INVALID everywhere this function is called
 void QtVersion::updateToolChainAndMkspec() const
 {
+    typedef QSharedPointer<ProjectExplorer::ToolChain> ToolChainPtr;
     if (m_toolChainUpToDate)
         return;
 
@@ -1156,35 +1157,36 @@ void QtVersion::updateToolChainAndMkspec() const
     QString ce_arch = reader->value("CE_ARCH");
     QString qt_arch = reader->value("QT_ARCH");
     if (!ce_sdk.isEmpty() && !ce_arch.isEmpty()) {
-        QString wincePlatformName = ce_sdk + " (" + ce_arch + ")";
-        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
-                ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatformName));
+        QString wincePlatformName = ce_sdk + " (" + ce_arch + QLatin1Char(')');
+        m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatformName));
     } else if (makefileGenerator == "SYMBIAN_ABLD") {
 #ifdef QTCREATOR_WITH_S60
-        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
-                S60Manager::instance()->createGCCEToolChain(this));
-        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
-                S60Manager::instance()->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5));
-        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
-                S60Manager::instance()->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6));
-        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
-                S60Manager::instance()->createWINSCWToolChain(this));
+        if (S60Manager *s60mgr = S60Manager::instance()) {            
+#    ifdef Q_OS_WIN
+            m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this))
+                         << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5))
+                         << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6))
+                         << ToolChainPtr(s60mgr->createWINSCWToolChain(this));
+#    else
+            m_toolChains << ToolChainPtr(s60mgr->createGCCE_GnuPocToolChain(this))
+                         << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC));
+#    endif
+        }
 #endif
     } else if (qt_arch == "arm") {
 #ifdef QTCREATOR_WITH_MAEMO
-        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
-                MaemoManager::instance()->maemoToolChain(this));
+        m_toolChains << ToolChainPtr(MaemoManager::instance()->maemoToolChain(this));
 #endif
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {
         // TODO proper support for intel cl
-        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+        m_toolChains << ToolChainPtr(
                 ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isQt64Bit()));
     } else if (qmakeCXX == "g++" && makefileGenerator == "MINGW") {
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         //addToEnvironment(env);
         env.prependOrSetPath(mingwDirectory() + "/bin");
         qmakeCXX = env.searchInPath(qmakeCXX);
-        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
+        m_toolChains << ToolChainPtr(
                 ProjectExplorer::ToolChain::createMinGWToolChain(qmakeCXX, mingwDirectory()));
     } else if (qmakeCXX == "g++" || qmakeCXX == "icc") {
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
@@ -1195,8 +1197,7 @@ void QtVersion::updateToolChainAndMkspec() const
             // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
             qmakeCXX = QLatin1String("cc");
         }
-        m_toolChains << QSharedPointer<ProjectExplorer::ToolChain>(
-                ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX));
+        m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX));
     }
 
     if (m_toolChains.isEmpty()) {

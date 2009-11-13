@@ -40,7 +40,8 @@ namespace Internal {
 class RVCTToolChain : public ProjectExplorer::ToolChain
 {
 public:
-    RVCTToolChain(S60Devices::Device device, ProjectExplorer::ToolChain::ToolChainType type);
+    explicit RVCTToolChain(const S60Devices::Device &device,
+                           ProjectExplorer::ToolChain::ToolChainType type);
     virtual QByteArray predefinedMacros();
     QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
     void addToEnvironment(ProjectExplorer::Environment &env);
@@ -52,14 +53,13 @@ protected:
 private:
     void updateVersion();
 
+    const S60ToolChainMixin m_mixin;
+    const ProjectExplorer::ToolChain::ToolChainType m_type;
     bool m_versionUpToDate;
     int m_major;
     int m_minor;
     int m_build;
-    QString m_deviceId;
-    QString m_deviceName;
-    QString m_deviceRoot;
-    ProjectExplorer::ToolChain::ToolChainType m_type;
+
     QByteArray m_predefinedMacros;
     QList<ProjectExplorer::HeaderPath> m_systemHeaderPaths;
 };

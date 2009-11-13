@@ -30,25 +30,32 @@
 #include "gccetoolchain.h"
 #include "qt4project.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDir>
-#include <QtDebug>
+#include <QtCore/QtDebug>
+
+enum { debug = 0 };
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-GCCEToolChain::GCCEToolChain(S60Devices::Device device, const QString &gcceCommand)
-    : GccToolChain(gcceCommand),
-    m_deviceId(device.id),
-    m_deviceName(device.name),
-    m_deviceRoot(device.epocRoot),
+GCCEToolChain::GCCEToolChain(const S60Devices::Device &device,
+                             const QString &gcceCommand,
+                             ProjectExplorer::ToolChain::ToolChainType type) :
+    GccToolChain(gcceCommand),
+    m_mixin(device),
+    m_type(type),
     m_gcceCommand(gcceCommand)
 {
-
+    QTC_ASSERT(m_type == ProjectExplorer::ToolChain::GCCE || m_type == ProjectExplorer::ToolChain::GCCE_GNUPOC, return)
+    if (debug)
+        qDebug() << "GCCEToolChain on" << m_type << m_mixin.device();
 }
 
 ToolChain::ToolChainType GCCEToolChain::type() const
 {
-    return ToolChain::GCCE;
+    return m_type;
 }
 
 QByteArray GCCEToolChain::predefinedMacros()
@@ -66,34 +73,44 @@ QList<HeaderPath> GCCEToolChain::systemHeaderPaths()
 {
     if (m_systemHeaderPaths.isEmpty()) {
         GccToolChain::systemHeaderPaths();
-        m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
-        m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\stdapis").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
-        m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\stdapis\\sys").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
-        m_systemHeaderPaths.append(HeaderPath(QString("%1\\epoc32\\include\\variant").arg(m_deviceRoot), HeaderPath::GlobalHeaderPath));
+        switch (m_type) {
+        case ProjectExplorer::ToolChain::GCCE:
+            m_systemHeaderPaths += m_mixin.epocHeaderPaths();
+            break;
+        case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+            m_systemHeaderPaths += m_mixin.gnuPocHeaderPaths();
+            break;
+        default:
+            break;
+        }
     }
     return m_systemHeaderPaths;
 }
 
 void GCCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
-    env.prependOrSetPath(QString("%1\\epoc32\\tools").arg(m_deviceRoot)); // e.g. make.exe
-    env.prependOrSetPath(QString("%1\\epoc32\\gcc\\bin").arg(m_deviceRoot)); // e.g. gcc.exe
-    env.prependOrSetPath(QFileInfo(m_gcceCommand).absolutePath());
-    env.set("EPOCDEVICE", QString("%1:%2").arg(m_deviceId, m_deviceName));
-    env.set("EPOCROOT", S60Devices::cleanedRootPath(m_deviceRoot));
+    switch (m_type) {
+    case ProjectExplorer::ToolChain::GCCE:
+        m_mixin.addEpocToEnvironment(&env);
+        env.prependOrSetPath(QFileInfo(m_gcceCommand).absolutePath());
+    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+        break;
+    default:
+        m_mixin.addGnuPocToEnvironment(&env);
+        break;
+    }
 }
 
 QString GCCEToolChain::makeCommand() const
 {
-    return "make";
+    return QLatin1String("make");
 }
 
-bool GCCEToolChain::equals(ToolChain *other) const
+bool GCCEToolChain::equals(ToolChain *otherIn) const
 {
-    GCCEToolChain *otherGCCE = static_cast<GCCEToolChain *>(other);
-    return (other->type() == type()
-            && m_deviceId == otherGCCE->m_deviceId
-            && m_deviceName == otherGCCE->m_deviceName
-            && m_deviceRoot == otherGCCE->m_deviceRoot
-            && m_gcceCommand == otherGCCE->m_gcceCommand);
+    if (otherIn->type() != type())
+                return false;
+    const GCCEToolChain *other = static_cast<const GCCEToolChain *>(otherIn);
+    return m_mixin == other->m_mixin
+           && m_gcceCommand == other->m_gcceCommand;
 }

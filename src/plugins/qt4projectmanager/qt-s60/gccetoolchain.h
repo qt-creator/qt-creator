@@ -40,20 +40,23 @@ namespace Internal {
 class GCCEToolChain : public ProjectExplorer::GccToolChain
 {
 public:
-    GCCEToolChain(S60Devices::Device device, const QString &gcceCommand);
-    QByteArray predefinedMacros();
-    QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
-    void addToEnvironment(ProjectExplorer::Environment &env);
-    ProjectExplorer::ToolChain::ToolChainType type() const;
-    QString makeCommand() const;
-protected:
-    bool equals(ToolChain *other) const;
+    explicit GCCEToolChain(const S60Devices::Device &device,
+                           const QString &gcceCommand,
+                           ProjectExplorer::ToolChain::ToolChainType type);
 
-private:
-    QString m_deviceId;
-    QString m_deviceName;
-    QString m_deviceRoot;
-    QString m_gcceCommand;
+    QByteArray predefinedMacros();
+    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
+    virtual void addToEnvironment(ProjectExplorer::Environment &env);
+    virtual ProjectExplorer::ToolChain::ToolChainType type() const;
+    virtual QString makeCommand() const;
+
+protected:
+    virtual bool equals(ToolChain *other) const;
+
+private:    
+    const S60ToolChainMixin m_mixin;
+    const ProjectExplorer::ToolChain::ToolChainType m_type;
+    const QString m_gcceCommand;
 };
 
 } // namespace Internal

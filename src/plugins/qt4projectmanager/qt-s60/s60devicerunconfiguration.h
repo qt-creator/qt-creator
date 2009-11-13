@@ -127,8 +127,11 @@ public:
     QSharedPointer<ProjectExplorer::RunConfiguration> create(ProjectExplorer::Project *project, const QString &type);
 };
 
-/* S60DeviceRunControlBase: Builds and signs package and starts launcher
- * to deploy. Subclasses can configure the launcher to run or start a debugger. */
+/* S60DeviceRunControlBase: Builds the package and starts launcher
+ * to deploy. Subclasses can configure the launcher to run or start a debugger.
+ * Building the  package comprises for:
+ * GnuPoc: run 'make sis'
+ * Other:  run the makesis.exe tool, run signsis */
 
 class S60DeviceRunControlBase : public ProjectExplorer::RunControl
 {
@@ -175,7 +178,10 @@ private slots:
 
 private:        
     bool createPackageFileFromTemplate(QString *errorMessage);
+    void startSigning();
+    void startDeployment();
 
+    ProjectExplorer::ToolChain::ToolChainType m_toolChain;
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
     int     m_communicationType;
