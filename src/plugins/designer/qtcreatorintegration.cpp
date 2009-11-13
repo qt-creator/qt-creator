@@ -368,13 +368,13 @@ static int findClassEndPosition(const QString &headerContents, int classStartPos
         if (contents.mid(idx, 2) == QLatin1String("//")) {
             idx = contents.indexOf(QLatin1Char('\n'), idx + 2) + 1; // drop everything up to the end of line
         } else if (contents.mid(idx, 2) == QLatin1String("/*")) {
-            idx = contents.indexOf(QLatin1String("*/"), idx + 2) + 1; // drop everything up to the nearest */
+            idx = contents.indexOf(QLatin1String("*/"), idx + 2) + 2; // drop everything up to the nearest */
         } else if (contents.mid(idx, 4) == QLatin1String("'\\\"'")) {
             idx += 4; // drop it
         } else if (contents.at(idx) == QLatin1Char('\"')) {
             do {
                 idx = contents.indexOf(QLatin1Char('\"'), idx + 1); // drop everything up to the nearest "
-            } while (idx > 0 && !isEndingQuote(contents, idx)); // if the nearest " is preceeded by \ (or by \\\ or by \\\\\, but not by \\ nor \\\\) we find next one
+            } while (idx > 0 && !isEndingQuote(contents, idx)); // if the nearest " is preceded by \ (or by \\\ or by \\\\\, but not by \\ nor \\\\) we find next one
             if (idx < 0)
                 break;
             idx++;
