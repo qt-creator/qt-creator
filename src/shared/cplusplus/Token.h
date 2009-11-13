@@ -283,6 +283,14 @@ public:
     const char *spell() const;
     void reset();
 
+    inline unsigned kind() const { return f.kind; }
+    inline bool newline() const { return f.newline; }
+    inline bool whitespace() const { return f.whitespace; }
+    inline bool joined() const { return f.joined; }
+    inline bool expanded() const { return f.expanded; }
+    inline bool generated() const { return f.generated; }
+    inline unsigned length() const { return f.length; }
+
     inline unsigned begin() const
     { return offset; }
 
