@@ -29,6 +29,9 @@
 
 #include "cppquickfix.h"
 #include "cppeditor.h"
+
+#include <cplusplus/CppDocument.h>
+
 #include <TranslationUnit.h>
 #include <Token.h>
 
@@ -37,6 +40,34 @@
 
 using namespace CppEditor::Internal;
 using namespace CPlusPlus;
+
+namespace {
+
+class HelloQuickFixOp: public QuickFixOperation
+{
+public:
+    HelloQuickFixOp(Document::Ptr doc, const Snapshot &snapshot)
+        : QuickFixOperation(doc, snapshot)
+    {}
+
+    virtual QString description() const
+    {
+        return QLatin1String("Hello"); // ### tr?
+    }
+
+    virtual void apply(QTextCursor cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.insertBlock();
+        cursor.insertText(QLatin1String("Hello, QuickFix!\n"));
+        cursor.insertText(document()->fileName());
+        cursor.insertBlock();
+        cursor.endEditBlock();
+    }
+};
+
+} // end of anonymous namespace
+
 
 QuickFixOperation::QuickFixOperation(CPlusPlus::Document::Ptr doc, const CPlusPlus::Snapshot &snapshot)
     : _doc(doc), _snapshot(snapshot)
@@ -112,13 +143,33 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 {
     qDebug() << Q_FUNC_INFO;
     Q_ASSERT(editable != 0);
+
     _editor = qobject_cast<CPPEditor *>(editable->widget());
+    Q_ASSERT(_editor != 0);
+
+    const SemanticInfo info = _editor->semanticInfo();
+
+    if (info.doc) {
+        QuickFixOperationPtr op(new HelloQuickFixOp(info.doc, info.snapshot));
+        _quickFixes.append(op);
+        return editable->position();
+    }
+
     return -1;
 }
 
-void CPPQuickFixCollector::completions(QList<TextEditor::CompletionItem> *quicFixItems)
+void CPPQuickFixCollector::completions(QList<TextEditor::CompletionItem> *quickFixItems)
 {
-    quicFixItems->append(_quickFixItems);
+    qDebug() << Q_FUNC_INFO;
+
+    for (int i = 0; i < _quickFixes.size(); ++i) {
+        QuickFixOperationPtr op = _quickFixes.at(i);
+
+        TextEditor::CompletionItem item(this);
+        item.text = op->description();
+        item.data = QVariant::fromValue(i);
+        quickFixItems->append(item);
+    }
 }
 
 void CPPQuickFixCollector::complete(const TextEditor::CompletionItem &item)
@@ -127,15 +178,13 @@ void CPPQuickFixCollector::complete(const TextEditor::CompletionItem &item)
 
     const int index = item.data.toInt();
 
-    QList<QuickFixOperationPtr> quickFixes; // ### get get the quick fixes.
-
-    if (index < quickFixes.size()) {
-        QuickFixOperationPtr quickFix = quickFixes.at(index);
+    if (index < _quickFixes.size()) {
+        QuickFixOperationPtr quickFix = _quickFixes.at(index);
         quickFix->apply(_editor->textCursor());
     }
 }
 
 void CPPQuickFixCollector::cleanup()
 {
-    _quickFixItems.clear();
+    _quickFixes.clear();
 }

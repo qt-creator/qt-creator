@@ -102,7 +102,7 @@ public:
 private:
     CppTools::CppModelManagerInterface *_modelManager;
     CPPEditor *_editor;
-    QList<TextEditor::CompletionItem> _quickFixItems;
+    QList<QuickFixOperationPtr> _quickFixes;
 };
 
 } // end of namespace Internal
