@@ -1687,8 +1687,7 @@
 
     When something goes wrong check the following things:
     \list
-        \o Did you build your application with one of the special Qt versions created for the
-            S60 SDKs?
+        \o Did you build your application with a Qt version for Symbian?
         \o Are the settings for the Qt version you use to build your project correct? Check the
             path to the S60 SDK, and if you need to specify the path to your compiler tool chain.
         \o Is the emulator/device run configuration selected as the active run configuration?
