@@ -29,6 +29,7 @@
 
 #include <AST.h>
 #include <ASTVisitor.h>
+#include <ASTPatternBuilder.h>
 #include <ASTMatcher.h>
 #include <Control.h>
 #include <Scope.h>
@@ -54,61 +55,6 @@
 
 using namespace CPlusPlus;
 
-class PatternBuilder
-{
-public:
-    PatternBuilder()
-        : pool(new MemoryPool()) {}
-
-    ~PatternBuilder()
-    { delete pool; }
-
-    UnaryExpressionAST *CreateUnaryExpression(ExpressionAST *expr = 0)
-    {
-        UnaryExpressionAST *ast = new (pool) UnaryExpressionAST;
-        ast->expression = expr;
-        return ast;
-    }
-
-    BinaryExpressionAST *CreateBinaryExpression(ExpressionAST *left = 0, ExpressionAST *right = 0)
-    {
-        BinaryExpressionAST *ast = new (pool) BinaryExpressionAST;
-        ast->left_expression = left;
-        ast->right_expression = right;
-        return ast;
-    }
-
-    NumericLiteralAST *NumericLiteral()
-    {
-        NumericLiteralAST *ast = new (pool) NumericLiteralAST;
-        return ast;
-    }
-
-    SimpleNameAST *SimpleName()
-    {
-        SimpleNameAST *ast = new (pool) SimpleNameAST;
-        return ast;
-    }
-
-    IfStatementAST *IfStatement(ExpressionAST *cond = 0, StatementAST *iftrue = 0, StatementAST *iffalse = 0)
-    {
-        IfStatementAST *ast = new (pool) IfStatementAST;
-        ast->condition = cond;
-        ast->statement = iftrue;
-        ast->else_statement = iffalse;
-        return ast;
-    }
-
-    CompoundStatementAST *CompoundStatement()
-    {
-        CompoundStatementAST *ast = new (pool) CompoundStatementAST;
-        return ast;
-    }
-
-private:
-    MemoryPool *pool;
-};
-
 class ForEachNode: protected ASTVisitor
 {
     Document::Ptr doc;
@@ -126,10 +72,10 @@ protected:
 
     virtual bool preVisit(AST *ast)
     {
-        PatternBuilder ir;
-        //IfStatementAST *pattern = ir.IfStatement(ir.SimpleName());
+        ir.reset();
+        IfStatementAST *pattern = ir.IfStatement(ir.SimpleName());
 
-        CompoundStatementAST *pattern = ir.CompoundStatement();
+        //CompoundStatementAST *pattern = ir.CompoundStatement();
 
         if (ast->match(ast, pattern, &matcher))
             translationUnit()->warning(ast->firstToken(), "matched");
@@ -137,6 +83,8 @@ protected:
         return true;
     }
 
+
+    ASTPatternBuilder ir;
     ASTMatcher matcher;
 };
 

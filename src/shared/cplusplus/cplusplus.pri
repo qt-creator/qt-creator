@@ -6,6 +6,7 @@ HEADERS += \
     $$PWD/AST.h \
     $$PWD/ASTVisitor.h \
     $$PWD/ASTMatcher.h \
+    $$PWD/ASTPatternBuilder.h \
     $$PWD/ASTfwd.h \
     $$PWD/Array.h \
     $$PWD/CPlusPlusForwardDeclarations.h \

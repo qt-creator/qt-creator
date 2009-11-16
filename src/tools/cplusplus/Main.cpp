@@ -65,6 +65,7 @@ public:
     QList<QTextCursor> endOfPublicClassSpecifiers;
 };
 
+static Document::Ptr AST_h_document;
 static ASTNodes astNodes;
 
 static QTextCursor createCursor(TranslationUnit *unit, AST *ast, QTextDocument *document)
@@ -612,15 +613,15 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
     QTextDocument document;
     document.setPlainText(source);
 
-    Document::Ptr doc = Document::create(fileName);
+    AST_h_document = Document::create(fileName);
     const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fileName);
-    doc->setSource(preprocessedCode);
-    doc->check();
+    AST_h_document->setSource(preprocessedCode);
+    AST_h_document->check();
 
-    FindASTNodes process(doc, &document);
-    astNodes = process(doc->translationUnit()->ast());
+    FindASTNodes process(AST_h_document, &document);
+    astNodes = process(AST_h_document->translationUnit()->ast());
 
-    RemoveCastMethods removeCastMethods(doc, &document);
+    RemoveCastMethods removeCastMethods(AST_h_document, &document);
 
     QList<QTextCursor> baseCastMethodCursors = removeCastMethods(astNodes.base);
     QMap<ClassSpecifierAST *, QList<QTextCursor> > cursors;
@@ -665,14 +666,14 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
         out << document.toPlainText();
     }
 
-    Accept0CG cg(cplusplusDir, doc->control());
-    cg(doc->translationUnit()->ast());
+    Accept0CG cg(cplusplusDir, AST_h_document->control());
+    cg(AST_h_document->translationUnit()->ast());
 
-    Match0CG cg2(cplusplusDir, doc->control());
-    cg2(doc->translationUnit()->ast());
+    Match0CG cg2(cplusplusDir, AST_h_document->control());
+    cg2(AST_h_document->translationUnit()->ast());
 
-    MatcherCPPCG cg3(cplusplusDir, doc->control());
-    cg3(doc->translationUnit()->ast());
+    MatcherCPPCG cg3(cplusplusDir, AST_h_document->control());
+    cg3(AST_h_document->translationUnit()->ast());
 
     return astDerivedClasses;
 }
@@ -757,6 +758,117 @@ void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const 
     }
 }
 
+void generateASTPatternBuilder_h(const QDir &cplusplusDir)
+{
+    QFileInfo fileInfo(cplusplusDir, QLatin1String("ASTPatternBuilder.h"));
+    QFile file(fileInfo.absoluteFilePath());
+    if (! file.open(QFile::WriteOnly))
+        return;
+
+    Overview oo;
+    QTextStream out(&file);
+
+    out
+            << copyrightHeader
+            << "#ifndef CPLUSPLUS_AST_PATTERN_BUILDER_H" << endl
+            << "#define CPLUSPLUS_AST_PATTERN_BUILDER_H" << endl
+            << endl
+            << "#include \"CPlusPlusForwardDeclarations.h\"" << endl
+            << "#include \"AST.h\"" << endl
+            << "#include \"MemoryPool.h\"" << endl
+            << endl
+            << "namespace CPlusPlus {" << endl
+            << endl
+            << "class CPLUSPLUS_EXPORT ASTPatternBuilder" << endl
+            << "{" << endl
+            << "    MemoryPool pool;" << endl
+            << "    MemoryPool::State state;" << endl
+            << endl
+            << "public:" << endl
+            << "    ASTPatternBuilder(): state(pool.state()) {}" << endl
+            << endl
+            << "    void reset() { pool.rewind(state); };" << endl
+            << endl;
+
+    Control *control = AST_h_document->control();
+
+    foreach (ClassSpecifierAST *classNode, astNodes.deriveds) {
+        Class *klass = classNode->symbol;
+
+        Identifier *match0_id = control->findOrInsertIdentifier("match0");
+        Symbol *match0Method = klass->members()->lookat(match0_id);
+        for (; match0Method; match0Method = match0Method->next()) {
+            if (match0Method->identifier() != match0_id)
+                continue;
+            else break;
+        }
+
+        if (! match0Method)
+            continue;
+
+        const QString className = oo(klass->name());
+
+        if (! className.endsWith("AST"))
+            continue;
+
+        const QString methodName = className.left(className.length() - 3);
+
+        out
+                << "    " << className << " *" << methodName << "(";
+
+        QList<QPair<QString, QString> > args;
+
+        bool first = true;
+        for (unsigned index = 0; index < klass->memberCount(); ++index) {
+            Declaration *member = klass->memberAt(index)->asDeclaration();
+            if (! member)
+                continue;
+
+            PointerType *ptrTy = member->type()->asPointerType();
+            if (! ptrTy)
+                continue;
+
+            const QString tyName = oo(ptrTy->elementType());
+            if (tyName.endsWith("ListAST"))
+                continue;
+            else if (tyName.endsWith("AST")) {
+                if (! first)
+                    out << ", ";
+
+                const QString memberName = oo(member->name());
+
+                out << tyName << " *" << memberName << " = 0";
+                args.append(qMakePair(tyName, memberName));
+                first = false;
+            }
+        }
+
+        out
+                << ")" << endl
+                << "    {" << endl
+                << "        " << className << " *__ast = new (&pool) " << className << ";" << endl;
+
+
+        QPair<QString, QString> p;
+        foreach (p, args) {
+            out
+                    << "        __ast->" << p.second << " = " << p.second << ";" << endl;
+        }
+
+        out
+                << "        return __ast;" << endl
+                << "    }" << endl
+                << endl;
+    }
+
+    out
+            << "};" << endl
+            << endl
+            << "} // end of namespace CPlusPlus" << endl
+            << endl
+            << "#endif // CPLUSPLUS_AST_PATTERN_BUILDER_H" << endl;
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
@@ -774,4 +886,6 @@ int main(int argc, char *argv[])
     QStringList astDerivedClasses = generateAST_H(snapshot, cplusplusDir);
     astDerivedClasses.sort();
     generateASTFwd_h(snapshot, cplusplusDir, astDerivedClasses);
+
+    generateASTPatternBuilder_h(cplusplusDir);
 }
