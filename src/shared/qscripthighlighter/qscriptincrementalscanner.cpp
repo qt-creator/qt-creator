@@ -19,7 +19,7 @@ void QScriptIncrementalScanner::reset()
     m_tokens.clear();
 }
 
-void QScriptIncrementalScanner::operator()(int startState, const QString &text)
+QList<QScriptIncrementalScanner::Token> QScriptIncrementalScanner::operator()(const QString &text, int startState)
 {
     reset();
 
@@ -78,7 +78,7 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
     int state = startState;
     if (text.isEmpty()) {
         blockEnd(state, 0);
-        return;
+        return m_tokens;
     }
 
     int input = -1;
@@ -268,6 +268,8 @@ void QScriptIncrementalScanner::operator()(int startState, const QString &text)
     }
 
     blockEnd(state, firstNonSpace);
+
+    return m_tokens;
 }
 
 void QScriptIncrementalScanner::insertToken(int start, int length, Token::Kind kind, bool forceNewToken)

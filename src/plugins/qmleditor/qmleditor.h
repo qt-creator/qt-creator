@@ -35,6 +35,7 @@
 #include "qmljsastfwd_p.h"
 #include "qmljsengine_p.h"
 #include "qmldocument.h"
+#include "qscriptincrementalscanner.h"
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -134,6 +135,7 @@ protected:
 private:
     virtual bool isElectricCharacter(const QChar &ch) const;
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
+    bool isClosingBrace(const QList<SharedTools::QScriptIncrementalScanner::Token> &tokens) const;
 
     QString wordUnderCursor() const;
 

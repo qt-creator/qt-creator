@@ -70,6 +70,7 @@ enum {
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
+using namespace SharedTools;
 
 namespace QmlEditor {
 namespace Internal {
@@ -634,49 +635,81 @@ bool ScriptEditor::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
+bool ScriptEditor::isClosingBrace(const QList<QScriptIncrementalScanner::Token> &tokens) const
+{
+
+    if (tokens.size() == 1) {
+        const QScriptIncrementalScanner::Token firstToken = tokens.first();
+
+        return firstToken.is(QScriptIncrementalScanner::Token::RightBrace) || firstToken.is(QScriptIncrementalScanner::Token::RightBracket);
+    }
+
+    return false;
+}
+
+static int blockBraceDepth(const QTextBlock &block)
+{
+    int state = block.userState();
+    if (state == -1)
+        return 0;
+
+    return (state >> 8) & 0xFF;
+}
+
+static int blockStartState(const QTextBlock &block)
+{
+    int state = block.userState();
+
+    if (state == -1)
+        return 0;
+    else
+        return state & 0xff;
+}
+
 void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar typedChar)
 {
     TextEditor::TabSettings ts = tabSettings();
 
-    if (typedChar == QLatin1Char('}') || typedChar == QLatin1Char(']')
-        || (typedChar == QChar::Null
-            && (block.text().trimmed() == "}" || block.text().trimmed() == "]"))) {
+    QTextCursor tc(block);
 
-        QTextCursor tc(block);
+    const QString blockText = block.text();
+    int startState = blockStartState(block.previous());
 
-        if (typedChar == QLatin1Char('}') || typedChar == QLatin1Char(']'))
-            tc = textCursor();
+    QScriptIncrementalScanner scanner;
+    const QList<QScriptIncrementalScanner::Token> tokens = scanner(blockText, startState);
 
-        if (TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tc)) {
-            const QString text = tc.block().text();
-            int indent = ts.columnAt(text, ts.firstNonSpace(text));
-            ts.indentLine(block, indent);
-            return;
+    if (! tokens.isEmpty()) {
+        const QScriptIncrementalScanner::Token tk = tokens.first();
+
+        if (tk.is(QScriptIncrementalScanner::Token::RightBrace)
+                || tk.is(QScriptIncrementalScanner::Token::RightBracket)) {
+            if (TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tc)) {
+                const QString text = tc.block().text();
+                int indent = ts.columnAt(text, ts.firstNonSpace(text));
+                ts.indentLine(block, indent);
+                return;
+            }
         }
     }
 
-    int indent = 0;
-    int extraIndent = 0;
-
-    if (block.previous().isValid()) {
-        const int braceDepth = qMax(0, block.previous().userState() >> 8);
-        const int previousBraceDepth = qMax(0, block.previous().previous().userState() >> 8);
-
-        if (braceDepth > previousBraceDepth)
-            extraIndent = ts.m_indentSize * (braceDepth - previousBraceDepth);
-    }
-
+    int initialIndent = 0;
     QTextBlock it = block.previous();
     for (; it.isValid(); it = it.previous()) {
         const QString text = it.text();
 
         if (! text.isEmpty()) {
-            indent = ts.columnAt(text, ts.firstNonSpace(text));
+            initialIndent = ts.columnAt(text, ts.firstNonSpace(text));
             break;
         }
     }
 
-    ts.indentLine(block, extraIndent + indent);
+    // default indent is initialIndent ..
+
+    const int braceDepth = blockBraceDepth(block.previous());
+    const int previousBraceDepth = blockBraceDepth(block.previous().previous());
+    const int delta = qMax(0, braceDepth - previousBraceDepth);
+    int indent = initialIndent + (delta * ts.m_indentSize);
+    ts.indentLine(block, indent);
 }
 
 TextEditor::BaseTextEditorEditable *ScriptEditor::createEditableInterface()

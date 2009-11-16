@@ -58,7 +58,7 @@ bool QScriptHighlighter::isDuiEnabled() const
 
 void QScriptHighlighter::highlightBlock(const QString &text)
 {
-    m_scanner(onBlockStart(), text);
+    m_scanner(text, onBlockStart());
 
     QTextCharFormat emptyFormat;
     int lastEnd = 0;
