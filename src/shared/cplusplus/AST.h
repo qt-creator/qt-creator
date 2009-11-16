@@ -281,10 +281,70 @@ protected:
     virtual bool match0(AST *, ASTMatcher *) = 0;
 };
 
+class CPLUSPLUS_EXPORT StatementAST: public AST
+{
+public:
+    virtual StatementAST *asStatement() { return this; }
+};
+
+class CPLUSPLUS_EXPORT ExpressionAST: public AST
+{
+public:
+    virtual ExpressionAST *asExpression() { return this; }
+};
+
+class CPLUSPLUS_EXPORT DeclarationAST: public AST
+{
+public:
+    virtual DeclarationAST *asDeclaration() { return this; }
+};
+
+class CPLUSPLUS_EXPORT NameAST: public ExpressionAST
+{
+public: // annotations
+    Name *name;
+
+public:
+    virtual NameAST *asName() { return this; }
+};
+
 class CPLUSPLUS_EXPORT SpecifierAST: public AST
 {
 public:
     virtual SpecifierAST *asSpecifier() { return this; }
+};
+
+class CPLUSPLUS_EXPORT PtrOperatorAST: public AST
+{
+public:
+    virtual PtrOperatorAST *asPtrOperator() { return this; }
+};
+
+class CPLUSPLUS_EXPORT PostfixAST: public AST
+{
+public:
+    virtual PostfixAST *asPostfix() { return this; }
+};
+
+class CPLUSPLUS_EXPORT CoreDeclaratorAST: public AST
+{
+public:
+    virtual CoreDeclaratorAST *asCoreDeclarator() { return this; }
+};
+
+class CPLUSPLUS_EXPORT PostfixDeclaratorAST: public AST
+{
+public:
+    virtual PostfixDeclaratorAST *asPostfixDeclarator() { return this; }
+};
+
+class CPLUSPLUS_EXPORT ObjCSelectorAST: public AST
+{
+public: // annotation
+    Name *selector_name;
+
+public:
+    virtual ObjCSelectorAST *asObjCSelector() { return this; }
 };
 
 class CPLUSPLUS_EXPORT SimpleSpecifierAST: public SpecifierAST
@@ -361,36 +421,6 @@ public:
 protected:
     virtual void accept0(ASTVisitor *visitor);
     virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT StatementAST: public AST
-{
-public:
-    virtual StatementAST *asStatement() { return this; }
-};
-
-class CPLUSPLUS_EXPORT ExpressionAST: public AST
-{
-public:
-    virtual ExpressionAST *asExpression() { return this; }
-};
-
-class CPLUSPLUS_EXPORT DeclarationAST: public AST
-{
-public:
-    virtual DeclarationAST *asDeclaration() { return this; }
-};
-
-class CPLUSPLUS_EXPORT CoreDeclaratorAST: public AST
-{
-public:
-    virtual CoreDeclaratorAST *asCoreDeclarator() { return this; }
-};
-
-class CPLUSPLUS_EXPORT PostfixDeclaratorAST: public AST
-{
-public:
-    virtual PostfixDeclaratorAST *asPostfixDeclarator() { return this; }
 };
 
 class CPLUSPLUS_EXPORT DeclaratorAST: public AST
@@ -1201,16 +1231,6 @@ protected:
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-class CPLUSPLUS_EXPORT NameAST: public ExpressionAST
-{
-public: // annotations
-    Name *name;
-
-
-public:
-    virtual NameAST *asName() { return this; }
-};
-
 class CPLUSPLUS_EXPORT NestedNameSpecifierAST: public AST
 {
 public:
@@ -1530,12 +1550,6 @@ protected:
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-class CPLUSPLUS_EXPORT PostfixAST: public AST
-{
-public:
-    virtual PostfixAST *asPostfix() { return this; }
-};
-
 class CPLUSPLUS_EXPORT CallAST: public PostfixAST
 {
 public:
@@ -1679,12 +1693,6 @@ public:
 protected:
     virtual void accept0(ASTVisitor *visitor);
     virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT PtrOperatorAST: public AST
-{
-public:
-    virtual PtrOperatorAST *asPtrOperator() { return this; }
 };
 
 class CPLUSPLUS_EXPORT PointerToMemberAST: public PtrOperatorAST
@@ -2384,16 +2392,6 @@ public:
 protected:
     virtual void accept0(ASTVisitor *visitor);
     virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT ObjCSelectorAST: public AST
-{
-public: // annotation
-    Name *selector_name;
-
-public:
-    virtual ObjCSelectorAST *asObjCSelector() { return this; }
-
 };
 
 class CPLUSPLUS_EXPORT ObjCSelectorWithoutArgumentsAST: public ObjCSelectorAST

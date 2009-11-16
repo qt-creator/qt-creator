@@ -55,6 +55,103 @@ static const char copyrightHeader[] =
 "**************************************************************************/\n"
 ;
 
+class ASTNodes
+{
+public:
+    ASTNodes(): base(0) {}
+
+    ClassSpecifierAST *base; // points to "class AST"
+    QList<ClassSpecifierAST *> deriveds; // n where n extends AST
+    QList<QTextCursor> endOfPublicClassSpecifiers;
+};
+
+static ASTNodes astNodes;
+
+static QTextCursor createCursor(TranslationUnit *unit, AST *ast, QTextDocument *document)
+{
+    unsigned startLine, startColumn, endLine, endColumn;
+    unit->getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
+    unit->getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
+
+    QTextCursor tc(document);
+    tc.setPosition(document->findBlockByNumber(startLine - 1).position());
+    tc.setPosition(document->findBlockByNumber(endLine - 1).position() + endColumn - 1,
+                   QTextCursor::KeepAnchor);
+
+    int charsToSkip = 0;
+    forever {
+        QChar ch = document->characterAt(tc.position() + charsToSkip);
+
+        if (! ch.isSpace())
+            break;
+
+        ++charsToSkip;
+
+        if (ch == QChar::ParagraphSeparator)
+            break;
+    }
+
+    tc.setPosition(tc.position() + charsToSkip, QTextCursor::KeepAnchor);
+    return tc;
+}
+
+class FindASTNodes: protected ASTVisitor
+{
+public:
+    FindASTNodes(Document::Ptr doc, QTextDocument *document)
+        : ASTVisitor(doc->control()), document(document)
+    {
+    }
+
+    ASTNodes operator()(AST *ast)
+    {
+        accept(ast);
+        return _nodes;
+    }
+
+protected:
+    virtual bool visit(ClassSpecifierAST *ast)
+    {
+        Class *klass = ast->symbol;
+        Q_ASSERT(klass != 0);
+
+        const QString className = oo(klass->name());
+
+        if (className.endsWith("AST")) {
+            if (className == QLatin1String("AST"))
+                _nodes.base = ast;
+            else {
+                _nodes.deriveds.append(ast);
+
+                AccessDeclarationAST *accessDeclaration = 0;
+                for (DeclarationListAST *it = ast->member_specifier_list; it; it = it->next) {
+                    if (AccessDeclarationAST *decl = it->value->asAccessDeclaration()) {
+                        if (tokenKind(decl->access_specifier_token) == T_PUBLIC)
+                            accessDeclaration = decl;
+                    }
+                }
+
+                if (! accessDeclaration)
+                    qDebug() << "no access declaration for class:" << className;
+
+                Q_ASSERT(accessDeclaration != 0);
+
+                QTextCursor tc = createCursor(translationUnit(), accessDeclaration, document);
+                tc.setPosition(tc.position());
+
+                _nodes.endOfPublicClassSpecifiers.append(tc);
+            }
+        }
+
+        return true;
+    }
+
+private:
+    QTextDocument *document;
+    ASTNodes _nodes;
+    Overview oo;
+};
+
 class Accept0CG: protected ASTVisitor
 {
     QDir _cplusplusDir;
@@ -103,8 +200,6 @@ protected:
 
     void visitMembers(Class *klass)
     {
-        const QByteArray className = klass->name()->identifier()->chars();
-
         // *out << "        // visit " << className.constData() << endl;
         for (unsigned i = 0; i < klass->memberCount(); ++i) {
             Symbol *member = klass->memberAt(i);
@@ -328,78 +423,19 @@ public:
         *out << copyrightHeader << endl
                 << "#include \"AST.h\"" << endl
                 << "#include \"ASTMatcher.h\"" << endl
-                << "#include \"Control.h\"" << endl
                 << "#include \"TranslationUnit.h\"" << endl
                 << endl
                 << "using namespace CPlusPlus;" << endl
                 << endl
-                << "ASTMatcher::ASTMatcher(Control *control)" << endl
-                << "    : _control(control)" << endl
+                << "ASTMatcher::ASTMatcher(TranslationUnit *translationUnit)"
+                << "    : _translationUnit(translationUnit)" << endl
                 << "{ }" << endl
                 << endl
                 << "ASTMatcher::~ASTMatcher()" << endl
                 << "{ }" << endl
                 << endl
-                << "Control *ASTMatcher::control() const" << endl
-                << "{ return _control; }" << endl
-                << endl
                 << "TranslationUnit *ASTMatcher::translationUnit() const" << endl
-                << "{ return _control->translationUnit(); }" << endl
-                << endl
-                << "unsigned ASTMatcher::tokenCount() const" << endl
-                << "{ return translationUnit()->tokenCount(); }" << endl
-                << endl
-                << "const Token &ASTMatcher::tokenAt(unsigned index) const" << endl
-                << "{ return translationUnit()->tokenAt(index); }" << endl
-                << endl
-                << "int ASTMatcher::tokenKind(unsigned index) const" << endl
-                << "{ return translationUnit()->tokenKind(index); }" << endl
-                << endl
-                << "const char *ASTMatcher::spell(unsigned index) const" << endl
-                << "{ return translationUnit()->spell(index); }" << endl
-                << endl
-                << "Identifier *ASTMatcher::identifier(unsigned index) const" << endl
-                << "{ return translationUnit()->identifier(index); }" << endl
-                << endl
-                << "Literal *ASTMatcher::literal(unsigned index) const" << endl
-                << "{ return translationUnit()->literal(index); }" << endl
-                << endl
-                << "NumericLiteral *ASTMatcher::numericLiteral(unsigned index) const" << endl
-                << "{ return translationUnit()->numericLiteral(index); }" << endl
-                << endl
-                << "StringLiteral *ASTMatcher::stringLiteral(unsigned index) const" << endl
-                << "{ return translationUnit()->stringLiteral(index); }" << endl
-                << endl
-                << "void ASTMatcher::getPosition(unsigned offset," << endl
-                << "                             unsigned *line," << endl
-                << "                             unsigned *column," << endl
-                << "                             StringLiteral **fileName) const" << endl
-                << "{ translationUnit()->getPosition(offset, line, column, fileName); }" << endl
-                << endl
-                << "void ASTMatcher::getTokenPosition(unsigned index," << endl
-                << "                                  unsigned *line," << endl
-                << "                                  unsigned *column," << endl
-                << "                                  StringLiteral **fileName) const" << endl
-                << "{ translationUnit()->getTokenPosition(index, line, column, fileName); }" << endl
-                << endl
-                << "void ASTMatcher::getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const" << endl
-                << "{ getPosition(tokenAt(index).begin(), line, column); }" << endl
-                << endl
-                << "void ASTMatcher::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const" << endl
-                << "{ getPosition(tokenAt(index).end(), line, column); }" << endl
-                << endl
-                << "bool ASTMatcher::matchToken(unsigned index, unsigned otherIndex) const" << endl
-                << "{" << endl
-                << "    const Token &token = tokenAt(index);" << endl
-                << "    const Token &otherToken = tokenAt(otherIndex);" << endl
-                << "    if (token.f.kind != otherToken.f.kind)" << endl
-                << "        return false;" << endl
-                << "    else if (token.is(T_IDENTIFIER)) {" << endl
-                << "        if (token.identifier != otherToken.identifier)" << endl
-                << "            return false;" << endl
-                << "    }" << endl
-                << "    return true;" << endl
-                << "}" << endl
+                << "{ return _translationUnit; }" << endl
                 << endl;
 
         accept(ast);
@@ -422,8 +458,6 @@ protected:
 
     void visitMembers(Class *klass)
     {
-        const QByteArray className = klass->name()->identifier()->chars();
-
         for (unsigned i = 0; i < klass->memberCount(); ++i) {
             Symbol *member = klass->memberAt(i);
             if (! member->name())
@@ -436,10 +470,10 @@ protected:
 
             const QByteArray memberName = QByteArray::fromRawData(id->chars(), id->size());
             if (member->type().isUnsigned() && memberName.endsWith("_token")) {
-                // nothing to do. The member is a token.
 
-                *out << "    if (! matchToken(node->" << memberName << ", pattern->" << memberName << "))" << endl
-                        << "        return false;" << endl;
+                *out
+                        << "    pattern->" << memberName << " = node->" << memberName << ";" << endl
+                        << endl;
 
             } else if (PointerType *ptrTy = member->type()->asPointerType()) {
 
@@ -447,8 +481,12 @@ protected:
                     QByteArray typeName = namedTy->name()->identifier()->chars();
 
                     if (typeName.endsWith("AST")) {
-                        *out << "    if (! AST::match(node->" << memberName << ", pattern->" << memberName << ", this))" << endl
-                                << "        return false;" << endl;
+                        *out
+                                << "    if (! pattern->" << memberName << ")" << endl
+                                << "        pattern->" << memberName << " = node->" << memberName << ";" << endl
+                                << "    else if (! AST::match(node->" << memberName << ", pattern->" << memberName << ", this))" << endl
+                                << "        return false;" << endl
+                                << endl;
                     }
                 }
             }
@@ -501,7 +539,10 @@ protected:
 
         *out
                 << "bool ASTMatcher::match(" << className.constData() << " *node, " << className.constData() << " *pattern)" << endl
-                << "{" << endl;
+                << "{" << endl
+                << "    (void) node;" << endl
+                << "    (void) pattern;" << endl
+                << endl;
 
         visitMembers(klass);
 
@@ -512,103 +553,6 @@ protected:
 
         return true;
     }
-};
-
-
-
-QTextCursor createCursor(TranslationUnit *unit, AST *ast, QTextDocument *document)
-{
-    unsigned startLine, startColumn, endLine, endColumn;
-    unit->getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
-    unit->getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
-
-    QTextCursor tc(document);
-    tc.setPosition(document->findBlockByNumber(startLine - 1).position());
-    tc.setPosition(document->findBlockByNumber(endLine - 1).position() + endColumn - 1,
-                   QTextCursor::KeepAnchor);
-
-    int charsToSkip = 0;
-    forever {
-        QChar ch = document->characterAt(tc.position() + charsToSkip);
-
-        if (! ch.isSpace())
-            break;
-
-        ++charsToSkip;
-
-        if (ch == QChar::ParagraphSeparator)
-            break;
-    }
-
-    tc.setPosition(tc.position() + charsToSkip, QTextCursor::KeepAnchor);
-    return tc;
-}
-
-class ASTNodes
-{
-public:
-    ASTNodes(): base(0) {}
-
-    ClassSpecifierAST *base; // points to "class AST"
-    QList<ClassSpecifierAST *> deriveds; // n where n extends AST
-    QList<QTextCursor> endOfPublicClassSpecifiers;
-};
-
-class FindASTNodes: protected ASTVisitor
-{
-public:
-    FindASTNodes(Document::Ptr doc, QTextDocument *document)
-        : ASTVisitor(doc->control()), document(document)
-    {
-    }
-
-    ASTNodes operator()(AST *ast)
-    {
-        accept(ast);
-        return _nodes;
-    }
-
-protected:
-    virtual bool visit(ClassSpecifierAST *ast)
-    {
-        Class *klass = ast->symbol;
-        Q_ASSERT(klass != 0);
-
-        const QString className = oo(klass->name());
-
-        if (className.endsWith("AST")) {
-            if (className == QLatin1String("AST"))
-                _nodes.base = ast;
-            else {
-                _nodes.deriveds.append(ast);
-
-                AccessDeclarationAST *accessDeclaration = 0;
-                for (DeclarationListAST *it = ast->member_specifier_list; it; it = it->next) {
-                    if (AccessDeclarationAST *decl = it->value->asAccessDeclaration()) {
-                        if (tokenKind(decl->access_specifier_token) == T_PUBLIC)
-                            accessDeclaration = decl;
-                    }
-                }
-
-                if (! accessDeclaration)
-                    qDebug() << "no access declaration for class:" << className;
-
-                Q_ASSERT(accessDeclaration != 0);
-
-                QTextCursor tc = createCursor(translationUnit(), accessDeclaration, document);
-                tc.setPosition(tc.position());
-
-                _nodes.endOfPublicClassSpecifiers.append(tc);
-            }
-        }
-
-        return true;
-    }
-
-private:
-    QTextDocument *document;
-    ASTNodes _nodes;
-    Overview oo;
 };
 
 class RemoveCastMethods: protected ASTVisitor
@@ -648,6 +592,7 @@ private:
     Overview oo;
 };
 
+
 QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
 {
     QStringList astDerivedClasses;
@@ -673,7 +618,7 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
     doc->check();
 
     FindASTNodes process(doc, &document);
-    ASTNodes astNodes = process(doc->translationUnit()->ast());
+    astNodes = process(doc->translationUnit()->ast());
 
     RemoveCastMethods removeCastMethods(doc, &document);
 

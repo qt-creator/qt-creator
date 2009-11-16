@@ -36,13 +36,10 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT ASTMatcher
 {
 public:
-    ASTMatcher(TranslationUnit *translationUnit, TranslationUnit *patternTranslationUnit);
+    ASTMatcher(TranslationUnit *translationUnit);
     virtual ~ASTMatcher();
 
     TranslationUnit *translationUnit() const;
-    TranslationUnit *patternTranslationUnit() const;
-
-    bool matchToken(unsigned index, unsigned otherIndex) const;
 
     virtual bool match(AccessDeclarationAST *node, AccessDeclarationAST *pattern);
     virtual bool match(ArrayAccessAST *node, ArrayAccessAST *pattern);
@@ -169,7 +166,6 @@ public:
 
 private:
     TranslationUnit *_translationUnit;
-    TranslationUnit *_patternTranslationUnit;
 };
 
 } // end of namespace CPlusPlus

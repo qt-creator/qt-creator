@@ -54,30 +54,90 @@
 
 using namespace CPlusPlus;
 
-class ForEachBinaryExpression: protected ASTVisitor
+class PatternBuilder
+{
+public:
+    PatternBuilder()
+        : pool(new MemoryPool()) {}
+
+    ~PatternBuilder()
+    { delete pool; }
+
+    UnaryExpressionAST *CreateUnaryExpression(ExpressionAST *expr = 0)
+    {
+        UnaryExpressionAST *ast = new (pool) UnaryExpressionAST;
+        ast->expression = expr;
+        return ast;
+    }
+
+    BinaryExpressionAST *CreateBinaryExpression(ExpressionAST *left = 0, ExpressionAST *right = 0)
+    {
+        BinaryExpressionAST *ast = new (pool) BinaryExpressionAST;
+        ast->left_expression = left;
+        ast->right_expression = right;
+        return ast;
+    }
+
+    NumericLiteralAST *NumericLiteral()
+    {
+        NumericLiteralAST *ast = new (pool) NumericLiteralAST;
+        return ast;
+    }
+
+    SimpleNameAST *SimpleName()
+    {
+        SimpleNameAST *ast = new (pool) SimpleNameAST;
+        return ast;
+    }
+
+    IfStatementAST *IfStatement(ExpressionAST *cond = 0, StatementAST *iftrue = 0, StatementAST *iffalse = 0)
+    {
+        IfStatementAST *ast = new (pool) IfStatementAST;
+        ast->condition = cond;
+        ast->statement = iftrue;
+        ast->else_statement = iffalse;
+        return ast;
+    }
+
+    CompoundStatementAST *CompoundStatement()
+    {
+        CompoundStatementAST *ast = new (pool) CompoundStatementAST;
+        return ast;
+    }
+
+private:
+    MemoryPool *pool;
+};
+
+class ForEachNode: protected ASTVisitor
 {
     Document::Ptr doc;
-    Document::Ptr pattern;
+    AST *pattern;
 
 public:
-    ForEachBinaryExpression(Document::Ptr doc, Document::Ptr pattern)
-        : ASTVisitor(doc->control()), doc(doc), pattern(pattern) {}
+    ForEachNode(Document::Ptr doc)
+        : ASTVisitor(doc->control()), doc(doc),
+          matcher(doc->translationUnit()) {}
 
     void operator()() { accept(doc->translationUnit()->ast()); }
 
 protected:
     using ASTVisitor::visit;
 
-    virtual bool visit(BinaryExpressionAST *ast)
+    virtual bool preVisit(AST *ast)
     {
-        ASTMatcher matcher(doc->translationUnit(), pattern->translationUnit());
+        PatternBuilder ir;
+        //IfStatementAST *pattern = ir.IfStatement(ir.SimpleName());
 
-        if (ast->match(ast, pattern->translationUnit()->ast(), &matcher)) {
-            translationUnit()->warning(ast->binary_op_token, "binary expression");
-        }
+        CompoundStatementAST *pattern = ir.CompoundStatement();
+
+        if (ast->match(ast, pattern, &matcher))
+            translationUnit()->warning(ast->firstToken(), "matched");
 
         return true;
     }
+
+    ASTMatcher matcher;
 };
 
 int main(int argc, char *argv[])
@@ -86,10 +146,6 @@ int main(int argc, char *argv[])
 
     QStringList files = app.arguments();
     files.removeFirst();
-
-    Document::Ptr pattern = Document::create("<pattern>");
-    pattern->setSource("__y < __x");
-    pattern->parse(Document::ParseExpression);
 
     foreach (const QString &fileName, files) {
         QFile file(fileName);
@@ -104,9 +160,8 @@ int main(int argc, char *argv[])
         doc->setSource(source);
         doc->parse();
 
-        ForEachBinaryExpression forEachBinaryExpression(doc, pattern);
-
-        forEachBinaryExpression();
+        ForEachNode forEachNode(doc);
+        forEachNode();
     }
 
     return EXIT_SUCCESS;
