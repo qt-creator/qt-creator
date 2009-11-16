@@ -141,7 +141,7 @@ bool QMakeStep::init(const QString &name)
     setEnvironment(name, m_pro->environment(bc));
 
     setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_QMAKE);
-    return AbstractProcessStep::init(name);
+    return AbstractMakeStep::init(name);
 }
 
 void QMakeStep::run(QFutureInterface<bool> &fi)
@@ -156,7 +156,7 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
         fi.reportResult(true);
         return;
     }
-    AbstractProcessStep::run(fi);
+    AbstractMakeStep::run(fi);
 }
 
 QString QMakeStep::name()
