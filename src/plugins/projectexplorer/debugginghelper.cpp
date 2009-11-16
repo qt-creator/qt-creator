@@ -115,6 +115,10 @@ QString DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(const QStrin
 {
     const QString dumperSourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/gdbmacros/");
     QDateTime lastModified = QFileInfo(dumperSourcePath + "gdbmacros.cpp").lastModified();
+    // We pretend that the lastmodified of gdbmacros.cpp is 5 minutes before what the file system says
+    // Because afer a installation from the package the modified dates of gdbmacros.cpp
+    // and the actual library are close to each other, but not deterministic in one direction
+    lastModified = lastModified.addSecs(-300);
 
     QFileInfo fileInfo;
     foreach(const QString &directory, debuggingHelperLibraryDirectories(qtInstallData)) {

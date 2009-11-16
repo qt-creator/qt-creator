@@ -2135,19 +2135,23 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
         *value = qvariant_cast<QColor>(*v).name();
         break;
     case QVariant::KeySequence:
+        #ifndef QT_NO_SHORTCUT
         *value = qvariant_cast<QKeySequence>(*v).toString();
+        #else 
+        *value = QString::fromLatin1("Disabled by QT_NO_SHORTCUT");
+        #endif
         break;
     case QVariant::SizePolicy:
         *value = sizePolicyValue(qvariant_cast<QSizePolicy>(*v));
         break;
     #endif
     default: {
-        static const char *qTypeFormat = sizeof(void *) == sizeof(long) ?
-                                            "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)0x%lx)" :
-                                            "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)0x%llx)";
-        static const char *nonQTypeFormat = sizeof(void *) == sizeof(long) ?
-                                            "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)0x%lx)" :
-                                            "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)0x%llx)";
+        static const char *qTypeFormat = sizeof(void *) == sizeof(long)
+            ? "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)0x%lx)"
+            : "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)0x%llx)";
+        static const char *nonQTypeFormat = sizeof(void *) == sizeof(long)
+            ? "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)0x%lx)"
+            : "'%s "NS"qVariantValue<%s >'(*('"NS"QVariant'*)0x%llx)";
         char buf[1000];
         const char *format = (v->typeName()[0] == 'Q') ? qTypeFormat : nonQTypeFormat;
         qsnprintf(buf, sizeof(buf) - 1, format, v->typeName(), v->typeName(), v);
