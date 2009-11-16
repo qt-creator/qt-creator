@@ -693,8 +693,7 @@ void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar typedCha
     }
 
     int initialIndent = 0;
-    QTextBlock it = block.previous();
-    for (; it.isValid(); it = it.previous()) {
+    for (QTextBlock it = block.previous(); it.isValid(); it = it.previous()) {
         const QString text = it.text();
 
         if (! text.isEmpty()) {
@@ -702,8 +701,6 @@ void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar typedCha
             break;
         }
     }
-
-    // default indent is initialIndent ..
 
     const int braceDepth = blockBraceDepth(block.previous());
     const int previousBraceDepth = blockBraceDepth(block.previous().previous());
