@@ -146,7 +146,12 @@ void GeneralSettingsPage::apply()
     if (currentIndex != -1)
         fontStyle = m_ui.styleComboBox->itemText(currentIndex);
     font.setBold(fontDatabase.bold(family, fontStyle));
-    font.setItalic(fontDatabase.italic(family, fontStyle));
+    if (fontStyle.contains(QLatin1String("Italic")))
+        font.setStyle(QFont::StyleItalic);
+    else if (fontStyle.contains(QLatin1String("Oblique")))
+        font.setStyle(QFont::StyleOblique);
+    else
+        font.setStyle(QFont::StyleNormal);
 
     const int weight = fontDatabase.weight(family, fontStyle);
     if (weight >= 0)    // Weight < 0 asserts...
