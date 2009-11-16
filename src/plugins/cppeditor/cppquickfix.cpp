@@ -33,6 +33,8 @@
 #include <cplusplus/CppDocument.h>
 
 #include <TranslationUnit.h>
+#include <ASTVisitor.h>
+#include <AST.h>
 #include <Token.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -43,11 +45,58 @@ using namespace CPlusPlus;
 
 namespace {
 
+class ASTPath: public ASTVisitor
+{
+    Document::Ptr _doc;
+    unsigned _line;
+    unsigned _column;
+    QList<AST *> _nodes;
+
+public:
+    ASTPath(Document::Ptr doc)
+        : ASTVisitor(doc->control()), _doc(doc), _line(0), _column(0) {}
+
+    QList<AST *> operator()(const QTextCursor &cursor)
+    {
+        _nodes.clear();
+        _line = cursor.blockNumber() + 1;
+        _column = cursor.columnNumber() + 1;
+        accept(_doc->translationUnit()->ast());
+        return _nodes;
+    }
+
+protected:
+    virtual bool preVisit(AST *ast)
+    {
+        unsigned firstToken = ast->firstToken();
+        unsigned lastToken = ast->lastToken();
+
+        if (firstToken > 0 && lastToken > firstToken) {
+            unsigned startLine, startColumn;
+            getTokenStartPosition(firstToken, &startLine, &startColumn);
+
+            if (_line > startLine || (_line == startLine && _column >= startColumn)) {
+
+                unsigned endLine, endColumn;
+                getTokenEndPosition(lastToken - 1, &endLine, &endColumn);
+
+                if (_line < endLine || (_line == endLine && _column < endColumn)) {
+                    _nodes.append(ast);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+};
+
 class HelloQuickFixOp: public QuickFixOperation
 {
 public:
-    HelloQuickFixOp(Document::Ptr doc, const Snapshot &snapshot)
-        : QuickFixOperation(doc, snapshot)
+    HelloQuickFixOp(Document::Ptr doc, const Snapshot &snapshot,
+                    const QTextCursor &textCursor)
+        : QuickFixOperation(doc, snapshot, textCursor)
     {}
 
     virtual QString description() const
@@ -55,22 +104,19 @@ public:
         return QLatin1String("Hello"); // ### tr?
     }
 
-    virtual void apply(QTextCursor cursor)
+    virtual void apply(QTextCursor)
     {
-        cursor.beginEditBlock();
-        cursor.insertBlock();
-        cursor.insertText(QLatin1String("Hello, QuickFix!\n"));
-        cursor.insertText(document()->fileName());
-        cursor.insertBlock();
-        cursor.endEditBlock();
+        // nothing to do.
     }
 };
 
 } // end of anonymous namespace
 
 
-QuickFixOperation::QuickFixOperation(CPlusPlus::Document::Ptr doc, const CPlusPlus::Snapshot &snapshot)
-    : _doc(doc), _snapshot(snapshot)
+QuickFixOperation::QuickFixOperation(CPlusPlus::Document::Ptr doc,
+                                     const CPlusPlus::Snapshot &snapshot,
+                                     const QTextCursor &textCursor)
+    : _doc(doc), _snapshot(snapshot), _textCursor(textCursor)
 { }
 
 QuickFixOperation::~QuickFixOperation()
@@ -79,8 +125,21 @@ QuickFixOperation::~QuickFixOperation()
 QTextCursor QuickFixOperation::textCursor() const
 { return _textCursor; }
 
-void QuickFixOperation::setTextCursor(const QTextCursor &tc)
-{ _textCursor = tc; }
+QTextCursor QuickFixOperation::cursor(AST *ast) const
+{
+    TranslationUnit *unit = document()->translationUnit();
+    unsigned startLine, startColumn, endLine, endColumn;
+    unit->getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
+    unit->getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
+
+    QTextDocument *textDocument = _textCursor.document();
+    QTextCursor tc(textDocument);
+    tc.setPosition(textDocument->findBlockByNumber(startLine - 1).position() + startColumn - 1);
+    tc.setPosition(textDocument->findBlockByNumber(endLine - 1).position() + endColumn - 1,
+                   QTextCursor::KeepAnchor);
+
+    return tc;
+}
 
 const CPlusPlus::Token &QuickFixOperation::tokenAt(unsigned index) const
 { return _doc->translationUnit()->tokenAt(index); }
@@ -134,14 +193,10 @@ bool CPPQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editor)
 { return qobject_cast<CPPEditorEditable *>(editor) != 0; }
 
 bool CPPQuickFixCollector::triggersCompletion(TextEditor::ITextEditable *)
-{
-    qDebug() << Q_FUNC_INFO;
-    return false;
-}
+{ return false; }
 
 int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 {
-    qDebug() << Q_FUNC_INFO;
     Q_ASSERT(editable != 0);
 
     _editor = qobject_cast<CPPEditor *>(editable->widget());
@@ -149,10 +204,22 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 
     const SemanticInfo info = _editor->semanticInfo();
 
+    QTextCursor textCursor = _editor->textCursor();
+
+    if (info.revision != _editor->document()->revision()) {
+        // outdated
+        qWarning() << "TODO: outdated semantic info, force a reparse.";
+        return -1;
+    }
+
     if (info.doc) {
-        QuickFixOperationPtr op(new HelloQuickFixOp(info.doc, info.snapshot));
-        _quickFixes.append(op);
-        return editable->position();
+        ASTPath astPath(info.doc);
+
+        const QList<AST *> path = astPath(_editor->textCursor());
+        // ### build the list of the quick fix ops by scanning path.
+
+        if (! _quickFixes.isEmpty())
+            return editable->position();
     }
 
     return -1;
@@ -160,8 +227,6 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 
 void CPPQuickFixCollector::completions(QList<TextEditor::CompletionItem> *quickFixItems)
 {
-    qDebug() << Q_FUNC_INFO;
-
     for (int i = 0; i < _quickFixes.size(); ++i) {
         QuickFixOperationPtr op = _quickFixes.at(i);
 
@@ -174,8 +239,6 @@ void CPPQuickFixCollector::completions(QList<TextEditor::CompletionItem> *quickF
 
 void CPPQuickFixCollector::complete(const TextEditor::CompletionItem &item)
 {
-    qDebug() << Q_FUNC_INFO;
-
     const int index = item.data.toInt();
 
     if (index < _quickFixes.size()) {

@@ -33,6 +33,7 @@
 #include <texteditor/icompletioncollector.h>
 
 #include <cplusplus/CppDocument.h>
+#include <ASTfwd.h>
 
 #include <QtCore/QSharedPointer>
 #include <QtGui/QTextCursor>
@@ -54,18 +55,18 @@ class QuickFixOperation
 
 public:
     QuickFixOperation(CPlusPlus::Document::Ptr doc,
-                      const CPlusPlus::Snapshot &snapshot);
+                      const CPlusPlus::Snapshot &snapshot,
+                      const QTextCursor &textCursor);
 
     virtual ~QuickFixOperation();
 
     virtual QString description() const = 0;
-    virtual void apply(QTextCursor cursor) = 0;
+    virtual void apply(QTextCursor tc) = 0;
 
     CPlusPlus::Document::Ptr document() const { return _doc; }
     CPlusPlus::Snapshot snapshot() const { return _snapshot; }
 
     QTextCursor textCursor() const;
-    void setTextCursor(const QTextCursor &tc);
 
 protected:
     const CPlusPlus::Token &tokenAt(unsigned index) const;
@@ -75,6 +76,8 @@ protected:
                              unsigned *column) const;
 
     QTextCursor cursor(unsigned index) const;
+    QTextCursor cursor(CPlusPlus::AST *ast) const;
+
     QTextCursor moveAtStartOfToken(unsigned index) const;
     QTextCursor moveAtEndOfToken(unsigned index) const;
 
