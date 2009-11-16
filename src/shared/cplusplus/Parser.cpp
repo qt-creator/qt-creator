@@ -441,6 +441,8 @@ bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
             rewind(start_declaration + 1);
             skipUntilDeclaration();
         }
+
+        _templateArgumentList.clear();
     }
 
     node = ast;
@@ -568,6 +570,8 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
                 rewind(start_declaration + 1);
                 skipUntilDeclaration();
             }
+
+            _templateArgumentList.clear();
         }
         match(T_RBRACE, &ast->rbrace_token);
         node = ast;
@@ -692,11 +696,9 @@ bool Parser::parseOperatorFunctionId(NameAST *&node)
 
 Parser::TemplateArgumentListEntry *Parser::templateArgumentListEntry(unsigned tokenIndex)
 {
-    for (unsigned i = 0; i < _templateArgumentList.size(); ++i) {
-        TemplateArgumentListEntry *entry = &_templateArgumentList[i];
-        if (entry->index == tokenIndex)
-            return entry;
-    }
+    std::map<unsigned, TemplateArgumentListEntry>::iterator it =_templateArgumentList.find(tokenIndex);
+    if (it != _templateArgumentList.end())
+        return &it->second;
 
     return 0;
 }
@@ -729,11 +731,11 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
             }
         }
 
-        _templateArgumentList.push_back(TemplateArgumentListEntry(start, cursor(), node));
+        _templateArgumentList.insert(std::make_pair(cursor(), TemplateArgumentListEntry(start, cursor(), node)));
         return true;
     }
 
-    _templateArgumentList.push_back(TemplateArgumentListEntry(start, cursor(), 0));
+    _templateArgumentList.insert(std::make_pair(cursor(), TemplateArgumentListEntry(start, cursor(), 0)));
 
     return false;
 }
