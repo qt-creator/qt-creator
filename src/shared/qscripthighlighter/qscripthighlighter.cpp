@@ -116,7 +116,7 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                 } else {
                     const QChar c = text.at(token.offset);
 
-                    if (m_duiEnabled && c.isUpper() || !m_duiEnabled && c == QLatin1Char('Q'))
+                    if ((m_duiEnabled && c.isUpper()) || (!m_duiEnabled && c == QLatin1Char('Q')))
                         setFormat(token.offset, token.length, m_formats[TypeFormat]);
                     else
                         setFormat(token.offset, token.length, emptyFormat);
