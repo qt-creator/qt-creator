@@ -57,7 +57,7 @@ public:
         {
             QVERIFY(unit);
             QVERIFY(unit->ast());
-            Semantic sem(unit->control());
+            Semantic sem(unit);
             TranslationUnitAST *ast = unit->ast()->asTranslationUnit();
             QVERIFY(ast);
             for (DeclarationListAST *decl = ast->declaration_list; decl; decl = decl->next) {

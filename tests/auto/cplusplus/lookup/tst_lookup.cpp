@@ -30,8 +30,8 @@ class ClassSymbols: protected ASTVisitor,
     public QMap<ClassSpecifierAST *, Class *>
 {
 public:
-    ClassSymbols(Control *control)
-        : ASTVisitor(control)
+    ClassSymbols(TranslationUnit *translationUnit)
+        : ASTVisitor(translationUnit)
     { }
 
     QMap<ClassSpecifierAST *, Class *> asMap() const
@@ -106,7 +106,7 @@ void tst_Lookup::base_class_defined_1()
     TranslationUnitAST *ast = unit->ast()->asTranslationUnit();
     QVERIFY(ast != 0);
 
-    ClassSymbols classSymbols(doc->control());
+    ClassSymbols classSymbols(unit);
     classSymbols(ast);
 
     QCOMPARE(classSymbols.size(), 2);
@@ -173,14 +173,14 @@ void tst_Lookup::simple_class_1()
     const ResolveExpression resolver(ctxt);
 
     // check method resolving:
-    QList<ResolveExpression::Result> results = resolver.resolveMember(allocMethod->name(), impl);
+    QList<LookupItem> results = resolver.resolveMember(allocMethod->name(), impl);
     QCOMPARE(results.size(), 2);
-    QVERIFY(results.at(0).second == allocMethod || results.at(1).second == allocMethod);
-    QVERIFY(results.at(0).second->asDeclaration() || results.at(1).second->asDeclaration());
+    QVERIFY(results.at(0).lastVisibleSymbol() == allocMethod || results.at(1).lastVisibleSymbol() == allocMethod);
+    QVERIFY(results.at(0).lastVisibleSymbol()->asDeclaration() || results.at(1).lastVisibleSymbol()->asDeclaration());
 
     results = resolver.resolveMember(deallocMethod->name(), impl);
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0).second, deallocMethod);
+    QCOMPARE(results.at(0).lastVisibleSymbol(), deallocMethod);
 }
 
 void tst_Lookup::class_with_baseclass()
@@ -240,13 +240,13 @@ void tst_Lookup::class_with_baseclass()
 
     const ResolveExpression resolver(ctxt);
 
-    QList<ResolveExpression::Result> results = resolver.resolveMember(baseDecl->name(), zooImpl);
+    QList<LookupItem> results = resolver.resolveMember(baseDecl->name(), zooImpl);
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0).second, baseDecl);
+    QCOMPARE(results.at(0).lastVisibleSymbol(), baseDecl);
 
     results = resolver.resolveMember(baseMethod->name(), zooImpl);
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0).second, baseMethod);
+    QCOMPARE(results.at(0).lastVisibleSymbol(), baseMethod);
 }
 
 void tst_Lookup::class_with_protocol_with_protocol()
@@ -308,13 +308,13 @@ void tst_Lookup::class_with_protocol_with_protocol()
 
     const ResolveExpression resolver(ctxt);
 
-    QList<ResolveExpression::Result> results = resolver.resolveMember(p1method->name(), zooImpl);
+    QList<LookupItem> results = resolver.resolveMember(p1method->name(), zooImpl);
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0).second, p1method);
+    QCOMPARE(results.at(0).lastVisibleSymbol(), p1method);
 
     results = resolver.resolveMember(p1method->name(), zooImpl);
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0).second, p1method);
+    QCOMPARE(results.at(0).lastVisibleSymbol(), p1method);
 }
 
 QTEST_APPLESS_MAIN(tst_Lookup)
