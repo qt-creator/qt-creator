@@ -362,9 +362,11 @@ void TextEditorActionHandler::gotoAction()
 {
     Locator::LocatorManager *locatorManager = Locator::LocatorManager::instance();
     QTC_ASSERT(locatorManager, return);
-    const QString shortcut = TextEditorPlugin::instance()->lineNumberFilter()->shortcutString();
-    const QString text = tr(" <line number>");
-    locatorManager->show(shortcut + text, 2, text.length()-1);
+    QString locatorString = TextEditorPlugin::instance()->lineNumberFilter()->shortcutString();
+    locatorString += QLatin1Char(' ');
+    const int selectionStart = locatorString.size();
+    locatorString += tr("<line number>");
+    locatorManager->show(locatorString, selectionStart, locatorString.size() - selectionStart);
 }
 
 void TextEditorActionHandler::printAction()

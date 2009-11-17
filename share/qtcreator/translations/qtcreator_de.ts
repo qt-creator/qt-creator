@@ -14657,7 +14657,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
     <message>
         <location line="+92"/>
-        <source> &lt;line number&gt;</source>
+        <source>&lt;line number&gt;</source>
         <translation>&lt;Zeilennummer&gt;</translation>
     </message>
 </context>

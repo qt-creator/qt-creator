@@ -14757,7 +14757,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <location line="+92"/>
-        <source> &lt;line number&gt;</source>
+        <source>&lt;line number&gt;</source>
         <translation> &lt;numer linii&gt;</translation>
     </message>
 </context>

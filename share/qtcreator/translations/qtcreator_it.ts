@@ -13272,7 +13272,7 @@ Queste codifiche dovrebbero andare bene:</translation>
     </message>
     <message>
         <location line="+92"/>
-        <source> &lt;line number&gt;</source>
+        <source>&lt;line number&gt;</source>
         <translation>&lt;numero di riga&gt;</translation>
     </message>
 </context>
