@@ -41,12 +41,12 @@
 using namespace CPlusPlus;
 
 FindUsages::FindUsages(Document::Ptr doc, const Snapshot &snapshot, QFutureInterface<Usage> *future)
-    : ASTVisitor(doc->control()),
+    : ASTVisitor(doc->translationUnit()),
       _future(future),
       _doc(doc),
       _snapshot(snapshot),
       _source(_doc->source()),
-      _sem(doc->control()),
+      _sem(doc->translationUnit()),
       _inSimpleDeclaration(0)
 {
     _snapshot.insert(_doc);

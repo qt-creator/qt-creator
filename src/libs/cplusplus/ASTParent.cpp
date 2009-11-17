@@ -32,8 +32,8 @@
 
 using namespace CPlusPlus;
 
-ASTParent::ASTParent(Control *control, AST *rootNode)
-    : ASTVisitor(control)
+ASTParent::ASTParent(TranslationUnit *translationUnit, AST *rootNode)
+    : ASTVisitor(translationUnit)
 {
     accept(rootNode);
 }

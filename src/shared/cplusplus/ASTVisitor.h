@@ -61,12 +61,13 @@ class CPLUSPLUS_EXPORT ASTVisitor
     void operator =(const ASTVisitor &other);
 
 public:
-    ASTVisitor(Control *control);
+    ASTVisitor(TranslationUnit *unit);
     virtual ~ASTVisitor();
 
-    Control *control() const;
     TranslationUnit *translationUnit() const;
+    void setTranslationUnit(TranslationUnit *translationUnit);
 
+    Control *control() const;
     unsigned tokenCount() const;
     const Token &tokenAt(unsigned index) const;
     int tokenKind(unsigned index) const;
@@ -352,7 +353,7 @@ public:
     virtual void endVisit(ObjCSynchronizedStatementAST *) { }
 
 private:
-    Control *_control;
+    TranslationUnit *_translationUnit;
 };
 
 } // end of namespace CPlusPlus

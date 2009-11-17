@@ -41,7 +41,7 @@ using namespace CPlusPlus;
 
 
 CheckUndefinedSymbols::CheckUndefinedSymbols(Document::Ptr doc)
-    : ASTVisitor(doc->control()), _doc(doc)
+    : ASTVisitor(doc->translationUnit()), _doc(doc)
 { }
 
 CheckUndefinedSymbols::~CheckUndefinedSymbols()

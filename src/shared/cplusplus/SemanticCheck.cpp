@@ -52,7 +52,7 @@
 using namespace CPlusPlus;
 
 SemanticCheck::SemanticCheck(Semantic *semantic)
-    : ASTVisitor(semantic->control()),
+    : ASTVisitor(semantic->translationUnit()),
       _semantic(semantic)
 { }
 

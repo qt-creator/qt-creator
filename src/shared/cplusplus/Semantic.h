@@ -61,9 +61,10 @@ class CPLUSPLUS_EXPORT Semantic
     void operator =(const Semantic &other);
 
 public:
-    Semantic(Control *control);
+    Semantic(TranslationUnit *translationUnit);
     virtual ~Semantic();
 
+    TranslationUnit *translationUnit() const;    
     Control *control() const;
 
     FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope);

@@ -72,9 +72,9 @@ static QList<_Tp> removeDuplicates(const QList<_Tp> &results)
 // ResolveExpression
 /////////////////////////////////////////////////////////////////////
 ResolveExpression::ResolveExpression(const LookupContext &context)
-    : ASTVisitor(context.expressionDocument()->control()),
+    : ASTVisitor(context.expressionDocument()->translationUnit()),
       _context(context),
-      sem(_context.control())
+      sem(context.expressionDocument()->translationUnit())
 { }
 
 ResolveExpression::~ResolveExpression()

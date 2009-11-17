@@ -404,7 +404,7 @@ void Document::check(CheckMode mode)
     if (! isParsed())
         parse();
 
-    Semantic semantic(_control);
+    Semantic semantic(_translationUnit);
     if (mode == FastCheck)
         semantic.setSkipFunctionBodies(true);
 

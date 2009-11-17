@@ -53,8 +53,8 @@
 
 using namespace CPlusPlus;
 
-ASTVisitor::ASTVisitor(Control *control)
-    : _control(control)
+ASTVisitor::ASTVisitor(TranslationUnit *translationUnit)
+    : _translationUnit(translationUnit)
 { }
 
 ASTVisitor::~ASTVisitor()
@@ -64,10 +64,18 @@ void ASTVisitor::accept(AST *ast)
 { AST::accept(ast, this); }
 
 Control *ASTVisitor::control() const
-{ return _control; }
+{
+    if (_translationUnit)
+        return _translationUnit->control();
+
+    return 0;
+}
 
 TranslationUnit *ASTVisitor::translationUnit() const
-{ return _control->translationUnit(); }
+{ return _translationUnit; }
+
+void ASTVisitor::setTranslationUnit(TranslationUnit *translationUnit)
+{ _translationUnit = translationUnit; }
 
 unsigned ASTVisitor::tokenCount() const
 { return translationUnit()->tokenCount(); }

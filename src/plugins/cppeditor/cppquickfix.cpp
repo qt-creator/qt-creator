@@ -54,7 +54,9 @@ class ASTPath: public ASTVisitor
 
 public:
     ASTPath(Document::Ptr doc)
-        : ASTVisitor(doc->control()), _doc(doc), _line(0), _column(0) {}
+        : ASTVisitor(doc->translationUnit()),
+          _doc(doc), _line(0), _column(0)
+    {}
 
     QList<AST *> operator()(const QTextCursor &cursor)
     {

@@ -39,7 +39,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT ASTParent: protected ASTVisitor
 {
 public:
-    ASTParent(Control *control, AST *rootNode);
+    ASTParent(TranslationUnit *transaltionUnit, AST *rootNode);
     virtual ~ASTParent();
 
     AST *operator()(AST *ast) const;

@@ -191,8 +191,8 @@ class FindUses: protected ASTVisitor
     FindScope findScope;
 
 public:
-    FindUses(Control *control)
-        : ASTVisitor(control)
+    FindUses(TranslationUnit *translationUnit)
+        : ASTVisitor(translationUnit)
     { }
 
     // local and external uses.
@@ -382,8 +382,8 @@ class FunctionDefinitionUnderCursor: protected ASTVisitor
     FunctionDefinitionAST *_functionDefinition;
 
 public:
-    FunctionDefinitionUnderCursor(Control *control)
-        : ASTVisitor(control),
+    FunctionDefinitionUnderCursor(TranslationUnit *translationUnit)
+        : ASTVisitor(translationUnit),
           _line(0), _column(0)
     { }
 
@@ -427,8 +427,9 @@ class ProcessDeclarators: protected ASTVisitor
     bool _visitFunctionDeclarator;
 
 public:
-    ProcessDeclarators(Control *control)
-            : ASTVisitor(control), _visitFunctionDeclarator(true)
+    ProcessDeclarators(TranslationUnit *translationUnit)
+        : ASTVisitor(translationUnit),
+          _visitFunctionDeclarator(true)
     { }
 
     QList<DeclaratorIdAST *> operator()(FunctionDefinitionAST *ast)
@@ -2030,14 +2031,13 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         doc->check();
     }
 
-    Control *control = doc->control();
     TranslationUnit *translationUnit = doc->translationUnit();
     AST *ast = translationUnit->ast();
 
-    FunctionDefinitionUnderCursor functionDefinitionUnderCursor(control);
+    FunctionDefinitionUnderCursor functionDefinitionUnderCursor(translationUnit);
     FunctionDefinitionAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
 
-    FindUses useTable(control);
+    FindUses useTable(translationUnit);
     useTable(currentFunctionDefinition);
 
     SemanticInfo semanticInfo;

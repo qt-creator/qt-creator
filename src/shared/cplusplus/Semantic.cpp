@@ -64,9 +64,10 @@ using namespace CPlusPlus;
 class Semantic::Data
 {
 public:
-    Data(Semantic *semantic, Control *control)
+    Data(Semantic *semantic, TranslationUnit *translationUnit)
         : semantic(semantic),
-          control(control),
+          translationUnit(translationUnit),
+          control(translationUnit->control()),
           skipFunctionBodies(false),
           visibility(Symbol::Public),
           ojbcVisibility(Symbol::Protected),
@@ -90,6 +91,7 @@ public:
     }
 
     Semantic *semantic;
+    TranslationUnit *translationUnit;
     Control *control;
     bool skipFunctionBodies;
     int visibility;
@@ -103,9 +105,9 @@ public:
     CheckName *checkName;
 };
 
-Semantic::Semantic(Control *control)
+Semantic::Semantic(TranslationUnit *translationUnit)
 {
-    d = new Data(this, control);
+    d = new Data(this, translationUnit);
     d->checkSpecifier = new CheckSpecifier(this);
     d->checkDeclaration = new CheckDeclaration(this);
     d->checkDeclarator = new CheckDeclarator(this);
@@ -116,6 +118,9 @@ Semantic::Semantic(Control *control)
 
 Semantic::~Semantic()
 { delete d; }
+
+TranslationUnit *Semantic::translationUnit() const
+{ return d->translationUnit; }
 
 Control *Semantic::control() const
 { return d->control; }
