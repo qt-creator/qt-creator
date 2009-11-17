@@ -73,7 +73,7 @@ QWidget *MessageOutputWindow::outputWidget(QWidget *parent)
 
 QString MessageOutputWindow::name() const
 {
-    return tr("General");
+    return tr("General Messages");
 }
 
 void MessageOutputWindow::visibilityChanged(bool /*b*/)
