@@ -103,6 +103,7 @@ void WINSCWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
     }
     env.prependOrSetPath(QString("%1\\epoc32\\tools").arg(m_deviceRoot)); // e.g. make.exe
     env.prependOrSetPath(QString("%1\\epoc32\\gcc\\bin").arg(m_deviceRoot)); // e.g. gcc.exe
+    env.prependOrSetPath(QString("%1\\perl\\bin").arg(m_deviceRoot)); // e.g. perl.exe (special SDK version)
     env.set("EPOCDEVICE", QString("%1:%2").arg(m_deviceId, m_deviceName));
     env.set("EPOCROOT", S60Devices::cleanedRootPath(m_deviceRoot));
 }

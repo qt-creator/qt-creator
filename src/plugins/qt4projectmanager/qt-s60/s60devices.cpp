@@ -314,6 +314,7 @@ void S60ToolChainMixin::addEpocToEnvironment(ProjectExplorer::Environment *env) 
 {
     env->prependOrSetPath(m_device.epocRoot + QLatin1String("\\epoc32\\tools")); // e.g. make.exe
     env->prependOrSetPath(m_device.epocRoot + QLatin1String("\\epoc32\\gcc\\bin")); // e.g. gcc.exe
+    env->prependOrSetPath(m_device.epocRoot + QLatin1String("\\perl\\bin")); // e.g. perl.exe (special SDK version)
     env->set(QLatin1String("EPOCDEVICE"), m_device.id + QLatin1Char(':') + m_device.name);
     env->set(QLatin1String("EPOCROOT"), S60Devices::cleanedRootPath(m_device.epocRoot));
 }
