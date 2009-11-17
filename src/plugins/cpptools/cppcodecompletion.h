@@ -95,14 +95,14 @@ private:
 
     bool completeInclude(const QTextCursor &cursor);
 
-    bool completeConstructorOrFunction(const QList<CPlusPlus::TypeOfExpression::Result> &,
+    bool completeConstructorOrFunction(const QList<CPlusPlus::LookupItem> &,
                                        const CPlusPlus::LookupContext &,
                                        int endOfExpression, bool toolTipOnly);
 
-    bool completeMember(const QList<CPlusPlus::TypeOfExpression::Result> &,
+    bool completeMember(const QList<CPlusPlus::LookupItem> &,
                         const CPlusPlus::LookupContext &context);
 
-    bool completeScope(const QList<CPlusPlus::TypeOfExpression::Result> &,
+    bool completeScope(const QList<CPlusPlus::LookupItem> &,
                        const CPlusPlus::LookupContext &context);
 
     void completeNamespace(const QList<CPlusPlus::Symbol *> &candidates,
@@ -114,15 +114,15 @@ private:
 
     bool completeConstructors(CPlusPlus::Class *klass);
 
-    bool completeQtMethod(const QList<CPlusPlus::TypeOfExpression::Result> &,
+    bool completeQtMethod(const QList<CPlusPlus::LookupItem> &,
                           const CPlusPlus::LookupContext &context,
                           bool wantSignals);
 
-    bool completeSignal(const QList<CPlusPlus::TypeOfExpression::Result> &results,
+    bool completeSignal(const QList<CPlusPlus::LookupItem> &results,
                         const CPlusPlus::LookupContext &context)
     { return completeQtMethod(results, context, true); }
 
-    bool completeSlot(const QList<CPlusPlus::TypeOfExpression::Result> &results,
+    bool completeSlot(const QList<CPlusPlus::LookupItem> &results,
                       const CPlusPlus::LookupContext &context)
     { return completeQtMethod(results, context, false); }
 

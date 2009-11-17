@@ -323,14 +323,13 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         ExpressionUnderCursor expressionUnderCursor;
         const QString expression = expressionUnderCursor(tc);
 
-        const QList<TypeOfExpression::Result> types =
-                typeOfExpression(expression, doc, lastSymbol);
+        const QList<LookupItem> types = typeOfExpression(expression, doc, lastSymbol);
 
         if (!types.isEmpty()) {
-            const TypeOfExpression::Result result = types.first();
+            const LookupItem result = types.first();
 
-            FullySpecifiedType firstType = result.first; // result of `type of expression'.
-            Symbol *lookupSymbol = result.second;        // lookup symbol
+            FullySpecifiedType firstType = result.type(); // result of `type of expression'.
+            Symbol *lookupSymbol = result.lastVisibleSymbol(); // lookup symbol
 
             Symbol *resolvedSymbol = lookupSymbol;
             Name *resolvedName = lookupSymbol ? lookupSymbol->name() : 0;
@@ -349,7 +348,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             m_helpId = buildHelpId(resolvedSymbol, resolvedName);
 
             if (m_toolTip.isEmpty()) {
-                Symbol *symbol = result.second;
+                Symbol *symbol = result.lastVisibleSymbol();
                 if (resolvedSymbol)
                     symbol = resolvedSymbol;
 

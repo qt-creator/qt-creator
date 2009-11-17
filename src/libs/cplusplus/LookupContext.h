@@ -31,9 +31,40 @@
 #define CPLUSPLUS_LOOKUPCONTEXT_H
 
 #include "CppDocument.h"
-#include <QPair>
+#include <FullySpecifiedType.h>
 
 namespace CPlusPlus {
+
+class CPLUSPLUS_EXPORT LookupItem
+{
+public:
+    LookupItem()
+        : _lastVisibleSymbol(0) {}
+
+    LookupItem(const FullySpecifiedType &type, Symbol *lastVisibleSymbol)
+        : _type(type), _lastVisibleSymbol(lastVisibleSymbol) {}
+
+    FullySpecifiedType type() const { return _type; }
+    void setType(const FullySpecifiedType &type) { _type = type; }
+
+    Symbol *lastVisibleSymbol() const { return _lastVisibleSymbol; }
+    void setLastVisibleSymbol(Symbol *symbol) { _lastVisibleSymbol = symbol; }
+
+    bool operator == (const LookupItem &other) const
+    {
+        if (_type == other._type)
+            return _lastVisibleSymbol == other._lastVisibleSymbol;
+
+        return false;
+    }
+
+    bool operator != (const LookupItem &result) const
+    { return ! operator == (result); }
+
+private:
+    FullySpecifiedType _type;
+    Symbol *_lastVisibleSymbol;
+};
 
 class CPLUSPLUS_EXPORT LookupContext
 {
@@ -60,7 +91,7 @@ public:
     static Symbol *canonicalSymbol(Symbol *symbol,
                                    NamespaceBinding *globalNamespaceBinding);
 
-    static Symbol *canonicalSymbol(const QList<QPair<FullySpecifiedType, Symbol *> > &candidates,
+    static Symbol *canonicalSymbol(const QList<LookupItem> &candidates,
                                    NamespaceBinding *globalNamespaceBinding);
 
     QList<Symbol *> resolve(Name *name) const
@@ -113,7 +144,7 @@ public:
     { return _visibleScopes; }
 
     QList<Scope *> visibleScopes(Symbol *symbol) const;
-    QList<Scope *> visibleScopes(const QPair<FullySpecifiedType, Symbol *> &result) const;
+    QList<Scope *> visibleScopes(const LookupItem &result) const;
 
     QList<Scope *> expand(const QList<Scope *> &scopes) const;
 
@@ -198,5 +229,9 @@ private:
 };
 
 } // end of namespace CPlusPlus
+
+
+uint qHash(const CPlusPlus::LookupItem &result);
+
 
 #endif // CPLUSPLUS_LOOKUPCONTEXT_H

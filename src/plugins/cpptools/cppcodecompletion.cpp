@@ -789,8 +789,8 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         Symbol *lastVisibleSymbol = thisDocument->findSymbolAt(line, column);
         typeOfExpression.setSnapshot(m_manager->snapshot());
 
-        QList<TypeOfExpression::Result> resolvedTypes = typeOfExpression(expression, thisDocument, lastVisibleSymbol,
-                                                                         TypeOfExpression::Preprocess);
+        QList<LookupItem> resolvedTypes = typeOfExpression(expression, thisDocument, lastVisibleSymbol,
+                                                       TypeOfExpression::Preprocess);
         LookupContext context = typeOfExpression.lookupContext();
 
         if (!typeOfExpression.expressionAST() && (! m_completionOperator ||
@@ -852,14 +852,14 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             const QString baseExpression = expressionUnderCursor(tc);
 
             // Resolve the type of this expression
-            const QList<TypeOfExpression::Result> results =
+            const QList<LookupItem> results =
                     typeOfExpression(baseExpression, thisDocument,
                                      lastVisibleSymbol,
                                      TypeOfExpression::Preprocess);
 
             // If it's a class, add completions for the constructors
-            foreach (const TypeOfExpression::Result &result, results) {
-                if (result.first->isClassType()) {
+            foreach (const LookupItem &result, results) {
+                if (result.type()->isClassType()) {
                     if (completeConstructorOrFunction(results, context, endOfExpression, true))
                         return m_startPosition;
                     break;
@@ -872,14 +872,14 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     return -1;
 }
 
-bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpression::Result> &results,
+bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &results,
                                                       const LookupContext &context,
                                                       int endOfExpression, bool toolTipOnly)
 {
     QList<Function *> functions;
 
-    foreach (const TypeOfExpression::Result &result, results) {
-        FullySpecifiedType exprTy = result.first.simplified();
+    foreach (const LookupItem &result, results) {
+        FullySpecifiedType exprTy = result.type().simplified();
 
         if (Class *klass = exprTy->asClassType()) {
             Name *className = klass->name();
@@ -909,8 +909,8 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
     }
 
     if (functions.isEmpty()) {
-        foreach (const TypeOfExpression::Result &result, results) {
-            FullySpecifiedType ty = result.first.simplified();
+        foreach (const LookupItem &result, results) {
+            FullySpecifiedType ty = result.type().simplified();
 
             if (Function *fun = ty->asFunctionType()) {
 
@@ -939,20 +939,20 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
         ResolveClass resolveClass;
         Name *functionCallOp = context.control()->operatorNameId(OperatorNameId::FunctionCallOp);
 
-        foreach (const TypeOfExpression::Result &result, results) {
-            FullySpecifiedType ty = result.first.simplified();
+        foreach (const LookupItem &result, results) {
+            FullySpecifiedType ty = result.type().simplified();
 
             if (NamedType *namedTy = ty->asNamedType()) {
                 const QList<Symbol *> classObjectCandidates = resolveClass(namedTy->name(), result, context);
 
                 foreach (Symbol *classObjectCandidate, classObjectCandidates) {
                     if (Class *klass = classObjectCandidate->asClass()) {
-                        const QList<TypeOfExpression::Result> overloads =
+                        const QList<LookupItem> overloads =
                                 resolveExpression.resolveMember(functionCallOp, klass,
                                                                 namedTy->name());
 
-                        foreach (const TypeOfExpression::Result &overloadResult, overloads) {
-                            FullySpecifiedType overloadTy = overloadResult.first.simplified();
+                        foreach (const LookupItem &overloadResult, overloads) {
+                            FullySpecifiedType overloadTy = overloadResult.type().simplified();
 
                             if (Function *funTy = overloadTy->asFunctionType())
                                 functions.append(funTy);
@@ -1060,7 +1060,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<TypeOfExpressi
     return false;
 }
 
-bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &baseResults,
+bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
                                        const LookupContext &context)
 {
     if (baseResults.isEmpty())
@@ -1070,14 +1070,14 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &ba
     ResolveClass resolveClass;
 
     bool replacedDotOperator = false;
-    const QList<TypeOfExpression::Result> classObjectResults =
+    const QList<LookupItem> classObjectResults =
             resolveExpression.resolveBaseExpression(baseResults,
                                                     m_completionOperator,
                                                     &replacedDotOperator);
 
     QList<Symbol *> classObjectCandidates;
-    foreach (const TypeOfExpression::Result &r, classObjectResults) {
-        FullySpecifiedType ty = r.first.simplified();
+    foreach (const LookupItem &r, classObjectResults) {
+        FullySpecifiedType ty = r.type().simplified();
 
         if (Class *klass = ty->asClassType())
             classObjectCandidates.append(klass);
@@ -1108,13 +1108,13 @@ bool CppCodeCompletion::completeMember(const QList<TypeOfExpression::Result> &ba
     return false;
 }
 
-bool CppCodeCompletion::completeScope(const QList<TypeOfExpression::Result> &results,
+bool CppCodeCompletion::completeScope(const QList<LookupItem> &results,
                                       const LookupContext &context)
 {
     QList<Symbol *> classes, namespaces;
 
-    foreach (TypeOfExpression::Result result, results) {
-        FullySpecifiedType ty = result.first;
+    foreach (LookupItem result, results) {
+        FullySpecifiedType ty = result.type();
 
         if (Class *classTy = ty->asClassType())
             classes.append(classTy);
@@ -1305,7 +1305,7 @@ void CppCodeCompletion::completeClass(const QList<Symbol *> &candidates,
     }
 }
 
-bool CppCodeCompletion::completeQtMethod(const QList<TypeOfExpression::Result> &results,
+bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
                                          const LookupContext &context,
                                          bool wantSignals)
 {
@@ -1321,8 +1321,8 @@ bool CppCodeCompletion::completeQtMethod(const QList<TypeOfExpression::Result> &
     o.setShowFunctionSignatures(true);
 
     QSet<QString> signatures;
-    foreach (const TypeOfExpression::Result &p, results) {
-        FullySpecifiedType ty = p.first.simplified();
+    foreach (const LookupItem &p, results) {
+        FullySpecifiedType ty = p.type().simplified();
 
         if (PointerType *ptrTy = ty->asPointerType())
             ty = ptrTy->elementType().simplified();

@@ -745,12 +745,13 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
 
     Symbol *lastVisibleSymbol = doc->findSymbolAt(line, col);
 
-    const QList<TypeOfExpression::Result> results = typeOfExpression(code, doc,
-                                                                     lastVisibleSymbol,
-                                                                     TypeOfExpression::Preprocess);
+    const QList<LookupItem> results = typeOfExpression(code, doc,
+                                                   lastVisibleSymbol,
+                                                   TypeOfExpression::Preprocess);
 
     NamespaceBindingPtr glo = bind(doc, snapshot);
     Symbol *canonicalSymbol = LookupContext::canonicalSymbol(results, glo.data());
+
     return canonicalSymbol;
 }
 
@@ -1079,7 +1080,7 @@ void CPPEditor::switchDeclarationDefinition()
     if (f) {
         TypeOfExpression typeOfExpression;
         typeOfExpression.setSnapshot(m_modelManager->snapshot());
-        QList<TypeOfExpression::Result> resolvedSymbols = typeOfExpression(QString(), doc, lastSymbol);
+        QList<LookupItem> resolvedSymbols = typeOfExpression(QString(), doc, lastSymbol);
         const LookupContext &context = typeOfExpression.lookupContext();
 
         QualifiedNameId *q = qualifiedNameIdForSymbol(f, context);
@@ -1164,46 +1165,47 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     const QString expression = expressionUnderCursor(tc);
     TypeOfExpression typeOfExpression;
     typeOfExpression.setSnapshot(snapshot);
-    QList<TypeOfExpression::Result> resolvedSymbols =
+    QList<LookupItem> resolvedSymbols =
             typeOfExpression(expression, doc, lastSymbol);
 
     if (!resolvedSymbols.isEmpty()) {
-        TypeOfExpression::Result result = resolvedSymbols.first();
+        LookupItem result = resolvedSymbols.first();
+        const FullySpecifiedType ty = result.type().simplified();
 
-        if (result.first->isForwardClassDeclarationType()) {
+        if (ty->isForwardClassDeclarationType()) {
             while (! resolvedSymbols.isEmpty()) {
-                TypeOfExpression::Result r = resolvedSymbols.takeFirst();
+                LookupItem r = resolvedSymbols.takeFirst();
 
-                if (! r.first->isForwardClassDeclarationType()) {
+                if (! r.type()->isForwardClassDeclarationType()) {
                     result = r;
                     break;
                 }
             }
         }
 
-        if (result.first->isObjCForwardClassDeclarationType()) {
+        if (ty->isObjCForwardClassDeclarationType()) {
             while (! resolvedSymbols.isEmpty()) {
-                TypeOfExpression::Result r = resolvedSymbols.takeFirst();
+                LookupItem r = resolvedSymbols.takeFirst();
 
-                if (! r.first->isObjCForwardClassDeclarationType()) {
+                if (! r.type()->isObjCForwardClassDeclarationType()) {
                     result = r;
                     break;
                 }
             }
         }
 
-        if (result.first->isObjCForwardProtocolDeclarationType()) {
+        if (ty->isObjCForwardProtocolDeclarationType()) {
             while (! resolvedSymbols.isEmpty()) {
-                TypeOfExpression::Result r = resolvedSymbols.takeFirst();
+                LookupItem r = resolvedSymbols.takeFirst();
 
-                if (! r.first->isObjCForwardProtocolDeclarationType()) {
+                if (! r.type()->isObjCForwardProtocolDeclarationType()) {
                     result = r;
                     break;
                 }
             }
         }
 
-        if (Symbol *symbol = result.second) {
+        if (Symbol *symbol = result.lastVisibleSymbol()) {
             Symbol *def = 0;
             if (resolveTarget && !lastSymbol->isFunction())
                 def = findDefinition(symbol);

@@ -45,9 +45,6 @@ class Macro;
 class CPLUSPLUS_EXPORT TypeOfExpression
 {
 public:
-    typedef QPair<FullySpecifiedType, Symbol *> Result;
-
-public:
     TypeOfExpression();
 
     Snapshot snapshot() const;
@@ -78,7 +75,7 @@ public:
      * @param document          The document the expression is part of.
      * @param lastVisibleSymbol The last visible symbol in the document.
      */
-    QList<Result> operator()(const QString &expression, Document::Ptr document,
+    QList<LookupItem> operator()(const QString &expression, Document::Ptr document,
                              Symbol *lastVisibleSymbol,
                              PreprocessMode mode = NoPreprocess);
 

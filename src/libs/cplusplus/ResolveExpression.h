@@ -41,34 +41,31 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT ResolveExpression: protected ASTVisitor
 {
 public:
-    typedef QPair<FullySpecifiedType, Symbol *> Result;
-
-public:
     ResolveExpression(const LookupContext &context);
     virtual ~ResolveExpression();
 
-    QList<Result> operator()(ExpressionAST *ast);
+    QList<LookupItem> operator()(ExpressionAST *ast);
 
-    QList<Result> resolveMemberExpression(const QList<Result> &baseResults,
+    QList<LookupItem> resolveMemberExpression(const QList<LookupItem> &baseResults,
                                           unsigned accessOp,
                                           Name *memberName,
                                           bool *replacedDotOperator = 0) const;
 
-    QList<Result> resolveBaseExpression(const QList<Result> &baseResults,
+    QList<LookupItem> resolveBaseExpression(const QList<LookupItem> &baseResults,
                                         int accessOp,
                                         bool *replacedDotOperator = 0) const;
 
-    QList<Result> resolveMember(Name *memberName, Class *klass,
+    QList<LookupItem> resolveMember(Name *memberName, Class *klass,
                                 Name *className = 0) const;
 
-    QList<Result> resolveMember(Name *memberName, ObjCClass *klass) const;
+    QList<LookupItem> resolveMember(Name *memberName, ObjCClass *klass) const;
 
 protected:
-    QList<Result> switchResults(const QList<Result> &symbols);
+    QList<LookupItem> switchResults(const QList<LookupItem> &symbols);
 
     void addResult(const FullySpecifiedType &ty, Symbol *symbol = 0);
-    void addResult(const Result &result);
-    void addResults(const QList<Result> &results);
+    void addResult(const LookupItem &result);
+    void addResults(const QList<LookupItem> &results);
 
     bool maybeValidPrototype(Function *funTy, unsigned actualArgumentCount) const;
 
@@ -114,12 +111,12 @@ protected:
     // Objective-C expressions
     virtual bool visit(ObjCMessageExpressionAST *ast);
 
-    QList<Scope *> visibleScopes(const Result &result) const;
+    QList<Scope *> visibleScopes(const LookupItem &result) const;
 
 private:
     LookupContext _context;
     Semantic sem;
-    QList<Result> _results;
+    QList<LookupItem> _results;
     Symbol *_declSymbol;
 };
 
@@ -129,16 +126,16 @@ public:
     ResolveClass();
 
     QList<Symbol *> operator()(Name *name,
-                               const ResolveExpression::Result &p,
+                               const LookupItem &p,
                                const LookupContext &context);
 
 private:
     QList<Symbol *> resolveClass(Name *name,
-                                 const ResolveExpression::Result &p,
+                                 const LookupItem &p,
                                  const LookupContext &context);
 
 private:
-    QList<ResolveExpression::Result> _blackList;
+    QList<LookupItem> _blackList;
 };
 
 class CPLUSPLUS_EXPORT ResolveObjCClass
@@ -147,7 +144,7 @@ public:
     ResolveObjCClass();
 
     QList<Symbol *> operator()(Name *name,
-                               const ResolveExpression::Result &p,
+                               const LookupItem &p,
                                const LookupContext &context);
 };
 

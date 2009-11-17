@@ -269,16 +269,13 @@ void FindUsages::checkExpression(unsigned startToken, unsigned endToken)
     getTokenStartPosition(startToken, &line, &column);
     Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
 
-    const QList<TypeOfExpression::Result> results =
-            typeofExpression(expression, _doc, lastVisibleSymbol,
-                             TypeOfExpression::Preprocess);
+    const QList<LookupItem> results = typeofExpression(expression, _doc, lastVisibleSymbol,
+                                                   TypeOfExpression::Preprocess);
 
     QList<Symbol *> candidates;
 
-    foreach (TypeOfExpression::Result r, results) {
-        FullySpecifiedType ty = r.first;
-        Symbol *lastVisibleSymbol = r.second;
-
+    foreach (const LookupItem &r, results) {
+        Symbol *lastVisibleSymbol = r.lastVisibleSymbol();
         candidates.append(lastVisibleSymbol);
     }
 

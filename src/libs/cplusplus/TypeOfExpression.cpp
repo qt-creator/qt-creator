@@ -54,10 +54,10 @@ void TypeOfExpression::setSnapshot(const Snapshot &documents)
     m_lookupContext = LookupContext();
 }
 
-QList<TypeOfExpression::Result> TypeOfExpression::operator()(const QString &expression,
-                                                             Document::Ptr document,
-                                                             Symbol *lastVisibleSymbol,
-                                                             PreprocessMode mode)
+QList<LookupItem> TypeOfExpression::operator()(const QString &expression,
+                                           Document::Ptr document,
+                                           Symbol *lastVisibleSymbol,
+                                           PreprocessMode mode)
 {
     QString code = expression;
     if (mode == Preprocess)

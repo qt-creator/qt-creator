@@ -43,6 +43,13 @@
 
 using namespace CPlusPlus;
 
+uint qHash(const CPlusPlus::LookupItem &key)
+{
+    const uint h1 = qHash(key.type().type());
+    const uint h2 = qHash(key.lastVisibleSymbol());
+    return ((h1 << 16) | (h1 >> 16)) ^ h2;
+}
+
 /////////////////////////////////////////////////////////////////////
 // LookupContext
 /////////////////////////////////////////////////////////////////////
@@ -348,8 +355,8 @@ QList<Scope *> LookupContext::buildVisibleScopes()
     return scopes;
 }
 
-QList<Scope *> LookupContext::visibleScopes(const QPair<FullySpecifiedType, Symbol *> &result) const
-{ return visibleScopes(result.second); }
+QList<Scope *> LookupContext::visibleScopes(const LookupItem &result) const
+{ return visibleScopes(result.lastVisibleSymbol()); }
 
 QList<Scope *> LookupContext::visibleScopes(Symbol *symbol) const
 {
@@ -696,14 +703,13 @@ Symbol *LookupContext::canonicalSymbol(const QList<Symbol *> &candidates,
     return canonicalSymbol(candidates.first(), globalNamespaceBinding);
 }
 
-Symbol *LookupContext::canonicalSymbol(const QList<QPair<FullySpecifiedType, Symbol *> > &results,
+Symbol *LookupContext::canonicalSymbol(const QList<LookupItem> &results,
                                        NamespaceBinding *globalNamespaceBinding)
 {
     QList<Symbol *> candidates;
-    QPair<FullySpecifiedType, Symbol *> result;
 
-    foreach (result, results)
-        candidates.append(result.second); // ### not exacly.
+    foreach (const LookupItem &result, results)
+        candidates.append(result.lastVisibleSymbol()); // ### not exacly.
 
     return canonicalSymbol(candidates, globalNamespaceBinding);
 }
