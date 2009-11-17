@@ -12694,7 +12694,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
     <message>
         <location line="+92"/>
-        <source> &lt;line number&gt;</source>
+        <source>&lt;line number&gt;</source>
         <translation>&lt;številka vrstice&gt;</translation>
     </message>
 </context>

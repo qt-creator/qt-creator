@@ -15069,7 +15069,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <location line="+92"/>
-        <source> &lt;line number&gt;</source>
+        <source>&lt;line number&gt;</source>
         <translation> &lt;номер строки&gt;</translation>
     </message>
 </context>
