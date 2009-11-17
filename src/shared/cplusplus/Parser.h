@@ -53,6 +53,7 @@
 #include "ASTfwd.h"
 #include "Token.h"
 #include "TranslationUnit.h"
+#include <map>
 
 namespace CPlusPlus {
 
@@ -308,7 +309,7 @@ private:
     bool _inFunctionBody: 1;
     bool _inObjCImplementationContext: 1;
 
-    Array<TemplateArgumentListEntry> _templateArgumentList;
+    std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;
 
     class Rewind;
     friend class Rewind;
