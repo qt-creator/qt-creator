@@ -244,7 +244,7 @@ bool OperatorNameId::isEqualTo(const Name *other) const
     return _kind == o->kind();
 }
 
-ConversionNameId::ConversionNameId(FullySpecifiedType type)
+ConversionNameId::ConversionNameId(const FullySpecifiedType &type)
     : _type(type)
 { }
 

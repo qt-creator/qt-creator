@@ -180,7 +180,7 @@ public:
         return it->second;
     }
 
-    ConversionNameId *findOrInsertConversionNameId(FullySpecifiedType type)
+    ConversionNameId *findOrInsertConversionNameId(const FullySpecifiedType &type)
     {
         std::map<FullySpecifiedType, ConversionNameId *>::iterator it =
                 conversionNameIds.lower_bound(type);
@@ -238,7 +238,7 @@ public:
         return it->second;
     }
 
-    PointerType *findOrInsertPointerType(FullySpecifiedType elementType)
+    PointerType *findOrInsertPointerType(const FullySpecifiedType &elementType)
     {
         std::map<FullySpecifiedType, PointerType *>::iterator it =
                 pointerTypes.lower_bound(elementType);
@@ -247,7 +247,7 @@ public:
         return it->second;
     }
 
-    ReferenceType *findOrInsertReferenceType(FullySpecifiedType elementType)
+    ReferenceType *findOrInsertReferenceType(const FullySpecifiedType &elementType)
     {
         std::map<FullySpecifiedType, ReferenceType *>::iterator it =
                 referenceTypes.lower_bound(elementType);
@@ -256,7 +256,7 @@ public:
         return it->second;
     }
 
-    ArrayType *findOrInsertArrayType(FullySpecifiedType elementType, size_t size)
+    ArrayType *findOrInsertArrayType(const FullySpecifiedType &elementType, size_t size)
     {
         const ArrayKey key(elementType, size);
         std::map<ArrayKey, ArrayType *>::iterator it =
@@ -494,7 +494,7 @@ public:
             size(0)
         { }
 
-        ArrayKey(FullySpecifiedType type, size_t size) :
+        ArrayKey(const FullySpecifiedType &type, size_t size) :
             type(type), size(size)
         { }
 
@@ -696,7 +696,7 @@ DestructorNameId *Control::destructorNameId(Identifier *id)
 OperatorNameId *Control::operatorNameId(int kind)
 { return d->findOrInsertOperatorNameId(kind); }
 
-ConversionNameId *Control::conversionNameId(FullySpecifiedType type)
+ConversionNameId *Control::conversionNameId(const FullySpecifiedType &type)
 { return d->findOrInsertConversionNameId(type); }
 
 QualifiedNameId *Control::qualifiedNameId(Name *const *names,
@@ -728,13 +728,13 @@ FloatType *Control::floatType(int kind)
 PointerToMemberType *Control::pointerToMemberType(Name *memberName, FullySpecifiedType elementType)
 { return d->findOrInsertPointerToMemberType(memberName, elementType); }
 
-PointerType *Control::pointerType(FullySpecifiedType elementType)
+PointerType *Control::pointerType(const FullySpecifiedType &elementType)
 { return d->findOrInsertPointerType(elementType); }
 
-ReferenceType *Control::referenceType(FullySpecifiedType elementType)
+ReferenceType *Control::referenceType(const FullySpecifiedType &elementType)
 { return d->findOrInsertReferenceType(elementType); }
 
-ArrayType *Control::arrayType(FullySpecifiedType elementType, size_t size)
+ArrayType *Control::arrayType(const FullySpecifiedType &elementType, size_t size)
 { return d->findOrInsertArrayType(elementType, size); }
 
 NamedType *Control::namedType(Name *name)

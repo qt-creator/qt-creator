@@ -66,7 +66,7 @@ public:
 
 protected:
     ExpressionAST *switchExpression(ExpressionAST *expression);
-    FullySpecifiedType switchFullySpecifiedType(FullySpecifiedType type);
+    FullySpecifiedType switchFullySpecifiedType(const FullySpecifiedType &type);
     Scope *switchScope(Scope *scope);
 
     using ASTVisitor::visit;

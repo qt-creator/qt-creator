@@ -250,7 +250,7 @@ private:
 class CPLUSPLUS_EXPORT ConversionNameId: public Name
 {
 public:
-    ConversionNameId(FullySpecifiedType type);
+    ConversionNameId(const FullySpecifiedType &type);
     virtual ~ConversionNameId();
 
     FullySpecifiedType type() const;

@@ -86,7 +86,7 @@ ExpressionAST *CheckExpression::switchExpression(ExpressionAST *expression)
     return previousExpression;
 }
 
-FullySpecifiedType CheckExpression::switchFullySpecifiedType(FullySpecifiedType type)
+FullySpecifiedType CheckExpression::switchFullySpecifiedType(const FullySpecifiedType &type)
 {
     FullySpecifiedType previousType = _fullySpecifiedType;
     _fullySpecifiedType = type;

@@ -82,7 +82,7 @@ public:
     OperatorNameId *operatorNameId(int operatorId);
 
     /// Returns the canonical conversion name id.
-    ConversionNameId *conversionNameId(FullySpecifiedType type);
+    ConversionNameId *conversionNameId(const FullySpecifiedType &type);
 
     /// Returns the canonical qualified name id.
     QualifiedNameId *qualifiedNameId(Name *const *names,
@@ -107,13 +107,13 @@ public:
                                              FullySpecifiedType elementType);
 
     /// Returns a Type object of type PointerType.
-    PointerType *pointerType(FullySpecifiedType elementType);
+    PointerType *pointerType(const FullySpecifiedType &elementType);
 
     /// Returns a Type object of type ReferenceType.
-    ReferenceType *referenceType(FullySpecifiedType elementType);
+    ReferenceType *referenceType(const FullySpecifiedType &elementType);
 
     /// Retruns a Type object of type ArrayType.
-    ArrayType *arrayType(FullySpecifiedType elementType, size_t size = 0);
+    ArrayType *arrayType(const FullySpecifiedType &elementType, size_t size = 0);
 
     /// Returns a Type object of type NamedType.
     NamedType *namedType(Name *name);

@@ -117,7 +117,7 @@ TemplateParameters *Declaration::templateParameters() const
 void Declaration::setTemplateParameters(TemplateParameters *templateParameters)
 { _templateParameters = templateParameters; }
 
-void Declaration::setType(FullySpecifiedType type)
+void Declaration::setType(const FullySpecifiedType &type)
 { _type = type; }
 
 FullySpecifiedType Declaration::type() const
@@ -140,7 +140,7 @@ bool Argument::hasInitializer() const
 void Argument::setInitializer(bool hasInitializer)
 { _initializer = hasInitializer; }
 
-void Argument::setType(FullySpecifiedType type)
+void Argument::setType(const FullySpecifiedType &type)
 { _type = type; }
 
 FullySpecifiedType Argument::type() const
@@ -230,7 +230,7 @@ FullySpecifiedType Function::type() const
 FullySpecifiedType Function::returnType() const
 { return _returnType; }
 
-void Function::setReturnType(FullySpecifiedType returnType)
+void Function::setReturnType(const FullySpecifiedType &returnType)
 { _returnType = returnType; }
 
 bool Function::hasReturnType() const
@@ -773,7 +773,7 @@ FullySpecifiedType ObjCMethod::type() const
 FullySpecifiedType ObjCMethod::returnType() const
 { return _returnType; }
 
-void ObjCMethod::setReturnType(FullySpecifiedType returnType)
+void ObjCMethod::setReturnType(const FullySpecifiedType &returnType)
 { _returnType = returnType; }
 
 bool ObjCMethod::hasReturnType() const

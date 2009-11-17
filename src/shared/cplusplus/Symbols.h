@@ -120,7 +120,7 @@ public:
     TemplateParameters *templateParameters() const;
     void setTemplateParameters(TemplateParameters *templateParameters);
 
-    void setType(FullySpecifiedType type);
+    void setType(const FullySpecifiedType &type);
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
@@ -145,7 +145,7 @@ public:
     Argument(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
     virtual ~Argument();
 
-    void setType(FullySpecifiedType type);
+    void setType(const FullySpecifiedType &type);
 
     bool hasInitializer() const;
     void setInitializer(bool hasInitializer);
@@ -295,7 +295,7 @@ public:
     void setTemplateParameters(TemplateParameters *templateParameters);
 
     FullySpecifiedType returnType() const;
-    void setReturnType(FullySpecifiedType returnType);
+    void setReturnType(const FullySpecifiedType &returnType);
 
     /** Convenience function that returns whether the function returns something (including void). */
     bool hasReturnType() const;
@@ -680,7 +680,7 @@ public:
     virtual ~ObjCMethod();
 
     FullySpecifiedType returnType() const;
-    void setReturnType(FullySpecifiedType returnType);
+    void setReturnType(const FullySpecifiedType &returnType);
 
     /** Convenience function that returns whether the function returns something (including void). */
     bool hasReturnType() const;

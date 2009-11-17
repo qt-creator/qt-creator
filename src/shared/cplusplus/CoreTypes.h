@@ -156,7 +156,7 @@ private:
 class CPLUSPLUS_EXPORT PointerType: public Type
 {
 public:
-    PointerType(FullySpecifiedType elementType);
+    PointerType(const FullySpecifiedType &elementType);
     virtual ~PointerType();
 
     FullySpecifiedType elementType() const;
@@ -204,7 +204,7 @@ private:
 class CPLUSPLUS_EXPORT ReferenceType: public Type
 {
 public:
-    ReferenceType(FullySpecifiedType elementType);
+    ReferenceType(const FullySpecifiedType &elementType);
     virtual ~ReferenceType();
 
     FullySpecifiedType elementType() const;
@@ -227,7 +227,7 @@ private:
 class CPLUSPLUS_EXPORT ArrayType: public Type
 {
 public:
-    ArrayType(FullySpecifiedType elementType, size_t size);
+    ArrayType(const FullySpecifiedType &elementType, size_t size);
     virtual ~ArrayType();
 
     FullySpecifiedType elementType() const;

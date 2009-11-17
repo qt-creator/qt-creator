@@ -90,7 +90,7 @@ bool PointerToMemberType::isEqualTo(const Type *other) const
 void PointerToMemberType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
-PointerType::PointerType(FullySpecifiedType elementType)
+PointerType::PointerType(const FullySpecifiedType &elementType)
     : _elementType(elementType)
 { }
 
@@ -111,7 +111,7 @@ void PointerType::accept0(TypeVisitor *visitor)
 FullySpecifiedType PointerType::elementType() const
 { return _elementType; }
 
-ReferenceType::ReferenceType(FullySpecifiedType elementType)
+ReferenceType::ReferenceType(const FullySpecifiedType &elementType)
     : _elementType(elementType)
 { }
 
@@ -174,7 +174,7 @@ bool FloatType::isEqualTo(const Type *other) const
     return _kind == o->_kind;
 }
 
-ArrayType::ArrayType(FullySpecifiedType elementType, size_t size)
+ArrayType::ArrayType(const FullySpecifiedType &elementType, size_t size)
     : _elementType(elementType), _size(size)
 { }
 
