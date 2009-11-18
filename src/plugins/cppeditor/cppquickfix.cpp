@@ -96,9 +96,8 @@ protected:
 class HelloQuickFixOp: public QuickFixOperation
 {
 public:
-    HelloQuickFixOp(Document::Ptr doc, const Snapshot &snapshot,
-                    const QTextCursor &textCursor)
-        : QuickFixOperation(doc, snapshot, textCursor)
+    HelloQuickFixOp(Document::Ptr doc, const Snapshot &snapshot)
+        : QuickFixOperation(doc, snapshot)
     {}
 
     virtual QString description() const
@@ -106,7 +105,7 @@ public:
         return QLatin1String("Hello"); // ### tr?
     }
 
-    virtual void apply(QTextCursor)
+    virtual void apply()
     {
         // nothing to do.
     }
@@ -116,9 +115,8 @@ public:
 
 
 QuickFixOperation::QuickFixOperation(CPlusPlus::Document::Ptr doc,
-                                     const CPlusPlus::Snapshot &snapshot,
-                                     const QTextCursor &textCursor)
-    : _doc(doc), _snapshot(snapshot), _textCursor(textCursor)
+                                     const CPlusPlus::Snapshot &snapshot)
+    : _doc(doc), _snapshot(snapshot)
 { }
 
 QuickFixOperation::~QuickFixOperation()
@@ -126,6 +124,9 @@ QuickFixOperation::~QuickFixOperation()
 
 QTextCursor QuickFixOperation::textCursor() const
 { return _textCursor; }
+
+void QuickFixOperation::setTextCursor(const QTextCursor &cursor)
+{ _textCursor = cursor; }
 
 QTextCursor QuickFixOperation::cursor(AST *ast) const
 {
@@ -245,7 +246,8 @@ void CPPQuickFixCollector::complete(const TextEditor::CompletionItem &item)
 
     if (index < _quickFixes.size()) {
         QuickFixOperationPtr quickFix = _quickFixes.at(index);
-        quickFix->apply(_editor->textCursor());
+        quickFix->setTextCursor(_editor->textCursor());
+        quickFix->apply();
     }
 }
 

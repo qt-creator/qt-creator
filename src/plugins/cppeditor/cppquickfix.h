@@ -55,18 +55,18 @@ class QuickFixOperation
 
 public:
     QuickFixOperation(CPlusPlus::Document::Ptr doc,
-                      const CPlusPlus::Snapshot &snapshot,
-                      const QTextCursor &textCursor);
+                      const CPlusPlus::Snapshot &snapshot);
 
     virtual ~QuickFixOperation();
 
     virtual QString description() const = 0;
-    virtual void apply(QTextCursor tc) = 0;
+    virtual void apply() = 0;
 
     CPlusPlus::Document::Ptr document() const { return _doc; }
     CPlusPlus::Snapshot snapshot() const { return _snapshot; }
 
     QTextCursor textCursor() const;
+    void setTextCursor(const QTextCursor &cursor);
 
 protected:
     const CPlusPlus::Token &tokenAt(unsigned index) const;
