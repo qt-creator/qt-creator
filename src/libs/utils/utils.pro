@@ -36,7 +36,8 @@ SOURCES += reloadpromptutils.cpp \
     iwelcomepage.cpp \
     fancymainwindow.cpp \
     detailsbutton.cpp \
-    detailswidget.cpp
+    detailswidget.cpp \
+    textwriter.cpp
 win32 { 
     SOURCES += abstractprocess_win.cpp \
         consoleprocess_win.cpp \
@@ -80,7 +81,8 @@ HEADERS += utils_global.h \
     iwelcomepage.h \
     fancymainwindow.h \
     detailsbutton.h \
-    detailswidget.h
+    detailswidget.h \
+    textwriter.h
 FORMS += filewizardpage.ui \
     projectintropage.ui \
     newclasswidget.ui \
