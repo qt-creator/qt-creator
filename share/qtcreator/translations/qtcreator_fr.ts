@@ -6,8 +6,7 @@
     <message>
         <location filename="../../../src/app/main.cpp" line="+129"/>
         <source>Failed to load core: %1</source>
-        <translatorcomment>traduire core ?</translatorcomment>
-        <translation type="unfinished">Échec dans le chargement du core : %1</translation>
+        <translation>Échec dans le chargement du core : %1</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -17,13 +16,12 @@
     <message>
         <location line="+135"/>
         <source>Could not find &apos;Core.pluginspec&apos; in %1</source>
-        <translation type="unfinished">&apos;Core.pluginspec&apos; introuvable dans %1</translation>
+        <translation>&apos;Core.pluginspec&apos; introuvable dans %1</translation>
     </message>
     <message>
         <location line="+36"/>
         <source>Qt Creator - Plugin loader messages</source>
-        <translatorcomment>Un s à plugin ?</translatorcomment>
-        <translation type="unfinished">Qt Creator - Messages du chargeur de plugin</translation>
+        <translation>Qt Creator - Messages du chargeur de plugin</translation>
     </message>
     <message>
         <source>Couldn&apos;t find &apos;Core.pluginspec&apos; in %1</source>
@@ -45,8 +43,7 @@
     <message>
         <location/>
         <source>Core File:</source>
-        <translatorcomment>&apos;core&apos; encore...</translatorcomment>
-        <translation type="unfinished">Fichier Core :</translation>
+        <translation>Fichier core :</translation>
     </message>
 </context>
 <context>
@@ -356,7 +353,7 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakebuildenvironmentwidget.cpp" line="+49"/>
         <source>Clear system environment</source>
-        <translation type="unfinished">Nettoyer l&apos;environnement système</translation>
+        <translation>Nettoyer l&apos;environnement système</translation>
     </message>
     <message>
         <location line="+14"/>
@@ -423,27 +420,31 @@
     <message>
         <location line="+13"/>
         <source>Run Environment</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Nom et pas verbe ici,  non ?</translatorcomment>
+        <translation type="unfinished">Environnement d&apos;éxecution</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Clean Environment</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>idem</translatorcomment>
+        <translation type="unfinished">Environnement de nettoyage</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>System Environment</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>idem</translatorcomment>
+        <translation type="unfinished">Environnement système</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Build Environment</source>
+        <translatorcomment>idem</translatorcomment>
         <translation type="unfinished">Environnement de compilation</translation>
     </message>
     <message>
         <location line="+91"/>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exécution en cours : &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
     <message>
         <source>Environment</source>
@@ -2395,7 +2396,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/newclasswidget.ui"/>
         <source>Inherits QObject</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">hérite de QObjet</translation>
     </message>
 </context>
 <context>
@@ -2494,7 +2495,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location filename="../../../src/libs/utils/projectintropage.cpp" line="+65"/>
         <source>&lt;Enter_Name&gt;</source>
-        <translation type="unfinished">&lt;Entrer_Nom&gt;</translation>
+        <translation>&lt;Entrer_Nom&gt;</translation>
     </message>
     <message>
         <location line="+97"/>
@@ -2688,7 +2689,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+2"/>
         <source>Ctrl+Shift+U</source>
-        <translation type="unfinished">Ctrl+Shift+U</translation>
+        <translation>Ctrl+Shift+U</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -5066,12 +5067,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="-140"/>
         <source>Clear contents</source>
-        <translation type="unfinished">Effacer le contenu</translation>
+        <translation>Effacer le contenu</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Save contents</source>
-        <translation type="unfinished">Sauver le contenu</translation>
+        <translation>Sauver le contenu</translation>
     </message>
 </context>
 <context>
@@ -5079,17 +5080,18 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/debugger/dumperoptionpage.ui"/>
         <source>Debugging helper</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aide au débogage</translation>
     </message>
     <message>
         <location/>
         <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Traduction de  Locals&amp;Watchers ?</translatorcomment>
+        <translation type="unfinished">Cela permettra un affichage correct des objets de Qt et de la bibliothèque standard dans a vue Locals&amp;Watchers</translation>
     </message>
     <message>
         <location/>
         <source>Use debugging helper</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Utiliser l&apos;aide au déboguage</translation>
     </message>
     <message>
         <location/>
@@ -5104,12 +5106,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location/>
         <source>Location: </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Emplacement :</translation>
     </message>
     <message>
         <location/>
         <source>Debug debugging helper</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Déboguer l&apos;aide au déboguage</translation>
     </message>
     <message>
         <location/>
@@ -5119,7 +5121,8 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location/>
         <source>Use code model</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>pas exactement ça ?</translatorcomment>
+        <translation type="unfinished">Utiliser le modèle de code</translation>
     </message>
 </context>
 <context>
@@ -5127,12 +5130,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/projectexplorer/dependenciespanel.cpp" line="+121"/>
         <source>Unable to add dependency</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir les dépendances</translation>
+        <translation>Impossible d&apos;ajouter une dépendance</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>This would create a circular dependency.</source>
-        <translation type="unfinished">Ceci créerais une dépendance circulaire.</translation>
+        <translation>Ceci créerais une dépendance circulaire.</translation>
     </message>
 </context>
 <context>
@@ -5158,27 +5161,27 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/shared/qrceditor/resourcefile.cpp" line="+54"/>
         <source>The file name is empty.</source>
-        <translation type="unfinished">Le nom de fichier est vide.</translation>
+        <translation>Le nom de fichier est vide.</translation>
     </message>
     <message>
         <location line="+54"/>
         <source>XML error on line %1, col %2: %3</source>
-        <translation type="unfinished">Erreur XML à la ligne %1, col %2: %3</translation>
+        <translation>Erreur XML à la ligne %1, col %2 : %3</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>The &lt;RCC&gt; root element is missing.</source>
-        <translation type="unfinished">L&apos;élement racine &lt;RCC&gt; est manquant.</translation>
+        <translation>L&apos;élement racine &lt;RCC&gt; est manquant.</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/designer/designerconstants.h" line="+38"/>
         <source>Designer</source>
-        <translation type="unfinished"></translation>
+        <translation>Designer</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Class Generation</source>
-        <translation type="unfinished"></translation>
+        <translation>Génération de classe</translation>
     </message>
 </context>
 <context>
@@ -5186,7 +5189,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/cpp/formclasswizarddialog.cpp" line="+50"/>
         <source>Qt Designer Form Class</source>
-        <translation type="unfinished"></translation>
+        <translation>Classe d&apos;interface graphique Qt Designer</translation>
     </message>
 </context>
 <context>
@@ -5194,22 +5197,22 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/cpp/formclasswizardpage.ui"/>
         <source>Choose a class name</source>
-        <translation type="unfinished">Choisissez un nom de classe</translation>
+        <translation>Choisissez un nom de classe</translation>
     </message>
     <message>
         <location/>
         <source>Class</source>
-        <translation type="unfinished">Classe</translation>
+        <translation>Classe</translation>
     </message>
     <message>
         <location/>
         <source>Configure...</source>
-        <translation type="unfinished">Configurer...</translation>
+        <translation>Configurer...</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/designer/cpp/formclasswizardpage.cpp" line="+148"/>
         <source>%1 - Error</source>
-        <translation type="unfinished">%1 - Erreur</translation>
+        <translation>%1 - Erreur</translation>
     </message>
 </context>
 <context>
@@ -5217,27 +5220,27 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formeditorplugin.cpp" line="+137"/>
         <source>Qt</source>
-        <translation type="unfinished">Qt</translation>
+        <translation>Qt</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Qt Designer Form</source>
-        <translation type="unfinished">Interface graphique Qt Designer</translation>
+        <translation>Interface graphique Qt Designer</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a Qt Designer form file (.ui).</source>
-        <translation type="unfinished">Crée un fichier d&apos;interface graphique Qt Designer (.ui).</translation>
+        <translation>Crée un fichier d&apos;interface graphique Qt Designer (.ui).</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Qt Designer Form Class</source>
-        <translation type="unfinished">Classe d&apos;interface graphique Qt Designer</translation>
+        <translation>Classe d&apos;interface graphique Qt Designer</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
-        <translation type="unfinished">Crée un fichier d&apos;interface graphique Qt Designer (.ui) avec une classe correspondante.</translation>
+        <translation>Crée un fichier d&apos;interface graphique Qt Designer (.ui) avec une classe correspondante.</translation>
     </message>
 </context>
 <context>
@@ -5399,12 +5402,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formtemplatewizardpage.cpp" line="+62"/>
         <source>Choose a form template</source>
-        <translation type="unfinished">Choisir un modèle d&apos;interface graphique</translation>
+        <translation>Choisir un modèle d&apos;interface graphique</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>%1 - Error</source>
-        <translation type="unfinished">%1 - Erreur</translation>
+        <translation>%1 - Erreur</translation>
     </message>
 </context>
 <context>
@@ -5412,17 +5415,17 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formwindowfile.cpp" line="+77"/>
         <source>Error saving %1</source>
-        <translation type="unfinished">Erreur d&apos;enregistrement %1</translation>
+        <translation>Erreur lors de l&apos;enregistrement de %1</translation>
     </message>
     <message>
         <location line="+106"/>
         <source>Unable to open %1: %2</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir %1: %2</translation>
+        <translation>Impossible d&apos;ouvrir %1 : %2</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Unable to write to %1: %2</source>
-        <translation type="unfinished">Impossible d&apos;écrire %1: %2</translation>
+        <translation>Impossible d&apos;écrire dans %1 : %2</translation>
     </message>
 </context>
 <context>
@@ -5430,7 +5433,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formwizarddialog.cpp" line="+60"/>
         <source>Qt Designer Form</source>
-        <translation type="unfinished">Interface graphique Qt Designer</translation>
+        <translation>Interface graphique Qt Designer</translation>
     </message>
 </context>
 <context>
@@ -5438,24 +5441,25 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/qtcreatorintegration.cpp" line="+72"/>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
-        <translation type="unfinished">La déclaration de la classe %1 est introuvable dans %2.</translation>
+        <translation>La déclaration de la classe %1 est introuvable dans %2.</translation>
     </message>
     <message>
         <location line="+475"/>
         <source>Error finding/adding a slot.</source>
+        <translatorcomment>Erreur lors de la recherche/de l&apos;ajout d&apos;un slot. ?</translatorcomment>
         <translation type="unfinished">Erreur de recherche/ajout de slot.</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>No documents matching &apos;%1&apos; could be found.
 Rebuilding the project might help.</source>
-        <translation type="unfinished">Impossible de trouver un document correspondant à %1.
+        <translation>Impossible de trouver un document correspondant à %1.
 Regénérer le projet peut résoudre ce problème.</translation>
     </message>
     <message>
         <location line="+59"/>
         <source>Unable to add the method definition.</source>
-        <translation type="unfinished">Impossible d&apos;ajouter la déclaration de la méthode.</translation>
+        <translation>Impossible d&apos;ajouter la déclaration de la méthode.</translation>
     </message>
 </context>
 <context>
@@ -5463,17 +5467,17 @@ Regénérer le projet peut résoudre ce problème.</translation>
     <message>
         <location filename="../../../src/plugins/help/docsettingspage.ui"/>
         <source>Registered Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Documentation enregistrée</translation>
     </message>
     <message>
         <location/>
         <source>Add...</source>
-        <translation type="unfinished">Ajouter...</translation>
+        <translation>Ajouter...</translation>
     </message>
     <message>
         <location/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer</translation>
     </message>
 </context>
 <context>
@@ -5496,52 +5500,53 @@ It also automatically sets the correct Qt version.</source>
     <message>
         <location filename="../../../src/libs/extensionsystem/plugindetailsview.ui"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom :</translation>
     </message>
     <message>
         <location/>
         <source>Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Version :</translation>
     </message>
     <message>
         <location/>
         <source>Compatibility Version:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Version compatible :</translation>
     </message>
     <message>
         <location/>
         <source>Vendor:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vendeur :</translation>
     </message>
     <message>
         <location/>
         <source>Url:</source>
-        <translation type="unfinished"></translation>
+        <translation>Url :</translation>
     </message>
     <message>
         <location/>
         <source>Location:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Emplacement :</translation>
     </message>
     <message>
         <location/>
         <source>Description:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Description :</translation>
     </message>
     <message>
         <location/>
         <source>Copyright:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Droit d&apos;auteur ?</translatorcomment>
+        <translation type="unfinished">Copyright :</translation>
     </message>
     <message>
         <location/>
         <source>License:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Licence :</translation>
     </message>
     <message>
         <location/>
         <source>Dependencies:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dépendances :</translation>
     </message>
 </context>
 <context>
@@ -5549,12 +5554,12 @@ It also automatically sets the correct Qt version.</source>
     <message>
         <location filename="../../../src/libs/extensionsystem/pluginerrorview.ui"/>
         <source>State:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">État :</translation>
     </message>
     <message>
         <location/>
         <source>Error Message:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Message d&apos;erreur :</translation>
     </message>
 </context>
 <context>
@@ -5562,17 +5567,17 @@ It also automatically sets the correct Qt version.</source>
     <message>
         <location filename="../../../src/libs/extensionsystem/pluginspec.cpp" line="+415"/>
         <source>File does not exist: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le fichier n&apos;existe pas : %1</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Could not open file for read: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir le fichier en lecture : %1</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur pendant l&apos;analyse du fichier %1 : %2, ligne %3, colonne %4</translation>
     </message>
 </context>
 <context>
@@ -5580,27 +5585,27 @@ It also automatically sets the correct Qt version.</source>
     <message>
         <location filename="../../../src/libs/extensionsystem/pluginview.ui"/>
         <source>State</source>
-        <translation type="unfinished">État</translation>
+        <translation>État</translation>
     </message>
     <message>
         <location/>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <location/>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Version</translation>
     </message>
     <message>
         <location/>
         <source>Vendor</source>
-        <translation type="unfinished"></translation>
+        <translation>Vendeur</translation>
     </message>
     <message>
         <location/>
         <source>Location</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Emplacement</translation>
     </message>
 </context>
 <context>
@@ -5608,82 +5613,82 @@ It also automatically sets the correct Qt version.</source>
     <message>
         <location filename="../../../src/libs/extensionsystem/pluginerrorview.cpp" line="+79"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Invalide</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Description file found, but error on read</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Description du fichier trouvé, mais erreur de lecture</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Read</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lecture</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Description successfully read</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Description correctement lus</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Resolved</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Résolu</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Dependencies are successfully resolved</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Les dépendances ont été  résolues avec succès</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Loaded</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Chargé</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Library is loaded</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bibliothèque chargée</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Initialized</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Initialisé</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Plugin&apos;s initialization method succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Méthode d&apos;initialisation du plugin réussi</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Running</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Démaré</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Plugin successfully loaded and running</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Plugin correctement chargé et démarré</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Stopped</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Arrêté</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Plugin was shut down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Plugin éteind</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Deleted</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimé</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Plugin ended its life cycle and was deleted</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le plugin a terminé son cycle de vie et a été supprimé</translation>
     </message>
 </context>
 <context>
@@ -6004,22 +6009,22 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/find/finddialog.ui"/>
         <source>Search for...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recherche...</translation>
     </message>
     <message>
         <location/>
         <source>Sc&amp;ope:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Emplacement :</translation>
     </message>
     <message>
         <location/>
         <source>&amp;Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Rechercher</translation>
     </message>
     <message>
         <location/>
         <source>Search &amp;for:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rec&amp;herche :</translation>
     </message>
     <message>
         <location/>
@@ -6042,17 +6047,17 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/find/findplugin.cpp" line="+150"/>
         <source>&amp;Find/Replace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Rechercher/Remplacer</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Find...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rechercher...</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+Shift+F</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Shift+F</translation>
     </message>
 </context>
 <context>
@@ -6060,62 +6065,62 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/find/findtoolbar.cpp" line="+139"/>
         <source>Current Document</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Document courrant</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Enter Find String</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrer la chaîne de recherche</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+E</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+E</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Find Next</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Suivant</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Find Previous</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Précédent</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Replace &amp;&amp; Find Next</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Remplacer &amp;&amp; Suivant</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+=</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+=</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Replace &amp;&amp; Find Previous</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Remplacer &amp;&amp; Précédent</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Replace All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Remplacer tout</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Case Sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sensible à la casse</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Whole Words Only</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mots complets uniquement</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Use Regular Expressions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Utiliser des expressions régulières</translation>
     </message>
 </context>
 <context>
@@ -6123,27 +6128,27 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/find/findwidget.ui"/>
         <source>Find</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rechercher</translation>
     </message>
     <message>
         <location/>
         <source>Find:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rechercher :</translation>
     </message>
     <message>
         <location/>
         <source>Replace with:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Remplacer avec :</translation>
     </message>
     <message>
         <location/>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tout</translation>
     </message>
     <message>
         <location/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">...</translation>
     </message>
 </context>
 <context>
@@ -6151,32 +6156,32 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/find/searchresultwindow.cpp" line="+67"/>
         <source>No matches found!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aucun résultat!</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Développer tout</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Replace with:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Remplacer avec :</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Replace all occurrences</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Remplacer toutes les occurrences</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Replace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Remplacer</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/find/searchresultwindow.h" line="+89"/>
         <source>Search Results</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Résultat de la recherche</translation>
     </message>
 </context>
 <context>
@@ -6273,17 +6278,17 @@ Reason: %3</source>
     <message>
         <location line="+38"/>
         <source>Create</source>
-        <translation type="unfinished">Créer</translation>
+        <translation>Créer</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>New configuration</source>
-        <translation type="unfinished">Nouvelle configuration</translation>
+        <translation>Nouvelle configuration</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>New Configuration Name:</source>
-        <translation type="unfinished">Nom de la nouvelle configuration :</translation>
+        <translation>Nom de la nouvelle configuration :</translation>
     </message>
 </context>
 <context>
@@ -6291,12 +6296,12 @@ Reason: %3</source>
     <message>
         <location line="+450"/>
         <source>Build directory:</source>
-        <translation type="unfinished">Répertoire de compilation :</translation>
+        <translation>Répertoire de compilation :</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Tool Chain:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Chaîne d&apos;outils :</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -6373,27 +6378,28 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/branchdialog.ui"/>
         <source>Branches</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Branches</translation>
     </message>
     <message>
         <location/>
         <source>General information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Informations générales</translation>
     </message>
     <message>
         <location/>
         <source>Repository:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dépôt :</translation>
     </message>
     <message>
         <location/>
         <source>Remote branches</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>traduction de remote ici ?</translatorcomment>
+        <translation type="unfinished">Branches à distance</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/git/branchdialog.cpp" line="+75"/>
         <source>Checkout</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Checkout</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6403,47 +6409,49 @@ Reason: %3</source>
     <message>
         <location line="+20"/>
         <source>Unable to find the repository directory for &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de trouver le répertoire du dépôt pour &apos;%1&apos;.</translation>
     </message>
     <message>
         <location line="+69"/>
         <source>Delete Branch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer la branche</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Would you like to delete the branch &apos;%1&apos;?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Souhaitez-vous supprimer la branche &apos;%1&apos; ?</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Failed to delete branch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Échec de suppression de la branche</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Failed to create branch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Échec de création de la branche</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Failed to stash</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>stash ?</translatorcomment>
+        <translation type="unfinished">Échec du stash</translation>
     </message>
     <message>
         <location line="+36"/>
         <source>Would you like to create a local branch &apos;%1&apos; tracking the remote branch &apos;%2&apos;?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Souhaitez-vous créer une branche locale &apos;%1&apos; suivant la branche à distance &apos;%2&apos; ?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Create branch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Créer une branche</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Failed to create a tracking branch</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>tracking branch ?</translatorcomment>
+        <translation type="unfinished">Échec de la création d&apos;une branche de suivi</translation>
     </message>
 </context>
 <context>
@@ -6451,22 +6459,22 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/changeselectiondialog.cpp" line="+42"/>
         <source>Select a Git commit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sélectionner un commit Git</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Select Git repository</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sélectionner un dépôt Git</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Selected directory is not a Git repository</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le répertoire sélectionné n&apos;est un dépôt Git</translation>
     </message>
 </context>
 <context>
@@ -6474,121 +6482,126 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/gitclient.cpp" line="+71"/>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>marchera ou marcheront ? Le etc laisse sous entendre qu&apos;il y aurait d&apos;autres choses qui ne marcheraient pas.</translatorcomment>
+        <translation type="unfinished">Notez que le plugin git pour QtCreator n&apos;est pas capable d&apos;intéragir directement avec le serveur. Ainsi, l&apos;identification ssh manuel etc. ne marcheront pas.</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Unable to determine the repository for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de déterminer le dépôt pour %1.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Unable to parse the file output.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;analyser le fichier de sortie.</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Executing: %1 %2
 </source>
         <extracomment>Executing: &lt;executable&gt; &lt;arguments&gt;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exécution de : %1 %2
+</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Waiting for data...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">En attente de données...</translation>
     </message>
     <message>
         <location line="+100"/>
         <source>Git Diff</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git diff</translation>
     </message>
     <message>
         <location line="+46"/>
         <source>Git Diff %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git diff %1</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Git Log %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git log %1</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Git Show %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git show %1</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Git Blame %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git blame %1</translation>
     </message>
     <message numerus="yes">
         <location line="+56"/>
         <source>Unable to add %n file(s) to %1: %2</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Impossible d&apos;ajouter %n fichier dans %1 : %2</numerusform>
+            <numerusform>Impossible d&apos;ajouter %n fichiers dans %1 : %2</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+33"/>
         <source>Unable to reset %n file(s) in %1: %2</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Impossible de réinitialiser %n fichier dans %1 : %2</numerusform>
+            <numerusform>Impossible de réinitialiser %n fichiers dans %1 : %2</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+18"/>
         <source>Unable to checkout %n file(s) in %1: %2</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Impossible de vérifier %n fichier dans %1 : %2</numerusform>
+            <numerusform>Impossible de vérifier %n fichiers dans %1 : %2</numerusform>
         </translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Unable stash in %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Traduction de stash ?</translatorcomment>
+        <translation type="unfinished">Impossible de cacher dans %1 : %2</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Unable to run branch command: %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;exécuter les commandes de la branche : %1 : %2</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Unable to run show: %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;exécuter show : %1 : %2</translation>
     </message>
     <message>
         <location line="+148"/>
         <source>Changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifications</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>You have modified files. Would you like to stash your changes?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vous avez modifié des fichiers. Souhaitez-vous cacher vos changements ?</translation>
     </message>
     <message>
         <location line="+51"/>
         <source>Unable to obtain the status: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;obtenir le statut : %1</translation>
     </message>
     <message>
         <location line="+31"/>
         <source>The repository %1 is not initialized yet.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le dépôt %1 n&apos;est pas encore initialisé.</translation>
     </message>
     <message numerus="yes">
         <location line="+106"/>
         <source>Committed %n file(s).
 </source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n fichier a été commit.
+</numerusform>
+            <numerusform>%n fichiers ont été commit.
+</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -6596,8 +6609,10 @@ Reason: %3</source>
         <source>Unable to commit %n file(s): %1
 </source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Impossible de commit %n fichier : %1
+</numerusform>
+            <numerusform>Impossible de commit %n fichiers : %1
+</numerusform>
         </translation>
     </message>
     <message>
@@ -6613,7 +6628,7 @@ Reason: %3</source>
     <message>
         <location line="+24"/>
         <source>The file is not modified.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le fichier n&apos;a pas été modifié.</translation>
     </message>
     <message>
         <location line="+22"/>
@@ -6626,82 +6641,83 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/gitplugin.cpp" line="+232"/>
         <source>&amp;Git</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Git</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Diff Current File</source>
-        <translation type="unfinished">Faire un diff du fichier courant</translation>
+        <translation type="unfinished">Réaliser un diff du fichier courant</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Diff &quot;%1&quot;</source>
-        <translation type="unfinished">Faire un diff de &quot;%1&quot;</translation>
+        <translation type="unfinished">Réaliser un diff de &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Alt+G,Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+G,Alt+D</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>File Status</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Statut du fichier</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Status Related to &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Statut lié à &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Alt+G,Alt+S</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+G,Alt+S</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Log File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réaliser un log du fichier</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Log of &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réaliser un log de &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Alt+G,Alt+L</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+G,Alt+L</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Blame</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Traduction autre ?</translatorcomment>
+        <translation type="unfinished">Blâmer</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Blame for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Blâmer pour &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Alt+G,Alt+B</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+G,Alt+B</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Undo Changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annuler les changements</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Undo Changes for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annuler les changements pour &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Alt+G,Alt+U</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+G,Alt+U</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -6716,7 +6732,7 @@ Reason: %3</source>
     <message>
         <location line="+2"/>
         <source>Alt+G,Alt+A</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+G,Alt+A</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -6731,12 +6747,12 @@ Reason: %3</source>
     <message>
         <location line="+8"/>
         <source>Diff Current Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réaliser un diff du projet courant</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Diff Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réaliser un diff du projet &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -6746,46 +6762,48 @@ Reason: %3</source>
     <message>
         <location line="+0"/>
         <source>Status Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Statut du projet &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Log Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réaliser un log du projet</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Log Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réaliser un log du projet &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Alt+G,Alt+K</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+G,Alt+K</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Undo Project Changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annuler les changements sur le projet</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Stash</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Trad ?</translatorcomment>
+        <translation type="unfinished">Cacher</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Saves the current state of your work.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sauvegarde de l&apos;état actuel de votre travail.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Pull</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pull</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Stash Pop</source>
+        <translatorcomment>stash encore ?</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6796,32 +6814,34 @@ Reason: %3</source>
     <message>
         <location line="+6"/>
         <source>Commit...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commit...</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Alt+G,Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+G,Alt+C</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Push</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Faire un push ou push tout court ?</translatorcomment>
+        <translation type="unfinished">Push</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Branches...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Branches...</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>List Stashes</source>
+        <translatorcomment>stash ?</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Show Commit...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afficher le commit...</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -6836,17 +6856,17 @@ Reason: %3</source>
     <message>
         <location line="+3"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annu&amp;ler</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Refaire</translation>
     </message>
     <message>
         <location line="+60"/>
         <source>Could not find working directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de trouver le répertoire de travail</translation>
     </message>
     <message>
         <location line="+61"/>
@@ -6856,22 +6876,22 @@ Reason: %3</source>
     <message>
         <location line="+1"/>
         <source>Would you like to revert all pending changes to the project?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Souhaitez-vous rétablir toues les modifications en attente sur le projet ?</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Another submit is currently being executed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Un autre submit est actuellement exécuté.</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>Cannot create temporary file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de créer un fichier temporaire : %1</translation>
     </message>
     <message>
         <location line="+58"/>
         <source>Closing git editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermeture de l&apos;éditeur git</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6889,7 +6909,7 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/gitsettings.cpp" line="+110"/>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le binaire &apos;%1&apos; n&apos;a pas pu être trouvé dans le chemin &apos;%2&apos;</translation>
     </message>
 </context>
 <context>
@@ -6897,7 +6917,7 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/gitsubmiteditor.cpp" line="+55"/>
         <source>Git Commit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git commit</translation>
     </message>
 </context>
 <context>
@@ -6905,42 +6925,42 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/gitsubmitpanel.ui"/>
         <source>General Information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Informations générales</translation>
     </message>
     <message>
         <location/>
         <source>Repository:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dépôt :</translation>
     </message>
     <message>
         <location/>
         <source>repository</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">dépôt</translation>
     </message>
     <message>
         <location/>
         <source>Branch:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Branche :</translation>
     </message>
     <message>
         <location/>
         <source>branch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">branche</translation>
     </message>
     <message>
         <location/>
         <source>Commit Information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Informations de commit</translation>
     </message>
     <message>
         <location/>
         <source>Author:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Auteur :</translation>
     </message>
     <message>
         <location/>
         <source>Email:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Email :</translation>
     </message>
 </context>
 <context>
@@ -6948,12 +6968,13 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/branchmodel.cpp" line="+181"/>
         <source>&lt;New branch&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Nouvelle branche&gt;</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Type to create a new branch</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Type pas facile à traduire dans ce contexte... Taper ?</translatorcomment>
+        <translation type="unfinished">Saisir pour créer une nouvelle branche</translation>
     </message>
 </context>
 <context>
@@ -6961,62 +6982,63 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/git/settingspage.ui"/>
         <source>Environment variables</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Variables d&apos;environnement</translation>
     </message>
     <message>
         <location/>
         <source>PATH:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Chemin :</translation>
     </message>
     <message>
         <location/>
         <source>From system</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parcourir</translation>
     </message>
     <message>
         <location/>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;b&gt;Note :&lt;/b&gt;</translation>
     </message>
     <message>
         <location/>
         <source>Git needs to find Perl in the environment as well.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Trop long ?</translatorcomment>
+        <translation type="unfinished">Git a également besoin de trouvé Perl dans l&apos;environnement.</translation>
     </message>
     <message>
         <location/>
         <source>Log commit display count:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre de log de commit affiché :</translation>
     </message>
     <message>
         <location/>
         <source>Note that huge amount of commits might take some time.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Notez qu&apos;un grand nombre de commit pourrait prendre un certain temps.</translation>
     </message>
     <message>
         <location/>
         <source>Timeout (seconds):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Timeout (secondes) : </translation>
     </message>
     <message>
         <location/>
         <source>Prompt to submit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Message à envoyer</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/git/settingspage.cpp" line="+90"/>
         <source>Git</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Git Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paramètres de git</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/git/settingspage.ui"/>
         <source>Omit date from annotation output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ne pas mettre la date sur l&apos;annotation de sortie</translation>
     </message>
 </context>
 <context>
@@ -7026,14 +7048,18 @@ Reason: %3</source>
         <source>
 &apos;%1&apos; failed (exit code %2).
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+&apos;%1&apos; échoué (code de retour %2).
+</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>
 &apos;%1&apos; completed (exit code %2).
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+&apos;%1&apos; terminé (code de retour %2).
+</translation>
     </message>
 </context>
 <context>
@@ -7041,32 +7067,32 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/helloworld/helloworldplugin.cpp" line="+85"/>
         <source>Say &quot;&amp;Hello World!&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dites &quot;&amp;Bonjour le monde!&quot;</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>&amp;Hello World</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Bonjour le monde</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Hello world!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bonjour le monde!</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Hello World PushButton!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Touche bonjour le monde!</translation>
     </message>
     <message>
         <location line="+31"/>
         <source>Hello World!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bonjour le monde!</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Hello World! Beautiful day today, isn&apos;t it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bonjour le monde! Belle journée aujourd&apos;hui, n&apos;est-ce pas ?</translation>
     </message>
 </context>
 <context>
@@ -7079,7 +7105,7 @@ Reason: %3</source>
     <message>
         <location line="+1"/>
         <source>Hello, world!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bonjour, monde!</translation>
     </message>
 </context>
 <context>
@@ -7087,38 +7113,38 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/help/centralwidget.cpp" line="+97"/>
         <source>Add new page</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter une nouvelle page</translation>
     </message>
     <message>
         <location line="+238"/>
         <source>Print Document</source>
-        <translation type="unfinished">Imprimer le document</translation>
+        <translation>Imprimer le document</translation>
     </message>
     <message>
         <location line="+120"/>
         <location line="+2"/>
         <source>unknown</source>
-        <translation type="unfinished">inconnue</translation>
+        <translation>inconnue</translation>
     </message>
     <message>
         <location line="+87"/>
         <source>Add New Page</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter une nouvelle page</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Close This Page</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer cette page</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Close Other Pages</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fermer les autres pages</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Add Bookmark for this Page...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter un signet pour cette page...</translation>
     </message>
 </context>
 <context>
@@ -7127,33 +7153,34 @@ Reason: %3</source>
         <location filename="../../../src/plugins/help/docsettingspage.cpp" line="+51"/>
         <location line="+84"/>
         <source>Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Documentation</translation>
     </message>
     <message>
         <location line="-73"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Aide</translation>
     </message>
     <message>
         <location line="+23"/>
         <location line="+10"/>
         <source>Add Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter la documentation</translation>
     </message>
     <message>
         <location line="-9"/>
         <source>Qt Help Files (*.qch)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichiers d&apos;aide Qt (*.qch)</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>The file %1 is not a valid Qt Help file!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le fichier %1 n&apos;est pas un fichier d&apos;aide Qt valide!</translation>
     </message>
     <message>
         <location line="+40"/>
         <source>Cannot unregister documentation file %1!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>trad unregister ?</translatorcomment>
+        <translation type="unfinished">Impossible de désinscrire le fichier de documentation %1!</translation>
     </message>
 </context>
 <context>
@@ -7161,12 +7188,12 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/help/filtersettingspage.cpp" line="+51"/>
         <source>Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtres</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Aide</translation>
     </message>
 </context>
 <context>
@@ -7174,7 +7201,7 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/help/helpindexfilter.cpp" line="+72"/>
         <source>Help index</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Index de l&apos;aide</translation>
     </message>
 </context>
 <context>
@@ -7182,7 +7209,7 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/help/helpmode.cpp" line="+46"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Aide</translation>
     </message>
 </context>
 <context>
@@ -7191,19 +7218,19 @@ Reason: %3</source>
         <location filename="../../../src/plugins/help/helpplugin.cpp" line="+209"/>
         <location line="+46"/>
         <source>Contents</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Contenus</translation>
     </message>
     <message>
         <location line="-44"/>
         <location line="+38"/>
         <source>Index</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Index</translation>
     </message>
     <message>
         <location line="-36"/>
         <location line="+48"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rechercher</translation>
     </message>
     <message>
         <location line="-45"/>
@@ -7213,17 +7240,17 @@ Reason: %3</source>
     <message>
         <location line="+8"/>
         <source>Home</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Accueil</translation>
     </message>
     <message>
         <location line="+231"/>
         <source>Previous</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Précédent</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Next</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Suivant</translation>
     </message>
     <message>
         <location line="-214"/>
@@ -7233,32 +7260,32 @@ Reason: %3</source>
     <message>
         <location line="-13"/>
         <source>Previous Page</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Page précédente</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Next Page</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Page suivante</translation>
     </message>
     <message>
         <location line="+31"/>
         <source>Context Help</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aide contextuelle</translation>
     </message>
     <message>
         <location line="+58"/>
         <source>Activate Index in Help mode</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Activer l&apos;index en mode aide</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Activate Contents in Help mode</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Activer le contenu en mode aide</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Activate Search in Help mode</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Activer la recherche en mode aide</translation>
     </message>
     <message>
         <location line="+74"/>
@@ -7283,12 +7310,12 @@ Reason: %3</source>
     <message>
         <location line="+4"/>
         <source>Reset Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réinitialiser  la taille de la police</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Ctrl+0</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+0</translation>
     </message>
     <message>
         <location line="+201"/>
@@ -7300,12 +7327,12 @@ Reason: %3</source>
     <message>
         <location line="+12"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;No documentation available.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;html&gt;&lt;head&gt;&lt;title&gt;Aucune documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;Aucune documentation disponible.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location line="+54"/>
         <source>Filtered by:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtré par :</translation>
     </message>
 </context>
 <context>
@@ -7313,12 +7340,12 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/help/searchwidget.cpp" line="+169"/>
         <source>&amp;Copy</source>
-        <translation type="unfinished">Cop&amp;ier</translation>
+        <translation type="unfinished">Co&amp;pier</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Copy &amp;Link Location</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Copier l&apos;adresse du lien</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -7328,7 +7355,7 @@ Reason: %3</source>
     <message>
         <location line="+8"/>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tout sélectionner</translation>
     </message>
 </context>
 <context>
@@ -7341,33 +7368,34 @@ Reason: %3</source>
     <message>
         <location line="+166"/>
         <source>&lt;title&gt;Error 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;title&gt;Erreur 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;La page est introuvable&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</translation>
     </message>
     <message>
         <location line="+57"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aide</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Unable to launch external application.
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de lancer l&apos;application externe.
+</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <location line="+63"/>
         <source>Copy &amp;Link Location</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Copier l&apos;adresse du lien</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Open Link in New Tab	Ctrl+LMB</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir le lien dans un nouvel onglet	Ctrl+LMB</translation>
     </message>
 </context>
 <context>
@@ -7375,7 +7403,7 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/shared/help/indexwindow.cpp" line="+52"/>
         <source>&amp;Look for:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Rechercher :</translation>
     </message>
     <message>
         <location line="+74"/>
@@ -7393,7 +7421,7 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="+76"/>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Taper Ctrl-&lt;Retour&gt; pour exécuter une ligne.</translation>
     </message>
 </context>
 <context>
@@ -7401,12 +7429,12 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/plugins/locator/locatorconstants.h" line="+38"/>
         <source>Filters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtres</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Locator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Localisateur</translation>
     </message>
 </context>
 <context>
@@ -7414,118 +7442,118 @@ Reason: %3</source>
     <message>
         <location filename="../../../src/tools/qdebugger/mainwindow.cpp" line="+155"/>
         <source>Open file</source>
-        <translation type="unfinished">Ouvrir le fichier</translation>
+        <translation>Ouvrir le fichier</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Ctrl+O</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+O</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Quitter</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Q</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Run to main()</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exécuter jusqu&apos;à main()</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Ctrl+F5</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+F5</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>F5</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">F5</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Shift+F5</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Shift+F5</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>F6</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">F6</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>F7</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">F7</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Shift+F6</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Shift+F6</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Shift+F9</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Shift+F9</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Shift+F7</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Shift+F7</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Shift+F8</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Shift+F8</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>F8</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">F8</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>ALT+D,ALT+W</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ALT+D,ALT+W</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichiers</translation>
     </message>
     <message>
         <location line="+19"/>
         <location filename="../../../src/tools/texteditor/mainwindow.cpp" line="+121"/>
         <source>File</source>
-        <translation type="unfinished">Fichier</translation>
+        <translation>Fichier</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Debug</source>
-        <translation type="unfinished">Déboguer</translation>
+        <translation>Déboguer</translation>
     </message>
     <message>
         <location line="+105"/>
         <source>Not a runnable project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pas un projet exécutable</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The current startup project can not be run.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le projet de démarrage actuel ne peut pas être exéctuer.</translation>
     </message>
     <message>
         <location line="+146"/>
         <source>Open File</source>
-        <translation type="unfinished">Ouvrir le Fichier</translation>
+        <translation type="unfinished">Ouvrir un fichier</translation>
     </message>
     <message>
         <location line="+58"/>
         <source>Cannot find special data dumpers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de trouver les collecteurs de données</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7536,12 +7564,18 @@ Make sure you use something like
 SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
 
 in your .pro file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le fichier binaire débogué ne contient pas d&apos;informations nécessaires pour l&apos;affichage correct des types de données Qt.
+
+Assurez-vous que vous utilisez quelque chose comme
+
+SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+
+dans votre fichier .pro.</translation>
     </message>
     <message>
         <location filename="../../../src/tools/texteditor/mainwindow.cpp" line="+62"/>
         <source>Open Executable File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvrir un fichier exécutable</translation>
     </message>
 </context>
 <context>
@@ -7603,32 +7637,32 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/plugins/perforce/perforcesettings.cpp" line="+100"/>
         <source>No executable specified</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aucun exécutable spécifié</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Unable to launch &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de lancer &quot;%1&quot; : %2</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>&quot;%1&quot; timed out after %2ms.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&quot;%1&quot; temps écoulé après %2ms.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>&quot;%1&quot; crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&quot;%1&quot; planté.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>&quot;%1&quot; terminated with exit code %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&quot;%1&quot; terminé avec le code %2 : %3</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>The client does not seem to contain any mapped files.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le client semble contenir aucun fichier correspondant.</translation>
     </message>
 </context>
 <context>
@@ -7636,12 +7670,14 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/plugins/perforce/changenumberdialog.ui"/>
         <source>Change Number</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>?</translatorcomment>
+        <translation type="unfinished">Modifier le nombre</translation>
     </message>
     <message>
         <location/>
         <source>Change Number:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>?</translatorcomment>
+        <translation type="unfinished">Modifier le nombre : </translation>
     </message>
 </context>
 <context>
@@ -7649,12 +7685,12 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/plugins/perforce/pendingchangesdialog.ui"/>
         <source>P4 Pending Changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifications pour P4 en attente</translation>
     </message>
     <message>
         <location/>
         <source>Submit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Envoyer</translation>
     </message>
     <message>
         <location/>
@@ -7664,7 +7700,7 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/plugins/perforce/pendingchangesdialog.cpp" line="+46"/>
         <source>Change %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modification %1 : %2</translation>
     </message>
 </context>
 <context>
@@ -7672,27 +7708,27 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/plugins/perforce/perforceplugin.cpp" line="+243"/>
         <source>&amp;Perforce</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Perforce</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Éditer</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Edit &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Éditer &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Alt+P,Alt+E</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+P,Alt+E</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Edit File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Éditer le fichier</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -7707,12 +7743,12 @@ in your .pro file.</source>
     <message>
         <location line="+3"/>
         <source>Alt+P,Alt+A</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+P,Alt+A</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Add File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter le fichier</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -7727,7 +7763,7 @@ in your .pro file.</source>
     <message>
         <location line="+3"/>
         <source>Delete File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer le fichier</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -7742,12 +7778,12 @@ in your .pro file.</source>
     <message>
         <location line="+3"/>
         <source>Alt+P,Alt+R</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+P,Alt+R</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Revert File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rétablir le fichier</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -7773,7 +7809,7 @@ in your .pro file.</source>
     <message>
         <location line="+3"/>
         <source>Alt+P,Alt+D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+P,Alt+D</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -7783,12 +7819,12 @@ in your .pro file.</source>
     <message>
         <location line="+10"/>
         <source>Opened</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ouvert</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Alt+P,Alt+O</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+P,Alt+O</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -7798,22 +7834,22 @@ in your .pro file.</source>
     <message>
         <location line="+2"/>
         <source>Alt+P,Alt+S</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+P,Alt+S</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Pending Changes...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Changements en attente...</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Update Current Project/Session</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mettre à jour le projet ou la session courante</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Update Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mettre à jour le projet &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+12"/>
@@ -7834,7 +7870,7 @@ in your .pro file.</source>
     <message>
         <location line="+7"/>
         <source>Annotate...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annoter...</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -7850,22 +7886,22 @@ in your .pro file.</source>
     <message>
         <location line="+3"/>
         <source>Alt+P,Alt+F</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alt+P,Alt+F</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Filelog...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Journal d&apos;évenements...</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Update All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tout mettre à jour</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Submit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Envoyer</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -7875,63 +7911,64 @@ in your .pro file.</source>
     <message>
         <location line="+3"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Annu&amp;ler</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Refaire</translation>
     </message>
     <message>
         <location line="+49"/>
         <source>p4 revert</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Restauration p4</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The file has been changed. Do you want to revert it?</source>
-        <translation type="unfinished">Le fichier a été modifié. Voulez-vous le rétablir ?</translation>
+        <translation type="unfinished">Le fichier a été modifié. Voulez-vous le restaurer ?</translation>
     </message>
     <message>
         <location line="+93"/>
         <source>Another submit is currently executed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Un autre envoi est en cours d&apos;exécution.</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Cannot create temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de créer un fichier temporaire.</translation>
     </message>
     <message>
         <location line="+33"/>
         <source>Project has no files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le projet n&apos;a pas de fichiers</translation>
     </message>
     <message>
         <location line="+49"/>
         <source>p4 annotate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Anotation p4</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>p4 annotate %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Anotation p4 %1</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>p4 filelog</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Journal d&apos;événements p4</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>p4 filelog %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Journal d&apos;événements p4 %1</translation>
     </message>
     <message>
         <location line="+110"/>
         <source>Executing: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exécution : %1
+</translation>
     </message>
     <message>
         <location line="+70"/>
@@ -7946,12 +7983,12 @@ in your .pro file.</source>
     <message>
         <location line="+3"/>
         <source>Could not start perforce &apos;%1&apos;. Please check your settings in the preferences.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de démarrer perfoce &apos;%1&apos;. S&apos;il vous plaît vérifiez vos réglages dans les préférences.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Perforce did not respond within timeout limit (%1 ms).</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Perforce n&apos;a pas répondu dans la limite de temps (%1 ms).</translation>
     </message>
     <message>
         <location line="+84"/>
@@ -8261,22 +8298,22 @@ in your .pro file.</source>
         <location filename="../../../src/plugins/projectexplorer/abstractprocessstep.cpp" line="+188"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;font color=&quot;#0000ff&quot;&gt;Départ : %1 %2&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Exited with code %1.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;font color=&quot;#0000ff&quot;&gt;Terminé avec le code %1.&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Exited with code %1.&lt;/b&gt;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Terminé avec le code %1.&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not start process %1 &lt;/b&gt;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;font color=&quot;#ff0000&quot;&gt;Impossible de démarrer le processus %1 &lt;/b&gt;&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -8285,41 +8322,41 @@ in your .pro file.</source>
         <location filename="../../../src/plugins/projectexplorer/buildmanager.cpp" line="+61"/>
         <source>Finished %n of %1 build steps</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n étape de compilation terminée sur %1</numerusform>
+            <numerusform>%n étapes de compilation terminées sur %1</numerusform>
         </translation>
     </message>
     <message>
         <location line="+80"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Canceled build.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;font color=&quot;#ff0000&quot;&gt;Compilation annulé.&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+61"/>
         <source>Build</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Compilation</translation>
     </message>
     <message>
         <location line="+55"/>
         <location line="+39"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Error while building project %1&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;font color=&quot;#ff0000&quot;&gt;Erreur pendant la compilation du projet %1&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="-38"/>
         <location line="+39"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;When executing build step &apos;%1&apos;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;font color=&quot;#ff0000&quot;&gt;Pendant l&apos;exécution de l&apos;étape de compilation &apos;%1&apos;&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="-37"/>
         <source>Error while building project %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur pendant la compilation du projet %1</translation>
     </message>
     <message>
         <location line="+44"/>
         <source>&lt;b&gt;Running build steps for project %2...&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;b&gt;Exécution des étapes de compilation du projet %2...&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -8327,18 +8364,19 @@ in your .pro file.</source>
     <message>
         <location filename="../../../src/plugins/projectexplorer/customexecutablerunconfiguration.cpp" line="+249"/>
         <source>Custom Executable</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>custom ici a plutôt le sens de celui utilisé, usage, mais je sais pas comment le traduire ?</translatorcomment>
+        <translation type="unfinished">Exécutable personnalisé</translation>
     </message>
     <message>
         <location line="+44"/>
         <source>Could not find the executable, please specify one.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exécutable introuvable, merci d&apos;en spécifier un.</translation>
     </message>
     <message>
         <location line="+124"/>
         <location line="+32"/>
         <source>Run %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exécuter %1</translation>
     </message>
 </context>
 <context>
@@ -8347,6 +8385,7 @@ in your .pro file.</source>
         <location line="+49"/>
         <location line="+16"/>
         <source>Custom Executable</source>
+        <translatorcomment>idem</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8361,23 +8400,23 @@ in your .pro file.</source>
     <message>
         <location line="+39"/>
         <source>Variable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Variable</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valeur</translation>
     </message>
     <message>
         <location line="+119"/>
         <location line="+254"/>
         <source>&lt;VARIABLE&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;VARIABLE&gt;</translation>
     </message>
     <message>
         <location line="-243"/>
         <source>&lt;VALUE&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;VALEUR&gt;</translation>
     </message>
 </context>
 <context>
@@ -9129,7 +9168,7 @@ in your .pro file.</source>
     <message>
         <location line="+6"/>
         <source>Open File</source>
-        <translation type="unfinished">Ouvrir le Fichier</translation>
+        <translation type="unfinished">Ouvrir un fichier</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -9664,32 +9703,32 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/shared/qrceditor/qrceditor.ui"/>
         <source>Add</source>
-        <translation type="unfinished">Ajouter</translation>
+        <translation>Ajouter</translation>
     </message>
     <message>
         <location/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer</translation>
     </message>
     <message>
         <location/>
         <source>Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propriétés</translation>
     </message>
     <message>
         <location/>
         <source>Prefix:</source>
-        <translation type="unfinished">Préfixe:</translation>
+        <translation>Préfixe :</translation>
     </message>
     <message>
         <location/>
         <source>Language:</source>
-        <translation type="unfinished">Langue:</translation>
+        <translation>Langue :</translation>
     </message>
     <message>
         <location/>
         <source>Alias:</source>
-        <translation type="unfinished">Alias:</translation>
+        <translation>Alias :</translation>
     </message>
 </context>
 <context>
@@ -10918,17 +10957,18 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/locator/ilocatorfilter.cpp" line="+86"/>
         <source>Filter Configuration</source>
-        <translation type="unfinished">Configuration du filtre</translation>
+        <translation>Configuration du filtre</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Limit to prefix</source>
+        <translatorcomment>Limité ?</translatorcomment>
         <translation type="unfinished">Limiter au préfixe</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Prefix:</source>
-        <translation type="unfinished">Préfixe:</translation>
+        <translation>Préfixe :</translation>
     </message>
 </context>
 <context>
@@ -10936,36 +10976,36 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/locator/directoryfilter.cpp" line="+44"/>
         <source>Generic Directory Filter</source>
-        <translation type="unfinished">Filtre de dossier générique</translation>
+        <translation>Filtre de dossier générique</translation>
     </message>
     <message>
         <location line="+59"/>
         <source>Filter Configuration</source>
-        <translation type="unfinished">Configuration du filtre</translation>
+        <translation>Configuration du filtre</translation>
     </message>
     <message>
         <location line="+45"/>
         <location line="+11"/>
         <source>Choose a directory to add</source>
-        <translation type="unfinished">Choisir un répertoire à ajouter</translation>
+        <translation>Sélectionner un répertoire à ajouter</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>%1 filter update: 0 files</source>
-        <translation type="unfinished">Mise à jour du filtre %1: 0 fichiers</translation>
+        <translation>Mise à jour du filtre %1 : 0 fichiers</translation>
     </message>
     <message numerus="yes">
         <location line="+23"/>
         <source>%1 filter update: %n files</source>
-        <translation type="unfinished">
-            <numerusform>Mise à jour du filtre %1: %n fichier</numerusform>
-            <numerusform>Mise à jour du filtre %1: %n fichiers</numerusform>
+        <translation>
+            <numerusform>Mise à jour du filtre %1 : %n fichier</numerusform>
+            <numerusform>Mise à jour du filtre %1 : %n fichiers</numerusform>
         </translation>
     </message>
     <message>
         <location line="+41"/>
         <source>%1 filter update: canceled</source>
-        <translation type="unfinished">Mise à jour du filtre %1: annulée</translation>
+        <translation>Mise à jour du filtre %1 : annulée</translation>
     </message>
 </context>
 <context>
@@ -10973,38 +11013,38 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/locator/directoryfilter.ui"/>
         <source>Name:</source>
-        <translation type="unfinished">Nom:</translation>
+        <translation>Nom :</translation>
     </message>
     <message>
         <location/>
         <source>File Types:</source>
-        <translation type="unfinished">Types de fichiers:</translation>
+        <translation>Types de fichiers :</translation>
     </message>
     <message>
         <location/>
         <source>Specify file name filters, separated by comma. Filters may contain wildcards.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Spécifier les filtres de nom de fichier, séparés par la virgule. Les filtres peuvent contenir des caractères de remplacement.</translation>
     </message>
     <message>
         <location/>
         <source>Prefix:</source>
-        <translation type="unfinished">Préfixe:</translation>
+        <translation>Préfixe :</translation>
     </message>
     <message>
         <location/>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
-        <translation type="unfinished">Spécifier a mot court ou une abbréviation qui peut être utilisé pour réstreindre la complétion aux fichiers de cette arborescence. Pour ce faire, entrez ce raccourci et un espace dans le champs Localisation, puis ensuite le mot à chercher.</translation>
+        <translation>Spécifier un mot court ou une abbréviation qui peut être utilisé pour réstreindre les complétions aux fichiers de cette arborescence. Pour ce faire, entrer ce raccourci et un espace dans le champs localisation, puis ensuite le mot à chercher.</translation>
     </message>
     <message>
         <location/>
         <source>Limit to prefix</source>
-        <translation type="unfinished">Limiter au préfixe</translation>
+        <translation>Limiter au préfixe</translation>
     </message>
     <message>
         <location/>
         <source>Add...</source>
-        <translation type="unfinished">Ajouter...</translation>
+        <translation>Ajouter...</translation>
     </message>
     <message>
         <location/>
@@ -11019,7 +11059,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location/>
         <source>Directories:</source>
-        <translation type="unfinished">Dossiers:</translation>
+        <translation>Dossiers :</translation>
     </message>
 </context>
 <context>
@@ -11027,7 +11067,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/locator/filesystemfilter.h" line="+54"/>
         <source>Files in file system</source>
-        <translation type="unfinished">Fichiers du système de fichier</translation>
+        <translation>Fichiers du système de fichier</translation>
     </message>
 </context>
 <context>
@@ -11035,27 +11075,27 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/locator/filesystemfilter.ui"/>
         <source>Filter configuration</source>
-        <translation type="unfinished">Configuration du filtre</translation>
+        <translation>Configuration du filtre</translation>
     </message>
     <message>
         <location/>
         <source>Prefix:</source>
-        <translation type="unfinished">Préfixe:</translation>
+        <translation>Préfixe :</translation>
     </message>
     <message>
         <location/>
         <source>Limit to prefix</source>
-        <translation type="unfinished">Limiter au préfixe</translation>
+        <translation>Limiter au préfixe</translation>
     </message>
     <message>
         <location/>
         <source>Include hidden files</source>
-        <translation type="unfinished">Inclure les fichiers cachés</translation>
+        <translation>Inclure les fichiers cachés</translation>
     </message>
     <message>
         <location/>
         <source>Filter:</source>
-        <translation type="unfinished">Filtre:</translation>
+        <translation>Filtre :</translation>
     </message>
 </context>
 <context>
@@ -11063,7 +11103,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/locator/opendocumentsfilter.h" line="+53"/>
         <source>Open documents</source>
-        <translation type="unfinished">Ouvrir des documents</translation>
+        <translation>Ouvrir des documents</translation>
     </message>
 </context>
 <context>
@@ -11071,7 +11111,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/locator/locatorfiltersfilter.cpp" line="+53"/>
         <source>Available filters</source>
-        <translation type="unfinished">Filtres disponibles</translation>
+        <translation>Filtres disponibles</translation>
     </message>
 </context>
 <context>
@@ -11087,12 +11127,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/locator/locatorwidget.cpp" line="+254"/>
         <source>Refresh</source>
-        <translation type="unfinished">Raffraîchir</translation>
+        <translation>Rafraîchir</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Configure...</source>
-        <translation type="unfinished">Configurer...</translation>
+        <translation>Configurer...</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -11146,7 +11186,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/locator/settingspage.cpp" line="+159"/>
         <source>%1 (Prefix: %2)</source>
-        <translation type="unfinished">%1 (Prefixe: %2)</translation>
+        <translation>%1 (Préfixe : %2)</translation>
     </message>
 </context>
 <context>
@@ -11154,12 +11194,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/locator/settingspage.ui"/>
         <source>Configure Filters</source>
-        <translation type="unfinished">Configurer les filtres</translation>
+        <translation>Configurer les filtres</translation>
     </message>
     <message>
         <location/>
         <source>Add</source>
-        <translation type="unfinished">Ajouter</translation>
+        <translation>Ajouter</translation>
     </message>
     <message>
         <location/>
@@ -11174,12 +11214,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location/>
         <source>Refresh Interval:</source>
-        <translation type="unfinished">Intervalle de raffraichissement:</translation>
+        <translation>Intervalle de raffraichissement :</translation>
     </message>
     <message>
         <location/>
         <source> min</source>
-        <translation type="unfinished">min</translation>
+        <translation>min</translation>
     </message>
 </context>
 <context>
@@ -12497,7 +12537,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+4"/>
         <source>Collapse</source>
-        <translation type="unfinished">Plier</translation>
+        <translation type="unfinished">Réduire</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -12507,7 +12547,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+4"/>
         <source>Expand</source>
-        <translation type="unfinished">Étendre</translation>
+        <translation type="unfinished">Développer</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -12966,12 +13006,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbasesubmiteditor.cpp" line="+138"/>
         <source>Check message</source>
-        <translation type="unfinished">Contrôle du message</translation>
+        <translation>Contrôle du message</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Insert name...</source>
-        <translation type="unfinished">Inserez le nom...</translation>
+        <translation>Inserez le nom...</translation>
     </message>
     <message>
         <location line="+313"/>
@@ -13041,7 +13081,7 @@ nom &lt;email&gt; alias &lt;/email&gt;</translation>
     <message>
         <location/>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="unfinished">Un fichier texte contenant des lignes contenant des champs tels que &quot;Reviewed-By:&quot;, qui sont ajouté à la fin dans l&apos;éditeur de message.</translation>
+        <translation type="unfinished">Un fichier texte contenant des lignes avec des champs tels que &quot;Reviewed-By:&quot;, qui seront ajouté à la fin dans l&apos;éditeur de message.</translation>
     </message>
     <message>
         <location/>
@@ -13060,7 +13100,7 @@ nom &lt;email&gt; alias &lt;/email&gt;</translation>
         <location line="+1"/>
         <source>Would you like to remove this file from the version control system (%1)?
 Note: This might remove the local file.</source>
-        <translation type="unfinished">Voulez-vous retirer ce fichier du système de gestion de versions (%1)?
+        <translation>Voulez-vous retirer ce fichier du système de gestion de versions (%1) ?
 Note : Ceci risque de supprimer le fichier du disque.</translation>
     </message>
 </context>
@@ -13146,7 +13186,11 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&amp;lt;Comment&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&amp;lt;Commentaire&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
@@ -13159,27 +13203,27 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/libs/aggregation/examples/text/main.ui"/>
         <source>main</source>
-        <translation type="unfinished">main</translation>
+        <translation>main</translation>
     </message>
     <message>
         <location/>
         <source>Text1:</source>
-        <translation type="unfinished">Texte 1:</translation>
+        <translation>Texte 1 :</translation>
     </message>
     <message>
         <location/>
         <source>N/A</source>
-        <translation type="unfinished">Indisponible</translation>
+        <translation type="unfinished">N/A</translation>
     </message>
     <message>
         <location/>
         <source>Text2:</source>
-        <translation type="unfinished">Texte 2:</translation>
+        <translation>Texte 2 :</translation>
     </message>
     <message>
         <location/>
         <source>Text3:</source>
-        <translation type="unfinished">Texte 3:</translation>
+        <translation>Texte 3 :</translation>
     </message>
 </context>
 <context>
@@ -13187,12 +13231,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/cpaster/pastebindotcomsettings.ui"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Formulaire</translation>
     </message>
     <message>
         <location/>
         <source>Server Prefix:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Préfixe du serveur :</translation>
     </message>
     <message>
         <location/>
@@ -13216,32 +13260,32 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit id). Otherwise, only the respective file will be displayed.</source>
-        <translation type="unfinished">Si coché, tous les fichiers modifiés par un commit seront affichés lors d&apos;un clic sur un numéro de révison dans la vue d&apos;annotation (récupérée par un id de commit). Sinon, seul le fichier respectif sera affiché.</translation>
+        <translation>Si coché, tous les fichiers modifiés par un commit seront affichés lors d&apos;un clic sur un numéro de révison dans la vue d&apos;annotation (récupérée par un id de commit). Sinon, seul le fichier respectif sera affiché.</translation>
     </message>
     <message>
         <location/>
         <source>Describe all files matching commit id:</source>
-        <translation type="unfinished">Décrire tous les fichiers correspondant à l&apos;id de commit:</translation>
+        <translation>Décrire tous les fichiers correspondant à l&apos;id de commit :</translation>
     </message>
     <message>
         <location/>
         <source>CVS Command:</source>
-        <translation type="unfinished">Commande CVS:</translation>
+        <translation>Commande CVS :</translation>
     </message>
     <message>
         <location/>
         <source>CVS Root:</source>
-        <translation type="unfinished">Racine CVS:</translation>
+        <translation>Racine CVS :</translation>
     </message>
     <message>
         <location/>
         <source>Diff Options:</source>
-        <translation type="unfinished">Options Diff:</translation>
+        <translation>Options Diff :</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/cvs/settingspage.cpp" line="+84"/>
         <source>CVS</source>
-        <translation type="unfinished">CVS</translation>
+        <translation>CVS</translation>
     </message>
 </context>
 <context>
@@ -13254,36 +13298,37 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Gdb</source>
-        <translation type="unfinished">Gdb</translation>
+        <translation>Gdb</translation>
     </message>
     <message>
         <location/>
         <source>Symbian ARM gdb location:</source>
-        <translation type="unfinished">Emplacement de gdb ARM Symbian:</translation>
+        <translation>Emplacement du gdb ARM Symbian :</translation>
     </message>
     <message>
         <location/>
         <source>Communication</source>
-        <translation type="unfinished">Communication</translation>
+        <translation>Communication</translation>
     </message>
     <message>
         <location/>
         <source>Serial Port</source>
-        <translation type="unfinished">Port Série</translation>
+        <translation>Port Série</translation>
     </message>
     <message>
         <location/>
         <source>Bluetooth</source>
-        <translation type="unfinished">Bluetooth</translation>
+        <translation>Bluetooth</translation>
     </message>
     <message>
         <location/>
         <source>Port:</source>
-        <translation type="unfinished">Port:</translation>
+        <translation>Port :</translation>
     </message>
     <message>
         <location/>
         <source>Device:</source>
+        <translatorcomment>Périphérique plutôt ?</translatorcomment>
         <translation type="unfinished">Appareil:</translation>
     </message>
 </context>
@@ -13292,7 +13337,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/designer/cpp/cppsettingspagewidget.ui"/>
         <source>Form</source>
-        <translation type="unfinished">Formulaire</translation>
+        <translation>Formulaire</translation>
     </message>
     <message>
         <location/>
@@ -13302,32 +13347,33 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Aggregation as a pointer member</source>
-        <translation type="unfinished">Agrégation comme pointeur membre</translation>
+        <translation>Agrégation comme pointeur membre</translation>
     </message>
     <message>
         <location/>
         <source>Aggregation</source>
-        <translation type="unfinished">Agrégation</translation>
+        <translation>Agrégation</translation>
     </message>
     <message>
         <location/>
         <source>Multiple Inheritance</source>
-        <translation type="unfinished">Héritage multiple</translation>
+        <translation>Héritage multiple</translation>
     </message>
     <message>
         <location/>
         <source>Code Generation</source>
-        <translation type="unfinished">Génération de code</translation>
+        <translation>Génération de code</translation>
     </message>
     <message>
         <location/>
         <source>Support for changing languages at runtime</source>
+        <translatorcomment>changement de langue ou de langage ?</translatorcomment>
         <translation type="unfinished">Prise en charge du changement de langage à l&apos;exécution</translation>
     </message>
     <message>
         <location/>
         <source>Use Qt module name in #include-directive</source>
-        <translation type="unfinished">Utiliser le nom du module Qt dans #include-directive</translation>
+        <translation>Utiliser le nom du module Qt dans #include-directive</translation>
     </message>
 </context>
 <context>
@@ -13340,22 +13386,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/git/gitorious/gitorioushostwidget.cpp" line="+86"/>
         <source>&lt;New Host&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Nouvel Hôte&gt;</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Host</source>
-        <translation type="unfinished"></translation>
+        <translation>Hôte</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Projets</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Description</translation>
     </message>
 </context>
 <context>
@@ -13368,12 +13414,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Filter:</source>
-        <translation type="unfinished">Filtre:</translation>
+        <translation>Filtre :</translation>
     </message>
     <message>
         <location/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location/>
@@ -13416,42 +13462,42 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+0"/>
         <source>Owner</source>
-        <translation type="unfinished">Propriétaire</translation>
+        <translation>Propriétaire</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Description</source>
-        <translation type="unfinished">Description</translation>
+        <translation>Description</translation>
     </message>
     <message>
         <location line="+74"/>
         <source>Choose a repository of the project &apos;%1&apos;.</source>
-        <translation type="unfinished">Choisissez un répertoire pour le projet %1.</translation>
+        <translation type="unfinished">Choisissez un répertoire pour le projet &apos;%1&apos;.</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Mainline Repositories</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dépôts principaux</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Clones</source>
-        <translation type="unfinished"></translation>
+        <translation>Clones</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Baseline Repositories</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dépôts de base</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Shared Project Repositories</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dépôts de projets partagés</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Personal Repositories</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dépôts personnel</translation>
     </message>
 </context>
 <context>
@@ -14138,7 +14184,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/welcome/communitywelcomepagewidget.ui"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Formulaire</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/welcome/communitywelcomepagewidget.cpp" line="+47"/>
@@ -14154,7 +14200,7 @@ p, li { white-space: pre-wrap; }
         <location line="+8"/>
         <source>http://labs.trolltech.com/blogs/feed</source>
         <extracomment>Add localized feed here only if one exists</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">http://labs.trolltech.com/blogs/feed</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -14164,7 +14210,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+1"/>
         <source>Qt Labs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt Labs</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -14174,17 +14220,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+1"/>
         <source>Qt Centre</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt Centre</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Qt Apps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt Apps</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Qt for Symbian at Forum Nokia</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt pour Symbian</translation>
     </message>
     <message>
         <source>Qt for S60 at Forum Nokia</source>
@@ -14198,7 +14244,9 @@ p, li { white-space: pre-wrap; }
         <source>#gradientWidget {
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
 }</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">#gradientWidget {
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
+}</translation>
     </message>
     <message>
         <location/>
@@ -14207,22 +14255,25 @@ p, li { white-space: pre-wrap; }
     border-width: 0;
 }
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">#headerFrame {
+    border-image: url(:/welcome/images/center_frame_header.png) 0;
+    border-width: 0;
+}</translation>
     </message>
     <message>
         <location/>
         <source>Help us make Qt Creator even better</source>
-        <translation type="unfinished">Aidez-nous à améliorer Qt Creator</translation>
+        <translation>Aidez-nous à améliorer Qt Creator</translation>
     </message>
     <message>
         <location/>
         <source>Feedback</source>
-        <translation type="unfinished">Votre avis nous interesse</translation>
+        <translation>Votre avis nous interesse</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/welcome/welcomemode.cpp" line="+116"/>
         <source>Welcome</source>
-        <translation type="unfinished">Accueil</translation>
+        <translation>Accueil</translation>
     </message>
 </context>
 <context>
@@ -14340,25 +14391,25 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/cpaster/pasteview.cpp" line="+89"/>
         <source>Paste</source>
-        <translation type="unfinished">Coller</translation>
+        <translation>Coller</translation>
     </message>
     <message>
         <location line="+11"/>
         <location line="+46"/>
         <source>&lt;Username&gt;</source>
-        <translation type="unfinished">&lt;Utilisateur&gt;</translation>
+        <translation>&lt;Utilisateur&gt;</translation>
     </message>
     <message>
         <location line="-38"/>
         <location line="+43"/>
         <source>&lt;Description&gt;</source>
-        <translation type="unfinished">&lt;Description&gt;</translation>
+        <translation>&lt;Description&gt;</translation>
     </message>
     <message>
         <location line="-35"/>
         <location line="+40"/>
         <source>&lt;Comment&gt;</source>
-        <translation type="unfinished">&lt;Commentaire&gt;</translation>
+        <translation>&lt;Commentaire&gt;</translation>
     </message>
 </context>
 <context>
@@ -14366,7 +14417,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/cpptools/cppfindreferences.cpp" line="+238"/>
         <source>Searching...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recherche...</translation>
     </message>
 </context>
 <context>
@@ -14713,7 +14764,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/debugger/debuggerrunner.cpp" line="+79"/>
         <source>Debug</source>
-        <translation type="unfinished">Déboguer</translation>
+        <translation>Déboguer</translation>
     </message>
 </context>
 <context>
@@ -14721,7 +14772,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+108"/>
         <source>Debugger</source>
-        <translation type="unfinished">Débogueur</translation>
+        <translation>Débogueur</translation>
     </message>
 </context>
 <context>
@@ -14853,35 +14904,35 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/debugger/name_demangler.cpp" line="+331"/>
         <source>Premature end of input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Saisie interrompue</translation>
     </message>
     <message>
         <location line="+90"/>
         <source>Invalid encoding</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encodage invalide</translation>
     </message>
     <message>
         <location line="+54"/>
         <source>Invalid name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom invalide</translation>
     </message>
     <message>
         <location line="+40"/>
         <location line="+9"/>
         <source>Invalid nested-name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom imbriqué invalide</translation>
     </message>
     <message>
         <location line="+111"/>
         <location line="+8"/>
         <source>Invalid template args</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Argument du modèle invalide</translation>
     </message>
     <message>
         <location line="+18"/>
         <location line="+8"/>
         <source>Invalid template-param</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paramètre du modèle invalide</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -15037,7 +15088,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/designer/formwindoweditor.cpp" line="+167"/>
         <source>untitled</source>
-        <translation type="unfinished">sans titre</translation>
+        <translation>sans titre</translation>
     </message>
 </context>
 <context>
@@ -15045,12 +15096,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/git/clonewizard.cpp" line="+53"/>
         <source>Clones a project from a git repository.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cloné un projet à partir d&apos;un dépôt git.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Git Repository Clone</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Clone du dépôt git</translation>
     </message>
 </context>
 <context>
@@ -15058,12 +15109,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/git/clonewizardpage.cpp" line="+58"/>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Spécifié l&apos;URL du dépôt, le répertoire et le chemin du checkout.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Clone URL:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">URL de clone :</translation>
     </message>
 </context>
 <context>
@@ -15071,17 +15122,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/git/gitorious/gitorious.cpp" line="+471"/>
         <source>Error parsing reply from &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur d&apos;analyse de la réponse de &apos;%1&apos; : %2</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>Request failed for &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Échec de la requéte pour &apos;%1&apos; : %2</translation>
     </message>
     <message>
         <location line="+80"/>
         <source>Open source projects that use Git.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Projets open source qui utilisent git.</translation>
     </message>
 </context>
 <context>
@@ -15089,12 +15140,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/git/gitorious/gitoriousclonewizard.cpp" line="+81"/>
         <source>Clones a project from a Gitorious repository.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cloné un projet à partir d&apos;un dépôt Gitorious.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Gitorious Repository Clone</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Clone d&apos;un dépôt Gitorious</translation>
     </message>
 </context>
 <context>
@@ -15102,7 +15153,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/git/gitorious/gitorioushostwizardpage.cpp" line="+76"/>
         <source>Select a host.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner un hôte.</translation>
     </message>
 </context>
 <context>
@@ -15110,7 +15161,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/git/gitorious/gitoriousprojectwizardpage.cpp" line="+57"/>
         <source>Choose a project from &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir un projet à partir de &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -15123,28 +15174,30 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+10"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Aide</translation>
     </message>
     <message>
         <location line="+122"/>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Image ouverte ?</translatorcomment>
+        <translation type="unfinished">Ouvrir une image</translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+22"/>
         <source>Files (*.xbel)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fichiers (*.xbel)</translation>
     </message>
     <message>
         <location line="-8"/>
         <source>There was an error while importing bookmarks!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Il ya eu une erreur lors de l&apos;importation des signets!</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Save File</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Enregistrer ? (tout court)</translatorcomment>
+        <translation type="unfinished">Enregistrer le fichier</translation>
     </message>
 </context>
 <context>
@@ -15152,12 +15205,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/help/xbelsupport.cpp" line="+119"/>
         <source>The file is not an XBEL version 1.0 file.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Il ne s&apos;agit pas d&apos;un fichier XBEL version 1.0.</translation>
     </message>
     <message>
         <location line="+73"/>
         <source>Unknown title</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Titre inconnue</translation>
     </message>
 </context>
 <context>
@@ -15165,17 +15218,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/projectexplorer/applicationlauncher_x11.cpp" line="+126"/>
         <source>Failed to start program. Path or permissions wrong?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Échec lors de l&apos;exécution du programme. Mauvais chemin ou permissions ?</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>The program has unexpectedly finished.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le programme s&apos;est terminé inopinément.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Some error has occurred while running the program.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Une erreur s&apos;est produite lors de l&apos;exécution du programme.</translation>
     </message>
 </context>
 <context>
@@ -15204,17 +15257,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/projectexplorer/debugginghelper.cpp" line="+131"/>
         <source>The target directory %1 could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le dossier cible %1 n&apos;a pas pu être créé.</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>The existing file %1 could not be removed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le fichier existant %1 n&apos;a pas pu être supprimé.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>The file %1 could not be copied to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le fichier %1 n&apos;a pas pu être copié en %2.</translation>
     </message>
     <message>
         <location line="+25"/>
@@ -15222,33 +15275,41 @@ p, li { white-space: pre-wrap; }
 - %1
 
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Les aides au déboguage n&apos;ont pas pu être compilées dans aucun des dossiers suivant :
+- %1
+
+Raison : %2</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Building debugging helper library in %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Compilation de la bibliothèque d&apos;aide au déboguage dans %1
+</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Running %1 %2...
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exécution %1 %2...
+</translation>
     </message>
     <message>
         <location line="+5"/>
         <location line="+21"/>
         <source>%1 not found in PATH
 </source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>traduire PATH ici ?</translatorcomment>
+        <translation type="unfinished">%1 non trouvé dans le PATH
+</translation>
     </message>
     <message>
         <location line="-16"/>
         <location line="+11"/>
         <source>Running %1 ...
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exécution %1...
+</translation>
     </message>
 </context>
 <context>
@@ -15647,22 +15708,22 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location line="+37"/>
         <source>Finished.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Terminé.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Starting application...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Démarrage de l&apos;application...</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Application running with pid %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Application en cours d&apos;éxecution avec le pid %1.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Could not start application: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de démarrer l&apos;application : %1</translation>
     </message>
 </context>
 <context>
@@ -15670,17 +15731,17 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location line="+51"/>
         <source>Warning: Cannot locate the symbol file belonging to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Attention : Impossible de trouver le fichier de symboles appartenant à %1.</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Launching debugger...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lancement du débogueur...</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Debugging finished.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Débogue terminé.</translation>
     </message>
 </context>
 <context>
@@ -15688,7 +15749,7 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicespreferencepane.cpp" line="-28"/>
         <source>No Qt installed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pas de Qt installé</translation>
     </message>
 </context>
 <context>
@@ -15696,17 +15757,17 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60emulatorrunconfiguration.cpp" line="+198"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom :</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exécutable :</translation>
     </message>
     <message>
         <location line="+21"/>
         <source>Summary: Run %1 in emulator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sommaire: démarrer %1 sur l&apos;émulateur</translation>
     </message>
 </context>
 <context>
@@ -15714,7 +15775,7 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location line="-165"/>
         <source>%1 in Symbian Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 sur l&apos;émulateur Symbian</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -15724,7 +15785,7 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location line="+87"/>
         <source>Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;analyser %1. Qt pour la configuration d&apos;éxecution de l&apos;émulateur Symbian %2 ne peut pas être démarré.</translation>
     </message>
 </context>
 <context>
@@ -15732,7 +15793,7 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location line="+113"/>
         <source>%1 in Symbian Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 sur l&apos;émulateur Symbian</translation>
     </message>
 </context>
 <context>
@@ -15740,17 +15801,17 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location line="+48"/>
         <source>Starting %1...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Démarrage %1...</translation>
     </message>
     <message>
         <location line="+21"/>
         <source>[Qt Message]</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">[Message Qt]</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>%1 exited with code %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 retourne le code %2</translation>
     </message>
 </context>
 <context>
@@ -15758,17 +15819,17 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60manager.cpp" line="+111"/>
         <source>Run in Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Démarrer sur l&apos;émulateur</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Run on Device</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Démarrer sur le dispositif</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Debug on Device</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Déboguer sur le dispositif</translation>
     </message>
 </context>
 <context>
@@ -15776,12 +15837,12 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4project.cpp" line="+252"/>
         <source>Using Default Qt Version</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Utilisé la version Qt par défaut</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Using Qt Version &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Utilisé la version Qt &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -15796,12 +15857,14 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location line="+9"/>
         <source>%1 Debug</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>On traduit ?</translatorcomment>
+        <translation type="unfinished">%1 Debug</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>%1 Release</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>On traduit ?</translatorcomment>
+        <translation type="unfinished">%1 Release</translation>
     </message>
 </context>
 <context>
@@ -15809,12 +15872,13 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/subversion/checkoutwizard.cpp" line="+54"/>
         <source>Checks out a project from a Subversion repository.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vérifié un projet à partir d&apos;un dépôt Subversion.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Subversion Checkout</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>checkout, on traduit ?</translatorcomment>
+        <translation type="unfinished">Checkout Subversion</translation>
     </message>
 </context>
 <context>
@@ -15822,12 +15886,13 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/subversion/checkoutwizardpage.cpp" line="+38"/>
         <source>Specify repository, checkout directory and path.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Traduction de checkout ? vérification ? contrôle ?</translatorcomment>
+        <translation type="unfinished">Spécifié le dépôt, le répertoire et le chemin de checkout.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Repository:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dépôt :</translation>
     </message>
 </context>
 <context>
@@ -15835,7 +15900,8 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/texteditor/colorscheme.cpp" line="+210"/>
         <source>Not a color scheme file.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Pas sur ?</translatorcomment>
+        <translation type="unfinished">Pas un fichier de jeu de couleur.</translation>
     </message>
 </context>
 <context>
@@ -15843,7 +15909,7 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/texteditor/fontsettings.cpp" line="+136"/>
         <source>Customized</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Customisé</translation>
     </message>
 </context>
 <context>
@@ -15851,32 +15917,32 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/basecheckoutwizard.cpp" line="+103"/>
         <source>Cannot Open Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir le projet</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Failed to open project in &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Échec de l&apos;ouverture d&apos;un projet dans &apos;%1&apos;.</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Could not find any project files matching (%1) in the directory &apos;%2&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de trouvé un fichier de projet correspondant (%1) dans le répertoire &apos;%2&apos;.</translation>
     </message>
     <message>
         <location line="+32"/>
         <source>The Project Explorer is not available.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">L&apos;explorateur de projets n&apos;est pas disponible.</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&apos;%1&apos; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&apos;%1&apos; n&apos;existe pas.</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Unable to open the project &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir le projet &apos;%1&apos;.</translation>
     </message>
 </context>
 <context>
@@ -15889,17 +15955,17 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location line="+4"/>
         <source>The process returned exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le processus a retourné le code %1.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>The process terminated in an abnormal way.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le processus s&apos;est terminé d&apos;une façon anormale.</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Stopping...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Arrêt...</translation>
     </message>
 </context>
 <context>
@@ -15907,17 +15973,18 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/checkoutprogresswizardpage.cpp" line="+66"/>
         <source>Checkout started...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>checkout encore ?</translatorcomment>
+        <translation type="unfinished">Checkout commencé...</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Failed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Échoué.</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Succeeded.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réussi.</translation>
     </message>
 </context>
 <context>
@@ -15925,7 +15992,7 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseoutputwindow.cpp" line="+90"/>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Effacer</translation>
     </message>
     <message>
         <location line="+78"/>
@@ -15938,7 +16005,7 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/welcome/communitywelcomepage.h" line="+49"/>
         <source>Community</source>
-        <translation type="unfinished">Communauté</translation>
+        <translation>Communauté</translation>
     </message>
 </context>
 <context>
@@ -16088,7 +16155,8 @@ Check if the phone is connected and the TRK application is running.</source>
         <location filename="../../../src/plugins/debugger/gdb/abstractgdbadapter.cpp" line="+74"/>
         <source>The Gdb process could not be stopped:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Le processus Gdb ne peut pas être arrêté :
+%1</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -16115,7 +16183,8 @@ Check if the phone is connected and the TRK application is running.</source>
         <location line="+5"/>
         <source>Connecting to remote server failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La connexion au serveur distant a échoué :
+%1</translation>
     </message>
 </context>
 <context>
@@ -16131,12 +16200,13 @@ Check if the phone is connected and the TRK application is running.</source>
     <message>
         <location filename="../../../src/plugins/debugger/gdb/trkoptions.cpp" line="+91"/>
         <source>No Symbian gdb executable specified.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">L&apos;exécutable Symbian gdb n&apos;est pas spécifié.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>The Symbian gdb executable &apos;%1&apos; could not be found in the search path.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>chemin de recherche ou chemin recherché ?</translatorcomment>
+        <translation type="unfinished">L&apos;exécutable Symbian gdb &apos;%1&apos; ne peut pas être trouvé dans le chemin de recherche.</translation>
     </message>
 </context>
 <context>
