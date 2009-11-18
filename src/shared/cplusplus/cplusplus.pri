@@ -45,6 +45,7 @@ SOURCES += \
     $$PWD/ASTVisit.cpp \
     $$PWD/ASTMatch0.cpp \
     $$PWD/ASTVisitor.cpp \
+    $$PWD/ASTPatternBuilder.cpp \
     $$PWD/ASTMatcher.cpp \
     $$PWD/Array.cpp \
     $$PWD/CheckDeclaration.cpp \

@@ -42,6 +42,7 @@ class CPLUSPLUS_EXPORT ASTPatternBuilder
 
 public:
     ASTPatternBuilder(): state(pool.state()) {}
+    ~ASTPatternBuilder() {}
 
     void reset() { pool.rewind(state); };
 
