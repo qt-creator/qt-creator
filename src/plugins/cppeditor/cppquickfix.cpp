@@ -35,6 +35,8 @@
 #include <TranslationUnit.h>
 #include <ASTVisitor.h>
 #include <AST.h>
+#include <ASTPatternBuilder.h>
+#include <ASTMatcher.h>
 #include <Token.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -111,6 +113,66 @@ public:
     }
 };
 
+class RewriteLogicalAndOp: public QuickFixOperation
+{
+public:
+    RewriteLogicalAndOp(Document::Ptr doc, const Snapshot &snapshot)
+        : QuickFixOperation(doc, snapshot), matcher(doc->translationUnit()),
+           left(0), right(0), pattern(0)
+    {}
+
+    virtual QString description() const
+    {
+        return QLatin1String("Rewrite condition using ||"); // ### tr?
+    }
+
+    bool match(BinaryExpressionAST *expression)
+    {
+        left = mk.UnaryExpression();
+        right = mk.UnaryExpression();
+        pattern = mk.BinaryExpression(left, right);
+
+        if (expression->match(pattern, &matcher) &&
+                tokenAt(pattern->binary_op_token).is(T_AMPER_AMPER) &&
+                tokenAt(left->unary_op_token).is(T_EXCLAIM) &&
+                tokenAt(right->unary_op_token).is(T_EXCLAIM)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    virtual void apply()
+    {
+        // nothing to do.
+
+        QTextCursor binaryOp = selectToken(pattern->binary_op_token);
+        QTextCursor firstUnaryOp = selectToken(left->unary_op_token);
+        QTextCursor secondUnaryOp = selectToken(right->unary_op_token);
+
+        QTextCursor tc = textCursor();
+        tc.beginEditBlock();
+        firstUnaryOp.removeSelectedText();
+        secondUnaryOp.removeSelectedText();
+        binaryOp.insertText(QLatin1String("||"));
+        firstUnaryOp.insertText(QLatin1String("!("));
+
+        QTextCursor endOfRightUnaryExpression = selectToken(right->lastToken() - 1);
+        endOfRightUnaryExpression.setPosition(endOfRightUnaryExpression.position()); // ### method
+
+        endOfRightUnaryExpression.insertText(QLatin1String(")"));
+        tc.endEditBlock();
+    }
+
+private:
+    ASTMatcher matcher;
+    ASTPatternBuilder mk;
+    UnaryExpressionAST *left;
+    UnaryExpressionAST *right;
+    BinaryExpressionAST *pattern;
+};
+
+
 } // end of anonymous namespace
 
 
@@ -183,8 +245,6 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 
     const SemanticInfo info = _editor->semanticInfo();
 
-    QTextCursor textCursor = _editor->textCursor();
-
     if (info.revision != _editor->document()->revision()) {
         // outdated
         qWarning() << "TODO: outdated semantic info, force a reparse.";
@@ -196,6 +256,19 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 
         const QList<AST *> path = astPath(_editor->textCursor());
         // ### build the list of the quick fix ops by scanning path.
+
+        RewriteLogicalAndOp *op = new RewriteLogicalAndOp(info.doc, info.snapshot);
+        QuickFixOperationPtr quickFix(op);
+
+        for (int i = path.size() - 1; i != -1; --i) {
+            AST *node = path.at(i);
+            if (BinaryExpressionAST *binary = node->asBinaryExpression()) {
+                if (op->match(binary)) {
+                    _quickFixes.append(quickFix);
+                    break;
+                }
+            }
+        }
 
         if (! _quickFixes.isEmpty())
             return editable->position();
