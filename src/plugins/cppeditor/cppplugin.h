@@ -39,6 +39,7 @@
 
 namespace TextEditor {
 class TextEditorActionHandler;
+class ITextEditable;
 } // namespace TextEditor
 
 namespace CppEditor {
@@ -78,6 +79,8 @@ private slots:
     void onTaskStarted(const QString &type);
     void onAllTasksFinished(const QString &type);
     void findUsages();
+    void quickFix(TextEditor::ITextEditable *editable);
+    void quickFixNow();
 
 private:
     Core::IEditor *createEditor(QWidget *parent);
@@ -91,6 +94,9 @@ private:
     QAction *m_renameSymbolUnderCursorAction;
     QAction *m_findUsagesAction;
     QAction *m_updateCodeModelAction;
+
+    QTimer *m_quickFixTimer;
+    QPointer<TextEditor::ITextEditable> m_currentTextEditable;
 };
 
 class CppEditorFactory : public Core::IEditorFactory

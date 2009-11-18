@@ -573,8 +573,8 @@ protected slots:
 signals:
     void requestFontSize(int pointSize);
     void requestBlockUpdate(const QTextBlock &);
-    void requestAutoCompletion(ITextEditable *editor, bool forced);
-    void requestQuickFix(ITextEditable *editor);
+    void requestAutoCompletion(TextEditor::ITextEditable *editor, bool forced);
+    void requestQuickFix(TextEditor::ITextEditable *editor);
 
 private:
     void indentOrUnindent(bool doIndent);

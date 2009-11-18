@@ -185,6 +185,7 @@ public:
 
     void indentInsertedText(const QTextCursor &tc);
 
+    bool isOutdated() const;
     SemanticInfo semanticInfo() const;
 
 public Q_SLOTS:

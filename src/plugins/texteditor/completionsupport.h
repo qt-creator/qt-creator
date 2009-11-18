@@ -56,8 +56,8 @@ public:
 
     static CompletionSupport *instance();
 public slots:
-    void autoComplete(ITextEditable *editor, bool forced);
-    void quickFix(ITextEditable *editor);
+    void autoComplete(TextEditor::ITextEditable *editor, bool forced);
+    void quickFix(TextEditor::ITextEditable *editor);
 
 private slots:
     void performCompletion(const TextEditor::CompletionItem &item);

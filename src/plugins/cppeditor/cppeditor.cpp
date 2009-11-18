@@ -1308,6 +1308,14 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol)
     return 0;
 }
 
+bool CPPEditor::isOutdated() const
+{
+    if (m_lastSemanticInfo.revision != document()->revision())
+        return true;
+
+    return false;
+}
+
 SemanticInfo CPPEditor::semanticInfo() const
 {
     return m_lastSemanticInfo;

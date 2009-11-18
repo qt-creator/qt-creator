@@ -57,9 +57,13 @@
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
+#include <QtCore/QTimer>
+
 #include <QtGui/QMenu>
 
 using namespace CppEditor::Internal;
+
+enum { QUICKFIX_INTERVAL = 20 };
 
 //////////////////////////// CppEditorFactory /////////////////////////////
 
@@ -132,6 +136,11 @@ CppPlugin::CppPlugin() :
 
 {
     m_instance = this;
+
+    m_quickFixTimer = new QTimer(this);
+    m_quickFixTimer->setInterval(20);
+    m_quickFixTimer->setSingleShot(true);
+    connect(m_quickFixTimer, SIGNAL(timeout()), this, SLOT(quickFixNow()));
 }
 
 CppPlugin::~CppPlugin()
@@ -152,12 +161,12 @@ void CppPlugin::initializeEditor(CPPEditor *editor)
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 
     // auto completion
-    connect(editor, SIGNAL(requestAutoCompletion(ITextEditable*, bool)),
-            TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(ITextEditable*, bool)));
+    connect(editor, SIGNAL(requestAutoCompletion(TextEditor::ITextEditable*, bool)),
+            TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
 
     // quick fix
-    connect(editor, SIGNAL(requestQuickFix(ITextEditable*)),
-            TextEditor::Internal::CompletionSupport::instance(), SLOT(quickFix(ITextEditable*)));
+    connect(editor, SIGNAL(requestQuickFix(TextEditor::ITextEditable*)),
+            this, SLOT(quickFix(TextEditor::ITextEditable*)));
 
     // method combo box sorting
     connect(this, SIGNAL(methodOverviewSortingChanged(bool)),
@@ -327,6 +336,30 @@ void CppPlugin::findUsages()
     CPPEditor *editor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
     if (editor)
         editor->findUsages();
+}
+
+void CppPlugin::quickFix(TextEditor::ITextEditable *editable)
+{
+    m_currentTextEditable = editable;
+    quickFixNow();
+}
+
+void CppPlugin::quickFixNow()
+{
+    if (! m_currentTextEditable)
+        return;
+
+    Core::EditorManager *em = Core::EditorManager::instance();
+    CPPEditor *currentEditor = qobject_cast<CPPEditor*>(em->currentEditor()->widget());
+
+    if (CPPEditor *editor = qobject_cast<CPPEditor*>(m_currentTextEditable->widget())) {
+        if (currentEditor == editor) {
+            if (editor->isOutdated())
+                m_quickFixTimer->start(QUICKFIX_INTERVAL);
+            else
+                TextEditor::Internal::CompletionSupport::instance()->quickFix(m_currentTextEditable);
+        }
+    }
 }
 
 void CppPlugin::onTaskStarted(const QString &type)

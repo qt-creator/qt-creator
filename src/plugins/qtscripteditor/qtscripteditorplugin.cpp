@@ -140,8 +140,8 @@ void QtScriptEditorPlugin::initializeEditor(QtScriptEditor::Internal::ScriptEdit
     TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 
     // auto completion
-    connect(editor, SIGNAL(requestAutoCompletion(ITextEditable*, bool)),
-            TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(ITextEditable*, bool)));
+    connect(editor, SIGNAL(requestAutoCompletion(TextEditor::ITextEditable*, bool)),
+            TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
 }
 
 void QtScriptEditorPlugin::registerActions()
