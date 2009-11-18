@@ -53,6 +53,9 @@ protected:
 
 private:
     QStringList systemIncludes() const;
+
+    const S60ToolChainMixin m_mixin;
+
     QString m_carbidePath;
     QString m_deviceId;
     QString m_deviceName;

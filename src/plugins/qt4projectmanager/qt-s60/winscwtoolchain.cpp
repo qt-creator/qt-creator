@@ -37,7 +37,8 @@ using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
 WINSCWToolChain::WINSCWToolChain(S60Devices::Device device, const QString &mwcDirectory)
-    : m_carbidePath(mwcDirectory),
+    : m_mixin(device),
+    m_carbidePath(mwcDirectory),
     m_deviceId(device.id),
     m_deviceName(device.name),
     m_deviceRoot(device.epocRoot)
@@ -61,6 +62,7 @@ QList<HeaderPath> WINSCWToolChain::systemHeaderPaths()
         foreach (const QString &value, systemIncludes()) {
             m_systemHeaderPaths.append(HeaderPath(value, HeaderPath::GlobalHeaderPath));
         }
+        m_systemHeaderPaths += m_mixin.epocHeaderPaths();
     }
     return m_systemHeaderPaths;
 }
@@ -101,11 +103,7 @@ void WINSCWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         env.set("MWSYM2LIBRARYFILES", "MSL_All_MSE_Symbian_D.lib;gdi32.lib;user32.lib;kernel32.lib");
         env.prependOrSetPath(QString("%1\\x86Build\\Symbian_Tools\\Command_Line_Tools").arg(m_carbidePath)); // compiler
     }
-    env.prependOrSetPath(QString("%1\\epoc32\\tools").arg(m_deviceRoot)); // e.g. make.exe
-    env.prependOrSetPath(QString("%1\\epoc32\\gcc\\bin").arg(m_deviceRoot)); // e.g. gcc.exe
-    env.prependOrSetPath(QString("%1\\perl\\bin").arg(m_deviceRoot)); // e.g. perl.exe (special SDK version)
-    env.set("EPOCDEVICE", QString("%1:%2").arg(m_deviceId, m_deviceName));
-    env.set("EPOCROOT", S60Devices::cleanedRootPath(m_deviceRoot));
+    m_mixin.addEpocToEnvironment(&env);
 }
 
 QString WINSCWToolChain::makeCommand() const
