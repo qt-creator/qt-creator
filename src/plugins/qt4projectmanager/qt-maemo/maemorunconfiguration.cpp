@@ -1427,8 +1427,8 @@ void MaemoRunControl::stop()
     } else {
         stopProcess.kill();
         QStringList cmdArgs;
-        const QString remoteCall = QString::fromLocal8Bit("pkill -f %1; "
-            "sleep 1; pkill -9 -f %1").arg(executableFileName());
+        const QString remoteCall = QString::fromLocal8Bit("pkill -x %1; "
+            "sleep 1; pkill -x -9 %1").arg(executableFileName());
         cmdArgs << "-n" << "-p" << port() << "-l" << runConfig->remoteUserName()
             << runConfig->remoteHostName() << remoteCall;
         stopProcess.start(runConfig->sshCmd(), cmdArgs);
@@ -1586,7 +1586,7 @@ void MaemoDebugRunControl::debuggingFinished()
     if (gdbServer.state() != QProcess::NotRunning) {
         stopProcess.kill();
         const QString remoteCall = QString::fromLocal8Bit("kill %1; sleep 1; "
-            "kill -9 %1; pkill -9 -f gdbserver").arg(inferiorPid);
+            "kill -9 %1; pkill -x -9 gdbserver").arg(inferiorPid);
         QStringList sshArgs;
         sshArgs << "-n" << "-l" << runConfig->remoteUserName() << "-p" << port()
             << runConfig->remoteHostName() << remoteCall;
