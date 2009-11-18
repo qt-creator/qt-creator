@@ -152,6 +152,16 @@ private:
         if (something_else) {
         }
      }
+
+  and
+    if (something || something_else)
+      x;
+
+  with
+    if (something)
+      x;
+    else if (something_else)
+      x;
 */
 class SplitIfStatementOp: public QuickFixOperation
 {
@@ -174,7 +184,8 @@ public:
         if (statement->match(pattern, &matcher)
                 && pattern->statement
                 && pattern->rparen_token
-                && tokenAt(condition->binary_op_token).is(T_AMPER_AMPER))
+                && (tokenAt(condition->binary_op_token).is(T_AMPER_AMPER) ||
+                    tokenAt(condition->binary_op_token).is(T_PIPE_PIPE)))
             return true;
 
         return false;
@@ -182,9 +193,16 @@ public:
 
     virtual void apply()
     {
-        StatementAST *ifTrueStatement = pattern->statement;
-        CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
+        const Token binaryOp = tokenAt(condition->binary_op_token);
 
+        if (binaryOp.is(T_AMPER_AMPER))
+            splitAndCondition();
+        else
+            splitOrCondition();
+    }
+
+    void splitAndCondition()
+    {
         QTextCursor completeIfStatement = selectNode(pattern);
         {
             // ### HACK
@@ -193,6 +211,9 @@ public:
             completeIfStatement.setPosition(position);
             completeIfStatement.setPosition(anchor, QTextCursor::KeepAnchor);
         }
+
+        StatementAST *ifTrueStatement = pattern->statement;
+        CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
 
         // take the right-expression from the condition.
         const QString rightCondition = selectNode(condition->right_expression).selectedText();
@@ -219,6 +240,50 @@ public:
 
         if (! compoundStatement)
             insert(endOf(ifTrueStatement), "\n}"); // finish the compound statement
+
+        QTextCursor tc = textCursor();
+        tc.beginEditBlock();
+        execute();
+        editor->indentInsertedText(completeIfStatement);
+        tc.endEditBlock();
+    }
+
+    void splitOrCondition()
+    {
+        QTextCursor completeIfStatement = selectNode(pattern);
+        {
+            // ### HACK
+            const int anchor = completeIfStatement.anchor();
+            const int position = completeIfStatement.position();
+            completeIfStatement.setPosition(position);
+            completeIfStatement.setPosition(anchor, QTextCursor::KeepAnchor);
+        }
+
+        StatementAST *ifTrueStatement = pattern->statement;
+        CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
+
+        // take the right-expression from the condition.
+        const QString rightCondition = selectNode(condition->right_expression).selectedText();
+        replace(endOf(condition->left_expression), startOf(pattern->rparen_token), QString());
+
+        // copy the if-body
+        QTextCursor bodyCursor = textCursor();
+        bodyCursor.setPosition(endOf(pattern->rparen_token));
+        bodyCursor.setPosition(endOf(pattern->statement), QTextCursor::KeepAnchor);
+        const QString body = bodyCursor.selectedText();
+
+        QString elseIfStatement;
+        if (compoundStatement)
+            elseIfStatement += QLatin1String(" ");
+        else
+            elseIfStatement += QLatin1String("\n");
+
+        elseIfStatement += QLatin1String("else if (");
+        elseIfStatement += rightCondition;
+        elseIfStatement += QLatin1String(")");
+        elseIfStatement += body;
+
+        insert(endOf(pattern), elseIfStatement);
 
         QTextCursor tc = textCursor();
         tc.beginEditBlock();
