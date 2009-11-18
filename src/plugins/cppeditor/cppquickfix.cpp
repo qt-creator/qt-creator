@@ -144,24 +144,12 @@ public:
 
     virtual void apply()
     {
-        // nothing to do.
+        replace(pattern->binary_op_token, QLatin1String("||"));
+        replace(left->unary_op_token, QLatin1String("!("));
+        replace(right->unary_op_token, QLatin1String(""));
+        insert(endOf(pattern), QLatin1String(")"));
 
-        QTextCursor binaryOp = selectToken(pattern->binary_op_token);
-        QTextCursor firstUnaryOp = selectToken(left->unary_op_token);
-        QTextCursor secondUnaryOp = selectToken(right->unary_op_token);
-
-        QTextCursor tc = textCursor();
-        tc.beginEditBlock();
-        firstUnaryOp.removeSelectedText();
-        secondUnaryOp.removeSelectedText();
-        binaryOp.insertText(QLatin1String("||"));
-        firstUnaryOp.insertText(QLatin1String("!("));
-
-        QTextCursor endOfRightUnaryExpression = selectToken(right->lastToken() - 1);
-        endOfRightUnaryExpression.setPosition(endOfRightUnaryExpression.position()); // ### method
-
-        endOfRightUnaryExpression.insertText(QLatin1String(")"));
-        tc.endEditBlock();
+        execute();
     }
 
 private:
@@ -193,34 +181,86 @@ void QuickFixOperation::setTextCursor(const QTextCursor &cursor)
 const CPlusPlus::Token &QuickFixOperation::tokenAt(unsigned index) const
 { return _doc->translationUnit()->tokenAt(index); }
 
-int QuickFixOperation::tokenStartPosition(unsigned index) const
+int QuickFixOperation::startOf(unsigned index) const
 {
     unsigned line, column;
     _doc->translationUnit()->getPosition(tokenAt(index).begin(), &line, &column);
     return _textCursor.document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 
-int QuickFixOperation::tokenEndPosition(unsigned index) const
+int QuickFixOperation::startOf(const CPlusPlus::AST *ast) const
+{
+    return startOf(ast->firstToken());
+}
+
+int QuickFixOperation::endOf(unsigned index) const
 {
     unsigned line, column;
     _doc->translationUnit()->getPosition(tokenAt(index).end(), &line, &column);
     return _textCursor.document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 
+int QuickFixOperation::endOf(const CPlusPlus::AST *ast) const
+{
+    return endOf(ast->lastToken() - 1);
+}
+
 QTextCursor QuickFixOperation::selectToken(unsigned index) const
 {
     QTextCursor tc = _textCursor;
-    tc.setPosition(tokenStartPosition(index));
-    tc.setPosition(tokenEndPosition(index), QTextCursor::KeepAnchor);
+    tc.setPosition(startOf(index));
+    tc.setPosition(endOf(index), QTextCursor::KeepAnchor);
     return tc;
 }
 
 QTextCursor QuickFixOperation::selectNode(AST *ast) const
 {
     QTextCursor tc = _textCursor;
-    tc.setPosition(tokenStartPosition(ast->firstToken()));
-    tc.setPosition(tokenEndPosition(ast->lastToken() - 1), QTextCursor::KeepAnchor);
+    tc.setPosition(startOf(ast->firstToken()));
+    tc.setPosition(endOf(ast->lastToken() - 1), QTextCursor::KeepAnchor);
     return tc;
+}
+
+void QuickFixOperation::move(int start, int end, int to)
+{
+    if (end > start)
+        _textWriter.move(start, end-start, to);
+}
+
+void QuickFixOperation::move(unsigned tokenIndex, int to)
+{
+    move(startOf(tokenIndex), endOf(tokenIndex), to);
+}
+
+void QuickFixOperation::move(const CPlusPlus::AST *ast, int to)
+{
+    move(startOf(ast), endOf(ast), to);
+}
+
+void QuickFixOperation::replace(int start, int end, const QString &replacement)
+{
+    if (end >= start)
+        _textWriter.replace(start, end-start, replacement);
+}
+
+void QuickFixOperation::replace(unsigned tokenIndex, const QString &replacement)
+{
+    replace(startOf(tokenIndex), endOf(tokenIndex), replacement);
+}
+
+void QuickFixOperation::replace(const CPlusPlus::AST *ast, const QString &replacement)
+{
+    replace(startOf(ast), endOf(ast), replacement);
+}
+
+void QuickFixOperation::insert(int at, const QString &text)
+{
+    replace(at, at, text);
+}
+
+void QuickFixOperation::execute()
+{
+    _textWriter.write(&_textCursor);
 }
 
 CPPQuickFixCollector::CPPQuickFixCollector()

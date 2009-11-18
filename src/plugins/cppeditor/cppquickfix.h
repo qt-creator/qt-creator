@@ -35,6 +35,8 @@
 #include <cplusplus/CppDocument.h>
 #include <ASTfwd.h>
 
+#include <utils/textwriter.h>
+
 #include <QtCore/QSharedPointer>
 #include <QtGui/QTextCursor>
 
@@ -70,16 +72,29 @@ public:
 
 protected:
     const CPlusPlus::Token &tokenAt(unsigned index) const;
-    int tokenStartPosition(unsigned index) const;
-    int tokenEndPosition(unsigned index) const;
-
     QTextCursor selectToken(unsigned index) const;
     QTextCursor selectNode(CPlusPlus::AST *ast) const;
+
+    int startOf(unsigned index) const;
+    int startOf(const CPlusPlus::AST *ast) const;
+    int endOf(unsigned index) const;
+    int endOf(const CPlusPlus::AST *ast) const;
+
+    void move(int start, int end, int to);
+    void move(unsigned tokenIndex, int to);
+    void move(const CPlusPlus::AST *ast, int to);
+    void replace(int start, int end, const QString &replacement);
+    void replace(unsigned tokenIndex, const QString &replacement);
+    void replace(const CPlusPlus::AST *ast, const QString &replacement);
+    void insert(int at, const QString &text);
+
+    void execute();
 
 private:
     CPlusPlus::Document::Ptr _doc;
     CPlusPlus::Snapshot _snapshot;
     QTextCursor _textCursor;
+    Utils::TextWriter _textWriter;
 };
 
 class CPPQuickFixCollector: public TextEditor::IQuickFixCollector
