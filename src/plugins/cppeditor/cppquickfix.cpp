@@ -95,24 +95,6 @@ protected:
     }
 };
 
-class HelloQuickFixOp: public QuickFixOperation
-{
-public:
-    HelloQuickFixOp(Document::Ptr doc, const Snapshot &snapshot)
-        : QuickFixOperation(doc, snapshot)
-    {}
-
-    virtual QString description() const
-    {
-        return QLatin1String("Hello"); // ### tr?
-    }
-
-    virtual void apply()
-    {
-        // nothing to do.
-    }
-};
-
 class RewriteLogicalAndOp: public QuickFixOperation
 {
 public:
