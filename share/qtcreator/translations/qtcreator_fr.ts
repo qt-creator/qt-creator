@@ -2553,7 +2553,7 @@ Voulez vous les écraser?</translation>
     <message>
         <location line="+4"/>
         <source>The unsaved file %1 has been changed outside Qt Creator. Do you want to reload it and discard your changes?</source>
-        <translation type="unfinished">Le fichié %1 n&apos;est pas enregistré et a été modifé en dehors de Qt Creator. Voulez-vous le recharger et ignorer vos changements?</translation>
+        <translation>Le fichier %1 n&apos;est pas enregistré et a été modifé en dehors de Qt Creator. Voulez-vous le recharger et ignorer vos changements ?</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -11374,17 +11374,17 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/saveitemsdialog.ui"/>
         <source>Save Changes</source>
-        <translation type="unfinished">Sauvegarder les changements</translation>
+        <translation>Sauvegarder les changements</translation>
     </message>
     <message>
         <location/>
         <source>The following files have unsaved changes:</source>
-        <translation type="unfinished">Les fichiers suivants contiennent des modifications non enregistrées:</translation>
+        <translation>Les fichiers suivants contiennent des modifications non enregistrées :</translation>
     </message>
     <message>
         <location/>
         <source>Automatically save all files before building</source>
-        <translation type="unfinished">Sauvegarder automatiquement tous les fichiers avant de compiler</translation>
+        <translation>Sauvegarder automatiquement tous les fichiers avant de compiler</translation>
     </message>
 </context>
 <context>
@@ -11392,12 +11392,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/settingsdialog.ui"/>
         <source>Options</source>
-        <translation type="unfinished">Options</translation>
+        <translation>Options</translation>
     </message>
     <message>
         <location/>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
 </context>
 <context>
@@ -12006,7 +12006,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <location line="+290"/>
         <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
         <translatorcomment>error -&gt; erreur ;)</translatorcomment>
-        <translation type="unfinished">&lt;b&gt;Erreur :&lt;/b&gt; Impossible de décoder &quot;%1&quot; avec l&apos;encodage &quot;%2&quot;. L&apos;édition est impossible.</translation>
+        <translation>&lt;b&gt;Erreur :&lt;/b&gt; Impossible de décoder &quot;%1&quot; avec l&apos;encodage &quot;%2&quot;. L&apos;édition est impossible.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -12092,7 +12092,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location/>
         <source>Removes trailing whitespace on saving.</source>
-        <translation type="unfinished">Supprime les caractères d&apos;espacement à la fin des lignes lors de la sauvegarde.</translation>
+        <translation>Supprime les caractères d&apos;espacement à la fin des lignes lors de la sauvegarde.</translation>
     </message>
     <message>
         <location/>
@@ -12481,12 +12481,12 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+3"/>
         <source>&amp;Rewrap Paragraph</source>
-        <translation type="unfinished">&amp;Réadapter les retour à la ligne du paragraphe</translation>
+        <translation>&amp;Réadapter les retour à la ligne du paragraphe</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&amp;Visualize Whitespace</source>
-        <translation type="unfinished">&amp;Visualiser les espaces</translation>
+        <translation>&amp;Visualiser les espaces</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -12496,7 +12496,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+7"/>
         <source>Enable Text &amp;Wrapping</source>
-        <translation type="unfinished">Activer le retour à la ligne automatique</translation>
+        <translation>Activer le &amp;retour à la ligne automatique</translation>
     </message>
     <message>
         <source>Ctrl+E, Ctrl+W</source>
@@ -12505,144 +12505,144 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="-20"/>
         <source>%1+E, R</source>
-        <translation type="unfinished">%1+E, R</translation>
+        <translation>%1+E, R</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>%1+E, %2+V</source>
-        <translation type="unfinished">%1+E, %2+V</translation>
+        <translation>%1+E, %2+V</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>%1+E, %2+W</source>
-        <translation type="unfinished">%1+E, %2+W</translation>
+        <translation>%1+E, %2+W</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>(Un)Comment &amp;Selection</source>
-        <translation type="unfinished">(Dé)Commenter la &amp;Sélection</translation>
+        <translation>(Dé)Commenter la &amp;Sélection</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+/</source>
-        <translation type="unfinished">Ctrl+/</translation>
+        <translation>Ctrl+/</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Cut &amp;Line</source>
-        <translation type="unfinished">Couper la &amp;Ligne</translation>
+        <translation>Couper la &amp;ligne</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Shift+Del</source>
-        <translation type="unfinished">Shift+Suppr</translation>
+        <translation>Shift+Suppr</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Delete &amp;Line</source>
-        <translation type="unfinished">Effacer la &amp;Ligne</translation>
+        <translation>Effacer la &amp;ligne</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Collapse</source>
-        <translation type="unfinished">Réduire</translation>
+        <translation>Réduire</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+&lt;</source>
-        <translation type="unfinished">Ctrl+&lt;</translation>
+        <translation>Ctrl+&lt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Expand</source>
-        <translation type="unfinished">Développer</translation>
+        <translation>Développer</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+&gt;</source>
-        <translation type="unfinished">Ctrl+&gt;</translation>
+        <translation>Ctrl+&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>(Un)&amp;Collapse All</source>
-        <translation type="unfinished">(Dé)&amp;Plier tout</translation>
+        <translation>(Dé)&amp;Plier tout</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Increase Font Size</source>
-        <translation type="unfinished">Augmenter la taille de la police</translation>
+        <translation>Augmenter la taille de la police</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl++</source>
-        <translation type="unfinished">Ctrl++</translation>
+        <translation>Ctrl++</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Decrease Font Size</source>
-        <translation type="unfinished">Diminuer la taille de la police</translation>
+        <translation>Diminuer la taille de la police</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+-</source>
-        <translation type="unfinished">Ctrl+-</translation>
+        <translation>Ctrl+-</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Goto Block Start</source>
-        <translation type="unfinished">Aller au début du bloc</translation>
+        <translation>Aller au début du bloc</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+[</source>
-        <translation type="unfinished">Ctrl+[</translation>
+        <translation>Ctrl+[</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Goto Block End</source>
-        <translation type="unfinished">Aller à la fin du bloc</translation>
+        <translation>Aller à la fin du bloc</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+]</source>
-        <translation type="unfinished">Ctrl+]</translation>
+        <translation>Ctrl+]</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Goto Block Start With Selection</source>
         <translatorcomment>Allez jusqu&apos;au début du bloc avec la sélection?</translatorcomment>
-        <translation type="unfinished">Sélectionner jusqu&apos;au début du bloc</translation>
+        <translation>Sélectionner jusqu&apos;au début du bloc</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+{</source>
-        <translation type="unfinished">Ctrl+{</translation>
+        <translation>Ctrl+{</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Goto Block End With Selection</source>
-        <translatorcomment>Allez jusqu&apos;au début du bloc avec la sélection?</translatorcomment>
-        <translation type="unfinished">Sélectionner jusqu&apos;à la fin du bloc</translation>
+        <translatorcomment>Allez jusqu&apos;à la fin du bloc avec la sélection?</translatorcomment>
+        <translation>Sélectionner jusqu&apos;à la fin du bloc</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+}</source>
-        <translation type="unfinished">Ctrl+}</translation>
+        <translation>Ctrl+}</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Select Block Up</source>
-        <translation type="unfinished">Sélectionnez le bloc du dessus</translation>
+        <translation>Sélectionner le bloc au-dessus</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+U</source>
-        <translation type="unfinished">Ctrl+U</translation>
+        <translation>Ctrl+U</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Select Block Down</source>
-        <translation type="unfinished">Selectionnez le bloc en dessous</translation>
+        <translation>Sélectionner le bloc en dessous</translation>
     </message>
     <message>
         <source>Ctrl+Shift+U</source>
@@ -12651,47 +12651,47 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+5"/>
         <source>Move Line Up</source>
-        <translation type="unfinished">Déplacer la ligne au-dessus</translation>
+        <translation>Déplacer la ligne au-dessus</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+Shift+Up</source>
-        <translation type="unfinished">Ctrl+Shift+Up</translation>
+        <translation>Ctrl+Shift+Up</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Move Line Down</source>
-        <translation type="unfinished">Déplacer la ligne en-dessous</translation>
+        <translation>Déplacer la ligne en dessous</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+Shift+Down</source>
-        <translation type="unfinished">Ctrl+Shift+Down</translation>
+        <translation>Ctrl+Shift+Down</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Copy Line Up</source>
-        <translation type="unfinished">Copier la ligne au-dessus</translation>
+        <translation>Copier la ligne au-dessus</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+Alt+Up</source>
-        <translation type="unfinished">Ctrl+Alt+Up</translation>
+        <translation>Ctrl+Alt+Up</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Copy Line Down</source>
-        <translation type="unfinished">Copier la ligne en-dessous</translation>
+        <translation>Copier la ligne en dessous</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Ctrl+Alt+Down</source>
-        <translation type="unfinished">Ctrl+Alt+Down</translation>
+        <translation>Ctrl+Alt+Down</translation>
     </message>
     <message>
         <location line="+92"/>
         <source>&lt;line number&gt;</source>
-        <translation type="unfinished">&lt;numéro de ligne&gt;</translation>
+        <translation>&lt;numéro de ligne&gt;</translation>
     </message>
 </context>
 <context>
@@ -12725,7 +12725,7 @@ The following encodings are likely to fit:</source>
         <location line="+1"/>
         <source>Search Scope</source>
         <translatorcomment>contexte/portée/autre ?</translatorcomment>
-        <translation type="unfinished">Portée de la recherche</translation>
+        <translation>Portée de la recherche</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -12745,22 +12745,22 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+4"/>
         <source>Occurrences</source>
-        <translation type="unfinished">Occurences</translation>
+        <translation>Occurences</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Unused Occurrence</source>
-        <translation type="unfinished">Occurence inutilisé</translation>
+        <translation>Occurence inutilisé</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Renaming Occurrence</source>
-        <translation type="unfinished">Renommer l&apos;occurence</translation>
+        <translation>Renommer l&apos;occurence</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Number</source>
-        <translation type="unfinished">Numéro</translation>
+        <translation>Numéro</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -12790,7 +12790,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+1"/>
         <source>Label</source>
-        <translation type="unfinished">Étiquette</translation>
+        <translation>Étiquette</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -12820,7 +12820,7 @@ The following encodings are likely to fit:</source>
     <message>
         <location line="+3"/>
         <source>Added Line</source>
-        <translation type="unfinished">Ligne ajoutée</translation>
+        <translation>Ligne ajoutée</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -14188,7 +14188,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Path:</source>
-        <translation type="unfinished">Chemin :</translation>
+        <translation>Chemin :</translation>
     </message>
 </context>
 <context>
@@ -14293,7 +14293,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/libs/utils/detailsbutton.cpp" line="+19"/>
         <source>Show Details</source>
-        <translation type="unfinished">Afficher les détails</translation>
+        <translation>Afficher les détails</translation>
     </message>
 </context>
 <context>
@@ -15942,32 +15942,32 @@ Veuillez vérifier si le téléphone est connecté et que l&apos;application TRK
     <message>
         <location filename="../../../src/plugins/vcsbase/basecheckoutwizard.cpp" line="+103"/>
         <source>Cannot Open Project</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir le projet</translation>
+        <translation>Impossible d&apos;ouvrir le projet</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Failed to open project in &apos;%1&apos;.</source>
-        <translation type="unfinished">Échec de l&apos;ouverture d&apos;un projet dans &apos;%1&apos;.</translation>
+        <translation>Échec de l&apos;ouverture du projet dans &apos;%1&apos;.</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Could not find any project files matching (%1) in the directory &apos;%2&apos;.</source>
-        <translation type="unfinished">Impossible de trouvé un fichier de projet correspondant (%1) dans le répertoire &apos;%2&apos;.</translation>
+        <translation>Impossible de trouvé un fichier de projet correspondant (%1) dans le répertoire &apos;%2&apos;.</translation>
     </message>
     <message>
         <location line="+32"/>
         <source>The Project Explorer is not available.</source>
-        <translation type="unfinished">L&apos;explorateur de projets n&apos;est pas disponible.</translation>
+        <translation>L&apos;explorateur de projets n&apos;est pas disponible.</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&apos;%1&apos; does not exist.</source>
-        <translation type="unfinished">&apos;%1&apos; n&apos;existe pas.</translation>
+        <translation>&apos;%1&apos; n&apos;existe pas.</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Unable to open the project &apos;%1&apos;.</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir le projet &apos;%1&apos;.</translation>
+        <translation>Impossible d&apos;ouvrir le projet &apos;%1&apos;.</translation>
     </message>
 </context>
 <context>
@@ -15975,22 +15975,22 @@ Veuillez vérifier si le téléphone est connecté et que l&apos;application TRK
     <message>
         <location filename="../../../src/plugins/vcsbase/checkoutjobs.cpp" line="+109"/>
         <source>The process terminated with exit code %1.</source>
-        <translation type="unfinished">Le processus s&apos;est terminé avec le code %1.</translation>
+        <translation>Le processus s&apos;est terminé avec le code %1.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>The process returned exit code %1.</source>
-        <translation type="unfinished">Le processus a retourné le code %1.</translation>
+        <translation>Le processus a retourné le code %1.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>The process terminated in an abnormal way.</source>
-        <translation type="unfinished">Le processus s&apos;est terminé d&apos;une façon anormale.</translation>
+        <translation>Le processus s&apos;est terminé d&apos;une façon anormale.</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Stopping...</source>
-        <translation type="unfinished">Arrêt...</translation>
+        <translation>Arrêt...</translation>
     </message>
 </context>
 <context>
@@ -16004,12 +16004,12 @@ Veuillez vérifier si le téléphone est connecté et que l&apos;application TRK
     <message>
         <location line="+12"/>
         <source>Failed.</source>
-        <translation type="unfinished">Échoué.</translation>
+        <translation>Échec.</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Succeeded.</source>
-        <translation type="unfinished">Réussi.</translation>
+        <translation>Réussi.</translation>
     </message>
 </context>
 <context>
@@ -16017,12 +16017,12 @@ Veuillez vérifier si le téléphone est connecté et que l&apos;application TRK
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbaseoutputwindow.cpp" line="+90"/>
         <source>Clear</source>
-        <translation type="unfinished">Effacer</translation>
+        <translation>Effacer</translation>
     </message>
     <message>
         <location line="+78"/>
         <source>Version Control</source>
-        <translation type="unfinished">Gestion de versions</translation>
+        <translation>Gestion de versions</translation>
     </message>
 </context>
 <context>
