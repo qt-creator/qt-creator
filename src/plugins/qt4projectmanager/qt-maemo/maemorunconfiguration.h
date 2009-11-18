@@ -199,6 +199,7 @@ public:
     QString displayNameForType(const QString &type) const;
     RunConfiguration *create(Project *project, const QString &type);
 
+
 private slots:
     void addedRunConfiguration(ProjectExplorer::Project* project);
     void removedRunConfiguration(ProjectExplorer::Project* project);

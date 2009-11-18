@@ -59,8 +59,8 @@
 
 using namespace ProjectExplorer;
 
-namespace Qt4ProjectManager {
-namespace Internal {
+using namespace Qt4ProjectManager;
+using namespace Qt4ProjectManager::Internal;
 
 class MaemoRunConfigurationWidget : public QWidget
 {
@@ -134,7 +134,7 @@ private slots:
 
 protected:
     ErrorDumper dumper;
-    const QSharedPointer<MaemoRunConfiguration> runConfig;
+    MaemoRunConfiguration *runConfig; // TODO this pointer can be invalid
 
 private:
     QProcess deployProcess;
@@ -679,7 +679,7 @@ void MaemoRunConfiguration::updateTarget()
 
         // Find out what flags we pass on to qmake, this code is duplicated in
         // the qmake step
-        QtVersion::QmakeBuildConfig defaultBuildConfiguration =
+        QtVersion::QmakeBuildConfigs defaultBuildConfiguration =
             qtVersion->defaultBuildConfig();
         QtVersion::QmakeBuildConfig projectBuildConfiguration =
             QtVersion::QmakeBuildConfig(qt4Project->activeBuildConfiguration()
@@ -857,7 +857,6 @@ void MaemoRunConfiguration::enabledStateChanged()
 
 // #pragma mark -- MaemoRunConfigurationWidget
 
-
 MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         MaemoRunConfiguration *runConfiguration, QWidget *parent)
     : QWidget(parent)
@@ -865,6 +864,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
 {
     QFormLayout *mainLayout = new QFormLayout;
     setLayout(mainLayout);
+
     mainLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     m_configNameLineEdit = new QLineEdit(m_runConfiguration->name());
     mainLayout->addRow(tr("Run configuration name:"), m_configNameLineEdit);
@@ -1186,7 +1186,7 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
 RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
     const QString &mode)
 {
-    MaemoRunConfiguration* rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
+    MaemoRunConfiguration *rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
     Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE
         || mode == ProjectExplorer::Constants::DEBUGMODE);
@@ -1228,7 +1228,7 @@ AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc)
 
 void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 {
-    QTC_ASSERT(!runConfig.isNull(), return);
+    QTC_ASSERT(runConfig, return);
     QStringList deployables;
     if (runConfig->currentlyNeedsDeployment()) {
         deployingExecutable = true;
@@ -1317,9 +1317,9 @@ const QString AbstractMaemoRunControl::targetCmdLinePrefix() const
 
 bool AbstractMaemoRunControl::setProcessEnvironment(QProcess &process)
 {
-    QTC_ASSERT(!runConfig.isNull(), return false);
-    Qt4Project *qt4Project = qobject_cast<Qt4Project *>(runConfig->project());
     QTC_ASSERT(runConfig, return false);
+    Qt4Project *qt4Project = qobject_cast<Qt4Project *>(runConfig->project());
+    QTC_ASSERT(qt4Project, return false);
     Environment env = Environment::systemEnvironment();
     qt4Project->toolChain(qt4Project->activeBuildConfiguration())
         ->addToEnvironment(env);
@@ -1598,8 +1598,5 @@ void MaemoDebugRunControl::debuggerOutput(const QString &output)
 {
     emit addToOutputWindowInline(this, output);
 }
-
-} // namespace Internal
-} // namespace Qt4ProjectManager
 
 #include "maemorunconfiguration.moc"
