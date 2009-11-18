@@ -1512,7 +1512,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+8"/>
         <source>Could not set permissions to writable.</source>
-        <translation>Die Datei konnte schreibbar gemacht werden.</translation>
+        <translation>Die Datei konnte nicht schreibbar gemacht werden.</translation>
     </message>
     <message>
         <location line="+92"/>
