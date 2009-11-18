@@ -5194,12 +5194,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/cpp/formclasswizardpage.ui"/>
         <source>Choose a class name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisissez un nom de classe</translation>
     </message>
     <message>
         <location/>
         <source>Class</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Classe</translation>
     </message>
     <message>
         <location/>
@@ -5209,7 +5209,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/cpp/formclasswizardpage.cpp" line="+148"/>
         <source>%1 - Error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 - Erreur</translation>
     </message>
 </context>
 <context>
@@ -5222,22 +5222,22 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location line="+2"/>
         <source>Qt Designer Form</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interface graphique Qt Designer</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a Qt Designer form file (.ui).</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crée un fichier d&apos;interface graphique Qt Designer (.ui).</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Qt Designer Form Class</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Classe d&apos;interface graphique Qt Designer</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crée un fichier d&apos;interface graphique Qt Designer (.ui) avec une classe correspondante.</translation>
     </message>
 </context>
 <context>
@@ -5246,115 +5246,117 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <location filename="../../../src/plugins/designer/formeditorw.cpp" line="+335"/>
         <location line="+170"/>
         <source>Widget Box</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Liste des widgets</translation>
     </message>
     <message>
         <location line="-165"/>
         <location line="+169"/>
         <source>Object Inspector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Je trouve que &quot;Inspecteur d&apos;objet&quot; est peu adapté. Explorateur d&apos;objet n&apos;est pas excellent non plus, à changer surement.</translatorcomment>
+        <translation type="unfinished">Explorateur d&apos;objet</translation>
     </message>
     <message>
         <location line="-164"/>
         <location line="+168"/>
         <source>Property Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editeur de propriété</translation>
     </message>
     <message>
         <location line="-163"/>
         <source>Signals &amp; Slots Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editeur de Signaux &amp; Slots</translation>
     </message>
     <message>
         <location line="+4"/>
         <location line="+167"/>
         <source>Action Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editeur d&apos;Action</translation>
     </message>
     <message>
         <location line="-125"/>
         <source>For&amp;m editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editeur d&apos;&amp;interface graphique</translation>
     </message>
     <message>
         <location line="+35"/>
         <source>Edit widgets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Éditer les widgets</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>F3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">F3</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Edit signals/slots</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Éditer signaux/slots</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>F4</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">F4</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Edit buddies</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Je traduis &quot;buddies&quot; par &quot;amis&quot; même si c&apos;est incorrect puisque la traduction exacte est &quot;potes&quot;. Seuleument &quot;potes&quot; est trop familier. &quot;Copains&quot; serait plus convenable ?</translatorcomment>
+        <translation type="unfinished">Éditer les amis</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Edit tab order</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Éditer l&apos;ordre des tab</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Meta+H</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Meta+H</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+H</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+H</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Meta+L</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Meta+L</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+L</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+L</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Meta+G</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Meta+G</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Meta+J</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Meta+J</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+J</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+J</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>Views</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vues</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Signals &amp;&amp; Slots Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editeur de Signaux &amp;&amp; Slots</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -5364,32 +5366,32 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location line="+7"/>
         <source>Reset to Default Layout</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Restaurer la disposition par défaut</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Ctrl+Alt+R</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Alt+R</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>About Qt Designer plugins....</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">À propos des plugins Qt Designer....</translation>
     </message>
     <message>
         <location line="+35"/>
         <source>Preview in</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aperçu dans</translation>
     </message>
     <message>
         <location line="+48"/>
         <source>Designer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Designer</translation>
     </message>
     <message>
         <location line="+161"/>
         <source>The image could not be created: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">L&apos;image ne peut pas être créée: %1</translation>
     </message>
 </context>
 <context>
@@ -5397,12 +5399,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formtemplatewizardpage.cpp" line="+62"/>
         <source>Choose a form template</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisir un modèle d&apos;interface graphique</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>%1 - Error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 - Erreur</translation>
     </message>
 </context>
 <context>
@@ -5410,17 +5412,17 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formwindowfile.cpp" line="+77"/>
         <source>Error saving %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur d&apos;enregistrement %1</translation>
     </message>
     <message>
         <location line="+106"/>
         <source>Unable to open %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir %1: %2</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Unable to write to %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;écrire %1: %2</translation>
     </message>
 </context>
 <context>
@@ -5428,7 +5430,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/formwizarddialog.cpp" line="+60"/>
         <source>Qt Designer Form</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interface graphique Qt Designer</translation>
     </message>
 </context>
 <context>
@@ -5436,23 +5438,24 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/plugins/designer/qtcreatorintegration.cpp" line="+72"/>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La déclaration de la classe %1 est introuvable dans %2.</translation>
     </message>
     <message>
         <location line="+475"/>
         <source>Error finding/adding a slot.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur de recherche/ajout de slot.</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>No documents matching &apos;%1&apos; could be found.
 Rebuilding the project might help.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de trouver un document correspondant à %1.
+Regénérer le projet peut résoudre ce problème.</translation>
     </message>
     <message>
         <location line="+59"/>
         <source>Unable to add the method definition.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;ajouter la déclaration de la méthode.</translation>
     </message>
 </context>
 <context>
@@ -9694,12 +9697,12 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizard.cpp" line="+59"/>
         <source>Qt4 Console Application</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Application Console Qt4</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a Qt4 console application.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crée une application Qt4 de type console.</translation>
     </message>
 </context>
 <context>
@@ -9707,7 +9710,7 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizarddialog.cpp" line="+52"/>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cet assistant génère un projet d&apos;application Qt4 console. L&apos;application dérive de QtCoreApplication et ne fournit pas d&apos;interface graphique.</translation>
     </message>
 </context>
 <context>
@@ -9715,12 +9718,12 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/externaleditors.cpp" line="+215"/>
         <source>Qt Designer is not responding (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt Designer ne répond pas (%1).</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Unable to create server socket: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de créer le socket serveur : %1</translation>
     </message>
 </context>
 <context>
@@ -9728,7 +9731,7 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/embeddedpropertiespage.cpp" line="+80"/>
         <source>Embedded Linux</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Linux embarqué</translation>
     </message>
 </context>
 <context>
@@ -9736,12 +9739,12 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/emptyprojectwizard.cpp" line="+40"/>
         <source>Empty Qt4 Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Projet Qt4 vide</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates an empty Qt project.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crée un projet Qt4 vide.</translation>
     </message>
 </context>
 <context>
@@ -9749,7 +9752,7 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/emptyprojectwizarddialog.cpp" line="+50"/>
         <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cet assistant génère un projet Qt4 vide. Ajouter ensuite des fichiers en utilisant les autres assistants.</translation>
     </message>
 </context>
 <context>
@@ -9757,12 +9760,12 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/externaleditors.cpp" line="-185"/>
         <source>Unable to start &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de démarrer &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>The application &quot;%1&quot; could not be found.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">L&apos;application &quot;%1&quot; est introuvable.</translation>
     </message>
 </context>
 <context>
@@ -9770,12 +9773,12 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/filespage.cpp" line="+45"/>
         <source>Class Information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Information de la classe</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Définit les informations de bases des classes pour lesquelles vous souhaitez générer des fichiers squelettes de code source.</translation>
     </message>
 </context>
 <context>
@@ -9783,7 +9786,7 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizard.cpp" line="+76"/>
         <source>Qt4 Gui Application</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Application Graphique Qt4</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -9801,7 +9804,7 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizarddialog.cpp" line="+63"/>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cet assistant génère un projet d&apos;application graphique Qt4. L&apos;application dérive par défaut de QApplication et inclut un widget vide.</translation>
     </message>
 </context>
 <context>
@@ -9809,12 +9812,12 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizard.cpp" line="+51"/>
         <source>C++ Library</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bibliothèque C++</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a C++ Library.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crée une bibliothèque C++.</translation>
     </message>
 </context>
 <context>
@@ -9822,17 +9825,17 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizarddialog.cpp" line="+122"/>
         <source>Shared library</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bibliothèque partagée</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Statically linked library</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bibliothèque avec lien statique</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Qt 4 plugin</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Plugin Qt 4</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -9842,7 +9845,7 @@ to version control (%2)?</source>
     <message>
         <location line="+35"/>
         <source>This wizard generates a C++ library project.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cet assistant génère un projet de bibliothèque C++.</translation>
     </message>
 </context>
 <context>
@@ -9850,12 +9853,12 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/modulespage.cpp" line="+51"/>
         <source>Select required modules</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sélectionner les modules requis</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Select the modules you want to include in your project. The recommended modules for this project are selected by default.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sélectionnez les modules que vous souhaitez inclure au projet. Les modules recommandés pour ce projet sont sélectionnées par défaut.</translation>
     </message>
 </context>
 <context>
@@ -9863,27 +9866,27 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/shared/proparser/proeditor.ui"/>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nouveau</translation>
     </message>
     <message>
         <location/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Supprimer</translation>
     </message>
     <message>
         <location/>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Monter</translation>
     </message>
     <message>
         <location/>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Descendre</translation>
     </message>
     <message>
         <location filename="../../../src/shared/proparser/proeditor.cpp" line="+51"/>
         <source>Cut</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Couper</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -9898,32 +9901,32 @@ to version control (%2)?</source>
     <message>
         <location line="+37"/>
         <source>Ctrl+X</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+X</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+C</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Ctrl+V</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+V</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Add Variable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter une variable</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Add Scope</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter une portée</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Add Block</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter un bloc</translation>
     </message>
 </context>
 <context>
@@ -9931,37 +9934,37 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/shared/proparser/proeditormodel.cpp" line="+446"/>
         <source>&lt;Global Scope&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Portée Globale&gt;</translation>
     </message>
     <message>
         <location line="+74"/>
         <source>Change Item</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier l&apos;élément</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>Change Variable Assignment</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier l&apos;affectation de la variable</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Change Variable Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier le type de la variable</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Change Scope Condition</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier la condition de portée</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Change Expression</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modifier l&apos;expression</translation>
     </message>
     <message>
         <location line="+51"/>
         <source>Move Item</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Déplacer l&apos;élément</translation>
     </message>
     <message>
         <location line="+41"/>
@@ -9971,7 +9974,7 @@ to version control (%2)?</source>
     <message>
         <location line="+49"/>
         <source>Insert Item</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Insérer un élément</translation>
     </message>
 </context>
 <context>
@@ -9980,22 +9983,22 @@ to version control (%2)?</source>
         <location filename="../../../src/plugins/qt4projectmanager/projectloadwizard.cpp" line="+51"/>
         <location line="+125"/>
         <source>Import existing build settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importer des paramètres de génération existants</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Qt Creator has found an already existing build in the source directory.&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt Version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Build configuration:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Additional QMake Arguments:&lt;/b&gt;%3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Qt Creator a détecté une génération existante dans le répertoire source. &lt;br&gt; &lt;br&gt; &lt;b&gt;Qt Version : &lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Configuration de génération :&lt;/b&gt; %2&lt;br&gt;Arguments QMake supplémentaires : &lt;/b&gt; %3</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>&lt;b&gt;Note:&lt;/b&gt; Importing the settings will automatically add the Qt Version identified by &lt;br&gt;&lt;b&gt;%1&lt;/b&gt; to the list of Qt versions.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;b&gt;Note:&lt;/b&gt; L&apos;importation des paramètres ajoutera automatiquement la version de Qt identifiée par &lt;br&gt; &lt;b&gt; %1&lt;/b&gt; à la liste des versions de Qt.</translation>
     </message>
     <message>
         <location line="-6"/>
         <source>Import existing build settings.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importer des paramètres de génération existants.</translation>
     </message>
 </context>
 <context>
@@ -10008,7 +10011,7 @@ to version control (%2)?</source>
     <message>
         <location line="+14"/>
         <source>Build Environment</source>
-        <translation type="unfinished">Environnement de compilation</translation>
+        <translation type="unfinished">Environnement de génération</translation>
     </message>
 </context>
 <context>
@@ -10016,27 +10019,27 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+352"/>
         <source>Headers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">En-têtes</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sources</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Forms</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Intefaces</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ressources</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Other files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Autres fichiers</translation>
     </message>
     <message>
         <location line="+155"/>
@@ -10047,7 +10050,7 @@ to version control (%2)?</source>
     <message>
         <location line="-7"/>
         <source>Could not open the file for edit with SCC.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible d&apos;ouvrir le fichier pour l&apos;éditer avec SCC.</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -10057,17 +10060,17 @@ to version control (%2)?</source>
     <message>
         <location line="+33"/>
         <source>There are unsaved changes for project file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Des modifications n&apos;ont pas été enregistrées pour le fichier de projet %1.</translation>
     </message>
     <message>
         <location line="+22"/>
         <source>Error while parsing file %1. Giving up.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur pendant le parcours du fichier %1. Abandon.</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Error while changing pro file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur pendant la modification du fichier pro %1.</translation>
     </message>
 </context>
 <context>
@@ -10075,12 +10078,12 @@ to version control (%2)?</source>
     <message>
         <location line="+240"/>
         <source>Error while parsing file %1. Giving up.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erreur pendant le parcours du fichier %1. Abandon.</translation>
     </message>
     <message>
         <location line="+364"/>
         <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Impossible de trouver le fichier .pro pour le sous répertoire &apos;%1&apos; dans &apos;%2&apos;</translation>
     </message>
 </context>
 <context>
@@ -13100,12 +13103,12 @@ Note : Ceci risque de supprimer le fichier du disque.</translation>
     <message>
         <location/>
         <source>&amp;Description:</source>
-        <translation type="unfinished">&amp;Description :</translation>
+        <translation>&amp;Description :</translation>
     </message>
     <message>
         <location/>
         <source>&lt;Description&gt;</source>
-        <translation type="unfinished">&lt;Description&gt;</translation>
+        <translation>&lt;Description&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -13124,17 +13127,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Patch 1</source>
-        <translation type="unfinished">Patch 1</translation>
+        <translation>Patch 1</translation>
     </message>
     <message>
         <location/>
         <source>Patch 2</source>
-        <translation type="unfinished">Patch 2</translation>
+        <translation>Patch 2</translation>
     </message>
     <message>
         <location/>
         <source>Protocol:</source>
-        <translation type="unfinished">Protocole :</translation>
+        <translation>Protocole :</translation>
     </message>
     <message>
         <location/>
@@ -13207,37 +13210,38 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/cvs/settingspage.ui"/>
         <source>Prompt to submit</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>prompt comme &quot;message&quot; ou comme &quot;rapide&quot; ?</translatorcomment>
+        <translation type="unfinished">Message à envoyer</translation>
     </message>
     <message>
         <location/>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit id). Otherwise, only the respective file will be displayed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Si coché, tous les fichiers modifiés par un commit seront affichés lors d&apos;un clic sur un numéro de révison dans la vue d&apos;annotation (récupérée par un id de commit). Sinon, seul le fichier respectif sera affiché.</translation>
     </message>
     <message>
         <location/>
         <source>Describe all files matching commit id:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Décrire tous les fichiers correspondant à l&apos;id de commit:</translation>
     </message>
     <message>
         <location/>
         <source>CVS Command:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Commande CVS:</translation>
     </message>
     <message>
         <location/>
         <source>CVS Root:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Racine CVS:</translation>
     </message>
     <message>
         <location/>
         <source>Diff Options:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Options Diff:</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/cvs/settingspage.cpp" line="+84"/>
         <source>CVS</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">CVS</translation>
     </message>
 </context>
 <context>
@@ -13245,42 +13249,42 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/debugger/gdb/trkoptionswidget.ui"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Formulaire</translation>
     </message>
     <message>
         <location/>
         <source>Gdb</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gdb</translation>
     </message>
     <message>
         <location/>
         <source>Symbian ARM gdb location:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Emplacement de gdb ARM Symbian:</translation>
     </message>
     <message>
         <location/>
         <source>Communication</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Communication</translation>
     </message>
     <message>
         <location/>
         <source>Serial Port</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Port Série</translation>
     </message>
     <message>
         <location/>
         <source>Bluetooth</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bluetooth</translation>
     </message>
     <message>
         <location/>
         <source>Port:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Port:</translation>
     </message>
     <message>
         <location/>
         <source>Device:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Appareil:</translation>
     </message>
 </context>
 <context>
@@ -13288,42 +13292,42 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/designer/cpp/cppsettingspagewidget.ui"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Formulaire</translation>
     </message>
     <message>
         <location/>
         <source>Embedding of the UI Class</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Intégration de la classe UI</translation>
     </message>
     <message>
         <location/>
         <source>Aggregation as a pointer member</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Agrégation comme pointeur membre</translation>
     </message>
     <message>
         <location/>
         <source>Aggregation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Agrégation</translation>
     </message>
     <message>
         <location/>
         <source>Multiple Inheritance</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Héritage multiple</translation>
     </message>
     <message>
         <location/>
         <source>Code Generation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Génération de code</translation>
     </message>
     <message>
         <location/>
         <source>Support for changing languages at runtime</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Prise en charge du changement de langage à l&apos;exécution</translation>
     </message>
     <message>
         <location/>
         <source>Use Qt module name in #include-directive</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Utiliser le nom du module Qt dans #include-directive</translation>
     </message>
 </context>
 <context>
@@ -13331,7 +13335,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/git/gitorious/gitorioushostwidget.ui"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/git/gitorious/gitorioushostwidget.cpp" line="+86"/>
@@ -13359,32 +13363,32 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/git/gitorious/gitoriousprojectwidget.ui"/>
         <source>WizardPage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">WizardPage</translation>
     </message>
     <message>
         <location/>
         <source>Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtre:</translation>
     </message>
     <message>
         <location/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">...</translation>
     </message>
     <message>
         <location/>
         <source>Keep updating</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mise à jour continue</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/git/gitorious/gitoriousprojectwidget.cpp" line="+84"/>
         <source>Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projet</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Description</translation>
     </message>
 </context>
 <context>
@@ -13392,37 +13396,37 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/git/gitorious/gitoriousrepositorywizardpage.ui"/>
         <source>WizardPage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">WizardPage</translation>
     </message>
     <message>
         <location/>
         <source>Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre:</translation>
     </message>
     <message>
         <location/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/git/gitorious/gitoriousrepositorywizardpage.cpp" line="+83"/>
         <source>Name</source>
-        <translation type="unfinished">Nom</translation>
+        <translation>Nom</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Owner</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propriétaire</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Description</translation>
     </message>
     <message>
         <location line="+74"/>
         <source>Choose a repository of the project &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Choisissez un répertoire pour le projet %1.</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -13563,32 +13567,32 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/projectexplorer/projectexplorersettingspage.ui"/>
         <source>Build and Run</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Générer et Exécuter</translation>
     </message>
     <message>
         <location/>
         <source>Save all files before Build</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sauvegarder tous les fichiers avant de Générer</translation>
     </message>
     <message>
         <location/>
         <source>Always build Project before Running</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Toujours générer le projet avant d&apos;exécuter</translation>
     </message>
     <message>
         <location/>
         <source>Show Compiler Output on building</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afficher la sortie du compilateur pendant la génération</translation>
     </message>
     <message>
         <location/>
         <source>Use jom instead of nmake</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Utiliser jom à la place de nmake</translation>
     </message>
     <message>
         <location/>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. For more details, see the &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Homepage&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;i&gt;jom&lt;/i&gt; est un remplaçant pour &lt;i&gt;nmake&lt;/i&gt; qui réparti le processus de compilation sur les différents cores d&apos;un CPU. Pour plus de détails, voir la &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;page consacrée à jom &lt;/a&gt;. Désactivez si vous rencontrez des problèmes de génération.</translation>
     </message>
 </context>
 <context>
