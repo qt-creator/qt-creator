@@ -142,6 +142,98 @@ private:
     BinaryExpressionAST *pattern;
 };
 
+/*
+  Replace
+     if (something && something_else) {
+     }
+
+  with
+     if (something) {
+        if (something_else) {
+        }
+     }
+*/
+class SplitIfStatementOp: public QuickFixOperation
+{
+public:
+    SplitIfStatementOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
+        : QuickFixOperation(doc, snapshot), matcher(doc->translationUnit()),
+          condition(0), pattern(0), editor(editor)
+    {}
+
+    virtual QString description() const
+    {
+        return QLatin1String("Split if statement"); // ### tr?
+    }
+
+    bool match(IfStatementAST *statement)
+    {
+        condition = mk.BinaryExpression();
+        pattern = mk.IfStatement(condition);
+
+        if (statement->match(pattern, &matcher)
+                && pattern->statement
+                && pattern->rparen_token
+                && tokenAt(condition->binary_op_token).is(T_AMPER_AMPER))
+            return true;
+
+        return false;
+    }
+
+    virtual void apply()
+    {
+        StatementAST *ifTrueStatement = pattern->statement;
+        CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
+
+        QTextCursor completeIfStatement = selectNode(pattern);
+        {
+            // ### HACK
+            const int anchor = completeIfStatement.anchor();
+            const int position = completeIfStatement.position();
+            completeIfStatement.setPosition(position);
+            completeIfStatement.setPosition(anchor, QTextCursor::KeepAnchor);
+        }
+
+        // take the right-expression from the condition.
+        const QString rightCondition = selectNode(condition->right_expression).selectedText();
+        replace(endOf(condition->left_expression), startOf(pattern->rparen_token), QString());
+
+        int offset = 0;
+
+        if (compoundStatement)
+            offset = endOf(compoundStatement->lbrace_token);
+        else
+            offset = endOf(pattern->rparen_token);
+
+        // create the nested if statement
+        QString nestedIfStatement;
+
+        if (! compoundStatement)
+            nestedIfStatement += QLatin1String(" {"); // open a compound statement
+
+        nestedIfStatement += QLatin1String("\nif (");
+        nestedIfStatement += rightCondition;
+        nestedIfStatement += QLatin1String(") {\n}");
+
+        insert(offset, nestedIfStatement);
+
+        if (! compoundStatement)
+            insert(endOf(ifTrueStatement), "\n}"); // finish the compound statement
+
+        QTextCursor tc = textCursor();
+        tc.beginEditBlock();
+        execute();
+        editor->indentInsertedText(completeIfStatement);
+        tc.endEditBlock();
+    }
+
+private:
+    ASTMatcher matcher;
+    ASTPatternBuilder mk;
+    BinaryExpressionAST *condition;
+    IfStatementAST *pattern;
+    QPointer<CPPEditor> editor;
+};
 
 } // end of anonymous namespace
 
@@ -279,15 +371,22 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         const QList<AST *> path = astPath(_editor->textCursor());
         // ### build the list of the quick fix ops by scanning path.
 
-        RewriteLogicalAndOp *op = new RewriteLogicalAndOp(info.doc, info.snapshot);
-        QuickFixOperationPtr quickFix(op);
+        QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(info.doc, info.snapshot));
+        QSharedPointer<SplitIfStatementOp> splitIfStatement(new SplitIfStatementOp(info.doc, info.snapshot, _editor));
 
         for (int i = path.size() - 1; i != -1; --i) {
             AST *node = path.at(i);
+
+            // ### TODO: generalize
+
             if (BinaryExpressionAST *binary = node->asBinaryExpression()) {
-                if (op->match(binary)) {
-                    _quickFixes.append(quickFix);
-                    break;
+                if (! _quickFixes.contains(rewriteLogicalAndOp) && rewriteLogicalAndOp->match(binary)) {
+                    _quickFixes.append(rewriteLogicalAndOp);
+                }
+
+            } else if (IfStatementAST *ifStatement = node->asIfStatement()) {
+                if (! _quickFixes.contains(splitIfStatement) && splitIfStatement->match(ifStatement)) {
+                    _quickFixes.append(splitIfStatement);
                 }
             }
         }
