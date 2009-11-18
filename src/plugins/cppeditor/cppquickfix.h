@@ -70,16 +70,11 @@ public:
 
 protected:
     const CPlusPlus::Token &tokenAt(unsigned index) const;
-    void getTokenStartPosition(unsigned index, unsigned *line,
-                               unsigned *column) const;
-    void getTokenEndPosition(unsigned index, unsigned *line,
-                             unsigned *column) const;
+    int tokenStartPosition(unsigned index) const;
+    int tokenEndPosition(unsigned index) const;
 
-    QTextCursor cursor(unsigned index) const;
-    QTextCursor cursor(CPlusPlus::AST *ast) const;
-
-    QTextCursor moveAtStartOfToken(unsigned index) const;
-    QTextCursor moveAtEndOfToken(unsigned index) const;
+    QTextCursor selectToken(unsigned index) const;
+    QTextCursor selectNode(CPlusPlus::AST *ast) const;
 
 private:
     CPlusPlus::Document::Ptr _doc;

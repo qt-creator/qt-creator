@@ -128,60 +128,36 @@ QTextCursor QuickFixOperation::textCursor() const
 void QuickFixOperation::setTextCursor(const QTextCursor &cursor)
 { _textCursor = cursor; }
 
-QTextCursor QuickFixOperation::cursor(AST *ast) const
-{
-    TranslationUnit *unit = document()->translationUnit();
-    unsigned startLine, startColumn, endLine, endColumn;
-    unit->getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
-    unit->getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
-
-    QTextDocument *textDocument = _textCursor.document();
-    QTextCursor tc(textDocument);
-    tc.setPosition(textDocument->findBlockByNumber(startLine - 1).position() + startColumn - 1);
-    tc.setPosition(textDocument->findBlockByNumber(endLine - 1).position() + endColumn - 1,
-                   QTextCursor::KeepAnchor);
-
-    return tc;
-}
-
 const CPlusPlus::Token &QuickFixOperation::tokenAt(unsigned index) const
 { return _doc->translationUnit()->tokenAt(index); }
 
-void QuickFixOperation::getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const
-{ _doc->translationUnit()->getPosition(tokenAt(index).begin(), line, column); }
-
-void QuickFixOperation::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const
-{ _doc->translationUnit()->getPosition(tokenAt(index).end(), line, column); }
-
-QTextCursor QuickFixOperation::cursor(unsigned index) const
+int QuickFixOperation::tokenStartPosition(unsigned index) const
 {
-    const Token &tk = tokenAt(index);
+    unsigned line, column;
+    _doc->translationUnit()->getPosition(tokenAt(index).begin(), &line, &column);
+    return _textCursor.document()->findBlockByNumber(line - 1).position() + column - 1;
+}
 
-    unsigned line, col;
-    getTokenStartPosition(index, &line, &col);
+int QuickFixOperation::tokenEndPosition(unsigned index) const
+{
+    unsigned line, column;
+    _doc->translationUnit()->getPosition(tokenAt(index).end(), &line, &column);
+    return _textCursor.document()->findBlockByNumber(line - 1).position() + column - 1;
+}
+
+QTextCursor QuickFixOperation::selectToken(unsigned index) const
+{
     QTextCursor tc = _textCursor;
-    tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col - 1);
-    tc.setPosition(tc.position() + tk.f.length, QTextCursor::KeepAnchor);
+    tc.setPosition(tokenStartPosition(index));
+    tc.setPosition(tokenEndPosition(index), QTextCursor::KeepAnchor);
     return tc;
 }
 
-QTextCursor QuickFixOperation::moveAtStartOfToken(unsigned index) const
+QTextCursor QuickFixOperation::selectNode(AST *ast) const
 {
-    unsigned line, col;
-    getTokenStartPosition(index, &line, &col);
     QTextCursor tc = _textCursor;
-    tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col - 1);
-    return tc;
-}
-
-QTextCursor QuickFixOperation::moveAtEndOfToken(unsigned index) const
-{
-    const Token &tk = tokenAt(index);
-
-    unsigned line, col;
-    getTokenStartPosition(index, &line, &col);
-    QTextCursor tc = _textCursor;
-    tc.setPosition(tc.document()->findBlockByNumber(line - 1).position() + col + tk.f.length - 1);
+    tc.setPosition(tokenStartPosition(ast->firstToken()));
+    tc.setPosition(tokenEndPosition(ast->lastToken() - 1), QTextCursor::KeepAnchor);
     return tc;
 }
 
