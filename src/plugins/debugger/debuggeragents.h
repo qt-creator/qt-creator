@@ -70,6 +70,7 @@ private:
 
     QPointer<IDebuggerEngine> m_engine;
     QPointer<Core::IEditor> m_editor;
+    QPointer<DebuggerManager> m_manager;
 };
 
 
