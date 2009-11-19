@@ -1275,7 +1275,7 @@ void QtVersion::setMsvcVersion(const QString &version)
 void QtVersion::addToEnvironment(ProjectExplorer::Environment &env) const
 {
     env.set("QTDIR", QDir::toNativeSeparators(versionInfo().value("QT_INSTALL_DATA")));
-    env.prependOrSetPath(QDir::toNativeSeparators(versionInfo().value("QT_INSTALL_BINS")));
+    env.prependOrSetPath(versionInfo().value("QT_INSTALL_BINS"));
 }
 
 int QtVersion::uniqueId() const

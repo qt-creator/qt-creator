@@ -49,7 +49,6 @@ void CeSdkInfo::addToEnvironment(Environment &env)
     env.set("INCLUDE", m_include);
     env.set("LIB", m_lib);
     env.prependOrSetPath(m_bin);
-    qDebug()<<env.toStringList();
 }
 
 CeSdkHandler::CeSdkHandler()
