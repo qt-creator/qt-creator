@@ -55,6 +55,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 #include <QtCore/QTextStream>
+#include <QtCore/QDir>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
 
@@ -1274,9 +1275,8 @@ void QtVersion::setMsvcVersion(const QString &version)
 
 void QtVersion::addToEnvironment(ProjectExplorer::Environment &env) const
 {
-    env.set("QTDIR", versionInfo().value("QT_INSTALL_DATA"));
-    QString qtdirbin = versionInfo().value("QT_INSTALL_BINS");
-    env.prependOrSetPath(qtdirbin);
+    env.set("QTDIR", QDir::toNativeSeparators(versionInfo().value("QT_INSTALL_DATA")));
+    env.prependOrSetPath(QDir::toNativeSeparators(versionInfo().value("QT_INSTALL_BINS")));
 }
 
 int QtVersion::uniqueId() const
