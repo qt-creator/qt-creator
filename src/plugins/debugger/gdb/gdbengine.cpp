@@ -4467,17 +4467,19 @@ void GdbEngine::handleInferiorPrepared()
 {
     const QString qtInstallPath = m_startParameters->qtInstallPath;
     if (!qtInstallPath.isEmpty()) {
-        QString qtBuildPath =
-        #if defined(Q_OS_WIN)
-            _("C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.6/qt");
-        #elif defined(Q_OS_MAC)
-            QString();
-        #else    
-            _("/var/tmp/qt-x11-src-4.6.0");
-        #endif
-        if (!qtBuildPath.isEmpty())
+        QString qtBuildPath;
+#if defined(Q_OS_WIN)
+        qtBuildPath = _("C:/qt-greenhouse/Trolltech/Code_less_create_more/Trolltech/Code_less_create_more/Troll/4.6/qt");
         postCommand(_("set substitute-path %1 %2")
-            .arg(qtBuildPath).arg(qtInstallPath));
+                    .arg(qtBuildPath).arg(qtInstallPath));
+        qtBuildPath = _("C:/iwmake/build_mingw_opensource");
+        postCommand(_("set substitute-path %1 %2")
+                    .arg(qtBuildPath).arg(qtInstallPath));
+#elif defined(Q_OS_UNIX) && !defined (Q_OS_MAC)
+        qtBuildPath = _("/var/tmp/qt-x11-src-4.6.0");
+        postCommand(_("set substitute-path %1 %2")
+                    .arg(qtBuildPath).arg(qtInstallPath));
+#endif
     }
 
     // Initial attempt to set breakpoints
