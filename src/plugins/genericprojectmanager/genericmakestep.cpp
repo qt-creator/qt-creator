@@ -52,6 +52,14 @@ GenericMakeStep::GenericMakeStep(GenericProject *pro, ProjectExplorer::BuildConf
 {
 }
 
+GenericMakeStep::GenericMakeStep(GenericMakeStep *bs, ProjectExplorer::BuildConfiguration *bc)
+    : AbstractMakeStep(bs, bc), m_pro(bs->project())
+{
+    m_buildTargets = bs->m_buildTargets;
+    m_makeArguments = bs->m_makeArguments;
+    m_makeCommand = bs->m_makeCommand;
+}
+
 GenericMakeStep::~GenericMakeStep()
 {
 }
