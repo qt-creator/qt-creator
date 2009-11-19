@@ -159,6 +159,84 @@ private:
     BinaryExpressionAST *pattern;
 };
 
+class TakeDeclarationOp: public QuickFixOperation
+{
+public:
+    TakeDeclarationOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
+        : QuickFixOperation(doc, snapshot), matcher(doc->translationUnit()), editor(editor),
+           condition(0), pattern(0), core(0)
+    {}
+
+    virtual QString description() const
+    {
+        return QLatin1String("Take declaration"); // ### tr?
+    }
+
+    virtual int match(const QList<AST *> &path, QTextCursor tc)
+    {
+        setTextCursor(tc);
+
+        condition = mk.Condition();
+        pattern = mk.IfStatement(condition);
+
+        int index = path.size() - 1;
+        for (; index != -1; --index) {
+            if (IfStatementAST *statement = path.at(index)->asIfStatement()) {
+                if (statement->match(pattern, &matcher) && condition->declarator) {
+                    DeclaratorAST *declarator = condition->declarator;
+                    core = declarator->core_declarator;
+                    if (! core)
+                        return -1;
+
+                    int startOfCoreDeclarator = startOf(core->firstToken());
+                    int endOfCoreDeclarator = endOf(core->lastToken() - 1);
+
+                    int position = tc.selectionStart();
+
+                    if (position >= startOfCoreDeclarator && position <= endOfCoreDeclarator) {
+                        return index;
+                    }
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    virtual void apply()
+    {
+        QTextCursor completeIfStatement = selectNode(pattern);
+        {
+            // ### HACK
+            const int anchor = completeIfStatement.anchor();
+            const int position = completeIfStatement.position();
+            completeIfStatement.setPosition(position);
+            completeIfStatement.setPosition(anchor, QTextCursor::KeepAnchor);
+        }
+
+        QString name = selectNode(core).selectedText();
+        QString declaration = selectNode(condition).selectedText();
+        declaration += QLatin1String(";\n");
+
+        insert(startOf(pattern), declaration);
+        insert(endOf(pattern->lparen_token), name);
+        replace(condition, name);
+
+        completeIfStatement.beginEditBlock();
+        execute();
+        editor->indentInsertedText(completeIfStatement);
+        completeIfStatement.endEditBlock();
+    }
+
+private:
+    ASTMatcher matcher;
+    ASTPatternBuilder mk;
+    CPPEditor *editor;
+    ConditionAST *condition;
+    IfStatementAST *pattern;
+    CoreDeclaratorAST *core;
+};
+
 /*
   Replace
      if (something && something_else) {
@@ -496,10 +574,12 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 
         QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(info.doc, info.snapshot));
         QSharedPointer<SplitIfStatementOp> splitIfStatement(new SplitIfStatementOp(info.doc, info.snapshot, _editor));
+        QSharedPointer<TakeDeclarationOp> takeDeclaration(new TakeDeclarationOp(info.doc, info.snapshot, _editor));
 
         QList<QuickFixOperationPtr> candidates;
         candidates.append(rewriteLogicalAndOp);
         candidates.append(splitIfStatement);
+        candidates.append(takeDeclaration);
 
         QMultiMap<int, QuickFixOperationPtr> matchedOps;
 
