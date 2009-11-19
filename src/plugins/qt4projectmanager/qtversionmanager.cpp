@@ -1159,9 +1159,10 @@ void QtVersion::updateToolChainAndMkspec() const
     if (!ce_sdk.isEmpty() && !ce_arch.isEmpty()) {
         QString wincePlatformName = ce_sdk + " (" + ce_arch + QLatin1Char(')');
         m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatformName));
-    } else if (makefileGenerator == "SYMBIAN_ABLD") {
+    } else if (makefileGenerator == QLatin1String("SYMBIAN_ABLD") ||
+               makefileGenerator == QLatin1String("SYMBIAN_SBSV2")) {
 #ifdef QTCREATOR_WITH_S60
-        if (S60Manager *s60mgr = S60Manager::instance()) {            
+        if (S60Manager *s60mgr = S60Manager::instance()) {
 #    ifdef Q_OS_WIN
             m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this))
                          << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5))
