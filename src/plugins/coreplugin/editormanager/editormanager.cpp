@@ -1201,10 +1201,12 @@ IEditor *EditorManager::openEditorWithContents(const QString &editorKind,
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     IEditor *edt = createEditor(editorKind);
-    if (!edt)
+    if (!edt) {
+        QApplication::restoreOverrideCursor();
         return 0;
+    }
 
-    if (!edt || !edt->createNew(contents)) {
+    if (!edt->createNew(contents)) {
         QApplication::restoreOverrideCursor();
         delete edt;
         edt = 0;
