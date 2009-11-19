@@ -175,9 +175,9 @@ bool S60Devices::readWin()
                         while (!(xml.isEndElement() && xml.name() == DEVICE) && !xml.atEnd()) {
                             xml.readNext();
                             if (xml.isStartElement() && xml.name() == DEVICE_EPOCROOT) {
-                                device.epocRoot = xml.readElementText();
+                                device.epocRoot = QDir::fromNativeSeparators(xml.readElementText());
                             } else if (xml.isStartElement() && xml.name() == DEVICE_TOOLSROOT) {
-                                device.toolsRoot = xml.readElementText();
+                                device.toolsRoot = QDir::fromNativeSeparators(xml.readElementText());
                             }
                         }
                         if (device.toolsRoot.isEmpty())
@@ -202,14 +202,15 @@ bool S60Devices::readWin()
 bool S60Devices::detectQtForDevices()
 {
     for (int i = 0; i < m_devices.size(); ++i) {
-        if (!m_devices[i].qt.isEmpty())
+        if (!m_devices.at(i).qt.isEmpty())
             continue;
-        QFile qtDll(QString("%1/epoc32/release/winscw/udeb/QtCore.dll").arg(m_devices[i].epocRoot));
+        QFile qtDll(QString("%1/epoc32/release/winscw/udeb/QtCore.dll").arg(m_devices.at(i).epocRoot));
         if (!qtDll.exists() || !qtDll.open(QIODevice::ReadOnly)) {
             m_devices[i].qt = QString();
             continue;
         }
-        const QString indicator = "\\src\\corelib\\kernel\\qobject.h";
+        // Do not normalize these backslashes since they are in ARM binaries:
+        const QString indicator("\\src\\corelib\\kernel\\qobject.h");
         int indicatorlength = indicator.length();
         QByteArray buffer;
         QByteArray previousBuffer;
@@ -228,7 +229,7 @@ bool S60Devices::detectQtForDevices()
         if (index < 0) { // this is untested
         } else {
             index += 2; // the 0 and another byte for some reason
-            m_devices[i].qt = QDir::toNativeSeparators(buffer.mid(index, lastIndex-index));
+            m_devices[i].qt = QDir(buffer.mid(index, lastIndex-index)).absolutePath();
         }
         qtDll.close();
     }
@@ -269,13 +270,15 @@ S60Devices::Device S60Devices::deviceForEpocRoot(const QString &root) const
 QString S60Devices::cleanedRootPath(const QString &deviceRoot)
 {
     QString path = deviceRoot;
-    if (path.size() > 1 && path[1] == QChar(':')) {
+#ifdef Q_OS_WIN
+    // sbsv2 actually recommends having the DK on a separate drive...
+    // But QMake breaks when doing that!
+    if (path.size() > 1 && path.at(1) == QChar(':'))
         path = path.mid(2);
-    }
+#endif
 
-    if (!path.size() || path[path.size()-1] != QChar('\\')) {
-        path += QChar('\\');
-    }
+    if (!path.size() || path.at(path.size()-1) != '/')
+        path.append('/');
     return path;
 }
 
@@ -299,24 +302,48 @@ bool S60ToolChainMixin::equals(const  S60ToolChainMixin &rhs) const
 QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::epocHeaderPaths() const
 {
     QList<ProjectExplorer::HeaderPath> rc;
-    rc << ProjectExplorer::HeaderPath(m_device.epocRoot + QLatin1String("\\epoc32\\include"),
+
+    const QString epocRootPath(S60Devices::cleanedRootPath(m_device.epocRoot));
+
+    rc << ProjectExplorer::HeaderPath(epocRootPath,
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(m_device.epocRoot + QLatin1String("\\epoc32\\include\\stdapis"),
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/stdapis"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(m_device.epocRoot + QLatin1String("\\epoc32\\include\\stdapis\\sys"),
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/stdapis/sys"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath)
-       << ProjectExplorer::HeaderPath(m_device.epocRoot + QLatin1String("\\epoc32\\include\\variant"),
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/stdapis/stlportv5"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/mw"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform/mw"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform/loc"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform/mw/loc"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform/loc/sc"),
+                     ProjectExplorer::HeaderPath::GlobalHeaderPath)
+       << ProjectExplorer::HeaderPath(epocRootPath + QLatin1String("epoc32/include/platform/mw/loc/sc"),
                      ProjectExplorer::HeaderPath::GlobalHeaderPath);
     return rc;
 }
 
 void S60ToolChainMixin::addEpocToEnvironment(ProjectExplorer::Environment *env) const
 {
-    env->prependOrSetPath(m_device.epocRoot + QLatin1String("\\epoc32\\tools")); // e.g. make.exe
-    env->prependOrSetPath(m_device.epocRoot + QLatin1String("\\epoc32\\gcc\\bin")); // e.g. gcc.exe
-    env->prependOrSetPath(m_device.epocRoot + QLatin1String("\\perl\\bin")); // e.g. perl.exe (special SDK version)
+    const QString epocRootPath(S60Devices::cleanedRootPath(m_device.epocRoot));
+
+    env->prependOrSetPath(QDir::toNativeSeparators(epocRootPath + QLatin1String("epoc32/tools"))); // e.g. make.exe
+    env->prependOrSetPath(QDir::toNativeSeparators(epocRootPath + QLatin1String("epoc32/gcc/bin"))); // e.g. gcc.exe
+    env->prependOrSetPath(QDir::toNativeSeparators(epocRootPath + QLatin1String("perl/bin"))); // e.g. perl.exe (special SDK version)
+
+    QString sbsHome(env->value(QLatin1String("SBS_HOME"))); // Do we use Raptor/SBSv2?
+    if (!sbsHome.isEmpty())
+        env->prependOrSetPath(sbsHome + QDir::separator() + QLatin1String("bin"));
+
     env->set(QLatin1String("EPOCDEVICE"), m_device.id + QLatin1Char(':') + m_device.name);
-    env->set(QLatin1String("EPOCROOT"), S60Devices::cleanedRootPath(m_device.epocRoot));
+    env->set(QLatin1String("EPOCROOT"), QDir::toNativeSeparators(epocRootPath));
 }
 
 QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::gnuPocHeaderPaths() const
@@ -326,9 +353,8 @@ QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::gnuPocHeaderPaths() const
 
 void S60ToolChainMixin::addGnuPocToEnvironment(ProjectExplorer::Environment *env) const
 {
-    env->prependOrSetPath(m_device.toolsRoot + QLatin1String("/bin"));
-    //  # trailing "/" is required!
-    env->set(QLatin1String("EPOCROOT"),  m_device.epocRoot + QLatin1Char('/'));
+    env->prependOrSetPath(QDir::toNativeSeparators(m_device.toolsRoot + QLatin1String("/bin")));
+    env->set(QLatin1String("EPOCROOT"),  QDir::toNativeSeparators(S60Devices::cleanedRootPath(m_device.epocRoot)));
 }
 
 QDebug operator<<(QDebug db, const S60Devices::Device &d)

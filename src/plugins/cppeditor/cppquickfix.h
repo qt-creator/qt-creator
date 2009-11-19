@@ -63,6 +63,7 @@ public:
 
     virtual QString description() const = 0;
     virtual void apply() = 0;
+    virtual int match(const QList<CPlusPlus::AST *> &path, QTextCursor tc) = 0;
 
     CPlusPlus::Document::Ptr document() const { return _doc; }
     CPlusPlus::Snapshot snapshot() const { return _snapshot; }
@@ -79,6 +80,8 @@ protected:
     int startOf(const CPlusPlus::AST *ast) const;
     int endOf(unsigned index) const;
     int endOf(const CPlusPlus::AST *ast) const;
+
+    bool contains(unsigned tokenIndex) const;
 
     void move(int start, int end, int to);
     void move(unsigned tokenIndex, int to);

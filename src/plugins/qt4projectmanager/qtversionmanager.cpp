@@ -54,6 +54,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 #include <QtCore/QTextStream>
+#include <QtCore/QDir>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
 
@@ -1158,9 +1159,10 @@ void QtVersion::updateToolChainAndMkspec() const
     if (!ce_sdk.isEmpty() && !ce_arch.isEmpty()) {
         QString wincePlatformName = ce_sdk + " (" + ce_arch + QLatin1Char(')');
         m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatformName));
-    } else if (makefileGenerator == "SYMBIAN_ABLD") {
+    } else if (makefileGenerator == QLatin1String("SYMBIAN_ABLD") ||
+               makefileGenerator == QLatin1String("SYMBIAN_SBSV2")) {
 #ifdef QTCREATOR_WITH_S60
-        if (S60Manager *s60mgr = S60Manager::instance()) {            
+        if (S60Manager *s60mgr = S60Manager::instance()) {
 #    ifdef Q_OS_WIN
             m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this))
                          << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5))
@@ -1272,9 +1274,8 @@ void QtVersion::setMsvcVersion(const QString &version)
 
 void QtVersion::addToEnvironment(ProjectExplorer::Environment &env) const
 {
-    env.set("QTDIR", versionInfo().value("QT_INSTALL_DATA"));
-    QString qtdirbin = versionInfo().value("QT_INSTALL_BINS");
-    env.prependOrSetPath(qtdirbin);
+    env.set("QTDIR", QDir::toNativeSeparators(versionInfo().value("QT_INSTALL_DATA")));
+    env.prependOrSetPath(QDir::toNativeSeparators(versionInfo().value("QT_INSTALL_BINS")));
 }
 
 int QtVersion::uniqueId() const
