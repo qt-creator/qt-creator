@@ -108,8 +108,25 @@ public:
         return QLatin1String("Rewrite condition using ||"); // ### tr?
     }
 
-    bool match(BinaryExpressionAST *expression)
+    virtual int match(const QList<AST *> &path, QTextCursor tc)
     {
+        setTextCursor(tc);
+
+        BinaryExpressionAST *expression = 0;
+
+        int index = path.size() - 1;
+        for (; index != -1; --index) {
+            expression = path.at(index)->asBinaryExpression();
+            if (expression)
+                break;
+        }
+
+        if (! expression)
+            return -1;
+
+        if (! contains(expression->binary_op_token))
+            return -1;
+
         left = mk.UnaryExpression();
         right = mk.UnaryExpression();
         pattern = mk.BinaryExpression(left, right);
@@ -118,10 +135,10 @@ public:
                 tokenAt(pattern->binary_op_token).is(T_AMPER_AMPER) &&
                 tokenAt(left->unary_op_token).is(T_EXCLAIM) &&
                 tokenAt(right->unary_op_token).is(T_EXCLAIM)) {
-            return true;
+            return index;
         }
 
-        return false;
+        return -1;
     }
 
     virtual void apply()
@@ -167,7 +184,7 @@ class SplitIfStatementOp: public QuickFixOperation
 {
 public:
     SplitIfStatementOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot), matcher(doc->translationUnit()),
+        : QuickFixOperation(doc, snapshot),
           condition(0), pattern(0), editor(editor)
     {}
 
@@ -176,26 +193,49 @@ public:
         return QLatin1String("Split if statement"); // ### tr?
     }
 
-    bool match(IfStatementAST *statement)
+    virtual int match(const QList<AST *> &path, QTextCursor tc)
     {
-        condition = mk.BinaryExpression();
-        pattern = mk.IfStatement(condition);
+        setTextCursor(tc);
 
-        if (statement->match(pattern, &matcher)
-                && pattern->statement
-                && pattern->rparen_token
-                && (tokenAt(condition->binary_op_token).is(T_AMPER_AMPER) ||
-                    tokenAt(condition->binary_op_token).is(T_PIPE_PIPE)))
-            return true;
+        pattern = 0;
 
-        return false;
+        int index = path.size() - 1;
+        for (; index != -1; --index) {
+            AST *node = path.at(index);
+            if (IfStatementAST *stmt = node->asIfStatement()) {
+                pattern = stmt;
+                break;
+            }
+        }
+
+        if (! pattern)
+            return -1;
+
+        for (++index; index < path.size(); ++index) {
+            AST *node = path.at(index);
+            condition = node->asBinaryExpression();
+            if (! condition)
+                return -1;
+
+            Token binaryToken = tokenAt(condition->binary_op_token);
+            if (binaryToken.is(T_AMPER_AMPER) || binaryToken.is(T_PIPE_PIPE)) {
+                if (contains(condition->binary_op_token))
+                    return index;
+                if (binaryToken.is(T_PIPE_PIPE))
+                    return -1;
+            } else {
+                return -1;
+            }
+        }
+
+        return -1;
     }
 
     virtual void apply()
     {
-        const Token binaryOp = tokenAt(condition->binary_op_token);
+        Token binaryToken = tokenAt(condition->binary_op_token);
 
-        if (binaryOp.is(T_AMPER_AMPER))
+        if (binaryToken.is(T_AMPER_AMPER))
             splitAndCondition();
         else
             splitOrCondition();
@@ -216,7 +256,10 @@ public:
         CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
 
         // take the right-expression from the condition.
-        const QString rightCondition = selectNode(condition->right_expression).selectedText();
+        QTextCursor rightCursor = textCursor();
+        rightCursor.setPosition(startOf(condition->right_expression));
+        rightCursor.setPosition(endOf(pattern->rparen_token - 1), QTextCursor::KeepAnchor);
+        const QString rightCondition = rightCursor.selectedText();
         replace(endOf(condition->left_expression), startOf(pattern->rparen_token), QString());
 
         int offset = 0;
@@ -263,7 +306,10 @@ public:
         CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
 
         // take the right-expression from the condition.
-        const QString rightCondition = selectNode(condition->right_expression).selectedText();
+        QTextCursor rightCursor = textCursor();
+        rightCursor.setPosition(startOf(condition->right_expression));
+        rightCursor.setPosition(endOf(pattern->rparen_token - 1), QTextCursor::KeepAnchor);
+        const QString rightCondition = rightCursor.selectedText();
         replace(endOf(condition->left_expression), startOf(pattern->rparen_token), QString());
 
         // copy the if-body
@@ -293,8 +339,6 @@ public:
     }
 
 private:
-    ASTMatcher matcher;
-    ASTPatternBuilder mk;
     BinaryExpressionAST *condition;
     IfStatementAST *pattern;
     QPointer<CPPEditor> editor;
@@ -342,6 +386,20 @@ int QuickFixOperation::endOf(unsigned index) const
 int QuickFixOperation::endOf(const CPlusPlus::AST *ast) const
 {
     return endOf(ast->lastToken() - 1);
+}
+
+bool QuickFixOperation::contains(unsigned tokenIndex) const
+{
+    QTextCursor tc = textCursor();
+    int cursorBegin = tc.selectionStart();
+
+    int start = startOf(tokenIndex);
+    int end = endOf(tokenIndex);
+
+    if (cursorBegin >= start && cursorBegin <= end)
+        return true;
+
+    return false;
 }
 
 QTextCursor QuickFixOperation::selectToken(unsigned index) const
@@ -439,20 +497,33 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(info.doc, info.snapshot));
         QSharedPointer<SplitIfStatementOp> splitIfStatement(new SplitIfStatementOp(info.doc, info.snapshot, _editor));
 
-        for (int i = path.size() - 1; i != -1; --i) {
-            AST *node = path.at(i);
+        QList<QuickFixOperationPtr> candidates;
+        candidates.append(rewriteLogicalAndOp);
+        candidates.append(splitIfStatement);
 
-            // ### TODO: generalize
+        QMultiMap<int, QuickFixOperationPtr> matchedOps;
 
-            if (BinaryExpressionAST *binary = node->asBinaryExpression()) {
-                if (! _quickFixes.contains(rewriteLogicalAndOp) && rewriteLogicalAndOp->match(binary)) {
-                    _quickFixes.append(rewriteLogicalAndOp);
-                }
+        foreach (QuickFixOperationPtr op, candidates) {
+            int priority = op->match(path, _editor->textCursor());
+            if (priority != -1)
+                matchedOps.insert(priority, op);
+        }
 
-            } else if (IfStatementAST *ifStatement = node->asIfStatement()) {
-                if (! _quickFixes.contains(splitIfStatement) && splitIfStatement->match(ifStatement)) {
-                    _quickFixes.append(splitIfStatement);
-                }
+        QMapIterator<int, QuickFixOperationPtr> it(matchedOps);
+        it.toBack();
+        if (it.hasPrevious()) {
+            it.previous();
+
+            int priority = it.key();
+            _quickFixes.append(it.value());
+
+            while (it.hasPrevious()) {
+                it.previous();
+
+                if (it.key() != priority)
+                    break;
+
+                _quickFixes.append(it.value());
             }
         }
 
