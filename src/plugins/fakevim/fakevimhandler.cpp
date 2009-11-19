@@ -1178,7 +1178,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_passing = !m_passing;
         updateMiniBuffer();
     } else if (key == '.') {
-        //qDebug() << "REPEATING" << quoteUnprintable(m_dotCommand);
+        //qDebug() << "REPEATING" << quoteUnprintable(m_dotCommand) << count();
         QString savedCommand = m_dotCommand;
         m_dotCommand.clear();
         replay(savedCommand, count());
@@ -1366,6 +1366,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
         finishMovement("j");
     } else if (key == 'J') {
+        setDotCommand("%1J", count());
+        beginEditBlock();
         if (m_submode == NoSubMode) {
             for (int i = qMax(count(), 2) - 1; --i >= 0; ) {
                 moveToEndOfLine();
@@ -1380,6 +1382,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             if (!m_gflag)
                 moveLeft();
         }
+        endEditBlock();
+        finishMovement();
     } else if (key == 'k' || key == Key_Up) {
         if (m_submode == NoSubMode || m_submode == ZSubMode
                 || m_submode == CapitalZSubMode || m_submode == RegisterSubMode) {

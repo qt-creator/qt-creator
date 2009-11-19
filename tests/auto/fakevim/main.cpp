@@ -56,26 +56,27 @@ public slots:
     
 private slots:
     // command mode
+    void command_Cxx_down_dot();
+    void command_Gyyp();
+    void command_J();
+    void command_Yp();
     void command_cc();
     void command_cw();
-    void command_dw();
     void command_dd();
     void command_dd_2();
+    void command_dfx_down();
     void command_dollar();
     void command_down();
-    void command_dfx_down();
-    void command_Cxx_down_dot();
+    void command_dw();
     void command_e();
     void command_i();
     void command_left();
+    void command_ma_yank();
     void command_r();
     void command_right();
     void command_up();
     void command_w();
     void command_yyp();
-    void command_Yp();
-    void command_Gyyp();
-    void command_ma_yank();
 
     // special tests
     void test_i_cw_i();
@@ -523,6 +524,21 @@ void tst_FakeVim::test_i_cw_i()
 return; // FIXME: not in sync with Gui behaviour?
     check("cwyy" + escape,   l[0] + "\nxy@y" + lmid(1));
     check("iaa" + escape,    l[0] + "\nxya@ay" + lmid(1));
+}
+
+void tst_FakeVim::command_J()
+{
+    setup();
+    move("4j4l",   "int @main");
+    
+    check("J", lmid(0, 5) + "@ " + lmid(5));
+    check("u", lmid(0, 4) + "\nint @main(int argc, char *argv[])\n" + lmid(5));  
+    checkEx("redo", lmid(0, 5) + "@ " + lmid(5));
+
+return; // FIXME: not in sync with Gui behaviour?
+    check("3J", lmid(0, 5) + " " + lmid(5, 1) + "@" + lmid(6).mid(3));
+    check("u", lmid(0, 4) + "\nint @main(int argc, char *argv[])\n" + lmid(5));  
+    checkEx("redo", lmid(0, 5) + "@ " + lmid(5));
 }
 
 
