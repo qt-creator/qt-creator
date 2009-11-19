@@ -77,6 +77,7 @@
 #if USE_QT_GUI
 #   include <QtGui/QApplication>
 #   include <QtGui/QImage>
+#   include <QtGui/QRegion>
 #   include <QtGui/QPixmap>
 #   include <QtGui/QWidget>
 #   include <QtGui/QFont>
@@ -478,6 +479,7 @@ struct QDumper
     void putHash(const char *name, QChar value);
     void putHash(const char *name, float value);
     void putHash(const char *name, double value);
+    void putStringValue(const QString &value);
 
     void beginHash(); // start of data hash output
     void endHash(); // start of data hash output
@@ -710,6 +712,16 @@ void QDumper::putBase64Encoded(const char *buf, int n)
     }
 }
 
+void QDumper::putStringValue(const QString &str)
+{
+    if (str.isNull()) {
+        putItem("value", "\"\" (null)");
+    } else {
+        putItem("value", str);
+        putItem("valueencoded", "2");
+    }
+}
+
 void QDumper::disarm()
 {
     success = true;
@@ -784,10 +796,9 @@ void QDumper::putHash(const char *name, const QString &value)
 {
     beginHash();
     putItem("name", name);
-    putItem("value", value);
+    putStringValue(value);
     putItem("type", NS"QString");
     putItem("numchild", "0");
-    putItem("valueencoded", "2");
     endHash();
 }
 
@@ -859,9 +870,8 @@ void QDumper::putHash(const char *name, QChar value)
 {
     beginHash();
     putItem("name", name);
-    putItem("value", QString(QLatin1String("'%1' (%2, 0x%3)"))
+    putStringValue(QString(QLatin1String("'%1' (%2, 0x%3)"))
         .arg(value).arg(value.unicode()).arg(value.unicode(), 0, 16));
-    putItem("valueencoded", "2");
     putItem("type", NS"QChar");
     putItem("numchild", "0");
     endHash();
@@ -2850,8 +2860,7 @@ static void qDumpQString(QDumper &d)
             return;
     }
 
-    d.putItem("value", str);
-    d.putItem("valueencoded", "2");
+    d.putStringValue(str);
     d.putItem("type", NS"QString");
     //d.putItem("editvalue", str);  // handled generically below
     d.putItem("numchild", "0");
@@ -2880,8 +2889,7 @@ static void qDumpQStringList(QDumper &d)
         d.beginChildren(n ? NS"QString" : 0);
         for (int i = 0; i != n; ++i) {
             d.beginHash();
-            d.putItem("value", list[i]);
-            d.putItem("valueencoded", "2");
+            d.putStringValue(list.at(i));
             d.endHash();
         }
         if (n < list.size())

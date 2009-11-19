@@ -175,8 +175,7 @@ private slots:
 private:
     void dumpQAbstractItemHelper(QModelIndex &index);
     void dumpQAbstractItemModelHelper(QAbstractItemModel &m);
-    void dumpQDateTimeHelper(const QDateTime &d);
-    void dumpQFileHelper(const QString &name, bool exists);
+    void dumpQDateTimeHelper(const QDateTime &d, bool isNull);
     template <typename K, typename V> void dumpQHashNodeHelper(QHash<K, V> &hash);
     void dumpQImageHelper(const QImage &img);
     void dumpQImageDataHelper(QImage &img);
@@ -458,10 +457,13 @@ static const QByteArray ptrToBa(const void *p, bool symbolicNull = true)
         QByteArray("0x") + QByteArray::number((quintptr) p, 16));
 }
 
-static const QByteArray generateQStringSpec(const QString &str)
+static const QByteArray generateQStringSpec(const QString &str, bool isNull = false)
 {
-    return QByteArray("value='%',type='"NS"QString',numchild='0',valueencoded='2'")
-        << utfToBase64(str);
+    if (isNull)
+        return QByteArray("value=''' (null)',type='"NS"QString',numchild='0'");
+    return
+        QByteArray("value='%',valueencoded='2',type='"NS"QString',numchild='0'")
+                << utfToBase64(str);
 }
 
 static const QByteArray generateQCharSpec(const QChar& ch)
@@ -925,7 +927,7 @@ void tst_Debugger::dumpQChar()
         &c, NS"QChar", false);
 }
 
-void tst_Debugger::dumpQDateTimeHelper(const QDateTime &d)
+void tst_Debugger::dumpQDateTimeHelper(const QDateTime &d, bool isNull)
 {
     QByteArray value;
     if (d.isNull())
@@ -944,10 +946,10 @@ void tst_Debugger::dumpQDateTimeHelper(const QDateTime &d)
             << value
             << generateBoolSpec(d.isNull())
             << generateLongSpec((d.toTime_t()))
-            << generateQStringSpec(d.toString())
-            << generateQStringSpec(d.toString(Qt::ISODate))
-            << generateQStringSpec(d.toString(Qt::SystemLocaleDate))
-            << generateQStringSpec(d.toString(Qt::LocaleDate));
+            << generateQStringSpec(d.toString(), isNull)
+            << generateQStringSpec(d.toString(Qt::ISODate), isNull)
+            << generateQStringSpec(d.toString(Qt::SystemLocaleDate), isNull)
+            << generateQStringSpec(d.toString(Qt::LocaleDate), isNull);
     testDumper(expected, &d, NS"QDateTime", true);
 }
 
@@ -955,11 +957,11 @@ void tst_Debugger::dumpQDateTime()
 {
     // Case 1: Null object.
     QDateTime d;
-    dumpQDateTimeHelper(d);
+    dumpQDateTimeHelper(d, true);
 
     // Case 2: Non-null object.
     d = QDateTime::currentDateTime();
-    dumpQDateTimeHelper(d);
+    dumpQDateTimeHelper(d, false);
 }
 
 void tst_Debugger::dumpQDir()
@@ -983,30 +985,35 @@ void tst_Debugger::dumpQDir()
         &dir, NS"QDir", true);
 }
 
-void tst_Debugger::dumpQFileHelper(const QString &name, bool exists)
-{
-    QFile file(name);
-    QByteArray filenameAsBase64 = utfToBase64(name);
-    testDumper(QByteArray("value='%',valueencoded='2',type='$T',numchild='2',"
-        "children=[{name='fileName',value='%',type='"NS"QString',"
-        "numchild='0',valueencoded='2'},"
-        "{name='exists',value=%,type='bool',numchild='0'}]")
-            << filenameAsBase64 << filenameAsBase64 << boolToVal(exists),
-        &file, NS"QFile", true);
-}
 
 void tst_Debugger::dumpQFile()
 {
     // Case 1: Empty file name => Does not exist.
-    dumpQFileHelper("", false);
+    QFile file1("");
+    testDumper(QByteArray("value='',valueencoded='2',type='$T',numchild='2',"
+        "children=[{name='fileName',value='',valueencoded='2',type='"NS"QString',"
+        "numchild='0'},"
+        "{name='exists',value='false',type='bool',numchild='0'}]"),
+        &file1, NS"QFile", true);
 
     // Case 2: File that is known to exist.
-    QTemporaryFile file;
-    file.open();
-    dumpQFileHelper(file.fileName(), true);
+    QTemporaryFile file2;
+    file2.open();
+    testDumper(QByteArray("value='%',valueencoded='2',type='$T',numchild='2',"
+        "children=[{name='fileName',value='%',valueencoded='2',type='"NS"QString',"
+        "numchild='0'},"
+        "{name='exists',value='true',type='bool',numchild='0'}]")
+            << utfToBase64(file2.fileName()) << utfToBase64(file2.fileName()),
+        &file2, NS"QFile", true);
 
     // Case 3: File with a name that most likely does not exist.
-    dumpQFileHelper("jfjfdskjdflsdfjfdls", false);
+    QFile file3("jfjfdskjdflsdfjfdls");
+    testDumper(QByteArray("value='%',valueencoded='2',type='$T',numchild='2',"
+        "children=[{name='fileName',value='%',valueencoded='2',type='"NS"QString',"
+        "numchild='0'},"
+        "{name='exists',value='false',type='bool',numchild='0'}]")
+            << utfToBase64(file3.fileName()) << utfToBase64(file3.fileName()),
+        &file3, NS"QFile", true);
 }
 
 void tst_Debugger::dumpQFileInfo()
@@ -1062,7 +1069,7 @@ void tst_Debugger::dumpQFileInfo()
     expected <<= generateQStringSpec(fi.canonicalPath());
     expected <<= generateQStringSpec(fi.canonicalFilePath());
     expected <<= generateQStringSpec(fi.completeBaseName());
-    expected <<= generateQStringSpec(fi.completeSuffix());
+    expected <<= generateQStringSpec(fi.completeSuffix(), true);
     expected <<= generateQStringSpec(fi.baseName());
 #ifdef Q_OS_MACX
     expected <<= generateBoolSpec(fi.isBundle());
@@ -2254,7 +2261,7 @@ void tst_Debugger::dumpQSharedPointer()
 void tst_Debugger::dumpQString()
 {
     QString s;
-    testDumper("value='',valueencoded='2',type='$T',numchild='0'",
+    testDumper("value=''' (null)',type='$T',numchild='0'",
         &s, NS"QString", false);
     s = "abc";
     testDumper("value='YQBiAGMA',valueencoded='2',type='$T',numchild='0'",

@@ -1526,7 +1526,7 @@ void dump_QObject()
     /* B */ QObject ob;
     /* D */ ob.setObjectName("An Object");
     /* E */ QObject::connect(&ob, SIGNAL(destroyed()), qApp, SLOT(quit()));
-    /* F */ QObject::disconnect(&ob, SIGNAL(destroyed()), qApp, SLOT(quit()));
+//    /* F */ QObject::disconnect(&ob, SIGNAL(destroyed()), qApp, SLOT(quit()));
     /* G */ ob.setObjectName("A renamed Object");
     /* H */ (void) 0; }
 
@@ -1546,7 +1546,7 @@ void tst_Gdb::dump_QObject()
         run("A","{iname='local.ob',name='ob',"
             "type='"NS"QObject',value='<not in scope>',"
             "numchild='0'}");
-    next(3);
+    next(4);
     
     run("F","{iname='local.ob',name='ob',type='"NS"QObject',valueencoded='7',"
       "value='41006e0020004f0062006a00650063007400',numchild='4',children=["
