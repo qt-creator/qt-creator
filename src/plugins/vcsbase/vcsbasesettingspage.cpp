@@ -80,6 +80,17 @@ void VCSBaseSettingsWidget::setSettings(const VCSBaseSettings &s)
     m_ui->lineWrapSpinBox->setValue(s.lineWrapWidth);
 }
 
+QString VCSBaseSettingsWidget::searchKeyWordMatchString() const
+{
+    const QChar blank = QLatin1Char(' ');
+    QString rc = m_ui->submitMessageCheckScriptLabel->text();
+    rc += blank;
+    rc += m_ui->nickNameMailMapLabel->text();
+    rc += blank;
+    rc += m_ui->nickNameFieldsFileLabel->text();
+    return rc;
+}
+
 // --------------- VCSBaseSettingsPage
 VCSBaseSettingsPage::VCSBaseSettingsPage(QObject *parent) :
     Core::IOptionsPage(parent)
@@ -119,6 +130,7 @@ QWidget *VCSBaseSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new VCSBaseSettingsWidget(parent);
     m_widget->setSettings(m_settings);
+    m_searchKeyWords = m_widget->searchKeyWordMatchString();
     return m_widget;
 }
 
@@ -132,6 +144,11 @@ void VCSBaseSettingsPage::apply()
             emit settingsChanged(m_settings);
         }
     }
+}
+
+bool VCSBaseSettingsPage::matches(const QString &key) const
+{
+    return m_searchKeyWords.contains(key, Qt::CaseInsensitive);
 }
 
 }

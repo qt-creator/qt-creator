@@ -42,5 +42,6 @@
   \o trCategory() is the translated category
   \o apply() is called to store the settings. It should detect if any changes have been
          made and store those.
+  \o matches() is used for the options dialog search filter.
   \endlist
 */

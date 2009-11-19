@@ -51,6 +51,7 @@ public:
     virtual QString trName() const = 0;
     virtual QString category() const = 0;
     virtual QString trCategory() const = 0;
+    virtual bool matches(const QString & /* searchKeyWord*/) const { return false; }
 
     virtual QWidget *createPage(QWidget *parent) = 0;
     virtual void apply() = 0;

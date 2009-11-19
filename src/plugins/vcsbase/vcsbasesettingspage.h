@@ -53,6 +53,8 @@ public:
     VCSBaseSettings settings() const;
     void setSettings(const VCSBaseSettings &s);
 
+    QString searchKeyWordMatchString() const;
+
 private:
     Ui::VCSBaseSettingsPage *m_ui;
 };
@@ -72,6 +74,7 @@ public:
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();
     virtual void finish() { }
+    virtual bool matches(const QString &key) const;
 
     VCSBaseSettings settings() const { return m_settings; }
 
@@ -80,8 +83,10 @@ signals:
 
 private:
     void updateNickNames();
+
     VCSBaseSettingsWidget* m_widget;
     VCSBaseSettings m_settings;
+    QString m_searchKeyWords;
 };
 
 } // namespace Internal

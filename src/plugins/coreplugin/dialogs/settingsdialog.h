@@ -36,6 +36,13 @@
 
 #include "coreplugin/dialogs/ioptionspage.h"
 
+QT_BEGIN_NAMESPACE
+class QModelIndex;
+class QStandardItemModel;
+class QStandardItem;
+class QSortFilterProxyModel;
+QT_END_NAMESPACE
+
 namespace Core {
 namespace Internal {
 
@@ -57,13 +64,18 @@ public slots:
     void done(int);
 
 private slots:
-    void pageSelected();
     void accept();
     void reject();
     void apply();
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void filter(const QString &text);
 
 private:
-    QList<Core::IOptionsPage*> m_pages;
+    void showPage(const QStandardItem *item);
+
+    const QList<Core::IOptionsPage*> m_pages;
+    QSortFilterProxyModel *m_proxyModel;
+    QStandardItemModel *m_model;
     bool m_applied;
     QString m_currentCategory;
     QString m_currentPage;
