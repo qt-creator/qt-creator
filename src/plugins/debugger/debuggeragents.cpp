@@ -44,6 +44,8 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
+
+#include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextCursor>
 #include <QtGui/QSyntaxHighlighter>
@@ -68,13 +70,13 @@ namespace Internal {
 */
 
 MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, quint64 addr)
-    : QObject(manager), m_engine(manager->currentEngine())
+    : QObject(manager), m_engine(manager->currentEngine()), m_manager(manager)
 {
     init(addr);
 }
 
 MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, const QString &addr)
-    : QObject(manager), m_engine(manager->currentEngine())
+    : QObject(manager), m_engine(manager->currentEngine()), m_manager(manager) 
 {
     bool ok = true;
     init(addr.toULongLong(&ok, 0));
@@ -94,11 +96,19 @@ void MemoryViewAgent::init(quint64 addr)
     m_editor = editorManager->openEditorWithContents(
         Core::Constants::K_DEFAULT_BINARY_EDITOR,
         &titlePattern);
-    connect(m_editor->widget(), SIGNAL(lazyDataRequested(quint64,bool)),
-        this, SLOT(fetchLazyData(quint64,bool)));
-    editorManager->activateEditor(m_editor);
-    QMetaObject::invokeMethod(m_editor->widget(), "setLazyData",
-        Q_ARG(quint64, addr), Q_ARG(int, 1024 * 1024), Q_ARG(int, BinBlockSize));
+    if (m_editor) {
+        connect(m_editor->widget(), SIGNAL(lazyDataRequested(quint64,bool)),
+            this, SLOT(fetchLazyData(quint64,bool)));
+        editorManager->activateEditor(m_editor);
+        QMetaObject::invokeMethod(m_editor->widget(), "setLazyData",
+            Q_ARG(quint64, addr), Q_ARG(int, 1024 * 1024), Q_ARG(int, BinBlockSize));
+    } else {
+        m_manager->showMessageBox(QMessageBox::Warning,
+            tr("No memory viewer available"),
+            tr("The memory contents cannot be shown as no viewer plugin not "
+                "the BinEditor plugin could be loaded."));
+        deleteLater();
+    }
 }
 
 void MemoryViewAgent::fetchLazyData(quint64 block, bool sync)
