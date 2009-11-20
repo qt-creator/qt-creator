@@ -691,30 +691,20 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         candidates.append(takeDeclarationOp);
         candidates.append(splitSimpleDeclarationOp);
 
-        QMultiMap<int, QuickFixOperationPtr> matchedOps;
+        QMap<int, QList<QuickFixOperationPtr> > matchedOps;
 
         foreach (QuickFixOperationPtr op, candidates) {
             int priority = op->match(path, _editor->textCursor());
             if (priority != -1)
-                matchedOps.insert(priority, op);
+                matchedOps[priority].append(op);
         }
 
-        QMapIterator<int, QuickFixOperationPtr> it(matchedOps);
+        QMapIterator<int, QList<QuickFixOperationPtr> > it(matchedOps);
         it.toBack();
         if (it.hasPrevious()) {
             it.previous();
 
-            int priority = it.key();
-            _quickFixes.append(it.value());
-
-            while (it.hasPrevious()) {
-                it.previous();
-
-                if (it.key() != priority)
-                    break;
-
-                _quickFixes.append(it.value());
-            }
+            _quickFixes = it.value();
         }
 
         if (! _quickFixes.isEmpty())
