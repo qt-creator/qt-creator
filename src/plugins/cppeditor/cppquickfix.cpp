@@ -173,6 +173,9 @@ public:
 
     bool checkDeclaration(SimpleDeclarationAST *declaration) const
     {
+        if (! declaration->semicolon_token)
+            return false;
+
         if (! declaration->decl_specifier_list)
             return false;
 
