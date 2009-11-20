@@ -88,6 +88,7 @@ QString VCSBaseSettingsWidget::searchKeyWordMatchString() const
     rc += m_ui->nickNameMailMapLabel->text();
     rc += blank;
     rc += m_ui->nickNameFieldsFileLabel->text();
+    rc.remove(QLatin1Char('&')); // Strip buddy markers.
     return rc;
 }
 
@@ -130,7 +131,8 @@ QWidget *VCSBaseSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new VCSBaseSettingsWidget(parent);
     m_widget->setSettings(m_settings);
-    m_searchKeyWords = m_widget->searchKeyWordMatchString();
+    if (m_searchKeyWords.isEmpty())
+        m_searchKeyWords = m_widget->searchKeyWordMatchString();
     return m_widget;
 }
 

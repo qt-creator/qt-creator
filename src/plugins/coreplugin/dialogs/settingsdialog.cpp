@@ -66,6 +66,7 @@ template<class Parent>
                                              IOptionsPage *page = 0)
 {
     QStandardItem *rc = new QStandardItem(text);
+    rc->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
     rc->setData(QVariant(int(type)), TypeRole);
     rc->setData(QVariant(index), IndexRole);
     rc->setData(qVariantFromValue(page), PageRole);
@@ -115,8 +116,11 @@ bool PageFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
     // Regular contents check, then check page-filter.
     if (QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent))
         return true;
-    if (const IOptionsPage *page = pageOfItem(sourceModel(), source_parent.child(source_row, 0)))
-        return page->matches(filterRegExp().pattern());
+    if (const IOptionsPage *page = pageOfItem(sourceModel(), source_parent.child(source_row, 0))) {
+        const QString pattern = filterRegExp().pattern();
+        return page->trCategory().contains(pattern, Qt::CaseInsensitive) ||
+        page->matches(pattern);
+    }
     return false;
 }
 
