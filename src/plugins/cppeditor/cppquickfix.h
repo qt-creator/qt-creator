@@ -86,6 +86,7 @@ protected:
     int endOf(const CPlusPlus::AST *ast) const;
 
     bool contains(unsigned tokenIndex) const;
+    bool contains(const CPlusPlus::AST *ast) const;
 
     void move(int start, int end, int to);
     void move(unsigned tokenIndex, int to);

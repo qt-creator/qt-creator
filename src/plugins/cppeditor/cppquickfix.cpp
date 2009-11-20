@@ -223,13 +223,8 @@ public:
                     if (cursorPosition >= startOfDeclSpecifier && cursorPosition <= endOfDeclSpecifier)
                         return index; // the AST node under cursor is a specifier.
 
-                    if (core_declarator) {
-                        const int startOfCoreDeclarator = startOf(core_declarator);
-                        const int endOfCoreDeclarator = endOf(core_declarator);
-
-                        if (cursorPosition >= startOfCoreDeclarator && cursorPosition <= endOfCoreDeclarator)
-                            return index; // got a core-declarator under the text cursor.
-                    }
+                    if (core_declarator && contains(core_declarator))
+                        return index; // got a core-declarator under the text cursor.
                 }
 
                 break;
@@ -267,6 +262,72 @@ private:
     SimpleDeclarationAST *declaration;
 };
 
+/*
+    Add curly braces to a if statement that doesn't already contain a
+    compound statement.
+*/
+class AddBracesToIfOp: public QuickFixOperation
+{
+public:
+    AddBracesToIfOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
+        : QuickFixOperation(doc, snapshot, editor),
+           _statement(0)
+    {}
+
+    virtual QString description() const
+    {
+        return QLatin1String("Add curly braces"); // ### tr?
+    }
+
+    virtual int match(const QList<AST *> &path, QTextCursor tc)
+    {
+        setTextCursor(tc);
+
+        // show when we're on the 'if' of an if statement
+        int index = path.size() - 1;
+        IfStatementAST *ifStatement = path.at(index)->asIfStatement();
+        if (ifStatement && contains(ifStatement->if_token)
+            && ! ifStatement->statement->asCompoundStatement()) {
+            _statement = ifStatement->statement;
+            return index;
+        }
+
+        // or if we're on the statement contained in the if
+        // ### This may not be such a good idea, consider nested ifs...
+        for (; index != -1; --index) {
+            IfStatementAST *ifStatement = path.at(index)->asIfStatement();
+            if (ifStatement && contains(ifStatement->statement)
+                && ! ifStatement->statement->asCompoundStatement()) {
+                _statement = ifStatement->statement;
+                return index;
+            }
+        }
+
+        // ### This could very well be extended to the else branch
+        // and other nodes entirely.
+
+        return -1;
+    }
+
+    virtual void apply()
+    {
+        insert(endOf(_statement->firstToken() - 1), QLatin1String(" {"));
+        insert(endOf(_statement->lastToken() - 1), "\n}");
+        applyChanges(_statement);
+    }
+
+private:
+    StatementAST *_statement;
+};
+
+/*
+    Replace
+    if (Type name = foo()) {...}
+
+    With
+    Type name = foo;
+    if (name) {...}
+*/
 class TakeDeclarationOp: public QuickFixOperation
 {
 public:
@@ -296,14 +357,8 @@ public:
                     if (! core)
                         return -1;
 
-                    int startOfCoreDeclarator = startOf(core->firstToken());
-                    int endOfCoreDeclarator = endOf(core->lastToken() - 1);
-
-                    int position = tc.selectionStart();
-
-                    if (position >= startOfCoreDeclarator && position <= endOfCoreDeclarator) {
+                    if (contains(core))
                         return index;
-                    }
                 }
             }
         }
@@ -551,6 +606,20 @@ bool QuickFixOperation::contains(unsigned tokenIndex) const
     return false;
 }
 
+bool QuickFixOperation::contains(const CPlusPlus::AST *ast) const
+{
+    QTextCursor tc = textCursor();
+    int cursorBegin = tc.selectionStart();
+
+    int start = startOf(ast);
+    int end = endOf(ast);
+
+    if (cursorBegin >= start && cursorBegin <= end)
+        return true;
+
+    return false;
+}
+
 QTextCursor QuickFixOperation::selectToken(unsigned index) const
 {
     QTextCursor tc = _textCursor;
@@ -684,12 +753,14 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp(info.doc, info.snapshot, _editor));
         QSharedPointer<TakeDeclarationOp> takeDeclarationOp(new TakeDeclarationOp(info.doc, info.snapshot, _editor));
         QSharedPointer<SplitSimpleDeclarationOp> splitSimpleDeclarationOp(new SplitSimpleDeclarationOp(info.doc, info.snapshot, _editor));
+        QSharedPointer<AddBracesToIfOp> addBracesToIfOp(new AddBracesToIfOp(info.doc, info.snapshot, _editor));
 
         QList<QuickFixOperationPtr> candidates;
         candidates.append(rewriteLogicalAndOp);
         candidates.append(splitIfStatementOp);
         candidates.append(takeDeclarationOp);
         candidates.append(splitSimpleDeclarationOp);
+        candidates.append(addBracesToIfOp);
 
         QMap<int, QList<QuickFixOperationPtr> > matchedOps;
 
