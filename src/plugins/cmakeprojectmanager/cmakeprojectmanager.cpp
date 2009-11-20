@@ -40,9 +40,12 @@
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QSettings>
 #include <QtGui/QFormLayout>
+#include <QtGui/QBoxLayout>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QApplication>
 #include <QtGui/QLabel>
+#include <QtGui/QGroupBox>
+#include <QtGui/QSpacerItem>
 
 using namespace CMakeProjectManager::Internal;
 
@@ -258,13 +261,17 @@ QString CMakeSettingsPage::trCategory() const
 
 QWidget *CMakeSettingsPage::createPage(QWidget *parent)
 {
-    QWidget *w = new QWidget(parent);
-    QFormLayout *fl = new QFormLayout(w);
-    m_pathchooser = new Utils::PathChooser(w);
+    QWidget *outerWidget = new QWidget(parent);
+    QVBoxLayout *outerLayout = new QVBoxLayout(outerWidget);
+    QGroupBox *groupBox = new QGroupBox(trCategory());
+    outerLayout->addWidget(groupBox);
+    outerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
+    QFormLayout *formLayout = new QFormLayout(groupBox);
+    m_pathchooser = new Utils::PathChooser;
     m_pathchooser->setExpectedKind(Utils::PathChooser::Command);
-    fl->addRow(tr("CMake executable"), m_pathchooser);
+    formLayout->addRow(tr("Executable:"), m_pathchooser);
     m_pathchooser->setPath(cmakeExecutable());
-    return w;
+    return outerWidget;
 }
 
 void CMakeSettingsPage::updateInfo()

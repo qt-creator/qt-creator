@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>362</width>
+    <width>453</width>
     <height>320</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
      </property>
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="protocolLabel">
         <property name="text">
          <string>Default Protocol:</string>
         </property>
@@ -50,7 +50,7 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="userNameLabel">
         <property name="text">
          <string>Username:</string>
         </property>

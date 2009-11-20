@@ -77,6 +77,8 @@ public:
     CppFileSettings settings() const;
     void setSettings(const CppFileSettings &s);
 
+    QString searchKeywords() const;
+
 private slots:    
     void slotEdit();
 
@@ -103,10 +105,12 @@ public:
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();
     virtual void finish() { }
+    virtual bool matches(const QString &) const;
 
 private:
     const QSharedPointer<CppFileSettings> m_settings;
     QPointer<CppFileSettingsWidget> m_widget;
+    QString m_searchKeywords;
 };
 
 } // namespace Internal

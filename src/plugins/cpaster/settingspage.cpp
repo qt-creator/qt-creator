@@ -31,11 +31,13 @@
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QSettings>
 #include <QtGui/QLineEdit>
 #include <QtGui/QFileDialog>
+
 #include <QtCore/QDebug>
 #include <QtCore/QVariant>
+#include <QtCore/QSettings>
+#include <QtCore/QTextStream>
 
 using namespace CodePaster;
 
@@ -86,6 +88,11 @@ QWidget *SettingsPage::createPage(QWidget *parent)
     m_ui.userEdit->setText(m_username);
     m_ui.clipboardBox->setChecked(m_copy);
     m_ui.displayBox->setChecked(m_output);
+    if (m_searchKeywords.isEmpty()) {
+        QTextStream(&m_searchKeywords) << m_ui.protocolLabel->text() << ' '
+                << m_ui.userNameLabel->text();
+        m_searchKeywords.remove(QLatin1Char('&'));
+    }
     return w;
 }
 
@@ -105,6 +112,11 @@ void SettingsPage::apply()
     m_settings->setValue("CopyToClipboard", m_copy);
     m_settings->setValue("DisplayOutput", m_output);
     m_settings->endGroup();
+}
+
+bool SettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 void SettingsPage::addProtocol(const QString &name)

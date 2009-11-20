@@ -2,49 +2,28 @@
 <ui version="4.0">
  <class>Core::Internal::GeneralSettings</class>
  <widget class="QWidget" name="Core::Internal::GeneralSettings">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>536</width>
-    <height>233</height>
-   </rect>
-  </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>General settings</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QLabel" name="colorLabel">
-          <property name="text">
-           <string>User &amp;interface color:</string>
-          </property>
-          <property name="buddy">
-           <cstring>colorButton</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
+     <layout class="QFormLayout" name="formLayout">
+      <property name="rowWrapPolicy">
+       <enum>QFormLayout::WrapLongRows</enum>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="colorLabel">
+        <property name="text">
+         <string>User &amp;interface color:</string>
+        </property>
+        <property name="buddy">
+         <cstring>colorButton</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <layout class="QHBoxLayout" name="colorHorizontalLayout">
         <item>
          <widget class="Utils::QtColorButton" name="colorButton">
           <property name="sizePolicy">
@@ -93,15 +72,15 @@
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="terminalLabel">
-          <property name="text">
-           <string>Terminal:</string>
-          </property>
-         </widget>
-        </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="terminalLabel">
+        <property name="text">
+         <string>Terminal:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <layout class="QHBoxLayout" name="terminalHorizontalLayout">
         <item>
          <widget class="QLineEdit" name="terminalEdit"/>
         </item>
@@ -121,15 +100,15 @@
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>External editor:</string>
-          </property>
-         </widget>
-        </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="editorLabel">
+        <property name="text">
+         <string>External editor:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="editorHorizontalLayout">
         <item>
          <widget class="QLineEdit" name="externalEditorEdit"/>
         </item>
@@ -156,47 +135,43 @@
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item row="3" column="0">
+       <widget class="QLabel" name="modifiedLabel">
+        <property name="text">
+         <string>When files are externally modified:</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="reloadBehavior">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
         <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>When files are externally modified:</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
+         <property name="text">
+          <string>Always ask</string>
+         </property>
         </item>
         <item>
-         <widget class="QComboBox" name="reloadBehavior">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <item>
-           <property name="text">
-            <string>Always ask</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Reload all modified files</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Ignore modifications</string>
-           </property>
-          </item>
-         </widget>
+         <property name="text">
+          <string>Reload all modified files</string>
+         </property>
         </item>
-       </layout>
+        <item>
+         <property name="text">
+          <string>Ignore modifications</string>
+         </property>
+        </item>
+       </widget>
       </item>
      </layout>
     </widget>

@@ -44,6 +44,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDate>
 #include <QtCore/QLocale>
+#include <QtCore/QTextStream>
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
@@ -237,6 +238,16 @@ CppFileSettings CppFileSettingsWidget::settings() const
     return rc;
 }
 
+QString CppFileSettingsWidget::searchKeywords() const
+{
+    QString rc;
+    QTextStream(&rc) << m_ui->headerSuffixLabel->text()
+            << ' ' << m_ui->sourceSuffixLabel->text()
+            << ' ' << m_ui->lowerCaseFileNamesCheckBox->text();
+    rc.remove(QLatin1Char('&'));
+    return rc;
+}
+
 static inline void setComboText(QComboBox *cb, const QString &text, int defaultIndex = 0)
 {
     const int index = cb->findText(text);
@@ -312,6 +323,8 @@ QWidget *CppFileSettingsPage::createPage(QWidget *parent)
 
     m_widget = new CppFileSettingsWidget(parent);
     m_widget->setSettings(*m_settings);
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
@@ -325,6 +338,11 @@ void CppFileSettingsPage::apply()
             m_settings->applySuffixesToMimeDB();
         }
     }
+}
+
+bool CppFileSettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 }

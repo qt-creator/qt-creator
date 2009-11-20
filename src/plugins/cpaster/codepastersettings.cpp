@@ -34,6 +34,9 @@
 #include <QtCore/QSettings>
 #include <QtGui/QLineEdit>
 #include <QtGui/QFileDialog>
+#include <QtGui/QGroupBox>
+#include <QtGui/QFormLayout>
+#include <QtGui/QVBoxLayout>
 #include <QtCore/QDebug>
 #include <QtCore/QVariant>
 
@@ -70,22 +73,26 @@ QString CodePasterSettingsPage::trCategory() const
 }
 
 QWidget *CodePasterSettingsPage::createPage(QWidget *parent)
-{
-    QWidget *w = new QWidget(parent);
-    QLabel *label = new QLabel(tr("Server:"));
-    QLineEdit *lineedit = new QLineEdit;
-    lineedit->setText(m_host);
+{    
+    QGroupBox *groupBox = new QGroupBox(category());
+    QVBoxLayout *groupBoxLayout = new QVBoxLayout(groupBox);
+    QFormLayout *formLayout = new QFormLayout;
+    QLineEdit *lineedit = new QLineEdit(m_host);
     connect(lineedit, SIGNAL(textChanged(QString)), this, SLOT(serverChanged(QString)));
+    formLayout->addRow(tr("Server:"), lineedit);
+    groupBoxLayout->addLayout(formLayout);
+    groupBoxLayout->addSpacerItem(new QSpacerItem(0, 60, QSizePolicy::Ignored, QSizePolicy::Fixed));
+
     QLabel *noteLabel = new QLabel(tr("Note: Specify the host name for the CodePaster service "
                                       "without any protocol prepended (e.g. codepaster.mycompany.com)."));
     noteLabel->setWordWrap(true);
-    QGridLayout* layout = new QGridLayout();
-    layout->addWidget(label, 0, 0);
-    layout->addWidget(lineedit, 0, 1);
-    layout->addWidget(noteLabel, 1, 1);
-    layout->addItem(new QSpacerItem(1,1, QSizePolicy::Preferred, QSizePolicy::MinimumExpanding), 2, 0);
-    w->setLayout(layout);
-    return w;
+    groupBoxLayout->addWidget(noteLabel);
+
+    QWidget *outerWidget = new QWidget(parent);
+    QVBoxLayout *outerLayout = new QVBoxLayout(outerWidget);
+    outerLayout->addWidget(groupBox);
+    outerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
+    return outerWidget;
 }
 
 void CodePasterSettingsPage::apply()

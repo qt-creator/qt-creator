@@ -55,6 +55,7 @@ public:
     QWidget* createPage(QWidget *parent);
     void apply();
     void finish();
+    virtual bool matches(const QString &) const;
 
 private slots:
     void resetInterfaceColor();
@@ -66,6 +67,7 @@ private slots:
 
 private:
     Ui::GeneralSettings *m_page;
+    QString m_searchKeywords;
     QPointer<QWidget> m_dialog;
 };
 

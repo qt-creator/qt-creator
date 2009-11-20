@@ -59,6 +59,7 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
+    virtual bool matches(const QString &) const;
 
     void addProtocol(const QString& name);
     QString username() const;
@@ -71,6 +72,7 @@ private:
     Ui_SettingsPage m_ui;
     QSettings *m_settings;
 
+    QString m_searchKeywords;
     QStringList m_protocols;
     QString m_username;
     QString m_protocol;

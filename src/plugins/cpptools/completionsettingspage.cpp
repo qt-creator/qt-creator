@@ -34,6 +34,8 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <QtCore/QTextStream>
+
 using namespace CppTools::Internal;
 
 CompletionSettingsPage::CompletionSettingsPage(CppCodeCompletion *completion)
@@ -75,7 +77,12 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
     m_page->caseSensitive->setChecked(m_completion->caseSensitivity() == Qt::CaseSensitive);
     m_page->autoInsertBrackets->setChecked(m_completion->autoInsertBrackets());
     m_page->partiallyComplete->setChecked(m_completion->isPartialCompletionEnabled());
-
+    if (m_searchKeywords.isEmpty()) {
+        QTextStream(&m_searchKeywords) << m_page->caseSensitive->text()
+                << ' ' << m_page->autoInsertBrackets->text()
+                << ' ' << m_page->partiallyComplete->text();
+        m_searchKeywords.remove(QLatin1Char('&'));
+    }
     return w;
 }
 
@@ -85,4 +92,9 @@ void CompletionSettingsPage::apply()
             m_page->caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive);
     m_completion->setAutoInsertBrackets(m_page->autoInsertBrackets->isChecked());
     m_completion->setPartialCompletionEnabled(m_page->partiallyComplete->isChecked());
+}
+
+bool CompletionSettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

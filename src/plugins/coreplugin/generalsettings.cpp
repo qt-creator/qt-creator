@@ -34,7 +34,10 @@
 #include <utils/consoleprocess.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+
 #include <QtGui/QMessageBox>
+
+#include <QtCore/QTextStream>
 
 #include "ui_generalsettings.h"
 
@@ -94,7 +97,18 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
             this, SLOT(resetTerminal()));
 #endif
 
+    if (m_searchKeywords.isEmpty()) {
+        QTextStream(&m_searchKeywords) << m_page->colorLabel->text() << ' '
+                << m_page->terminalLabel->text() << ' ' << m_page->editorLabel->text()
+                << ' '<< m_page->modifiedLabel->text();
+        m_searchKeywords.remove(QLatin1Char('&'));
+    }
     return w;
+}
+
+bool GeneralSettings::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 void GeneralSettings::apply()

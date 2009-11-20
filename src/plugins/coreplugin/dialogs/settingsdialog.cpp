@@ -184,6 +184,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
     m_applied(false)
 {
     setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 #ifdef Q_OS_MAC
     setWindowTitle(tr("Preferences"));
 #else

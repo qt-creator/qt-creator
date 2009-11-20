@@ -57,10 +57,12 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
+    virtual bool matches(const QString &) const;
 
 private:
     CppCodeCompletion *m_completion;
     Ui_CompletionSettingsPage *m_page;
+    QString m_searchKeywords;
 };
 
 } // namespace Internal
