@@ -139,7 +139,16 @@ bool CompletionWidget::event(QEvent *e)
 
     bool forwardKeys = true;
     if (e->type() == QEvent::FocusOut) {
-        closeList();
+        QModelIndex index;
+#if defined(Q_OS_DARWIN) && ! defined(QT_MAC_USE_COCOA)
+        QFocusEvent *fe = static_cast<QFocusEvent *>(e);
+        if (fe->reason() == Qt::OtherFocusReason) {
+            // Qt/carbon workaround
+            // focus out is received before the key press event.
+            index = currentIndex();
+        }
+#endif
+        closeList(index);
         return true;
     } else if (e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
@@ -153,7 +162,8 @@ bool CompletionWidget::event(QEvent *e)
         case Qt::Key_Tab:
         case Qt::Key_Return:
             //independently from style, accept current entry if return is pressed
-            closeList(currentIndex());
+            if (qApp->focusWidget() == this)
+                closeList(currentIndex());
             return true;
         case Qt::Key_Up:
             if (currentIndex().row() == 0) {
