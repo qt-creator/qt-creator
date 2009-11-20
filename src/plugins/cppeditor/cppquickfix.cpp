@@ -159,6 +159,117 @@ private:
     BinaryExpressionAST *pattern;
 };
 
+class SplitSimpleDeclarationOp: public QuickFixOperation
+{
+public:
+    SplitSimpleDeclarationOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
+        : QuickFixOperation(doc, snapshot), declaration(0), editor(editor)
+    {}
+
+    virtual QString description() const
+    {
+        return QLatin1String("Split declaration"); // ### tr?
+    }
+
+    bool checkDeclaration(SimpleDeclarationAST *declaration) const
+    {
+        if (! declaration->decl_specifier_list)
+            return false;
+
+        for (SpecifierListAST *it = declaration->decl_specifier_list; it; it = it->next) {
+            SpecifierAST *specifier = it->value;
+
+            if (specifier->asEnumSpecifier() != 0)
+                return false;
+
+            else if (specifier->asClassSpecifier() != 0)
+                return false;
+        }
+
+        if (! declaration->declarator_list)
+            return false;
+
+        else if (! declaration->declarator_list->next)
+            return false;
+
+        return true;
+    }
+
+    virtual int match(const QList<AST *> &path, QTextCursor tc)
+    {
+        setTextCursor(tc);
+
+        CoreDeclaratorAST *core_declarator = 0;
+
+        int index = path.size() - 1;
+        for (; index != -1; --index) {
+            AST *node = path.at(index);
+
+            if (CoreDeclaratorAST *coreDecl = node->asCoreDeclarator())
+                core_declarator = coreDecl;
+
+            else if (SimpleDeclarationAST *simpleDecl = node->asSimpleDeclaration()) {
+                if (checkDeclaration(simpleDecl)) {
+                    declaration = simpleDecl;
+
+                    const int cursorPosition = tc.selectionStart();
+
+                    const int startOfDeclSpecifier = startOf(declaration->decl_specifier_list->firstToken());
+                    const int endOfDeclSpecifier = endOf(declaration->decl_specifier_list->lastToken() - 1);
+
+                    if (cursorPosition >= startOfDeclSpecifier && cursorPosition <= endOfDeclSpecifier)
+                        return index; // the AST node under cursor is a specifier.
+
+                    if (core_declarator) {
+                        const int startOfCoreDeclarator = startOf(core_declarator);
+                        const int endOfCoreDeclarator = endOf(core_declarator);
+
+                        if (cursorPosition >= startOfCoreDeclarator && cursorPosition <= endOfCoreDeclarator)
+                            return index; // got a core-declarator under the text cursor.
+                    }
+                }
+
+                break;
+            }
+        }
+
+        return -1;
+    }
+
+    virtual void apply()
+    {
+        QTextCursor completeDeclaration = createCursor(declaration);
+
+        SpecifierListAST *specifiers = declaration->decl_specifier_list;
+        const QString declSpecifiers = textOf(startOf(specifiers->firstToken()), endOf(specifiers->lastToken() - 1));
+
+        DeclaratorAST *declarator = declaration->declarator_list->value;
+        replace(endOf(declarator), startOf(declaration->semicolon_token), QString());
+
+        QString text;
+        for (DeclaratorListAST *it = declaration->declarator_list->next; it; it = it->next) {
+            DeclaratorAST *declarator = it->value;
+
+            text += QLatin1Char('\n');
+            text += declSpecifiers;
+            text += QLatin1Char(' ');
+            text += textOf(declarator);
+            text += QLatin1String(";");
+        }
+
+        insert(endOf(declaration->semicolon_token), text);
+
+        completeDeclaration.beginEditBlock();
+        execute();
+        editor->indentInsertedText(completeDeclaration);
+        completeDeclaration.endEditBlock();
+    }
+
+private:
+    SimpleDeclarationAST *declaration;
+    CPPEditor *editor;
+};
+
 class TakeDeclarationOp: public QuickFixOperation
 {
 public:
@@ -205,14 +316,7 @@ public:
 
     virtual void apply()
     {
-        QTextCursor completeIfStatement = selectNode(pattern);
-        {
-            // ### HACK
-            const int anchor = completeIfStatement.anchor();
-            const int position = completeIfStatement.position();
-            completeIfStatement.setPosition(position);
-            completeIfStatement.setPosition(anchor, QTextCursor::KeepAnchor);
-        }
+        QTextCursor completeIfStatement = createCursor(pattern);
 
         QString name = selectNode(core).selectedText();
         QString declaration = selectNode(condition).selectedText();
@@ -321,14 +425,7 @@ public:
 
     void splitAndCondition()
     {
-        QTextCursor completeIfStatement = selectNode(pattern);
-        {
-            // ### HACK
-            const int anchor = completeIfStatement.anchor();
-            const int position = completeIfStatement.position();
-            completeIfStatement.setPosition(position);
-            completeIfStatement.setPosition(anchor, QTextCursor::KeepAnchor);
-        }
+        QTextCursor completeIfStatement = createCursor(pattern);
 
         StatementAST *ifTrueStatement = pattern->statement;
         CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
@@ -371,14 +468,7 @@ public:
 
     void splitOrCondition()
     {
-        QTextCursor completeIfStatement = selectNode(pattern);
-        {
-            // ### HACK
-            const int anchor = completeIfStatement.anchor();
-            const int position = completeIfStatement.position();
-            completeIfStatement.setPosition(position);
-            completeIfStatement.setPosition(anchor, QTextCursor::KeepAnchor);
-        }
+        QTextCursor completeIfStatement = createCursor(pattern);
 
         StatementAST *ifTrueStatement = pattern->statement;
         CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
@@ -496,6 +586,17 @@ QTextCursor QuickFixOperation::selectNode(AST *ast) const
     return tc;
 }
 
+QTextCursor QuickFixOperation::createCursor(AST *ast) const
+{
+    QTextCursor cursor = selectNode(ast);
+    // ### HACK
+    const int anchor = cursor.anchor();
+    const int position = cursor.position();
+    cursor.setPosition(position);
+    cursor.setPosition(anchor, QTextCursor::KeepAnchor);
+    return cursor;
+}
+
 void QuickFixOperation::move(int start, int end, int to)
 {
     if (end > start)
@@ -531,6 +632,19 @@ void QuickFixOperation::replace(const CPlusPlus::AST *ast, const QString &replac
 void QuickFixOperation::insert(int at, const QString &text)
 {
     replace(at, at, text);
+}
+
+QString QuickFixOperation::textOf(int firstOffset, int lastOffset) const
+{
+    QTextCursor tc = _textCursor;
+    tc.setPosition(firstOffset);
+    tc.setPosition(lastOffset, QTextCursor::KeepAnchor);
+    return tc.selectedText();
+}
+
+QString QuickFixOperation::textOf(AST *ast) const
+{
+    return selectNode(ast).selectedText();
 }
 
 void QuickFixOperation::execute()
@@ -573,13 +687,15 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         // ### build the list of the quick fix ops by scanning path.
 
         QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(info.doc, info.snapshot));
-        QSharedPointer<SplitIfStatementOp> splitIfStatement(new SplitIfStatementOp(info.doc, info.snapshot, _editor));
-        QSharedPointer<TakeDeclarationOp> takeDeclaration(new TakeDeclarationOp(info.doc, info.snapshot, _editor));
+        QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp(info.doc, info.snapshot, _editor));
+        QSharedPointer<TakeDeclarationOp> takeDeclarationOp(new TakeDeclarationOp(info.doc, info.snapshot, _editor));
+        QSharedPointer<SplitSimpleDeclarationOp> splitSimpleDeclarationOp(new SplitSimpleDeclarationOp(info.doc, info.snapshot, _editor));
 
         QList<QuickFixOperationPtr> candidates;
         candidates.append(rewriteLogicalAndOp);
-        candidates.append(splitIfStatement);
-        candidates.append(takeDeclaration);
+        candidates.append(splitIfStatementOp);
+        candidates.append(takeDeclarationOp);
+        candidates.append(splitSimpleDeclarationOp);
 
         QMultiMap<int, QuickFixOperationPtr> matchedOps;
 

@@ -91,6 +91,11 @@ protected:
     void replace(const CPlusPlus::AST *ast, const QString &replacement);
     void insert(int at, const QString &text);
 
+    QString textOf(int firstOffset, int lastOffset) const;
+    QString textOf(CPlusPlus::AST *ast) const;
+
+    QTextCursor createCursor(CPlusPlus::AST *ast) const; // ### rename me
+
     void execute();
 
 private:
