@@ -129,6 +129,7 @@ void BuildStepsPage::init(const QString &buildConfiguration)
     }
 
     m_noStepsLabel->setVisible(steps.isEmpty());
+    m_removeButton->setEnabled(!steps.isEmpty());
 
     // make sure widget is updated
     foreach(BuildStepsWidgetStruct s, m_buildSteps) {
@@ -322,4 +323,6 @@ void BuildStepsPage::updateBuildStepButtonsState()
         s.upButton->setEnabled((i>0) && !(steps.at(i)->immutable() && steps.at(i - 1)));
         s.downButton->setEnabled((i + 1< steps.count()) && !(steps.at(i)->immutable() && steps.at(i + 1)->immutable()));
     }
+    m_noStepsLabel->setVisible(steps.isEmpty());
+    m_removeButton->setEnabled(!steps.isEmpty());
 }
