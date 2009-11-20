@@ -481,9 +481,9 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             painter->fillRect(filledRect, option->palette.base());
 
             if (option->state & State_Enabled)
-                drawCornerImage(d->lineeditImage, painter, option->rect, 2, 2, 2, 2);
+                drawCornerImage(d->lineeditImage, painter, option->rect, 5, 5, 5, 5);
             else
-                drawCornerImage(d->lineeditImage_disabled, painter, option->rect, 2, 2, 2, 2);
+                drawCornerImage(d->lineeditImage_disabled, painter, option->rect, 5, 5, 5, 5);
 
             if (option->state & State_HasFocus || option->state & State_MouseOver) {
                 QColor hover = Utils::StyleHelper::baseColor();
