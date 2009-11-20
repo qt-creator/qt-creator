@@ -72,7 +72,25 @@ void S60DevicesWidget::updateDevicesList()
         item->setToolTip(1, tooltip);
         m_ui->list->addTopLevelItem(item);
     }
+    const QString errorString = m_devices->errorString();
+    if (errorString.isEmpty()) {
+        clearErrorLabel();
+    } else {
+        setErrorLabel(errorString);
+    }
 }
+
+void S60DevicesWidget::setErrorLabel(const QString& t)
+{
+    m_ui->errorLabel->setText(t);
+    m_ui->errorLabel->setVisible(true);
+}
+
+void S60DevicesWidget::clearErrorLabel()
+{
+    m_ui->errorLabel->setVisible(false);
+}
+
 
 S60DevicesPreferencePane::S60DevicesPreferencePane(S60Devices *devices, QObject *parent)
         : Core::IOptionsPage(parent),
@@ -121,3 +139,5 @@ void S60DevicesPreferencePane::apply()
 void S60DevicesPreferencePane::finish()
 {
 }
+
+
