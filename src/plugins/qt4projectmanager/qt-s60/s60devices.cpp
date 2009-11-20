@@ -138,22 +138,56 @@ bool S60Devices::read()
 #endif
 }
 
+// Windows: Get list of paths containing common program data
+// as pointed to by environment.
+static QStringList commonProgramFilesPaths()
+{
+    const QChar pathSep = QLatin1Char(';');
+    QStringList rc;
+    const QByteArray commonX86 = qgetenv("CommonProgramFiles(x86)");
+    if (!commonX86.isEmpty())
+        rc += QString::fromLocal8Bit(commonX86).split(pathSep);
+    const QByteArray common = qgetenv("CommonProgramFiles");
+    if (!common.isEmpty())
+        rc += QString::fromLocal8Bit(common).split(pathSep);
+    return rc;
+}
+
 // Windows EPOC
+
+// Find the "devices.xml" file containing the SDKs
+static QString devicesXmlFile(QString *errorMessage)
+{
+    const QString devicesFile = QLatin1String(SYMBIAN_DEVICES_FILE);
+    // Try registry
+    const QSettings settings(QLatin1String(SYMBIAN_SDKS_KEY), QSettings::NativeFormat);
+    const QString devicesRegistryXmlPath = settings.value(QLatin1String(SYMBIAN_PATH_KEY)).toString();
+    if (!devicesRegistryXmlPath.isEmpty())
+        return QDir::cleanPath(devicesRegistryXmlPath + QLatin1Char('/') + devicesFile);
+    // Look up common program data files
+    const QString symbianDir = QLatin1String("/symbian/");
+    foreach(const QString &commonDataDir, commonProgramFilesPaths()) {
+        const QFileInfo fi(commonDataDir + symbianDir + devicesFile);
+        if (fi.isFile())
+            return fi.absoluteFilePath();
+    }
+    // None found...
+    *errorMessage = QString::fromLatin1("The file '%1' containing the device SDK configuration "
+                                        "could not be found looking at the registry key "
+                                        "%2\\%3 or the common program data directories.").
+                                        arg(devicesFile, QLatin1String(SYMBIAN_SDKS_KEY),
+                                            QLatin1String(SYMBIAN_PATH_KEY));
+    return QString();
+}
 
 bool S60Devices::readWin()
 {
-    // Check the windows registry via QSettings for devices.xml path
-    QSettings settings(SYMBIAN_SDKS_KEY, QSettings::NativeFormat);
-    QString devicesXmlPath = settings.value(SYMBIAN_PATH_KEY).toString();
-    if (devicesXmlPath.isEmpty()) {
-        m_errorString = "Could not find installed SDKs in registry.";
+    const QString devicesXmlPath = devicesXmlFile(&m_errorString);
+    if (devicesXmlPath.isEmpty())
         return false;
-    }
-
-    devicesXmlPath += QLatin1String("/") + QLatin1String(SYMBIAN_DEVICES_FILE);
     QFile devicesFile(devicesXmlPath);
-    if (!devicesFile.open(QIODevice::ReadOnly)) {
-        m_errorString = QString("Could not read devices file at %1.").arg(devicesXmlPath);
+    if (!devicesFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
+        m_errorString = QString::fromLatin1("Could not open the devices file %1: %2").arg(devicesXmlPath, devicesFile.errorString());
         return false;
     }
     QXmlStreamReader xml(&devicesFile);
@@ -192,10 +226,10 @@ bool S60Devices::readWin()
     }
     devicesFile.close();
     if (xml.hasError()) {
-        m_errorString = xml.errorString();
+        m_errorString = QString::fromLatin1("Syntax error in devices file %1: %2").
+                        arg(devicesXmlPath, xml.errorString());
         return false;
     }
-
     return true;
 }
 

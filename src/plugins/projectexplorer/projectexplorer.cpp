@@ -2006,17 +2006,15 @@ void ProjectExplorerPlugin::populateRunConfigurationMenu()
 
     foreach (const Project *pro, d->m_session->projects()) {
         foreach (RunConfiguration *runConfiguration, pro->runConfigurations()) {
-            if (runConfiguration->isEnabled()) {
-                const QString title = QString("%1 (%2)").arg(pro->name(), runConfiguration->name());
-                QAction *act = new QAction(title, d->m_runConfigurationActionGroup);
-                act->setCheckable(true);
-                act->setData(qVariantFromValue(runConfiguration));
-                act->setChecked(runConfiguration == activeRunConfiguration);
-                d->m_runConfigurationMenu->addAction(act);
-                if (debug)
-                    qDebug() << "RunConfiguration" << runConfiguration << "project:" << pro->name()
-                             << "active:" << (runConfiguration == activeRunConfiguration);
-            }
+            const QString title = QString("%1 (%2)").arg(pro->name(), runConfiguration->name());
+            QAction *act = new QAction(title, d->m_runConfigurationActionGroup);
+            act->setCheckable(true);
+            act->setData(qVariantFromValue(runConfiguration));
+            act->setChecked(runConfiguration == activeRunConfiguration);
+            d->m_runConfigurationMenu->addAction(act);
+            if (debug)
+                qDebug() << "RunConfiguration" << runConfiguration << "project:" << pro->name()
+                         << "active:" << (runConfiguration == activeRunConfiguration);
         }
     }
 

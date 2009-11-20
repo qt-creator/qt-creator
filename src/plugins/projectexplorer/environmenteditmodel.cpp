@@ -234,15 +234,21 @@ int EnvironmentModel::findInResultInsertPosition(const QString &name) const
 bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (role == Qt::EditRole && index.isValid()) {
+        // ignore changes to already set values:
+        if (data(index, role) == value)
+            return true;
+
         if (index.column() == 0) {
             //fail if a variable with the same name already exists
 #ifdef Q_OS_WIN
-            if (findInChanges(value.toString().toUpper()) != -1)
-                return false;
+            const QString &newName = value.toString().toUpper();
 #else
-            if (findInChanges(value.toString()) != -1)
-                return false;
+            const QString &newName = value.toString();
 #endif
+
+            if (findInChanges(newName) != -1)
+                return false;
+
             EnvironmentItem old("", "");
             if (m_mergedEnvironments) {
                 int pos = findInChanges(indexToVariable(index));
@@ -256,11 +262,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
             } else {
                 old = m_items.at(index.row());
             }
-#ifdef Q_OS_WIN
-            const QString &newName = value.toString().toUpper();
-#else
-            const QString &newName = value.toString();
-#endif
+
             if (changes(old.name))
                 removeVariable(old.name);
             old.name = newName;

@@ -140,7 +140,7 @@
     <message>
         <location line="+1"/>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
-        <translation>Вы собираетесь удалить папку, что повлечёт&lt;br&gt;удаление её содержимого. Вы уверены, что хотите продолжить?</translation>
+        <translation>Вы собираетесь удалить папку, что повлечёт&lt;br&gt;удаление её содержимого. Вы уверены, что желаете продолжить?</translation>
     </message>
     <message>
         <location line="+111"/>
@@ -413,7 +413,7 @@
     <message>
         <location line="-97"/>
         <source>Base environment for this runconfiguration:</source>
-        <translation>Базовая среда этой конфигурации выполнения:</translation>
+        <translation>Базовая среда данной конфигурации выполнения:</translation>
     </message>
 </context>
 <context>
@@ -431,7 +431,7 @@
     <message>
         <location line="+2"/>
         <source> The path %1 is not a executable.</source>
-        <translation> Путь %1 не является исполняемой программой.</translation>
+        <translation> Путь %1 не является путём к исполняемой программе.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -513,7 +513,7 @@
     <message>
         <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="-229"/>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
-        <translation>Qt Creator обнаружил &lt;b&gt;сборку в каталоге с исходниками (%1)&lt;/b&gt;, что препятствует фоновой сборке. Поэтому Qt Creator не позволит изменить каталог сборки. Если требуется фоновая сборка, необходимо очистить каталог исходников и открыть проект снова.</translation>
+        <translation>Qt Creator обнаружил &lt;b&gt;сборку в каталоге с исходниками (%1)&lt;/b&gt;, что препятствует фоновой сборке. Qt Creator не позволит изменить каталог сборки. Если требуется фоновая сборка, необходимо очистить каталог исходников и открыть проект снова.</translation>
     </message>
 </context>
 <context>
@@ -715,7 +715,7 @@
     <message>
         <location line="+1"/>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation>Сообщение о фиксации содержит ошибки. Всё-равно желаете зафиксировать изменения?</translation>
+        <translation>Сообщение о фиксации содержит ошибки. Желаете зафиксировать изменения?</translation>
     </message>
     <message>
         <location line="+58"/>
@@ -733,7 +733,7 @@
         <translation>Файл был изменён. Желаете откатить его изменения?</translation>
     </message>
     <message>
-        <location line="+78"/>
+        <location line="+80"/>
         <source>The commit list spans several repositories (%1). Please commit them one by one.</source>
         <translation>Список на фиксацию содержит несколько репозиториев (%1). Пожалуйста, фиксируйте их по одному.</translation>
     </message>
@@ -753,7 +753,7 @@
         <translation>Не удалось создать временный файл: %1</translation>
     </message>
     <message>
-        <location line="+105"/>
+        <location line="+108"/>
         <source>Project status</source>
         <translation>Состояние проекта</translation>
     </message>
@@ -866,7 +866,7 @@
     <message>
         <location/>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit id). Otherwise, only the respective file will be displayed.</source>
-        <translation>Если включено, то по щелчку на номере равизии при просмотре аннотации (полученной по идентификатору фиксации) будут отображаться все зафиксированные файлы. В противном случае, только соответствующий файл.</translation>
+        <translation>Если включено, по щелчку на номере равизии при просмотре аннотации (полученной по идентификатору фиксации) будут отображаться все зафиксированные файлы. В противном случае, только соответствующий файл.</translation>
     </message>
     <message>
         <location/>
@@ -905,7 +905,7 @@
 <context>
     <name>CVSPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="-1039"/>
+        <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="-1044"/>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation>Не удалось найти репозиторий для &apos;%1&apos;</translation>
     </message>
@@ -947,7 +947,7 @@
         <location filename="../../../src/plugins/debugger/cdb/cdboptionspage.cpp" line="+58"/>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; Restarting Qt Creator is required for these settings to take effect.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Укажите здесь путь к &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Замечание:&lt;/b&gt; Для вступления изменений в силу необходим перезапуск Qt Creator.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Укажите путь к &lt;a href=&quot;%1&quot;&gt;Debugging Tools for Windows&lt;/a&gt; (%2).&lt;/p&gt;&lt;p&gt;&lt;b&gt;Замечание:&lt;/b&gt; Для вступления изменений в силу необходим перезапуск Qt Creator.&lt;/p&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -993,7 +993,6 @@
     <message>
         <location filename="../../../src/plugins/git/changeselectiondialog.ui"/>
         <source>Repository Location:</source>
-        <translatorcomment>&quot;Размещение репозитория&quot; слишком длинно</translatorcomment>
         <translation>Репозиторий:</translation>
     </message>
     <message>
@@ -1120,7 +1119,7 @@
     <message>
         <location/>
         <source>Display Output Pane after sending a post</source>
-        <translation>Показать окно вывода, отослав данные</translation>
+        <translation>Отправив данные, показать окно вывода</translation>
     </message>
     <message>
         <location/>
@@ -1158,7 +1157,7 @@
     <message>
         <location/>
         <source>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</source>
-        <translation>Включение приведет к автоматическому заполнению просмотра исходного файла, но может значительно замедлить процесс запуска отладчика.</translation>
+        <translation>Включение приведёт к автоматическому заполнению просмотра файла исходных текстов, но может замедлить процесс запуска отладчика.</translation>
     </message>
     <message>
         <location/>
@@ -1174,8 +1173,8 @@
         <location/>
         <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
  reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <translation>Когда включён данный параметр, в определенных ситуациях &apos;Зайти в&apos; объединяет несколько шагов в один, позволяя &apos;снизить шум&apos; при отладке. Например, будет пропущен
-атомарный код подсчета ссылок и единственная операция &apos;Зайти в&apos; инициации сигнала завершится прямо в слоте, который подключен к нему.</translation>
+        <translation>Когда включён данный параметр, в определенных ситуациях &apos;Зайти в&apos; объединяет несколько шагов в один, позволяя &apos;снизить шум&apos; при отладке.
+Например, будет пропущен атомарный код подсчета ссылок и единственная операция &apos;Зайти в&apos; инициации сигнала завершится прямо в слоте, подключённому к данному сигналу.</translation>
     </message>
     <message>
         <location/>
@@ -1205,7 +1204,7 @@
     <message>
         <location/>
         <source>Use tooltips in main editor while debugging</source>
-        <translation>Включает подсказки в основном редакторе при отладке</translation>
+        <translation>Использовать подсказки в основном редакторе при отладке</translation>
     </message>
 </context>
 <context>
@@ -1228,7 +1227,7 @@
     <message>
         <location/>
         <source>Automatically insert (, ) and ; when appropriate.</source>
-        <translation>Автоматически вставлять (, ) и ; когда потребуется.</translation>
+        <translation>Автоматически вставлять &apos;(, )&apos; и &apos;;&apos;, когда потребуется.</translation>
     </message>
     <message>
         <location/>
@@ -1324,7 +1323,7 @@
 Would you like to overwrite them?</source>
         <translation>Следующие файлы уже присутствуют в каталоге %1:
 %2.
-Вы хотите перезаписать их?</translation>
+Желаете перезаписать их?</translation>
     </message>
 </context>
 <context>
@@ -1455,17 +1454,17 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+6"/>
         <source>Remove Current Split</source>
-        <translation>Удалить текущее разделение</translation>
+        <translation>Удалить текущее разделитель</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Remove All Splits</source>
-        <translation>Удалить все разделения</translation>
+        <translation>Удалить все разделители</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Goto Other Split</source>
-        <translation>Перейти к другому разделению</translation>
+        <translation>Перейти к другому разделителю</translation>
     </message>
     <message>
         <location line="-22"/>
@@ -1521,7 +1520,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+40"/>
         <source>Open File</source>
-        <translation>Открытие файла</translation>
+        <translation>Открыть файл</translation>
     </message>
     <message>
         <location line="+140"/>
@@ -1598,7 +1597,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+197"/>
         <source>You will lose your current changes if you proceed reverting %1.</source>
-        <translation>Будут потеряны все текущие изменения, если продолжить откат %1.</translation>
+        <translation>Если продолжить откат %1, будут потеряны все текущие изменения.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1777,7 +1776,7 @@ Would you like to overwrite them?</source>
     <message>
         <location filename="../../../src/plugins/coreplugin/generalsettings.ui"/>
         <source>General settings</source>
-        <translation>Основные установки</translation>
+        <translation>Основные настройки</translation>
     </message>
     <message>
         <location/>
@@ -1812,7 +1811,7 @@ Would you like to overwrite them?</source>
     <message>
         <location filename="../../../src/plugins/coreplugin/generalsettings.cpp" line="+56"/>
         <source>General</source>
-        <translation>Основное</translation>
+        <translation>Основные</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -1859,7 +1858,7 @@ Would you like to overwrite them?</source>
         <translation>Консоль</translation>
     </message>
     <message>
-        <location line="+161"/>
+        <location line="+162"/>
         <source>&amp;File</source>
         <translation>&amp;Файл</translation>
     </message>
@@ -2040,7 +2039,7 @@ Would you like to overwrite them?</source>
     <message>
         <location filename="../../../src/plugins/coreplugin/messageoutputwindow.cpp" line="+76"/>
         <source>General</source>
-        <translation>Основное</translation>
+        <translation>Основные</translation>
     </message>
 </context>
 <context>
@@ -2106,7 +2105,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+2"/>
         <source>Close All Except %1</source>
-        <translation>Закрыть всё, кроме %1</translation>
+        <translation>Закрыть все, кроме %1</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2225,7 +2224,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+3"/>
         <source>Save Selected</source>
-        <translation>Сохранить выбранное</translation>
+        <translation>Сохранить выбранные</translation>
     </message>
 </context>
 <context>
@@ -2233,8 +2232,7 @@ Would you like to overwrite them?</source>
     <message>
         <location filename="../../../src/plugins/coreplugin/dialogs/settingsdialog.cpp" line="+58"/>
         <source>Preferences</source>
-        <translatorcomment>Честно говоря, не знаю, как Preferences в Mac OS переводят</translatorcomment>
-        <translation>Параметры</translation>
+        <translation>Настройки</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -2300,7 +2298,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+3"/>
         <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
-        <translation>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Основан на Qt %2 (%3-х битной)&lt;br/&gt;&lt;br/&gt;Собран %4 в %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</translation>
+        <translation type="unfinished">&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Основан на Qt %2 (%3-х битной)&lt;br/&gt;&lt;br/&gt;Собран %4 в %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</translation>
     </message>
 </context>
 <context>
@@ -2380,7 +2378,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+7"/>
         <source>Press &lt;RETURN&gt; to close this window...</source>
-        <translation>Нажмите &lt;ВВОД&gt;, чтобы закрыть это окно...</translation>
+        <translation>Для закрытия данного окна нажмите &lt;ВВОД&gt;...</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -2446,7 +2444,7 @@ Would you like to overwrite them?</source>
     <message>
         <location filename="../../../src/libs/utils/filenamevalidatinglineedit.cpp" line="+95"/>
         <source>The name must not be empty</source>
-        <translation>Имя должно быть не пустым</translation>
+        <translation>Имя не должно быть пустым</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -2470,18 +2468,18 @@ Would you like to overwrite them?</source>
         <location filename="../../../src/libs/utils/filesearch.cpp" line="+47"/>
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
-            <numerusform>%1: отменено. %n совпадение найдено в %2 файлах.</numerusform>
-            <numerusform>%1: отменено. %n совпадения найдено в %2 файлах.</numerusform>
-            <numerusform>%1: отменено. %n совпадений найдено в %2 файлах.</numerusform>
+            <numerusform>%1: отменено. %n совпадение найдено в %2 файле(ах).</numerusform>
+            <numerusform>%1: отменено. %n совпадения найдено в %2 файле(ах).</numerusform>
+            <numerusform>%1: отменено. %n совпадений найдено в %2 файле(ах).</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+8"/>
         <source>%1: %n occurrences found in %2 files.</source>
         <translation>
-            <numerusform>%1: %n совпадение найдено в %2 файлах.</numerusform>
-            <numerusform>%1: %n совпадения найдено в %2 файлах.</numerusform>
-            <numerusform>%1: %n совпадений найдено в %2 файлах.</numerusform>
+            <numerusform>%1: %n совпадение найдено в %2 файле(ах).</numerusform>
+            <numerusform>%1: %n совпадения найдено в %2 файле(ах).</numerusform>
+            <numerusform>%1: %n совпадений найдено в %2 файле(ах).</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2539,7 +2537,7 @@ Would you like to overwrite them?</source>
     <message>
         <location/>
         <source>Generate form:</source>
-        <translation type="unfinished">Создать форму:</translation>
+        <translation>Создать форму:</translation>
     </message>
     <message>
         <location/>
@@ -2559,12 +2557,12 @@ Would you like to overwrite them?</source>
     <message>
         <location/>
         <source>Type information:</source>
-        <translation type="unfinished">Тип класса:</translation>
+        <translation>Тип класса:</translation>
     </message>
     <message>
         <location/>
         <source>None</source>
-        <translation type="unfinished">Не указан</translation>
+        <translation>Не указан</translation>
     </message>
     <message>
         <location/>
@@ -2597,7 +2595,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+33"/>
         <source>The path must not be empty.</source>
-        <translation>Путь не может быть пустым.</translation>
+        <translation>Путь не должен быть пустым.</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -2607,12 +2605,12 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+15"/>
         <source>The path &apos;%1&apos; is not a directory.</source>
-        <translation>Путь &apos;%1&apos; не является каталогом.</translation>
+        <translation>Путь &apos;%1&apos; не является путём к каталогу.</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>The path &apos;%1&apos; is not a file.</source>
-        <translation>Путь &apos;%1&apos; не является файлом.</translation>
+        <translation>Путь &apos;%1&apos; не является путём к файлу.</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -2686,7 +2684,7 @@ Would you like to overwrite them?</source>
     <message>
         <location filename="../../../src/libs/utils/projectnamevalidatinglineedit.cpp" line="+50"/>
         <source>The name must not contain the &apos;.&apos;-character.</source>
-        <translation>Название не должно содержать символ &quot;точка&quot;.</translation>
+        <translation>Название не должно содержать символ &quot;.&quot; (точка).</translation>
     </message>
 </context>
 <context>
@@ -2735,12 +2733,12 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+4"/>
         <source>The unsaved file %1 has been changed outside Qt Creator. Do you want to reload it and discard your changes?</source>
-        <translation>Несохранённый файл %1 изменился вне Qt Creator. Перезагрузить его с потерей изменений?</translation>
+        <translation>Несохранённый файл %1 был изменён вне Qt Creator. Перезагрузить его с потерей изменений?</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>The file %1 has changed outside Qt Creator. Do you want to reload it?</source>
-        <translation>Файл %1 изменён вне Qt Creator. Желаете перезагрузить его?</translation>
+        <translation>Файл %1 был изменён вне Qt Creator. Желаете перезагрузить его?</translation>
     </message>
 </context>
 <context>
@@ -2753,12 +2751,12 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+163"/>
         <source>This change cannot be undone.</source>
-        <translation>Это изменение нельзя будет отменить.</translation>
+        <translation>Данное изменение невозможно отменить.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Yes, I know what I am doing.</source>
-        <translation>Да, я знаю, что делаю.</translation>
+        <translation>Да, я знаю что делаю.</translation>
     </message>
 </context>
 <context>
@@ -2771,7 +2769,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+1"/>
         <source>The header and source file names will be derived from the class name</source>
-        <translation>Названия файлов исходников будут получены из имени класса</translation>
+        <translation>Названия файла исходных текстов и заголовочного файла будут получены из имени класса</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -2784,7 +2782,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+117"/>
         <source>Error while generating file contents.</source>
-        <translation>Ошибка во время формирования содержимого файла.</translation>
+        <translation>Ошибка формирования содержимого файла.</translation>
     </message>
 </context>
 <context>
@@ -2800,13 +2798,14 @@ Would you like to overwrite them?</source>
     <message>
         <location filename="../../../src/plugins/cppeditor/cpphoverhandler.cpp" line="+87"/>
         <source>Unfiltered</source>
+        <translatorcomment>пустой фильтр документации</translatorcomment>
         <translation>Вся</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Internal::CppPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppplugin.cpp" line="+174"/>
+        <location filename="../../../src/plugins/cppeditor/cppplugin.cpp" line="+190"/>
         <source>C++</source>
         <translation>C++</translation>
     </message>
@@ -2841,7 +2840,7 @@ Would you like to overwrite them?</source>
         <translation>Создание заголовочного и исходного файлов для нового класса.</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+12"/>
         <source>Follow Symbol under Cursor</source>
         <translation>Перейти к символу под курсором</translation>
     </message>
@@ -2864,6 +2863,11 @@ Would you like to overwrite them?</source>
         <location line="+5"/>
         <source>Rename Symbol under Cursor</source>
         <translation>Переименовать символ под курсором</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Update code model</source>
+        <translation>Обновить модель кода</translation>
     </message>
 </context>
 <context>
@@ -3026,7 +3030,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+120"/>
+        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+126"/>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
     </message>
@@ -3073,9 +3077,9 @@ Would you like to overwrite them?</source>
         <location line="+37"/>
         <source>%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3</source>
         <translation>
-            <numerusform>%n известный тип, Qt версии: %1, пространство имен Qt: %2, Версия дампера: %3</numerusform>
-            <numerusform>%n известных типа, Qt версии: %1, пространство имен Qt: %2, Версия дампера: %3</numerusform>
-            <numerusform>%n известных типов, Qt версии: %1, пространство имен Qt: %2, Версия дампера: %3</numerusform>
+            <numerusform>%n известный тип, Qt версии: %1, пространство имён Qt: %2, Версия дампера: %3</numerusform>
+            <numerusform>%n известных типа, Qt версии: %1, пространство имён Qt: %2, Версия дампера: %3</numerusform>
+            <numerusform>%n известных типов, Qt версии: %1, пространство имён Qt: %2, Версия дампера: %3</numerusform>
         </translation>
     </message>
     <message>
@@ -3166,7 +3170,7 @@ Would you like to overwrite them?</source>
         <location line="+77"/>
         <location line="+21"/>
         <source>Changing breakpoint state requires either a fully running or fully stopped application.</source>
-        <translation>Изменение состояние точки останова требует или полностью остановленную программу, или полностью работающую.</translation>
+        <translation>Изменение состояние точки останова требует или полностью остановленную программу, или полностью запущенную.</translation>
     </message>
     <message>
         <location line="+30"/>
@@ -3196,7 +3200,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+312"/>
         <source>Turn off helper usage</source>
-        <translation>Отключить помощника</translation>
+        <translation>Не использовать помощника</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -3206,7 +3210,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+1"/>
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. This can be done in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; in the &apos;Debugging Helper&apos; row.</source>
-        <translation>Помощник отладчика используется для преобразования к наглядному виду значений некоторых типов данных Qt и стандартной библиотеки. Он должен быть собран отдельно для каждой версии Qt. Это можно сделать в параметрах Qt, выбрав профиль Qt и нажав на &apos;Пересобрать&apos; в строке &apos;Помощник отладчика&apos;.</translation>
+        <translation>Помощник отладчика используется для преобразования значений некоторых типов данных Qt и стандартной библиотеки к наглядному виду. Он должен быть собран отдельно для каждой версии Qt. Это можно сделать в параметрах Qt, выбрав профиль Qt и нажав на &apos;Пересобрать&apos; в строке &apos;Помощник отладчика&apos;.</translation>
     </message>
     <message>
         <location line="+170"/>
@@ -3226,7 +3230,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+4"/>
         <source>Continue anyway</source>
-        <translation>Всё равно продолжить</translation>
+        <translation>Всё-равно продолжить</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -3348,7 +3352,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+2"/>
         <source>Ignore Count:</source>
-        <translation>Число пропусков:</translation>
+        <translation>Количество пропусков:</translation>
     </message>
     <message>
         <location line="+215"/>
@@ -3388,12 +3392,12 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+62"/>
         <source>Breakpoint will only be hit if this condition is met.</source>
-        <translation>Точка останова сработает только, когда условие выполнится.</translation>
+        <translation>Точка останова сработает только при выполнении условия.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Breakpoint will only be hit after being ignored so many times.</source>
-        <translation>Точка останова сработает только через указанное количество попаданий.</translation>
+        <translation>Точка останова сработает только через указанное количество пропусков.</translation>
     </message>
 </context>
 <context>
@@ -3664,17 +3668,17 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+5"/>
         <source>Loading the custom dumper library &apos;%1&apos; (%2) ...</source>
-        <translation>Загружается особая библиотека дампера &apos;%1&apos; (%2)...</translation>
+        <translation type="unfinished">Загружается особая библиотека дампера &apos;%1&apos; (%2)...</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Loading of the custom dumper library &apos;%1&apos; (%2) failed: %3</source>
-        <translation>Загрузка особой библиотеки дампера &apos;%1&apos; (%2) не удалась: %3</translation>
+        <translation type="unfinished">Загрузка особой библиотеки дампера &apos;%1&apos; (%2) не удалась: %3</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Loaded the custom dumper library &apos;%1&apos; (%2).</source>
-        <translation>Загружена особая библиотека дампера &apos;%1&apos; (%2).</translation>
+        <translation type="unfinished">Загружена особая библиотека дампера &apos;%1&apos; (%2).</translation>
     </message>
     <message>
         <location line="+62"/>
@@ -3684,7 +3688,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+77"/>
         <source>Disabling dumpers due to debuggee crash...</source>
-        <translation>Отключение дамперов из-за падения отлаживаемой программы...</translation>
+        <translation>Отключение дамперов из-за сбоя отлаживаемой программы...</translation>
     </message>
     <message>
         <location line="-43"/>
@@ -3747,7 +3751,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+1"/>
         <source>Adds the Microsoft symbol server providing symbols for operating system libraries.Requires specifying a local cache directory.</source>
-        <translation>Добавляет сервер символов Microsoft, который предоставляет их для файлов операционной системы. Требует указания каталога локального кэша.</translation>
+        <translation>Добавляет сервер символов Microsoft, который предоставляет символы для файлов операционной системы. Требует указания каталога локального кэша.</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -3789,7 +3793,7 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+36"/>
         <source>Attached to core temporarily.</source>
-        <translation>Временно подключено к дампу.</translation>
+        <translation type="unfinished">Временно подключено к дампу.</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -3825,17 +3829,17 @@ Would you like to overwrite them?</source>
     <message>
         <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="+36"/>
         <source>Close Debugging Session</source>
-        <translation>Закрытие отладочной сессии</translation>
+        <translation>Закрытие сессии отладки</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>A debugging session is still in progress. Would you like to terminate it?</source>
-        <translation type="unfinished">Идёт отладка. Завершить её?</translation>
+        <translation>Идёт отладка. Завершить её?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>A debugging session is still in progress. Terminating the session in the current state (%1) can leave the target in an inconsistent state. Would you still like to terminate it?</source>
-        <translation type="unfinished">Идёт отладка. Её завершение в текущем режиме (%1) может оставить исполнитель в неизвестном состоянии. Завершить её?</translation>
+        <translation>Идёт отладка. Её завершение в текущем режиме (%1) может оставить исполнитель в неизвестном состоянии. Завершить отладку?</translation>
     </message>
 </context>
 <context>
@@ -3863,12 +3867,12 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+41"/>
         <source>Start and Debug External Application...</source>
-        <translation>Запустить под отладчиком внешнее приложение...</translation>
+        <translation>Запустить внешнее приложение для отладки...</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Attach to Running External Application...</source>
-        <translation>Подключить к работающему внешнему приложению...</translation>
+        <translation>Подключить к запущенному внешнему приложению...</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -4258,12 +4262,12 @@ Would you like to overwrite them?</source>
         <translation>Обработка очереди команд.</translation>
     </message>
     <message>
-        <location line="+392"/>
+        <location line="+393"/>
         <source>Loading %1...</source>
         <translation>Загружается %1...</translation>
     </message>
     <message>
-        <location line="+105"/>
+        <location line="+109"/>
         <source>Stopped at breakpoint.</source>
         <translation>Остановлено на точке останова.</translation>
     </message>
@@ -4285,12 +4289,12 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+121"/>
+        <location line="+120"/>
         <source>Stopped.</source>
         <translation>Остановлено.</translation>
     </message>
     <message>
-        <location line="-119"/>
+        <location line="-118"/>
         <source>Stopped: &quot;%1&quot;</source>
         <translation>Остановлено: &quot;%1&quot;</translation>
     </message>
@@ -4314,7 +4318,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Продолжение после временного останова...</translation>
     </message>
     <message>
-        <location line="+2284"/>
+        <location line="+2288"/>
         <source>The debugging helper library was not found at %1.</source>
         <translation>Библиотека помощника отладчика не обнаружена в %1.</translation>
     </message>
@@ -4334,12 +4338,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation type="unfinished">Не удалось запустить подчинённого</translation>
     </message>
     <message>
-        <location line="-2980"/>
+        <location line="-2984"/>
         <source>Inferior shutdown failed</source>
         <translation type="unfinished">Не удалось остановить подчинённого</translation>
     </message>
     <message>
-        <location line="+2859"/>
+        <location line="+2863"/>
         <source>Cannot find debugger initialization script</source>
         <translation>Не удалось найти скрипт инициализации отладчика</translation>
     </message>
@@ -4349,18 +4353,18 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>В настройках указан файл скрипта &apos;%1&apos;, который сейчас недоступен. Если файл скрипта не обязателен, просто очистите поле, чтобы не было этого предупреждения.</translation>
     </message>
     <message>
-        <location line="-2156"/>
+        <location line="-2160"/>
         <source>Unable to run &apos;%1&apos;: %2</source>
         <translation>Не удалось запустить &apos;%1&apos;: %2</translation>
     </message>
     <message>
-        <location line="+76"/>
+        <location line="+78"/>
         <source>&lt;unknown&gt;</source>
         <extracomment>End address of loaded module</extracomment>
         <translation>&lt;неизвестный&gt;</translation>
     </message>
     <message>
-        <location line="+47"/>
+        <location line="+49"/>
         <location line="+8"/>
         <source>Retrieving data for stack view...</source>
         <translation>Получение данных о стеке...</translation>
@@ -4375,7 +4379,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         </translation>
     </message>
     <message>
-        <location line="-2889"/>
+        <location line="-2898"/>
         <source>An unknown error in the Gdb process occurred. </source>
         <translation>Неизвестная ошибка возникла у процесса Gdb. </translation>
     </message>
@@ -4418,7 +4422,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Программа завершилась с ошибкой: %1</translation>
     </message>
     <message>
-        <location line="+537"/>
+        <location line="+541"/>
         <source>Execution Error</source>
         <translation>Ошибка выполнения</translation>
     </message>
@@ -4430,7 +4434,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 </translation>
     </message>
     <message>
-        <location line="+214"/>
+        <location line="+215"/>
         <source>Running requested...</source>
         <translation>Потребован запуск...</translation>
     </message>
@@ -4470,7 +4474,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Потребовано выполнение до функции %1...</translation>
     </message>
     <message>
-        <location line="+712"/>
+        <location line="+716"/>
         <source>Jumping out of bogus frame...</source>
         <translation type="unfinished">Выход из подложного кадра...</translation>
     </message>
@@ -4735,7 +4739,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::PlainGdbAdapter</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/plaingdbadapter.cpp" line="+79"/>
+        <location filename="../../../src/plugins/debugger/gdb/plaingdbadapter.cpp" line="+80"/>
         <source>Cannot set up communication with child process: %1</source>
         <translation>Не удалось установить связь с дочерним процессом: %1</translation>
     </message>
@@ -5404,7 +5408,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location/>
         <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
-        <translation>Включит удобное отображение объектов Qt и стандартной библиотеки в окне отслеживаемых переменных</translation>
+        <translation>Включить удобное отображение объектов Qt и стандартной библиотеки в окне отслеживаемых переменных</translation>
     </message>
     <message>
         <location/>
@@ -5414,7 +5418,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location/>
         <source>This will load a dumper library</source>
-        <translation type="unfinished">Загрузит библиотеку дампера данных</translation>
+        <translation>Загружать библиотеку дампера данных</translation>
     </message>
     <message>
         <location/>
@@ -5434,7 +5438,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location/>
         <source>Makes use of Qt Creator&apos;s code model to find out if a variable has already been assigned a value at the point the debugger interrupts.</source>
-        <translation type="unfinished">Включит использование модели кода Qt Creator для определения,
+        <translation type="unfinished">Включить использование модели кода Qt Creator для определения
 было ли переменной присвоено значение в точке прерывания отладчиком.</translation>
     </message>
     <message>
@@ -5461,7 +5465,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location filename="../../../src/shared/qrceditor/resourcefile.cpp" line="+54"/>
         <source>The file name is empty.</source>
-        <translation>Имя файла пустое.</translation>
+        <translation>Пустое имя файла.</translation>
     </message>
     <message>
         <location line="+54"/>
@@ -5514,7 +5518,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location/>
         <source>Code Generation</source>
-        <translation>Генерация кода</translation>
+        <translation>Создание кода</translation>
     </message>
     <message>
         <location/>
@@ -5583,7 +5587,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location line="+1"/>
         <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
-        <translation>Создание файла формы Qt Designer (.ui) с подходящим классом.</translation>
+        <translation>Создание файла формы Qt Designer (.ui) и соответствующего класса.</translation>
     </message>
 </context>
 <context>
@@ -5833,8 +5837,8 @@ Rebuilding the project might help.</source>
 Note: This adds the toolchain to the build environment and runs the program inside a virtual machine.
 It also automatically sets the correct Qt version.</source>
         <translation>Использовать VirtualBox
-Заметка: Добавится возможность создавать и запускать программы под виртуальной машиной.
-Так же будет автоматически установлена правильная версия Qt.</translation>
+Замечание: Добавляет возможность создавать и запускать программы под виртуальной машиной.
+Также будет автоматически установлена корректная версия Qt.</translation>
     </message>
 </context>
 <context>
@@ -5965,7 +5969,7 @@ It also automatically sets the correct Qt version.</source>
     <message>
         <location line="+3"/>
         <source>Read</source>
-        <translation>Считан</translation>
+        <translation>Описание прочитано</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6000,7 +6004,7 @@ It also automatically sets the correct Qt version.</source>
     <message>
         <location line="+1"/>
         <source>Plugin&apos;s initialization method succeeded</source>
-        <translation>Метод инициализации модуля завершился успешно</translation>
+        <translation>Инициализация модуля завершилась успешно</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6010,7 +6014,7 @@ It also automatically sets the correct Qt version.</source>
     <message>
         <location line="+1"/>
         <source>Plugin successfully loaded and running</source>
-        <translation>Модуль успешно загружен и работает</translation>
+        <translation>Модуль успешно загружен и запущен</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6690,7 +6694,7 @@ Reason: %3</source>
     <message>
         <location/>
         <source>Show side-by-side if possible</source>
-        <translation>Показывать сбоку по возможности</translation>
+        <translation>Показывать сбоку, если возможно</translation>
     </message>
     <message>
         <location/>
@@ -6959,7 +6963,7 @@ Reason: %3</source>
 <context>
     <name>Git::Internal::GitClient</name>
     <message>
-        <location filename="../../../src/plugins/git/gitclient.cpp" line="+71"/>
+        <location filename="../../../src/plugins/git/gitclient.cpp" line="+76"/>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translation>Следует иметь в виду, что модуль Git до сих пор не умеет работать с сервером. Поэтому, ручная настройка ssh-авторизации и другое не будет работать.</translation>
     </message>
@@ -6987,7 +6991,7 @@ Reason: %3</source>
         <translation>Ожидание данных...</translation>
     </message>
     <message>
-        <location line="+100"/>
+        <location line="+101"/>
         <source>Git Diff</source>
         <translation type="unfinished">Git - Сравнение</translation>
     </message>
@@ -7012,7 +7016,7 @@ Reason: %3</source>
         <translation type="unfinished">Git - аннотация %1</translation>
     </message>
     <message numerus="yes">
-        <location line="+56"/>
+        <location line="+58"/>
         <source>Unable to add %n file(s) to %1: %2</source>
         <translation>
             <numerusform>Не удалось добавить %n файл в %1: %2</numerusform>
@@ -7054,7 +7058,7 @@ Reason: %3</source>
         <translation type="unfinished">Не удалось запустить показ: %1: %2</translation>
     </message>
     <message>
-        <location line="+148"/>
+        <location line="+149"/>
         <source>Changes</source>
         <translation>Изменения</translation>
     </message>
@@ -7110,12 +7114,12 @@ Reason: %3</source>
         <translation>Файл был изменён. Желаете откатить его изменения?</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+26"/>
         <source>The file is not modified.</source>
         <translation>Файл не изменялся.</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+23"/>
         <source>There are no modified files.</source>
         <translation>Нет изменённых файлов.</translation>
     </message>
@@ -7123,7 +7127,7 @@ Reason: %3</source>
 <context>
     <name>Git::Internal::GitPlugin</name>
     <message>
-        <location filename="../../../src/plugins/git/gitplugin.cpp" line="+232"/>
+        <location filename="../../../src/plugins/git/gitplugin.cpp" line="+233"/>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
     </message>
@@ -7343,7 +7347,7 @@ Reason: %3</source>
         <translation>&amp;Вернуть</translation>
     </message>
     <message>
-        <location line="+60"/>
+        <location line="+65"/>
         <source>Could not find working directory</source>
         <translation>Не удалось найти рабочий каталог</translation>
     </message>
@@ -7828,7 +7832,7 @@ Perl через переменные среды окружения.</translation
     <message>
         <location line="+40"/>
         <source>Cannot unregister documentation file %1!</source>
-        <translation>Невозможно разрегистрировать файл документации %1!</translation>
+        <translation>Невозможно дерегистрировать файл документации %1!</translation>
     </message>
 </context>
 <context>
@@ -7849,7 +7853,7 @@ Perl через переменные среды окружения.</translation
     <message>
         <location filename="../../../src/plugins/help/generalsettingspage.cpp" line="+74"/>
         <source>General settings</source>
-        <translation>Основные установки</translation>
+        <translation>Основные настройки</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -7870,7 +7874,7 @@ Perl через переменные среды окружения.</translation
     <message>
         <location line="-8"/>
         <source>There was an error while importing bookmarks!</source>
-        <translation>Возникла ошибка при импорте закладок!</translation>
+        <translation>При импорте закладок возникла ошибка!</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -8014,7 +8018,7 @@ Perl через переменные среды окружения.</translation
     <message>
         <location line="+12"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;No documentation available.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;&lt;title&gt;Документации нет&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;Нет доступной документации.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head&gt;&lt;title&gt;Документация отсутствует&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;Нет доступной документации.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location line="+54"/>
@@ -8243,7 +8247,7 @@ Perl через переменные среды окружения.</translation
     <message>
         <location line="+1"/>
         <source>The current startup project can not be run.</source>
-        <translation>Текущий запускаемый проект не может быть запущен.</translation>
+        <translation>Текущий проект не может быть запущен.</translation>
     </message>
     <message>
         <location line="+146"/>
@@ -8292,7 +8296,7 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp.</translation>
 <context>
     <name>MimeType</name>
     <message>
-        <location filename="mime_tr.h" line="+1"/>
+        <location filename="../../../build/46/share/qtcreator/translations/mime_tr.h" line="+1"/>
         <source>unknown</source>
         <translation>неизвестный</translation>
     </message>
@@ -8644,7 +8648,7 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp.</translation>
     <message>
         <location filename="../../../src/plugins/coreplugin/coreconstants.h" line="+94"/>
         <source>Plain Text Editor</source>
-        <translation>Редактор обычного текста</translation>
+        <translation>Текстовый редактор</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -9046,7 +9050,7 @@ p, li { white-space: pre-wrap; }
         <translation>Файл был изменён. Желаете откатить его изменения?</translation>
     </message>
     <message>
-        <location line="+93"/>
+        <location line="+98"/>
         <source>Another submit is currently executed.</source>
         <translation>Другая фиксация уже идёт в этот момент.</translation>
     </message>
@@ -9528,7 +9532,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/debugginghelper.cpp" line="+131"/>
+        <location filename="../../../src/plugins/projectexplorer/debugginghelper.cpp" line="+135"/>
         <source>The target directory %1 could not be created.</source>
         <translation>Не удалось создать целевой каталог %1.</translation>
     </message>
@@ -14254,7 +14258,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Файл был изменён. Желаете откатить его изменения?</translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+81"/>
         <source>The commit list spans several repositories (%1). Please commit them one by one.</source>
         <translation>Список на фиксацию содержит несколько репозиториев (%1). Пожалуйста, фиксируйте их по одному.</translation>
     </message>
@@ -14274,7 +14278,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Не удаётся создать временный файл: %1</translation>
     </message>
     <message>
-        <location line="+186"/>
+        <location line="+189"/>
         <source>Describe</source>
         <translation>Описание</translation>
     </message>
@@ -15069,7 +15073,7 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <location line="+92"/>
-        <source> &lt;line number&gt;</source>
+        <source>&lt;line number&gt;</source>
         <translation> &lt;номер строки&gt;</translation>
     </message>
 </context>
@@ -15596,7 +15600,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
 <context>
     <name>VCSManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/vcsmanager.cpp" line="+132"/>
+        <location filename="../../../src/plugins/coreplugin/vcsmanager.cpp" line="+144"/>
         <source>Version Control</source>
         <translation>Контроль версий</translation>
     </message>
@@ -15849,7 +15853,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Debugger::Internal::TermGdbAdapter</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/termgdbadapter.cpp" line="+176"/>
+        <location filename="../../../src/plugins/debugger/gdb/termgdbadapter.cpp" line="+177"/>
         <source>Debugger Error</source>
         <translation>Ошибка отладчика</translation>
     </message>

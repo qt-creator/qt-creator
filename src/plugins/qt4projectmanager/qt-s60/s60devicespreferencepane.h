@@ -56,6 +56,9 @@ private slots:
 
 private:
     void updateDevicesList();
+    void setErrorLabel(const QString&);
+    void clearErrorLabel();
+
     Ui::S60DevicesPreferencePane *m_ui;
     S60Devices *m_devices;
 };

@@ -47,6 +47,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/itexteditable.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 
@@ -577,9 +579,22 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     const QFileInfo fi(currentUiFile);
     const QString uicedName = QLatin1String("ui_") + fi.completeBaseName() + QLatin1String(".h");
 
+    // Retrieve code model snapshot restricted to project of ui file.
+    const ProjectExplorer::Project *uiProject = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(currentUiFile);
+    if (!uiProject) {
+        *errorMessage = tr("Internal error: No project could be found for %1.").arg(currentUiFile);
+        return false;
+    }
+    CPlusPlus::Snapshot docTable = cppModelManagerInstance()->snapshot();
+    for  (CPlusPlus::Snapshot::iterator it = docTable.begin(); it != docTable.end(); ) {
+        const ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(it.key());
+        if (project == uiProject) {
+            ++it;
+        } else {
+            it = docTable.erase(it);
+        }
+    }
     // take all docs, find the ones that include the ui_xx.h.
-
-    const CPlusPlus::Snapshot docTable = cppModelManagerInstance()->snapshot();
     QList<Document::Ptr> docList = findDocumentsIncluding(docTable, uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
 
     if (Designer::Constants::Internal::debug)

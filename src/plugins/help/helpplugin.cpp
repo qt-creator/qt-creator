@@ -418,7 +418,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl++")));
         connect(a, SIGNAL(triggered()), m_centralWidget, SLOT(zoomIn()));
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
-        
+
         a = new QAction(tr("Decrease Font Size"), this);
         cmd = am->registerAction(a, TextEditor::Constants::DECREASE_FONT_SIZE,
             modecontext);
@@ -572,7 +572,6 @@ void HelpPlugin::extensionsInitialized()
         return;
     }
 
-    bool needsSetup = false;
     bool assistantInternalDocRegistered = false;
     QStringList documentationToRemove;
     QStringList filtersToRemove;
@@ -601,12 +600,10 @@ void HelpPlugin::extensionsInitialized()
         QHelpEngineCore hc(m_helpEngine->collectionFile());
         hc.setupData();
         foreach (const QString &ns, documentationToRemove) {
-            if (hc.unregisterDocumentation(ns))
-                needsSetup = true;
+            hc.unregisterDocumentation(ns);
         }
         foreach (const QString &filter, filtersToRemove) {
-            if (hc.removeCustomFilter(filter))
-                needsSetup = true;
+            hc.removeCustomFilter(filter);
         }
 
         if (!assistantInternalDocRegistered) {
@@ -619,38 +616,46 @@ void HelpPlugin::extensionsInitialized()
 #endif
             if (!hc.registerDocumentation(qchFileName))
                 qDebug() << qPrintable(hc.error());
-            needsSetup = true;
         }
 
     }
 
-    QLatin1String key("UnfilteredFilterInserted");
-    int i = m_helpEngine->customValue(key).toInt();
-    if (i != 1) {
-        {
-            QHelpEngineCore hc(m_helpEngine->collectionFile());
-            hc.setupData();
-            hc.addCustomFilter(tr("Unfiltered"), QStringList());
-            hc.setCustomValue(key, 1);
+    const QLatin1String weAddedFilterKey("UnfilteredFilterInserted");
+    const QLatin1String previousFilterNameKey("UnfilteredFilterName");
+    int i = m_helpEngine->customValue(weAddedFilterKey).toInt();
+    const QString filterName = tr("Unfiltered");
+    if (i == 1) { // we added a filter at some point
+        // remove previously added filter
+        QHelpEngineCore hc(m_helpEngine->collectionFile());
+        hc.setupData();
+        QString previousFilterName = hc.customValue(previousFilterNameKey).toString();
+        if (!previousFilterName.isEmpty()) { // we noted down the name of the previously added filter
+            hc.removeCustomFilter(previousFilterName);
         }
-        bool blocked = m_helpEngine->blockSignals(true);
-        m_helpEngine->setCurrentFilter(tr("Unfiltered"));
-        m_helpEngine->blockSignals(blocked);
-        needsSetup = true;
+        if (previousFilterName != filterName) { // potentially remove a filter with new name
+            hc.removeCustomFilter(filterName);
+        }
     }
+    {
+        QHelpEngineCore hc(m_helpEngine->collectionFile());
+        hc.setupData();
+        hc.addCustomFilter(filterName, QStringList());
+        hc.setCustomValue(weAddedFilterKey, 1);
+        hc.setCustomValue(previousFilterNameKey, filterName);
+    }
+    bool blocked = m_helpEngine->blockSignals(true);
+    m_helpEngine->setCurrentFilter(filterName);
+    m_helpEngine->blockSignals(blocked);
 
     QString addedDocs = m_helpEngine->customValue(QLatin1String("AddedDocs")).toString();
     if (!addedDocs.isEmpty()) {
         QStringList documentationToAdd = addedDocs.split(";");
-        foreach(QString item, documentationToAdd) {
-            needsSetup = true;
+        foreach (QString item, documentationToAdd)
             m_helpEngine->registerDocumentation(item);
-        }
         m_helpEngine->removeCustomValue(QLatin1String("AddedDocs"));
     }
 
-    if (needsSetup)
-        m_helpEngine->setupData();
+    m_helpEngine->setupData();
 
     updateFilterComboBox();
     m_bookmarkManager->setupBookmarkModels();
@@ -662,7 +667,7 @@ void HelpPlugin::extensionsInitialized()
 
     font = qVariantValue<QFont>(m_helpEngine->customValue(QLatin1String("font"),
         font));
-    
+
     webSettings->setFontFamily(QWebSettings::StandardFont, font.family());
     webSettings->setFontSize(QWebSettings::DefaultFontSize, font.pointSize());
 #endif
