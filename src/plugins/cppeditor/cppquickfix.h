@@ -57,12 +57,12 @@ class QuickFixOperation
 
 public:
     QuickFixOperation(CPlusPlus::Document::Ptr doc,
-                      const CPlusPlus::Snapshot &snapshot);
+                      const CPlusPlus::Snapshot &snapshot,
+                      CPPEditor *editor);
 
     virtual ~QuickFixOperation();
 
     virtual QString description() const = 0;
-    virtual void apply() = 0;
     virtual int match(const QList<CPlusPlus::AST *> &path, QTextCursor tc) = 0;
 
     CPlusPlus::Document::Ptr document() const { return _doc; }
@@ -70,6 +70,10 @@ public:
 
     QTextCursor textCursor() const;
     void setTextCursor(const QTextCursor &cursor);
+
+    CPPEditor *editor() const;
+
+    virtual void apply() = 0;
 
 protected:
     const CPlusPlus::Token &tokenAt(unsigned index) const;
@@ -94,15 +98,25 @@ protected:
     QString textOf(int firstOffset, int lastOffset) const;
     QString textOf(CPlusPlus::AST *ast) const;
 
-    QTextCursor createCursor(CPlusPlus::AST *ast) const; // ### rename me
+    struct Range {
+        Range() {}
+        Range(const QTextCursor &tc): begin(tc), end(tc) {}
 
-    void execute();
+        QTextCursor begin;
+        QTextCursor end;
+    };
+
+    Range createRange(CPlusPlus::AST *ast) const; // ### rename me
+    void reindent(const Range &range);
+
+    void applyChanges(CPlusPlus::AST *ast = 0);
 
 private:
     CPlusPlus::Document::Ptr _doc;
     CPlusPlus::Snapshot _snapshot;
     QTextCursor _textCursor;
     Utils::TextWriter _textWriter;
+    CPPEditor *_editor;
 };
 
 class CPPQuickFixCollector: public TextEditor::IQuickFixCollector

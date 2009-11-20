@@ -98,8 +98,8 @@ protected:
 class RewriteLogicalAndOp: public QuickFixOperation
 {
 public:
-    RewriteLogicalAndOp(Document::Ptr doc, const Snapshot &snapshot)
-        : QuickFixOperation(doc, snapshot), matcher(doc->translationUnit()),
+    RewriteLogicalAndOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
+        : QuickFixOperation(doc, snapshot, editor), matcher(doc->translationUnit()),
            left(0), right(0), pattern(0)
     {}
 
@@ -148,7 +148,7 @@ public:
         replace(right->unary_op_token, QLatin1String(""));
         insert(endOf(pattern), QLatin1String(")"));
 
-        execute();
+        applyChanges(pattern);
     }
 
 private:
@@ -163,7 +163,7 @@ class SplitSimpleDeclarationOp: public QuickFixOperation
 {
 public:
     SplitSimpleDeclarationOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot), declaration(0), editor(editor)
+        : QuickFixOperation(doc, snapshot, editor), declaration(0)
     {}
 
     virtual QString description() const
@@ -241,8 +241,6 @@ public:
 
     virtual void apply()
     {
-        QTextCursor completeDeclaration = createCursor(declaration);
-
         SpecifierListAST *specifiers = declaration->decl_specifier_list;
         const QString declSpecifiers = textOf(startOf(specifiers->firstToken()), endOf(specifiers->lastToken() - 1));
 
@@ -262,22 +260,18 @@ public:
 
         insert(endOf(declaration->semicolon_token), text);
 
-        completeDeclaration.beginEditBlock();
-        execute();
-        editor->indentInsertedText(completeDeclaration);
-        completeDeclaration.endEditBlock();
+        applyChanges(declaration);
     }
 
 private:
     SimpleDeclarationAST *declaration;
-    CPPEditor *editor;
 };
 
 class TakeDeclarationOp: public QuickFixOperation
 {
 public:
     TakeDeclarationOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot), matcher(doc->translationUnit()), editor(editor),
+        : QuickFixOperation(doc, snapshot, editor), matcher(doc->translationUnit()),
            condition(0), pattern(0), core(0)
     {}
 
@@ -319,9 +313,7 @@ public:
 
     virtual void apply()
     {
-        QTextCursor completeIfStatement = createCursor(pattern);
-
-        QString name = selectNode(core).selectedText();
+        const QString name = selectNode(core).selectedText();
         QString declaration = selectNode(condition).selectedText();
         declaration += QLatin1String(";\n");
 
@@ -329,10 +321,7 @@ public:
         insert(endOf(pattern->lparen_token), name);
         replace(condition, name);
 
-        completeIfStatement.beginEditBlock();
-        execute();
-        editor->indentInsertedText(completeIfStatement);
-        completeIfStatement.endEditBlock();
+        applyChanges(pattern);
     }
 
 private:
@@ -369,8 +358,8 @@ class SplitIfStatementOp: public QuickFixOperation
 {
 public:
     SplitIfStatementOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot),
-          condition(0), pattern(0), editor(editor)
+        : QuickFixOperation(doc, snapshot, editor),
+          condition(0), pattern(0)
     {}
 
     virtual QString description() const
@@ -426,8 +415,6 @@ public:
 
     void splitAndCondition()
     {
-        QTextCursor completeIfStatement = createCursor(pattern);
-
         StatementAST *ifTrueStatement = pattern->statement;
         CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
 
@@ -460,17 +447,11 @@ public:
         if (! compoundStatement)
             insert(endOf(ifTrueStatement), "\n}"); // finish the compound statement
 
-        QTextCursor tc = textCursor();
-        tc.beginEditBlock();
-        execute();
-        editor->indentInsertedText(completeIfStatement);
-        tc.endEditBlock();
+        applyChanges(pattern);
     }
 
     void splitOrCondition()
     {
-        QTextCursor completeIfStatement = createCursor(pattern);
-
         StatementAST *ifTrueStatement = pattern->statement;
         CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
 
@@ -500,29 +481,28 @@ public:
 
         insert(endOf(pattern), elseIfStatement);
 
-        QTextCursor tc = textCursor();
-        tc.beginEditBlock();
-        execute();
-        editor->indentInsertedText(completeIfStatement);
-        tc.endEditBlock();
+        applyChanges(pattern);
     }
 
 private:
     BinaryExpressionAST *condition;
     IfStatementAST *pattern;
-    QPointer<CPPEditor> editor;
 };
 
 } // end of anonymous namespace
 
 
 QuickFixOperation::QuickFixOperation(CPlusPlus::Document::Ptr doc,
-                                     const CPlusPlus::Snapshot &snapshot)
-    : _doc(doc), _snapshot(snapshot)
+                                     const CPlusPlus::Snapshot &snapshot,
+                                     CPPEditor *editor)
+    : _doc(doc), _snapshot(snapshot), _editor(editor)
 { }
 
 QuickFixOperation::~QuickFixOperation()
 { }
+
+CPPEditor *QuickFixOperation::editor() const
+{ return _editor; }
 
 QTextCursor QuickFixOperation::textCursor() const
 { return _textCursor; }
@@ -587,15 +567,20 @@ QTextCursor QuickFixOperation::selectNode(AST *ast) const
     return tc;
 }
 
-QTextCursor QuickFixOperation::createCursor(AST *ast) const
+QuickFixOperation::Range QuickFixOperation::createRange(AST *ast) const
+{    
+    QTextCursor tc = _textCursor;
+    Range r(tc);
+    r.begin.setPosition(startOf(ast));
+    r.end.setPosition(endOf(ast));
+    return r;
+}
+
+void QuickFixOperation::reindent(const Range &range)
 {
-    QTextCursor cursor = selectNode(ast);
-    // ### HACK
-    const int anchor = cursor.anchor();
-    const int position = cursor.position();
-    cursor.setPosition(position);
-    cursor.setPosition(anchor, QTextCursor::KeepAnchor);
-    return cursor;
+    QTextCursor tc = range.begin;
+    tc.setPosition(range.end.position(), QTextCursor::KeepAnchor);
+    _editor->indentInsertedText(tc);
 }
 
 void QuickFixOperation::move(int start, int end, int to)
@@ -648,9 +633,17 @@ QString QuickFixOperation::textOf(AST *ast) const
     return selectNode(ast).selectedText();
 }
 
-void QuickFixOperation::execute()
+void QuickFixOperation::applyChanges(AST *ast)
 {
+    Range range;
+    if (ast)
+        range = createRange(ast);
+
+    _textCursor.beginEditBlock();
     _textWriter.write(&_textCursor);
+    if (ast)
+        reindent(range);
+    _textCursor.endEditBlock();
 }
 
 CPPQuickFixCollector::CPPQuickFixCollector()
@@ -687,7 +680,7 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         const QList<AST *> path = astPath(_editor->textCursor());
         // ### build the list of the quick fix ops by scanning path.
 
-        QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(info.doc, info.snapshot));
+        QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(info.doc, info.snapshot, _editor));
         QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp(info.doc, info.snapshot, _editor));
         QSharedPointer<TakeDeclarationOp> takeDeclarationOp(new TakeDeclarationOp(info.doc, info.snapshot, _editor));
         QSharedPointer<SplitSimpleDeclarationOp> splitSimpleDeclarationOp(new SplitSimpleDeclarationOp(info.doc, info.snapshot, _editor));
