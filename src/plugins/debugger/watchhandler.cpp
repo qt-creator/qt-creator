@@ -927,6 +927,13 @@ void WatchModel::insertData(const WatchData &data)
         oldItem->generation = generationCounter;
         QModelIndex idx = watchIndex(oldItem);
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
+        // HACK: Make the view call canFetchMore(). This is needed in 
+        // case we were stepping from a state where the item had no 
+        // children to a state where it has one, like inserting the 
+        // first item into a container.
+        QModelIndex dummy = index.child(0, 0);
+        beginInsertRows(dummy, 0, 0);
+        endInsertRows();
     } else {
         // add new entry
         //MODEL_DEBUG("ADD : " << data.iname << data.value);
