@@ -43,12 +43,14 @@
 
 using namespace CPlusPlus;
 
+QT_BEGIN_NAMESPACE
 uint qHash(const CPlusPlus::LookupItem &key)
 {
     const uint h1 = qHash(key.type().type());
     const uint h2 = qHash(key.lastVisibleSymbol());
     return ((h1 << 16) | (h1 >> 16)) ^ h2;
 }
+QT_END_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////
 // LookupContext
