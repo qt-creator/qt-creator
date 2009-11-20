@@ -406,8 +406,6 @@ public:
             if (binaryToken.is(T_AMPER_AMPER) || binaryToken.is(T_PIPE_PIPE)) {
                 if (contains(condition->binary_op_token))
                     return index;
-                if (binaryToken.is(T_PIPE_PIPE))
-                    return -1;
             } else {
                 return -1;
             }
