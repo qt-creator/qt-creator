@@ -21,7 +21,7 @@
 
     \raw HTML
     <img border="0" style="float:right;" src="images/qtcreator-screenshots.png" />
-    \endraw 
+    \endraw
 
     \list
        \o   \l{A Quick Tour of Qt Creator}
@@ -148,7 +148,7 @@
     to the \gui{Help} mode. To obtain context sensitive help, move your text
     cursor to a Qt class or function and press \key{F1}. The documentation
     will be displayed within a panel on the right, as shown in the screenshot
-    below. If there is enough vertical space, it will be shown in the 
+    below. If there is enough vertical space, it will be shown in the
     fullscreen help mode.
 
     External Documentation provided by the user can be used to augment or
@@ -177,7 +177,8 @@
     are available to help speed up the process of developing your application.
 */
 
-/*! \contentspage index.html
+/*!
+    \contentspage index.html
     \previouspage creator-quick-tour.html
     \page creator-code-editor.html
     \nextpage creator-project-pane.html
@@ -404,64 +405,64 @@
     Otherwise, you can add your Qt version in
     \gui{Tools -> Options... -> Qt Versions} on Windows and Linux or
     in \gui{Qt Creator -> Preferences... -> Qt Versions} on Mac OS X.
-    
+
     The detailed settings depend on your Operating system and on the targeted
     tool chain
-    
+
         \table
         \row
             \i \image qtcreator-qt4-qtversions.png
                On Linux and Mac OS X, simply set the \gui{Path to QMake}
                to the \c qmake binary of the Qt installation. If a Qt is
                found in the \c PATH environment variable, it will show up
-	       automatically as \gui{Qt in PATH}.
-               
+               automatically as \gui{Qt in PATH}.
+
                On both platforms, the platforms Gnu Compiler Collection (GCC)
                is used to compile Qt. On Mac OS, the GCC compiler is part of XCode.
                On Linux, the Intel Compiler (ICC) is supported as a drop-in replacement
                for GCC.
-               
+
         \row
             \i \image qtcreator-qt4-qtversions-win-mingw.png
-               If you are on the Windows platform and used MinGW 
+               If you are on the Windows platform and used MinGW
                to compile Qt, you need to additionally tell Qt Creator
-               where MinGW is installed.  This is done by setting the 
+               where MinGW is installed.  This is done by setting the
                \gui{MinGW Directory}.
         \row
             \i \image qtcreator-qt4-qtversions-win-msvc.png
                If your Qt version is compiled with Microsoft Visual C++'s
-               compiler, Qt Creator will automatically set the correct 
+               compiler, Qt Creator will automatically set the correct
                environment variables for compilation. The \gui{MSVC}
-               dropdown box indicates the internal Version Number of the 
+               dropdown box indicates the internal Version Number of the
                installed Microsoft Visual C++ tool chains:
-               
+
                \list
                    \o  \bold{7.1}: Visual Studio 2003
                    \o  \bold{8.0}: Visual Studio 2005
                    \o  \bold{9.0}: Visual Studio 2008
                \endlist
-               
+
                If you are using the \c{Windows SDK for Windows Server 2008}
                instead of Visual Studio, it will identify as version 9.0.
         \row
             \i \image qtcreator-qt4-qtversions-win-symbian.png
                If you are using Qt for Symbian and your S60 SDK is registered
                with \c devices.exe, Qt Creator will detect the Qt version
-	       automatically. These are shown in the \bold{Auto-detected}
-	       section in the options dialog.
-	       You can also manually add Qt for Symbian versions. In this case
-	       you need to tell Qt Creator the path to the S60 SDK
-	       it is supposed to use with these Qt installations.
+               automatically. These are shown in the \bold{Auto-detected}
+               section in the options dialog.
+               You can also manually add Qt for Symbian versions. In this case
+               you need to tell Qt Creator the path to the S60 SDK
+               it is supposed to use with these Qt installations.
                Add the path to your Carbide C++ install, version 2.0
-	       or later, if you want to build for the emulator
-	       (\c WINSCW tool chain).
-	       If you want to use \c GCCE to build for your device,
-	       you might need to add the path to the
-	       \c{CSL Arm Toolchain} directory (\gui{CSL/GCCE Directory}),
-	       if the compiler is not found in the \c PATH environment
-	       variable.
+               or later, if you want to build for the emulator
+               (\c WINSCW tool chain).
+               If you want to use \c GCCE to build for your device,
+               you might need to add the path to the
+               \c{CSL Arm Toolchain} directory (\gui{CSL/GCCE Directory}),
+               if the compiler is not found in the \c PATH environment
+               variable.
         \endtable
-    
+
     \note By default projects are compiled with the
     \l{glossary-default-qt}{default Qt version}. You can override this in the
     \gui{Build Configuration}.
@@ -608,7 +609,7 @@
     \image qtcreator-textfinder-ui.png
 
     Design the form above using a \l{http://doc.trolltech.com/qlabel.html}
-    {QLabel}, \l{http://doc.trolltech.com/qlinedit.html}{QLineEdit} 
+    {QLabel}, \l{http://doc.trolltech.com/qlinedit.html}{QLineEdit}
     (named lineEdit), \l{http://doc.trolltech.com/qpushbutton.html}{QPushButton}
     (named findButton), and a
     \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit} (named textEdit).
@@ -908,10 +909,10 @@
     \image qtcreator-locator.png
 
     Suppose you would like to open your project's \c{main.cpp} file, click on
-    \gui Locator or use \key{Ctrl+K} (Mac OS X: \key{Cmd+K}), type in the file 
+    \gui Locator or use \key{Ctrl+K} (Mac OS X: \key{Cmd+K}), type in the file
     name and then press \key Return. The file will be opened in the editor.
     You can also type part of a file name and use the wildcard characters
-    \c{*} and \c{?} to match \e{any} number of \e{any} characters. A list 
+    \c{*} and \c{?} to match \e{any} number of \e{any} characters. A list
     of all files matching  your criteria will be displayed.
 
     \gui Locator not only allows you to navigate files on disk but also other
@@ -935,7 +936,7 @@
     \e prefix. This prefix is usually a single character followed by
     \key{Space}. For example, to jump to the definition of the class
     \l{http://doc.trolltech.com/qdatastream.html}{QDataStream}, type:
-    \key{Ctrl+K} (Mac OS X: \key{Cmd+K}) to activate \gui Locator. 
+    \key{Ctrl+K} (Mac OS X: \key{Cmd+K}) to activate \gui Locator.
     Then type colon (\key{:}) followed by \key{Space} and the class name.
 
 
@@ -1013,7 +1014,7 @@
 
     \note By default, if you press \key{Ctrl+K} and do not use a prefix to
     specify a filter, three filters will be enabled: \c{o}, \c{l}, and \c{a}.
-    
+
     \note On Mac OS X, use \key{Cmd+K} instead of \key{Ctrl+K}.
 
 */
@@ -1103,7 +1104,7 @@
     watchers, registers, etc, Qt Creator comes with additional features to make
     debugging Qt-based applications easy. The debugger frontend knows about the
     internal layout of several Qt classes such as QString, the QTL containers,
-    and most importantly QObject (and classes derived from it), as well as 
+    and most importantly QObject (and classes derived from it), as well as
     most containers of the C++ Standard Library, and is therefore able to
     present their contents in a useful way.
 
@@ -1430,7 +1431,6 @@
 
 
 /*!
-
     \contentspage index.html
     \previouspage creator-debugging.html
     \page creator-cmake-support.html
@@ -1725,7 +1725,7 @@
     The procedure of adding a library to a project, depends on the type of
     project, which influences the build system used. The following sections
     describe the the procedure required for each project type.
-    
+
 
     \section1 QMake Projects (the default)
 
@@ -1736,7 +1736,7 @@
 
     If your project successfully builds and links against the external library,
     syntax completion and highlighting should work.
-    
+
 
     \section1 CMake Projects
 
@@ -1747,18 +1747,18 @@
     \c{FindFoo.cmake} file. Refer to the
     \l{http://vtk.org/Wiki/CMake_FAQ#Writing_FindXXX.cmake_files}{CMake FAQ}
     for details.
-    
+
     As with \c qmake projects, syntax completion and highlighting should work
     if you can sucessfully build and link against the external library.
 
-    
+
     \section1 Generic Projects
 
     If you import a project using the \e{Generic Projects} function, Qt Creator
     will create a file called \c{<projectname>.includes} in your project root
     directory. This file contains all project subdirectories which Qt Creator
     could find relevant headers for. Simply add your include pathes here.
-    
+
     In \gui{Generic Project} mode, Qt Creator will not modify any project
     settings, so the above is merely a hint for code completion and syntax
     highlighting.
@@ -1919,7 +1919,7 @@
                 \target glossary-system-qt
             \o  This is the Qt
                 version for the \c qmake command found in your \c PATH
-		environment variable.
+                environment variable.
 
         \row
             \o
