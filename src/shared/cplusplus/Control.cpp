@@ -553,25 +553,25 @@ public:
     Array<NamedType *> namedTypes;
 
     // symbols
-    std::vector<Declaration *> declarations;
-    std::vector<Argument *> arguments;
-    std::vector<Function *> functions;
-    std::vector<BaseClass *> baseClasses;
-    std::vector<Block *> blocks;
-    std::vector<Class *> classes;
-    std::vector<Namespace *> namespaces;
-    std::vector<UsingNamespaceDirective *> usingNamespaceDirectives;
-    std::vector<Enum *> enums;
-    std::vector<UsingDeclaration *> usingDeclarations;
-    std::vector<ForwardClassDeclaration *> classForwardDeclarations;
-    std::vector<ObjCBaseClass *> objcBaseClasses;
-    std::vector<ObjCBaseProtocol *> objcBaseProtocols;
-    std::vector<ObjCClass *> objcClasses;
-    std::vector<ObjCProtocol *> objcProtocols;
-    std::vector<ObjCForwardClassDeclaration *> objcForwardClassDeclarations;
-    std::vector<ObjCForwardProtocolDeclaration *> objcForwardProtocolDeclarations;
-    std::vector<ObjCMethod *> objcMethods;
-    std::vector<ObjCPropertyDeclaration *> objcPropertyDeclarations;
+    Array<Declaration *> declarations;
+    Array<Argument *> arguments;
+    Array<Function *> functions;
+    Array<BaseClass *> baseClasses;
+    Array<Block *> blocks;
+    Array<Class *> classes;
+    Array<Namespace *> namespaces;
+    Array<UsingNamespaceDirective *> usingNamespaceDirectives;
+    Array<Enum *> enums;
+    Array<UsingDeclaration *> usingDeclarations;
+    Array<ForwardClassDeclaration *> classForwardDeclarations;
+    Array<ObjCBaseClass *> objcBaseClasses;
+    Array<ObjCBaseProtocol *> objcBaseProtocols;
+    Array<ObjCClass *> objcClasses;
+    Array<ObjCProtocol *> objcProtocols;
+    Array<ObjCForwardClassDeclaration *> objcForwardClassDeclarations;
+    Array<ObjCForwardProtocolDeclaration *> objcForwardProtocolDeclarations;
+    Array<ObjCMethod *> objcMethods;
+    Array<ObjCPropertyDeclaration *> objcPropertyDeclarations;
 
     // ObjC context keywords:
     Identifier *objcGetterId;
