@@ -471,7 +471,6 @@ public:
     void splitAndCondition()
     {
         StatementAST *ifTrueStatement = pattern->statement;
-        CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
 
         // take the right-expression from the condition.
         QTextCursor rightCursor = textCursor();
@@ -480,27 +479,14 @@ public:
         const QString rightCondition = rightCursor.selectedText();
         replace(endOf(condition->left_expression), startOf(pattern->rparen_token), QString());
 
-        int offset = 0;
-
-        if (compoundStatement)
-            offset = endOf(compoundStatement->lbrace_token);
-        else
-            offset = endOf(pattern->rparen_token);
-
         // create the nested if statement
         QString nestedIfStatement;
-
-        if (! compoundStatement)
-            nestedIfStatement += QLatin1String(" {"); // open a compound statement
-
-        nestedIfStatement += QLatin1String("\nif (");
+        nestedIfStatement += QLatin1String(" {\nif ("); // open new compound statement for outer
         nestedIfStatement += rightCondition;
-        nestedIfStatement += QLatin1String(") {\n}");
+        nestedIfStatement += QLatin1String(")");
 
-        insert(offset, nestedIfStatement);
-
-        if (! compoundStatement)
-            insert(endOf(ifTrueStatement), "\n}"); // finish the compound statement
+        insert(endOf(pattern->rparen_token), nestedIfStatement);
+        insert(endOf(ifTrueStatement), "\n}"); // finish the compound statement
 
         applyChanges(pattern);
     }
