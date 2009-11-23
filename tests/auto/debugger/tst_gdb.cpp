@@ -10,7 +10,7 @@ bool checkUninitialized = false;
 #include <QtCore/QSignalMapper>
 #include <QtCore/QWaitCondition>
 
-/*
+#ifdef QT_GUI_LIB
 #include <QtGui/QBitmap>
 #include <QtGui/QBrush>
 #include <QtGui/QColor>
@@ -21,7 +21,8 @@ bool checkUninitialized = false;
 #include <QtGui/QQuaternion>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QStringListModel>
-*/
+#include <QtGui/QWidget>
+#endif
 
 #include <QtTest/QtTest>
 
@@ -202,6 +203,7 @@ private slots:
     void dump_QMap_int_int();
     void dump_QMap_QString_QString();
     void dump_QObject();
+    void dump_QPixmap();
     void dump_QPoint();
     void dump_QRect();
     void dump_QSharedPointer();
@@ -509,12 +511,14 @@ void Thread::readStandardOutput()
     QByteArray ba = m_proc->readAllStandardOutput();
     DEBUG("THREAD GDB OUT: " << ba);
     // =library-loaded...
-    if (ba.startsWith("=")) 
+    if (ba.startsWith("=")) {
+        DEBUG("LIBRARY LOADED");
         return;
+    }
     if (ba.startsWith("*stopped")) {
         m_lastStopped = ba;
-        //qDebug() << "THREAD GDB OUT: " << ba;
-        if (!ba.contains("func=\"main\"")) {
+        DEBUG("THREAD GDB OUT 2: " << ba);
+        if (!ba.contains("func=\"breaker\"")) {
             int pos1 = ba.indexOf(",line=\"") + 7;
             int pos2 = ba.indexOf("\"", pos1);
             m_line = ba.mid(pos1, pos2 - pos1).toInt();
@@ -580,7 +584,7 @@ void Thread::handleGdbStarted()
 
 void Thread::run()
 {
-    m_proc->write("break main\n");
+    m_proc->write("break breaker\n");
     m_proc->write("run\n");
     m_proc->write("handle SIGSTOP stop pass\n");
     //qDebug() << "\nTHREAD RUNNING";
@@ -2033,31 +2037,6 @@ void tst_Gdb::dump_QObjectSlotList()
         &m, NS"QObjectSlotList", true);
 }
 
-void tst_Gdb::dump_QPixmap()
-{
-    // Case 1: Null Pixmap.
-    QPixmap p;
-
-    testDumper("value='(0x0)',type='$T',numchild='0'",
-        &p, NS"QPixmap", true);
-
-
-    // Case 2: Uninitialized non-null pixmap.
-    p = QPixmap(20, 100);
-    testDumper("value='(20x100)',type='$T',numchild='0'",
-        &p, NS"QPixmap", true);
-
-
-    // Case 3: Initialized non-null pixmap.
-    const char * const pixmap[] = {
-        "2 24 3 1", "       c None", ".      c #DBD3CB", "+      c #FCFBFA",
-        "  ", "  ", "  ", ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+",
-        ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+", "  ", "  ", "  "
-    };
-    p = QPixmap(pixmap);
-    testDumper("value='(2x24)',type='$T',numchild='0'",
-        &p, NS"QPixmap", true);
-}
 
 #endif // #if 0
 
@@ -2474,6 +2453,41 @@ void tst_Gdb::dump_QMap_QString_QString()
                      "value='77006f0072006c006400',numchild='0'}]}"
             "]}",
             "local.h,local.h.0,local.h.1");
+}
+
+
+///////////////////////////// QPixmap /////////////////////////////////
+
+const char * const pixmap[] = {
+    "2 24 3 1", "       c None", ".      c #DBD3CB", "+      c #FCFBFA",
+    "  ", "  ", "  ", ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+",
+    ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+", ".+", "  ", "  ", "  "
+};
+
+void dump_QPixmap()
+{
+    #ifdef QT_GUI_LIB
+    /* A */ QPixmap p; // Case 1: Null Pixmap.
+    /* B */ p = QPixmap(20, 100); // Case 2: Uninitialized non-null pixmap.
+    /* C */ p = QPixmap(pixmap); // Case 3: Initialized non-null pixmap.
+    /* D */ (void) p.size();
+    #endif
+} 
+
+void tst_Gdb::dump_QPixmap()
+{
+    #ifdef QT_GUI_LIB
+    prepare("dump_QPixmap");
+    next();
+    run("B", "{iname='local.p',name='p',type='"NS"QPixmap',"
+        "value='(null)',numchild='0'}");
+    next();
+    run("C", "{iname='local.p',name='p',type='"NS"QPixmap',"
+        "value='(20x100)',numchild='0'}");
+    next();
+    run("D", "{iname='local.p',name='p',type='"NS"QPixmap',"
+        "value='(2x24)',numchild='0'}");
+    #endif
 }
 
 
@@ -3401,8 +3415,17 @@ void tst_Gdb::dump_std_vector()
 //
 /////////////////////////////////////////////////////////////////////////
 
+void breaker() {}
+
 int main(int argc, char *argv[])
 {
+    #ifdef QT_GUI_LIB
+    QApplication app(argc, argv);
+    #else
+    QCoreApplication app(argc, argv);
+    #endif
+    breaker();
+
     if (argc == 2 && QByteArray(argv[1]) == "run") {
         // We are the debugged process, recursively called and steered
         // by our spawning alter ego.
@@ -3433,6 +3456,7 @@ int main(int argc, char *argv[])
         dump_QList_QString3();
         dump_QMap_int_int();
         dump_QMap_QString_QString();
+        dump_QPixmap();
         dump_QObject();
         dump_QPoint();
         dump_QRect();
@@ -3454,7 +3478,6 @@ int main(int argc, char *argv[])
 
     try {
         // Plain call. Start the testing.
-        QCoreApplication app(argc, argv);
         tst_Gdb *test = new tst_Gdb;
         return QTest::qExec(test, argc, argv);
     } catch (...) {

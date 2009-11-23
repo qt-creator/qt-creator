@@ -1,5 +1,6 @@
-QT -= gui
 QT += testlib
+
+#QT -= gui
 
 UTILSDIR    = ../../../src/libs
 
