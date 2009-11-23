@@ -11872,8 +11872,8 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Select the CSL Arm Toolchain (GCCE) Directory</source>
-        <translation>Ordner der CSL Arm Toolchain (GCCE)</translation>
+        <source>Select the CSL ARM Toolchain (GCCE) Directory</source>
+        <translation>Ordner der CSL ARM Toolchain (GCCE)</translation>
     </message>
     <message>
         <location line="+11"/>

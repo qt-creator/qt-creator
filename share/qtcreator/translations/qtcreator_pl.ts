@@ -13436,7 +13436,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     </message>
     <message>
         <location line="+2"/>
-        <source>Select the CSL Arm Toolchain (GCCE) Directory</source>
+        <source>Select the CSL ARM Toolchain (GCCE) Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

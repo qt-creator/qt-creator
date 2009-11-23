@@ -127,7 +127,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     m_ui->s60SDKPath->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->s60SDKPath->setPromptDialogTitle(tr("Select S60 SDK Root"));
     m_ui->gccePath->setExpectedKind(Utils::PathChooser::Directory);
-    m_ui->gccePath->setPromptDialogTitle(tr("Select the CSL Arm Toolchain (GCCE) Directory"));
+    m_ui->gccePath->setPromptDialogTitle(tr("Select the CSL ARM Toolchain (GCCE) Directory"));
 
     m_ui->addButton->setIcon(QIcon(Core::Constants::ICON_PLUS));
     m_ui->delButton->setIcon(QIcon(Core::Constants::ICON_MINUS));
