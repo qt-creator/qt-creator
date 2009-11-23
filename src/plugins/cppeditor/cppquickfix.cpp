@@ -124,7 +124,7 @@ public:
         if (! expression)
             return -1;
 
-        if (! contains(expression->binary_op_token))
+        if (! isCursorOn(expression->binary_op_token))
             return -1;
 
         left = mk.UnaryExpression();
@@ -223,7 +223,7 @@ public:
                     if (cursorPosition >= startOfDeclSpecifier && cursorPosition <= endOfDeclSpecifier)
                         return index; // the AST node under cursor is a specifier.
 
-                    if (core_declarator && contains(core_declarator))
+                    if (core_declarator && isCursorOn(core_declarator))
                         return index; // got a core-declarator under the text cursor.
                 }
 
@@ -286,7 +286,7 @@ public:
         // show when we're on the 'if' of an if statement
         int index = path.size() - 1;
         IfStatementAST *ifStatement = path.at(index)->asIfStatement();
-        if (ifStatement && contains(ifStatement->if_token)
+        if (ifStatement && isCursorOn(ifStatement->if_token)
             && ! ifStatement->statement->asCompoundStatement()) {
             _statement = ifStatement->statement;
             return index;
@@ -296,7 +296,7 @@ public:
         // ### This may not be such a good idea, consider nested ifs...
         for (; index != -1; --index) {
             IfStatementAST *ifStatement = path.at(index)->asIfStatement();
-            if (ifStatement && contains(ifStatement->statement)
+            if (ifStatement && isCursorOn(ifStatement->statement)
                 && ! ifStatement->statement->asCompoundStatement()) {
                 _statement = ifStatement->statement;
                 return index;
@@ -357,7 +357,7 @@ public:
                     if (! core)
                         return -1;
 
-                    if (contains(core))
+                    if (isCursorOn(core))
                         return index;
                 }
             }
@@ -368,8 +368,8 @@ public:
 
     virtual void apply()
     {
-        const QString name = selectNode(core).selectedText();
-        QString declaration = selectNode(condition).selectedText();
+        const QString name = textOf(core);
+        QString declaration = textOf(condition);
         declaration += QLatin1String(";\n");
 
         insert(startOf(pattern), declaration);
@@ -432,7 +432,7 @@ public:
                     else if (! declarator->initializer)
                         return -1;
 
-                    if (contains(core))
+                    if (isCursorOn(core))
                         return index;
                 }
             }
@@ -531,7 +531,7 @@ public:
 
             Token binaryToken = tokenAt(condition->binary_op_token);
             if (binaryToken.is(T_AMPER_AMPER) || binaryToken.is(T_PIPE_PIPE)) {
-                if (contains(condition->binary_op_token))
+                if (isCursorOn(condition->binary_op_token))
                     return index;
             } else {
                 return -1;
@@ -661,7 +661,7 @@ int QuickFixOperation::endOf(const CPlusPlus::AST *ast) const
     return endOf(ast->lastToken() - 1);
 }
 
-bool QuickFixOperation::contains(unsigned tokenIndex) const
+bool QuickFixOperation::isCursorOn(unsigned tokenIndex) const
 {
     QTextCursor tc = textCursor();
     int cursorBegin = tc.selectionStart();
@@ -675,7 +675,7 @@ bool QuickFixOperation::contains(unsigned tokenIndex) const
     return false;
 }
 
-bool QuickFixOperation::contains(const CPlusPlus::AST *ast) const
+bool QuickFixOperation::isCursorOn(const CPlusPlus::AST *ast) const
 {
     QTextCursor tc = textCursor();
     int cursorBegin = tc.selectionStart();
@@ -687,22 +687,6 @@ bool QuickFixOperation::contains(const CPlusPlus::AST *ast) const
         return true;
 
     return false;
-}
-
-QTextCursor QuickFixOperation::selectToken(unsigned index) const
-{
-    QTextCursor tc = _textCursor;
-    tc.setPosition(startOf(index));
-    tc.setPosition(endOf(index), QTextCursor::KeepAnchor);
-    return tc;
-}
-
-QTextCursor QuickFixOperation::selectNode(AST *ast) const
-{
-    QTextCursor tc = _textCursor;
-    tc.setPosition(startOf(ast->firstToken()));
-    tc.setPosition(endOf(ast->lastToken() - 1), QTextCursor::KeepAnchor);
-    return tc;
 }
 
 QuickFixOperation::Range QuickFixOperation::createRange(AST *ast) const
@@ -768,7 +752,7 @@ QString QuickFixOperation::textOf(int firstOffset, int lastOffset) const
 
 QString QuickFixOperation::textOf(AST *ast) const
 {
-    return selectNode(ast).selectedText();
+    return textOf(startOf(ast), endOf(ast));
 }
 
 void QuickFixOperation::applyChanges(AST *ast)

@@ -77,16 +77,14 @@ public:
 
 protected:
     const CPlusPlus::Token &tokenAt(unsigned index) const;
-    QTextCursor selectToken(unsigned index) const;
-    QTextCursor selectNode(CPlusPlus::AST *ast) const;
 
     int startOf(unsigned index) const;
     int startOf(const CPlusPlus::AST *ast) const;
     int endOf(unsigned index) const;
     int endOf(const CPlusPlus::AST *ast) const;
 
-    bool contains(unsigned tokenIndex) const;
-    bool contains(const CPlusPlus::AST *ast) const;
+    bool isCursorOn(unsigned tokenIndex) const;
+    bool isCursorOn(const CPlusPlus::AST *ast) const;
 
     void move(int start, int end, int to);
     void move(unsigned tokenIndex, int to);
