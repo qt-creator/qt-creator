@@ -724,8 +724,8 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             switch (idx.column()) {
                 case 0: return data.name;
                 case 1: return formattedValue(data,
-                    m_handler->m_individualFormats[data.iname],
-                    m_handler->m_typeFormats[data.type]);
+                    m_handler->m_individualFormats.value(data.iname, -1),
+                    m_handler->m_typeFormats.value(data.type, -1));
                 case 2:
                     if (!data.displayedType.isEmpty())
                         return data.displayedType;
