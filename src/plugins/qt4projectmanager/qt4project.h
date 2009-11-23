@@ -131,6 +131,7 @@ public:
     QString displayNameForType(const QString &type) const;
 
     bool create(const QString &type) const;
+    bool clone(const QString &name, ProjectExplorer::BuildConfiguration *source) const;
 
     void update();
 

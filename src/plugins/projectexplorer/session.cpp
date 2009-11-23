@@ -853,7 +853,6 @@ Project *SessionManager::projectForFile(const QString &fileName) const
     foreach (Project *p, projectList)
         if (p != currentProject && projectContainsFile(p, fileName))
             return p;
-
     return 0;
 }
 

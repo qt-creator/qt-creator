@@ -34,6 +34,7 @@
 #include "makestep.h"
 #include "cmakeopenprojectwizard.h"
 #include "cmakebuildenvironmentwidget.h"
+#include "cmakebuildconfiguration.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -103,7 +104,7 @@ bool CMakeBuildConfigurationFactory::create(const QString &type) const
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-    BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
+    BuildConfiguration *bc = new CMakeBuildConfiguration(buildConfigurationName);
 
     MakeStep *makeStep = new MakeStep(m_project, bc);
     bc->insertBuildStep(0, makeStep);
@@ -129,6 +130,14 @@ bool CMakeBuildConfigurationFactory::create(const QString &type) const
     // Default to all
     if (m_project->targets().contains("all"))
         makeStep->setBuildTarget("all", true);
+    return true;
+}
+
+bool CMakeBuildConfigurationFactory::clone(const QString &name, ProjectExplorer::BuildConfiguration *source) const
+{
+    CMakeBuildConfiguration *old = static_cast<CMakeBuildConfiguration *>(source);
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(name, old);
+    m_project->addBuildConfiguration(bc);
     return true;
 }
 
@@ -649,7 +658,7 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         if (copw.exec() != QDialog::Accepted)
             return false;
 
-        ProjectExplorer::BuildConfiguration *bc = new ProjectExplorer::BuildConfiguration("all");
+        CMakeBuildConfiguration *bc = new CMakeBuildConfiguration("all");
         addBuildConfiguration(bc);
         bc->setValue("msvcVersion", copw.msvcVersion());
         if (!copw.buildDirectory().isEmpty())

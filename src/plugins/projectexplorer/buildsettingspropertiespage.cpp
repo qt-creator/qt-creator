@@ -356,7 +356,10 @@ void BuildSettingsWidget::cloneConfiguration(const QString &sourceConfiguration)
 
     newBuildConfiguration = Project::makeUnique(newBuildConfiguration, buildConfigurationNames);
 
-    m_project->copyBuildConfiguration(sourceConfiguration, newBuildConfiguration);
+    BuildConfiguration *sourceBc = m_project->buildConfiguration(sourceConfiguration);
+
+    m_project->buildConfigurationFactory()->clone(newBuildConfiguration, sourceBc);
+
     m_project->setDisplayNameFor(m_project->buildConfiguration(newBuildConfiguration), newDisplayName);
 
     m_buildConfiguration = newBuildConfiguration;

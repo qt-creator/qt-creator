@@ -39,7 +39,8 @@ HEADERS += qt4projectmanagerplugin.h \
     qtuicodemodelsupport.h \
     externaleditors.h \
     gettingstartedwelcomepagewidget.h \
-    gettingstartedwelcomepage.h
+    gettingstartedwelcomepage.h \
+    qt4buildconfiguration.h
 SOURCES += qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qt4project.cpp \
@@ -74,7 +75,8 @@ SOURCES += qt4projectmanagerplugin.cpp \
     qtuicodemodelsupport.cpp \
     externaleditors.cpp \
     gettingstartedwelcomepagewidget.cpp \
-    gettingstartedwelcomepage.cpp
+    gettingstartedwelcomepage.cpp \
+    qt4buildconfiguration.cpp
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \

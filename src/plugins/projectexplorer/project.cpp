@@ -109,17 +109,6 @@ void Project::removeBuildConfiguration(BuildConfiguration *configuration)
     delete configuration;
 }
 
-void Project::copyBuildConfiguration(const QString &source, const QString &dest)
-{
-    BuildConfiguration *sourceConfiguration = buildConfiguration(source);
-    if (!sourceConfiguration)
-        return;
-
-    m_buildConfigurationValues.push_back(new BuildConfiguration(dest, sourceConfiguration));
-
-    emit addedBuildConfiguration(this, dest);
-}
-
 QList<BuildConfiguration *> Project::buildConfigurations() const
 {
     return m_buildConfigurationValues;

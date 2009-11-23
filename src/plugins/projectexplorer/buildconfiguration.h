@@ -50,13 +50,14 @@ class PROJECTEXPLORER_EXPORT BuildConfiguration : public QObject
     Q_OBJECT
 
 public:
-    BuildConfiguration(const QString &name);
-    BuildConfiguration(const QString &name, BuildConfiguration *source);
-    ~BuildConfiguration();
+    // ctors are protected
+    virtual ~BuildConfiguration();
+
     QString name() const;
     QString displayName() const;
     void setDisplayName(const QString &name);
 
+    // TODO remove those
     QVariant value(const QString &key) const;
     void setValue(const QString &key, QVariant value);
 
@@ -72,6 +73,10 @@ public:
     void insertCleanStep(int position, BuildStep *step);
     void removeCleanStep(int position);
     void moveCleanStepUp(int position);
+
+protected:
+    BuildConfiguration(const QString &name);
+    BuildConfiguration(const QString &name, BuildConfiguration *source);
 
 private:
     void setName(const QString &name);
@@ -100,6 +105,14 @@ public:
     // creates build configuration(s) for given type and adds them to project
     // returns true if build configuration(s) actually have been added
     virtual bool create(const QString &type) const = 0;
+
+    // clones a given BuildConfiguration
+    virtual bool clone(const QString &name, BuildConfiguration *source) const = 0;
+
+    // TODO All those methods make the internal name (and display name) unique,
+    // but in different ways
+
+    //virtual bool restore(const QString &name);
 
 // to come:
 // restore

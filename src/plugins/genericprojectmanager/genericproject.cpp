@@ -30,6 +30,7 @@
 #include "genericproject.h"
 #include "genericprojectconstants.h"
 #include "genericmakestep.h"
+#include "genericbuildconfiguration.h"
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -145,12 +146,20 @@ bool GenericBuildConfigurationFactory::create(const QString &type) const
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-    BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(buildConfigurationName);
     m_project->addBuildConfiguration(bc); // also makes the name unique...
 
     GenericMakeStep *makeStep = new GenericMakeStep(m_project, bc);
     bc->insertBuildStep(0, makeStep);
     makeStep->setBuildTarget("all", /* on = */ true);
+    return true;
+}
+
+bool GenericBuildConfigurationFactory::clone(const QString &name, BuildConfiguration *source) const
+{
+    // TODO
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(name, static_cast<GenericBuildConfiguration *>(source));
+    m_project->addBuildConfiguration(bc);
     return true;
 }
 
@@ -518,7 +527,7 @@ bool GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
     Project::restoreSettingsImpl(reader);
 
     if (buildConfigurations().isEmpty()) {
-        ProjectExplorer::BuildConfiguration *bc = new BuildConfiguration("all");
+        GenericBuildConfiguration *bc = new GenericBuildConfiguration("all");
         addBuildConfiguration(bc);
 
         GenericMakeStep *makeStep = new GenericMakeStep(this, bc);

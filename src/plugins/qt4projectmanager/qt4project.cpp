@@ -41,6 +41,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "projectloadwizard.h"
 #include "qtversionmanager.h"
+#include "qt4buildconfiguration.h"
 
 #ifdef QTCREATOR_WITH_S60
 #include "qt-s60/gccetoolchain.h"
@@ -295,6 +296,14 @@ bool Qt4BuildConfigurationFactory::create(const QString &type) const
     return true;
 }
 
+bool Qt4BuildConfigurationFactory::clone(const QString &name, BuildConfiguration *source) const
+{
+    Qt4BuildConfiguration *oldbc = static_cast<Qt4BuildConfiguration *>(source);
+    Qt4BuildConfiguration *newbc = new Qt4BuildConfiguration(name, oldbc);
+    m_project->addBuildConfiguration(newbc);
+    return true;
+}
+
 /*!
   \class Qt4Project
 
@@ -443,7 +452,7 @@ void Qt4Project::addQt4BuildConfiguration(QString buildConfigurationName, QtVers
     bool debug = qmakeBuildConfiguration & QtVersion::DebugBuild;
 
     // Add the buildconfiguration
-    ProjectExplorer::BuildConfiguration *bc = new ProjectExplorer::BuildConfiguration(buildConfigurationName);
+    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(buildConfigurationName);
     addBuildConfiguration(bc);
 
     QMakeStep *qmakeStep = new QMakeStep(this, bc);

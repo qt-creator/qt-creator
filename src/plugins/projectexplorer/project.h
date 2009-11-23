@@ -86,7 +86,7 @@ public:
     // Build configuration
     void addBuildConfiguration(BuildConfiguration *configuration);
     void removeBuildConfiguration(BuildConfiguration *configuration);
-    void copyBuildConfiguration(const QString &source, const QString &dest);
+
     BuildConfiguration *buildConfiguration(const QString & name) const;
     QList<BuildConfiguration *> buildConfigurations() const;
     // remove and add "QString uniqueConfigurationDisplayName(const QString &proposedName) const" instead
