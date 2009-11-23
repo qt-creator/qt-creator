@@ -2579,12 +2579,12 @@ Voulez vous les écraser ?</translation>
 <context>
     <name>CppEditor::Internal::CPPEditor</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+616"/>
+        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+615"/>
         <source>Sort alphabetically</source>
         <translation>Trier par ordre alphabétique</translation>
     </message>
     <message>
-        <location line="+188"/>
+        <location line="+163"/>
         <source>This change cannot be undone.</source>
         <translation>Ce changement ne peut être annulé.</translation>
     </message>
@@ -2897,7 +2897,7 @@ Voulez vous les écraser ?</translation>
 <context>
     <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppcodecompletion.cpp" line="+443"/>
+        <location filename="../../../src/plugins/cpptools/cppcodecompletion.cpp" line="+434"/>
         <source>%1 of %2</source>
         <translation>%1 de %2</translation>
     </message>
@@ -3493,7 +3493,7 @@ Voulez vous les écraser ?</translation>
 <context>
     <name>Debugger::DebuggerManager</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+454"/>
+        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+453"/>
         <source>Continue</source>
         <translation>Continue</translation>
     </message>
@@ -3690,7 +3690,7 @@ Voulez vous les écraser ?</translation>
 <context>
     <name>Debugger::Internal::DebuggerPlugin</name>
     <message>
-        <location line="+269"/>
+        <location line="+270"/>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>Option &apos;%1&apos; : le paramètre est manquant.</translation>
     </message>
@@ -3736,7 +3736,7 @@ Voulez vous les écraser ?</translation>
         <translation>Détacher le débogueur</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+45"/>
         <source>Stop Debugger/Interrupt Debugger</source>
         <translation>Arrêter le débogueur/Interrompre le débogueur</translation>
     </message>
@@ -3761,7 +3761,7 @@ Voulez vous les écraser ?</translation>
         <translation>Restaurer la disposition par défaut</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+87"/>
         <source>Threads:</source>
         <translation>Threads :</translation>
     </message>
@@ -3792,7 +3792,7 @@ Voulez vous les écraser ?</translation>
         <translation>Définir un point d&apos;arrêt</translation>
     </message>
     <message>
-        <location line="+229"/>
+        <location line="+230"/>
         <source>Warning</source>
         <translatorcomment>Alerte?</translatorcomment>
         <translation>Avertissement</translation>
@@ -3986,7 +3986,7 @@ Voulez vous les écraser ?</translation>
 <context>
     <name>Debugger::Internal::DebuggingHelperOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-912"/>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-926"/>
         <source>Debugging Helper</source>
         <translation>Assistance au débogage</translation>
     </message>
@@ -4149,16 +4149,17 @@ Voulez vous les écraser ?</translation>
         <translation>Le programme s&apos;est terminé normallement.</translation>
     </message>
     <message>
-        <location line="+172"/>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation>&lt;p&gt;L&apos;inférieur a stoppé car il a reçu un signal du système d&apos;exploitation.&lt;/p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Nom du signal : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signification du signal : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+        <translation type="obsolete">&lt;p&gt;L&apos;inférieur a stoppé car il a reçu un signal du système d&apos;exploitation.&lt;/p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Nom du signal : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signification du signal : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
+        <location line="+176"/>
+        <location line="+1"/>
         <source> &lt;Unknown&gt; </source>
-        <translation type="obsolete"> &lt;inconnu&gt; </translation>
+        <translation> &lt;inconnu&gt; </translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+2"/>
         <source>Signal received</source>
         <translation>Signal reçu</translation>
     </message>
@@ -4222,14 +4223,13 @@ L&apos;utilisation de gdb 6.7 ou supérieur est recommandée.</translation>
         <translation>Exécution jusque la fonction %1 demandé...</translation>
     </message>
     <message>
-        <location line="+571"/>
         <source>&lt;unknown&gt;</source>
         <comment>address</comment>
         <extracomment>End address of loaded module</extracomment>
-        <translation>&lt;inconnue&gt;</translation>
+        <translation type="obsolete">&lt;inconnue&gt;</translation>
     </message>
     <message>
-        <location line="+145"/>
+        <location line="+716"/>
         <source>Jumping out of bogus frame...</source>
         <translation>Sauter hors des frames buggées...</translation>
     </message>
@@ -4242,46 +4242,44 @@ L&apos;utilisation de gdb 6.7 ou supérieur est recommandée.</translation>
         </translation>
     </message>
     <message>
-        <location line="+1005"/>
+        <location line="+1001"/>
         <location line="+25"/>
         <location line="+14"/>
         <source>Disassembler failed: %1</source>
         <translation>Désassemblage échoué : %1</translation>
     </message>
     <message>
-        <location line="+183"/>
+        <location line="+180"/>
         <source>Adapter start failed</source>
         <translation>Démarrage de l&apos;adaptateur échoué</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+41"/>
         <source>Setting breakpoints...</source>
         <translation>Définit les points d&apos;arrêts...</translation>
     </message>
     <message>
-        <location line="-23"/>
+        <location line="-25"/>
         <source>Starting inferior...</source>
         <translation>Démarrage de l&apos;inférieur...</translation>
     </message>
     <message>
-        <location line="-3168"/>
         <source> &lt;Unknown&gt; </source>
         <comment>name</comment>
-        <translation> &lt;Inconnu&gt; </translation>
+        <translation type="obsolete"> &lt;Inconnu&gt; </translation>
     </message>
     <message>
-        <location line="+1"/>
         <source> &lt;Unknown&gt; </source>
         <comment>meaning</comment>
-        <translation> &lt;inconnue&gt; </translation>
+        <translation type="obsolete"> &lt;inconnue&gt; </translation>
     </message>
     <message>
-        <location line="+2632"/>
+        <location line="-532"/>
         <source>The debugging helper library was not found at %1.</source>
         <translation>La bibliothèque d&apos;assistance au débogage n&apos;a pas été trouvée à l&apos;emplacement %1.</translation>
     </message>
     <message>
-        <location line="+369"/>
+        <location line="+366"/>
         <source>Unable to start gdb &apos;%1&apos;: %2</source>
         <translation>Impossible de démarrer gdb &apos;%1&apos; : %2</translation>
     </message>
@@ -4311,22 +4309,22 @@ L&apos;utilisation de gdb 6.7 ou supérieur est recommandée.</translation>
         <translation>code %1</translation>
     </message>
     <message>
-        <location line="+72"/>
+        <location line="+74"/>
         <source>Inferior start failed</source>
         <translation>Démarrage de l&apos;inférieur échoué</translation>
     </message>
     <message>
-        <location line="-2991"/>
+        <location line="-2986"/>
         <source>Inferior shutdown failed</source>
         <translation>Arrêt de l&apos;inférieur échoué</translation>
     </message>
     <message>
-        <location line="+3011"/>
+        <location line="+3006"/>
         <source>Adapter crashed</source>
         <translation>Adaptateur crashé</translation>
     </message>
     <message>
-        <location line="-141"/>
+        <location line="-143"/>
         <source>Cannot find debugger initialization script</source>
         <translation>Impossible de trouver les scripts d&apos;initialisation du débogueur</translation>
     </message>
@@ -4336,12 +4334,17 @@ L&apos;utilisation de gdb 6.7 ou supérieur est recommandée.</translation>
         <translation>Les paramètres du débogueur référencent un fichier script à l&apos;emplacement &apos;%1&apos; qui n&apos;est pas accessible. Si un fichier script n&apos;est pas nécessaire, les paramètres pourraient être nettoyés pour éviter cet avertissement. </translation>
     </message>
     <message>
-        <location line="-2167"/>
+        <location line="-2160"/>
         <source>Unable to run &apos;%1&apos;: %2</source>
         <translation>Impossible d&apos;exécuter &apos;%1&apos; : %2</translation>
     </message>
     <message>
-        <location line="-793"/>
+        <location line="-930"/>
+        <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
+        <translation>&lt;p&gt;L&apos;inférieur a stoppé car il a reçu un signal du système d&apos;exploitation.&lt;/p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Nom du signal : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signification du signal : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+    </message>
+    <message>
+        <location line="+137"/>
         <source>Execution Error</source>
         <translation>Erreur d&apos;exécution</translation>
     </message>
@@ -4358,12 +4361,13 @@ L&apos;utilisation de gdb 6.7 ou supérieur est recommandée.</translation>
         <translation>Continue après un arrêt temporaire...</translation>
     </message>
     <message>
+        <location line="+663"/>
         <source>&lt;unknown&gt;</source>
         <extracomment>End address of loaded module</extracomment>
-        <translation type="obsolete">&lt;inconnue&gt;</translation>
+        <translation>&lt;inconnue&gt;</translation>
     </message>
     <message>
-        <location line="+712"/>
+        <location line="+49"/>
         <location line="+8"/>
         <source>Retrieving data for stack view...</source>
         <translation>Collecte des données pour la vue de la pile...</translation>
@@ -4392,7 +4396,7 @@ L&apos;utilisation de gdb 6.7 ou supérieur est recommandée.</translation>
         <translation>Configuration du collecteur pesonnalisé : %1</translation>
     </message>
     <message>
-        <location line="+132"/>
+        <location line="+128"/>
         <source>&lt;0 items&gt;</source>
         <translation>&lt;0 éléments&gt;</translation>
     </message>
@@ -4823,7 +4827,7 @@ L&apos;utilisation de gdb 6.7 ou supérieur est recommandée.</translation>
         <translation>Pile</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+42"/>
         <source>Copy contents to clipboard</source>
         <translation>Copier le contenu dans le presse papier</translation>
     </message>
@@ -5773,7 +5777,7 @@ Raison : %3</translation>
 <context>
     <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
-        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+946"/>
+        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+940"/>
         <source>Not implemented in FakeVim</source>
         <translation>Pas implémenté dans FakeVim</translation>
     </message>
@@ -5793,7 +5797,7 @@ Raison : %3</translation>
         <translation>%1Tout</translation>
     </message>
     <message>
-        <location line="+1029"/>
+        <location line="+1025"/>
         <source>File &apos;%1&apos; exists (add ! to override)</source>
         <translation>Le fichier &apos;%1&apos; existe déjà (ajoutez ! pour écraser)</translation>
     </message>
@@ -5854,7 +5858,7 @@ Raison : %3</translation>
         <translation>Motif non trouvé : </translation>
     </message>
     <message>
-        <location line="+577"/>
+        <location line="+573"/>
         <source>Already at oldest change</source>
         <translation>Déjà au changement le plus ancien</translation>
     </message>
@@ -7355,9 +7359,8 @@ Raison : %3</translation>
         <translation>Passer au mode Aide</translation>
     </message>
     <message>
-        <location line="+181"/>
-        <location line="+4"/>
-        <location line="+146"/>
+        <location line="+174"/>
+        <location line="+164"/>
         <source>Unfiltered</source>
         <translation>Sans filtre</translation>
     </message>
@@ -9184,7 +9187,7 @@ dans votre fichier .pro.</translation>
     <message>
         <location line="+6"/>
         <source>&amp;Debug</source>
-        <translation>&amp;Déboger</translation>
+        <translation>&amp;Déboguer</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -9736,19 +9739,19 @@ au système de gestion de version (%2) ?</translation>
     <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlproject.cpp" line="+339"/>
-        <location line="+107"/>
+        <location line="+106"/>
         <source>QML Viewer</source>
         <translation>Visualisateur QML</translation>
     </message>
     <message>
         <location line="-31"/>
         <location line="+40"/>
-        <location line="+46"/>
+        <location line="+60"/>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Fichier courant&gt;</translation>
     </message>
     <message>
-        <location line="-54"/>
+        <location line="-68"/>
         <source>QML Viewer arguments:</source>
         <translation>Arguments du visualisateur QML :</translation>
     </message>
@@ -10708,7 +10711,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
     <message>
-        <location line="+88"/>
+        <location line="+78"/>
         <source>&lt;b&gt;QMake:&lt;/b&gt; No Qt version set. QMake can not be run.</source>
         <translation>&lt;b&gt;QMake:&lt;/b&gt; Aucune version de Qt définie. QMake ne peut être lancé.</translation>
     </message>
@@ -15433,7 +15436,7 @@ Raison : %2</translation>
 <context>
     <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+248"/>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+246"/>
         <location filename="../../../src/plugins/projectexplorer/projectwindow.cpp" line="+181"/>
         <source>Active run configuration</source>
         <translation>Configuration d&apos;exécution active</translation>
@@ -15464,12 +15467,12 @@ Raison : %2</translation>
     <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
         <location line="+104"/>
-        <location line="+110"/>
+        <location line="+105"/>
         <source>Active Build and Run Configurations</source>
         <translation>Configuration de compilation et d&apos;exécution sélectionnées</translation>
     </message>
     <message>
-        <location line="-72"/>
+        <location line="-67"/>
         <source>No project loaded.</source>
         <translation>Aucun projet chargé.</translation>
     </message>
