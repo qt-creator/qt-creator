@@ -328,17 +328,17 @@ private:
     Type name = foo;
     if (name) {...}
 */
-class TakeDeclarationOp: public QuickFixOperation
+class MoveDeclarationOutOfIfOp: public QuickFixOperation
 {
 public:
-    TakeDeclarationOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
+    MoveDeclarationOutOfIfOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
         : QuickFixOperation(doc, snapshot, editor), matcher(doc->translationUnit()),
            condition(0), pattern(0), core(0)
     {}
 
     virtual QString description() const
     {
-        return QLatin1String("Take declaration"); // ### tr?
+        return QLatin1String("Move declaration out of condition"); // ### tr?
     }
 
     virtual int match(const QList<AST *> &path, QTextCursor tc)
@@ -385,6 +385,89 @@ private:
     CPPEditor *editor;
     ConditionAST *condition;
     IfStatementAST *pattern;
+    CoreDeclaratorAST *core;
+};
+
+/*
+    Replace
+    while (Type name = foo()) {...}
+
+    With
+    Type name;
+    while ((name = foo()) != 0) {...}
+*/
+class MoveDeclarationOutOfWhileOp: public QuickFixOperation
+{
+public:
+    MoveDeclarationOutOfWhileOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
+        : QuickFixOperation(doc, snapshot, editor), matcher(doc->translationUnit()),
+           condition(0), pattern(0), core(0)
+    {}
+
+    virtual QString description() const
+    {
+        return QLatin1String("Move declaration out of condition"); // ### tr?
+    }
+
+    virtual int match(const QList<AST *> &path, QTextCursor tc)
+    {
+        setTextCursor(tc);
+
+        condition = mk.Condition();
+        pattern = mk.WhileStatement(condition);
+
+        int index = path.size() - 1;
+        for (; index != -1; --index) {
+            if (WhileStatementAST *statement = path.at(index)->asWhileStatement()) {
+                if (statement->match(pattern, &matcher) && condition->declarator) {
+                    DeclaratorAST *declarator = condition->declarator;
+                    core = declarator->core_declarator;
+
+                    if (! core)
+                        return -1;
+
+                    else if (! declarator->equals_token)
+                        return -1;
+
+                    else if (! declarator->initializer)
+                        return -1;
+
+                    if (contains(core))
+                        return index;
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    virtual void apply()
+    {
+        const QString name = textOf(core);
+        const QString initializer = textOf(condition->declarator->initializer);
+        QString declaration = textOf(startOf(condition), endOf(condition->declarator->equals_token - 1));
+        declaration += QLatin1String(";\n");
+
+        QString newCondition;
+        newCondition += QLatin1String("(");
+        newCondition += name;
+        newCondition += QLatin1String(" = ");
+        newCondition += initializer;
+        newCondition += QLatin1String(") != 0");
+        
+        insert(startOf(pattern), declaration);
+        insert(endOf(pattern->lparen_token), name);
+        replace(condition, newCondition);
+
+        applyChanges(pattern);
+    }
+
+private:
+    ASTMatcher matcher;
+    ASTPatternBuilder mk;
+    CPPEditor *editor;
+    ConditionAST *condition;
+    WhileStatementAST *pattern;
     CoreDeclaratorAST *core;
 };
 
@@ -737,14 +820,16 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 
         QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(info.doc, info.snapshot, _editor));
         QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp(info.doc, info.snapshot, _editor));
-        QSharedPointer<TakeDeclarationOp> takeDeclarationOp(new TakeDeclarationOp(info.doc, info.snapshot, _editor));
+        QSharedPointer<MoveDeclarationOutOfIfOp> moveDeclarationOutOfIfOp(new MoveDeclarationOutOfIfOp(info.doc, info.snapshot, _editor));
+        QSharedPointer<MoveDeclarationOutOfWhileOp> moveDeclarationOutOfWhileOp(new MoveDeclarationOutOfWhileOp(info.doc, info.snapshot, _editor));
         QSharedPointer<SplitSimpleDeclarationOp> splitSimpleDeclarationOp(new SplitSimpleDeclarationOp(info.doc, info.snapshot, _editor));
         QSharedPointer<AddBracesToIfOp> addBracesToIfOp(new AddBracesToIfOp(info.doc, info.snapshot, _editor));
 
         QList<QuickFixOperationPtr> candidates;
         candidates.append(rewriteLogicalAndOp);
         candidates.append(splitIfStatementOp);
-        candidates.append(takeDeclarationOp);
+        candidates.append(moveDeclarationOutOfIfOp);
+        candidates.append(moveDeclarationOutOfWhileOp);
         candidates.append(splitSimpleDeclarationOp);
         candidates.append(addBracesToIfOp);
 
