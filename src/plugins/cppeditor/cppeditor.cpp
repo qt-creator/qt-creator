@@ -1689,9 +1689,6 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     foreach (QAction *action, contextMenu->actions())
         menu->addAction(action);
 
-    const QList<QTextEdit::ExtraSelection> selections =
-            extraSelections(BaseTextEditor::CodeSemanticsSelection);
-
     appendStandardContextMenuActions(menu);
 
     menu->exec(e->globalPos());
