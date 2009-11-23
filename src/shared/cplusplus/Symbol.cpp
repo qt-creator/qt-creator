@@ -56,7 +56,6 @@
 #include "SymbolVisitor.h"
 #include "NameVisitor.h"
 #include "Scope.h"
-#include <cstddef>
 #include <cassert>
 
 using namespace CPlusPlus;

@@ -52,7 +52,6 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "Type.h"
 #include "FullySpecifiedType.h"
-#include <cstddef>
 
 namespace CPlusPlus {
 

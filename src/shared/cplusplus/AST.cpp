@@ -52,7 +52,6 @@
 #include "MemoryPool.h"
 
 #include <cassert>
-#include <cstddef>
 #include <algorithm>
 
 using namespace CPlusPlus;

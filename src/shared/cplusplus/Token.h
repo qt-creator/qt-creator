@@ -50,8 +50,6 @@
 #define CPLUSPLUS_TOKEN_H
 
 #include "CPlusPlusForwardDeclarations.h"
-#include <cstddef>
-
 
 namespace CPlusPlus {
 

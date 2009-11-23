@@ -50,8 +50,6 @@
 #define CPLUSPLUS_CONTROL_H
 
 #include "CPlusPlusForwardDeclarations.h"
-#include <cstddef>
-
 
 namespace CPlusPlus {
 

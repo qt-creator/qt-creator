@@ -50,7 +50,6 @@
 #define CPLUSPLUS_MEMORYPOOL_H
 
 #include "CPlusPlusForwardDeclarations.h"
-#include <cstddef>
 #include <new>
 
 namespace CPlusPlus {

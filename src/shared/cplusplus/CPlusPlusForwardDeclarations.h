@@ -50,6 +50,7 @@
 #define CPLUSPLUS_CPLUSPLUSFORWARDDECLARATIONS_H
 
 #include <cstdlib>
+#include <cstddef>
 
 #ifndef CPLUSPLUS_WITHOUT_QT
 #  include <QtCore/qglobal.h>
