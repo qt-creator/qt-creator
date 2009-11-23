@@ -229,3 +229,10 @@ void FullySpecifiedType::copySpecifiers(const FullySpecifiedType &type)
     f._isExplicit = type.f._isExplicit;
 }
 
+bool FullySpecifiedType::match(const FullySpecifiedType &otherTy, TypeMatcher *matcher) const
+{
+    if (_flags != otherTy._flags)
+        return false;
+
+    return type()->matchType(otherTy.type(), matcher);
+}

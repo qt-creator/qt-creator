@@ -55,10 +55,8 @@
 #include "Names.h"
 #include "Array.h"
 #include <map> // ### replace me with LiteralTable
-#include <string>
 
 using namespace CPlusPlus;
-
 
 template <typename _Iterator>
 static void delete_map_entries(_Iterator first, _Iterator last)
@@ -639,7 +637,7 @@ Identifier *Control::findOrInsertIdentifier(const char *chars, unsigned size)
 
 Identifier *Control::findOrInsertIdentifier(const char *chars)
 {
-    unsigned length = std::char_traits<char>::length(chars);
+    unsigned length = std::strlen(chars);
     return findOrInsertIdentifier(chars, length);
 }
 
@@ -666,7 +664,7 @@ StringLiteral *Control::findOrInsertStringLiteral(const char *chars, unsigned si
 
 StringLiteral *Control::findOrInsertStringLiteral(const char *chars)
 {
-    unsigned length = std::char_traits<char>::length(chars);
+    unsigned length = std::strlen(chars);
     return findOrInsertStringLiteral(chars, length);
 }
 
@@ -675,7 +673,7 @@ NumericLiteral *Control::findOrInsertNumericLiteral(const char *chars, unsigned 
 
 NumericLiteral *Control::findOrInsertNumericLiteral(const char *chars)
 {
-    unsigned length = std::char_traits<char>::length(chars);
+    unsigned length = std::strlen(chars);
     return findOrInsertNumericLiteral(chars, length);
 }
 

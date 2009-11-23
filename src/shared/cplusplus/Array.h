@@ -51,13 +51,11 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 #include <new>
-#include <cstdlib>
-
 
 namespace CPlusPlus {
 
 template <typename _Tp, int SEGMENT_SHIFT = 4>
-class Array
+class CPLUSPLUS_EXPORT Array
 {
     Array(const Array &other);
     void operator =(const Array &other);

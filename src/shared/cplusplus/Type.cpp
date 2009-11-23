@@ -131,4 +131,8 @@ void Type::accept(Type *type, TypeVisitor *visitor)
     type->accept(visitor);
 }
 
+bool Type::matchType(const Type *otherType, TypeMatcher *matcher) const
+{
+    return matchType0(otherType, matcher);
+}
 

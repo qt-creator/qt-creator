@@ -51,8 +51,6 @@
 #include <algorithm>
 #include <iostream>
 
-using namespace std;
-
 using namespace CPlusPlus;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,9 +59,8 @@ Literal::Literal(const char *chars, unsigned size)
 {
     _chars = new char[size + 1];
 
-    strncpy(_chars, chars, size);
+    std::strncpy(_chars, chars, size);
     _chars[size] = '\0';
-
     _size = size;
 
     _hashCode = hashCode(_chars, _size);
@@ -82,7 +79,7 @@ bool Literal::isEqualTo(const Literal *other) const
         return false;
     else if (size() != other->size())
         return false;
-    return ! strcmp(chars(), other->chars());
+    return ! std::strcmp(chars(), other->chars());
 }
 
 Literal::iterator Literal::begin() const

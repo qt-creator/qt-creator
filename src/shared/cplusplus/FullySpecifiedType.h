@@ -119,6 +119,8 @@ public:
     bool operator != (const FullySpecifiedType &other) const;
     bool operator < (const FullySpecifiedType &other) const;
 
+    bool match(const FullySpecifiedType &otherTy, TypeMatcher *matcher) const;
+
     FullySpecifiedType simplified() const;
 
     void copySpecifiers(const FullySpecifiedType &type);

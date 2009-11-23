@@ -48,11 +48,30 @@
 
 #include "CoreTypes.h"
 #include "TypeVisitor.h"
+#include "TypeMatcher.h"
 #include "Names.h"
 #include <algorithm>
 
 using namespace CPlusPlus;
 
+bool UndefinedType::isEqualTo(const Type *other) const
+{
+    if (other->isUndefinedType())
+        return true;
+
+    return false;
+}
+
+void UndefinedType::accept0(TypeVisitor *visitor)
+{ visitor->visit(this); }
+
+bool UndefinedType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const UndefinedType *otherUndefinedTy = otherType->asUndefinedType())
+        return matcher->match(this, otherUndefinedTy);
+
+    return false;
+}
 
 bool VoidType::isEqualTo(const Type *other) const
 {
@@ -62,6 +81,14 @@ bool VoidType::isEqualTo(const Type *other) const
 
 void VoidType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
+
+bool VoidType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const VoidType *otherVoidTy = otherType->asVoidType())
+        return matcher->match(this, otherVoidTy);
+
+    return false;
+}
 
 PointerToMemberType::PointerToMemberType(Name *memberName, FullySpecifiedType elementType)
     : _memberName(memberName),
@@ -90,6 +117,14 @@ bool PointerToMemberType::isEqualTo(const Type *other) const
 void PointerToMemberType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
+bool PointerToMemberType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const PointerToMemberType *otherTy = otherType->asPointerToMemberType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
+
 PointerType::PointerType(const FullySpecifiedType &elementType)
     : _elementType(elementType)
 { }
@@ -107,6 +142,14 @@ bool PointerType::isEqualTo(const Type *other) const
 
 void PointerType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
+
+bool PointerType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const PointerType *otherTy = otherType->asPointerType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
 
 FullySpecifiedType PointerType::elementType() const
 { return _elementType; }
@@ -129,6 +172,14 @@ bool ReferenceType::isEqualTo(const Type *other) const
 void ReferenceType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
+bool ReferenceType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const ReferenceType *otherTy = otherType->asReferenceType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
+
 FullySpecifiedType ReferenceType::elementType() const
 { return _elementType; }
 
@@ -150,6 +201,14 @@ bool IntegerType::isEqualTo(const Type *other) const
 void IntegerType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
+bool IntegerType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const IntegerType *otherTy = otherType->asIntegerType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
+
 int IntegerType::kind() const
 { return _kind; }
 
@@ -162,6 +221,14 @@ FloatType::~FloatType()
 
 void FloatType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
+
+bool FloatType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const FloatType *otherTy = otherType->asFloatType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
 
 int FloatType::kind() const
 { return _kind; }
@@ -193,6 +260,14 @@ bool ArrayType::isEqualTo(const Type *other) const
 
 void ArrayType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
+
+bool ArrayType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const ArrayType *otherTy = otherType->asArrayType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
 
 FullySpecifiedType ArrayType::elementType() const
 { return _elementType; }
@@ -230,4 +305,10 @@ bool NamedType::isEqualTo(const Type *other) const
 void NamedType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
+bool NamedType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const NamedType *otherTy = otherType->asNamedType())
+        return matcher->match(this, otherTy);
 
+    return false;
+}

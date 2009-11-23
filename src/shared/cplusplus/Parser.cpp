@@ -53,11 +53,7 @@
 #include "AST.h"
 #include "Literals.h"
 #include "ObjectiveCTypeQualifiers.h"
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <cassert>
-#include <string>
+#include <cstdio> // for putchar
 
 #define CPLUSPLUS_NO_DEBUG_RULE
 
@@ -72,7 +68,13 @@ class DebugRule {
 public:
     DebugRule(const char *name)
         : name(name)
-    { std::cout << std::string(depth++, ' ') << name << std::endl; }
+    {
+        for (int i = 0; i < depth; ++i)
+            putchar(' ');
+
+        ++depth;
+        printf("%s\n", name);
+    }
 
     ~DebugRule()
     { --depth; }

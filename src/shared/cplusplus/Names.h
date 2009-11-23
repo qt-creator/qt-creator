@@ -53,7 +53,6 @@
 #include "Name.h"
 #include "FullySpecifiedType.h"
 
-
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT QualifiedNameId: public Name

@@ -53,7 +53,6 @@
 #include <cstddef>
 #include <new>
 
-
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT MemoryPool

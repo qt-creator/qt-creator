@@ -51,7 +51,6 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 
-
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT TypeVisitor
@@ -68,6 +67,7 @@ public:
     virtual bool preVisit(Type *) { return true; }
     virtual void postVisit(Type *) {}
 
+    virtual void visit(UndefinedType *) {}
     virtual void visit(VoidType *) {}
     virtual void visit(IntegerType *) {}
     virtual void visit(FloatType *) {}

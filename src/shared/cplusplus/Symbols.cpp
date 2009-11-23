@@ -50,8 +50,8 @@
 #include "Names.h"
 #include "TypeVisitor.h"
 #include "SymbolVisitor.h"
+#include "TypeMatcher.h"
 #include "Scope.h"
-#include <cstdlib>
 
 using namespace CPlusPlus;
 
@@ -224,6 +224,14 @@ bool Function::isEqualTo(const Type *other) const
 void Function::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
+bool Function::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const Function *otherTy = otherType->asFunctionType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
+
 FullySpecifiedType Function::type() const
 { return FullySpecifiedType(const_cast<Function *>(this)); }
 
@@ -380,6 +388,14 @@ bool Enum::isEqualTo(const Type *other) const
 void Enum::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
+bool Enum::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const Enum *otherTy = otherType->asEnumType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
+
 void Enum::visitSymbol0(SymbolVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -410,6 +426,14 @@ bool Namespace::isEqualTo(const Type *other) const
 
 void Namespace::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
+
+bool Namespace::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const Namespace *otherTy = otherType->asNamespaceType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
 
 void Namespace::visitSymbol0(SymbolVisitor *visitor)
 {
@@ -480,6 +504,14 @@ void ForwardClassDeclaration::visitSymbol0(SymbolVisitor *visitor)
 void ForwardClassDeclaration::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
+bool ForwardClassDeclaration::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const ForwardClassDeclaration *otherTy = otherType->asForwardClassDeclarationType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
+
 Class::Class(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name),
       _key(ClassKey),
@@ -523,6 +555,14 @@ void Class::setTemplateParameters(TemplateParameters *templateParameters)
 
 void Class::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
+
+bool Class::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const Class *otherTy = otherType->asClassType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
 
 unsigned Class::baseClassCount() const
 { return _baseClasses.count(); }
@@ -632,6 +672,14 @@ void ObjCClass::visitSymbol0(SymbolVisitor *visitor)
 void ObjCClass::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
+bool ObjCClass::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const ObjCClass *otherTy = otherType->asObjCClassType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
+
 ObjCProtocol::ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
         ScopedSymbol(translationUnit, sourceLocation, name)
 {
@@ -668,6 +716,14 @@ void ObjCProtocol::visitSymbol0(SymbolVisitor *visitor)
 void ObjCProtocol::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
+bool ObjCProtocol::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const ObjCProtocol *otherTy = otherType->asObjCProtocolType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
+
 ObjCForwardClassDeclaration::ObjCForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
         Symbol(translationUnit, sourceLocation, name)
 {
@@ -699,6 +755,14 @@ void ObjCForwardClassDeclaration::visitSymbol0(SymbolVisitor *visitor)
 void ObjCForwardClassDeclaration::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
+bool ObjCForwardClassDeclaration::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const ObjCForwardClassDeclaration *otherTy = otherType->asObjCForwardClassDeclarationType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
+
 ObjCForwardProtocolDeclaration::ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
         Symbol(translationUnit, sourceLocation, name)
 {
@@ -729,6 +793,14 @@ void ObjCForwardProtocolDeclaration::visitSymbol0(SymbolVisitor *visitor)
 
 void ObjCForwardProtocolDeclaration::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
+
+bool ObjCForwardProtocolDeclaration::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const ObjCForwardProtocolDeclaration *otherTy = otherType->asObjCForwardProtocolDeclarationType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
 
 ObjCMethod::ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name),
@@ -766,6 +838,14 @@ bool ObjCMethod::isEqualTo(const Type *other) const
 
 void ObjCMethod::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
+
+bool ObjCMethod::matchType0(const Type *otherType, TypeMatcher *matcher) const
+{
+    if (const ObjCMethod *otherTy = otherType->asObjCMethodType())
+        return matcher->match(this, otherTy);
+
+    return false;
+}
 
 FullySpecifiedType ObjCMethod::type() const
 { return FullySpecifiedType(const_cast<ObjCMethod *>(this)); }

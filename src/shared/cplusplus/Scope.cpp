@@ -50,12 +50,8 @@
 #include "Symbols.h"
 #include "Names.h"
 #include "Literals.h"
-#include <cstdlib>
 #include <cassert>
 #include <cstring>
-#include <iostream>
-
-using namespace std;
 
 using namespace CPlusPlus;
 
@@ -278,7 +274,7 @@ void Scope::rehash()
         _hashSize = DefaultInitialSize;
 
     _hash = reinterpret_cast<Symbol **>(realloc(_hash, sizeof(Symbol *) * _hashSize));
-    memset(_hash, 0, sizeof(Symbol *) * _hashSize);
+    std::memset(_hash, 0, sizeof(Symbol *) * _hashSize);
 
     for (int index = 0; index < _symbolCount + 1; ++index) {
         Symbol *symbol = _symbols[index];

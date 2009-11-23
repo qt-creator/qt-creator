@@ -49,6 +49,8 @@
 #ifndef CPLUSPLUS_CPLUSPLUSFORWARDDECLARATIONS_H
 #define CPLUSPLUS_CPLUSPLUSFORWARDDECLARATIONS_H
 
+#include <cstdlib>
+
 #ifndef CPLUSPLUS_WITHOUT_QT
 #  include <QtCore/qglobal.h>
 
@@ -91,6 +93,7 @@ class QualifiedNameId;
 class SelectorNameId;
 
 // types
+class TypeMatcher;
 class FullySpecifiedType;
 class TypeVisitor;
 class Type;

@@ -235,6 +235,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     TemplateParameters *_templateParameters;
@@ -267,6 +268,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 };
 
 class CPLUSPLUS_EXPORT Function: public ScopedSymbol, public Type
@@ -346,6 +348,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     TemplateParameters *_templateParameters;
@@ -393,6 +396,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 };
 
 class CPLUSPLUS_EXPORT BaseClass: public Symbol
@@ -469,6 +473,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     Key _key;
@@ -543,6 +548,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
 };
@@ -583,6 +589,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     Array<ObjCBaseProtocol *> _protocols;
@@ -613,6 +620,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
 };
@@ -665,6 +673,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     bool _isInterface;
@@ -716,6 +725,7 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     FullySpecifiedType _returnType;

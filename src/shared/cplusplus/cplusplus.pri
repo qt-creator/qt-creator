@@ -9,6 +9,7 @@ HEADERS += \
     $$PWD/ASTPatternBuilder.h \
     $$PWD/ASTfwd.h \
     $$PWD/Array.h \
+    $$PWD/TypeMatcher.h \
     $$PWD/CPlusPlusForwardDeclarations.h \
     $$PWD/CheckDeclaration.h \
     $$PWD/CheckDeclarator.h \
@@ -47,6 +48,7 @@ SOURCES += \
     $$PWD/ASTVisitor.cpp \
     $$PWD/ASTPatternBuilder.cpp \
     $$PWD/ASTMatcher.cpp \
+    $$PWD/TypeMatcher.cpp \
     $$PWD/Array.cpp \
     $$PWD/CheckDeclaration.cpp \
     $$PWD/CheckDeclarator.cpp \

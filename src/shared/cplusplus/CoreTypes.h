@@ -54,7 +54,6 @@
 #include "FullySpecifiedType.h"
 #include <cstddef>
 
-
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT UndefinedType : public Type
@@ -66,12 +65,17 @@ public:
         return &t;
     }
 
-    virtual bool isEqualTo(const Type *other) const
-    { return this == other; }
+    virtual const UndefinedType *asUndefinedType() const
+    { return this; }
+
+    virtual UndefinedType *asUndefinedType()
+    { return this; }
+
+    virtual bool isEqualTo(const Type *other) const;
 
 protected:
-    virtual void accept0(TypeVisitor *)
-    { }
+    virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 };
 
 class CPLUSPLUS_EXPORT VoidType: public Type
@@ -87,6 +91,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 };
 
 class CPLUSPLUS_EXPORT IntegerType: public Type
@@ -118,6 +123,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     int _kind;
@@ -148,6 +154,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     int _kind;
@@ -171,6 +178,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     FullySpecifiedType _elementType;
@@ -195,6 +203,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     Name *_memberName;
@@ -219,6 +228,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     FullySpecifiedType _elementType;
@@ -243,6 +253,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     FullySpecifiedType _elementType;
@@ -267,12 +278,12 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
     Name *_name;
 };
 
 } // end of namespace CPlusPlus
-
 
 #endif // CPLUSPLUS_CORETYPES_H

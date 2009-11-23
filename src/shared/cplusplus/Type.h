@@ -51,7 +51,6 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 
-
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT Type
@@ -83,6 +82,7 @@ public:
     bool isObjCForwardClassDeclarationType() const;
     bool isObjCForwardProtocolDeclarationType() const;
 
+    virtual const UndefinedType *asUndefinedType() const { return 0; }
     virtual const VoidType *asVoidType() const { return 0; }
     virtual const IntegerType *asIntegerType() const { return 0; }
     virtual const FloatType *asFloatType() const { return 0; }
@@ -102,6 +102,7 @@ public:
     virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() const { return 0; }
     virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() const { return 0; }
 
+    virtual UndefinedType *asUndefinedType() { return 0; }
     virtual VoidType *asVoidType() { return 0; }
     virtual IntegerType *asIntegerType() { return 0; }
     virtual FloatType *asFloatType() { return 0; }
@@ -124,10 +125,21 @@ public:
     void accept(TypeVisitor *visitor);
     static void accept(Type *type, TypeVisitor *visitor);
 
-    virtual bool isEqualTo(const Type *other) const = 0;
+    static bool matchType(const Type *type, const Type *otherType, TypeMatcher *matcher)
+    {
+        if (! type)
+            return type == otherType;
+
+        return type->matchType(otherType, matcher);
+    }
+
+    bool matchType(const Type *otherType, TypeMatcher *matcher) const;
+
+    virtual bool isEqualTo(const Type *other) const = 0; // ### remove
 
 protected:
     virtual void accept0(TypeVisitor *visitor) = 0;
+    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const = 0;
 };
 
 } // end of namespace CPlusPlus

@@ -47,13 +47,10 @@
 // THE SOFTWARE.
 
 #include "MemoryPool.h"
-#include <cstdlib>
 #include <cstring>
 #include <cassert>
 
 using namespace CPlusPlus;
-
-using namespace std;
 
 MemoryPool::MemoryPool()
     : _initializeAllocatedMemory(true),
@@ -68,12 +65,12 @@ MemoryPool::~MemoryPool()
 {
     if (_blockCount != -1) {
         for (int i = 0; i < _blockCount + 1; ++i) {
-            free(_blocks[i]);
+            std::free(_blocks[i]);
         }
     }
 
     if (_blocks)
-        free(_blocks);
+        std::free(_blocks);
 }
 
 bool MemoryPool::initializeAllocatedMemory() const
@@ -98,9 +95,9 @@ void *MemoryPool::allocate_helper(size_t size)
     char *&block = _blocks[_blockCount];
 
     if (_initializeAllocatedMemory)
-        block = (char *) calloc(1, BLOCK_SIZE);
+        block = (char *) std::calloc(1, BLOCK_SIZE);
     else
-        block = (char *) malloc(BLOCK_SIZE);
+        block = (char *) std::malloc(BLOCK_SIZE);
 
     ptr = block;
     end = ptr + BLOCK_SIZE;
@@ -117,7 +114,7 @@ void MemoryPool::rewind(const State &state)
 {
     if (_blockCount == state.blockCount && state.ptr < ptr) {
         if (_initializeAllocatedMemory)
-            memset(state.ptr, '\0', ptr - state.ptr);
+            std::memset(state.ptr, '\0', ptr - state.ptr);
 
         ptr = state.ptr;
     }

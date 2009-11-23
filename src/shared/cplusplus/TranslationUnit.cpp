@@ -55,11 +55,8 @@
 #include "Literals.h"
 #include "DiagnosticClient.h"
 #include <stack>
-#include <cstdlib>
 #include <cstdarg>
 #include <algorithm>
-
-using namespace std;
 
 using namespace CPlusPlus;
 

@@ -53,8 +53,6 @@
 #include <cctype>
 #include <cassert>
 
-using namespace std;
-
 using namespace CPlusPlus;
 
 Lexer::Lexer(TranslationUnit *unit)
