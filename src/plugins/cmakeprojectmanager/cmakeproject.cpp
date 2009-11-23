@@ -90,7 +90,7 @@ QString CMakeBuildConfigurationFactory::displayNameForType(const QString & /* ty
     return tr("Create");
 }
 
-bool CMakeBuildConfigurationFactory::create(const QString &type) const
+BuildConfiguration *CMakeBuildConfigurationFactory::create(const QString &type) const
 {
     QTC_ASSERT(type == "Create", return false);
 
@@ -104,7 +104,7 @@ bool CMakeBuildConfigurationFactory::create(const QString &type) const
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-    BuildConfiguration *bc = new CMakeBuildConfiguration(buildConfigurationName);
+    BuildConfiguration *bc = new CMakeBuildConfiguration(m_project, buildConfigurationName);
 
     MakeStep *makeStep = new MakeStep(m_project, bc);
     bc->insertBuildStep(0, makeStep);
@@ -130,15 +130,21 @@ bool CMakeBuildConfigurationFactory::create(const QString &type) const
     // Default to all
     if (m_project->targets().contains("all"))
         makeStep->setBuildTarget("all", true);
-    return true;
+    return bc;
 }
 
-bool CMakeBuildConfigurationFactory::clone(const QString &name, ProjectExplorer::BuildConfiguration *source) const
+BuildConfiguration *CMakeBuildConfigurationFactory::clone(const QString &name, ProjectExplorer::BuildConfiguration *source) const
 {
     CMakeBuildConfiguration *old = static_cast<CMakeBuildConfiguration *>(source);
     CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(name, old);
     m_project->addBuildConfiguration(bc);
-    return true;
+    return bc;
+}
+
+BuildConfiguration *CMakeBuildConfigurationFactory::restore(const QString &name) const
+{
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project, name);
+    return bc;
 }
 
 /*!
@@ -658,7 +664,7 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         if (copw.exec() != QDialog::Accepted)
             return false;
 
-        CMakeBuildConfiguration *bc = new CMakeBuildConfiguration("all");
+        CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(this, "all");
         addBuildConfiguration(bc);
         bc->setValue("msvcVersion", copw.msvcVersion());
         if (!copw.buildDirectory().isEmpty())
@@ -677,8 +683,6 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         // We have a user file, but we could still be missing the cbp file
         // or simply run createXml with the saved settings
         QFileInfo sourceFileInfo(m_fileName);
-        QStringList needToCreate;
-        QStringList needToUpdate;
         BuildConfiguration *activeBC = activeBuildConfiguration();
         QString cbpFile = CMakeManager::findCbpFile(QDir(buildDirectory(activeBC)));
         QFileInfo cbpFileFi(cbpFile);

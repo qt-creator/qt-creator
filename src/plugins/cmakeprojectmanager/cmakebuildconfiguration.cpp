@@ -28,9 +28,13 @@
 **************************************************************************/
 
 #include "cmakebuildconfiguration.h"
+#include "cmakeproject.h"
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(const QString &name)
-    : BuildConfiguration(name)
+using namespace CMakeProjectManager;
+using namespace Internal;
+
+CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeProject *pro, const QString &name)
+    : BuildConfiguration(pro, name)
 {
 
 }
@@ -40,3 +44,4 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(const QString &name, BuildConfi
 {
 
 }
+

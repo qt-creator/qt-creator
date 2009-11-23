@@ -132,7 +132,7 @@ QString GenericBuildConfigurationFactory::displayNameForType(const QString & /* 
     return tr("Create");
 }
 
-bool GenericBuildConfigurationFactory::create(const QString &type) const
+BuildConfiguration *GenericBuildConfigurationFactory::create(const QString &type) const
 {
     QTC_ASSERT(type == "Create", return false);
     //TODO asking for name is duplicated everywhere, but maybe more
@@ -146,21 +146,27 @@ bool GenericBuildConfigurationFactory::create(const QString &type) const
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-    GenericBuildConfiguration *bc = new GenericBuildConfiguration(buildConfigurationName);
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project, buildConfigurationName);
     m_project->addBuildConfiguration(bc); // also makes the name unique...
 
     GenericMakeStep *makeStep = new GenericMakeStep(m_project, bc);
     bc->insertBuildStep(0, makeStep);
     makeStep->setBuildTarget("all", /* on = */ true);
-    return true;
+    return bc;
 }
 
-bool GenericBuildConfigurationFactory::clone(const QString &name, BuildConfiguration *source) const
+BuildConfiguration *GenericBuildConfigurationFactory::clone(const QString &name, BuildConfiguration *source) const
 {
     // TODO
     GenericBuildConfiguration *bc = new GenericBuildConfiguration(name, static_cast<GenericBuildConfiguration *>(source));
     m_project->addBuildConfiguration(bc);
-    return true;
+    return bc;
+}
+
+BuildConfiguration *GenericBuildConfigurationFactory::restore(const QString &name) const
+{
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project, name);
+    return bc;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -527,7 +533,7 @@ bool GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
     Project::restoreSettingsImpl(reader);
 
     if (buildConfigurations().isEmpty()) {
-        GenericBuildConfiguration *bc = new GenericBuildConfiguration("all");
+        GenericBuildConfiguration *bc = new GenericBuildConfiguration(this, "all");
         addBuildConfiguration(bc);
 
         GenericMakeStep *makeStep = new GenericMakeStep(this, bc);

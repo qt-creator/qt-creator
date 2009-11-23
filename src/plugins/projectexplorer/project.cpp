@@ -222,8 +222,8 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
     // restoring BuldConfigurations from settings
     const QStringList buildConfigurationNames = reader.restoreValue("buildconfigurations").toStringList();
     foreach (const QString &buildConfigurationName, buildConfigurationNames) {
-        BuildConfiguration *bc = new BuildConfiguration(buildConfigurationName);
-        addBuildConfiguration(bc);
+        BuildConfiguration *bc = buildConfigurationFactory()->restore(buildConfigurationName);
+
         QMap<QString, QVariant> temp =
             reader.restoreValue("buildConfiguration-" + buildConfigurationName).toMap();
         bc->setValuesFromMap(temp);

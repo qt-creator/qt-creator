@@ -28,13 +28,14 @@
 **************************************************************************/
 
 #include "genericbuildconfiguration.h"
+#include "genericproject.h"
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 using ProjectExplorer::BuildConfiguration;
 
-GenericBuildConfiguration::GenericBuildConfiguration(const QString &name)
-    : BuildConfiguration(name)
+GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro, const QString &name)
+    : BuildConfiguration(pro, name)
 {
 
 }

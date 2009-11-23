@@ -66,8 +66,9 @@ public:
     QStringList availableCreationTypes() const;
     QString displayNameForType(const QString &type) const;
 
-    bool create(const QString &type) const;
-    bool clone(const QString &name, ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *create(const QString &type) const;
+    ProjectExplorer::BuildConfiguration *clone(const QString &name, ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *restore(const QString &name) const;
 
 private:
     GenericProject *m_project;

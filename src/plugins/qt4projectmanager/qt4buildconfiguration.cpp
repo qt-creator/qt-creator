@@ -28,13 +28,14 @@
 **************************************************************************/
 
 #include "qt4buildconfiguration.h"
+#include "qt4project.h"
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::BuildConfiguration;
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(const QString &name)
-    : BuildConfiguration(name)
+Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro, const QString &name)
+    : BuildConfiguration(pro, name)
 {
 
 }

@@ -32,11 +32,20 @@
 
 #include <projectexplorer/buildconfiguration.h>
 
+namespace CMakeProjectManager {
+namespace Internal {
+
+class CMakeProject;
+
 class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
 public:
-    CMakeBuildConfiguration(const QString &name);
+    CMakeBuildConfiguration(CMakeProject *pro, const QString &name);
     CMakeBuildConfiguration(const QString &name, BuildConfiguration *source);
 };
+
+
+} // namespace Internal
+} // namespace CMakeProjectManager
 
 #endif // CMAKEBUILDCONFIGURATION_H

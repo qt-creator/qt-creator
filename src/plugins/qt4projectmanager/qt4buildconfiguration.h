@@ -33,12 +33,15 @@
 #include <projectexplorer/buildconfiguration.h>
 
 namespace Qt4ProjectManager {
+
+class Qt4Project;
+
 namespace Internal {
 
 class Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
 public:
-    Qt4BuildConfiguration(const QString &name);
+    Qt4BuildConfiguration(Qt4Project *pro, const QString &name);
     // copy ctor
     Qt4BuildConfiguration(const QString &name, Qt4BuildConfiguration *source);
     ~Qt4BuildConfiguration();

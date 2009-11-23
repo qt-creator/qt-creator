@@ -44,14 +44,14 @@ IBuildStepFactory *findFactory(const QString &name)
     return 0;
 }
 
-BuildConfiguration::BuildConfiguration(const QString &name)
-    : m_name(name)
+BuildConfiguration::BuildConfiguration(Project *pro, const QString &name)
+    : m_name(name), m_project(pro)
 {
     setDisplayName(name);
 }
 
 BuildConfiguration::BuildConfiguration(const QString &name, BuildConfiguration *source)
-    : m_values(source->m_values), m_name(name)
+    : m_values(source->m_values), m_name(name), m_project(source->m_project)
 {
     foreach(BuildStep *originalbs, source->buildSteps()) {
         IBuildStepFactory *factory = findFactory(originalbs->name());
@@ -170,6 +170,11 @@ void BuildConfiguration::moveCleanStepUp(int position)
     if (position <= 0 || m_cleanSteps.size() <= 1)
         return;
     m_cleanSteps.swap(position - 1, position);
+}
+
+Project *BuildConfiguration::project() const
+{
+    return m_project;
 }
 
 ///

@@ -270,7 +270,7 @@ QString Qt4BuildConfigurationFactory::displayNameForType(const QString &type) co
     return QString();
 }
 
-bool Qt4BuildConfigurationFactory::create(const QString &type) const
+BuildConfiguration *Qt4BuildConfigurationFactory::create(const QString &type) const
 {
     QTC_ASSERT(m_versions.contains(type), return false);
     const VersionInfo &info = m_versions.value(type);
@@ -290,18 +290,25 @@ bool Qt4BuildConfigurationFactory::create(const QString &type) const
     m_project->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
                                      version,
                                      (version->defaultBuildConfig() | QtVersion::DebugBuild));
+    BuildConfiguration *bc =
     m_project->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
                                      version,
                                      (version->defaultBuildConfig() & ~QtVersion::DebugBuild));
-    return true;
+    return bc;
 }
 
-bool Qt4BuildConfigurationFactory::clone(const QString &name, BuildConfiguration *source) const
+BuildConfiguration *Qt4BuildConfigurationFactory::clone(const QString &name, BuildConfiguration *source) const
 {
     Qt4BuildConfiguration *oldbc = static_cast<Qt4BuildConfiguration *>(source);
     Qt4BuildConfiguration *newbc = new Qt4BuildConfiguration(name, oldbc);
     m_project->addBuildConfiguration(newbc);
-    return true;
+    return newbc;
+}
+
+BuildConfiguration *Qt4BuildConfigurationFactory::restore(const QString &name) const
+{
+    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(m_project, name);
+    return bc;
 }
 
 /*!
@@ -445,14 +452,14 @@ ProjectExplorer::IBuildConfigurationFactory *Qt4Project::buildConfigurationFacto
     return m_buildConfigurationFactory;
 }
 
-void Qt4Project::addQt4BuildConfiguration(QString buildConfigurationName, QtVersion *qtversion,
+Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString buildConfigurationName, QtVersion *qtversion,
                                           QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                           QStringList additionalArguments)
 {
     bool debug = qmakeBuildConfiguration & QtVersion::DebugBuild;
 
     // Add the buildconfiguration
-    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(buildConfigurationName);
+    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(this, buildConfigurationName);
     addBuildConfiguration(bc);
 
     QMakeStep *qmakeStep = new QMakeStep(this, bc);
@@ -479,6 +486,7 @@ void Qt4Project::addQt4BuildConfiguration(QString buildConfigurationName, QtVers
         setQtVersion(bc, 0);
     else
         setQtVersion(bc, qtversion->uniqueId());
+    return bc;
 }
 
 namespace {

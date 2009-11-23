@@ -73,6 +73,7 @@ namespace Internal {
     class GCCPreprocessor;
     struct Qt4ProjectFiles;
     class Qt4ProjectConfigWidget;
+    class Qt4BuildConfiguration;
 
     class CodeModelInfo
     {
@@ -130,8 +131,9 @@ public:
     QStringList availableCreationTypes() const;
     QString displayNameForType(const QString &type) const;
 
-    bool create(const QString &type) const;
-    bool clone(const QString &name, ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *create(const QString &type) const;
+    ProjectExplorer::BuildConfiguration *clone(const QString &name, ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *restore(const QString &name) const;
 
     void update();
 
@@ -162,10 +164,10 @@ public:
     Qt4Manager *qt4ProjectManager() const;
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
-    void addQt4BuildConfiguration(QString buildConfigurationName,
-                               QtVersion *qtversion,
-                               QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
-                               QStringList additionalArguments = QStringList());
+    Internal::Qt4BuildConfiguration *addQt4BuildConfiguration(QString buildConfigurationName,
+                                                              QtVersion *qtversion,
+                                                              QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
+                                                              QStringList additionalArguments = QStringList());
 
     QList<Core::IFile *> dependencies();     //NBS remove
     QList<ProjectExplorer::Project *>dependsOn();

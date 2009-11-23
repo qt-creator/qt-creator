@@ -74,8 +74,10 @@ public:
     void removeCleanStep(int position);
     void moveCleanStepUp(int position);
 
+    Project *project() const;
+
 protected:
-    BuildConfiguration(const QString &name);
+    BuildConfiguration(Project * project, const QString &name);
     BuildConfiguration(const QString &name, BuildConfiguration *source);
 
 private:
@@ -86,6 +88,7 @@ private:
 
     QHash<QString, QVariant> m_values;
     QString m_name;
+    Project *m_project;
     friend class Project; // for setName
 };
 
@@ -104,15 +107,18 @@ public:
 
     // creates build configuration(s) for given type and adds them to project
     // returns true if build configuration(s) actually have been added
-    virtual bool create(const QString &type) const = 0;
+    virtual BuildConfiguration *create(const QString &type) const = 0;
 
-    // clones a given BuildConfiguration
-    virtual bool clone(const QString &name, BuildConfiguration *source) const = 0;
+    // clones a given BuildConfiguration and adds it to the project
+    virtual BuildConfiguration *clone(const QString &name, BuildConfiguration *source) const = 0;
+
+    // restores a BuildConfiguration with the name and adds it to the project
+    virtual BuildConfiguration *restore(const QString &name) const = 0;
+
 
     // TODO All those methods make the internal name (and display name) unique,
     // but in different ways
 
-    //virtual bool restore(const QString &name);
 
 // to come:
 // restore

@@ -33,13 +33,15 @@
 #include <projectexplorer/buildconfiguration.h>
 
 namespace GenericProjectManager {
-    namespace Internal {
+namespace Internal {
+
+class GenericProject;
 
 
 class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
 public:
-    GenericBuildConfiguration(const QString &name);
+    GenericBuildConfiguration(GenericProject *pro, const QString &name);
     GenericBuildConfiguration(const QString &name, GenericBuildConfiguration *source);
 };
 
