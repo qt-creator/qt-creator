@@ -927,6 +927,7 @@ void WatchModel::insertData(const WatchData &data)
         oldItem->generation = generationCounter;
         QModelIndex idx = watchIndex(oldItem);
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
+        emit layoutChanged();
     } else {
         // add new entry
         //MODEL_DEBUG("ADD : " << data.iname << data.value);
