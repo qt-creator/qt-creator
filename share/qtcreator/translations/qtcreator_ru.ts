@@ -12310,8 +12310,8 @@ to version control (%2)?</source>
     </message>
     <message>
         <location line="+2"/>
-        <source>Select the CSL Arm Toolchain (GCCE) Directory</source>
-        <translation>Выберите каталог с инструментарием CSL Arm (GCCE)</translation>
+        <source>Select the CSL ARM Toolchain (GCCE) Directory</source>
+        <translation>Выберите каталог с инструментарием CSL ARM (GCCE)</translation>
     </message>
     <message>
         <location line="+11"/>

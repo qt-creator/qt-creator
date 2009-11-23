@@ -9982,8 +9982,8 @@ to version control (%2)?</source>
     </message>
     <message>
         <location line="+2"/>
-        <source>Select the CSL Arm Toolchain (GCCE) Directory</source>
-        <translation>CSL Arm ツールチェイン (GCCE) のディレクトリを選択</translation>
+        <source>Select the CSL ARM Toolchain (GCCE) Directory</source>
+        <translation>CSL ARM ツールチェイン (GCCE) のディレクトリを選択</translation>
     </message>
     <message>
         <location line="+11"/>
