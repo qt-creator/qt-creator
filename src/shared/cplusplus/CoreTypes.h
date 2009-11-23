@@ -186,7 +186,7 @@ private:
 class CPLUSPLUS_EXPORT PointerToMemberType: public Type
 {
 public:
-    PointerToMemberType(Name *memberName, FullySpecifiedType elementType);
+    PointerToMemberType(Name *memberName, const FullySpecifiedType &elementType);
     virtual ~PointerToMemberType();
 
     Name *memberName() const;
@@ -236,11 +236,11 @@ private:
 class CPLUSPLUS_EXPORT ArrayType: public Type
 {
 public:
-    ArrayType(const FullySpecifiedType &elementType, size_t size);
+    ArrayType(const FullySpecifiedType &elementType, unsigned size);
     virtual ~ArrayType();
 
     FullySpecifiedType elementType() const;
-    size_t size() const;
+    unsigned size() const;
 
     virtual bool isEqualTo(const Type *other) const;
 
@@ -256,7 +256,7 @@ protected:
 
 private:
     FullySpecifiedType _elementType;
-    size_t _size;
+    unsigned _size;
 };
 
 class CPLUSPLUS_EXPORT NamedType: public Type

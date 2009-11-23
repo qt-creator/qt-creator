@@ -90,7 +90,7 @@ bool VoidType::matchType0(const Type *otherType, TypeMatcher *matcher) const
     return false;
 }
 
-PointerToMemberType::PointerToMemberType(Name *memberName, FullySpecifiedType elementType)
+PointerToMemberType::PointerToMemberType(Name *memberName, const FullySpecifiedType &elementType)
     : _memberName(memberName),
       _elementType(elementType)
 { }
@@ -241,7 +241,7 @@ bool FloatType::isEqualTo(const Type *other) const
     return _kind == o->_kind;
 }
 
-ArrayType::ArrayType(const FullySpecifiedType &elementType, size_t size)
+ArrayType::ArrayType(const FullySpecifiedType &elementType, unsigned size)
     : _elementType(elementType), _size(size)
 { }
 
@@ -272,7 +272,7 @@ bool ArrayType::matchType0(const Type *otherType, TypeMatcher *matcher) const
 FullySpecifiedType ArrayType::elementType() const
 { return _elementType; }
 
-size_t ArrayType::size() const
+unsigned ArrayType::size() const
 { return _size; }
 
 NamedType::NamedType(Name *name)

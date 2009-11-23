@@ -102,7 +102,7 @@ public:
 
     /// Returns a Type object of type PointertoMemberType.
     PointerToMemberType *pointerToMemberType(Name *memberName,
-                                             FullySpecifiedType elementType);
+                                             const FullySpecifiedType &elementType);
 
     /// Returns a Type object of type PointerType.
     PointerType *pointerType(const FullySpecifiedType &elementType);
@@ -111,7 +111,7 @@ public:
     ReferenceType *referenceType(const FullySpecifiedType &elementType);
 
     /// Retruns a Type object of type ArrayType.
-    ArrayType *arrayType(const FullySpecifiedType &elementType, size_t size = 0);
+    ArrayType *arrayType(const FullySpecifiedType &elementType, unsigned size = 0);
 
     /// Returns a Type object of type NamedType.
     NamedType *namedType(Name *name);

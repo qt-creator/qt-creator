@@ -131,11 +131,11 @@ FullySpecifiedType Semantic::check(SpecifierListAST *specifier, Scope *scope)
 void Semantic::check(DeclarationAST *declaration, Scope *scope, TemplateParameters *templateParameters)
 { d->checkDeclaration->check(declaration, scope, templateParameters); }
 
-FullySpecifiedType Semantic::check(DeclaratorAST *declarator, FullySpecifiedType type,
+FullySpecifiedType Semantic::check(DeclaratorAST *declarator, const FullySpecifiedType &type,
                                    Scope *scope, Name **name)
 { return d->checkDeclarator->check(declarator, type, scope, name); }
 
-FullySpecifiedType Semantic::check(PtrOperatorListAST *ptrOperators, FullySpecifiedType type,
+FullySpecifiedType Semantic::check(PtrOperatorListAST *ptrOperators, const FullySpecifiedType &type,
                                    Scope *scope)
 { return d->checkDeclarator->check(ptrOperators, type, scope); }
 

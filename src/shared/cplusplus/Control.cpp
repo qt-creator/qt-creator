@@ -54,6 +54,7 @@
 #include "Symbols.h"
 #include "Names.h"
 #include "Array.h"
+#include "TypeMatcher.h"
 #include <map> // ### replace me with LiteralTable
 
 using namespace CPlusPlus;
@@ -80,6 +81,13 @@ template <typename _Array>
 static void delete_array_entries(const _Array &a)
 { delete_array_entries(a.begin(), a.end()); }
 
+template <typename _Tp>
+static void delete_array_entries(const Array<_Tp> &a)
+{
+    for (unsigned i = 0; i < a.size(); ++i)
+        delete a.at(i);
+}
+
 class Control::Data
 {
 public:
@@ -100,13 +108,13 @@ public:
         delete_map_entries(templateNameIds);
 
         // types
-        delete_map_entries(integerTypes);
-        delete_map_entries(floatTypes);
-        delete_map_entries(pointerToMemberTypes);
-        delete_map_entries(pointerTypes);
-        delete_map_entries(referenceTypes);
-        delete_map_entries(arrayTypes);
-        delete_map_entries(namedTypes);
+        delete_array_entries(integerTypes);
+        delete_array_entries(floatTypes);
+        delete_array_entries(pointerToMemberTypes);
+        delete_array_entries(pointerTypes);
+        delete_array_entries(referenceTypes);
+        delete_array_entries(arrayTypes);
+        delete_array_entries(namedTypes);
 
         // symbols
         delete_array_entries(declarations);
@@ -210,66 +218,95 @@ public:
 
     IntegerType *findOrInsertIntegerType(int kind)
     {
-        const int key = int(kind);
-        std::map<int, IntegerType *>::iterator it = integerTypes.lower_bound(key);
-        if (it == integerTypes.end() || it->first != key)
-            it = integerTypes.insert(it, std::make_pair(key, new IntegerType(kind)));
-        return it->second;
+        for (unsigned i = 0; i < integerTypes.size(); ++i) {
+            IntegerType *ty = integerTypes.at(i);
+
+            if (ty->kind() == kind)
+                return ty;
+        }
+
+        IntegerType *ty = new IntegerType(kind);
+        integerTypes.push_back(ty);
+        return ty;
     }
 
     FloatType *findOrInsertFloatType(int kind)
     {
-        const int key = int(kind);
-        std::map<int, FloatType *>::iterator it = floatTypes.lower_bound(key);
-        if (it == floatTypes.end() || it->first != key)
-            it = floatTypes.insert(it, std::make_pair(key, new FloatType(kind)));
-        return it->second;
+        for (unsigned i = 0; i < floatTypes.size(); ++i) {
+            FloatType *ty = floatTypes.at(i);
+
+            if (ty->kind() == kind)
+                return ty;
+        }
+
+        FloatType *ty = new FloatType(kind);
+        floatTypes.push_back(ty);
+        return ty;
     }
 
-    PointerToMemberType *findOrInsertPointerToMemberType(Name *memberName, FullySpecifiedType elementType)
+    PointerToMemberType *findOrInsertPointerToMemberType(Name *memberName, const FullySpecifiedType &elementType)
     {
-        const PointerToMemberTypeKey key(memberName, elementType);
-        std::map<PointerToMemberTypeKey, PointerToMemberType *>::iterator it =
-                pointerToMemberTypes.lower_bound(key);
-        if (it == pointerToMemberTypes.end() || it->first != key)
-            it = pointerToMemberTypes.insert(it, std::make_pair(key, new PointerToMemberType(memberName, elementType)));
-        return it->second;
+        for (unsigned i = 0; i < pointerToMemberTypes.size(); ++i) {
+            PointerToMemberType *ty = pointerToMemberTypes.at(i);
+            if (ty->elementType().match(elementType, &matcher) && matcher.isEqualTo(ty->memberName(), memberName))
+                return ty;
+        }
+
+        PointerToMemberType *ty = new PointerToMemberType(memberName, elementType);
+        pointerToMemberTypes.push_back(ty);
+        return ty;
     }
 
     PointerType *findOrInsertPointerType(const FullySpecifiedType &elementType)
     {
-        std::map<FullySpecifiedType, PointerType *>::iterator it =
-                pointerTypes.lower_bound(elementType);
-        if (it == pointerTypes.end() || it->first != elementType)
-            it = pointerTypes.insert(it, std::make_pair(elementType, new PointerType(elementType)));
-        return it->second;
+        for (unsigned i = 0; i < pointerTypes.size(); ++i) {
+            PointerType *ty = pointerTypes.at(i);
+            if (ty->elementType().match(elementType, &matcher))
+                return ty;
+        }
+
+        PointerType *ty = new PointerType(elementType);
+        pointerTypes.push_back(ty);
+        return ty;
     }
 
     ReferenceType *findOrInsertReferenceType(const FullySpecifiedType &elementType)
     {
-        std::map<FullySpecifiedType, ReferenceType *>::iterator it =
-                referenceTypes.lower_bound(elementType);
-        if (it == referenceTypes.end() || it->first != elementType)
-            it = referenceTypes.insert(it, std::make_pair(elementType, new ReferenceType(elementType)));
-        return it->second;
+        for (unsigned i = 0; i < referenceTypes.size(); ++i) {
+            ReferenceType *ty = referenceTypes.at(i);
+            if (ty->elementType().match(elementType, &matcher))
+                return ty;
+        }
+
+        ReferenceType *ty = new ReferenceType(elementType);
+        referenceTypes.push_back(ty);
+        return ty;
     }
 
-    ArrayType *findOrInsertArrayType(const FullySpecifiedType &elementType, size_t size)
+    ArrayType *findOrInsertArrayType(const FullySpecifiedType &elementType, unsigned size)
     {
-        const ArrayKey key(elementType, size);
-        std::map<ArrayKey, ArrayType *>::iterator it =
-                arrayTypes.lower_bound(key);
-        if (it == arrayTypes.end() || it->first != key)
-            it = arrayTypes.insert(it, std::make_pair(key, new ArrayType(elementType, size)));
-        return it->second;
+        for (unsigned i = 0; i < arrayTypes.size(); ++i) {
+            ArrayType *ty = arrayTypes.at(i);
+            if (ty->size() == size && ty->elementType().match(elementType, &matcher))
+                return ty;
+        }
+
+        ArrayType *ty = new ArrayType(elementType, size);
+        arrayTypes.push_back(ty);
+        return ty;
     }
 
     NamedType *findOrInsertNamedType(Name *name)
     {
-        std::map<Name *, NamedType *>::iterator it = namedTypes.lower_bound(name);
-        if (it == namedTypes.end() || it->first != name)
-            it = namedTypes.insert(it, std::make_pair(name, new NamedType(name)));
-        return it->second;
+        for (unsigned i = 0; i < namedTypes.size(); ++i) {
+            NamedType *ty = namedTypes.at(i);
+            if (matcher.isEqualTo(ty->name(), name))
+                return ty;
+        }
+
+        NamedType *ty = new NamedType(name);
+        namedTypes.push_back(ty);
+        return ty;
     }
 
     Declaration *newDeclaration(unsigned sourceLocation, Name *name)
@@ -484,61 +521,12 @@ public:
         }
     };
 
-    struct ArrayKey {
-        FullySpecifiedType type;
-        size_t size;
-
-        ArrayKey() :
-            size(0)
-        { }
-
-        ArrayKey(const FullySpecifiedType &type, size_t size) :
-            type(type), size(size)
-        { }
-
-        bool operator == (const ArrayKey &other) const
-        { return type == other.type && size == other.size; }
-
-        bool operator != (const ArrayKey &other) const
-        { return ! operator==(other); }
-
-        bool operator < (const ArrayKey &other) const
-        {
-            if (type == other.type)
-                return size < other.size;
-            return type < other.type;
-        }
-    };
-
-    struct PointerToMemberTypeKey {
-        Name *memberName;
-        FullySpecifiedType type;
-
-        PointerToMemberTypeKey()
-            : memberName(0)
-        { }
-
-        PointerToMemberTypeKey(Name *memberName, FullySpecifiedType type)
-            : memberName(memberName), type(type)
-        { }
-
-        bool operator == (const PointerToMemberTypeKey &other) const
-        { return memberName == other.memberName && type == other.type; }
-
-        bool operator != (const PointerToMemberTypeKey &other) const
-        { return ! operator==(other); }
-
-        bool operator < (const PointerToMemberTypeKey &other) const
-        {
-            if (memberName == other.memberName)
-                return type < other.type;
-            return memberName < other.memberName;
-        }
-    };
-
     Control *control;
     TranslationUnit *translationUnit;
     DiagnosticClient *diagnosticClient;
+
+    TypeMatcher matcher;
+
     LiteralTable<Identifier> identifiers;
     LiteralTable<StringLiteral> stringLiterals;
     LiteralTable<NumericLiteral> numericLiterals;
@@ -556,13 +544,13 @@ public:
 
     // types
     VoidType voidType;
-    std::map<int, IntegerType *> integerTypes;
-    std::map<int, FloatType *> floatTypes;
-    std::map<PointerToMemberTypeKey, PointerToMemberType *> pointerToMemberTypes;
-    std::map<FullySpecifiedType, PointerType *> pointerTypes;
-    std::map<FullySpecifiedType, ReferenceType *> referenceTypes;
-    std::map<ArrayKey, ArrayType *> arrayTypes;
-    std::map<Name *, NamedType *> namedTypes;
+    Array<IntegerType *> integerTypes;
+    Array<FloatType *> floatTypes;
+    Array<PointerToMemberType *> pointerToMemberTypes;
+    Array<PointerType *> pointerTypes;
+    Array<ReferenceType *> referenceTypes;
+    Array<ArrayType *> arrayTypes;
+    Array<NamedType *> namedTypes;
 
     // symbols
     std::vector<Declaration *> declarations;
@@ -723,7 +711,7 @@ IntegerType *Control::integerType(int kind)
 FloatType *Control::floatType(int kind)
 { return d->findOrInsertFloatType(kind); }
 
-PointerToMemberType *Control::pointerToMemberType(Name *memberName, FullySpecifiedType elementType)
+PointerToMemberType *Control::pointerToMemberType(Name *memberName, const FullySpecifiedType &elementType)
 { return d->findOrInsertPointerToMemberType(memberName, elementType); }
 
 PointerType *Control::pointerType(const FullySpecifiedType &elementType)
@@ -732,7 +720,7 @@ PointerType *Control::pointerType(const FullySpecifiedType &elementType)
 ReferenceType *Control::referenceType(const FullySpecifiedType &elementType)
 { return d->findOrInsertReferenceType(elementType); }
 
-ArrayType *Control::arrayType(const FullySpecifiedType &elementType, size_t size)
+ArrayType *Control::arrayType(const FullySpecifiedType &elementType, unsigned size)
 { return d->findOrInsertArrayType(elementType, size); }
 
 NamedType *Control::namedType(Name *name)

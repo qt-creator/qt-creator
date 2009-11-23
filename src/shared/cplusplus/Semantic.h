@@ -69,10 +69,10 @@ public:
 
     FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope);
 
-    FullySpecifiedType check(DeclaratorAST *declarator, FullySpecifiedType type,
+    FullySpecifiedType check(DeclaratorAST *declarator, const FullySpecifiedType &type,
                              Scope *scope, Name **name = 0); // ### ugly
 
-    FullySpecifiedType check(PtrOperatorListAST *ptrOperators, FullySpecifiedType type,
+    FullySpecifiedType check(PtrOperatorListAST *ptrOperators, const FullySpecifiedType &type,
                              Scope *scope);
 
     FullySpecifiedType check(ObjCMethodPrototypeAST *methodPrototype, Scope *scope);

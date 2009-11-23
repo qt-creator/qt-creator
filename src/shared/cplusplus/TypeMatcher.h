@@ -64,7 +64,6 @@ public:
     virtual bool match(const ObjCForwardProtocolDeclaration *type, const ObjCForwardProtocolDeclaration *otherType);
     virtual bool match(const ObjCMethod *type, const ObjCMethod *otherType);
 
-protected:
     bool isEqualTo(const Name *name, const Name *otherName) const;
 };
 
