@@ -26,9 +26,10 @@ bool checkUninitialized = false;
 
 #include <QtTest/QtTest>
 
-#ifdef Q_OS_WIN
-#    include <windows.h>
-#endif
+#include <deque>
+#include <map>
+#include <set>
+#include <vector>
 
 #undef NS
 #ifdef QT_NAMESPACE
@@ -59,6 +60,8 @@ QString gdbBinary = "c:\\MinGw\\bin\\gdb.exe";
 QString gdbBinary = "./gdb";
 #endif
 
+void nothing() {}
+
 class Foo
 {
 public:
@@ -69,6 +72,7 @@ public:
     ~Foo()
     {
     } 
+
     void doit()
     {
         static QObject ob;
@@ -106,7 +110,8 @@ private:
 
 typedef QList<QByteArray> QByteArrayList;
 
-struct Int3 {
+struct Int3
+{
     Int3(int base = 0) { i1 = 42 + base; i2 = 43 + base; i3 = 44 + base; }
     int i1, i2, i3;
 };
@@ -121,7 +126,13 @@ bool operator==(const Int3 &a, const Int3 &b)
     return a.i1 == b.i1 && a.i2 == b.i2 && a.i3 == b.i3;
 }
 
-struct QString3 {
+bool operator<(const Int3 &a, const Int3 &b)
+{
+    return a.i1 < b.i1;
+}
+
+struct QString3
+{
     QString3() { s1 = "a"; s2 = "b"; s3 = "c"; }
     QString s1, s2, s3;
 };
@@ -183,11 +194,18 @@ private slots:
     void dump_array();
     void dump_misc();
     void dump_typedef();
+    void dump_std_deque();
     void dump_std_list();
-    void dump_std_vector();
+    void dump_std_map_int_int();
+    void dump_std_map_string_string();
+    void dump_std_set_Int3();
+    void dump_std_set_int();
     void dump_std_string();
+    void dump_std_vector();
     void dump_std_wstring();
     void dump_Foo();
+    void dump_QAbstractItemModel();
+    void dump_QAbstractItemAndModelIndex();
     void dump_QByteArray();
     void dump_QChar();
     void dump_QHash_int_int();
@@ -226,13 +244,10 @@ private slots:
 public slots:
     void dumperCompatibility();
 #if 0
-    void dump_QAbstractItemAndModelIndex();
-    void dump_QAbstractItemModel();
     void dump_QDateTime();
     void dump_QDir();
     void dump_QFile();
     void dump_QFileInfo();
-    void dump_QHashNode();
     void dump_QLinkedList();
     void dump_QLocale();
     void dump_QPixmap();
@@ -240,7 +255,6 @@ public slots:
 
 private:
 #if 0
-    void dump_QAbstractItemHelper(QModelIndex &index);
     void dump_QAbstractItemModelHelper(QAbstractItemModel &m);
     void dump_QDateTimeHelper(const QDateTime &d);
     void dump_QFileHelper(const QString &name, bool exists);
@@ -897,156 +911,137 @@ void tst_Gdb::dump_QAbstractItemHelper(QModelIndex &index)
     expected.append("]");
     testDumper(expected, &index, NS"QAbstractItem", true, indexSpecValue);
 }
+#endif
+
+class PseudoTreeItemModel : public QAbstractItemModel
+{
+public:
+    PseudoTreeItemModel() : QAbstractItemModel(), parent1(0),
+        parent1Child(1), parent2(10), parent2Child1(11), parent2Child2(12)
+    {}
+
+    int columnCount(const QModelIndex &parent = QModelIndex()) const
+    {
+        Q_UNUSED(parent);
+        return 1;
+    }
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
+    {
+        return !index.isValid() || role != Qt::DisplayRole ?
+                QVariant() : *static_cast<int *>(index.internalPointer());
+    }
+
+    QModelIndex index(int row, int column,
+                      const QModelIndex & parent = QModelIndex()) const
+    {
+        QModelIndex index;
+        if (column == 0) {
+            if (!parent.isValid()) {
+                if (row == 0)
+                    index = createIndex(row, column, &parent1);
+                else if (row == 1)
+                    index = createIndex(row, column, &parent2);
+            } else if (parent.internalPointer() == &parent1 && row == 0) {
+                index = createIndex(row, column, &parent1Child);
+            } else if (parent.internalPointer() == &parent2) {
+                index = createIndex(row, column,
+                            row == 0 ? &parent2Child1 : &parent2Child2);
+            }
+        }
+        return index;
+    }
+
+    QModelIndex parent(const QModelIndex & index) const
+    {
+        QModelIndex parent;
+        if (index.isValid()) {
+            if (index.internalPointer() == &parent1Child)
+                parent = createIndex(0, 0, &parent1);
+            else if (index.internalPointer() == &parent2Child1 ||
+                     index.internalPointer() == &parent2Child2)
+                parent = createIndex(1, 0, &parent2);
+        }
+        return parent;
+    }
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const
+    {
+        int rowCount;
+        if (!parent.isValid() || parent.internalPointer() == &parent2)
+            rowCount = 2;
+        else if (parent.internalPointer() == &parent1)
+            rowCount = 1;
+        else
+            rowCount = 0;
+        return rowCount;
+    }
+
+private:
+    mutable int parent1;
+    mutable int parent1Child;
+    mutable int parent2;
+    mutable int parent2Child1;
+    mutable int parent2Child2;
+};
+
+
+//    /* A */ QStringListModel m(QStringList() << "item1" << "item2" << "item3");
+//    /* B */ index = m.index(2, 0);
+void dump_QAbstractItemAndModelIndex()
+{
+    /* A */ PseudoTreeItemModel m2; QModelIndex index;
+    /* C */ index = m2.index(0, 0);
+    /* D */ index = m2.index(1, 0);
+    /* E */ index = m2.index(0, 0, index);
+    /* F */ (void) index.row();
+}
 
 void tst_Gdb::dump_QAbstractItemAndModelIndex()
 {
-    class PseudoTreeItemModel : public QAbstractItemModel
-    {
-    public:
-        PseudoTreeItemModel() : QAbstractItemModel(), parent1(0),
-            parent1Child(1), parent2(10), parent2Child1(11), parent2Child2(12)
-        {}
-
-        int columnCount(const QModelIndex &parent = QModelIndex()) const
-        {
-            Q_UNUSED(parent);
-            return 1;
-        }
-
-        QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
-        {
-            return !index.isValid() || role != Qt::DisplayRole ?
-                    QVariant() : *static_cast<int *>(index.internalPointer());
-        }
-
-        QModelIndex index(int row, int column,
-                          const QModelIndex & parent = QModelIndex()) const
-        {
-            QModelIndex index;
-            if (column == 0) {
-                if (!parent.isValid()) {
-                    if (row == 0)
-                        index = createIndex(row, column, &parent1);
-                    else if (row == 1)
-                        index = createIndex(row, column, &parent2);
-                } else if (parent.internalPointer() == &parent1 && row == 0) {
-                    index = createIndex(row, column, &parent1Child);
-                } else if (parent.internalPointer() == &parent2) {
-                    index = createIndex(row, column,
-                                row == 0 ? &parent2Child1 : &parent2Child2);
-                }
-            }
-            return index;
-        }
-
-        QModelIndex parent(const QModelIndex & index) const
-        {
-            QModelIndex parent;
-            if (index.isValid()) {
-                if (index.internalPointer() == &parent1Child)
-                    parent = createIndex(0, 0, &parent1);
-                else if (index.internalPointer() == &parent2Child1 ||
-                         index.internalPointer() == &parent2Child2)
-                    parent = createIndex(1, 0, &parent2);
-            }
-            return parent;
-        }
-
-        int rowCount(const QModelIndex &parent = QModelIndex()) const
-        {
-            int rowCount;
-            if (!parent.isValid() || parent.internalPointer() == &parent2)
-                rowCount = 2;
-            else if (parent.internalPointer() == &parent1)
-                rowCount = 1;
-            else
-                rowCount = 0;
-            return rowCount;
-        }
-
-    private:
-        mutable int parent1;
-        mutable int parent1Child;
-        mutable int parent2;
-        mutable int parent2Child1;
-        mutable int parent2Child2;
-    };
-
-    PseudoTreeItemModel m2;
-
-    // Case 1: ModelIndex with no children.
-    QStringListModel m(QStringList() << "item1" << "item2" << "item3");
-    QModelIndex index = m.index(2, 0);
-
-    testDumper(QByteArray("type='$T',value='(2, 0)',numchild='5',children=["
-        "{name='row',value='2',type='int',numchild='0'},"
-        "{name='column',value='0',type='int',numchild='0'},"
-        "{name='parent',value='<invalid>',exp='(('$T'*)$A)->parent()',"
-            "type='$T',numchild='1'},"
-        "{name='internalId',%},"
-        "{name='model',value='%',type='"NS"QAbstractItemModel*',"
-            "numchild='1'}]")
-         << generateQStringSpec(N(index.internalId()))
-         << ptrToBa(&m),
-        &index, NS"QModelIndex", true);
-
-    // Case 2: ModelIndex with one child.
-    QModelIndex index2 = m2.index(0, 0);
-    dump_QAbstractItemHelper(index2);
-
-    qDebug() << "FIXME: invalid indices should not have children";
-    testDumper(QByteArray("type='$T',value='(0, 0)',numchild='5',children=["
-        "{name='row',value='0',type='int',numchild='0'},"
-        "{name='column',value='0',type='int',numchild='0'},"
-        "{name='parent',value='<invalid>',exp='(('$T'*)$A)->parent()',"
-            "type='$T',numchild='1'},"
-        "{name='internalId',%},"
-        "{name='model',value='%',type='"NS"QAbstractItemModel*',"
-            "numchild='1'}]")
-         << generateQStringSpec(N(index2.internalId()))
-         << ptrToBa(&m2),
-        &index2, NS"QModelIndex", true);
-
-
-    // Case 3: ModelIndex with two children.
-    QModelIndex index3 = m2.index(1, 0);
-    dump_QAbstractItemHelper(index3);
-
-    testDumper(QByteArray("type='$T',value='(1, 0)',numchild='5',children=["
-        "{name='row',value='1',type='int',numchild='0'},"
-        "{name='column',value='0',type='int',numchild='0'},"
-        "{name='parent',value='<invalid>',exp='(('$T'*)$A)->parent()',"
-            "type='$T',numchild='1'},"
-        "{name='internalId',%},"
-        "{name='model',value='%',type='"NS"QAbstractItemModel*',"
-            "numchild='1'}]")
-         << generateQStringSpec(N(index3.internalId()))
-         << ptrToBa(&m2),
-        &index3, NS"QModelIndex", true);
-
-
-    // Case 4: ModelIndex with a parent.
-    index = m2.index(0, 0, index3);
-    testDumper(QByteArray("type='$T',value='(0, 0)',numchild='5',children=["
-        "{name='row',value='0',type='int',numchild='0'},"
-        "{name='column',value='0',type='int',numchild='0'},"
-        "{name='parent',value='(1, 0)',exp='(('$T'*)$A)->parent()',"
-            "type='$T',numchild='1'},"
-        "{name='internalId',%},"
-        "{name='model',value='%',type='"NS"QAbstractItemModel*',"
-            "numchild='1'}]")
-         << generateQStringSpec(N(index.internalId()))
-         << ptrToBa(&m2),
-        &index, NS"QModelIndex", true);
-
-
-    // Case 5: Empty ModelIndex
-    QModelIndex index4;
-    testDumper("type='$T',value='<invalid>',numchild='0'",
-        &index4, NS"QModelIndex", true);
+    prepare("dump_QAbstractItemAndModelIndex");
+    if (checkUninitialized)
+        run("A", "");
+    next();
+    run("C", "{iname='local.m2',name='m2',type='PseudoTreeItemModel',"
+            "value='{...}',numchild='6'},"
+        "{iname='local.index',name='index',type='"NS"QModelIndex',"
+            "value='(invalid)',numchild='0'}",
+        "local.index");
+    next();
+    run("D", "{iname='local.m2',name='m2',type='PseudoTreeItemModel',"
+           "value='{...}',numchild='6'},"
+        "{iname='local.index',name='index',type='"NS"QModelIndex',"
+          "value='(0, 0)',numchild='5',children=["
+            "{name='row',value='0',type='int',numchild='0'},"
+            "{name='column',value='0',type='int',numchild='0'},"
+            "{name='parent',type='"NS"QModelIndex',value='(invalid)',numchild='0'},"
+            "{name='model',value='-',type='"NS"QAbstractItemModel*',numchild='1'}]}",
+        "local.index");
+    next();
+    run("E", "{iname='local.m2',name='m2',type='PseudoTreeItemModel',"
+           "value='{...}',numchild='6'},"
+        "{iname='local.index',name='index',type='"NS"QModelIndex',"
+          "value='(1, 0)',numchild='5',children=["
+            "{name='row',value='1',type='int',numchild='0'},"
+            "{name='column',value='0',type='int',numchild='0'},"
+            "{name='parent',type='"NS"QModelIndex',value='(invalid)',numchild='0'},"
+            "{name='model',value='-',type='"NS"QAbstractItemModel*',numchild='1'}]}",
+        "local.index");
+    next();
+    run("F", "{iname='local.m2',name='m2',type='PseudoTreeItemModel',"
+           "value='{...}',numchild='6'},"
+        "{iname='local.index',name='index',type='"NS"QModelIndex',"
+          "value='(0, 0)',numchild='5',children=["
+            "{name='row',value='0',type='int',numchild='0'},"
+            "{name='column',value='0',type='int',numchild='0'},"
+            "{name='parent',type='"NS"QModelIndex',value='(1, 0)',numchild='5'},"
+            "{name='model',value='-',type='"NS"QAbstractItemModel*',numchild='1'}]}",
+        "local.index");
 }
 
-void tst_Gdb::dump_QAbstractItemModelHelper(QAbstractItemModel &m)
+/*
+QByteArray dump_QAbstractItemModelHelper(QAbstractItemModel &m)
 {
     QByteArray address = ptrToBa(&m);
     QByteArray expected = QByteArray("tiname='iname',"
@@ -1076,43 +1071,53 @@ void tst_Gdb::dump_QAbstractItemModelHelper(QAbstractItemModel &m)
         }
     }
     expected.append("]");
-    testDumper(expected, &m, NS"QAbstractItemModel", true);
+    return expected;
+}
+*/
+
+#ifdef QT_GUI_LIB
+QStandardItem item1("Item (0,0)");
+QStandardItem item2("Item (0,1)");
+QStandardItem item3("Item (1,0)");
+QStandardItem item4("Item (1,1)");
+#endif
+
+void dump_QAbstractItemModel()
+{
+    #ifdef QT_GUI_LIB
+    /* A */ QStringList strList;
+            strList << "String 1";
+            QStringListModel model1(strList);
+            QStandardItemModel model2(0, 2); 
+    /* B */ model1.setStringList(strList);
+    /* C */ strList << "String 2";
+    /* D */ model1.setStringList(strList);
+    /* E */ model2.appendRow(QList<QStandardItem *>() << &item1 << &item2);
+    /* F */ model2.appendRow(QList<QStandardItem *>() << &item3 << &item4);
+    /* G */ (void) (model1.rowCount() + model2.rowCount() + item1.row()
+                + item2.row() + item3.row() + item4.row() + strList.size());
+    #endif
 }
 
 void tst_Gdb::dump_QAbstractItemModel()
 {
-    // Case 1: No rows, one column.
-    QStringList strList;
-    QStringListModel model(strList);
-    dump_QAbstractItemModelHelper(model);
+    #ifdef QT_GUI_LIB
+    /* A */ QStringList strList;
+    QString template_ = 
+        "{iname='local.strList',name='strList',type='"NS"QStringList',"
+            "value='<%1 items>',numchild='%1'},"
+        "{iname='local.model1',name='model1',type='"NS"QStringListModel',"
+            "value='{...}',numchild='3'},"
+        "{iname='local.model2',name='model2',type='"NS"QStandardItemModel',"
+            "value='{...}',numchild='2'}";
 
-    // Case 2: One row, one column.
-    strList << "String 1";
-    model.setStringList(strList);
-    dump_QAbstractItemModelHelper(model);
-
-    // Case 3: Two rows, one column.
-    strList << "String 2";
-    model.setStringList(strList);
-    dump_QAbstractItemModelHelper(model);
-
-    // Case 4: No rows, two columns.
-    QStandardItemModel model2(0, 2);
-    dump_QAbstractItemModelHelper(model2);
-
-    // Case 5: One row, two columns.
-    QStandardItem item1("Item (0,0)");
-    QStandardItem item2("(Item (0,1)");
-    model2.appendRow(QList<QStandardItem *>() << &item1 << &item2);
-    dump_QAbstractItemModelHelper(model2);
-
-    // Case 6: Two rows, two columns
-    QStandardItem item3("Item (1,0");
-    QStandardItem item4("Item (1,1)");
-    model2.appendRow(QList<QStandardItem *>() << &item3 << &item4);
-    dump_QAbstractItemModelHelper(model);
+    prepare("dump_QAbstractItemModel");
+    if (checkUninitialized)
+        run("A", template_.arg("1").toAscii());
+    next(4);
+    run("B", template_.arg("1").toAscii());
+    #endif
 }
-#endif
 
 void dump_QByteArray()
 {
@@ -1898,7 +1903,7 @@ void dump_QObject()
     /* B */ QObject ob;
     /* D */ ob.setObjectName("An Object");
     /* E */ QObject::connect(&ob, SIGNAL(destroyed()), qApp, SLOT(quit()));
-//    /* F */ QObject::disconnect(&ob, SIGNAL(destroyed()), qApp, SLOT(quit()));
+    /* F */ QObject::disconnect(&ob, SIGNAL(destroyed()), qApp, SLOT(quit()));
     /* G */ ob.setObjectName("A renamed Object");
     /* H */ (void) 0; }
 
@@ -1920,7 +1925,7 @@ void tst_Gdb::dump_QObject()
             "numchild='0'}");
     next(4);
     
-    run("F","{iname='local.ob',name='ob',type='"NS"QObject',valueencoded='7',"
+    run("G","{iname='local.ob',name='ob',type='"NS"QObject',valueencoded='7',"
       "value='41006e0020004f0062006a00650063007400',numchild='4',children=["
         "{name='parent',type='"NS"QObject *',"
             "value='0x0',numchild='0'},"
@@ -3216,6 +3221,39 @@ void tst_Gdb::dump_QWeakPointer_2() {}
 #endif
 
 
+///////////////////////////// std::deque<int> //////////////////////////////
+
+void dump_std_deque()
+{
+    /* A */ std::deque<int> deque;
+    /* B */ deque.push_back(45);
+    /* C */ deque.push_back(46);
+    /* D */ deque.push_back(47);
+    /* E */ (void) 0;
+}
+
+void tst_Gdb::dump_std_deque()
+{
+    prepare("dump_std_deque");
+    if (checkUninitialized)
+        run("A","{iname='local.deque',name='deque',"
+            "numchild='0'}");
+    next();
+    run("B", "{iname='local.deque',name='deque',"
+            "type='std::deque<int, std::allocator<int> >',"
+            "value='<0 items>',numchild='0',children=[]}",
+            "local.deque");
+    next(3);
+    run("E", "{iname='local.deque',name='deque',"
+            "type='std::deque<int, std::allocator<int> >',"
+            "value='<3 items>',numchild='3',"
+            "childtype='int',childnumchild='0',children=["
+                "{value='45'},{value='46'},{value='47'}]}",
+            "local.deque");
+    // FIXME: Try large container
+}
+
+
 ///////////////////////////// std::list<int> //////////////////////////////
 
 void dump_std_list()
@@ -3259,6 +3297,150 @@ void tst_Gdb::dump_std_list()
                 "{value='45'},{value='46'},{value='47'}]}",
             "local.list");
 }
+
+ 
+///////////////////////////// std::map<int, int> //////////////////////////////
+
+void dump_std_map_int_int()
+{
+    /* A */ std::map<int, int> h;
+    /* B */ h[12] = 34;
+    /* C */ h[14] = 54;
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dump_std_map_int_int()
+{
+    QByteArray type = "std::map<int, int, std::less<int>, "
+        "std::allocator<std::pair<int const, int> > >";
+
+    prepare("dump_std_map_int_int");
+    if (checkUninitialized)
+        run("A","{iname='local.h',name='h',"
+            "type='" + type + "',value='<not in scope>',"
+            "numchild='0'}");
+    next();
+    run("B","{iname='local.h',name='h',"
+            "type='" + type + "',value='<0 items>',"
+            "numchild='0'}");
+    next(2);
+    run("D","{iname='local.h',name='h',"
+            "type='" + type + "',value='<2 items>',"
+            "numchild='2'}");
+    run("D","{iname='local.h',name='h',"
+            "type='" + type + "',value='<2 items>',"
+            "numchild='2',childtype='int',childnumchild='0',"
+            "children=[{name='12',value='34'},{name='14',value='54'}]}",
+            "local.h,local.h.0,local.h.1");
+}
+
+
+//////////////////////// std::map<std::string, std::string> ////////////////////////
+
+void dump_std_map_string_string()
+{
+    /* A */ std::map<std::string, std::string> m;
+    /* B */ m["hello"] = "world";
+    /* C */ m["foo"] = "bar";
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dump_std_map_string_string()
+{
+    QByteArray strType =
+        "std::basic_string<char, std::char_traits<char>, std::allocator<char> >";
+    QByteArray pairType = 
+        + "std::pair<" + strType + " const, " + strType + " >";
+    QByteArray type = "std::map<" + strType + ", " + strType + ", "
+        + "std::less<" + strType + " >, "
+        + "std::allocator<" + pairType + " > >";
+
+    prepare("dump_std_map_string_string");
+    if (checkUninitialized)
+        run("A","{iname='local.m',name='m',"
+            "type='" + type + "',value='<not in scope>',"
+            "numchild='0'}");
+    next();
+    run("B","{iname='local.m',name='m',"
+            "type='" + type + "',value='<0 items>',"
+            "numchild='0'}");
+    next();
+    next();
+    run("D","{iname='local.m',name='m',"
+            "type='" + type + "',value='<2 items>',"
+            "numchild='2'}");
+    run("D","{iname='local.m',name='m',type='" + type + "',"
+            "value='<2 items>',numchild='2',childtype='" + pairType + "',"
+            "childnumchild='2',children=["
+              "{value=' ',children=["
+                 "{name='first',type='const " + strType + "',"
+                    "type='std::string',"
+                    "valueencoded='6',value='666f6f',numchild='0'},"
+                 "{name='second',type='" + strType + "',"
+                    "type='std::string',"
+                    "valueencoded='6',value='626172',numchild='0'}]},"
+              "{value=' ',children=["
+                 "{name='first',type='const " + strType + "',"
+                    "type='std::string',"
+                    "valueencoded='6',value='68656c6c6f',numchild='0'},"
+                 "{name='second',type='" + strType + "',"
+                    "type='std::string',"
+                    "valueencoded='6',value='776f726c64',numchild='0'}]}"
+            "]}",
+            "local.m,local.m.0,local.m.1");
+}
+
+
+///////////////////////////// std::set<int> ///////////////////////////////////
+
+void dump_std_set_int()
+{
+    /* A */ std::set<int> h;
+    /* B */ h.insert(42);
+    /* C */ h.insert(44);
+    /* D */ (void) 0;
+}
+
+void tst_Gdb::dump_std_set_int()
+{
+    QByteArray setType = "std::set<int, std::less<int>, std::allocator<int> >";
+    prepare("dump_std_set_int");
+    if (checkUninitialized)
+        run("A","{iname='local.h',name='h',"
+            "type='" + setType + "',value='<not in scope>',"
+            "numchild='0'}");
+    next(3);
+    run("D","{iname='local.h',name='h',"
+            "type='" + setType + "',value='<2 items>',numchild='2',"
+            "childtype='int',childnumchild='0',children=["
+            "{value='42'},{value='44'}]}", "local.h");
+}
+
+
+///////////////////////////// QSet<Int3> ///////////////////////////////////
+
+void dump_std_set_Int3()
+{
+    /* A */ std::set<Int3> h;
+    /* B */ h.insert(Int3(42));
+    /* C */ h.insert(Int3(44));
+    /* D */ (void) 0; }
+
+void tst_Gdb::dump_std_set_Int3()
+{
+    QByteArray setType = "std::set<Int3, std::less<Int3>, std::allocator<Int3> >";
+    prepare("dump_std_set_Int3");
+    if (checkUninitialized)
+        run("A","{iname='local.h',name='h',"
+            "type='" + setType + "',value='<not in scope>',"
+            "numchild='0'}");
+    next(3);
+    run("D","{iname='local.h',name='h',"
+            "type='" + setType + "',value='<2 items>',numchild='2',"
+            "childtype='Int3',children=["
+            "{value='{...}',numchild='3'},{value='{...}',numchild='3'}]}", "local.h");
+}
+
 
 
 ///////////////////////////// std::string //////////////////////////////////
@@ -3328,26 +3510,28 @@ void dump_std_vector()
 
 void tst_Gdb::dump_std_vector()
 {
-    #define LIST "std::list<int, std::allocator<int> >"
-    #define VECTOR "std::vector<"LIST"*, std::allocator<"LIST"*> >"
+    QByteArray listType = "std::list<int, std::allocator<int> >";
+    QByteArray vectorType = "std::vector<" + listType + "*, "
+        "std::allocator<" + listType + "*> >";
 
     prepare("dump_std_vector");
     if (checkUninitialized)
         run("A","{iname='local.vector',name='vector',"
             "numchild='0'}");
     next(2);
-    run("B","{iname='local.vector',name='vector',type='"VECTOR"',"
+    run("B","{iname='local.vector',name='vector',type='" + vectorType + "',"
             "value='<0 items>',numchild='0'},"
-        "{iname='local.list',name='list',type='"LIST"',"
+        "{iname='local.list',name='list',type='" + listType + "',"
             "value='<0 items>',numchild='0'}");
     next(3);
-    run("E","{iname='local.vector',name='vector',type='"VECTOR"',"
-            "value='<2 items>',numchild='2',childtype='"LIST" *',"
+    run("E","{iname='local.vector',name='vector',type='" + vectorType + "',"
+            "value='<2 items>',numchild='2',childtype='" + listType + " *',"
             "childnumchild='1',children=["
-                "{type='"LIST"',value='<1 items>',numchild='1',childtype='int',"
+                "{type='" + listType + "',value='<1 items>',"
+                    "childtype='int',"
                     "childnumchild='0',children=[{value='45'}]},"
                 "{value='<null>',numchild='0'}]},"
-            "{iname='local.list',name='list',type='"LIST"',"
+            "{iname='local.list',name='list',type='" + listType + "',"
                 "value='<1 items>',numchild='1'}",
         "local.vector,local.vector.0");
 }
@@ -3379,13 +3563,20 @@ int main(int argc, char *argv[])
     if (argc == 2 && QByteArray(argv[1]) == "debug") {
         dump_array_char();
         dump_array_int();
+        dump_std_deque();
         dump_std_list();
+        dump_std_map_int_int();
+        dump_std_map_string_string();
+        dump_std_set_Int3();
+        dump_std_set_int();
         dump_std_vector();
         dump_std_string();
         dump_std_wstring();
         dump_Foo();
         dump_misc();
         dump_typedef();
+        dump_QAbstractItemModel();
+        dump_QAbstractItemAndModelIndex();
         dump_QByteArray();
         dump_QChar();
         dump_QHash_int_int();
