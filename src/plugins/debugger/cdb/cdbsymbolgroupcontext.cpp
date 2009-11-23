@@ -401,18 +401,33 @@ QString CdbSymbolGroupContext::symbolINameAt(unsigned long index) const
     return m_inameIndexMap.key(index);
 }
 
-// check for "0x000", "0x000 class X"
+// Return hexadecimal pointer value from a CDB pointer value
+// which look like "0x000032a" or "0x00000000`0250124a" on 64-bit systems.
+static bool inline getPointerValue(QString stringValue, quint64 *value)
+{
+    *value = 0;
+    if (!stringValue.startsWith(QLatin1String("0x")))
+        return false;
+    stringValue.remove(0, 2);
+    // Remove 64bit separator
+    if (stringValue.size() > 8 && stringValue.at(8) == QLatin1Char('`'))
+        stringValue.remove(8, 1);
+    bool ok;
+    *value = stringValue.toULongLong(&ok, 16);
+    return ok;
+}
+
+// check for "0x000", "0x000 class X" or its 64-bit equivalents.
 static inline bool isNullPointer(const WatchData &wd)
 {
     if (!isPointerType(wd.type))
         return false;
-    static const QRegExp hexNullPattern(QLatin1String("0x0+"));
-    Q_ASSERT(hexNullPattern.isValid());
-    const int blankPos = wd.value.indexOf(QLatin1Char(' '));
-    if (blankPos == -1)
-        return hexNullPattern.exactMatch(wd.value);
-    const QString addr = wd.value.mid(0, blankPos);
-    return hexNullPattern.exactMatch(addr);
+    QString stringValue = wd.value;
+    const int blankPos = stringValue.indexOf(QLatin1Char(' '));
+    if (blankPos != -1)
+        stringValue.truncate(blankPos);
+    quint64 value;
+    return getPointerValue(stringValue, &value) && value == 0u;
 }
 
 // Fix a symbol group value. It is set to the class type for
@@ -713,16 +728,11 @@ static inline bool getIntValue(CIDebugSymbolGroup *sg, int index, int *value)
 }
 
 // Get pointer value of symbol group ("0xAAB")
+// Note that this is on "00000000`0250124a" on 64bit systems.
 static inline bool getPointerValue(CIDebugSymbolGroup *sg, int index, quint64 *value)
 {
-    *value = 0;
-    QString valueS = getSymbolString(sg, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
-    if (!valueS.startsWith(QLatin1String("0x")))
-        return false;
-    valueS.remove(0, 2);
-    bool ok;
-    *value = valueS.toULongLong(&ok, 16);
-    return ok;
+    const QString stringValue = getSymbolString(sg, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
+    return getPointerValue(stringValue, value);
 }
 
 int CdbSymbolGroupContext::dumpQString(CIDebugDataSpaces *ds, WatchData *wd)
