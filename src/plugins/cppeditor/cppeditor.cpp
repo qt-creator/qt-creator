@@ -31,6 +31,7 @@
 #include "cppeditorconstants.h"
 #include "cppplugin.h"
 #include "cpphighlighter.h"
+#include "cppquickfix.h"
 #include <cpptools/cpptoolsplugin.h>
 
 #include <AST.h>
@@ -81,6 +82,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QStack>
 #include <QtCore/QSettings>
+#include <QtCore/QSignalMapper>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QHeaderView>
@@ -1675,6 +1677,13 @@ bool CPPEditor::event(QEvent *e)
     return BaseTextEditor::event(e);
 }
 
+void CPPEditor::performQuickFix(int index)
+{
+    CPPQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
+    QuickFixOperationPtr op = m_quickFixes.at(index);
+    quickFixCollector->perform(op);
+}
+
 void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     // ### enable
@@ -1686,12 +1695,35 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     Core::ActionContainer *mcontext = am->actionContainer(CppEditor::Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 
+    CPPQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
+
+    QSignalMapper mapper;
+    connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
+
+    if (! isOutdated()) {
+        if (quickFixCollector->startCompletion(editableInterface()) != -1) {
+            m_quickFixes = quickFixCollector->quickFixes();
+
+            for (int index = 0; index < m_quickFixes.size(); ++index) {
+                QuickFixOperationPtr op = m_quickFixes.at(index);
+                QAction *action = menu->addAction(op->description());
+                mapper.setMapping(action, index);
+                connect(action, SIGNAL(triggered()), &mapper, SLOT(map()));
+            }
+
+            if (! m_quickFixes.isEmpty())
+                menu->addSeparator();
+        }
+    }
+
     foreach (QAction *action, contextMenu->actions())
         menu->addAction(action);
 
     appendStandardContextMenuActions(menu);
 
     menu->exec(e->globalPos());
+    quickFixCollector->cleanup();
+    m_quickFixes.clear();
     delete menu;
 }
 

@@ -46,6 +46,7 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditor;
+class CPPQuickFixCollector;
 
 class CppPlugin : public ExtensionSystem::IPlugin
 {
@@ -65,6 +66,8 @@ public:
     void initializeEditor(CPPEditor *editor);
 
     bool sortedMethodOverview() const;
+
+    CPPQuickFixCollector *quickFixCollector() const;
 
 signals:
     void methodOverviewSortingChanged(bool sort);
@@ -94,6 +97,8 @@ private:
     QAction *m_renameSymbolUnderCursorAction;
     QAction *m_findUsagesAction;
     QAction *m_updateCodeModelAction;
+
+    CPPQuickFixCollector *m_quickFixCollector;
 
     QTimer *m_quickFixTimer;
     QPointer<TextEditor::ITextEditable> m_currentTextEditable;

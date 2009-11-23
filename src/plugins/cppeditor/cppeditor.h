@@ -31,6 +31,7 @@
 #define CPPEDITOR_H
 
 #include "cppeditorenums.h"
+#include "cppquickfix.h"
 #include <cplusplus/CppDocument.h>
 #include <texteditor/basetexteditor.h>
 
@@ -235,6 +236,8 @@ private Q_SLOTS:
     void semanticRehighlight();
     void updateSemanticInfo(const SemanticInfo &semanticInfo);
 
+    void performQuickFix(int index);
+
 private:
     bool showWarningMessage() const;
     void setShowWarningMessage(bool showWarningMessage);
@@ -292,6 +295,7 @@ private:
 
     SemanticHighlighter *m_semanticHighlighter;
     SemanticInfo m_lastSemanticInfo;
+    QList<QuickFixOperationPtr> m_quickFixes;
     bool m_initialized;
 };
 

@@ -858,9 +858,14 @@ void CPPQuickFixCollector::complete(const TextEditor::CompletionItem &item)
 
     if (index < _quickFixes.size()) {
         QuickFixOperationPtr quickFix = _quickFixes.at(index);
-        quickFix->setTextCursor(_editor->textCursor());
-        quickFix->apply();
+        perform(quickFix);
     }
+}
+
+void CPPQuickFixCollector::perform(QuickFixOperationPtr op)
+{
+    op->setTextCursor(_editor->textCursor());
+    op->apply();
 }
 
 void CPPQuickFixCollector::cleanup()

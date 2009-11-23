@@ -126,12 +126,17 @@ public:
     CPPQuickFixCollector();
     virtual ~CPPQuickFixCollector();
 
+    QList<QuickFixOperationPtr> quickFixes() const { return _quickFixes; }
+
     virtual bool supportsEditor(TextEditor::ITextEditable *editor);
     virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
     virtual int startCompletion(TextEditor::ITextEditable *editor);
     virtual void completions(QList<TextEditor::CompletionItem> *completions);
     virtual void complete(const TextEditor::CompletionItem &item);
     virtual void cleanup();
+
+public Q_SLOTS:
+    void perform(QuickFixOperationPtr op);
 
 private:
     CppTools::CppModelManagerInterface *_modelManager;
