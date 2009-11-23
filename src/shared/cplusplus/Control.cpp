@@ -70,19 +70,8 @@ template <typename _Map>
 static void delete_map_entries(const _Map &m)
 { delete_map_entries(m.begin(), m.end()); }
 
-template <typename _Iterator>
-static void delete_array_entries(_Iterator first, _Iterator last)
-{
-    for (; first != last; ++first)
-        delete *first;
-}
-
 template <typename _Array>
 static void delete_array_entries(const _Array &a)
-{ delete_array_entries(a.begin(), a.end()); }
-
-template <typename _Tp>
-static void delete_array_entries(const Array<_Tp> &a)
 {
     for (unsigned i = 0; i < a.size(); ++i)
         delete a.at(i);
@@ -117,25 +106,7 @@ public:
         delete_array_entries(namedTypes);
 
         // symbols
-        delete_array_entries(declarations);
-        delete_array_entries(arguments);
-        delete_array_entries(functions);
-        delete_array_entries(baseClasses);
-        delete_array_entries(blocks);
-        delete_array_entries(classes);
-        delete_array_entries(namespaces);
-        delete_array_entries(usingNamespaceDirectives);
-        delete_array_entries(enums);
-        delete_array_entries(usingDeclarations);
-        delete_array_entries(classForwardDeclarations);
-        delete_array_entries(objcBaseClasses);
-        delete_array_entries(objcBaseProtocols);
-        delete_array_entries(objcClasses);
-        delete_array_entries(objcProtocols);
-        delete_array_entries(objcForwardClassDeclarations);
-        delete_array_entries(objcForwardProtocolDeclarations);
-        delete_array_entries(objcMethods);
-        delete_array_entries(objcPropertyDeclarations);
+        delete_array_entries(symbols);
     }
 
     NameId *findOrInsertNameId(Identifier *id)
@@ -313,7 +284,7 @@ public:
     {
         Declaration *declaration = new Declaration(translationUnit,
                                                    sourceLocation, name);
-        declarations.push_back(declaration);
+        symbols.push_back(declaration);
         return declaration;
     }
 
@@ -321,7 +292,7 @@ public:
     {
         Argument *argument = new Argument(translationUnit,
                                           sourceLocation, name);
-        arguments.push_back(argument);
+        symbols.push_back(argument);
         return argument;
     }
 
@@ -329,7 +300,7 @@ public:
     {
         Function *function = new Function(translationUnit,
                                           sourceLocation, name);
-        functions.push_back(function);
+        symbols.push_back(function);
         return function;
     }
 
@@ -337,14 +308,14 @@ public:
     {
         BaseClass *baseClass = new BaseClass(translationUnit,
                                              sourceLocation, name);
-        baseClasses.push_back(baseClass);
+        symbols.push_back(baseClass);
         return baseClass;
     }
 
     Block *newBlock(unsigned sourceLocation)
     {
         Block *block = new Block(translationUnit, sourceLocation);
-        blocks.push_back(block);
+        symbols.push_back(block);
         return block;
     }
 
@@ -352,7 +323,7 @@ public:
     {
         Class *klass = new Class(translationUnit,
                                  sourceLocation, name);
-        classes.push_back(klass);
+        symbols.push_back(klass);
         return klass;
     }
 
@@ -360,7 +331,7 @@ public:
     {
         Namespace *ns = new Namespace(translationUnit,
                                       sourceLocation, name);
-        namespaces.push_back(ns);
+        symbols.push_back(ns);
         return ns;
     }
 
@@ -368,7 +339,7 @@ public:
     {
         UsingNamespaceDirective *u = new UsingNamespaceDirective(translationUnit,
                                                                  sourceLocation, name);
-        usingNamespaceDirectives.push_back(u);
+        symbols.push_back(u);
         return u;
     }
 
@@ -376,63 +347,63 @@ public:
     {
         ForwardClassDeclaration *c = new ForwardClassDeclaration(translationUnit,
                                                                  sourceLocation, name);
-        classForwardDeclarations.push_back(c);
+        symbols.push_back(c);
         return c;
     }
 
     ObjCBaseClass *newObjCBaseClass(unsigned sourceLocation, Name *name)
     {
         ObjCBaseClass *c = new ObjCBaseClass(translationUnit, sourceLocation, name);
-        objcBaseClasses.push_back(c);
+        symbols.push_back(c);
         return c;
     }
 
     ObjCBaseProtocol *newObjCBaseProtocol(unsigned sourceLocation, Name *name)
     {
         ObjCBaseProtocol *p = new ObjCBaseProtocol(translationUnit, sourceLocation, name);
-        objcBaseProtocols.push_back(p);
+        symbols.push_back(p);
         return p;
     }
 
     ObjCClass *newObjCClass(unsigned sourceLocation, Name *name)
     {
         ObjCClass *c = new ObjCClass(translationUnit, sourceLocation, name);
-        objcClasses.push_back(c);
+        symbols.push_back(c);
         return c;
     }
 
     ObjCForwardClassDeclaration *newObjCForwardClassDeclaration(unsigned sourceLocation, Name *name)
     {
         ObjCForwardClassDeclaration *fwd = new ObjCForwardClassDeclaration(translationUnit, sourceLocation, name);
-        objcForwardClassDeclarations.push_back(fwd);
+        symbols.push_back(fwd);
         return fwd;
     }
 
     ObjCProtocol *newObjCProtocol(unsigned sourceLocation, Name *name)
     {
         ObjCProtocol *p = new ObjCProtocol(translationUnit, sourceLocation, name);
-        objcProtocols.push_back(p);
+        symbols.push_back(p);
         return p;
     }
 
     ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name)
     {
         ObjCForwardProtocolDeclaration *fwd = new ObjCForwardProtocolDeclaration(translationUnit, sourceLocation, name);
-        objcForwardProtocolDeclarations.push_back(fwd);
+        symbols.push_back(fwd);
         return fwd;
     }
 
     ObjCMethod *newObjCMethod(unsigned sourceLocation, Name *name)
     {
         ObjCMethod *method = new ObjCMethod(translationUnit, sourceLocation, name);
-        objcMethods.push_back(method);
+        symbols.push_back(method);
         return method;
     }
 
     ObjCPropertyDeclaration *newObjCPropertyDeclaration(unsigned sourceLocation, Name *name)
     {
         ObjCPropertyDeclaration *decl = new ObjCPropertyDeclaration(translationUnit, sourceLocation, name);
-        objcPropertyDeclarations.push_back(decl);
+        symbols.push_back(decl);
         return decl;
     }
 
@@ -440,7 +411,7 @@ public:
     {
         Enum *e = new Enum(translationUnit,
                            sourceLocation, name);
-        enums.push_back(e);
+        symbols.push_back(e);
         return e;
     }
 
@@ -448,7 +419,7 @@ public:
     {
         UsingDeclaration *u = new UsingDeclaration(translationUnit,
                                                    sourceLocation, name);
-        usingDeclarations.push_back(u);
+        symbols.push_back(u);
         return u;
     }
 
@@ -553,25 +524,7 @@ public:
     Array<NamedType *> namedTypes;
 
     // symbols
-    Array<Declaration *> declarations;
-    Array<Argument *> arguments;
-    Array<Function *> functions;
-    Array<BaseClass *> baseClasses;
-    Array<Block *> blocks;
-    Array<Class *> classes;
-    Array<Namespace *> namespaces;
-    Array<UsingNamespaceDirective *> usingNamespaceDirectives;
-    Array<Enum *> enums;
-    Array<UsingDeclaration *> usingDeclarations;
-    Array<ForwardClassDeclaration *> classForwardDeclarations;
-    Array<ObjCBaseClass *> objcBaseClasses;
-    Array<ObjCBaseProtocol *> objcBaseProtocols;
-    Array<ObjCClass *> objcClasses;
-    Array<ObjCProtocol *> objcProtocols;
-    Array<ObjCForwardClassDeclaration *> objcForwardClassDeclarations;
-    Array<ObjCForwardProtocolDeclaration *> objcForwardProtocolDeclarations;
-    Array<ObjCMethod *> objcMethods;
-    Array<ObjCPropertyDeclaration *> objcPropertyDeclarations;
+    Array<Symbol *> symbols;
 
     // ObjC context keywords:
     Identifier *objcGetterId;
