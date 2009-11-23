@@ -59,17 +59,18 @@ public:
 
     void setEditors(EditorView *mainView, EditorView *view, OpenEditorsModel *model);
 
-    bool event(QEvent *e);
     bool eventFilter(QObject *src, QEvent *e);
     void focusInEvent(QFocusEvent *);
     void setVisible(bool visible);
     void selectNextEditor();
     void selectPreviousEditor();
 
+public slots:
+    void selectAndHide();
+
 private slots:
     void editorClicked(QTreeWidgetItem *item);
     void selectEditor(QTreeWidgetItem *item);
-    void selectAndHide();
 
 private:
     static const int WIDTH;
@@ -85,7 +86,6 @@ private:
     bool isSameFile(IEditor *editorA, IEditor *editorB) const;
 
     QTreeWidget *m_editorList;
-    QTimer m_autoHide;
 };
 
 } // namespace Internal

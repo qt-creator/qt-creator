@@ -63,9 +63,6 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
 
     connect(m_editorList, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
             this, SLOT(editorClicked(QTreeWidgetItem*)));
-
-    m_autoHide.setSingleShot(true);
-    connect(&m_autoHide, SIGNAL(timeout()), this, SLOT(selectAndHide()));
 }
 
 void OpenEditorsWindow::selectAndHide()
@@ -78,7 +75,6 @@ void OpenEditorsWindow::setVisible(bool visible)
 {
     QWidget::setVisible(visible);
     if (visible) {
-        m_autoHide.start(600);
         setFocus();
     }
 }
@@ -96,19 +92,6 @@ bool OpenEditorsWindow::isCentering()
 }
 
 
-bool OpenEditorsWindow::event(QEvent *e) {
-    if (e->type() == QEvent::KeyRelease) {
-        QKeyEvent *ke = static_cast<QKeyEvent*>(e);
-        m_autoHide.stop();
-        if (ke->modifiers() == 0
-            /*HACK this is to overcome some event inconsistencies between platforms*/
-            || (ke->modifiers() == Qt::AltModifier && (ke->key() == Qt::Key_Alt || ke->key() == -1))) {
-            selectAndHide();
-        }
-    }
-    return QWidget::event(e);
-}
-
 bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
 {
     if (obj == m_editorList) {
@@ -121,6 +104,14 @@ bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
             if (ke->key() == Qt::Key_Return) {
                 selectEditor(m_editorList->currentItem());
                 return true;
+            }
+        } else if (e->type() == QEvent::KeyRelease) {
+            QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+            if (ke->modifiers() == 0
+                    /*HACK this is to overcome some event inconsistencies between platforms*/
+                    || (ke->modifiers() == Qt::AltModifier
+                    && (ke->key() == Qt::Key_Alt || ke->key() == -1))) {
+                selectAndHide();
             }
         }
     }

@@ -1419,7 +1419,7 @@ void EditorManager::gotoNextDocHistory()
         EditorView *view = currentEditorView();
         dialog->setEditors(m_d->m_view, view, m_d->m_editorModel);
         dialog->selectNextEditor();
-        showWindowPopup();
+        showPopupOrSelectDocument();
     }
 }
 
@@ -1432,7 +1432,7 @@ void EditorManager::gotoPreviousDocHistory()
         EditorView *view = currentEditorView();
         dialog->setEditors(m_d->m_view, view, m_d->m_editorModel);
         dialog->selectPreviousEditor();
-        showWindowPopup();
+        showPopupOrSelectDocument();
     }
 }
 
@@ -1535,12 +1535,16 @@ OpenEditorsWindow *EditorManager::windowPopup() const
     return m_d->m_windowPopup;
 }
 
-void EditorManager::showWindowPopup() const
+void EditorManager::showPopupOrSelectDocument() const
 {
-    const QPoint p(mapToGlobal(QPoint(0, 0)));
-    m_d->m_windowPopup->move((width()-m_d->m_windowPopup->width())/2 + p.x(),
-                        (height()-m_d->m_windowPopup->height())/2 + p.y());
-    m_d->m_windowPopup->setVisible(true);
+    if (QApplication::keyboardModifiers() == Qt::NoModifier) {
+        windowPopup()->selectAndHide();
+    } else {
+        const QPoint p(mapToGlobal(QPoint(0, 0)));
+        windowPopup()->move((width()-m_d->m_windowPopup->width())/2 + p.x(),
+                            (height()-m_d->m_windowPopup->height())/2 + p.y());
+        windowPopup()->setVisible(true);
+    }
 }
 
 QByteArray EditorManager::saveState() const

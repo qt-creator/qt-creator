@@ -159,7 +159,7 @@ public:
     void readSettings();
 
     Internal::OpenEditorsWindow *windowPopup() const;
-    void showWindowPopup() const;
+    void showPopupOrSelectDocument() const;
 
     void showEditorInfoBar(const QString &kind,
                            const QString &infoText,
