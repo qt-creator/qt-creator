@@ -45,8 +45,11 @@ TypeMatcher::~TypeMatcher()
 
 bool TypeMatcher::isEqualTo(const Name *name, const Name *otherName) const
 {
-    if (! name || ! otherName)
-        return name == otherName;
+    if (name == otherName)
+        return true;
+
+    else if (! name || ! otherName)
+        return false;
 
     return name->isEqualTo(otherName);
 }
