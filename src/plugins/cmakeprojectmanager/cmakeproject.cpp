@@ -106,10 +106,10 @@ BuildConfiguration *CMakeBuildConfigurationFactory::create(const QString &type) 
         return false;
     BuildConfiguration *bc = new CMakeBuildConfiguration(m_project, buildConfigurationName);
 
-    MakeStep *makeStep = new MakeStep(m_project, bc);
+    MakeStep *makeStep = new MakeStep(bc);
     bc->insertBuildStep(0, makeStep);
 
-    MakeStep *cleanMakeStep = new MakeStep(m_project, bc);
+    MakeStep *cleanMakeStep = new MakeStep(bc);
     bc->insertCleanStep(0, cleanMakeStep);
     cleanMakeStep->setClean(true);
 
@@ -671,11 +671,11 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
             bc->setValue("buildDirectory", copw.buildDirectory());
 
         // Now create a standard build configuration
-        makeStep = new MakeStep(this, bc);
+        makeStep = new MakeStep(bc);
         bc->insertBuildStep(0, makeStep);
 
         //TODO save arguments somewhere copw.arguments()
-        MakeStep *cleanMakeStep = new MakeStep(this, bc);
+        MakeStep *cleanMakeStep = new MakeStep(bc);
         bc->insertCleanStep(0, cleanMakeStep);
         cleanMakeStep->setClean(true);
         setActiveBuildConfiguration(bc);

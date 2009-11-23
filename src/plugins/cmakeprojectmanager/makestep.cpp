@@ -42,15 +42,14 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
-MakeStep::MakeStep(CMakeProject *pro, BuildConfiguration *bc)
-    : AbstractMakeStep(pro, bc), m_pro(pro), m_clean(false), m_futureInterface(0)
+MakeStep::MakeStep(BuildConfiguration *bc)
+    : AbstractMakeStep(bc), m_clean(false), m_futureInterface(0)
 {
     m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
 }
 
 MakeStep::MakeStep(MakeStep *bs, BuildConfiguration *bc)
     : AbstractMakeStep(bs, bc),
-    m_pro(bs->m_pro),
     m_clean(bs->m_clean),
     m_futureInterface(0),
     m_buildTargets(bs->m_buildTargets),
@@ -97,17 +96,19 @@ void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 bool MakeStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
-    setBuildParser(m_pro->buildParser(bc));
+    // TODO, we should probably have a member cmakeBuildConfiguration();
+    CMakeProject *pro = static_cast<CMakeProject *>(buildConfiguration()->project());
+    setBuildParser(pro->buildParser(bc));
 
     setEnabled(true);
-    setWorkingDirectory(m_pro->buildDirectory(bc));
+    setWorkingDirectory(pro->buildDirectory(bc));
 
-    setCommand(m_pro->toolChain(bc)->makeCommand());
+    setCommand(pro->toolChain(bc)->makeCommand());
 
     QStringList arguments = m_buildTargets;
     arguments << additionalArguments();
     setArguments(arguments);
-    setEnvironment(m_pro->environment(bc));
+    setEnvironment(pro->environment(bc));
     setIgnoreReturnValue(m_clean);
 
     return AbstractMakeStep::init();
@@ -152,11 +153,6 @@ void MakeStep::stdOut(const QString &line)
             m_futureInterface->setProgressValue(percent);
     }
     AbstractMakeStep::stdOut(line);
-}
-
-CMakeProject *MakeStep::project() const
-{
-    return m_pro;
 }
 
 bool MakeStep::buildsTarget(const QString &target) const
@@ -277,12 +273,10 @@ bool MakeStepFactory::canCreate(const QString &name) const
     return (Constants::MAKESTEP == name);
 }
 
-BuildStep *MakeStepFactory::create(Project *project, BuildConfiguration *bc, const QString &name) const
+BuildStep *MakeStepFactory::create(BuildConfiguration *bc, const QString &name) const
 {
     Q_ASSERT(name == Constants::MAKESTEP);
-    CMakeProject *pro = qobject_cast<CMakeProject *>(project);
-    Q_ASSERT(pro);
-    return new MakeStep(pro, bc);
+    return new MakeStep(bc);
 }
 
 BuildStep *MakeStepFactory::clone(BuildStep *bs, BuildConfiguration *bc) const

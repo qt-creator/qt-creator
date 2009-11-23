@@ -49,7 +49,7 @@ class MakeStep : public ProjectExplorer::AbstractMakeStep
     friend class MakeStepConfigWidget; // TODO remove
     // This is for modifying internal data
 public:
-    MakeStep(CMakeProject *pro, ProjectExplorer::BuildConfiguration *bc);
+    MakeStep(ProjectExplorer::BuildConfiguration *bc);
     MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
     ~MakeStep();
     virtual bool init();
@@ -60,7 +60,6 @@ public:
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
-    CMakeProject *project() const;
     bool buildsTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
     QStringList additionalArguments() const;
@@ -77,7 +76,6 @@ protected:
     // For parsing [ 76%]
     virtual void stdOut(const QString &line);
 private:
-    CMakeProject *m_pro;
     bool m_clean;
     QRegExp m_percentProgress;
     QFutureInterface<bool> *m_futureInterface;
@@ -107,7 +105,7 @@ private:
 class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     virtual bool canCreate(const QString &name) const;
-    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::Project *pro, ProjectExplorer::BuildConfiguration *bc, const QString &name) const;
+    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString &name) const;
     virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
     virtual QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
     virtual QString displayNameForName(const QString &name) const;

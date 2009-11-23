@@ -47,13 +47,13 @@
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 
-GenericMakeStep::GenericMakeStep(GenericProject *pro, ProjectExplorer::BuildConfiguration *bc)
-    : AbstractMakeStep(pro, bc), m_pro(pro)
+GenericMakeStep::GenericMakeStep(ProjectExplorer::BuildConfiguration *bc)
+    : AbstractMakeStep(bc)
 {
 }
 
 GenericMakeStep::GenericMakeStep(GenericMakeStep *bs, ProjectExplorer::BuildConfiguration *bc)
-    : AbstractMakeStep(bs, bc), m_pro(bs->project())
+    : AbstractMakeStep(bs, bc)
 {
     m_buildTargets = bs->m_buildTargets;
     m_makeArguments = bs->m_makeArguments;
@@ -67,20 +67,21 @@ GenericMakeStep::~GenericMakeStep()
 bool GenericMakeStep::init()
 {
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-    const QString buildParser = m_pro->buildParser(bc);
+    //TODO
+    GenericProject *pro = static_cast<GenericProject *>(buildConfiguration()->project());
+    const QString buildParser = pro->buildParser(bc);
     setBuildParser(buildParser);
-    qDebug() << "*** build parser:" << buildParser;
 
     setEnabled(true);
     Core::VariableManager *vm = Core::VariableManager::instance();
-    const QString rawBuildDir = m_pro->buildDirectory(bc);
+    const QString rawBuildDir = buildConfiguration()->project()->buildDirectory(bc);
     const QString buildDir = vm->resolve(rawBuildDir);
     setWorkingDirectory(buildDir);
 
     setCommand(makeCommand());
     setArguments(replacedArguments());
 
-    setEnvironment(m_pro->environment(bc));
+    setEnvironment(buildConfiguration()->project()->environment(bc));
     return AbstractMakeStep::init();
 }
 
@@ -119,7 +120,9 @@ QString GenericMakeStep::makeCommand() const
 {
     QString command = m_makeCommand;
     if (command.isEmpty()) {
-        if (ProjectExplorer::ToolChain *toolChain = m_pro->toolChain())
+        // TODO
+        GenericProject *pro = static_cast<GenericProject *>(buildConfiguration()->project());
+        if (ProjectExplorer::ToolChain *toolChain = pro->toolChain())
             command = toolChain->makeCommand();
         else
             command = QLatin1String("make");
@@ -152,11 +155,6 @@ bool GenericMakeStep::immutable() const
     return true;
 }
 
-GenericProject *GenericMakeStep::project() const
-{
-    return m_pro;
-}
-
 bool GenericMakeStep::buildsTarget(const QString &target) const
 {
     return m_buildTargets.contains(target);
@@ -184,7 +182,8 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     m_ui->setupUi(this);
 
     // TODO update this list also on rescans of the GenericLists.txt
-    GenericProject *pro = m_makeStep->project();
+    //TODO
+    GenericProject *pro = static_cast<GenericProject *>(m_makeStep->buildConfiguration()->project());
     foreach (const QString &target, pro->targets()) {
         QListWidgetItem *item = new QListWidgetItem(target, m_ui->targetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -280,14 +279,11 @@ bool GenericMakeStepFactory::canCreate(const QString &name) const
     return (Constants::MAKESTEP == name);
 }
 
-ProjectExplorer::BuildStep *GenericMakeStepFactory::create(ProjectExplorer::Project *project,
-                                                           ProjectExplorer::BuildConfiguration *bc,
+ProjectExplorer::BuildStep *GenericMakeStepFactory::create(ProjectExplorer::BuildConfiguration *bc,
                                                            const QString &name) const
 {
     Q_ASSERT(name == Constants::MAKESTEP);
-    GenericProject *pro = qobject_cast<GenericProject *>(project);
-    Q_ASSERT(pro);
-    return new GenericMakeStep(pro, bc);
+    return new GenericMakeStep(bc);
 }
 
 ProjectExplorer::BuildStep *GenericMakeStepFactory::clone(ProjectExplorer::BuildStep *bs,

@@ -238,7 +238,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
                 BuildStep *buildStep  = 0;
                 foreach (IBuildStepFactory *factory, buildStepFactories) {
                     if (factory->canCreate(buildStepName)) {
-                        buildStep = factory->create(this, bc, buildStepName);
+                        buildStep = factory->create(bc, buildStepName);
                         break;
                     }
                 }
@@ -265,7 +265,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
                 BuildStep *cleanStep = 0;
                 foreach (IBuildStepFactory *factory, buildStepFactories) {
                     if (factory->canCreate(cleanStepName)) {
-                        cleanStep = factory->create(this, bc, cleanStepName);
+                        cleanStep = factory->create(bc, cleanStepName);
                         break;
                     }
                 }
@@ -303,7 +303,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
             }
             if (factory) {
                 foreach(BuildConfiguration *bc, buildConfigurations()) {
-                    buildStep = factory->create(this, bc, buildStepName);
+                    buildStep = factory->create(bc, buildStepName);
                     bc->insertBuildStep(pos, buildStep);
                     QMap<QString, QVariant> buildStepValues = reader.restoreValue("buildstep" + QString().setNum(buildstepnr)).toMap();
                     buildStep->restoreFromGlobalMap(buildStepValues);
@@ -335,7 +335,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 
             if (factory) {
                 foreach(BuildConfiguration *bc, buildConfigurations()) {
-                    cleanStep = factory->create(this, bc, cleanStepName);
+                    cleanStep = factory->create(bc, cleanStepName);
                     bc->insertCleanStep(pos, cleanStep);
                     QMap<QString, QVariant> cleanStepValues = reader.restoreValue("cleanstep" + QString().setNum(cleanstepnr)).toMap();
                     cleanStep->restoreFromGlobalMap(cleanStepValues);

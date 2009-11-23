@@ -216,7 +216,7 @@ void BuildStepsPage::addBuildStep()
     if (QAction *action = qobject_cast<QAction *>(sender())) {
         BuildConfiguration *bc = m_pro->buildConfiguration(m_configuration);
         QPair<QString, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
-        BuildStep *newStep = pair.second->create(m_pro, bc, pair.first);
+        BuildStep *newStep = pair.second->create(bc, pair.first);
         int pos = m_clean ? bc->cleanSteps().count() : bc->buildSteps().count();
         m_clean ? bc->insertCleanStep(pos, newStep) : bc->insertBuildStep(pos, newStep);
 

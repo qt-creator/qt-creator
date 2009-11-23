@@ -56,7 +56,7 @@ class GenericMakeStep : public ProjectExplorer::AbstractMakeStep
     Q_OBJECT
     friend class GenericMakeStepConfigWidget; // TODO remove again?
 public:
-    GenericMakeStep(GenericProject *pro, ProjectExplorer::BuildConfiguration *bc);
+    GenericMakeStep(ProjectExplorer::BuildConfiguration *bc);
     GenericMakeStep(GenericMakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
     ~GenericMakeStep();
     virtual bool init();
@@ -67,7 +67,6 @@ public:
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
-    GenericProject *project() const;
     bool buildsTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
     QStringList replacedArguments() const;
@@ -76,7 +75,6 @@ public:
     virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
     virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 private:
-    GenericProject *m_pro;
     QStringList m_buildTargets;
     QStringList m_makeArguments;
     QString m_makeCommand;
@@ -105,8 +103,7 @@ private:
 class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     virtual bool canCreate(const QString &name) const;
-    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::Project *pro,
-                                               ProjectExplorer::BuildConfiguration *bc,
+    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc,
                                                const QString &name) const;
     virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs,
                                               ProjectExplorer::BuildConfiguration *bc) const;

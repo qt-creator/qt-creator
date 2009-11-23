@@ -37,7 +37,7 @@
 #include <QtCore/QFutureInterface>
 
 namespace ProjectExplorer {
-
+// TODO remove this
 class Project;
 class BuildConfiguration;
 
@@ -71,9 +71,8 @@ class BuildStepConfigWidget;
 class PROJECTEXPLORER_EXPORT BuildStep : public QObject
 {
     Q_OBJECT
-    friend class Project; //for managing BuildConfigurations
 protected:
-    BuildStep(Project *p, BuildConfiguration *bc);
+    BuildStep(BuildConfiguration *bc);
     BuildStep(BuildStep *bs, BuildConfiguration *bc);
 
 public:
@@ -110,7 +109,6 @@ public:
     virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
     virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 
-    Project *project() const;
     BuildConfiguration *buildConfiguration() const;
 
 Q_SIGNALS:
@@ -120,7 +118,6 @@ Q_SIGNALS:
     void addToOutputWindow(const QString &string);
 
 private:
-    Project *m_project;
     BuildConfiguration *m_buildConfiguration;
 };
 
@@ -135,7 +132,7 @@ public:
     /// Called to check wheter this factory can restore the named BuildStep
     virtual bool canCreate(const QString &name) const = 0;
     /// Called to restore a buildstep
-    virtual BuildStep *create(Project *pro, BuildConfiguration *bc, const QString &name) const = 0;
+    virtual BuildStep *create(BuildConfiguration *bc, const QString &name) const = 0;
     /// Called by the add BuildStep action to check which BuildSteps could be added
     /// to the project by this factory, should return a list of names
     virtual QStringList canCreateForProject(Project *pro) const = 0;

@@ -30,6 +30,7 @@
 #include "processstep.h"
 #include "buildstep.h"
 #include "project.h"
+#include "buildconfiguration.h"
 
 #include <coreplugin/ifile.h>
 #include <utils/qtcassert.h>
@@ -45,8 +46,8 @@ static const char * const PROCESS_WORKINGDIRECTORY = "abstractProcess.workingDir
 static const char * const PROCESS_ARGUMENTS        = "abstractProcess.arguments";
 static const char * const PROCESS_ENABLED          = "abstractProcess.enabled";
 
-ProcessStep::ProcessStep(Project *pro, BuildConfiguration *bc)
-    : AbstractProcessStep(pro, bc)
+ProcessStep::ProcessStep(BuildConfiguration *bc)
+    : AbstractProcessStep(bc)
 {
 
 }
@@ -64,12 +65,12 @@ ProcessStep::ProcessStep(ProcessStep *bs, BuildConfiguration *bc)
 
 bool ProcessStep::init()
 {
-    setEnvironment(project()->environment(buildConfiguration()));
+    setEnvironment(buildConfiguration()->project()->environment(buildConfiguration()));
     QString wd = workingDirectory();
     if (wd.isEmpty())
         wd = "$BUILDDIR";
 
-    AbstractProcessStep::setWorkingDirectory(wd.replace("$BUILDDIR", project()->buildDirectory(buildConfiguration())));
+    AbstractProcessStep::setWorkingDirectory(wd.replace("$BUILDDIR", buildConfiguration()->project()->buildDirectory(buildConfiguration())));
     AbstractProcessStep::setCommand(m_command);
     AbstractProcessStep::setEnabled(m_enabled);
     AbstractProcessStep::setArguments(m_arguments);
@@ -200,10 +201,10 @@ bool ProcessStepFactory::canCreate(const QString &name) const
     return name == "projectexplorer.processstep";
 }
 
-BuildStep *ProcessStepFactory::create(Project *pro, BuildConfiguration *bc, const QString &name) const
+BuildStep *ProcessStepFactory::create(BuildConfiguration *bc, const QString &name) const
 {
     Q_UNUSED(name)
-    return new ProcessStep(pro, bc);
+    return new ProcessStep(bc);
 }
 
 BuildStep *ProcessStepFactory::clone(BuildStep *bs, BuildConfiguration *bc) const

@@ -49,14 +49,13 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
 
-QMakeStep::QMakeStep(Qt4Project *project, ProjectExplorer::BuildConfiguration *bc)
-    : AbstractMakeStep(project, bc), m_pro(project), m_forced(false)
+QMakeStep::QMakeStep(ProjectExplorer::BuildConfiguration *bc)
+    : AbstractMakeStep(bc), m_forced(false)
 {
 }
 
 QMakeStep::QMakeStep(QMakeStep *bs, ProjectExplorer::BuildConfiguration *bc)
     : AbstractMakeStep(bs, bc),
-    m_pro(bs->m_pro),
     m_forced(false),
     m_qmakeArgs(bs->m_qmakeArgs)
 {
@@ -72,21 +71,23 @@ QStringList QMakeStep::arguments()
     QStringList additonalArguments = m_qmakeArgs;
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
     QStringList arguments;
-    arguments << project()->file()->fileName();
+    arguments << buildConfiguration()->project()->file()->fileName();
     arguments << "-r";
 
+    // TODO
+    Qt4Project *pro = static_cast<Qt4Project *>(buildConfiguration()->project());
     if (!additonalArguments.contains("-spec"))
-        arguments << "-spec" << m_pro->qtVersion(bc)->mkspec();
+        arguments << "-spec" << pro->qtVersion(bc)->mkspec();
 
 #ifdef Q_OS_WIN
-    ToolChain::ToolChainType type = m_pro->toolChainType(bc);
+    ToolChain::ToolChainType type = pro->toolChainType(bc);
     if (type == ToolChain::GCC_MAEMO)
         arguments << QLatin1String("-unix");
 #endif
 
     if (bc->value("buildConfiguration").isValid()) {
         QStringList configarguments;
-        QtVersion::QmakeBuildConfigs defaultBuildConfiguration = m_pro->qtVersion(bc)->defaultBuildConfig();
+        QtVersion::QmakeBuildConfigs defaultBuildConfiguration = pro->qtVersion(bc)->defaultBuildConfig();
         QtVersion::QmakeBuildConfigs projectBuildConfiguration = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt());
         if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))
             configarguments << "CONFIG-=debug_and_release";
@@ -111,7 +112,9 @@ QStringList QMakeStep::arguments()
 bool QMakeStep::init()
 {
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-    const QtVersion *qtVersion = m_pro->qtVersion(bc);
+    // TODO
+    Qt4Project *pro = static_cast<Qt4Project *>(buildConfiguration()->project());
+    const QtVersion *qtVersion = pro->qtVersion(bc);
 
     if (!qtVersion->isValid()) {
 #if defined(Q_WS_MAC)
@@ -123,7 +126,7 @@ bool QMakeStep::init()
     }
 
     QStringList args = arguments();
-    QString workingDirectory = m_pro->buildDirectory(bc);
+    QString workingDirectory = pro->buildDirectory(bc);
 
     QString program = qtVersion->qmakeCommand();
 
@@ -132,7 +135,7 @@ bool QMakeStep::init()
     if (QDir(workingDirectory).exists(QLatin1String("Makefile"))) {
         QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(workingDirectory);
         if (qtVersion->qmakeCommand() == qmakePath) {
-            m_needToRunQMake = !m_pro->compareBuildConfigurationToImportFrom(bc, workingDirectory);
+            m_needToRunQMake = !pro->compareBuildConfigurationToImportFrom(bc, workingDirectory);
         }
     }
 
@@ -145,7 +148,7 @@ bool QMakeStep::init()
     setWorkingDirectory(workingDirectory);
     setCommand(program);
     setArguments(args);
-    setEnvironment(m_pro->environment(bc));
+    setEnvironment(pro->environment(bc));
 
     setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_QMAKE);
     return AbstractMakeStep::init();
@@ -153,7 +156,9 @@ bool QMakeStep::init()
 
 void QMakeStep::run(QFutureInterface<bool> &fi)
 {
-    if (qobject_cast<Qt4Project *>(project())->rootProjectNode()->projectType() == ScriptTemplate) {
+    //TODO
+    Qt4Project *pro = static_cast<Qt4Project *>(buildConfiguration()->project());
+    if (pro->rootProjectNode()->projectType() == ScriptTemplate) {
         fi.reportResult(true);
         return;
     }
@@ -242,7 +247,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(m_ui.buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(buildConfigurationChanged()));
     connect(step, SIGNAL(changed()),
             this, SLOT(update()));
-    connect(step->project(), SIGNAL(qtVersionChanged(ProjectExplorer::BuildConfiguration *)),
+    connect(step->buildConfiguration()->project(), SIGNAL(qtVersionChanged(ProjectExplorer::BuildConfiguration *)),
             this, SLOT(qtVersionChanged(ProjectExplorer::BuildConfiguration *)));
 }
 
@@ -261,7 +266,7 @@ void QMakeStepConfigWidget::qtVersionChanged(ProjectExplorer::BuildConfiguration
 
 void QMakeStepConfigWidget::updateTitleLabel()
 {
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(m_step->project());
+    Qt4Project *qt4project = static_cast<Qt4Project *>(m_step->buildConfiguration()->project());
     const QtVersion *qtVersion = qt4project->qtVersion(m_step->buildConfiguration());
     if (!qtVersion) {
         m_summaryText = tr("<b>QMake:</b> No Qt version set. QMake can not be run.");
@@ -271,9 +276,10 @@ void QMakeStepConfigWidget::updateTitleLabel()
 
     QStringList args = m_step->arguments();
     // We don't want the full path to the .pro file
-    int index = args.indexOf(m_step->project()->file()->fileName());
+    const QString projectFileName = m_step->buildConfiguration()->project()->file()->fileName();
+    int index = args.indexOf(projectFileName);
     if (index != -1)
-        args[index] = QFileInfo(m_step->project()->file()->fileName()).fileName();
+        args[index] = QFileInfo(projectFileName).fileName();
 
     // And we only use the .pro filename not the full path
     QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
@@ -287,7 +293,7 @@ void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
     m_step->setQMakeArguments(
             ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
 
-    static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
+    static_cast<Qt4Project *>(m_step->buildConfiguration()->project())->invalidateCachedTargetInformation();
     updateTitleLabel();
     updateEffectiveQMakeCall();
 }
@@ -303,7 +309,7 @@ void QMakeStepConfigWidget::buildConfigurationChanged()
         buildConfiguration = buildConfiguration & ~QtVersion::DebugBuild;
     }
     bc->setValue("buildConfiguration", int(buildConfiguration));
-    static_cast<Qt4Project *>(m_step->project())->invalidateCachedTargetInformation();
+    static_cast<Qt4Project *>(m_step->buildConfiguration()->project())->invalidateCachedTargetInformation();
     updateTitleLabel();
     updateEffectiveQMakeCall();
     // TODO if exact parsing is the default, we need to update the code model
@@ -334,7 +340,7 @@ void QMakeStepConfigWidget::init()
 
 void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 {
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(m_step->project());
+    Qt4Project *qt4project = static_cast<Qt4Project *>(m_step->buildConfiguration()->project());
     const QtVersion *qtVersion = qt4project->qtVersion(m_step->buildConfiguration());
     if (qtVersion) {
         QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
@@ -361,10 +367,10 @@ bool QMakeStepFactory::canCreate(const QString & name) const
     return (name == Constants::QMAKESTEP);
 }
 
-ProjectExplorer::BuildStep *QMakeStepFactory::create(ProjectExplorer::Project * pro, BuildConfiguration *bc, const QString & name) const
+ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildConfiguration *bc, const QString & name) const
 {
     Q_UNUSED(name)
-    return new QMakeStep(static_cast<Qt4Project *>(pro), bc);
+    return new QMakeStep(bc);
 }
 
 ProjectExplorer::BuildStep *QMakeStepFactory::clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const

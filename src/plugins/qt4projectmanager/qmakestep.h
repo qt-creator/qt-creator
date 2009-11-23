@@ -52,7 +52,7 @@ public:
     QMakeStepFactory();
     virtual ~QMakeStepFactory();
     bool canCreate(const QString & name) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::Project * pro, ProjectExplorer::BuildConfiguration *bc, const QString & name) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString & name) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
     QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
     QString displayNameForName(const QString &name) const;
@@ -68,7 +68,7 @@ class QMakeStep : public ProjectExplorer::AbstractMakeStep
     friend class Qt4Project; // TODO remove
     // Currently used to access qmakeArgs
 public:
-    QMakeStep(Qt4Project * project, ProjectExplorer::BuildConfiguration *bc);
+    QMakeStep(ProjectExplorer::BuildConfiguration *bc);
     QMakeStep(QMakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
     ~QMakeStep();
     virtual bool init();
@@ -95,7 +95,6 @@ protected:
     virtual bool processFinished(int exitCode, QProcess::ExitStatus status);
 
 private:
-    Qt4Project *m_pro;
     // last values
     QStringList m_lastEnv;
     bool m_forced;

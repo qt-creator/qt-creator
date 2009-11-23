@@ -149,7 +149,7 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(const QString &type
     GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project, buildConfigurationName);
     m_project->addBuildConfiguration(bc); // also makes the name unique...
 
-    GenericMakeStep *makeStep = new GenericMakeStep(m_project, bc);
+    GenericMakeStep *makeStep = new GenericMakeStep(bc);
     bc->insertBuildStep(0, makeStep);
     makeStep->setBuildTarget("all", /* on = */ true);
     return bc;
@@ -536,7 +536,7 @@ bool GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
         GenericBuildConfiguration *bc = new GenericBuildConfiguration(this, "all");
         addBuildConfiguration(bc);
 
-        GenericMakeStep *makeStep = new GenericMakeStep(this, bc);
+        GenericMakeStep *makeStep = new GenericMakeStep(bc);
         bc->insertBuildStep(0, makeStep);
 
         makeStep->setBuildTarget("all", /* on = */ true);

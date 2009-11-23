@@ -52,7 +52,7 @@ public:
     MakeStepFactory();
     virtual ~MakeStepFactory();
     bool canCreate(const QString & name) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::Project * pro, ProjectExplorer::BuildConfiguration *bc, const QString & name) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString & name) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
     QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
     QString displayNameForName(const QString &name) const;
@@ -67,7 +67,7 @@ class MakeStep : public ProjectExplorer::AbstractMakeStep
     friend class MakeStepConfigWidget; // TODO remove this
     // used to access internal stuff
 public:
-    MakeStep(Qt4Project * project, ProjectExplorer::BuildConfiguration *bc);
+    MakeStep(ProjectExplorer::BuildConfiguration *bc);
     MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
     ~MakeStep();
     virtual bool init();

@@ -462,13 +462,13 @@ Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString buildConfigu
     Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(this, buildConfigurationName);
     addBuildConfiguration(bc);
 
-    QMakeStep *qmakeStep = new QMakeStep(this, bc);
+    QMakeStep *qmakeStep = new QMakeStep(bc);
     bc->insertBuildStep(0, qmakeStep);
 
-    MakeStep *makeStep = new MakeStep(this, bc);
+    MakeStep *makeStep = new MakeStep(bc);
     bc->insertBuildStep(1, makeStep);
 
-    MakeStep* cleanStep = new MakeStep(this, bc);
+    MakeStep* cleanStep = new MakeStep(bc);
     cleanStep->setClean(true);
     bc->insertCleanStep(0, cleanStep);
     if (!additionalArguments.isEmpty())

@@ -44,8 +44,8 @@ using ExtensionSystem::PluginManager;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-MakeStep::MakeStep(Qt4Project * project, ProjectExplorer::BuildConfiguration *bc)
-    : AbstractMakeStep(project, bc), m_clean(false)
+MakeStep::MakeStep(ProjectExplorer::BuildConfiguration *bc)
+    : AbstractMakeStep(bc), m_clean(false)
 {
 
 }
@@ -97,10 +97,11 @@ void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 bool MakeStep::init()
 {
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-    Environment environment = project()->environment(bc);
+    Environment environment = buildConfiguration()->project()->environment(bc);
     setEnvironment(environment);
 
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
+    //TODO
+    Qt4Project *qt4project = static_cast<Qt4Project *>(buildConfiguration()->project());
     QString workingDirectory = qt4project->buildDirectory(bc);
     setWorkingDirectory(workingDirectory);
 
@@ -163,7 +164,7 @@ bool MakeStep::init()
 
 void MakeStep::run(QFutureInterface<bool> & fi)
 {
-    if (qobject_cast<Qt4Project *>(project())->rootProjectNode()->projectType() == ScriptTemplate) {
+    if (static_cast<Qt4Project *>(buildConfiguration()->project())->rootProjectNode()->projectType() == ScriptTemplate) {
         fi.reportResult(true);
         return;
     }
@@ -213,7 +214,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     connect(makeStep, SIGNAL(changed()),
             this, SLOT(update()));
-    connect(makeStep->project(), SIGNAL(buildDirectoryChanged()),
+    connect(makeStep->buildConfiguration()->project(), SIGNAL(buildDirectoryChanged()),
             this, SLOT(updateDetails()));
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
@@ -224,14 +225,14 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
 void MakeStepConfigWidget::updateMakeOverrideLabel()
 {
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(m_makeStep->project());
+    Qt4Project *qt4project = static_cast<Qt4Project *>(m_makeStep->buildConfiguration()->project());
     m_ui.makeLabel->setText(tr("Override %1:").arg(qt4project->
         makeCommand(m_makeStep->buildConfiguration())));
 }
 
 void MakeStepConfigWidget::updateDetails()
 {
-    Qt4Project *pro = static_cast<Qt4Project *>(m_makeStep->project());
+    Qt4Project *pro = static_cast<Qt4Project *>(m_makeStep->buildConfiguration()->project());
     ProjectExplorer::BuildConfiguration *bc = m_makeStep->buildConfiguration();
     QString workingDirectory = pro->buildDirectory(bc);
 
@@ -325,10 +326,10 @@ bool MakeStepFactory::canCreate(const QString & name) const
     return (name == Constants::MAKESTEP);
 }
 
-ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::Project *pro, ProjectExplorer::BuildConfiguration *bc, const QString & name) const
+ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildConfiguration *bc, const QString & name) const
 {
     Q_UNUSED(name)
-    return new MakeStep(static_cast<Qt4Project *>(pro), bc);
+    return new MakeStep(bc);
 }
 
 ProjectExplorer::BuildStep *MakeStepFactory::clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const
