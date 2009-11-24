@@ -1,3 +1,9 @@
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
 /*!
     \contentspage{index.html}{Qt Creator}
     \page index.html
