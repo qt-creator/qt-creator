@@ -77,6 +77,7 @@ QWidget *CodePasterSettingsPage::createPage(QWidget *parent)
     QGroupBox *groupBox = new QGroupBox();
     QVBoxLayout *groupBoxLayout = new QVBoxLayout(groupBox);
     QFormLayout *formLayout = new QFormLayout;
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     QLineEdit *lineedit = new QLineEdit(m_host);
     connect(lineedit, SIGNAL(textChanged(QString)), this, SLOT(serverChanged(QString)));
     formLayout->addRow(tr("Server:"), lineedit);
