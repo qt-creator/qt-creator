@@ -39,8 +39,8 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTWRITER_H
-#define TEXTWRITER_H
+#ifndef CHANGESET_H
+#define CHANGESET_H
 
 #include "utils_global.h"
 
@@ -50,23 +50,23 @@
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT TextWriter
+class QTCREATOR_UTILS_EXPORT ChangeSet
 {
     QString *string;
     QTextCursor *cursor;
 
     struct Replace {
-            int pos;
-            int length;
-            QString replacement;
+        int pos;
+        int length;
+        QString replacement;
     };
 
     QList<Replace> replaceList;
 
     struct Move {
-            int pos;
-            int length;
-            int to;
+        int pos;
+        int length;
+        int to;
     };
 
     QList<Move> moveList;
@@ -80,7 +80,7 @@ class QTCREATOR_UTILS_EXPORT TextWriter
     void write_helper();
 
 public:
-    TextWriter();
+    ChangeSet();
 
     void replace(int pos, int length, const QString &replacement);
     void move(int pos, int length, int to);
@@ -91,4 +91,4 @@ public:
 
 } // namespace Utils
 
-#endif // TEXTWRITER_H
+#endif // CHANGESET_H

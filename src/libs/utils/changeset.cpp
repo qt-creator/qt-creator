@@ -39,11 +39,11 @@
 **
 ****************************************************************************/
 
-#include "textwriter.h"
+#include "changeset.h"
 
 namespace Utils {
 
-TextWriter::TextWriter()
+ChangeSet::ChangeSet()
         :string(0), cursor(0)
 {
 }
@@ -53,7 +53,7 @@ static bool overlaps(int posA, int lengthA, int posB, int lengthB) {
             || (posA < posB && posA + lengthA > posB);
 }
 
-bool TextWriter::hasOverlap(int pos, int length)
+bool ChangeSet::hasOverlap(int pos, int length)
 {
     {
         QListIterator<Replace> i(replaceList);
@@ -74,7 +74,7 @@ bool TextWriter::hasOverlap(int pos, int length)
     }
 }
 
-bool TextWriter::hasMoveInto(int pos, int length)
+bool ChangeSet::hasMoveInto(int pos, int length)
 {
     QListIterator<Move> i(moveList);
     while (i.hasNext()) {
@@ -85,7 +85,7 @@ bool TextWriter::hasMoveInto(int pos, int length)
     return false;
 }
 
-void TextWriter::replace(int pos, int length, const QString &replacement)
+void ChangeSet::replace(int pos, int length, const QString &replacement)
 {
     Q_ASSERT(!hasOverlap(pos, length));
     Q_ASSERT(!hasMoveInto(pos, length));
@@ -97,7 +97,7 @@ void TextWriter::replace(int pos, int length, const QString &replacement)
     replaceList += cmd;
 }
 
-void TextWriter::move(int pos, int length, int to)
+void ChangeSet::move(int pos, int length, int to)
 {
     Q_ASSERT(!hasOverlap(pos, length));
 
@@ -108,7 +108,7 @@ void TextWriter::move(int pos, int length, int to)
     moveList += cmd;
 }
 
-void TextWriter::doReplace(const Replace &replace)
+void ChangeSet::doReplace(const Replace &replace)
 {
     int diff = replace.replacement.size() - replace.length;
     {
@@ -144,7 +144,7 @@ void TextWriter::doReplace(const Replace &replace)
     }
 }
 
-void TextWriter::doMove(const Move &move)
+void ChangeSet::doMove(const Move &move)
 {
     QString text;
     if (string) {
@@ -174,21 +174,21 @@ void TextWriter::doMove(const Move &move)
     }
 }
 
-void TextWriter::write(QString *s)
+void ChangeSet::write(QString *s)
 {
     string = s;
     write_helper();
     string = 0;
 }
 
-void TextWriter::write(QTextCursor *textCursor)
+void ChangeSet::write(QTextCursor *textCursor)
 {
     cursor = textCursor;
     write_helper();
     cursor = 0;
 }
 
-void TextWriter::write_helper()
+void ChangeSet::write_helper()
 {
     if (cursor)
         cursor->beginEditBlock();

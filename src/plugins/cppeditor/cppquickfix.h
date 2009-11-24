@@ -35,7 +35,7 @@
 #include <cplusplus/CppDocument.h>
 #include <ASTfwd.h>
 
-#include <utils/textwriter.h>
+#include <utils/changeset.h>
 
 #include <QtCore/QSharedPointer>
 #include <QtGui/QTextCursor>
@@ -114,7 +114,7 @@ private:
     CPlusPlus::Document::Ptr _doc;
     CPlusPlus::Snapshot _snapshot;
     QTextCursor _textCursor;
-    Utils::TextWriter _textWriter;
+    Utils::ChangeSet _textWriter;
     CPPEditor *_editor;
 };
 

@@ -37,7 +37,7 @@ SOURCES += reloadpromptutils.cpp \
     fancymainwindow.cpp \
     detailsbutton.cpp \
     detailswidget.cpp \
-    textwriter.cpp
+    changeset.cpp
 win32 { 
     SOURCES += abstractprocess_win.cpp \
         consoleprocess_win.cpp \
@@ -82,7 +82,7 @@ HEADERS += utils_global.h \
     fancymainwindow.h \
     detailsbutton.h \
     detailswidget.h \
-    textwriter.h
+    changeset.h
 FORMS += filewizardpage.ui \
     projectintropage.ui \
     newclasswidget.ui \
