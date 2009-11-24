@@ -36,6 +36,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QLineEdit>
 #include <QtGui/QFileDialog>
+#include <QtCore/QTextStream>
 
 using namespace Perforce::Internal;
 using namespace Utils;
@@ -66,7 +67,7 @@ Settings SettingsPageWidget::settings() const
 {
     Settings  settings;
     settings.p4Command = m_ui.pathChooser->path();
-    settings.defaultEnv = m_ui.defaultCheckBox->isChecked();
+    settings.defaultEnv = !m_ui.environmentGroupBox->isChecked();
     settings.p4Port = m_ui.portLineEdit->text();
     settings.p4User = m_ui.userLineEdit->text();
     settings.p4Client=  m_ui.clientLineEdit->text();
@@ -77,7 +78,7 @@ Settings SettingsPageWidget::settings() const
 void SettingsPageWidget::setSettings(const PerforceSettings &s)
 {
     m_ui.pathChooser->setPath(s.p4Command());
-    m_ui.defaultCheckBox->setChecked(s.defaultEnv());
+    m_ui.environmentGroupBox->setChecked(!s.defaultEnv());
     m_ui.portLineEdit->setText(s.p4Port());
     m_ui.clientLineEdit->setText(s.p4Client());
     m_ui.userLineEdit->setText(s.p4User());
@@ -90,6 +91,17 @@ void SettingsPageWidget::setStatusText(bool ok, const QString &t)
 {
     m_ui.errorLabel->setStyleSheet(ok ? QString() : QString(QLatin1String("background-color: red")));
     m_ui.errorLabel->setText(t);
+}
+
+QString SettingsPageWidget::searchKeywords() const
+{
+    QString rc;
+    QTextStream(&rc) << m_ui.promptToSubmitCheckBox->text()
+            << ' ' << m_ui.commandLabel << m_ui.environmentGroupBox->title()
+            << ' ' << m_ui.clientLabel->text() << ' ' << m_ui.userLabel->text()
+            << ' ' << m_ui.portLabel->text();
+    rc.remove(QLatin1Char('&'));
+    return rc;
 }
 
 SettingsPage::SettingsPage()
@@ -120,10 +132,17 @@ QWidget *SettingsPage::createPage(QWidget *parent)
 {
     m_widget = new SettingsPageWidget(parent);
     m_widget->setSettings(PerforcePlugin::perforcePluginInstance()->settings());
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
 void SettingsPage::apply()
 {
     PerforcePlugin::perforcePluginInstance()->setSettings(m_widget->settings());
+}
+
+bool SettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

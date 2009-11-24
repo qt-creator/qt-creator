@@ -50,6 +50,8 @@ public:
     void setTrkOptions(const TrkOptions &);
     TrkOptions trkOptions() const;
 
+    QString searchKeywords() const;
+
 protected:
     void changeEvent(QEvent *e);
 

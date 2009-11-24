@@ -37,18 +37,14 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
+ProjectExplorerSettingsPage::ProjectExplorerSettingsPage() :
+    m_searchKeywords(QLatin1String("jom"))
 {
-
-}
-ProjectExplorerSettingsPage::~ProjectExplorerSettingsPage()
-{
-
 }
 
 QString ProjectExplorerSettingsPage::id() const
 {
-    return Constants::PROJECTEXPLORER_PAGE;
+    return QLatin1String(Constants::PROJECTEXPLORER_PAGE);
 }
 
 QString ProjectExplorerSettingsPage::trName() const
@@ -58,7 +54,7 @@ QString ProjectExplorerSettingsPage::trName() const
 
 QString ProjectExplorerSettingsPage::category() const
 {
-    return Constants::PROJECTEXPLORER_PAGE;
+    return QLatin1String(Constants::PROJECTEXPLORER_PAGE);
 }
 
 QString ProjectExplorerSettingsPage::trCategory() const
@@ -100,4 +96,9 @@ void ProjectExplorerSettingsPage::apply()
 void ProjectExplorerSettingsPage::finish()
 {
     // Nothing to do
+}
+
+bool ProjectExplorerSettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

@@ -65,6 +65,7 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
+    virtual bool matches(const QString &s) const;
 
     DisplaySettings displaySettings() const;
     void setDisplaySettings(const DisplaySettings &);

@@ -31,6 +31,7 @@
 #include "designerconstants.h"
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QTextStream>
 #include <coreplugin/icore.h>
 
 namespace Designer {
@@ -84,6 +85,18 @@ void CppSettingsPageWidget::setUiEmbedding(int v)
     }
 }
 
+QString CppSettingsPageWidget::searchKeywords() const
+{
+    QString rc;
+    QTextStream(&rc) << m_ui.ptrAggregationRadioButton->text()
+            << ' ' << m_ui.aggregationButton->text()
+            << ' ' << m_ui.multipleInheritanceButton->text()
+            << ' ' << m_ui.retranslateCheckBox->text()
+            << ' ' << m_ui.includeQtModuleCheckBox->text();
+    rc.remove(QLatin1Char('&'));
+    return rc;
+}
+
 // ---------- CppSettingsPage
 CppSettingsPage::CppSettingsPage(QObject *parent) : Core::IOptionsPage(parent)
 {
@@ -114,6 +127,8 @@ QWidget *CppSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new CppSettingsPageWidget(parent);
     m_widget->setParameters(m_parameters);
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
@@ -130,6 +145,11 @@ void CppSettingsPage::apply()
 
 void CppSettingsPage::finish()
 {
+}
+
+bool CppSettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 } // namespace Internal

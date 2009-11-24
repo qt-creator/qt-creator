@@ -81,6 +81,7 @@ public:
     QList<QSharedPointerQtVersion> versions() const;
     int defaultVersion() const;
     void finish();
+    QString searchKeywords() const;
 
     virtual bool eventFilter(QObject *o, QEvent *e);
 
@@ -142,8 +143,11 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
+    virtual bool matches(const QString &) const;
+
 private:
     QtOptionsPageWidget *m_widget;
+    QString m_searchKeywords;
 };
 
 } //namespace Internal

@@ -63,6 +63,7 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();
+    virtual bool matches(const QString &s) const;
 
 signals:
     void fontChanged();
@@ -90,6 +91,7 @@ private:
     QFontDatabase fontDatabase;
 
     Ui::GeneralSettingsPage m_ui;
+    QString m_searchKeywords;
 };
 
     }   // Internal

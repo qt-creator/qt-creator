@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>409</width>
-    <height>251</height>
+    <height>279</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -66,59 +66,64 @@
     </widget>
    </item>
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="logCountLabel">
-       <property name="text">
-        <string>Log commit display count:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QSpinBox" name="logCountSpinBox">
-       <property name="toolTip">
-        <string>Note that huge amount of commits might take some time.</string>
-       </property>
-       <property name="maximum">
-        <number>1000</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="timeoutLabel">
-       <property name="text">
-        <string>Timeout (seconds):</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="timeoutSpinBox">
-       <property name="minimum">
-        <number>10</number>
-       </property>
-       <property name="maximum">
-        <number>300</number>
-       </property>
-       <property name="value">
-        <number>30</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0" colspan="2">
-      <widget class="QCheckBox" name="promptToSubmitCheckBox">
-       <property name="text">
-        <string>Prompt to submit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" colspan="2">
-      <widget class="QCheckBox" name="omitAnnotationDataCheckBox">
-       <property name="text">
-        <string>Omit date from annotation output</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Miscellaneous</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="logCountLabel">
+        <property name="text">
+         <string>Log commit display count:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="logCountSpinBox">
+        <property name="toolTip">
+         <string>Note that huge amount of commits might take some time.</string>
+        </property>
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="timeoutLabel">
+        <property name="text">
+         <string>Timeout (seconds):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="timeoutSpinBox">
+        <property name="minimum">
+         <number>10</number>
+        </property>
+        <property name="maximum">
+         <number>300</number>
+        </property>
+        <property name="value">
+         <number>30</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QCheckBox" name="promptToSubmitCheckBox">
+        <property name="text">
+         <string>Prompt on submit</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="omitAnnotationDataCheckBox">
+        <property name="text">
+         <string>Omit date from annotation output</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">

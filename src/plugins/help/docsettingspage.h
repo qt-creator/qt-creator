@@ -56,6 +56,7 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
+    virtual bool matches(const QString &s) const;
 
     bool applyChanges();
 
@@ -72,6 +73,7 @@ private:
     bool m_registeredDocs;
     QStringList m_removeDocs;
     Ui::DocSettingsPage m_ui;
+    QString m_searchKeywords;
 };
 
 } // namespace Help

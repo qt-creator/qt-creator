@@ -51,6 +51,8 @@ public:
     void setSettings(const PerforceSettings &);
     Settings settings() const;
 
+    QString searchKeywords() const;
+
 private slots:
     void slotTest();
 
@@ -75,8 +77,10 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
+    virtual bool matches(const QString &) const;
 
 private:
+    QString m_searchKeywords;
     SettingsPageWidget* m_widget;
 };
 

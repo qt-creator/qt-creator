@@ -2,22 +2,14 @@
 <ui version="4.0">
  <class>CommonOptionsPage</class>
  <widget class="QWidget" name="CommonOptionsPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>379</width>
-    <height>243</height>
-   </rect>
-  </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>User interface</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxListSourceFiles">
         <property name="toolTip">
          <string>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</string>
@@ -27,28 +19,28 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="1" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUseMessageBoxForSignals">
         <property name="text">
          <string>Show a message box when receiving a signal</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="2" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUseAlternatingRowColors">
         <property name="text">
          <string>Use alternating row colors in debug views</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUseToolTipsInMainEditor">
         <property name="text">
          <string>Use tooltips in main editor while debugging</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
         <property name="toolTip">
          <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
@@ -59,58 +51,38 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="5" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
         <property name="text">
          <string>Enable reverse debugging</string>
         </property>
        </widget>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="labelMaximalStackDepth">
-          <property name="text">
-           <string>Maximal stack depth:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="spinBoxMaximalStackDepth">
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="specialValueText">
-           <string>&lt;unlimited&gt;</string>
-          </property>
-          <property name="maximum">
-           <number>999</number>
-          </property>
-          <property name="singleStep">
-           <number>5</number>
-          </property>
-          <property name="value">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
+      <item row="6" column="0">
+       <widget class="QLabel" name="labelMaximalStackDepth">
+        <property name="text">
+         <string>Maximal stack depth:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QSpinBox" name="spinBoxMaximalStackDepth">
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="specialValueText">
+         <string>&lt;unlimited&gt;</string>
+        </property>
+        <property name="maximum">
+         <number>999</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
+        </property>
+        <property name="value">
+         <number>10</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

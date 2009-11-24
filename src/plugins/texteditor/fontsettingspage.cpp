@@ -133,6 +133,7 @@ public:
     Ui::FontSettingsPage ui;
     SchemeListModel *m_schemeListModel;
     bool m_refreshingSchemeList;
+    QString m_searchKeywords;
 };
 
 } // namespace Internal
@@ -367,6 +368,8 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
     updatePointSizes();
     refreshColorSchemeList();
     d_ptr->m_lastValue = d_ptr->m_value;
+    if (d_ptr->m_searchKeywords.isEmpty())
+        d_ptr->m_searchKeywords = d_ptr->ui.fontGroupBox->title() + QLatin1Char(' ') + d_ptr->ui.colorSchemeGroupBox->title();
     return w;
 }
 
@@ -617,4 +620,9 @@ void FontSettingsPage::finish()
 const FontSettings &FontSettingsPage::fontSettings() const
 {
     return d_ptr->m_value;
+}
+
+bool FontSettingsPage::matches(const QString &s) const
+{
+    return d_ptr->m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

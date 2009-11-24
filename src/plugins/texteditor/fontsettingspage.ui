@@ -12,13 +12,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="fontGroupBox">
      <property name="title">
       <string>Font</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="familyLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -57,7 +57,7 @@
        </spacer>
       </item>
       <item row="0" column="3">
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="sizeLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -103,7 +103,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="colorSchemeGroupBox">
      <property name="title">
       <string>Color Scheme</string>
      </property>

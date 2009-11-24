@@ -76,6 +76,8 @@ QWidget *TrkOptionsPage::createPage(QWidget *parent)
     if (!m_widget)
         m_widget = new TrkOptionsWidget(parent);
     m_widget->setTrkOptions(*m_options);
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
@@ -92,6 +94,11 @@ void TrkOptionsPage::apply()
 
 void TrkOptionsPage::finish()
 {
+}
+
+bool TrkOptionsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 } // namespace Internal

@@ -70,7 +70,7 @@ public:
     virtual QString settingsGroup() const;
     Q_SLOT virtual void setSettingsGroup(const QString &group);
 
-    virtual void readSettings(QSettings *settings);
+    virtual void readSettings(const QSettings *settings);
     Q_SLOT virtual void writeSettings(QSettings *settings);
     
     virtual void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
@@ -93,6 +93,7 @@ private:
     Q_SLOT void actionTriggered(bool);
     Q_SLOT void spinBoxValueChanged(int);
     Q_SLOT void spinBoxValueChanged(QString);
+    Q_SLOT void groupBoxToggled(bool checked);
 
     QVariant m_value;
     QVariant m_defaultValue;
@@ -114,6 +115,9 @@ public:
     void apply(QSettings *settings);
     void finish();
     void clear() { m_list.clear(); }
+
+    // Search keywords for options dialog search.
+    QString searchKeyWords() const;
 
 private:
     QList<SavedAction *> m_list;

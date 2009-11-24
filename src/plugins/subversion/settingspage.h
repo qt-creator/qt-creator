@@ -55,6 +55,8 @@ public:
     SubversionSettings settings() const;
     void setSettings(const SubversionSettings &);
 
+    QString searchKeywords() const;
+
 private:
     Ui::SettingsPage m_ui;
 };
@@ -75,8 +77,10 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
+    virtual bool matches(const QString &) const;
 
 private:
+    QString m_searchKeywords;
     SettingsPageWidget* m_widget;
 };
 

@@ -53,6 +53,8 @@ public:
 
     void setFailureMessage(const QString &);
 
+    QString searchKeywords() const;
+
 private slots:
     void autoDetect();
     void downLoadLinkActivated(const QString &);
@@ -78,6 +80,7 @@ public:
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();
     virtual void finish();
+    virtual bool matches(const QString &) const;
 
     static QString settingsId();
 
@@ -92,6 +95,7 @@ private:
     const QSharedPointer<CdbOptions> m_options;
     QPointer<CdbOptionsPageWidget> m_widget;
     QString m_failureMessage;
+    QString m_searchKeywords;
 };
 
 } // namespace Internal

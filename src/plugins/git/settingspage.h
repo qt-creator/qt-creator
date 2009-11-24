@@ -54,6 +54,8 @@ public:
     GitSettings settings() const;
     void setSettings(const GitSettings &);
 
+    QString searchKeywords() const;
+
 private slots:
     void setSystemPath();
 
@@ -76,8 +78,10 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
+    virtual bool matches(const QString &) const;
 
 private:
+    QString m_searchKeywords;
     SettingsPageWidget* m_widget;
 };
 

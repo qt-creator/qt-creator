@@ -68,6 +68,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QPoint>
 #include <QtCore/QSettings>
+#include <QtCore/QTextStream>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
@@ -118,6 +119,7 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(ICore::instance()->settings()); }
     void finish() { m_group.finish(); }
+    virtual bool matches(const QString &) const;
 
 private slots:
     void copyTextEditorSettings();
@@ -127,7 +129,7 @@ private slots:
 private:
     friend class DebuggerPlugin;
     Ui::FakeVimOptionPage m_ui;
-
+    QString m_searchKeywords;
     Utils::SavedActionSet m_group;
 };
 
@@ -138,7 +140,7 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 
     m_group.clear();
     m_group.insert(theFakeVimSetting(ConfigUseFakeVim), 
-        m_ui.checkBoxUseFakeVim);
+        m_ui.groupBox);
 
     m_group.insert(theFakeVimSetting(ConfigExpandTab), 
         m_ui.checkBoxExpandTab);
@@ -167,7 +169,15 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         this, SLOT(setQtStyle()));
     connect(m_ui.pushButtonSetPlainStyle, SIGNAL(clicked()),
         this, SLOT(setPlainStyle()));
-
+    if (m_searchKeywords.isEmpty()) {
+        QTextStream(&m_searchKeywords)
+           << ' ' << m_ui.labelAutoIndent->text()  << ' ' << m_ui.labelExpandTab->text()
+           << ' ' << m_ui.labelHlSearch->text()    << ' ' << m_ui.labelIncSearch->text()
+           << ' ' << m_ui.labelShiftWidth->text()  << ' ' << m_ui.labelSmartTab->text()
+           << ' ' << m_ui.labelStartOfLine->text() << ' ' << m_ui.tabulatorLabel->text()
+           << ' ' << m_ui.labelBackspace->text();
+        m_searchKeywords.remove(QLatin1Char('&'));
+    }
     return w;
 }
 
@@ -188,23 +198,30 @@ void FakeVimOptionPage::copyTextEditorSettings()
 void FakeVimOptionPage::setQtStyle()
 {
     m_ui.checkBoxExpandTab->setChecked(true);
-    m_ui.lineEditTabStop->setText("4");
-    m_ui.lineEditShiftWidth->setText("4");
+    const QString four = QString(QLatin1Char('4'));
+    m_ui.lineEditTabStop->setText(four);
+    m_ui.lineEditShiftWidth->setText(four);
     m_ui.checkBoxSmartTab->setChecked(true);
     m_ui.checkBoxAutoIndent->setChecked(true);
     m_ui.checkBoxIncSearch->setChecked(true);
-    m_ui.lineEditBackspace->setText("indent,eol,start");
+    m_ui.lineEditBackspace->setText(QLatin1String("indent,eol,start"));
 }
 
 void FakeVimOptionPage::setPlainStyle()
 {
     m_ui.checkBoxExpandTab->setChecked(false);
-    m_ui.lineEditTabStop->setText("8");
-    m_ui.lineEditShiftWidth->setText("8");
+    const QString eight = QString(QLatin1Char('4'));
+    m_ui.lineEditTabStop->setText(eight);
+    m_ui.lineEditShiftWidth->setText(eight);
     m_ui.checkBoxSmartTab->setChecked(false);
     m_ui.checkBoxAutoIndent->setChecked(false);
     m_ui.checkBoxIncSearch->setChecked(false);
     m_ui.lineEditBackspace->setText(QString());
+}
+
+bool FakeVimOptionPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 } // namespace Internal

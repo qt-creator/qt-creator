@@ -41,7 +41,6 @@ class ProjectExplorerSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 public:
     ProjectExplorerSettingsPage();
-    ~ProjectExplorerSettingsPage();
 
     virtual QString id() const;
     virtual QString trName() const;
@@ -51,7 +50,10 @@ public:
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();
     virtual void finish();
+    virtual bool matches(const QString &s) const;
+
 private:
+    const QString m_searchKeywords;
     Ui::ProjectExplorerSettingsPageUi m_ui;
 };
 

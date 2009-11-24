@@ -62,6 +62,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <coreplugin/manhattanstyle.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
@@ -328,10 +329,12 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(settings()); }
     void finish() { m_group.finish(); }
+    virtual bool matches(const QString &s) const;
 
 private:
     Ui::CommonOptionsPage m_ui;
     Utils::SavedActionSet m_group;
+    QString m_searchKeywords;
 };
 
 QWidget *CommonOptionsPage::createPage(QWidget *parent)
@@ -364,7 +367,23 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_ui.checkBoxEnableReverseDebugging->hide();
 #endif
 
+    if (m_searchKeywords.isEmpty()) {
+        QTextStream(&m_searchKeywords) << ' ' << m_ui.checkBoxListSourceFiles->text()
+                << ' ' << m_ui.checkBoxUseMessageBoxForSignals->text()
+                << ' ' << m_ui.checkBoxUseAlternatingRowColors->text()
+                << ' ' << m_ui.checkBoxUseToolTipsInMainEditor->text()
+                << ' ' << m_ui.checkBoxSkipKnownFrames->text()
+                << ' ' << m_ui.checkBoxEnableReverseDebugging->text()
+                << ' ' << m_ui.labelMaximalStackDepth->text();
+        m_searchKeywords.remove(QLatin1Char('&'));
+    }
+
     return w;
+}
+
+bool CommonOptionsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 } // namespace Internal
@@ -376,6 +395,13 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
 // DebuggingHelperOptionPage
 //
 ///////////////////////////////////////////////////////////////////////
+
+static inline bool oxygenStyle()
+{
+    if (const ManhattanStyle *ms = qobject_cast<const ManhattanStyle *>(qApp->style()))
+        return !qstrcmp("OxygenStyle", ms->systemStyle()->metaObject()->className());
+    return false;
+}
 
 namespace Debugger {
 namespace Internal {
@@ -396,14 +422,12 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(settings()); }
     void finish() { m_group.finish(); }
+    virtual bool matches(const QString &s) const;
 
 private:
-    Q_SLOT void updateState();
-
-    friend class DebuggerPlugin;
-    Ui::DebuggingHelperOptionPage m_ui;
-
+    Ui::DebuggingHelperOptionPage m_ui;    
     Utils::SavedActionSet m_group;
+    QString m_searchKeywords;
 };
 
 QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
@@ -416,16 +440,15 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     m_ui.dumperLocationChooser->setInitialBrowsePathBackup(
         Core::ICore::instance()->resourcePath() + "../../lib");
 
-    connect(m_ui.checkBoxUseDebuggingHelpers, SIGNAL(toggled(bool)),
-        this, SLOT(updateState()));
-    connect(m_ui.checkBoxUseCustomDebuggingHelperLocation, SIGNAL(toggled(bool)),
-        this, SLOT(updateState()));
-
     m_group.clear();
     m_group.insert(theDebuggerAction(UseDebuggingHelpers),
-        m_ui.checkBoxUseDebuggingHelpers);
+        m_ui.debuggingHelperGroupBox);
     m_group.insert(theDebuggerAction(UseCustomDebuggingHelperLocation),
-        m_ui.checkBoxUseCustomDebuggingHelperLocation);
+        m_ui.customLocationGroupBox);
+    // Suppress Oxygen style's giving flat group boxes bold titles
+    if (oxygenStyle())
+        m_ui.customLocationGroupBox->setStyleSheet(QLatin1String("QGroupBox::title { font: ; }"));
+
     m_group.insert(theDebuggerAction(CustomDebuggingHelperLocation),
         m_ui.dumperLocationChooser);
 
@@ -439,9 +462,6 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     m_ui.checkBoxDebugDebuggingHelpers->hide();
 #endif
 
-    m_ui.dumperLocationChooser->
-        setEnabled(theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool());
-
 #ifndef QT_DEBUG
 #if 0
     cmd = am->registerAction(m_manager->m_dumpLogAction,
@@ -451,19 +471,22 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     mdebug->addAction(cmd);
 #endif
 #endif
-    updateState();
 
+    if (m_searchKeywords.isEmpty()) {
+        QTextStream(&m_searchKeywords)
+                << ' ' << m_ui.debuggingHelperGroupBox->title()
+                << ' ' << m_ui.customLocationGroupBox->title()
+                << ' ' << m_ui.dumperLocationLabel->text()
+                << ' ' << m_ui.checkBoxUseCodeModel->text()
+                << ' ' << m_ui.checkBoxDebugDebuggingHelpers->text();
+        m_searchKeywords.remove(QLatin1Char('&'));
+    }
     return w;
 }
 
-void DebuggingHelperOptionPage::updateState()
+bool DebuggingHelperOptionPage::matches(const QString &s) const
 {
-    m_ui.checkBoxUseCustomDebuggingHelperLocation->setEnabled(
-        m_ui.checkBoxUseDebuggingHelpers->isChecked());
-    bool locationEnabled = m_ui.checkBoxUseDebuggingHelpers->isChecked()
-         && m_ui.checkBoxUseCustomDebuggingHelperLocation->isChecked();
-    m_ui.dumperLocationChooser->setEnabled(locationEnabled);
-    m_ui.dumperLocationLabel->setEnabled(locationEnabled);
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 } // namespace Internal

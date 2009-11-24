@@ -4,6 +4,7 @@
 
 #include <coreplugin/icore.h>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QTextStream>
 
 const char * const GDB_SETTINGS_ID = QT_TRANSLATE_NOOP("Debugger::Internal::GdbOptionsPage", "Gdb");
 
@@ -73,6 +74,13 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
     m_ui.environmentEdit->hide();
     m_ui.labelEnvironment->hide();
 
+    if (m_searchKeywords.isEmpty()) {
+        // TODO: Add breakpoints, environment?
+        QTextStream(&m_searchKeywords) << ' ' << m_ui.labelGdbLocation->text()
+                << ' ' << m_ui.labelEnvironment->text()
+                << ' ' << m_ui.labelGdbStartupScript->text();
+        m_searchKeywords.remove(QLatin1Char('&'));
+    }
     return w;
 }
 void GdbOptionsPage::apply()
@@ -83,6 +91,11 @@ void GdbOptionsPage::apply()
 void GdbOptionsPage::finish()
 {
     m_group.finish();
+}
+
+bool GdbOptionsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 } // namespace Internal

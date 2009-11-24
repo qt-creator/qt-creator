@@ -12,9 +12,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QHBoxLayout" name="mainHorizontalLayout">
      <item>
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QGroupBox" name="filterGroupBox">
        <property name="title">
         <string>Filters</string>
        </property>
@@ -26,7 +26,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox_2">
+      <widget class="QGroupBox" name="attributesGroupBox">
        <property name="title">
         <string>Attributes</string>
        </property>
@@ -55,7 +55,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="buttonHorizontalLayout">
      <item>
       <widget class="QPushButton" name="filterAddButton">
        <property name="text">
@@ -71,7 +71,7 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
+      <spacer name="buttonHorizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>

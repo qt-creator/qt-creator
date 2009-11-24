@@ -23,12 +23,14 @@ public:
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();
     virtual void finish();
+    virtual bool matches(const QString &) const;
 
     static QString settingsId();
 
-private:
+private:    
     Ui::GdbOptionsPage m_ui;
     Utils::SavedActionSet m_group;
+    QString m_searchKeywords;
 };
 
 } // namespace Internal

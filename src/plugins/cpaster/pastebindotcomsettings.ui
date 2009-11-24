@@ -16,9 +16,6 @@
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>PasteBin</string>
-     </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QFormLayout" name="formLayout">

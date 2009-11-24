@@ -15,10 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Configure Filters</string>
-     </property>
+    <widget class="QGroupBox" name="configurationGroupBox">
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <widget class="QListWidget" name="filterList">
@@ -77,7 +74,7 @@
    <item>
     <layout class="QHBoxLayout">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="refreshIntervalLabel">
        <property name="text">
         <string>Refresh Interval:</string>
        </property>

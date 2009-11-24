@@ -127,6 +127,12 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     connect(m_ui.importButton, SIGNAL(clicked()), this, SLOT(importBookmarks()));
     connect(m_ui.exportButton, SIGNAL(clicked()), this, SLOT(exportBookmarks()));
 
+    if (m_searchKeywords.isEmpty()) {
+        QTextStream(&m_searchKeywords) << ' ' << m_ui.contextHelpLabel->text()
+           << ' ' << m_ui.startPageLabel->text() << ' ' << m_ui.homePageLabel->text()
+           << ' ' << m_ui.bookmarkGroupBox->title();
+        m_searchKeywords.remove(QLatin1Char('&'));
+    }
     return m_currentPage;
 }
 
@@ -323,4 +329,9 @@ int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const
         }
     }
     return closestIndex;
+}
+
+bool GeneralSettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

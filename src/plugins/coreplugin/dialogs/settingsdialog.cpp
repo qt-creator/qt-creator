@@ -42,6 +42,11 @@
 #include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QItemSelectionModel>
 #include <QtGui/QIcon>
+#include <QtGui/QLabel>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QSpacerItem>
+#include <QtGui/QStyle>
 
 enum ItemType { CategoryItem, PageItem };
 
@@ -201,8 +206,37 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
 
     connect(buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
 
-    foreach(IOptionsPage *page, m_pages)
-        stackedPages->addWidget(page->createPage(0));
+    // Create pages with title labels with a larger, bold font, left-aligned
+    // with the group boxes of the page.
+    const int pageCount = m_pages.size();
+    QFont titleLabelFont;
+    const int leftMargin = qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin) +
+                           qApp->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    for (int i = 0; i < pageCount; i++) {
+        // Title bar
+        QHBoxLayout *titleLayout = new QHBoxLayout;
+        titleLayout->addSpacerItem(new QSpacerItem(leftMargin, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
+        QLabel *titleLabel = new QLabel(m_pages.at(i)->trName());
+        if (i == 0) { // Create a bold header font from the default label font.
+            titleLabelFont = titleLabel->font();
+            titleLabelFont.setBold(true);
+            // Paranoia: Should a font be set in pixels...
+            const int pointSize = titleLabelFont.pointSize();
+            if (pointSize > 0)
+                titleLabelFont.setPointSize(pointSize + 2);
+        }
+        titleLabel->setFont(titleLabelFont);
+        titleLayout->addWidget(titleLabel);
+        // Page
+        QWidget *pageContainer =new QWidget;
+        QVBoxLayout *pageLayout = new QVBoxLayout(pageContainer);
+        pageLayout->addLayout(titleLayout);
+        pageLayout->addSpacerItem(new QSpacerItem(0, 6, QSizePolicy::Ignored, QSizePolicy::Fixed));
+        pageLayout->addWidget(m_pages.at(i)->createPage(0));
+        stackedPages->addWidget(pageContainer);
+    }
+//    foreach(IOptionsPage *page, m_pages)
+  //      stackedPages->addWidget();
 
     splitter->setCollapsible(1, false);
     pageTree->header()->setVisible(false);
@@ -247,10 +281,11 @@ void SettingsDialog::showPage(const QStandardItem *item)
     // if a category was hit.
     switch (itemTypeOfItem(item)) {
     case PageItem: {
-            const IOptionsPage *page = pageOfItem(item);
+            IOptionsPage *page = pageOfItem(item);
             m_currentCategory = page->category();
             m_currentPage = page->id();
             stackedPages->setCurrentIndex(indexOfItem(item));
+            m_visitedPages.insert(page);
         }
         break;
     case CategoryItem:
@@ -318,10 +353,10 @@ void SettingsDialog::filter(const QString &text)
 void SettingsDialog::accept()
 {
     m_applied = true;
-    foreach (IOptionsPage *page, m_pages) {
+    foreach (IOptionsPage *page, m_visitedPages)
         page->apply();
+    foreach (IOptionsPage *page, m_pages)
         page->finish();
-    }
     done(QDialog::Accepted);
 }
 
@@ -334,7 +369,7 @@ void SettingsDialog::reject()
 
 void SettingsDialog::apply()
 {
-    foreach (IOptionsPage *page, m_pages)
+    foreach (IOptionsPage *page, m_visitedPages)
         page->apply();
     m_applied = true;
 }

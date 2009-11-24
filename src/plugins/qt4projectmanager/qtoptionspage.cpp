@@ -16,6 +16,7 @@
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QTextStream>
 #include <QtCore/QDateTime>
 #include <QtGui/QHelpEvent>
 #include <QtGui/QToolTip>
@@ -84,6 +85,8 @@ QWidget *QtOptionsPage::createPage(QWidget *parent)
 {
     QtVersionManager *vm = QtVersionManager::instance();
     m_widget = new QtOptionsPageWidget(parent, vm->versions(), vm->defaultVersion());
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
@@ -97,6 +100,11 @@ void QtOptionsPage::apply()
     foreach(const QSharedPointerQtVersion &spv, m_widget->versions())
         versions.push_back(new QtVersion(*spv));
     vm->setNewQtVersions(versions, m_widget->defaultVersion());
+}
+
+bool QtOptionsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 //-----------------------------------------------------
@@ -727,4 +735,17 @@ QList<QSharedPointerQtVersion> QtOptionsPageWidget::versions() const
 int QtOptionsPageWidget::defaultVersion() const
 {
     return m_defaultVersion;
+}
+
+QString QtOptionsPageWidget::searchKeywords() const
+{
+    QString rc;
+    QTextStream(&rc) << ' ' << m_ui->mingwLabel->text()
+            << ' ' << m_ui->msvcLabel->text()
+            << ' ' << m_ui->gcceLabel->text()
+            << ' ' << m_ui->mwcLabel->text()
+            << ' ' << m_ui->debuggingHelperLabel->text()
+            << ' ' << m_ui->versionListGroupBox->title();
+    rc.remove(QLatin1Char('&'));
+    return rc;
 }

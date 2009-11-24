@@ -2,115 +2,78 @@
 <ui version="4.0">
  <class>VCSBaseSettingsPage</class>
  <widget class="QWidget" name="VCSBaseSettingsPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>536</width>
-    <height>407</height>
-   </rect>
-  </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Common</string>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <item>
-             <widget class="QCheckBox" name="lineWrapCheckBox">
-              <property name="text">
-               <string>Wrap submit message at:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="lineWrapSpinBox">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="minimum">
-               <number>40</number>
-              </property>
-              <property name="maximum">
-               <number>200</number>
-              </property>
-              <property name="value">
-               <number>72</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QFormLayout" name="formLayout">
-          <property name="rowWrapPolicy">
-           <enum>QFormLayout::WrapLongRows</enum>
-          </property>
-          <item row="0" column="0">
-           <widget class="QLabel" name="submitMessageCheckScriptLabel">
-            <property name="toolTip">
-             <string>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</string>
-            </property>
-            <property name="text">
-             <string>Submit message check script:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="Utils::PathChooser" name="submitMessageCheckScriptChooser" native="true"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="nickNameMailMapLabel">
-            <property name="toolTip">
-             <string>A file listing user names and email addresses in a 4-column mailmap format:
+    <widget class="QGroupBox" name="commonGroupBox">
+     <layout class="QFormLayout" name="formLayout">
+      <property name="rowWrapPolicy">
+       <enum>QFormLayout::WrapLongRows</enum>
+      </property>
+      <item row="1" column="0">
+       <widget class="QLabel" name="submitMessageCheckScriptLabel">
+        <property name="toolTip">
+         <string>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</string>
+        </property>
+        <property name="text">
+         <string>Submit message check script:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="Utils::PathChooser" name="submitMessageCheckScriptChooser"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="nickNameMailMapLabel">
+        <property name="toolTip">
+         <string>A file listing user names and email addresses in a 4-column mailmap format:
 name &lt;email&gt; alias &lt;email&gt;</string>
-            </property>
-            <property name="text">
-             <string>User/alias configuration file:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="Utils::PathChooser" name="nickNameMailMapChooser" native="true"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="nickNameFieldsFileLabel">
-            <property name="toolTip">
-             <string>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</string>
-            </property>
-            <property name="text">
-             <string>User fields configuration file:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="Utils::PathChooser" name="nickNameFieldsFileChooser" native="true"/>
-          </item>
-         </layout>
-        </item>
-       </layout>
+        </property>
+        <property name="text">
+         <string>User/alias configuration file:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="Utils::PathChooser" name="nickNameMailMapChooser"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="nickNameFieldsFileLabel">
+        <property name="toolTip">
+         <string>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</string>
+        </property>
+        <property name="text">
+         <string>User fields configuration file:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="Utils::PathChooser" name="nickNameFieldsFileChooser"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="lineWrapCheckBox">
+        <property name="text">
+         <string>Wrap submit message at:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="lineWrapSpinBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="suffix">
+         <string>characters</string>
+        </property>
+        <property name="minimum">
+         <number>40</number>
+        </property>
+        <property name="maximum">
+         <number>200</number>
+        </property>
+        <property name="value">
+         <number>72</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -120,10 +83,13 @@ name &lt;email&gt; alias &lt;email&gt;</string>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::MinimumExpanding</enum>
+     </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>20</width>
-       <height>307</height>
+       <width>0</width>
+       <height>0</height>
       </size>
      </property>
     </spacer>
@@ -139,22 +105,5 @@ name &lt;email&gt; alias &lt;email&gt;</string>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>lineWrapCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>lineWrapSpinBox</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>186</x>
-     <y>58</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>225</x>
-     <y>58</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

@@ -138,7 +138,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="tabKeyIndentLabel">
           <property name="text">
            <string>Tab key performs auto-indent:</string>
           </property>

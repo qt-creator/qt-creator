@@ -34,6 +34,7 @@
 #include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
+#include <QtCore/QTextStream>
 
 using namespace TextEditor;
 
@@ -44,6 +45,7 @@ struct DisplaySettingsPage::DisplaySettingsPagePrivate
     const DisplaySettingsPageParameters m_parameters;
     Ui::DisplaySettingsPage m_page;
     DisplaySettings m_displaySettings;
+    QString m_searchKeywords;
 };
 
 DisplaySettingsPage::DisplaySettingsPagePrivate::DisplaySettingsPagePrivate
@@ -92,6 +94,17 @@ QWidget *DisplaySettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_d->m_page.setupUi(w);
     settingsToUI();
+    if (m_d->m_searchKeywords.isEmpty()) {
+        QTextStream(&m_d->m_searchKeywords) << m_d->m_page.displayLineNumbers->text()
+          << ' ' << m_d->m_page.highlightCurrentLine->text()
+          << ' ' << m_d->m_page.displayFoldingMarkers->text()
+          << ' ' << m_d->m_page.highlightBlocks->text()
+          << ' ' << m_d->m_page.visualizeWhitespace->text()
+          << ' ' << m_d->m_page.animateMatchingParentheses->text()
+          << ' ' << m_d->m_page.enableTextWrapping->text()
+          << ' ' << m_d->m_page.mouseNavigation->text();
+        m_d->m_searchKeywords.remove(QLatin1Char('&'));
+    }
     return w;
 }
 
@@ -159,4 +172,9 @@ void DisplaySettingsPage::setDisplaySettings(const DisplaySettings &newDisplaySe
 
         emit displaySettingsChanged(newDisplaySettings);
     }
+}
+
+bool DisplaySettingsPage::matches(const QString &s) const
+{
+    return m_d->m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

@@ -32,6 +32,8 @@
 #include "debuggerconstants.h"
 #include "ui_trkoptionswidget.h"
 
+#include <QtCore/QTextStream>
+
 namespace Debugger {
 namespace Internal {
 
@@ -85,6 +87,15 @@ TrkOptions TrkOptionsWidget::trkOptions() const
     rc.gdb = ui->gdbChooser->path();
     rc.blueToothDevice = ui->blueToothComboBox->currentText();
     rc.serialPort = ui->serialComboBox->currentText();
+    return rc;
+}
+
+QString TrkOptionsWidget::searchKeywords() const
+{
+    QString rc;
+    QTextStream(&rc)  << ui->gdbLabel->text()  << ' ' << ui->serialLabel->text()
+            << ' ' << ui->blueToothLabel->text();
+    rc.remove(QLatin1Char('&'));
     return rc;
 }
 

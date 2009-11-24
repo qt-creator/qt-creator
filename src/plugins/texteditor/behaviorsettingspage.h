@@ -70,6 +70,8 @@ public:
     TabSettings tabSettings() const;
     StorageSettings storageSettings() const;
 
+    virtual bool matches(const QString &s) const;
+
 signals:
     void tabSettingsChanged(const TextEditor::TabSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);

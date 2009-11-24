@@ -263,7 +263,7 @@ QWidget *CMakeSettingsPage::createPage(QWidget *parent)
 {
     QWidget *outerWidget = new QWidget(parent);
     QVBoxLayout *outerLayout = new QVBoxLayout(outerWidget);
-    QGroupBox *groupBox = new QGroupBox(trCategory());
+    QGroupBox *groupBox = new QGroupBox;
     outerLayout->addWidget(groupBox);
     outerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
     QFormLayout *formLayout = new QFormLayout(groupBox);

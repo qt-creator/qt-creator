@@ -2,12 +2,17 @@
 <ui version="4.0">
  <class>Core::Internal::GeneralSettings</class>
  <widget class="QWidget" name="Core::Internal::GeneralSettings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>363</width>
+    <height>296</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>General settings</string>
-     </property>
      <layout class="QFormLayout" name="formLayout">
       <property name="rowWrapPolicy">
        <enum>QFormLayout::WrapLongRows</enum>

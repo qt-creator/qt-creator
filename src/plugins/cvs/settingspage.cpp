@@ -37,6 +37,7 @@
 #include <utils/pathchooser.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QTextStream>
 #include <QtGui/QFileDialog>
 
 using namespace CVS::Internal;
@@ -70,6 +71,17 @@ void SettingsPageWidget::setSettings(const CVSSettings &s)
     m_ui.describeByCommitIdCheckBox->setChecked(s.describeByCommitId);
 }
 
+QString SettingsPageWidget::searchKeywords() const
+{
+    QString rc;
+    QTextStream(&rc) << m_ui.promptToSubmitCheckBox->text()
+            << ' ' <<  m_ui.describeByCommitIdCheckBox->text()
+            << ' ' << m_ui.commandLabel->text()
+            << ' ' << m_ui.rootLabel->text() << ' ' << m_ui.diffOptionsLabel->text();
+    rc.remove(QLatin1Char('&'));
+    return rc;
+}
+
 SettingsPage::SettingsPage()
 {
 }
@@ -98,10 +110,17 @@ QWidget *SettingsPage::createPage(QWidget *parent)
 {
     m_widget = new SettingsPageWidget(parent);
     m_widget->setSettings(CVSPlugin::cvsPluginInstance()->settings());
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
 void SettingsPage::apply()
 {
     CVSPlugin::cvsPluginInstance()->setSettings(m_widget->settings());
+}
+
+bool SettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

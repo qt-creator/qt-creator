@@ -36,6 +36,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
+#include <QtCore/QTextStream>
 #include <QtGui/QMessageBox>
 
 namespace Git {
@@ -75,8 +76,21 @@ void SettingsPageWidget::setSystemPath()
     m_ui.pathLineEdit->setText(QLatin1String(qgetenv("PATH")));
 }
 
+QString SettingsPageWidget::searchKeywords() const
+{
+    QString rc;
+    QTextStream(&rc) << ' ' << m_ui.pathlabel->text()  <<  ' ' << m_ui.logCountLabel->text()
+        << ' ' << m_ui.timeoutLabel->text()
+        << ' ' << m_ui.promptToSubmitCheckBox->text()
+        << ' ' << m_ui.omitAnnotationDataCheckBox->text()
+        << ' ' << m_ui.environmentGroupBox->title();
+    rc.remove(QLatin1Char('&'));
+    return rc;
+}
+
 // -------- SettingsPage
-SettingsPage::SettingsPage()
+SettingsPage::SettingsPage() :
+    m_widget(0)
 {
 }
 
@@ -104,6 +118,8 @@ QWidget *SettingsPage::createPage(QWidget *parent)
 {
     m_widget = new SettingsPageWidget(parent);
     m_widget->setSettings(GitPlugin::instance()->settings());
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
@@ -121,5 +137,11 @@ void SettingsPage::apply()
 
     GitPlugin::instance()->setSettings(newSettings);
 }
+
+bool SettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+}
+
 }
 }

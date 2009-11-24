@@ -2,68 +2,28 @@
 <ui version="4.0">
  <class>Perforce::Internal::SettingsPage</class>
  <widget class="QWidget" name="Perforce::Internal::SettingsPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>423</width>
-    <height>463</height>
-   </rect>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QFormLayout" name="formLayout_2">
-     <item row="0" column="0" colspan="2">
-      <widget class="QCheckBox" name="promptToSubmitCheckBox">
-       <property name="text">
-        <string>Prompt to submit</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QGroupBox" name="configGroupBox">
+     <property name="title">
+      <string>Configuration</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="commandLabel">
+        <property name="text">
+         <string>P4 Command:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="Utils::PathChooser" name="pathChooser"/>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <layout class="QFormLayout" name="formLayout">
-     <property name="fieldGrowthPolicy">
-      <enum>QFormLayout::ExpandingFieldsGrow</enum>
-     </property>
-     <item row="0" column="0">
-      <widget class="QLabel" name="commandLabel">
-       <property name="text">
-        <string>P4 Command:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="Utils::PathChooser" name="pathChooser"/>
-     </item>
-     <item row="1" column="0" colspan="2">
-      <widget class="QCheckBox" name="defaultCheckBox">
-       <property name="text">
-        <string>Use default P4 environment variables</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="environmentGroupBox">
      <property name="enabled">
       <bool>true</bool>
      </property>
@@ -71,6 +31,9 @@
       <string>Environment variables</string>
      </property>
      <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
       <bool>false</bool>
      </property>
      <layout class="QGridLayout">
@@ -114,6 +77,38 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="miscgroupBox">
+     <property name="title">
+      <string>Miscellaneous</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0" colspan="2">
+       <widget class="QCheckBox" name="promptToSubmitCheckBox">
+        <property name="text">
+         <string>Prompt on submit</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <spacer name="horizontalSpacer">
@@ -144,8 +139,8 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>141</width>
-       <height>20</height>
+       <width>20</width>
+       <height>40</height>
       </size>
      </property>
     </spacer>
@@ -173,22 +168,5 @@
   <tabstop>userLineEdit</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>defaultCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBox</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>134</x>
-     <y>51</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>139</x>
-     <y>65</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

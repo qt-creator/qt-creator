@@ -63,6 +63,7 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();
+    virtual bool matches(const QString &) const;
 
 private slots:
     void updateButtonStates();
@@ -85,6 +86,7 @@ private:
     QList<ILocatorFilter *> m_customFilters;
     QList<ILocatorFilter *> m_refreshFilters;
     QHash<ILocatorFilter *, QByteArray> m_filterStates;
+    QString m_searchKeywords;
 };
 
 } // namespace Internal

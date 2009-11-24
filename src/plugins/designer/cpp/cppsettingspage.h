@@ -49,6 +49,8 @@ public:
     FormClassWizardGenerationParameters parameters() const;
     void setParameters(const FormClassWizardGenerationParameters &p);
 
+    QString searchKeywords() const;
+
 private:
     int uiEmbedding() const;
     void setUiEmbedding(int);
@@ -69,10 +71,12 @@ public:
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();
     virtual void finish();
+    virtual bool matches(const QString &s) const;
 
 private:
     QPointer<CppSettingsPageWidget> m_widget;
     FormClassWizardGenerationParameters m_parameters;
+    QString m_searchKeywords;
 };
 
 } // namespace Internal

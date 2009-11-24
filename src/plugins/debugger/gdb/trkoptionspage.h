@@ -60,11 +60,13 @@ public:
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();
     virtual void finish();
+    virtual bool matches(const QString &) const;
 
     static QString settingsId();
 private:
     const TrkOptionsPtr m_options;
     QPointer<TrkOptionsWidget> m_widget;
+    QString m_searchKeywords;
 };
 
 } // namespace Internal

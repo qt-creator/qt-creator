@@ -12,10 +12,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Build and Run</string>
-     </property>
+    <widget class="QGroupBox" name="buildAndRunGroupBox">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="QCheckBox" name="saveAllFilesCheckBox">

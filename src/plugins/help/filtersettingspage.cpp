@@ -78,6 +78,9 @@ QWidget *FilterSettingsPage::createPage(QWidget *parent)
         SLOT(removeFilter()));
     updateFilterPage();
 
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_ui.filterGroupBox->title() + QLatin1Char(' ') + m_ui.attributesGroupBox->title();
+
     return m_currentPage;
 }
 
@@ -220,3 +223,10 @@ bool FilterSettingsPage::applyChanges()
     }
     return false;
 }
+
+bool FilterSettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+}
+
+

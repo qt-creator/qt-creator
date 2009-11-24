@@ -33,6 +33,7 @@
 #include "ui_settingsdialog.h"
 
 #include <QtCore/QList>
+#include <QtCore/QSet>
 
 #include "coreplugin/dialogs/ioptionspage.h"
 
@@ -74,6 +75,8 @@ private:
     void showPage(const QStandardItem *item);
 
     const QList<Core::IOptionsPage*> m_pages;
+
+    QSet<Core::IOptionsPage*> m_visitedPages;
     QSortFilterProxyModel *m_proxyModel;
     QStandardItemModel *m_model;
     bool m_applied;

@@ -35,6 +35,7 @@
 #include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
+#include <QtCore/QTextStream>
 
 using namespace TextEditor;
 
@@ -46,6 +47,7 @@ struct BehaviorSettingsPage::BehaviorSettingsPagePrivate
     Ui::BehaviorSettingsPage m_page;
     TabSettings m_tabSettings;
     StorageSettings m_storageSettings;
+    QString m_searchKeywords;
 };
 
 BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate
@@ -95,6 +97,15 @@ QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_d->m_page.setupUi(w);
     settingsToUI();
+    if (m_d->m_searchKeywords.isEmpty()) {
+        QTextStream(&m_d->m_searchKeywords) << m_d->m_page.insertSpaces->text()
+          << ' ' << m_d->m_page.smartBackspace->text()
+          << ' ' << m_d->m_page.cleanWhitespace->text()
+          << ' ' << m_d->m_page.addFinalNewLine->text()
+          << ' ' << m_d->m_page.groupBoxTabAndIndentSettings->title()
+          << ' ' << m_d->m_page.groupBoxStorageSettings->title();
+        m_d->m_searchKeywords.remove(QLatin1Char('&'));
+    }
     return w;
 }
 
@@ -166,4 +177,9 @@ TabSettings BehaviorSettingsPage::tabSettings() const
 StorageSettings BehaviorSettingsPage::storageSettings() const
 {
     return m_d->m_storageSettings;
+}
+
+bool BehaviorSettingsPage::matches(const QString &s) const
+{
+   return m_d->m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

@@ -75,7 +75,8 @@ QWidget *DocSettingsPage::createPage(QWidget *parent)
     m_ui.docsListWidget->addItems(m_helpEngine->registeredDocumentations());
     m_registeredDocs = false;
     m_removeDocs.clear();
-
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_ui.groupBox->title();
     return w;
 }
 
@@ -124,6 +125,11 @@ void DocSettingsPage::removeDocumentation()
 void DocSettingsPage::apply()
 {
     emit dialogAccepted();
+}
+
+bool DocSettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 bool DocSettingsPage::applyChanges()

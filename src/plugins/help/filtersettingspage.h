@@ -55,6 +55,7 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
+    virtual bool matches(const QString &s) const;
 
     bool applyChanges();
 
@@ -72,6 +73,7 @@ private:
     QMap<QString, QStringList> m_filterMap;
     QStringList m_removedFilters;
     QWidget *m_currentPage;
+    QString m_searchKeywords;
 };
 
 } // namespace Help

@@ -35,6 +35,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QUrl>
+#include <QtCore/QTextStream>
 #include <QtGui/QMessageBox>
 #include <QtGui/QDesktopServices>
 
@@ -127,6 +128,16 @@ void CdbOptionsPageWidget::downLoadLinkActivated(const QString &link)
     QDesktopServices::openUrl(QUrl(link));
 }
 
+QString CdbOptionsPageWidget::searchKeywords() const
+{
+    QString rc;
+    QTextStream(&rc) << m_ui.pathLabel->text() << ' ' << m_ui.symbolPathLabel->text()
+            << ' ' << m_ui.sourcePathLabel->text()
+            << ' ' << m_ui.verboseSymbolLoadingCheckBox->text();
+    rc.remove(QLatin1Char('&'));
+    return rc;
+}
+
 // ---------- CdbOptionsPage
 CdbOptionsPage::CdbOptionsPage(const QSharedPointer<CdbOptions> &options) :
         m_options(options)
@@ -162,6 +173,8 @@ QWidget *CdbOptionsPage::createPage(QWidget *parent)
     m_widget = new CdbOptionsPageWidget(parent);
     m_widget->setOptions(*m_options);
     m_widget->setFailureMessage(m_failureMessage);
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
@@ -186,6 +199,11 @@ void CdbOptionsPage::apply()
 
 void CdbOptionsPage::finish()
 {
+}
+
+bool CdbOptionsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 } // namespace Internal

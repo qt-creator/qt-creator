@@ -90,6 +90,10 @@ QWidget *SettingsPage::createPage(QWidget *parent)
     m_customFilters = m_plugin->customFilters();
     saveFilterStates();
     updateFilterList();
+    if (m_searchKeywords.isEmpty()) {
+        m_searchKeywords = m_ui.refreshIntervalLabel->text();
+        m_searchKeywords.remove(QLatin1Char('&'));
+    }
     return m_page;
 }
 
@@ -219,4 +223,9 @@ void SettingsPage::removeCustomFilter()
         m_removedFilters.append(filter);
     }
     updateFilterList();
+}
+
+bool SettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

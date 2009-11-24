@@ -37,6 +37,7 @@
 #include <utils/pathchooser.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QTextStream>
 #include <QtGui/QFileDialog>
 
 using namespace Subversion::Internal;
@@ -72,7 +73,19 @@ void SettingsPageWidget::setSettings(const SubversionSettings &s)
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
 }
 
-SettingsPage::SettingsPage()
+QString SettingsPageWidget::searchKeywords() const
+{
+    QString rc;
+    QTextStream(&rc) << m_ui.commandLabel->text()
+            << ' ' << m_ui.usernameLabel->text()
+            << ' ' << m_ui.passwordLabel->text()
+            << ' ' << m_ui.userGroupBox->title();
+    rc.remove(QLatin1Char('&'));
+    return rc;
+}
+
+SettingsPage::SettingsPage() :
+    m_widget(0)
 {
 }
 
@@ -100,10 +113,17 @@ QWidget *SettingsPage::createPage(QWidget *parent)
 {
     m_widget = new SettingsPageWidget(parent);
     m_widget->setSettings(SubversionPlugin::subversionPluginInstance()->settings());
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
 void SettingsPage::apply()
 {
     SubversionPlugin::subversionPluginInstance()->setSettings(m_widget->settings());
+}
+
+bool SettingsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

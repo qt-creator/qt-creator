@@ -243,7 +243,8 @@ QString CppFileSettingsWidget::searchKeywords() const
     QString rc;
     QTextStream(&rc) << m_ui->headerSuffixLabel->text()
             << ' ' << m_ui->sourceSuffixLabel->text()
-            << ' ' << m_ui->lowerCaseFileNamesCheckBox->text();
+            << ' ' << m_ui->lowerCaseFileNamesCheckBox->text()
+            << ' ' << m_ui->licenseTemplateLabel->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }

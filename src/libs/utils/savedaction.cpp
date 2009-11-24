@@ -42,6 +42,7 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QRadioButton>
 #include <QtGui/QSpinBox>
+#include <QtGui/QGroupBox>
 
 
 using namespace Utils;
@@ -238,19 +239,17 @@ QAction *SavedAction::updatedAction(const QString &text0)
 
     \sa settingsKey(), settingsGroup(), writeSettings()
 */
-void SavedAction::readSettings(QSettings *settings)
+void SavedAction::readSettings(const QSettings *settings)
 {
     if (m_settingsGroup.isEmpty() || m_settingsKey.isEmpty())
         return;
-    settings->beginGroup(m_settingsGroup);
-    QVariant var = settings->value(m_settingsKey, m_defaultValue);
+    QVariant var = settings->value(m_settingsGroup + QLatin1Char('/') + m_settingsKey, m_defaultValue);
     // work around old ini files containing @Invalid() entries
     if (isCheckable() && !var.isValid())
         var = false;
     setValue(var);
     //qDebug() << "READING: " << var.isValid() << m_settingsKey << " -> " << m_value
     //    << " (default: " << m_defaultValue << ")" << var;
-    settings->endGroup();
 }
 
 /*
@@ -314,6 +313,11 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
             this, SLOT(pathChooserEditingFinished()));
         connect(pathChooser, SIGNAL(browsingFinished()),
             this, SLOT(pathChooserEditingFinished()));
+    } else if (QGroupBox *groupBox= qobject_cast<QGroupBox *>(widget)) {
+        if (!groupBox->isCheckable())
+            qDebug() << "connectWidget to non-checkable group box" << widget << toString();
+        groupBox->setChecked(m_value.toBool());
+        connect(groupBox, SIGNAL(toggled(bool)), this, SLOT(groupBoxToggled(bool)));
     } else {
         qDebug() << "Cannot connect widget " << widget << toString();
     }
@@ -339,6 +343,8 @@ void SavedAction::apply(QSettings *s)
         setValue(spinBox->value());
     else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(m_widget))
         setValue(pathChooser->path());
+    else if (const QGroupBox *groupBox= qobject_cast<QGroupBox *>(m_widget))
+        setValue(groupBox->isChecked());
     if (s)
        writeSettings(s);
 }
@@ -392,6 +398,12 @@ void SavedAction::pathChooserEditingFinished()
         setValue(pathChooser->path());
 }
 
+void SavedAction::groupBoxToggled(bool checked)
+{
+    if (m_applyMode == ImmediateApply)
+        setValue(QVariant(checked));
+}
+
 void SavedAction::actionTriggered(bool)
 {
     if (isCheckable())
@@ -434,5 +446,18 @@ void SavedActionSet::finish()
 {
     foreach (SavedAction *action, m_list)
         action->disconnectWidget();
+}
+
+QString SavedActionSet::searchKeyWords() const
+{
+    const QChar blank = QLatin1Char(' ');
+    QString rc;
+    foreach (SavedAction *action, m_list) {
+        if (!rc.isEmpty())
+            rc += blank;
+        rc += action->text();
+    }
+    rc.remove(QLatin1Char('&'));
+    return rc;
 }
 
