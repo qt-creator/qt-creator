@@ -77,7 +77,11 @@ public:
     CPPEditor *editor() const;
     const Utils::ChangeSet &changeSet() const;
 
-    virtual void apply() = 0;
+    CPlusPlus::AST *topLevelNode() const;
+    void setTopLevelNode(CPlusPlus::AST *topLevelNode);
+
+    virtual void createChangeSet() = 0;
+    void applyChangeSet();
 
 protected:
     const CPlusPlus::Token &tokenAt(unsigned index) const;
@@ -112,14 +116,13 @@ protected:
     Range createRange(CPlusPlus::AST *ast) const; // ### rename me
     void reindent(const Range &range);
 
-    void applyChanges(CPlusPlus::AST *ast = 0);
-
 private:
     CPlusPlus::Document::Ptr _doc;
     CPlusPlus::Snapshot _snapshot;
     QTextCursor _textCursor;
     Utils::ChangeSet _changeSet;
     CPPEditor *_editor;
+    CPlusPlus::AST *_topLevelNode;
 };
 
 class CPPQuickFixCollector: public TextEditor::IQuickFixCollector

@@ -139,14 +139,13 @@ public:
         return -1;
     }
 
-    virtual void apply()
+    virtual void createChangeSet()
     {
+        setTopLevelNode(pattern);
         replace(pattern->binary_op_token, QLatin1String("||"));
         replace(left->unary_op_token, QLatin1String("!("));
         replace(right->unary_op_token, QLatin1String(""));
         insert(endOf(pattern), QLatin1String(")"));
-
-        applyChanges(pattern);
     }
 
 private:
@@ -230,8 +229,9 @@ public:
         return -1;
     }
 
-    virtual void apply()
+    virtual void createChangeSet()
     {
+        setTopLevelNode(declaration);
         SpecifierListAST *specifiers = declaration->decl_specifier_list;
         const QString declSpecifiers = textOf(startOf(specifiers->firstToken()), endOf(specifiers->lastToken() - 1));
 
@@ -250,8 +250,6 @@ public:
         }
 
         insert(endOf(declaration->semicolon_token), text);
-
-        applyChanges(declaration);
     }
 
 private:
@@ -303,11 +301,11 @@ public:
         return -1;
     }
 
-    virtual void apply()
+    virtual void createChangeSet()
     {
+        setTopLevelNode(_statement);
         insert(endOf(_statement->firstToken() - 1), QLatin1String(" {"));
         insert(endOf(_statement->lastToken() - 1), "\n}");
-        applyChanges(_statement);
     }
 
 private:
@@ -358,8 +356,9 @@ public:
         return -1;
     }
 
-    virtual void apply()
+    virtual void createChangeSet()
     {
+        setTopLevelNode(pattern);
         const QString name = textOf(core);
         QString declaration = textOf(condition);
         declaration += QLatin1String(";\n");
@@ -367,8 +366,6 @@ public:
         insert(startOf(pattern), declaration);
         insert(endOf(pattern->lparen_token), name);
         replace(condition, name);
-
-        applyChanges(pattern);
     }
 
 private:
@@ -431,8 +428,9 @@ public:
         return -1;
     }
 
-    virtual void apply()
+    virtual void createChangeSet()
     {
+        setTopLevelNode(pattern);
         const QString name = textOf(core);
         const QString initializer = textOf(condition->declarator->initializer);
         QString declaration = textOf(startOf(condition), endOf(condition->declarator->equals_token - 1));
@@ -448,8 +446,6 @@ public:
         insert(startOf(pattern), declaration);
         insert(endOf(pattern->lparen_token), name);
         replace(condition, newCondition);
-
-        applyChanges(pattern);
     }
 
 private:
@@ -529,7 +525,7 @@ public:
         return -1;
     }
 
-    virtual void apply()
+    virtual void createChangeSet()
     {
         Token binaryToken = tokenAt(condition->binary_op_token);
 
@@ -541,6 +537,7 @@ public:
 
     void splitAndCondition()
     {
+        setTopLevelNode(pattern);
         StatementAST *ifTrueStatement = pattern->statement;
 
         // take the right-expression from the condition.
@@ -558,12 +555,11 @@ public:
 
         insert(endOf(pattern->rparen_token), nestedIfStatement);
         insert(endOf(ifTrueStatement), "\n}"); // finish the compound statement
-
-        applyChanges(pattern);
     }
 
     void splitOrCondition()
     {
+        setTopLevelNode(pattern);
         StatementAST *ifTrueStatement = pattern->statement;
         CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
 
@@ -592,8 +588,6 @@ public:
         elseIfStatement += body;
 
         insert(endOf(pattern), elseIfStatement);
-
-        applyChanges(pattern);
     }
 
 private:
@@ -607,7 +601,8 @@ private:
 QuickFixOperation::QuickFixOperation(CPlusPlus::Document::Ptr doc,
                                      const CPlusPlus::Snapshot &snapshot,
                                      CPPEditor *editor)
-    : _doc(doc), _snapshot(snapshot), _editor(editor)
+    : _doc(doc), _snapshot(snapshot),
+      _editor(editor), _topLevelNode(0)
 { }
 
 QuickFixOperation::~QuickFixOperation()
@@ -615,6 +610,12 @@ QuickFixOperation::~QuickFixOperation()
 
 CPPEditor *QuickFixOperation::editor() const
 { return _editor; }
+
+CPlusPlus::AST *QuickFixOperation::topLevelNode() const
+{ return _topLevelNode; }
+
+void QuickFixOperation::setTopLevelNode(CPlusPlus::AST *topLevelNode)
+{ _topLevelNode = topLevelNode; }
 
 const Utils::ChangeSet &QuickFixOperation::changeSet() const
 { return _changeSet; }
@@ -752,18 +753,18 @@ QString QuickFixOperation::textOf(AST *ast) const
     return textOf(startOf(ast), endOf(ast));
 }
 
-void QuickFixOperation::applyChanges(AST *ast)
+void QuickFixOperation::applyChangeSet()
 {
     Range range;
 
-    if (ast)
-        range = createRange(ast);
+    if (_topLevelNode)
+        range = createRange(_topLevelNode);
 
     _textCursor.beginEditBlock();
 
     _changeSet.write(&_textCursor);
 
-    if (ast)
+    if (_topLevelNode)
         reindent(range);
 
     _textCursor.endEditBlock();
@@ -867,7 +868,8 @@ void CPPQuickFixCollector::complete(const TextEditor::CompletionItem &item)
 void CPPQuickFixCollector::perform(QuickFixOperationPtr op)
 {
     op->setTextCursor(_editor->textCursor());
-    op->apply();
+    op->createChangeSet();
+    op->applyChangeSet();
 }
 
 void CPPQuickFixCollector::cleanup()
