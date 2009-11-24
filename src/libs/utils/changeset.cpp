@@ -56,7 +56,7 @@ static bool overlaps(int posA, int lengthA, int posB, int lengthB) {
 bool ChangeSet::hasOverlap(int pos, int length)
 {
     {
-        QListIterator<Replace> i(replaceList);
+        QListIterator<Replace> i(m_replaceList);
         while (i.hasNext()) {
             const Replace &cmd = i.next();
             if (overlaps(pos, length, cmd.pos, cmd.length))
@@ -64,7 +64,7 @@ bool ChangeSet::hasOverlap(int pos, int length)
         }
     }
     {
-        QListIterator<Move> i(moveList);
+        QListIterator<Move> i(m_moveList);
         while (i.hasNext()) {
             const Move &cmd = i.next();
             if (overlaps(pos, length, cmd.pos, cmd.length))
@@ -76,13 +76,23 @@ bool ChangeSet::hasOverlap(int pos, int length)
 
 bool ChangeSet::hasMoveInto(int pos, int length)
 {
-    QListIterator<Move> i(moveList);
+    QListIterator<Move> i(m_moveList);
     while (i.hasNext()) {
         const Move &cmd = i.next();
         if (cmd.to >= pos && cmd.to < pos + length)
             return true;
     }
     return false;
+}
+
+QList<ChangeSet::Replace> ChangeSet::replaceList() const
+{
+    return m_replaceList;
+}
+
+QList<ChangeSet::Move> ChangeSet::moveList() const
+{
+    return m_moveList;
 }
 
 void ChangeSet::replace(int pos, int length, const QString &replacement)
@@ -94,7 +104,7 @@ void ChangeSet::replace(int pos, int length, const QString &replacement)
     cmd.pos = pos;
     cmd.length = length;
     cmd.replacement = replacement;
-    replaceList += cmd;
+    m_replaceList += cmd;
 }
 
 void ChangeSet::move(int pos, int length, int to)
@@ -105,14 +115,14 @@ void ChangeSet::move(int pos, int length, int to)
     cmd.pos = pos;
     cmd.length = length;
     cmd.to = to;
-    moveList += cmd;
+    m_moveList += cmd;
 }
 
 void ChangeSet::doReplace(const Replace &replace)
 {
     int diff = replace.replacement.size() - replace.length;
     {
-        QMutableListIterator<Replace> i(replaceList);
+        QMutableListIterator<Replace> i(m_replaceList);
         while (i.hasNext()) {
             Replace &c = i.next();
             if (replace.pos < c.pos)
@@ -122,7 +132,7 @@ void ChangeSet::doReplace(const Replace &replace)
         }
     }
     {
-        QMutableListIterator<Move> i(moveList);
+        QMutableListIterator<Move> i(m_moveList);
         while (i.hasNext()) {
             Move &c = i.next();
             if (replace.pos < c.pos)
@@ -163,13 +173,13 @@ void ChangeSet::doMove(const Move &move)
     paste.length = 0;
     paste.replacement = text;
 
-    replaceList.append(cut);
-    replaceList.append(paste);
+    m_replaceList.append(cut);
+    m_replaceList.append(paste);
 
     Replace cmd;
-    while (!replaceList.isEmpty()) {
-        cmd = replaceList.first();
-        replaceList.removeFirst();
+    while (!m_replaceList.isEmpty()) {
+        cmd = m_replaceList.first();
+        m_replaceList.removeFirst();
         doReplace(cmd);
     }
 }
@@ -194,17 +204,17 @@ void ChangeSet::write_helper()
         cursor->beginEditBlock();
     {
         Replace cmd;
-        while (!replaceList.isEmpty()) {
-            cmd = replaceList.first();
-            replaceList.removeFirst();
+        while (!m_replaceList.isEmpty()) {
+            cmd = m_replaceList.first();
+            m_replaceList.removeFirst();
             doReplace(cmd);
         }
     }
     {
         Move cmd;
-        while (!moveList.isEmpty()) {
-            cmd = moveList.first();
-            moveList.removeFirst();
+        while (!m_moveList.isEmpty()) {
+            cmd = m_moveList.first();
+            m_moveList.removeFirst();
             doMove(cmd);
         }
     }

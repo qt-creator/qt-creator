@@ -55,13 +55,12 @@ class QTCREATOR_UTILS_EXPORT ChangeSet
     QString *string;
     QTextCursor *cursor;
 
+public:
     struct Replace {
         int pos;
         int length;
         QString replacement;
     };
-
-    QList<Replace> replaceList;
 
     struct Move {
         int pos;
@@ -69,8 +68,19 @@ class QTCREATOR_UTILS_EXPORT ChangeSet
         int to;
     };
 
-    QList<Move> moveList;
+public:
+    ChangeSet();
 
+    QList<Replace> replaceList() const;
+    QList<Move> moveList() const;
+
+    void replace(int pos, int length, const QString &replacement);
+    void move(int pos, int length, int to);
+
+    void write(QString *s);
+    void write(QTextCursor *textCursor);
+
+private:
     bool hasOverlap(int pos, int length);
     bool hasMoveInto(int pos, int length);
 
@@ -79,14 +89,8 @@ class QTCREATOR_UTILS_EXPORT ChangeSet
 
     void write_helper();
 
-public:
-    ChangeSet();
-
-    void replace(int pos, int length, const QString &replacement);
-    void move(int pos, int length, int to);
-
-    void write(QString *s);
-    void write(QTextCursor *textCursor);
+    QList<Replace> m_replaceList;
+    QList<Move> m_moveList;
 };
 
 } // namespace Utils
