@@ -50,6 +50,7 @@ public:
 
     MercurialSettings settings() const;
     void setSettings(const MercurialSettings &s);
+    QString searchKeywords() const;
 
 private:
     Ui::OptionsPage m_ui;
@@ -70,11 +71,13 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
+    bool matches(const QString &s) const;
 
 signals:
     void settingsChanged();
 
 private:
+    QString m_searchKeywords;
     QPointer<OptionsPageWidget> optionsPageWidget;
 };
 

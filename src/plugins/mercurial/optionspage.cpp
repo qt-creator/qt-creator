@@ -35,6 +35,8 @@
 #include <utils/pathchooser.h>
 #include <vcsbase/vcsbaseconstants.h>
 
+#include <QtCore/QTextStream>
+
 using namespace Mercurial::Internal;
 using namespace Mercurial;
 
@@ -68,6 +70,19 @@ void OptionsPageWidget::setSettings(const MercurialSettings &s)
     m_ui.promptOnSubmitCheckBox->setChecked(s.prompt());
 }
 
+QString OptionsPageWidget::searchKeywords() const
+{
+    QString rc;
+    QTextStream(&rc)  << ' ' << m_ui.mercurialCommandLabel->text()
+            << ' ' << m_ui.showLogEntriesLabel->text()
+            << ' ' << m_ui.timeoutSecondsLabel->text()
+            << ' ' << m_ui.promptOnSubmitCheckBox->text()
+            << ' ' << m_ui.defaultUsernameLabel->text()
+            << ' ' << m_ui.defaultEmailLabel->text();
+    rc.remove(QLatin1Char('&'));
+    return rc;
+}
+
 OptionsPage::OptionsPage()
 {
 }
@@ -97,6 +112,8 @@ QWidget *OptionsPage::createPage(QWidget *parent)
     if (!optionsPageWidget)
         optionsPageWidget = new OptionsPageWidget(parent);
     optionsPageWidget->setSettings(MercurialPlugin::instance()->settings());
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = optionsPageWidget->searchKeywords();
     return optionsPageWidget;
 }
 
@@ -114,3 +131,7 @@ void OptionsPage::apply()
     }
 }
 
+bool OptionsPage::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+}

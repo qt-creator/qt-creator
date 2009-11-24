@@ -6,110 +6,138 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>392</width>
+    <height>359</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <layout class="QFormLayout" name="formLayout">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="mercurialCommandLabel">
-         <property name="text">
-          <string>Mercurial Command:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="Utils::PathChooser" name="commandChooser" native="true"/>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="showLogEntriesLabel">
-         <property name="text">
-          <string>Show Log Entries:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QSpinBox" name="logEntriesCount">
-         <property name="toolTip">
-          <string>The number of recent commit logs to show, choose 0 to see all enteries</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="timeoutSecondsLabel">
-         <property name="text">
-          <string>Timeout (Seconds):</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QSpinBox" name="timeout">
-         <property name="value">
-          <number>30</number>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="promptOnSubmitLabel">
-         <property name="text">
-          <string>Prompt On Submit</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QCheckBox" name="promptOnSubmitCheckBox">
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="defaultUsernameLabel">
-         <property name="toolTip">
-          <string>Username to use by default on commit.</string>
-         </property>
-         <property name="text">
-          <string>Default Username:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="defaultUsernameLineEdit">
-         <property name="toolTip">
-          <string>Username to use by default on commit.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="defaultEmailLabel">
-         <property name="toolTip">
-          <string>Email to use by default on commit.</string>
-         </property>
-         <property name="text">
-          <string>Default Email:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="defaultEmailLineEdit">
-         <property name="toolTip">
-          <string>Email to use by default on commit.</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
+    <widget class="QGroupBox" name="configgroupBox">
+     <property name="title">
+      <string>Configuration</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="mercurialCommandLabel">
+        <property name="text">
+         <string>Command:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="Utils::PathChooser" name="commandChooser"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="userGroupBox">
+     <property name="title">
+      <string>User</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="defaultUsernameLabel">
+        <property name="toolTip">
+         <string>Username to use by default on commit.</string>
+        </property>
+        <property name="text">
+         <string>Default username:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="defaultUsernameLineEdit">
+        <property name="toolTip">
+         <string>Username to use by default on commit.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="defaultEmailLabel">
+        <property name="toolTip">
+         <string>Email to use by default on commit.</string>
+        </property>
+        <property name="text">
+         <string>Default Email:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="defaultEmailLineEdit">
+        <property name="toolTip">
+         <string>Email to use by default on commit.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="miscGroupBox">
+     <property name="title">
+      <string>Miscellaneous</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="showLogEntriesLabel">
+        <property name="text">
+         <string>Show log entries:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="logEntriesCount">
+        <property name="toolTip">
+         <string>The number of recent commit logs to show, choose 0 to see all enteries</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="timeoutSecondsLabel">
+        <property name="text">
+         <string>Timeout:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="timeout">
+        <property name="suffix">
+         <string>s</string>
+        </property>
+        <property name="value">
+         <number>30</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QCheckBox" name="promptOnSubmitCheckBox">
+        <property name="text">
+         <string>Prompt on submit</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
