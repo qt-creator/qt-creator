@@ -44,7 +44,7 @@
 namespace Utils {
 
 ChangeSet::ChangeSet()
-        :string(0), cursor(0)
+    : m_string(0), m_cursor(0)
 {
 }
 
@@ -85,6 +85,14 @@ bool ChangeSet::hasMoveInto(int pos, int length)
     return false;
 }
 
+bool ChangeSet::isEmpty() const
+{
+    if (m_replaceList.isEmpty() && m_moveList.isEmpty())
+        return true;
+
+    return false;
+}
+
 QList<ChangeSet::Replace> ChangeSet::replaceList() const
 {
     return m_replaceList;
@@ -93,6 +101,14 @@ QList<ChangeSet::Replace> ChangeSet::replaceList() const
 QList<ChangeSet::Move> ChangeSet::moveList() const
 {
     return m_moveList;
+}
+
+void ChangeSet::clear()
+{
+    m_string = 0;
+    m_cursor = 0;
+    m_replaceList.clear();
+    m_moveList.clear();
 }
 
 void ChangeSet::replace(int pos, int length, const QString &replacement)
@@ -145,24 +161,24 @@ void ChangeSet::doReplace(const Replace &replace)
         }
     }
 
-    if (string) {
-        string->replace(replace.pos, replace.length, replace.replacement);
-    } else if (cursor) {
-        cursor->setPosition(replace.pos);
-        cursor->setPosition(replace.pos + replace.length, QTextCursor::KeepAnchor);
-        cursor->insertText(replace.replacement);
+    if (m_string) {
+        m_string->replace(replace.pos, replace.length, replace.replacement);
+    } else if (m_cursor) {
+        m_cursor->setPosition(replace.pos);
+        m_cursor->setPosition(replace.pos + replace.length, QTextCursor::KeepAnchor);
+        m_cursor->insertText(replace.replacement);
     }
 }
 
 void ChangeSet::doMove(const Move &move)
 {
     QString text;
-    if (string) {
-        text = string->mid(move.pos, move.length);
-    } else if (cursor) {
-        cursor->setPosition(move.pos);
-        cursor->setPosition(move.pos + move.length, QTextCursor::KeepAnchor);
-        text = cursor->selectedText();
+    if (m_string) {
+        text = m_string->mid(move.pos, move.length);
+    } else if (m_cursor) {
+        m_cursor->setPosition(move.pos);
+        m_cursor->setPosition(move.pos + move.length, QTextCursor::KeepAnchor);
+        text = m_cursor->selectedText();
     }
 
     Replace cut;
@@ -186,22 +202,22 @@ void ChangeSet::doMove(const Move &move)
 
 void ChangeSet::write(QString *s)
 {
-    string = s;
+    m_string = s;
     write_helper();
-    string = 0;
+    m_string = 0;
 }
 
 void ChangeSet::write(QTextCursor *textCursor)
 {
-    cursor = textCursor;
+    m_cursor = textCursor;
     write_helper();
-    cursor = 0;
+    m_cursor = 0;
 }
 
 void ChangeSet::write_helper()
 {
-    if (cursor)
-        cursor->beginEditBlock();
+    if (m_cursor)
+        m_cursor->beginEditBlock();
     {
         Replace cmd;
         while (!m_replaceList.isEmpty()) {
@@ -218,8 +234,8 @@ void ChangeSet::write_helper()
             doMove(cmd);
         }
     }
-    if (cursor)
-        cursor->endEditBlock();
+    if (m_cursor)
+        m_cursor->endEditBlock();
 }
 
 } // end namespace Utils
