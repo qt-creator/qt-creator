@@ -1,4 +1,8 @@
-//
+
+// Note: Keep the strange formating of closing braces in the  void dump*()
+// functions as this reduces the risk of gdb reporting 'wrong' line numbers
+// when stopping and therefore the risk of the autotest to fail.
+
 //bool checkUninitialized = true;
 bool checkUninitialized = false;
 //#define DO_DEBUG 1
@@ -1134,7 +1138,7 @@ void tst_Gdb::dump_QByteArray()
     prepare("dump_QByteArray");
     if (checkUninitialized)
         run("A","{iname='local.ba',name='ba',type='"NS"QByteArray',"
-            "value='<not in scope>',numchild='0'}");
+            "value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.ba',name='ba',type='"NS"QByteArray',"
             "valueencoded='6',value='',numchild='0'}");
@@ -1507,7 +1511,7 @@ void tst_Gdb::dump_QHash_int_int()
     prepare("dump_QHash_int_int");
     if (checkUninitialized)
         run("A","{iname='local.h',name='h',"
-            "type='"NS"QHash<int, int>',value='<not in scope>',"
+            "type='"NS"QHash<int, int>',value='<invalid>',"
             "numchild='0'}");
     next();
     next();
@@ -1535,7 +1539,7 @@ void tst_Gdb::dump_QHash_QString_QString()
     prepare("dump_QHash_QString_QString");
     if (checkUninitialized)
         run("A","{iname='local.h',name='h',"
-            "type='"NS"QHash<"NS"QString, "NS"QString>',value='<not in scope>',"
+            "type='"NS"QHash<"NS"QString, "NS"QString>',value='<invalid>',"
             "numchild='0'}");
     next();
     run("B","{iname='local.h',name='h',"
@@ -1578,7 +1582,7 @@ void tst_Gdb::dump_QLinkedList_int()
     prepare("dump_QLinkedList_int");
     if (checkUninitialized)
         run("A","{iname='local.h',name='h',"
-            "type='"NS"QLinkedList<int>',value='<not in scope>',"
+            "type='"NS"QLinkedList<int>',value='<invalid>',"
             "numchild='0'}");
     next(3);
     run("D","{iname='local.h',name='h',"
@@ -1603,7 +1607,7 @@ void tst_Gdb::dump_QList_int()
     prepare("dump_QList_int");
     if (checkUninitialized)
         run("A","{iname='local.list',name='list',"
-                "type='"NS"QList<int>',value='<not in scope>',numchild='0'}");
+                "type='"NS"QList<int>',value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.list',name='list',"
             "type='"NS"QList<int>',value='<0 items>',numchild='0'}");
@@ -1640,7 +1644,7 @@ void tst_Gdb::dump_QList_int_star()
     prepare("dump_QList_int_star");
     if (checkUninitialized)
         run("A","{iname='local.list',name='list',"
-                "type='"NS"QList<int*>',value='<not in scope>',numchild='0'}");
+                "type='"NS"QList<int*>',value='<invalid>',numchild='0'}");
     next();
     next();
     next();
@@ -1666,7 +1670,7 @@ void tst_Gdb::dump_QList_char()
     prepare("dump_QList_char");
     if (checkUninitialized)
         run("A","{iname='local.list',name='list',"
-            "type='"NS"QList<char>',value='<not in scope>',numchild='0'}");
+            "type='"NS"QList<char>',value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.list',name='list',"
             "type='"NS"QList<char>',value='<0 items>',numchild='0'}");
@@ -1696,7 +1700,7 @@ void tst_Gdb::dump_QList_char_star()
     prepare("dump_QList_char_star");
     if (checkUninitialized)
         run("A","{iname='local.list',name='list',"
-            "type='"NS"QList<char const*>',value='<not in scope>',numchild='0'}");
+            "type='"NS"QList<char const*>',value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.list',name='list',"
             "type='"NS"QList<char const*>',value='<0 items>',numchild='0'}");
@@ -1732,7 +1736,7 @@ void tst_Gdb::dump_QList_QString()
     prepare("dump_QList_QString");
     if (0 && checkUninitialized)
         run("A","{iname='local.list',name='list',"
-            "type='"NS"QList<"NS"QString>',value='<not in scope>',numchild='0'}");
+            "type='"NS"QList<"NS"QString>',value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.list',name='list',"
             "type='"NS"QList<"NS"QString>',value='<0 items>',numchild='0'}");
@@ -1760,7 +1764,7 @@ void tst_Gdb::dump_QList_QString3()
     prepare("dump_QList_QString3");
     if (checkUninitialized)
         run("A","{iname='local.list',name='list',"
-            "type='"NS"QList<QString3>',value='<not in scope>',numchild='0'}");
+            "type='"NS"QList<QString3>',value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.list',name='list',"
             "type='"NS"QList<QString3>',value='<0 items>',numchild='0'}");
@@ -1798,7 +1802,7 @@ void tst_Gdb::dump_QList_Int3()
     prepare("dump_QList_Int3");
     if (checkUninitialized)
         run("A","{iname='local.list',name='list',"
-                "type='"NS"QList<Int3>',value='<not in scope>',numchild='0'}");
+                "type='"NS"QList<Int3>',value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.list',name='list',"
             "type='"NS"QList<Int3>',value='<0 items>',numchild='0'}");
@@ -1834,7 +1838,7 @@ void tst_Gdb::dump_QMap_int_int()
     prepare("dump_QMap_int_int");
     if (checkUninitialized)
         run("A","{iname='local.h',name='h',"
-            "type='"NS"QMap<int, int>',value='<not in scope>',"
+            "type='"NS"QMap<int, int>',value='<invalid>',"
             "numchild='0'}");
     next();
     run("B","{iname='local.h',name='h',"
@@ -1868,7 +1872,7 @@ void tst_Gdb::dump_QMap_QString_QString()
     prepare("dump_QMap_QString_QString");
     if (checkUninitialized)
         run("A","{iname='local.m',name='m',"
-            "type='"NS"QMap<"NS"QString, "NS"QString>',value='<not in scope>',"
+            "type='"NS"QMap<"NS"QString, "NS"QString>',value='<invalid>',"
             "numchild='0'}");
     next();
     run("B","{iname='local.m',name='m',"
@@ -1921,7 +1925,7 @@ void tst_Gdb::dump_QObject()
     prepare("dump_QObject");
     if (checkUninitialized)
         run("A","{iname='local.ob',name='ob',"
-            "type='"NS"QObject',value='<not in scope>',"
+            "type='"NS"QObject',value='<invalid>',"
             "numchild='0'}");
     next(4);
     
@@ -2504,7 +2508,7 @@ void tst_Gdb::dump_QSet_int()
     prepare("dump_QSet_int");
     if (checkUninitialized)
         run("A","{iname='local.h',name='h',"
-            "type='"NS"QSet<int>',value='<not in scope>',"
+            "type='"NS"QSet<int>',value='<invalid>',"
             "numchild='0'}");
     next(3);
     run("D","{iname='local.h',name='h',"
@@ -2529,7 +2533,7 @@ void tst_Gdb::dump_QSet_Int3()
     prepare("dump_QSet_Int3");
     if (checkUninitialized)
         run("A","{iname='local.h',name='h',"
-            "type='"NS"QSet<Int3>',value='<not in scope>',"
+            "type='"NS"QSet<Int3>',value='<invalid>',"
             "numchild='0'}");
     next(3);
     run("D","{iname='local.h',name='h',"
@@ -2574,21 +2578,21 @@ void tst_Gdb::dump_QSharedPointer()
     prepare("dump_QSharedPointer");
     if (checkUninitialized)
         run("A","{iname='local.simplePtr',name='simplePtr',"
-            "'type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'},"
+            "type='"NS"QSharedPointer<int>',value='<invalid>',numchild='0'},"
         "{iname='local.simplePtr2',name='simplePtr2',"
-            "'type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'},"
+            "type='"NS"QSharedPointer<int>',value='<invalid>',numchild='0'},"
         "{iname='local.simplePtr3',name='simplePtr3',"
-            "'type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'},"
-        "{iname='local.simplePtr4',name='simplePtr3',"
-            "'type='"NS"QWeakPointer<int>',value='<not in scope>',numchild='0'},"
+            "type='"NS"QSharedPointer<int>',value='<invalid>',numchild='0'},"
+        "{iname='local.simplePtr4',name='simplePtr4',"
+            "type='"NS"QWeakPointer<int>',value='<invalid>',numchild='0'},"
         "{iname='local.compositePtr',name='compositePtr',"
-            "'type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'},"
+            "type='"NS"QSharedPointer<"NS"QString>',value='<invalid>',numchild='0'},"
         "{iname='local.compositePtr2',name='compositePtr2',"
-            "'type='"NS"QSharedPointer<int>'value='<not in scope>',numchild='0'},"
+            "type='"NS"QSharedPointer<"NS"QString>',value='<invalid>',numchild='0'},"
         "{iname='local.compositePtr3',name='compositePtr3',"
-            "'type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'},"
+            "type='"NS"QSharedPointer<"NS"QString>',value='<invalid>',numchild='0'},"
         "{iname='local.compositePtr4',name='compositePtr4',"
-            "'type='"NS"QWeakPointer<int>',value='<not in scope>',numchild='0'}");
+            "type='"NS"QWeakPointer<"NS"QString>',value='<invalid>',numchild='0'}");
 
     next(8);
     run("C","{iname='local.simplePtr',name='simplePtr',"
@@ -2680,7 +2684,7 @@ void tst_Gdb::dump_QStack()
     prepare("dump_QStack");
     if (checkUninitialized)
         run("A","{iname='local.v',name='v',type='"NS"QStack<int>',"
-            "value='<not in scope>',numchild='0'}");
+            "value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.v',name='v',type='"NS"QStack<int>',"
             "value='<0 items>',numchild='0'}");
@@ -2710,15 +2714,14 @@ void dump_QString()
     /* A */ QString s;
     /* B */ s = "hallo"; 
     /* C */ s += "x";
-    /* D */ (void) 0;
-}
+    /* D */ (void) 0; }
 
 void tst_Gdb::dump_QString()
 {
     prepare("dump_QString");
     if (checkUninitialized)
         run("A","{iname='local.s',name='s',type='"NS"QString',"
-                "value='<not in scope>',numchild='0'}");
+                "value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.s',name='s',type='"NS"QString',"
             "valueencoded='7',value='',numchild='0'}", "local.s");
@@ -2760,7 +2763,7 @@ void tst_Gdb::dump_QStringList()
     prepare("dump_QStringList");
     if (checkUninitialized)
         run("A","{iname='local.s',name='s',type='"NS"QStringList',"
-            "value='<not in scope>',numchild='0'}");
+            "value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.s',name='s',type='"NS"QStringList',"
             "value='<0 items>',numchild='0'}");
@@ -2821,7 +2824,7 @@ void tst_Gdb::dump_QVector()
     prepare("dump_QVector");
     if (checkUninitialized)
         run("A","{iname='local.v',name='v',type='"NS"QVector<double>',"
-            "value='<not in scope>',numchild='0'}");
+            "value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.v',name='v',type='"NS"QVector<double>',"
             "value='<0 items>',numchild='0'}");
@@ -2848,7 +2851,7 @@ void tst_Gdb::dump_QVector()
 
 void dump_QVariant()
 {
-    /*<not in scope>*/ QVariant v;
+    /*<invalid>*/ QVariant v;
     /* <invalid>    */ v = QBitArray();
     /* QBitArray    */ v = 0; // QBitmap();
     /* QBitMap      */ v = bool(true);
@@ -2907,8 +2910,8 @@ void tst_Gdb::dump_QVariant()
 {
     #define PRE "iname='local.v',name='v',type='"NS"QVariant',"
     prepare("dump_QVariant");
-    if (checkUninitialized) /*<not in scope>*/
-        run("A","{"PRE"'value=<not in scope>',numchild='0'}");
+    if (checkUninitialized) /*<invalid>*/
+        run("A","{"PRE"'value=<invalid>',numchild='0'}");
     next(); 
     run("<invalid>", "{"PRE"value='<invalid>',numchild='0'}");
     next(); 
@@ -3080,12 +3083,9 @@ void tst_Gdb::dump_QVariant()
 
 void dump_QWeakPointer_11()
 {
-    // Case 1: Simple type.
-    // Case 1.1: Null pointer.
     /* A */ QSharedPointer<int> sp;
     /*   */ QWeakPointer<int> wp = sp.toWeakRef();
-    /* B */ (void) 0;
-}
+    /* B */ (void) 0; }
 
 void tst_Gdb::dump_QWeakPointer_11()
 {
@@ -3093,9 +3093,10 @@ void tst_Gdb::dump_QWeakPointer_11()
     prepare("dump_QWeakPointer_11");
     if (checkUninitialized)
         run("A","{iname='local.sp',name='sp',"
-            "type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'}");
-    next();
-    next();
+               "type='"NS"QSharedPointer<int>',value='<invalid>',numchild='0'},"
+            "{iname='local.wp',name='wp',"
+               "type='"NS"QWeakPointer<int>',value='<invalid>',numchild='0'}");
+    next(2);
     run("B","{iname='local.sp',name='sp',"
             "type='"NS"QSharedPointer<int>',value='<null>',numchild='0'},"
             "{iname='local.wp',name='wp',"
@@ -3105,11 +3106,9 @@ void tst_Gdb::dump_QWeakPointer_11()
 
 void dump_QWeakPointer_12()
 {
-    // Case 1.2: Weak pointer is unique.
     /* A */ QSharedPointer<int> sp(new int(99));
     /*   */ QWeakPointer<int> wp = sp.toWeakRef();
-    /* B */ (void) 0;
-}
+    /* B */ (void) 0; }
 
 void tst_Gdb::dump_QWeakPointer_12()
 {
@@ -3117,13 +3116,15 @@ void tst_Gdb::dump_QWeakPointer_12()
     prepare("dump_QWeakPointer_12");
     if (checkUninitialized)
         run("A","{iname='local.sp',name='sp',"
-            "type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'}");
+               "type='"NS"QSharedPointer<int>',value='<invalid>',numchild='0'},"
+            "{iname='local.wp',name='wp',"
+                "type='"NS"QWeakPointer<int>',value='<invalid>',numchild='0'}");
     next();
     next();
     run("B","{iname='local.sp',name='sp',"
-            "type='"NS"QSharedPointer<int>',value='',numchild='3'},"
+                "type='"NS"QSharedPointer<int>',value='',numchild='3'},"
             "{iname='local.wp',name='wp',"
-            "type='"NS"QWeakPointer<int>',value='',numchild='3'}");
+                "type='"NS"QWeakPointer<int>',value='',numchild='3'}");
     run("B","{iname='local.sp',name='sp',"
             "type='"NS"QSharedPointer<int>',value='',numchild='3',children=["
                 "{name='data',type='int',value='99',numchild='0'},"
@@ -3140,23 +3141,23 @@ void tst_Gdb::dump_QWeakPointer_12()
 
 void dump_QWeakPointer_13()
 {
-    // Case 1.3: There are other weak pointers.
     /* A */ QSharedPointer<int> sp(new int(99));
     /*   */ QWeakPointer<int> wp = sp.toWeakRef();
     /*   */ QWeakPointer<int> wp2 = sp.toWeakRef();
-    /* B */ (void) 0;
-}
+    /* B */ (void) 0; }
 
 void tst_Gdb::dump_QWeakPointer_13()
 {
     // Case 1.3: There are other weak pointers.
     prepare("dump_QWeakPointer_13");
     if (checkUninitialized)
-        run("A","{iname='local.sp',name='sp',"
-            "type='"NS"QSharedPointer<int>',value='<not in scope>',numchild='0'}");
-    next();
-    next();
-    next();
+       run("A","{iname='local.sp',name='sp',"
+              "type='"NS"QSharedPointer<int>',value='<invalid>',numchild='0'},"
+            "{iname='local.wp',name='wp',"
+              "type='"NS"QWeakPointer<int>',value='<invalid>',numchild='0'},"
+            "{iname='local.wp2',name='wp2',"
+              "type='"NS"QWeakPointer<int>',value='<invalid>',numchild='0'}");
+    next(3);
     run("B","{iname='local.sp',name='sp',"
               "type='"NS"QSharedPointer<int>',value='',numchild='3'},"
             "{iname='local.wp',name='wp',"
@@ -3181,11 +3182,9 @@ void tst_Gdb::dump_QWeakPointer_13()
 
 void dump_QWeakPointer_2()
 {
-    // Case 2: Composite type.
     /* A */ QSharedPointer<QString> sp(new QString("Test"));
     /*   */ QWeakPointer<QString> wp = sp.toWeakRef();
-    /* B */ (void) 0;
-}
+    /* B */ (void *) wp.data(); }
 
 void tst_Gdb::dump_QWeakPointer_2()
 {
@@ -3193,9 +3192,12 @@ void tst_Gdb::dump_QWeakPointer_2()
     prepare("dump_QWeakPointer_2");
     if (checkUninitialized)
         run("A","{iname='local.sp',name='sp',"
-        "type='"NS"QSharedPointer<"NS"QString>',value='<not in scope>',numchild='0'}");
-    next();
-    next();
+                    "type='"NS"QSharedPointer<"NS"QString>',"
+                    "value='<invalid>',numchild='0'},"
+                "{iname='local.wp',name='wp',"
+                    "type='"NS"QWeakPointer<"NS"QString>',"
+                    "value='<invalid>',numchild='0'}");
+    next(2);
     run("B","{iname='local.sp',name='sp',"
           "type='"NS"QSharedPointer<"NS"QString>',value='',numchild='3',children=["
             "{name='data',type='"NS"QString',"
@@ -3237,7 +3239,8 @@ void tst_Gdb::dump_std_deque()
     prepare("dump_std_deque");
     if (checkUninitialized)
         run("A","{iname='local.deque',name='deque',"
-            "numchild='0'}");
+            "type='std::deque<int, std::allocator<int> >',"
+            "value='<invalid>',numchild='0'}");
     next();
     run("B", "{iname='local.deque',name='deque',"
             "type='std::deque<int, std::allocator<int> >',"
@@ -3317,7 +3320,7 @@ void tst_Gdb::dump_std_map_int_int()
     prepare("dump_std_map_int_int");
     if (checkUninitialized)
         run("A","{iname='local.h',name='h',"
-            "type='" + type + "',value='<not in scope>',"
+            "type='" + type + "',value='<invalid>',"
             "numchild='0'}");
     next();
     run("B","{iname='local.h',name='h',"
@@ -3342,8 +3345,7 @@ void dump_std_map_string_string()
     /* A */ std::map<std::string, std::string> m;
     /* B */ m["hello"] = "world";
     /* C */ m["foo"] = "bar";
-    /* D */ (void) 0;
-}
+    /* D */ (void) 0; }
 
 void tst_Gdb::dump_std_map_string_string()
 {
@@ -3358,7 +3360,7 @@ void tst_Gdb::dump_std_map_string_string()
     prepare("dump_std_map_string_string");
     if (checkUninitialized)
         run("A","{iname='local.m',name='m',"
-            "type='" + type + "',value='<not in scope>',"
+            "type='" + type + "',value='<invalid>',"
             "numchild='0'}");
     next();
     run("B","{iname='local.m',name='m',"
@@ -3407,7 +3409,7 @@ void tst_Gdb::dump_std_set_int()
     prepare("dump_std_set_int");
     if (checkUninitialized)
         run("A","{iname='local.h',name='h',"
-            "type='" + setType + "',value='<not in scope>',"
+            "type='" + setType + "',value='<invalid>',"
             "numchild='0'}");
     next(3);
     run("D","{iname='local.h',name='h',"
@@ -3432,7 +3434,7 @@ void tst_Gdb::dump_std_set_Int3()
     prepare("dump_std_set_Int3");
     if (checkUninitialized)
         run("A","{iname='local.h',name='h',"
-            "type='" + setType + "',value='<not in scope>',"
+            "type='" + setType + "',value='<invalid>',"
             "numchild='0'}");
     next(3);
     run("D","{iname='local.h',name='h',"
@@ -3449,15 +3451,14 @@ void dump_std_string()
 {
     /* A */ std::string str;
     /* B */ str = "Hallo";
-    /* C */ (void) 0;
-}
+    /* C */ (void) 0; }
 
 void tst_Gdb::dump_std_string()
 {
     prepare("dump_std_string");
     if (checkUninitialized)
-        run("A","{iname='local.str',name='str',"
-            "numchild='0'}");
+        run("A","{iname='local.str',name='str',type='-',"
+            "value='<invalid>',numchild='0'}");
     next();
     run("B","{iname='local.str',name='str',type='std::string',"
             "valueencoded='6',value='',numchild='0'}");
@@ -3505,8 +3506,7 @@ void dump_std_vector()
     /* C */ vector.push_back(new std::list<int>(list));
     /* D */ vector.push_back(0);
     /* E */ (void) list.size();
-    /* F */ (void) list.size();
-}
+    /* F */ (void) list.size(); }
 
 void tst_Gdb::dump_std_vector()
 {
@@ -3516,8 +3516,10 @@ void tst_Gdb::dump_std_vector()
 
     prepare("dump_std_vector");
     if (checkUninitialized)
-        run("A","{iname='local.vector',name='vector',"
-            "numchild='0'}");
+        run("A","{iname='local.vector',name='vector',type='" + vectorType + "',"
+            "value='<invalid>',numchild='0'},"
+        "{iname='local.list',name='list',type='" + listType + "',"
+            "value='<invalid>',numchild='0'}");
     next(2);
     run("B","{iname='local.vector',name='vector',type='" + vectorType + "',"
             "value='<0 items>',numchild='0'},"
