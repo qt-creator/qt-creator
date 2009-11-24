@@ -108,10 +108,8 @@ public:
         return QLatin1String("Rewrite condition using ||"); // ### tr?
     }
 
-    virtual int match(const QList<AST *> &path, QTextCursor tc)
+    virtual int match(const QList<AST *> &path)
     {
-        setTextCursor(tc);
-
         BinaryExpressionAST *expression = 0;
 
         int index = path.size() - 1;
@@ -198,10 +196,8 @@ public:
         return true;
     }
 
-    virtual int match(const QList<AST *> &path, QTextCursor tc)
+    virtual int match(const QList<AST *> &path)
     {
-        setTextCursor(tc);
-
         CoreDeclaratorAST *core_declarator = 0;
 
         int index = path.size() - 1;
@@ -215,7 +211,7 @@ public:
                 if (checkDeclaration(simpleDecl)) {
                     declaration = simpleDecl;
 
-                    const int cursorPosition = tc.selectionStart();
+                    const int cursorPosition = selectionStart();
 
                     const int startOfDeclSpecifier = startOf(declaration->decl_specifier_list->firstToken());
                     const int endOfDeclSpecifier = endOf(declaration->decl_specifier_list->lastToken() - 1);
@@ -279,10 +275,8 @@ public:
         return QLatin1String("Add curly braces"); // ### tr?
     }
 
-    virtual int match(const QList<AST *> &path, QTextCursor tc)
+    virtual int match(const QList<AST *> &path)
     {
-        setTextCursor(tc);
-
         // show when we're on the 'if' of an if statement
         int index = path.size() - 1;
         IfStatementAST *ifStatement = path.at(index)->asIfStatement();
@@ -341,10 +335,8 @@ public:
         return QLatin1String("Move declaration out of condition"); // ### tr?
     }
 
-    virtual int match(const QList<AST *> &path, QTextCursor tc)
+    virtual int match(const QList<AST *> &path)
     {
-        setTextCursor(tc);
-
         condition = mk.Condition();
         pattern = mk.IfStatement(condition);
 
@@ -409,10 +401,8 @@ public:
         return QLatin1String("Move declaration out of condition"); // ### tr?
     }
 
-    virtual int match(const QList<AST *> &path, QTextCursor tc)
+    virtual int match(const QList<AST *> &path)
     {
-        setTextCursor(tc);
-
         condition = mk.Condition();
         pattern = mk.WhileStatement(condition);
 
@@ -505,10 +495,8 @@ public:
         return QLatin1String("Split if statement"); // ### tr?
     }
 
-    virtual int match(const QList<AST *> &path, QTextCursor tc)
+    virtual int match(const QList<AST *> &path)
     {
-        setTextCursor(tc);
-
         pattern = 0;
 
         int index = path.size() - 1;
@@ -634,6 +622,12 @@ QTextCursor QuickFixOperation::textCursor() const
 void QuickFixOperation::setTextCursor(const QTextCursor &cursor)
 { _textCursor = cursor; }
 
+int QuickFixOperation::selectionStart() const
+{ return _textCursor.selectionStart(); }
+
+int QuickFixOperation::selectionEnd() const
+{ return _textCursor.selectionEnd(); }
+
 const CPlusPlus::Token &QuickFixOperation::tokenAt(unsigned index) const
 { return _doc->translationUnit()->tokenAt(index); }
 
@@ -708,7 +702,7 @@ void QuickFixOperation::reindent(const Range &range)
 void QuickFixOperation::move(int start, int end, int to)
 {
     if (end > start)
-        _textWriter.move(start, end-start, to);
+        _changeSet.move(start, end-start, to);
 }
 
 void QuickFixOperation::move(unsigned tokenIndex, int to)
@@ -724,7 +718,7 @@ void QuickFixOperation::move(const CPlusPlus::AST *ast, int to)
 void QuickFixOperation::replace(int start, int end, const QString &replacement)
 {
     if (end >= start)
-        _textWriter.replace(start, end-start, replacement);
+        _changeSet.replace(start, end-start, replacement);
 }
 
 void QuickFixOperation::replace(unsigned tokenIndex, const QString &replacement)
@@ -758,13 +752,17 @@ QString QuickFixOperation::textOf(AST *ast) const
 void QuickFixOperation::applyChanges(AST *ast)
 {
     Range range;
+
     if (ast)
         range = createRange(ast);
 
     _textCursor.beginEditBlock();
-    _textWriter.write(&_textCursor);
+
+    _changeSet.write(&_textCursor);
+
     if (ast)
         reindent(range);
+
     _textCursor.endEditBlock();
 }
 
@@ -820,7 +818,8 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         QMap<int, QList<QuickFixOperationPtr> > matchedOps;
 
         foreach (QuickFixOperationPtr op, candidates) {
-            int priority = op->match(path, _editor->textCursor());
+            op->setTextCursor(_editor->textCursor());
+            int priority = op->match(path);
             if (priority != -1)
                 matchedOps[priority].append(op);
         }

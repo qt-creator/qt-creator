@@ -63,13 +63,16 @@ public:
     virtual ~QuickFixOperation();
 
     virtual QString description() const = 0;
-    virtual int match(const QList<CPlusPlus::AST *> &path, QTextCursor tc) = 0;
+    virtual int match(const QList<CPlusPlus::AST *> &path) = 0;
 
     CPlusPlus::Document::Ptr document() const { return _doc; }
     CPlusPlus::Snapshot snapshot() const { return _snapshot; }
 
     QTextCursor textCursor() const;
     void setTextCursor(const QTextCursor &cursor);
+
+    int selectionStart() const;
+    int selectionEnd() const;
 
     CPPEditor *editor() const;
 
@@ -114,7 +117,7 @@ private:
     CPlusPlus::Document::Ptr _doc;
     CPlusPlus::Snapshot _snapshot;
     QTextCursor _textCursor;
-    Utils::ChangeSet _textWriter;
+    Utils::ChangeSet _changeSet;
     CPPEditor *_editor;
 };
 
