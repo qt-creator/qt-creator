@@ -616,6 +616,9 @@ QuickFixOperation::~QuickFixOperation()
 CPPEditor *QuickFixOperation::editor() const
 { return _editor; }
 
+const Utils::ChangeSet &QuickFixOperation::changeSet() const
+{ return _changeSet; }
+
 QTextCursor QuickFixOperation::textCursor() const
 { return _textCursor; }
 

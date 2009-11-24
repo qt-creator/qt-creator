@@ -75,6 +75,7 @@ public:
     int selectionEnd() const;
 
     CPPEditor *editor() const;
+    const Utils::ChangeSet &changeSet() const;
 
     virtual void apply() = 0;
 
