@@ -71,7 +71,7 @@ public:
     virtual ~BuildStepsPage();
 
     QString displayName() const;
-    void init(const QString &buildConfiguration);
+    void init(BuildConfiguration *bc);
 
 private slots:
     void updateAddBuildStepMenu();
@@ -88,7 +88,7 @@ private:
     void addBuildStepWidget(int pos, BuildStep *step);
 
     Project *m_pro;
-    QString m_configuration;
+    BuildConfiguration *m_configuration;
     QHash<QAction *, QPair<QString, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
     bool m_clean;
 

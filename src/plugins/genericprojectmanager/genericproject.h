@@ -67,8 +67,8 @@ public:
     QString displayNameForType(const QString &type) const;
 
     ProjectExplorer::BuildConfiguration *create(const QString &type) const;
-    ProjectExplorer::BuildConfiguration *clone(const QString &name, ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *restore(const QString &name) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *restore() const;
 
 private:
     GenericProject *m_project;
@@ -195,7 +195,7 @@ public:
 
     virtual QString displayName() const;
 
-    virtual void init(const QString &buildConfiguration);
+    virtual void init(ProjectExplorer::BuildConfiguration *bc);
 
 private Q_SLOTS:
     void buildDirectoryChanged();
@@ -204,7 +204,7 @@ private Q_SLOTS:
 private:
     GenericProject *m_project;
     Utils::PathChooser *m_pathChooser;
-    QString m_buildConfiguration;
+    ProjectExplorer::BuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

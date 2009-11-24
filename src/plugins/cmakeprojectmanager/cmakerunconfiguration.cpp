@@ -58,7 +58,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &t
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
 
-    connect(pro, SIGNAL(environmentChanged(QString)),
+    connect(pro, SIGNAL(environmentChanged(ProjectExplorer::BuildConfiguration *)),
             this, SIGNAL(baseEnvironmentChanged()));
 }
 

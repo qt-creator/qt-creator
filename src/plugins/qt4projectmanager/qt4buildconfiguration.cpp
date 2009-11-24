@@ -34,14 +34,14 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::BuildConfiguration;
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro, const QString &name)
-    : BuildConfiguration(pro, name)
+Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro)
+    : BuildConfiguration(pro)
 {
 
 }
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(const QString &name, Qt4BuildConfiguration *source)
-    : BuildConfiguration(name, source)
+Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BuildConfiguration *source)
+    : BuildConfiguration(source)
 {
 
 }

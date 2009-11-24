@@ -297,17 +297,17 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(const QString &type) co
     return bc;
 }
 
-BuildConfiguration *Qt4BuildConfigurationFactory::clone(const QString &name, BuildConfiguration *source) const
+BuildConfiguration *Qt4BuildConfigurationFactory::clone(BuildConfiguration *source) const
 {
     Qt4BuildConfiguration *oldbc = static_cast<Qt4BuildConfiguration *>(source);
-    Qt4BuildConfiguration *newbc = new Qt4BuildConfiguration(name, oldbc);
+    Qt4BuildConfiguration *newbc = new Qt4BuildConfiguration(oldbc);
     m_project->addBuildConfiguration(newbc);
     return newbc;
 }
 
-BuildConfiguration *Qt4BuildConfigurationFactory::restore(const QString &name) const
+BuildConfiguration *Qt4BuildConfigurationFactory::restore() const
 {
-    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(m_project, name);
+    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(m_project);
     return bc;
 }
 
@@ -459,7 +459,8 @@ Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString buildConfigu
     bool debug = qmakeBuildConfiguration & QtVersion::DebugBuild;
 
     // Add the buildconfiguration
-    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(this, buildConfigurationName);
+    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(this);
+    bc->setDisplayName(buildConfigurationName);
     addBuildConfiguration(bc);
 
     QMakeStep *qmakeStep = new QMakeStep(bc);
@@ -890,7 +891,7 @@ void Qt4Project::setUseSystemEnvironment(BuildConfiguration *configuration, bool
     if (useSystemEnvironment(configuration) == b)
         return;
     configuration->setValue("clearSystemEnvironment", !b);
-    emit environmentChanged(configuration->name());
+    emit environmentChanged(configuration);
 }
 
 bool Qt4Project::useSystemEnvironment(BuildConfiguration *configuration) const
@@ -911,7 +912,7 @@ void Qt4Project::setUserEnvironmentChanges(BuildConfiguration *configuration, co
     if (list == configuration->value("userEnvironmentChanges").toStringList())
         return;
     configuration->setValue("userEnvironmentChanges", list);
-    emit environmentChanged(configuration->name());
+    emit environmentChanged(configuration);
 }
 
 QString Qt4Project::qtDir(BuildConfiguration *configuration) const
@@ -931,7 +932,7 @@ int Qt4Project::qtVersionId(BuildConfiguration *configuration) const
 {
     QtVersionManager *vm = QtVersionManager::instance();
     if (debug)
-        qDebug()<<"Looking for qtVersion ID of "<<configuration->name();
+        qDebug()<<"Looking for qtVersion ID of "<<configuration->displayName();
     int id = 0;
     QVariant vid = configuration->value(KEY_QT_VERSION_ID);
     if (vid.isValid()) {

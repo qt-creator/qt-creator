@@ -33,14 +33,14 @@
 using namespace CMakeProjectManager;
 using namespace Internal;
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeProject *pro, const QString &name)
-    : BuildConfiguration(pro, name)
+CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeProject *pro)
+    : BuildConfiguration(pro)
 {
 
 }
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(const QString &name, BuildConfiguration *source)
-    : BuildConfiguration(name, source)
+CMakeBuildConfiguration::CMakeBuildConfiguration(BuildConfiguration *source)
+    : BuildConfiguration(source)
 {
 
 }

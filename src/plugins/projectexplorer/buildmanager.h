@@ -49,6 +49,7 @@ namespace Internal {
 class BuildStep;
 class Project;
 class ProjectExplorerPlugin;
+class BuildConfiguration;
 
 class PROJECTEXPLORER_EXPORT BuildManager
   : public QObject
@@ -70,10 +71,10 @@ public:
     void gotoTaskWindow();
 
     //TODO these should take buildconfiguration object
-    void buildProject(Project *p, const QString &configuration);
-    void buildProjects(const QList<Project *> &projects, const QList<QString> &configurations);
-    void cleanProject(Project *p, const QString &configuration);
-    void cleanProjects(const QList<Project *> &projects, const QList<QString> &configurations);
+    void buildProject(BuildConfiguration *bc);
+    void buildProjects(const QList<BuildConfiguration *> &configurations);
+    void cleanProject(BuildConfiguration *configuration);
+    void cleanProjects(const QList<BuildConfiguration *> &configurations);
     bool isBuilding(Project *p);
 
     // Append any build step to the list of build steps (currently only used to add the QMakeStep)

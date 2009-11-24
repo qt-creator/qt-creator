@@ -42,7 +42,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
-    : BuildConfigWidget(), m_pro(project)
+    : BuildConfigWidget(), m_pro(project), m_buildConfiguration(0)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
@@ -65,28 +65,25 @@ QString Qt4BuildEnvironmentWidget::displayName() const
     return tr("Build Environment");
 }
 
-void Qt4BuildEnvironmentWidget::init(const QString &buildConfiguration)
+void Qt4BuildEnvironmentWidget::init(ProjectExplorer::BuildConfiguration *bc)
 {
     if (debug)
         qDebug() << "Qt4BuildConfigWidget::init()";
 
-    m_buildConfiguration = buildConfiguration;
-    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(buildConfiguration);
-    m_clearSystemEnvironmentCheckBox->setChecked(!m_pro->useSystemEnvironment(bc));
-    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(bc));
-    m_buildEnvironmentWidget->setUserChanges(m_pro->userEnvironmentChanges(bc));
+    m_buildConfiguration = bc;
+    m_clearSystemEnvironmentCheckBox->setChecked(!m_pro->useSystemEnvironment(m_buildConfiguration));
+    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(m_buildConfiguration));
+    m_buildEnvironmentWidget->setUserChanges(m_pro->userEnvironmentChanges(m_buildConfiguration));
     m_buildEnvironmentWidget->updateButtons();
 }
 
 void Qt4BuildEnvironmentWidget::environmentModelUserChangesUpdated()
 {
-    m_pro->setUserEnvironmentChanges(m_pro->buildConfiguration(m_buildConfiguration),
-                                     m_buildEnvironmentWidget->userChanges());
+    m_pro->setUserEnvironmentChanges(m_buildConfiguration, m_buildEnvironmentWidget->userChanges());
 }
 
 void Qt4BuildEnvironmentWidget::clearSystemEnvironmentCheckBoxClicked(bool checked)
 {
-    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(m_buildConfiguration);
-    m_pro->setUseSystemEnvironment(bc, !checked);
-    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(bc));
+    m_pro->setUseSystemEnvironment(m_buildConfiguration, !checked);
+    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(m_buildConfiguration));
 }

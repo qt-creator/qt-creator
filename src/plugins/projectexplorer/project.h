@@ -87,7 +87,6 @@ public:
     void addBuildConfiguration(BuildConfiguration *configuration);
     void removeBuildConfiguration(BuildConfiguration *configuration);
 
-    BuildConfiguration *buildConfiguration(const QString & name) const;
     QList<BuildConfiguration *> buildConfigurations() const;
     // remove and add "QString uniqueConfigurationDisplayName(const QString &proposedName) const" instead
     void setDisplayNameFor(BuildConfiguration *configuration, const QString &displayName);
@@ -146,12 +145,12 @@ signals:
     void removedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
     void addedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
 
-    void removedBuildConfiguration(ProjectExplorer::Project *p, const QString &name);
-    void addedBuildConfiguration(ProjectExplorer::Project *p, const QString &name);
+    void removedBuildConfiguration(ProjectExplorer::Project *p, BuildConfiguration *bc);
+    void addedBuildConfiguration(ProjectExplorer::Project *p, BuildConfiguration *bc);
 
     // This signal is jut there for updating the tree list in the buildsettings wizard
-    void buildConfigurationDisplayNameChanged(const QString &buildConfiguration);
-    void environmentChanged(const QString &buildConfiguration);
+    void buildConfigurationDisplayNameChanged(BuildConfiguration *bc);
+    void environmentChanged(BuildConfiguration *bc);
 
 protected:
     /* This method is called when the project .user file is saved. Simply call
@@ -175,7 +174,7 @@ protected:
 private:
     QMap<QString, QVariant> m_values;
     QList<BuildConfiguration *> m_buildConfigurationValues;
-    QString m_activeBuildConfiguration;
+    BuildConfiguration *m_activeBuildConfiguration;
     QList<RunConfiguration *> m_runConfigurations;
     RunConfiguration* m_activeRunConfiguration;
     EditorConfiguration *m_editorConfiguration;

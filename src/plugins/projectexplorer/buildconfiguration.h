@@ -53,7 +53,6 @@ public:
     // ctors are protected
     virtual ~BuildConfiguration();
 
-    QString name() const;
     QString displayName() const;
     void setDisplayName(const QString &name);
 
@@ -77,19 +76,15 @@ public:
     Project *project() const;
 
 protected:
-    BuildConfiguration(Project * project, const QString &name);
-    BuildConfiguration(const QString &name, BuildConfiguration *source);
+    BuildConfiguration(Project * project);
+    BuildConfiguration(BuildConfiguration *source);
 
 private:
-    void setName(const QString &name);
-
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
 
     QHash<QString, QVariant> m_values;
-    QString m_name;
     Project *m_project;
-    friend class Project; // for setName
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory : public QObject
@@ -110,24 +105,21 @@ public:
     virtual BuildConfiguration *create(const QString &type) const = 0;
 
     // clones a given BuildConfiguration and adds it to the project
-    virtual BuildConfiguration *clone(const QString &name, BuildConfiguration *source) const = 0;
+    virtual BuildConfiguration *clone(BuildConfiguration *source) const = 0;
 
     // restores a BuildConfiguration with the name and adds it to the project
-    virtual BuildConfiguration *restore(const QString &name) const = 0;
+    virtual BuildConfiguration *restore() const = 0;
 
 
     // TODO All those methods make the internal name (and display name) unique,
     // but in different ways
-
-
-// to come:
-// restore
-// clone
 
 signals:
     void availableCreationTypesChanged();
 };
 
 } // namespace ProjectExplorer
+
+Q_DECLARE_METATYPE(ProjectExplorer::BuildConfiguration *);
 
 #endif // BUILDCONFIGURATION_H

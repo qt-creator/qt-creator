@@ -41,9 +41,9 @@ namespace Internal {
 class Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
 public:
-    Qt4BuildConfiguration(Qt4Project *pro, const QString &name);
+    Qt4BuildConfiguration(Qt4Project *pro);
     // copy ctor
-    Qt4BuildConfiguration(const QString &name, Qt4BuildConfiguration *source);
+    Qt4BuildConfiguration(Qt4BuildConfiguration *source);
     ~Qt4BuildConfiguration();
 };
 

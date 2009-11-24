@@ -146,7 +146,8 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(const QString &type
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project, buildConfigurationName);
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project);
+    bc->setDisplayName(buildConfigurationName);
     m_project->addBuildConfiguration(bc); // also makes the name unique...
 
     GenericMakeStep *makeStep = new GenericMakeStep(bc);
@@ -155,17 +156,17 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(const QString &type
     return bc;
 }
 
-BuildConfiguration *GenericBuildConfigurationFactory::clone(const QString &name, BuildConfiguration *source) const
+BuildConfiguration *GenericBuildConfigurationFactory::clone(BuildConfiguration *source) const
 {
     // TODO
-    GenericBuildConfiguration *bc = new GenericBuildConfiguration(name, static_cast<GenericBuildConfiguration *>(source));
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(static_cast<GenericBuildConfiguration *>(source));
     m_project->addBuildConfiguration(bc);
     return bc;
 }
 
-BuildConfiguration *GenericBuildConfigurationFactory::restore(const QString &name) const
+BuildConfiguration *GenericBuildConfigurationFactory::restore() const
 {
-    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project, name);
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project);
     return bc;
 }
 
@@ -533,7 +534,8 @@ bool GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
     Project::restoreSettingsImpl(reader);
 
     if (buildConfigurations().isEmpty()) {
-        GenericBuildConfiguration *bc = new GenericBuildConfiguration(this, "all");
+        GenericBuildConfiguration *bc = new GenericBuildConfiguration(this);
+        bc->setDisplayName("all");
         addBuildConfiguration(bc);
 
         GenericMakeStep *makeStep = new GenericMakeStep(bc);
@@ -589,7 +591,7 @@ void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter 
 ////////////////////////////////////////////////////////////////////////////////////
 
 GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
-    : m_project(project)
+    : m_project(project), m_buildConfiguration(0)
 {
     QFormLayout *fl = new QFormLayout(this);
     fl->setContentsMargins(0, -1, 0, -1);
@@ -625,15 +627,15 @@ GenericBuildSettingsWidget::~GenericBuildSettingsWidget()
 QString GenericBuildSettingsWidget::displayName() const
 { return tr("Generic Manager"); }
 
-void GenericBuildSettingsWidget::init(const QString &buildConfigurationName)
+void GenericBuildSettingsWidget::init(BuildConfiguration *bc)
 {
-    m_buildConfiguration = buildConfigurationName;
-    m_pathChooser->setPath(m_project->buildDirectory(m_project->buildConfiguration(buildConfigurationName)));
+    m_buildConfiguration = bc;
+    m_pathChooser->setPath(m_project->buildDirectory(bc));
 }
 
 void GenericBuildSettingsWidget::buildDirectoryChanged()
 {
-    m_project->buildConfiguration(m_buildConfiguration)->setValue("buildDirectory", m_pathChooser->path());
+    m_buildConfiguration->setValue("buildDirectory", m_pathChooser->path());
 }
 
 void GenericBuildSettingsWidget::toolChainSelected(int index)

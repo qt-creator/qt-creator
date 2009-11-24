@@ -53,7 +53,7 @@ public:
     Qt4BuildEnvironmentWidget(Qt4Project *project);
 
     QString displayName() const;
-    void init(const QString &buildConfiguration);
+    void init(ProjectExplorer::BuildConfiguration *bc);
 
 private slots:
     void environmentModelUserChangesUpdated();
@@ -63,7 +63,7 @@ private:
     ProjectExplorer::EnvironmentWidget *m_buildEnvironmentWidget;
     QCheckBox *m_clearSystemEnvironmentCheckBox;
     Qt4Project *m_pro;
-    QString m_buildConfiguration;
+    ProjectExplorer::BuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

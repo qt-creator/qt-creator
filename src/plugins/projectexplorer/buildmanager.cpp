@@ -351,20 +351,12 @@ void BuildManager::buildQueueAppend(BuildStep * bs)
     incrementActiveBuildSteps(bs->buildConfiguration()->project());
 }
 
-void BuildManager::buildProjects(const QList<Project *> &projects, const QList<QString> &configurations)
+void BuildManager::buildProjects(const QList<BuildConfiguration *> &configurations)
 {
-    Q_ASSERT(projects.count() == configurations.count());
-    QList<QString>::const_iterator cit = configurations.constBegin();
-    QList<Project *>::const_iterator it, end;
-    end = projects.constEnd();
-
-    for (it = projects.constBegin(); it != end; ++it, ++cit) {
-        if (*cit != QString::null) {
-            BuildConfiguration *bc = (*it)->buildConfiguration(*cit);
-            QList<BuildStep *> buildSteps = bc->buildSteps();
-            foreach (BuildStep *bs, buildSteps) {
-                buildQueueAppend(bs);
-            }
+    foreach(BuildConfiguration *bc, configurations) {
+        QList<BuildStep *> buildSteps = bc->buildSteps();
+        foreach (BuildStep *bs, buildSteps) {
+            buildQueueAppend(bs);
         }
     }
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
@@ -372,20 +364,12 @@ void BuildManager::buildProjects(const QList<Project *> &projects, const QList<Q
     startBuildQueue();
 }
 
-void BuildManager::cleanProjects(const QList<Project *> &projects, const QList<QString> &configurations)
+void BuildManager::cleanProjects(const QList<BuildConfiguration *> &configurations)
 {
-    Q_ASSERT(projects.count() == configurations.count());
-    QList<QString>::const_iterator cit = configurations.constBegin();
-    QList<Project *>::const_iterator it, end;
-    end = projects.constEnd();
-
-    for (it = projects.constBegin(); it != end; ++it, ++cit) {
-        if (*cit != QString::null) {
-            BuildConfiguration *bc = (*it)->buildConfiguration(*cit);
-            QList<BuildStep *> cleanSteps = bc->cleanSteps();
-            foreach (BuildStep *bs, cleanSteps) {
-                buildQueueAppend(bs);
-            }
+    foreach(BuildConfiguration *bc, configurations) {
+        QList<BuildStep *> cleanSteps = bc->cleanSteps();
+        foreach (BuildStep *bs, cleanSteps) {
+            buildQueueAppend(bs);
         }
     }
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
@@ -393,14 +377,14 @@ void BuildManager::cleanProjects(const QList<Project *> &projects, const QList<Q
     startBuildQueue();
 }
 
-void BuildManager::buildProject(Project *p, const QString &configuration)
+void BuildManager::buildProject(BuildConfiguration *configuration)
 {
-    buildProjects(QList<Project *>() << p, QList<QString>() << configuration);
+    buildProjects(QList<BuildConfiguration *>() << configuration);
 }
 
-void BuildManager::cleanProject(Project *p, const QString &configuration)
+void BuildManager::cleanProject(BuildConfiguration *configuration)
 {
-    cleanProjects(QList<Project *>() << p, QList<QString>() << configuration);
+    cleanProjects(QList<BuildConfiguration *>() << configuration);
 }
 
 void BuildManager::appendStep(BuildStep *step)

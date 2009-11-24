@@ -74,8 +74,8 @@ public:
     QString displayNameForType(const QString &type) const;
 
     ProjectExplorer::BuildConfiguration *create(const QString &type) const;
-    ProjectExplorer::BuildConfiguration *clone(const QString &name, ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *restore(const QString &name) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *restore() const;
 
 private:
     CMakeProject *m_project;
@@ -232,14 +232,14 @@ public:
 
     // This is called to set up the config widget before showing it
     // buildConfiguration is QString::null for the non buildConfiguration specific page
-    virtual void init(const QString &buildConfiguration);
+    virtual void init(ProjectExplorer::BuildConfiguration *bc);
 private slots:
     void openChangeBuildDirectoryDialog();
 private:
     CMakeProject *m_project;
     QLineEdit *m_pathLineEdit;
     QPushButton *m_changeButton;
-    QString m_buildConfiguration;
+    ProjectExplorer::BuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

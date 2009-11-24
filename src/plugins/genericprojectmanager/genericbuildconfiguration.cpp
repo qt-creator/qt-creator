@@ -34,14 +34,14 @@ using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 using ProjectExplorer::BuildConfiguration;
 
-GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro, const QString &name)
-    : BuildConfiguration(pro, name)
+GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro)
+    : BuildConfiguration(pro)
 {
 
 }
 
-GenericBuildConfiguration::GenericBuildConfiguration(const QString &name, GenericBuildConfiguration *source)
-    : BuildConfiguration(name, source)
+GenericBuildConfiguration::GenericBuildConfiguration(GenericBuildConfiguration *source)
+    : BuildConfiguration(source)
 {
 
 }

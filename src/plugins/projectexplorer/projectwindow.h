@@ -56,6 +56,7 @@ class IPropertiesPanel;
 class Project;
 class ProjectExplorerPlugin;
 class SessionManager;
+class BuildConfiguration;
 
 namespace Internal {
 
@@ -100,13 +101,13 @@ public:
     BuildConfigurationComboBox(ProjectExplorer::Project *p, QWidget *parent = 0);
     ~BuildConfigurationComboBox();
 private slots:
-    void nameChanged(const QString &buildConfiguration);
+    void nameChanged(ProjectExplorer::BuildConfiguration *bc);
     void activeConfigurationChanged();
-    void addedBuildConfiguration(ProjectExplorer::Project *, const QString &buildConfiguration);
-    void removedBuildConfiguration(ProjectExplorer::Project *, const QString &buildConfiguration);
+    void addedBuildConfiguration(ProjectExplorer::Project *, ProjectExplorer::BuildConfiguration *bc);
+    void removedBuildConfiguration(ProjectExplorer::Project *, ProjectExplorer::BuildConfiguration *bc);
     void changedIndex(int newIndex);
 private:
-    int nameToIndex(const QString &buildConfiguration);
+    int nameToIndex(ProjectExplorer::BuildConfiguration *bc);
     bool ignoreIndexChange;
     ProjectExplorer::Project *m_project;
     QComboBox *m_comboBox;

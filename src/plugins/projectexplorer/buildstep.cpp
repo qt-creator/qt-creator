@@ -44,7 +44,7 @@ BuildStep::BuildStep(BuildConfiguration *bc)
 BuildStep::BuildStep(BuildStep *bs, BuildConfiguration *bc)
     : m_buildConfiguration(bc)
 {
-
+    Q_UNUSED(bs);
 }
 
 BuildStep::~BuildStep()

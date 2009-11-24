@@ -104,7 +104,8 @@ BuildConfiguration *CMakeBuildConfigurationFactory::create(const QString &type) 
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-    BuildConfiguration *bc = new CMakeBuildConfiguration(m_project, buildConfigurationName);
+    BuildConfiguration *bc = new CMakeBuildConfiguration(m_project);
+    bc->setDisplayName(buildConfigurationName);
 
     MakeStep *makeStep = new MakeStep(bc);
     bc->insertBuildStep(0, makeStep);
@@ -133,17 +134,17 @@ BuildConfiguration *CMakeBuildConfigurationFactory::create(const QString &type) 
     return bc;
 }
 
-BuildConfiguration *CMakeBuildConfigurationFactory::clone(const QString &name, ProjectExplorer::BuildConfiguration *source) const
+BuildConfiguration *CMakeBuildConfigurationFactory::clone(ProjectExplorer::BuildConfiguration *source) const
 {
     CMakeBuildConfiguration *old = static_cast<CMakeBuildConfiguration *>(source);
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(name, old);
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(old);
     m_project->addBuildConfiguration(bc);
     return bc;
 }
 
-BuildConfiguration *CMakeBuildConfigurationFactory::restore(const QString &name) const
+BuildConfiguration *CMakeBuildConfigurationFactory::restore() const
 {
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project, name);
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project);
     return bc;
 }
 
@@ -590,7 +591,7 @@ void CMakeProject::setUseSystemEnvironment(BuildConfiguration *configuration, bo
     if (b == useSystemEnvironment(configuration))
         return;
     configuration->setValue("clearSystemEnvironment", !b);
-    emit environmentChanged(configuration->name());
+    emit environmentChanged(configuration);
 }
 
 bool CMakeProject::useSystemEnvironment(BuildConfiguration *configuration) const
@@ -611,7 +612,7 @@ void CMakeProject::setUserEnvironmentChanges(BuildConfiguration *configuration, 
     if (list == configuration->value("userEnvironmentChanges"))
         return;
     configuration->setValue("userEnvironmentChanges", list);
-    emit environmentChanged(configuration->name());
+    emit environmentChanged(configuration);
 }
 
 QString CMakeProject::buildDirectory(BuildConfiguration *configuration) const
@@ -664,7 +665,8 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         if (copw.exec() != QDialog::Accepted)
             return false;
 
-        CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(this, "all");
+        CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(this);
+        bc->setDisplayName("all");
         addBuildConfiguration(bc);
         bc->setValue("msvcVersion", copw.msvcVersion());
         if (!copw.buildDirectory().isEmpty())
@@ -792,7 +794,7 @@ void CMakeFile::modified(ReloadBehavior *behavior)
 }
 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeProject *project)
-    : m_project(project)
+    : m_project(project), m_buildConfiguration(0)
 {
     QFormLayout *fl = new QFormLayout(this);
     fl->setContentsMargins(20, -1, 0, -1);
@@ -821,10 +823,9 @@ QString CMakeBuildSettingsWidget::displayName() const
     return "CMake";
 }
 
-void CMakeBuildSettingsWidget::init(const QString &buildConfigurationName)
+void CMakeBuildSettingsWidget::init(BuildConfiguration *bc)
 {
-    m_buildConfiguration = buildConfigurationName;
-    BuildConfiguration *bc = m_project->buildConfiguration(buildConfigurationName);
+    m_buildConfiguration = bc;
     m_pathLineEdit->setText(m_project->buildDirectory(bc));
     if (m_project->buildDirectory(bc) == m_project->sourceDirectory())
         m_changeButton->setEnabled(false);
@@ -834,14 +835,13 @@ void CMakeBuildSettingsWidget::init(const QString &buildConfigurationName)
 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 {
-    BuildConfiguration *bc = m_project->buildConfiguration(m_buildConfiguration);
     CMakeOpenProjectWizard copw(m_project->projectManager(),
                                 m_project->sourceDirectory(),
-                                m_project->buildDirectory(bc),
-                                m_project->environment(bc));
+                                m_project->buildDirectory(m_buildConfiguration),
+                                m_project->environment(m_buildConfiguration));
     if (copw.exec() == QDialog::Accepted) {
-        m_project->changeBuildDirectory(bc, copw.buildDirectory());
-        m_pathLineEdit->setText(m_project->buildDirectory(bc));
+        m_project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
+        m_pathLineEdit->setText(m_project->buildDirectory(m_buildConfiguration));
     }
 }
 

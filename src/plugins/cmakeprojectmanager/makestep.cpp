@@ -202,7 +202,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     fl->addRow(tr("Targets:"), m_targetsList);
 
     // TODO update this list also on rescans of the CMakeLists.txt
-    CMakeProject *pro = m_makeStep->project();
+    // TODO shouldn't be accessing project
+    CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->buildConfiguration()->project());
     foreach(const QString& target, pro->targets()) {
         QListWidgetItem *item = new QListWidgetItem(target, m_targetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -251,11 +252,10 @@ void MakeStepConfigWidget::updateDetails()
 {
     QStringList arguments = m_makeStep->m_buildTargets;
     arguments << m_makeStep->additionalArguments();
-    m_summaryText = tr("<b>Make:</b> %1 %2")
-                    .arg(m_makeStep->project()->toolChain(
-                            m_makeStep->buildConfiguration())
-                            ->makeCommand(),
-                         arguments.join(" "));
+
+    BuildConfiguration *bc = m_makeStep->buildConfiguration();
+    CMakeProject *pro = static_cast<CMakeProject *>(bc->project());
+    m_summaryText = tr("<b>Make:</b> %1 %2").arg(pro->toolChain(bc)->makeCommand(), arguments.join(" "));
     emit updateSummary();
 }
 

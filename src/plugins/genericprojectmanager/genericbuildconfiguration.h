@@ -41,8 +41,8 @@ class GenericProject;
 class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
 public:
-    GenericBuildConfiguration(GenericProject *pro, const QString &name);
-    GenericBuildConfiguration(const QString &name, GenericBuildConfiguration *source);
+    GenericBuildConfiguration(GenericProject *pro);
+    GenericBuildConfiguration(GenericBuildConfiguration *source);
 };
 
 } // namespace GenericProjectManager

@@ -51,7 +51,7 @@ public:
     CMakeBuildEnvironmentWidget(CMakeProject *project);
 
     QString displayName() const;
-    void init(const QString &buildConfiguration);
+    void init(ProjectExplorer::BuildConfiguration *bc);
 
 private slots:
     void environmentModelUserChangesUpdated();
@@ -61,7 +61,7 @@ private:
     ProjectExplorer::EnvironmentWidget *m_buildEnvironmentWidget;
     QCheckBox *m_clearSystemEnvironmentCheckBox;
     CMakeProject *m_pro;
-    QString m_buildConfiguration;
+    ProjectExplorer::BuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

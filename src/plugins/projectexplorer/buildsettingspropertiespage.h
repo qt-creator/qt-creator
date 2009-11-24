@@ -42,6 +42,7 @@
 namespace ProjectExplorer {
 
 class IBuildStepFactory;
+class BuildConfiguration;
 
 namespace Internal {
 
@@ -93,7 +94,7 @@ public:
     ~BuildSettingsWidget();
 
 private slots:
-    void buildConfigurationDisplayNameChanged(const QString &buildConfiguration);
+    void buildConfigurationDisplayNameChanged(ProjectExplorer::BuildConfiguration *bc);
     void updateBuildSettings();
     void currentIndexChanged(int index);
     void activeBuildConfigurationChanged();
@@ -106,15 +107,15 @@ private slots:
     void makeActive();
 
 private:
-    void cloneConfiguration(const QString &toClone);
-    void deleteConfiguration(const QString &toDelete);
+    void cloneConfiguration(ProjectExplorer::BuildConfiguration *toClone);
+    void deleteConfiguration(ProjectExplorer::BuildConfiguration *toDelete);
 
     Project *m_project;
     QPushButton *m_addButton;
     QPushButton *m_removeButton;
     QComboBox *m_buildConfigurationComboBox;
     BuildSettingsSubWidgets *m_subWidgets;
-    QString m_buildConfiguration;
+    BuildConfiguration *m_buildConfiguration;
     QMenu *m_addButtonMenu;
     QLabel *m_makeActiveLabel;
 };

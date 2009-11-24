@@ -40,8 +40,8 @@ class CMakeProject;
 class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
 public:
-    CMakeBuildConfiguration(CMakeProject *pro, const QString &name);
-    CMakeBuildConfiguration(const QString &name, BuildConfiguration *source);
+    CMakeBuildConfiguration(CMakeProject *pro);
+    CMakeBuildConfiguration(BuildConfiguration *source);
 };
 
 

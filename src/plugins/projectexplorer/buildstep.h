@@ -155,7 +155,7 @@ public:
     virtual QString displayName() const = 0;
 
     // This is called to set up the config widget before showing it
-    virtual void init(const QString &buildConfiguration) = 0;
+    virtual void init(BuildConfiguration *bc) = 0;
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepConfigWidget

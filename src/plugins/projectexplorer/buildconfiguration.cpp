@@ -44,14 +44,14 @@ IBuildStepFactory *findFactory(const QString &name)
     return 0;
 }
 
-BuildConfiguration::BuildConfiguration(Project *pro, const QString &name)
-    : m_name(name), m_project(pro)
+BuildConfiguration::BuildConfiguration(Project *pro)
+    : m_project(pro)
 {
-    setDisplayName(name);
+
 }
 
-BuildConfiguration::BuildConfiguration(const QString &name, BuildConfiguration *source)
-    : m_values(source->m_values), m_name(name), m_project(source->m_project)
+BuildConfiguration::BuildConfiguration(BuildConfiguration *source)
+    : m_values(source->m_values), m_project(source->m_project)
 {
     foreach(BuildStep *originalbs, source->buildSteps()) {
         IBuildStepFactory *factory = findFactory(originalbs->name());
@@ -69,16 +69,6 @@ BuildConfiguration::~BuildConfiguration()
 {
     qDeleteAll(m_buildSteps);
     qDeleteAll(m_cleanSteps);
-}
-
-void BuildConfiguration::setName(const QString &name)
-{
-    m_name = name;
-}
-
-QString BuildConfiguration::name() const
-{
-    return m_name;
 }
 
 QString BuildConfiguration::displayName() const
