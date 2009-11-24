@@ -35,6 +35,11 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QFont>
 #include <QtGui/QPixmap>
+#include <QtDebug>
+
+#ifdef Q_OS_MAC
+#include "buildprogress_mac.h"
+#endif
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -93,4 +98,10 @@ void BuildProgress::updateState()
     m_warningIcon->setEnabled(haveWarnings);
     m_warningLabel->setEnabled(haveWarnings);
     m_warningLabel->setText(QString("%1").arg(warnings));
+#ifdef Q_OS_MAC
+    if (haveErrors)
+        qtcShowDockTileBadgeLabel(QString("%1").arg(errors));
+    else
+        qtcShowDockTileBadgeLabel("");
+#endif
 }

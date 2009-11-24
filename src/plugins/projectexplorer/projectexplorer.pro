@@ -135,9 +135,14 @@ win32 {
     HEADERS += winguiprocess.h
 }
 else:unix:SOURCES += applicationlauncher_x11.cpp
+
+macx {
+    HEADERS += buildprogress_mac.h
+    OBJECTIVE_SOURCES += buildprogress_mac.mm
+    LIBS += -framework Carbon -framework AppKit
+}
+
 RESOURCES += projectexplorer.qrc
 DEFINES += PROJECTEXPLORER_LIBRARY
 OTHER_FILES += ProjectExplorer.pluginspec
-
-mac:LIBS += -framework Carbon
 
