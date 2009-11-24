@@ -36,7 +36,7 @@
 
 using namespace Qt4ProjectManager::Internal;
 
-#define MAX_VARIABLES 53
+#define MAX_VARIABLES 55
 const char *const variables[MAX_VARIABLES] = {
     "CCFLAG",
     "CONFIG",
@@ -55,6 +55,8 @@ const char *const variables[MAX_VARIABLES] = {
     "LIBS",
     "MAKEFILE",
     "MOC_DIR",
+    "OBJECTIVE_HEADERS",
+    "OBJECTIVE_SOURCES",
     "OBJECTS",
     "OBJECTS_DIR",
     "OBJMOC",

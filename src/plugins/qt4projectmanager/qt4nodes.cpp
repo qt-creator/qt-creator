@@ -716,6 +716,7 @@ QStringList Qt4PriFileNode::varNames(FileType type)
     switch (type) {
     case ProjectExplorer::HeaderType:
         vars << QLatin1String("HEADERS");
+        vars << QLatin1String("OBJECTIVE_HEADERS");
         break;
     case ProjectExplorer::SourceType:
         vars << QLatin1String("SOURCES");
