@@ -216,11 +216,11 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
     QString line = QString::fromLocal8Bit(m_process->readAllStandardError()).trimmed();
     if (!line.isEmpty())
-        stdOut(line);
+        stdError(line);
 
     line = QString::fromLocal8Bit(m_process->readAllStandardOutput()).trimmed();
     if (!line.isEmpty())
-        stdError(line);
+        stdOut(line);
 
     m_eventLoop->exit(0);
 }

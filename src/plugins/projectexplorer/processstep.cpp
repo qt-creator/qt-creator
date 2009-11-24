@@ -70,6 +70,9 @@ bool ProcessStep::init()
         wd = "$BUILDDIR";
 
     AbstractProcessStep::setWorkingDirectory(wd.replace("$BUILDDIR", project()->buildDirectory(buildConfiguration())));
+    AbstractProcessStep::setCommand(m_command);
+    AbstractProcessStep::setEnabled(m_enabled);
+    AbstractProcessStep::setArguments(m_arguments);
     return AbstractProcessStep::init();
 }
 
