@@ -166,14 +166,16 @@ bool CompletionWidget::event(QEvent *e)
                 closeList(currentIndex());
             return true;
         case Qt::Key_Up:
-            if (currentIndex().row() == 0) {
+            if (!ke->isAutoRepeat()
+                && currentIndex().row() == 0) {
                 setCurrentIndex(model()->index(model()->rowCount()-1, 0));
                 return true;
             }
             forwardKeys = false;
             break;
         case Qt::Key_Down:
-            if (currentIndex().row() == model()->rowCount()-1) {
+            if (!ke->isAutoRepeat()
+                && currentIndex().row() == model()->rowCount()-1) {
                 setCurrentIndex(model()->index(0, 0));
                 return true;
             }

@@ -48,8 +48,6 @@ CppHighlighter::CppHighlighter(QTextDocument *document) :
 
 void CppHighlighter::highlightBlock(const QString &text)
 {
-    QTextCharFormat emptyFormat;
-
     const int previousState = previousBlockState();
     int state = 0, initialBraceDepth = 0;
     if (previousState != -1) {
@@ -226,7 +224,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         if (oldState == tokenize.state() && oldBraceDepth != braceDepth) {
             int delta = braceDepth - oldBraceDepth;
             QTextBlock block = currentBlock().next();
-            while (block.isValid()) {
+            while (block.isValid() && block.userState() != -1) {
                 TextEditDocumentLayout::changeBraceDepth(block, delta);
                 block = block.next();
             }

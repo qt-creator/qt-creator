@@ -169,7 +169,7 @@ bool patchDebugLibrariesWithQtPath(const char *baseQtPath)
         { "/bin/QtCored4.dll" },
         { "/bin/QtGuid4.dll" },
         { "/bin/QtHelpd4.dll" },
-        { "/bin/QtNetworkd4.dll" },
+        { "/bin/QtMultimediad4.dll" },
         { "/bin/QtNetworkd4.dll" },
         { "/bin/QtOpenGLd4.dll" },
         { "/bin/QtScriptd4.dll" },

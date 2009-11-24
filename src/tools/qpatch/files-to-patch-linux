@@ -62,3 +62,4 @@ lib/pkgconfig/QtWebKit.pc
 lib/pkgconfig/QtXmlPatterns.pc
 lib/pkgconfig/QtXml.pc
 mkspecs/qconfig.pri
+.qmake.cache
