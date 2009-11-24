@@ -12,8 +12,7 @@ defineReplace(cleanPath) {
 }
 
 defineReplace(targetPath) {
-    win32:1 ~= s|/|\|g
-    return($$1)
+    return($$replace(1, /, $$QMAKE_DIR_SEP))
 }
 
 # For use in custom compilers which just copy files
