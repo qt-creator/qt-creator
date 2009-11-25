@@ -68,21 +68,25 @@ public:
     // Adds a widget
     void addWidget(QWidget *widget);
     void addWidget(const QString &name, QWidget *widget);
-    void removeWidget(QWidget *widget);
 
     // Removes all widgets and deletes them
     void clear();
-private:
 
+private:
     struct Panel
     {
+        // This does not take ownership of widget!
+        explicit Panel(QWidget * widget);
+        ~Panel();
+
         QSpacerItem *spacer;
         QLabel *nameLabel;
         QWidget *panelWidget;
         QHBoxLayout *marginLayout;
     };
+    QList<Panel *> m_panels;
+    
     QVBoxLayout *m_layout;
-    QList<Panel> m_panels;
 };
 
 class BuildConfigurationComboBox : public QStackedWidget

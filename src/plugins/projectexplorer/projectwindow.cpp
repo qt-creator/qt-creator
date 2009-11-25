@@ -90,6 +90,21 @@ public:
 };
 
 ///
+// PanelsWidget::Panel
+///
+
+PanelsWidget::Panel::Panel(QWidget * w) :
+        spacer(0), nameLabel(0), panelWidget(w), marginLayout(0)
+{ }
+
+PanelsWidget::Panel::~Panel()
+{
+    delete spacer;
+    delete nameLabel;
+    delete marginLayout;
+}
+
+///
 // PanelsWidget
 ///
 
@@ -123,74 +138,42 @@ PanelsWidget::~PanelsWidget()
 
 void PanelsWidget::addWidget(QWidget *widget)
 {
-    Panel p;
-    p.spacer = 0;
-    p.nameLabel = 0;
-    p.panelWidget = widget;
-
-    p.marginLayout = 0;
+    Panel *p = new Panel(widget);
     m_layout->insertWidget(m_layout->count() - 1, widget);
     m_panels.append(p);
 }
 
 void PanelsWidget::addWidget(const QString &name, QWidget *widget)
 {
-
-
-    Panel p;
-    p.spacer = new QSpacerItem(1, 10, QSizePolicy::Fixed, QSizePolicy::Fixed);
-    p.nameLabel = new QLabel(this);
-    p.nameLabel->setText(name);
-    QFont f = p.nameLabel->font();
+    Panel *p = new Panel(widget);
+    p->spacer = new QSpacerItem(1, 10, QSizePolicy::Fixed, QSizePolicy::Fixed);
+    p->nameLabel = new QLabel(this);
+    p->nameLabel->setText(name);
+    QFont f = p->nameLabel->font();
     f.setBold(true);
     f.setPointSizeF(f.pointSizeF() * 1.2);
-    p.nameLabel->setFont(f);
+    p->nameLabel->setFont(f);
 
-    p.panelWidget = widget;
-
-    m_layout->insertSpacerItem(m_layout->count() - 1, p.spacer);
-    m_layout->insertWidget(m_layout->count() - 1, p.nameLabel);
+    m_layout->insertSpacerItem(m_layout->count() - 1, p->spacer);
+    m_layout->insertWidget(m_layout->count() - 1, p->nameLabel);
     QHBoxLayout *hboxLayout = new QHBoxLayout();
     hboxLayout->setContentsMargins(20, 0, 0, 0);
-    hboxLayout->addWidget(p.panelWidget);
-    p.marginLayout = hboxLayout;
+    hboxLayout->addWidget(p->panelWidget);
+    p->marginLayout = hboxLayout;
     m_layout->insertLayout(m_layout->count() -1, hboxLayout);
     m_panels.append(p);
 }
 
 void PanelsWidget::clear()
 {
-    foreach(Panel p, m_panels) {
-        if (p.spacer) {
-            m_layout->removeItem(p.spacer);
-            delete p.spacer;
-        }
-        delete p.nameLabel;
-        delete p.panelWidget;
-        delete p.marginLayout;
+    foreach(Panel * p, m_panels) {
+        if (p->spacer)
+            m_layout->removeItem(p->spacer);
+        if (p->nameLabel)
+            m_layout->removeWidget(p->nameLabel);
+        delete p;
     }
     m_panels.clear();
-}
-
-void PanelsWidget::removeWidget(QWidget *widget)
-{
-    for(int i=0; i<m_panels.count(); ++i) {
-        const Panel & p = m_panels.at(i);
-        if (p.panelWidget == widget) {
-            if (p.spacer) {
-                m_layout->removeItem(p.spacer);
-                delete p.spacer;
-            }
-            if (p.marginLayout)
-                p.marginLayout->removeWidget(p.panelWidget);
-            else
-                m_layout->removeWidget(p.panelWidget);
-            delete p.nameLabel;
-            delete p.marginLayout;
-            m_panels.removeAt(i);
-            break;
-        }
-    }
 }
 
 ////
@@ -662,11 +645,11 @@ ProjectWindow::ProjectWindow(QWidget *parent)
 
     m_panelsWidget = new PanelsWidget(this);
 
+    // active configuration widget:
     m_activeConfigurationWidget = new ActiveConfigurationWidget(m_panelsWidget);
 
-    m_panelsWidget->addWidget(tr("Active Build and Run Configurations"), m_activeConfigurationWidget);
-
-    m_spacerBetween = new QWidget(this);
+    // spacer with line:
+    m_spacerBetween = new QWidget(m_panelsWidget);
     QVBoxLayout *vbox = new QVBoxLayout(m_spacerBetween);
     vbox->setMargin(0);
     m_spacerBetween->setLayout(vbox);
@@ -674,8 +657,7 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     vbox->addWidget(new OnePixelBlackLine(m_spacerBetween));
     vbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
 
-    m_panelsWidget->addWidget(m_spacerBetween);
-
+    // project chooser:
     m_projectChooser = new QWidget(m_panelsWidget);
     QHBoxLayout *hbox = new QHBoxLayout(m_projectChooser);
     hbox->setMargin(0);
@@ -692,8 +674,7 @@ ProjectWindow::ProjectWindow(QWidget *parent)
             label, SLOT(setProject(ProjectExplorer::Project*)));
     hbox->addWidget(changeProject);
 
-    m_panelsWidget->addWidget(m_projectChooser);
-
+    // Overall layout:
     QVBoxLayout *topLevelLayout = new QVBoxLayout(this);
     topLevelLayout->setMargin(0);
     topLevelLayout->setSpacing(0);
@@ -727,6 +708,9 @@ ProjectWindow::ProjectWindow(QWidget *parent)
             this, SLOT(projectAdded()));
     connect(session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(projectRemoved()));
+
+    // Update properties to empty project for now:
+    showProperties(0);
 }
 
 ProjectWindow::~ProjectWindow()
@@ -764,20 +748,19 @@ void ProjectWindow::showProperties(Project *project)
     if (debug)
         qDebug() << "ProjectWindow - showProperties called";
 
-    m_panelsWidget->removeWidget(m_activeConfigurationWidget);
-    m_panelsWidget->removeWidget(m_spacerBetween);
-    m_panelsWidget->removeWidget(m_projectChooser);
-
-    // Remove the tabs from the tab widget first
+    // Remove all existing panels:
     m_panelsWidget->clear();
 
+    // delete custom panels:
     qDeleteAll(m_panels);
     m_panels.clear();
 
+    // Set up our default panels again:
     m_panelsWidget->addWidget(tr("Active Build and Run Configurations"), m_activeConfigurationWidget);
     m_panelsWidget->addWidget(m_spacerBetween);
     m_panelsWidget->addWidget(m_projectChooser);
 
+    // Set up custom panels again:
     if (project) {
         QList<IPanelFactory *> pages =
                 ExtensionSystem::PluginManager::instance()->getObjects<IPanelFactory>();

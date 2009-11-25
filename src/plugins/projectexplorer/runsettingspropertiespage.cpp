@@ -111,7 +111,7 @@ RunSettingsPanel::RunSettingsPanel(Project *project)
 
 RunSettingsPanel::~RunSettingsPanel()
 {
-
+    delete m_widget;
 }
 
 QString RunSettingsPanel::name() const
