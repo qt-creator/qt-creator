@@ -35,6 +35,7 @@
 #include "eventfilteringmainwindow.h"
 
 #include <QtCore/QMap>
+#include <QtGui/QColor>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -120,6 +121,8 @@ public:
     void updateContext();
 
     void setSuppressNavigationWidget(bool suppress);
+
+    void setOverrideColor(const QColor &color);
 
 signals:
     void windowActivated();
@@ -219,6 +222,7 @@ private:
 #endif
 
     QToolButton *m_toggleSideBarButton;
+    QColor m_overrideColor;
 };
 
 } // namespace Internal

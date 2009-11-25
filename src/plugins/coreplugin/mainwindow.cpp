@@ -228,6 +228,11 @@ void MainWindow::setSuppressNavigationWidget(bool suppress)
         m_navigationWidget->setSuppressed(suppress);
 }
 
+void MainWindow::setOverrideColor(const QColor &color)
+{
+    m_overrideColor = color;
+}
+
 MainWindow::~MainWindow()
 {
     hide();
@@ -1103,7 +1108,10 @@ void MainWindow::readSettings()
 {
     m_settings->beginGroup(QLatin1String(settingsGroup));
 
-    Utils::StyleHelper::setBaseColor(m_settings->value(QLatin1String(colorKey)).value<QColor>());
+    if (m_overrideColor.isValid())
+        Utils::StyleHelper::setBaseColor(m_overrideColor);
+    else
+        Utils::StyleHelper::setBaseColor(m_settings->value(QLatin1String(colorKey)).value<QColor>());
 
     const QVariant geom = m_settings->value(QLatin1String(geometryKey));
     if (geom.isValid()) {
@@ -1126,7 +1134,8 @@ void MainWindow::writeSettings()
 {
     m_settings->beginGroup(QLatin1String(settingsGroup));
 
-    m_settings->setValue(QLatin1String(colorKey), Utils::StyleHelper::baseColor());
+    if (!(m_overrideColor.isValid() && Utils::StyleHelper::baseColor() == m_overrideColor))
+        m_settings->setValue(QLatin1String(colorKey), Utils::StyleHelper::baseColor());
 
     if (windowState() & (Qt::WindowMaximized | Qt::WindowFullScreen)) {
         m_settings->setValue(QLatin1String(maxKey), (bool) (windowState() & Qt::WindowMaximized));

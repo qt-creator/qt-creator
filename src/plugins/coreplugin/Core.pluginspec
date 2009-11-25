@@ -12,4 +12,7 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     </license>
     <description>The core plugin for the Qt IDE.</description>
     <url>http://qt.nokia.com</url>
+    <argumentList>
+        <argument name="-color" parameter="color">Override selected UI color</argument>
+    </argumentList>
 </plugin>

@@ -54,6 +54,8 @@ public slots:
     void remoteArgument(const QString&);
 
 private:
+    void parseArguments(const QStringList & arguments);
+
     MainWindow *m_mainWindow;
     EditMode *m_editMode;
 };

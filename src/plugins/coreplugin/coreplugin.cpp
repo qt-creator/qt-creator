@@ -37,6 +37,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QtPlugin>
+#include <QtCore/QDebug>
 
 using namespace Core::Internal;
 
@@ -58,9 +59,20 @@ CorePlugin::~CorePlugin()
     delete m_mainWindow;
 }
 
+void CorePlugin::parseArguments(const QStringList &arguments)
+{
+    for (int i = 0; i < arguments.size() - 1; i++) {
+        if (arguments.at(i) == QLatin1String("-color")) {
+            const QString colorcode(arguments.at(i + 1));
+            m_mainWindow->setOverrideColor(QColor(colorcode));
+            i++; // skip the argument
+        }
+    }
+}
+
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments)
+    parseArguments(arguments);
     const bool success = m_mainWindow->init(errorMessage);
     if (success) {
         EditorManager *editorManager = m_mainWindow->editorManager();
