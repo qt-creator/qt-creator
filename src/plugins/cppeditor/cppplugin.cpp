@@ -227,7 +227,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     Core::Command *cmd;
     Core::ActionContainer *cppToolsMenu = am->actionContainer(QLatin1String(CppTools::Constants::M_TOOLS_CPP));
 
-    QAction *jumpToDefinition = new QAction(tr("Follow Symbol under Cursor"), this);
+    QAction *jumpToDefinition = new QAction(tr("Follow Symbol Under Cursor"), this);
     cmd = am->registerAction(jumpToDefinition,
         Constants::JUMP_TO_DEFINITION, context);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
@@ -236,7 +236,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
-    QAction *switchDeclarationDefinition = new QAction(tr("Switch between Method Declaration/Definition"), this);
+    QAction *switchDeclarationDefinition = new QAction(tr("Switch Between Method Declaration/Definition"), this);
     cmd = am->registerAction(switchDeclarationDefinition,
         Constants::SWITCH_DECLARATION_DEFINITION, context);
     cmd->setDefaultKeySequence(QKeySequence("Shift+F2"));
@@ -252,7 +252,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
-    m_renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol under Cursor"), this);
+    m_renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol Under Cursor"), this);
     cmd = am->registerAction(m_renameSymbolUnderCursorAction,
         Constants::RENAME_SYMBOL_UNDER_CURSOR, context);
     cmd->setDefaultKeySequence(QKeySequence("CTRL+SHIFT+R"));
