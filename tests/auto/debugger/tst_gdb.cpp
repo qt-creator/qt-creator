@@ -66,6 +66,8 @@ QString gdbBinary = "./gdb";
 
 void nothing() {}
 
+template <typename T> QByteArray N(T v) { return QByteArray::number(v); }
+
 class Foo
 {
 public:
@@ -75,7 +77,7 @@ public:
 
     ~Foo()
     {
-    } 
+    }
 
     void doit()
     {
@@ -257,16 +259,10 @@ public slots:
 private:
 #if 0
     void dump_QAbstractItemModelHelper(QAbstractItemModel &m);
-    void dump_QDateTimeHelper(const QDateTime &d);
-    void dump_QFileHelper(const QString &name, bool exists);
-    void dump_QImageHelper(const QImage &img);
-    void dump_QImageDataHelper(QImage &img);
-    void dump_QLocaleHelper(QLocale &loc);
     void dump_QObjectChildListHelper(QObject &o);
     void dump_QObjectSignalHelper(QObject &o, int sigNum);
 #endif
 
-private:
     QHash<QByteArray, int> m_lineForLabel;
     QByteArray m_function;
     Thread m_thread;
@@ -310,18 +306,19 @@ static const QByteArray utfToHex(const QString &string)
 
 static const QByteArray specQString(const QString &str)
 {
-    return "valueencoded='7',value='" + utfToHex(str).toHex() + "',"
-        "type='"NS"QString',numchild='0'";
+    return "valueencoded='7',value='" + utfToHex(str) + "'";
 }
 
 static const QByteArray specQChar(QChar ch)
 {
-    return "valueencoded='7',value='" +
-         utfToHex(QString(QLatin1String("'%1' (%2, 0x%3)")).
-                   arg(ch).arg(ch.unicode()).arg(ch.unicode(), 0, 16)) + "',"
-        "type='"NS"QChar',numchild='0'";
+    return QByteArray("value=''") + char(ch.unicode()) + "' ("
+        + QByteArray::number(ch.unicode()) + ")'";
+    //return "valueencoded='7',value='" +
+    //    utfToHex(QString(QLatin1String("'%1' (%2)")).
+    //              arg(ch).arg(ch.unicode())) + "'";
 }
 
+/*
 static const char *boolToVal(bool b)
 {
     return b ? "'true'" : "'false'";
@@ -334,15 +331,16 @@ static const QByteArray specBool(bool b)
 
 static const QByteArray specLong(long n)
 {
-    return "value='" + QByteArray::number(qlonglong(n)) + "',type='long',numchild='0'";
+    return "value='" + N(qlonglong(n)) + "',type='long',numchild='0'";
 }
+*/
 
 #if 0
 static const QByteArray ptrToBa(const void *p, bool symbolicNull = true)
 {
     return QByteArray().append(p == 0 && symbolicNull ?
         "<null>" :
-        QByteArray("0x") + QByteArray::number((quintptr) p, 16));
+        QByteArray("0x") + N((quintptr) p, 16));
 }
 
 static const QByteArray generateIntSpec(int n)
@@ -507,7 +505,7 @@ void Thread::handleGdbFinished(int code, QProcess::ExitStatus st)
     qDebug() << "GDB FINISHED: " << code << st;
     //m_waitCondition.wakeAll();
     //this->exit();
-    throw 42;
+    //throw 42;
 }
 
 void Thread::readStandardOutput()
@@ -531,7 +529,7 @@ void Thread::readStandardOutput()
     }
 
     // The "call" is always aborted with a message like:
-    //  "~"2321\t    /* A */ QString s;\n" " 
+    //  "~"2321\t    /* A */ QString s;\n" "
     //  "&"The program being debugged stopped while in a function called ..."
     //  "^error,msg="The program being debugged stopped ..."
     // Extract the "2321" from this
@@ -612,7 +610,7 @@ void tst_Gdb::initTestCase()
 {
 #ifndef Q_CC_GNU
     QSKIP("gdb test not applicable for compiler", SkipAll);
-#endif   
+#endif
     //qDebug() << "\nTHREAD RUN" << getpid() << gettid();
     QProcess *gdbProc = new QProcess;
     QStringList args;
@@ -667,7 +665,7 @@ void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
 {
     //qDebug() << "\nABOUT TO RUN TEST: " << expanded;
     qWarning() << label << "...";
-    writeToGdb("bb " + QByteArray::number(int(fancy)) + " " + expanded);
+    writeToGdb("bb " + N(int(fancy)) + " " + expanded);
     m_mutex.lock();
     m_waitCondition.wait(&m_mutex);
     QByteArray ba = m_thread.m_output;
@@ -703,7 +701,7 @@ void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
     } else {
         qWarning() << "!= size: " << l1.size() << l2.size();
     }
-    
+
     if (!ok) {
         int i = 0;
         for ( ; i < l1.size() && i < l2.size(); ++i) {
@@ -715,9 +713,9 @@ void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
                 ok = false;
             }
         }
-        for ( ; i < l2.size(); ++i) 
+        for ( ; i < l2.size(); ++i)
             qWarning() << "!= " << "-----" << l2.at(i);
-        for ( ; i < l1.size(); ++i) 
+        for ( ; i < l1.size(); ++i)
             qWarning() << "!= " << l1.at(i) << "-----";
         if (l1.size() != l2.size()) {
             ok = false;
@@ -1092,7 +1090,7 @@ void dump_QAbstractItemModel()
     /* A */ QStringList strList;
             strList << "String 1";
             QStringListModel model1(strList);
-            QStandardItemModel model2(0, 2); 
+            QStandardItemModel model2(0, 2);
     /* B */ model1.setStringList(strList);
     /* C */ strList << "String 2";
     /* D */ model1.setStringList(strList);
@@ -1107,7 +1105,7 @@ void tst_Gdb::dump_QAbstractItemModel()
 {
     #ifdef QT_GUI_LIB
     /* A */ QStringList strList;
-    QString template_ = 
+    QString template_ =
         "{iname='local.strList',name='strList',type='"NS"QStringList',"
             "value='<%1 items>',numchild='%1'},"
         "{iname='local.model1',name='model1',type='"NS"QStringListModel',"
@@ -1190,27 +1188,27 @@ void tst_Gdb::dump_QChar()
 
     // Case 1: Printable ASCII character.
     run("B","{iname='local.c',name='c',type='"NS"QChar',"
-        "value=''X', ucs=88',numchild='0'}");
+        "value=''X' (88)',numchild='0'}");
     next();
 
     // Case 2: Printable non-ASCII character.
     run("C","{iname='local.c',name='c',type='"NS"QChar',"
-        "value=''?', ucs=1536',numchild='0'}");
+        "value=''?' (1536)',numchild='0'}");
     next();
 
     // Case 3: Non-printable ASCII character.
     run("D","{iname='local.c',name='c',type='"NS"QChar',"
-        "value=''?', ucs=7',numchild='0'}");
+        "value=''?' (7)',numchild='0'}");
     next();
 
     // Case 4: Non-printable non-ASCII character.
     run("E","{iname='local.c',name='c',type='"NS"QChar',"
-        "value=''?', ucs=159',numchild='0'}");
+        "value=''?' (159)',numchild='0'}");
     next();
 
     // Case 5: Printable ASCII Character that looks like the replacement character.
     run("F","{iname='local.c',name='c',type='"NS"QChar',"
-        "value=''?', ucs=63',numchild='0'}");
+        "value=''?' (63)',numchild='0'}");
 }
 
 
@@ -1219,7 +1217,7 @@ void tst_Gdb::dump_QChar()
 void dump_QDateTime()
 {
     #ifndef QT_NO_DATESTRING
-    /* A */ QDateTime d; 
+    /* A */ QDateTime d;
     /* B */ d = QDateTime::fromString("M5d21y7110:31:02", "'M'M'd'd'y'yyhh:mm:ss");
     /* C */ (void) d.isNull();
     #endif
@@ -1325,19 +1323,19 @@ void tst_Gdb::dump_QFile()
     prepare("dump_QFile");
     next(4);
     run("D", "{iname='local.file1',name='file1',type='"NS"QFile',"
-            "value='',valueencoded='7',numchild='2',children=["
+            "valueencoded='7',value='',numchild='2',children=["
                 "{name='fileName',type='"NS"QString',"
                     "valueencoded='7',value='',numchild='0'},"
                 "{name='exists',type='bool',value='false',numchild='0'}"
             "]},"
         "{iname='local.file2',name='file2',type='"NS"QTemporaryFile',"
-            "value='-',valueencoded='7',numchild='2',children=["
+            "valueencoded='7',value='-',numchild='2',children=["
                 "{name='fileName',type='"NS"QString',"
                     "valueencoded='7',value='-',numchild='0'},"
                 "{name='exists',type='bool',value='true',numchild='0'}"
             "]},"
         "{iname='local.file3',name='file3',type='"NS"QFile',"
-            "value='-',valueencoded='7',numchild='2',children=["
+            "valueencoded='7',value='-',numchild='2',children=["
                 "{name='fileName',type='"NS"QString',"
                     "valueencoded='7',value='-',numchild='0'},"
                 "{name='exists',type='bool',value='false',numchild='0'}"
@@ -1351,16 +1349,17 @@ void tst_Gdb::dump_QFile()
 void dump_QFileInfo()
 {
     /* A */ QFileInfo fi(".");
-    /* B */ (void) fi.baseName(); }
+    /* B */ (void) fi.baseName().size();
+}
 
 void tst_Gdb::dump_QFileInfo()
 {
     QFileInfo fi(".");
     prepare("dump_QFileInfo");
     next();
-    run("B", "{iname='local.image',name='image',type='"NS"QFileInfo',"
-        "value='" + utfToHex(fi.filePath()) + "',valueencoded='2',numchild='3',"
-        "children=["
+    run("B", "{iname='local.fi',name='fi',type='"NS"QFileInfo',"
+        "valueencoded='7',value='" + utfToHex(fi.filePath()) + "',numchild='3',"
+        "childtype='"NS"QString',childnumchild='0',children=["
         "{name='absolutePath'," + specQString(fi.absolutePath()) + "},"
         "{name='absoluteFilePath'," + specQString(fi.absoluteFilePath()) + "},"
         "{name='canonicalPath'," + specQString(fi.canonicalPath()) + "},"
@@ -1374,30 +1373,30 @@ void tst_Gdb::dump_QFileInfo()
 #endif
         "{name='fileName'," + specQString(fi.fileName()) + "},"
         "{name='filePath'," + specQString(fi.filePath()) + "},"
-        "{name='group'," + specQString(fi.group()) + "},"
-        "{name='owner'," + specQString(fi.owner()) + "},"
+        //"{name='group'," + specQString(fi.group()) + "},"
+        //"{name='owner'," + specQString(fi.owner()) + "},"
         "{name='path'," + specQString(fi.path()) + "},"
-        "{name='groupid'," + specLong(fi.groupId()) + "},"
-        "{name='ownerid'," + specLong(fi.ownerId()) + "},"
-        "{name='permissions'," + specLong(fi.permissions()) + "},"
-        "{name='caching'," + specBool(fi.caching()) + "},"
-        "{name='exists'," + specBool(fi.exists()) + "},"
-        "{name='isAbsolute'," + specBool(fi.isAbsolute()) + "},"
-        "{name='isDir'," + specBool(fi.isDir()) + "},"
-        "{name='isExecutable'," + specBool(fi.isExecutable()) + "},"
-        "{name='isFile'," + specBool(fi.isFile()) + "},"
-        "{name='isHidden'," + specBool(fi.isHidden()) + "},"
-        "{name='isReadable'," + specBool(fi.isReadable()) + "},"
-        "{name='isRelative'," + specBool(fi.isRelative()) + "},"
-        "{name='isRoot'," + specBool(fi.isRoot()) + "},"
-        "{name='isSymLink'," + specBool(fi.isSymLink()) + "},"
-        "{name='isWritable'," + specBool(fi.isWritable()) + "},"
-        "{name='created',value='" + utfToHex(fi.created().toString()) + "',"
-            "valueencoded='2',type='"NS"QDateTime',numchild='1'},"
-        "{name='lastModified',value='" + utfToHex(fi.lastModified().toString()) +
-            "',valueencoded='2',type='"NS"QDateTime',numchild='1'},"
-        "{name='lastRead',value='" +  utfToHex(fi.lastRead().toString()) +
-            "',valueencoded='2',type='"NS"QDateTime',numchild='1'}]"
+        "{name='groupid',type='unsigned int',value='" + N(fi.groupId()) + "'},"
+        "{name='ownerid',type='unsigned int',value='" + N(fi.ownerId()) + "'},"
+        "{name='permissions',value=' ',type='"NS"QFile::Permissions',numchild='10'},"
+        "{name='caching',type='bool',value='true'},"
+        "{name='exists',type='bool',value='true'},"
+        "{name='isAbsolute',type='bool',value='false'},"
+        "{name='isDir',type='bool',value='true'},"
+        "{name='isExecutable',type='bool',value='true'},"
+        "{name='isFile',type='bool',value='false'},"
+        "{name='isHidden',type='bool',value='false'},"
+        "{name='isReadable',type='bool',value='true'},"
+        "{name='isRelative',type='bool',value='true'},"
+        "{name='isRoot',type='bool',value='false'},"
+        "{name='isSymLink',type='bool',value='false'},"
+        "{name='isWritable',type='bool',value='true'},"
+        "{name='created',type='"NS"QDateTime',"
+            + specQString(fi.created().toString()) + ",numchild='3'},"
+        "{name='lastModified',type='"NS"QDateTime',"
+            + specQString(fi.lastModified().toString()) + ",numchild='3'},"
+        "{name='lastRead',type='"NS"QDateTime',"
+            + specQString(fi.lastRead().toString()) + ",numchild='3'}]}",
         "local.fi");
 }
 
@@ -1426,7 +1425,7 @@ void dump_QImage()
     /* C */ image = QImage(100, 0, QImage::Format_Invalid); // Invalid image.
     /* D */ (void) image.size();
     #endif
-} 
+}
 
 void tst_Gdb::dump_QImage()
 {
@@ -1463,29 +1462,27 @@ void tst_Gdb::dump_QImageData()
 
 void dump_QLocale()
 {
-    /* A */ QLocale english(QLocale::English);
-            QLocale german(QLocale::German);
+    /* A */ QLocale german(QLocale::German);
             QLocale chinese(QLocale::Chinese);
             QLocale swahili(QLocale::Swahili);
-    /* C */ (void) (english.name() + german.name() + chinese.name() + swahili.name());
+    /* C */ (void) (german.name() + chinese.name() + swahili.name());
 }
 
 QByteArray dump_QLocaleHelper(const QLocale &loc)
 {
     return "type='"NS"QLocale',valueencoded='7',value='" + utfToHex(loc.name()) +
-            "',numchild='8',children=["
-         "{name='country',"
-            + specQString(QLocale::countryToString(loc.country())) + "},"
-         "{name='language',"
-            + specQString(QLocale::languageToString(loc.language())) + "},"
-         "{name='measurementSystem',"
-            + QByteArray::number(loc.measurementSystem()) + "},"
-         "{name='numberOptions',"
-            + QByteArray::number(loc.numberOptions()) + "},"
-         "{name='timeFormat_(short)',"
+            "',numchild='8',childtype='"NS"QChar',childnumchild='0',children=["
+         "{name='country',type='"NS"QLocale::Country',value='-'},"
+         "{name='language',type='"NS"QLocale::Language',value='-'},"
+         "{name='measurementSystem',type='"NS"QLocale::MeasurementSystem',"
+            "value='-'},"
+         "{name='numberOptions',type='"NS"QFlags<myns::QLocale::NumberOption>',"
+            "value='-'},"
+         "{name='timeFormat_(short)',type='"NS"QString',"
             + specQString(loc.timeFormat(QLocale::ShortFormat)) + "},"
-         "{name='timeFormat_(long)'," + specQString(loc.timeFormat()) + "},"
-         "{name='decimalPoint'," +  specQChar(loc.decimalPoint()) + "},"
+         "{name='timeFormat_(long)',type='"NS"QString',"
+            + specQString(loc.timeFormat()) + "},"
+         "{name='decimalPoint'," + specQChar(loc.decimalPoint()) + "},"
          "{name='exponential'," + specQChar(loc.exponential()) + "},"
          "{name='percent'," + specQChar(loc.percent()) + "},"
          "{name='zeroDigit'," + specQChar(loc.zeroDigit()) + "},"
@@ -1495,7 +1492,6 @@ QByteArray dump_QLocaleHelper(const QLocale &loc)
 
 void tst_Gdb::dump_QLocale()
 {
-    QLocale english(QLocale::English);
     QLocale german(QLocale::German);
     QLocale chinese(QLocale::Chinese);
     QLocale swahili(QLocale::Swahili);
@@ -1505,15 +1501,13 @@ void tst_Gdb::dump_QLocale()
             "type='"NS"QLocale',value='<invalid>',"
             "numchild='0'}");
     next(3);
-    run("D","{iname='local.english',name='english',"
-            + dump_QLocaleHelper(english) + "},"
-        "{iname='local.german',name='german',"
+    run("C", "{iname='local.german',name='german',"
             + dump_QLocaleHelper(german) + "},"
         "{iname='local.chinese',name='chinese',"
             + dump_QLocaleHelper(chinese) + "},"
         "{iname='local.swahili',name='swahili',"
             + dump_QLocaleHelper(swahili) + "}",
-        "local.english,local.german,local.chinese,local.swahili");
+        "local.german,local.chinese,local.swahili");
 }
 
 ///////////////////////////// QHash<int, int> //////////////////////////////
@@ -1956,7 +1950,7 @@ void tst_Gdb::dump_QObject()
             "type='"NS"QObject',value='<invalid>',"
             "numchild='0'}");
     next(4);
-    
+
     run("G","{iname='local.ob',name='ob',type='"NS"QObject',valueencoded='7',"
       "value='41006e0020004f0062006a00650063007400',numchild='4',children=["
         "{name='parent',type='"NS"QObject *',"
@@ -2453,7 +2447,7 @@ void dump_QPixmap()
     /* C */ p = QPixmap(pixmap); // Case 3: Initialized non-null pixmap.
     /* D */ (void) p.size();
     #endif
-} 
+}
 
 void tst_Gdb::dump_QPixmap()
 {
@@ -2668,7 +2662,7 @@ void tst_Gdb::dump_QSharedPointer()
         "local.simplePtr,local.simplePtr2,local.simplePtr3,local.simplePtr4,"
         "local.compositePtr,local.compositePtr,local.compositePtr,"
         "local.compositePtr");
-    
+
 #endif
 }
 
@@ -2740,7 +2734,7 @@ void tst_Gdb::dump_QStack()
 void dump_QString()
 {
     /* A */ QString s;
-    /* B */ s = "hallo"; 
+    /* B */ s = "hallo";
     /* C */ s += "x";
     /* D */ (void) 0; }
 
@@ -2940,166 +2934,166 @@ void tst_Gdb::dump_QVariant()
     prepare("dump_QVariant");
     if (checkUninitialized) /*<invalid>*/
         run("A","{"PRE"'value=<invalid>',numchild='0'}");
-    next(); 
+    next();
     run("<invalid>", "{"PRE"value='<invalid>',numchild='0'}");
-    next(); 
+    next();
     run("QBitArray", "{"PRE"value='("NS"QBitArray)',numchild='1',children=["
         "{name='data',type='"NS"QBitArray',value='{...}',numchild='1'}]}",
         "local.v");
-    next(); 
+    next();
     //run("QBitMap", "{"PRE"value="NS"QBitMap'',numchild='1',children=["
     //    "]}", "local.v");
-    next(); 
+    next();
     run("bool", "{"PRE"value='true',numchild='0'}", "local.v");
-    next(); 
+    next();
     //run("QBrush", "{"PRE"value='"NS"QBrush',numchild='1',children=["
     //    "]}", "local.v");
-    next(); 
+    next();
     run("QByteArray", "{"PRE"value='("NS"QByteArray)',numchild='1',"
         "children=[{name='data',type='"NS"QByteArray',valueencoded='6',"
             "value='616263',numchild='3'}]}", "local.v");
-    next(); 
+    next();
     run("QChar", "{"PRE"value='("NS"QChar)',numchild='1',"
-        "children=[{name='data',type='"NS"QChar',value=''x', ucs=120',numchild='0'}]}", "local.v");
-    next(); 
+        "children=[{name='data',type='"NS"QChar',value=''x' (120)',numchild='0'}]}", "local.v");
+    next();
     //run("QColor", "{"PRE"value='("NS"QColor)',numchild='1',children=["
     //    "]}", "local.v");
-    next(); 
+    next();
     //run("QCursor", "{"PRE"value='',numchild='1',children=["
     //    "]}", "local.v");
-    next(); 
+    next();
     run("QDate", "{"PRE"value='("NS"QDate)',numchild='1',children=["
         "{name='data',type='"NS"QDate',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     run("QDateTime", "{"PRE"value='("NS"QDateTime)',numchild='1',children=["
-        "{name='data',type='"NS"QDateTime',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+        "{name='data',type='"NS"QDateTime',valueencoded='7',value='',numchild='3'}]}", "local.v");
+    next();
     run("double", "{"PRE"value='46',numchild='0'}", "local.v");
-    next(); 
+    next();
     //run("QFont", "{"PRE"value='(NS"QFont")',numchild='1',children=["
     //    "{name='data',type='"NS"QFont',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     run("QVariantHash", "{"PRE"value='("NS"QVariantHash)',numchild='1',children=["
         "{name='data',type='"NS"QHash<"NS"QString, "NS"QVariant>',"
             "value='<0 items>',numchild='0'}]}", "local.v");
-    next(); 
+    next();
     //run("QIcon", "{"PRE"value='("NS"QIcon)',numchild='1',children=["
     //    "{name='data',type='"NS"QIcon',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QImage", "{"PRE"value='("NS"QImage)',numchild='1',children=["
     //    "{name='data',type='"NS"QImage',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     run("int", "{"PRE"value='42',numchild='0'}", "local.v");
-    next(); 
+    next();
     //run("QKeySequence", "{"PRE"value='("NS"QKeySequence)',numchild='1'",
     //  "local.v");
-    next(); 
+    next();
     run("QLine", "{"PRE"value='("NS"QLine)',numchild='1',children=["
         "{name='data',type='"NS"QLine',value='{...}',numchild='2'}]}", "local.v");
-    next(); 
+    next();
     run("QLineF", "{"PRE"value='("NS"QLineF)',numchild='1',children=["
         "{name='data',type='"NS"QLineF',value='{...}',numchild='2'}]}", "local.v");
-    next(); 
+    next();
     run("QVariantList", "{"PRE"value='("NS"QVariantList)',numchild='1',children=["
         "{name='data',type='"NS"QList<"NS"QVariant>',"
             "value='<0 items>',numchild='0'}]}", "local.v");
-    next(); 
+    next();
     run("QLocale", "{"PRE"value='("NS"QLocale)',numchild='1',children=["
-        "{name='data',type='"NS"QLocale',value='{...}',numchild='2'}]}", "local.v");
-    next(); 
+        "{name='data',type='"NS"QLocale',valueencoded='7',value='-',numchild='8'}]}", "local.v");
+    next();
     run("qlonglong", "{"PRE"value='44',numchild='0'}", "local.v");
-    next(); 
+    next();
     run("QVariantMap", "{"PRE"value='("NS"QVariantMap)',numchild='1',children=["
         "{name='data',type='"NS"QMap<"NS"QString, "NS"QVariant>',"
             "value='<0 items>',numchild='0'}]}", "local.v");
-    next(); 
+    next();
     //run("QTransform", "{"PRE"value='("NS"QTransform)',numchild='1',children=["
     //    "{name='data',type='"NS"QTransform',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QMatrix4x4", "{"PRE"value='("NS"QMatrix4x4)',numchild='1',children=["
     //    "{name='data',type='"NS"QMatrix4x4',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QPalette", "{"PRE"value='("NS"QPalette)',numchild='1',children=["
     //    "{name='data',type='"NS"QPalette',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QPen", "{"PRE"value='("NS"QPen)',numchild='1',children=["
     //    "{name='data',type='"NS"QPen',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QPixmap", "{"PRE"value='("NS"QPixmap)',numchild='1',children=["
     //    "{name='data',type='"NS"QPixmap',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     run("QPoint", "{"PRE"value='("NS"QPoint)',numchild='1',children=["
         "{name='data',type='"NS"QPoint',value='(45, 46)',numchild='2'}]}",
             "local.v");
-    next(); 
+    next();
     //run("QPointArray", "{"PRE"value='("NS"QPointArray)',numchild='1',children=["
     //    "{name='data',type='"NS"QPointArray',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
 // FIXME
 //    run("QPointF", "{"PRE"value='("NS"QPointF)',numchild='1',children=["
 //        "{name='data',type='"NS"QPointF',value='(41, 42)',numchild='2'}]}",
 //            "local.v");
-    next(); 
+    next();
     //run("QPolygon", "{"PRE"value='("NS"QPolygon)',numchild='1',children=["
     //    "{name='data',type='"NS"QPolygon',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QQuaternion", "{"PRE"value='("NS"QQuaternion)',numchild='1',children=["
     //    "{name='data',type='"NS"QQuaternion',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
 // FIXME: Fix value
     run("QRect", "{"PRE"value='("NS"QRect)',numchild='1',children=["
         "{name='data',type='"NS"QRect',value='-',numchild='4'}]}", "local.v");
-    next(); 
+    next();
 // FIXME: Fix value
     run("QRectF", "{"PRE"value='("NS"QRectF)',numchild='1',children=["
         "{name='data',type='"NS"QRectF',value='-',numchild='4'}]}", "local.v");
-    next(); 
+    next();
     run("QRegExp", "{"PRE"value='("NS"QRegExp)',numchild='1',children=["
         "{name='data',type='"NS"QRegExp',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QRegion", "{"PRE"value='("NS"QRegion)',numchild='1',children=["
     //    "{name='data',type='"NS"QRegion',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     run("QSize", "{"PRE"value='("NS"QSize)',numchild='1',children=["
         "{name='data',type='"NS"QSize',value='(0, 0)',numchild='2'}]}", "local.v");
-    next(); 
+    next();
 
 // FIXME:
 //    run("QSizeF", "{"PRE"value='("NS"QSizeF)',numchild='1',children=["
 //        "{name='data',type='"NS"QSizeF',value='(0, 0)',numchild='2'}]}", "local.v");
-    next(); 
+    next();
     //run("QSizePolicy", "{"PRE"value='("NS"QSizePolicy)',numchild='1',children=["
     //    "{name='data',type='"NS"QSizePolicy',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     run("QString", "{"PRE"value='("NS"QString)',numchild='1',children=["
         "{name='data',type='"NS"QString',valueencoded='7',value='610062006300',numchild='0'}]}",
         "local.v");
-    next(); 
+    next();
     run("QStringList", "{"PRE"value='("NS"QStringList)',numchild='1',children=["
         "{name='data',type='"NS"QStringList',value='<1 items>',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QTextFormat", "{"PRE"value='("NS"QTextFormat)',numchild='1',children=["
     //    "{name='data',type='"NS"QTextFormat',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QTextLength", "{"PRE"value='("NS"QTextLength)',numchild='1',children=["
     //    "{name='data',type='"NS"QTextLength',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     run("QTime", "{"PRE"value='("NS"QTime)',numchild='1',children=["
         "{name='data',type='"NS"QTime',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     run("uint", "{"PRE"value='43',numchild='0'}", "local.v");
-    next(); 
+    next();
     run("qulonglong", "{"PRE"value='45',numchild='0'}", "local.v");
-    next(); 
+    next();
     run("QUrl", "{"PRE"value='("NS"QUrl)',numchild='1',children=["
         "{name='data',type='"NS"QUrl',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QVector2D", "{"PRE"value='("NS"QVector2D)',numchild='1',children=["
     //   "{name='data',type='"NS"QVector2D',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QVector3D", "{"PRE"value='("NS"QVector3D)',numchild='1',children=["
     //    "{name='data',type='"NS"QVector3D',value='{...}',numchild='1'}]}", "local.v");
-    next(); 
+    next();
     //run("QVector4D", "{"PRE"value='("NS"QVector4D)',numchild='1',children=["
     //    "{name='data',type='"NS"QVector4D',value='{...}',numchild='1'}]}", "local.v");
 }
@@ -3369,7 +3363,7 @@ void tst_Gdb::dump_std_list()
             "local.list");
 }
 
- 
+
 ///////////////////////////// std::map<int, int> //////////////////////////////
 
 void dump_std_map_int_int()
@@ -3419,7 +3413,7 @@ void tst_Gdb::dump_std_map_string_string()
 {
     QByteArray strType =
         "std::basic_string<char, std::char_traits<char>, std::allocator<char> >";
-    QByteArray pairType = 
+    QByteArray pairType =
         + "std::pair<" + strType + " const, " + strType + " >";
     QByteArray type = "std::map<" + strType + ", " + strType + ", "
         + "std::less<" + strType + " >, "
