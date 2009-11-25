@@ -3543,7 +3543,7 @@ void GdbEngine::updateLocals(const QVariant &cookie)
         manager()->watchHandler()->beginCycle();
         m_toolTipExpression.clear();
         QStringList expanded = m_manager->watchHandler()->expandedINames().toList();
-        postCommand(_("-interpreter-exec console \"bb %1 %2\"")
+        postCommand(_("-interpreter-exec console \"bb %1 0 %2\"")
                 .arg(int(theDebuggerBoolSetting(UseDebuggingHelpers)))
                 .arg(expanded.join(_(","))),
             CB(handleStackFrame));
@@ -4327,7 +4327,11 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
         return false;
     }
 
-    // Do this only after the process is running, so we get no needless error notifications
+    const QString dumperSourcePath =
+        Core::ICore::instance()->resourcePath() + _("/gdbmacros/");
+
+    // Do this only after the process is running, so we get no needless error
+    // notifications
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(handleGdbError(QProcess::ProcessError)));
     connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
@@ -4340,6 +4344,10 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     debugMessage(_("GDB STARTED, INITIALIZING IT"));
 
     postCommand(_("show version"), CB(handleShowVersion));
+
+    postCommand(_("source -p ") + dumperSourcePath + _("dumper.py"));
+    postCommand(_("source -p ") + dumperSourcePath + _("gdbmacros.py"));
+
     postCommand(_("-interpreter-exec console \"help bb\""),
         CB(handleIsSynchroneous));
     //postCommand(_("-enable-timings");

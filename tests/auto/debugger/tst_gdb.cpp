@@ -665,7 +665,7 @@ void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
 {
     //qDebug() << "\nABOUT TO RUN TEST: " << expanded;
     qWarning() << label << "...";
-    writeToGdb("bb " + N(int(fancy)) + " " + expanded);
+    writeToGdb("bb " + N(int(fancy)) + " 1 " + expanded);
     m_mutex.lock();
     m_waitCondition.wait(&m_mutex);
     QByteArray ba = m_thread.m_output;
@@ -1077,13 +1077,6 @@ QByteArray dump_QAbstractItemModelHelper(QAbstractItemModel &m)
 }
 */
 
-#ifdef QT_GUI_LIB
-QStandardItem item1("Item (0,0)");
-QStandardItem item2("Item (0,1)");
-QStandardItem item3("Item (1,0)");
-QStandardItem item4("Item (1,1)");
-#endif
-
 void dump_QAbstractItemModel()
 {
     #ifdef QT_GUI_LIB
@@ -1094,10 +1087,9 @@ void dump_QAbstractItemModel()
     /* B */ model1.setStringList(strList);
     /* C */ strList << "String 2";
     /* D */ model1.setStringList(strList);
-    /* E */ model2.appendRow(QList<QStandardItem *>() << &item1 << &item2);
-    /* F */ model2.appendRow(QList<QStandardItem *>() << &item3 << &item4);
-    /* G */ (void) (model1.rowCount() + model2.rowCount() + item1.row()
-                + item2.row() + item3.row() + item4.row() + strList.size());
+    /* E */ model2.appendRow(QList<QStandardItem *>() << (new QStandardItem("Item (0,0)")) << (new QStandardItem("Item (0,1)")));
+    /* F */ model2.appendRow(QList<QStandardItem *>() << (new QStandardItem("Item (1,0)")) << (new QStandardItem("Item (1,1)")));
+    /* G */ (void) (model1.rowCount() + model2.rowCount() + strList.size());
     #endif
 }
 
