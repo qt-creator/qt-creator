@@ -40,6 +40,7 @@ class GenericProject;
 
 class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
+    Q_OBJECT
 public:
     GenericBuildConfiguration(GenericProject *pro);
     GenericBuildConfiguration(GenericBuildConfiguration *source);

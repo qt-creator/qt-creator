@@ -40,6 +40,7 @@ namespace Internal {
 
 class Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
+    Q_OBJECT
 public:
     Qt4BuildConfiguration(Qt4Project *pro);
     // copy ctor

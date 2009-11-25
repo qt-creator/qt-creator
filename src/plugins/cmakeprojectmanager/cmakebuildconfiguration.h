@@ -39,6 +39,7 @@ class CMakeProject;
 
 class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
+    Q_OBJECT
 public:
     CMakeBuildConfiguration(CMakeProject *pro);
     CMakeBuildConfiguration(BuildConfiguration *source);
