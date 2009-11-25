@@ -542,8 +542,13 @@ bool isIntType(const QString &type)
         << QLatin1String("long") << QLatin1String("bool")
         << QLatin1String("signed char") << QLatin1String("unsigned")
         << QLatin1String("unsigned char") << QLatin1String("unsigned long")
-        << QLatin1String("long long")  << QLatin1String("unsigned long long");
-    return type.endsWith(QLatin1String(" int")) || types.contains(type);
+        << QLatin1String("long long")  << QLatin1String("unsigned long long")
+        << QLatin1String("qint16") << QLatin1String("quint16")
+        << QLatin1String("qint32") << QLatin1String("quint32")
+        << QLatin1String("qint64") << QLatin1String("quint64");
+    return type.endsWith(QLatin1String(" int"))
+            || type.endsWith(QLatin1String(" int64"))
+            || types.contains(type);
 }
 
 bool isSymbianIntType(const QString &type)
