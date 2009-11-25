@@ -296,9 +296,9 @@ QColor FormatDescription::background() const
         const QPalette palette = QApplication::palette();
         return palette.color(QPalette::Highlight);
     } else if (m_name == QLatin1String(Constants::C_OCCURRENCES)) {
-        return QColor(220, 220, 220);
+        return QColor(180, 180, 180);
     } else if (m_name == QLatin1String(Constants::C_OCCURRENCES_RENAME)) {
-        return QColor(255, 200, 200);
+        return QColor(255, 180, 180);
     } else if (m_name == QLatin1String(Constants::C_DISABLED_CODE)) {
         return QColor(239, 239, 239);
     }

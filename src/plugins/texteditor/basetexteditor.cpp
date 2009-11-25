@@ -126,6 +126,7 @@ protected:
 } // namespace Internal
 } // namespace TextEditor
 
+
 ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
                                           int line,
                                           int column,
@@ -173,6 +174,9 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
     d->m_extraArea = new TextEditExtraArea(this);
     d->m_extraArea->setMouseTracking(true);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+    d->m_overlay = new TextEditorOverlay(this);
+    d->m_searchResultOverlay = new TextEditorOverlay(this);
 
     d->setupDocumentSignals(d->m_document);
     d->setupDocumentSignals(d->m_document);
@@ -988,18 +992,10 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 
 
 #if 0
-    case Qt::Key_sterling: {
-
-        static bool toggle = false;
-        if ((toggle = !toggle)) {
-            QList<BaseTextEditor::BlockRange> rangeList;
-            rangeList += BaseTextEditor::BlockRange(4, 12);
-            rangeList += BaseTextEditor::BlockRange(15, 19);
-            setIfdefedOutBlocks(rangeList);
-        } else {
-            setIfdefedOutBlocks(QList<BaseTextEditor::BlockRange>());
-        }
-        e->accept();
+    case Qt::Key_Dollar: {
+            d->m_overlay->setVisible(!d->m_overlay->isVisible());
+            d->m_overlay->setCursor(textCursor());
+            e->accept();
         return;
 
     } break;
@@ -1716,7 +1712,7 @@ bool BaseTextEditor::viewportEvent(QEvent *event)
 void BaseTextEditor::resizeEvent(QResizeEvent *e)
 {
     QPlainTextEdit::resizeEvent(e);
-    QRect cr = viewport()->rect();
+    QRect cr = rect();
     d->m_extraArea->setGeometry(
         QStyle::visualRect(layoutDirection(), cr,
                            QRect(cr.left(), cr.top(), extraAreaWidth(), cr.height())));
@@ -1787,9 +1783,10 @@ QTextBlock BaseTextEditor::collapsedBlockAt(const QPoint &pos, QRect *box) const
     return QTextBlock();
 }
 
-void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
-                                                   QVector<QTextLayout::FormatRange> *selections)
+void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block)
 {
+    m_searchResultOverlay->clear();
+
     if (m_searchExpr.isEmpty())
         return;
 
@@ -1809,11 +1806,9 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
         if (m_findScope.isNull()
             || (block.position() + idx >= m_findScope.selectionStart()
                 && block.position() + idx + l <= m_findScope.selectionEnd())) {
-            QTextLayout::FormatRange selection;
-            selection.start = idx;
-            selection.length = l;
-            selection.format = m_searchResultFormat;
-            selections->append(selection);
+            m_searchResultOverlay->addOverlaySelection(block.position() + idx,
+                                                       block.position() + idx + l,
+                                                       m_searchResultFormat.background().color());
         }
     }
 }
@@ -2034,7 +2029,10 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QTextBlock visibleCollapsedBlock;
     QPointF visibleCollapsedBlockOffset;
 
-
+    QTextLayout *cursor_layout = 0;
+    QPointF cursor_offset;
+    int cursor_cpos = 0;
+    QPen cursor_pen;
 
     while (block.isValid()) {
 
@@ -2130,7 +2128,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                     selections.append(o);
                 }
             }
-            d->highlightSearchResults(block, &selections);
+            d->highlightSearchResults(block);
             selections += prioritySelections;
 
             bool drawCursor = ((editable || true) // we want the cursor in read-only mode
@@ -2154,6 +2152,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
 
             layout->draw(&painter, offset, selections, er);
+            d->m_searchResultOverlay->paint(&painter, er);
 
             if ((drawCursor && !drawCursorAsBlock)
                 || (editable && context.cursorPosition < -1
@@ -2163,8 +2162,12 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                     cpos = layout->preeditAreaPosition() - (cpos + 2);
                 else
                     cpos -= blpos;
-                layout->drawCursor(&painter, offset, cpos, cursorWidth());
+                cursor_layout = layout;
+                cursor_offset = offset;
+                cursor_cpos = cpos;
+                cursor_pen = painter.pen();
             }
+
         }
 
         offset.ry() += r.height();
@@ -2355,8 +2358,9 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
             QRectF r = blockBoundingRect(b).translated(visibleCollapsedBlockOffset);
             QTextLayout *layout = b.layout();
             QVector<QTextLayout::FormatRange> selections;
-            d->highlightSearchResults(b, &selections);
+            d->highlightSearchResults(b);
             layout->draw(&painter, visibleCollapsedBlockOffset, selections, er);
+            d->m_searchResultOverlay->paint(&painter, er);
 
             b.setVisible(false); // restore previous state
             visibleCollapsedBlockOffset.ry() += r.height();
@@ -2378,6 +2382,17 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         painter.setPen(QPen(col, 0));
         painter.drawLine(QPointF(lineX, 0), QPointF(lineX, viewport()->height()));
     }
+
+    if (d->m_overlay && d->m_overlay->isVisible())
+        d->m_overlay->paint(&painter, e->rect());
+
+
+    // draw the cursor last, on top of everything
+    if (cursor_layout) {
+        painter.setPen(cursor_pen);
+        cursor_layout->drawCursor(&painter, cursor_offset, cursor_cpos, cursorWidth());
+    }
+
 }
 
 QWidget *BaseTextEditor::extraArea() const
@@ -2821,16 +2836,20 @@ void BaseTextEditor::slotUpdateBlockNotify(const QTextBlock &block)
     static bool blockRecursion = false;
     if (blockRecursion)
         return;
-    if (block.previous().isValid() && block.userState() != block.previous().userState()) {
+    blockRecursion = true;
+    if (d->m_overlay->isVisible()) {
+        /* an overlay might draw outside the block bounderies, force
+           complete viewport update */
+        viewport()->update();
+    } else if (block.previous().isValid() && block.userState() != block.previous().userState()) {
         /* The syntax highlighting state changes. This opens up for
            the possibility that the paragraph has braces that support
            code folding. In this case, do the save thing and also
            update the previous block, which might contain a collapse
            box which now is invalid.*/
-        blockRecursion = true;
         emit requestBlockUpdate(block.previous());
-        blockRecursion = false;
     }
+    blockRecursion = false;
 }
 
 void BaseTextEditor::timerEvent(QTimerEvent *e)
@@ -4156,10 +4175,22 @@ void BaseTextEditor::setExtraSelections(ExtraSelectionKind kind, const QList<QTe
         return;
     d->m_extraSelections[kind] = selections;
 
-    QList<QTextEdit::ExtraSelection> all;
-    for (int i = 0; i < NExtraSelectionKinds; ++i)
-        all += d->m_extraSelections[i];
-    QPlainTextEdit::setExtraSelections(all);
+    if (kind == CodeSemanticsSelection) {
+        d->m_overlay->clear();
+        foreach (const QTextEdit::ExtraSelection &selection, d->m_extraSelections[kind]) {
+            d->m_overlay->addOverlaySelection(selection.cursor, selection.format.background().color());
+        }
+        d->m_overlay->setVisible(!d->m_overlay->isEmpty());
+
+    } else {
+        QList<QTextEdit::ExtraSelection> all;
+        for (int i = 0; i < NExtraSelectionKinds; ++i) {
+            if (i == CodeSemanticsSelection)
+                continue;
+            all += d->m_extraSelections[i];
+        }
+        QPlainTextEdit::setExtraSelections(all);
+    }
 }
 
 QList<QTextEdit::ExtraSelection> BaseTextEditor::extraSelections(ExtraSelectionKind kind) const

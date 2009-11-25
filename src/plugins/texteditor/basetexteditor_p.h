@@ -31,6 +31,7 @@
 #define BASETEXTEDITOR_P_H
 
 #include "basetexteditor.h"
+#include "texteditoroverlay.h"
 #include <texteditor/fontsettings.h>
 
 #include <QtCore/QBasicTimer>
@@ -183,6 +184,9 @@ public:
     int extraAreaHighlightCollapseBlockNumber;
     int extraAreaHighlightCollapseColumn;
 
+    TextEditorOverlay *m_overlay;
+    TextEditorOverlay *m_searchResultOverlay;
+
     QBasicTimer collapsedBlockTimer;
     int visibleCollapsedBlockNumber;
     int suggestedVisibleCollapsedBlockNumber;
@@ -215,8 +219,7 @@ public:
     QTextCharFormat m_searchScopeFormat;
     QTextCharFormat m_currentLineFormat;
     QTextCharFormat m_currentLineNumberFormat;
-    void highlightSearchResults(const QTextBlock &block,
-                                QVector<QTextLayout::FormatRange> *selections);
+    void highlightSearchResults(const QTextBlock &block);
 
     BaseTextEditorEditable *m_editable;
 

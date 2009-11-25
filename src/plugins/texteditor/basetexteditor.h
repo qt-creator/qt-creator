@@ -52,6 +52,7 @@ namespace TextEditor {
 
 namespace Internal {
     class BaseTextEditorPrivate;
+    class TextEditorOverlay;
 }
 
 class ITextMark;
@@ -445,6 +446,7 @@ private slots:
 private:
     Internal::BaseTextEditorPrivate *d;
     friend class Internal::BaseTextEditorPrivate;
+    friend class Internal::TextEditorOverlay;
 
 public:
     QWidget *extraArea() const;
