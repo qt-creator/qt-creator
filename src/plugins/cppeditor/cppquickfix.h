@@ -56,17 +56,20 @@ class QuickFixOperation
     Q_DISABLE_COPY(QuickFixOperation)
 
 public:
-    QuickFixOperation(CPlusPlus::Document::Ptr doc,
-                      const CPlusPlus::Snapshot &snapshot,
-                      CPPEditor *editor);
-
+    QuickFixOperation();
     virtual ~QuickFixOperation();
 
     virtual QString description() const = 0;
     virtual int match(const QList<CPlusPlus::AST *> &path) = 0;
 
-    CPlusPlus::Document::Ptr document() const { return _doc; }
-    CPlusPlus::Snapshot snapshot() const { return _snapshot; }
+    CPlusPlus::Document::Ptr document() const;
+    void setDocument(CPlusPlus::Document::Ptr document);
+
+    CPlusPlus::Snapshot snapshot() const;
+    void setSnapshot(const CPlusPlus::Snapshot &snapshot);
+
+    CPPEditor *editor() const;
+    void setEditor(CPPEditor *editor);
 
     QTextCursor textCursor() const;
     void setTextCursor(const QTextCursor &cursor);
@@ -74,7 +77,6 @@ public:
     int selectionStart() const;
     int selectionEnd() const;
 
-    CPPEditor *editor() const;
     const Utils::ChangeSet &changeSet() const;
 
     CPlusPlus::AST *topLevelNode() const;
@@ -117,7 +119,7 @@ protected:
     void reindent(const Range &range);
 
 private:
-    CPlusPlus::Document::Ptr _doc;
+    CPlusPlus::Document::Ptr _document;
     CPlusPlus::Snapshot _snapshot;
     QTextCursor _textCursor;
     Utils::ChangeSet _changeSet;

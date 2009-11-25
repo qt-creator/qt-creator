@@ -98,9 +98,8 @@ protected:
 class RewriteLogicalAndOp: public QuickFixOperation
 {
 public:
-    RewriteLogicalAndOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot, editor),
-           left(0), right(0), pattern(0)
+    RewriteLogicalAndOp()
+        : left(0), right(0), pattern(0)
     {}
 
     virtual QString description() const
@@ -159,8 +158,8 @@ private:
 class SplitSimpleDeclarationOp: public QuickFixOperation
 {
 public:
-    SplitSimpleDeclarationOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot, editor), declaration(0)
+    SplitSimpleDeclarationOp()
+        : declaration(0)
     {}
 
     virtual QString description() const
@@ -263,9 +262,8 @@ private:
 class AddBracesToIfOp: public QuickFixOperation
 {
 public:
-    AddBracesToIfOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot, editor),
-           _statement(0)
+    AddBracesToIfOp()
+        : _statement(0)
     {}
 
     virtual QString description() const
@@ -323,9 +321,8 @@ private:
 class MoveDeclarationOutOfIfOp: public QuickFixOperation
 {
 public:
-    MoveDeclarationOutOfIfOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot, editor),
-           condition(0), pattern(0), core(0)
+    MoveDeclarationOutOfIfOp()
+        : condition(0), pattern(0), core(0)
     {}
 
     virtual QString description() const
@@ -388,9 +385,8 @@ private:
 class MoveDeclarationOutOfWhileOp: public QuickFixOperation
 {
 public:
-    MoveDeclarationOutOfWhileOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot, editor),
-           condition(0), pattern(0), core(0)
+    MoveDeclarationOutOfWhileOp()
+        : condition(0), pattern(0), core(0)
     {}
 
     virtual QString description() const
@@ -481,9 +477,8 @@ private:
 class SplitIfStatementOp: public QuickFixOperation
 {
 public:
-    SplitIfStatementOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot, editor),
-          condition(0), pattern(0)
+    SplitIfStatementOp()
+        : condition(0), pattern(0)
     {}
 
     virtual QString description() const
@@ -598,18 +593,12 @@ private:
 } // end of anonymous namespace
 
 
-QuickFixOperation::QuickFixOperation(CPlusPlus::Document::Ptr doc,
-                                     const CPlusPlus::Snapshot &snapshot,
-                                     CPPEditor *editor)
-    : _doc(doc), _snapshot(snapshot),
-      _editor(editor), _topLevelNode(0)
+QuickFixOperation::QuickFixOperation()
+    : _editor(0), _topLevelNode(0)
 { }
 
 QuickFixOperation::~QuickFixOperation()
 { }
-
-CPPEditor *QuickFixOperation::editor() const
-{ return _editor; }
 
 CPlusPlus::AST *QuickFixOperation::topLevelNode() const
 { return _topLevelNode; }
@@ -619,6 +608,24 @@ void QuickFixOperation::setTopLevelNode(CPlusPlus::AST *topLevelNode)
 
 const Utils::ChangeSet &QuickFixOperation::changeSet() const
 { return _changeSet; }
+
+Document::Ptr QuickFixOperation::document() const
+{ return _document; }
+
+void QuickFixOperation::setDocument(CPlusPlus::Document::Ptr document)
+{ _document = document; }
+
+Snapshot QuickFixOperation::snapshot() const
+{ return _snapshot; }
+
+void QuickFixOperation::setSnapshot(const CPlusPlus::Snapshot &snapshot)
+{ _snapshot = snapshot; }
+
+CPPEditor *QuickFixOperation::editor() const
+{ return _editor; }
+
+void QuickFixOperation::setEditor(CPPEditor *editor)
+{ _editor = editor; }
 
 QTextCursor QuickFixOperation::textCursor() const
 { return _textCursor; }
@@ -633,12 +640,12 @@ int QuickFixOperation::selectionEnd() const
 { return _textCursor.selectionEnd(); }
 
 const CPlusPlus::Token &QuickFixOperation::tokenAt(unsigned index) const
-{ return _doc->translationUnit()->tokenAt(index); }
+{ return _document->translationUnit()->tokenAt(index); }
 
 int QuickFixOperation::startOf(unsigned index) const
 {
     unsigned line, column;
-    _doc->translationUnit()->getPosition(tokenAt(index).begin(), &line, &column);
+    _document->translationUnit()->getPosition(tokenAt(index).begin(), &line, &column);
     return _textCursor.document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 
@@ -650,7 +657,7 @@ int QuickFixOperation::startOf(const CPlusPlus::AST *ast) const
 int QuickFixOperation::endOf(unsigned index) const
 {
     unsigned line, column;
-    _doc->translationUnit()->getPosition(tokenAt(index).end(), &line, &column);
+    _document->translationUnit()->getPosition(tokenAt(index).end(), &line, &column);
     return _textCursor.document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 
@@ -805,12 +812,12 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         if (path.isEmpty())
             return -1;
 
-        QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(info.doc, info.snapshot, _editor));
-        QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp(info.doc, info.snapshot, _editor));
-        QSharedPointer<MoveDeclarationOutOfIfOp> moveDeclarationOutOfIfOp(new MoveDeclarationOutOfIfOp(info.doc, info.snapshot, _editor));
-        QSharedPointer<MoveDeclarationOutOfWhileOp> moveDeclarationOutOfWhileOp(new MoveDeclarationOutOfWhileOp(info.doc, info.snapshot, _editor));
-        QSharedPointer<SplitSimpleDeclarationOp> splitSimpleDeclarationOp(new SplitSimpleDeclarationOp(info.doc, info.snapshot, _editor));
-        QSharedPointer<AddBracesToIfOp> addBracesToIfOp(new AddBracesToIfOp(info.doc, info.snapshot, _editor));
+        QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp());
+        QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp());
+        QSharedPointer<MoveDeclarationOutOfIfOp> moveDeclarationOutOfIfOp(new MoveDeclarationOutOfIfOp());
+        QSharedPointer<MoveDeclarationOutOfWhileOp> moveDeclarationOutOfWhileOp(new MoveDeclarationOutOfWhileOp());
+        QSharedPointer<SplitSimpleDeclarationOp> splitSimpleDeclarationOp(new SplitSimpleDeclarationOp());
+        QSharedPointer<AddBracesToIfOp> addBracesToIfOp(new AddBracesToIfOp());
 
         QList<QuickFixOperationPtr> candidates;
         candidates.append(rewriteLogicalAndOp);
@@ -823,6 +830,9 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         QMap<int, QList<QuickFixOperationPtr> > matchedOps;
 
         foreach (QuickFixOperationPtr op, candidates) {
+            op->setSnapshot(info.snapshot);
+            op->setDocument(info.doc);
+            op->setEditor(_editor);
             op->setTextCursor(_editor->textCursor());
             int priority = op->match(path);
             if (priority != -1)
