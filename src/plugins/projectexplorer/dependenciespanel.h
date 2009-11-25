@@ -53,24 +53,25 @@ public:
     DependenciesPanelFactory(SessionManager *session);
 
     bool supports(Project *project);
-    PropertiesPanel *createPanel(Project *project);
+    IPropertiesPanel *createPanel(Project *project);
 
 private:
     SessionManager *m_session;
 };
 
 
-class DependenciesPanel : public PropertiesPanel
+class DependenciesPanel : public IPropertiesPanel
 {
-    Q_OBJECT
 public:
     DependenciesPanel(SessionManager *session, Project *project);
     ~DependenciesPanel();
     QString name() const;
-    QWidget *widget();
+    QWidget *widget() const;
+    QIcon icon() const;
 
 private:
     DependenciesWidget *m_widget;
+    const QIcon m_icon;
 };
 
 //

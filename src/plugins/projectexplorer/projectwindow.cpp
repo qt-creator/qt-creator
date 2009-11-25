@@ -258,7 +258,6 @@ RunConfigurationComboBox::RunConfigurationComboBox(QWidget *parent)
         connectToProject(p);
     }
 
-
     connect(session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(activeRunConfigurationChanged()));
 
@@ -556,7 +555,6 @@ void ProjectLabel::setProject(ProjectExplorer::Project *p)
         setText(tr("No Project loaded"));
 }
 
-
 ///
 // ProjectPushButton
 ///
@@ -745,9 +743,6 @@ void ProjectWindow::saveStatus()
 
 void ProjectWindow::showProperties(Project *project)
 {
-    if (debug)
-        qDebug() << "ProjectWindow - showProperties called";
-
     // Remove all existing panels:
     m_panelsWidget->clear();
 
@@ -755,7 +750,7 @@ void ProjectWindow::showProperties(Project *project)
     qDeleteAll(m_panels);
     m_panels.clear();
 
-    // Set up our default panels again:
+    // Set up our default panels:
     m_panelsWidget->addWidget(tr("Active Build and Run Configurations"), m_activeConfigurationWidget);
     m_panelsWidget->addWidget(m_spacerBetween);
     m_panelsWidget->addWidget(m_projectChooser);
@@ -766,9 +761,7 @@ void ProjectWindow::showProperties(Project *project)
                 ExtensionSystem::PluginManager::instance()->getObjects<IPanelFactory>();
         foreach (IPanelFactory *panelFactory, pages) {
             if (panelFactory->supports(project)) {
-                PropertiesPanel *panel = panelFactory->createPanel(project);
-                if (debug)
-                  qDebug() << "ProjectWindow - setting up project properties tab " << panel->name();
+                IPropertiesPanel *panel = panelFactory->createPanel(project);
                 m_panelsWidget->addWidget(panel->name(), panel->widget());
                 m_panels.push_back(panel);
             }

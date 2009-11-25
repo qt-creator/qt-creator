@@ -37,8 +37,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
 #include <QtCore/QPair>
+#include <QtGui/QApplication>
 #include <QtGui/QInputDialog>
 #include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
@@ -56,7 +56,7 @@ bool BuildSettingsPanelFactory::supports(Project *project)
     return project->hasBuildSettings();
 }
 
-PropertiesPanel *BuildSettingsPanelFactory::createPanel(Project *project)
+IPropertiesPanel *BuildSettingsPanelFactory::createPanel(Project *project)
 {
     return new BuildSettingsPanel(project);
 }
@@ -65,9 +65,9 @@ PropertiesPanel *BuildSettingsPanelFactory::createPanel(Project *project)
 /// BuildSettingsPanel
 ///
 
-BuildSettingsPanel::BuildSettingsPanel(Project *project)
-        : PropertiesPanel(),
-          m_widget(new BuildSettingsWidget(project))
+BuildSettingsPanel::BuildSettingsPanel(Project *project) :
+    m_widget(new BuildSettingsWidget(project)),
+    m_icon(":/projectexplorer/images/rebuild.png")
 {
 }
 
@@ -78,12 +78,17 @@ BuildSettingsPanel::~BuildSettingsPanel()
 
 QString BuildSettingsPanel::name() const
 {
-    return tr("Build Settings");
+    return QApplication::tr("Build Settings");
 }
 
-QWidget *BuildSettingsPanel::widget()
+QWidget *BuildSettingsPanel::widget() const
 {
     return m_widget;
+}
+
+QIcon BuildSettingsPanel::icon() const
+{
+    return m_icon;
 }
 
 ///

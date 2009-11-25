@@ -32,29 +32,30 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/icontext.h>
+#include <QtGui/QIcon>
 
 namespace ProjectExplorer {
 class Project;
-class PropertiesPanel;
+
+class PROJECTEXPLORER_EXPORT IPropertiesPanel
+{
+public:
+    IPropertiesPanel()
+    { }
+    virtual ~IPropertiesPanel()
+    { }
+
+    virtual QString name() const = 0;
+    virtual QIcon icon() const = 0;
+    virtual QWidget *widget() const = 0;
+};
 
 class PROJECTEXPLORER_EXPORT IPanelFactory : public QObject
 {
     Q_OBJECT
 public:
     virtual bool supports(Project *project) = 0;
-    virtual PropertiesPanel *createPanel(Project *project) = 0;
-};
-
-class PROJECTEXPLORER_EXPORT PropertiesPanel : public Core::IContext
-{
-    Q_OBJECT
-public:
-    virtual void finish() {}
-    virtual QString name() const = 0;
-
-    // IContext
-    virtual QList<int> context() const { return QList<int>(); }
+    virtual IPropertiesPanel *createPanel(Project *project) = 0;
 };
 
 } // namespace ProjectExplorer

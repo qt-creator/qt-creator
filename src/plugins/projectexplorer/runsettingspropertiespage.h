@@ -53,20 +53,22 @@ class RunSettingsPanelFactory : public IPanelFactory
 {
 public:
     virtual bool supports(Project *project);
-    PropertiesPanel *createPanel(Project *project);
+    IPropertiesPanel *createPanel(Project *project);
 };
 
-class RunSettingsPanel : public PropertiesPanel
+class RunSettingsPanel : public IPropertiesPanel
 {
-    Q_OBJECT
 public:
     RunSettingsPanel(Project *project);
     ~RunSettingsPanel();
 
     QString name() const;
-    QWidget *widget();
+    QWidget *widget() const;
+    QIcon icon() const;
+
 private:
     RunSettingsWidget *m_widget;
+    QIcon m_icon;
 };
 
 class RunSettingsWidget : public QWidget

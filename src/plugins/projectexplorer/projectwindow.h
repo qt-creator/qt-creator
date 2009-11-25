@@ -52,8 +52,8 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
+class IPropertiesPanel;
 class Project;
-class PropertiesPanel;
 class ProjectExplorerPlugin;
 class SessionManager;
 
@@ -195,7 +195,7 @@ private:
     QWidget *m_projectChooser;
     QLabel *m_noprojectLabel;
     PanelsWidget *m_panelsWidget;
-    QList<PropertiesPanel *> m_panels;
+    QList<IPropertiesPanel *> m_panels;
 };
 
 

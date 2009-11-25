@@ -64,22 +64,23 @@ class BuildSettingsPanelFactory : public IPanelFactory
 {
 public:
     bool supports(Project *project);
-    PropertiesPanel *createPanel(Project *project);
+    IPropertiesPanel *createPanel(Project *project);
 };
 
 class BuildSettingsWidget;
 
-class BuildSettingsPanel : public PropertiesPanel
+class BuildSettingsPanel : public IPropertiesPanel
 {
-    Q_OBJECT
 public:
     BuildSettingsPanel(Project *project);
     ~BuildSettingsPanel();
     QString name() const;
-    QWidget *widget();
+    QWidget *widget() const;
+    QIcon icon() const;
 
 private:
     BuildSettingsWidget *m_widget;
+    const QIcon m_icon;
 };
 
 class BuildConfigurationsWidget;

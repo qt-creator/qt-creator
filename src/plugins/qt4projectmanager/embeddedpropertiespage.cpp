@@ -54,7 +54,7 @@ bool EmbeddedPropertiesPanelFactory::supports(Project *project)
     return false;
 }
 
-ProjectExplorer::PropertiesPanel *EmbeddedPropertiesPanelFactory::createPanel(
+ProjectExplorer::IPropertiesPanel *EmbeddedPropertiesPanelFactory::createPanel(
         ProjectExplorer::Project *project)
 {
     return new EmbeddedPropertiesPanel(project);
@@ -64,9 +64,9 @@ ProjectExplorer::PropertiesPanel *EmbeddedPropertiesPanelFactory::createPanel(
 /// EmbeddedPropertiesPanel
 ///
 
-EmbeddedPropertiesPanel::EmbeddedPropertiesPanel(ProjectExplorer::Project *project)
-    : PropertiesPanel(),
-      m_widget(new EmbeddedPropertiesWidget(project))
+EmbeddedPropertiesPanel::EmbeddedPropertiesPanel(ProjectExplorer::Project *project) :
+    m_widget(new EmbeddedPropertiesWidget(project)),
+    m_icon(":/projectexplorer/images/rebuild.png")
 {
 }
 
@@ -77,13 +77,17 @@ EmbeddedPropertiesPanel::~EmbeddedPropertiesPanel()
 
 QString EmbeddedPropertiesPanel::name() const
 {
-    return tr("Embedded Linux");
-
+    return QApplication::tr("Embedded Linux");
 }
 
-QWidget *EmbeddedPropertiesPanel::widget()
+QWidget *EmbeddedPropertiesPanel::widget() const
 {
     return m_widget;
+}
+
+QIcon EmbeddedPropertiesPanel::icon() const
+{
+    return m_icon;
 }
 
 ///

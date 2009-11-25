@@ -41,22 +41,23 @@ class EditorSettingsPanelFactory : public IPanelFactory
 {
 public:
     bool supports(Project *project);
-    PropertiesPanel *createPanel(Project *project);
+    IPropertiesPanel *createPanel(Project *project);
 };
 
 class EditorSettingsWidget;
 
-class EditorSettingsPanel : public PropertiesPanel
+class EditorSettingsPanel : public IPropertiesPanel
 {
-    Q_OBJECT
 public:
     EditorSettingsPanel(Project *project);
     ~EditorSettingsPanel();
     QString name() const;
-    QWidget *widget();
+    QWidget *widget() const;
+    QIcon icon() const;
 
 private:
     EditorSettingsWidget *m_widget;
+    const QIcon m_icon;
 };
 
 class EditorSettingsWidget : public QWidget

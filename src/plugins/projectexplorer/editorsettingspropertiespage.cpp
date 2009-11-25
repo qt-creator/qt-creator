@@ -42,14 +42,15 @@ bool EditorSettingsPanelFactory::supports(Project * /*project*/)
 {
     return true;
 }
-PropertiesPanel *EditorSettingsPanelFactory::createPanel(Project *project)
+
+IPropertiesPanel *EditorSettingsPanelFactory::createPanel(Project *project)
 {
     return new EditorSettingsPanel(project);
 }
 
-EditorSettingsPanel::EditorSettingsPanel(Project *project)
-    : PropertiesPanel(),
-      m_widget(new EditorSettingsWidget(project))
+EditorSettingsPanel::EditorSettingsPanel(Project *project) :
+    m_widget(new EditorSettingsWidget(project)),
+    m_icon(":/projectexplorer/images/rebuild.png")
 {
 }
 
@@ -60,12 +61,17 @@ EditorSettingsPanel::~EditorSettingsPanel()
 
 QString EditorSettingsPanel::name() const
 {
-    return tr("Editor Settings");
+    return QApplication::tr("Editor Settings");
 }
 
-QWidget *EditorSettingsPanel::widget()
+QWidget *EditorSettingsPanel::widget() const
 {
     return m_widget;
+}
+
+QIcon EditorSettingsPanel::icon() const
+{
+    return m_icon;
 }
 
 EditorSettingsWidget::EditorSettingsWidget(Project *project)

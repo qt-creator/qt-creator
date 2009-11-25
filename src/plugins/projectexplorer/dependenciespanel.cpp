@@ -38,6 +38,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QAbstractListModel>
 #include <QtGui/QLabel>
+#include <QtGui/QApplication>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QTreeView>
 #include <QtGui/QSpacerItem>
@@ -275,9 +276,9 @@ void DependenciesWidget::updateDetails()
 // DependenciesPanel
 //
 
-DependenciesPanel::DependenciesPanel(SessionManager *session, Project *project)
-    : PropertiesPanel()
-    , m_widget(new DependenciesWidget(session, project))
+DependenciesPanel::DependenciesPanel(SessionManager *session, Project *project) :
+    m_widget(new DependenciesWidget(session, project)),
+    m_icon(":/projectexplorer/images/session.png")
 {
 }
 
@@ -288,12 +289,17 @@ DependenciesPanel::~DependenciesPanel()
 
 QString DependenciesPanel::name() const
 {
-    return tr("Dependencies");
+    return QApplication::tr("Dependencies");
 }
 
-QWidget *DependenciesPanel::widget()
+QWidget *DependenciesPanel::widget() const
 {
     return m_widget;
+}
+
+QIcon DependenciesPanel::icon() const
+{
+    return m_icon;
 }
 
 //
@@ -310,7 +316,7 @@ bool DependenciesPanelFactory::supports(Project * /* project */)
     return true;
 }
 
-PropertiesPanel *DependenciesPanelFactory::createPanel(Project *project)
+IPropertiesPanel *DependenciesPanelFactory::createPanel(Project *project)
 {
     return new DependenciesPanel(m_session, project);
 }

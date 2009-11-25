@@ -50,21 +50,22 @@ class EmbeddedPropertiesPanelFactory : public ProjectExplorer::IPanelFactory
 {
 public:
     virtual bool supports(ProjectExplorer::Project *project);
-    ProjectExplorer::PropertiesPanel *createPanel(ProjectExplorer::Project *project);
+    ProjectExplorer::IPropertiesPanel *createPanel(ProjectExplorer::Project *project);
 };
 
-class EmbeddedPropertiesPanel : public ProjectExplorer::PropertiesPanel
+class EmbeddedPropertiesPanel : public ProjectExplorer::IPropertiesPanel
 {
-    Q_OBJECT
 public:
     EmbeddedPropertiesPanel(ProjectExplorer::Project *project);
     ~EmbeddedPropertiesPanel();
 
     QString name() const;
-    QWidget *widget();
+    QWidget *widget() const;
+    QIcon icon() const;
 
 private:
     EmbeddedPropertiesWidget *m_widget;
+    QIcon m_icon;
 };
 
 class EmbeddedPropertiesWidget : public QWidget
