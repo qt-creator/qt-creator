@@ -61,6 +61,9 @@ public:
 
     virtual QString description() const = 0;
     virtual int match(const QList<CPlusPlus::AST *> &path) = 0;
+    virtual void createChangeSet() = 0;
+
+    void applyChangeSet();
 
     CPlusPlus::Document::Ptr document() const;
     void setDocument(CPlusPlus::Document::Ptr document);
@@ -79,13 +82,10 @@ public:
 
     const Utils::ChangeSet &changeSet() const;
 
+protected:
     CPlusPlus::AST *topLevelNode() const;
     void setTopLevelNode(CPlusPlus::AST *topLevelNode);
 
-    virtual void createChangeSet() = 0;
-    void applyChangeSet();
-
-protected:
     const CPlusPlus::Token &tokenAt(unsigned index) const;
 
     int startOf(unsigned index) const;
