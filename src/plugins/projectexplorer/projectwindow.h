@@ -41,7 +41,7 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
-class QVBoxLayout;
+class QGridLayout;
 class QModelIndex;
 class QTabWidget;
 class QHBoxLayout;
@@ -67,7 +67,9 @@ public:
     ~PanelsWidget();
     // Adds a widget
     void addWidget(QWidget *widget);
-    void addWidget(const QString &name, QWidget *widget);
+    void addWidget(const QString &name, QWidget *widget, const QIcon &icon);
+
+    QWidget *rootWidget() const;
 
     // Removes all widgets and deletes them
     void clear();
@@ -79,14 +81,16 @@ private:
         explicit Panel(QWidget * widget);
         ~Panel();
 
-        QSpacerItem *spacer;
+        QLabel *iconLabel;
+        QWidget *lineWidget;
         QLabel *nameLabel;
         QWidget *panelWidget;
-        QHBoxLayout *marginLayout;
+        QSpacerItem *spacer;
     };
     QList<Panel *> m_panels;
-    
-    QVBoxLayout *m_layout;
+
+    QGridLayout *m_layout;
+    QWidget *m_root;
 };
 
 class BuildConfigurationComboBox : public QStackedWidget

@@ -65,7 +65,7 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 namespace {
-bool debug = false;
+const int ICON_SIZE(64);
 }
 
 ///
@@ -94,41 +94,56 @@ public:
 ///
 
 PanelsWidget::Panel::Panel(QWidget * w) :
-        spacer(0), nameLabel(0), panelWidget(w), marginLayout(0)
+    iconLabel(0), lineWidget(0), nameLabel(0), panelWidget(w), spacer(0)
 { }
 
 PanelsWidget::Panel::~Panel()
 {
-    delete spacer;
+    delete iconLabel;
+    delete lineWidget;
     delete nameLabel;
-    delete marginLayout;
+    // do not delete panelWidget, we do not own it!
+    delete spacer;
 }
 
 ///
 // PanelsWidget
 ///
 
-PanelsWidget::PanelsWidget(QWidget *parent)
-    : QScrollArea(parent)
+PanelsWidget::PanelsWidget(QWidget *parent) :
+    QScrollArea(parent),
+    m_root(new QWidget(this))
 {
-    QWidget *topwidget = new QWidget;
-    QHBoxLayout *topwidgetLayout = new QHBoxLayout;
-    topwidgetLayout->setMargin(0);
-    topwidgetLayout->setSpacing(0);
-    topwidget->setLayout(topwidgetLayout);
+    // We want a 800px wide widget with and the scrollbar at the
+    // side of the screen.
+    m_root->setMaximumWidth(800);
+    // The layout holding the individual panels:
+    m_layout = new QGridLayout;
+    m_layout->setColumnMinimumWidth(0, ICON_SIZE);
 
-    QWidget *verticalWidget = new QWidget;
-    verticalWidget->setMaximumWidth(800);
-    m_layout = new QVBoxLayout;
-    m_layout->addStretch(10);
-    verticalWidget->setLayout(m_layout);
-    topwidgetLayout->addWidget(verticalWidget);
-    topwidgetLayout->addStretch(10);
+    // A helper layout to glue some stretch to the button of
+    // the panel layout:
+    QVBoxLayout * vbox = new QVBoxLayout;
+    vbox->addLayout(m_layout);
+    vbox->addStretch(10);
 
+    m_root->setLayout(vbox);
+
+    // Add horizontal space to the left of our widget:
+    QHBoxLayout *hbox = new QHBoxLayout;
+    hbox->setMargin(0);
+    hbox->setSpacing(0);
+
+    hbox->addWidget(m_root);
+    hbox->addStretch(10);
+
+    // create a widget to hold the scrollarea:
+    QWidget * scrollArea = new QWidget();
+    scrollArea->setLayout(hbox);
+
+    setWidget(scrollArea);
     setFrameStyle(QFrame::NoFrame);
     setWidgetResizable(true);
-
-    setWidget(topwidget);
 }
 
 PanelsWidget::~PanelsWidget()
@@ -136,41 +151,92 @@ PanelsWidget::~PanelsWidget()
     clear();
 }
 
+/*
+ * Add a widget into the grid layout of the PanelsWidget.
+ *
+ *     ...
+ * +--------+-------------------------------------------+
+ * |        | widget                                    |
+ * +--------+-------------------------------------------+
+ */
 void PanelsWidget::addWidget(QWidget *widget)
 {
     Panel *p = new Panel(widget);
-    m_layout->insertWidget(m_layout->count() - 1, widget);
+    m_layout->addWidget(widget, m_layout->rowCount(), 1);
     m_panels.append(p);
 }
 
-void PanelsWidget::addWidget(const QString &name, QWidget *widget)
+/*
+ * Add a widget with heading information into the grid
+ * layout of the PanelsWidget.
+ *
+ *     ...
+ * +--------+-------------------------------------------+
+ * |        | spacer                                    |
+ * +--------+-------------------------------------------+
+ * | icon   | name                                      |
+ * +        +-------------------------------------------+
+ * |        | Line                                      |
+ * +        +-------------------------------------------+
+ * |        | widget                                    |
+ * +--------+-------------------------------------------+
+ */
+void PanelsWidget::addWidget(const QString &name, QWidget *widget, const QIcon & icon)
 {
     Panel *p = new Panel(widget);
+
+    // spacer:
+    const int spacerRow(m_layout->rowCount());
     p->spacer = new QSpacerItem(1, 10, QSizePolicy::Fixed, QSizePolicy::Fixed);
-    p->nameLabel = new QLabel(this);
+    m_layout->addItem(p->spacer, spacerRow, 1);
+
+    // icon:
+    const int headerRow(spacerRow + 1);
+    if (!icon.isNull()) {
+        p->iconLabel = new QLabel(m_root);
+        p->iconLabel->setPixmap(icon.pixmap(ICON_SIZE, ICON_SIZE));
+        m_layout->addWidget(p->iconLabel, headerRow, 0, 3, 1, Qt::AlignTop | Qt::AlignHCenter);
+    }
+
+    // name:
+    p->nameLabel = new QLabel(m_root);
     p->nameLabel->setText(name);
     QFont f = p->nameLabel->font();
     f.setBold(true);
-    f.setPointSizeF(f.pointSizeF() * 1.2);
+    f.setPointSizeF(f.pointSizeF() * 1.4);
     p->nameLabel->setFont(f);
+    m_layout->addWidget(p->nameLabel, headerRow, 1);
 
-    m_layout->insertSpacerItem(m_layout->count() - 1, p->spacer);
-    m_layout->insertWidget(m_layout->count() - 1, p->nameLabel);
-    QHBoxLayout *hboxLayout = new QHBoxLayout();
-    hboxLayout->setContentsMargins(20, 0, 0, 0);
-    hboxLayout->addWidget(p->panelWidget);
-    p->marginLayout = hboxLayout;
-    m_layout->insertLayout(m_layout->count() -1, hboxLayout);
+    // line:
+    const int lineRow(headerRow + 1);
+    p->lineWidget = new OnePixelBlackLine(m_root);
+    m_layout->addWidget(p->lineWidget, lineRow, 1);
+
+    // widget:
+    const int widgetRow(lineRow + 1);
+    m_layout->addWidget(p->panelWidget, widgetRow, 1);
+
     m_panels.append(p);
+}
+
+QWidget *PanelsWidget::rootWidget() const
+{
+    return m_root;
 }
 
 void PanelsWidget::clear()
 {
-    foreach(Panel * p, m_panels) {
-        if (p->spacer)
-            m_layout->removeItem(p->spacer);
+    foreach (Panel* p, m_panels) {
+        if (p->iconLabel)
+            m_layout->removeWidget(p->iconLabel);
+        if (p->lineWidget)
+            m_layout->removeWidget(p->lineWidget);
         if (p->nameLabel)
             m_layout->removeWidget(p->nameLabel);
+        if (p->panelWidget)
+            m_layout->removeWidget(p->panelWidget);
+        if (p->spacer)
+            m_layout->removeItem(p->spacer);
         delete p;
     }
     m_panels.clear();
@@ -641,22 +707,32 @@ ProjectWindow::ProjectWindow(QWidget *parent)
 {
     ProjectExplorer::SessionManager *session = ProjectExplorerPlugin::instance()->session();
 
+    // Setup overall layout:
+    QVBoxLayout *viewLayout = new QVBoxLayout(this);
+    viewLayout->setMargin(0);
+    viewLayout->setSpacing(0);
+
+    // Add toolbar used everywhere
+    viewLayout->addWidget(new Utils::StyledBar(this));
+
+    // Setup our container for the contents:
     m_panelsWidget = new PanelsWidget(this);
+    viewLayout->addWidget(m_panelsWidget);
 
-    // active configuration widget:
-    m_activeConfigurationWidget = new ActiveConfigurationWidget(m_panelsWidget);
+    // Run and build configuration selection area:
+    m_activeConfigurationWidget = new ActiveConfigurationWidget(m_panelsWidget->rootWidget());
 
-    // spacer with line:
-    m_spacerBetween = new QWidget(m_panelsWidget);
-    QVBoxLayout *vbox = new QVBoxLayout(m_spacerBetween);
-    vbox->setMargin(0);
-    m_spacerBetween->setLayout(vbox);
-    vbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
-    vbox->addWidget(new OnePixelBlackLine(m_spacerBetween));
-    vbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
+    // Spacer and line:
+    m_spacerBetween = new QWidget(m_panelsWidget->rootWidget());
+    QVBoxLayout *spacerVbox = new QVBoxLayout(m_spacerBetween);
+    spacerVbox->setMargin(0);
+    m_spacerBetween->setLayout(spacerVbox);
+    spacerVbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
+    spacerVbox->addWidget(new OnePixelBlackLine(m_spacerBetween));
+    spacerVbox->addSpacerItem(new QSpacerItem(10, 15, QSizePolicy::Fixed, QSizePolicy::Fixed));
 
-    // project chooser:
-    m_projectChooser = new QWidget(m_panelsWidget);
+    // Project chooser:
+    m_projectChooser = new QWidget(m_panelsWidget->rootWidget());
     QHBoxLayout *hbox = new QHBoxLayout(m_projectChooser);
     hbox->setMargin(0);
     ProjectLabel *label = new ProjectLabel(m_projectChooser);
@@ -672,14 +748,7 @@ ProjectWindow::ProjectWindow(QWidget *parent)
             label, SLOT(setProject(ProjectExplorer::Project*)));
     hbox->addWidget(changeProject);
 
-    // Overall layout:
-    QVBoxLayout *topLevelLayout = new QVBoxLayout(this);
-    topLevelLayout->setMargin(0);
-    topLevelLayout->setSpacing(0);
-    topLevelLayout->addWidget(new Utils::StyledBar(this));
-
-    topLevelLayout->addWidget(m_panelsWidget);
-
+    // no projects label:
     m_noprojectLabel = new QLabel(this);
     m_noprojectLabel->setText(tr("No project loaded."));
     {
@@ -690,12 +759,14 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     }
     m_noprojectLabel->setMargin(10);
     m_noprojectLabel->setAlignment(Qt::AlignTop);
-    topLevelLayout->addWidget(m_noprojectLabel);
+    viewLayout->addWidget(m_noprojectLabel);
 
+    // show either panels or no projects label:
     bool noProjects = session->projects().isEmpty();
     m_panelsWidget->setVisible(!noProjects);
     m_noprojectLabel->setVisible(noProjects);
 
+    // connects:
     connect(changeProject, SIGNAL(projectChanged(ProjectExplorer::Project*)),
             this, SLOT(showProperties(ProjectExplorer::Project*)));
 
@@ -751,7 +822,7 @@ void ProjectWindow::showProperties(Project *project)
     m_panels.clear();
 
     // Set up our default panels:
-    m_panelsWidget->addWidget(tr("Active Build and Run Configurations"), m_activeConfigurationWidget);
+    m_panelsWidget->addWidget(tr("Active Build and Run Configurations"), m_activeConfigurationWidget, QIcon());
     m_panelsWidget->addWidget(m_spacerBetween);
     m_panelsWidget->addWidget(m_projectChooser);
 
@@ -762,7 +833,7 @@ void ProjectWindow::showProperties(Project *project)
         foreach (IPanelFactory *panelFactory, pages) {
             if (panelFactory->supports(project)) {
                 IPropertiesPanel *panel = panelFactory->createPanel(project);
-                m_panelsWidget->addWidget(panel->name(), panel->widget());
+                m_panelsWidget->addWidget(panel->name(), panel->widget(), panel->icon());
                 m_panels.push_back(panel);
             }
         }
