@@ -33,14 +33,10 @@
 #include <coreplugin/core_global.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QMap>
-#include <QtCore/QDateTime>
-#include <QtCore/QFile>
 #include <QtCore/QStringList>
-#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
-class QFileSystemWatcher;
+class QMainWindow;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -50,22 +46,15 @@ class IContext;
 class IFile;
 
 namespace Internal {
-class MainWindow;
+struct FileManagerPrivate;
 }
 
 class CORE_EXPORT FileManager : public QObject
 {
     Q_OBJECT
-
-    struct FileInfo
-    {
-        QString fileName;
-        QDateTime modified;
-        QFile::Permissions permissions;
-    };
-
 public:
-    explicit FileManager(Internal::MainWindow *ew);
+    explicit FileManager(QMainWindow *ew);
+    virtual ~FileManager();
 
     // file pool to monitor
     bool addFiles(const QList<IFile *> &files);
@@ -123,17 +112,7 @@ private:
                                const QString &alwaysSaveMessage = QString::null,
                                bool *alwaysSave = 0);
 
-    QMap<IFile*, FileInfo> m_managedFiles;
-
-    QStringList m_recentFiles;
-    static const int m_maxRecentFiles = 7;
-
-    QString m_currentFile;
-
-    Internal::MainWindow *m_mainWindow;
-    QFileSystemWatcher *m_fileWatcher;
-    QList<QPointer<IFile> > m_changedFiles;
-    bool m_blockActivated;
+    Internal::FileManagerPrivate *d;
 };
 
 /*! The FileChangeBlocker blocks all change notifications to all IFile * that

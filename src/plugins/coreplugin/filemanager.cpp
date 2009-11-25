@@ -34,7 +34,6 @@
 #include "icore.h"
 #include "ifile.h"
 #include "iversioncontrol.h"
-#include "mainwindow.h"
 #include "mimedatabase.h"
 #include "saveitemsdialog.h"
 #include "vcsmanager.h"
@@ -48,11 +47,10 @@
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
 #include <QtCore/QFileSystemWatcher>
+#include <QtCore/QDateTime>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
-
-using namespace Core;
-using namespace Core::Internal;
+#include <QtGui/QMainWindow>
 
 /*!
   \class FileManager
@@ -82,30 +80,67 @@ using namespace Core::Internal;
 static const char *settingsGroup = "RecentFiles";
 static const char *filesKey = "Files";
 
-FileManager::FileManager(MainWindow *mw)
-  : QObject(mw),
+namespace Core {
+namespace Internal {
+
+struct FileInfo
+{
+    QString fileName;
+    QDateTime modified;
+    QFile::Permissions permissions;
+};
+
+struct FileManagerPrivate {
+    explicit FileManagerPrivate(QObject *q, QMainWindow *mw);
+
+    QMap<IFile*, FileInfo> m_managedFiles;
+
+    QStringList m_recentFiles;
+    static const int m_maxRecentFiles = 7;
+
+    QString m_currentFile;
+
+    QMainWindow *m_mainWindow;
+    QFileSystemWatcher *m_fileWatcher;
+    QList<QPointer<IFile> > m_changedFiles;
+    bool m_blockActivated;
+};
+
+FileManagerPrivate::FileManagerPrivate(QObject *q, QMainWindow *mw) :
     m_mainWindow(mw),
-    m_fileWatcher(new QFileSystemWatcher(this)),
+    m_fileWatcher(new QFileSystemWatcher(q)),
     m_blockActivated(false)
 {
-    connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
+}
+
+} // namespace Internal
+
+FileManager::FileManager(QMainWindow *mw)
+  : QObject(mw),
+    d(new Internal::FileManagerPrivate(this, mw))
+{
+    Core::ICore *core = Core::ICore::instance();
+    connect(d->m_fileWatcher, SIGNAL(fileChanged(QString)),
         this, SLOT(changedFile(QString)));
-    connect(m_mainWindow, SIGNAL(windowActivated()),
+    connect(d->m_mainWindow, SIGNAL(windowActivated()),
         this, SLOT(mainWindowActivated()));
-    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*)),
+    connect(core, SIGNAL(contextChanged(Core::IContext*)),
         this, SLOT(syncWithEditor(Core::IContext*)));
 
-    QSettings *s = m_mainWindow->settings();
-    s->beginGroup(QLatin1String(settingsGroup));
-    m_recentFiles = s->value(QLatin1String(filesKey), QStringList()).toStringList();
-    s->endGroup();
-    for (QStringList::iterator it = m_recentFiles.begin(); it != m_recentFiles.end(); ) {
+    const QSettings *s = core->settings();
+    d->m_recentFiles = s->value(QLatin1String(settingsGroup) + QLatin1Char('/') + QLatin1String(filesKey), QStringList()).toStringList();
+    for (QStringList::iterator it = d->m_recentFiles.begin(); it != d->m_recentFiles.end(); ) {
         if (QFileInfo(*it).isFile()) {
             ++it;
         } else {
-            it = m_recentFiles.erase(it);
+            it = d->m_recentFiles.erase(it);
         }
     }
+}
+
+FileManager::~FileManager()
+{
+    delete d;
 }
 
 /*!
@@ -119,7 +154,7 @@ bool FileManager::addFiles(const QList<IFile *> &files)
 {
     bool filesAdded = false;
     foreach (IFile *file, files) {
-        if (!file || m_managedFiles.contains(file))
+        if (!file || d->m_managedFiles.contains(file))
             continue;
         connect(file, SIGNAL(changed()), this, SLOT(checkForNewFileName()));
         connect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
@@ -146,8 +181,8 @@ void FileManager::fileDestroyed(QObject *obj)
 {
     // we can't use qobject_cast here, because meta data is already destroyed
     IFile *file = static_cast<IFile*>(obj);
-    const QString filename = m_managedFiles.value(file).fileName;
-    m_managedFiles.remove(file);
+    const QString filename = d->m_managedFiles.value(file).fileName;
+    d->m_managedFiles.remove(file);
     removeWatch(filename);
 }
 
@@ -166,9 +201,9 @@ bool FileManager::removeFile(IFile *file)
     disconnect(file, SIGNAL(changed()), this, SLOT(checkForNewFileName()));
     disconnect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
 
-    if (!m_managedFiles.contains(file))
+    if (!d->m_managedFiles.contains(file))
         return false;
-    const FileInfo info = m_managedFiles.take(file);
+    const Internal::FileInfo info = d->m_managedFiles.take(file);
     const QString filename = info.fileName;
     removeWatch(filename);
     return true;
@@ -177,13 +212,13 @@ bool FileManager::removeFile(IFile *file)
 void FileManager::addWatch(const QString &filename)
 {
     if (!filename.isEmpty() && managedFiles(filename).isEmpty())
-        m_fileWatcher->addPath(filename);
+        d->m_fileWatcher->addPath(filename);
 }
 
 void FileManager::removeWatch(const QString &filename)
 {
     if (!filename.isEmpty() && managedFiles(filename).isEmpty())
-        m_fileWatcher->removePath(filename);
+        d->m_fileWatcher->removePath(filename);
 }
 
 void FileManager::checkForNewFileName()
@@ -191,9 +226,9 @@ void FileManager::checkForNewFileName()
     IFile *file = qobject_cast<IFile *>(sender());
     QTC_ASSERT(file, return);
     const QString newfilename = fixFileName(file->fileName());
-    const QString oldfilename = m_managedFiles.value(file).fileName;
+    const QString oldfilename = d->m_managedFiles.value(file).fileName;
     if (!newfilename.isEmpty() && newfilename != oldfilename) {
-        m_managedFiles[file].fileName = newfilename;
+        d->m_managedFiles[file].fileName = newfilename;
         removeWatch(oldfilename);
         addWatch(newfilename);
     }
@@ -233,8 +268,8 @@ QList<IFile *> FileManager::modifiedFiles() const
 {
     QList<IFile *> modifiedFiles;
 
-    const QMap<IFile*, FileInfo>::const_iterator cend =  m_managedFiles.constEnd();
-    for (QMap<IFile*, FileInfo>::const_iterator i = m_managedFiles.constBegin(); i != cend; ++i) {
+    const QMap<IFile*, Internal::FileInfo>::const_iterator cend =  d->m_managedFiles.constEnd();
+    for (QMap<IFile*, Internal::FileInfo>::const_iterator i = d->m_managedFiles.constBegin(); i != cend; ++i) {
         IFile *fi = i.key();
         if (fi->isModified())
             modifiedFiles << fi;
@@ -250,7 +285,7 @@ QList<IFile *> FileManager::modifiedFiles() const
 void FileManager::blockFileChange(IFile *file)
 {
     if (!file->fileName().isEmpty())
-        m_fileWatcher->removePath(file->fileName());
+        d->m_fileWatcher->removePath(file->fileName());
 }
 
 /*!
@@ -263,18 +298,18 @@ void FileManager::unblockFileChange(IFile *file)
     foreach (IFile *managedFile, managedFiles(file->fileName()))
         updateFileInfo(managedFile);
     if (!file->fileName().isEmpty())
-        m_fileWatcher->addPath(file->fileName());
+        d->m_fileWatcher->addPath(file->fileName());
 }
 
 void FileManager::updateFileInfo(IFile *file)
 {
     const QString fixedname = fixFileName(file->fileName());
     const QFileInfo fi(file->fileName());
-    FileInfo info;
+    Internal::FileInfo info;
     info.fileName = fixedname;
     info.modified = fi.lastModified();
     info.permissions = fi.permissions();
-    m_managedFiles.insert(file, info);
+    d->m_managedFiles.insert(file, info);
 }
 
 /*!
@@ -342,7 +377,7 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
         if (silently) {
             filesToSave = modifiedFiles;
         } else {
-            SaveItemsDialog dia(m_mainWindow, modifiedFiles);
+            Internal::SaveItemsDialog dia(d->m_mainWindow, modifiedFiles);
             if (!message.isEmpty())
                 dia.setMessage(message);
             if (!alwaysSaveMessage.isNull())
@@ -361,11 +396,11 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
         }
 
         bool yestoall = false;
+        Core::VCSManager *vcsManager = Core::ICore::instance()->vcsManager();
         foreach (IFile *file, filesToSave) {
             if (file->isReadOnly()) {
-                QString directory = QFileInfo(file->fileName()).absolutePath();
-                IVersionControl *versionControl = m_mainWindow->vcsManager()->findVersionControlForDirectory(directory);
-                if (versionControl)
+                const QString directory = QFileInfo(file->fileName()).absolutePath();
+                if (IVersionControl *versionControl = vcsManager->findVersionControlForDirectory(directory))
                     versionControl->vcsOpen(file->fileName());
             }
             if (!file->isReadOnly() && !file->fileName().isEmpty()) {
@@ -378,7 +413,7 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
                 if (yestoall)
                     continue;
                 const QFileInfo fi(file->fileName());
-                switch (skipFailedPrompt(m_mainWindow, fi.fileName())) {
+                switch (skipFailedPrompt(d->m_mainWindow, fi.fileName())) {
                 case QMessageBox::YesToAll:
                     yestoall = true;
                     break;
@@ -413,11 +448,11 @@ QString FileManager::getSaveFileNameWithExtension(const QString &title, const QS
     bool repeat;
     do {
         repeat = false;
-        fileName = QFileDialog::getSaveFileName(m_mainWindow, title, path, fileFilter);
+        fileName = QFileDialog::getSaveFileName(d->m_mainWindow, title, path, fileFilter);
         if (!fileName.isEmpty() && !extension.isEmpty() && !fileName.endsWith(extension)) {
             fileName.append(extension);
             if (QFile::exists(fileName)) {
-                if (QMessageBox::warning(m_mainWindow, tr("Overwrite?"),
+                if (QMessageBox::warning(d->m_mainWindow, tr("Overwrite?"),
                         tr("An item named '%1' already exists at this location. Do you want to overwrite it?").arg(fileName),
                         QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
                     repeat = true;
@@ -462,10 +497,10 @@ QString FileManager::getSaveAsFileName(IFile *file)
 
 void FileManager::changedFile(const QString &file)
 {
-    const bool wasempty = m_changedFiles.isEmpty();
+    const bool wasempty = d->m_changedFiles.isEmpty();
     foreach (IFile *fileinterface, managedFiles(file))
-        m_changedFiles << fileinterface;
-    if (wasempty && !m_changedFiles.isEmpty()) {
+        d->m_changedFiles << fileinterface;
+    if (wasempty && !d->m_changedFiles.isEmpty()) {
         QTimer::singleShot(200, this, SLOT(checkForReload()));
     }
 }
@@ -480,17 +515,17 @@ void FileManager::mainWindowActivated()
 
 void FileManager::checkForReload()
 {
-    if (QApplication::activeWindow() == m_mainWindow &&
-        !m_blockActivated && !m_changedFiles.isEmpty()) {
-        m_blockActivated = true;
-        const QList<QPointer<IFile> > changed = m_changedFiles;
-        m_changedFiles.clear();
+    if (QApplication::activeWindow() == d->m_mainWindow &&
+        !d->m_blockActivated && !d->m_changedFiles.isEmpty()) {
+        d->m_blockActivated = true;
+        const QList<QPointer<IFile> > changed = d->m_changedFiles;
+        d->m_changedFiles.clear();
         IFile::ReloadBehavior behavior = EditorManager::instance()->reloadBehavior();
         foreach (IFile *f, changed) {
             if (!f)
                 continue;
             QFileInfo fi(f->fileName());
-            FileInfo info = m_managedFiles.value(f);
+            Internal::FileInfo info = d->m_managedFiles.value(f);
             if (info.modified != fi.lastModified()
                     || info.permissions != fi.permissions()) {
                 if (info.modified != fi.lastModified())
@@ -503,11 +538,11 @@ void FileManager::checkForReload()
                 updateFileInfo(f);
 
                 // the file system watchers loses inodes when a file is removed/renamed. Work around it.
-                m_fileWatcher->removePath(f->fileName());
-                m_fileWatcher->addPath(f->fileName());
+                d->m_fileWatcher->removePath(f->fileName());
+                d->m_fileWatcher->addPath(f->fileName());
             }
         }
-        m_blockActivated = false;
+        d->m_blockActivated = false;
         checkForReload();
     }
 }
@@ -532,10 +567,10 @@ void FileManager::addToRecentFiles(const QString &fileName)
     if (fileName.isEmpty())
         return;
     QString prettyFileName(QDir::toNativeSeparators(fileName));
-    m_recentFiles.removeAll(prettyFileName);
-    if (m_recentFiles.count() > m_maxRecentFiles)
-        m_recentFiles.removeLast();
-    m_recentFiles.prepend(prettyFileName);
+    d->m_recentFiles.removeAll(prettyFileName);
+    if (d->m_recentFiles.count() > d->m_maxRecentFiles)
+        d->m_recentFiles.removeLast();
+    d->m_recentFiles.prepend(prettyFileName);
 }
 
 /*!
@@ -545,14 +580,14 @@ void FileManager::addToRecentFiles(const QString &fileName)
 */
 QStringList FileManager::recentFiles() const
 {
-    return m_recentFiles;
+    return d->m_recentFiles;
 }
 
 void FileManager::saveRecentFiles()
 {
-    QSettings *s = m_mainWindow->settings();
+    QSettings *s = Core::ICore::instance()->settings();
     s->beginGroup(QLatin1String(settingsGroup));
-    s->setValue(QLatin1String(filesKey), m_recentFiles);
+    s->setValue(QLatin1String(filesKey), d->m_recentFiles);
     s->endGroup();
 }
 
@@ -565,10 +600,10 @@ void FileManager::saveRecentFiles()
   */
 void FileManager::setCurrentFile(const QString &filePath)
 {
-    if (m_currentFile == filePath)
+    if (d->m_currentFile == filePath)
         return;
-    m_currentFile = filePath;
-    emit currentFileChanged(m_currentFile);
+    d->m_currentFile = filePath;
+    emit currentFileChanged(d->m_currentFile);
 }
 
 /*!
@@ -581,7 +616,7 @@ void FileManager::setCurrentFile(const QString &filePath)
   */
 QString FileManager::currentFile() const
 {
-    return m_currentFile;
+    return d->m_currentFile;
 }
 
 /*!
@@ -594,8 +629,8 @@ QList<IFile *> FileManager::managedFiles(const QString &fileName) const
     const QString fixedName = fixFileName(fileName);
     QList<IFile *> result;
     if (!fixedName.isEmpty()) {
-        const QMap<IFile*, FileInfo>::const_iterator cend =  m_managedFiles.constEnd();
-        for (QMap<IFile*, FileInfo>::const_iterator i = m_managedFiles.constBegin(); i != cend; ++i) {
+        const QMap<IFile*, Internal::FileInfo>::const_iterator cend =  d->m_managedFiles.constEnd();
+        for (QMap<IFile*, Internal::FileInfo>::const_iterator i = d->m_managedFiles.constBegin(); i != cend; ++i) {
             if (i.value().fileName == fixedName)
                 result << i.key();
         }
@@ -632,3 +667,5 @@ bool FileChangeBlocker::modifiedReload() const
 {
     return m_reload;
 }
+
+} // namespace Core
