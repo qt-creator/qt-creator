@@ -275,9 +275,6 @@ public:
 
     virtual int match(const QList<AST *> &path)
     {
-        if (path.size() == 0)
-            return -1;        
-
         // show when we're on the 'if' of an if statement
         int index = path.size() - 1;
         IfStatementAST *ifStatement = path.at(index)->asIfStatement();
@@ -805,7 +802,8 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         ASTPath astPath(info.doc);
 
         const QList<AST *> path = astPath(_editor->textCursor());
-        // ### build the list of the quick fix ops by scanning path.
+        if (path.isEmpty())
+            return -1;
 
         QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(info.doc, info.snapshot, _editor));
         QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp(info.doc, info.snapshot, _editor));
