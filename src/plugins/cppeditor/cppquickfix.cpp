@@ -275,6 +275,9 @@ public:
 
     virtual int match(const QList<AST *> &path)
     {
+        if (path.size() == 0)
+            return -1;        
+
         // show when we're on the 'if' of an if statement
         int index = path.size() - 1;
         IfStatementAST *ifStatement = path.at(index)->asIfStatement();
