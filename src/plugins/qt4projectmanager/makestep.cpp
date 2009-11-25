@@ -214,7 +214,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     connect(makeStep, SIGNAL(changed()),
             this, SLOT(update()));
-    connect(makeStep->buildConfiguration()->project(), SIGNAL(buildDirectoryChanged()),
+    connect(makeStep->buildConfiguration(), SIGNAL(buildDirectoryChanged()),
             this, SLOT(updateDetails()));
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),

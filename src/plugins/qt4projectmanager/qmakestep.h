@@ -43,8 +43,8 @@ class Project;
 }
 
 namespace Qt4ProjectManager {
-
 namespace Internal {
+
 class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT

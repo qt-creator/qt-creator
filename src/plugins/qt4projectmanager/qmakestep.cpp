@@ -246,7 +246,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(m_ui.buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(buildConfigurationChanged()));
     connect(step, SIGNAL(changed()),
             this, SLOT(update()));
-    connect(step->buildConfiguration()->project(), SIGNAL(qtVersionChanged(ProjectExplorer::BuildConfiguration *)),
+    connect(step->buildConfiguration(), SIGNAL(qtVersionChanged(ProjectExplorer::BuildConfiguration *)),
             this, SLOT(qtVersionChanged(ProjectExplorer::BuildConfiguration *)));
 }
 
