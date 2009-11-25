@@ -5,7 +5,7 @@
 
     \title Qt Creator Manual
 
-    \section1 Version 1.2.94
+    \section1 Version 1.3.0
 
     The goal of Qt Creator is to provide a cross-platform, complete Integrated
     Development Environment (IDE) to develop Qt projects. It is available for
@@ -1480,7 +1480,7 @@
     specified in the \c CMake project file.
 
     Known issues for the current version can be found
-    \l{Known Issues of Version 1.2.94}{here}.
+    \l{Known Issues of Version 1.3.0}{here}.
 */
 
 
@@ -1992,7 +1992,7 @@
     There are some known issues with Qt Creator.
     The development team is aware of those, there is no need to report them as bug.
 
-    \section1 Known Issues of Version 1.2.94
+    \section1 Known Issues of Version 1.3.0
 
     \list
         \o Debugging Helper do not work while doing On Device Debugging.

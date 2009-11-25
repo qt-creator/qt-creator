@@ -1,4 +1,4 @@
-<plugin name="Bookmarks" version="1.2.94" compatVersion="1.2.94">
+<plugin name="Bookmarks" version="1.3.0" compatVersion="1.3.0">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,8 +19,8 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Bookmarks in text editors.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.2.94"/>
-        <dependency name="ProjectExplorer" version="1.2.94"/>
-        <dependency name="Core" version="1.2.94"/>
+        <dependency name="TextEditor" version="1.3.0"/>
+        <dependency name="ProjectExplorer" version="1.3.0"/>
+        <dependency name="Core" version="1.3.0"/>
     </dependencyList>
 </plugin>
