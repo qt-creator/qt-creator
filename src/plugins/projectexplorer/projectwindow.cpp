@@ -68,6 +68,31 @@ namespace {
 bool debug = false;
 }
 
+///
+// OnePixelBlackLine
+///
+
+class OnePixelBlackLine : public QWidget
+{
+public:
+    OnePixelBlackLine(QWidget *parent)
+        : QWidget(parent)
+    {
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        setMinimumHeight(1);
+        setMaximumHeight(1);
+    }
+    void paintEvent(QPaintEvent *e)
+    {
+        QPainter p(this);
+        p.fillRect(e->rect(), QBrush(Utils::StyleHelper::borderColor()));
+    }
+};
+
+///
+// PanelsWidget
+///
+
 PanelsWidget::PanelsWidget(QWidget *parent)
     : QScrollArea(parent)
 {
@@ -625,27 +650,6 @@ void ProjectPushButton::actionTriggered()
     QAction *action = qobject_cast<QAction *>(sender());
     emit projectChanged((ProjectExplorer::Project *) action->data().value<void *>());
 }
-
-///
-// OnePixelBlackLine
-///
-
-class OnePixelBlackLine : public QWidget
-{
-public:
-    OnePixelBlackLine(QWidget *parent)
-        : QWidget(parent)
-    {
-        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        setMinimumHeight(1);
-        setMaximumHeight(1);
-    }
-    void paintEvent(QPaintEvent *e)
-    {
-        QPainter p(this);
-        p.fillRect(e->rect(), QBrush(Utils::StyleHelper::borderColor()));
-    }
-};
 
 ///
 // ProjectWindow
