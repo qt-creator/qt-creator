@@ -143,7 +143,7 @@ void BuildStepsPage::updateAddBuildStepMenu()
     //Build up a list of possible steps and save map the display names to the (internal) name and factories.
     QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
     foreach (IBuildStepFactory * factory, factories) {
-        QStringList names = factory->canCreateForProject(m_configuration);
+        QStringList names = factory->canCreateForBuildConfiguration(m_configuration);
         foreach (const QString &name, names) {
             map.insert(factory->displayNameForName(name), QPair<QString, IBuildStepFactory *>(name, factory));
         }

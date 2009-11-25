@@ -133,7 +133,7 @@ public:
     virtual BuildStep *create(BuildConfiguration *bc, const QString &name) const = 0;
     /// Called by the add BuildStep action to check which BuildSteps could be added
     /// to the project by this factory, should return a list of names
-    virtual QStringList canCreateForProject(BuildConfiguration *bc) const = 0;
+    virtual QStringList canCreateForBuildConfiguration(BuildConfiguration *bc) const = 0;
     /// Called to convert an internal name to a displayName
 
     /// Called to clone a BuildStep

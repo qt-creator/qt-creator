@@ -47,7 +47,7 @@ public:
     virtual bool canCreate(const QString &name) const;
     virtual BuildStep *create(BuildConfiguration *bc, const QString &name) const;
     virtual BuildStep *clone(BuildStep *bs, BuildConfiguration *bc) const;
-    virtual QStringList canCreateForProject(BuildConfiguration *pro) const;
+    virtual QStringList canCreateForBuildConfiguration(BuildConfiguration *pro) const;
     virtual QString displayNameForName(const QString &name) const;
 };
 

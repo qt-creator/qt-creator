@@ -284,7 +284,7 @@ BuildStep *MakeStepFactory::clone(BuildStep *bs, BuildConfiguration *bc) const
     return new MakeStep(static_cast<MakeStep *>(bs), bc);
 }
 
-QStringList MakeStepFactory::canCreateForProject(BuildConfiguration * /* pro */) const
+QStringList MakeStepFactory::canCreateForBuildConfiguration(BuildConfiguration * /* pro */) const
 {
     return QStringList();
 }

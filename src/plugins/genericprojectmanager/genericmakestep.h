@@ -107,7 +107,7 @@ class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory
                                                const QString &name) const;
     virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs,
                                               ProjectExplorer::BuildConfiguration *bc) const;
-    virtual QStringList canCreateForProject(ProjectExplorer::BuildConfiguration *bc) const;
+    virtual QStringList canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
     virtual QString displayNameForName(const QString &name) const;
 };
 
