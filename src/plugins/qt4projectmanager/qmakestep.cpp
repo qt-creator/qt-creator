@@ -257,10 +257,8 @@ QString QMakeStepConfigWidget::summaryText() const
 
 void QMakeStepConfigWidget::qtVersionChanged(ProjectExplorer::BuildConfiguration *bc)
 {
-    if (bc == m_step->buildConfiguration()) {
-        updateTitleLabel();
-        updateEffectiveQMakeCall();
-    }
+    updateTitleLabel();
+    updateEffectiveQMakeCall();
 }
 
 void QMakeStepConfigWidget::updateTitleLabel()
