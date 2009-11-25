@@ -33,14 +33,11 @@
 
 using namespace CPlusPlus;
 
-ASTMatcher::ASTMatcher(TranslationUnit *translationUnit)    : _translationUnit(translationUnit)
+ASTMatcher::ASTMatcher()
 { }
 
 ASTMatcher::~ASTMatcher()
 { }
-
-TranslationUnit *ASTMatcher::translationUnit() const
-{ return _translationUnit; }
 
 bool ASTMatcher::match(SimpleSpecifierAST *node, SimpleSpecifierAST *pattern)
 {

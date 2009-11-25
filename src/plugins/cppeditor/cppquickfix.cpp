@@ -99,7 +99,7 @@ class RewriteLogicalAndOp: public QuickFixOperation
 {
 public:
     RewriteLogicalAndOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot, editor), matcher(doc->translationUnit()),
+        : QuickFixOperation(doc, snapshot, editor),
            left(0), right(0), pattern(0)
     {}
 
@@ -324,7 +324,7 @@ class MoveDeclarationOutOfIfOp: public QuickFixOperation
 {
 public:
     MoveDeclarationOutOfIfOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot, editor), matcher(doc->translationUnit()),
+        : QuickFixOperation(doc, snapshot, editor),
            condition(0), pattern(0), core(0)
     {}
 
@@ -389,7 +389,7 @@ class MoveDeclarationOutOfWhileOp: public QuickFixOperation
 {
 public:
     MoveDeclarationOutOfWhileOp(Document::Ptr doc, const Snapshot &snapshot, CPPEditor *editor)
-        : QuickFixOperation(doc, snapshot, editor), matcher(doc->translationUnit()),
+        : QuickFixOperation(doc, snapshot, editor),
            condition(0), pattern(0), core(0)
     {}
 

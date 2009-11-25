@@ -36,10 +36,8 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT ASTMatcher
 {
 public:
-    ASTMatcher(TranslationUnit *translationUnit);
+    ASTMatcher();
     virtual ~ASTMatcher();
-
-    TranslationUnit *translationUnit() const;
 
     virtual bool match(AccessDeclarationAST *node, AccessDeclarationAST *pattern);
     virtual bool match(ArrayAccessAST *node, ArrayAccessAST *pattern);
@@ -163,9 +161,6 @@ public:
     virtual bool match(ObjCDynamicPropertiesDeclarationAST *node, ObjCDynamicPropertiesDeclarationAST *pattern);
     virtual bool match(ObjCFastEnumerationAST *node, ObjCFastEnumerationAST *pattern);
     virtual bool match(ObjCSynchronizedStatementAST *node, ObjCSynchronizedStatementAST *pattern);
-
-private:
-    TranslationUnit *_translationUnit;
 };
 
 } // end of namespace CPlusPlus
