@@ -760,7 +760,7 @@ QString QuickFixOperation::textOf(AST *ast) const
     return textOf(startOf(ast), endOf(ast));
 }
 
-void QuickFixOperation::applyChangeSet()
+void QuickFixOperation::apply()
 {
     Range range;
 
@@ -880,7 +880,7 @@ void CPPQuickFixCollector::perform(QuickFixOperationPtr op)
 {
     op->setTextCursor(_editor->textCursor());
     op->createChangeSet();
-    op->applyChangeSet();
+    op->apply();
 }
 
 void CPPQuickFixCollector::cleanup()

@@ -63,7 +63,7 @@ public:
     virtual int match(const QList<CPlusPlus::AST *> &path) = 0;
     virtual void createChangeSet() = 0;
 
-    void applyChangeSet();
+    void apply();
 
     CPlusPlus::Document::Ptr document() const;
     void setDocument(CPlusPlus::Document::Ptr document);
