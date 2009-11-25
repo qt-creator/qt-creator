@@ -32,11 +32,23 @@
 
 #include "utils_global.h"
 
+QT_BEGIN_NAMESPACE
+class QStringList;
+QT_END_NAMESPACE
+
 namespace Utils {
 
 // Create a usable settings key from a category,
 // for example Editor|C++ -> Editor_C__
 QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category);
+
+// Return the common prefix part of a string list:
+// "C:\foo\bar1" "C:\foo\bar2"  -> "C:\foo\bar"
+QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings);
+
+// Return the common path of a list of files:
+// "C:\foo\bar1" "C:\foo\bar2"  -> "C:\foo"
+QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files);
 
 } // namespace Utils
 

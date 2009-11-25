@@ -35,7 +35,7 @@
 #include "ui_fontsettingspage.h"
 
 #include <coreplugin/icore.h>
-#include <utils/settingsutils.h>
+#include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>

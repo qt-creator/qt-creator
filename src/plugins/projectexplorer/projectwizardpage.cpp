@@ -31,6 +31,8 @@
 #include "ui_projectwizardpage.h"
 #include "projectnodes.h"
 
+#include <utils/stringutils.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
@@ -134,13 +136,21 @@ void ProjectWizardPage::setVCSDisplay(const QString &vcsName)
 void ProjectWizardPage::setFilesDisplay(const QStringList &files)
 {
     QString fileMessage;
+    const QString commonPath = Utils::commonPath(files);
     {
         QTextStream str(&fileMessage);
-        str << "<qt>" << tr("Files to be added:");
-        str << "<pre>";
-        const QStringList::const_iterator cend = files.constEnd();
-        for (QStringList::const_iterator it = files.constBegin(); it != cend; ++it)
-            str << *it << '\n';
+        str << "<qt>"
+            << (commonPath.isEmpty() ? tr("Files to be added:") : tr("Files to be added in"))
+            << "<pre>";
+        if (commonPath.isEmpty()) {
+            foreach(const QString &f, files)
+                str << f << '\n';
+        } else {
+            str << commonPath << ":\n\n";
+            const int prefixSize = commonPath.size() + 1;
+            foreach(const QString &f, files)
+                str << f.right(f.size() - prefixSize) << '\n';
+        }
         str << "</pre>";
     }
     m_ui->filesLabel->setText(fileMessage);

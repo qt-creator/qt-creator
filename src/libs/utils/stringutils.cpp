@@ -27,9 +27,12 @@
 **
 **************************************************************************/
 
-#include "settingsutils.h"
+#include "stringutils.h"
 
 #include <QtCore/QString>
+#include <QtCore/QStringList>
+
+#include <limits.h>
 
 namespace Utils {
 
@@ -44,6 +47,55 @@ QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category)
             rc[i] = underscore;
     }
     return rc;
+}
+
+// Figure out length of common start of string ("C:\a", "c:\b"  -> "c:\"
+static inline int commonPartSize(const QString &s1, const QString &s2)
+{
+    const int size = qMin(s1.size(), s2.size());
+    for (int i = 0; i < size; i++)
+        if (s1.at(i) != s2.at(i))
+            return i;
+    return size;
+}
+
+QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings)
+{
+    switch (strings.size()) {
+    case 0:
+        return QString();
+    case 1:
+        return strings.front();
+    default:
+        break;
+    }
+    // Figure out common string part: "C:\foo\bar1" "C:\foo\bar2"  -> "C:\foo\bar"
+    int commonLength = INT_MAX;
+    const int last = strings.size() - 1;
+    for (int i = 0; i < last; i++)
+        commonLength = qMin(commonLength, commonPartSize(strings.at(i), strings.at(i + 1)));
+    if (!commonLength)
+        return QString();
+    return strings.at(0).left(commonLength);
+}
+
+QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files)
+{
+    QString common = commonPrefix(files);
+    // Find common directory part: "C:\foo\bar" -> "C:\foo"
+    int lastSeparatorPos = common.lastIndexOf(QLatin1Char('/'));
+    if (lastSeparatorPos == -1)
+        lastSeparatorPos = common.lastIndexOf(QLatin1Char('\\'));
+    if (lastSeparatorPos == -1)
+        return QString();
+    if (lastSeparatorPos == -1)
+        return QString();
+#ifdef Q_OS_UNIX
+    if (lastSeparatorPos == 0) // Unix: "/a", "/b" -> '/'
+        lastSeparatorPos = 1;
+#endif
+    common.truncate(lastSeparatorPos);
+    return common;
 }
 
 } // namespace Utils

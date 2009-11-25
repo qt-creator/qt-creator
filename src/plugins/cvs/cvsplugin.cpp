@@ -54,6 +54,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -67,8 +68,6 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-
-#include <limits.h>
 
 namespace CVS {
     namespace Internal {
@@ -963,13 +962,6 @@ static inline QString processStdErr(QProcess &proc)
     return QString::fromLocal8Bit(proc.readAllStandardError()).remove(QLatin1Char('\r'));
 }
 
-static inline QString processStdOut(QProcess &proc, QTextCodec *outputCodec = 0)
-{
-    const QByteArray stdOutData = proc.readAllStandardOutput();
-    QString stdOut = outputCodec ? outputCodec->toUnicode(stdOutData) : QString::fromLocal8Bit(stdOutData);
-    return stdOut.remove(QLatin1Char('\r'));
-}
-
 /* Tortoise CVS does not allow for absolute path names
  * (which it claims to be CVS standard behaviour).
  * So, try to figure out the common root of the file arguments,
@@ -979,16 +971,6 @@ static inline QString processStdOut(QProcess &proc, QTextCodec *outputCodec = 0)
  * so, trying to find a common repository is not an option.
  * Usually, there is only one file argument, which is not
  * problematic; it is just split using QFileInfo. */
-
-// Figure out length of common start of string ("C:\a", "c:\b"  -> "c:\"
-static inline int commonPartSize(const QString &s1, const QString &s2)
-{
-    const int size = qMin(s1.size(), s2.size());
-    for (int i = 0; i < size; i++)
-        if (s1.at(i) != s2.at(i))
-            return i;
-    return size;
-}
 
 static inline QString fixFileArgs(QStringList *files)
 {
@@ -1003,27 +985,10 @@ static inline QString fixFileArgs(QStringList *files)
     default:
         break;
     }
-    // Figure out common string part: "C:\foo\bar1" "C:\foo\bar2"  -> "C:\foo\bar"
-    int commonLength = INT_MAX;
-    const int last = files->size() - 1;
-    for (int i = 0; i < last; i++)
-        commonLength = qMin(commonLength, commonPartSize(files->at(i), files->at(i + 1)));
-    if (!commonLength)
-        return QString();
-    // Find directory part: "C:\foo\bar" -> "C:\foo"
-    QString common = files->at(0).left(commonLength);
-    int lastSlashPos = common.lastIndexOf(QLatin1Char('/'));
-    if (lastSlashPos == -1)
-        lastSlashPos = common.lastIndexOf(QLatin1Char('\\'));
-    if (lastSlashPos == -1)
-        return QString();
-#ifdef Q_OS_UNIX
-    if (lastSlashPos == 0) // leave "/a", "/b" untouched
-        return QString();
-#endif
-    common.truncate(lastSlashPos);
+    // Find common directory part: "C:\foo\bar" -> "C:\foo"
+    const QString common = Utils::commonPath(*files);
     // remove up until slash from the files
-    commonLength = lastSlashPos + 1;
+    const int commonLength = common.size() + 1;
     const QStringList::iterator end = files->end();
     for (QStringList::iterator it = files->begin(); it != end; ++it) {
         it->remove(0, commonLength);
