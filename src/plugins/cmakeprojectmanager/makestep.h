@@ -107,7 +107,7 @@ class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
     virtual bool canCreate(const QString &name) const;
     virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString &name) const;
     virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
-    virtual QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
+    virtual QStringList canCreateForProject(ProjectExplorer::BuildConfiguration *bc) const;
     virtual QString displayNameForName(const QString &name) const;
 };
 

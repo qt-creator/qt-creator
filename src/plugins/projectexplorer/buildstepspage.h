@@ -87,7 +87,6 @@ private:
     void updateBuildStepButtonsState();
     void addBuildStepWidget(int pos, BuildStep *step);
 
-    Project *m_pro;
     BuildConfiguration *m_configuration;
     QHash<QAction *, QPair<QString, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
     bool m_clean;

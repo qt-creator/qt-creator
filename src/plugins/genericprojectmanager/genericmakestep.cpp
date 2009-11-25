@@ -292,7 +292,7 @@ ProjectExplorer::BuildStep *GenericMakeStepFactory::clone(ProjectExplorer::Build
     return new GenericMakeStep(static_cast<GenericMakeStep*>(bs), bc);
 }
 
-QStringList GenericMakeStepFactory::canCreateForProject(ProjectExplorer::Project * /* pro */) const
+QStringList GenericMakeStepFactory::canCreateForProject(ProjectExplorer::BuildConfiguration * /* pro */) const
 {
     return QStringList();
 }

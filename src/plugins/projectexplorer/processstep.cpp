@@ -212,9 +212,9 @@ BuildStep *ProcessStepFactory::clone(BuildStep *bs, BuildConfiguration *bc) cons
     return new ProcessStep(static_cast<ProcessStep *>(bs), bc);
 }
 
-QStringList ProcessStepFactory::canCreateForProject(Project *pro) const
+QStringList ProcessStepFactory::canCreateForProject(BuildConfiguration *bc) const
 {
-    Q_UNUSED(pro)
+    Q_UNUSED(bc)
     return QStringList()<<"projectexplorer.processstep";
 }
 QString ProcessStepFactory::displayNameForName(const QString &name) const

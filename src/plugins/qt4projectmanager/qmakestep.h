@@ -54,7 +54,7 @@ public:
     bool canCreate(const QString & name) const;
     ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString & name) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
-    QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
+    QStringList canCreateForProject(ProjectExplorer::BuildConfiguration *bc) const;
     QString displayNameForName(const QString &name) const;
 };
 }
