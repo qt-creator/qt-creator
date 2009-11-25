@@ -109,7 +109,8 @@ public:
     virtual QString displayNameForType(const QString &type) const = 0;
 
     // creates build configuration(s) for given type and adds them to project
-    // returns true if build configuration(s) actually have been added
+    // if successfull returns the BuildConfiguration that should be shown in the
+    // project mode for editing
     virtual BuildConfiguration *create(const QString &type) const = 0;
 
     // clones a given BuildConfiguration and adds it to the project
@@ -118,9 +119,7 @@ public:
     // restores a BuildConfiguration with the name and adds it to the project
     virtual BuildConfiguration *restore() const = 0;
 
-
     // TODO display name unique, in different ways
-
 
 signals:
     void availableCreationTypesChanged();
