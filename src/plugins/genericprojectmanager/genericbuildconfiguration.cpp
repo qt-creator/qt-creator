@@ -45,3 +45,22 @@ GenericBuildConfiguration::GenericBuildConfiguration(GenericBuildConfiguration *
 {
 
 }
+
+ProjectExplorer::Environment GenericBuildConfiguration::environment() const
+{
+    return ProjectExplorer::Environment::systemEnvironment();
+}
+
+QString GenericBuildConfiguration::buildDirectory() const
+{
+    QString buildDirectory = value("buildDirectory").toString();
+
+    if (buildDirectory.isEmpty()) {
+        QFileInfo fileInfo(project()->file()->fileName());
+
+        buildDirectory = fileInfo.absolutePath();
+    }
+
+    return buildDirectory;
+}
+

@@ -30,6 +30,7 @@
 #include "cmakerunconfiguration.h"
 
 #include "cmakeproject.h"
+#include "cmakebuildconfiguration.h"
 #include "cmakeprojectconstants.h"
 
 #include <projectexplorer/environment.h>
@@ -58,6 +59,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &t
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
 
+    // TODO
     connect(pro, SIGNAL(environmentChanged(ProjectExplorer::BuildConfiguration *)),
             this, SIGNAL(baseEnvironmentChanged()));
 }
@@ -186,7 +188,7 @@ ProjectExplorer::Environment CMakeRunConfiguration::baseEnvironment() const
     } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::SystemEnvironmentBase) {
         env = ProjectExplorer::Environment::systemEnvironment();
     } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::BuildEnvironmentBase) {
-        env = project()->environment(project()->activeBuildConfiguration());
+        env = environment();
     }
     return env;
 }
@@ -226,8 +228,8 @@ void CMakeRunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplore
 
 ProjectExplorer::ToolChain::ToolChainType CMakeRunConfiguration::toolChainType() const
 {
-    CMakeProject *pro = static_cast<CMakeProject *>(project());
-    return pro->toolChainType();
+    CMakeBuildConfiguration *bc = static_cast<CMakeBuildConfiguration *>(project()->activeBuildConfiguration());
+    return bc->toolChainType();
 }
 
 // Configuration widget

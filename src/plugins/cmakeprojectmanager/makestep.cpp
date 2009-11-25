@@ -29,6 +29,7 @@
 #include "makestep.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
+#include "cmakebuildconfiguration.h"
 
 #include <projectexplorer/projectexplorer.h>
 
@@ -95,20 +96,20 @@ void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 
 bool MakeStep::init()
 {
-    BuildConfiguration *bc = buildConfiguration();
+    CMakeBuildConfiguration *bc = static_cast<CMakeBuildConfiguration *>(buildConfiguration());
     // TODO, we should probably have a member cmakeBuildConfiguration();
-    CMakeProject *pro = static_cast<CMakeProject *>(buildConfiguration()->project());
-    setBuildParser(pro->buildParser(bc));
+
+    setBuildParser(bc->buildParser());
 
     setEnabled(true);
-    setWorkingDirectory(pro->buildDirectory(bc));
+    setWorkingDirectory(bc->buildDirectory());
 
-    setCommand(pro->toolChain(bc)->makeCommand());
+    setCommand(bc->toolChain()->makeCommand());
 
     QStringList arguments = m_buildTargets;
     arguments << additionalArguments();
     setArguments(arguments);
-    setEnvironment(pro->environment(bc));
+    setEnvironment(bc->environment());
     setIgnoreReturnValue(m_clean);
 
     return AbstractMakeStep::init();
@@ -253,9 +254,8 @@ void MakeStepConfigWidget::updateDetails()
     QStringList arguments = m_makeStep->m_buildTargets;
     arguments << m_makeStep->additionalArguments();
 
-    BuildConfiguration *bc = m_makeStep->buildConfiguration();
-    CMakeProject *pro = static_cast<CMakeProject *>(bc->project());
-    m_summaryText = tr("<b>Make:</b> %1 %2").arg(pro->toolChain(bc)->makeCommand(), arguments.join(" "));
+    CMakeBuildConfiguration *bc = static_cast<CMakeBuildConfiguration *>(m_makeStep->buildConfiguration());
+    m_summaryText = tr("<b>Make:</b> %1 %2").arg(bc->toolChain()->makeCommand(), arguments.join(" "));
     emit updateSummary();
 }
 

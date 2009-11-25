@@ -35,6 +35,7 @@
 #include <projectexplorer/environment.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/buildconfiguration.h>
 
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
@@ -131,7 +132,7 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
     }
     if (const ProjectExplorer::Project *project = runConfiguration->project()) {
         m_startParameters->buildDir =
-            project->buildDirectory(project->activeBuildConfiguration());
+            project->activeBuildConfiguration()->buildDirectory();
     }
     m_startParameters->useTerminal =
         runConfiguration->runMode() == LocalApplicationRunConfiguration::Console;

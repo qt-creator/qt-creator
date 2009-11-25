@@ -61,12 +61,9 @@ public:
 
 class Qt4Project;
 
-
 class QMakeStep : public ProjectExplorer::AbstractMakeStep
 {
     Q_OBJECT
-    friend class Qt4Project; // TODO remove
-    // Currently used to access qmakeArgs
 public:
     QMakeStep(ProjectExplorer::BuildConfiguration *bc);
     QMakeStep(QMakeStep *bs, ProjectExplorer::BuildConfiguration *bc);

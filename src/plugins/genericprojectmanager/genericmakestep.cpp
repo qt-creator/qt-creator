@@ -31,6 +31,7 @@
 #include "genericprojectconstants.h"
 #include "genericproject.h"
 #include "ui_genericmakestep.h"
+#include "genericbuildconfiguration.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/toolchain.h>
@@ -66,22 +67,21 @@ GenericMakeStep::~GenericMakeStep()
 
 bool GenericMakeStep::init()
 {
-    ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
+    GenericBuildConfiguration *bc = static_cast<GenericBuildConfiguration *>(buildConfiguration());
     //TODO
-    GenericProject *pro = static_cast<GenericProject *>(buildConfiguration()->project());
-    const QString buildParser = pro->buildParser(bc);
+    const QString buildParser = static_cast<GenericProject *>(bc->project())->buildParser(bc);
     setBuildParser(buildParser);
 
     setEnabled(true);
     Core::VariableManager *vm = Core::VariableManager::instance();
-    const QString rawBuildDir = buildConfiguration()->project()->buildDirectory(bc);
+    const QString rawBuildDir = bc->buildDirectory();
     const QString buildDir = vm->resolve(rawBuildDir);
     setWorkingDirectory(buildDir);
 
     setCommand(makeCommand());
     setArguments(replacedArguments());
 
-    setEnvironment(buildConfiguration()->project()->environment(bc));
+    setEnvironment(bc->environment());
     return AbstractMakeStep::init();
 }
 

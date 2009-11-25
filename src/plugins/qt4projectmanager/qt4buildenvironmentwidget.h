@@ -45,6 +45,8 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
+class Qt4BuildConfiguration;
+
 class Qt4BuildEnvironmentWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
@@ -63,7 +65,7 @@ private:
     ProjectExplorer::EnvironmentWidget *m_buildEnvironmentWidget;
     QCheckBox *m_clearSystemEnvironmentCheckBox;
     Qt4Project *m_pro;
-    ProjectExplorer::BuildConfiguration *m_buildConfiguration;
+    Qt4BuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

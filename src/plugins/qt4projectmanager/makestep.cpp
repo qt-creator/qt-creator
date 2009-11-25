@@ -30,6 +30,7 @@
 #include "makestep.h"
 
 #include "qt4project.h"
+#include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -96,16 +97,15 @@ void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 
 bool MakeStep::init()
 {
-    ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-    Environment environment = buildConfiguration()->project()->environment(bc);
+    Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+    Environment environment = bc->environment();
     setEnvironment(environment);
 
     //TODO
-    Qt4Project *qt4project = static_cast<Qt4Project *>(buildConfiguration()->project());
-    QString workingDirectory = qt4project->buildDirectory(bc);
+    QString workingDirectory = bc->buildDirectory();
     setWorkingDirectory(workingDirectory);
 
-    QString makeCmd = qt4project->makeCommand(bc);
+    QString makeCmd = bc->makeCommand();
     if (!m_makeCmd.isEmpty())
         makeCmd = m_makeCmd;
     if (!QFileInfo(makeCmd).isAbsolute()) {
@@ -126,15 +126,15 @@ bool MakeStep::init()
     setIgnoreReturnValue(m_clean);
     QStringList args = m_makeargs;
     if (!m_clean) {
-        if (!qt4project->defaultMakeTarget(bc).isEmpty())
-            args << qt4project->defaultMakeTarget(bc);
+        if (!bc->defaultMakeTarget().isEmpty())
+            args << bc->defaultMakeTarget();
     }
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    ProjectExplorer::ToolChain *toolchain = qt4project->toolChain(bc);
+    ProjectExplorer::ToolChain *toolchain = bc->toolChain();
 
     ProjectExplorer::ToolChain::ToolChainType type =  ProjectExplorer::ToolChain::UNKNOWN;
     if (toolchain)
@@ -225,22 +225,20 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
 void MakeStepConfigWidget::updateMakeOverrideLabel()
 {
-    Qt4Project *qt4project = static_cast<Qt4Project *>(m_makeStep->buildConfiguration()->project());
-    m_ui.makeLabel->setText(tr("Override %1:").arg(qt4project->
-        makeCommand(m_makeStep->buildConfiguration())));
+    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(m_makeStep->buildConfiguration());
+    m_ui.makeLabel->setText(tr("Override %1:").arg(qt4bc->makeCommand()));
 }
 
 void MakeStepConfigWidget::updateDetails()
 {
-    Qt4Project *pro = static_cast<Qt4Project *>(m_makeStep->buildConfiguration()->project());
-    ProjectExplorer::BuildConfiguration *bc = m_makeStep->buildConfiguration();
-    QString workingDirectory = pro->buildDirectory(bc);
+    Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(m_makeStep->buildConfiguration());
+    QString workingDirectory = bc->buildDirectory();
 
-    QString makeCmd = pro->makeCommand(bc);
+    QString makeCmd = bc->makeCommand();
     if (!m_makeStep->m_makeCmd.isEmpty())
         makeCmd = m_makeStep->m_makeCmd;
     if (!QFileInfo(makeCmd).isAbsolute()) {
-        Environment environment = pro->environment(bc);
+        Environment environment = bc->environment();
         // Try to detect command in environment
         QString tmp = environment.searchInPath(makeCmd);
         if (tmp == QString::null) {
@@ -257,7 +255,7 @@ void MakeStepConfigWidget::updateDetails()
     // but for now this is the least invasive change
     QStringList args = m_makeStep->makeArguments();
     ProjectExplorer::ToolChain::ToolChainType t = ProjectExplorer::ToolChain::UNKNOWN;
-    ProjectExplorer::ToolChain *toolChain = pro->toolChain(bc);
+    ProjectExplorer::ToolChain *toolChain = bc->toolChain();
     if (toolChain)
         t = toolChain->type();
     if (t != ProjectExplorer::ToolChain::MSVC && t != ProjectExplorer::ToolChain::WINCE) {

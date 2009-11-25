@@ -65,12 +65,12 @@ ProcessStep::ProcessStep(ProcessStep *bs, BuildConfiguration *bc)
 
 bool ProcessStep::init()
 {
-    setEnvironment(buildConfiguration()->project()->environment(buildConfiguration()));
+    setEnvironment(buildConfiguration()->environment());
     QString wd = workingDirectory();
     if (wd.isEmpty())
         wd = "$BUILDDIR";
 
-    AbstractProcessStep::setWorkingDirectory(wd.replace("$BUILDDIR", buildConfiguration()->project()->buildDirectory(buildConfiguration())));
+    AbstractProcessStep::setWorkingDirectory(wd.replace("$BUILDDIR", buildConfiguration()->buildDirectory()));
     AbstractProcessStep::setCommand(m_command);
     AbstractProcessStep::setEnabled(m_enabled);
     AbstractProcessStep::setArguments(m_arguments);

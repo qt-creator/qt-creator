@@ -54,6 +54,7 @@ namespace Internal {
 class GenericProject;
 class GenericMakeStep;
 class GenericProjectFile;
+class GenericBuildConfiguration;
 
 class GenericBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
 {
@@ -94,9 +95,6 @@ public:
     virtual QList<ProjectExplorer::Project *> dependsOn();
 
     virtual bool isApplication() const;
-
-    virtual ProjectExplorer::Environment environment(ProjectExplorer::BuildConfiguration *configuration) const;
-    virtual QString buildDirectory(ProjectExplorer::BuildConfiguration *configuration) const;
 
     virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
     virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
@@ -204,7 +202,7 @@ private Q_SLOTS:
 private:
     GenericProject *m_project;
     Utils::PathChooser *m_pathChooser;
-    ProjectExplorer::BuildConfiguration *m_buildConfiguration;
+    GenericBuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

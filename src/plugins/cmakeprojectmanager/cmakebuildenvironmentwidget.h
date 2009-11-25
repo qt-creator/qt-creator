@@ -42,6 +42,7 @@ class EnvironmentWidget;
 namespace CMakeProjectManager {
 namespace Internal {
 class CMakeProject;
+class CMakeBuildConfiguration;
 
 class CMakeBuildEnvironmentWidget : public ProjectExplorer::BuildConfigWidget
 {
@@ -61,7 +62,7 @@ private:
     ProjectExplorer::EnvironmentWidget *m_buildEnvironmentWidget;
     QCheckBox *m_clearSystemEnvironmentCheckBox;
     CMakeProject *m_pro;
-    ProjectExplorer::BuildConfiguration *m_buildConfiguration;
+    CMakeBuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

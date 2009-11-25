@@ -481,25 +481,6 @@ bool GenericProject::isApplication() const
     return true;
 }
 
-ProjectExplorer::Environment GenericProject::environment(BuildConfiguration *configuration) const
-{
-    Q_UNUSED(configuration)
-    return ProjectExplorer::Environment::systemEnvironment();
-}
-
-QString GenericProject::buildDirectory(BuildConfiguration *configuration) const
-{
-    QString buildDirectory = configuration->value("buildDirectory").toString();
-
-    if (buildDirectory.isEmpty()) {
-        QFileInfo fileInfo(m_fileName);
-
-        buildDirectory = fileInfo.absolutePath();
-    }
-
-    return buildDirectory;
-}
-
 ProjectExplorer::BuildConfigWidget *GenericProject::createConfigWidget()
 {
     return new GenericBuildSettingsWidget(this);
@@ -629,8 +610,8 @@ QString GenericBuildSettingsWidget::displayName() const
 
 void GenericBuildSettingsWidget::init(BuildConfiguration *bc)
 {
-    m_buildConfiguration = bc;
-    m_pathChooser->setPath(m_project->buildDirectory(bc));
+    m_buildConfiguration = static_cast<GenericBuildConfiguration *>(bc);
+    m_pathChooser->setPath(m_buildConfiguration->buildDirectory());
 }
 
 void GenericBuildSettingsWidget::buildDirectoryChanged()

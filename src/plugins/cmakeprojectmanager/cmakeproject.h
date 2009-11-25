@@ -32,6 +32,7 @@
 
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
+#include "cmakebuildconfiguration.h"
 #include "makestep.h"
 
 #include <projectexplorer/project.h>
@@ -99,16 +100,6 @@ public:
 
     virtual bool isApplication() const;
 
-    //building environment
-    ProjectExplorer::Environment environment(ProjectExplorer::BuildConfiguration *configuration) const;
-    ProjectExplorer::Environment baseEnvironment(ProjectExplorer::BuildConfiguration *configuration) const;
-    void setUserEnvironmentChanges(ProjectExplorer::BuildConfiguration *configuration, const QList<ProjectExplorer::EnvironmentItem> &diff);
-    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges(ProjectExplorer::BuildConfiguration *configuration) const;
-    bool useSystemEnvironment(ProjectExplorer::BuildConfiguration *configuration) const;
-    void setUseSystemEnvironment(ProjectExplorer::BuildConfiguration *configuration, bool b);
-
-    virtual QString buildDirectory(ProjectExplorer::BuildConfiguration *configuration) const;
-
     virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
     virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
@@ -116,12 +107,10 @@ public:
 
     virtual QStringList files(FilesMode fileMode) const;
     QStringList targets() const;
-    QString buildParser(ProjectExplorer::BuildConfiguration *configuration) const;
+
     CMakeTarget targetForTitle(const QString &title);
 
     QString sourceDirectory() const;
-    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
-    ProjectExplorer::ToolChain *toolChain(ProjectExplorer::BuildConfiguration *configuration) const;
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
@@ -136,7 +125,6 @@ private slots:
 
 private:
     bool parseCMakeLists();
-    void updateToolChain(const QString &compiler);
 
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list);
@@ -152,7 +140,6 @@ private:
     CMakeProjectNode *m_rootNode;
     QStringList m_files;
     QList<CMakeTarget> m_targets;
-    ProjectExplorer::ToolChain *m_toolChain;
     ProjectExplorer::FileWatcher *m_watcher;
     bool m_insideFileChanged;
     QSet<QString> m_watchedFiles;
@@ -239,7 +226,7 @@ private:
     CMakeProject *m_project;
     QLineEdit *m_pathLineEdit;
     QPushButton *m_changeButton;
-    ProjectExplorer::BuildConfiguration *m_buildConfiguration;
+    CMakeBuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

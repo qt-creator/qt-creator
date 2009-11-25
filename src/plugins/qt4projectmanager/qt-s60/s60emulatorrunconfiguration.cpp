@@ -34,6 +34,7 @@
 #include "profilereader.h"
 #include "s60manager.h"
 #include "s60devices.h"
+#include "qt4buildconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -78,9 +79,9 @@ QString S60EmulatorRunConfiguration::type() const
 
 bool S60EmulatorRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
-    Qt4Project *pro = qobject_cast<Qt4Project*>(project());
-    QTC_ASSERT(pro, return false);
-    ToolChain::ToolChainType type = pro->toolChainType(configuration);
+    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(configuration);
+    QTC_ASSERT(qt4bc, return false);
+    ToolChain::ToolChainType type = qt4bc->toolChainType();
     return type == ToolChain::WINSCW;
 }
 
@@ -113,7 +114,7 @@ void S60EmulatorRunConfiguration::updateTarget()
 {
     if (m_cachedTargetInformationValid)
         return;
-    Qt4Project *pro = static_cast<Qt4Project *>(project());
+    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
     Qt4PriFileNode * priFileNode = static_cast<Qt4Project *>(project())->rootProjectNode()->findProFileFor(m_proFilePath);
     if (!priFileNode) {
         m_executable = QString::null;
@@ -121,15 +122,14 @@ void S60EmulatorRunConfiguration::updateTarget()
         emit targetInformationChanged();
         return;
     }
-    QtVersion *qtVersion = pro->qtVersion(pro->activeBuildConfiguration());
+    QtVersion *qtVersion = qt4bc->qtVersion();
     ProFileReader *reader = priFileNode->createProFileReader();
     reader->setCumulative(false);
     reader->setQtVersion(qtVersion);
 
     // Find out what flags we pass on to qmake, this code is duplicated in the qmake step
     QtVersion::QmakeBuildConfigs defaultBuildConfiguration = qtVersion->defaultBuildConfig();
-    QtVersion::QmakeBuildConfigs projectBuildConfiguration = QtVersion::QmakeBuildConfig(pro->activeBuildConfiguration()
-                                                                                        ->value("buildConfiguration").toInt());
+    QtVersion::QmakeBuildConfigs projectBuildConfiguration = QtVersion::QmakeBuildConfig(qt4bc->value("buildConfiguration").toInt());
     QStringList addedUserConfigArguments;
     QStringList removedUserConfigArguments;
     if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))
@@ -283,7 +283,7 @@ S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runCon
     // stuff like the EPOCROOT and EPOCDEVICE env variable
     Environment env = Environment::systemEnvironment();
     Project *project = runConfiguration->project();
-    static_cast<Qt4Project *>(project)->toolChain(project->activeBuildConfiguration())->addToEnvironment(env);
+    static_cast<Qt4BuildConfiguration *>(project->activeBuildConfiguration())->toolChain()->addToEnvironment(env);
     m_applicationLauncher.setEnvironment(env.toStringList());
 
     m_executable = runConfiguration->executable();

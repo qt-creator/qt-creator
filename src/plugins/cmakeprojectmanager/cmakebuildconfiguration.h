@@ -31,6 +31,7 @@
 #define CMAKEBUILDCONFIGURATION_H
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/toolchain.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -43,6 +44,24 @@ class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 public:
     CMakeBuildConfiguration(CMakeProject *pro);
     CMakeBuildConfiguration(BuildConfiguration *source);
+    ~CMakeBuildConfiguration();
+
+    ProjectExplorer::Environment environment() const;
+    ProjectExplorer::Environment baseEnvironment() const;
+    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
+    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
+    bool useSystemEnvironment() const;
+    void setUseSystemEnvironment(bool b);
+
+    virtual QString buildDirectory() const;
+    QString buildParser() const;
+
+    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    ProjectExplorer::ToolChain *toolChain() const;
+
+    void updateToolChain(const QString &compiler);
+private:
+    ProjectExplorer::ToolChain *m_toolChain;
 };
 
 

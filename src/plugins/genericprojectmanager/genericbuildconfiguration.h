@@ -44,6 +44,9 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
 public:
     GenericBuildConfiguration(GenericProject *pro);
     GenericBuildConfiguration(GenericBuildConfiguration *source);
+
+    virtual ProjectExplorer::Environment environment() const;
+    virtual QString buildDirectory() const;
 };
 
 } // namespace GenericProjectManager

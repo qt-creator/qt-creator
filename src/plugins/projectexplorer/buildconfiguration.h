@@ -31,6 +31,7 @@
 #define BUILDCONFIGURATION_H
 
 #include "projectexplorer_export.h"
+#include "environment.h"
 
 #include <QtCore/QHash>
 #include <QtCore/QString>
@@ -75,6 +76,13 @@ public:
 
     Project *project() const;
 
+    virtual Environment environment() const = 0;
+    virtual QString buildDirectory() const = 0;
+
+signals:
+    void environmentChanged();
+    void buildDirectoryChanged();
+
 protected:
     BuildConfiguration(Project * project);
     BuildConfiguration(BuildConfiguration *source);
@@ -111,8 +119,8 @@ public:
     virtual BuildConfiguration *restore() const = 0;
 
 
-    // TODO All those methods make the internal name (and display name) unique,
-    // but in different ways
+    // TODO display name unique, in different ways
+
 
 signals:
     void availableCreationTypesChanged();

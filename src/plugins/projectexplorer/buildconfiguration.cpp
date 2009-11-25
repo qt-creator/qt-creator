@@ -167,6 +167,7 @@ Project *BuildConfiguration::project() const
     return m_project;
 }
 
+
 ///
 // IBuildConfigurationFactory
 ///

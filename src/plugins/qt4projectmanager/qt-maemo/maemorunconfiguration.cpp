@@ -28,11 +28,11 @@
 **************************************************************************/
 
 #include "maemorunconfiguration.h"
-
 #include "maemomanager.h"
 #include "maemotoolchain.h"
 #include "profilereader.h"
 #include "qt4project.h"
+#include "qt4buildconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -322,10 +322,9 @@ Qt4Project *MaemoRunConfiguration::project() const
 
 bool MaemoRunConfiguration::isEnabled() const
 {
-    Qt4Project *qt4Project = qobject_cast<Qt4Project*>(project());
-    QTC_ASSERT(qt4Project, return false);
-    ToolChain::ToolChainType type =
-        qt4Project->toolChainType(qt4Project->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    QTC_ASSERT(qt4bc, return false);
+    ToolChain::ToolChainType type = qt4bc->toolChainType();
     return type == ToolChain::GCC_MAEMO;
 }
 
@@ -412,8 +411,8 @@ void MaemoRunConfiguration::wasDeployed()
 
 bool MaemoRunConfiguration::hasDebuggingHelpers() const
 {
-    return project()->qtVersion(project()->activeBuildConfiguration())
-        ->hasDebuggingHelper();
+    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    return qt4bc->qtVersion()->hasDebuggingHelper();
 }
 
 bool MaemoRunConfiguration::debuggingHelpersNeedDeployment() const
@@ -482,10 +481,10 @@ const QString MaemoRunConfiguration::cmd(const QString &cmdName) const
 
 const MaemoToolChain *MaemoRunConfiguration::toolchain() const
 {
-    Qt4Project *qt4Project = qobject_cast<Qt4Project *>(project());
-    QTC_ASSERT(qt4Project != 0, return 0);
+    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    QTC_ASSERT(qt4bc, return 0);
     MaemoToolChain *tc = dynamic_cast<MaemoToolChain *>(
-        qt4Project->toolChain(qt4Project->activeBuildConfiguration()) );
+        qt4bc->toolChain() );
     QTC_ASSERT(tc != 0, return 0);
     return tc;
 }
@@ -518,8 +517,8 @@ const QStringList MaemoRunConfiguration::arguments() const
 
 const QString MaemoRunConfiguration::dumperLib() const
 {
-    return project()->qtVersion(project()->activeBuildConfiguration())->
-        debuggingHelperLibrary();
+    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    return qt4bc->qtVersion()->debuggingHelperLibrary();
 }
 
 QString MaemoRunConfiguration::executable() const
@@ -668,6 +667,7 @@ void MaemoRunConfiguration::updateTarget()
     m_cachedTargetInformationValid = true;
 
     if (Qt4Project *qt4Project = static_cast<Qt4Project *>(project())) {
+        Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
         Qt4PriFileNode * priFileNode = qt4Project->rootProjectNode()
             ->findProFileFor(m_proFilePath);
         if (!priFileNode) {
@@ -675,8 +675,7 @@ void MaemoRunConfiguration::updateTarget()
             return;
         }
 
-        QtVersion *qtVersion =
-            qt4Project->qtVersion(qt4Project->activeBuildConfiguration());
+        QtVersion *qtVersion = qt4bc->qtVersion();
         ProFileReader *reader = priFileNode->createProFileReader();
         reader->setCumulative(false);
         reader->setQtVersion(qtVersion);
@@ -724,8 +723,7 @@ void MaemoRunConfiguration::updateTarget()
             QFileInfo(project()->file()->fileName()).absoluteDir();
         QString relSubDir =
             baseProjectDirectory.relativeFilePath(QFileInfo(m_proFilePath).path());
-        QDir baseBuildDirectory =
-            project()->buildDirectory(project()->activeBuildConfiguration());
+        QDir baseBuildDirectory = qt4bc->buildDirectory();
         QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
 
         if (!reader->contains("DESTDIR")) {
@@ -1324,11 +1322,10 @@ const QString AbstractMaemoRunControl::targetCmdLinePrefix() const
 bool AbstractMaemoRunControl::setProcessEnvironment(QProcess &process)
 {
     QTC_ASSERT(runConfig, return false);
-    Qt4Project *qt4Project = qobject_cast<Qt4Project *>(runConfig->project());
-    QTC_ASSERT(qt4Project, return false);
+    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(runConfig->project()->activeBuildConfiguration());
+    QTC_ASSERT(qt4bc, return false);
     Environment env = Environment::systemEnvironment();
-    qt4Project->toolChain(qt4Project->activeBuildConfiguration())
-        ->addToEnvironment(env);
+    qt4bc->toolChain()->addToEnvironment(env);
     process.setEnvironment(env.toStringList());
 
     return true;

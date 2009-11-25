@@ -39,6 +39,7 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
+class Qt4BuildConfiguration;
 
 namespace Ui {
 class Qt4ProjectConfigWidget;
@@ -72,8 +73,7 @@ private:
     void setToolChain(int index);
     Ui::Qt4ProjectConfigWidget *m_ui;
     QAbstractButton *m_browseButton;
-    Qt4Project *m_pro; // TODO remove
-    ProjectExplorer::BuildConfiguration *m_buildConfiguration;
+    Qt4BuildConfiguration *m_buildConfiguration;
     Utils::DetailsWidget *m_detailsContainer;
 };
 

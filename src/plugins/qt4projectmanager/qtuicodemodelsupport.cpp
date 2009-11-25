@@ -1,4 +1,5 @@
 #include "qtuicodemodelsupport.h"
+#include "qt4buildconfiguration.h"
 
 #include "qt4project.h"
 #include <designer/formwindoweditor.h>
@@ -88,9 +89,10 @@ void Qt4UiCodeModelSupport::setFileName(const QString &name)
 
 bool Qt4UiCodeModelSupport::runUic(const QString &ui) const
 {
+    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(m_project->activeBuildConfiguration());
     QProcess uic;
-    uic.setEnvironment(m_project->environment(m_project->activeBuildConfiguration()).toStringList());
-    uic.start(m_project->qtVersion(m_project->activeBuildConfiguration())->uicCommand(), QStringList(), QIODevice::ReadWrite);
+    uic.setEnvironment(m_project->activeBuildConfiguration()->environment().toStringList());
+    uic.start(qt4bc->qtVersion()->uicCommand(), QStringList(), QIODevice::ReadWrite);
     uic.waitForStarted();
     uic.write(ui.toUtf8());
     uic.closeWriteChannel();

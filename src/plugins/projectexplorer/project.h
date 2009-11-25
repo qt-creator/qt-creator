@@ -88,7 +88,9 @@ public:
     void removeBuildConfiguration(BuildConfiguration *configuration);
 
     QList<BuildConfiguration *> buildConfigurations() const;
+
     // remove and add "QString uniqueConfigurationDisplayName(const QString &proposedName) const" instead
+    // move into BuildConfiguration *
     void setDisplayNameFor(BuildConfiguration *configuration, const QString &displayName);
     BuildConfiguration *activeBuildConfiguration() const;
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
@@ -107,9 +109,6 @@ public:
     void setActiveRunConfiguration(RunConfiguration* runConfiguration);
 
     EditorConfiguration *editorConfiguration() const;
-
-    virtual Environment environment(BuildConfiguration *configuration) const = 0;
-    virtual QString buildDirectory(BuildConfiguration *configuration) const = 0;
 
     void saveSettings();
     bool restoreSettings();
@@ -131,7 +130,6 @@ public:
     static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
 signals:
     void fileListChanged();
-    void buildDirectoryChanged();
 
 // TODO clean up signal names
 // might be better to also have
@@ -150,7 +148,7 @@ signals:
 
     // This signal is jut there for updating the tree list in the buildsettings wizard
     void buildConfigurationDisplayNameChanged(BuildConfiguration *bc);
-    void environmentChanged(BuildConfiguration *bc);
+
 
 protected:
     /* This method is called when the project .user file is saved. Simply call
