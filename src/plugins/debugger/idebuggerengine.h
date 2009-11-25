@@ -120,6 +120,7 @@ public:
     virtual bool checkConfiguration(int /* toolChain */, QString * /* errorMessage */, QString * /* settingsPage */ = 0) const { return true; }
 
     virtual bool isSynchroneous() const { return false; }
+    virtual QString qtNamespace() const { return QString(); }
 protected:
     void showStatusMessage(const QString &msg, int timeout = -1);
     DebuggerState state() const;

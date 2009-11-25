@@ -330,6 +330,7 @@ QString WatchData::shadowedName(const QString &name, int seen)
     return QCoreApplication::translate("Debugger::Internal::WatchData", "%1 <shadowed %2>").arg(name).arg(seen);
 }
 
+
 ///////////////////////////////////////////////////////////////////////
 //
 // WatchModel
@@ -383,6 +384,11 @@ void WatchModel::reinitialize()
     qDeleteAll(m_root->children);
     m_root->children.clear();
     endRemoveRows();
+}
+
+void WatchModel::emitAllChanged()
+{
+    emit layoutChanged();
 }
 
 void WatchModel::beginCycle()
@@ -486,7 +492,7 @@ static inline QRegExp stdStringRegExp(const QString &charType)
     return re;
 }
 
-QString niceType(const QString typeIn)
+static QString niceTypeHelper(const QString typeIn)
 {
     static QMap<QString, QString> cache;
     const QMap<QString, QString>::const_iterator it = cache.constFind(typeIn);
@@ -585,6 +591,16 @@ QString niceType(const QString typeIn)
     type.replace(QLatin1Char('@'), QLatin1Char('*'));
     type.replace(QLatin1String(" >"), QString(QLatin1Char('>')));
     cache.insert(typeIn, type); // For simplicity, also cache unmodified types
+    return type;
+}
+
+QString WatchModel::niceType(const QString &typeIn) const
+{
+    QString type = niceTypeHelper(typeIn);
+    if (theDebuggerBoolSetting(ShowStdNamespace))
+        type = type.remove("std::");
+    if (theDebuggerBoolSetting(ShowQtNamespace))
+        type = type.remove(m_handler->m_manager->currentEngine()->qtNamespace());
     return type;
 }
 
@@ -1092,6 +1108,10 @@ WatchHandler::WatchHandler(DebuggerManager *manager)
         SIGNAL(triggered()), this, SLOT(watchExpression()));
     connect(theDebuggerAction(RemoveWatchExpression),
         SIGNAL(triggered()), this, SLOT(removeWatchExpression()));
+    connect(theDebuggerAction(ShowStdNamespace),
+        SIGNAL(triggered()), this, SLOT(emitAllChanged()));
+    connect(theDebuggerAction(ShowQtNamespace),
+        SIGNAL(triggered()), this, SLOT(emitAllChanged()));
 }
 
 void WatchHandler::beginCycle()
@@ -1123,6 +1143,13 @@ void WatchHandler::cleanup()
     }
     m_editWindows.clear();
 #endif
+}
+
+void WatchHandler::emitAllChanged()
+{
+    m_locals->emitAllChanged();
+    m_watchers->emitAllChanged();
+    m_tooltips->emitAllChanged();
 }
 
 void WatchHandler::insertData(const WatchData &data)

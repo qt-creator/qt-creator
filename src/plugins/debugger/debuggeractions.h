@@ -112,6 +112,8 @@ enum DebuggerActionCode
     WatchPoint,
     AssignValue,
     AssignType,
+    ShowStdNamespace,
+    ShowQtNamespace,
 
     // Source List
     ListSourceFiles,

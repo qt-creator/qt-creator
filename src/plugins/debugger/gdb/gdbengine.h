@@ -111,6 +111,7 @@ private: ////////// General Interface //////////
     virtual void shutdown();
 
     virtual void executeDebuggerCommand(const QString &command);
+    virtual QString qtNamespace() const { return m_dumperHelper.qtNamespace(); }
 
 private: ////////// General State //////////
 

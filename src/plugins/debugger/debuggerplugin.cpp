@@ -362,6 +362,8 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
         m_ui.checkBoxEnableReverseDebugging);
     m_group.insert(theDebuggerAction(MaximalStackDepth), 
         m_ui.spinBoxMaximalStackDepth);
+    m_group.insert(theDebuggerAction(ShowStdNamespace), 0);
+    m_group.insert(theDebuggerAction(ShowQtNamespace), 0);
 
 #ifdef USE_REVERSE_DEBUGGING
     m_ui.checkBoxEnableReverseDebugging->hide();

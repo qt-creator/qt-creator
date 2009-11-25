@@ -196,6 +196,22 @@ DebuggerSettings *DebuggerSettings::instance()
     item = new SavedAction(instance);
     instance->insertItem(WatchPoint, item);
 
+    item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ShowStandardNamespace"));
+    item->setText(tr("Show std:: namespace for types"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    instance->insertItem(ShowStdNamespace, item);
+
+    item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ShowQtNamespace"));
+    item->setText(tr("Show Qt's namespace for types"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    instance->insertItem(ShowQtNamespace, item);
+
     //
     // DebuggingHelper
     //

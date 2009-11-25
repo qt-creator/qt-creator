@@ -221,10 +221,14 @@ private:
 
     void dump();
     void dumpHelper(WatchItem *item);
+    void emitAllChanged();
+
 signals:
     void enableUpdates(bool);
 
 private:
+    QString niceType(const QString &typeIn) const;
+
     WatchHandler *m_handler;
     WatchType m_type;
     WatchItem *m_root;
@@ -245,6 +249,7 @@ public:
     Q_SLOT void watchExpression(const QString &exp);
     Q_SLOT void removeWatchExpression();
     Q_SLOT void removeWatchExpression(const QString &exp);
+    Q_SLOT void emitAllChanged();
     void beginCycle(); // called at begin of updateLocals() cycle
     void updateWatchers(); // called after locals are fetched
     void endCycle(); // called after all results have been received
