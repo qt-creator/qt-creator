@@ -106,6 +106,8 @@ protected:
     void remove(int start, int end);
     void remove(unsigned tokenIndex);
     void remove(const CPlusPlus::AST *ast);
+    void flip(int start1, int end1, int start2, int end2);
+    void flip(const CPlusPlus::AST *ast1, const CPlusPlus::AST *ast2);
     void copy(int start, int end, int to);
     void copy(unsigned tokenIndex, int to);
     void copy(const CPlusPlus::AST *ast, int to);

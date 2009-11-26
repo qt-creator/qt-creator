@@ -733,6 +733,16 @@ void QuickFixOperation::remove(const CPlusPlus::AST *ast)
     remove(startOf(ast), endOf(ast));
 }
 
+void QuickFixOperation::flip(int start1, int end1, int start2, int end2)
+{
+    _changeSet.flip(start1, end1-start1, start2, end2-start2);
+}
+
+void QuickFixOperation::flip(const CPlusPlus::AST *ast1, const CPlusPlus::AST *ast2)
+{
+    flip(startOf(ast1), endOf(ast1), startOf(ast2), endOf(ast2));
+}
+
 void QuickFixOperation::copy(int start, int end, int to)
 {
     _changeSet.copy(start, end-start, to);
