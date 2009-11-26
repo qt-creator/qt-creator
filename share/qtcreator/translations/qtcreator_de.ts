@@ -3009,7 +3009,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+3"/>
         <source>Delete all breakpoints</source>
-        <translation></translation>
+        <translation>Alle Haltepunkte löschen</translation>
     </message>
     <message>
         <location line="+13"/>
