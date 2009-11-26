@@ -1824,8 +1824,6 @@ QTextBlock BaseTextEditor::collapsedBlockAt(const QPoint &pos, QRect *box) const
 
 void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block)
 {
-    m_searchResultOverlay->clear();
-
     if (m_searchExpr.isEmpty())
         return;
 
@@ -2073,6 +2071,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     int cursor_cpos = 0;
     QPen cursor_pen;
 
+    d->m_searchResultOverlay->clear();
     while (block.isValid()) {
 
         QRectF r = blockBoundingRect(block).translated(offset);
@@ -2191,7 +2190,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
 
             layout->draw(&painter, offset, selections, er);
-            d->m_searchResultOverlay->paint(&painter, er);
 
             if ((drawCursor && !drawCursorAsBlock)
                 || (editable && context.cursorPosition < -1
@@ -2397,9 +2395,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
             QRectF r = blockBoundingRect(b).translated(visibleCollapsedBlockOffset);
             QTextLayout *layout = b.layout();
             QVector<QTextLayout::FormatRange> selections;
-            d->highlightSearchResults(b);
             layout->draw(&painter, visibleCollapsedBlockOffset, selections, er);
-            d->m_searchResultOverlay->paint(&painter, er);
 
             b.setVisible(false); // restore previous state
             visibleCollapsedBlockOffset.ry() += r.height();
@@ -2421,6 +2417,9 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         painter.setPen(QPen(col, 0));
         painter.drawLine(QPointF(lineX, 0), QPointF(lineX, viewport()->height()));
     }
+
+    if (d->m_searchResultOverlay)
+        d->m_searchResultOverlay->paint(&painter, e->rect());
 
     if (d->m_overlay && d->m_overlay->isVisible())
         d->m_overlay->paint(&painter, e->rect());
