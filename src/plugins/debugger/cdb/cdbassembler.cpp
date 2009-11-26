@@ -38,9 +38,14 @@
 
 // Format a hex address with a given field width if possible. Convert
 // to number to ensure it is not truncated should it be larger than the
-// field width.
-static inline void formatAddress(QTextStream &str, const QString &hexAddressS, int fieldWidth)
+// field width. Check the 64 bit address format '00000001`40002c84'
+static inline void formatAddress(QTextStream &str, QString hexAddressS, int fieldWidth)
 {
+    if (hexAddressS.size() > 9) {
+        const int sepPos = hexAddressS.size() - 9;
+        if (hexAddressS.at(sepPos) == QLatin1Char('`'))
+            hexAddressS.remove(sepPos, 1);
+    }
     const QChar oldPadChar = str.padChar();
     const int oldFieldWidth = str.fieldWidth();
     const int oldIntegerBase = str.integerBase();

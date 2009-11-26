@@ -454,7 +454,8 @@ static inline QString removeInnerTemplateType(QString value)
 // "0x4343 class list<>".
 static inline QString fixValue(const QString &value, const QString &type)
 {
-    if (value.endsWith(QLatin1Char('"'))) // Pass through strings
+    // Pass through strings, chars
+    if (value.endsWith(QLatin1Char('"')) || value.endsWith(QLatin1Char('\'')))
         return value;
     const int size = value.size();
     // Unsigned hex numbers
