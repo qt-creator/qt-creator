@@ -93,9 +93,6 @@ public:
 
     virtual IBuildConfigurationFactory *buildConfigurationFactory() const = 0;
 
-    void setValue(const QString &name, const QVariant &value);
-    QVariant value(const QString &name) const;
-
     // Running
     QList<RunConfiguration *> runConfigurations() const;
     void addRunConfiguration(RunConfiguration* runConfiguration);
@@ -162,7 +159,6 @@ protected:
     virtual bool restoreSettingsImpl(PersistentSettingsReader &reader);
 
 private:
-    QMap<QString, QVariant> m_values;
     QList<BuildConfiguration *> m_buildConfigurationValues;
     BuildConfiguration *m_activeBuildConfiguration;
     QList<RunConfiguration *> m_runConfigurations;

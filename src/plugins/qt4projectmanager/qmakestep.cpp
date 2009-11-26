@@ -261,6 +261,7 @@ QString QMakeStepConfigWidget::summaryText() const
 
 void QMakeStepConfigWidget::qtVersionChanged()
 {
+    Q_UNUSED(bc)
     updateTitleLabel();
     updateEffectiveQMakeCall();
 }

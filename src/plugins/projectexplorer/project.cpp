@@ -143,8 +143,6 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
 
     // For compability with older versions the "name" is saved as a string instead of a number
     writer.saveValue("activebuildconfiguration", QString::number(bcs.indexOf(m_activeBuildConfiguration)));
-    //save m_values
-    writer.saveValue("project", m_values);
 
     //save buildsettings
     QStringList buildConfigurationNames;
@@ -206,8 +204,6 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
 
 bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 {
-    m_values = reader.restoreValue("project").toMap();
-
     const QList<IBuildStepFactory *> buildStepFactories =
           ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
 
@@ -378,21 +374,6 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
     if (!m_activeRunConfiguration && !m_runConfigurations.isEmpty())
         setActiveRunConfiguration(m_runConfigurations.at(0));
     return true;
-}
-
-void Project::setValue(const QString &name, const QVariant & value)
-{
-    m_values.insert(name, value);
-}
-
-QVariant Project::value(const QString &name) const
-{
-    QMap<QString, QVariant>::const_iterator it =
-        m_values.find(name);
-    if (it != m_values.constEnd())
-        return it.value();
-    else
-        return QVariant();
 }
 
 BuildConfiguration *Project::activeBuildConfiguration() const
