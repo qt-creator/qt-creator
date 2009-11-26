@@ -769,7 +769,7 @@ void QuickFixOperation::apply()
 
     _textCursor.beginEditBlock();
 
-    _changeSet.write(&_textCursor);
+    _changeSet.apply(&_textCursor);
 
     if (_topLevelNode)
         reindent(range);

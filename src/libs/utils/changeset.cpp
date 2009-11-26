@@ -44,196 +44,312 @@
 namespace Utils {
 
 ChangeSet::ChangeSet()
-    : m_string(0), m_cursor(0)
+    : m_string(0), m_cursor(0), m_error(false)
 {
 }
 
 static bool overlaps(int posA, int lengthA, int posB, int lengthB) {
-    return (posA < posB + lengthB && posA + lengthA > posB + lengthB)
-            || (posA < posB && posA + lengthA > posB);
+    if (lengthB > 0) {
+        return
+                // right edge of B contained in A
+                (posA < posB + lengthB && posA + lengthA >= posB + lengthB)
+                // left edge of B contained in A
+                || (posA <= posB && posA + lengthA > posB)
+                // A contained in B
+                || (posB < posA && posB + lengthB > posA + lengthA);
+    } else {
+        return (posB > posA && posB < posA + lengthA);
+    }
 }
 
 bool ChangeSet::hasOverlap(int pos, int length)
 {
-    {
-        QListIterator<Replace> i(m_replaceList);
-        while (i.hasNext()) {
-            const Replace &cmd = i.next();
-            if (overlaps(pos, length, cmd.pos, cmd.length))
-                return true;
-        }
-    }
-    {
-        QListIterator<Move> i(m_moveList);
-        while (i.hasNext()) {
-            const Move &cmd = i.next();
-            if (overlaps(pos, length, cmd.pos, cmd.length))
-                return true;
-        }
-        return false;
-    }
-}
-
-bool ChangeSet::hasMoveInto(int pos, int length)
-{
-    QListIterator<Move> i(m_moveList);
+    QListIterator<EditOp> i(m_operationList);
     while (i.hasNext()) {
-        const Move &cmd = i.next();
-        if (cmd.to >= pos && cmd.to < pos + length)
-            return true;
+        const EditOp &cmd = i.next();
+
+        switch (cmd.type) {
+        case EditOp::Replace:
+            if (overlaps(pos, length, cmd.pos1, cmd.length))
+                return true;
+            break;
+
+        case EditOp::Move:
+            if (overlaps(pos, length, cmd.pos1, cmd.length))
+                return true;
+            if (cmd.pos2 > pos && cmd.pos2 < pos + length)
+                return true;
+            break;
+
+        case EditOp::Insert:
+            if (cmd.pos1 > pos && cmd.pos1 < pos + length)
+                return true;
+            break;
+
+        case EditOp::Remove:
+            if (overlaps(pos, length, cmd.pos1, cmd.length))
+                return true;
+            break;
+
+        case EditOp::Flip:
+            if (overlaps(pos, length, cmd.pos1, cmd.length))
+                return true;
+            if (overlaps(pos, length, cmd.pos2, cmd.length))
+                return true;
+            break;
+
+        case EditOp::Copy:
+            if (overlaps(pos, length, cmd.pos1, cmd.length))
+                return true;
+            if (cmd.pos2 > pos && cmd.pos2 < pos + length)
+                return true;
+            break;
+
+        case EditOp::Unset:
+            break;
+        }
     }
+
     return false;
 }
 
 bool ChangeSet::isEmpty() const
 {
-    if (m_replaceList.isEmpty() && m_moveList.isEmpty())
-        return true;
-
-    return false;
+    return m_operationList.isEmpty();
 }
 
-QList<ChangeSet::Replace> ChangeSet::replaceList() const
+QList<ChangeSet::EditOp> ChangeSet::operationList() const
 {
-    return m_replaceList;
-}
-
-QList<ChangeSet::Move> ChangeSet::moveList() const
-{
-    return m_moveList;
+    return m_operationList;
 }
 
 void ChangeSet::clear()
 {
     m_string = 0;
     m_cursor = 0;
-    m_replaceList.clear();
-    m_moveList.clear();
+    m_operationList.clear();
+    m_error = false;
 }
 
-void ChangeSet::replace(int pos, int length, const QString &replacement)
+bool ChangeSet::replace(int pos, int length, const QString &replacement)
 {
-    Q_ASSERT(!hasOverlap(pos, length));
-    Q_ASSERT(!hasMoveInto(pos, length));
+    if (hasOverlap(pos, length))
+        m_error = true;
 
-    Replace cmd;
-    cmd.pos = pos;
+    EditOp cmd(EditOp::Replace);
+    cmd.pos1 = pos;
     cmd.length = length;
-    cmd.replacement = replacement;
-    m_replaceList += cmd;
+    cmd.text = replacement;
+    m_operationList += cmd;
+
+    return !m_error;
 }
 
-void ChangeSet::move(int pos, int length, int to)
+bool ChangeSet::move(int pos, int length, int to)
 {
-    Q_ASSERT(!hasOverlap(pos, length));
+    if (hasOverlap(pos, length)
+        || hasOverlap(to, 0)
+        || overlaps(pos, length, to, 0))
+        m_error = true;
 
-    Move cmd;
-    cmd.pos = pos;
+    EditOp cmd(EditOp::Move);
+    cmd.pos1 = pos;
     cmd.length = length;
-    cmd.to = to;
-    m_moveList += cmd;
+    cmd.pos2 = to;
+    m_operationList += cmd;
+
+    return !m_error;
 }
 
-void ChangeSet::doReplace(const Replace &replace)
+bool ChangeSet::insert(int pos, const QString &text)
 {
-    int diff = replace.replacement.size() - replace.length;
-    {
-        QMutableListIterator<Replace> i(m_replaceList);
-        while (i.hasNext()) {
-            Replace &c = i.next();
-            if (replace.pos < c.pos)
-                c.pos += diff;
-            else if (replace.pos + replace.length < c.pos + c.length)
-                c.length += diff;
-        }
-    }
-    {
-        QMutableListIterator<Move> i(m_moveList);
-        while (i.hasNext()) {
-            Move &c = i.next();
-            if (replace.pos < c.pos)
-                c.pos += diff;
-            else if (replace.pos + replace.length < c.pos + c.length)
-                c.length += diff;
+    if (hasOverlap(pos, 0))
+        m_error = true;
 
-            if (replace.pos < c.to)
-                c.to += diff;
+    EditOp cmd(EditOp::Insert);
+    cmd.pos1 = pos;
+    cmd.text = text;
+    m_operationList += cmd;
+
+    return !m_error;
+}
+
+bool ChangeSet::remove(int pos, int length)
+{
+    if (hasOverlap(pos, length))
+        m_error = true;
+
+    EditOp cmd(EditOp::Remove);
+    cmd.pos1 = pos;
+    cmd.length = length;
+    m_operationList += cmd;
+
+    return !m_error;
+}
+
+bool ChangeSet::flip(int pos1, int length, int pos2)
+{
+    if (hasOverlap(pos1, length)
+        || hasOverlap(pos2, length)
+        || overlaps(pos1, length, pos2, length))
+        m_error = true;
+
+    EditOp cmd(EditOp::Flip);
+    cmd.pos1 = pos1;
+    cmd.length = length;
+    cmd.pos2 = pos2;
+    m_operationList += cmd;
+
+    return !m_error;
+}
+
+bool ChangeSet::copy(int pos, int length, int to)
+{
+    if (hasOverlap(pos, length)
+        || hasOverlap(to, 0)
+        || overlaps(pos, length, to, 0))
+        m_error = true;
+
+    EditOp cmd(EditOp::Copy);
+    cmd.pos1 = pos;
+    cmd.length = length;
+    cmd.pos2 = to;
+    m_operationList += cmd;
+
+    return !m_error;
+}
+
+void ChangeSet::doReplace(const EditOp &replace, QList<EditOp> *replaceList)
+{
+    Q_ASSERT(replace.type == EditOp::Replace);
+
+    int diff = replace.text.size() - replace.length;
+    {
+        QMutableListIterator<EditOp> i(*replaceList);
+        while (i.hasNext()) {
+            EditOp &c = i.next();
+            if (replace.pos1 <= c.pos1)
+                c.pos1 += diff;
         }
     }
 
     if (m_string) {
-        m_string->replace(replace.pos, replace.length, replace.replacement);
+        m_string->replace(replace.pos1, replace.length, replace.text);
     } else if (m_cursor) {
-        m_cursor->setPosition(replace.pos);
-        m_cursor->setPosition(replace.pos + replace.length, QTextCursor::KeepAnchor);
-        m_cursor->insertText(replace.replacement);
+        m_cursor->setPosition(replace.pos1);
+        m_cursor->setPosition(replace.pos1 + replace.length, QTextCursor::KeepAnchor);
+        m_cursor->insertText(replace.text);
     }
 }
 
-void ChangeSet::doMove(const Move &move)
+void ChangeSet::convertToReplace(const EditOp &op, QList<EditOp> *replaceList)
 {
-    QString text;
-    if (m_string) {
-        text = m_string->mid(move.pos, move.length);
-    } else if (m_cursor) {
-        m_cursor->setPosition(move.pos);
-        m_cursor->setPosition(move.pos + move.length, QTextCursor::KeepAnchor);
-        text = m_cursor->selectedText();
-    }
+    EditOp replace1(EditOp::Replace);
+    EditOp replace2(EditOp::Replace);
 
-    Replace cut;
-    cut.pos = move.pos;
-    cut.length = move.length;
-    Replace paste;
-    paste.pos = move.to;
-    paste.length = 0;
-    paste.replacement = text;
+    switch (op.type) {
+    case EditOp::Replace:
+        replaceList->append(op);
+        break;
 
-    m_replaceList.append(cut);
-    m_replaceList.append(paste);
+    case EditOp::Move:
+        replace1.pos1 = op.pos1;
+        replace1.length = op.length;
+        replaceList->append(replace1);
 
-    Replace cmd;
-    while (!m_replaceList.isEmpty()) {
-        cmd = m_replaceList.first();
-        m_replaceList.removeFirst();
-        doReplace(cmd);
+        replace2.pos1 = op.pos2;
+        replace2.text = textAt(op.pos1, op.length);
+        replaceList->append(replace2);
+        break;
+
+    case EditOp::Insert:
+        replace1.pos1 = op.pos1;
+        replace1.text = op.text;
+        replaceList->append(replace1);
+        break;
+
+    case EditOp::Remove:
+        replace1.pos1 = op.pos1;
+        replace1.length = op.length;
+        replaceList->append(replace1);
+        break;
+
+    case EditOp::Flip:
+        replace1.pos1 = op.pos1;
+        replace1.length = op.length;
+        replace1.text = textAt(op.pos2, op.length);
+        replaceList->append(replace1);
+
+        replace2.pos1 = op.pos2;
+        replace2.length = op.length;
+        replace2.text = textAt(op.pos1, op.length);
+        replaceList->append(replace2);
+        break;
+
+    case EditOp::Copy:
+        replace1.pos1 = op.pos2;
+        replace1.text = textAt(op.pos1, op.length);
+        replaceList->append(replace1);
+        break;
+
+    case EditOp::Unset:
+        break;
     }
 }
 
-void ChangeSet::write(QString *s)
+bool ChangeSet::hadErrors()
+{
+    return m_error;
+}
+
+void ChangeSet::apply(QString *s)
 {
     m_string = s;
-    write_helper();
+    apply_helper();
     m_string = 0;
 }
 
-void ChangeSet::write(QTextCursor *textCursor)
+void ChangeSet::apply(QTextCursor *textCursor)
 {
     m_cursor = textCursor;
-    write_helper();
+    apply_helper();
     m_cursor = 0;
 }
 
-void ChangeSet::write_helper()
+QString ChangeSet::textAt(int pos, int length)
 {
+    if (m_string) {
+        return m_string->mid(pos, length);
+    } else if (m_cursor) {
+        m_cursor->setPosition(pos);
+        m_cursor->setPosition(pos + length, QTextCursor::KeepAnchor);
+        return m_cursor->selectedText();
+    }
+    return QString();
+}
+
+void ChangeSet::apply_helper()
+{
+    // convert all ops to replace
+    QList<EditOp> replaceList;
+    {
+        while (!m_operationList.isEmpty()) {
+            const EditOp cmd(m_operationList.first());
+            m_operationList.removeFirst();
+            convertToReplace(cmd, &replaceList);
+        }
+    }
+
+    // execute replaces
     if (m_cursor)
         m_cursor->beginEditBlock();
-    {
-        Replace cmd;
-        while (!m_replaceList.isEmpty()) {
-            cmd = m_replaceList.first();
-            m_replaceList.removeFirst();
-            doReplace(cmd);
-        }
+
+    while (!replaceList.isEmpty()) {
+        const EditOp cmd(replaceList.first());
+        replaceList.removeFirst();
+        doReplace(cmd, &replaceList);
     }
-    {
-        Move cmd;
-        while (!m_moveList.isEmpty()) {
-            cmd = m_moveList.first();
-            m_moveList.removeFirst();
-            doMove(cmd);
-        }
-    }
+
     if (m_cursor)
         m_cursor->endEditBlock();
 }

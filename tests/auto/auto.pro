@@ -5,4 +5,5 @@ SUBDIRS += \
     debugger \
     fakevim \
 #    profilereader \
-    aggregation
+    aggregation \
+    changeset

@@ -46,6 +46,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QList>
+#include <QtCore/QSharedPointer>
 #include <QtGui/QTextCursor>
 
 namespace Utils {
@@ -53,20 +54,26 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT ChangeSet
 {
 public:
-    struct Replace {
-        Replace(): pos(0), length(0) {}
+    struct EditOp {
+        enum Type
+        {
+            Unset,
+            Replace,
+            Move,
+            Insert,
+            Remove,
+            Flip,
+            Copy
+        };
 
-        int pos;
+        EditOp(): type(Unset), pos1(0), pos2(0), length(0) {}
+        EditOp(Type t): type(t), pos1(0), pos2(0), length(0) {}
+
+        Type type;
+        int pos1;
+        int pos2;
         int length;
-        QString replacement;
-    };
-
-    struct Move {
-        Move(): pos(0), length(0), to(0) {}
-
-        int pos;
-        int length;
-        int to;
+        QString text;
     };
 
 public:
@@ -74,31 +81,37 @@ public:
 
     bool isEmpty() const;
 
-    QList<Replace> replaceList() const;
-    QList<Move> moveList() const; // ### TODO: merge with replaceList
+    QList<EditOp> operationList() const;
 
     void clear();
 
-    void replace(int pos, int length, const QString &replacement);
-    void move(int pos, int length, int to);
+    bool replace(int pos, int length, const QString &replacement);
+    bool move(int pos, int length, int to);
+    bool insert(int pos, const QString &text);
+    bool remove(int pos, int length);
+    bool flip(int pos1, int length, int pos2);
+    bool copy(int pos, int length, int to);
 
-    void write(QString *s);
-    void write(QTextCursor *textCursor);
+    bool hadErrors();
+
+    void apply(QString *s);
+    void apply(QTextCursor *textCursor);
 
 private:
     bool hasOverlap(int pos, int length);
-    bool hasMoveInto(int pos, int length);
+    QString textAt(int pos, int length);
 
-    void doReplace(const Replace &replace);
-    void doMove(const Move &move);
+    void doReplace(const EditOp &replace, QList<EditOp> *replaceList);
+    void convertToReplace(const EditOp &op, QList<EditOp> *replaceList);
 
-    void write_helper();
+    void apply_helper();
 
 private:
     QString *m_string;
     QTextCursor *m_cursor;
-    QList<Replace> m_replaceList;
-    QList<Move> m_moveList;
+
+    QList<EditOp> m_operationList;
+    bool m_error;
 };
 
 } // namespace Utils
