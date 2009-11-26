@@ -44,3 +44,4 @@ lib/QtUiToolsd.prl
 lib/QtWebKitd.prl
 lib/QtXmlPatternsd.prl
 lib/QtXmld.prl
+.qmake.cache
