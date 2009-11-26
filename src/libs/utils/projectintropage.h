@@ -58,6 +58,7 @@ class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public QWizardPage
     Q_PROPERTY(QString description READ description WRITE setPath DESIGNABLE true)
     Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
     Q_PROPERTY(QString name READ  name WRITE setName DESIGNABLE true)
+    Q_PROPERTY(bool useAsDefaultPath READ useAsDefaultPath WRITE setUseAsDefaultPath DESIGNABLE true)
 public:
     explicit ProjectIntroPage(QWidget *parent = 0);
     virtual ~ProjectIntroPage();
@@ -65,11 +66,12 @@ public:
     QString name() const;
     QString path() const;
     QString description() const;
+    bool useAsDefaultPath() const;
 
     // Insert an additional control into the form layout for the target.
     void insertControl(int row, QWidget *label, QWidget *control);
 
-    virtual bool isComplete() const;
+    virtual bool isComplete() const;    
 
     // Validate a project directory name entry field
     static bool validateProjectDirectory(const QString &name, QString *errorMessage);
@@ -81,6 +83,7 @@ public slots:
     void setPath(const QString &path);
     void setName(const QString &name);
     void setDescription(const QString &description);
+    void setUseAsDefaultPath(bool u);
 
 private slots:
     void slotChanged();

@@ -30,37 +30,24 @@
 #ifndef CONSOLEAPPWIZARDDIALOG_H
 #define CONSOLEAPPWIZARDDIALOG_H
 
-#include <QtGui/QWizard>
-
-namespace Utils {
-    class ProjectIntroPage;
-}
+#include "qtwizard.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 struct QtProjectParameters;
-class ModulesPage;
 
-class ConsoleAppWizardDialog : public QWizard
+class ConsoleAppWizardDialog : public BaseQt4ProjectWizardDialog
 {
     Q_OBJECT
-
 public:
     explicit ConsoleAppWizardDialog(const QString &templateName,
                                     const QIcon &icon,
                                     const QList<QWizardPage*> &extensionPages,
+                                    bool showModulesPage = false,
                                     QWidget *parent = 0);
 
     QtProjectParameters parameters() const;
-
-public slots:
-    void setPath(const QString &path);
-    void setName(const QString &name);
-
-private:
-    Utils::ProjectIntroPage *m_introPage;
-    ModulesPage *m_modulesPage;
 };
 
 } // namespace Internal

@@ -27,48 +27,61 @@
 **
 **************************************************************************/
 
-#ifndef LIBRARYWIZARDDIALOG_H
-#define LIBRARYWIZARDDIALOG_H
+#ifndef BASEPROJECTWIZARDDIALOG_H
+#define BASEPROJECTWIZARDDIALOG_H
 
-#include "qtwizard.h"
-#include "qtprojectparameters.h"
+#include "projectexplorer_export.h"
 
-namespace Qt4ProjectManager {
-namespace Internal {
+#include <QtGui/QWizard>
 
-struct QtProjectParameters;
-class FilesPage;
-struct LibraryParameters;
+namespace Utils {
+    class ProjectIntroPage;
+}
 
-// Library wizard dialog.
-class LibraryWizardDialog : public BaseQt4ProjectWizardDialog
+namespace ProjectExplorer {
+
+struct BaseProjectWizardDialogPrivate;
+
+/* BaseProjectWizardDialog: Presents the introductory
+ * page and takes care of setting the directory as default
+ * should the user wish to do that. */
+
+class PROJECTEXPLORER_EXPORT BaseProjectWizardDialog : public QWizard
 {
     Q_OBJECT
 
+protected:
+    explicit BaseProjectWizardDialog(QWidget *parent = 0);
+    explicit BaseProjectWizardDialog(Utils::ProjectIntroPage *introPage,
+                                     int introId = -1,
+                                     QWidget *parent = 0);
+
 public:
-    explicit LibraryWizardDialog(const QString &templateName,
-                                 const QIcon &icon,
-                                 const QList<QWizardPage*> &extensionPages,
-                                 bool showModulesPage,
-                                 QWidget *parent = 0);
+    virtual ~BaseProjectWizardDialog();
 
-    void setSuffixes(const QString &header, const QString &source,  const QString &form= QString());
-    void setLowerCaseFiles(bool);
+    QString name() const;
+    QString path() const;
 
-    QtProjectParameters parameters() const;
-    LibraryParameters libraryParameters() const;
+    // Generate a new project name (untitled<n>) in path.
+    static QString projectName(const QString &path);
+
+public slots:
+    void setIntroDescription(const QString &d);
+    void setPath(const QString &path);
+    void setName(const QString &name);
+
+protected:
+    Utils::ProjectIntroPage *introPage() const;
 
 private slots:
-    void slotCurrentIdChanged(int);
+    void slotAccepted();
 
 private:
-    QtProjectParameters::Type type() const;
+    void init();
 
-    FilesPage *m_filesPage;
-    bool m_pluginBaseClassesInitialized;
+    BaseProjectWizardDialogPrivate *d;
 };
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace ProjectExplorer
 
-#endif // LIBRARYWIZARDDIALOG_H
+#endif // BASEPROJECTWIZARDDIALOG_H

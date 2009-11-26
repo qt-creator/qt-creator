@@ -30,17 +30,12 @@
 #ifndef GUIAPPWIZARDDIALOG_H
 #define GUIAPPWIZARDDIALOG_H
 
-#include <QtGui/QWizard>
-
-namespace Utils {
-    class ProjectIntroPage;
-}
+#include "qtwizard.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 struct QtProjectParameters;
-class ModulesPage;
 class FilesPage;
 
 // Additional parameters required besides QtProjectParameters
@@ -55,7 +50,7 @@ struct GuiAppParameters
     bool designerForm;
 };
 
-class GuiAppWizardDialog : public QWizard
+class GuiAppWizardDialog : public BaseQt4ProjectWizardDialog
 {
     Q_OBJECT
 
@@ -63,6 +58,7 @@ public:
     explicit GuiAppWizardDialog(const QString &templateName,
                                 const QIcon &icon,
                                 const QList<QWizardPage*> &extensionPages,
+                                bool showModulesPage = false,
                                 QWidget *parent = 0);
 
     void setBaseClasses(const QStringList &baseClasses);
@@ -72,13 +68,7 @@ public:
     QtProjectParameters projectParameters() const;
     GuiAppParameters parameters() const;
 
-public slots:
-    void setPath(const QString &path);
-    void setName(const QString &name);
-
 private:
-    Utils::ProjectIntroPage *m_introPage;
-    ModulesPage *m_modulesPage;
     FilesPage *m_filesPage;
 };
 

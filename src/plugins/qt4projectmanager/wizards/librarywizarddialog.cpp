@@ -28,8 +28,6 @@
 **************************************************************************/
 
 #include "librarywizarddialog.h"
-
-#include "consoleappwizard.h"
 #include "filespage.h"
 #include "libraryparameters.h"
 #include "modulespage.h"
@@ -128,6 +126,7 @@ LibraryIntroPage::LibraryIntroPage(QWidget *parent) :
     insertControl(0, new QLabel(LibraryWizardDialog::tr("Type")), m_typeCombo);
 }
 
+
 QtProjectParameters::Type LibraryIntroPage::type() const
 {
     return static_cast<QtProjectParameters::Type>(m_typeCombo->itemData(m_typeCombo->currentIndex()).toInt());
@@ -147,25 +146,21 @@ int LibraryIntroPage::nextId() const
 LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
                                          const QIcon &icon,
                                          const QList<QWizardPage*> &extensionPages,
+                                         bool showModulesPage,
                                          QWidget *parent) :
-    QWizard(parent),
-    m_introPage(new LibraryIntroPage),
-    m_modulesPage(new ModulesPage),
+    BaseQt4ProjectWizardDialog(showModulesPage, new LibraryIntroPage, IntroPageId, parent),
     m_filesPage(new FilesPage),
     m_pluginBaseClassesInitialized(false)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
-    Core::BaseFileWizard::setupWizard(this);
+    setSelectedModules(QLatin1String("core"));
 
     // Note that QWizard::currentIdChanged() is emitted at strange times.
     // Use the intro page instead, set up initially
-    m_introPage->setDescription(tr("This wizard generates a C++ library project."));
+    setIntroDescription(tr("This wizard generates a C++ library project."));
 
-    setPage(IntroPageId, m_introPage);
-
-    m_modulesPage->setModuleSelected(QLatin1String("core"));
-    setPage(ModulesPageId, m_modulesPage);
+    addModulesPage(ModulesPageId);
 
     m_filesPage->setNamespacesEnabled(true);
     m_filesPage->setFormFileInputVisible(false);
@@ -188,22 +183,17 @@ void LibraryWizardDialog::setLowerCaseFiles(bool l)
     m_filesPage->setLowerCaseFiles(l);
 }
 
-void LibraryWizardDialog::setPath(const QString &path)
+QtProjectParameters::Type  LibraryWizardDialog::type() const
 {
-    m_introPage->setPath(path);
-}
-
-void  LibraryWizardDialog::setName(const QString &name)
-{
-    m_introPage->setName(name);
+    return static_cast<const LibraryIntroPage*>(introPage())->type();
 }
 
 QtProjectParameters LibraryWizardDialog::parameters() const
 {
     QtProjectParameters rc;
-    rc.type = m_introPage->type();
-    rc.name = m_introPage->name();
-    rc.path = m_introPage->path();
+    rc.type = type();
+    rc.name = name();
+    rc.path = path();
     if (rc.type == QtProjectParameters::Qt4Plugin) {
         // Plugin: Dependencies & Target directory
         if (const PluginBaseClasses *plb = findPluginBaseClass(m_filesPage->baseClassName())) {
@@ -215,8 +205,8 @@ QtProjectParameters LibraryWizardDialog::parameters() const
         }
     } else {
         // Modules from modules page
-        rc.selectedModules =  m_modulesPage->selectedModules();
-        rc.deselectedModules = m_modulesPage-> deselectedModules();
+        rc.selectedModules = selectedModules();
+        rc.deselectedModules = deselectedModules();
     }
     return rc;
 }
@@ -228,7 +218,7 @@ void LibraryWizardDialog::slotCurrentIdChanged(int id)
     // Switching to files page: Set up base class accordingly (plugin)
     if (id != FilePageId)
         return;
-    switch (m_introPage->type()) {
+    switch (type()) {
     case QtProjectParameters::Qt4Plugin:
         if (!m_pluginBaseClassesInitialized) {
              if (debugLibWizard)
@@ -246,9 +236,10 @@ void LibraryWizardDialog::slotCurrentIdChanged(int id)
         break;
     default: {
         // Urrm, figure out a good class name. Use project name this time
-        QString name = m_introPage->name();
-        name[0] = name.at(0).toUpper();
-        m_filesPage->setClassName(name);
+        QString className = name();
+        if (!className.isEmpty())
+            className[0] = className.at(0).toUpper();
+        m_filesPage->setClassName(className);
         m_filesPage->setBaseClassInputVisible(false);
     }
         break;

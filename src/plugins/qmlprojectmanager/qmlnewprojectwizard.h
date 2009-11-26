@@ -31,17 +31,7 @@
 #define QMLNEWPROJECTWIZARD_H
 
 #include <coreplugin/basefilewizard.h>
-#include <QtGui/QWizard>
-
-QT_BEGIN_NAMESPACE
-class QDir;
-class QDirModel;
-class QFileInfo;
-class QListView;
-class QModelIndex;
-class QStringList;
-class QTreeView;
-QT_END_NAMESPACE
+#include <projectexplorer/baseprojectwizarddialog.h>
 
 namespace Utils {
 
@@ -54,37 +44,11 @@ class ProjectIntroPage;
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlNewProjectWizardDialog : public QWizard
+class QmlNewProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
-
 public:
-    QmlNewProjectWizardDialog(QWidget *parent = 0);
-    virtual ~QmlNewProjectWizardDialog();
-
-    QString path() const;
-    void setPath(const QString &path);
-
-    QString projectName() const;
-
-private Q_SLOTS:
-    void updateFilesView(const QModelIndex &current,
-                         const QModelIndex &previous);
-
-protected:
-    virtual void initializePage(int id);
-    virtual bool validateCurrentPage();
-
-private:
-    int m_secondPageId;
-
-    Utils::ProjectIntroPage *m_introPage;
-
-    QTreeView *m_dirView;
-    QDirModel *m_dirModel;
-
-    QListView *m_filesView;
-    QDirModel *m_filesModel;
+    explicit QmlNewProjectWizardDialog(QWidget *parent = 0);
 };
 
 class QmlNewProjectWizard : public Core::BaseFileWizard

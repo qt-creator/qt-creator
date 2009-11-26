@@ -1166,21 +1166,10 @@ bool EditorManager::openExternalEditor(const QString &fileName, const QString &e
 
 QStringList EditorManager::getOpenFileNames() const
 {
-    static QString dir = QDir::homePath();
     if (m_d->fileFilters.isEmpty())
         m_d->fileFilters = formatFileFilters(m_d->m_core, &m_d->selectedFilter);
-
-    QString currentFile = ICore::instance()->fileManager()->currentFile();
-    if (!currentFile.isEmpty()) {
-        const QFileInfo fi(currentFile);
-        dir = fi.absolutePath();
-    }
-
-    QStringList files = QFileDialog::getOpenFileNames(m_d->m_core->mainWindow(), tr("Open File"),
-                                         dir, m_d->fileFilters, &m_d->selectedFilter);
-    if (!files.isEmpty())
-        dir = QFileInfo(files.at(0)).absolutePath();
-    return files;
+    return ICore::instance()->fileManager()->getOpenFileNames(m_d->fileFilters,
+                                                              QString(), &m_d->selectedFilter);
 }
 
 void EditorManager::ensureEditorManagerVisible()

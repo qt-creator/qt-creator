@@ -32,10 +32,15 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/filemanager.h>
+
 #include <QtGui/QLabel>
 
 namespace ProjectExplorer {
 namespace Internal {
+
+    enum { UseCurrentDirectory, UseProjectDirectory };
 
 ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     QWidget(parent)
@@ -44,6 +49,10 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
 #ifndef Q_OS_WIN
     setJomVisible(false);
 #endif
+    m_ui.directoryButtonGroup->setId(m_ui.currentDirectoryRadioButton, UseCurrentDirectory);
+    m_ui.directoryButtonGroup->setId(m_ui.directoryRadioButton, UseProjectDirectory);
+    connect(m_ui.directoryButtonGroup, SIGNAL(buttonClicked(int)),
+            this, SLOT(slotDirectoryButtonGroupChanged()));
 }
 
 void ProjectExplorerSettingsWidget::setJomVisible(bool v)
@@ -70,14 +79,45 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.jomCheckbox->setChecked(pes.useJom);
 }
 
-QString ProjectExplorerSettingsWidget::searchKeywords() const
+QString ProjectExplorerSettingsWidget::projectsDirectory() const
 {
-    return QLatin1String("jom");
+    return m_ui.projectsDirectoryPathChooser->path();
 }
 
+void ProjectExplorerSettingsWidget::setProjectsDirectory(const QString &pd)
+{
+    m_ui.projectsDirectoryPathChooser->setPath(pd);
+}
+
+bool ProjectExplorerSettingsWidget::useProjectsDirectory()
+{
+    return m_ui.directoryButtonGroup->checkedId() == UseProjectDirectory;
+}
+
+void ProjectExplorerSettingsWidget::setUseProjectsDirectory(bool b)
+{
+    if (useProjectsDirectory() != b) {
+        (b ? m_ui.directoryRadioButton : m_ui.currentDirectoryRadioButton)->setChecked(true);
+        slotDirectoryButtonGroupChanged();
+    }
+}
+
+void ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged()
+{
+    m_ui.projectsDirectoryPathChooser->setEnabled(useProjectsDirectory());
+}
+
+QString ProjectExplorerSettingsWidget::searchKeywords() const
+{
+    return QLatin1String("jom") + QLatin1Char(' ') + m_ui.directoryGroupBox->title();
+}
+
+// ------------------ ProjectExplorerSettingsPage
 ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
 {
 }
+
+
 
 QString ProjectExplorerSettingsPage::id() const
 {
@@ -86,7 +126,7 @@ QString ProjectExplorerSettingsPage::id() const
 
 QString ProjectExplorerSettingsPage::trName() const
 {
-    return tr("Build and Run");
+    return tr("General");
 }
 
 QString ProjectExplorerSettingsPage::category() const
@@ -103,6 +143,9 @@ QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new ProjectExplorerSettingsWidget(parent);
     m_widget->setSettings(ProjectExplorerPlugin::instance()->projectExplorerSettings());
+    const Core::FileManager *fm = Core::ICore::instance()->fileManager();
+    m_widget->setProjectsDirectory(fm->projectsDirectory());
+    m_widget->setUseProjectsDirectory(fm->useProjectsDirectory());
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
@@ -110,8 +153,12 @@ QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
 
 void ProjectExplorerSettingsPage::apply()
 {
-    if (m_widget)
+    if (m_widget) {
         ProjectExplorerPlugin::instance()->setProjectExplorerSettings(m_widget->settings());
+        Core::FileManager *fm = Core::ICore::instance()->fileManager();
+        fm->setProjectsDirectory(m_widget->projectsDirectory());
+        fm->setUseProjectsDirectory(m_widget->useProjectsDirectory());
+    }
 }
 
 void ProjectExplorerSettingsPage::finish()

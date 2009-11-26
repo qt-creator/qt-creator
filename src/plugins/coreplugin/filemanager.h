@@ -79,6 +79,10 @@ public:
     // helper methods
     static QString fixFileName(const QString &fileName);
 
+    QStringList getOpenFileNames(const QString &filters,
+                                 const QString path = QString(),
+                                 QString *selectedFilter = 0);
+
     QString getSaveFileNameWithExtension(const QString &title, const QString &path,
                                     const QString &fileFilter, const QString &extension);
     QString getSaveAsFileName(IFile *file);
@@ -89,6 +93,18 @@ public:
                                      const QString &message = QString(),
                                      const QString &alwaysSaveMessage = QString::null,
                                      bool *alwaysSave = 0);
+
+
+    QString fileDialogLastVisitedDirectory() const;
+    void setFileDialogLastVisitedDirectory(const QString &);
+
+    QString fileDialogInitialDirectory() const;
+
+    bool useProjectsDirectory() const;
+    void setUseProjectsDirectory(bool);
+
+    QString projectsDirectory() const;
+    void setProjectsDirectory(const QString &);
 
 signals:
     void currentFileChanged(const QString &filePath);

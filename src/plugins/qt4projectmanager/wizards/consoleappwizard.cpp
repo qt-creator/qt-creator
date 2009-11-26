@@ -33,7 +33,6 @@
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 
-#include <utils/pathchooser.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QtCore/QDir>
@@ -66,8 +65,10 @@ QWizard *ConsoleAppWizard::createWizardDialog(QWidget *parent,
                                               const QString &defaultPath,
                                               const WizardPageList &extensionPages) const
 {
-    ConsoleAppWizardDialog *dialog = new ConsoleAppWizardDialog(name(), icon(), extensionPages, parent);
-    dialog->setPath(defaultPath.isEmpty() ? Utils::PathChooser::homePath() : defaultPath);
+    ConsoleAppWizardDialog *dialog = new ConsoleAppWizardDialog(name(), icon(), extensionPages,
+                                                                showModulesPageForApplications(), parent);
+    dialog->setPath(defaultPath);
+    dialog->setName(ConsoleAppWizardDialog::projectName(defaultPath));
     return dialog;
 }
 

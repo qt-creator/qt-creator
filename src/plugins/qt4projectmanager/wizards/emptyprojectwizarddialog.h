@@ -30,21 +30,16 @@
 #ifndef EMPTYPROJECTWIZARDDIALOG_H
 #define EMPTYPROJECTWIZARDDIALOG_H
 
-#include <QtGui/QWizard>
-
-namespace Utils {
-    class ProjectIntroPage;
-}
+#include <projectexplorer/baseprojectwizarddialog.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 struct QtProjectParameters;
 
-class EmptyProjectWizardDialog : public QWizard
+class EmptyProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
-
 public:
     explicit EmptyProjectWizardDialog(const QString &templateName,
                                     const QIcon &icon,
@@ -52,13 +47,6 @@ public:
                                     QWidget *parent = 0);
 
     QtProjectParameters parameters() const;
-
-public slots:
-    void setPath(const QString &path);
-    void setName(const QString &name);
-
-private:
-    Utils::ProjectIntroPage *m_introPage;
 };
 
 } // namespace Internal

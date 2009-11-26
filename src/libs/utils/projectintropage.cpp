@@ -208,4 +208,14 @@ void ProjectIntroPage::hideStatusLabel()
     displayStatusMessage(Hint, QString());
 }
 
+bool ProjectIntroPage::useAsDefaultPath() const
+{
+    return m_d->m_ui.projectsDirectoryCheckBox->isChecked();
+}
+
+void ProjectIntroPage::setUseAsDefaultPath(bool u)
+{
+    m_d->m_ui.projectsDirectoryCheckBox->setChecked(u);
+}
+
 } // namespace Utils

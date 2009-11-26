@@ -29,10 +29,8 @@
 
 #include "consoleappwizarddialog.h"
 #include "consoleappwizard.h"
-#include "modulespage.h"
 
 #include <QtCore/QDebug>
-#include <utils/projectintropage.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -40,45 +38,32 @@ namespace Internal {
 ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
                                                const QIcon &icon,
                                                const QList<QWizardPage*> &extensionPages,
+                                               bool showModulesPage,
                                                QWidget *parent) :
-    QWizard(parent),
-    m_introPage(new  Utils::ProjectIntroPage),
-    m_modulesPage(new ModulesPage)
+    BaseQt4ProjectWizardDialog(showModulesPage, parent)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
-    Core::BaseFileWizard::setupWizard(this);
+    setSelectedModules(QLatin1String("core"));
 
-    m_introPage->setDescription(tr("This wizard generates a Qt4 console application "
+    setIntroDescription(tr("This wizard generates a Qt4 console application "
                           "project. The application derives from QCoreApplication and does not "
                           "provide a GUI."));
 
-    addPage(m_introPage);
-
-    m_modulesPage->setModuleSelected(QLatin1String("core"));
-    addPage(m_modulesPage);
+    addModulesPage();
     foreach (QWizardPage *p, extensionPages)
         addPage(p);
-}
-
-void ConsoleAppWizardDialog::setPath(const QString &path)
-{
-    m_introPage->setPath(path);
-}
-
-void  ConsoleAppWizardDialog::setName(const QString &name)
-{
-    m_introPage->setName(name);
 }
 
 QtProjectParameters ConsoleAppWizardDialog::parameters() const
 {
     QtProjectParameters rc;
     rc.type = QtProjectParameters::ConsoleApp;
-    rc.name = m_introPage->name();
-    rc.path = m_introPage->path();
-    rc.selectedModules =  m_modulesPage->selectedModules();
-    rc.deselectedModules = m_modulesPage-> deselectedModules();
+    rc.name = name();
+    rc.path = path();
+
+    rc.selectedModules = selectedModules();
+    rc.deselectedModules = deselectedModules();
     return rc;
 }
 

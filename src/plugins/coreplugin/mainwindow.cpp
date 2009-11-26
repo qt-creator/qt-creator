@@ -866,12 +866,6 @@ QStringList MainWindow::showNewItemDialog(const QString &title,
                                           const QList<IWizard *> &wizards,
                                           const QString &defaultLocation)
 {
-    QString defaultDir = defaultLocation;
-    if (defaultDir.isEmpty() && !m_coreImpl->fileManager()->currentFile().isEmpty())
-        defaultDir = QFileInfo(m_coreImpl->fileManager()->currentFile()).absolutePath();
-    if (defaultDir.isEmpty())
-        defaultDir = Utils::PathChooser::homePath();
-
     // Scan for wizards matching the filter and pick one. Don't show
     // dialog if there is only one.
     IWizard *wizard = 0;
@@ -892,7 +886,25 @@ QStringList MainWindow::showNewItemDialog(const QString &title,
 
     if (!wizard)
         return QStringList();
-    return wizard->runWizard(defaultDir, this);
+
+    QString path = defaultLocation;
+    if (path.isEmpty()) {
+        const FileManager *fm = m_coreImpl->fileManager();
+        switch (wizard->kind()) {
+        case IWizard::ProjectWizard:
+            // Project wizards: Check for projects directory or
+            // use last visited directory of file dialog. Never start
+            // at current.
+            path = fm->useProjectsDirectory() ?
+                       fm->projectsDirectory() :
+                       fm->fileDialogLastVisitedDirectory();
+            break;
+        default:
+            path = fm->fileDialogInitialDirectory();
+            break;
+        }
+    }
+    return wizard->runWizard(path, this);
 }
 
 bool MainWindow::showOptionsDialog(const QString &category,

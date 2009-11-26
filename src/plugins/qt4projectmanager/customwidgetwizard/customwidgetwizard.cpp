@@ -34,7 +34,6 @@
 #include "filenamingparameters.h"
 
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <utils/pathchooser.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -51,7 +50,8 @@ QWizard *CustomWidgetWizard::createWizardDialog(QWidget *parent,
                                                 const WizardPageList &extensionPages) const
 {
     CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(name(), icon(), extensionPages, parent);
-    rc->setPath(defaultPath.isEmpty() ? Utils::PathChooser::homePath() : defaultPath);
+    rc->setPath(defaultPath);
+    rc->setName(CustomWidgetWizardDialog::projectName(defaultPath));
     rc->setFileNamingParameters(FileNamingParameters(headerSuffix(), sourceSuffix(), QtWizard::lowerCaseFiles()));
     return rc;
 }

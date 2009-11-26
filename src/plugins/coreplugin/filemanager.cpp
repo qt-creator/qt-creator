@@ -39,6 +39,7 @@
 #include "vcsmanager.h"
 
 #include <utils/qtcassert.h>
+#include <utils/pathchooser.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
@@ -77,8 +78,12 @@
   (see addToRecentFiles() and recentFiles()).
  */
 
-static const char *settingsGroup = "RecentFiles";
-static const char *filesKey = "Files";
+static const char settingsGroupC[] = "RecentFiles";
+static const char filesKeyC[] = "Files";
+
+static const char directoryGroupC[] = "Directories";
+static const char projectDirectoryKeyC[] = "Projects";
+static const char useProjectDirectoryKeyC[] = "UseProjectsDirectory";
 
 namespace Core {
 namespace Internal {
@@ -104,12 +109,22 @@ struct FileManagerPrivate {
     QFileSystemWatcher *m_fileWatcher;
     QList<QPointer<IFile> > m_changedFiles;
     bool m_blockActivated;
+    QString m_lastVisitedDirectory;
+    QString m_projectsDirectory;
+    bool m_useProjectsDirectory;
 };
 
 FileManagerPrivate::FileManagerPrivate(QObject *q, QMainWindow *mw) :
     m_mainWindow(mw),
     m_fileWatcher(new QFileSystemWatcher(q)),
-    m_blockActivated(false)
+    m_blockActivated(false),
+    m_lastVisitedDirectory(QDir::currentPath()),
+    m_projectsDirectory(Utils::PathChooser::homePath()),
+#ifdef Q_OS_MAC  // Creator is in bizarre places when launched via finder.
+    m_useProjectsDirectory(true)
+#else
+    m_useProjectsDirectory(false)
+#endif
 {
 }
 
@@ -128,7 +143,7 @@ FileManager::FileManager(QMainWindow *mw)
         this, SLOT(syncWithEditor(Core::IContext*)));
 
     const QSettings *s = core->settings();
-    d->m_recentFiles = s->value(QLatin1String(settingsGroup) + QLatin1Char('/') + QLatin1String(filesKey), QStringList()).toStringList();
+    d->m_recentFiles = s->value(QLatin1String(settingsGroupC) + QLatin1Char('/') + QLatin1String(filesKeyC), QStringList()).toStringList();
     for (QStringList::iterator it = d->m_recentFiles.begin(); it != d->m_recentFiles.end(); ) {
         if (QFileInfo(*it).isFile()) {
             ++it;
@@ -136,6 +151,10 @@ FileManager::FileManager(QMainWindow *mw)
             it = d->m_recentFiles.erase(it);
         }
     }
+    const QString directoryGroup = QLatin1String(directoryGroupC) + QLatin1Char('/');
+    d->m_projectsDirectory = s->value(directoryGroup + QLatin1String(projectDirectoryKeyC), QString()).toString();
+    d->m_useProjectsDirectory = s->value(directoryGroup + QLatin1String(useProjectDirectoryKeyC),
+                                         d->m_useProjectsDirectory).toBool();
 }
 
 FileManager::~FileManager()
@@ -441,13 +460,14 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
     return notSaved;
 }
 
-QString FileManager::getSaveFileNameWithExtension(const QString &title, const QString &path,
+QString FileManager::getSaveFileNameWithExtension(const QString &title, const QString &pathIn,
     const QString &fileFilter, const QString &extension)
 {
     QString fileName;
     bool repeat;
     do {
         repeat = false;
+        const QString path = pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn;
         fileName = QFileDialog::getSaveFileName(d->m_mainWindow, title, path, fileFilter);
         if (!fileName.isEmpty() && !extension.isEmpty() && !fileName.endsWith(extension)) {
             fileName.append(extension);
@@ -459,6 +479,8 @@ QString FileManager::getSaveFileNameWithExtension(const QString &title, const QS
             }
         }
     } while (repeat);
+    if (!fileName.isEmpty())
+        setFileDialogLastVisitedDirectory(QFileInfo(fileName).absolutePath());
     return fileName;
 }
 
@@ -494,6 +516,27 @@ QString FileManager::getSaveAsFileName(IFile *file)
         preferredSuffix);
     return absoluteFilePath;
 }
+
+/*!
+    \fn QString FileManager::getOpenFileNames(const QStringList &filters, QString *selectedFilter) const
+
+    Asks the user for a set of file names to be opened.
+*/
+
+QStringList FileManager::getOpenFileNames(const QString &filters,
+                                          const QString pathIn,
+                                          QString *selectedFilter)
+{
+    const QString path = pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn;
+    const QStringList files = QFileDialog::getOpenFileNames(d->m_mainWindow,
+                                                      tr("Open File"),
+                                                      path, filters,
+                                                      selectedFilter);
+    if (!files.isEmpty())
+        setFileDialogLastVisitedDirectory(QFileInfo(files.front()).absolutePath());
+    return files;
+}
+
 
 void FileManager::changedFile(const QString &file)
 {
@@ -586,8 +629,12 @@ QStringList FileManager::recentFiles() const
 void FileManager::saveRecentFiles()
 {
     QSettings *s = Core::ICore::instance()->settings();
-    s->beginGroup(QLatin1String(settingsGroup));
-    s->setValue(QLatin1String(filesKey), d->m_recentFiles);
+    s->beginGroup(QLatin1String(settingsGroupC));
+    s->setValue(QLatin1String(filesKeyC), d->m_recentFiles);
+    s->endGroup();
+    s->beginGroup(QLatin1String(directoryGroupC));
+    s->setValue(QLatin1String(projectDirectoryKeyC), d->m_projectsDirectory);
+    s->setValue(QLatin1String(useProjectDirectoryKeyC), d->m_useProjectsDirectory);
     s->endGroup();
 }
 
@@ -637,6 +684,99 @@ QList<IFile *> FileManager::managedFiles(const QString &fileName) const
     }
     return result;
 }
+
+/*!
+
+  Returns the initial directory for a new file dialog. If there is
+  a current file, use that, else use last visited directory.
+
+  \sa setFileDialogLastVisitedDirectory
+*/
+
+QString FileManager::fileDialogInitialDirectory() const
+{
+    if (!d->m_currentFile.isEmpty())
+        return QFileInfo(d->m_currentFile).absolutePath();
+    return d->m_lastVisitedDirectory;
+}
+
+/*!
+
+  Returns the directory for projects. Defaults to HOME.
+
+  \sa setProjectsDirectory, setUseProjectsDirectory
+*/
+
+QString FileManager::projectsDirectory() const
+{
+    return d->m_projectsDirectory;
+}
+
+/*!
+
+  Set the directory for projects.
+
+  \sa projectsDirectory, useProjectsDirectory
+*/
+
+void FileManager::setProjectsDirectory(const QString &dir)
+{
+    d->m_projectsDirectory = dir;
+}
+
+/*!
+
+  Returns whether the directory for projects is to be
+  used or the user wants the current directory.
+
+  \sa setProjectsDirectory, setUseProjectsDirectory
+*/
+
+bool FileManager::useProjectsDirectory() const
+{
+    return d->m_useProjectsDirectory;
+}
+
+/*!
+
+  Sets whether the directory for projects is to be used.
+
+  \sa projectsDirectory, useProjectsDirectory
+*/
+
+void FileManager::setUseProjectsDirectory(bool useProjectsDirectory)
+{
+    d->m_useProjectsDirectory = useProjectsDirectory;
+}
+
+/*!
+
+  Returns last visited directory of a file dialog.
+
+  \sa setFileDialogLastVisitedDirectory, fileDialogInitialDirectory
+
+*/
+
+QString FileManager::fileDialogLastVisitedDirectory() const
+{
+    return d->m_lastVisitedDirectory;
+}
+
+/*!
+
+  Set the last visited directory of a file dialog that will be remembered
+  for the next one.
+
+  \sa fileDialogLastVisitedDirectory, fileDialogInitialDirectory
+
+  */
+
+void FileManager::setFileDialogLastVisitedDirectory(const QString &directory)
+{
+    d->m_lastVisitedDirectory = directory;
+}
+
+// -------------- FileChangeBlocker
 
 FileChangeBlocker::FileChangeBlocker(const QString &fileName)
     : m_reload(false)

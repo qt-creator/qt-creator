@@ -30,6 +30,7 @@
 #include "qtwizard.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
+#include "modulespage.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
@@ -113,8 +114,79 @@ bool QtWizard::lowerCaseFiles()
     return Core::ICore::instance()->settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
 
+bool QtWizard::showModulesPageForApplications()
+{
+    return false;
+}
 
+bool QtWizard::showModulesPageForLibraries()
+{
+    return true;
+}
 
+// ----------------- BaseQt4ProjectWizardDialog
+BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWidget *parent) :
+    ProjectExplorer::BaseProjectWizardDialog(parent),
+    m_modulesPage(0)
+{
+    init(showModulesPage);
+}
 
+BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage,
+                                                       Utils::ProjectIntroPage *introPage,
+                                                       int introId, QWidget *parent) :
+    ProjectExplorer::BaseProjectWizardDialog(introPage, introId, parent),
+    m_modulesPage(0)
+{
+    init(showModulesPage);
+}
 
+void BaseQt4ProjectWizardDialog::init(bool showModulesPage)
+{
+    if (showModulesPage)
+        m_modulesPage = new ModulesPage;
+}
+
+void BaseQt4ProjectWizardDialog::addModulesPage(int id)
+{
+    if (m_modulesPage) {
+        if (id >= 0) {
+            setPage(id, m_modulesPage);
+        } else {
+            addPage(m_modulesPage);
+        }
+    }
+}
+
+QString BaseQt4ProjectWizardDialog::selectedModules() const
+{
+    return m_modulesPage ? m_modulesPage->selectedModules() : m_selectedModules;
+}
+
+void BaseQt4ProjectWizardDialog::setSelectedModules(const QString &modules, bool lock)
+{   
+    if (m_modulesPage) {
+        foreach(const QString &module, modules.split(QLatin1Char(' '))) {
+            m_modulesPage->setModuleSelected(module, true);
+            m_modulesPage->setModuleEnabled(module, !lock);
+        }
+    } else {
+        m_selectedModules = modules;
+    }
+}
+
+QString BaseQt4ProjectWizardDialog::deselectedModules() const
+{
+    return m_modulesPage ? m_modulesPage->deselectedModules() : m_deselectedModules;
+}
+
+void BaseQt4ProjectWizardDialog::setDeselectedModules(const QString &modules)
+{
+    if (m_modulesPage) {
+        foreach(const QString &module, modules.split(QLatin1Char(' ')))
+            m_modulesPage->setModuleSelected(module, false);
+    } else {
+        m_deselectedModules = modules;
+    }
+}
 

@@ -31,12 +31,15 @@
 #define QTWIZARD_H
 
 #include "qtprojectparameters.h"
+#include <projectexplorer/baseprojectwizarddialog.h>
 
 #include <coreplugin/basefilewizard.h>
 
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+class ModulesPage;
 
 /* Base class for wizard creating Qt projects using QtProjectParameters.
  * To implement a project wizard, overwrite:
@@ -64,8 +67,43 @@ protected:
     // Query CppTools settings for the class wizard settings
     static bool lowerCaseFiles();
 
+protected:
+    static bool showModulesPageForApplications();
+    static bool showModulesPageForLibraries();
+
 private:
     bool postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMessage);
+};
+
+/* BaseQt4ProjectWizardDialog: Additionally offers modules page
+ * and getter/setter for blank-delimited modules list, transparently
+ * handling the visibility of the modules page list. */
+
+class BaseQt4ProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDialog {
+    Q_OBJECT
+
+protected:
+    explicit BaseQt4ProjectWizardDialog(bool showModulesPage, QWidget *parent = 0);
+    explicit BaseQt4ProjectWizardDialog(bool showModulesPage,
+                                        Utils::ProjectIntroPage *introPage,
+                                        int introId = -1,
+                                        QWidget *parent = 0);
+
+    void addModulesPage(int id = -1);
+
+public:
+    QString selectedModules() const;
+    void setSelectedModules(const QString &, bool lock = false);
+
+    QString deselectedModules() const;
+    void setDeselectedModules(const QString &);
+
+private:
+    inline void init(bool showModulesPage);
+
+    ModulesPage *m_modulesPage;
+    QString m_selectedModules;
+    QString m_deselectedModules;
 };
 
 } // namespace Internal

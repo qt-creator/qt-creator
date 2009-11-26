@@ -28,10 +28,7 @@
 **************************************************************************/
 
 #include "emptyprojectwizarddialog.h"
-
-#include "emptyprojectwizard.h"
-
-#include <utils/projectintropage.h>
+#include "qtprojectparameters.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -40,38 +37,24 @@ EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
                                                const QIcon &icon,
                                                const QList<QWizardPage*> &extensionPages,
                                                QWidget *parent) :
-    QWizard(parent),
-    m_introPage(new Utils::ProjectIntroPage)
+    ProjectExplorer::BaseProjectWizardDialog(parent)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
-    Core::BaseFileWizard::setupWizard(this);
 
-    m_introPage->setDescription(tr("This wizard generates an empty Qt4 project. "
-                          "Add files to it later on by using the other wizards."));
-
-    addPage(m_introPage);
+    setIntroDescription(tr("This wizard generates an empty Qt4 project. "
+                           "Add files to it later on by using the other wizards."));
 
     foreach (QWizardPage *p, extensionPages)
         addPage(p);
-}
-
-void EmptyProjectWizardDialog::setPath(const QString &path)
-{
-    m_introPage->setPath(path);
-}
-
-void  EmptyProjectWizardDialog::setName(const QString &name)
-{
-    m_introPage->setName(name);
 }
 
 QtProjectParameters EmptyProjectWizardDialog::parameters() const
 {
     QtProjectParameters rc;
     rc.type = QtProjectParameters::EmptyProject;
-    rc.name = m_introPage->name();
-    rc.path = m_introPage->path();
+    rc.name = name();
+    rc.path = path();
     return rc;
 }
 

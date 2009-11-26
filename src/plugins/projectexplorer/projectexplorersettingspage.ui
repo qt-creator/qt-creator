@@ -6,13 +6,54 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>338</width>
-    <height>289</height>
+    <width>437</width>
+    <height>343</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
+    <widget class="QGroupBox" name="directoryGroupBox">
+     <property name="title">
+      <string>Projects Directory </string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
+      <item row="1" column="1">
+       <widget class="Utils::PathChooser" name="projectsDirectoryPathChooser"/>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QRadioButton" name="currentDirectoryRadioButton">
+        <property name="text">
+         <string>Current directory</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string>directoryButtonGroup</string>
+        </attribute>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="directoryRadioButton">
+        <property name="text">
+         <string>Directory</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <attribute name="buttonGroup">
+         <string>directoryButtonGroup</string>
+        </attribute>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="buildAndRunGroupBox">
+     <property name="title">
+      <string>Build and Run</string>
+     </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="QCheckBox" name="saveAllFilesCheckBox">
@@ -86,6 +127,16 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="directoryButtonGroup"/>
+ </buttongroups>
 </ui>

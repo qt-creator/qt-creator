@@ -33,7 +33,6 @@
 #include "qt4projectmanagerconstants.h"
 
 #include <utils/codegeneration.h>
-#include <utils/pathchooser.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QtCore/QDir>
@@ -58,9 +57,11 @@ QWizard *LibraryWizard::createWizardDialog(QWidget *parent,
                                           const QString &defaultPath,
                                           const WizardPageList &extensionPages) const
 {
-    LibraryWizardDialog *dialog = new  LibraryWizardDialog(name(), icon(), extensionPages, parent);
+    LibraryWizardDialog *dialog = new  LibraryWizardDialog(name(), icon(), extensionPages,
+                                                           showModulesPageForLibraries(), parent);
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
-    dialog->setPath(defaultPath.isEmpty() ? Utils::PathChooser::homePath() : defaultPath);
+    dialog->setPath(defaultPath);
+    dialog->setName(LibraryWizardDialog::projectName(defaultPath));
     dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());    
     return dialog;
 }

@@ -30,14 +30,9 @@
 #ifndef CUSTOMWIDGETWIZARDDIALOG_H
 #define CUSTOMWIDGETWIZARDDIALOG_H
 
+#include <projectexplorer/baseprojectwizarddialog.h>
+
 #include <QtCore/QSharedPointer>
-
-#include <QtGui/QWizard>
-#include <QtGui/QWizardPage>
-
-namespace Utils {
-    class ProjectIntroPage;
-}
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -47,7 +42,7 @@ class CustomWidgetPluginWizardPage;
 struct PluginOptions;
 struct FileNamingParameters;
 
-class CustomWidgetWizardDialog : public QWizard
+class CustomWidgetWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
 public:
@@ -58,20 +53,14 @@ public:
 
     QSharedPointer<PluginOptions> pluginOptions() const;
 
-    QString path() const;
-    QString name() const;
 
     FileNamingParameters fileNamingParameters() const;
     void setFileNamingParameters(const FileNamingParameters &fnp);
-
-public slots:
-    void setPath(const QString &path);
 
 private slots:
     void slotCurrentIdChanged (int id);
 
 private:
-    Utils::ProjectIntroPage *m_introPage;
     CustomWidgetWidgetsWizardPage *m_widgetsPage;
     CustomWidgetPluginWizardPage *m_pluginPage;
 };

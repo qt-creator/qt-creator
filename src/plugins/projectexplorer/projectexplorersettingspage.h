@@ -48,8 +48,16 @@ public:
     ProjectExplorerSettings settings() const;
     void setSettings(const ProjectExplorerSettings  &s) const;
 
+    QString projectsDirectory() const;
+    void setProjectsDirectory(const QString &pd);
+
+    bool useProjectsDirectory();
+    void setUseProjectsDirectory(bool v);
+
     QString searchKeywords() const;
 
+private slots:
+    void slotDirectoryButtonGroupChanged();
 
 private:
     void setJomVisible(bool);

@@ -32,8 +32,6 @@
 #include "customwidgetpluginwizardpage.h"
 #include "customwidgetwizard.h"
 
-#include <utils/projectintropage.h>
-
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -43,41 +41,23 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
                                                    const QIcon &icon,
                                                    const QList<QWizardPage*> &extensionPages,
                                                    QWidget *parent) :
-    QWizard(parent),
-    m_introPage(new Utils::ProjectIntroPage),
+    ProjectExplorer::BaseProjectWizardDialog(parent),
     m_widgetsPage(new CustomWidgetWidgetsWizardPage),
     m_pluginPage(new CustomWidgetPluginWizardPage)
 
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
-    Core::BaseFileWizard::setupWizard(this);
 
-    m_introPage->setDescription(tr("This wizard generates a Qt4 Designer Custom Widget "
-                          "or a Qt4 Designer Custom Widget Collection project."));
+    setIntroDescription(tr("This wizard generates a Qt4 Designer Custom Widget "
+                           "or a Qt4 Designer Custom Widget Collection project."));
 
-    setPage(IntroPageId, m_introPage);
     setPage(WidgetsPageId, m_widgetsPage);
     setPage(PluginPageId, m_pluginPage);
 
     foreach (QWizardPage *p, extensionPages)
         addPage(p);
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
-}
-
-void CustomWidgetWizardDialog::setPath(const QString &path)
-{
-    m_introPage->setPath(path);
-}
-
-QString CustomWidgetWizardDialog::path() const
-{
-    return m_introPage->path();
-}
-
-QString CustomWidgetWizardDialog::name() const
-{
-    return m_introPage->name();
 }
 
 FileNamingParameters CustomWidgetWizardDialog::fileNamingParameters() const

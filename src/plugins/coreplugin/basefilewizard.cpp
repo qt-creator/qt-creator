@@ -37,6 +37,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filewizarddialog.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -423,6 +424,8 @@ QString BaseFileWizard::trCategory() const
 
 QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
 {
+    QTC_ASSERT(!path.isEmpty(), return QStringList())
+
     typedef  QList<IFileWizardExtension*> ExtensionList;
 
     QString errorMessage;
