@@ -155,8 +155,7 @@ bool SessionFile::load(const QString &fileName)
     }
 
     m_core->progressManager()->addTask(future.future(), tr("Session"),
-       QLatin1String("ProjectExplorer.SessionFile.Load"),
-       Core::ProgressManager::CloseOnSuccess);
+       QLatin1String("ProjectExplorer.SessionFile.Load"));
 
     const QStringList &keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
     foreach (const QString &key, keys) {

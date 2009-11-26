@@ -55,7 +55,7 @@ public:
     FutureProgress *addTask(const QFuture<void> &future,
                             const QString &title,
                             const QString &type,
-                            ProgressManager::PersistentType persistency);
+                            ProgressManager::ProgressFlags flags);
 
 private slots:
     void slotFinished();

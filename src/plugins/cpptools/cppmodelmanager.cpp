@@ -857,8 +857,7 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 
         if (pinfo.includePaths.size() > 1) {
             m_core->progressManager()->addTask(result, tr("Scanning"),
-                                               CppTools::Constants::TASK_INDEX,
-                                               Core::ProgressManager::CloseOnSuccess);
+                                               CppTools::Constants::TASK_INDEX);
         }
     }
 }
@@ -899,8 +898,7 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
 
         if (sourceFiles.count() > 1) {
             m_core->progressManager()->addTask(result, tr("Indexing"),
-                            CppTools::Constants::TASK_INDEX,
-                            Core::ProgressManager::CloseOnSuccess);
+                            CppTools::Constants::TASK_INDEX);
         }
         return result;
     }

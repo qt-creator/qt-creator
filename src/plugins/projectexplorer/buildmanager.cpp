@@ -53,6 +53,8 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QIcon>
 #include <QtGui/QLabel>
+#include <QtGui/QApplication>
+#include <QtGui/QMainWindow>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -91,10 +93,12 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     m_taskWindow->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM, tr("Buildsystem", "Category for build system isses listened under 'Build Issues'"));
 
     connect(m_taskWindow, SIGNAL(tasksChanged()),
-            this, SIGNAL(tasksChanged()));
+            this, SLOT(updateTaskCount()));
 
     connect(&m_progressWatcher, SIGNAL(canceled()),
             this, SLOT(cancel()));
+    connect(&m_progressWatcher, SIGNAL(finished()),
+            this, SLOT(finish()));
 }
 
 BuildManager::~BuildManager()
@@ -138,6 +142,23 @@ void BuildManager::cancel()
         clearBuildQueue();
     }
     return;
+}
+
+void BuildManager::updateTaskCount()
+{
+    Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
+    int errors = m_taskWindow->errorTaskCount();
+    if (errors > 0) {
+        progressManager->setApplicationLabel(QString("%1").arg(errors));
+    } else {
+        progressManager->setApplicationLabel("");
+    }
+    emit tasksChanged();
+}
+
+void BuildManager::finish()
+{
+    QApplication::alert(Core::ICore::instance()->mainWindow(), 3000);
 }
 
 void BuildManager::emitCancelMessage()
@@ -201,9 +222,11 @@ void BuildManager::startBuildQueue()
         Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
         m_progressFutureInterface = new QFutureInterface<void>;
         m_progressWatcher.setFuture(m_progressFutureInterface->future());
+        progressManager->setApplicationLabel("");
         Core::FutureProgress *progress = progressManager->addTask(m_progressFutureInterface->future(),
-                                                                  tr("Build"),
-                                                                  Constants::TASK_BUILD);
+              tr("Build"),
+              Constants::TASK_BUILD,
+              Core::ProgressManager::KeepOnFinish | Core::ProgressManager::ShowInApplicationIcon);
         connect(progress, SIGNAL(clicked()), this, SLOT(showBuildResults()));
         progress->setWidget(new BuildProgress(m_taskWindow));
         m_progress = 0;

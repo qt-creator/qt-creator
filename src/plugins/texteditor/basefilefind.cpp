@@ -101,9 +101,7 @@ void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlag
     Core::FutureProgress *progress = 
         Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
                                                                         "Search",
-                                                                        Constants::TASK_SEARCH,
-                                                                        Core::ProgressManager::CloseOnSuccess
-                                                                        );
+                                                                        Constants::TASK_SEARCH);
     progress->setWidget(createProgressWidget());
     connect(progress, SIGNAL(clicked()), m_resultWindow, SLOT(popup()));
 }

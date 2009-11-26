@@ -42,12 +42,18 @@ class CORE_EXPORT ProgressManager : public QObject
 {
     Q_OBJECT
 public:
-    enum PersistentType { CloseOnSuccess, KeepOnFinish };
+    enum ProgressFlag {
+        KeepOnFinish = 0x01,
+        ShowInApplicationIcon = 0x02
+    };
+    Q_DECLARE_FLAGS(ProgressFlags, ProgressFlag)
 
     ProgressManager(QObject *parent = 0) : QObject(parent) {}
     virtual ~ProgressManager() {}
 
-    virtual FutureProgress *addTask(const QFuture<void> &future, const QString &title, const QString &type, PersistentType persistency = KeepOnFinish) = 0;
+    virtual FutureProgress *addTask(const QFuture<void> &future, const QString &title,
+                                    const QString &type, ProgressFlags flags = 0) = 0;
+    virtual void setApplicationLabel(const QString &text) = 0;
 
 public slots:
     virtual void cancelTasks(const QString &type) = 0;
@@ -58,5 +64,7 @@ signals:
 };
 
 } // namespace Core
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::ProgressManager::ProgressFlags)
 
 #endif //PROGRESSMANAGER_H

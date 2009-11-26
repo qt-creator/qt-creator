@@ -58,7 +58,7 @@ ProgressView::~ProgressView()
 FutureProgress *ProgressView::addTask(const QFuture<void> &future,
                                       const QString &title,
                                       const QString &type,
-                                      ProgressManager::PersistentType persistency)
+                                      ProgressManager::ProgressFlags flags)
 {
     removeOldTasks(type);
     if (m_taskList.size() == 3)
@@ -69,7 +69,7 @@ FutureProgress *ProgressView::addTask(const QFuture<void> &future,
     m_layout->insertWidget(0, progress);
     m_taskList.append(progress);
     m_type.insert(progress, type);
-    m_keep.insert(progress, (persistency == ProgressManager::KeepOnFinish));
+    m_keep.insert(progress, (flags & ProgressManager::KeepOnFinish));
     connect(progress, SIGNAL(finished()), this, SLOT(slotFinished()));
     return progress;
 }

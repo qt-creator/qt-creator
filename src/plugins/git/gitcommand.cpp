@@ -109,8 +109,7 @@ void GitCommand::execute()
     const QString taskName = QLatin1String("Git ") + m_jobs.front().arguments.at(0);
 
     Core::ICore::instance()->progressManager()->addTask(task, taskName,
-                                     QLatin1String("Git.action"),
-                                     Core::ProgressManager::CloseOnSuccess);
+                                     QLatin1String("Git.action"));
 }
 
 void GitCommand::run()

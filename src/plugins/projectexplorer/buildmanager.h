@@ -99,6 +99,8 @@ private slots:
     void progressChanged();
     void emitCancelMessage();
     void showBuildResults();
+    void updateTaskCount();
+    void finish();
 
 private:
     void startBuildQueue();

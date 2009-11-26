@@ -40,7 +40,8 @@ using namespace Core;
 using namespace Core::Internal;
 
 ProgressManagerPrivate::ProgressManagerPrivate(QObject *parent)
-  : ProgressManager(parent)
+  : ProgressManager(parent),
+    m_applicationTask(0)
 {
     m_progressView = new ProgressView;
     ICore *core = ICore::instance();
@@ -66,6 +67,8 @@ void ProgressManagerPrivate::cancelTasks(const QString &type)
         }
         found = true;
         disconnect(task.key(), SIGNAL(finished()), this, SLOT(taskFinished()));
+        if (m_applicationTask == task.key())
+            disconnectApplicationTask();
         task.key()->cancel();
         delete task.key();
         task = m_runningTasks.erase(task);
@@ -80,6 +83,8 @@ void ProgressManagerPrivate::cancelAllRunningTasks()
     QMap<QFutureWatcher<void> *, QString>::const_iterator task = m_runningTasks.constBegin();
     while (task != m_runningTasks.constEnd()) {
         disconnect(task.key(), SIGNAL(finished()), this, SLOT(taskFinished()));
+        if (m_applicationTask == task.key())
+            disconnectApplicationTask();
         task.key()->cancel();
         delete task.key();
         ++task;
@@ -87,14 +92,23 @@ void ProgressManagerPrivate::cancelAllRunningTasks()
     m_runningTasks.clear();
 }
 
-FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, const QString &title, const QString &type, PersistentType persistency)
+FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, const QString &title,
+                                                const QString &type, ProgressFlags flags)
 {
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
     m_runningTasks.insert(watcher, type);
     connect(watcher, SIGNAL(finished()), this, SLOT(taskFinished()));
+    if (flags & ShowInApplicationIcon) {
+        m_applicationTask = watcher;
+        connect(m_applicationTask, SIGNAL(progressRangeChanged(int,int)),
+                this, SLOT(setApplicationProgressRange(int,int)));
+        connect(m_applicationTask, SIGNAL(progressValueChanged(int)),
+                this, SLOT(setApplicationProgressValue(int)));
+        setApplicationProgressVisible(true);
+    }
     watcher->setFuture(future);
     emit taskStarted(type);
-    return m_progressView->addTask(future, title, type, persistency);
+    return m_progressView->addTask(future, title, type, flags);
 }
 
 QWidget *ProgressManagerPrivate::progressView()
@@ -107,6 +121,8 @@ void ProgressManagerPrivate::taskFinished()
     QObject *taskObject = sender();
     QTC_ASSERT(taskObject, return);
     QFutureWatcher<void> *task = static_cast<QFutureWatcher<void> *>(taskObject);
+    if (m_applicationTask == task)
+        disconnectApplicationTask();
     QString type = m_runningTasks.value(task);
     m_runningTasks.remove(task);
     delete task;
@@ -114,4 +130,14 @@ void ProgressManagerPrivate::taskFinished()
     if (!m_runningTasks.values().contains(type)) {
         emit allTasksFinished(type);
     }
+}
+
+void ProgressManagerPrivate::disconnectApplicationTask()
+{
+    disconnect(m_applicationTask, SIGNAL(progressRangeChanged(int,int)),
+            this, SLOT(setApplicationProgressRange(int,int)));
+    disconnect(m_applicationTask, SIGNAL(progressValueChanged(int)),
+            this, SLOT(setApplicationProgressValue(int)));
+    setApplicationProgressVisible(false);
+    m_applicationTask = 0;
 }

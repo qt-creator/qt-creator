@@ -165,7 +165,17 @@ FORMS += dialogs/newdialog.ui \
     generalsettings.ui
 RESOURCES += core.qrc \
     fancyactionbar.qrc
-unix:!macx { 
+
+win32 {
+    SOURCES += progressmanager/progressmanager_win.cpp
+}
+else:macx {
+    OBJECTIVE_SOURCES += progressmanager/progressmanager_mac.mm
+    LIBS += -framework AppKit
+}
+else:unix {
+    SOURCES += progressmanager/progressmanager_x11.cpp
+
     images.files = images/qtcreator_logo_*.png
     images.path = /share/pixmaps
     INSTALLS += images

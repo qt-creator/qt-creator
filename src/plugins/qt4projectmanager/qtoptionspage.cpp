@@ -289,8 +289,7 @@ void QtOptionsPageWidget::buildDebuggingHelper()
     QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
     const QString taskName = tr("Building helpers");
     Core::ICore::instance()->progressManager()->addTask(task, taskName,
-                                                        QLatin1String("Qt4ProjectManager::BuildHelpers"),
-                                                        Core::ProgressManager::CloseOnSuccess);
+                                                        QLatin1String("Qt4ProjectManager::BuildHelpers"));
 }
 
 void QtOptionsPageWidget::showDebuggingBuildLog()

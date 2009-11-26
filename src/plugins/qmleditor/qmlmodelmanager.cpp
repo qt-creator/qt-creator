@@ -97,8 +97,7 @@ QFuture<void> QmlModelManager::refreshSourceFiles(const QStringList &sourceFiles
 
     if (sourceFiles.count() > 1) {
         m_core->progressManager()->addTask(result, tr("Indexing"),
-                        QmlEditor::Constants::TASK_INDEX,
-                        Core::ProgressManager::CloseOnSuccess);
+                        QmlEditor::Constants::TASK_INDEX);
     }
 
     return result;

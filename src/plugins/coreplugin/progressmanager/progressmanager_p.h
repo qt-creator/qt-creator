@@ -49,8 +49,10 @@ public:
     ~ProgressManagerPrivate();
     void init();
 
-    FutureProgress *addTask(const QFuture<void> &future, const QString &title, const QString &type, PersistentType persistency);
+    FutureProgress *addTask(const QFuture<void> &future, const QString &title, const QString &type,
+                            ProgressFlags flags);
 
+    void setApplicationLabel(const QString &text);
     QWidget *progressView();
 
 public slots:
@@ -59,9 +61,15 @@ public slots:
 private slots:
     void taskFinished();
     void cancelAllRunningTasks();
+    void setApplicationProgressRange(int min, int max);
+    void setApplicationProgressValue(int value);
+    void setApplicationProgressVisible(bool visible);
+    void disconnectApplicationTask();
+
 private:
     QPointer<ProgressView> m_progressView;
     QMap<QFutureWatcher<void> *, QString> m_runningTasks;
+    QFutureWatcher<void> *m_applicationTask;
 };
 
 } // namespace Internal

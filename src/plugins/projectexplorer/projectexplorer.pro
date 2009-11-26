@@ -131,20 +131,21 @@ FORMS += processstep.ui \
     removefiledialog.ui \
     projectexplorersettingspage.ui \
     projectwelcomepagewidget.ui
+
 win32 { 
     SOURCES += applicationlauncher_win.cpp \
         winguiprocess.cpp
     HEADERS += winguiprocess.h
 }
-else:unix:SOURCES += applicationlauncher_x11.cpp
-
-macx {
-    HEADERS += buildprogress_mac.h
-    OBJECTIVE_SOURCES += buildprogress_mac.mm
-    LIBS += -framework Carbon -framework AppKit
+else:macx {
+    SOURCES += applicationlauncher_x11.cpp
+    LIBS += -framework \
+        Carbon
+}
+else:unix {
+    SOURCES += applicationlauncher_x11.cpp
 }
 
 RESOURCES += projectexplorer.qrc
 DEFINES += PROJECTEXPLORER_LIBRARY
 OTHER_FILES += ProjectExplorer.pluginspec
-

@@ -27,22 +27,25 @@
 **
 **************************************************************************/
 
-#include "buildprogress_mac.h"
+#include "progressmanager_p.h"
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
-#include <AppKit/NSDockTile.h>
-#include <AppKit/NSApplication.h>
-#include <Foundation/NSString.h>
-#endif
-
-void ProjectExplorer::Internal::qtcShowDockTileBadgeLabel(const QString &text)
+void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &text)
 {
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
-    const char *utf8String = text.toUtf8().constData();
-    NSString *cocoaString = [[NSString alloc] initWithUTF8String:utf8String];
-    [[NSApp dockTile] setBadgeLabel:cocoaString];
-    [cocoaString release];
-#else
     Q_UNUSED(text)
-#endif
+}
+
+void Core::Internal::ProgressManagerPrivate::setApplicationProgressRange(int min, int max)
+{
+    Q_UNUSED(min)
+    Q_UNUSED(max)
+}
+
+void Core::Internal::ProgressManagerPrivate::setApplicationProgressValue(int value)
+{
+    Q_UNUSED(value)
+}
+
+void Core::Internal::ProgressManagerPrivate::setApplicationProgressVisible(bool visible)
+{
+    Q_UNUSED(visible)
 }

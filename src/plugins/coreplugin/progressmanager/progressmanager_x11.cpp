@@ -27,15 +27,25 @@
 **
 **************************************************************************/
 
-#ifndef BUILDPROGRESS_MAC_H
-#define BUILDPROGRESS_MAC_H
+#include "progressmanager_p.h"
 
-#include <QtCore/QString>
-
-namespace ProjectExplorer {
-    namespace Internal {
-        void qtcShowDockTileBadgeLabel(const QString &text);
-    }
+void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &text)
+{
+    Q_UNUSED(text)
 }
 
-#endif
+void Core::Internal::ProgressManagerPrivate::setApplicationProgressRange(int min, int max)
+{
+    Q_UNUSED(min)
+    Q_UNUSED(max)
+}
+
+void Core::Internal::ProgressManagerPrivate::setApplicationProgressValue(int value)
+{
+    Q_UNUSED(value)
+}
+
+void Core::Internal::ProgressManagerPrivate::setApplicationProgressVisible(bool visible)
+{
+    Q_UNUSED(visible)
+}

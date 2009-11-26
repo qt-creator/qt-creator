@@ -245,8 +245,7 @@ void LocatorPlugin::refresh(QList<ILocatorFilter*> filters)
     QFuture<void> task = QtConcurrent::run(&ILocatorFilter::refresh, filters);
     Core::FutureProgress *progress = Core::ICore::instance()
             ->progressManager()->addTask(task, tr("Indexing"),
-                                         Locator::Constants::TASK_INDEX,
-                                         Core::ProgressManager::CloseOnSuccess);
+                                         Locator::Constants::TASK_INDEX);
     connect(progress, SIGNAL(finished()), this, SLOT(saveSettings()));
 }
 
