@@ -222,6 +222,7 @@ private:
     void dump();
     void dumpHelper(WatchItem *item);
     void emitAllChanged();
+    Q_SLOT void resetExtraLayoutChanged();
 
 signals:
     void enableUpdates(bool);
@@ -232,6 +233,10 @@ private:
     WatchHandler *m_handler;
     WatchType m_type;
     WatchItem *m_root;
+    QSet<QString> m_fetchTriggered;
+    // Part of the workaround to update the [+] marker when items
+    // are added to a container.
+    bool m_inExtraLayoutChanged;
 };
 
 class WatchHandler : public QObject

@@ -83,16 +83,15 @@ static int generationCounter = 0;
 class WatchItem : public WatchData
 {
 public:
-    WatchItem() { parent = 0; fetchTriggered = false; }
+    WatchItem() { parent = 0; }
 
     WatchItem(const WatchData &data) : WatchData(data)
-        { parent = 0; fetchTriggered = false; }
+        { parent = 0; }
 
     void setData(const WatchData &data)
         { static_cast<WatchData &>(*this) = data; }
 
     WatchItem *parent;
-    bool fetchTriggered;      // children fetch has been triggered
     QList<WatchItem *> children;  // fetched children
 };
 
@@ -340,12 +339,12 @@ QString WatchData::shadowedName(const QString &name, int seen)
 WatchModel::WatchModel(WatchHandler *handler, WatchType type)
     : QAbstractItemModel(handler), m_handler(handler), m_type(type)
 {
+    m_inExtraLayoutChanged = false;
     m_root = new WatchItem;
     m_root->hasChildren = 1;
     m_root->state = 0;
     m_root->name = WatchHandler::tr("Root");
     m_root->parent = 0;
-    m_root->fetchTriggered = true;
 
     switch (m_type) {
         case LocalsWatch:
@@ -393,6 +392,7 @@ void WatchModel::emitAllChanged()
 
 void WatchModel::beginCycle()
 {
+    m_fetchTriggered.clear();
     emit enableUpdates(false);
 }
 
@@ -400,6 +400,15 @@ void WatchModel::endCycle()
 {
     removeOutdated();
     emit enableUpdates(true);
+    // Prevent 'fetchMore()' from being triggered
+    m_inExtraLayoutChanged = true;
+    emit layoutChanged();
+    QTimer::singleShot(0, this, SLOT(resetExtraLayoutChanged()));
+}
+
+void WatchModel::resetExtraLayoutChanged()
+{
+    m_inExtraLayoutChanged = false;
 }
 
 void WatchModel::dump()
@@ -436,7 +445,6 @@ void WatchModel::removeOutdatedHelper(WatchItem *item)
     } else {
         foreach (WatchItem *child, item->children)
             removeOutdatedHelper(child);
-        item->fetchTriggered = false;
     }
 }
 
@@ -624,21 +632,23 @@ static QString formattedValue(const WatchData &data,
 
 bool WatchModel::canFetchMore(const QModelIndex &index) const
 {
-    return index.isValid() && !watchItem(index)->fetchTriggered;
+    return !m_inExtraLayoutChanged && index.isValid() && !m_fetchTriggered.contains(watchItem(index)->iname);
 }
 
 void WatchModel::fetchMore(const QModelIndex &index)
 {
+    if (m_inExtraLayoutChanged)
+        return;
     QTC_ASSERT(index.isValid(), return);
-    QTC_ASSERT(!watchItem(index)->fetchTriggered, return);
-    if (WatchItem *item = watchItem(index)) {
-        m_handler->m_expandedINames.insert(item->iname);
-        item->fetchTriggered = true;
-        if (item->children.isEmpty()) {
-            WatchData data = *item;
-            data.setChildrenNeeded();
-            m_handler->m_manager->updateWatchData(data);
-        }
+    WatchItem *item = watchItem(index);
+    QTC_ASSERT(item, return);
+    QTC_ASSERT(!m_fetchTriggered.contains(item->iname), return);
+    m_handler->m_expandedINames.insert(item->iname);
+    m_fetchTriggered.insert(item->iname);
+    if (item->children.isEmpty()) {
+        WatchData data = *item;
+        data.setChildrenNeeded();
+        m_handler->m_manager->updateWatchData(data);
     }
 }
 
@@ -943,7 +953,6 @@ void WatchModel::insertData(const WatchData &data)
         oldItem->generation = generationCounter;
         QModelIndex idx = watchIndex(oldItem);
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
-        emit layoutChanged();
     } else {
         // add new entry
         //MODEL_DEBUG("ADD : " << data.iname << data.value);
