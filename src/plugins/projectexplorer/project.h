@@ -88,10 +88,6 @@ public:
     void removeBuildConfiguration(BuildConfiguration *configuration);
 
     QList<BuildConfiguration *> buildConfigurations() const;
-
-    // remove and add "QString uniqueConfigurationDisplayName(const QString &proposedName) const" instead
-    // move into BuildConfiguration *
-    void setDisplayNameFor(BuildConfiguration *configuration, const QString &displayName);
     BuildConfiguration *activeBuildConfiguration() const;
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
 
@@ -145,10 +141,6 @@ signals:
 
     void removedBuildConfiguration(ProjectExplorer::Project *p, BuildConfiguration *bc);
     void addedBuildConfiguration(ProjectExplorer::Project *p, BuildConfiguration *bc);
-
-    // This signal is jut there for updating the tree list in the buildsettings wizard
-    void buildConfigurationDisplayNameChanged(BuildConfiguration *bc);
-
 
 protected:
     /* This method is called when the project .user file is saved. Simply call

@@ -49,6 +49,7 @@ BuildStepsPage::BuildStepsPage(Project *project, bool clean) :
     BuildConfigWidget(),
     m_clean(clean)
 {
+    Q_UNUSED(project)
     m_vbox = new QVBoxLayout(this);
     m_vbox->setContentsMargins(0, 0, 0, 0);
     m_vbox->setSpacing(0);

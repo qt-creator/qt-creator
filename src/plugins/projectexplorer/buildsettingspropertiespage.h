@@ -94,7 +94,6 @@ public:
     ~BuildSettingsWidget();
 
 private slots:
-    void buildConfigurationDisplayNameChanged(ProjectExplorer::BuildConfiguration *bc);
     void updateBuildSettings();
     void currentIndexChanged(int index);
     void activeBuildConfigurationChanged();

@@ -463,23 +463,6 @@ EditorConfiguration *Project::editorConfiguration() const
     return m_editorConfiguration;
 }
 
-void Project::setDisplayNameFor(BuildConfiguration *configuration, const QString &displayName)
-{
-    if (configuration->displayName() == displayName)
-        return;
-    QString dn = displayName;
-    QStringList displayNames;
-    foreach (BuildConfiguration *bc, m_buildConfigurationValues) {
-        if (bc != configuration)
-            displayNames << bc->displayName();
-    }
-    dn = makeUnique(displayName, displayNames);
-
-    configuration->setDisplayName(displayName);
-
-    emit buildConfigurationDisplayNameChanged(configuration);
-}
-
 QByteArray Project::predefinedMacros(const QString &) const
 {
     return QByteArray();

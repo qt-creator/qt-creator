@@ -343,7 +343,7 @@ Qt4BuildConfiguration *Qt4Project::activeQt4BuildConfiguration() const
 
 void Qt4Project::defaultQtVersionChanged()
 {
-    if (static_cast<Qt4BuildConfiguration  *>(activeBuildConfiguration())->qtVersionId() == 0)
+    if (activeQt4BuildConfiguration()->qtVersionId() == 0)
         m_rootProjectNode->update();
 }
 

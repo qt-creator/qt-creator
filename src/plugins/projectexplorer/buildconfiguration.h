@@ -82,6 +82,7 @@ public:
 signals:
     void environmentChanged();
     void buildDirectoryChanged();
+    void displayNameChanged();
 
 protected:
     BuildConfiguration(Project * project);

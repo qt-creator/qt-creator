@@ -165,7 +165,7 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
 
 void Qt4ProjectConfigWidget::changeConfigName(const QString &newName)
 {
-    m_buildConfiguration->project()->setDisplayNameFor(m_buildConfiguration, newName);
+    m_buildConfiguration->setDisplayName(newName);
 }
 
 void Qt4ProjectConfigWidget::setupQtVersionsComboBox()

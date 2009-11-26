@@ -80,7 +80,10 @@ QString BuildConfiguration::displayName() const
 
 void BuildConfiguration::setDisplayName(const QString &name)
 {
+    if (value("ProjectExplorer.BuildConfiguration.DisplayName").toString() == name)
+        return;
     setValue("ProjectExplorer.BuildConfiguration.DisplayName", name);
+    emit displayNameChanged();
 }
 
 QVariant BuildConfiguration::value(const QString & key) const

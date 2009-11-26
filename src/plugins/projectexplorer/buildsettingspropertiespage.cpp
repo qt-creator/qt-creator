@@ -200,8 +200,7 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project)
     connect(m_removeButton, SIGNAL(clicked()),
             this, SLOT(deleteConfiguration()));
 
-    connect(m_project, SIGNAL(buildConfigurationDisplayNameChanged(ProjectExplorer::BuildConfiguration *)),
-            this, SLOT(buildConfigurationDisplayNameChanged(ProjectExplorer::BuildConfiguration *)));
+    // TODO update on displayNameChange
 
     connect(m_project, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(checkMakeActiveLabel()));
@@ -230,17 +229,6 @@ void BuildSettingsWidget::updateAddButtonMenu()
         }
     }
 }
-
-void BuildSettingsWidget::buildConfigurationDisplayNameChanged(BuildConfiguration *bc)
-{
-    for (int i=0; i<m_buildConfigurationComboBox->count(); ++i) {
-        if (m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>() == bc) {
-            m_buildConfigurationComboBox->setItemText(i, bc->displayName());
-            break;
-        }
-    }
-}
-
 
 void BuildSettingsWidget::updateBuildSettings()
 {
@@ -350,7 +338,7 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
     newDisplayName = Project::makeUnique(newDisplayName, buildConfigurationDisplayNames);
 
     m_buildConfiguration = m_project->buildConfigurationFactory()->clone(sourceConfiguration);
-    m_project->setDisplayNameFor(m_buildConfiguration, newDisplayName);
+    m_buildConfiguration->setDisplayName(newDisplayName);
 
     updateBuildSettings();
 }
