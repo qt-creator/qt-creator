@@ -96,6 +96,8 @@ public:
 
     // TODO rename
     bool compareBuildConfigurationToImportFrom(const QString &workingDirectory);
+    static QStringList removeSpecFromArgumentList(const QStringList &old);
+    static QString extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version);
 
 signals:
     void qtVersionChanged();

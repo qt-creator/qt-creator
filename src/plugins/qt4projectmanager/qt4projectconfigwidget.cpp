@@ -283,8 +283,8 @@ void Qt4ProjectConfigWidget::importLabelClicked()
             QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
                     QtVersionManager::scanMakeFile(directory, version->defaultBuildConfig());
             QtVersion::QmakeBuildConfigs qmakeBuildConfig = result.first;
-            QStringList additionalArguments = Qt4Project::removeSpecFromArgumentList(result.second);
-            QString parsedSpec = Qt4Project::extractSpecFromArgumentList(result.second, directory, version);
+            QStringList additionalArguments = Qt4BuildConfiguration::removeSpecFromArgumentList(result.second);
+            QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArgumentList(result.second, directory, version);
             QString versionSpec = version->mkspec();
             if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == "default") {
                 // using the default spec, don't modify additional arguments

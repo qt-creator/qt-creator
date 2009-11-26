@@ -166,7 +166,7 @@ public:
     Qt4Manager *qt4ProjectManager() const;
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
-    Internal::Qt4BuildConfiguration *addQt4BuildConfiguration(QString buildConfigurationName,
+    Internal::Qt4BuildConfiguration *addQt4BuildConfiguration(QString displayName,
                                                               QtVersion *qtversion,
                                                               QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                                               QStringList additionalArguments = QStringList());
@@ -200,9 +200,6 @@ public:
     virtual QByteArray predefinedMacros(const QString &fileName) const;
     virtual QStringList includePaths(const QString &fileName) const;
     virtual QStringList frameworkPaths(const QString &fileName) const;
-
-    static QStringList removeSpecFromArgumentList(const QStringList &old);
-    static QString extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version);
 
     // TODO can i remove this?
     void updateActiveRunConfiguration();

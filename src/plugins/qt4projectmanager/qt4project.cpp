@@ -456,7 +456,7 @@ ProjectExplorer::IBuildConfigurationFactory *Qt4Project::buildConfigurationFacto
     return m_buildConfigurationFactory;
 }
 
-Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString buildConfigurationName, QtVersion *qtversion,
+Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString displayName, QtVersion *qtversion,
                                           QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                           QStringList additionalArguments)
 {
@@ -464,7 +464,7 @@ Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString buildConfigu
 
     // Add the buildconfiguration
     Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(this);
-    bc->setDisplayName(buildConfigurationName);
+    bc->setDisplayName(displayName);
     addBuildConfiguration(bc);
 
     QMakeStep *qmakeStep = new QMakeStep(bc);
@@ -821,64 +821,7 @@ void Qt4Project::updateActiveRunConfiguration()
     emit targetInformationChanged();
 }
 
-QString Qt4Project::extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version)
-{
-    int index = list.indexOf("-spec");
-    if (index == -1)
-        index = list.indexOf("-platform");
-    if (index == -1)
-        return QString();
 
-    ++index;
-
-    if (index >= list.length())
-        return QString();
-
-    QString baseMkspecDir = version->versionInfo().value("QMAKE_MKSPECS");    
-    if (baseMkspecDir.isEmpty())
-        baseMkspecDir = version->versionInfo().value("QT_INSTALL_DATA") + "/mkspecs";
-
-    QString parsedSpec = QDir::cleanPath(list.at(index));
-#ifdef Q_OS_WIN
-    baseMkspecDir = baseMkspecDir.toLower();
-    parsedSpec = parsedSpec.toLower();
-#endif
-    // if the path is relative it can be
-    // relative to the working directory (as found in the Makefiles)
-    // or relatively to the mkspec directory
-    // if it is the former we need to get the canonical form
-    // for the other one we don't need to do anything
-    if (QFileInfo(parsedSpec).isRelative()) {
-        if(QFileInfo(directory + "/" + parsedSpec).exists()) {
-            parsedSpec = QDir::cleanPath(directory + "/" + parsedSpec);
-#ifdef Q_OS_WIN
-            parsedSpec = parsedSpec.toLower();
-#endif
-        } else {
-            parsedSpec = baseMkspecDir + "/" + parsedSpec;
-        }
-    }
-
-    QFileInfo f2(parsedSpec);
-    while (f2.isSymLink()) {
-        parsedSpec = f2.symLinkTarget();
-        f2.setFile(parsedSpec);
-    }
-
-    if (parsedSpec.startsWith(baseMkspecDir)) {
-        parsedSpec = parsedSpec.mid(baseMkspecDir.length() + 1);
-    } else {
-        QString sourceMkSpecPath = version->sourcePath() + "/mkspecs";
-        if (parsedSpec.startsWith(sourceMkSpecPath)) {
-            parsedSpec = parsedSpec.mid(sourceMkSpecPath.length() + 1);
-        }
-    }
-#ifdef Q_OS_WIN
-    parsedSpec = parsedSpec.toLower();
-#endif
-    return parsedSpec;
-
-}
 
 BuildConfigWidget *Qt4Project::createConfigWidget()
 {
@@ -1047,33 +990,6 @@ void Qt4Project::invalidateCachedTargetInformation()
 {
     emit targetInformationChanged();
 }
-
-// We match -spec and -platfrom separetly
-// We ignore -cache, because qmake contained a bug that it didn't
-// mention the -cache in the Makefile
-// That means changing the -cache option in the additional arguments
-// does not automatically rerun qmake. Alas, we could try more
-// intelligent matching for -cache, but i guess people rarely
-// do use that.
-
-QStringList Qt4Project::removeSpecFromArgumentList(const QStringList &old)
-{
-    if (!old.contains("-spec") && !old.contains("-platform") && !old.contains("-cache"))
-        return old;
-    QStringList newList;
-    bool ignoreNext = false;
-    foreach(const QString &item, old) {
-        if (ignoreNext) {
-            ignoreNext = false;
-        } else if (item == "-spec" || item == "-platform" || item == "-cache") {
-            ignoreNext = true;
-        } else {
-            newList << item;
-        }
-    }
-    return newList;
-}
-
 
 /*!
   Handle special case were a subproject of the qt directory is opened, and
