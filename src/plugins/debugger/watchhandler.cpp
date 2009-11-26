@@ -607,8 +607,9 @@ QString WatchModel::niceType(const QString &typeIn) const
     QString type = niceTypeHelper(typeIn);
     if (theDebuggerBoolSetting(ShowStdNamespace))
         type = type.remove("std::");
-    if (theDebuggerBoolSetting(ShowQtNamespace))
-        type = type.remove(m_handler->m_manager->currentEngine()->qtNamespace());
+    IDebuggerEngine *engine = m_handler->m_manager->currentEngine();
+    if (engine && theDebuggerBoolSetting(ShowQtNamespace))
+        type = type.remove(engine->qtNamespace());
     return type;
 }
 
