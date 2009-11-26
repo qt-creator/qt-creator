@@ -142,8 +142,9 @@ public:
     {
         setTopLevelNode(pattern);
         replace(pattern->binary_op_token, QLatin1String("||"));
-        replace(left->unary_op_token, QLatin1String("!("));
-        replace(right->unary_op_token, QLatin1String(""));
+        remove(left->unary_op_token);
+        remove(right->unary_op_token);
+        insert(startOf(pattern), QLatin1String("!("));
         insert(endOf(pattern), QLatin1String(")"));
     }
 
@@ -232,23 +233,25 @@ public:
     {
         setTopLevelNode(declaration);
         SpecifierListAST *specifiers = declaration->decl_specifier_list;
-        const QString declSpecifiers = textOf(startOf(specifiers->firstToken()), endOf(specifiers->lastToken() - 1));
+        int declSpecifiersStart = startOf(specifiers->firstToken());
+        int declSpecifiersEnd = endOf(specifiers->lastToken() - 1);
+        int insertPos = endOf(declaration->semicolon_token);
 
-        DeclaratorAST *declarator = declaration->declarator_list->value;
-        replace(endOf(declarator), startOf(declaration->semicolon_token), QString());
+        DeclaratorAST *prevDeclarator = declaration->declarator_list->value;
 
-        QString text;
         for (DeclaratorListAST *it = declaration->declarator_list->next; it; it = it->next) {
             DeclaratorAST *declarator = it->value;
 
-            text += QLatin1Char('\n');
-            text += declSpecifiers;
-            text += QLatin1Char(' ');
-            text += textOf(declarator);
-            text += QLatin1String(";");
-        }
+            insert(insertPos, QLatin1String("\n"));
+            copy(declSpecifiersStart, declSpecifiersEnd, insertPos);
+            insert(insertPos, QLatin1String(" "));
+            move(declarator, insertPos);
+            insert(insertPos, QLatin1String(";"));
 
-        insert(endOf(declaration->semicolon_token), text);
+            remove(endOf(prevDeclarator), startOf(declarator));
+
+            prevDeclarator = declarator;
+        }
     }
 
 private:
@@ -356,13 +359,12 @@ public:
     virtual void createChangeSet()
     {
         setTopLevelNode(pattern);
-        const QString name = textOf(core);
-        QString declaration = textOf(condition);
-        declaration += QLatin1String(";\n");
 
-        insert(startOf(pattern), declaration);
-        insert(endOf(pattern->lparen_token), name);
-        replace(condition, name);
+        copy(core, startOf(condition));
+
+        int insertPos = startOf(pattern);
+        move(condition, insertPos);
+        insert(insertPos, QLatin1String(";\n"));
     }
 
 private:
@@ -427,21 +429,14 @@ public:
     virtual void createChangeSet()
     {
         setTopLevelNode(pattern);
-        const QString name = textOf(core);
-        const QString initializer = textOf(condition->declarator->initializer);
-        QString declaration = textOf(startOf(condition), endOf(condition->declarator->equals_token - 1));
-        declaration += QLatin1String(";\n");
 
-        QString newCondition;
-        newCondition += QLatin1String("(");
-        newCondition += name;
-        newCondition += QLatin1String(" = ");
-        newCondition += initializer;
-        newCondition += QLatin1String(") != 0");
-        
-        insert(startOf(pattern), declaration);
-        insert(endOf(pattern->lparen_token), name);
-        replace(condition, newCondition);
+        insert(startOf(condition), QLatin1String("("));
+        insert(endOf(condition), QLatin1String(") != 0"));
+
+        int insertPos = startOf(pattern);
+        move(startOf(condition), startOf(core), insertPos);
+        copy(core, insertPos);
+        insert(insertPos, QLatin1String(";\n"));
     }
 
 private:
@@ -533,56 +528,34 @@ public:
     void splitAndCondition()
     {
         setTopLevelNode(pattern);
-        StatementAST *ifTrueStatement = pattern->statement;
 
-        // take the right-expression from the condition.
-        QTextCursor rightCursor = textCursor();
-        rightCursor.setPosition(startOf(condition->right_expression));
-        rightCursor.setPosition(endOf(pattern->rparen_token - 1), QTextCursor::KeepAnchor);
-        const QString rightCondition = rightCursor.selectedText();
-        replace(endOf(condition->left_expression), startOf(pattern->rparen_token), QString());
+        int startPos = startOf(pattern);
+        insert(startPos, QLatin1String("if ("));
+        move(condition->left_expression, startPos);
+        insert(startPos, QLatin1String(") {\n"));
 
-        // create the nested if statement
-        QString nestedIfStatement;
-        nestedIfStatement += QLatin1String(" {\nif ("); // open new compound statement for outer
-        nestedIfStatement += rightCondition;
-        nestedIfStatement += QLatin1String(")");
-
-        insert(endOf(pattern->rparen_token), nestedIfStatement);
-        insert(endOf(ifTrueStatement), "\n}"); // finish the compound statement
+        remove(endOf(condition->left_expression), startOf(condition->right_expression));
+        insert(endOf(pattern), QLatin1String("\n}"));
     }
 
     void splitOrCondition()
     {
-        setTopLevelNode(pattern);
         StatementAST *ifTrueStatement = pattern->statement;
         CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
 
-        // take the right-expression from the condition.
-        QTextCursor rightCursor = textCursor();
-        rightCursor.setPosition(startOf(condition->right_expression));
-        rightCursor.setPosition(endOf(pattern->rparen_token - 1), QTextCursor::KeepAnchor);
-        const QString rightCondition = rightCursor.selectedText();
-        replace(endOf(condition->left_expression), startOf(pattern->rparen_token), QString());
+        setTopLevelNode(pattern);
 
-        // copy the if-body
-        QTextCursor bodyCursor = textCursor();
-        bodyCursor.setPosition(endOf(pattern->rparen_token));
-        bodyCursor.setPosition(endOf(pattern->statement), QTextCursor::KeepAnchor);
-        const QString body = bodyCursor.selectedText();
-
-        QString elseIfStatement;
+        int insertPos = endOf(pattern);
         if (compoundStatement)
-            elseIfStatement += QLatin1String(" ");
+            insert(insertPos, QLatin1String(" "));
         else
-            elseIfStatement += QLatin1String("\n");
-
-        elseIfStatement += QLatin1String("else if (");
-        elseIfStatement += rightCondition;
-        elseIfStatement += QLatin1String(")");
-        elseIfStatement += body;
-
-        insert(endOf(pattern), elseIfStatement);
+            insert(insertPos, QLatin1String("\n"));
+        insert(insertPos, QLatin1String("else if ("));
+        move(startOf(condition->right_expression), startOf(pattern->rparen_token), insertPos);
+        insert(insertPos, QLatin1String(")"));
+        copy(endOf(pattern->rparen_token), endOf(pattern->statement), insertPos);
+        
+        remove(endOf(condition->left_expression), startOf(condition->right_expression));
     }
 
 private:
@@ -712,8 +685,7 @@ void QuickFixOperation::reindent(const Range &range)
 
 void QuickFixOperation::move(int start, int end, int to)
 {
-    if (end > start)
-        _changeSet.move(start, end-start, to);
+    _changeSet.move(start, end-start, to);
 }
 
 void QuickFixOperation::move(unsigned tokenIndex, int to)
@@ -728,8 +700,7 @@ void QuickFixOperation::move(const CPlusPlus::AST *ast, int to)
 
 void QuickFixOperation::replace(int start, int end, const QString &replacement)
 {
-    if (end >= start)
-        _changeSet.replace(start, end-start, replacement);
+    _changeSet.replace(start, end-start, replacement);
 }
 
 void QuickFixOperation::replace(unsigned tokenIndex, const QString &replacement)
@@ -744,7 +715,37 @@ void QuickFixOperation::replace(const CPlusPlus::AST *ast, const QString &replac
 
 void QuickFixOperation::insert(int at, const QString &text)
 {
-    replace(at, at, text);
+    _changeSet.insert(at, text);
+}
+
+void QuickFixOperation::remove(int start, int end)
+{
+    _changeSet.remove(start, end-start);
+}
+
+void QuickFixOperation::remove(unsigned tokenIndex)
+{
+    remove(startOf(tokenIndex), endOf(tokenIndex));
+}
+
+void QuickFixOperation::remove(const CPlusPlus::AST *ast)
+{
+    remove(startOf(ast), endOf(ast));
+}
+
+void QuickFixOperation::copy(int start, int end, int to)
+{
+    _changeSet.copy(start, end-start, to);
+}
+
+void QuickFixOperation::copy(unsigned tokenIndex, int to)
+{
+    copy(startOf(tokenIndex), endOf(tokenIndex), to);
+}
+
+void QuickFixOperation::copy(const CPlusPlus::AST *ast, int to)
+{
+    copy(startOf(ast), endOf(ast), to);
 }
 
 QString QuickFixOperation::textOf(int firstOffset, int lastOffset) const

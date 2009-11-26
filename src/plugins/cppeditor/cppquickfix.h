@@ -103,6 +103,12 @@ protected:
     void replace(unsigned tokenIndex, const QString &replacement);
     void replace(const CPlusPlus::AST *ast, const QString &replacement);
     void insert(int at, const QString &text);
+    void remove(int start, int end);
+    void remove(unsigned tokenIndex);
+    void remove(const CPlusPlus::AST *ast);
+    void copy(int start, int end, int to);
+    void copy(unsigned tokenIndex, int to);
+    void copy(const CPlusPlus::AST *ast, int to);
 
     QString textOf(int firstOffset, int lastOffset) const;
     QString textOf(CPlusPlus::AST *ast) const;
