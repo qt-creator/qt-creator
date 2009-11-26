@@ -1995,6 +1995,9 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                              d->m_ifdefedOutFormat.background());
     }
 
+    // Set a brush origin so that the WaveUnderline knows where the wave started
+    painter.setBrushOrigin(offset);
+
 //    // keep right margin clean from full-width selection
 //    int maxX = offset.x() + qMax((qreal)viewportRect.width(), documentLayout->documentSize().width())
 //               - doc->documentMargin();
