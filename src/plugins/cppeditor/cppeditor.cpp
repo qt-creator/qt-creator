@@ -1955,7 +1955,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
         if (uses.size() == 1) {
             // it's an unused declaration
-            highlightUses(uses, &allSelections);
+            // highlightUses(uses, &allSelections);
         } else if (good) {
             QList<QTextEdit::ExtraSelection> selections;
             highlightUses(uses, &selections);
