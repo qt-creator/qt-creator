@@ -339,7 +339,7 @@ static const QByteArray specLong(long n)
 static const QByteArray ptrToBa(const void *p, bool symbolicNull = true)
 {
     return QByteArray().append(p == 0 && symbolicNull ?
-        "<null>" :
+        "(null)" :
         QByteArray("0x") + N((quintptr) p, 16));
 }
 
@@ -586,6 +586,8 @@ void Thread::handleGdbStarted()
 
 void Thread::run()
 {
+    m_proc->write("source -p ../../../share/qtcreator/gdbmacros/dumper.py\n");
+    m_proc->write("source -p ../../../share/qtcreator/gdbmacros/gdbmacros.py\n");
     m_proc->write("break breaker\n");
     m_proc->write("run\n");
     m_proc->write("handle SIGSTOP stop pass\n");
@@ -1669,7 +1671,7 @@ void tst_Gdb::dump_QList_int_star()
     run("E","{iname='local.list',name='list',"
             "type='"NS"QList<int*>',value='<3 items>',numchild='3',"
             "childtype='int',childnumchild='0',children=["
-            "{value='1'},{value='<null>',type='int *'},{value='2'}]}", "local.list");
+            "{value='1'},{value='(null)',type='int *'},{value='2'}]}", "local.list");
 }
 
 
@@ -2612,7 +2614,7 @@ void tst_Gdb::dump_QSharedPointer()
 
     next(8);
     run("C","{iname='local.simplePtr',name='simplePtr',"
-            "type='"NS"QSharedPointer<int>',value='<null>',numchild='0'},"
+            "type='"NS"QSharedPointer<int>',value='(null)',numchild='0'},"
         "{iname='local.simplePtr2',name='simplePtr2',"
             "type='"NS"QSharedPointer<int>',value='',numchild='3'},"
         "{iname='local.simplePtr3',name='simplePtr3',"
@@ -2620,7 +2622,7 @@ void tst_Gdb::dump_QSharedPointer()
         "{iname='local.simplePtr4',name='simplePtr4',"
             "type='"NS"QWeakPointer<int>',value='',numchild='3'},"
         "{iname='local.compositePtr',name='compositePtr',"
-            "type='"NS"QSharedPointer<"NS"QString>',value='<null>',numchild='0'},"
+            "type='"NS"QSharedPointer<"NS"QString>',value='(null)',numchild='0'},"
         "{iname='local.compositePtr2',name='compositePtr2',"
             "type='"NS"QSharedPointer<"NS"QString>',value='',numchild='3'},"
         "{iname='local.compositePtr3',name='compositePtr3',"
@@ -2629,7 +2631,7 @@ void tst_Gdb::dump_QSharedPointer()
             "type='"NS"QWeakPointer<"NS"QString>',value='',numchild='3'}");
 
     run("C","{iname='local.simplePtr',name='simplePtr',"
-        "type='"NS"QSharedPointer<int>',value='<null>',numchild='0'},"
+        "type='"NS"QSharedPointer<int>',value='(null)',numchild='0'},"
             "{iname='local.simplePtr2',name='simplePtr2',"
         "type='"NS"QSharedPointer<int>',value='',numchild='3',children=["
                 "{name='data',type='int',value='99',numchild='0'},"
@@ -2646,7 +2648,7 @@ void tst_Gdb::dump_QSharedPointer()
                 "{name='weakref',value='3',type='int',numchild='0'},"
                 "{name='strongref',value='2',type='int',numchild='0'}]},"
         "{iname='local.compositePtr',name='compositePtr',"
-            "type='"NS"QSharedPointer<"NS"QString>',value='<null>',numchild='0'},"
+            "type='"NS"QSharedPointer<"NS"QString>',value='(null)',numchild='0'},"
         "{iname='local.compositePtr2',name='compositePtr2',"
             "type='"NS"QSharedPointer<"NS"QString>',value='',numchild='3'},"
         "{iname='local.compositePtr3',name='compositePtr3',"
@@ -2929,7 +2931,7 @@ void tst_Gdb::dump_QVariant()
     if (checkUninitialized) /*<invalid>*/
         run("A","{"PRE"'value=<invalid>',numchild='0'}");
     next();
-    run("<invalid>", "{"PRE"value='<invalid>',numchild='0'}");
+    run("<invalid>", "{"PRE"value='(invalid)',numchild='0'}");
     next();
     run("QBitArray", "{"PRE"value='("NS"QBitArray)',numchild='1',children=["
         "{name='data',type='"NS"QBitArray',value='{...}',numchild='1'}]}",
@@ -3114,9 +3116,9 @@ void tst_Gdb::dump_QWeakPointer_11()
                "type='"NS"QWeakPointer<int>',value='<invalid>',numchild='0'}");
     next(2);
     run("B","{iname='local.sp',name='sp',"
-            "type='"NS"QSharedPointer<int>',value='<null>',numchild='0'},"
+            "type='"NS"QSharedPointer<int>',value='(null)',numchild='0'},"
             "{iname='local.wp',name='wp',"
-            "type='"NS"QWeakPointer<int>',value='<null>',numchild='0'}");
+            "type='"NS"QWeakPointer<int>',value='(null)',numchild='0'}");
 }
 
 
@@ -3589,7 +3591,7 @@ void tst_Gdb::dump_std_vector()
                 "{type='" + listType + "',value='<1 items>',"
                     "childtype='int',"
                     "childnumchild='0',children=[{value='45'}]},"
-                "{value='<null>',numchild='0'}]},"
+                "{value='(null)',numchild='0'}]},"
             "{iname='local.list',name='list',type='" + listType + "',"
                 "value='<1 items>',numchild='1'}",
         "local.vector,local.vector.0");
