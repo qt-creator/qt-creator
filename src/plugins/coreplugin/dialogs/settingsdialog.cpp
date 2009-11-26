@@ -262,7 +262,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
     splitter->setStretchFactor(splitter->indexOf(pageTree), 0);
     splitter->setStretchFactor(splitter->indexOf(layoutWidget), 1);
 
-    filterClearButton->setIcon(QIcon(QLatin1String(":/debugger/images/delete.png")));
+    filterClearButton->setIcon(QIcon(QLatin1String(":/core/images/reset.png")));
     connect(filterClearButton, SIGNAL(clicked()), filterLineEdit, SLOT(clear()));
     // The order of the slot connection matters here, the filter slot
     // opens the matching page after the model has filtered.

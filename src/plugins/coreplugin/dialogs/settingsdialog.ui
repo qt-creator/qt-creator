@@ -28,6 +28,9 @@
          </item>
          <item>
           <widget class="QToolButton" name="filterClearButton">
+           <property name="toolTip">
+            <string>Clear filter</string>
+           </property>
            <property name="text">
             <string>Clear</string>
            </property>
