@@ -1681,7 +1681,9 @@ void CPPEditor::performQuickFix(int index)
 {
     CPPQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
     QuickFixOperationPtr op = m_quickFixes.at(index);
-    quickFixCollector->perform(op);
+    //quickFixCollector->perform(op);
+    op->createChangeSet();
+    setChangeSet(op->changeSet());
 }
 
 void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
