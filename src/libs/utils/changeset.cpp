@@ -70,12 +70,12 @@ bool ChangeSet::hasOverlap(int pos, int length)
 
         switch (cmd.type) {
         case EditOp::Replace:
-            if (overlaps(pos, length, cmd.pos1, cmd.length))
+            if (overlaps(pos, length, cmd.pos1, cmd.length1))
                 return true;
             break;
 
         case EditOp::Move:
-            if (overlaps(pos, length, cmd.pos1, cmd.length))
+            if (overlaps(pos, length, cmd.pos1, cmd.length1))
                 return true;
             if (cmd.pos2 > pos && cmd.pos2 < pos + length)
                 return true;
@@ -87,19 +87,19 @@ bool ChangeSet::hasOverlap(int pos, int length)
             break;
 
         case EditOp::Remove:
-            if (overlaps(pos, length, cmd.pos1, cmd.length))
+            if (overlaps(pos, length, cmd.pos1, cmd.length1))
                 return true;
             break;
 
         case EditOp::Flip:
-            if (overlaps(pos, length, cmd.pos1, cmd.length))
+            if (overlaps(pos, length, cmd.pos1, cmd.length1))
                 return true;
-            if (overlaps(pos, length, cmd.pos2, cmd.length))
+            if (overlaps(pos, length, cmd.pos2, cmd.length2))
                 return true;
             break;
 
         case EditOp::Copy:
-            if (overlaps(pos, length, cmd.pos1, cmd.length))
+            if (overlaps(pos, length, cmd.pos1, cmd.length1))
                 return true;
             if (cmd.pos2 > pos && cmd.pos2 < pos + length)
                 return true;
@@ -138,7 +138,7 @@ bool ChangeSet::replace(int pos, int length, const QString &replacement)
 
     EditOp cmd(EditOp::Replace);
     cmd.pos1 = pos;
-    cmd.length = length;
+    cmd.length1 = length;
     cmd.text = replacement;
     m_operationList += cmd;
 
@@ -154,7 +154,7 @@ bool ChangeSet::move(int pos, int length, int to)
 
     EditOp cmd(EditOp::Move);
     cmd.pos1 = pos;
-    cmd.length = length;
+    cmd.length1 = length;
     cmd.pos2 = to;
     m_operationList += cmd;
 
@@ -181,23 +181,24 @@ bool ChangeSet::remove(int pos, int length)
 
     EditOp cmd(EditOp::Remove);
     cmd.pos1 = pos;
-    cmd.length = length;
+    cmd.length1 = length;
     m_operationList += cmd;
 
     return !m_error;
 }
 
-bool ChangeSet::flip(int pos1, int length, int pos2)
+bool ChangeSet::flip(int pos1, int length1, int pos2, int length2)
 {
-    if (hasOverlap(pos1, length)
-        || hasOverlap(pos2, length)
-        || overlaps(pos1, length, pos2, length))
+    if (hasOverlap(pos1, length1)
+        || hasOverlap(pos2, length2)
+        || overlaps(pos1, length1, pos2, length2))
         m_error = true;
 
     EditOp cmd(EditOp::Flip);
     cmd.pos1 = pos1;
-    cmd.length = length;
+    cmd.length1 = length1;
     cmd.pos2 = pos2;
+    cmd.length2 = length2;
     m_operationList += cmd;
 
     return !m_error;
@@ -212,7 +213,7 @@ bool ChangeSet::copy(int pos, int length, int to)
 
     EditOp cmd(EditOp::Copy);
     cmd.pos1 = pos;
-    cmd.length = length;
+    cmd.length1 = length;
     cmd.pos2 = to;
     m_operationList += cmd;
 
@@ -223,21 +224,22 @@ void ChangeSet::doReplace(const EditOp &replace, QList<EditOp> *replaceList)
 {
     Q_ASSERT(replace.type == EditOp::Replace);
 
-    int diff = replace.text.size() - replace.length;
     {
         QMutableListIterator<EditOp> i(*replaceList);
         while (i.hasNext()) {
             EditOp &c = i.next();
             if (replace.pos1 <= c.pos1)
-                c.pos1 += diff;
+                c.pos1 += replace.text.size();
+            if (replace.pos1 < c.pos1)
+                c.pos1 -= replace.length1;
         }
     }
 
     if (m_string) {
-        m_string->replace(replace.pos1, replace.length, replace.text);
+        m_string->replace(replace.pos1, replace.length1, replace.text);
     } else if (m_cursor) {
         m_cursor->setPosition(replace.pos1);
-        m_cursor->setPosition(replace.pos1 + replace.length, QTextCursor::KeepAnchor);
+        m_cursor->setPosition(replace.pos1 + replace.length1, QTextCursor::KeepAnchor);
         m_cursor->insertText(replace.text);
     }
 }
@@ -254,11 +256,11 @@ void ChangeSet::convertToReplace(const EditOp &op, QList<EditOp> *replaceList)
 
     case EditOp::Move:
         replace1.pos1 = op.pos1;
-        replace1.length = op.length;
+        replace1.length1 = op.length1;
         replaceList->append(replace1);
 
         replace2.pos1 = op.pos2;
-        replace2.text = textAt(op.pos1, op.length);
+        replace2.text = textAt(op.pos1, op.length1);
         replaceList->append(replace2);
         break;
 
@@ -270,25 +272,25 @@ void ChangeSet::convertToReplace(const EditOp &op, QList<EditOp> *replaceList)
 
     case EditOp::Remove:
         replace1.pos1 = op.pos1;
-        replace1.length = op.length;
+        replace1.length1 = op.length1;
         replaceList->append(replace1);
         break;
 
     case EditOp::Flip:
         replace1.pos1 = op.pos1;
-        replace1.length = op.length;
-        replace1.text = textAt(op.pos2, op.length);
+        replace1.length1 = op.length1;
+        replace1.text = textAt(op.pos2, op.length2);
         replaceList->append(replace1);
 
         replace2.pos1 = op.pos2;
-        replace2.length = op.length;
-        replace2.text = textAt(op.pos1, op.length);
+        replace2.length1 = op.length2;
+        replace2.text = textAt(op.pos1, op.length1);
         replaceList->append(replace2);
         break;
 
     case EditOp::Copy:
         replace1.pos1 = op.pos2;
-        replace1.text = textAt(op.pos1, op.length);
+        replace1.text = textAt(op.pos1, op.length1);
         replaceList->append(replace1);
         break;
 

@@ -204,60 +204,74 @@ void tst_ChangeSet::singleFlip()
     {
         Utils::ChangeSet cs;
         QString test("abcdef");
-        QVERIFY(cs.flip(0, 2, 4));
+        QVERIFY(cs.flip(0, 2, 3, 3));
         cs.apply(&test);
-        QCOMPARE(test, QLatin1String("efcdab"));
+        QCOMPARE(test, QLatin1String("defcab"));
     }
     {
         Utils::ChangeSet cs;
         QString test("abcdef");
-        QVERIFY(cs.flip(1, 2, 3));
+        QVERIFY(cs.flip(1, 2, 3, 1));
         cs.apply(&test);
-        QCOMPARE(test, QLatin1String("adebcf"));
+        QCOMPARE(test, QLatin1String("adbcef"));
     }
     {
         Utils::ChangeSet cs;
         QString test("abcdef");
-        QVERIFY(cs.flip(3, 0, 4));
-        cs.apply(&test);
-        QCOMPARE(test, QLatin1String("abcdef"));
-    }
-    {
-        Utils::ChangeSet cs;
-        QString test("abcdef");
-        QVERIFY(cs.flip(0, 6, 6));
+        QVERIFY(cs.flip(3, 0, 4, 0));
         cs.apply(&test);
         QCOMPARE(test, QLatin1String("abcdef"));
     }
     {
         Utils::ChangeSet cs;
         QString test("abcdef");
-        QVERIFY(cs.flip(0, 6, 7));
+        QVERIFY(cs.flip(3, 0, 4, 1));
+        cs.apply(&test);
+        QCOMPARE(test, QLatin1String("abcedf"));
+    }
+    {
+        Utils::ChangeSet cs;
+        QString test("abcdef");
+        QVERIFY(cs.flip(0, 6, 6, 6));
+        cs.apply(&test);
+        QCOMPARE(test, QLatin1String("abcdef"));
+    }
+    {
+        Utils::ChangeSet cs;
+        QString test("abcdef");
+        QVERIFY(cs.flip(0, 6, 7, 3));
         cs.apply(&test);
         // ### maybe this should expand the string or error?
         QCOMPARE(test, QLatin1String(""));
     }
     {
         Utils::ChangeSet cs;
-        QCOMPARE(cs.flip(0, 3, 1), false);
+        QCOMPARE(cs.flip(0, 3, 1, 3), false);
     }
     {
         Utils::ChangeSet cs;
-        QCOMPARE(cs.flip(0, 3, 2), false);
+        QCOMPARE(cs.flip(0, 3, 2, 3), false);
     }
     {
         Utils::ChangeSet cs;
-        QVERIFY(cs.flip(3, 3, 0));
+        QVERIFY(cs.flip(0, 3, 0, 0));
         QString test("abcdef");
         cs.apply(&test);
-        QCOMPARE(test, QLatin1String("defabc"));
+        QCOMPARE(test, QLatin1String("abcdef"));
     }
     {
         Utils::ChangeSet cs;
-        QVERIFY(cs.flip(0, 3, 3));
+        QVERIFY(cs.flip(0, 0, 0, 3));
         QString test("abcdef");
         cs.apply(&test);
-        QCOMPARE(test, QLatin1String("defabc"));
+        QCOMPARE(test, QLatin1String("abcdef"));
+    }
+    {
+        Utils::ChangeSet cs;
+        QVERIFY(cs.flip(0, 3, 3, 0));
+        QString test("abcdef");
+        cs.apply(&test);
+        QCOMPARE(test, QLatin1String("abcdef"));
     }
 }
 

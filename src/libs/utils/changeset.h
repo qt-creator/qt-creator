@@ -66,13 +66,14 @@ public:
             Copy
         };
 
-        EditOp(): type(Unset), pos1(0), pos2(0), length(0) {}
-        EditOp(Type t): type(t), pos1(0), pos2(0), length(0) {}
+        EditOp(): type(Unset), pos1(0), pos2(0), length1(0), length2(0) {}
+        EditOp(Type t): type(t), pos1(0), pos2(0), length1(0), length2(0) {}
 
         Type type;
         int pos1;
         int pos2;
-        int length;
+        int length1;
+        int length2;
         QString text;
     };
 
@@ -89,7 +90,7 @@ public:
     bool move(int pos, int length, int to);
     bool insert(int pos, const QString &text);
     bool remove(int pos, int length);
-    bool flip(int pos1, int length, int pos2);
+    bool flip(int pos1, int length1, int pos2, int length2);
     bool copy(int pos, int length, int to);
 
     bool hadErrors();
