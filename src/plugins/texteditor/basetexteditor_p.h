@@ -33,6 +33,7 @@
 #include "basetexteditor.h"
 #include "texteditoroverlay.h"
 #include <texteditor/fontsettings.h>
+#include <utils/changeset.h>
 
 #include <QtCore/QBasicTimer>
 #include <QtCore/QSharedData>
@@ -166,6 +167,8 @@ public:
     bool m_parenthesesMatchingEnabled;
     bool m_autoParenthesesEnabled;
     QTimer *m_updateTimer;
+
+    Utils::ChangeSet m_changeSet;
 
     // parentheses matcher
     bool m_formatRange;

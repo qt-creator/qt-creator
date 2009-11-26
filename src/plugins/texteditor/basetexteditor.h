@@ -46,6 +46,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
     class LineColumnLabel;
+    class ChangeSet;
 }
 
 namespace TextEditor {
@@ -289,6 +290,9 @@ public:
 
     static ITextEditor *openEditorAt(const QString &fileName, int line, int column = 0,
                                      const QString &editorKind = QString());
+
+    const Utils::ChangeSet &changeSet() const;
+    void setChangeSet(const Utils::ChangeSet &changeSet);
 
     // EditorInterface
     Core::IFile * file();

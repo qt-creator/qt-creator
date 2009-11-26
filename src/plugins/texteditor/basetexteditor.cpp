@@ -612,6 +612,16 @@ bool BaseTextEditor::open(const QString &fileName)
     return false;
 }
 
+const Utils::ChangeSet &BaseTextEditor::changeSet() const
+{
+    return d->m_changeSet;
+}
+
+void BaseTextEditor::setChangeSet(const Utils::ChangeSet &changeSet)
+{
+    d->m_changeSet = changeSet;
+}
+
 Core::IFile *BaseTextEditor::file()
 {
     return d->m_document;
