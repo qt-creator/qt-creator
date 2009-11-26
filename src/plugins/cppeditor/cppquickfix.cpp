@@ -639,6 +639,15 @@ int QuickFixOperation::endOf(const CPlusPlus::AST *ast) const
     return endOf(ast->lastToken() - 1);
 }
 
+void QuickFixOperation::startAndEndOf(unsigned index, int *start, int *end) const
+{
+    unsigned line, column;
+    CPlusPlus::Token token(tokenAt(index));
+    _document->translationUnit()->getPosition(token.begin(), &line, &column);
+    *start = _textCursor.document()->findBlockByNumber(line - 1).position() + column - 1;
+    *end = *start + token.length();
+}
+
 bool QuickFixOperation::isCursorOn(unsigned tokenIndex) const
 {
     QTextCursor tc = textCursor();
@@ -690,7 +699,9 @@ void QuickFixOperation::move(int start, int end, int to)
 
 void QuickFixOperation::move(unsigned tokenIndex, int to)
 {
-    move(startOf(tokenIndex), endOf(tokenIndex), to);
+    int start, end;
+    startAndEndOf(tokenIndex, &start, &end);
+    move(start, end, to);
 }
 
 void QuickFixOperation::move(const CPlusPlus::AST *ast, int to)
@@ -705,7 +716,9 @@ void QuickFixOperation::replace(int start, int end, const QString &replacement)
 
 void QuickFixOperation::replace(unsigned tokenIndex, const QString &replacement)
 {
-    replace(startOf(tokenIndex), endOf(tokenIndex), replacement);
+    int start, end;
+    startAndEndOf(tokenIndex, &start, &end);
+    replace(start, end, replacement);
 }
 
 void QuickFixOperation::replace(const CPlusPlus::AST *ast, const QString &replacement)
@@ -725,7 +738,9 @@ void QuickFixOperation::remove(int start, int end)
 
 void QuickFixOperation::remove(unsigned tokenIndex)
 {
-    remove(startOf(tokenIndex), endOf(tokenIndex));
+    int start, end;
+    startAndEndOf(tokenIndex, &start, &end);
+    remove(start, end);
 }
 
 void QuickFixOperation::remove(const CPlusPlus::AST *ast)
@@ -750,7 +765,9 @@ void QuickFixOperation::copy(int start, int end, int to)
 
 void QuickFixOperation::copy(unsigned tokenIndex, int to)
 {
-    copy(startOf(tokenIndex), endOf(tokenIndex), to);
+    int start, end;
+    startAndEndOf(tokenIndex, &start, &end);
+    copy(start, end, to);
 }
 
 void QuickFixOperation::copy(const CPlusPlus::AST *ast, int to)

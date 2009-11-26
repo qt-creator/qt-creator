@@ -92,6 +92,7 @@ protected:
     int startOf(const CPlusPlus::AST *ast) const;
     int endOf(unsigned index) const;
     int endOf(const CPlusPlus::AST *ast) const;
+    void startAndEndOf(unsigned index, int *start, int *end) const;
 
     bool isCursorOn(unsigned tokenIndex) const;
     bool isCursorOn(const CPlusPlus::AST *ast) const;
