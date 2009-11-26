@@ -65,6 +65,11 @@ MakeStep::~MakeStep()
 
 }
 
+Qt4BuildConfiguration *MakeStep::qt4BuildConfiguration() const
+{
+    return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+}
+
 void MakeStep::setClean(bool clean)
 {
     m_clean = clean;
@@ -97,7 +102,7 @@ void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 
 bool MakeStep::init()
 {
-    Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+    Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     Environment environment = bc->environment();
     setEnvironment(environment);
 
@@ -164,7 +169,7 @@ bool MakeStep::init()
 
 void MakeStep::run(QFutureInterface<bool> & fi)
 {
-    if (static_cast<Qt4Project *>(buildConfiguration()->project())->rootProjectNode()->projectType() == ScriptTemplate) {
+    if (qt4BuildConfiguration()->qt4Project()->rootProjectNode()->projectType() == ScriptTemplate) {
         fi.reportResult(true);
         return;
     }
@@ -225,13 +230,13 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
 void MakeStepConfigWidget::updateMakeOverrideLabel()
 {
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(m_makeStep->buildConfiguration());
+    Qt4BuildConfiguration *qt4bc = m_makeStep->qt4BuildConfiguration();
     m_ui.makeLabel->setText(tr("Override %1:").arg(qt4bc->makeCommand()));
 }
 
 void MakeStepConfigWidget::updateDetails()
 {
-    Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(m_makeStep->buildConfiguration());
+    Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();
     QString workingDirectory = bc->buildDirectory();
 
     QString makeCmd = bc->makeCommand();

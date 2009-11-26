@@ -65,6 +65,8 @@ public:
     Qt4RunConfiguration(Qt4Project *pro, const QString &proFilePath);
     virtual ~Qt4RunConfiguration();
 
+    Qt4Project *qt4Project() const;
+
     virtual QString type() const;
     virtual bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     virtual QWidget *configurationWidget();

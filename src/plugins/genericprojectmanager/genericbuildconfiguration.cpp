@@ -64,3 +64,8 @@ QString GenericBuildConfiguration::buildDirectory() const
     return buildDirectory;
 }
 
+GenericProject *GenericBuildConfiguration::genericProject() const
+{
+    return static_cast<GenericProject *>(project());
+}
+

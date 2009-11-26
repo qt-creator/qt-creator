@@ -45,6 +45,8 @@ public:
     GenericBuildConfiguration(GenericProject *pro);
     GenericBuildConfiguration(GenericBuildConfiguration *source);
 
+    GenericProject *genericProject() const;
+
     virtual ProjectExplorer::Environment environment() const;
     virtual QString buildDirectory() const;
 };

@@ -322,7 +322,7 @@ Qt4Project *MaemoRunConfiguration::project() const
 
 bool MaemoRunConfiguration::isEnabled() const
 {
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = project()->activeQt4BuildConfiguration();
     QTC_ASSERT(qt4bc, return false);
     ToolChain::ToolChainType type = qt4bc->toolChainType();
     return type == ToolChain::GCC_MAEMO;
@@ -411,7 +411,7 @@ void MaemoRunConfiguration::wasDeployed()
 
 bool MaemoRunConfiguration::hasDebuggingHelpers() const
 {
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = project()->activeQt4BuildConfiguration();
     return qt4bc->qtVersion()->hasDebuggingHelper();
 }
 
@@ -517,7 +517,7 @@ const QStringList MaemoRunConfiguration::arguments() const
 
 const QString MaemoRunConfiguration::dumperLib() const
 {
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = project()->activeQt4BuildConfiguration();
     return qt4bc->qtVersion()->debuggingHelperLibrary();
 }
 
@@ -666,8 +666,8 @@ void MaemoRunConfiguration::updateTarget()
     m_executable = QString::null;
     m_cachedTargetInformationValid = true;
 
-    if (Qt4Project *qt4Project = static_cast<Qt4Project *>(project())) {
-        Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    if (Qt4Project *qt4Project = project()) {
+        Qt4BuildConfiguration *qt4bc = qt4Project->activeQt4BuildConfiguration();
         Qt4PriFileNode * priFileNode = qt4Project->rootProjectNode()
             ->findProFileFor(m_proFilePath);
         if (!priFileNode) {

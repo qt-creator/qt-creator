@@ -59,6 +59,11 @@ Qt4BuildConfiguration::~Qt4BuildConfiguration()
 
 }
 
+Qt4Project *Qt4BuildConfiguration::qt4Project() const
+{
+    return static_cast<Qt4Project *>(project());
+}
+
 ProjectExplorer::Environment Qt4BuildConfiguration::baseEnvironment() const
 {
     Environment env = useSystemEnvironment() ? Environment::systemEnvironment() : Environment();
@@ -221,13 +226,13 @@ void Qt4BuildConfiguration::setQtVersion(int id)
 {
     setValue(KEY_QT_VERSION_ID, id);
     emit qtVersionChanged();
-    static_cast<Qt4Project *>(project())->updateActiveRunConfiguration();
+    qt4Project()->updateActiveRunConfiguration();
 }
 
 void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolChainType type)
 {
     setValue("ToolChain", (int)type);
-    static_cast<Qt4Project *>(project())->updateActiveRunConfiguration();
+    qt4Project()->updateActiveRunConfiguration();
 }
 
 ProjectExplorer::ToolChain::ToolChainType Qt4BuildConfiguration::toolChainType() const

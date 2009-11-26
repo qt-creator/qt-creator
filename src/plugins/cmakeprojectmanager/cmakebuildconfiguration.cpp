@@ -51,6 +51,11 @@ CMakeBuildConfiguration::~CMakeBuildConfiguration()
     delete m_toolChain;
 }
 
+CMakeProject *CMakeBuildConfiguration::cmakeProject() const
+{
+    return static_cast<CMakeProject *>(project());
+}
+
 ProjectExplorer::Environment CMakeBuildConfiguration::baseEnvironment() const
 {
     ProjectExplorer::Environment env = useSystemEnvironment() ?
@@ -99,7 +104,7 @@ QString CMakeBuildConfiguration::buildDirectory() const
 {
     QString buildDirectory = value("buildDirectory").toString();
     if (buildDirectory.isEmpty())
-        buildDirectory = static_cast<CMakeProject *>(project())->sourceDirectory() + "/qtcreator-build";
+        buildDirectory = cmakeProject()->sourceDirectory() + "/qtcreator-build";
     return buildDirectory;
 }
 

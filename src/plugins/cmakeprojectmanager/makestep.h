@@ -41,7 +41,7 @@ QT_END_NAMESPACE
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeProject;
+class CMakeBuildConfiguration;
 
 class MakeStep : public ProjectExplorer::AbstractMakeStep
 {
@@ -52,6 +52,9 @@ public:
     MakeStep(ProjectExplorer::BuildConfiguration *bc);
     MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
     ~MakeStep();
+
+    CMakeBuildConfiguration *cmakeBuildConfiguration() const;
+
     virtual bool init();
 
     virtual void run(QFutureInterface<bool> &fi);

@@ -48,6 +48,7 @@
 #include <QtGui/QLineEdit>
 
 using namespace ProjectExplorer;
+using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 // ======== S60EmulatorRunConfiguration
@@ -70,6 +71,11 @@ S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Project *project, const
 
 S60EmulatorRunConfiguration::~S60EmulatorRunConfiguration()
 {
+}
+
+Qt4Project *S60EmulatorRunConfiguration::qt4Project() const
+{
+    return static_cast<Qt4Project *>(project());
 }
 
 QString S60EmulatorRunConfiguration::type() const
@@ -114,8 +120,8 @@ void S60EmulatorRunConfiguration::updateTarget()
 {
     if (m_cachedTargetInformationValid)
         return;
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
-    Qt4PriFileNode * priFileNode = static_cast<Qt4Project *>(project())->rootProjectNode()->findProFileFor(m_proFilePath);
+    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
+    Qt4PriFileNode * priFileNode = qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
     if (!priFileNode) {
         m_executable = QString::null;
         m_cachedTargetInformationValid = true;
@@ -282,8 +288,7 @@ S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runCon
 {
     // stuff like the EPOCROOT and EPOCDEVICE env variable
     Environment env = Environment::systemEnvironment();
-    Project *project = runConfiguration->project();
-    static_cast<Qt4BuildConfiguration *>(project->activeBuildConfiguration())->toolChain()->addToEnvironment(env);
+    runConfiguration->qt4Project()->activeQt4BuildConfiguration()->toolChain()->addToEnvironment(env);
     m_applicationLauncher.setEnvironment(env.toStringList());
 
     m_executable = runConfiguration->executable();

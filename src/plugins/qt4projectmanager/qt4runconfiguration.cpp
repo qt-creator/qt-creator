@@ -89,6 +89,11 @@ Qt4RunConfiguration::~Qt4RunConfiguration()
 {
 }
 
+Qt4Project *Qt4RunConfiguration::qt4Project() const
+{
+    return static_cast<Qt4Project *>(project());
+}
+
 QString Qt4RunConfiguration::type() const
 {
     return "Qt4ProjectManager.Qt4RunConfiguration";
@@ -555,8 +560,8 @@ void Qt4RunConfiguration::updateTarget()
     if (m_cachedTargetInformationValid)
         return;
     //qDebug()<<"updateTarget";
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
-    Qt4PriFileNode * priFileNode = static_cast<Qt4Project *>(project())->rootProjectNode()->findProFileFor(m_proFilePath);
+    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
+    Qt4PriFileNode * priFileNode = qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
     if (!priFileNode) {
         m_workingDir = QString::null;
         m_executable = QString::null;
@@ -654,8 +659,7 @@ void Qt4RunConfiguration::invalidateCachedTargetInformation()
 
 QString Qt4RunConfiguration::dumperLibrary() const
 {
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
-    QtVersion *version = qt4bc->qtVersion();
+    QtVersion *version = qt4Project()->activeQt4BuildConfiguration()->qtVersion();
     if (version)
         return version->debuggingHelperLibrary();
     else
@@ -664,8 +668,7 @@ QString Qt4RunConfiguration::dumperLibrary() const
 
 QStringList Qt4RunConfiguration::dumperLibraryLocations() const
 {
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
-    QtVersion *version = qt4bc->qtVersion();
+    QtVersion *version = qt4Project()->activeQt4BuildConfiguration()->qtVersion();
     if (version)
         return version->debuggingHelperLibraryLocations();
     else
@@ -686,7 +689,7 @@ Qt4RunConfiguration::BaseEnvironmentBase Qt4RunConfiguration::baseEnvironmentBas
 }
 ProjectExplorer::ToolChain::ToolChainType Qt4RunConfiguration::toolChainType() const
 {
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
     return qt4bc->toolChainType();
 }
 

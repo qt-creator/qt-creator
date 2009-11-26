@@ -91,6 +91,8 @@ public:
     CMakeProject(CMakeManager *manager, const QString &filename);
     ~CMakeProject();
 
+    CMakeBuildConfiguration *activeCMakeBuildConfiguration() const;
+
     virtual QString name() const;
     virtual Core::IFile *file() const;
     virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;

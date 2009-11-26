@@ -53,6 +53,8 @@ class CMakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfigu
 public:
     CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory, const QString &title);
     virtual ~CMakeRunConfiguration();
+    CMakeProject *cmakeProject() const;
+
     virtual QString type() const;
     virtual QString executable() const;
     virtual RunMode runMode() const;

@@ -64,6 +64,11 @@ MakeStep::~MakeStep()
 
 }
 
+CMakeBuildConfiguration *MakeStep::cmakeBuildConfiguration() const
+{
+    return static_cast<CMakeBuildConfiguration *>(buildConfiguration());
+}
+
 void MakeStep::setClean(bool clean)
 {
     m_clean = clean;
@@ -96,7 +101,7 @@ void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 
 bool MakeStep::init()
 {
-    CMakeBuildConfiguration *bc = static_cast<CMakeBuildConfiguration *>(buildConfiguration());
+    CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
     // TODO, we should probably have a member cmakeBuildConfiguration();
 
     setBuildParser(bc->buildParser());
@@ -204,7 +209,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     // TODO update this list also on rescans of the CMakeLists.txt
     // TODO shouldn't be accessing project
-    CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->buildConfiguration()->project());
+    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeProject();
     foreach(const QString& target, pro->targets()) {
         QListWidgetItem *item = new QListWidgetItem(target, m_targetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -254,7 +259,7 @@ void MakeStepConfigWidget::updateDetails()
     QStringList arguments = m_makeStep->m_buildTargets;
     arguments << m_makeStep->additionalArguments();
 
-    CMakeBuildConfiguration *bc = static_cast<CMakeBuildConfiguration *>(m_makeStep->buildConfiguration());
+    CMakeBuildConfiguration *bc = m_makeStep->cmakeBuildConfiguration();
     m_summaryText = tr("<b>Make:</b> %1 %2").arg(bc->toolChain()->makeCommand(), arguments.join(" "));
     emit updateSummary();
 }

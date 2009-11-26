@@ -1102,7 +1102,7 @@ ProFileReader *Qt4PriFileNode::createProFileReader() const
     connect(reader, SIGNAL(errorFound(QString)),
             m_project, SLOT(proFileParseError(QString)));
 
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(m_project->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = m_project->activeQt4BuildConfiguration();
 
     QtVersion *version = qt4bc->qtVersion();
     if (version->isValid())

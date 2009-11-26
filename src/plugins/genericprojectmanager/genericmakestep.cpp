@@ -65,11 +65,16 @@ GenericMakeStep::~GenericMakeStep()
 {
 }
 
+GenericBuildConfiguration *GenericMakeStep::genericBuildConfiguration() const
+{
+    return static_cast<GenericBuildConfiguration *>(buildConfiguration());
+}
+
 bool GenericMakeStep::init()
 {
-    GenericBuildConfiguration *bc = static_cast<GenericBuildConfiguration *>(buildConfiguration());
+    GenericBuildConfiguration *bc = genericBuildConfiguration();
     //TODO
-    const QString buildParser = static_cast<GenericProject *>(bc->project())->buildParser(bc);
+    const QString buildParser = genericBuildConfiguration()->genericProject()->buildParser(bc);
     setBuildParser(buildParser);
 
     setEnabled(true);
@@ -121,7 +126,7 @@ QString GenericMakeStep::makeCommand() const
     QString command = m_makeCommand;
     if (command.isEmpty()) {
         // TODO
-        GenericProject *pro = static_cast<GenericProject *>(buildConfiguration()->project());
+        GenericProject *pro = genericBuildConfiguration()->genericProject();
         if (ProjectExplorer::ToolChain *toolChain = pro->toolChain())
             command = toolChain->makeCommand();
         else
@@ -183,7 +188,7 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
 
     // TODO update this list also on rescans of the GenericLists.txt
     //TODO
-    GenericProject *pro = static_cast<GenericProject *>(m_makeStep->buildConfiguration()->project());
+    GenericProject *pro = m_makeStep->genericBuildConfiguration()->genericProject();
     foreach (const QString &target, pro->targets()) {
         QListWidgetItem *item = new QListWidgetItem(target, m_ui->targetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);

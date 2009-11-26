@@ -46,6 +46,8 @@ public:
     CMakeBuildConfiguration(BuildConfiguration *source);
     ~CMakeBuildConfiguration();
 
+    CMakeProject *cmakeProject() const;
+
     ProjectExplorer::Environment environment() const;
     ProjectExplorer::Environment baseEnvironment() const;
     void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);

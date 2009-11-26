@@ -67,10 +67,15 @@ QMakeStep::~QMakeStep()
 {
 }
 
+Qt4BuildConfiguration *QMakeStep::qt4BuildConfiguration() const
+{
+    return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+}
+
 QStringList QMakeStep::arguments()
 {
     QStringList additonalArguments = m_qmakeArgs;
-    Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+    Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     QStringList arguments;
     arguments << buildConfiguration()->project()->file()->fileName();
     arguments << "-r";
@@ -112,7 +117,7 @@ QStringList QMakeStep::arguments()
 bool QMakeStep::init()
 {
     // TODO
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+    Qt4BuildConfiguration *qt4bc = qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
 
     if (!qtVersion->isValid()) {
@@ -155,8 +160,7 @@ bool QMakeStep::init()
 
 void QMakeStep::run(QFutureInterface<bool> &fi)
 {
-    //TODO
-    Qt4Project *pro = static_cast<Qt4Project *>(buildConfiguration()->project());
+    Qt4Project *pro = qt4BuildConfiguration()->qt4Project();
     if (pro->rootProjectNode()->projectType() == ScriptTemplate) {
         fi.reportResult(true);
         return;
@@ -263,7 +267,7 @@ void QMakeStepConfigWidget::qtVersionChanged(ProjectExplorer::BuildConfiguration
 
 void QMakeStepConfigWidget::updateTitleLabel()
 {
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(m_step->buildConfiguration());
+    Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
     if (!qtVersion) {
         m_summaryText = tr("<b>QMake:</b> No Qt version set. QMake can not be run.");
@@ -290,7 +294,7 @@ void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
     m_step->setQMakeArguments(
             ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
 
-    static_cast<Qt4Project *>(m_step->buildConfiguration()->project())->invalidateCachedTargetInformation();
+    m_step->qt4BuildConfiguration()->qt4Project()->invalidateCachedTargetInformation();
     updateTitleLabel();
     updateEffectiveQMakeCall();
 }
@@ -306,12 +310,12 @@ void QMakeStepConfigWidget::buildConfigurationChanged()
         buildConfiguration = buildConfiguration & ~QtVersion::DebugBuild;
     }
     bc->setValue("buildConfiguration", int(buildConfiguration));
-    static_cast<Qt4Project *>(m_step->buildConfiguration()->project())->invalidateCachedTargetInformation();
+    m_step->qt4BuildConfiguration()->qt4Project()->invalidateCachedTargetInformation();
     updateTitleLabel();
     updateEffectiveQMakeCall();
     // TODO if exact parsing is the default, we need to update the code model
     // and all the Qt4ProFileNodes
-    //static_cast<Qt4Project *>(m_step->project())->update();
+    // m_step->qt4Project()->update();
 }
 
 QString QMakeStepConfigWidget::displayName() const
@@ -337,7 +341,7 @@ void QMakeStepConfigWidget::init()
 
 void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 {
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(m_step->buildConfiguration());
+    Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
     if (qtVersion) {
         QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();

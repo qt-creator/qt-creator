@@ -66,6 +66,12 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &t
 
 CMakeRunConfiguration::~CMakeRunConfiguration()
 {
+
+}
+
+CMakeProject *CMakeRunConfiguration::cmakeProject() const
+{
+    return static_cast<CMakeProject *>(project());
 }
 
 QString CMakeRunConfiguration::type() const
@@ -228,7 +234,7 @@ void CMakeRunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplore
 
 ProjectExplorer::ToolChain::ToolChainType CMakeRunConfiguration::toolChainType() const
 {
-    CMakeBuildConfiguration *bc = static_cast<CMakeBuildConfiguration *>(project()->activeBuildConfiguration());
+    CMakeBuildConfiguration *bc = cmakeProject()->activeCMakeBuildConfiguration();
     return bc->toolChainType();
 }
 

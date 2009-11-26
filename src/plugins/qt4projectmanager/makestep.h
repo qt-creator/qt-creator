@@ -43,8 +43,9 @@ class Project;
 }
 
 namespace Qt4ProjectManager {
-
 namespace Internal {
+class Qt4BuildConfiguration;
+
 class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
@@ -57,7 +58,7 @@ public:
     QStringList canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
     QString displayNameForName(const QString &name) const;
 };
-}
+} //namespace Internal
 
 class Qt4Project;
 
@@ -70,6 +71,9 @@ public:
     MakeStep(ProjectExplorer::BuildConfiguration *bc);
     MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
     ~MakeStep();
+
+    Internal::Qt4BuildConfiguration *qt4BuildConfiguration() const;
+
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
     virtual QString name();

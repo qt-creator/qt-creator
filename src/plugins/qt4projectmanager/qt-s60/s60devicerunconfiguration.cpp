@@ -55,6 +55,7 @@
 #include <QtGui/QMainWindow>
 
 using namespace ProjectExplorer;
+using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 enum { debug = 0 };
@@ -97,6 +98,11 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
 
 S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
 {
+}
+
+Qt4Project *S60DeviceRunConfiguration::qt4Project() const
+{
+    return static_cast<Qt4Project *>(project());
 }
 
 QString S60DeviceRunConfiguration::type() const
@@ -259,8 +265,8 @@ void S60DeviceRunConfiguration::updateTarget()
 {
     if (m_cachedTargetInformationValid)
         return;
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
-    Qt4PriFileNode * priFileNode = static_cast<Qt4Project *>(project())->rootProjectNode()->findProFileFor(m_proFilePath);
+    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
+    Qt4PriFileNode * priFileNode = qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
     if (!priFileNode) {
         m_baseFileName = QString::null;
         m_cachedTargetInformationValid = true;
@@ -418,10 +424,10 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     connect(m_makesis, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(makesisProcessFinished()));
 
-    Qt4BuildConfiguration *activeBuildConf =
-            static_cast<Qt4BuildConfiguration *>(runConfiguration->project()->activeBuildConfiguration());
-
     S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
+
+    Qt4BuildConfiguration *activeBuildConf = s60runConfig->qt4Project()->activeQt4BuildConfiguration();
+
     QTC_ASSERT(s60runConfig, return);
     m_toolChain = s60runConfig->toolChainType();
     m_serialPortName = s60runConfig->serialPortName();

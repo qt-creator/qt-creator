@@ -51,6 +51,8 @@ public:
     Qt4BuildConfiguration(Qt4BuildConfiguration *source);
     ~Qt4BuildConfiguration();
 
+    Qt4Project *qt4Project() const;
+
     ProjectExplorer::Environment environment() const;
     ProjectExplorer::Environment baseEnvironment() const;
     void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);

@@ -166,6 +166,11 @@ CMakeProject::~CMakeProject()
     delete m_rootNode;
 }
 
+CMakeBuildConfiguration *CMakeProject::activeCMakeBuildConfiguration() const
+{
+    return static_cast<CMakeBuildConfiguration *>(activeBuildConfiguration());
+}
+
 IBuildConfigurationFactory *CMakeProject::buildConfigurationFactory() const
 {
     return m_buildConfigurationFactory;
@@ -228,8 +233,8 @@ QString CMakeProject::sourceDirectory() const
 bool CMakeProject::parseCMakeLists()
 {
     // Find cbp file
-    CMakeBuildConfiguration *activeCmakeBuildConfiguration = static_cast<CMakeBuildConfiguration *>(activeBuildConfiguration());
-    QString cbpFile = CMakeManager::findCbpFile(activeCmakeBuildConfiguration->buildDirectory());
+    CMakeBuildConfiguration *activeBC = activeCMakeBuildConfiguration();
+    QString cbpFile = CMakeManager::findCbpFile(activeBC->buildDirectory());
 
     // setFolderName
     m_rootNode->setFolderName(QFileInfo(cbpFile).completeBaseName());
@@ -238,7 +243,7 @@ bool CMakeProject::parseCMakeLists()
     //qDebug()<<"Parsing file "<<cbpFile;
     if (cbpparser.parseCbpFile(cbpFile)) {
         // ToolChain
-        activeCmakeBuildConfiguration->updateToolChain(cbpparser.compilerName());
+        activeBC->updateToolChain(cbpparser.compilerName());
 
         m_projectName = cbpparser.projectName();
         m_rootNode->setFolderName(cbpparser.projectName());
@@ -291,7 +296,7 @@ bool CMakeProject::parseCMakeLists()
 
         QStringList allIncludePaths;
         QStringList allFrameworkPaths;
-        QList<ProjectExplorer::HeaderPath> allHeaderPaths = activeCmakeBuildConfiguration->toolChain()->systemHeaderPaths();
+        QList<ProjectExplorer::HeaderPath> allHeaderPaths = activeBC->toolChain()->systemHeaderPaths();
         foreach (ProjectExplorer::HeaderPath headerPath, allHeaderPaths) {
             if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
                 allFrameworkPaths.append(headerPath.path());
@@ -307,12 +312,12 @@ bool CMakeProject::parseCMakeLists()
             CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
             if (pinfo.includePaths != allIncludePaths
                 || pinfo.sourceFiles != m_files
-                || pinfo.defines != activeCmakeBuildConfiguration->toolChain()->predefinedMacros()
+                || pinfo.defines != activeBC->toolChain()->predefinedMacros()
                 || pinfo.frameworkPaths != allFrameworkPaths)  {
                 pinfo.includePaths = allIncludePaths;
                 // TODO we only want C++ files, not all other stuff that might be in the project
                 pinfo.sourceFiles = m_files;
-                pinfo.defines = activeCmakeBuildConfiguration->toolChain()->predefinedMacros(); // TODO this is to simplistic
+                pinfo.defines = activeBC->toolChain()->predefinedMacros(); // TODO this is to simplistic
                 pinfo.frameworkPaths = allFrameworkPaths;
                 modelmanager->updateProjectInfo(pinfo);
                 modelmanager->updateSourceFiles(pinfo.sourceFiles);
@@ -370,7 +375,7 @@ bool CMakeProject::parseCMakeLists()
     } else {
         // TODO report error
         qDebug()<<"Parsing failed";
-        activeCmakeBuildConfiguration->updateToolChain(QString::null);
+        activeBC->updateToolChain(QString::null);
         return false;
     }
     return true;

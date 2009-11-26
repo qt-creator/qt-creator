@@ -221,7 +221,7 @@ void Qt4ProjectConfigWidget::shadowBuildCheckBoxClicked(bool checked)
     else
         m_buildConfiguration->setValue("buildDirectory", QVariant(QString::null));
     updateDetails();
-    static_cast<Qt4Project *>(m_buildConfiguration->project())->invalidateCachedTargetInformation();
+    m_buildConfiguration->qt4Project()->invalidateCachedTargetInformation();
     updateImportLabel();
 }
 
@@ -261,7 +261,7 @@ void Qt4ProjectConfigWidget::shadowBuildLineEditTextChanged()
     // offer to import it
     updateImportLabel();
 
-    static_cast<Qt4Project *>(m_buildConfiguration->project())->invalidateCachedTargetInformation();
+    m_buildConfiguration->qt4Project()->invalidateCachedTargetInformation();
     updateDetails();
 }
 
@@ -339,7 +339,7 @@ void Qt4ProjectConfigWidget::qtVersionComboBoxCurrentIndexChanged(const QString 
     if (newQtVersion != m_buildConfiguration->qtVersionId()) {
         m_buildConfiguration->setQtVersion(newQtVersion);
         updateToolChainCombo();
-        static_cast<Qt4Project *>(m_buildConfiguration->project())->update();
+        m_buildConfiguration->qt4Project()->update();
     }
     updateDetails();
 }
@@ -359,7 +359,7 @@ void Qt4ProjectConfigWidget::updateToolChainCombo()
 void Qt4ProjectConfigWidget::selectToolChain(int index)
 {
     setToolChain(index);
-    static_cast<Qt4Project *>(m_buildConfiguration->project())->update();
+    m_buildConfiguration->qt4Project()->update();
 }
 
 void Qt4ProjectConfigWidget::setToolChain(int index)

@@ -100,7 +100,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
     const Qt4Project *project = qt4ProjectFor(fileName);
     // Get the binary either from the current Qt version of the project or Path
     if (project) {
-        Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(project->activeBuildConfiguration());
+        Qt4BuildConfiguration *qt4bc = project->activeQt4BuildConfiguration();
         const QtVersion *qtVersion= qt4bc->qtVersion();
         data->binary = (qtVersion->*commandAccessor)();
         data->workingDirectory = QFileInfo(project->file()->fileName()).absolutePath();

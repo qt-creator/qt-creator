@@ -89,7 +89,7 @@ void Qt4UiCodeModelSupport::setFileName(const QString &name)
 
 bool Qt4UiCodeModelSupport::runUic(const QString &ui) const
 {
-    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(m_project->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = m_project->activeQt4BuildConfiguration();
     QProcess uic;
     uic.setEnvironment(m_project->activeBuildConfiguration()->environment().toStringList());
     uic.start(qt4bc->qtVersion()->uicCommand(), QStringList(), QIODevice::ReadWrite);

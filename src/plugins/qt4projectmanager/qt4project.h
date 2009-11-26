@@ -158,6 +158,8 @@ public:
     explicit Qt4Project(Qt4Manager *manager, const QString &proFile);
     virtual ~Qt4Project();
 
+    Internal::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
+
     QString name() const;
     Core::IFile *file() const;
     ProjectExplorer::IProjectManager *projectManager() const;

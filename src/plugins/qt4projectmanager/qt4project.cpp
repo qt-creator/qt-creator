@@ -336,6 +336,11 @@ Qt4Project::~Qt4Project()
     delete m_projectFiles;
 }
 
+Qt4BuildConfiguration *Qt4Project::activeQt4BuildConfiguration() const
+{
+    return static_cast<Qt4BuildConfiguration *>(activeBuildConfiguration());
+}
+
 void Qt4Project::defaultQtVersionChanged()
 {
     if (static_cast<Qt4BuildConfiguration  *>(activeBuildConfiguration())->qtVersionId() == 0)
@@ -521,7 +526,7 @@ void Qt4Project::updateCodeModel()
     if (debug)
         qDebug()<<"Qt4Project::updateCodeModel()";
 
-    Qt4BuildConfiguration *activeQt4BuildConfiguration = static_cast<Qt4BuildConfiguration *>(activeBuildConfiguration());
+    Qt4BuildConfiguration *activeBC = activeQt4BuildConfiguration();
 
     CppTools::CppModelManagerInterface *modelmanager =
         ExtensionSystem::PluginManager::instance()
@@ -534,7 +539,7 @@ void Qt4Project::updateCodeModel()
     QStringList predefinedFrameworkPaths;
     QByteArray predefinedMacros;
 
-    ToolChain *tc = activeQt4BuildConfiguration->toolChain();
+    ToolChain *tc = activeBC->toolChain();
     QList<HeaderPath> allHeaderPaths;
     if (tc) {
         predefinedMacros = tc->predefinedMacros();
@@ -553,7 +558,7 @@ void Qt4Project::updateCodeModel()
             predefinedIncludePaths.append(headerPath.path());
     }
 
-    const QHash<QString, QString> versionInfo = activeQt4BuildConfiguration->qtVersion()->versionInfo();
+    const QHash<QString, QString> versionInfo = activeBC->qtVersion()->versionInfo();
     const QString newQtIncludePath = versionInfo.value(QLatin1String("QT_INSTALL_HEADERS"));
 
     predefinedIncludePaths.append(newQtIncludePath);
@@ -638,7 +643,7 @@ void Qt4Project::updateCodeModel()
         }
 
         // Add mkspec directory
-        info.includes.append(activeQt4BuildConfiguration->qtVersion()->mkspecPath());
+        info.includes.append(activeBC->qtVersion()->mkspecPath());
 
         info.frameworkPaths = allFrameworkPaths;
 
@@ -652,7 +657,7 @@ void Qt4Project::updateCodeModel()
     }
 
     // Add mkspec directory
-    allIncludePaths.append(activeQt4BuildConfiguration->qtVersion()->mkspecPath());
+    allIncludePaths.append(activeBC->qtVersion()->mkspecPath());
 
     // Dump things out
     // This is debugging output...

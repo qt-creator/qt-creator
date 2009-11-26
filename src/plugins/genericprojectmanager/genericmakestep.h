@@ -43,7 +43,7 @@ QT_END_NAMESPACE
 namespace GenericProjectManager {
 namespace Internal {
 
-class GenericProject;
+class GenericBuildConfiguration;
 class GenericMakeStepConfigWidget;
 
 struct GenericMakeStepSettings
@@ -59,6 +59,8 @@ public:
     GenericMakeStep(ProjectExplorer::BuildConfiguration *bc);
     GenericMakeStep(GenericMakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
     ~GenericMakeStep();
+    GenericBuildConfiguration *genericBuildConfiguration() const;
+
     virtual bool init();
 
     virtual void run(QFutureInterface<bool> &fi);

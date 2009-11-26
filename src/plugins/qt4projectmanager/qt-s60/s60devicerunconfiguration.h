@@ -47,6 +47,8 @@ namespace Debugger {
 }
 
 namespace Qt4ProjectManager {
+class Qt4Project;
+
 namespace Internal {
 
 class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -60,6 +62,8 @@ public:
 
     explicit S60DeviceRunConfiguration(ProjectExplorer::Project *project, const QString &proFilePath);
     ~S60DeviceRunConfiguration();
+
+    Qt4Project *qt4Project() const;
 
     QString type() const;
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
