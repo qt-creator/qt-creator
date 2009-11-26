@@ -513,8 +513,8 @@ void LookupContext::expandFunction(Function *function,
                                                         q->isGlobal());
         const QList<Symbol *> candidates = resolveClassOrNamespace(nestedNameSpec, visibleScopes);
         for (int j = 0; j < candidates.size(); ++j) {
-            expand(candidates.at(j)->asScopedSymbol()->members(),
-                   visibleScopes, expandedScopes);
+            if (ScopedSymbol *scopedSymbol = candidates.at(j)->asScopedSymbol())
+                expand(scopedSymbol->members(), visibleScopes, expandedScopes);
         }
     }
 }
