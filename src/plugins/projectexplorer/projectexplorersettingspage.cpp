@@ -34,11 +34,48 @@
 
 #include <QtGui/QLabel>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
+namespace ProjectExplorer {
+namespace Internal {
 
-ProjectExplorerSettingsPage::ProjectExplorerSettingsPage() :
-    m_searchKeywords(QLatin1String("jom"))
+ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
+    QWidget(parent)
+{
+    m_ui.setupUi(this);
+#ifndef Q_OS_WIN
+    setJomVisible(false);
+#endif
+}
+
+void ProjectExplorerSettingsWidget::setJomVisible(bool v)
+{
+    m_ui.jomCheckbox->setVisible(v);
+    m_ui.jomLabel->setVisible(v);
+}
+
+ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
+{
+    ProjectExplorerSettings pes;
+    pes.buildBeforeRun = m_ui.buildProjectBeforeRunCheckBox->isChecked();
+    pes.saveBeforeBuild = m_ui.saveAllFilesCheckBox->isChecked();
+    pes.showCompilerOutput = m_ui.showCompileOutputCheckBox->isChecked();
+    pes.useJom = m_ui.jomCheckbox->isChecked();
+    return pes;
+}
+
+void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &pes) const
+{
+    m_ui.buildProjectBeforeRunCheckBox->setChecked(pes.buildBeforeRun);
+    m_ui.saveAllFilesCheckBox->setChecked(pes.saveBeforeBuild);
+    m_ui.showCompileOutputCheckBox->setChecked(pes.showCompilerOutput);
+    m_ui.jomCheckbox->setChecked(pes.useJom);
+}
+
+QString ProjectExplorerSettingsWidget::searchKeywords() const
+{
+    return QLatin1String("jom");
+}
+
+ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
 {
 }
 
@@ -64,33 +101,17 @@ QString ProjectExplorerSettingsPage::trCategory() const
 
 QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
 {
-    QWidget *w = new QWidget(parent);
-    m_ui.setupUi(w);
-    ProjectExplorerSettings pes = ProjectExplorerPlugin::instance()->projectExplorerSettings();
-    m_ui.buildProjectBeforeRunCheckBox->setChecked(pes.buildBeforeRun);
-    m_ui.saveAllFilesCheckBox->setChecked(pes.saveBeforeBuild);
-    m_ui.showCompileOutputCheckBox->setChecked(pes.showCompilerOutput);
-#ifdef Q_OS_WIN
-    m_ui.jomCheckbox->setChecked(pes.useJom);
-#else
-    m_ui.jomCheckbox->setVisible(false);
-    m_ui.jomLabel->setVisible(false);
-#endif
-    return w;
+    m_widget = new ProjectExplorerSettingsWidget(parent);
+    m_widget->setSettings(ProjectExplorerPlugin::instance()->projectExplorerSettings());
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_widget->searchKeywords();
+    return m_widget;
 }
 
 void ProjectExplorerSettingsPage::apply()
 {
-    ProjectExplorerSettings pes;
-    pes.buildBeforeRun = m_ui.buildProjectBeforeRunCheckBox->isChecked();
-    pes.saveBeforeBuild = m_ui.saveAllFilesCheckBox->isChecked();
-    pes.showCompilerOutput = m_ui.showCompileOutputCheckBox->isChecked();
-#ifdef Q_OS_WIN
-    pes.useJom = m_ui.jomCheckbox->isChecked();
-#else
-    pes.useJom = false;
-#endif
-    ProjectExplorerPlugin::instance()->setProjectExplorerSettings(pes);
+    if (m_widget)
+        ProjectExplorerPlugin::instance()->setProjectExplorerSettings(m_widget->settings());
 }
 
 void ProjectExplorerSettingsPage::finish()
@@ -102,3 +123,7 @@ bool ProjectExplorerSettingsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
+
+}
+}
+

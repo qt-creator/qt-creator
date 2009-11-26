@@ -33,8 +33,29 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include "ui_projectexplorersettingspage.h"
 
+#include <QtCore/QPointer>
+
 namespace ProjectExplorer {
 namespace Internal {
+
+struct ProjectExplorerSettings;
+
+class ProjectExplorerSettingsWidget : public QWidget {
+    Q_OBJECT
+public:
+    explicit ProjectExplorerSettingsWidget(QWidget *parent = 0);
+
+    ProjectExplorerSettings settings() const;
+    void setSettings(const ProjectExplorerSettings  &s) const;
+
+    QString searchKeywords() const;
+
+
+private:
+    void setJomVisible(bool);
+
+    Ui::ProjectExplorerSettingsPageUi m_ui;
+};
 
 class ProjectExplorerSettingsPage : public Core::IOptionsPage
 {
@@ -53,8 +74,8 @@ public:
     virtual bool matches(const QString &s) const;
 
 private:
-    const QString m_searchKeywords;
-    Ui::ProjectExplorerSettingsPageUi m_ui;
+    QString m_searchKeywords;
+    QPointer<ProjectExplorerSettingsWidget> m_widget;
 };
 
 } // Internal
