@@ -78,11 +78,11 @@ public:
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
-    QStringList arguments();
     void setForced(bool b);
     bool forced();
 
-    QStringList qmakeArguments();
+    QStringList allArguments();
+    QStringList userArguments();
     void setQMakeArguments(const QStringList &arguments);
 
     virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
@@ -100,7 +100,7 @@ private:
     QStringList m_lastEnv;
     bool m_forced;
     bool m_needToRunQMake; // set in init(), read in run()
-    QStringList m_qmakeArgs;
+    QStringList m_userArgs;
 };
 
 

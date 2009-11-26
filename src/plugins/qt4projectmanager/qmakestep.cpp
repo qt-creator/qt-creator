@@ -58,7 +58,7 @@ QMakeStep::QMakeStep(ProjectExplorer::BuildConfiguration *bc)
 QMakeStep::QMakeStep(QMakeStep *bs, ProjectExplorer::BuildConfiguration *bc)
     : AbstractMakeStep(bs, bc),
     m_forced(false),
-    m_qmakeArgs(bs->m_qmakeArgs)
+    m_userArgs(bs->m_userArgs)
 {
 
 }
@@ -72,9 +72,9 @@ Qt4BuildConfiguration *QMakeStep::qt4BuildConfiguration() const
     return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
 }
 
-QStringList QMakeStep::arguments()
+QStringList QMakeStep::allArguments()
 {
-    QStringList additonalArguments = m_qmakeArgs;
+    QStringList additonalArguments = m_userArgs;
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     QStringList arguments;
     arguments << buildConfiguration()->project()->file()->fileName();
@@ -129,7 +129,7 @@ bool QMakeStep::init()
         return false;
     }
 
-    QStringList args = arguments();
+    QStringList args = allArguments();
     QString workingDirectory = qt4bc->buildDirectory();
 
     QString program = qtVersion->qmakeCommand();
@@ -220,24 +220,24 @@ bool QMakeStep::processFinished(int exitCode, QProcess::ExitStatus status)
 
 void QMakeStep::setQMakeArguments(const QStringList &arguments)
 {
-    m_qmakeArgs = arguments;
+    m_userArgs = arguments;
     emit changed();
 }
 
-QStringList QMakeStep::qmakeArguments()
+QStringList QMakeStep::userArguments()
 {
-    return m_qmakeArgs;
+    return m_userArgs;
 }
 
 void QMakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
 {
-    m_qmakeArgs = map.value("qmakeArgs").toStringList();
+    m_userArgs = map.value("qmakeArgs").toStringList();
     AbstractProcessStep::restoreFromLocalMap(map);
 }
 
 void QMakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 {
-    map["qmakeArgs"] = m_qmakeArgs;
+    map["qmakeArgs"] = m_userArgs;
     AbstractProcessStep::storeIntoLocalMap(map);
 }
 
@@ -276,7 +276,7 @@ void QMakeStepConfigWidget::updateTitleLabel()
         return;
     }
 
-    QStringList args = m_step->arguments();
+    QStringList args = m_step->allArguments();
     // We don't want the full path to the .pro file
     const QString projectFileName = m_step->buildConfiguration()->project()->file()->fileName();
     int index = args.indexOf(projectFileName);
@@ -331,7 +331,7 @@ void QMakeStepConfigWidget::update()
 
 void QMakeStepConfigWidget::init()
 {
-    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->qmakeArguments());
+    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->userArguments());
     m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
     ProjectExplorer::BuildConfiguration *bc = m_step->buildConfiguration();
     bool debug = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt()) & QtVersion::DebugBuild;
@@ -346,7 +346,7 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
     const QtVersion *qtVersion = qt4bc->qtVersion();
     if (qtVersion) {
         QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
-        m_ui.qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + ProjectExplorer::Environment::joinArgumentList(m_step->arguments()));
+        m_ui.qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + ProjectExplorer::Environment::joinArgumentList(m_step->allArguments()));
     } else {
         m_ui.qmakeArgumentsEdit->setPlainText(tr("No valid Qt version set."));
     }

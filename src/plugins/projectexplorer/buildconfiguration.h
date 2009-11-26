@@ -120,8 +120,6 @@ public:
     // restores a BuildConfiguration with the name and adds it to the project
     virtual BuildConfiguration *restore() const = 0;
 
-    // TODO display name unique, in different ways
-
 signals:
     void availableCreationTypesChanged();
 };

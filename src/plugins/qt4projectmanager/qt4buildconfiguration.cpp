@@ -284,7 +284,7 @@ bool Qt4BuildConfiguration::compareBuildConfigurationToImportFrom(const QString 
                 // now compare arguments lists
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own
-                QString actualSpec = extractSpecFromArgumentList(qs->qmakeArguments(), workingDirectory, version);
+                QString actualSpec = extractSpecFromArgumentList(qs->userArguments(), workingDirectory, version);
                 if (actualSpec.isEmpty()) {
                     // Easy one the user has choosen not to override the settings
                     actualSpec = version->mkspec();
@@ -292,7 +292,7 @@ bool Qt4BuildConfiguration::compareBuildConfigurationToImportFrom(const QString 
 
 
                 QString parsedSpec = extractSpecFromArgumentList(result.second, workingDirectory, version);
-                QStringList actualArgs = removeSpecFromArgumentList(qs->qmakeArguments());
+                QStringList actualArgs = removeSpecFromArgumentList(qs->userArguments());
                 QStringList parsedArgs = removeSpecFromArgumentList(result.second);
 
                 if (debug) {
