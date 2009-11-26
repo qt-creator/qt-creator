@@ -95,6 +95,160 @@ protected:
     }
 };
 
+/*
+    Rewrite
+    a op b
+
+    As
+    !(a invop b)
+*/
+class UseInverseOp: public QuickFixOperation
+{
+public:
+    UseInverseOp()
+        : binary(0)
+    {}
+
+
+    virtual QString description() const
+    {
+        return QLatin1String("Rewrite using ") + replacement; // ### tr?
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        int index = path.size() - 1;
+        binary = path.at(index)->asBinaryExpression();
+        if (! binary)
+            return -1;
+        if (! isCursorOn(binary->binary_op_token))
+            return -1;
+
+        CPlusPlus::Kind invertToken;
+        switch (tokenAt(binary->binary_op_token).kind()) {
+        case T_LESS_EQUAL:
+            invertToken = T_GREATER;
+            break;
+        case T_LESS:
+            invertToken = T_GREATER_EQUAL;
+            break;
+        case T_GREATER:
+            invertToken = T_LESS_EQUAL;
+            break;
+        case T_GREATER_EQUAL:
+            invertToken = T_LESS;
+            break;
+        case T_EQUAL_EQUAL:
+            invertToken = T_EXCLAIM_EQUAL;
+            break;
+        case T_EXCLAIM_EQUAL:
+            invertToken = T_EQUAL_EQUAL;
+            break;
+        default:
+            return -1;
+        }
+
+        CPlusPlus::Token tok;
+        tok.f.kind = invertToken;
+        replacement = QLatin1String(tok.spell());
+        return index;
+    }
+
+    virtual void createChangeSet()
+    {
+        insert(startOf(binary), "!(");
+        insert(endOf(binary), ")");
+        replace(binary->binary_op_token, replacement);
+    }
+
+private:
+    BinaryExpressionAST *binary;
+    QString replacement;
+};
+
+/*
+    Rewrite
+    a op b
+
+    As
+    b flipop a
+*/
+class FlipBinaryOp: public QuickFixOperation
+{
+public:
+    FlipBinaryOp()
+        : binary(0)
+    {}
+
+
+    virtual QString description() const
+    {
+        if (replacement.isEmpty())
+            return QLatin1String("Flip");
+        else
+            return QLatin1String("Flip to use ") + replacement; // ### tr?
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        int index = path.size() - 1;
+        binary = path.at(index)->asBinaryExpression();
+        if (! binary)
+            return -1;
+        if (! isCursorOn(binary->binary_op_token))
+            return -1;
+
+        CPlusPlus::Kind flipToken;
+        switch (tokenAt(binary->binary_op_token).kind()) {
+        case T_LESS_EQUAL:
+            flipToken = T_GREATER_EQUAL;
+            break;
+        case T_LESS:
+            flipToken = T_GREATER;
+            break;
+        case T_GREATER:
+            flipToken = T_LESS;
+            break;
+        case T_GREATER_EQUAL:
+            flipToken = T_LESS_EQUAL;
+            break;
+        case T_EQUAL_EQUAL:
+        case T_EXCLAIM_EQUAL:
+        case T_AMPER_AMPER:
+        case T_PIPE_PIPE:
+            flipToken = T_EOF_SYMBOL;
+            break;
+        default:
+            return -1;
+        }
+
+        if (flipToken != T_EOF_SYMBOL) {
+            CPlusPlus::Token tok;
+            tok.f.kind = flipToken;
+            replacement = QLatin1String(tok.spell());
+        }
+        return index;
+    }
+
+    virtual void createChangeSet()
+    {
+        flip(binary->left_expression, binary->right_expression);
+        if (! replacement.isEmpty())
+            replace(binary->binary_op_token, replacement);
+    }
+
+private:
+    BinaryExpressionAST *binary;
+    QString replacement;
+};
+
+/*
+    Rewrite
+    !a && !b
+
+    As
+    !(a || b)
+*/
 class RewriteLogicalAndOp: public QuickFixOperation
 {
 public:
@@ -846,6 +1000,8 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         QSharedPointer<MoveDeclarationOutOfWhileOp> moveDeclarationOutOfWhileOp(new MoveDeclarationOutOfWhileOp());
         QSharedPointer<SplitSimpleDeclarationOp> splitSimpleDeclarationOp(new SplitSimpleDeclarationOp());
         QSharedPointer<AddBracesToIfOp> addBracesToIfOp(new AddBracesToIfOp());
+        QSharedPointer<UseInverseOp> useInverseOp(new UseInverseOp());
+        QSharedPointer<FlipBinaryOp> flipBinaryOp(new FlipBinaryOp());
 
         QList<QuickFixOperationPtr> candidates;
         candidates.append(rewriteLogicalAndOp);
@@ -854,6 +1010,8 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         candidates.append(moveDeclarationOutOfWhileOp);
         candidates.append(splitSimpleDeclarationOp);
         candidates.append(addBracesToIfOp);
+        candidates.append(useInverseOp);
+        candidates.append(flipBinaryOp);
 
         QMap<int, QList<QuickFixOperationPtr> > matchedOps;
 
