@@ -119,7 +119,6 @@ FileManagerPrivate::FileManagerPrivate(QObject *q, QMainWindow *mw) :
     m_fileWatcher(new QFileSystemWatcher(q)),
     m_blockActivated(false),
     m_lastVisitedDirectory(QDir::currentPath()),
-    m_projectsDirectory(Utils::PathChooser::homePath()),
 #ifdef Q_OS_MAC  // Creator is in bizarre places when launched via finder.
     m_useProjectsDirectory(true)
 #else
@@ -152,7 +151,13 @@ FileManager::FileManager(QMainWindow *mw)
         }
     }
     const QString directoryGroup = QLatin1String(directoryGroupC) + QLatin1Char('/');
-    d->m_projectsDirectory = s->value(directoryGroup + QLatin1String(projectDirectoryKeyC), QString()).toString();
+    const QString settingsProjectDir = s->value(directoryGroup + QLatin1String(projectDirectoryKeyC),
+                                       QString()).toString();
+    if (!settingsProjectDir.isEmpty() && QFileInfo(settingsProjectDir).isDir()) {
+        d->m_projectsDirectory = settingsProjectDir;
+    } else {
+        d->m_projectsDirectory = Utils::PathChooser::homePath();
+    }
     d->m_useProjectsDirectory = s->value(directoryGroup + QLatin1String(useProjectDirectoryKeyC),
                                          d->m_useProjectsDirectory).toBool();
 }
