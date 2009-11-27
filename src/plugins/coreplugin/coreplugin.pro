@@ -158,7 +158,6 @@ HEADERS += mainwindow.h \
     settingsdatabase.h \
     eventfilteringmainwindow.h
 FORMS += dialogs/newdialog.ui \
-    dialogs/settingsdialog.ui \
     dialogs/shortcutsettings.ui \
     dialogs/saveitemsdialog.ui \
     dialogs/openwithdialog.ui \

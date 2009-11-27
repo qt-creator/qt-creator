@@ -33,20 +33,29 @@
 #include "icore.h"
 
 #include <utils/qtcassert.h>
+#include <utils/filterlineedit.h>
 
 #include <QtCore/QSettings>
 #include <QtGui/QHeaderView>
-#include <QtGui/QPushButton>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QStandardItem>
 #include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QItemSelectionModel>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QIcon>
 #include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
+#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
+#include <QtGui/QToolBar>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QStyle>
+#include <QtGui/QStackedLayout>
+#include <QtGui/QGridLayout>
+#include <QtGui/QLineEdit>
+#include <QtGui/QFrame>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QTreeView>
+#include <QtGui/QApplication>
 
 enum ItemType { CategoryItem, PageItem };
 
@@ -186,9 +195,13 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
     m_pages(ExtensionSystem::PluginManager::instance()->getObjects<IOptionsPage>()),
     m_proxyModel(new PageFilterModel),
     m_model(0),
-    m_applied(false)
+    m_applied(false),
+    m_stackedLayout(new QStackedLayout),
+    m_filterLineEdit(new Utils::FilterLineEdit),
+    m_pageTree(new QTreeView),
+    m_headerLabel(new QLabel)
 {
-    setupUi(this);
+    createGui();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 #ifdef Q_OS_MAC
     setWindowTitle(tr("Preferences"));
@@ -202,73 +215,77 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
         initialCategory = settings->value(QLatin1String(categoryKeyC), QVariant(QString())).toString();
         initialPage = settings->value(QLatin1String(pageKeyC), QVariant(QString())).toString();
     }
-    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-
-    connect(buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
 
     // Create pages with title labels with a larger, bold font, left-aligned
     // with the group boxes of the page.
-    const int pageCount = m_pages.size();
-    QFont titleLabelFont;
-    const int leftMargin = qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin) +
-                           qApp->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    for (int i = 0; i < pageCount; i++) {
-        // Title bar
-        QHBoxLayout *titleLayout = new QHBoxLayout;
-        titleLayout->addSpacerItem(new QSpacerItem(leftMargin, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
-        QLabel *titleLabel = new QLabel(m_pages.at(i)->trName());
-        if (i == 0) { // Create a bold header font from the default label font.
-            titleLabelFont = titleLabel->font();
-            titleLabelFont.setBold(true);
-            // Paranoia: Should a font be set in pixels...
-            const int pointSize = titleLabelFont.pointSize();
-            if (pointSize > 0)
-                titleLabelFont.setPointSize(pointSize + 2);
-        }
-        titleLabel->setFont(titleLabelFont);
-        titleLayout->addWidget(titleLabel);
-        // Page
-        QWidget *pageContainer =new QWidget;
-        QVBoxLayout *pageLayout = new QVBoxLayout(pageContainer);
-        pageLayout->addLayout(titleLayout);
-        pageLayout->addSpacerItem(new QSpacerItem(0, 6, QSizePolicy::Ignored, QSizePolicy::Fixed));
-        pageLayout->addWidget(m_pages.at(i)->createPage(0));
-        stackedPages->addWidget(pageContainer);
-    }
-//    foreach(IOptionsPage *page, m_pages)
-  //      stackedPages->addWidget();
-
-    splitter->setCollapsible(1, false);
-    pageTree->header()->setVisible(false);
+    foreach(IOptionsPage *page, m_pages)
+        m_stackedLayout->addWidget(page->createPage(0));
 
     QModelIndex initialIndex;
     m_model = pageModel(m_pages, 0, initialCategory, initialPage, &initialIndex);
     m_proxyModel->setFilterKeyColumn(0);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_proxyModel->setSourceModel(m_model);
-    pageTree->setModel(m_proxyModel);
-    pageTree->setSelectionMode(QAbstractItemView::SingleSelection);
-    connect(pageTree->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+    m_pageTree->setModel(m_proxyModel);
+    m_pageTree->setSelectionMode(QAbstractItemView::SingleSelection);
+    connect(m_pageTree->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             this, SLOT(currentChanged(QModelIndex,QModelIndex)));
     if (initialIndex.isValid()) {
         const QModelIndex proxyIndex = m_proxyModel->mapFromSource(initialIndex);
-        pageTree->selectionModel()->setCurrentIndex(proxyIndex, QItemSelectionModel::ClearAndSelect);
+        m_pageTree->selectionModel()->setCurrentIndex(proxyIndex, QItemSelectionModel::ClearAndSelect);
     }
+    m_pageTree->resizeColumnToContents(0);
 
-    QList<int> sizes;
-    sizes << 150 << 300;
-    splitter->setSizes(sizes);
-
-    splitter->setStretchFactor(splitter->indexOf(pageTree), 0);
-    splitter->setStretchFactor(splitter->indexOf(layoutWidget), 1);
-
-    filterClearButton->setIcon(QIcon(QLatin1String(":/core/images/reset.png")));
-    connect(filterClearButton, SIGNAL(clicked()), filterLineEdit, SLOT(clear()));
     // The order of the slot connection matters here, the filter slot
     // opens the matching page after the model has filtered.
-    connect(filterLineEdit, SIGNAL(textChanged(QString)),
+    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
                 m_proxyModel, SLOT(setFilterFixedString(QString)));
-    connect(filterLineEdit, SIGNAL(textChanged(QString)), this, SLOT(filter(QString)));
+    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)), this, SLOT(filter(QString)));
+}
+
+void SettingsDialog::createGui()
+{
+    // Header label with large font and a bit of spacing (align with group boxes)
+    QFont headerLabelFont = m_headerLabel->font();
+    headerLabelFont.setBold(true);
+    // Paranoia: Should a font be set in pixels...
+    const int pointSize = headerLabelFont.pointSize();
+    if (pointSize > 0)
+        headerLabelFont.setPointSize(pointSize + 2);
+    m_headerLabel->setFont(headerLabelFont);
+
+    QHBoxLayout *headerHLayout = new QHBoxLayout;
+    const int leftMargin = qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin) +
+                           qApp->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    headerHLayout->addSpacerItem(new QSpacerItem(leftMargin, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
+    headerHLayout->addWidget(m_headerLabel);
+
+    // Tree
+    m_pageTree->header()->setVisible(false);
+    m_stackedLayout->setMargin(0);
+
+    // Separator Line
+    QFrame *bottomLine = new QFrame;
+    bottomLine->setFrameShape(QFrame::HLine);
+    bottomLine->setFrameShadow(QFrame::Sunken);
+
+    // Button box
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Apply|QDialogButtonBox::Cancel);
+    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    connect(buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    QGridLayout *mainGridLayout = new QGridLayout;
+    mainGridLayout->addWidget(m_filterLineEdit, 0, 0, 1, 1);
+    mainGridLayout->addLayout(headerHLayout,    0, 1, 1, 1);
+    mainGridLayout->addWidget(m_pageTree,       1, 0, 2, 1);
+    mainGridLayout->addLayout(m_stackedLayout,  1, 1, 1, 1);
+    mainGridLayout->addWidget(bottomLine,       2, 1, 1, 1);
+    mainGridLayout->addWidget(buttonBox,        3, 0, 1, 2);
+    mainGridLayout->setColumnStretch(0, 1);
+    mainGridLayout->setColumnStretch(1, 4);
+    setLayout(mainGridLayout);
 }
 
 SettingsDialog::~SettingsDialog()
@@ -284,8 +301,9 @@ void SettingsDialog::showPage(const QStandardItem *item)
             IOptionsPage *page = pageOfItem(item);
             m_currentCategory = page->category();
             m_currentPage = page->id();
-            stackedPages->setCurrentIndex(indexOfItem(item));
+            m_stackedLayout->setCurrentIndex(indexOfItem(item));
             m_visitedPages.insert(page);
+            m_headerLabel->setText(page->trName());
         }
         break;
     case CategoryItem:
@@ -337,17 +355,17 @@ void SettingsDialog::filter(const QString &text)
 {
     // Filter cleared, collapse all.
     if (text.isEmpty()) {
-        pageTree->collapseAll();
+        m_pageTree->collapseAll();
         return;
     }
     // Expand match and select the first page. Note: This depends
     // on the order of slot invocation, needs to be done after filtering
     if (!m_proxyModel->rowCount(QModelIndex()))
         return;
-    pageTree->expandAll();
+    m_pageTree->expandAll();
     const QModelIndex firstVisiblePage = findPage(m_proxyModel);
     if (firstVisiblePage.isValid())
-        pageTree->selectionModel()->setCurrentIndex(firstVisiblePage, QItemSelectionModel::ClearAndSelect);
+        m_pageTree->selectionModel()->setCurrentIndex(firstVisiblePage, QItemSelectionModel::ClearAndSelect);
 }
 
 void SettingsDialog::accept()
@@ -376,6 +394,7 @@ void SettingsDialog::apply()
 
 bool SettingsDialog::execDialog()
 {
+    m_pageTree->setFocus();
     m_applied = false;
     exec();
     return m_applied;

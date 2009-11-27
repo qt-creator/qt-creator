@@ -30,10 +30,9 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include "ui_settingsdialog.h"
-
 #include <QtCore/QList>
 #include <QtCore/QSet>
+#include <QtGui/QDialog>
 
 #include "coreplugin/dialogs/ioptionspage.h"
 
@@ -42,12 +41,21 @@ class QModelIndex;
 class QStandardItemModel;
 class QStandardItem;
 class QSortFilterProxyModel;
+class QStackedLayout;
+class QAbstractButton;
+class QLineEdit;
+class QLabel;
+class QTreeView;
 QT_END_NAMESPACE
+
+namespace Utils {
+    class FilterLineEdit;
+}
 
 namespace Core {
 namespace Internal {
 
-class SettingsDialog : public QDialog, public ::Ui::SettingsDialog
+class SettingsDialog : public QDialog
 {
     Q_OBJECT
 
@@ -72,6 +80,7 @@ private slots:
     void filter(const QString &text);
 
 private:
+    void createGui();
     void showPage(const QStandardItem *item);
 
     const QList<Core::IOptionsPage*> m_pages;
@@ -82,6 +91,10 @@ private:
     bool m_applied;
     QString m_currentCategory;
     QString m_currentPage;
+    QStackedLayout *m_stackedLayout;
+    Utils::FilterLineEdit *m_filterLineEdit;
+    QTreeView *m_pageTree;
+    QLabel *m_headerLabel;
 };
 
 } // namespace Internal

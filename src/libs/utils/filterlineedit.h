@@ -27,33 +27,31 @@
 **
 **************************************************************************/
 
-#ifndef CPPTOOLSCONSTANTS_H
-#define CPPTOOLSCONSTANTS_H
+#ifndef FILTERLINEEDIT_H
+#define FILTERLINEEDIT_H
 
-#include <QtCore/QtGlobal>
+#include "fancylineedit.h"
 
-namespace CppTools {
-namespace Constants {
+namespace Utils {
 
-const char * const M_TOOLS_CPP              = "CppTools.Tools.Menu";
-const char * const SWITCH_HEADER_SOURCE     = "CppTools.SwitchHeaderSource";
-const char * const TASK_INDEX               = "CppTools.Task.Index";
-const char * const TASK_SEARCH              = "CppTools.Task.Search";
-const char * const C_SOURCE_MIMETYPE = "text/x-csrc";
-const char * const C_HEADER_MIMETYPE = "text/x-chdr";
-const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
-const char * const OBJECTIVE_CPP_SOURCE_MIMETYPE = "text/x-objcsrc";
-const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
+/* A fancy line edit customized for filtering purposes with a clear button. */
 
-// QSettings keys for use by the "New Class" wizards.
-const char * const CPPTOOLS_SETTINGSGROUP = "CppTools";
-const char * const LOWERCASE_CPPFILES_KEY = "LowerCaseFiles";
-enum { lowerCaseFilesDefault = 1 };
+class QTCREATOR_UTILS_EXPORT FilterLineEdit : public FancyLineEdit
+{
+    Q_OBJECT
+public:
+    explicit FilterLineEdit(QWidget *parent = 0);
 
-const char * const CPP_SETTINGS_ID = QT_TRANSLATE_NOOP("CppTools", "File Naming");
-const char * const CPP_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("CppTools", "C++");
+signals:
+    void filterChanged(const QString &);
 
-} // namespace Constants
-} // namespace CppTools
+private slots:
+    void slotTextChanged();
 
-#endif // CPPTOOLSCONSTANTS_H
+private:
+    QString m_lastFilterText;
+};
+
+} // namespace Utils
+
+#endif // FILTERLINEEDIT_H

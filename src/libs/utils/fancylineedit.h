@@ -85,6 +85,9 @@ public:
     // Convenience for accessing the text that returns "" in case of isShowingHintText().
     QString typedText() const;
 
+signals:
+    void buttonClicked();
+
 public slots:
     void setPixmap(const QPixmap &pixmap);
     void setHintText(const QString &ht);
@@ -97,6 +100,7 @@ protected:
     virtual void focusOutEvent(QFocusEvent *e);
 
 private:
+    friend class Utils::FancyLineEditPrivate;
     bool isSideStored() const;
     void updateMenuLabel();
     void positionMenuLabel();

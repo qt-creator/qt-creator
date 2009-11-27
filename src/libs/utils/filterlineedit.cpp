@@ -27,33 +27,29 @@
 **
 **************************************************************************/
 
-#ifndef CPPTOOLSCONSTANTS_H
-#define CPPTOOLSCONSTANTS_H
+#include "filterlineedit.h"
 
-#include <QtCore/QtGlobal>
+namespace Utils {
 
-namespace CppTools {
-namespace Constants {
+FilterLineEdit::FilterLineEdit(QWidget *parent) :
+   FancyLineEdit(parent),
+   m_lastFilterText(typedText())
+{
+    setSide(Utils::FancyLineEdit::Right);   
+    setPixmap(QPixmap(QLatin1String(":/utils/images/reset.png")));
+    setHintText(tr("Type to filter"));
 
-const char * const M_TOOLS_CPP              = "CppTools.Tools.Menu";
-const char * const SWITCH_HEADER_SOURCE     = "CppTools.SwitchHeaderSource";
-const char * const TASK_INDEX               = "CppTools.Task.Index";
-const char * const TASK_SEARCH              = "CppTools.Task.Search";
-const char * const C_SOURCE_MIMETYPE = "text/x-csrc";
-const char * const C_HEADER_MIMETYPE = "text/x-chdr";
-const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
-const char * const OBJECTIVE_CPP_SOURCE_MIMETYPE = "text/x-objcsrc";
-const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
+    connect(this, SIGNAL(buttonClicked()), this, SLOT(clear()));
+    connect(this, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
+}
 
-// QSettings keys for use by the "New Class" wizards.
-const char * const CPPTOOLS_SETTINGSGROUP = "CppTools";
-const char * const LOWERCASE_CPPFILES_KEY = "LowerCaseFiles";
-enum { lowerCaseFilesDefault = 1 };
+void FilterLineEdit::slotTextChanged()
+{
+    const QString newlyTypedText = typedText();
+    if (newlyTypedText != m_lastFilterText) {
+        m_lastFilterText = newlyTypedText;
+        emit filterChanged(m_lastFilterText);
+    }
+}
 
-const char * const CPP_SETTINGS_ID = QT_TRANSLATE_NOOP("CppTools", "File Naming");
-const char * const CPP_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("CppTools", "C++");
-
-} // namespace Constants
-} // namespace CppTools
-
-#endif // CPPTOOLSCONSTANTS_H
+} // namespace Utils

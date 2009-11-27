@@ -114,6 +114,18 @@ FancyLineEdit_CW::FancyLineEdit_CW(QObject *parent) :
 {
 }
 
+FilterLineEdit_CW::FilterLineEdit_CW(QObject *parent) :
+   QObject(parent),
+   CustomWidget<Utils::FilterLineEdit>
+       (QLatin1String("<utils/filterlineedit.h>"),
+        false,
+        QLatin1String(groupC),
+        QIcon(),
+        QLatin1String("A Line edit customized for filtering"))
+{
+}
+
+
 QtColorButton_CW::QtColorButton_CW(QObject *parent) :
    QObject(parent),
    CustomWidget<Utils::QtColorButton>
@@ -293,6 +305,7 @@ WidgetCollection::WidgetCollection(QObject *parent) :
     m_plugins.push_back(new LineColumnLabel_CW(this));
     m_plugins.push_back(new PathChooser_CW(this));
     m_plugins.push_back(new FancyLineEdit_CW(this));
+    m_plugins.push_back(new FilterLineEdit_CW(this));
     m_plugins.push_back(new QtColorButton_CW(this));
     m_plugins.push_back(new SubmitEditorWidget_CW(this));
     m_plugins.push_back(new SubmitFieldWidget_CW(this));

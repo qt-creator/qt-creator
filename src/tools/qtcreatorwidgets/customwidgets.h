@@ -38,7 +38,7 @@
 #include <utils/linecolumnlabel.h>
 #include <utils/pathchooser.h>
 #include <utils/projectnamevalidatinglineedit.h>
-#include <utils/fancylineedit.h>
+#include <utils/filterlineedit.h>
 #include <utils/qtcolorbutton.h>
 #include <utils/submiteditorwidget.h>
 #include <utils/submitfieldwidget.h>
@@ -129,6 +129,16 @@ public:
     explicit FancyLineEdit_CW(QObject *parent = 0);
 
     virtual QWidget *createWidget(QWidget *parent);
+};
+
+class FilterLineEdit_CW :
+    public QObject,
+    public CustomWidget<Utils::FilterLineEdit>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit FilterLineEdit_CW(QObject *parent = 0);
 };
 
 class QtColorButton_CW :

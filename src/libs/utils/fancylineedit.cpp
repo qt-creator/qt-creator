@@ -63,14 +63,14 @@ static QString labelStyleSheet(FancyLineEdit::Side side)
 
 class FancyLineEditPrivate : public QObject {
 public:
-    explicit FancyLineEditPrivate(QLineEdit *parent);
+    explicit FancyLineEditPrivate(FancyLineEdit *parent);
 
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
     const QString m_leftLabelStyleSheet;
     const QString m_rightLabelStyleSheet;
 
-    QLineEdit *m_lineEdit;
+    FancyLineEdit  *m_lineEdit;
     QPixmap m_pixmap;
     QMenu *m_menu;
     QLabel *m_menuLabel;
@@ -82,7 +82,7 @@ public:
 };
 
 
-FancyLineEditPrivate::FancyLineEditPrivate(QLineEdit *parent) :
+FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     QObject(parent),
     m_leftLabelStyleSheet(labelStyleSheet(FancyLineEdit::Left)),
     m_rightLabelStyleSheet(labelStyleSheet(FancyLineEdit::Right)),
@@ -98,17 +98,21 @@ FancyLineEditPrivate::FancyLineEditPrivate(QLineEdit *parent) :
 
 bool FancyLineEditPrivate::eventFilter(QObject *obj, QEvent *event)
 {
-    if (!m_menu || obj != m_menuLabel)
+    if (obj != m_menuLabel)
         return QObject::eventFilter(obj, event);
 
     switch (event->type()) {
     case QEvent::MouseButtonPress: {
         const QMouseEvent *me = static_cast<QMouseEvent *>(event);
-        m_menu->exec(me->globalPos());
+        if (m_menu) {
+            m_menu->exec(me->globalPos());
+        } else {
+            emit m_lineEdit->buttonClicked();
+        }
         return true;
     }
     case QEvent::FocusIn:
-        if (m_menuTabFocusTrigger) {
+        if (m_menuTabFocusTrigger && m_menu) {
             m_lineEdit->setFocus();
             m_menu->exec(m_menuLabel->mapToGlobal(m_menuLabel->rect().center()));
             return true;
@@ -161,6 +165,9 @@ void FancyLineEdit::updateStyleSheet(Side side)
     sheet += QLatin1Char(';');
     if (m_d->m_showingHintText)
         sheet += QLatin1String(" color: #BBBBBB;");
+    // Fix the stylesheet's clearing the size hint.
+    sheet += QLatin1String(" height: ");
+    sheet += QString::number(sizeHint().height());
     sheet += QLatin1Char('}');
     setStyleSheet(sheet);
 }
