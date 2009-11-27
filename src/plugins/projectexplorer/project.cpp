@@ -271,6 +271,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
                 }
             }
         }
+        addBuildConfiguration(bc);
     }
 
     // Set Active Configuration

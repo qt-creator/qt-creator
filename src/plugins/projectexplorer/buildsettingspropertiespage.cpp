@@ -254,8 +254,8 @@ void BuildSettingsWidget::updateBuildSettings()
         m_subWidgets->addWidget(subConfigWidget->displayName(), subConfigWidget);
 
     // Add tree items
-    foreach (const BuildConfiguration *bc, m_project->buildConfigurations()) {
-        m_buildConfigurationComboBox->addItem(bc->displayName(), bc);
+    foreach (BuildConfiguration *bc, m_project->buildConfigurations()) {
+        m_buildConfigurationComboBox->addItem(bc->displayName(), QVariant::fromValue(bc));
         if (bc == m_buildConfiguration)
             m_buildConfigurationComboBox->setCurrentIndex(m_buildConfigurationComboBox->count() - 1);
     }
