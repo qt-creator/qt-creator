@@ -671,6 +671,7 @@ public:
         if (! pattern)
             return -1;
 
+        unsigned splitKind = 0;
         for (++index; index < path.size(); ++index) {
             AST *node = path.at(index);
             condition = node->asBinaryExpression();
@@ -678,12 +679,21 @@ public:
                 return -1;
 
             Token binaryToken = tokenAt(condition->binary_op_token);
-            if (binaryToken.is(T_AMPER_AMPER) || binaryToken.is(T_PIPE_PIPE)) {
-                if (isCursorOn(condition->binary_op_token))
-                    return index;
-            } else {
+
+            // only accept a chain of ||s or &&s - no mixing
+            if (! splitKind) {
+                splitKind = binaryToken.kind();
+                if (splitKind != T_AMPER_AMPER && splitKind != T_PIPE_PIPE)
+                    return -1;
+                // we can't reliably split &&s in ifs with an else branch
+                if (splitKind == T_AMPER_AMPER && pattern->else_statement)
+                    return -1;
+            } else if (splitKind != binaryToken.kind()) {
                 return -1;
             }
+
+            if (isCursorOn(condition->binary_op_token))
+                return index;
         }
 
         return -1;
@@ -719,7 +729,7 @@ public:
 
         setTopLevelNode(pattern);
 
-        int insertPos = endOf(pattern);
+        int insertPos = endOf(ifTrueStatement);
         if (compoundStatement)
             insert(insertPos, QLatin1String(" "));
         else
