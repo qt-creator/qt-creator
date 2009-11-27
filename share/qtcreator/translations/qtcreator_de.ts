@@ -98,7 +98,7 @@
     <message>
         <location/>
         <source>+</source>
-        <translation></translation>
+        <translation>+</translation>
     </message>
     <message>
         <location/>
@@ -901,7 +901,7 @@
     <message>
         <location filename="../../../src/plugins/cvs/settingspage.cpp" line="-34"/>
         <source>CVS Command</source>
-        <translation></translation>
+        <translation>CVS-Kommando</translation>
     </message>
 </context>
 <context>
@@ -2199,7 +2199,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+20"/>
         <source>Plugin Errors of %1</source>
-        <translation></translation>
+        <translation>Fehler in %1</translation>
     </message>
 </context>
 <context>
@@ -3762,7 +3762,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+35"/>
         <source>Ctrl+Shift+F11</source>
-        <translation></translation>
+        <translation>Ctrl+Shift+F11</translation>
     </message>
 </context>
 <context>
@@ -4525,7 +4525,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/stackhandler.cpp" line="+143"/>
         <source>...</source>
-        <translation></translation>
+        <translation>...</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -5221,7 +5221,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+1"/>
         <source>F3</source>
-        <translation></translation>
+        <translation>F3</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -5231,7 +5231,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+1"/>
         <source>F4</source>
-        <translation></translation>
+        <translation>F4</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -5246,42 +5246,42 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+5"/>
         <source>Meta+H</source>
-        <translation></translation>
+        <translation>Meta+H</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+H</source>
-        <translation></translation>
+        <translation>Ctrl+H</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Meta+L</source>
-        <translation></translation>
+        <translation>Meta+L</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+L</source>
-        <translation></translation>
+        <translation>Ctrl+L</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Meta+G</source>
-        <translation></translation>
+        <translation>Meta+G</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+G</source>
-        <translation></translation>
+        <translation>Ctrl+G</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Meta+J</source>
-        <translation></translation>
+        <translation>Meta+J</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Ctrl+J</source>
-        <translation></translation>
+        <translation>Ctrl+J</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -5306,7 +5306,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+10"/>
         <source>Ctrl+Alt+R</source>
-        <translation></translation>
+        <translation>Ctrl+Alt+R</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -5992,7 +5992,7 @@ Grund: %3</translation>
     <message>
         <location line="+2"/>
         <source>Ctrl+Shift+F</source>
-        <translation></translation>
+        <translation>Ctrl+Shift+F</translation>
     </message>
 </context>
 <context>
@@ -6010,7 +6010,7 @@ Grund: %3</translation>
     <message>
         <location line="+2"/>
         <source>Ctrl+E</source>
-        <translation></translation>
+        <translation>Ctrl+E</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -6030,7 +6030,7 @@ Grund: %3</translation>
     <message>
         <location line="+2"/>
         <source>Ctrl+=</source>
-        <translation></translation>
+        <translation>Ctrl+=</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -6489,7 +6489,7 @@ Grund: %3</translation>
     <message>
         <location filename="../../../src/plugins/git/branchdialog.ui"/>
         <source>Branches</source>
-        <translation></translation>
+        <translation>Branches</translation>
     </message>
     <message>
         <location/>
@@ -6499,12 +6499,12 @@ Grund: %3</translation>
     <message>
         <location/>
         <source>Repository:</source>
-        <translation></translation>
+        <translation>Repository:</translation>
     </message>
     <message>
         <location/>
         <source>Remote branches</source>
-        <translation>Entferne Branches</translation>
+        <translation>Nichtlokale Branches</translation>
     </message>
 </context>
 <context>
@@ -8840,7 +8840,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/perforce/submitpanel.ui"/>
         <source>Submit</source>
-        <translation></translation>
+        <translation>Abschicken</translation>
     </message>
     <message>
         <location/>
@@ -10892,7 +10892,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location/>
         <source>W&amp;hat&apos;s this:</source>
-        <translation></translation>
+        <translation>W&amp;hat&apos;s this:</translation>
     </message>
     <message>
         <location/>
@@ -15829,7 +15829,7 @@ Qt Centre</translation>
     <message>
         <location line="+5"/>
         <source>Attached to stopped inferior.</source>
-        <translation></translation>
+        <translation>Debugge angehaltenen Prozess.</translation>
     </message>
     <message>
         <location line="+5"/>
