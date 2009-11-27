@@ -36,7 +36,7 @@ def qqDumpQByteArray(d, item):
     d.putNumChild(n)
 
     if d.isExpanded(item):
-        d.beginChildren(innerType if n > 0 else None)
+        d.beginChildren(n, innerType)
         p = gdb.Value(data.cast(innerType.pointer()))
         for i in xrange(0, n):
             d.putItem(Item(p.dereference(), item.iname, i, None))
@@ -48,7 +48,7 @@ def qqDumpQByteArray(d, item):
 
 def qqDumpQChar(d, item):
     ucs = int(item.value["ucs"])
-    c = ucs if curses.ascii.isprint(ucs) else '?'
+    c = select(curses.ascii.isprint(ucs), ucs, '?')
     d.putField("value", "'%c' (%d)" % (c, ucs))
     d.putNumChild(0)
 
@@ -103,7 +103,7 @@ def qqDumpQAbstractItemModel(d, item):
     d.putField("value", "(%s,%s)" % (rowCount, columnCount))
     d.putField("numchild", "1")
     if d.isExpanded(item):
-        d.beginChildren()
+        d.beginChildren(1)
         d.beginHash()
         d.putField("numchild", "1")
         d.putField("name", d.ns + "QObject")
@@ -132,7 +132,7 @@ def qqDumpQDateTime(d, item):
     d.putField("value", encodeString(date))
     d.putField("numchild", "3")
     if d.isExpanded(item):
-        d.beginChildren()
+        d.beginChildren(8)
         d.putCallItem("isNull", item, "isNull()")
         d.putCallItem("toTime_t", item, "toTime_t()")
         d.putCallItem("toString",
@@ -156,7 +156,7 @@ def qqDumpQDir(d, item):
     d.putField("value", encodeString(path))
     d.putField("numchild", "2")
     if d.isExpanded(item):
-        d.beginChildren()
+        d.beginChildren(2)
         d.putCallItem("absolutePath", item, "absolutePath()")
         d.putCallItem("canonicalPath", item, "canonicalPath()")
         d.endChildren()
@@ -168,7 +168,7 @@ def qqDumpQFile(d, item):
     d.putField("value", encodeString(fileName))
     d.putField("numchild", "2")
     if d.isExpanded(item):
-        d.beginChildren()
+        d.beginChildren(2)
         d.putCallItem("fileName", item, "fileName()")
         d.putCallItem("exists", item, "exists()")
         d.endChildren()
@@ -180,7 +180,7 @@ def qqDumpQFileInfo(d, item):
     d.putField("value", encodeString(filePath))
     d.putField("numchild", "3")
     if d.isExpanded(item):
-        d.beginChildren(gdb.lookup_type(d.ns + "QString"))
+        d.beginChildren(10, gdb.lookup_type(d.ns + "QString"))
         d.putCallItem("absolutePath", item, "absolutePath()")
         d.putCallItem("absoluteFilePath", item, "absoluteFilePath()")
         d.putCallItem("canonicalPath", item, "canonicalPath()")
@@ -210,7 +210,7 @@ def qqDumpQFileInfo(d, item):
         d.putField("type", d.ns + "QFile::Permissions")
         d.putField("numchild", 10)
         if d.isExpandedIName(item.iname + ".permissions"):
-            d.beginChildren()
+            d.beginChildren(10)
             d.putBoolItem("ReadOwner",  perms & 0x4000)
             d.putBoolItem("WriteOwner", perms & 0x2000)
             d.putBoolItem("ExeOwner",   perms & 0x1000)
@@ -308,8 +308,8 @@ def qqDumpQHash(d, item):
         node = hashDataFirstNode(item.value)
 
         innerType = e_ptr.dereference().type
-        inner = valueType if isSimpleKey and isSimpleValue else innerType
-        d.beginChildren(inner if n > 0 else None)
+        inner = select(isSimpleKey and isSimpleValue, valueType, innerType)
+        d.beginChildren(n, inner)
         for i in xrange(0, n):
             it = node.dereference().cast(innerType)
             d.beginHash()
@@ -371,7 +371,7 @@ def qqDumpQList(d, item):
         and str(innerType.target().unqualified()) != "char"
     if innerTypeIsPointer:
         p = gdb.Value(array).cast(innerType.pointer()) + begin
-        checkPointerRange(p, n if n < 100 else 100)
+        checkPointerRange(p, select(n < 100, n, 100))
 
     d.putItemCount(n)
     d.putField("numchild", n)
@@ -390,8 +390,11 @@ def qqDumpQList(d, item):
         #warn("INTERNAL: %d" % int(isInternal))
 
         p = gdb.Value(array).cast(innerType.pointer()) + begin
-        inner = innerType.target() if innerTypeIsPointer else innerType
-        d.beginChildren(inner if n > 0 else None)
+        if innerTypeIsPointer:
+            inner = innerType.target()
+        else:
+            inner = innerType
+        d.beginChildren(n, inner)
         for i in xrange(0, n):
             if innerTypeIsPointer:
                 if isNull(p.dereference()):
@@ -428,9 +431,9 @@ def qqDumpQImage(d, item):
     #    if d.isExpanded(item):
     #        d.beginChildren()
     #        d.beginHash()
-    #            d.putField("name", "data")
-    #            d.putField("type", d.ns +  "QImageData")
-    #            d.putField("addr", d.data)
+    #        d.putField("name", "data")
+    #        d.putField("type", d.ns +  "QImageData")
+    #        d.putField("addr", d.data)
     #        d.endHash()
     #        d.endChildren()
 
@@ -467,7 +470,7 @@ def qqDumpQLinkedList(d, item):
         innerType = item.value.type.template_argument(0)
         if n > 1000:
             n = 1000
-        d.beginChildren(innerType if n > 0 else None)
+        d.beginChildren(n, innerType)
         p = e_ptr["n"]
         for i in xrange(0, n):
             d.putItemOrPointer(Item(p["t"], None, None, None))
@@ -483,7 +486,7 @@ def qqDumpQLocale(d, item):
     d.putField("value", encodeString(name))
     d.putField("numchild", "8")
     if d.isExpanded(item):
-        d.beginChildren(gdb.lookup_type(d.ns + "QChar"), 0)
+        d.beginChildren(1, gdb.lookup_type(d.ns + "QChar"), 0)
         d.putCallItem("country", item, "country()")
         d.putCallItem("language", item, "language()")
         d.putCallItem("measurementSystem", item, "measurementSystem()")
@@ -505,7 +508,7 @@ def qqDumpQMapNode(d, item):
     d.putField("value", " ")
     d.putField("numchild", 2)
     if d.isExpanded(item):
-        d.beginChildren()
+        d.beginChildren(2)
         d.beginHash()
         d.putField("name", "key")
         d.putItemHelper(Item(item.value["key"], item.iname, "name", None))
@@ -545,9 +548,9 @@ def qqDumpQMap(d, item):
         payloadSize = nodeType.sizeof - 2 * gdb.lookup_type("void").pointer().sizeof
         charPtr = gdb.lookup_type("char").pointer()
 
-        innerType = valueType if isSimpleKey and isSimpleValue else nodeType
+        innerType = select(isSimpleKey and isSimpleValue, valueType, nodeType)
 
-        d.beginChildren(innerType if n > 0 else None)
+        d.beginChildren(n, innerType)
         for i in xrange(0, n):
             itd = it.dereference()
             base = it.cast(charPtr) - payloadSize
@@ -1392,7 +1395,7 @@ def qqDumpQPoint(d, item):
     d.putField("value", "(%s, %s)" % (x, y))
     d.putNumChild(2)
     if d.isExpanded(item):
-        d.beginChildren(x.type.strip_typedefs())
+        d.beginChildren(2, x.type.strip_typedefs())
         d.putItem(Item(x, None, None, "x"))
         d.putItem(Item(y, None, None, "y"))
         d.endChildren()
@@ -1408,7 +1411,7 @@ def qqDumpQSize(d, item):
     d.putField("value", "(%s, %s)" % (w, h))
     d.putNumChild(2)
     if d.isExpanded(item):
-        d.beginChildren(w.type)
+        d.beginChildren(2, w.type)
         d.putItem(Item(w, item.iname, "w", "w"))
         d.putItem(Item(h, item.iname, "h", "h"))
         d.endChildren()
@@ -1429,7 +1432,7 @@ def qqDumpQRect(d, item):
     d.putField("value", "%sx%s%s%s" % (w, h, pp(x1), pp(y1)))
     d.putNumChild(4)
     if d.isExpanded(item):
-        d.beginChildren(x1.type.strip_typedefs())
+        d.beginChildren(4, x1.type.strip_typedefs())
         d.putItem(Item(x1, None, None, "x1"))
         d.putItem(Item(y1, None, None, "y1"))
         d.putItem(Item(x2, None, None, "x2"))
@@ -1451,7 +1454,7 @@ def qqDumpQRectF(d, item):
     d.putField("value", "%sx%s%s%s" % (w, h, pp(x), pp(y)))
     d.putNumChild(4)
     if d.isExpanded(item):
-        d.beginChildren(x.type.strip_typedefs())
+        d.beginChildren(4, x.type.strip_typedefs())
         d.putItem(Item(x, None, None, "x"))
         d.putItem(Item(y, None, None, "y"))
         d.putItem(Item(w, None, None, "w"))
@@ -1503,7 +1506,7 @@ def qqDumpQStringList(d, item):
             n = 1000
         innerType = gdb.lookup_type(d.ns + "QString")
         ptr = gdb.Value(d_ptr["array"]).cast(innerType.pointer())
-        d.beginChildren(innerType if n > 0 else None)
+        d.beginChildren(n, innerType)
         for i in xrange(0, n):
             d.putItem(Item(ptr.dereference(), item.iname, i, None))
             ptr += 1
@@ -1564,7 +1567,7 @@ def qqDumpQSet(d, item):
         node = hashDataFirstNode(item.value)
 
         innerType = e_ptr.dereference().type
-        d.beginChildren(keyType if n > 0 else None)
+        d.beginChildren(n, keyType)
         for i in xrange(0, n):
             it = node.dereference().cast(innerType)
             d.beginHash()
@@ -1747,7 +1750,7 @@ def qqDumpQVector(d, item):
         if n > 10000:
             n = 10000
         p = gdb.Value(p_ptr["array"]).cast(innerType.pointer())
-        d.beginChildren(innerType if n > 0 else None)
+        d.beginChildren(n, innerType)
         for i in xrange(0, n):
             d.putItemOrPointer(Item(p.dereference(), item.iname, i, None))
             p += 1
@@ -1781,7 +1784,7 @@ def qqDumpQWeakPointer(d, item):
 
     d.putField("numchild", 3)
     if d.isExpanded(item):
-        d.beginChildren()
+        d.beginChildren(3)
         d.putItem(Item(value.dereference(), item.iname, "data", "data"))
         d.putIntItem("weakref", weakref)
         d.putIntItem("strongref", strongref)
@@ -1805,7 +1808,7 @@ def qqDumpStdDeque(d, item):
         innerType = item.value.type.template_argument(0)
         innerSize = innerType.sizeof
         bufsize = 512 / innerSize if innerSize < 512 else 1
-        d.beginChildren(innerType if n > 0 else None)
+        d.beginChildren(n, innerType)
         pcur = start["_M_cur"]
         pfirst = start["_M_first"]
         plast = start["_M_last"]
@@ -1841,7 +1844,7 @@ def qqDumpStdList(d, item):
     if d.isExpanded(item):
         p = node["_M_next"]
         innerType = item.value.type.template_argument(0)
-        d.beginChildren(innerType if n > 0 else None)
+        d.beginChildren(n, innerType)
         for i in xrange(0, n):
             innerPointer = innerType.pointer()
             value = (p + 1).cast(innerPointer).dereference()
@@ -1868,8 +1871,8 @@ def qqDumpStdMap(d, item):
         innerType = valueType if isSimpleKey and isSimpleValue else pairType
         pairPointer = pairType.pointer()
         node = impl["_M_header"]["_M_left"]
-        d.beginChildren(innerType if n > 0 else pairType,
-            None if isSimpleKey and isSimpleValue else 2)
+        d.beginChildren(n, select(n > 0, innerType, pairType),
+            select(isSimpleKey and isSimpleValue, None, 2))
         for i in xrange(0, n if n < 1000 else 1000):
             pair = (node + 1).cast(pairPointer).dereference()
 
@@ -1880,7 +1883,7 @@ def qqDumpStdMap(d, item):
             else:
                 d.putField("value", " ")
                 if d.isExpandedIName("%s.%d" % (item.iname, i)):
-                    d.beginChildren(None)
+                    d.beginChildren(2, None)
                     iname = "%s.%d." % (item.iname, i)
                     keyItem = Item(pair["first"], iname + "key", "key", "first")
                     valueItem = Item(pair["second"], iname + "value", "value", "second")
@@ -1915,7 +1918,7 @@ def qqDumpStdSet(d, item):
     if d.isExpanded(item):
         valueType = item.value.type.template_argument(0)
         node = impl["_M_header"]["_M_left"]
-        d.beginChildren(valueType if n > 0 else None)
+        d.beginChildren(n, valueType)
         for i in xrange(0, n if n < 1000 else 1000):
             element = (node + 1).cast(valueType.pointer()).dereference()
             d.putItem(Item(element, item.iname, i, None))
@@ -1986,7 +1989,7 @@ def qqDumpStdVector(d, item):
             n = 10000
         p = start
         innerType = item.value.type.template_argument(0)
-        d.beginChildren(innerType if n > 0 else None)
+        d.beginChildren(n, innerType)
         for i in xrange(0, n):
             d.putItemOrPointer(Item(p.dereference(), item.iname, i, None))
             p += 1

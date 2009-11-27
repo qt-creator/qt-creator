@@ -13,6 +13,11 @@ import curses.ascii
 verbosity = 0
 verbosity = 1
 
+def select(condition, if_expr, else_expr):
+    if condition:
+        return if_expr
+    return else_expr
+
 def isSimpleType(typeobj):
     type = str(typeobj)
     return type == "bool" \
@@ -116,7 +121,10 @@ def call(value, func):
 class Item:
     def __init__(self, value, parentiname, iname, name):
         self.value = value
-        self.iname = parentiname if iname is None else "%s.%s" % (parentiname, iname)
+        if iname is None:
+            self.iname = parentiname
+        else:
+            self.iname = "%s.%s" % (parentiname, iname)
         self.name = name
 
 
@@ -174,7 +182,7 @@ class FrameCommand(gdb.Command):
 
         try:
             frame = gdb.selected_frame()
-        except RuntimeError as ex:
+        except RuntimeError:
             return ""
 
         d = Dumper()
@@ -277,9 +285,11 @@ class Dumper:
     def endItem(self):
         self.put('"')
 
-    def beginChildren(self, type = None, children = None):
+    def beginChildren(self, numChild = 1, type = None, children = None):
         childType = ""
         childNumChild = -1
+        if numChild == 0:
+            type = None
         if not type is None:
             childType = stripClassTag(str(type))
             self.putField("childtype", childType)
@@ -397,12 +407,12 @@ class Dumper:
             try:
                 self.putItemHelper(item)
 
-            except RuntimeError as ex:
+            except RuntimeError:
                 self.output = ""
                 # FIXME: Only catch debugger related exceptions
                 #exType, exValue, exTraceback = sys.exc_info()
                 #tb = traceback.format_exception(exType, exValue, exTraceback)
-                warn("Exception: %s" % ex.message)
+                #warn("Exception: %s" % ex.message)
                 # DeprecationWarning: BaseException.message
                 # has been deprecated
                 #warn("Exception.")
@@ -560,7 +570,7 @@ class Dumper:
                 innerType = None
                 if len(fields) == 1 and fields[0].name is None:
                     innerType = value.type.target()
-                self.beginChildren(innerType)
+                self.beginChildren(1, innerType)
 
                 for field in fields:
                     #warn("FIELD: %s" % field)
