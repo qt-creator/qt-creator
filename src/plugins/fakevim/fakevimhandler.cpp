@@ -1609,6 +1609,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setAnchor();
         moveRight(qMin(1, rightDist()));
         removeSelectedText();
+    } else if (key == Key_BracketLeft || key == Key_BracketRight) {
+
     } else if (key == Key_Escape) {
         if (m_visualMode != NoVisualMode) {
             leaveVisualMode();
