@@ -402,16 +402,20 @@ QString CdbSymbolGroupContext::symbolINameAt(unsigned long index) const
 }
 
 // Return hexadecimal pointer value from a CDB pointer value
-// which look like "0x000032a" or "0x00000000`0250124a" on 64-bit systems.
-static bool inline getPointerValue(QString stringValue, quint64 *value)
+// which look like "0x000032a" or "0x00000000`0250124a" or
+// "0x1`0250124a" on 64-bit systems.
+static bool inline getUnsignedHexValue(QString stringValue, quint64 *value)
 {
     *value = 0;
     if (!stringValue.startsWith(QLatin1String("0x")))
         return false;
     stringValue.remove(0, 2);
     // Remove 64bit separator
-    if (stringValue.size() > 8 && stringValue.at(8) == QLatin1Char('`'))
-        stringValue.remove(8, 1);
+    if (stringValue.size() > 9) {       
+        const int sepPos = stringValue.size() - 9;
+        if (stringValue.at(sepPos) == QLatin1Char('`'))
+            stringValue.remove(sepPos, 1);
+    }
     bool ok;
     *value = stringValue.toULongLong(&ok, 16);
     return ok;
@@ -427,7 +431,7 @@ static inline bool isNullPointer(const WatchData &wd)
     if (blankPos != -1)
         stringValue.truncate(blankPos);
     quint64 value;
-    return getPointerValue(stringValue, &value) && value == 0u;
+    return getUnsignedHexValue(stringValue, &value) && value == 0u;
 }
 
 // Fix a symbol group value. It is set to the class type for
@@ -445,11 +449,22 @@ static inline QString removeInnerTemplateType(QString value)
     return value;
 }
 
-static inline QString fixValue(const QString &value)
+// Fix display values: Pass through strings, convert unsigned integers
+// to decimal ('0x5454`fedf'), remove inner templates from
+// "0x4343 class list<>".
+static inline QString fixValue(const QString &value, const QString &type)
 {
-    if (value.size() < 20 || value.endsWith(QLatin1Char('"')))
+    // Pass through strings, chars
+    if (value.endsWith(QLatin1Char('"')) || value.endsWith(QLatin1Char('\'')))
         return value;
-    return removeInnerTemplateType(value);
+    const int size = value.size();
+    // Unsigned hex numbers
+    if (isIntType(type) && (size > 2 && value.at(1) == QLatin1Char('x'))) {
+        quint64 intValue;
+        if (getUnsignedHexValue(value, &intValue))
+            return QString::number(intValue);
+    }
+    return size < 20 ? value : removeInnerTemplateType(value);
 }
 
 WatchData CdbSymbolGroupContext::watchDataAt(unsigned long index) const
@@ -481,7 +496,7 @@ WatchData CdbSymbolGroupContext::watchDataAt(unsigned long index) const
         return wd;
     }
     const QString value = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
-    wd.setValue(fixValue(value));
+    wd.setValue(fixValue(value, type));
     wd.setChildrenNeeded(); // compensate side effects of above setters
     // Figure out children. The SubElement is only a guess unless the symbol,
     // is expanded, so, we leave this as a guess for later updates.
@@ -729,10 +744,10 @@ static inline bool getIntValue(CIDebugSymbolGroup *sg, int index, int *value)
 
 // Get pointer value of symbol group ("0xAAB")
 // Note that this is on "00000000`0250124a" on 64bit systems.
-static inline bool getPointerValue(CIDebugSymbolGroup *sg, int index, quint64 *value)
+static inline bool getUnsignedHexValue(CIDebugSymbolGroup *sg, int index, quint64 *value)
 {
     const QString stringValue = getSymbolString(sg, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
-    return getPointerValue(stringValue, value);
+    return getUnsignedHexValue(stringValue, value);
 }
 
 int CdbSymbolGroupContext::dumpQString(CIDebugDataSpaces *ds, WatchData *wd)
@@ -756,7 +771,7 @@ int CdbSymbolGroupContext::dumpQString(CIDebugDataSpaces *ds, WatchData *wd)
     if (!getIntValue(m_symbolGroup, sizeIndex, &size))
         return 4;
     quint64 array;
-    if (!getPointerValue(m_symbolGroup, arrayIndex, &array))
+    if (!getUnsignedHexValue(m_symbolGroup, arrayIndex, &array))
         return 5;
     // Fetch
     const bool truncated = size > maxLength;

@@ -613,21 +613,32 @@ QString WatchModel::niceType(const QString &typeIn) const
     return type;
 }
 
+template <class IntType> QString reformatInteger(IntType value, int format)
+{
+    switch (format) {
+    case HexadecimalFormat:
+        return ("(hex) ") + QString::number(value, 16);
+    case BinaryFormat:
+        return ("(bin) ") + QString::number(value, 2);
+    case OctalFormat:
+        return ("(oct) ") + QString::number(value, 8);
+    }
+    return QString::number(value); // not reached
+}
+
 static QString formattedValue(const WatchData &data,
     int individualFormat, int typeFormat)
 {
     if (isIntType(data.type)) {
-        int format = individualFormat == -1 ? typeFormat : individualFormat;
-        int value = data.value.toInt();
-        if (format == HexadecimalFormat)
-            return ("(hex) ") + QString::number(value, 16);
-        if (format == BinaryFormat)
-            return ("(bin) ") + QString::number(value, 2);
-        if (format == OctalFormat)
-            return ("(oct) ") + QString::number(value, 8);
-        return data.value;
+        const int format = individualFormat == -1 ? typeFormat : individualFormat;
+        if (format <= 0)
+            return data.value;
+        if (data.type.contains(QLatin1String("unsigned"))) {            
+            return reformatInteger(data.value.toULongLong(), format);
+        } else {
+            return reformatInteger(data.value.toLongLong(), format);
+        }
     }
-
     return data.value;
 }
 
@@ -796,15 +807,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             break;
 
         case TypeFormatRole:
-            return m_handler->m_typeFormats[data.type];
-
-        case IndividualFormatRole: {
-            int format = m_handler->m_individualFormats[data.iname];
-            if (format == -1)
-                return m_handler->m_typeFormats[data.type];
-            return format;
-        }
-        
+            return m_handler->m_typeFormats.value(data.type, -1);
+        case IndividualFormatRole:
+            return m_handler->m_individualFormats.value(data.iname, -1);
         case AddressRole: {
             if (!data.addr.isEmpty())
                 return data.addr;
@@ -834,8 +839,13 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
         }
     } else if (role == TypeFormatRole) {
         m_handler->setFormat(data.type, value.toInt());
-    } else if (role == IndividualFormatRole) {
-        m_handler->m_individualFormats[data.iname] = value.toInt();
+    } else if (role == IndividualFormatRole) {        
+        const int format = value.toInt();
+        if (format == -1) {
+            m_handler->m_individualFormats.remove(data.iname);
+        } else {
+            m_handler->m_individualFormats[data.iname] = format;
+        }
     }
     emit dataChanged(index, index);
     return true;
@@ -1411,9 +1421,12 @@ void WatchHandler::saveTypeFormats()
     QHashIterator<QString, int> it(m_typeFormats);
     while (it.hasNext()) {
         it.next();
-        QString key = it.key().trimmed();
-        if (!key.isEmpty())
-            typeFormats.insert(key, it.value());
+        const int format = it.value();
+        if (format != DecimalFormat) {
+            const QString key = it.key().trimmed();
+            if (!key.isEmpty())
+                typeFormats.insert(key, format);
+        }
     }
     m_manager->setSessionValue("DefaultFormats", QVariant(typeFormats));
 }

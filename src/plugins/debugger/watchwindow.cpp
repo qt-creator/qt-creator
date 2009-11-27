@@ -210,36 +210,40 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QStringList alternativeFormats = 
         model()->data(mi0, TypeFormatListRole).toStringList();
-    int typeFormat = 
-        model()->data(mi0, TypeFormatRole).toInt();
-    int individualFormat = 
-        model()->data(mi0, IndividualFormatRole).toInt();
+    const int typeFormat = qMax(int(DecimalFormat), model()->data(mi0, TypeFormatRole).toInt());
+    const int individualFormat = model()->data(mi0, IndividualFormatRole).toInt();
+    const int effectiveIndividualFormat = individualFormat == -1 ? typeFormat : individualFormat;
 
     QMenu typeFormatMenu;
     QMenu individualFormatMenu;
     QList<QAction *> typeFormatActions;
     QList<QAction *> individualFormatActions;
+    QAction *clearIndividualFormatAction = 0;
     if (idx.isValid()) {
         typeFormatMenu.setTitle(tr("Change format for type '%1'").arg(type));
         individualFormatMenu.setTitle(tr("Change format for expression '%1'").arg(exp));
-        for (int i = 0; i != alternativeFormats.size(); ++i) {
-            const QString format = alternativeFormats.at(i);
-            QAction *act = new QAction(format, &typeFormatMenu);
-            act->setCheckable(true);
-            if (i == typeFormat)
-                act->setChecked(true);
-            typeFormatMenu.addAction(act);
-            typeFormatActions.append(act);
-            act = new QAction(format, &individualFormatMenu);
-            act->setCheckable(true);
-            if (i == individualFormat)
-                act->setChecked(true);
-            individualFormatMenu.addAction(act);
-            individualFormatActions.append(act);
-        }
         if (alternativeFormats.isEmpty()) {
             typeFormatMenu.setEnabled(false);
             individualFormatMenu.setEnabled(false);
+        } else {
+            clearIndividualFormatAction = individualFormatMenu.addAction(tr("Clear"));
+            clearIndividualFormatAction->setEnabled(individualFormat != -1);
+            individualFormatMenu.addSeparator();
+            for (int i = 0; i != alternativeFormats.size(); ++i) {
+                const QString format = alternativeFormats.at(i);
+                QAction *act = new QAction(format, &typeFormatMenu);
+                act->setCheckable(true);
+                if (i == typeFormat)
+                    act->setChecked(true);
+                typeFormatMenu.addAction(act);
+                typeFormatActions.append(act);
+                act = new QAction(format, &individualFormatMenu);
+                act->setCheckable(true);
+                if (i == effectiveIndividualFormat)
+                    act->setChecked(true);
+                individualFormatMenu.addAction(act);
+                individualFormatActions.append(act);
+            }
         }
     } else {
         typeFormatMenu.setTitle(tr("Change format for type"));
@@ -318,6 +322,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         m_grabbing = true;
     } else if (act == actClearCodeModelSnapshot) {
         m_manager->clearCppCodeModelSnapshot();
+    } else if (clearIndividualFormatAction && act == clearIndividualFormatAction) {
+        model()->setData(mi1, -1, IndividualFormatRole);
     } else { 
         for (int i = 0; i != alternativeFormats.size(); ++i) {
             if (act == typeFormatActions.at(i))

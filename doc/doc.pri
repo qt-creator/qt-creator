@@ -1,28 +1,25 @@
-QDOC_BIN = $$[QT_INSTALL_BINS]/qdoc3
-win32:QDOC_BIN = $$replace(QDOC_BIN, "/", "\\")
+QDOC_BIN = $$targetPath($$[QT_INSTALL_BINS]/qdoc3)
+HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator)
 
-unix {
-    QDOC = SRCDIR=$$PWD OUTDIR=$$OUT_PWD/doc/html $$QDOC_BIN 
-    HELPGENERATOR = $$[QT_INSTALL_BINS]/qhelpgenerator
-} else {
+equals(QMAKE_DIR_SEP, /) {   # unix, mingw+msys
+    QDOC = SRCDIR=$$PWD OUTDIR=$$OUT_PWD/doc/html $$QDOC_BIN
+} else:win32-g++* {   # just mingw
+    # The lack of spaces in front of the && is necessary!
     QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$OUT_PWD/doc/html&& $$QDOC_BIN
-    # Always run qhelpgenerator inside its own cmd; this is a workaround for
-    # an unusual bug which causes qhelpgenerator.exe to do nothing
-    HELPGENERATOR = cmd /C $$replace($$list($$[QT_INSTALL_BINS]/qhelpgenerator.exe), "/", "\\")
+} else {   # nmake
+    QDOC = set SRCDIR=$$PWD $$escape_expand(\n\t) \
+           set OUTDIR=$$OUT_PWD/doc/html $$escape_expand(\n\t) \
+           $$QDOC_BIN
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
-QCH_FILE = $$OUT_PWD/share/doc/qtcreator/qtcreator.qch
+QCH_FILE = $$IDE_DOC_PATH/qtcreator.qch
 
-unix {
 html_docs.commands = $$QDOC $$PWD/qtcreator.qdocconf
-} else {
-html_docs.commands = \"$$QDOC $$PWD/qtcreator.qdocconf\"
-}
 html_docs.depends += $$PWD/qtcreator.qdoc $$PWD/qtcreator.qdocconf
 html_docs.files = $$QHP_FILE
 
-qch_docs.commands = $$HELPGENERATOR -o $$QCH_FILE $$QHP_FILE
+qch_docs.commands = $$HELPGENERATOR -o \"$$QCH_FILE\" $$QHP_FILE
 qch_docs.depends += html_docs
 qch_docs.files = $$QCH_FILE
 
@@ -32,17 +29,8 @@ unix:!macx {
     INSTALLS += qch_docs
 }
 
-macx {
-    DOC_DIR = "$${OUT_PWD}/bin/Qt Creator.app/Contents/Resources/doc"
-    cp_docs.commands = mkdir -p \"$${DOC_DIR}\" ; $${QMAKE_COPY} \"$${QCH_FILE}\" \"$${DOC_DIR}\"
-    cp_docs.depends += qch_docs
-    docs.depends = cp_docs
-    QMAKE_EXTRA_TARGETS += html_docs qch_docs cp_docs docs
-}
-!macx {
-    docs.depends = qch_docs
-    QMAKE_EXTRA_TARGETS += html_docs qch_docs docs
-}
+docs.depends = qch_docs
+QMAKE_EXTRA_TARGETS += html_docs qch_docs docs
 
 OTHER_FILES = $$PWD/qtcreator.qdoc \
               $$PWD/qtcreator.qdocconf
