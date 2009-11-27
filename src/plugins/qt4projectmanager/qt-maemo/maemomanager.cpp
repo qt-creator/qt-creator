@@ -29,6 +29,7 @@
 
 #include "maemomanager.h"
 
+#include "maemosettingspage.h"
 #include "maemotoolchain.h"
 #include "maemorunconfiguration.h"
 
@@ -56,6 +57,7 @@ MaemoManager::MaemoManager()
     : QObject(0)
     , m_runControlFactory(new MaemoRunControlFactory(this))
     , m_runConfigurationFactory(new MaemoRunConfigurationFactory(this))
+    , m_settingsPage(new MaemoSettingsPage(this))
     , m_qemuCommand(0)
 {
 
@@ -65,12 +67,14 @@ MaemoManager::MaemoManager()
 
     ExtensionSystem::PluginManager::instance()->addObject(m_runControlFactory);
     ExtensionSystem::PluginManager::instance()->addObject(m_runConfigurationFactory);
+    ExtensionSystem::PluginManager::instance()->addObject(m_settingsPage);
 }
 
 MaemoManager::~MaemoManager()
 {
     ExtensionSystem::PluginManager::instance()->removeObject(m_runControlFactory);
     ExtensionSystem::PluginManager::instance()->removeObject(m_runConfigurationFactory);
+    ExtensionSystem::PluginManager::instance()->removeObject(m_settingsPage);
 }
 
 MaemoManager *MaemoManager::instance()

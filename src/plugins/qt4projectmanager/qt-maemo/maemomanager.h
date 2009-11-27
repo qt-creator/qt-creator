@@ -57,6 +57,7 @@ namespace Qt4ProjectManager {
 
 class MaemoRunControlFactory;
 class MaemoRunConfigurationFactory;
+class MaemoSettingsPage;
 
 class MaemoManager : public QObject
 {
@@ -90,6 +91,7 @@ private:
 
     MaemoRunControlFactory *m_runControlFactory;
     MaemoRunConfigurationFactory *m_runConfigurationFactory;
+    MaemoSettingsPage *m_settingsPage;
 
     QIcon icon;
     int m_runCount;
