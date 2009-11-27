@@ -148,22 +148,22 @@ CdbOptionsPage::~CdbOptionsPage()
 
 QString CdbOptionsPage::settingsId()
 {
-    return QLatin1String(CDB_SETTINGS_ID);
+    return QLatin1String("F.Cdb");
 }
 
 QString CdbOptionsPage::trName() const
 {
-    return tr(CDB_SETTINGS_ID);
+    return tr("Cdb");
 }
 
 QString CdbOptionsPage::category() const
 {
-    return QLatin1String("P.Cdb");
+    return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
 }
 
 QString CdbOptionsPage::trCategory() const
 {
-    return tr("Cdb");
+    return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *CdbOptionsPage::createPage(QWidget *parent)
