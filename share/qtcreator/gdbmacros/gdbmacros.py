@@ -32,7 +32,7 @@ def qqDumpQByteArray(d, item):
     d.putField("valueencoded", "6")
     d.putField("value", s)
 
-    n = size if size < 1000 else 1000
+    n = qmin(size, 1000)
     d.putNumChild(n)
 
     if d.isExpanded(item):
@@ -371,7 +371,7 @@ def qqDumpQList(d, item):
         and str(innerType.target().unqualified()) != "char"
     if innerTypeIsPointer:
         p = gdb.Value(array).cast(innerType.pointer()) + begin
-        checkPointerRange(p, select(n < 100, n, 100))
+        checkPointerRange(p, qmin(n, 100))
 
     d.putItemCount(n)
     d.putField("numchild", n)
@@ -1422,7 +1422,7 @@ def qqDumpQSizeF(d, item):
 
 
 def qqDumpQRect(d, item):
-    def pp(l): return ("+%s" % l) if l >= 0 else l
+    def pp(l): return select(l >= 0, "+%s" % l, l)
     x1 = item.value["x1"]
     y1 = item.value["y1"]
     x2 = item.value["x2"]
@@ -1441,7 +1441,7 @@ def qqDumpQRect(d, item):
 
 
 def qqDumpQRectF(d, item):
-    def pp(l): return ("+%s" % l) if l >= 0 else l
+    def pp(l): return select(l >= 0, "+%s" % l, l)
     x = item.value["xp"]
     y = item.value["yp"]
     w = item.value["w"]
@@ -1621,7 +1621,7 @@ def qqDumpQVariant(d, item):
         d.putField("value", "(invalid)")
         d.putNumChild(0)
     elif variantType == 1: # QVariant::Bool
-        d.putField("value", "true" if data["b"] else "false")
+        d.putField("value", select(data["b"], "true", "false"))
         d.putNumChild(0)
     elif variantType == 2: # QVariant::Int
         d.putField("value", data["i"])
@@ -1807,7 +1807,7 @@ def qqDumpStdDeque(d, item):
     if d.isExpanded(item):
         innerType = item.value.type.template_argument(0)
         innerSize = innerType.sizeof
-        bufsize = 512 / innerSize if innerSize < 512 else 1
+        bufsize = select(innerSize < 512, 512 / innerSize, 1)
         d.beginChildren(n, innerType)
         pcur = start["_M_cur"]
         pfirst = start["_M_first"]
@@ -1838,7 +1838,7 @@ def qqDumpStdList(d, item):
         n += 1
         p = p["_M_next"]
 
-    d.putItemCount(n if n <= 1000 else "> 1000")
+    d.putItemCount(select(n <= 1000, n, "> 1000"))
     d.putNumChild(n)
 
     if d.isExpanded(item):
@@ -1868,12 +1868,12 @@ def qqDumpStdMap(d, item):
         pairType = item.value.type.template_argument(3).template_argument(0)
         isSimpleKey = isSimpleType(keyType)
         isSimpleValue = isSimpleType(valueType)
-        innerType = valueType if isSimpleKey and isSimpleValue else pairType
+        innerType = select(isSimpleKey and isSimpleValue, valueType, pairType)
         pairPointer = pairType.pointer()
         node = impl["_M_header"]["_M_left"]
         d.beginChildren(n, select(n > 0, innerType, pairType),
             select(isSimpleKey and isSimpleValue, None, 2))
-        for i in xrange(0, n if n < 1000 else 1000):
+        for i in xrange(0, qmin(n, 1000)):
             pair = (node + 1).cast(pairPointer).dereference()
 
             d.beginHash()
@@ -1919,7 +1919,7 @@ def qqDumpStdSet(d, item):
         valueType = item.value.type.template_argument(0)
         node = impl["_M_header"]["_M_left"]
         d.beginChildren(n, valueType)
-        for i in xrange(0, n if n < 1000 else 1000):
+        for i in xrange(0, qmin(n, 1000)):
             element = (node + 1).cast(valueType.pointer()).dereference()
             d.putItem(Item(element, item.iname, i, None))
 
@@ -1959,7 +1959,7 @@ def qqDumpStdString(d, item):
     p = gdb.Value(data.cast(charType.pointer()))
     s = ""
     format = "%%0%dx" % (2 * charType.sizeof)
-    n = size if size < 1000 else 10000
+    n = qmin(size, 1000)
     for i in xrange(0, size):
         s += format % int(p.dereference())
         p += 1
@@ -1984,9 +1984,7 @@ def qqDumpStdVector(d, item):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded(item):
-        n = size
-        if n > 10000:
-            n = 10000
+        n = qmin(size, 10000)
         p = start
         innerType = item.value.type.template_argument(0)
         d.beginChildren(n, innerType)

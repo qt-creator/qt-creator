@@ -18,6 +18,11 @@ def select(condition, if_expr, else_expr):
         return if_expr
     return else_expr
 
+def qmin(n, m):
+    if n < m:
+        return n
+    return m
+
 def isSimpleType(typeobj):
     type = str(typeobj)
     return type == "bool" \

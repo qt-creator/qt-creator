@@ -724,6 +724,7 @@ void tst_Gdb::run(const QByteArray &label, const QByteArray &expected0,
             qWarning() << "!= size: " << l1.size() << l2.size();
         }
         qWarning() << "RECEIVED: " << received;
+        qWarning() << "ACTUAL  : " << actual;
     }
     QCOMPARE(ok, true);
     //qWarning() << "LINE: " << line << "ACT/EXP" << m_function + '@' + label;
