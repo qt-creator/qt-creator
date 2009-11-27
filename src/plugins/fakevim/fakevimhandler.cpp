@@ -514,7 +514,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     const int mods = ev->modifiers();
     KEY_DEBUG("SHORTCUT OVERRIDE" << key << "  PASSING: " << m_passing);
 
-    if (key == Key_Escape) {
+    if (key == Key_Escape || (mods == Qt::ControlModifier && key == Key_BracketLeft)) {
         // Not sure this feels good. People often hit Esc several times
         if (m_visualMode == NoVisualMode && m_mode == CommandMode)
             return false;
@@ -1631,7 +1631,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
 EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
     const QString &text)
 {
-    if (key == Key_Escape || key == 27 || key == control('c')) {
+    if (key == Key_Escape || key == 27 || key == control('c') ||
+			key == 379 /* ^[ */) {
         // start with '1', as one instance was already physically inserted
         // while typing
         QString data = m_lastInsertion;
