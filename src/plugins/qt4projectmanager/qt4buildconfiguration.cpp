@@ -269,7 +269,7 @@ MakeStep *Qt4BuildConfiguration::makeStep() const
 }
 
 // returns true if both are equal
-bool Qt4BuildConfiguration::compareBuildConfigurationToImportFrom(const QString &workingDirectory)
+bool Qt4BuildConfiguration::compareToImportFrom(const QString &workingDirectory)
 {
     QMakeStep *qs = qmakeStep();
     if (QDir(workingDirectory).exists(QLatin1String("Makefile")) && qs) {

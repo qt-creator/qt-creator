@@ -94,8 +94,7 @@ public:
     QString makeCommand() const;
     QString defaultMakeTarget() const;
 
-    // TODO rename
-    bool compareBuildConfigurationToImportFrom(const QString &workingDirectory);
+    bool compareToImportFrom(const QString &workingDirectory);
     static QStringList removeSpecFromArgumentList(const QStringList &old);
     static QString extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version);
 

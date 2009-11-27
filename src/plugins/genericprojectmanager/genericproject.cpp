@@ -158,7 +158,6 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(const QString &type
 
 BuildConfiguration *GenericBuildConfigurationFactory::clone(BuildConfiguration *source) const
 {
-    // TODO
     GenericBuildConfiguration *bc = new GenericBuildConfiguration(static_cast<GenericBuildConfiguration *>(source));
     m_project->addBuildConfiguration(bc);
     return bc;

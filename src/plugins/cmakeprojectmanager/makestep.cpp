@@ -102,8 +102,6 @@ void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 bool MakeStep::init()
 {
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
-    // TODO, we should probably have a member cmakeBuildConfiguration();
-
     setBuildParser(bc->buildParser());
 
     setEnabled(true);

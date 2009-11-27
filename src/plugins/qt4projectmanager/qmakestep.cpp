@@ -80,7 +80,6 @@ QStringList QMakeStep::allArguments()
     arguments << buildConfiguration()->project()->file()->fileName();
     arguments << "-r";
 
-    // TODO
     if (!additonalArguments.contains("-spec"))
         arguments << "-spec" << bc->qtVersion()->mkspec();
 
@@ -116,7 +115,6 @@ QStringList QMakeStep::allArguments()
 
 bool QMakeStep::init()
 {
-    // TODO
     Qt4BuildConfiguration *qt4bc = qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
 

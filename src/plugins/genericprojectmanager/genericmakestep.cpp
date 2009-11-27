@@ -125,7 +125,6 @@ QString GenericMakeStep::makeCommand() const
 {
     QString command = m_makeCommand;
     if (command.isEmpty()) {
-        // TODO
         GenericProject *pro = genericBuildConfiguration()->genericProject();
         if (ProjectExplorer::ToolChain *toolChain = pro->toolChain())
             command = toolChain->makeCommand();
@@ -187,7 +186,6 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     m_ui->setupUi(this);
 
     // TODO update this list also on rescans of the GenericLists.txt
-    //TODO
     GenericProject *pro = m_makeStep->genericBuildConfiguration()->genericProject();
     foreach (const QString &target, pro->targets()) {
         QListWidgetItem *item = new QListWidgetItem(target, m_ui->targetsList);

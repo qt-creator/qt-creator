@@ -379,7 +379,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 
 BuildConfiguration *Project::activeBuildConfiguration() const
 {
-    return m_activeBuildConfiguration; //TODO
+    return m_activeBuildConfiguration;
 }
 
 void Project::setActiveBuildConfiguration(BuildConfiguration *configuration)
