@@ -89,7 +89,7 @@ OptionsPage::OptionsPage()
 
 QString OptionsPage::id() const
 {
-    return QLatin1String("Mercurial");
+    return QLatin1String(VCSBase::Constants::VCS_ID_MERCURIAL);
 }
 
 QString OptionsPage::trName() const
@@ -104,7 +104,7 @@ QString OptionsPage::category() const
 
 QString OptionsPage::trCategory() const
 {
-    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_CATEGORY);
+    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *OptionsPage::createPage(QWidget *parent)

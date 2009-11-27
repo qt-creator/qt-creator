@@ -318,13 +318,13 @@ public:
 
     // IOptionsPage
     QString id() const
-        { return QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE); }
+        { return QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_ID); }
     QString trName() const
-        { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE); }
+        { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_COMMON_SETTINGS_NAME); }
     QString category() const
         { return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);  }
     QString trCategory() const
-        { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY); }
+        { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(settings()); }
@@ -416,10 +416,10 @@ public:
     DebuggingHelperOptionPage() {}
 
     // IOptionsPage
-    QString id() const { return QLatin1String("DebuggingHelper"); }
+    QString id() const { return QLatin1String("B.DebuggingHelper"); }
     QString trName() const { return tr("Debugging Helper"); }
     QString category() const { return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY); }
-    QString trCategory() const { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY); }
+    QString trCategory() const { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(settings()); }
@@ -1257,7 +1257,7 @@ void DebuggerPlugin::showSettingsDialog()
 {
     Core::ICore::instance()->showOptionsDialog(
         QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY),
-        QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_PAGE));
+        QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_ID));
 }
 
 void DebuggerPlugin::startExternalApplication()

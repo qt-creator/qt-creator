@@ -44,6 +44,7 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QHeaderView>
 #include <QtGui/QFileDialog>
+#include <QtCore/QCoreApplication>
 #include <QtDebug>
 
 Q_DECLARE_METATYPE(Core::Internal::ShortcutItem*);
@@ -62,9 +63,10 @@ ShortcutSettings::~ShortcutSettings()
 
 // IOptionsPage
 
+
 QString ShortcutSettings::id() const
 {
-    return QLatin1String("Keyboard");
+    return QLatin1String("D.Keyboard");
 }
 
 QString ShortcutSettings::trName() const
@@ -74,12 +76,12 @@ QString ShortcutSettings::trName() const
 
 QString ShortcutSettings::category() const
 {
-    return QLatin1String("Environment");
+    return QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE);
 }
 
 QString ShortcutSettings::trCategory() const
 {
-    return tr("Environment");
+    return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
 }
 
 QWidget *ShortcutSettings::createPage(QWidget *parent)

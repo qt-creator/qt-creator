@@ -223,6 +223,9 @@ const char * const ICON_TOGGLE_SIDEBAR   = ":/core/images/sidebaricon.png";
 const char * const WIZARD_CATEGORY_QT = "M.Qt";
 const char * const WIZARD_TR_CATEGORY_QT = QT_TRANSLATE_NOOP("Core", "Qt");
 
+const char * const SETTINGS_CATEGORY_CORE = "A.Core";
+const char * const SETTINGS_TR_CATEGORY_CORE = QT_TRANSLATE_NOOP("Core", "Environment");
+
 } // namespace Constants
 } // namespace Core
 

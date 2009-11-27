@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "generalsettings.h"
+#include "coreconstants.h"
 
 #include <utils/stylehelper.h>
 #include <utils/qtcolorbutton.h>
@@ -37,6 +38,7 @@
 
 #include <QtGui/QMessageBox>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QTextStream>
 
 #include "ui_generalsettings.h"
@@ -51,7 +53,7 @@ GeneralSettings::GeneralSettings():
 
 QString GeneralSettings::id() const
 {
-    return QLatin1String("General");
+    return QLatin1String("A.General");
 }
 
 QString GeneralSettings::trName() const
@@ -61,12 +63,12 @@ QString GeneralSettings::trName() const
 
 QString GeneralSettings::category() const
 {
-    return QLatin1String("Environment");
+    return QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE);
 }
 
 QString GeneralSettings::trCategory() const
 {
-    return tr("Environment");
+    return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
 }
 
 QWidget *GeneralSettings::createPage(QWidget *parent)

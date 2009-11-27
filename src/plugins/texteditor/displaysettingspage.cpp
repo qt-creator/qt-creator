@@ -71,7 +71,7 @@ DisplaySettingsPage::~DisplaySettingsPage()
 
 QString DisplaySettingsPage::id() const
 {
-    return m_d->m_parameters.name;
+    return m_d->m_parameters.id;
 }
 
 QString DisplaySettingsPage::trName() const

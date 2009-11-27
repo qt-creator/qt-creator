@@ -28,10 +28,12 @@
 **************************************************************************/
 
 #include "codepastersettings.h"
+#include "cpasterconstants.h"
 
 #include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
+#include <QtCore/QCoreApplication>
 #include <QtGui/QLineEdit>
 #include <QtGui/QFileDialog>
 #include <QtGui/QGroupBox>
@@ -54,7 +56,7 @@ CodePasterSettingsPage::CodePasterSettingsPage()
 
 QString CodePasterSettingsPage::id() const
 {
-    return QLatin1String("CodePaster");
+    return QLatin1String("C.CodePaster");
 }
 
 QString CodePasterSettingsPage::trName() const
@@ -64,12 +66,12 @@ QString CodePasterSettingsPage::trName() const
 
 QString CodePasterSettingsPage::category() const
 {
-    return QLatin1String("CodePaster");
+    return QLatin1String(Constants::CPASTER_SETTINGS_CATEGORY);
 }
 
 QString CodePasterSettingsPage::trCategory() const
 {
-    return tr("Code Pasting");
+    return QCoreApplication::translate("CodePaster", Constants::CPASTER_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *CodePasterSettingsPage::createPage(QWidget *parent)

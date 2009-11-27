@@ -83,6 +83,7 @@ class TEXTEDITOR_EXPORT FontSettingsPage : public Core::IOptionsPage
 
 public:
     FontSettingsPage(const FormatDescriptions &fd,
+                     const QString &id,
                      const QString &category,
                      const QString &trCategory,
                      QObject *parent = 0);

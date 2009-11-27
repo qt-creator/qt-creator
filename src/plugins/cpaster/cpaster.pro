@@ -8,6 +8,7 @@ HEADERS += cpasterplugin.h \
     protocol.h \
     codepasterprotocol.h \
     pasteview.h \
+    cpasterconstants.h \
     codepastersettings.h \
     pastebindotcomprotocol.h \
     pastebindotcomsettings.h \

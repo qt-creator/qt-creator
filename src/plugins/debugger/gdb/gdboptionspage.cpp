@@ -6,8 +6,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextStream>
 
-const char * const GDB_SETTINGS_ID = QT_TRANSLATE_NOOP("Debugger::Internal::GdbOptionsPage", "Gdb");
-
 namespace Debugger {
 namespace Internal {
 
@@ -17,12 +15,12 @@ GdbOptionsPage::GdbOptionsPage()
 
 QString GdbOptionsPage::settingsId()
 {
-    return QLatin1String(GDB_SETTINGS_ID);
+    return QLatin1String("M.Gdb");
 }
 
 QString GdbOptionsPage::trName() const
 {
-    return tr(GDB_SETTINGS_ID);
+    return tr("Gdb");
 }
 
 QString GdbOptionsPage::category() const
@@ -32,7 +30,7 @@ QString GdbOptionsPage::category() const
 
 QString GdbOptionsPage::trCategory() const
 {
-    return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
+    return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *GdbOptionsPage::createPage(QWidget *parent)

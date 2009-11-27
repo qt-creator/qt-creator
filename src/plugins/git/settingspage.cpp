@@ -96,7 +96,7 @@ SettingsPage::SettingsPage() :
 
 QString SettingsPage::id() const
 {
-    return QLatin1String("Git");
+    return QLatin1String(VCSBase::Constants::VCS_ID_GIT);
 }
 
 QString SettingsPage::trName() const
@@ -111,7 +111,7 @@ QString SettingsPage::category() const
 
 QString SettingsPage::trCategory() const
 {
-    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_CATEGORY);
+    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

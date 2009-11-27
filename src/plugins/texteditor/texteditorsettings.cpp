@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "texteditorsettings.h"
+#include "texteditorconstants.h"
 
 #include "basetexteditor.h"
 #include "behaviorsettingspage.h"
@@ -101,25 +102,29 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescriptions.append(FormatDescription(QLatin1String(C_DIFF_FILE), tr("Diff File"), Qt::darkBlue));
     formatDescriptions.append(FormatDescription(QLatin1String(C_DIFF_LOCATION), tr("Diff Location"), Qt::blue));
 
+    const QString category = QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+    const QString trCategory = QCoreApplication::translate("TextEditor", Constants::TEXT_EDITOR_SETTINGS_TR_CATEGORY);
+
     m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
-                                              QLatin1String("TextEditor"),
-                                              tr("Text Editor"),
-                                              this);
+                                              QLatin1String("A.FontSettings"),
+                                              category, trCategory, this);
     pm->addObject(m_fontSettingsPage);
 
     // Add the GUI used to configure the tab, storage and interaction settings
     TextEditor::BehaviorSettingsPageParameters behaviorSettingsPageParameters;
+    behaviorSettingsPageParameters.id = QLatin1String("B.BehaviourSettings");
     behaviorSettingsPageParameters.name = tr("Behavior");
-    behaviorSettingsPageParameters.category = QLatin1String("TextEditor");
-    behaviorSettingsPageParameters.trCategory = tr("Text Editor");
+    behaviorSettingsPageParameters.category = category;
+    behaviorSettingsPageParameters.trCategory = trCategory;
     behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
     m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
     pm->addObject(m_behaviorSettingsPage);
 
     TextEditor::DisplaySettingsPageParameters displaySettingsPageParameters;
+    displaySettingsPageParameters.id = QLatin1String("D.DisplaySettings"),
     displaySettingsPageParameters.name = tr("Display");
-    displaySettingsPageParameters.category = QLatin1String("TextEditor");
-    displaySettingsPageParameters.trCategory = tr("Text Editor");
+    displaySettingsPageParameters.category = category;;
+    displaySettingsPageParameters.trCategory = trCategory;
     displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
     m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
     pm->addObject(m_displaySettingsPage);

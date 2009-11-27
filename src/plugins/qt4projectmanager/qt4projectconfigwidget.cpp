@@ -133,7 +133,7 @@ void Qt4ProjectConfigWidget::updateDetails()
 void Qt4ProjectConfigWidget::manageQtVersions()
 {
     Core::ICore *core = Core::ICore::instance();
-    core->showOptionsDialog(Constants::QT_CATEGORY, Constants::QTVERSION_PAGE);
+    core->showOptionsDialog(Constants::QT_SETTINGS_CATEGORY, Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 
 

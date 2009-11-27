@@ -28,10 +28,13 @@
 **************************************************************************/
 
 #include "filtersettingspage.h"
+#include "helpconstants.h"
 #include "filternamedialog.h"
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include <QtCore/QCoreApplication>
+
 #include <QtHelp/QHelpEngine>
 
 using namespace Help::Internal;
@@ -43,7 +46,7 @@ FilterSettingsPage::FilterSettingsPage(QHelpEngine *helpEngine) :
 
 QString FilterSettingsPage::id() const
 {
-    return QLatin1String("Filters");
+    return QLatin1String("D.Filters");
 }
 
 QString FilterSettingsPage::trName() const
@@ -53,12 +56,12 @@ QString FilterSettingsPage::trName() const
 
 QString FilterSettingsPage::category() const
 {
-    return QLatin1String("Help");
+    return QLatin1String(Help::Constants::HELP_CATEGORY);
 }
 
 QString FilterSettingsPage::trCategory() const
 {
-    return tr("Help");
+    return QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY);
 }
 
 QWidget *FilterSettingsPage::createPage(QWidget *parent)

@@ -40,8 +40,6 @@
 namespace Debugger {
 namespace Internal {
 
-const char * const TRK_SETTINGS_ID = QT_TRANSLATE_NOOP("Debugger::Internal::TrkOptionsPage", "Symbian TRK");
-
 TrkOptionsPage::TrkOptionsPage(const TrkOptionsPtr &options) :
     m_options(options)
 {
@@ -53,12 +51,12 @@ TrkOptionsPage::~TrkOptionsPage()
 
 QString TrkOptionsPage::settingsId()
 {
-    return QLatin1String(TRK_SETTINGS_ID);
+    return QLatin1String("S.Trk");
 }
 
 QString TrkOptionsPage::trName() const
 {
-    return tr(TRK_SETTINGS_ID);
+    return tr("Symbian TRK");
 }
 
 QString TrkOptionsPage::category() const
@@ -68,7 +66,7 @@ QString TrkOptionsPage::category() const
 
 QString TrkOptionsPage::trCategory() const
 {
-    return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
+    return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *TrkOptionsPage::createPage(QWidget *parent)

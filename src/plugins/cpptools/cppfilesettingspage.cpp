@@ -306,7 +306,7 @@ QString CppFileSettingsPage::id() const
 
 QString CppFileSettingsPage::trName() const
 {
-    return QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_ID);
+    return QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_NAME);
 }
 
 QString CppFileSettingsPage::category() const
@@ -316,7 +316,7 @@ QString CppFileSettingsPage::category() const
 
 QString CppFileSettingsPage::trCategory() const
 {
-    return QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_CATEGORY);
+    return QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *CppFileSettingsPage::createPage(QWidget *parent)

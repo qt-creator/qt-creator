@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "settingspage.h"
+#include "cpasterconstants.h"
 
 #include <coreplugin/icore.h>
 
@@ -38,6 +39,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QSettings>
 #include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
 
 using namespace CodePaster;
 
@@ -61,7 +63,7 @@ SettingsPage::SettingsPage()
 
 QString SettingsPage::id() const
 {
-    return QLatin1String("General");
+    return QLatin1String("A.General");
 }
 
 QString SettingsPage::trName() const
@@ -71,12 +73,12 @@ QString SettingsPage::trName() const
 
 QString SettingsPage::category() const
 {
-    return QLatin1String("CodePaster");
+    return QLatin1String(Constants::CPASTER_SETTINGS_CATEGORY);
 }
 
 QString SettingsPage::trCategory() const
 {
-    return tr("Code Pasting");
+    return QCoreApplication::translate("CodePaster", Constants::CPASTER_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

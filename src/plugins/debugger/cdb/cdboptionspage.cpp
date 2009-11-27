@@ -39,8 +39,6 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QDesktopServices>
 
-const char * const CDB_SETTINGS_ID = QT_TRANSLATE_NOOP("Debugger::Internal::CdbOptionsPageWidget", "Cdb");
-
 static const char *dgbToolsDownloadLink32C = "http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx";
 static const char *dgbToolsDownloadLink64C = "http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx";
 
@@ -160,12 +158,12 @@ QString CdbOptionsPage::trName() const
 
 QString CdbOptionsPage::category() const
 {
-    return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
+    return QLatin1String("P.Cdb");
 }
 
 QString CdbOptionsPage::trCategory() const
 {
-    return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
+    return tr("Cdb");
 }
 
 QWidget *CdbOptionsPage::createPage(QWidget *parent)

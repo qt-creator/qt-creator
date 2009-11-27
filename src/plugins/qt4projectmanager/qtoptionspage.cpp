@@ -53,32 +53,26 @@ void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
 
 QtOptionsPage::QtOptionsPage()
 {
-
-}
-
-QtOptionsPage::~QtOptionsPage()
-{
-
 }
 
 QString QtOptionsPage::id() const
 {
-    return QLatin1String(Constants::QTVERSION_PAGE);
+    return QLatin1String(Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 
 QString QtOptionsPage::trName() const
 {
-    return tr(Constants::QTVERSION_PAGE);
+    return QCoreApplication::translate("Qt4ProjectManager", Constants::QTVERSION_SETTINGS_PAGE_NAME);
 }
 
 QString QtOptionsPage::category() const
 {
-    return Constants::QT_CATEGORY;
+    return QLatin1String(Constants::QT_SETTINGS_CATEGORY);
 }
 
 QString QtOptionsPage::trCategory() const
 {
-    return tr(Constants::QT_CATEGORY);
+    return QCoreApplication::translate("Qt4ProjectManager", Constants::QT_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *QtOptionsPage::createPage(QWidget *parent)

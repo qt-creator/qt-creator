@@ -91,7 +91,7 @@ SettingsPage::SettingsPage() :
 
 QString SettingsPage::id() const
 {
-    return QLatin1String("Subversion");
+    return QLatin1String(VCSBase::Constants::VCS_ID_SUBVERSION);
 }
 
 QString SettingsPage::trName() const
@@ -106,7 +106,7 @@ QString SettingsPage::category() const
 
 QString SettingsPage::trCategory() const
 {
-    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_CATEGORY);
+    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

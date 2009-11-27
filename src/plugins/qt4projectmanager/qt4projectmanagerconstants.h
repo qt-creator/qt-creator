@@ -30,6 +30,8 @@
 #ifndef QT4PROJECTMANAGERCONSTANTS_H
 #define QT4PROJECTMANAGERCONSTANTS_H
 
+#include <QtCore/QtGlobal>
+
 namespace Qt4ProjectManager {
 namespace Constants {
 
@@ -70,16 +72,13 @@ const char * const MAKESTEP   = "trolltech.qt4projectmanager.make";
 const char * const QT4RUNSTEP = "trolltech.qt4projectmanager.qt4runstep";
 const char * const DEPLOYHELPERRUNSTEP = "trolltech.qt4projectmanager.deployhelperrunstep";
 
-// views
-const char * const VIEW_DETAILED        = "Qt4.View.Detailed";
-const char * const VIEW_PROFILESONLY    = "Qt4.View.ProjectHierarchy";
-
 //Qt4 settings pages
-const char * const QT_CATEGORY            = "Qt4";
-const char * const QTVERSION_PAGE         = "Qt Versions";
-const char * const BUILD_ENVIRONMENT_PAGE = "Build Environments";
-
+const char * const QT_SETTINGS_CATEGORY       = "L.Qt4";
+const char * const QT_SETTINGS_TR_CATEGORY    = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt4");
+const char * const QTVERSION_SETTINGS_PAGE_ID = "Qt Versions";
+const char * const QTVERSION_SETTINGS_PAGE_NAME = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Versions");
 } // namespace Constants
 } // namespace Qt4ProjectManager
 
 #endif // QT4PROJECTMANAGERCONSTANTS_H
+

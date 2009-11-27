@@ -114,7 +114,7 @@ QString VCSBaseSettingsPage::id() const
 
 QString VCSBaseSettingsPage::trName() const
 {
-    return QCoreApplication::translate("VCSBase", Constants::VCS_COMMON_SETTINGS_ID);
+    return QCoreApplication::translate("VCSBase", Constants::VCS_COMMON_SETTINGS_NAME);
 }
 
 QString VCSBaseSettingsPage::category() const
@@ -124,7 +124,7 @@ QString VCSBaseSettingsPage::category() const
 
 QString VCSBaseSettingsPage::trCategory() const
 {
-    return QCoreApplication::translate("VCSBase", Constants::VCS_SETTINGS_CATEGORY);
+    return QCoreApplication::translate("VCSBase", Constants::VCS_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *VCSBaseSettingsPage::createPage(QWidget *parent)

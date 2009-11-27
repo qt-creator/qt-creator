@@ -189,10 +189,27 @@ static QStandardItemModel *pageModel(const QList<IOptionsPage*> &pages,
     return model;
 }
 
+// ----------- SettingsDialog
+
+// Helpers to sort by category. id
+bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
+{
+    if (const int cc = p1->category().compare(p2->category()))
+        return cc < 0;
+    return p1->id().compare(p2->id()) < 0;
+}
+
+static inline QList<Core::IOptionsPage*> sortedOptionsPages()
+{
+    QList<Core::IOptionsPage*> rc = ExtensionSystem::PluginManager::instance()->getObjects<IOptionsPage>();
+    qStableSort(rc.begin(), rc.end(), optionsPageLessThan);
+    return rc;
+}
+
 SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
                                const QString &pageId) :
     QDialog(parent),
-    m_pages(ExtensionSystem::PluginManager::instance()->getObjects<IOptionsPage>()),
+    m_pages(sortedOptionsPages()),
     m_proxyModel(new PageFilterModel),
     m_model(0),
     m_applied(false),

@@ -105,12 +105,12 @@ CppSettingsPage::CppSettingsPage(QObject *parent) : Core::IOptionsPage(parent)
 
 QString CppSettingsPage::id() const
 {
-    return QLatin1String(Designer::Constants::SETTINGS_CPP_SETTINGS);
+    return QLatin1String(Designer::Constants::SETTINGS_CPP_SETTINGS_ID);
 }
 
 QString CppSettingsPage::trName() const
 {
-    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_CPP_SETTINGS);
+    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_CPP_SETTINGS_NAME);
 }
 
 QString CppSettingsPage::category() const
@@ -120,7 +120,7 @@ QString CppSettingsPage::category() const
 
 QString CppSettingsPage::trCategory() const
 {
-    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_CATEGORY);
+    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY);
 }
 
 QWidget *CppSettingsPage::createPage(QWidget *parent)

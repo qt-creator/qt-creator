@@ -189,8 +189,8 @@ const char * const BUILD_PARSER_ABLD_WINSCW = "BuildParser.ABLD.Winscw";
 const char * const BUILD_PARSER_ABLD_RVCT   = "BuildParser.ABLD.Rvct";
 
 // settings page
-const char * const PROJECTEXPLORER_CATEGORY            = "ProjectExplorer";
-const char * const PROJECTEXPLORER_PAGE                = "ProjectExplorer.ProjectExplorer";
+const char * const PROJECTEXPLORER_SETTINGS_CATEGORY  = "K.ProjectExplorer";
+const char * const PROJECTEXPLORER_SETTINGS_ID = "ProjectExplorer.ProjectExplorer";
 
 // task categories
 const char * const TASK_CATEGORY_COMPILE = "Task.Category.Compile";

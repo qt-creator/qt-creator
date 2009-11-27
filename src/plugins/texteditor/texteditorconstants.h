@@ -30,6 +30,8 @@
 #ifndef TEXTEDITORCONSTANTS_H
 #define TEXTEDITORCONSTANTS_H
 
+#include <QtCore/QtGlobal>
+
 namespace TextEditor {
 namespace Constants {
 
@@ -102,6 +104,8 @@ const char * const C_REMOVED_LINE        = "RemovedLine";
 const char * const C_DIFF_FILE           = "DiffFile";
 const char * const C_DIFF_LOCATION       = "DiffLocation";
 
+const char * const TEXT_EDITOR_SETTINGS_CATEGORY = "C.TextEditor";
+const char * const TEXT_EDITOR_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("TextEditor", "Text Editor");
 
 } // namespace Constants
 } // namespace TextEditor

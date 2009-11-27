@@ -42,6 +42,7 @@ struct DisplaySettings;
 
 struct DisplaySettingsPageParameters
 {
+    QString id;
     QString name;
     QString category;
     QString trCategory;

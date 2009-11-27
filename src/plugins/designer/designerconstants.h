@@ -35,8 +35,10 @@
 namespace Designer {
 namespace Constants {
 
-const char * const SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("Designer", "Designer");
-const char * const SETTINGS_CPP_SETTINGS = QT_TRANSLATE_NOOP("Designer", "Class Generation");
+const char * const SETTINGS_CATEGORY = "P.Designer";
+const char * const SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("Designer", "Designer");
+const char * const SETTINGS_CPP_SETTINGS_ID = "Class Generation";
+const char * const SETTINGS_CPP_SETTINGS_NAME = QT_TRANSLATE_NOOP("Designer", "Class Generation");
 
 // context
 const char * const C_FORMEDITOR         = "FormEditor";

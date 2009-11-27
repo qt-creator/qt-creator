@@ -11,6 +11,7 @@ DEFINES += QT_CLUCENE_SUPPORT \
 HEADERS += helpplugin.h \
     docsettingspage.h \
     filtersettingspage.h \
+    helpconstants.h \
     helpmode.h \
     centralwidget.h \
     searchwidget.h \

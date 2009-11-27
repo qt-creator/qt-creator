@@ -135,7 +135,6 @@ class QtOptionsPage : public Core::IOptionsPage
     Q_OBJECT
 public:
     QtOptionsPage();
-    ~QtOptionsPage();
     QString id() const;
     QString trName() const;
     QString category() const;

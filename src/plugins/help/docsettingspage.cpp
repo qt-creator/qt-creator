@@ -28,9 +28,11 @@
 **************************************************************************/
 
 #include "docsettingspage.h"
+#include "helpconstants.h"
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include <QtCore/QCoreApplication>
 #include <QtHelp/QHelpEngine>
 
 using namespace Help::Internal;
@@ -43,7 +45,7 @@ DocSettingsPage::DocSettingsPage(QHelpEngine *helpEngine)
 
 QString DocSettingsPage::id() const
 {
-    return QLatin1String("Documentation");
+    return QLatin1String("B.Documentation");
 }
 
 QString DocSettingsPage::trName() const
@@ -51,15 +53,14 @@ QString DocSettingsPage::trName() const
     return tr("Documentation");
 }
 
-
 QString DocSettingsPage::category() const
 {
-    return QLatin1String("Help");
+    return QLatin1String(Help::Constants::HELP_CATEGORY);
 }
 
 QString DocSettingsPage::trCategory() const
 {
-    return tr("Help");
+    return QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY);
 }
 
 QWidget *DocSettingsPage::createPage(QWidget *parent)

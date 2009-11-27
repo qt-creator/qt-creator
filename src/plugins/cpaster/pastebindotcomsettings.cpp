@@ -28,10 +28,12 @@
 **************************************************************************/
 
 #include "pastebindotcomsettings.h"
+#include "cpasterconstants.h"
 #include "ui_pastebindotcomsettings.h"
 
 #include <coreplugin/icore.h>
 #include <QtCore/QSettings>
+#include <QtCore/QCoreApplication>
 
 PasteBinDotComSettings::PasteBinDotComSettings()
 {
@@ -45,7 +47,7 @@ PasteBinDotComSettings::PasteBinDotComSettings()
 
 QString PasteBinDotComSettings::id() const
 {
-    return QLatin1String("Pastebin.com");
+    return QLatin1String("B.Pastebin.com");
 }
 
 QString PasteBinDotComSettings::trName() const
@@ -55,12 +57,12 @@ QString PasteBinDotComSettings::trName() const
 
 QString PasteBinDotComSettings::category() const
 {
-    return QLatin1String("CodePaster");
+    return QLatin1String(CodePaster::Constants::CPASTER_SETTINGS_CATEGORY);
 }
 
 QString PasteBinDotComSettings::trCategory() const
 {
-    return tr("Code Pasting");
+    return QCoreApplication::translate("CodePaster", CodePaster::Constants::CPASTER_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *PasteBinDotComSettings::createPage(QWidget *parent)

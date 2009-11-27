@@ -43,6 +43,7 @@ struct StorageSettings;
 
 struct BehaviorSettingsPageParameters
 {
+    QString id;
     QString name;
     QString category;
     QString trCategory;

@@ -27,55 +27,16 @@
 **
 **************************************************************************/
 
-#include "settingspage.h"
-#include "designerconstants.h"
+#ifndef CPASTERCONSTANTS_H
+#define CPASTERCONSTANTS_H
 
-#include <extensionsystem/pluginmanager.h>
-#include <qt_private/abstractoptionspage_p.h>
-#include <QtCore/QCoreApplication>
+#include <QtCore/QtGlobal>
 
-using namespace Designer::Internal;
-
-SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
-    m_designerPage(designerPage)
-{
+namespace CodePaster {
+namespace Constants {
+const char * const CPASTER_SETTINGS_CATEGORY = "X.CPaster";
+const char * const CPASTER_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("CodePaster", "Code Pasting");
+}
 }
 
-SettingsPage::~SettingsPage()
-{
-}
-
-QString SettingsPage::id() const
-{
-    return m_designerPage->name();
-}
-
-QString SettingsPage::trName() const
-{
-    return m_designerPage->name();
-}
-
-QString SettingsPage::category() const
-{
-    return QLatin1String(Designer::Constants::SETTINGS_CATEGORY);
-}
-
-QString SettingsPage::trCategory() const
-{
-    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY);
-}
-
-QWidget *SettingsPage::createPage(QWidget *parent)
-{
-    return m_designerPage->createPage(parent);
-}
-
-void SettingsPage::apply()
-{
-    m_designerPage->apply();
-}
-
-void SettingsPage::finish()
-{
-    m_designerPage->finish();
-}
+#endif // CPASTERCONSTANTS_H

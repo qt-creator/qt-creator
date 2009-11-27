@@ -89,6 +89,8 @@ namespace Constants {
 const char * const INSTALL_HANDLER        = "TextEditor.FakeVimHandler";
 const char * const MINI_BUFFER            = "TextEditor.FakeVimMiniBuffer";
 const char * const INSTALL_KEY            = "Alt+V,Alt+V";
+const char * const SETTINGS_CATEGORY      = "D.FakeVim";
+const char * const SETTINGS_ID            = "General";
 
 } // namespace Constants
 } // namespace FakeVim
@@ -111,9 +113,9 @@ public:
     FakeVimOptionPage() {}
 
     // IOptionsPage
-    QString id() const { return QLatin1String("General"); }
+    QString id() const { return QLatin1String(Constants::SETTINGS_ID); }
     QString trName() const { return tr("General"); }
-    QString category() const { return QLatin1String("FakeVim"); }
+    QString category() const { return QLatin1String(Constants::SETTINGS_CATEGORY); }
     QString trCategory() const { return tr("FakeVim"); }
 
     QWidget *createPage(QWidget *parent);
@@ -350,7 +352,8 @@ bool FakeVimPluginPrivate::initialize()
 
 void FakeVimPluginPrivate::showSettingsDialog()
 {
-    Core::ICore::instance()->showOptionsDialog("FakeVim", "General");
+    Core::ICore::instance()->showOptionsDialog(QLatin1String(Constants::SETTINGS_CATEGORY),
+                                               QLatin1String(Constants::SETTINGS_ID));
 }
 
 void FakeVimPluginPrivate::triggerAction(const QString& code)

@@ -32,9 +32,11 @@
 #include "ui_completionsettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <texteditor/texteditorconstants.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
 
 using namespace CppTools::Internal;
 
@@ -51,7 +53,7 @@ CompletionSettingsPage::~CompletionSettingsPage()
 
 QString CompletionSettingsPage::id() const
 {
-    return QLatin1String("Completion");
+    return QLatin1String("P.Completion");
 }
 
 QString CompletionSettingsPage::trName() const
@@ -61,12 +63,13 @@ QString CompletionSettingsPage::trName() const
 
 QString CompletionSettingsPage::category() const
 {
-    return QLatin1String("TextEditor");
+
+    return QLatin1String(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
 }
 
 QString CompletionSettingsPage::trCategory() const
 {
-    return tr("Text Editor");
+    return QCoreApplication::translate("Text Editor", TextEditor::Constants::TEXT_EDITOR_SETTINGS_TR_CATEGORY);
 }
 
 QWidget *CompletionSettingsPage::createPage(QWidget *parent)

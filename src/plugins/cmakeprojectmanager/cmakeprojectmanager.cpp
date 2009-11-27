@@ -251,7 +251,7 @@ QString CMakeSettingsPage::trName() const
 
 QString CMakeSettingsPage::category() const
 {
-    return QLatin1String("CMake");
+    return QLatin1String("M.CMake");
 }
 
 QString CMakeSettingsPage::trCategory() const

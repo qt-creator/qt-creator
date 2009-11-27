@@ -68,6 +68,7 @@ struct ColorSchemeEntry
 
     QString fileName;
     QString name;
+    QString id;
     bool readOnly;
 };
 
@@ -116,12 +117,14 @@ class FontSettingsPagePrivate
 {
 public:
     FontSettingsPagePrivate(const TextEditor::FormatDescriptions &fd,
+                            const QString &id,
                             const QString &name,
                             const QString &category,
                             const QString &trCategory);
     ~FontSettingsPagePrivate();
 
 public:
+    const QString m_id;
     const QString m_name;
     const QString m_settingsGroup;
     const QString m_category;
@@ -174,9 +177,11 @@ static QString createColorSchemeFileName(const QString &pattern)
 
 // ------- FontSettingsPagePrivate
 FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescriptions &fd,
+                                                 const QString &id,
                                                  const QString &name,
                                                  const QString &category,
                                                  const QString &trCategory) :
+    m_id(id),
     m_name(name),
     m_settingsGroup(Utils::settingsKey(category)),
     m_category(category),
@@ -308,11 +313,12 @@ QColor FormatDescription::background() const
 
 //  ------------ FontSettingsPage
 FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd,
+                                   const QString &id,
                                    const QString &category,
                                    const QString &trCategory,
                                    QObject *parent) :
     Core::IOptionsPage(parent),
-    d_ptr(new FontSettingsPagePrivate(fd, tr("Font & Colors"), category, trCategory))
+    d_ptr(new FontSettingsPagePrivate(fd, id, tr("Font & Colors"), category, trCategory))
 {
 }
 
@@ -323,7 +329,7 @@ FontSettingsPage::~FontSettingsPage()
 
 QString FontSettingsPage::id() const
 {
-    return d_ptr->m_name;
+    return d_ptr->m_id;
 }
 
 QString FontSettingsPage::trName() const

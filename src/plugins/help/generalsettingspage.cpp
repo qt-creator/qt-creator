@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "generalsettingspage.h"
+#include "helpconstants.h"
 
 #include "bookmarkmanager.h"
 #include "centralwidget.h"
@@ -40,6 +41,7 @@
 #include <QtWebKit/QWebSettings>
 #endif
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtGui/QFileDialog>
 #include <QtHelp/QHelpEngine>
@@ -66,7 +68,7 @@ GeneralSettingsPage::GeneralSettingsPage(QHelpEngine *helpEngine,
 
 QString GeneralSettingsPage::id() const
 {
-    return QLatin1String("General settings");
+    return QLatin1String("A.General settings");
 }
 
 QString GeneralSettingsPage::trName() const
@@ -76,12 +78,12 @@ QString GeneralSettingsPage::trName() const
 
 QString GeneralSettingsPage::category() const
 {
-    return QLatin1String("Help");
+    return QLatin1String(Help::Constants::HELP_CATEGORY);
 }
 
 QString GeneralSettingsPage::trCategory() const
 {
-    return tr("Help");
+    return QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY);
 }
 
 QWidget *GeneralSettingsPage::createPage(QWidget *parent)

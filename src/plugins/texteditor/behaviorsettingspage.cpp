@@ -74,7 +74,7 @@ BehaviorSettingsPage::~BehaviorSettingsPage()
 
 QString BehaviorSettingsPage::id() const
 {
-    return m_d->m_parameters.name;
+    return m_d->m_parameters.id;
 }
 
 QString BehaviorSettingsPage::trName() const

@@ -61,12 +61,12 @@ QString SettingsPage::trName() const
 
 QString SettingsPage::category() const
 {
-    return Constants::LOCATOR_CATEGORY;
+    return QLatin1String(Constants::LOCATOR_CATEGORY);
 }
 
 QString SettingsPage::trCategory() const
 {
-    return QCoreApplication::translate("Locator", Locator::Constants::LOCATOR_CATEGORY);
+    return QCoreApplication::translate("Locator", Locator::Constants::LOCATOR_TR_CATEGORY);
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

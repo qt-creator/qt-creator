@@ -117,11 +117,9 @@ ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
 {
 }
 
-
-
 QString ProjectExplorerSettingsPage::id() const
 {
-    return QLatin1String(Constants::PROJECTEXPLORER_PAGE);
+    return QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_ID);
 }
 
 QString ProjectExplorerSettingsPage::trName() const
@@ -131,7 +129,7 @@ QString ProjectExplorerSettingsPage::trName() const
 
 QString ProjectExplorerSettingsPage::category() const
 {
-    return QLatin1String(Constants::PROJECTEXPLORER_PAGE);
+    return QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
 }
 
 QString ProjectExplorerSettingsPage::trCategory() const

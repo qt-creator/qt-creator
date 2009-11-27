@@ -50,8 +50,10 @@ const char * const CPPTOOLS_SETTINGSGROUP = "CppTools";
 const char * const LOWERCASE_CPPFILES_KEY = "LowerCaseFiles";
 enum { lowerCaseFilesDefault = 1 };
 
-const char * const CPP_SETTINGS_ID = QT_TRANSLATE_NOOP("CppTools", "File Naming");
-const char * const CPP_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("CppTools", "C++");
+const char * const CPP_SETTINGS_ID = "File Naming";
+const char * const CPP_SETTINGS_NAME = QT_TRANSLATE_NOOP("CppTools", "File Naming");
+const char * const CPP_SETTINGS_CATEGORY = "I.C++";
+const char * const CPP_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("CppTools", "C++");
 
 } // namespace Constants
 } // namespace CppTools
