@@ -97,18 +97,16 @@ protected:
 
 /*
     Rewrite
-    a op b
-
-    As
-    !(a invop b)
+    a op b -> !(a invop b)
+    (a op b) -> !(a invop b)
+    !(a op b) -> (a invob b)
 */
 class UseInverseOp: public QuickFixOperation
 {
 public:
     UseInverseOp()
-        : binary(0)
+        : binary(0), nested(0), negation(0)
     {}
-
 
     virtual QString description() const
     {
@@ -151,18 +149,40 @@ public:
         CPlusPlus::Token tok;
         tok.f.kind = invertToken;
         replacement = QLatin1String(tok.spell());
+
+        // check for enclosing nested expression
+        if (index - 1 >= 0)
+            nested = path[index - 1]->asNestedExpression();
+
+        // check for ! before parentheses
+        if (nested && index - 2 >= 0) {
+            negation = path[index - 2]->asUnaryExpression();
+            if (negation && ! tokenAt(negation->unary_op_token).is(T_EXCLAIM))
+                negation = 0;
+        }
+
         return index;
     }
 
     virtual void createChangeSet()
     {
-        insert(startOf(binary), "!(");
-        insert(endOf(binary), ")");
+        if (negation) {
+            // can't remove parentheses since that might break precedence
+            remove(negation->unary_op_token);
+        } else if (nested) {
+            insert(startOf(nested), "!");
+        } else {
+            insert(startOf(binary), "!(");
+            insert(endOf(binary), ")");
+        }
         replace(binary->binary_op_token, replacement);
     }
 
 private:
     BinaryExpressionAST *binary;
+    NestedExpressionAST *nested;
+    UnaryExpressionAST *negation;
+
     QString replacement;
 };
 
