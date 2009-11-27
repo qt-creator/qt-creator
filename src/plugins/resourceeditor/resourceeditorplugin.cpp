@@ -45,6 +45,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QtPlugin>
+#include <QtCore/QCoreApplication>
 #include <QtGui/QAction>
 
 using namespace ResourceEditor::Internal;
@@ -76,8 +77,9 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
     wizardParameters.setDescription(tr("Creates a Qt Resource file (.qrc)."));
     wizardParameters.setName(tr("Qt Resource file"));
-    wizardParameters.setCategory(QLatin1String("Qt"));
-    wizardParameters.setTrCategory(tr("Qt"));
+    wizardParameters.setId(QLatin1String("F.Resource"));
+    wizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    wizardParameters.setTrCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
 
     m_wizard = new ResourceWizard(wizardParameters, this);
     addObject(m_wizard);

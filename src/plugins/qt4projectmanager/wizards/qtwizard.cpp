@@ -34,6 +34,7 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/cpptoolsconstants.h>
 
 #include <QtCore/QByteArray>
@@ -48,22 +49,25 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 static inline Core::BaseFileWizardParameters
-    wizardParameters(const QString &name,
+    wizardParameters(const QString &id,
+                     const QString &name,
                      const QString &description,
                      const QIcon &icon)
 {
     Core::BaseFileWizardParameters rc(Core::IWizard::ProjectWizard);
-    rc.setCategory(QLatin1String("Projects"));
-    rc.setTrCategory("Projects");
+    rc.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
+    rc.setTrCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
     rc.setIcon(icon);
     rc.setName(name);
+    rc.setId(id);
     rc.setDescription(description);
     return rc;
 }
 
 // -------------------- QtWizard
-QtWizard::QtWizard(const QString &name, const QString &description, const QIcon &icon) :
-    Core::BaseFileWizard(wizardParameters(name, description, icon))
+QtWizard::QtWizard(const QString &id, const QString &name,
+                   const QString &description, const QIcon &icon) :
+    Core::BaseFileWizard(wizardParameters(id, name, description, icon))
 {
 }
 

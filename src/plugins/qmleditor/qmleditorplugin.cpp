@@ -102,10 +102,11 @@ bool QmlEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     addObject(m_editor);
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
-    wizardParameters.setCategory(QLatin1String("Qt"));
-    wizardParameters.setTrCategory(tr("Qt"));
+    wizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    wizardParameters.setTrCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
     wizardParameters.setDescription(tr("Creates a Qt QML file."));
     wizardParameters.setName(tr("Qt QML File"));
+    wizardParameters.setId(QLatin1String("Q.Qml"));
     addAutoReleasedObject(new QmlFileWizard(wizardParameters, core));
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(QmlEditor::Constants::C_QMLEDITOR,

@@ -107,6 +107,12 @@
 */
 
 /*!
+    \fn QString IWizard::id() const
+    Returns an arbitrary id that is used for sorting within the category.
+*/
+
+
+/*!
     \fn QString IWizard::category() const
     Returns a category ID to add the wizard to.
 */

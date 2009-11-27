@@ -30,6 +30,8 @@
 #ifndef CORECONSTANTS_H
 #define CORECONSTANTS_H
 
+#include <QtCore/QtGlobal>
+
 namespace Core {
 namespace Constants {
 
@@ -218,9 +220,8 @@ const char * const ICON_RESET            = ":/core/images/reset.png";
 const char * const ICON_MAGNIFIER        = ":/core/images/magnifier.png";
 const char * const ICON_TOGGLE_SIDEBAR   = ":/core/images/sidebaricon.png";
 
-// wizard kind
-const char * const WIZARD_TYPE_FILE      = "QtCreator::WizardType::File";
-const char * const WIZARD_TYPE_CLASS     = "QtCreator::WizardType::Class";
+const char * const WIZARD_CATEGORY_QT = "M.Qt";
+const char * const WIZARD_TR_CATEGORY_QT = QT_TRANSLATE_NOOP("Core", "Qt");
 
 } // namespace Constants
 } // namespace Core

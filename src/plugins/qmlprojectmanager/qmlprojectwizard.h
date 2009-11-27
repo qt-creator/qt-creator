@@ -64,14 +64,6 @@ public:
 
     QString projectName() const;
 
-private Q_SLOTS:
-    void updateFilesView(const QModelIndex &current,
-                         const QModelIndex &previous);
-
-protected:
-    virtual void initializePage(int id);
-    virtual bool validateCurrentPage();
-
 private:
     int m_secondPageId;
 

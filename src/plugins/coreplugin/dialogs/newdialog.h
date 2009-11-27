@@ -57,7 +57,7 @@ public:
     explicit NewDialog(QWidget *parent);
     virtual ~NewDialog();
 
-    void setWizards(const QList<IWizard*> wizards);
+    void setWizards(QList<IWizard*> wizards);
 
     Core::IWizard *showDialog();
 

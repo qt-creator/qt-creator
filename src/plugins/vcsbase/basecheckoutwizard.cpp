@@ -49,6 +49,7 @@ struct BaseCheckoutWizardPrivate {
     Internal::CheckoutWizardDialog *dialog;
     QList<QWizardPage *> parameterPages;
     QString checkoutPath;
+    QString id;
 };
 
 void BaseCheckoutWizardPrivate::clear()
@@ -71,7 +72,7 @@ BaseCheckoutWizard::~BaseCheckoutWizard()
 
 Core::IWizard::Kind BaseCheckoutWizard::kind() const
 {
-    return  Core::IWizard::ProjectWizard;
+    return Core::IWizard::ProjectWizard;
 }
 
 QString BaseCheckoutWizard::category() const
@@ -81,7 +82,17 @@ QString BaseCheckoutWizard::category() const
 
 QString BaseCheckoutWizard::trCategory() const
 {
-    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_WIZARD_CATEGORY);
+    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_WIZARD_TR_CATEGORY);
+}
+
+QString BaseCheckoutWizard::id() const
+{
+    return d->id;
+}
+
+void BaseCheckoutWizard::setId(const QString &id)
+{
+    d->id = id;
 }
 
 QStringList BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)

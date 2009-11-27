@@ -203,20 +203,24 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
 
-    wizardParameters.setCategory(QLatin1String("C++"));
+    wizardParameters.setCategory(QLatin1String("C.C++"));
     wizardParameters.setTrCategory(tr("C++"));
-    wizardParameters.setDescription(tr("Creates a C++ header file."));
-    wizardParameters.setName(tr("C++ Header File"));
-    addAutoReleasedObject(new CppFileWizard(wizardParameters, Header, core));
-
-    wizardParameters.setDescription(tr("Creates a C++ source file."));
-    wizardParameters.setName(tr("C++ Source File"));
-    addAutoReleasedObject(new CppFileWizard(wizardParameters, Source, core));
-
-    wizardParameters.setKind(Core::IWizard::ClassWizard);
     wizardParameters.setName(tr("C++ Class"));
+    wizardParameters.setId(QLatin1String("A.Class"));
+    wizardParameters.setKind(Core::IWizard::ClassWizard);
     wizardParameters.setDescription(tr("Creates a header and a source file for a new class."));
     addAutoReleasedObject(new CppClassWizard(wizardParameters, core));
+
+    wizardParameters.setKind(Core::IWizard::FileWizard);
+    wizardParameters.setDescription(tr("Creates a C++ source file."));
+    wizardParameters.setName(tr("C++ Source File"));
+    wizardParameters.setId(QLatin1String("B.Source"));
+    addAutoReleasedObject(new CppFileWizard(wizardParameters, Source, core));
+
+    wizardParameters.setDescription(tr("Creates a C++ header file."));
+    wizardParameters.setName(tr("C++ Header File"));
+    wizardParameters.setId(QLatin1String("C.Header"));
+    addAutoReleasedObject(new CppFileWizard(wizardParameters, Header, core));
 
     QList<int> context;
     context << core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);

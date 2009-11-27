@@ -36,6 +36,7 @@
 
 #include <QtGui/QHeaderView>
 #include <QtGui/QPushButton>
+#include <QtCore/QDebug>
 
 Q_DECLARE_METATYPE(Core::IWizard*)
 
@@ -70,9 +71,19 @@ NewDialog::NewDialog(QWidget *parent) :
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
-void NewDialog::setWizards(const QList<IWizard*> wizards)
+// Sort by category. id
+bool wizardLessThan(const IWizard *w1, const IWizard *w2)
+{
+    if (const int cc = w1->category().compare(w2->category()))
+        return cc < 0;
+    return w1->id().compare(w2->id()) < 0;
+}
+
+void NewDialog::setWizards(QList<IWizard*> wizards)
 {
     typedef QMap<QString, QTreeWidgetItem *> CategoryItemMap;
+
+    qStableSort(wizards.begin(), wizards.end(), wizardLessThan);
 
     CategoryItemMap categories;
     QVariant wizardPtr;

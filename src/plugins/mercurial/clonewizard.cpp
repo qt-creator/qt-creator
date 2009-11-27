@@ -33,6 +33,7 @@
 #include "mercurialsettings.h"
 
 #include <vcsbase/checkoutjobs.h>
+#include <vcsbase/vcsbaseconstants.h>
 
 #include <QtCore/QDebug>
 
@@ -42,6 +43,7 @@ CloneWizard::CloneWizard(QObject *parent)
         :   VCSBase::BaseCheckoutWizard(parent),
         m_icon(QIcon(QLatin1String(":/mercurial/images/hg.png")))
 {
+    setId(QLatin1String(VCSBase::Constants::VCS_ID_MERCURIAL));
 }
 
 QIcon CloneWizard::icon() const

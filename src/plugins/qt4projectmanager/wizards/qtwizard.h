@@ -55,7 +55,10 @@ class QtWizard : public Core::BaseFileWizard
     Q_DISABLE_COPY(QtWizard)
 
 protected:
-    QtWizard(const QString &name, const QString &description, const QIcon &icon);
+    QtWizard(const QString &id,
+             const QString &name,
+             const QString &description,
+             const QIcon &icon);
 
     QString templateDir() const;
 

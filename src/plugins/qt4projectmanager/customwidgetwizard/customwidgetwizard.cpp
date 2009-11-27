@@ -39,9 +39,10 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 CustomWidgetWizard::CustomWidgetWizard() :
-    QtWizard(tr("Qt4 Designer Custom Widget"),
+    QtWizard(QLatin1String("P.Qt4CustomWidget"),
+             tr("Qt4 Designer Custom Widget"),
              tr("Creates a Qt4 Designer Custom Widget or a Custom Widget Collection."),
-             QIcon(":/wizards/images/gui.png"))
+             QIcon(QLatin1String(":/wizards/images/gui.png")))
 {
 }
 

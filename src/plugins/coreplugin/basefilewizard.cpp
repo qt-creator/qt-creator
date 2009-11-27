@@ -190,8 +190,9 @@ public:
     QIcon icon;
     QString description;
     QString name;
+    QString id;
     QString category;
-    QString trCategory;
+    QString trCategory;    
 };
 
 BaseFileWizardParameterData::BaseFileWizardParameterData(IWizard::Kind k) :
@@ -250,7 +251,6 @@ void BaseFileWizardParameters::setDescription(const QString &v)
     m_d->description = v;
 }
 
-
 QString BaseFileWizardParameters::name() const
 {
     return m_d->name;
@@ -261,6 +261,15 @@ void BaseFileWizardParameters::setName(const QString &v)
     m_d->name = v;
 }
 
+QString BaseFileWizardParameters::id() const
+{
+    return m_d->id;
+}
+
+void BaseFileWizardParameters::setId(const QString &v)
+{
+    m_d->id = v;
+}
 
 QString BaseFileWizardParameters::category() const
 {
@@ -410,6 +419,11 @@ QString BaseFileWizard::description() const
 QString BaseFileWizard::name() const
 {
     return m_d->m_parameters.name();
+}
+
+QString BaseFileWizard::id() const
+{
+    return m_d->m_parameters.id();
 }
 
 QString BaseFileWizard::category() const

@@ -39,10 +39,6 @@
 #include <QtCore/QStringList>
 #include <QtGui/QAction>
 
-namespace Core {
-class IWizard;
-}
-
 namespace BINEditor {
 class BinEditor;
 namespace Internal {
@@ -85,8 +81,6 @@ private:
     friend class BinEditorFactory;
     Core::IEditor *createEditor(QWidget *parent);
 
-    typedef QList<Core::IWizard *> WizardList;
-    WizardList m_wizards;
     BinEditorFactory *m_factory;
     QPointer<BinEditor> m_currentEditor;
 };

@@ -30,8 +30,10 @@
 #include "qmlnewprojectwizard.h"
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
 
 using namespace QmlProjectManager::Internal;
 
@@ -56,11 +58,12 @@ QmlNewProjectWizard::~QmlNewProjectWizard()
 Core::BaseFileWizardParameters QmlNewProjectWizard::parameters()
 {
     static Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(":/wizards/images/console.png"));
+    parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
     parameters.setName(tr("QML Application"));
+    parameters.setId(QLatin1String("QA.QML Application"));
     parameters.setDescription(tr("Creates a QML application."));
-    parameters.setCategory(QLatin1String("Projects"));
-    parameters.setTrCategory(tr("Projects"));
+    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
+    parameters.setTrCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
     return parameters;
 }
 

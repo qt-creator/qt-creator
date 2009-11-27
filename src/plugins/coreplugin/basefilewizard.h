@@ -117,6 +117,9 @@ public:
     QString name() const;
     void setName(const QString &name);
 
+    QString id() const;
+    void setId(const QString &id);
+
     QString category() const;
     void setCategory(const QString &category);
 
@@ -152,6 +155,7 @@ public:
     virtual QIcon icon() const;
     virtual QString description() const;
     virtual QString name() const;
+    virtual QString id() const;
 
     virtual QString category() const;
     virtual QString trCategory() const;

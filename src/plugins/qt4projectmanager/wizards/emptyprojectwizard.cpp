@@ -35,9 +35,10 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 EmptyProjectWizard::EmptyProjectWizard()
-  : QtWizard(tr("Empty Qt4 Project"),
+  : QtWizard(QLatin1String("E.Qt4Empty"),
+             tr("Empty Qt4 Project"),
              tr("Creates an empty Qt project."),
-             QIcon(":/wizards/images/gui.png"))
+             QIcon(QLatin1String(":/wizards/images/gui.png")))
 {
 }
 

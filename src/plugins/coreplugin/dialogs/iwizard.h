@@ -57,6 +57,7 @@ public:
     virtual QIcon icon() const = 0;
     virtual QString description() const = 0;
     virtual QString name() const = 0;
+    virtual QString id() const = 0;
 
     virtual QString category() const = 0;
     virtual QString trCategory() const = 0;

@@ -55,9 +55,10 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 ConsoleAppWizard::ConsoleAppWizard()
-  : QtWizard(tr("Qt4 Console Application"),
+  : QtWizard(QLatin1String("D.Qt4Core"),
+             tr("Qt4 Console Application"),
              tr("Creates a Qt4 console application."),
-             QIcon(":/wizards/images/console.png"))
+             QIcon(QLatin1String(":/wizards/images/console.png")))
 {
 }
 

@@ -47,9 +47,10 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 LibraryWizard::LibraryWizard()
-  : QtWizard(tr("C++ Library"),
+  : QtWizard(QLatin1String("Q.Qt4Library"),
+             tr("C++ Library"),
              tr("Creates a C++ Library."),
-             QIcon(":/wizards/images/lib.png"))
+             QIcon(QLatin1String(":/wizards/images/lib.png")))
 {
 }
 

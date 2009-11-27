@@ -38,7 +38,15 @@ namespace Constants {
 const char * const VCS_SETTINGS_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
 const char * const VCS_COMMON_SETTINGS_ID = QT_TRANSLATE_NOOP("VCSBase", "Common");
 
-const char * const VCS_WIZARD_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
+const char * const VCS_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
+const char * const VCS_WIZARD_CATEGORY = "Z.Version Control";
+
+// Ids for sort order
+const char * const VCS_ID_GIT = "G.Git";
+const char * const VCS_ID_MERCURIAL = "H.Mercurial";
+const char * const VCS_ID_SUBVERSION = "J.Subversion";
+const char * const VCS_ID_PERFORCE = "P.Perforce";
+const char * const VCS_ID_CVS = "Z.CVS";
 
 namespace Internal {
     enum { debug = 0 };

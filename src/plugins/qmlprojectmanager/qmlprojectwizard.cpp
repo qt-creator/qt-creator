@@ -32,91 +32,21 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/filenamevalidatinglineedit.h>
 #include <utils/filewizardpage.h>
-#include <utils/pathchooser.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QtDebug>
-
-#include <QtGui/QDirModel>
-#include <QtGui/QFormLayout>
-#include <QtGui/QListView>
-#include <QtGui/QTreeView>
+#include <QtCore/QCoreApplication>
 
 using namespace QmlProjectManager::Internal;
 using namespace Utils;
 
-namespace {
-
-class DirModel : public QDirModel
-{
-public:
-    DirModel(QObject *parent)
-        : QDirModel(parent)
-    { setFilter(QDir::Dirs | QDir::NoDotAndDotDot); }
-
-    virtual ~DirModel()
-    { }
-
-public:
-    virtual int columnCount(const QModelIndex &) const
-    { return 1; }
-
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const
-    { return QDirModel::flags(index) | Qt::ItemIsUserCheckable; }
-
-    virtual QVariant data(const QModelIndex &index, int role) const
-    {
-        if (index.column() == 0 && role == Qt::CheckStateRole) {
-            if (m_selectedPaths.contains(index))
-                return Qt::Checked;
-
-            return Qt::Unchecked;
-        }
-
-        return QDirModel::data(index, role);
-    }
-
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role)
-    {
-        if (index.column() == 0 && role == Qt::CheckStateRole) {
-            if (value.toBool())
-                m_selectedPaths.insert(index);
-            else
-                m_selectedPaths.remove(index);
-
-            return true;
-        }
-
-        return QDirModel::setData(index, value, role);
-    }
-
-    void clearSelectedPaths()
-    { m_selectedPaths.clear(); }
-
-    QSet<QString> selectedPaths() const
-    {
-        QSet<QString> paths;
-
-        foreach (const QModelIndex &index, m_selectedPaths)
-            paths.insert(filePath(index));
-
-        return paths;
-    }
-
-private:
-    QSet<QModelIndex> m_selectedPaths;
-};
-
-} // end of anonymous namespace
-
-
 //////////////////////////////////////////////////////////////////////////////
 // QmlProjectWizardDialog
 //////////////////////////////////////////////////////////////////////////////
-
 
 QmlProjectWizardDialog::QmlProjectWizardDialog(QWidget *parent)
     : QWizard(parent)
@@ -150,32 +80,6 @@ QString QmlProjectWizardDialog::projectName() const
     return m_firstPage->name();
 }
 
-void QmlProjectWizardDialog::updateFilesView(const QModelIndex &current,
-                                                 const QModelIndex &)
-{
-    if (! current.isValid())
-        m_filesView->setModel(0);
-
-    else {
-        const QString selectedPath = m_dirModel->filePath(current);
-
-        if (! m_filesView->model())
-            m_filesView->setModel(m_filesModel);
-
-        m_filesView->setRootIndex(m_filesModel->index(selectedPath));
-    }
-}
-
-void QmlProjectWizardDialog::initializePage(int id)
-{
-    Q_UNUSED(id)
-}
-
-bool QmlProjectWizardDialog::validateCurrentPage()
-{
-    return QWizard::validateCurrentPage();
-}
-
 QmlProjectWizard::QmlProjectWizard()
     : Core::BaseFileWizard(parameters())
 { }
@@ -186,11 +90,12 @@ QmlProjectWizard::~QmlProjectWizard()
 Core::BaseFileWizardParameters QmlProjectWizard::parameters()
 {
     static Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(":/wizards/images/console.png"));
+    parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
     parameters.setName(tr("Import of existing QML directory"));
+    parameters.setId(QLatin1String("QI.QML Import"));
     parameters.setDescription(tr("Creates a QML project from an existing directory of QML files."));
-    parameters.setCategory(QLatin1String("Projects"));
-    parameters.setTrCategory(tr("Projects"));
+    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
+    parameters.setTrCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
     return parameters;
 }
 

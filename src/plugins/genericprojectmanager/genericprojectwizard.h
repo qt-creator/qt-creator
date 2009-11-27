@@ -35,13 +35,8 @@
 #include <QtGui/QWizard>
 
 QT_BEGIN_NAMESPACE
-class QDir;
-class QDirModel;
 class QFileInfo;
-class QListView;
-class QModelIndex;
-class QStringList;
-class QTreeView;
+class QDir;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -66,24 +61,7 @@ public:
 
     QString projectName() const;
 
-private Q_SLOTS:
-    void updateFilesView(const QModelIndex &current,
-                         const QModelIndex &previous);
-
-protected:
-    virtual void initializePage(int id);
-    virtual bool validateCurrentPage();
-
-private:
-    int m_secondPageId;
-
     Utils::FileWizardPage *m_firstPage;
-
-    QTreeView *m_dirView;
-    QDirModel *m_dirModel;
-
-    QListView *m_filesView;
-    QDirModel *m_filesModel;
 };
 
 class GenericProjectWizard : public Core::BaseFileWizard

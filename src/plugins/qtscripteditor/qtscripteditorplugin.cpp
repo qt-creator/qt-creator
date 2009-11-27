@@ -53,6 +53,7 @@
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
+#include <QtCore/QCoreApplication>
 #include <QtGui/QAction>
 
 using namespace QtScriptEditor::Internal;
@@ -101,8 +102,9 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
     wizardParameters.setDescription(tr("Creates a Qt Script file."));
     wizardParameters.setName(tr("Qt Script file"));
-    wizardParameters.setCategory(QLatin1String("Qt"));
-    wizardParameters.setTrCategory(tr("Qt"));
+    wizardParameters.setId(QLatin1String("Z.Script"));
+    wizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    wizardParameters.setTrCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
     m_wizard = new TextEditor::TextFileWizard(QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE),
                                               QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR),
                                               QLatin1String("qtscript$"),

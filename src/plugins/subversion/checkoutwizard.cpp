@@ -32,6 +32,7 @@
 #include "subversionplugin.h"
 
 #include <vcsbase/checkoutjobs.h>
+#include <vcsbase/vcsbaseconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QIcon>
@@ -42,6 +43,7 @@ namespace Internal {
 CheckoutWizard::CheckoutWizard(QObject *parent) :
         VCSBase::BaseCheckoutWizard(parent)
 {
+    setId(QLatin1String(VCSBase::Constants::VCS_ID_SUBVERSION));
 }
 
 QIcon CheckoutWizard::icon() const

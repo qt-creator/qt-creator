@@ -71,6 +71,7 @@ public:
 
     virtual QString category() const;
     virtual QString trCategory() const;
+    virtual QString id() const;
 
     virtual QStringList runWizard(const QString &path, QWidget *parent);
 
@@ -80,6 +81,9 @@ protected:
     virtual QList<QWizardPage *> createParameterPages(const QString &path) = 0;
     virtual QSharedPointer<AbstractCheckoutJob> createJob(const QList<QWizardPage *> &parameterPages,
                                                           QString *checkoutPath) = 0;
+
+public slots:
+    void setId(const QString &id);
 
 private slots:
     void slotProgressPageShown();

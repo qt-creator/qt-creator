@@ -30,6 +30,8 @@
 #ifndef PROJECTEXPLORERCONSTANTS_H
 #define PROJECTEXPLORERCONSTANTS_H
 
+#include <QtCore/QtGlobal>
+
 namespace ProjectExplorer {
 namespace Constants {
 
@@ -193,6 +195,10 @@ const char * const PROJECTEXPLORER_PAGE                = "ProjectExplorer.Projec
 // task categories
 const char * const TASK_CATEGORY_COMPILE = "Task.Category.Compile";
 const char * const TASK_CATEGORY_BUILDSYSTEM = "Task.Category.Buildsystem";
+
+// Wizard category
+const char * const PROJECT_WIZARD_CATEGORY = "R.Projects"; // (after Qt)
+const char * const PROJECT_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("ProjectExplorer", "Projects");
 
 } // namespace Constants
 } // namespace ProjectExplorer
