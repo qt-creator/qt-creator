@@ -51,7 +51,8 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-#define PAGE_ID "Maemo Device Configurations"
+#define PAGE_ID "ZZ.Maemo Device Configurations"
+#define PAGE_ID_TR "Maemo Device Configurations"
 
 class DevConfMatcher
 {
@@ -98,17 +99,18 @@ QString MaemoSettingsPage::id() const
 
 QString MaemoSettingsPage::trName() const
 {
-    return tr(PAGE_ID);
+    return tr(PAGE_ID_TR);
 }
 
 QString MaemoSettingsPage::category() const
 {
-    return Constants::QT_CATEGORY;
+    return QLatin1String(Constants::QT_SETTINGS_CATEGORY);
 }
 
 QString MaemoSettingsPage::trCategory() const
 {
-    return tr(Constants::QT_CATEGORY);
+    return QCoreApplication::translate("Qt4ProjectManager",
+        Constants::QT_SETTINGS_CATEGORY);
 }
 
 QWidget *MaemoSettingsPage::createPage(QWidget *parent)
