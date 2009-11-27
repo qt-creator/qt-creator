@@ -488,9 +488,37 @@ void testQMultiMap()
 #endif
 }
 
+namespace Names {
+namespace Bar {
+
+struct Ui {
+    Ui() { w = 0; }
+    QWidget *w;
+};
+
+class TestObject : public QObject
+{
+    Q_OBJECT
+
+public:
+    TestObject(QObject *parent = 0)
+      : QObject(parent)
+    {
+        m_ui = new Ui;
+        m_ui->w = 0;
+    }
+
+    Ui *m_ui;
+};
+
+} // namespace Bar
+} // namespace Names
+
 void testQObject(int &argc, char *argv[])
 {
     QApplication app(argc, argv);
+    Names::Bar::TestObject test;
+
     QAction act("xxx", &app);
     QString t = act.text();
     t += "y";
@@ -1432,3 +1460,5 @@ struct QMetaTypeId< QMap<uint, QStringList> >
     }                                                           \
 };
 QT_END_NAMESPACE
+
+#include "app.moc"
