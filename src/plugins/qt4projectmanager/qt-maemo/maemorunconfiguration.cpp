@@ -500,7 +500,7 @@ const QString MaemoRunConfiguration::gdbCmd() const
 QString MaemoRunConfiguration::maddeRoot() const
 {
     if (const MaemoToolChain *tc = toolchain())
-        tc->maddeRoot();
+        return tc->maddeRoot();
     return QString();
 }
 
