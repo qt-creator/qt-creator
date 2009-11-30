@@ -471,8 +471,9 @@ public:
         ParenthesesMatchingSelection,
         CodeWarningsSelection,
         CodeSemanticsSelection,
-        OtherSelection,
+        UnusedSymbolSelection,
         FakeVimSelection,
+        OtherSelection,
         NExtraSelectionKinds
     };
     void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);

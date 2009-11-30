@@ -1934,7 +1934,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
 
-    QList<QTextEdit::ExtraSelection> allSelections;
+    QList<QTextEdit::ExtraSelection> unusedSelections;
 
     m_renameSelections.clear();
 
@@ -1955,16 +1955,16 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
         if (uses.size() == 1) {
             // it's an unused declaration
-            // highlightUses(uses, &allSelections);
+            highlightUses(uses, &unusedSelections);
         } else if (good) {
             QList<QTextEdit::ExtraSelection> selections;
             highlightUses(uses, &selections);
             m_renameSelections += selections;
-            allSelections += selections;
         }
     }
 
-    setExtraSelections(CodeSemanticsSelection, allSelections);
+    setExtraSelections(UnusedSymbolSelection, unusedSelections);
+    setExtraSelections(CodeSemanticsSelection, m_renameSelections);
 }
 
 SemanticHighlighter::Source CPPEditor::currentSource(bool force)
