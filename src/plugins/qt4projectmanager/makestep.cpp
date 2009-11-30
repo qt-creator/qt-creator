@@ -54,7 +54,7 @@ MakeStep::MakeStep(ProjectExplorer::BuildConfiguration *bc)
 MakeStep::MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc)
     : AbstractMakeStep(bs, bc),
     m_clean(bs->m_clean),
-    m_makeargs(bs->m_makeargs),
+    m_userArgs(bs->m_userArgs),
     m_makeCmd(bs->m_makeCmd)
 {
 
@@ -84,7 +84,7 @@ void MakeStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
 
 void MakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
 {
-    m_makeargs = map.value("makeargs").toStringList();
+    m_userArgs = map.value("makeargs").toStringList();
     m_makeCmd = map.value("makeCmd").toString();
     if (map.value("clean").isValid() && map.value("clean").toBool())
         m_clean = true;
@@ -93,7 +93,7 @@ void MakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
 
 void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 {
-    map["makeargs"] = m_makeargs;
+    map["makeargs"] = m_userArgs;
     map["makeCmd"] = m_makeCmd;
     if (m_clean)
         map["clean"] = true;
@@ -128,7 +128,7 @@ bool MakeStep::init()
     // we should stop the clean queue
     // That is mostly so that rebuild works on a alrady clean project
     setIgnoreReturnValue(m_clean);
-    QStringList args = m_makeargs;
+    QStringList args = m_userArgs;
     if (!m_clean) {
         if (!bc->defaultMakeTarget().isEmpty())
             args << bc->defaultMakeTarget();
@@ -196,19 +196,19 @@ ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
     return new MakeStepConfigWidget(this);
 }
 
-QStringList MakeStep::makeArguments()
+QStringList MakeStep::userArguments()
 {
-    return m_makeargs;
+    return m_userArgs;
 }
 
-void MakeStep::setMakeArguments(const QStringList &arguments)
+void MakeStep::setUserArguments(const QStringList &arguments)
 {
-    m_makeargs = arguments;
-    emit changed();
+    m_userArgs = arguments;
+    emit userArgumentsChanged();
 }
 
 MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
-    : BuildStepConfigWidget(), m_makeStep(makeStep)
+    : BuildStepConfigWidget(), m_makeStep(makeStep), m_ignoreChange(false)
 {
     m_ui.setupUi(this);
     connect(m_ui.makeLineEdit, SIGNAL(textEdited(QString)),
@@ -216,8 +216,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(m_ui.makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeArgumentsLineEditTextEdited()));
 
-    connect(makeStep, SIGNAL(changed()),
-            this, SLOT(update()));
+    connect(makeStep, SIGNAL(userArgumentsChanged()),
+            this, SLOT(userArgumentsChanged()));
     connect(makeStep->buildConfiguration(), SIGNAL(buildDirectoryChanged()),
             this, SLOT(updateDetails()));
 
@@ -257,7 +257,7 @@ void MakeStepConfigWidget::updateDetails()
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    QStringList args = m_makeStep->makeArguments();
+    QStringList args = m_makeStep->userArguments();
     ProjectExplorer::ToolChain::ToolChainType t = ProjectExplorer::ToolChain::UNKNOWN;
     ProjectExplorer::ToolChain *toolChain = bc->toolChain();
     if (toolChain)
@@ -281,9 +281,11 @@ QString MakeStepConfigWidget::displayName() const
     return m_makeStep->displayName();
 }
 
-void MakeStepConfigWidget::update()
+void MakeStepConfigWidget::userArgumentsChanged()
 {
-    init();
+    const QStringList &makeArguments = m_makeStep->userArguments();
+    m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
+    updateDetails();
 }
 
 void MakeStepConfigWidget::init()
@@ -293,7 +295,7 @@ void MakeStepConfigWidget::init()
     const QString &makeCmd = m_makeStep->m_makeCmd;
     m_ui.makeLineEdit->setText(makeCmd);
 
-    const QStringList &makeArguments = m_makeStep->makeArguments();
+    const QStringList &makeArguments = m_makeStep->userArguments();
     m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
     updateDetails();
 }
@@ -306,8 +308,10 @@ void MakeStepConfigWidget::makeLineEditTextEdited()
 
 void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
 {
-    m_makeStep->setMakeArguments(
+    m_ignoreChange = true;
+    m_makeStep->setUserArguments(
             ProjectExplorer::Environment::parseCombinedArgString(m_ui.makeArgumentsLineEdit->text()));
+    m_ignoreChange = false;
     updateDetails();
 }
 

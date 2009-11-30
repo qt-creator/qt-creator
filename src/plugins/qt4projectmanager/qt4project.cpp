@@ -480,7 +480,7 @@ Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString displayName,
 
     // set some options for qmake and make
     if (qmakeBuildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
-        makeStep->setMakeArguments(QStringList() << (debug ? "debug" : "release"));
+        makeStep->setUserArguments(QStringList() << (debug ? "debug" : "release"));
 
     bc->setValue("buildConfiguration", int(qmakeBuildConfiguration));
 

@@ -80,8 +80,8 @@ public:
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
-    QStringList makeArguments();
-    void setMakeArguments(const QStringList &arguments);
+    QStringList userArguments();
+    void setUserArguments(const QStringList &arguments);
 
     virtual void restoreFromGlobalMap(const QMap<QString, QVariant> &map);
 
@@ -91,10 +91,10 @@ public:
     virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 
 signals:
-    void changed();
+    void userArgumentsChanged();
 private:
     bool m_clean;
-    QStringList m_makeargs;
+    QStringList m_userArgs;
     QString m_makeCmd;
 };
 
@@ -109,13 +109,14 @@ public:
 private slots:
     void makeLineEditTextEdited();
     void makeArgumentsLineEditTextEdited();
-    void update();
     void updateMakeOverrideLabel();
     void updateDetails();
+    void userArgumentsChanged();
 private:
     Ui::MakeStep m_ui;
     MakeStep *m_makeStep;
     QString m_summaryText;
+    bool m_ignoreChange;
 };
 
 } // Qt4ProjectManager

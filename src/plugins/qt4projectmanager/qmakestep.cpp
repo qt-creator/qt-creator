@@ -327,6 +327,8 @@ void QMakeStepConfigWidget::userArgumentsChanged()
         return;
     QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->userArguments());
     m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
+    updateTitleLabel();
+    updateEffectiveQMakeCall();
 }
 
 void QMakeStepConfigWidget::init()
