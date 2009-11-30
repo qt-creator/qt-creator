@@ -384,8 +384,9 @@ ProjectExplorer::BuildStep *QMakeStepFactory::clone(ProjectExplorer::BuildStep *
 
 QStringList QMakeStepFactory::canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const
 {
-    if (qobject_cast<Qt4BuildConfiguration *>(bc))
-        return QStringList() << Constants::QMAKESTEP;
+    if (Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(bc))
+        if (!qt4bc->qmakeStep())
+            return QStringList() << Constants::QMAKESTEP;
     return QStringList();
 }
 
