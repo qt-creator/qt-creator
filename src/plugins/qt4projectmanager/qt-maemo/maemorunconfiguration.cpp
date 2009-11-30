@@ -286,11 +286,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Project *project,
     connect(project, SIGNAL(activeBuildConfigurationChanged()), this,
         SLOT(invalidateCachedTargetInformation()));
 
-    connect(project, SIGNAL(targetInformationChanged()), this,
-        SLOT(invalidateCachedSimulatorInformation()));
-    connect(project, SIGNAL(activeBuildConfigurationChanged()), this,
-        SLOT(invalidateCachedSimulatorInformation()));
-
     qemu = new QProcess(this);
     connect(qemu, SIGNAL(error(QProcess::ProcessError)), &dumper,
         SLOT(printToStream(QProcess::ProcessError)));
