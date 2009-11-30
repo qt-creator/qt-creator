@@ -216,10 +216,10 @@ bool QMakeStep::processFinished(int exitCode, QProcess::ExitStatus status)
     return result;
 }
 
-void QMakeStep::setQMakeArguments(const QStringList &arguments)
+void QMakeStep::setUserArguments(const QStringList &arguments)
 {
     m_userArgs = arguments;
-    emit changed();
+    emit userArgumentsChanged();
 }
 
 QStringList QMakeStep::userArguments()
@@ -240,14 +240,14 @@ void QMakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 }
 
 QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
-    : BuildStepConfigWidget(), m_step(step)
+    : BuildStepConfigWidget(), m_step(step), m_ignoreChange(false)
 {
     m_ui.setupUi(this);
     connect(m_ui.qmakeAdditonalArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(qmakeArgumentsLineEditTextEdited()));
     connect(m_ui.buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(buildConfigurationChanged()));
-    connect(step, SIGNAL(changed()),
-            this, SLOT(update()));
+    connect(step, SIGNAL(userArgumentsChanged()),
+            this, SLOT(userArgumentsChanged()));
     connect(step->buildConfiguration(), SIGNAL(qtVersionChanged()),
             this, SLOT(qtVersionChanged()));
 }
@@ -289,8 +289,10 @@ void QMakeStepConfigWidget::updateTitleLabel()
 
 void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
 {
-    m_step->setQMakeArguments(
+    m_ignoreChange = true;
+    m_step->setUserArguments(
             ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
+    m_ignoreChange = false;
 
     m_step->qt4BuildConfiguration()->qt4Project()->invalidateCachedTargetInformation();
     updateTitleLabel();
@@ -321,9 +323,12 @@ QString QMakeStepConfigWidget::displayName() const
     return m_step->displayName();
 }
 
-void QMakeStepConfigWidget::update()
+void QMakeStepConfigWidget::userArgumentsChanged()
 {
-    init();
+    if (m_ignoreChange)
+        return;
+    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->userArguments());
+    m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
 }
 
 void QMakeStepConfigWidget::init()

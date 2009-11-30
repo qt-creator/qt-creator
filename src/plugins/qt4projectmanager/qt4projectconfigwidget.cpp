@@ -298,7 +298,7 @@ void Qt4ProjectConfigWidget::importLabelClicked()
             // Combo box will be updated at the end
 
             QMakeStep *qmakeStep = m_buildConfiguration->qmakeStep();
-            qmakeStep->setQMakeArguments(additionalArguments);
+            qmakeStep->setUserArguments(additionalArguments);
             MakeStep *makeStep = m_buildConfiguration->makeStep();
 
             m_buildConfiguration->setValue("buildConfiguration", int(qmakeBuildConfig));

@@ -83,13 +83,13 @@ public:
 
     QStringList allArguments();
     QStringList userArguments();
-    void setQMakeArguments(const QStringList &arguments);
+    void setUserArguments(const QStringList &arguments);
 
     virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
     virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 
 signals:
-    void changed();
+    void userArgumentsChanged();
 
 protected:
     virtual void processStartupFailed();
@@ -115,7 +115,7 @@ public:
 private slots:
     void qmakeArgumentsLineEditTextEdited();
     void buildConfigurationChanged();
-    void update();
+    void userArgumentsChanged();
     void qtVersionChanged();
 private:
     void updateTitleLabel();
@@ -123,6 +123,7 @@ private:
     Ui::QMakeStep m_ui;
     QMakeStep *m_step;
     QString m_summaryText;
+    bool m_ignoreChange;
 };
 
 } // namespace Qt4ProjectManager

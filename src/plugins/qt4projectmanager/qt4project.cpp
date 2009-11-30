@@ -476,7 +476,7 @@ Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString displayName,
     cleanStep->setClean(true);
     bc->insertCleanStep(0, cleanStep);
     if (!additionalArguments.isEmpty())
-        qmakeStep->setQMakeArguments(additionalArguments);
+        qmakeStep->setUserArguments(additionalArguments);
 
     // set some options for qmake and make
     if (qmakeBuildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
