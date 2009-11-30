@@ -159,6 +159,7 @@ void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &beg
     QVector<QPointF> points;
 
     const int margin = m_borderWidth/2;
+    const int extra = 0;
 
     points += (selection.at(0).topLeft() + selection.at(0).topRight()) / 2 + QPointF(0, -margin);
     points += selection.at(0).topRight() + QPointF(margin+1, -margin);
@@ -178,8 +179,8 @@ void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &beg
     }
 
     points += selection.at(selection.count()-1).topRight() + QPointF(margin+1, 0);
-    points += selection.at(selection.count()-1).bottomRight() + QPointF(margin+1, margin+1);
-    points += selection.at(selection.count()-1).bottomLeft() + QPointF(-margin, margin+1);
+    points += selection.at(selection.count()-1).bottomRight() + QPointF(margin+1, margin+extra);
+    points += selection.at(selection.count()-1).bottomLeft() + QPointF(-margin, margin+extra);
     points += selection.at(selection.count()-1).topLeft() + QPointF(-margin, 0);
 
     for(int i = selection.count()-2; i > 0; --i) {
@@ -188,11 +189,11 @@ void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &beg
                        selection.at(i).left(),
                        selection.at(i+1).left()) - margin;
 
-        points += QPointF(x, selection.at(i).bottom()+1);
+        points += QPointF(x, selection.at(i).bottom()+extra);
         points += QPointF(x, selection.at(i).top());
     }
 
-    points += selection.at(0).bottomLeft() + QPointF(-margin, 1);
+    points += selection.at(0).bottomLeft() + QPointF(-margin, extra);
     points += selection.at(0).topLeft() + QPointF(-margin, -margin);
 
 
@@ -225,15 +226,28 @@ void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &beg
     path.closeSubpath();
 
     painter->save();
-    QPen pen(color, m_borderWidth);
+    QColor penColor = color;
+    penColor.setAlpha(220);
+    QPen pen(penColor, m_borderWidth);
     painter->translate(-.5, -.5);
-    QColor brush = color;
-    brush.setAlpha(30);
+
+    path.translate(offset);
+    QRectF pathRect = path.controlPointRect();
+
+    QLinearGradient linearGrad(pathRect.topLeft(), pathRect.bottomLeft());
+    QColor col1 = color.lighter(150);
+    col1.setAlpha(20);
+    QColor col2 = color;
+    col2.setAlpha(80);
+    linearGrad.setColorAt(0, col1);
+    linearGrad.setColorAt(1, col2);
+    QBrush brush(linearGrad);
+
+
     painter->setRenderHint(QPainter::Antialiasing);
     pen.setJoinStyle(Qt::RoundJoin);
     painter->setPen(pen);
     painter->setBrush(brush);
-    path.translate(offset);
     painter->drawPath(path);
     painter->restore();
 }

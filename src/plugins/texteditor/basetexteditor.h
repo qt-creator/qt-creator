@@ -478,6 +478,7 @@ public:
     };
     void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
     QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
+    QString extraSelectionTooltip(int pos) const;
 
     struct BlockRange
     {

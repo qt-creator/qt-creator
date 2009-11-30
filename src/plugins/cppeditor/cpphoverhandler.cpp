@@ -272,8 +272,10 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (!doc)
         return; // nothing to do
 
+    QString formatTooltip = edit->extraSelectionTooltip(pos);
     QTextCursor tc(edit->document());
     tc.setPosition(pos);
+
     const unsigned lineNumber = tc.block().blockNumber() + 1;
 
     // Find the last symbol up to the cursor position
@@ -390,6 +392,11 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         && m_helpEngine->registeredDocumentations().count() > 0) {
         m_helpEngine->setupData();
         m_helpEngineNeedsSetup = false;
+    }
+
+
+    if (!formatTooltip.isEmpty()) {
+        m_toolTip = formatTooltip;
     }
 
     if (!m_toolTip.isEmpty())

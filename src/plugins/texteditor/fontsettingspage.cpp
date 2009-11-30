@@ -258,7 +258,7 @@ QColor FormatDescription::foreground() const
             return m_format.foreground();
         }
     } else if (m_name == QLatin1String(Constants::C_OCCURRENCES_UNUSED)) {
-        return Qt::lightGray;
+        return Qt::darkYellow;
     } else if (m_name == QLatin1String(Constants::C_PARENTHESES)) {
         return QColor(Qt::red);
     }

@@ -4239,6 +4239,21 @@ QList<QTextEdit::ExtraSelection> BaseTextEditor::extraSelections(ExtraSelectionK
     return d->m_extraSelections[kind];
 }
 
+QString BaseTextEditor::extraSelectionTooltip(int pos) const
+{
+    QList<QTextEdit::ExtraSelection> all;
+    for (int i = 0; i < NExtraSelectionKinds; ++i) {
+        const QList<QTextEdit::ExtraSelection> &sel = d->m_extraSelections[i];
+        for (int j = 0; j < sel.size(); ++j) {
+            const QTextEdit::ExtraSelection &s = sel.at(j);
+            if (s.cursor.selectionStart() <= pos
+                && s.cursor.selectionEnd() >= pos
+                && !s.format.toolTip().isEmpty())
+                return s.format.toolTip();
+        }
+    }
+    return QString();
+}
 
 // the blocks list must be sorted
 void BaseTextEditor::setIfdefedOutBlocks(const QList<BaseTextEditor::BlockRange> &blocks)
