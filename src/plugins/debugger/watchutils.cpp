@@ -975,11 +975,8 @@ bool QtDumperHelper::parseQuery(const GdbMi &contents, Debugger debugger)
 // parse a query
 bool QtDumperHelper::parseQuery(const char *data, Debugger debugger)
 {
-    QByteArray fullData = data;
-    fullData.insert(0, '{');
-    fullData.append(data);
-    fullData.append('}');
-    GdbMi root(fullData);
+    GdbMi root;
+    root.fromStringMultiple(QByteArray(data));
     if (!root.isValid())
         return false;
     return parseQuery(root, debugger);
@@ -1475,11 +1472,8 @@ bool QtDumperHelper::parseValue(const char *data,
                                 QList<WatchData> *l)
 {
     l->clear();
-    QByteArray fullData = data;
-    fullData.insert(0, '{');
-    fullData.append(data);
-    fullData.append('}');
-    GdbMi root(fullData);
+    GdbMi root;
+    root.fromStringMultiple(QByteArray(data));
     if (!root.isValid())
         return false;
     gbdMiToWatchData(root, GdbMiRecursionContext(), l);

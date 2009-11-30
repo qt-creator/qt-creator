@@ -155,9 +155,8 @@ static bool parseConsoleStream(const GdbResponse &response, GdbMi *contents)
     out = out.left(out.lastIndexOf('"'));
     // optimization: dumper output never needs real C unquoting
     out.replace('\\', "");
-    out = "dummy={" + out + "}";
 
-    contents->fromString(out);
+    contents->fromStringMultiple(out);
     //qDebug() << "CONTENTS" << contents->toString(true);
     return contents->isValid();
 }
@@ -3584,8 +3583,8 @@ void GdbEngine::handleStackFrame(const GdbResponse &response)
                 << out.left(pos);
             out = out.mid(pos);
         }
-        GdbMi all("[" + out + "]");
-        //GdbMi all(out);
+        GdbMi all;
+        all.fromStringMultiple(out);
         
         //qDebug() << "\n\n\nALL: " << all.toString() << "\n";
         GdbMi locals = all.findChild("locals");

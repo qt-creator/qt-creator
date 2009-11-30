@@ -91,7 +91,6 @@ class GdbMi
 {
 public:
     GdbMi() : m_type(Invalid) {}
-    explicit GdbMi(const QByteArray &str) { fromString(str); }
 
     QByteArray m_name;
     QByteArray m_data;
@@ -126,6 +125,7 @@ public:
 
     QByteArray toString(bool multiline = false, int indent = 0) const;
     void fromString(const QByteArray &str);
+    void fromStringMultiple(const QByteArray &str);
     void setStreamOutput(const QByteArray &name, const QByteArray &content);
 
 private:
