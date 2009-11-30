@@ -28,12 +28,13 @@
 **************************************************************************/
 
 #include "buildstepspage.h"
-#include "project.h"
 #include "buildconfiguration.h"
 
 #include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+
+#include <QtCore/QSignalMapper>
 
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
@@ -47,40 +48,11 @@ using namespace ProjectExplorer::Internal;
 
 BuildStepsPage::BuildStepsPage(Project *project, bool clean) :
     BuildConfigWidget(),
-    m_clean(clean)
+    m_clean(clean),
+    m_addButton(0),
+    m_leftMargin(-1)
 {
-    Q_UNUSED(project)
-    m_vbox = new QVBoxLayout(this);
-    m_vbox->setContentsMargins(0, 0, 0, 0);
-    m_vbox->setSpacing(0);
-
-    m_noStepsLabel = new QLabel(tr("No Build Steps"), this);
-    m_vbox->addWidget(m_noStepsLabel);
-
-    QHBoxLayout *hboxLayout = new QHBoxLayout();
-    m_addButton = new QPushButton(this);
-    m_addButton->setText(clean ? tr("Add clean step") :  tr("Add build step"));
-    m_addButton->setMenu(new QMenu(this));
-    hboxLayout->addWidget(m_addButton);
-
-    m_removeButton = new QPushButton(this);
-    m_removeButton->setText(clean ? tr("Remove clean step") : tr("Remove build step"));
-    m_removeButton->setMenu(new QMenu(this));
-    hboxLayout->addWidget(m_removeButton);
-    hboxLayout->addStretch(10);
-
-#ifdef Q_OS_MAC
-    m_addButton->setAttribute(Qt::WA_MacSmallSize);
-    m_removeButton->setAttribute(Qt::WA_MacSmallSize);
-#endif
-
-    m_vbox->addLayout(hboxLayout);
-
-    connect(m_addButton->menu(), SIGNAL(aboutToShow()),
-            this, SLOT(updateAddBuildStepMenu()));
-
-    connect(m_removeButton->menu(), SIGNAL(aboutToShow()),
-            this, SLOT(updateRemoveBuildStepMenu()));
+    Q_UNUSED(project);
 }
 
 BuildStepsPage::~BuildStepsPage()
@@ -112,6 +84,10 @@ QString BuildStepsPage::displayName() const
 
 void BuildStepsPage::init(BuildConfiguration *bc)
 {
+    QTC_ASSERT(bc, return);
+
+    setupUi();
+
     foreach(BuildStepsWidgetStruct s, m_buildSteps) {
         delete s.widget;
         delete s.detailsWidget;
@@ -120,7 +96,7 @@ void BuildStepsPage::init(BuildConfiguration *bc)
 
     m_configuration = bc;
 
-    const QList<BuildStep *> &steps = m_clean ? bc->cleanSteps() : bc->buildSteps();
+    const QList<BuildStep *> &steps = m_clean ? m_configuration->cleanSteps() : m_configuration->buildSteps();
     int i = 0;
     foreach (BuildStep *bs, steps) {
         addBuildStepWidget(i, bs);
@@ -128,7 +104,6 @@ void BuildStepsPage::init(BuildConfiguration *bc)
     }
 
     m_noStepsLabel->setVisible(steps.isEmpty());
-    m_removeButton->setEnabled(!steps.isEmpty());
 
     // make sure widget is updated
     foreach(BuildStepsWidgetStruct s, m_buildSteps) {
@@ -143,7 +118,7 @@ void BuildStepsPage::updateAddBuildStepMenu()
     QMap<QString, QPair<QString, IBuildStepFactory *> > map;
     //Build up a list of possible steps and save map the display names to the (internal) name and factories.
     QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
-    foreach (IBuildStepFactory * factory, factories) {
+    foreach (IBuildStepFactory *factory, factories) {
         QStringList names = factory->canCreateForBuildConfiguration(m_configuration);
         foreach (const QString &name, names) {
             map.insert(factory->displayNameForName(name), QPair<QString, IBuildStepFactory *>(name, factory));
@@ -188,114 +163,57 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
     s.upButton->setIconSize(QSize(10, 10));
     s.downButton->setIconSize(QSize(10, 10));
 #endif
+    s.removeButton = new QPushButton(this);
+    s.removeButton->setText(QChar('X'));
+    s.removeButton->setMaximumHeight(22);
+    s.removeButton->setMaximumWidth(22);
+
     // layout
     QWidget *toolWidget = new QWidget(s.detailsWidget);
     toolWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    s.hbox = new QHBoxLayout(toolWidget);
-    s.hbox->setMargin(0);
-    s.hbox->setSpacing(0);
-    s.hbox->addWidget(s.upButton);
-    s.hbox->addWidget(s.downButton);
+    QHBoxLayout *hbox = new QHBoxLayout();
+    toolWidget->setLayout(hbox);
+    hbox->setMargin(0);
+    hbox->setSpacing(0);
+    hbox->addWidget(s.upButton);
+    hbox->addWidget(s.downButton);
+    hbox->addWidget(s.removeButton);
+
     s.detailsWidget->setToolWidget(toolWidget);
 
+    const int leftMargin(qMax(m_leftMargin - toolWidget->width(), 0));
+    s.detailsWidget->setContentsMargins(leftMargin, 0, 0, 1);
+
     m_buildSteps.insert(pos, s);
+
     m_vbox->insertWidget(pos, s.detailsWidget);
 
     connect(s.widget, SIGNAL(updateSummary()),
             this, SLOT(updateSummary()));
 
     connect(s.upButton, SIGNAL(clicked()),
-            this, SLOT(upBuildStep()));
+            m_upMapper, SLOT(map()));
     connect(s.downButton, SIGNAL(clicked()),
-            this, SLOT(downBuildStep()));
+            m_downMapper, SLOT(map()));
+    connect(s.removeButton, SIGNAL(clicked()),
+            m_removeMapper, SLOT(map()));
 }
 
 void BuildStepsPage::addBuildStep()
 {
     if (QAction *action = qobject_cast<QAction *>(sender())) {
-        BuildConfiguration *bc = m_configuration;
         QPair<QString, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
-        BuildStep *newStep = pair.second->create(bc, pair.first);
-        int pos = m_clean ? bc->cleanSteps().count() : bc->buildSteps().count();
-        m_clean ? bc->insertCleanStep(pos, newStep) : bc->insertBuildStep(pos, newStep);
+        BuildStep *newStep = pair.second->create(m_configuration, pair.first);
+        int pos = m_clean ? m_configuration->cleanSteps().count() : m_configuration->buildSteps().count();
+        m_clean ? m_configuration->insertCleanStep(pos, newStep) : m_configuration->insertBuildStep(pos, newStep);
 
         addBuildStepWidget(pos, newStep);
         const BuildStepsWidgetStruct s = m_buildSteps.at(pos);
         s.widget->init();
         s.detailsWidget->setSummaryText(s.widget->summaryText());
+        s.detailsWidget->setExpanded(true);
     }
-    updateBuildStepButtonsState();
-}
 
-void BuildStepsPage::updateRemoveBuildStepMenu()
-{
-    QMenu *menu = m_removeButton->menu();
-    menu->clear();
-    const QList<BuildStep *> &steps = m_clean ? m_configuration->cleanSteps() : m_configuration->buildSteps();
-    foreach(BuildStep *step, steps) {
-        QAction *action = menu->addAction(step->displayName());
-        if (step->immutable())
-            action->setEnabled(false);
-        connect(action, SIGNAL(triggered()),
-                this, SLOT(removeBuildStep()));
-    }
-}
-
-void BuildStepsPage::removeBuildStep()
-{
-    QAction *action = qobject_cast<QAction *>(sender());
-    if (action) {
-        int pos = m_removeButton->menu()->actions().indexOf(action);
-        const QList<BuildStep *> &steps = m_clean ? m_configuration->cleanSteps() : m_configuration->buildSteps();
-        if (steps.at(pos)->immutable())
-            return;
-
-        BuildStepsWidgetStruct s = m_buildSteps.at(pos);
-        delete s.widget;
-        delete s.detailsWidget;
-        m_buildSteps.removeAt(pos);
-        m_clean ? m_configuration->removeCleanStep(pos) : m_configuration->removeBuildStep(pos);
-    }
-    updateBuildStepButtonsState();
-}
-
-void BuildStepsPage::upBuildStep()
-{
-    int pos = -1;
-    QToolButton *tb = qobject_cast<QToolButton *>(sender());
-    if (!tb)
-        return;
-
-    for (int i=0; i<m_buildSteps.count(); ++i) {
-        if (m_buildSteps.at(i).upButton == tb) {
-            pos = i;
-            break;
-        }
-    }
-    if (pos == -1)
-        return;
-
-    stepMoveUp(pos);
-    updateBuildStepButtonsState();
-}
-
-void BuildStepsPage::downBuildStep()
-{
-    int pos = -1;
-    QToolButton *tb = qobject_cast<QToolButton *>(sender());
-    if (!tb)
-        return;
-
-    for (int i=0; i<m_buildSteps.count(); ++i) {
-        if (m_buildSteps.at(i).downButton == tb) {
-            pos = i;
-            break;
-        }
-    }
-    if (pos == -1)
-        return;
-
-    stepMoveUp(pos + 1);
     updateBuildStepButtonsState();
 }
 
@@ -305,19 +223,84 @@ void BuildStepsPage::stepMoveUp(int pos)
 
     m_vbox->insertWidget(pos - 1, m_buildSteps.at(pos).detailsWidget);
 
-    BuildStepsWidgetStruct tmp = m_buildSteps.at(pos -1);
-    m_buildSteps[pos -1] = m_buildSteps.at(pos);
-    m_buildSteps[pos] = tmp;
+    m_buildSteps.swap(pos - 1, pos);
+
+    updateBuildStepButtonsState();
+}
+
+void BuildStepsPage::stepMoveDown(int pos)
+{
+    stepMoveUp(pos + 1);
+}
+
+void BuildStepsPage::stepRemove(int pos)
+{
+    BuildStepsWidgetStruct s = m_buildSteps.at(pos);
+    delete s.widget;
+    delete s.detailsWidget;
+    m_buildSteps.removeAt(pos);
+    m_clean ? m_configuration->removeCleanStep(pos) : m_configuration->removeBuildStep(pos);
+
+    updateBuildStepButtonsState();
+}
+
+void BuildStepsPage::setupUi()
+{
+    if (0 != m_addButton)
+        return;
+
+    QMargins margins(contentsMargins());
+    m_leftMargin = margins.left();
+    margins.setLeft(0);
+    setContentsMargins(margins);
+
+    m_upMapper = new QSignalMapper(this);
+    connect(m_upMapper, SIGNAL(mapped(int)),
+            this, SLOT(stepMoveUp(int)));
+    m_downMapper = new QSignalMapper(this);
+    connect(m_downMapper, SIGNAL(mapped(int)),
+            this, SLOT(stepMoveDown(int)));
+    m_removeMapper = new QSignalMapper(this);
+    connect(m_removeMapper, SIGNAL(mapped(int)),
+            this, SLOT(stepRemove(int)));
+
+    m_vbox = new QVBoxLayout(this);
+    m_vbox->setContentsMargins(0, 0, 0, 0);
+    m_vbox->setSpacing(0);
+
+    m_noStepsLabel = new QLabel(tr("No Build Steps"), this);
+    m_noStepsLabel->setContentsMargins(m_leftMargin, 0, 0, 0);
+    m_vbox->addWidget(m_noStepsLabel);
+
+    QHBoxLayout *hboxLayout = new QHBoxLayout();
+    hboxLayout->setContentsMargins(m_leftMargin, 4, 0, 0);
+    m_addButton = new QPushButton(this);
+    m_addButton->setText(m_clean ? tr("Add clean step") :  tr("Add build step"));
+    m_addButton->setMenu(new QMenu(this));
+    hboxLayout->addWidget(m_addButton);
+
+    hboxLayout->addStretch(10);
+
+#ifdef Q_OS_MAC
+    m_addButton->setAttribute(Qt::WA_MacSmallSize);
+#endif
+
+    m_vbox->addLayout(hboxLayout);
+
+    connect(m_addButton->menu(), SIGNAL(aboutToShow()),
+            this, SLOT(updateAddBuildStepMenu()));
 }
 
 void BuildStepsPage::updateBuildStepButtonsState()
 {
     const QList<BuildStep *> &steps = m_clean ? m_configuration->cleanSteps() : m_configuration->buildSteps();
-    for(int i=0; i<m_buildSteps.count(); ++i) {
+    for(int i = 0; i < m_buildSteps.count(); ++i) {
         BuildStepsWidgetStruct s = m_buildSteps.at(i);
-        s.upButton->setEnabled((i>0) && !(steps.at(i)->immutable() && steps.at(i - 1)));
-        s.downButton->setEnabled((i + 1< steps.count()) && !(steps.at(i)->immutable() && steps.at(i + 1)->immutable()));
+        s.removeButton->setEnabled(!steps.at(i)->immutable());
+        m_removeMapper->setMapping(s.removeButton, i);
+        s.upButton->setEnabled((i > 0) && !(steps.at(i)->immutable() && steps.at(i - 1)));
+        m_upMapper->setMapping(s.upButton, i);
+        s.downButton->setEnabled((i + 1 < steps.count()) && !(steps.at(i)->immutable() && steps.at(i + 1)->immutable()));
+        m_downMapper->setMapping(s.downButton, i);
     }
-    m_noStepsLabel->setVisible(steps.isEmpty());
-    m_removeButton->setEnabled(!steps.isEmpty());
 }
