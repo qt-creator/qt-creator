@@ -84,7 +84,7 @@ QStringList QMakeStep::allArguments()
         arguments << "-spec" << bc->qtVersion()->mkspec();
 
 #ifdef Q_OS_WIN
-    ToolChain::ToolChainType type = pro->toolChainType(bc);
+    ToolChain::ToolChainType type = bc->toolChainType();
     if (type == ToolChain::GCC_MAEMO)
         arguments << QLatin1String("-unix");
 #endif
