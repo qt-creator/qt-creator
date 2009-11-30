@@ -48,6 +48,7 @@ public:
     ProgressManagerPrivate(QObject *parent = 0);
     ~ProgressManagerPrivate();
     void init();
+    void cleanup();
 
     FutureProgress *addTask(const QFuture<void> &future, const QString &title, const QString &type,
                             ProgressFlags flags);
