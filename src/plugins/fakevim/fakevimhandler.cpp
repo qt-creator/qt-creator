@@ -357,6 +357,7 @@ public:
     QChar characterAtCursor() const
         { return m_tc.document()->characterAt(m_tc.position()); }
     void beginEditBlock() { UNDO_DEBUG("BEGIN EDIT BLOCK"); m_tc.beginEditBlock(); }
+    void beginEditBlock(int pos) { setUndoPosition(pos); beginEditBlock(); }
     void endEditBlock() { UNDO_DEBUG("END EDIT BLOCK"); m_tc.endEditBlock(); }
     void joinPreviousEditBlock() { UNDO_DEBUG("JOIN EDIT BLOCK"); m_tc.joinPreviousEditBlock(); }
 
@@ -416,6 +417,7 @@ public:
     // undo handling
     void undo();
     void redo();
+    void setUndoPosition(int pos);
     QMap<int, int> m_undoCursorPosition; // revision -> position
 
     // extra data for '.'
@@ -667,7 +669,7 @@ EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
     const QString &text)
 {
     //qDebug() << " CURSOR POS: " << m_undoCursorPosition;
-    m_undoCursorPosition[m_tc.document()->availableUndoSteps()] = m_tc.position();
+    setUndoPosition(m_tc.position());
     //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
     if (m_mode == InsertMode)
         return handleInsertMode(key, unmodified, text);
@@ -677,6 +679,12 @@ EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
             || m_mode == SearchBackwardMode)
         return handleMiniBufferModes(key, unmodified, text);
     return EventUnhandled;
+}
+
+void FakeVimHandler::Private::setUndoPosition(int pos)
+{
+    //qDebug() << " CURSOR POS: " << m_undoCursorPosition;
+    m_undoCursorPosition[m_tc.document()->availableUndoSteps()] = pos;
 }
 
 void FakeVimHandler::Private::moveDown(int n)
@@ -2256,10 +2264,12 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     QString indent(len, ' ');
     int firstPos = firstPositionInLine(beginLine);
 
+    beginEditBlock(firstPos);
     for (int line = beginLine; line <= endLine; ++line) {
         setPosition(firstPositionInLine(line));
         m_tc.insertText(indent);
     }
+    endEditBlock();
 
     setPosition(firstPos);
     moveToFirstNonBlankOnLine();
@@ -2277,6 +2287,7 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
     int tab = config(ConfigTabStop).toInt();
     int firstPos = firstPositionInLine(beginLine);
 
+    beginEditBlock(firstPos);
     for (int line = beginLine; line <= endLine; ++line) {
         int pos = firstPositionInLine(line);
         setPosition(pos);
@@ -2297,6 +2308,7 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
         removeSelectedText();
         setPosition(pos);
     }
+    endEditBlock();
 
     setPosition(firstPos);
     moveToFirstNonBlankOnLine();
