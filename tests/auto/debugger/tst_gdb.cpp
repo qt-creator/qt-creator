@@ -35,6 +35,10 @@ bool checkUninitialized = false;
 #include <set>
 #include <vector>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 #undef NS
 #ifdef QT_NAMESPACE
 #   define STRINGIFY0(s) #s
