@@ -339,6 +339,7 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
 
     m_buildConfiguration = m_project->buildConfigurationFactory()->clone(sourceConfiguration);
     m_buildConfiguration->setDisplayName(newDisplayName);
+    m_project->addBuildConfiguration(m_buildConfiguration);
 
     updateBuildSettings();
 }

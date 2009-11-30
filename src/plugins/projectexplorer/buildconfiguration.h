@@ -114,7 +114,7 @@ public:
     // project mode for editing
     virtual BuildConfiguration *create(const QString &type) const = 0;
 
-    // clones a given BuildConfiguration and adds it to the project
+    // clones a given BuildConfiguration, should not add it to the project
     virtual BuildConfiguration *clone(BuildConfiguration *source) const = 0;
 
     // restores a BuildConfiguration with the name and adds it to the project

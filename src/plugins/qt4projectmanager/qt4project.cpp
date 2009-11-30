@@ -298,7 +298,6 @@ BuildConfiguration *Qt4BuildConfigurationFactory::clone(BuildConfiguration *sour
 {
     Qt4BuildConfiguration *oldbc = static_cast<Qt4BuildConfiguration *>(source);
     Qt4BuildConfiguration *newbc = new Qt4BuildConfiguration(oldbc);
-    m_project->addBuildConfiguration(newbc);
     return newbc;
 }
 

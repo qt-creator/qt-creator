@@ -138,7 +138,6 @@ BuildConfiguration *CMakeBuildConfigurationFactory::clone(ProjectExplorer::Build
 {
     CMakeBuildConfiguration *old = static_cast<CMakeBuildConfiguration *>(source);
     CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(old);
-    m_project->addBuildConfiguration(bc);
     return bc;
 }
 
