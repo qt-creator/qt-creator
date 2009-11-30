@@ -9,31 +9,41 @@
 
 using namespace Utils;
 
-DetailsWidget::DetailsWidget(QWidget *parent)
-    : QWidget(parent),
-      m_summaryLabel(new QLabel(this)),
-      m_detailsButton(new DetailsButton(this)),
-      m_widget(0),
-      m_toolWidget(0),
-      m_grid(new QGridLayout(this))
+namespace {
+const int MARGIN=8;
+}
 
+// This widget is using a grid layout and places the items
+// in the following way:
+//
+// +------------+-------------------------+---------------+
+// + toolWidget | summaryLabel            | detailsButton |
+// +------------+-------------------------+---------------+
+// |            | widget                                  |
+// +------------+-------------------------+---------------+
+
+DetailsWidget::DetailsWidget(QWidget *parent) :
+    QWidget(parent),
+    m_detailsButton(new DetailsButton(this)),
+    m_grid(new QGridLayout(this)),
+    m_summaryLabel(new QLabel(this)),
+    m_toolWidget(0),
+    m_widget(0),
+    m_hovered(false)
 {
-    m_grid->setContentsMargins(4, 3, 4, 3);
-
     m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_summaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
 
-    m_grid->addWidget(m_summaryLabel, 0, 0);
-    m_grid->addWidget(m_detailsButton, 0, 2, 1, 1, Qt::AlignBottom);
+    m_grid->setContentsMargins(0, 0, 0, 0);
+    m_grid->setSpacing(0);
+    m_grid->addWidget(m_summaryLabel, 0, 1);
+    m_grid->addWidget(m_detailsButton, 0, 2, 1, 1, Qt::AlignCenter);
 
-    m_dummyWidget = new QWidget(this);
-    m_dummyWidget->setMaximumHeight(4);
-    m_dummyWidget->setMaximumHeight(4);
-    m_dummyWidget->setVisible(false);
-    m_grid->addWidget(m_dummyWidget, 2, 0, 1, 1);
+    m_detailsButton->setEnabled(false);
 
-    connect(m_detailsButton, SIGNAL(clicked()),
-            this, SLOT(detailsButtonClicked()));
+    connect(m_detailsButton, SIGNAL(toggled(bool)),
+            this, SLOT(setExpanded(bool)));
 }
 
 DetailsWidget::~DetailsWidget()
@@ -43,53 +53,36 @@ DetailsWidget::~DetailsWidget()
 
 void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
 {
-    //TL-->                 ___________  <-- TR
-    //                     |           |
-    //ML->   ______________| <--MM     | <--MR
-    //       |                         |
-    //BL->   |_________________________| <-- BR
-
-
     QWidget::paintEvent(paintEvent);
 
-    if (!m_detailsButton->isToggled())
-        return;
-
-    const QRect detailsGeometry = m_detailsButton->geometry();
-    const QRect widgetGeometry = m_widget ? m_widget->geometry() : QRect(x(), y() + height(), width(), 0);
-
-    QPoint tl(detailsGeometry.topLeft());
-    tl += QPoint(-3, -3);
-
-    QPoint tr(detailsGeometry.topRight());
-    tr += QPoint(3, -3);
-
-    QPoint mm(detailsGeometry.left() - 3, widgetGeometry.top() - 3);
-
-    QPoint ml(1, mm.y());
-
-    QPoint mr(tr.x(), mm.y());
-
-    int bottom = geometry().height() - 3;
-    QPoint bl(1, bottom);
-    QPoint br(tr.x(), bottom);
-
     QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing);
-    p.setPen(Qt::NoPen);
 
-    p.setBrush(palette().dark());
-    p.drawRoundedRect(QRect(tl, br), 5, 5);
-    p.drawRoundedRect(QRect(ml, br), 5, 5);
+    const QRect paintArea(m_summaryLabel->geometry().topLeft(),
+                          contentsRect().bottomRight());
+
+    if (!isExpanded()) {
+        if (m_collapsedPixmap.isNull() ||
+            m_collapsedPixmap.size() != size())
+            m_collapsedPixmap = cacheBackground(paintArea.size(), false);
+        p.drawPixmap(paintArea, m_collapsedPixmap);
+    } else {
+        if (m_expandedPixmap.isNull() ||
+            m_expandedPixmap.size() != size())
+            m_expandedPixmap = cacheBackground(paintArea.size(), true);
+        p.drawPixmap(paintArea, m_expandedPixmap);
+    }
 }
 
-void DetailsWidget::detailsButtonClicked()
+void DetailsWidget::enterEvent(QEvent * event)
 {
-    bool visible = m_detailsButton->isToggled();
-    if (m_widget)
-        m_widget->setVisible(visible);
-    m_dummyWidget->setVisible(visible);
-    fixUpLayout();
+    QWidget::enterEvent(event);
+    changeHoverState(true);
+}
+
+void DetailsWidget::leaveEvent(QEvent * event)
+{
+    QWidget::leaveEvent(event);
+    changeHoverState(false);
 }
 
 void DetailsWidget::setSummaryText(const QString &text)
@@ -102,15 +95,21 @@ QString DetailsWidget::summaryText() const
     return m_summaryLabel->text();
 }
 
-bool DetailsWidget::expanded() const
+bool DetailsWidget::isExpanded() const
 {
-    return m_detailsButton->isToggled();
+    if (!m_widget)
+        return false;
+    return m_widget->isVisible();
 }
 
-void DetailsWidget::setExpanded(bool v)
+void DetailsWidget::setExpanded(bool visible)
 {
-    if (expanded() != v)
-        m_detailsButton->animateClick();
+    if (!m_widget)
+        return;
+
+    m_summaryLabel->setEnabled(!visible);
+    m_widget->setVisible(visible);
+    m_detailsButton->setChecked(visible);
 }
 
 QWidget *DetailsWidget::widget() const
@@ -122,31 +121,40 @@ void DetailsWidget::setWidget(QWidget *widget)
 {
     if (m_widget == widget)
         return;
-    if (m_widget) {
+
+    const bool wasExpanded(isExpanded());
+
+    if (m_widget)
         m_grid->removeWidget(m_widget);
-        m_widget = 0;
-    }
+    m_widget = widget;
+
     if (widget) {
-        m_grid->addWidget(widget, 1, 0, 1, 3);
-        m_widget = widget;
-        bool visible = m_detailsButton->isToggled();
-        m_widget->setVisible(visible);
-        m_dummyWidget->setVisible(visible);
+        m_widget->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+        m_grid->addWidget(widget, 1, 1, 1, 2);
+        setExpanded(wasExpanded);
+    } else {
+        m_detailsButton->setEnabled(false);
     }
+    m_detailsButton->setEnabled(0 != m_widget);
 }
 
 void DetailsWidget::setToolWidget(QWidget *widget)
 {
     if (m_toolWidget == widget)
         return;
-    if (m_toolWidget) {
-        m_grid->removeWidget(m_toolWidget);
-        m_toolWidget = 0;
-    }
-    if (widget) {
-        m_grid->addWidget(widget, 0, 1, 1, 1, Qt::AlignBottom);
-        m_toolWidget = widget;
-    }
+
+    m_toolWidget = widget;
+
+    if (!m_toolWidget)
+        return;
+
+    m_toolWidget->adjustSize();
+    m_grid->addWidget(m_toolWidget, 0, 0, 1, 1, Qt::AlignCenter);
+
+    m_grid->setColumnMinimumWidth(0, m_toolWidget->width());
+    m_grid->setRowMinimumHeight(0, m_toolWidget->height());
+
+    changeHoverState(m_hovered);
 }
 
 QWidget *DetailsWidget::toolWidget() const
@@ -154,25 +162,35 @@ QWidget *DetailsWidget::toolWidget() const
     return m_toolWidget;
 }
 
-// This function works around a qt limitation.
-// In a deeply nested widget structure, nested layouts
-// tell their parents per a delayed invocation that they
-// need to repaint. Thus hiding a widget triggers
-// one relayout (and repaint) for each level of widget
-// nesting. We circumvent that, by forcing a update()
-// activate() on the widget after hiding.
-void DetailsWidget::fixUpLayout()
+QPixmap DetailsWidget::cacheBackground(const QSize &size, bool expanded)
 {
-    if (!m_widget)
-        return;
-    QWidget *parent = m_widget;
-    QStack<QWidget *> widgets;
-    while((parent = parent->parentWidget()) && parent && parent->layout()) {
-        widgets.push(parent);
-        parent->layout()->update();
+    QLinearGradient lg;
+    lg.setCoordinateMode(QGradient::ObjectBoundingMode);
+    lg.setFinalStop(0, 1);
+
+    lg.setColorAt(0, palette().color(QPalette::Midlight));
+    lg.setColorAt(1, palette().color(QPalette::Button));
+
+    QPixmap pixmap(size);
+    QPainter p(&pixmap);
+    p.setBrush(lg);
+    p.setPen(QPen(palette().color(QPalette::Mid)));
+
+    p.drawRect(0, 0, size.width() - 1, size.height() - 1);
+
+    if (expanded) {
+        p.drawLine(0, m_summaryLabel->height(),
+                   size.width(), m_summaryLabel->height());
     }
 
-    while(!widgets.isEmpty()) {
-        widgets.pop()->layout()->activate();
-    }
+    return pixmap;
+}
+
+void DetailsWidget::changeHoverState(bool hovered)
+{
+    m_hovered = hovered;
+    if (!m_toolWidget)
+        return;
+
+    m_toolWidget->setVisible(m_hovered);
 }
