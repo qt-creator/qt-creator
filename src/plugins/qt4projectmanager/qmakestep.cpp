@@ -39,8 +39,6 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
-#include <projectexplorer/projectexplorerconstants.h>
-
 #include <QFileDialog>
 #include <QDir>
 #include <QFile>
@@ -152,7 +150,7 @@ bool QMakeStep::init()
     setArguments(args);
     setEnvironment(qt4bc->environment());
 
-    setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_QMAKE);
+    setBuildParser(Qt4ProjectManager::Constants::BUILD_PARSER_QMAKE);
     return AbstractMakeStep::init();
 }
 

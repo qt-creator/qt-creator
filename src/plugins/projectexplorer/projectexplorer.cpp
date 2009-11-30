@@ -307,7 +307,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // Build parsers
     addAutoReleasedObject(new GccParserFactory);
     addAutoReleasedObject(new MsvcParserFactory);
-    addAutoReleasedObject(new QMakeParserFactory);
 
     // Settings page
     addAutoReleasedObject(new ProjectExplorerSettingsPage);

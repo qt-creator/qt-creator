@@ -30,11 +30,23 @@
 #ifndef QMAKEPARSER_H
 #define QMAKEPARSER_H
 
-#include "ibuildparser.h"
+#include <projectexplorer/ibuildparser.h>
 
 #include <QtCore/QRegExp>
 
-namespace ProjectExplorer {
+namespace Qt4ProjectManager {
+namespace Internal {
+
+class QMakeParserFactory : public ProjectExplorer::IBuildParserFactory
+{
+    Q_OBJECT
+public:
+    QMakeParserFactory() {}
+    virtual ~QMakeParserFactory();
+    virtual bool canCreate(const QString & name) const;
+    virtual ProjectExplorer::IBuildParser * create(const QString & name) const;
+};
+
 
 class QMakeParser : public ProjectExplorer::IBuildParser
 {
@@ -48,6 +60,7 @@ public:
 private:
 };
 
+} // namesapce Interanal
 } // namespace ProjectExplorer
 
 #endif // QMAKEPARSER_H
