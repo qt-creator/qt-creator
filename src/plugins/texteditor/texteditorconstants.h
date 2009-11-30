@@ -49,6 +49,7 @@ const char * const UN_COLLAPSE_ALL       = "TextEditor.UnCollapseAll";
 const char * const AUTO_INDENT_SELECTION = "TextEditor.AutoIndentSelection";
 const char * const INCREASE_FONT_SIZE    = "TextEditor.IncreaseFontSize";
 const char * const DECREASE_FONT_SIZE    = "TextEditor.DecreaseFontSize";
+const char * const RESET_FONT_SIZE    = "TextEditor.ResetFontSize";
 const char * const GOTO_BLOCK_START      = "TextEditor.GotoBlockStart";
 const char * const GOTO_BLOCK_START_WITH_SELECTION = "TextEditor.GotoBlockStartWithSelection";
 const char * const GOTO_BLOCK_END        = "TextEditor.GotoBlockEnd";

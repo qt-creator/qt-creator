@@ -78,6 +78,9 @@ public:
     int fontSize() const;
     void setFontSize(int size);
 
+    int fontZoom() const;
+    void setFontZoom(int zoom);
+
     QFont font() const
     { return QFont(family(), fontSize()); }
 
@@ -105,6 +108,7 @@ private:
     QString m_family;
     QString m_schemeFileName;
     int m_fontSize;
+    int m_fontZoom;
     bool m_antialias;
     ColorScheme m_scheme;
 };

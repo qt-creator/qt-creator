@@ -3411,19 +3411,18 @@ void BaseTextEditor::wheelEvent(QWheelEvent *e)
 
 void BaseTextEditor::zoomIn(int range)
 {
-  d->clearVisibleCollapsedBlock();
-    QFont f = font();
-    const int newSize = f.pointSize() + range;
-    if (newSize <= 0)
-        return;
-    emit requestFontSize(newSize);
-//    f.setPointSize(newSize);
-//    setFont(f);
+    d->clearVisibleCollapsedBlock();
+    emit requestFontZoom(range*10);
 }
 
 void BaseTextEditor::zoomOut(int range)
 {
     zoomIn(-range);
+}
+
+void BaseTextEditor::zoomReset()
+{
+    emit requestZoomReset();
 }
 
 bool BaseTextEditor::isElectricCharacter(const QChar &) const

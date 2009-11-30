@@ -74,7 +74,8 @@ signals:
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
 
 private slots:
-    void fontSizeRequested(int pointSize);
+    void fontZoomRequested(int pointSize);
+    void zoomResetRequested();
 
 private:
     FontSettingsPage *m_fontSettingsPage;

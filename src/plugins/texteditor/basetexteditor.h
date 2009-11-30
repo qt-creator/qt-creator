@@ -382,6 +382,7 @@ public slots:
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
+    void zoomReset();
 
     void cutLine();
     void deleteLine();
@@ -579,7 +580,8 @@ protected slots:
     virtual void slotUpdateBlockNotify(const QTextBlock &);
 
 signals:
-    void requestFontSize(int pointSize);
+    void requestFontZoom(int zoom);
+    void requestZoomReset();
     void requestBlockUpdate(const QTextBlock &);
     void requestAutoCompletion(TextEditor::ITextEditable *editor, bool forced);
     void requestQuickFix(TextEditor::ITextEditable *editor);
