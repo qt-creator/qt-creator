@@ -65,6 +65,18 @@ public:
         int timeout;
     };
 
+    class DevConfMatcher
+    {
+    public:
+        DevConfMatcher(const QString &name) : m_name(name) {}
+        bool operator()(const MaemoDeviceConfigurations::DeviceConfig &devConfig)
+        {
+            return devConfig.name == m_name;
+        }
+    private:
+        const QString m_name;
+    };
+
     static MaemoDeviceConfigurations &instance();
     QList<DeviceConfig> devConfigs() const { return m_devConfigs; }
     void setDevConfigs(const QList<DeviceConfig> &devConfigs);

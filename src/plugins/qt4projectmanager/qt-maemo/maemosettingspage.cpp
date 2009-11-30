@@ -46,6 +46,8 @@
 #include "ui_maemosettingswidget.h"
 #include "maemosettingspage.h"
 
+#include <QtGui/QIntValidator>
+
 #include <algorithm>
 
 namespace Qt4ProjectManager {
@@ -54,16 +56,61 @@ namespace Internal {
 #define PAGE_ID "ZZ.Maemo Device Configurations"
 #define PAGE_ID_TR "Maemo Device Configurations"
 
-class DevConfMatcher
+bool configNameExists(const QList<MaemoDeviceConfigurations::DeviceConfig> &devConfs,
+                      const QString &name)
+{
+    return std::find_if(devConfs.constBegin(), devConfs.constEnd(),
+        MaemoDeviceConfigurations::DevConfMatcher(name)) != devConfs.constEnd();
+}
+
+class PortAndTimeoutValidator : public QIntValidator
 {
 public:
-    DevConfMatcher(const QString &name) : m_name(name) {}
-    bool operator()(const MaemoDeviceConfigurations::DeviceConfig &devConfig)
+    PortAndTimeoutValidator() : QIntValidator(0, SHRT_MAX, 0)
     {
-        return devConfig.name == m_name;
     }
+
+    void setValue(int oldValue) { m_oldValue = oldValue; }
+
+    virtual void fixup(QString &input) const
+    {
+        int dummy = 0;
+        if (validate(input, dummy) != Acceptable)
+            input = QString::number(m_oldValue);
+    }
+
 private:
-    const QString m_name;
+    int m_oldValue;
+};
+
+class NameValidator : public QValidator
+{
+public:
+    NameValidator(const QList<MaemoDeviceConfigurations::DeviceConfig> &devConfs)
+        : m_devConfs(devConfs)
+    {
+    }
+
+    void setName(const QString &name) { m_oldName = name; }
+
+    virtual State validate(QString &input, int & /* pos */) const
+    {
+        if (input.trimmed().isEmpty()
+            || (input != m_oldName && configNameExists(m_devConfs, input)))
+            return Intermediate;
+        return Acceptable;
+    }
+
+    virtual void fixup(QString &input) const
+    {
+        int dummy = 0;
+        if (validate(input, dummy) != Acceptable)
+            input = m_oldName;
+    }
+
+private:
+    QString m_oldName;
+    const QList<MaemoDeviceConfigurations::DeviceConfig> &m_devConfs;
 };
 
 
@@ -72,24 +119,44 @@ class MaemoSettingsWidget : public QWidget
     Q_OBJECT
 public:
     MaemoSettingsWidget(QWidget *parent);
+    ~MaemoSettingsWidget();
     void saveSettings();
+private slots:
+    void selectionChanged();
+    void addConfig();
+    void deleteConfig();
+    void configNameEditingFinished();
+    void deviceTypeChanged();
+    void hostNameEditingFinished();
+    void portEditingFinished();
+    void timeoutEditingFinished();
+    void userNameEditingFinished();
+    void passwordEditingFinished();
+
 private:
     void initGui();
-    void addConfig();
     void display(const MaemoDeviceConfigurations::DeviceConfig &devConfig);
+    MaemoDeviceConfigurations::DeviceConfig &currentConfig();
+    void setPortOrTimeout(const QLineEdit *lineEdit, int &confVal,
+                          PortAndTimeoutValidator &validator);
+    void clearDetails();
 
     Ui_maemoSettingsWidget *m_ui;
     QList<MaemoDeviceConfigurations::DeviceConfig> m_devConfs;
+    PortAndTimeoutValidator m_portValidator;
+    PortAndTimeoutValidator m_timeoutValidator;
+    NameValidator m_nameValidator;
 };
 
 MaemoSettingsPage::MaemoSettingsPage(QObject *parent)
-    : Core::IOptionsPage(parent), m_widget(0)
+    : Core::IOptionsPage(parent)
 {
-
+    qDebug("Creating maemo settings page");
 }
 
 MaemoSettingsPage::~MaemoSettingsPage()
 {
+    qDebug("deleting maemo settings page");
 }
 
 QString MaemoSettingsPage::id() const
@@ -115,8 +182,6 @@ QString MaemoSettingsPage::trCategory() const
 
 QWidget *MaemoSettingsPage::createPage(QWidget *parent)
 {
-    if (m_widget != 0)
-        delete m_widget;
     m_widget = new MaemoSettingsWidget(parent);
     return m_widget;
 }
@@ -134,15 +199,25 @@ void MaemoSettingsPage::finish()
 MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
     : QWidget(parent),
       m_ui(new Ui_maemoSettingsWidget),
-      m_devConfs(MaemoDeviceConfigurations::instance().devConfigs())
+      m_devConfs(MaemoDeviceConfigurations::instance().devConfigs()),
+      m_nameValidator(m_devConfs)
 
 {
+    qDebug("creating maemo settings widget");
     initGui();
+}
+
+MaemoSettingsWidget::~MaemoSettingsWidget()
+{
+    qDebug("Deleting maemo settings widget");
 }
 
 void MaemoSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
+    m_ui->nameLineEdit->setValidator(&m_nameValidator);
+    m_ui->portLineEdit->setValidator(&m_portValidator);
+    m_ui->timeoutLineEdit->setValidator(&m_timeoutValidator);   
     foreach(const MaemoDeviceConfigurations::DeviceConfig &devConf, m_devConfs)
         m_ui->configListWidget->addItem(devConf.name);
 }
@@ -155,14 +230,32 @@ void MaemoSettingsWidget::addConfig()
     bool isUnique = false;
     do {
         newName = prefix + QString::number(suffix++);
-        isUnique = std::find_if(m_devConfs.constBegin(), m_devConfs.constEnd(),
-                                DevConfMatcher(newName)) == m_devConfs.constEnd();
+        isUnique = !configNameExists(m_devConfs, newName);
     } while (!isUnique);
 
     m_devConfs.append(MaemoDeviceConfigurations::DeviceConfig(newName));
     m_ui->configListWidget->addItem(newName);
-    // TODO: select and display new item (selection should automatically lead to display)
-    // also mark configuration name to suggest overwriting
+    m_ui->configListWidget->setCurrentRow(m_ui->configListWidget->count() - 1);
+    m_ui->nameLineEdit->selectAll();
+    m_ui->removeConfigButton->setEnabled(true);
+    m_ui->nameLineEdit->setFocus();
+}
+
+void MaemoSettingsWidget::deleteConfig()
+{
+    const QList<QListWidgetItem *> &selectedItems =
+        m_ui->configListWidget->selectedItems();
+    if (selectedItems.isEmpty())
+        return;
+    QListWidgetItem *item = selectedItems.first();
+    const int selectedRow = m_ui->configListWidget->row(item);
+    m_devConfs.removeAt(selectedRow);
+    disconnect(m_ui->configListWidget, SIGNAL(itemSelectionChanged()), 0, 0);
+    delete m_ui->configListWidget->takeItem(selectedRow);
+    connect(m_ui->configListWidget, SIGNAL(itemSelectionChanged()),
+            this, SLOT(selectionChanged()));
+    Q_ASSERT(m_ui->configListWidget->count() == m_devConfs.count());
+    selectionChanged();
 }
 
 void MaemoSettingsWidget::display(const MaemoDeviceConfigurations::DeviceConfig &devConfig)
@@ -178,11 +271,104 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfigurations::DeviceConfig 
     m_ui->userLineEdit->setText(devConfig.uname);
     m_ui->pwdLineEdit->setText(devConfig.pwd);
     m_ui->detailsWidget->setEnabled(true);
+    m_nameValidator.setName(devConfig.name);
+    m_portValidator.setValue(devConfig.port);
+    m_timeoutValidator.setValue(devConfig.timeout);
+    m_ui->detailsWidget->setEnabled(true);
 }
 
 void MaemoSettingsWidget::saveSettings()
 {
     MaemoDeviceConfigurations::instance().setDevConfigs(m_devConfs);
+}
+
+MaemoDeviceConfigurations::DeviceConfig &MaemoSettingsWidget::currentConfig()
+{
+    qDebug("%d/%d", m_ui->configListWidget->count(), m_devConfs.count());
+    Q_ASSERT(m_ui->configListWidget->count() == m_devConfs.count());
+    const QList<QListWidgetItem *> &selectedItems =
+        m_ui->configListWidget->selectedItems();
+    Q_ASSERT(selectedItems.count() == 1);
+    const int selectedRow = m_ui->configListWidget->row(selectedItems.first());
+    qDebug("selected row = %d", selectedRow);
+    Q_ASSERT(selectedRow < m_devConfs.count());
+    return m_devConfs[selectedRow];
+}
+
+void MaemoSettingsWidget::configNameEditingFinished()
+{
+    const QString &newName = m_ui->nameLineEdit->text();
+    currentConfig().name = newName;
+    m_nameValidator.setName(newName);
+    m_ui->configListWidget->currentItem()->setText(newName);
+}
+
+void MaemoSettingsWidget::deviceTypeChanged()
+{
+    currentConfig().type =
+        m_ui->deviceButton->isChecked()
+            ? MaemoDeviceConfigurations::DeviceConfig::Physical
+            : MaemoDeviceConfigurations::DeviceConfig::Simulator;
+}
+
+void MaemoSettingsWidget::hostNameEditingFinished()
+{
+    currentConfig().host = m_ui->hostLineEdit->text();
+}
+
+void MaemoSettingsWidget::portEditingFinished()
+{
+    setPortOrTimeout(m_ui->portLineEdit, currentConfig().port, m_portValidator);
+}
+
+void MaemoSettingsWidget::timeoutEditingFinished()
+{
+    setPortOrTimeout(m_ui->timeoutLineEdit, currentConfig().timeout,
+                     m_timeoutValidator);
+}
+
+void MaemoSettingsWidget::setPortOrTimeout(const QLineEdit *lineEdit,
+    int &confVal, PortAndTimeoutValidator &validator)
+{
+    bool ok;
+    confVal = lineEdit->text().toInt(&ok);
+    Q_ASSERT(ok);
+    validator.setValue(confVal);
+}
+
+void MaemoSettingsWidget::userNameEditingFinished()
+{
+    currentConfig().uname = m_ui->userLineEdit->text();
+}
+
+void MaemoSettingsWidget::passwordEditingFinished()
+{
+    currentConfig().pwd = m_ui->pwdLineEdit->text();
+}
+
+void MaemoSettingsWidget::selectionChanged()
+{
+    const QList<QListWidgetItem *> &selectedItems =
+        m_ui->configListWidget->selectedItems();
+    Q_ASSERT(selectedItems.count() <= 1);
+    if (selectedItems.isEmpty()) {
+        m_ui->removeConfigButton->setEnabled(false);
+        clearDetails();
+        m_ui->detailsWidget->setEnabled(false);
+    } else {
+        m_ui->removeConfigButton->setEnabled(true);
+        display(currentConfig());
+    }
+}
+
+void MaemoSettingsWidget::clearDetails()
+{
+    m_ui->nameLineEdit->clear();
+    m_ui->hostLineEdit->clear();
+    m_ui->portLineEdit->clear();
+    m_ui->timeoutLineEdit->clear();
+    m_ui->userLineEdit->clear();
+    m_ui->pwdLineEdit->clear();
 }
 
 } // namespace Internal

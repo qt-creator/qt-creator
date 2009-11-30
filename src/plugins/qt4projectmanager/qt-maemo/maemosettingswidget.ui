@@ -146,6 +146,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="removeConfigButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Remove</string>
        </property>
@@ -169,5 +172,194 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>nameLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>configNameEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>221</x>
+     <y>166</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>514</x>
+     <y>321</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>deviceButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>deviceTypeChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>164</x>
+     <y>197</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hostLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>hostNameEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>289</x>
+     <y>222</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>231</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>portLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>portEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>320</x>
+     <y>248</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>514</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>timeoutLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>timeoutEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>371</x>
+     <y>276</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>425</x>
+     <y>187</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>userLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>userNameEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>340</x>
+     <y>302</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>422</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pwdLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>passwordEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>423</x>
+     <y>336</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>simulatorButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>deviceTypeChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>291</x>
+     <y>198</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>426</x>
+     <y>87</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addConfigButton</sender>
+   <signal>clicked()</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>addConfig()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>465</x>
+     <y>27</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>516</x>
+     <y>118</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>configListWidget</sender>
+   <signal>itemSelectionChanged()</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>selectionChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>365</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>151</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removeConfigButton</sender>
+   <signal>clicked()</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>deleteConfig()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>454</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>513</x>
+     <y>101</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>configNameEditingFinished()</slot>
+  <slot>deviceTypeChanged()</slot>
+  <slot>hostNameEditingFinished()</slot>
+  <slot>portEditingFinished()</slot>
+  <slot>timeoutEditingFinished()</slot>
+  <slot>userNameEditingFinished()</slot>
+  <slot>passwordEditingFinished()</slot>
+  <slot>addConfig()</slot>
+  <slot>selectionChanged()</slot>
+  <slot>deleteConfig()</slot>
+ </slots>
 </ui>

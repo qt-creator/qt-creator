@@ -54,7 +54,7 @@ namespace {
 };
 
 MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QString &name)
-    : name(name), type(Physical)
+    : name(name), type(Physical), port(22), timeout(30)
 {
 }
 
@@ -97,8 +97,10 @@ void MaemoDeviceConfigurations::save()
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
     settings->beginWriteArray(ConfigListKey, m_devConfigs.count());
-    foreach (const DeviceConfig &devConfig, m_devConfigs)
-        devConfig.save(*settings);
+    for (int i = 0; i < m_devConfigs.count(); ++i) {
+        settings->setArrayIndex(i);
+        m_devConfigs.at(i).save(*settings);
+    }
     settings->endArray();
     settings->endGroup();
 }
@@ -114,8 +116,10 @@ void MaemoDeviceConfigurations::load()
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
     int count = settings->beginReadArray(ConfigListKey);
-    for (int i = 0; i < count; ++i)
+    for (int i = 0; i < count; ++i) {
+        settings->setArrayIndex(i);
         m_devConfigs.append(DeviceConfig(*settings));
+    }
     settings->endArray();
     settings->endGroup();
 }
