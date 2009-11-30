@@ -2555,6 +2555,8 @@ void GdbEngine::handleStackListThreads(const GdbResponse &response)
 
 void GdbEngine::reloadRegisters()
 {
+    if (state() != InferiorStopped)
+        return;
     if (!m_registerNamesListed) {
         postCommand(_("-data-list-register-names"), CB(handleRegisterListNames));
         m_registerNamesListed = true;
