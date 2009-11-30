@@ -492,19 +492,23 @@ const MaemoToolChain *MaemoRunConfiguration::toolchain() const
 
 const QString MaemoRunConfiguration::gdbCmd() const
 {
-    return toolchain() != 0
-            ? toolchain()->targetRoot() + "/bin/gdb"
-            : QString();
+    if (const MaemoToolChain *tc = toolchain())
+        return tc->targetRoot() + "/bin/gdb";
+    return QString();
 }
 
 QString MaemoRunConfiguration::maddeRoot() const
 {
-    return toolchain() != 0 ? toolchain()->maddeRoot() : QString();
+    if (const MaemoToolChain *tc = toolchain())
+        tc->maddeRoot();
+    return QString();
 }
 
 const QString MaemoRunConfiguration::sysRoot() const
 {
-    return toolchain() != 0 ? toolchain()->sysrootRoot() : QString();
+    if (const MaemoToolChain *tc = toolchain())
+        return toolchain()->sysrootRoot();
+    return QString();
 }
 
 const QStringList MaemoRunConfiguration::arguments() const
@@ -764,8 +768,10 @@ void MaemoRunConfiguration::updateSimulatorInformation()
     m_visibleSimulatorParameter = tr("Could not autodetect target simulator, "
         "please choose one on your own.");
 
-    if (!m_isUserSetSimulator)
-        m_simulatorPath = QDir::toNativeSeparators(toolchain()->simulatorRoot());
+    if (!m_isUserSetSimulator) {
+        if (const MaemoToolChain *tc = toolchain())
+            m_simulatorPath = QDir::toNativeSeparators(tc->simulatorRoot());
+    }
 
     if (!m_simulatorPath.isEmpty()) {
         m_visibleSimulatorParameter = tr("'%1' is not a valid Maemo simulator.")
