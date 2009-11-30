@@ -66,16 +66,20 @@ static void delete_map_entries(_Iterator first, _Iterator last)
         delete first->second;
 }
 
+template <typename _Iterator>
+static void delete_array_entries(_Iterator first, _Iterator last)
+{
+    for (; first != last; ++first)
+        delete *first;
+}
+
 template <typename _Map>
 static void delete_map_entries(const _Map &m)
 { delete_map_entries(m.begin(), m.end()); }
 
 template <typename _Array>
 static void delete_array_entries(const _Array &a)
-{
-    for (unsigned i = 0; i < a.size(); ++i)
-        delete a.at(i);
-}
+{ delete_array_entries(a.begin(), a.end()); }
 
 class Control::Data
 {
@@ -515,16 +519,16 @@ public:
 
     // types
     VoidType voidType;
-    Array<IntegerType *> integerTypes;
-    Array<FloatType *> floatTypes;
-    Array<PointerToMemberType *> pointerToMemberTypes;
-    Array<PointerType *> pointerTypes;
-    Array<ReferenceType *> referenceTypes;
-    Array<ArrayType *> arrayTypes;
-    Array<NamedType *> namedTypes;
+    std::vector<IntegerType *> integerTypes;
+    std::vector<FloatType *> floatTypes;
+    std::vector<PointerToMemberType *> pointerToMemberTypes;
+    std::vector<PointerType *> pointerTypes;
+    std::vector<ReferenceType *> referenceTypes;
+    std::vector<ArrayType *> arrayTypes;
+    std::vector<NamedType *> namedTypes;
 
     // symbols
-    Array<Symbol *> symbols;
+    std::vector<Symbol *> symbols;
 
     // ObjC context keywords:
     Identifier *objcGetterId;
