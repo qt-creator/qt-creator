@@ -275,8 +275,16 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
     }
 
     // Set Active Configuration
-    QString activeConfigurationName = reader.restoreValue("activebuildconfiguration").toString();
-    m_activeBuildConfiguration = buildConfigurations().at(buildConfigurationNames.indexOf(activeConfigurationName));
+    { // Try restoring the active configuration
+        QString activeConfigurationName = reader.restoreValue("activebuildconfiguration").toString();
+        int index = buildConfigurationNames.indexOf(activeConfigurationName);
+        if (index != -1)
+            m_activeBuildConfiguration = buildConfigurations().at(index);
+        else if (!buildConfigurations().isEmpty())
+            m_activeBuildConfiguration = buildConfigurations().at(0);
+        else
+            m_activeBuildConfiguration = 0;
+    }
 
     //Build Settings
     QVariant buildStepsVariant = reader.restoreValue("buildsteps");
