@@ -55,9 +55,6 @@ namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT Type
 {
-    Type(const Type &other);
-    void operator =(const Type &other);
-
 public:
     Type();
     virtual ~Type();

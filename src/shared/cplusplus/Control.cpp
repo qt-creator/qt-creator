@@ -55,9 +55,89 @@
 #include "Names.h"
 #include "Array.h"
 #include "TypeMatcher.h"
-#include <map> // ### replace me with LiteralTable
+#include <map>
+#include <set>
 
 using namespace CPlusPlus;
+
+namespace {
+
+template <typename _Tp>
+struct Compare;
+
+template <> struct Compare<IntegerType>
+{
+    bool operator()(const IntegerType &ty, const IntegerType &otherTy) const
+    { return ty.kind() < otherTy.kind(); }
+};
+
+template <> struct Compare<FloatType>
+{
+    bool operator()(const FloatType &ty, const FloatType &otherTy) const
+    { return ty.kind() < otherTy.kind(); }
+};
+
+template <> struct Compare<PointerToMemberType>
+{
+    bool operator()(const PointerToMemberType &ty, const PointerToMemberType &otherTy) const
+    {
+        if (ty.memberName() < otherTy.memberName())
+            return true;
+
+        else if (ty.memberName() == otherTy.memberName())
+            return ty.elementType() < otherTy.elementType();
+
+        return false;
+    }
+};
+
+template <> struct Compare<PointerType>
+{
+    bool operator()(const PointerType &ty, const PointerType &otherTy) const
+    {
+        return ty.elementType() < otherTy.elementType();
+    }
+};
+
+template <> struct Compare<ReferenceType>
+{
+    bool operator()(const ReferenceType &ty, const ReferenceType &otherTy) const
+    {
+        return ty.elementType() < otherTy.elementType();
+    }
+};
+
+template <> struct Compare<NamedType>
+{
+    bool operator()(const NamedType &ty, const NamedType &otherTy) const
+    {
+        return ty.name() < otherTy.name();
+    }
+};
+
+template <> struct Compare<ArrayType>
+{
+    bool operator()(const ArrayType &ty, const ArrayType &otherTy) const
+    {
+        if (ty.size() < otherTy.size())
+            return true;
+
+        else if (ty.size() == otherTy.size())
+            return ty.elementType() < otherTy.elementType();
+
+        return false;
+    }
+};
+
+template <typename _Tp>
+class Table: public std::set<_Tp, Compare<_Tp> >
+{
+public:
+    _Tp *intern(const _Tp &element)
+    { return const_cast<_Tp *>(&*insert(element).first); }
+};
+
+} // end of anonymous namespace
 
 template <typename _Iterator>
 static void delete_map_entries(_Iterator first, _Iterator last)
@@ -99,15 +179,6 @@ public:
         delete_map_entries(conversionNameIds);
         delete_map_entries(qualifiedNameIds);
         delete_map_entries(templateNameIds);
-
-        // types
-        delete_array_entries(integerTypes);
-        delete_array_entries(floatTypes);
-        delete_array_entries(pointerToMemberTypes);
-        delete_array_entries(pointerTypes);
-        delete_array_entries(referenceTypes);
-        delete_array_entries(arrayTypes);
-        delete_array_entries(namedTypes);
 
         // symbols
         delete_array_entries(symbols);
@@ -193,95 +264,37 @@ public:
 
     IntegerType *findOrInsertIntegerType(int kind)
     {
-        for (unsigned i = 0; i < integerTypes.size(); ++i) {
-            IntegerType *ty = integerTypes.at(i);
-
-            if (ty->kind() == kind)
-                return ty;
-        }
-
-        IntegerType *ty = new IntegerType(kind);
-        integerTypes.push_back(ty);
-        return ty;
+        return integerTypes.intern(IntegerType(kind));
     }
 
     FloatType *findOrInsertFloatType(int kind)
     {
-        for (unsigned i = 0; i < floatTypes.size(); ++i) {
-            FloatType *ty = floatTypes.at(i);
-
-            if (ty->kind() == kind)
-                return ty;
-        }
-
-        FloatType *ty = new FloatType(kind);
-        floatTypes.push_back(ty);
-        return ty;
+        return floatTypes.intern(FloatType(kind));
     }
 
     PointerToMemberType *findOrInsertPointerToMemberType(Name *memberName, const FullySpecifiedType &elementType)
     {
-        for (unsigned i = 0; i < pointerToMemberTypes.size(); ++i) {
-            PointerToMemberType *ty = pointerToMemberTypes.at(i);
-            if (ty->elementType().match(elementType, &matcher) && matcher.isEqualTo(ty->memberName(), memberName))
-                return ty;
-        }
-
-        PointerToMemberType *ty = new PointerToMemberType(memberName, elementType);
-        pointerToMemberTypes.push_back(ty);
-        return ty;
+        return pointerToMemberTypes.intern(PointerToMemberType(memberName, elementType));
     }
 
     PointerType *findOrInsertPointerType(const FullySpecifiedType &elementType)
     {
-        for (unsigned i = 0; i < pointerTypes.size(); ++i) {
-            PointerType *ty = pointerTypes.at(i);
-            if (ty->elementType().match(elementType, &matcher))
-                return ty;
-        }
-
-        PointerType *ty = new PointerType(elementType);
-        pointerTypes.push_back(ty);
-        return ty;
+        return pointerTypes.intern(PointerType(elementType));
     }
 
     ReferenceType *findOrInsertReferenceType(const FullySpecifiedType &elementType)
     {
-        for (unsigned i = 0; i < referenceTypes.size(); ++i) {
-            ReferenceType *ty = referenceTypes.at(i);
-            if (ty->elementType().match(elementType, &matcher))
-                return ty;
-        }
-
-        ReferenceType *ty = new ReferenceType(elementType);
-        referenceTypes.push_back(ty);
-        return ty;
+        return referenceTypes.intern(ReferenceType(elementType));
     }
 
     ArrayType *findOrInsertArrayType(const FullySpecifiedType &elementType, unsigned size)
     {
-        for (unsigned i = 0; i < arrayTypes.size(); ++i) {
-            ArrayType *ty = arrayTypes.at(i);
-            if (ty->size() == size && ty->elementType().match(elementType, &matcher))
-                return ty;
-        }
-
-        ArrayType *ty = new ArrayType(elementType, size);
-        arrayTypes.push_back(ty);
-        return ty;
+        return arrayTypes.intern(ArrayType(elementType, size));
     }
 
     NamedType *findOrInsertNamedType(Name *name)
     {
-        for (unsigned i = 0; i < namedTypes.size(); ++i) {
-            NamedType *ty = namedTypes.at(i);
-            if (matcher.isEqualTo(ty->name(), name))
-                return ty;
-        }
-
-        NamedType *ty = new NamedType(name);
-        namedTypes.push_back(ty);
-        return ty;
+        return namedTypes.intern(NamedType(name));
     }
 
     Declaration *newDeclaration(unsigned sourceLocation, Name *name)
@@ -519,13 +532,13 @@ public:
 
     // types
     VoidType voidType;
-    std::vector<IntegerType *> integerTypes;
-    std::vector<FloatType *> floatTypes;
-    std::vector<PointerToMemberType *> pointerToMemberTypes;
-    std::vector<PointerType *> pointerTypes;
-    std::vector<ReferenceType *> referenceTypes;
-    std::vector<ArrayType *> arrayTypes;
-    std::vector<NamedType *> namedTypes;
+    Table<IntegerType> integerTypes;
+    Table<FloatType> floatTypes;
+    Table<PointerToMemberType> pointerToMemberTypes;
+    Table<PointerType> pointerTypes;
+    Table<ReferenceType> referenceTypes;
+    Table<ArrayType> arrayTypes;
+    Table<NamedType> namedTypes;
 
     // symbols
     std::vector<Symbol *> symbols;
