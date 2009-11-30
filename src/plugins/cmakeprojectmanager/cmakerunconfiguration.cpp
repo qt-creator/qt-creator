@@ -60,8 +60,8 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &t
             this, SIGNAL(baseEnvironmentChanged()));
 
     // TODO
-    connect(pro, SIGNAL(environmentChanged(ProjectExplorer::BuildConfiguration *)),
-            this, SIGNAL(baseEnvironmentChanged()));
+//    connect(pro, SIGNAL(environmentChanged(ProjectExplorer::BuildConfiguration *)),
+//            this, SIGNAL(baseEnvironmentChanged()));
 }
 
 CMakeRunConfiguration::~CMakeRunConfiguration()
