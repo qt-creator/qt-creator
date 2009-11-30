@@ -58,7 +58,6 @@ protected:
 
 private:
     void setMaddeRoot();
-    void setTargetRoot();
     void setSimulatorRoot();
     void setSysrootAndToolchain();
 
@@ -73,12 +72,9 @@ private:
     bool m_simulatorInitialized;
 
     QString m_targetRoot;
-    bool m_targetInitialized;
 
     QString m_toolchainRoot;
     bool m_toolchainInitialized;
-
-    const Qt4ProjectManager::QtVersion *m_version;
 };
 
     } // namespace Internal

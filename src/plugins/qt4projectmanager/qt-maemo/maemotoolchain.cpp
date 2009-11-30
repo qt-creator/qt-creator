@@ -51,10 +51,10 @@ MaemoToolChain::MaemoToolChain(const Qt4ProjectManager::QtVersion *version)
     , m_maddeInitialized(false)
     , m_sysrootInitialized(false)
     , m_simulatorInitialized(false)
-    , m_targetInitialized(false)
     , m_toolchainInitialized(false)
-    , m_version(version)
 {
+    QString qmake = QDir::cleanPath(version->qmakeCommand());
+    m_targetRoot = qmake.remove(QLatin1String("/bin/qmake" EXEC_SUFFIX));
 }
 
 MaemoToolChain::~MaemoToolChain()
@@ -79,18 +79,16 @@ QList<HeaderPath> MaemoToolChain::systemHeaderPaths()
 
 void MaemoToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
-    if (m_version) {
-        env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
-            .arg(maddeRoot())));
-        env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
-            .arg(targetRoot())));
-        env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
-            .arg(toolchainRoot())));
+    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
+        .arg(maddeRoot())));
+    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
+        .arg(targetRoot())));
+    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
+        .arg(toolchainRoot())));
 #ifdef Q_OS_WIN
-        env.set("HOME", QDir::toNativeSeparators(maddeRoot()
-            + QLatin1String("/home/") + QDir::home().dirName()));
+    env.set("HOME", QDir::toNativeSeparators(maddeRoot()
+        + QLatin1String("/home/") + QDir::home().dirName()));
 #endif
-    }
 }
 
 QString MaemoToolChain::makeCommand() const
@@ -117,8 +115,6 @@ QString MaemoToolChain::maddeRoot() const
 
 QString MaemoToolChain::targetRoot() const
 {
-    if (!m_targetInitialized)
-        (const_cast<MaemoToolChain*> (this))->setTargetRoot();
     return m_targetRoot;
 }
 
@@ -141,13 +137,6 @@ QString MaemoToolChain::toolchainRoot() const
     if (!m_toolchainInitialized)
         (const_cast<MaemoToolChain*> (this))->setSysrootAndToolchain();
     return m_toolchainRoot;
-}
-
-void MaemoToolChain::setTargetRoot()
-{
-    m_targetInitialized = true;
-    QString qmake = QDir::cleanPath(m_version->qmakeCommand());
-    m_targetRoot = qmake.remove(QLatin1String("/bin/qmake" EXEC_SUFFIX));
 }
 
 void MaemoToolChain::setMaddeRoot()
