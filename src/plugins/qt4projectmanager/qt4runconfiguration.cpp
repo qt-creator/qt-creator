@@ -81,8 +81,9 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFile
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
 
-    connect(pro, SIGNAL(environmentChanged(ProjectExplorer::BuildConfiguration *)),
-            this, SIGNAL(baseEnvironmentChanged()));
+//    TODO
+//    connect(pro, SIGNAL(environmentChanged(ProjectExplorer::BuildConfiguration *)),
+//            this, SIGNAL(baseEnvironmentChanged()));
 }
 
 Qt4RunConfiguration::~Qt4RunConfiguration()

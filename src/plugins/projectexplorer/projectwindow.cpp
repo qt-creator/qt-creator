@@ -522,8 +522,9 @@ BuildConfigurationComboBox::BuildConfigurationComboBox(Project *p, QWidget *pare
     if (index != -1)
         m_comboBox->setCurrentIndex(index);
 
-    connect(p, SIGNAL(buildConfigurationDisplayNameChanged(ProjectExplorer::BuildConfiguration *)),
-            this, SLOT(nameChanged(ProjectExplorer::BuildConfiguration *)));
+    // TODO
+//    connect(p, SIGNAL(buildConfigurationDisplayNameChanged(ProjectExplorer::BuildConfiguration *)),
+//            this, SLOT(nameChanged(ProjectExplorer::BuildConfiguration *)));
     connect(p, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(activeConfigurationChanged()));
     connect(p, SIGNAL(addedBuildConfiguration(ProjectExplorer::Project *, ProjectExplorer::BuildConfiguration *)),
