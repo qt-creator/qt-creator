@@ -187,7 +187,8 @@ void TextEditorPlugin::invokeQuickFix()
 void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
 {
     if (m_searchResultWindow)
-        m_searchResultWindow->setTextEditorFont(QFont(settings.family(), settings.fontSize()));
+        m_searchResultWindow->setTextEditorFont(QFont(settings.family(),
+                                                      settings.fontSize() * settings.fontZoom() / 100));
 }
 
 Q_EXPORT_PLUGIN(TextEditorPlugin)
