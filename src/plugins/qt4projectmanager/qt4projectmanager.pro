@@ -28,7 +28,6 @@ HEADERS += qt4projectmanagerplugin.h \
     qt4projectmanagerconstants.h \
     makestep.h \
     qmakestep.h \
-    embeddedpropertiespage.h \
     qt4runconfiguration.h \
     qtmodulesinfo.h \
     qt4projectconfigwidget.h \
@@ -64,7 +63,6 @@ SOURCES += qt4projectmanagerplugin.cpp \
     wizards/qtwizard.cpp \
     makestep.cpp \
     qmakestep.cpp \
-    embeddedpropertiespage.cpp \
     qt4runconfiguration.cpp \
     qtmodulesinfo.cpp \
     qt4projectconfigwidget.cpp \
@@ -80,7 +78,6 @@ SOURCES += qt4projectmanagerplugin.cpp \
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \
-    embeddedpropertiespage.ui \
     qtversionmanager.ui \
     showbuildlog.ui \
     gettingstartedwelcomepagewidget.ui
