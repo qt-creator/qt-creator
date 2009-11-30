@@ -143,8 +143,10 @@ void BuildConfiguration::removeBuildStep(int position)
 
 void BuildConfiguration::moveBuildStepUp(int position)
 {
-    BuildStep *bs = m_buildSteps.takeAt(position);
-    m_buildSteps.insert(position - 1, bs);
+    if (position <= 0 || m_buildSteps.size() <= 1)
+        return;
+    m_buildSteps.swap(position - 1, position);
+
 }
 
 QList<BuildStep *> BuildConfiguration::cleanSteps() const
@@ -165,8 +167,9 @@ void BuildConfiguration::removeCleanStep(int position)
 
 void BuildConfiguration::moveCleanStepUp(int position)
 {
-    BuildStep *cs = m_cleanSteps.takeAt(position);
-    m_cleanSteps.insert(position, cs);
+    if (position <= 0 || m_cleanSteps.size() <= 1)
+        return;
+    m_cleanSteps.swap(position - 1, position);
 }
 
 ///
