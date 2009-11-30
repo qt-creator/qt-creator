@@ -427,7 +427,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
 
         a = new QAction(tr("Reset Font Size"), this);
-        cmd = am->registerAction(a,  TextEditor::Constants::DECREASE_FONT_SIZE,
+        cmd = am->registerAction(a,  TextEditor::Constants::RESET_FONT_SIZE,
             modecontext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+0")));
         connect(a, SIGNAL(triggered()), m_centralWidget, SLOT(resetZoom()));

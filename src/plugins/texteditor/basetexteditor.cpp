@@ -4179,6 +4179,14 @@ void BaseTextEditor::changeEvent(QEvent *e)
     }
 }
 
+void BaseTextEditor::focusOutEvent(QFocusEvent *e)
+{
+    QPlainTextEdit::focusOutEvent(e);
+    if (viewport()->cursor().shape() == Qt::BlankCursor)
+        viewport()->setCursor(Qt::IBeamCursor);
+}
+
+
 void BaseTextEditor::maybeSelectLine()
 {
     QTextCursor cursor = textCursor();
