@@ -36,6 +36,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <QtCore/QProcess>
+#include <QtCore/QFutureInterface>
 
 QT_BEGIN_NAMESPACE
 class QMessageBox;
@@ -176,9 +177,11 @@ private slots:
     void printCopyProgress(int progress);
     void printInstallingNotice();
     void printInstallFailed(const QString &filename, const QString &errorMessage);
+    void printInstallingFinished();
     void launcherFinished();
     void slotLauncherStateChanged(int);
     void slotWaitingForTrkClosed();
+    void reportDeployFinished();
 
 private:        
     bool createPackageFileFromTemplate(QString *errorMessage);
@@ -207,6 +210,7 @@ private:
     QString m_makesisTool;
     QString m_packageFile;
 
+    QFutureInterface<void> *m_deployProgress;
     trk::Launcher *m_launcher;
 };
 

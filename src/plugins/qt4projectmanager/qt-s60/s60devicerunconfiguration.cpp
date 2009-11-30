@@ -41,6 +41,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -59,6 +60,13 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 enum { debug = 0 };
+
+static const int    PROGRESS_PACKAGECREATED = 100;
+static const int    PROGRESS_PACKAGESIGNED = 200;
+static const int    PROGRESS_DEPLOYBASE = 200;
+static const int    PROGRESS_PACKAGEDEPLOYED = 300;
+static const int    PROGRESS_PACKAGEINSTALLED = 400;
+static const int    PROGRESS_MAX = 400;
 
 // Format information about a file
 static QString lsFile(const QString &f)
@@ -414,7 +422,10 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_makesis(new QProcess(this)),
     m_signsis(0),
     m_launcher(0)
-{    
+{
+    // connect for automatically reporting the "finished deploy" state to the progress manager
+    connect(this, SIGNAL(finished()), this, SLOT(reportDeployFinished()));
+
     connect(m_makesis, SIGNAL(readyReadStandardError()),
             this, SLOT(readStandardError()));
     connect(m_makesis, SIGNAL(readyReadStandardOutput()),
@@ -490,6 +501,13 @@ S60DeviceRunControlBase::~S60DeviceRunControlBase()
 
 void S60DeviceRunControlBase::start()
 {
+    m_deployProgress = new QFutureInterface<void>;
+    Core::ICore::instance()->progressManager()->addTask(m_deployProgress->future(),
+                                                        tr("Deploying"),
+                                                        QLatin1String("Symbian.Deploy"));
+    m_deployProgress->setProgressRange(0, PROGRESS_MAX);
+    m_deployProgress->setProgressValue(0);
+    m_deployProgress->reportStarted();
     emit started();
     if (m_serialPortName.isEmpty()) {
         error(this, tr("There is no device plugged in."));
@@ -609,6 +627,7 @@ void S60DeviceRunControlBase::makesisProcessFinished()
         emit finished();
         return;
     }
+    m_deployProgress->setProgressValue(PROGRESS_PACKAGECREATED);
     switch (m_toolChain) {
     case ProjectExplorer::ToolChain::GCCE_GNUPOC:
     case ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC:
@@ -650,6 +669,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
         stop();
         emit finished();
     } else {
+        m_deployProgress->setProgressValue(PROGRESS_PACKAGESIGNED);
         startDeployment();
     }
 }
@@ -665,6 +685,7 @@ void S60DeviceRunControlBase::startDeployment()
     connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(printCloseFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
     connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(printInstallFailed(QString,QString)));
+    connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
     connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
     connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
 
@@ -733,12 +754,21 @@ void S60DeviceRunControlBase::printCopyingNotice()
 
 void S60DeviceRunControlBase::printCopyProgress(int progress)
 {
-    emit addToOutputWindow(this, tr("%1% copied.").arg(progress));
+    m_deployProgress->setProgressValue(PROGRESS_DEPLOYBASE + progress);
 }
 
 void S60DeviceRunControlBase::printInstallingNotice()
 {
+    m_deployProgress->setProgressValue(PROGRESS_PACKAGEDEPLOYED);
     emit addToOutputWindow(this, tr("Installing application..."));
+}
+
+void S60DeviceRunControlBase::printInstallingFinished()
+{
+    m_deployProgress->setProgressValue(PROGRESS_PACKAGEINSTALLED);
+    m_deployProgress->reportFinished();
+    delete m_deployProgress;
+    m_deployProgress = 0;
 }
 
 void S60DeviceRunControlBase::printInstallFailed(const QString &filename, const QString &errorMessage)
@@ -751,6 +781,15 @@ void S60DeviceRunControlBase::launcherFinished()
     m_launcher->deleteLater();
     m_launcher = 0;
     handleLauncherFinished();
+}
+
+void S60DeviceRunControlBase::reportDeployFinished()
+{
+    if (m_deployProgress) {
+        m_deployProgress->reportFinished();
+        delete m_deployProgress;
+        m_deployProgress = 0;
+    }
 }
 
 QMessageBox *S60DeviceRunControlBase::createTrkWaitingMessageBox(const QString &port, QWidget *parent)
