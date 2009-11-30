@@ -136,8 +136,8 @@ signals:
     void removedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
     void addedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
 
-    void removedBuildConfiguration(ProjectExplorer::Project *p, BuildConfiguration *bc);
-    void addedBuildConfiguration(ProjectExplorer::Project *p, BuildConfiguration *bc);
+    void removedBuildConfiguration(ProjectExplorer::Project *p, ProjectExplorer::BuildConfiguration *bc);
+    void addedBuildConfiguration(ProjectExplorer::Project *p, ProjectExplorer::BuildConfiguration *bc);
 
 protected:
     /* This method is called when the project .user file is saved. Simply call
