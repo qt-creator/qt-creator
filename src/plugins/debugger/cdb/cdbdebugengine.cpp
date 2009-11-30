@@ -1588,6 +1588,8 @@ QList<Symbol> CdbDebugEngine::moduleSymbols(const QString &moduleName)
 
 void CdbDebugEngine::reloadRegisters()
 {
+    if (state() != InferiorStopped)
+        return;
     const int intBase = 10;
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << intBase;
