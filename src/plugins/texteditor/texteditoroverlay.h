@@ -8,9 +8,11 @@ namespace TextEditor {
 namespace Internal {
 
 struct TEXTEDITOR_EXPORT OverlaySelection {
+    OverlaySelection():m_fixedLength(-1){}
     QTextCursor m_cursor_begin;
     QTextCursor m_cursor_end;
     QColor m_color;
+    int m_fixedLength;
 };
 
 class TEXTEDITOR_EXPORT TextEditorOverlay : public QObject
@@ -38,8 +40,8 @@ public:
     void update();
 
     void clear();
-    void addOverlaySelection(const QTextCursor &cursor, const QColor &color);
-    void addOverlaySelection(int begin, int end, const QColor &color);
+    void addOverlaySelection(const QTextCursor &cursor, const QColor &color, bool lockSize = false);
+    void addOverlaySelection(int begin, int end, const QColor &color, bool lockSize = false);
 
     inline bool isEmpty() const { return m_selections.isEmpty(); }
 

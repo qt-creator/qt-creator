@@ -36,9 +36,9 @@ void TextEditorOverlay::clear()
     update();
 }
 
-void TextEditorOverlay::addOverlaySelection(int begin, int end, const QColor &color)
+void TextEditorOverlay::addOverlaySelection(int begin, int end, const QColor &color, bool lockSize)
 {
-    if (end <= begin)
+    if (end < begin)
         return;
 
     QTextDocument *document = m_editor->document();
@@ -52,16 +52,17 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end, const QColor &co
     selection.m_cursor_end = QTextCursor(document);
     selection.m_cursor_end.setPosition(end);
 
+    if (lockSize)
+        selection.m_fixedLength = (end - begin);
+
     m_selections += selection;
     update();
 }
 
 
-void TextEditorOverlay::addOverlaySelection(const QTextCursor &cursor, const QColor &color)
+void TextEditorOverlay::addOverlaySelection(const QTextCursor &cursor, const QColor &color, bool lockSize)
 {
-    if (!cursor.hasSelection())
-        return;
-    addOverlaySelection(cursor.selectionStart(), cursor.selectionEnd(), color);
+    addOverlaySelection(cursor.selectionStart(), cursor.selectionEnd(), color, lockSize);
 }
 
 QRect TextEditorOverlay::rect() const
@@ -243,6 +244,11 @@ void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
     Q_UNUSED(clip);
     for (int i = 0; i < m_selections.size(); ++i) {
         const OverlaySelection &selection = m_selections.at(i);
+        if (selection.m_fixedLength >= 0
+            && selection.m_cursor_end.position() - selection.m_cursor_begin.position()
+            != selection.m_fixedLength)
+            continue;
+
         paintSelection(painter,
                        selection.m_cursor_begin,
                        selection.m_cursor_end,
