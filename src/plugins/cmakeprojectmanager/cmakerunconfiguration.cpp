@@ -194,7 +194,7 @@ ProjectExplorer::Environment CMakeRunConfiguration::baseEnvironment() const
     } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::SystemEnvironmentBase) {
         env = ProjectExplorer::Environment::systemEnvironment();
     } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::BuildEnvironmentBase) {
-        env = environment();
+        env = project()->activeBuildConfiguration()->environment();
     }
     return env;
 }
