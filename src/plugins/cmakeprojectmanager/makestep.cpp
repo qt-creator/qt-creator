@@ -258,7 +258,11 @@ void MakeStepConfigWidget::updateDetails()
     arguments << m_makeStep->additionalArguments();
 
     CMakeBuildConfiguration *bc = m_makeStep->cmakeBuildConfiguration();
-    m_summaryText = tr("<b>Make:</b> %1 %2").arg(bc->toolChain()->makeCommand(), arguments.join(" "));
+    ProjectExplorer::ToolChain *tc = bc->toolChain();
+    if (tc)
+        m_summaryText = tr("<b>Make:</b> %1 %2").arg(tc->makeCommand(), arguments.join(" "));
+    else
+        m_summaryText = tr("<b>Unknown Toolchain</b>");
     emit updateSummary();
 }
 
