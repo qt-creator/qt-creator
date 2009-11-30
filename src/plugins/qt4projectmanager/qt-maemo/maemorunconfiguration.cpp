@@ -506,7 +506,7 @@ QString MaemoRunConfiguration::maddeRoot() const
 const QString MaemoRunConfiguration::sysRoot() const
 {
     if (const MaemoToolChain *tc = toolchain())
-        return toolchain()->sysrootRoot();
+        return tc->sysrootRoot();
     return QString();
 }
 
