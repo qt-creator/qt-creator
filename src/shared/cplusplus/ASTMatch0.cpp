@@ -128,6 +128,14 @@ bool QtMethodAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool QtMemberDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (QtMemberDeclarationAST *_other = pattern->asQtMemberDeclaration())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool BinaryExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (BinaryExpressionAST *_other = pattern->asBinaryExpression())

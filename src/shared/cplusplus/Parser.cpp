@@ -2104,6 +2104,16 @@ bool Parser::parseStatement(StatementAST *&node)
         if (objCEnabled())
             return parseObjCSynchronizedStatement(node);
 
+    case T_Q_D:
+    case T_Q_Q: {
+        QtMemberDeclarationAST *ast = new (_pool) QtMemberDeclarationAST;
+        ast->q_token = consumeToken();
+        match(T_LPAREN, &ast->lparen_token);
+        parseTypeId(ast->type_id);
+        match(T_RPAREN, &ast->rparen_token);
+        node = ast;
+    } return true;
+
     default:
         if (LA() == T_IDENTIFIER && LA(2) == T_COLON)
             return parseLabeledStatement(node);

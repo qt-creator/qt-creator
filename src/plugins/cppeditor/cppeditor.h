@@ -79,10 +79,12 @@ public:
     typedef QHashIterator<CPlusPlus::Symbol *, QList<Use> > LocalUseIterator;
 
     SemanticInfo()
-        : revision(-1)
+        : revision(-1), hasQ(false), hasD(false)
     { }
 
     int revision;
+    bool hasQ: 1;
+    bool hasD: 1;
     CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr doc;
     LocalUseMap localUses;
@@ -253,6 +255,7 @@ private:
     SemanticHighlighter::Source currentSource(bool force = false);
 
     void highlightUses(const QList<SemanticInfo::Use> &uses,
+                       const SemanticInfo &semanticInfo,
                        QList<QTextEdit::ExtraSelection> *selections);
 
     void createToolBar(CPPEditorEditable *editable);

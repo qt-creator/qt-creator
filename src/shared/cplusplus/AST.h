@@ -246,6 +246,7 @@ public:
     virtual PostfixDeclaratorAST *asPostfixDeclarator() { return 0; }
     virtual PostfixExpressionAST *asPostfixExpression() { return 0; }
     virtual PtrOperatorAST *asPtrOperator() { return 0; }
+    virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return 0; }
     virtual QtMethodAST *asQtMethod() { return 0; }
     virtual QualifiedNameAST *asQualifiedName() { return 0; }
     virtual ReferenceAST *asReference() { return 0; }
@@ -573,6 +574,25 @@ public:
 
 public:
     virtual QtMethodAST *asQtMethod() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT QtMemberDeclarationAST: public StatementAST
+{
+public:
+    unsigned q_token;
+    unsigned lparen_token;
+    ExpressionAST *type_id;
+    unsigned rparen_token;
+
+public:
+    virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;

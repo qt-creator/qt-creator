@@ -88,6 +88,7 @@ protected:
     virtual bool visit(TryBlockStatementAST *ast);
     virtual bool visit(CatchClauseAST *ast);
     virtual bool visit(WhileStatementAST *ast);
+    virtual bool visit(QtMemberDeclarationAST *ast);
 
 private:
     StatementAST *_statement;

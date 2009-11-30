@@ -1462,6 +1462,10 @@ bool Preprocessor::isQtReservedWord(const QByteArray &macroId) const
         return true;
     else if (size == 6 && macroId.at(0) == 'Q' && macroId == "Q_SLOT")
         return true;
+    else if (size == 3 && macroId.at(0) == 'Q' && macroId == "Q_D")
+        return true;
+    else if (size == 3 && macroId.at(0) == 'Q' && macroId == "Q_Q")
+        return true;
     else if (size == 6 && macroId.at(0) == 'S' && macroId == "SIGNAL")
         return true;
     else if (size == 4 && macroId.at(0) == 'S' && macroId == "SLOT")

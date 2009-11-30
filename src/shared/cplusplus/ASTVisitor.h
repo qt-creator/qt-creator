@@ -198,6 +198,7 @@ public:
     virtual bool visit(UsingDirectiveAST *) { return true; }
     virtual bool visit(WhileStatementAST *) { return true; }
     virtual bool visit(QtMethodAST *) { return true; }
+    virtual bool visit(QtMemberDeclarationAST *) { return true; }
 
     // ObjC++
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
@@ -323,6 +324,7 @@ public:
     virtual void endVisit(UsingDirectiveAST *) { }
     virtual void endVisit(WhileStatementAST *) { }
     virtual void endVisit(QtMethodAST *) { }
+    virtual void endVisit(QtMemberDeclarationAST *) { }
 
     // ObjC++
     virtual void endVisit(ObjCClassDeclarationAST *) { }

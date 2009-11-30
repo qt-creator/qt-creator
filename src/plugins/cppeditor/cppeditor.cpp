@@ -186,19 +186,20 @@ private:
     }
 };
 
-class FindUses: protected ASTVisitor
+class FindLocalUses: protected ASTVisitor
 {
     Scope *_functionScope;
-
     FindScope findScope;
 
 public:
-    FindUses(TranslationUnit *translationUnit)
-        : ASTVisitor(translationUnit)
+    FindLocalUses(TranslationUnit *translationUnit)
+        : ASTVisitor(translationUnit), hasD(false), hasQ(false)
     { }
 
     // local and external uses.
     SemanticInfo::LocalUseMap localUses;
+    bool hasD;
+    bool hasQ;
 
     void operator()(FunctionDefinitionAST *ast)
     {
@@ -355,6 +356,16 @@ protected:
     {
         accept(ast->name);
         return false;
+    }
+
+    virtual bool visit(QtMemberDeclarationAST *ast)
+    {
+        if (tokenKind(ast->q_token) == T_Q_D)
+            hasD = true;
+        else
+            hasQ = true;
+
+        return true;
     }
 
     virtual bool visit(ExpressionOrDeclarationStatementAST *ast)
@@ -929,6 +940,7 @@ void CPPEditor::updateMethodBoxIndex()
 }
 
 void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
+                              const SemanticInfo &semanticInfo,
                               QList<QTextEdit::ExtraSelection> *selections)
 {
     bool isUnused = false;
@@ -950,6 +962,14 @@ void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
         sel.cursor = QTextCursor(document());
         sel.cursor.setPosition(anchor);
         sel.cursor.setPosition(position, QTextCursor::KeepAnchor);
+
+        if (isUnused) {
+            if (semanticInfo.hasQ && sel.cursor.selectedText() == QLatin1String("q"))
+                continue; // skip q
+
+            else if (semanticInfo.hasD && sel.cursor.selectedText() == QLatin1String("d"))
+                continue; // skip d
+        }
 
         selections->append(sel);
     }
@@ -1953,14 +1973,12 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
             }
         }
 
-        if (uses.size() == 1) {
+        if (uses.size() == 1)
             // it's an unused declaration
-            highlightUses(uses, &unusedSelections);
-        } else if (good) {
-            QList<QTextEdit::ExtraSelection> selections;
-            highlightUses(uses, &selections);
-            m_renameSelections += selections;
-        }
+            highlightUses(uses, semanticInfo, &unusedSelections);
+
+        else if (good && m_renameSelections.isEmpty())
+            highlightUses(uses, semanticInfo, &m_renameSelections);
     }
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
@@ -2078,7 +2096,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(translationUnit);
     FunctionDefinitionAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
 
-    FindUses useTable(translationUnit);
+    FindLocalUses useTable(translationUnit);
     useTable(currentFunctionDefinition);
 
     SemanticInfo semanticInfo;
@@ -2086,6 +2104,8 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     semanticInfo.snapshot = snapshot;
     semanticInfo.doc = doc;
     semanticInfo.localUses = useTable.localUses;
+    semanticInfo.hasQ = useTable.hasQ;
+    semanticInfo.hasD = useTable.hasD;
 
     return semanticInfo;
 }

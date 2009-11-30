@@ -54,6 +54,9 @@
 #include "CoreTypes.h"
 #include "Control.h"
 #include "Symbols.h"
+#include "Names.h"
+#include "Literals.h"
+#include <string>
 
 using namespace CPlusPlus;
 
@@ -307,4 +310,34 @@ bool CheckStatement::visit(WhileStatementAST *ast)
     return false;
 }
 
+bool CheckStatement::visit(QtMemberDeclarationAST *ast)
+{
+    Name *name = 0;
 
+    if (tokenKind(ast->q_token) == T_Q_D)
+        name = control()->nameId(control()->findOrInsertIdentifier("d"));
+    else
+        name = control()->nameId(control()->findOrInsertIdentifier("q"));
+
+    FullySpecifiedType declTy = semantic()->check(ast->type_id, _scope);
+
+    if (tokenKind(ast->q_token) == T_Q_D) {
+        if (NamedType *namedTy = declTy->asNamedType()) {
+            if (NameId *nameId = namedTy->name()->asNameId()) {
+                std::string privateClass;
+                privateClass += nameId->identifier()->chars();
+                privateClass += "Private";
+                
+                Name *privName = control()->nameId(control()->findOrInsertIdentifier(privateClass.c_str(), privateClass.size()));
+                declTy.setType(control()->namedType(privName));
+            }
+        }
+    }
+
+    Declaration *symbol = control()->newDeclaration(/*generated*/ 0, name);
+    symbol->setType(control()->pointerType(declTy));
+
+    _scope->enterSymbol(symbol);
+
+    return false;
+}

@@ -162,6 +162,7 @@ class PostfixAST;
 class PostfixDeclaratorAST;
 class PostfixExpressionAST;
 class PtrOperatorAST;
+class QtMemberDeclarationAST;
 class QtMethodAST;
 class QualifiedNameAST;
 class ReferenceAST;
