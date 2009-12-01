@@ -38,11 +38,14 @@
 
 #include <QtCore/QSettings>
 
+#include <algorithm>
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
 namespace {
     const QLatin1String SettingsGroup("MaemoDeviceConfigs");
+    const QLatin1String IdCounterKey("IdCounter");
     const QLatin1String ConfigListKey("ConfigList");
     const QLatin1String NameKey("Name");
     const QLatin1String TypeKey("Type");
@@ -51,10 +54,27 @@ namespace {
     const QLatin1String UserNameKey("Uname");
     const QLatin1String PasswordKey("Password");
     const QLatin1String TimeoutKey("Timeout");
+    const QLatin1String InternalIdKey("InternalId");
+};
+
+class DevConfIdMatcher
+{
+public:
+    DevConfIdMatcher(quint64 id) : m_id(id) {}
+    bool operator()(const MaemoDeviceConfigurations::DeviceConfig &devConfig)
+    {
+        return devConfig.internalId == m_id;
+    }
+private:
+    const quint64 m_id;
 };
 
 MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QString &name)
-    : name(name), type(Physical), port(22), timeout(30)
+    : name(name),
+      type(Physical),
+      port(22),
+      timeout(30),
+      internalId(MaemoDeviceConfigurations::instance().m_nextId++)
 {
 }
 
@@ -65,8 +85,22 @@ MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QSettings &settings)
       port(settings.value(PortKey, 22).toInt()),
       uname(settings.value(UserNameKey).toString()),
       pwd(settings.value(PasswordKey).toString()),
-      timeout(settings.value(TimeoutKey, 30).toInt())
+      timeout(settings.value(TimeoutKey, 30).toInt()),
+      internalId(settings.value(InternalIdKey, MaemoDeviceConfigurations::instance().m_nextId).toInt())
 {
+    if (internalId == MaemoDeviceConfigurations::instance().m_nextId)
+        ++MaemoDeviceConfigurations::instance().m_nextId;
+    qDebug("%s: name = %s, id = %llu", Q_FUNC_INFO, qPrintable(name), internalId);
+}
+
+MaemoDeviceConfigurations::DeviceConfig::DeviceConfig()
+    : internalId(InvalidId)
+{
+}
+
+bool MaemoDeviceConfigurations::DeviceConfig::isValid() const
+{
+    return internalId != InvalidId;
 }
 
 void MaemoDeviceConfigurations::DeviceConfig::save(QSettings &settings) const
@@ -78,24 +112,28 @@ void MaemoDeviceConfigurations::DeviceConfig::save(QSettings &settings) const
     settings.setValue(UserNameKey, uname);
     settings.setValue(PasswordKey, pwd);
     settings.setValue(TimeoutKey, timeout);
+    settings.setValue(InternalIdKey, internalId);
 }
 
 void MaemoDeviceConfigurations::setDevConfigs(const QList<DeviceConfig> &devConfigs)
 {
     m_devConfigs = devConfigs;
     save();
+    emit updated();
 }
 
-MaemoDeviceConfigurations &MaemoDeviceConfigurations::instance()
+MaemoDeviceConfigurations &MaemoDeviceConfigurations::instance(QObject *parent)
 {
-    static MaemoDeviceConfigurations configs;
-    return configs;
+    if (m_instance == 0)
+        m_instance = new MaemoDeviceConfigurations(parent);
+    return *m_instance;
 }
 
 void MaemoDeviceConfigurations::save()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
+    settings->setValue(IdCounterKey, m_nextId);
     settings->beginWriteArray(ConfigListKey, m_devConfigs.count());
     for (int i = 0; i < m_devConfigs.count(); ++i) {
         settings->setArrayIndex(i);
@@ -105,7 +143,8 @@ void MaemoDeviceConfigurations::save()
     settings->endGroup();
 }
 
-MaemoDeviceConfigurations::MaemoDeviceConfigurations()
+MaemoDeviceConfigurations::MaemoDeviceConfigurations(QObject *parent)
+    : QObject(parent)
 {
     load();
 }
@@ -114,6 +153,7 @@ MaemoDeviceConfigurations::MaemoDeviceConfigurations()
 void MaemoDeviceConfigurations::load()
 {
     QSettings *settings = Core::ICore::instance()->settings();
+    m_nextId = settings->value(IdCounterKey, 1).toULongLong();
     settings->beginGroup(SettingsGroup);
     int count = settings->beginReadArray(ConfigListKey);
     for (int i = 0; i < count; ++i) {
@@ -123,6 +163,28 @@ void MaemoDeviceConfigurations::load()
     settings->endArray();
     settings->endGroup();
 }
+
+MaemoDeviceConfigurations::DeviceConfig MaemoDeviceConfigurations::find(const QString &name) const
+{
+    qDebug("%s: Looking for name %s", Q_FUNC_INFO, qPrintable(name));
+    QList<DeviceConfig>::ConstIterator resultIt =
+        std::find_if(m_devConfigs.constBegin(), m_devConfigs.constEnd(),
+                     DevConfNameMatcher(name));
+    qDebug("Found: %d", resultIt != m_devConfigs.constEnd());
+    return resultIt == m_devConfigs.constEnd() ? DeviceConfig() : *resultIt;
+}
+
+MaemoDeviceConfigurations::DeviceConfig MaemoDeviceConfigurations::find(int id) const
+{
+    qDebug("%s: Looking for id %d", Q_FUNC_INFO, id);
+    QList<DeviceConfig>::ConstIterator resultIt =
+        std::find_if(m_devConfigs.constBegin(), m_devConfigs.constEnd(),
+                     DevConfIdMatcher(id));
+    qDebug("Found: %d", resultIt != m_devConfigs.constEnd());
+    return resultIt == m_devConfigs.constEnd() ? DeviceConfig() : *resultIt;
+}
+
+MaemoDeviceConfigurations *MaemoDeviceConfigurations::m_instance = 0;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

@@ -29,6 +29,7 @@
 
 #include "maemomanager.h"
 
+#include "maemodeviceconfigurations.h"
 #include "maemosettingspage.h"
 #include "maemotoolchain.h"
 #include "maemorunconfiguration.h"
@@ -68,6 +69,7 @@ MaemoManager::MaemoManager()
     ExtensionSystem::PluginManager::instance()->addObject(m_runControlFactory);
     ExtensionSystem::PluginManager::instance()->addObject(m_runConfigurationFactory);
     ExtensionSystem::PluginManager::instance()->addObject(m_settingsPage);
+    MaemoDeviceConfigurations::instance(this);
 }
 
 MaemoManager::~MaemoManager()

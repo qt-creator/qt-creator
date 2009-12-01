@@ -60,7 +60,7 @@ bool configNameExists(const QList<MaemoDeviceConfigurations::DeviceConfig> &devC
                       const QString &name)
 {
     return std::find_if(devConfs.constBegin(), devConfs.constEnd(),
-        MaemoDeviceConfigurations::DevConfMatcher(name)) != devConfs.constEnd();
+        MaemoDeviceConfigurations::DevConfNameMatcher(name)) != devConfs.constEnd();
 }
 
 class PortAndTimeoutValidator : public QIntValidator
@@ -193,7 +193,7 @@ void MaemoSettingsPage::apply()
 
 void MaemoSettingsPage::finish()
 {
-    apply();
+    // apply();
 }
 
 MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
@@ -262,9 +262,9 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfigurations::DeviceConfig 
 {
     m_ui->nameLineEdit->setText(devConfig.name);
     if (devConfig.type == MaemoDeviceConfigurations::DeviceConfig::Physical)
-        m_ui->deviceButton->setEnabled(true);
+        m_ui->deviceButton->setChecked(true);
     else
-        m_ui->simulatorButton->setEnabled(true);
+        m_ui->simulatorButton->setChecked(true);
     m_ui->hostLineEdit->setText(devConfig.host);
     m_ui->portLineEdit->setText(QString::number(devConfig.port));
     m_ui->timeoutLineEdit->setText(QString::number(devConfig.timeout));

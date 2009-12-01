@@ -30,6 +30,8 @@
 #ifndef MAEMORUNCONFIGURATION_H
 #define MAEMORUNCONFIGURATION_H
 
+#include "maemodeviceconfigurations.h"
+
 #include <QtCore/QDateTime>
 #include <QtGui/QWidget>
 
@@ -87,27 +89,18 @@ public:
     const QString sysRoot() const;
     const QStringList arguments() const;
     void setArguments(const QStringList &args);
+    void setDeviceConfig(const MaemoDeviceConfigurations::DeviceConfig &deviceConfig);
+    MaemoDeviceConfigurations::DeviceConfig deviceConfig() const;
 
     QString simulator() const;
     QString simulatorArgs() const;
     QString simulatorPath() const;
     QString visibleSimulatorParameter() const;
 
-    bool remoteHostIsSimulator() const { return m_remoteHostIsSimulator; }
-    const QString remoteHostName() const;
-    const QString remoteUserName() const;
-    int remotePort() const;
-
-    const QString remoteDir() const;
     const QString sshCmd() const;
     const QString scpCmd() const;
     const QString gdbCmd() const;
     const QString dumperLib() const;
-
-    void setRemoteHostIsSimulator(bool isSimulator);
-    void setRemoteHostName(const QString &hostName);
-    void setRemoteUserName(const QString &userName);
-    void setRemotePort(int port);
 
     bool isQemuRunning() const;
 
@@ -121,11 +114,13 @@ public:
 #endif
 
 signals:
+    void deviceConfigurationsUpdated();
     void targetInformationChanged();
     void cachedSimulatorInformationChanged();
     void qemuProcessStatus(bool running);
 
 private slots:
+    void updateDeviceConfigurations();
     void invalidateCachedTargetInformation();
 
     void setUserSimulatorPath(const QString &path);
@@ -145,7 +140,6 @@ private:
     bool fileNeedsDeployment(const QString &path, const QDateTime &lastDeployed) const;
 
 private:
-    // Keys for saving/loading attributes.
     QString m_executable;
     QString m_proFilePath;
     bool m_cachedTargetInformationValid;
@@ -161,18 +155,8 @@ private:
 
     QString m_gdbPath;
 
-    // Information about the remote host.
-    bool m_remoteHostIsSimulator;
-
-    QStringList m_argumentsSim;
-    QString m_remoteHostNameSim;
-    QString m_remoteUserNameSim;
-    int m_remotePortSim;
-
-    QStringList m_argumentsDevice;
-    QString m_remoteHostNameDevice;
-    QString m_remoteUserNameDevice;
-    int m_remotePortDevice;
+    MaemoDeviceConfigurations::DeviceConfig m_devConfig;
+    QStringList m_arguments;
 
     QDateTime m_lastDeployed;
     QDateTime m_debuggingHelpersLastDeployed;

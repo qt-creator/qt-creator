@@ -36,6 +36,7 @@
 #define MAEMODEVICECONFIGURATIONS_H
 
 #include <QtCore/QList>
+#include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QtGlobal>
 
@@ -46,16 +47,20 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoDeviceConfigurations
+class MaemoDeviceConfigurations : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(MaemoDeviceConfigurations)
 public:
     class DeviceConfig
     {
     public:
         enum DeviceType { Physical, Simulator };
+        DeviceConfig();
         DeviceConfig(const QString &name);
         DeviceConfig(const QSettings &settings);
         void save(QSettings &settings) const;
+        bool isValid() const;
         QString name;
         DeviceType type;
         QString host;
@@ -63,12 +68,16 @@ public:
         QString uname;
         QString pwd;
         int timeout;
+        quint64 internalId;
+
+    private:
+        static const quint64 InvalidId = 0;
     };
 
-    class DevConfMatcher
+    class DevConfNameMatcher
     {
     public:
-        DevConfMatcher(const QString &name) : m_name(name) {}
+        DevConfNameMatcher(const QString &name) : m_name(name) {}
         bool operator()(const MaemoDeviceConfigurations::DeviceConfig &devConfig)
         {
             return devConfig.name == m_name;
@@ -77,18 +86,24 @@ public:
         const QString m_name;
     };
 
-    static MaemoDeviceConfigurations &instance();
+    static MaemoDeviceConfigurations &instance(QObject *parent = 0);
     QList<DeviceConfig> devConfigs() const { return m_devConfigs; }
     void setDevConfigs(const QList<DeviceConfig> &devConfigs);
+    DeviceConfig find(const QString &name) const;
+    DeviceConfig find(int id) const;
+
+signals:
+    void updated();
 
 private:
-    MaemoDeviceConfigurations();
-    MaemoDeviceConfigurations(const MaemoDeviceConfigurations &);
-    MaemoDeviceConfigurations& operator=(const MaemoDeviceConfigurations &);
+    MaemoDeviceConfigurations(QObject *parent);
     void load();
     void save();
 
+    static MaemoDeviceConfigurations *m_instance;
     QList<DeviceConfig> m_devConfigs;
+    quint64 m_nextId;
+    friend class MaemoDeviceConfigurations::DeviceConfig;
 };
 
 } // namespace Internal
