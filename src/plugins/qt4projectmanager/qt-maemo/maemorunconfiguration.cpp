@@ -47,6 +47,8 @@
 #include <projectexplorer/session.h>
 
 #include <QtCore/QDebug>
+
+#include <QtCore/QPair>
 #include <QtCore/QProcess>
 #include <QtCore/QSharedPointer>
 
@@ -104,6 +106,7 @@ public:
 
 protected:
     void startDeployment(bool forDebugging);
+    void deploy();
     void stopDeployment();
     bool isDeploying() const;
     const QString executableOnHost() const;
@@ -123,14 +126,13 @@ private slots:
 protected:
     ErrorDumper dumper;
     MaemoRunConfiguration *runConfig; // TODO this pointer can be invalid
+    const MaemoDeviceConfigurations::DeviceConfig devConfig;
 
 private:
     QProcess deployProcess;
     bool deployingExecutable;
     bool deployingDumperLib;
-
-protected:
-    const MaemoDeviceConfigurations::DeviceConfig devConfig;
+    QList<QPair<QString, QString> > deployables;
 };
 
 class MaemoRunControl : public AbstractMaemoRunControl
@@ -405,7 +407,8 @@ const QString MaemoRunConfiguration::cmd(const QString &cmdName) const
 
 const MaemoToolChain *MaemoRunConfiguration::toolchain() const
 {
-    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>
+        (project()->activeBuildConfiguration());
     QTC_ASSERT(qt4bc, return 0);
     MaemoToolChain *tc = dynamic_cast<MaemoToolChain *>(
         qt4bc->toolChain() );
@@ -1033,30 +1036,42 @@ AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc)
 void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 {
     QTC_ASSERT(runConfig, return);
-    if (!devConfig.isValid()) {
+
+    if (devConfig.isValid()) {
+        deployables.clear();
+        if (runConfig->currentlyNeedsDeployment()) {
+            deployingExecutable = true;
+            deployables.append(qMakePair(executableFileName(),
+                QFileInfo(executableOnHost()).canonicalPath()));
+        } else {
+            deployingExecutable = false;
+        }
+
+        if (forDebugging && runConfig->debuggingHelpersNeedDeployment()) {
+            deployingDumperLib = true;
+            const QFileInfo &info(runConfig->dumperLib());
+            deployables.append(qMakePair(info.fileName(), info.canonicalPath()));
+        } else {
+            deployingDumperLib = false;
+        }
+
+        deploy();
+    } else {
         deploymentFinished(false);
-        return;
     }
-    QStringList deployables;
-    if (runConfig->currentlyNeedsDeployment()) {
-        deployingExecutable = true;
-        deployables << executableFileName();
-    } else {
-        deployingExecutable = false;
-    }
-    if (forDebugging && runConfig->debuggingHelpersNeedDeployment()) {
-        deployables << runConfig->dumperLib();
-        deployingDumperLib = true;
-    } else {
-        deployingDumperLib = false;
-    }
+}
+
+void AbstractMaemoRunControl::deploy()
+{
     if (!deployables.isEmpty()) {
-        emit addToOutputWindow(this, tr("Files to deploy: %1.")
-            .arg(deployables.join(" ")));
+        QPair<QString, QString> pair = deployables.at(0);
+        emit addToOutputWindow(this, tr("File to deploy: %1.").arg(pair.first));
+
         QStringList cmdArgs;
-        cmdArgs << "-P" << port() << options() << deployables
-            << (devConfig.uname + "@" + devConfig.host + ":" + remoteDir());
-        deployProcess.setWorkingDirectory(QFileInfo(executableOnHost()).absolutePath());
+        cmdArgs << "-P" << port() << options() << pair.first << (devConfig.uname
+            + "@" + devConfig.host + ":" + remoteDir());
+        deployProcess.setWorkingDirectory(QFileInfo(pair.second).absolutePath());
+
         deployProcess.start(runConfig->scpCmd(), cmdArgs);
         if (!deployProcess.waitForStarted()) {
             emit error(this, tr("Could not start scp. Deployment failed."));
@@ -1089,11 +1104,15 @@ void AbstractMaemoRunControl::deployProcessFinished()
             runConfig->wasDeployed();
         if (deployingDumperLib)
             runConfig->debuggingHelpersDeployed();
+        deployables.removeFirst();
     } else {
         emit error(this, tr("Deployment failed."));
         success = false;
     }
-    deploymentFinished(success);
+    if (deployables.isEmpty() || !success)
+        deploymentFinished(success);
+    else
+        deploy();
 }
 
 const QString AbstractMaemoRunControl::executableOnHost() const
@@ -1146,7 +1165,8 @@ const QString AbstractMaemoRunControl::targetCmdLinePrefix() const
 bool AbstractMaemoRunControl::setProcessEnvironment(QProcess &process)
 {
     QTC_ASSERT(runConfig, return false);
-    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(runConfig->project()->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration*>
+        (runConfig->project()->activeBuildConfiguration());
     QTC_ASSERT(qt4bc, return false);
     Environment env = Environment::systemEnvironment();
     qt4bc->toolChain()->addToEnvironment(env);
