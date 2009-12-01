@@ -824,7 +824,7 @@ void GdbEngine::commandTimeout()
         debugMessage(_("  %1: %2 => %3").arg(key).arg(cmd.command).arg(_(cmd.callbackName)));
     }
     // This is an entirely undefined state, so we just pull the emergency brake.
-    setState(EngineShuttingDown, true);
+    manager()->watchHandler()->endCycle();
     m_gdbProc.kill();
 }
 
