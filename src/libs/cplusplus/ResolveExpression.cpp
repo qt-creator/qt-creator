@@ -226,7 +226,7 @@ bool ResolveExpression::visit(SizeofExpressionAST *)
 bool ResolveExpression::visit(NumericLiteralAST *ast)
 {
     Type *type = 0;
-    NumericLiteral *literal = numericLiteral(ast->literal_token);
+    const NumericLiteral *literal = numericLiteral(ast->literal_token);
 
     if (literal->isChar())
         type = control()->integerType(IntegerType::Char);
@@ -723,7 +723,7 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
                 if (i < klass->templateParameterCount()) {
                     Name *templArgName = klass->templateParameterAt(i)->name();
                     if (templArgName && templArgName->identifier()) {
-                        Identifier *templArgId = templArgName->identifier();
+                        const Identifier *templArgId = templArgName->identifier();
                         subst.append(qMakePair(templArgId, templArgTy));
                     }
                 }

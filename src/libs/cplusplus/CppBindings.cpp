@@ -57,7 +57,7 @@ Location::Location(Symbol *symbol)
       _sourceLocation(symbol->sourceLocation())
 { }
 
-Location::Location(StringLiteral *fileId, unsigned sourceLocation)
+Location::Location(const StringLiteral *fileId, unsigned sourceLocation)
     : _fileId(fileId), _sourceLocation(sourceLocation)
 { }
 
@@ -93,7 +93,7 @@ NameId *NamespaceBinding::name() const
     return 0;
 }
 
-Identifier *NamespaceBinding::identifier() const
+const Identifier *NamespaceBinding::identifier() const
 {
     if (NameId *nameId = name())
         return nameId->identifier();
@@ -113,7 +113,7 @@ NamespaceBinding *NamespaceBinding::globalNamespaceBinding()
     return it;
 }
 
-Binding *NamespaceBinding::findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed)
+Binding *NamespaceBinding::findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed)
 {
     if (processed->contains(this))
         return 0;
@@ -156,7 +156,7 @@ ClassBinding *NamespaceBinding::findClassBinding(Name *name, QSet<Binding *> *pr
         Binding *current = this;
 
         for (unsigned i = 0; i < q->nameCount(); ++i) {
-            Identifier *nameId = q->nameAt(i)->identifier();
+            const Identifier *nameId = q->nameAt(i)->identifier();
             if (! nameId)
                 return 0;
 
@@ -173,7 +173,7 @@ ClassBinding *NamespaceBinding::findClassBinding(Name *name, QSet<Binding *> *pr
 
     processed->insert(this);
 
-    Identifier *id = name->identifier();
+    const Identifier *id = name->identifier();
 
     foreach (ClassBinding *classBinding, classBindings) {
         if (id->isEqualTo(classBinding->identifier()))
@@ -306,7 +306,7 @@ static void closure(const Location &loc,
 
     Q_ASSERT(name->isNameId());
 
-    Identifier *id = name->asNameId()->identifier();
+    const Identifier *id = name->asNameId()->identifier();
     bool ignoreUsingDirectives = false;
 
     foreach (Namespace *symbol, binding->symbols) {
@@ -394,7 +394,7 @@ QByteArray NamespaceBinding::qualifiedId() const
     s.append(parent->qualifiedId());
     s.append("::");
 
-    if (Identifier *id = identifier())
+    if (const Identifier *id = identifier())
         s.append(id->chars(), id->size());
 
     else
@@ -409,7 +409,7 @@ QByteArray ClassBinding::qualifiedId() const
     QByteArray s = parent->qualifiedId();
     s += "::";
 
-    if (Identifier *id = identifier())
+    if (const Identifier *id = identifier())
         s.append(id->chars(), id->size());
 
     else
@@ -418,7 +418,7 @@ QByteArray ClassBinding::qualifiedId() const
     return s;
 }
 
-Binding *ClassBinding::findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed)
+Binding *ClassBinding::findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed)
 {
     if (id->isEqualTo(identifier()))
         return this;
@@ -461,7 +461,7 @@ ClassBinding *ClassBinding::findClassBinding(Name *name, QSet<Binding *> *proces
         Binding *currentBinding = this;
 
         for (unsigned i = 0; i < q->nameCount() - 1; ++i) {
-            Identifier *id = q->nameAt(i)->identifier();
+            const Identifier *id = q->nameAt(i)->identifier();
             if (! id)
                 return 0;
 
@@ -479,12 +479,12 @@ ClassBinding *ClassBinding::findClassBinding(Name *name, QSet<Binding *> *proces
         return 0;
     }
 
-    if (Identifier *id = name->identifier()) {
+    if (const Identifier *id = name->identifier()) {
         if (id->isEqualTo(identifier()))
             return this;
 
         foreach (ClassBinding *nestedClassBinding, children) {
-            if (Identifier *nestedClassId = nestedClassBinding->identifier()) {
+            if (const Identifier *nestedClassId = nestedClassBinding->identifier()) {
                 if (nestedClassId->isEqualTo(id))
                     return nestedClassBinding;
             }
@@ -557,7 +557,7 @@ Name *ClassBinding::name() const
     return symbols.first()->name();
 }
 
-Identifier *ClassBinding::identifier() const
+const Identifier *ClassBinding::identifier() const
 {
     if (Name *n = name())
         return n->identifier();

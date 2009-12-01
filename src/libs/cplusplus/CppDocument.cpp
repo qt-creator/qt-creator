@@ -66,7 +66,7 @@ public:
     { }
 
     virtual void report(int level,
-                        StringLiteral *fileId,
+                        const StringLiteral *fileId,
                         unsigned line, unsigned column,
                         const char *format, va_list ap)
     {
@@ -118,8 +118,8 @@ Document::Document(const QString &fileName)
     _control->setDiagnosticClient(new DocumentDiagnosticClient(this, &_diagnosticMessages));
 
     const QByteArray localFileName = fileName.toUtf8();
-    StringLiteral *fileId = _control->findOrInsertStringLiteral(localFileName.constData(),
-                                                                localFileName.size());
+    const StringLiteral *fileId = _control->findOrInsertStringLiteral(localFileName.constData(),
+                                                                      localFileName.size());
     _translationUnit = new TranslationUnit(_control, fileId);
     _translationUnit->setQtMocRunEnabled(true);
     _translationUnit->setObjCEnabled(true);

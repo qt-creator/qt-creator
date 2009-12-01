@@ -79,8 +79,8 @@ QList<int> CppFindReferences::references(Symbol *symbol,
                                          Document::Ptr doc,
                                          const Snapshot& snapshot) const
 {
-    Identifier *id = 0;
-    if (Identifier *symbolId = symbol->identifier())
+    const Identifier *id = 0;
+    if (const Identifier *symbolId = symbol->identifier())
         id = doc->control()->findIdentifier(symbolId->chars(), symbolId->size());
 
     QList<int> references;
@@ -106,7 +106,7 @@ static void find_helper(QFutureInterface<Usage> &future,
     QTime tm;
     tm.start();
 
-    Identifier *symbolId = symbol->identifier();
+    const Identifier *symbolId = symbol->identifier();
     Q_ASSERT(symbolId != 0);
 
     const QString sourceFile = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
@@ -142,7 +142,7 @@ static void find_helper(QFutureInterface<Usage> &future,
 
         if (Document::Ptr previousDoc = snapshot.value(fileName)) {
             Control *control = previousDoc->control();
-            Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size());
+            const Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size());
             if (! id)
                 continue; // skip this document, it's not using symbolId.
         }
@@ -164,7 +164,7 @@ static void find_helper(QFutureInterface<Usage> &future,
         doc->tokenize();
 
         Control *control = doc->control();
-        if (Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size())) {
+        if (const Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size())) {
             QTime tm;
             tm.start();
             doc->parse();
@@ -202,7 +202,7 @@ void CppFindReferences::findUsages(Symbol *symbol)
 
 void CppFindReferences::renameUsages(Symbol *symbol)
 {
-    if (Identifier *id = symbol->identifier()) {
+    if (const Identifier *id = symbol->identifier()) {
         const QString textToReplace = QString::fromUtf8(id->chars(), id->size());
 
         Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchAndReplace);

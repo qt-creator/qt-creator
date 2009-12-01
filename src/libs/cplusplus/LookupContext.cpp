@@ -240,7 +240,7 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
     else if (OperatorNameId *opId = name->asOperatorNameId())
         return resolveOperatorNameId(opId, visibleScopes, mode);
 
-    else if (Identifier *id = name->identifier()) {
+    else if (const Identifier *id = name->identifier()) {
         for (int scopeIndex = 0; scopeIndex < visibleScopes.size(); ++scopeIndex) {
             Scope *scope = visibleScopes.at(scopeIndex);
 
@@ -251,7 +251,7 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
                 else if (! maybeValidSymbol(symbol, mode, candidates))
                     continue; // skip it, we're not looking for this kind of symbols
 
-                else if (Identifier *symbolId = symbol->identifier()) {
+                else if (const Identifier *symbolId = symbol->identifier()) {
                     if (! symbolId->isEqualTo(id))
                         continue; // skip it, the symbol's id is not compatible with this lookup.
                 }
@@ -265,7 +265,7 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
                         Name *classOrNamespaceName = control()->qualifiedNameId(q->names(),
                                                                                 q->nameCount() - 1);
 
-                        if (Identifier *classOrNamespaceNameId = identifier(classOrNamespaceName)) {
+                        if (const Identifier *classOrNamespaceNameId = identifier(classOrNamespaceName)) {
                             if (classOrNamespaceNameId->isEqualTo(id))
                                 continue;
                         }
@@ -299,7 +299,7 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
     return candidates;
 }
 
-Identifier *LookupContext::identifier(const Name *name) const
+const Identifier *LookupContext::identifier(const Name *name) const
 {
     if (name)
         return name->identifier();
@@ -667,7 +667,7 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol,
     if (! canonicalSymbol)
         return 0;
 
-    if (Identifier *symbolId = canonicalSymbol->identifier()) {
+    if (const Identifier *symbolId = canonicalSymbol->identifier()) {
         if (symbolId && canonicalSymbol->type()->isFunctionType()) {
             Class *enclosingClass = canonicalSymbol->scope()->owner()->asClass();
             const QList<ClassBinding *> classBindings = visibleClassBindings(enclosingClass, globalNamespace);

@@ -63,7 +63,7 @@ public:
                     bool isGlobal = false);
     virtual ~QualifiedNameId();
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
 
     unsigned nameCount() const;
     Name *nameAt(unsigned index) const;
@@ -92,10 +92,10 @@ private:
 class CPLUSPLUS_EXPORT NameId: public Name
 {
 public:
-    NameId(Identifier *identifier);
+    NameId(const Identifier *identifier);
     virtual ~NameId();
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
 
     virtual bool isEqualTo(const Name *other) const;
 
@@ -109,16 +109,16 @@ protected:
     virtual void accept0(NameVisitor *visitor);
 
 private:
-    Identifier *_identifier;
+    const Identifier *_identifier;
 };
 
 class CPLUSPLUS_EXPORT DestructorNameId: public Name
 {
 public:
-    DestructorNameId(Identifier *identifier);
+    DestructorNameId(const Identifier *identifier);
     virtual ~DestructorNameId();
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
 
     virtual bool isEqualTo(const Name *other) const;
 
@@ -132,18 +132,18 @@ protected:
     virtual void accept0(NameVisitor *visitor);
 
 private:
-    Identifier *_identifier;
+    const Identifier *_identifier;
 };
 
 class CPLUSPLUS_EXPORT TemplateNameId: public Name
 {
 public:
-    TemplateNameId(Identifier *identifier,
+    TemplateNameId(const Identifier *identifier,
                    const FullySpecifiedType templateArguments[],
                    unsigned templateArgumentCount);
     virtual ~TemplateNameId();
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
 
     // ### find a better name
     unsigned templateArgumentCount() const;
@@ -162,7 +162,7 @@ protected:
     virtual void accept0(NameVisitor *visitor);
 
 private:
-    Identifier *_identifier;
+    const Identifier *_identifier;
     FullySpecifiedType *_templateArguments;
     unsigned _templateArgumentCount;
 };
@@ -230,7 +230,7 @@ public:
 
     int kind() const;
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const OperatorNameId *asOperatorNameId() const
@@ -254,7 +254,7 @@ public:
 
     FullySpecifiedType type() const;
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const ConversionNameId *asConversionNameId() const
@@ -278,7 +278,7 @@ public:
                    bool hasArguments);
     virtual ~SelectorNameId();
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
 
     unsigned nameCount() const;
     Name *nameAt(unsigned index) const;

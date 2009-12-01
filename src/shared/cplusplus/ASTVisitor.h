@@ -72,20 +72,20 @@ public:
     const Token &tokenAt(unsigned index) const;
     int tokenKind(unsigned index) const;
     const char *spell(unsigned index) const;
-    Identifier *identifier(unsigned index) const;
-    Literal *literal(unsigned index) const;
-    NumericLiteral *numericLiteral(unsigned index) const;
-    StringLiteral *stringLiteral(unsigned index) const;
+    const Identifier *identifier(unsigned index) const;
+    const Literal *literal(unsigned index) const;
+    const NumericLiteral *numericLiteral(unsigned index) const;
+    const StringLiteral *stringLiteral(unsigned index) const;
 
     void getPosition(unsigned offset,
                      unsigned *line,
                      unsigned *column = 0,
-                     StringLiteral **fileName = 0) const;
+                     const StringLiteral **fileName = 0) const;
 
     void getTokenPosition(unsigned index,
                           unsigned *line,
                           unsigned *column = 0,
-                          StringLiteral **fileName = 0) const;
+                          const StringLiteral **fileName = 0) const;
 
     void getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const;
     void getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const;

@@ -56,14 +56,11 @@ namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT Name
 {
-    Name(const Name &other);
-    void operator =(const Name &other);
-
 public:
     Name();
     virtual ~Name();
 
-    virtual Identifier *identifier() const = 0;
+    virtual const Identifier *identifier() const = 0;
 
     bool isNameId() const;
     bool isTemplateNameId() const;

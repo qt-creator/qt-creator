@@ -162,7 +162,7 @@ static QString buildHelpId(Symbol *symbol, Name *name)
 
         if (owner && owner->name() && ! scope->isEnumScope()) {
             Name *name = owner->name();
-            Identifier *id = 0;
+            const Identifier *id = 0;
 
             if (NameId *nameId = name->asNameId())
                 id = nameId->identifier();
@@ -341,7 +341,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             if (resolvedSymbol && resolvedSymbol->scope()
                 && resolvedSymbol->scope()->isClassScope()) {
                 Class *enclosingClass = resolvedSymbol->scope()->owner()->asClass();
-                if (Identifier *id = enclosingClass->identifier()) {
+                if (const Identifier *id = enclosingClass->identifier()) {
                     if (id->isEqualTo(resolvedSymbol->identifier()))
                         resolvedSymbol = enclosingClass;
                 }

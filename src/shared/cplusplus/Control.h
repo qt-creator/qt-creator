@@ -66,15 +66,15 @@ public:
     void setDiagnosticClient(DiagnosticClient *diagnosticClient);
 
     /// Returns the canonical name id.
-    NameId *nameId(Identifier *id);
+    NameId *nameId(const Identifier *id);
 
     /// Returns the canonical template name id.
-    TemplateNameId *templateNameId(Identifier *id,
+    TemplateNameId *templateNameId(const Identifier *id,
                                    FullySpecifiedType *const args = 0,
                                    unsigned argc = 0);
 
     /// Returns the canonical destructor name id.
-    DestructorNameId *destructorNameId(Identifier *id);
+    DestructorNameId *destructorNameId(const Identifier *id);
 
     /// Returns the canonical operator name id.
     OperatorNameId *operatorNameId(int operatorId);
@@ -171,19 +171,18 @@ public:
     ObjCPropertyDeclaration *newObjCPropertyDeclaration(unsigned sourceLocation, Name *name);
 
     // Objective-C specific context keywords.
-    Identifier *objcGetterId() const;
-    Identifier *objcSetterId() const;
-    Identifier *objcReadwriteId() const;
-    Identifier *objcReadonlyId() const;
-    Identifier *objcAssignId() const;
-    Identifier *objcRetainId() const;
-    Identifier *objcCopyId() const;
-    Identifier *objcNonatomicId() const;
+    const Identifier *objcGetterId() const;
+    const Identifier *objcSetterId() const;
+    const Identifier *objcReadwriteId() const;
+    const Identifier *objcReadonlyId() const;
+    const Identifier *objcAssignId() const;
+    const Identifier *objcRetainId() const;
+    const Identifier *objcCopyId() const;
+    const Identifier *objcNonatomicId() const;
 
-    Identifier *findIdentifier(const char *chars, unsigned size) const;
-
-    Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
-    Identifier *findOrInsertIdentifier(const char *chars);
+    const Identifier *findIdentifier(const char *chars, unsigned size) const;
+    const Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
+    const Identifier *findOrInsertIdentifier(const char *chars);
 
     typedef const Identifier *const *IdentifierIterator;
     typedef const StringLiteral *const *StringLiteralIterator;
@@ -198,11 +197,11 @@ public:
     NumericLiteralIterator firstNumericLiteral() const;
     NumericLiteralIterator lastNumericLiteral() const;
 
-    StringLiteral *findOrInsertStringLiteral(const char *chars, unsigned size);
-    StringLiteral *findOrInsertStringLiteral(const char *chars);
+    const StringLiteral *findOrInsertStringLiteral(const char *chars, unsigned size);
+    const StringLiteral *findOrInsertStringLiteral(const char *chars);
 
-    NumericLiteral *findOrInsertNumericLiteral(const char *chars, unsigned size);
-    NumericLiteral *findOrInsertNumericLiteral(const char *chars);
+    const NumericLiteral *findOrInsertNumericLiteral(const char *chars, unsigned size);
+    const NumericLiteral *findOrInsertNumericLiteral(const char *chars);
 
 private:
     class Data;

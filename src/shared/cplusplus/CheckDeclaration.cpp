@@ -378,7 +378,7 @@ bool CheckDeclaration::visit(LinkageSpecificationAST *ast)
 
 bool CheckDeclaration::visit(NamespaceAST *ast)
 {
-    Identifier *id = identifier(ast->identifier_token);
+    const Identifier *id = identifier(ast->identifier_token);
     Name *namespaceName = control()->nameId(id);
 
     unsigned sourceLocation = ast->firstToken();
@@ -718,7 +718,7 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
         if (!attrAst)
             continue;
 
-        Identifier *attrId = identifier(attrAst->attribute_identifier_token);
+        const Identifier *attrId = identifier(attrAst->attribute_identifier_token);
         if (attrId == control()->objcGetterId()) {
             if (checkPropertyAttribute(attrAst, propAttrs, ObjCPropertyDeclaration::Getter)) {
                 getterName = semantic()->check(attrAst->method_selector, _scope);

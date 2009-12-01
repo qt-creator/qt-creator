@@ -53,7 +53,7 @@ class CPLUSPLUS_EXPORT Location
 public:
     Location();
     Location(Symbol *symbol);
-    Location(StringLiteral *fileId, unsigned sourceLocation);
+    Location(const StringLiteral *fileId, unsigned sourceLocation);
 
     inline bool isValid() const
     { return _fileId != 0; }
@@ -61,14 +61,14 @@ public:
     inline operator bool() const
     { return _fileId != 0; }
 
-    inline StringLiteral *fileId() const
+    inline const StringLiteral *fileId() const
     { return _fileId; }
 
     inline unsigned sourceLocation() const
     { return _sourceLocation; }
 
 private:
-    StringLiteral *_fileId;
+    const StringLiteral *_fileId;
     unsigned _sourceLocation;
 };
 
@@ -85,7 +85,7 @@ public:
     virtual ClassBinding *asClassBinding() { return 0; }
 
     virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed) = 0;
-    virtual Binding *findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed) = 0;
+    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed) = 0;
 };
 
 class CPLUSPLUS_EXPORT NamespaceBinding: public Binding
@@ -101,7 +101,7 @@ public:
     NameId *name() const;
 
     /// Returns this binding's identifier.
-    Identifier *identifier() const;
+    const Identifier *identifier() const;
 
     /// Returns the binding for the global namespace (aka ::).
     NamespaceBinding *globalNamespaceBinding();
@@ -117,7 +117,7 @@ public:
                                        bool lookAtParent = true);
 
     virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed);
-    virtual Binding *findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed);
+    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed);
 
     /// Helpers.
     virtual QByteArray qualifiedId() const;
@@ -168,11 +168,11 @@ public:
     Name *name() const;
 
     /// Returns this binding's identifier.
-    Identifier *identifier() const;
+    const Identifier *identifier() const;
     virtual QByteArray qualifiedId() const;
 
     virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed);
-    virtual Binding *findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed);
+    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed);
 
     void dump();
 

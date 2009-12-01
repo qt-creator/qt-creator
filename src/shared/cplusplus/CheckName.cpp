@@ -343,7 +343,7 @@ bool CheckName::visit(ConversionFunctionIdAST *ast)
 
 bool CheckName::visit(SimpleNameAST *ast)
 {
-    Identifier *id = identifier(ast->identifier_token);
+    const Identifier *id = identifier(ast->identifier_token);
     _name = control()->nameId(id);
     ast->name = _name;
     return false;
@@ -351,7 +351,7 @@ bool CheckName::visit(SimpleNameAST *ast)
 
 bool CheckName::visit(DestructorNameAST *ast)
 {
-    Identifier *id = identifier(ast->identifier_token);
+    const Identifier *id = identifier(ast->identifier_token);
     _name = control()->destructorNameId(id);
     ast->name = _name;
     return false;
@@ -359,7 +359,7 @@ bool CheckName::visit(DestructorNameAST *ast)
 
 bool CheckName::visit(TemplateIdAST *ast)
 {
-    Identifier *id = identifier(ast->identifier_token);
+    const Identifier *id = identifier(ast->identifier_token);
     std::vector<FullySpecifiedType> templateArguments;
     for (TemplateArgumentListAST *it = ast->template_argument_list; it;
             it = it->next) {
@@ -380,7 +380,7 @@ bool CheckName::visit(ObjCSelectorWithoutArgumentsAST *ast)
 {
     if (ast->name_token) {
         std::vector<Name *> names;
-        Identifier *id = control()->findOrInsertIdentifier(spell(ast->name_token));
+        const Identifier *id = control()->findOrInsertIdentifier(spell(ast->name_token));
         NameId *nameId = control()->nameId(id);
         names.push_back(nameId);
         _name = control()->selectorNameId(&names[0], names.size(), false);
@@ -395,7 +395,7 @@ bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
     std::vector<Name *> names;
     for (ObjCSelectorArgumentListAST *it = ast->selector_argument_list; it; it = it->next) {
         if (it->value->name_token) {
-            Identifier *id = control()->findOrInsertIdentifier(spell(it->value->name_token));
+            const Identifier *id = control()->findOrInsertIdentifier(spell(it->value->name_token));
             NameId *nameId = control()->nameId(id);
             names.push_back(nameId);
         } else {
@@ -420,7 +420,7 @@ bool CheckName::visit(ObjCMessageArgumentDeclarationAST *ast)
         type = semantic()->check(ast->type_name, _scope);
 
     if (ast->param_name_token) {
-        Identifier *id = identifier(ast->param_name_token);
+        const Identifier *id = identifier(ast->param_name_token);
         _name = control()->nameId(id);
         ast->name = _name;
 

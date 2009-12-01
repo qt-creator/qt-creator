@@ -104,7 +104,7 @@ namespace QmlEditor {
             }
 
         protected:
-            virtual bool visit(Block *ast)
+            virtual bool visit(Block * /*ast*/)
             {
                 // TODO
 //                if (_pos > ast->lbraceToken.end() && _pos < ast->rbraceToken.offset) {

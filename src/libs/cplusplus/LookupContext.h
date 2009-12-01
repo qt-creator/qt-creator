@@ -198,7 +198,7 @@ private:
     QList<Scope *> resolveNestedNameSpecifier(QualifiedNameId *q,
                                                const QList<Scope *> &visibleScopes) const;
 
-    Identifier *identifier(const Name *name) const;
+    const Identifier *identifier(const Name *name) const;
 
     QList<Scope *> buildVisibleScopes();
 

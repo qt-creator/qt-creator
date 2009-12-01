@@ -666,7 +666,7 @@ static int blockStartState(const QTextBlock &block)
         return state & 0xff;
 }
 
-void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar typedChar)
+void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar /*typedChar*/)
 {
     TextEditor::TabSettings ts = tabSettings();
 

@@ -64,7 +64,7 @@ QString NamePrettyPrinter::switchName(const QString &name)
 
 void NamePrettyPrinter::visit(NameId *name)
 {
-    Identifier *id = name->identifier();
+    const Identifier *id = name->identifier();
     if (id)
         _name = QString::fromLatin1(id->chars(), id->size());
     else
@@ -73,7 +73,7 @@ void NamePrettyPrinter::visit(NameId *name)
 
 void NamePrettyPrinter::visit(TemplateNameId *name)
 {
-    Identifier *id = name->identifier();
+    const Identifier *id = name->identifier();
     if (id)
         _name = QString::fromLatin1(id->chars(), id->size());
     else
@@ -95,7 +95,7 @@ void NamePrettyPrinter::visit(TemplateNameId *name)
 
 void NamePrettyPrinter::visit(DestructorNameId *name)
 {
-    Identifier *id = name->identifier();
+    const Identifier *id = name->identifier();
     _name += QLatin1Char('~');
     _name += QString::fromLatin1(id->chars(), id->size());
 }
@@ -261,8 +261,7 @@ void NamePrettyPrinter::visit(SelectorNameId *name)
         if (!n)
             continue;
 
-        Identifier *id = n->identifier();
-        if (id) {
+        if (const Identifier *id = n->identifier()) {
             _name += QString::fromLatin1(id->chars(), id->size());
 
             if (name->hasArguments() || name->nameCount() > 1)

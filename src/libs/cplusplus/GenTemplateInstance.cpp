@@ -55,7 +55,7 @@ public:
     FullySpecifiedType apply(Name *name);
     FullySpecifiedType apply(const FullySpecifiedType &type);
 
-    int findSubstitution(Identifier *id) const;
+    int findSubstitution(const Identifier *id) const;
     FullySpecifiedType applySubstitution(int index) const;
 
 private:
@@ -218,7 +218,7 @@ private:
         Control *control() const
         { return q->control(); }
 
-        int findSubstitution(Identifier *id) const
+        int findSubstitution(const Identifier *id) const
         { return q->findSubstitution(id); }
 
         FullySpecifiedType applySubstitution(int index) const
@@ -337,12 +337,12 @@ FullySpecifiedType ApplySubstitution::apply(const FullySpecifiedType &type)
     return ty;
 }
 
-int ApplySubstitution::findSubstitution(Identifier *id) const
+int ApplySubstitution::findSubstitution(const Identifier *id) const
 {
     Q_ASSERT(id != 0);
 
     for (int index = 0; index < substitution.size(); ++index) {
-        QPair<Identifier *, FullySpecifiedType> s = substitution.at(index);
+        QPair<const Identifier *, FullySpecifiedType> s = substitution.at(index);
 
         if (id->isEqualTo(s.first))
             return index;

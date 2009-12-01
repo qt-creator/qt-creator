@@ -212,14 +212,14 @@ Symbol *Scope::lookat(Name *name) const
     else if (OperatorNameId *opId = name->asOperatorNameId())
         return lookat(opId->kind());
 
-    else if (Identifier *id = name->identifier())
+    else if (const Identifier *id = name->identifier())
         return lookat(id);
 
     else
         return 0;
 }
 
-Symbol *Scope::lookat(Identifier *id) const
+Symbol *Scope::lookat(const Identifier *id) const
 {
     if (! _hash || ! id)
         return 0;

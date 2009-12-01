@@ -219,7 +219,7 @@ protected:
         if (! (ast && ast->name))
             return false;
 
-        Identifier *id = ast->name->identifier();
+        const Identifier *id = ast->name->identifier();
 
         if (scope) {
             for (Symbol *member = scope->lookat(id); member; member = member->next()) {
@@ -1701,9 +1701,9 @@ void CPPEditor::performQuickFix(int index)
 {
     CPPQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
     QuickFixOperationPtr op = m_quickFixes.at(index);
-    //quickFixCollector->perform(op);
-    op->createChangeSet();
-    setChangeSet(op->changeSet());
+    quickFixCollector->perform(op);
+    //op->createChangeSet();
+    //setChangeSet(op->changeSet());
 }
 
 void CPPEditor::contextMenuEvent(QContextMenuEvent *e)

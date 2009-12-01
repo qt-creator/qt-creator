@@ -232,7 +232,7 @@ void Symbol::setSourceLocation(unsigned sourceLocation)
 unsigned Symbol::line() const
 {
     unsigned line = 0, column = 0;
-    StringLiteral *fileId = 0;
+    const StringLiteral *fileId = 0;
     translationUnit()->getPosition(_sourceOffset, &line, &column, &fileId);
     return line;
 }
@@ -240,26 +240,26 @@ unsigned Symbol::line() const
 unsigned Symbol::column() const
 {
     unsigned line = 0, column = 0;
-    StringLiteral *fileId = 0;
+    const StringLiteral *fileId = 0;
     translationUnit()->getPosition(_sourceOffset, &line, &column, &fileId);
     return column;
 }
 
-StringLiteral *Symbol::fileId() const
+const StringLiteral *Symbol::fileId() const
 {
     unsigned line = 0, column = 0;
-    StringLiteral *fileId = 0;
+    const StringLiteral *fileId = 0;
     translationUnit()->getPosition(_sourceOffset, &line, &column, &fileId);
     return fileId;
 }
 
-void Symbol::getPosition(unsigned *line, unsigned *column, StringLiteral **fileId) const
+void Symbol::getPosition(unsigned *line, unsigned *column, const StringLiteral **fileId) const
 { translationUnit()->getPosition(_sourceOffset, line, column, fileId); }
 
-void Symbol::getStartPosition(unsigned *line, unsigned *column, StringLiteral **fileId) const
+void Symbol::getStartPosition(unsigned *line, unsigned *column, const StringLiteral **fileId) const
 { translationUnit()->getPosition(_startOffset, line, column, fileId); }
 
-void Symbol::getEndPosition(unsigned *line, unsigned *column, StringLiteral **fileId) const
+void Symbol::getEndPosition(unsigned *line, unsigned *column, const StringLiteral **fileId) const
 { translationUnit()->getPosition(_endOffset, line, column, fileId); }
 
 const char *Symbol::fileName() const
@@ -302,7 +302,7 @@ void Symbol::setName(Name *name)
     }
 }
 
-Identifier *Symbol::identifier() const
+const Identifier *Symbol::identifier() const
 {
     if (_name)
         return _name->identifier();

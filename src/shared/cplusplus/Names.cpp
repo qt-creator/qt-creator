@@ -73,7 +73,7 @@ QualifiedNameId::~QualifiedNameId()
 void QualifiedNameId::accept0(NameVisitor *visitor)
 { visitor->visit(this); }
 
-Identifier *QualifiedNameId::identifier() const
+const Identifier *QualifiedNameId::identifier() const
 {
     if (Name *u = unqualifiedNameId())
         return u->identifier();
@@ -122,7 +122,7 @@ bool QualifiedNameId::isEqualTo(const Name *other) const
     return true;
 }
 
-NameId::NameId(Identifier *identifier)
+NameId::NameId(const Identifier *identifier)
     : _identifier(identifier)
 { }
 
@@ -132,7 +132,7 @@ NameId::~NameId()
 void NameId::accept0(NameVisitor *visitor)
 { visitor->visit(this); }
 
-Identifier *NameId::identifier() const
+const Identifier *NameId::identifier() const
 { return _identifier; }
 
 bool NameId::isEqualTo(const Name *other) const
@@ -140,12 +140,12 @@ bool NameId::isEqualTo(const Name *other) const
     const NameId *nameId = other->asNameId();
     if (! nameId)
         return false;
-    Identifier *l = identifier();
-    Identifier *r = nameId->identifier();
+    const Identifier *l = identifier();
+    const Identifier *r = nameId->identifier();
     return l->isEqualTo(r);
 }
 
-DestructorNameId::DestructorNameId(Identifier *identifier)
+DestructorNameId::DestructorNameId(const Identifier *identifier)
     : _identifier(identifier)
 { }
 
@@ -155,7 +155,7 @@ DestructorNameId::~DestructorNameId()
 void DestructorNameId::accept0(NameVisitor *visitor)
 { visitor->visit(this); }
 
-Identifier *DestructorNameId::identifier() const
+const Identifier *DestructorNameId::identifier() const
 { return _identifier; }
 
 bool DestructorNameId::isEqualTo(const Name *other) const
@@ -163,12 +163,12 @@ bool DestructorNameId::isEqualTo(const Name *other) const
     const DestructorNameId *d = other->asDestructorNameId();
     if (! d)
         return false;
-    Identifier *l = identifier();
-    Identifier *r = d->identifier();
+    const Identifier *l = identifier();
+    const Identifier *r = d->identifier();
     return l->isEqualTo(r);
 }
 
-TemplateNameId::TemplateNameId(Identifier *identifier,
+TemplateNameId::TemplateNameId(const Identifier *identifier,
         const FullySpecifiedType templateArguments[],
         unsigned templateArgumentCount)
     : _identifier(identifier),
@@ -188,7 +188,7 @@ TemplateNameId::~TemplateNameId()
 void TemplateNameId::accept0(NameVisitor *visitor)
 { visitor->visit(this); }
 
-Identifier *TemplateNameId::identifier() const
+const Identifier *TemplateNameId::identifier() const
 { return _identifier; }
 
 unsigned TemplateNameId::templateArgumentCount() const
@@ -205,8 +205,8 @@ bool TemplateNameId::isEqualTo(const Name *other) const
     const TemplateNameId *t = other->asTemplateNameId();
     if (! t)
         return false;
-    Identifier *l = identifier();
-    Identifier *r = t->identifier();
+    const Identifier *l = identifier();
+    const Identifier *r = t->identifier();
     if (! l->isEqualTo(r))
         return false;
     if (_templateArgumentCount != t->_templateArgumentCount)
@@ -233,7 +233,7 @@ void OperatorNameId::accept0(NameVisitor *visitor)
 int OperatorNameId::kind() const
 { return _kind; }
 
-Identifier *OperatorNameId::identifier() const
+const Identifier *OperatorNameId::identifier() const
 { return 0; }
 
 bool OperatorNameId::isEqualTo(const Name *other) const
@@ -257,7 +257,7 @@ void ConversionNameId::accept0(NameVisitor *visitor)
 FullySpecifiedType ConversionNameId::type() const
 { return _type; }
 
-Identifier *ConversionNameId::identifier() const
+const Identifier *ConversionNameId::identifier() const
 { return 0; }
 
 bool ConversionNameId::isEqualTo(const Name *other) const
@@ -287,7 +287,7 @@ SelectorNameId::~SelectorNameId()
 void SelectorNameId::accept0(NameVisitor *visitor)
 { visitor->visit(this); }
 
-Identifier *SelectorNameId::identifier() const
+const Identifier *SelectorNameId::identifier() const
 {
     if (! _nameCount)
         return 0;

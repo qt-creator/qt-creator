@@ -184,17 +184,17 @@ public:
         delete_array_entries(symbols);
     }
 
-    NameId *findOrInsertNameId(Identifier *id)
+    NameId *findOrInsertNameId(const Identifier *id)
     {
         if (! id)
             return 0;
-        std::map<Identifier *, NameId *>::iterator it = nameIds.lower_bound(id);
+        std::map<const Identifier *, NameId *>::iterator it = nameIds.lower_bound(id);
         if (it == nameIds.end() || it->first != id)
             it = nameIds.insert(it, std::make_pair(id, new NameId(id)));
         return it->second;
     }
 
-    TemplateNameId *findOrInsertTemplateNameId(Identifier *id,
+    TemplateNameId *findOrInsertTemplateNameId(const Identifier *id,
         const std::vector<FullySpecifiedType> &templateArguments)
     {
         if (! id)
@@ -213,11 +213,11 @@ public:
         return it->second;
     }
 
-    DestructorNameId *findOrInsertDestructorNameId(Identifier *id)
+    DestructorNameId *findOrInsertDestructorNameId(const Identifier *id)
     {
         if (! id)
             return 0;
-        std::map<Identifier *, DestructorNameId *>::iterator it = destructorNameIds.lower_bound(id);
+        std::map<const Identifier *, DestructorNameId *>::iterator it = destructorNameIds.lower_bound(id);
         if (it == destructorNameIds.end() || it->first != id)
             it = destructorNameIds.insert(it, std::make_pair(id, new DestructorNameId(id)));
         return it->second;
@@ -441,10 +441,10 @@ public:
     }
 
     struct TemplateNameIdKey {
-        Identifier *id;
+        const Identifier *id;
         std::vector<FullySpecifiedType> templateArguments;
 
-        TemplateNameIdKey(Identifier *id, const std::vector<FullySpecifiedType> &templateArguments)
+        TemplateNameIdKey(const Identifier *id, const std::vector<FullySpecifiedType> &templateArguments)
             : id(id), templateArguments(templateArguments)
         { }
 
@@ -522,8 +522,8 @@ public:
     // ### replace std::map with lookup tables. ASAP!
 
     // names
-    std::map<Identifier *, NameId *> nameIds;
-    std::map<Identifier *, DestructorNameId *> destructorNameIds;
+    std::map<const Identifier *, NameId *> nameIds;
+    std::map<const Identifier *, DestructorNameId *> destructorNameIds;
     std::map<int, OperatorNameId *> operatorNameIds;
     std::map<FullySpecifiedType, ConversionNameId *> conversionNameIds;
     std::map<TemplateNameIdKey, TemplateNameId *> templateNameIds;
@@ -544,14 +544,14 @@ public:
     std::vector<Symbol *> symbols;
 
     // ObjC context keywords:
-    Identifier *objcGetterId;
-    Identifier *objcSetterId;
-    Identifier *objcReadwriteId;
-    Identifier *objcReadonlyId;
-    Identifier *objcAssignId;
-    Identifier *objcRetainId;
-    Identifier *objcCopyId;
-    Identifier *objcNonatomicId;
+    const Identifier *objcGetterId;
+    const Identifier *objcSetterId;
+    const Identifier *objcReadwriteId;
+    const Identifier *objcReadonlyId;
+    const Identifier *objcAssignId;
+    const Identifier *objcRetainId;
+    const Identifier *objcCopyId;
+    const Identifier *objcNonatomicId;
 };
 
 Control::Control()
@@ -587,13 +587,13 @@ DiagnosticClient *Control::diagnosticClient() const
 void Control::setDiagnosticClient(DiagnosticClient *diagnosticClient)
 { d->diagnosticClient = diagnosticClient; }
 
-Identifier *Control::findIdentifier(const char *chars, unsigned size) const
+const Identifier *Control::findIdentifier(const char *chars, unsigned size) const
 { return d->identifiers.findLiteral(chars, size); }
 
-Identifier *Control::findOrInsertIdentifier(const char *chars, unsigned size)
+const Identifier *Control::findOrInsertIdentifier(const char *chars, unsigned size)
 { return d->identifiers.findOrInsertLiteral(chars, size); }
 
-Identifier *Control::findOrInsertIdentifier(const char *chars)
+const Identifier *Control::findOrInsertIdentifier(const char *chars)
 {
     unsigned length = std::strlen(chars);
     return findOrInsertIdentifier(chars, length);
@@ -617,36 +617,36 @@ Control::NumericLiteralIterator Control::firstNumericLiteral() const
 Control::NumericLiteralIterator Control::lastNumericLiteral() const
 { return d->numericLiterals.end(); }
 
-StringLiteral *Control::findOrInsertStringLiteral(const char *chars, unsigned size)
+const StringLiteral *Control::findOrInsertStringLiteral(const char *chars, unsigned size)
 { return d->stringLiterals.findOrInsertLiteral(chars, size); }
 
-StringLiteral *Control::findOrInsertStringLiteral(const char *chars)
+const StringLiteral *Control::findOrInsertStringLiteral(const char *chars)
 {
     unsigned length = std::strlen(chars);
     return findOrInsertStringLiteral(chars, length);
 }
 
-NumericLiteral *Control::findOrInsertNumericLiteral(const char *chars, unsigned size)
+const NumericLiteral *Control::findOrInsertNumericLiteral(const char *chars, unsigned size)
 { return d->numericLiterals.findOrInsertLiteral(chars, size); }
 
-NumericLiteral *Control::findOrInsertNumericLiteral(const char *chars)
+const NumericLiteral *Control::findOrInsertNumericLiteral(const char *chars)
 {
     unsigned length = std::strlen(chars);
     return findOrInsertNumericLiteral(chars, length);
 }
 
-NameId *Control::nameId(Identifier *id)
+NameId *Control::nameId(const Identifier *id)
 { return d->findOrInsertNameId(id); }
 
-TemplateNameId *Control::templateNameId(Identifier *id,
-       FullySpecifiedType *const args,
-       unsigned argv)
+TemplateNameId *Control::templateNameId(const Identifier *id,
+                                        FullySpecifiedType *const args,
+                                        unsigned argv)
 {
     std::vector<FullySpecifiedType> templateArguments(args, args + argv);
     return d->findOrInsertTemplateNameId(id, templateArguments);
 }
 
-DestructorNameId *Control::destructorNameId(Identifier *id)
+DestructorNameId *Control::destructorNameId(const Identifier *id)
 { return d->findOrInsertDestructorNameId(id); }
 
 OperatorNameId *Control::operatorNameId(int kind)
@@ -755,26 +755,26 @@ ObjCMethod *Control::newObjCMethod(unsigned sourceLocation, Name *name)
 ObjCPropertyDeclaration *Control::newObjCPropertyDeclaration(unsigned sourceLocation, Name *name)
 { return d->newObjCPropertyDeclaration(sourceLocation, name); }
 
-Identifier *Control::objcGetterId() const
+const Identifier *Control::objcGetterId() const
 { return d->objcGetterId; }
 
-Identifier *Control::objcSetterId() const
+const Identifier *Control::objcSetterId() const
 { return d->objcSetterId; }
 
-Identifier *Control::objcReadwriteId() const
+const Identifier *Control::objcReadwriteId() const
 { return d->objcReadwriteId; }
 
-Identifier *Control::objcReadonlyId() const
+const Identifier *Control::objcReadonlyId() const
 { return d->objcReadonlyId; }
 
-Identifier *Control::objcAssignId() const
+const Identifier *Control::objcAssignId() const
 { return d->objcAssignId; }
 
-Identifier *Control::objcRetainId() const
+const Identifier *Control::objcRetainId() const
 { return d->objcRetainId; }
 
-Identifier *Control::objcCopyId() const
+const Identifier *Control::objcCopyId() const
 { return d->objcCopyId; }
 
-Identifier *Control::objcNonatomicId() const
+const Identifier *Control::objcNonatomicId() const
 { return d->objcNonatomicId; }

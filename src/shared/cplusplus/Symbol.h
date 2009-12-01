@@ -102,7 +102,7 @@ public:
     unsigned column() const;
 
     /// Returns this Symbol's file name.
-    StringLiteral *fileId() const;
+    const StringLiteral *fileId() const;
 
     /// Returns this Symbol's file name.
     const char *fileName() const;
@@ -116,9 +116,9 @@ public:
     unsigned endOffset() const;
     void setEndOffset(unsigned offset);
 
-    void getPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0) const;
-    void getStartPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0) const;
-    void getEndPosition(unsigned *line, unsigned *column = 0, StringLiteral **fileId = 0) const;
+    void getPosition(unsigned *line, unsigned *column = 0, const StringLiteral **fileId = 0) const;
+    void getStartPosition(unsigned *line, unsigned *column = 0, const StringLiteral **fileId = 0) const;
+    void getEndPosition(unsigned *line, unsigned *column = 0, const StringLiteral **fileId = 0) const;
 
     /// Returns this Symbol's name.
     Name *name() const;
@@ -127,7 +127,7 @@ public:
     void setName(Name *name); // ### dangerous
 
     /// Returns this Symbol's (optional) identifier
-    Identifier *identifier() const;
+    const Identifier *identifier() const;
 
     /// Returns this Symbol's storage class specifier.
     int storage() const;

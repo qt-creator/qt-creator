@@ -335,10 +335,10 @@ public:
 
     union {
         void *ptr;
-        Literal *literal;
-        NumericLiteral *number;
-        StringLiteral *string;
-        Identifier *identifier;
+        const Literal *literal;
+        const NumericLiteral *number;
+        const StringLiteral *string;
+        const Identifier *identifier;
         unsigned close_brace;
         unsigned lineno;
     };

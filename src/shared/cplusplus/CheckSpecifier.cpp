@@ -386,7 +386,7 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
     _fullySpecifiedType.setType(e);
     for (EnumeratorListAST *it = ast->enumerator_list; it; it = it->next) {
         EnumeratorAST *enumerator = it->value;
-        Identifier *id = identifier(enumerator->identifier_token);
+        const Identifier *id = identifier(enumerator->identifier_token);
         if (! id)
             continue;
         NameId *enumeratorName = control()->nameId(id);
@@ -403,7 +403,7 @@ bool CheckSpecifier::visit(TypeofSpecifierAST *ast)
     return false;
 }
 
-bool CheckSpecifier::visit(AttributeSpecifierAST *ast)
+bool CheckSpecifier::visit(AttributeSpecifierAST * /*ast*/)
 {
     return false;
 }

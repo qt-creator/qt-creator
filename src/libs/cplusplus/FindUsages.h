@@ -64,7 +64,7 @@ public:
 
     void setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding);
 
-    QList<int> operator()(Symbol *symbol, Identifier *id, AST *ast);
+    QList<int> operator()(Symbol *symbol, const Identifier *id, AST *ast);
 
 protected:
     using ASTVisitor::visit;
@@ -101,7 +101,7 @@ protected:
 
 private:
     QFutureInterface<Usage> *_future;
-    Identifier *_id;
+    const Identifier *_id;
     Symbol *_declSymbol;
     Document::Ptr _doc;
     Snapshot _snapshot;

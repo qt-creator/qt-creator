@@ -71,7 +71,7 @@ public:
     virtual ~DiagnosticClient();
 
     virtual void report(int level,
-                        StringLiteral *fileName,
+                        const StringLiteral *fileName,
                         unsigned line, unsigned column,
                         const char *format, va_list ap) = 0;
 };

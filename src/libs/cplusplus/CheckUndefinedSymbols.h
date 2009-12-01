@@ -52,7 +52,7 @@ public:
 protected:
     using ASTVisitor::visit;
 
-    bool isType(Identifier *id) const;
+    bool isType(const Identifier *id) const;
     bool isType(const QByteArray &name) const;
 
     void addType(Name *name);

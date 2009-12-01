@@ -60,7 +60,7 @@
 
 using namespace CPlusPlus;
 
-TranslationUnit::TranslationUnit(Control *control, StringLiteral *fileId)
+TranslationUnit::TranslationUnit(Control *control, const StringLiteral *fileId)
     : _control(control),
       _fileId(fileId),
       _firstSourceChar(0),
@@ -96,7 +96,7 @@ void TranslationUnit::setObjCEnabled(bool onoff)
 Control *TranslationUnit::control() const
 { return _control; }
 
-StringLiteral *TranslationUnit::fileId() const
+const StringLiteral *TranslationUnit::fileId() const
 { return _fileId; }
 
 const char *TranslationUnit::fileName() const
@@ -137,16 +137,16 @@ const char *TranslationUnit::spell(unsigned index) const
     return _tokens->at(index).spell();
 }
 
-Identifier *TranslationUnit::identifier(unsigned index) const
+const Identifier *TranslationUnit::identifier(unsigned index) const
 { return _tokens->at(index).identifier; }
 
-Literal *TranslationUnit::literal(unsigned index) const
+const Literal *TranslationUnit::literal(unsigned index) const
 { return _tokens->at(index).literal; }
 
-StringLiteral *TranslationUnit::stringLiteral(unsigned index) const
+const StringLiteral *TranslationUnit::stringLiteral(unsigned index) const
 { return _tokens->at(index).string; }
 
-NumericLiteral *TranslationUnit::numericLiteral(unsigned index) const
+const NumericLiteral *TranslationUnit::numericLiteral(unsigned index) const
 { return _tokens->at(index).number; }
 
 unsigned TranslationUnit::matchingBrace(unsigned index) const
@@ -181,8 +181,8 @@ void TranslationUnit::tokenize()
     pushLineOffset(0);
     pushPreprocessorLine(0, 1, fileId());
 
-    Identifier *lineId   = control()->findOrInsertIdentifier("line");
-    Identifier *genId    = control()->findOrInsertIdentifier("gen");
+    const Identifier *lineId   = control()->findOrInsertIdentifier("line");
+    const Identifier *genId    = control()->findOrInsertIdentifier("gen");
 
     bool generated = false;
     Token tk;
@@ -211,8 +211,8 @@ void TranslationUnit::tokenize()
                     unsigned line = (unsigned) strtoul(tk.spell(), 0, 0);
                     lex(&tk);
                     if (! tk.f.newline && tk.is(T_STRING_LITERAL)) {
-                        StringLiteral *fileName = control()->findOrInsertStringLiteral(tk.string->chars(),
-                                                                                       tk.string->size());
+                        const StringLiteral *fileName = control()->findOrInsertStringLiteral(tk.string->chars(),
+                                                                                             tk.string->size());
                         pushPreprocessorLine(offset, line, fileName);
                         lex(&tk);
                     }
@@ -303,7 +303,7 @@ void TranslationUnit::pushLineOffset(unsigned offset)
 
 void TranslationUnit::pushPreprocessorLine(unsigned offset,
                                            unsigned line,
-                                           StringLiteral *fileName)
+                                           const StringLiteral *fileName)
 { _ppLines.push_back(PPLine(offset, line, fileName)); }
 
 unsigned TranslationUnit::findLineNumber(unsigned offset) const
@@ -339,23 +339,23 @@ unsigned TranslationUnit::findColumnNumber(unsigned offset, unsigned lineNumber)
 void TranslationUnit::getTokenPosition(unsigned index,
                                        unsigned *line,
                                        unsigned *column,
-                                       StringLiteral **fileName) const
+                                       const StringLiteral **fileName) const
 { return getPosition(tokenAt(index).offset, line, column, fileName); }
 
 void TranslationUnit::getTokenStartPosition(unsigned index, unsigned *line,
                                             unsigned *column,
-                                            StringLiteral **fileName) const
+                                            const StringLiteral **fileName) const
 { return getPosition(tokenAt(index).begin(), line, column, fileName); }
 
 void TranslationUnit::getTokenEndPosition(unsigned index, unsigned *line,
                                           unsigned *column,
-                                          StringLiteral **fileName) const
+                                          const StringLiteral **fileName) const
 { return getPosition(tokenAt(index).end(), line, column, fileName); }
 
 void TranslationUnit::getPosition(unsigned tokenOffset,
                                   unsigned *line,
                                   unsigned *column,
-                                  StringLiteral **fileName) const
+                                  const StringLiteral **fileName) const
 {
     unsigned lineNumber = findLineNumber(tokenOffset);
     unsigned columnNumber = findColumnNumber(tokenOffset, lineNumber);
@@ -389,7 +389,7 @@ void TranslationUnit::warning(unsigned index, const char *format, ...)
     index = std::min(index, tokenCount() - 1);
 
     unsigned line = 0, column = 0;
-    StringLiteral *fileName = 0;
+    const StringLiteral *fileName = 0;
     getTokenPosition(index, &line, &column, &fileName);
 
     if (DiagnosticClient *client = control()->diagnosticClient()) {
@@ -420,7 +420,7 @@ void TranslationUnit::error(unsigned index, const char *format, ...)
     index = std::min(index, tokenCount() - 1);
 
     unsigned line = 0, column = 0;
-    StringLiteral *fileName = 0;
+    const StringLiteral *fileName = 0;
     getTokenPosition(index, &line, &column, &fileName);
 
     if (DiagnosticClient *client = control()->diagnosticClient()) {
@@ -451,7 +451,7 @@ void TranslationUnit::fatal(unsigned index, const char *format, ...)
     index = std::min(index, tokenCount() - 1);
 
     unsigned line = 0, column = 0;
-    StringLiteral *fileName = 0;
+    const StringLiteral *fileName = 0;
     getTokenPosition(index, &line, &column, &fileName);
 
     if (DiagnosticClient *client = control()->diagnosticClient()) {
