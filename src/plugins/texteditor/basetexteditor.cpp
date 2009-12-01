@@ -1479,7 +1479,8 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_inBlockSelectionMode(false),
     m_lastEventWasBlockSelectionEvent(false),
     m_blockSelectionExtraX(0),
-    m_moveLineUndoHack(false)
+    m_moveLineUndoHack(false),
+    m_cursorBlockNumber(-1)
 {
 }
 
@@ -2781,6 +2782,22 @@ void BaseTextEditor::updateCurrentLineHighlight()
     }
 
     setExtraSelections(CurrentLineSelection, extraSelections);
+
+
+    // the extra area shows information for the entire current block, not just the currentline.
+    // This is why we must force a bigger update region.
+    int cursorBlockNumber = textCursor().blockNumber();
+    if (cursorBlockNumber != d->m_cursorBlockNumber) {
+        QPointF offset = contentOffset();
+        QTextBlock block = document()->findBlockByNumber(d->m_cursorBlockNumber);
+        if (block.isValid())
+            d->m_extraArea->update(blockBoundingGeometry(block).translated(offset).toAlignedRect());
+        block = document()->findBlockByNumber(cursorBlockNumber);
+        if (block.isValid())
+            d->m_extraArea->update(blockBoundingGeometry(block).translated(offset).toAlignedRect());
+        d->m_cursorBlockNumber = cursorBlockNumber;
+    }
+
 }
 
 void BaseTextEditor::slotCursorPositionChanged()
