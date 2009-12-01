@@ -715,7 +715,10 @@ void QDumper::putBase64Encoded(const char *buf, int n)
 void QDumper::putStringValue(const QString &str)
 {
     if (str.isNull()) {
-        putItem("value", "\"\" (null)");
+        beginItem("value");
+        putBase64Encoded("\"\" (null)", 9);
+        endItem();
+        putItem("valueencoded", "5");
     } else {
         putItem("value", str);
         putItem("valueencoded", "2");

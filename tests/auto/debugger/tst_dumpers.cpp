@@ -462,7 +462,8 @@ static const QByteArray ptrToBa(const void *p, bool symbolicNull = true)
 static const QByteArray generateQStringSpec(const QString &str, bool isNull = false)
 {
     if (isNull)
-        return QByteArray("value=''' (null)',type='"NS"QString',numchild='0'");
+        return QByteArray("value='IiIgKG51bGwp',valueencoded='5',"
+            "type='"NS"QString',numchild='0'");
     return
         QByteArray("value='%',valueencoded='2',type='"NS"QString',numchild='0'")
                 << utfToBase64(str);
@@ -2263,7 +2264,7 @@ void tst_Debugger::dumpQSharedPointer()
 void tst_Debugger::dumpQString()
 {
     QString s;
-    testDumper("value=''' (null)',type='$T',numchild='0'",
+    testDumper("value='IiIgKG51bGwp',valueencoded='5',type='$T',numchild='0'",
         &s, NS"QString", false);
     s = "abc";
     testDumper("value='YQBiAGMA',valueencoded='2',type='$T',numchild='0'",
@@ -2427,7 +2428,7 @@ void tst_Debugger::initTestCase()
     QVERIFY(sizeof(int) == sizeof(d.weakref));
     QVERIFY(sizeof(int) == sizeof(d.strongref));
     const size_t qObjectPrivateSize = sizeof(QObjectPrivate);
-    const size_t objectPrivateSize = sizeof(ObjectPrivate);    
+    const size_t objectPrivateSize = sizeof(ObjectPrivate);
     QVERIFY2(qObjectPrivateSize == objectPrivateSize, QString::fromLatin1("QObjectPrivate=%1 ObjectPrivate=%2").arg(qObjectPrivateSize).arg(objectPrivateSize).toLatin1().constData());
     VERIFY_OFFSETOF(threadData);
     VERIFY_OFFSETOF(extraData);
