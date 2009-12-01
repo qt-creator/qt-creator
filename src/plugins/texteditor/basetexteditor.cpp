@@ -4011,9 +4011,13 @@ TextBlockUserData::MatchType TextBlockUserData::matchCursorForward(QTextCursor *
 
 void BaseTextEditor::highlightSearchResults(const QString &txt, Find::IFindSupport::FindFlags findFlags)
 {
-    if (d->m_searchExpr.pattern() == txt)
+    QString pattern = txt;
+    if (pattern.size() < 2)
+        pattern.clear(); // highlighting single characters is a bit pointless
+
+    if (d->m_searchExpr.pattern() == pattern)
         return;
-    d->m_searchExpr.setPattern(txt);
+    d->m_searchExpr.setPattern(pattern);
     d->m_searchExpr.setPatternSyntax((findFlags & Find::IFindSupport::FindRegularExpression) ?
                                      QRegExp::RegExp : QRegExp::FixedString);
     d->m_searchExpr.setCaseSensitivity((findFlags & Find::IFindSupport::FindCaseSensitively) ?
