@@ -531,10 +531,10 @@ BuildConfigurationComboBox::BuildConfigurationComboBox(Project *p, QWidget *pare
     //            this, SLOT(nameChanged(ProjectExplorer::BuildConfiguration *)));
     connect(p, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(activeConfigurationChanged()));
-    connect(p, SIGNAL(addedBuildConfiguration(ProjectExplorer::Project *, ProjectExplorer::BuildConfiguration *)),
-            this, SLOT(addedBuildConfiguration(ProjectExplorer::Project *, ProjectExplorer::BuildConfiguration *)));
-    connect(p, SIGNAL(removedBuildConfiguration(ProjectExplorer::Project *, ProjectExplorer::BuildConfiguration *)),
-            this, SLOT(removedBuildConfiguration(ProjectExplorer::Project *, ProjectExplorer::BuildConfiguration *)));
+    connect(p, SIGNAL(addedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(addedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)));
+    connect(p, SIGNAL(removedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(removedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)));
     connect(m_comboBox, SIGNAL(activated(int)),
             this, SLOT(changedIndex(int)));
 }
