@@ -56,6 +56,7 @@ struct TEXTEDITOR_EXPORT DisplaySettings
     bool m_animateMatchingParentheses;
     bool m_mouseNavigation;
     bool m_markTextChanges;
+    bool m_autoFoldFirstComment;
 
     bool equals(const DisplaySettings &ds) const;
 };

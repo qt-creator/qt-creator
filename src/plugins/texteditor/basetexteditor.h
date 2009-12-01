@@ -173,7 +173,7 @@ public:
     static QTextBlock testCollapse(const QTextBlock& block);
     static void doCollapse(const QTextBlock& block, bool visible);
 
-    int collapseAtPos() const;
+    int collapseAtPos(QChar *character = 0) const;
 
     enum MatchType { NoMatch, Match, Mismatch  };
     static MatchType checkOpenParenthesis(QTextCursor *cursor, QChar c);

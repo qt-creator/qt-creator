@@ -196,6 +196,7 @@ public:
     int suggestedVisibleCollapsedBlockNumber;
     void clearVisibleCollapsedBlock();
     bool m_mouseOnCollapsedMarker;
+    void collapseLicenseHeader();
 
     QBasicTimer autoScrollTimer;
     void updateMarksLineNumber();

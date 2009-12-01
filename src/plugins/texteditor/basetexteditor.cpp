@@ -611,10 +611,42 @@ bool BaseTextEditor::open(const QString &fileName)
 {
     if (d->m_document->open(fileName)) {
         moveCursor(QTextCursor::Start);
+        if (d->m_displaySettings.m_autoFoldFirstComment)
+            d->collapseLicenseHeader();
         setReadOnly(d->m_document->hasDecodingError());
         return true;
     }
     return false;
+}
+
+/*
+  Collapses the first comment in a file, if there is only whitespace above
+  */
+void BaseTextEditorPrivate::collapseLicenseHeader()
+{
+    QTextDocument *doc = q->document();
+    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(doc->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+    QTextBlock block = doc->firstBlock();
+    const TabSettings &ts = m_document->tabSettings();
+    while (block.isValid()) {
+        TextBlockUserData *data = TextBlockUserData::canCollapse(block);
+        if (data && block.next().isVisible()) {
+            QChar character;
+            static_cast<TextBlockUserData*>(data)->collapseAtPos(&character);
+            if (character != QLatin1Char('+'))
+                break; // not a comment
+            TextBlockUserData::doCollapse(block, false);
+            moveCursorVisible();
+            documentLayout->requestUpdate();
+            documentLayout->emitDocumentSizeChanged();
+            break;
+        }
+        QString text = block.text();
+        if (ts.firstNonSpace(text) < text.size())
+            break;
+        block = block.next();
+    }
 }
 
 const Utils::ChangeSet &BaseTextEditor::changeSet() const
@@ -1618,9 +1650,9 @@ int Parenthesis::collapseAtPos(const Parentheses &parentheses, QChar *character)
 }
 
 
-int TextBlockUserData::collapseAtPos() const
+int TextBlockUserData::collapseAtPos(QChar *character) const
 {
-    return Parenthesis::collapseAtPos(m_parentheses);
+    return Parenthesis::collapseAtPos(m_parentheses, character);
 }
 
 int TextBlockUserData::braceDepthDelta() const

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>448</width>
+    <width>450</width>
     <height>330</height>
    </rect>
   </property>
@@ -61,7 +61,7 @@
       <item row="2" column="0">
        <widget class="QCheckBox" name="markTextChanges">
         <property name="text">
-         <string>Mark text changes</string>
+         <string>Mark &amp;text changes</string>
         </property>
        </widget>
       </item>
@@ -78,7 +78,14 @@
       <item row="2" column="1">
        <widget class="QCheckBox" name="animateMatchingParentheses">
         <property name="text">
-         <string>Animate matching parentheses</string>
+         <string>&amp;Animate matching parentheses</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="autoFoldFirstComment">
+        <property name="text">
+         <string>Auto-fold first &amp;comment</string>
         </property>
        </widget>
       </item>
