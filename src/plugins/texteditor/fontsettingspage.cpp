@@ -303,7 +303,7 @@ QColor FormatDescription::background() const
     } else if (m_name == QLatin1String(Constants::C_OCCURRENCES)) {
         return QColor(180, 180, 180);
     } else if (m_name == QLatin1String(Constants::C_OCCURRENCES_RENAME)) {
-        return QColor(255, 180, 180);
+        return QColor(255, 100, 100);
     } else if (m_name == QLatin1String(Constants::C_DISABLED_CODE)) {
         return QColor(239, 239, 239);
     }
