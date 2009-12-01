@@ -68,7 +68,7 @@ public:
     void renameUsages(CPlusPlus::Symbol *symbol);
 
 private Q_SLOTS:
-    void displayResult(int);
+    void displayResults(int first, int last);
     void searchFinished();
     void openEditor(const Find::SearchResultItem &item);
     void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);

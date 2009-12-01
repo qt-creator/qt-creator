@@ -67,7 +67,7 @@ CppFindReferences::CppFindReferences(CppTools::CppModelManagerInterface *modelMa
       _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
 {
     m_watcher.setPendingResultsLimit(1);
-    connect(&m_watcher, SIGNAL(resultReadyAt(int)), this, SLOT(displayResult(int)));
+    connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)), this, SLOT(displayResults(int,int)));
     connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
 }
 
@@ -333,14 +333,16 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
     _resultWindow->hide();
 }
 
-void CppFindReferences::displayResult(int index)
+void CppFindReferences::displayResults(int first, int last)
 {
-    Usage result = m_watcher.future().resultAt(index);
-    _resultWindow->addResult(result.path,
-                             result.line,
-                             result.lineText,
-                             result.col,
-                             result.len);
+    for (int index = first; index != last; ++index) {
+        Usage result = m_watcher.future().resultAt(index);
+        _resultWindow->addResult(result.path,
+                                 result.line,
+                                 result.lineText,
+                                 result.col,
+                                 result.len);
+    }
 }
 
 void CppFindReferences::searchFinished()
