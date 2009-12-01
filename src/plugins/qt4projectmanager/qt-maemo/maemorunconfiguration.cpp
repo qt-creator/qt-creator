@@ -1064,13 +1064,13 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 void AbstractMaemoRunControl::deploy()
 {
     if (!deployables.isEmpty()) {
-        QPair<QString, QString> pair = deployables.at(0);
+        QPair<QString, QString> pair = deployables.first();
         emit addToOutputWindow(this, tr("File to deploy: %1.").arg(pair.first));
 
         QStringList cmdArgs;
         cmdArgs << "-P" << port() << options() << pair.first << (devConfig.uname
             + "@" + devConfig.host + ":" + remoteDir());
-        deployProcess.setWorkingDirectory(QFileInfo(pair.second).absolutePath());
+        deployProcess.setWorkingDirectory(pair.second);
 
         deployProcess.start(runConfig->scpCmd(), cmdArgs);
         if (!deployProcess.waitForStarted()) {
@@ -1100,10 +1100,14 @@ void AbstractMaemoRunControl::deployProcessFinished()
     if (deployProcess.exitCode() == 0) {
         emit addToOutputWindow(this, tr("Target deployed."));
         success = true;
-        if (deployingExecutable)
+        if (deployingExecutable) {
             runConfig->wasDeployed();
-        if (deployingDumperLib)
+            deployingExecutable = false;
+        }
+        if (deployingDumperLib) {
             runConfig->debuggingHelpersDeployed();
+            deployingDumperLib = false;
+        }
         deployables.removeFirst();
     } else {
         emit error(this, tr("Deployment failed."));
