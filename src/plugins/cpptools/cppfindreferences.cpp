@@ -91,9 +91,10 @@ QList<int> CppFindReferences::references(Symbol *symbol,
     TranslationUnit *translationUnit = doc->translationUnit();
     Q_ASSERT(translationUnit != 0);
 
-    FindUsages process(doc, snapshot, /*future = */ 0);
-    process.setGlobalNamespaceBinding(bind(doc, snapshot));
-    references = process(symbol, id, translationUnit->ast());
+    FindUsages findUsages(doc, snapshot, /*future = */ 0);
+    findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
+    findUsages(symbol, id, translationUnit->ast());
+    references = findUsages.references();
 
     return references;
 }
@@ -229,7 +230,10 @@ void CppFindReferences::findAll_helper(Symbol *symbol)
     const QMap<QString, QString> wl = _modelManager->workingCopy();
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
-    QFuture<Usage> result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
+
+    QFuture<Usage> result;
+
+    result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching..."),

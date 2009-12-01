@@ -47,12 +47,12 @@ public:
         : line(0), col(0), len(0) {}
 
     Usage(const QString &path, int line, const QString &lineText, int col, int len)
-        : path(path), line(line), lineText(lineText), col(col), len(len) {}
+        : path(path), lineText(lineText), line(line), col(col), len(len) {}
 
 public:
     QString path;
-    int line;
     QString lineText;
+    int line;
     int col;
     int len;
 };
@@ -64,7 +64,10 @@ public:
 
     void setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding);
 
-    QList<int> operator()(Symbol *symbol, const Identifier *id, AST *ast);
+    void operator()(Symbol *symbol, const Identifier *id, AST *ast);
+
+    QList<Usage> usages() const;
+    QList<int> references() const;
 
 protected:
     using ASTVisitor::visit;
@@ -112,6 +115,7 @@ private:
     QList<PostfixExpressionAST *> _postfixExpressionStack;
     QList<QualifiedNameAST *> _qualifiedNameStack;
     QList<int> _references;
+    QList<Usage> _usages;
     LookupContext _previousContext;
     int _inSimpleDeclaration;
     QSet<unsigned> _processed;

@@ -57,17 +57,23 @@ void FindUsages::setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBi
     _globalNamespaceBinding = globalNamespaceBinding;
 }
 
-QList<int> FindUsages::operator()(Symbol *symbol, const Identifier *id, AST *ast)
+QList<Usage> FindUsages::usages() const
+{ return _usages; }
+
+QList<int> FindUsages::references() const
+{ return _references; }
+
+void FindUsages::operator()(Symbol *symbol, const Identifier *id, AST *ast)
 {
     _processed.clear();
     _references.clear();
+    _usages.clear();
     _declSymbol = symbol;
     _id = id;
     if (_declSymbol && _id) {
         _exprDoc = Document::create("<references>");
         accept(ast);
     }
-    return _references;
 }
 
 QString FindUsages::matchingLine(const Token &tk) const
@@ -120,9 +126,11 @@ void FindUsages::reportResult(unsigned tokenIndex)
 
     const int len = tk.f.length;
 
-    if (_future) {
-        _future->reportResult(Usage(_doc->fileName(), line, lineText, col, len));
-    }
+    const Usage u(_doc->fileName(), line, lineText, col, len);
+    _usages.append(u);
+
+    if (_future)
+        _future->reportResult(u);
 
     _references.append(tokenIndex);
 }
