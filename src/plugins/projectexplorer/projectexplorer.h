@@ -215,7 +215,7 @@ private slots:
     void currentModeChanged(Core::IMode *mode);
 
 private:
-    void runProjectImpl(Project *pro);
+    void runProjectImpl(Project *pro, QString mode);
     void executeRunConfiguration(RunConfiguration *, const QString &mode);
     bool showBuildConfigDialog();
 

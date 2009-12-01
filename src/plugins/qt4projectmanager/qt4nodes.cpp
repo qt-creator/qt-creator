@@ -35,6 +35,7 @@
 #include "qt4project.h"
 #include "qt4projectmanager.h"
 #include "qtuicodemodelsupport.h"
+#include "qt4buildconfiguration.h"
 
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/filewatcher.h>
@@ -1101,7 +1102,9 @@ ProFileReader *Qt4PriFileNode::createProFileReader() const
     connect(reader, SIGNAL(errorFound(QString)),
             m_project, SLOT(proFileParseError(QString)));
 
-    QtVersion *version = m_project->qtVersion(m_project->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = m_project->activeQt4BuildConfiguration();
+
+    QtVersion *version = qt4bc->qtVersion();
     if (version->isValid())
         reader->setQtVersion(version);
 
@@ -1202,7 +1205,7 @@ QString Qt4PriFileNode::buildDir() const
 {
     const QDir srcDirRoot = QFileInfo(m_project->rootProjectNode()->path()).absoluteDir();
     const QString relativeDir = srcDirRoot.relativeFilePath(m_projectDir);
-    return QDir(m_project->buildDirectory(m_project->activeBuildConfiguration())).absoluteFilePath(relativeDir);
+    return QDir(m_project->activeBuildConfiguration()->buildDirectory()).absoluteFilePath(relativeDir);
 }
 
 /*

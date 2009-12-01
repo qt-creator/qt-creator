@@ -27,48 +27,40 @@
 **
 **************************************************************************/
 
-#ifndef QT4BUILDENVIRONMENTWIDGET_H
-#define QT4BUILDENVIRONMENTWIDGET_H
+#ifndef QMAKEPARSER_H
+#define QMAKEPARSER_H
 
-#include <projectexplorer/buildstep.h>
+#include <projectexplorer/ibuildparser.h>
 
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-QT_END_NAMESPACE
-
-namespace ProjectExplorer {
-class EnvironmentWidget;
-}
+#include <QtCore/QRegExp>
 
 namespace Qt4ProjectManager {
-
-class Qt4Project;
-
 namespace Internal {
-class Qt4BuildConfiguration;
 
-class Qt4BuildEnvironmentWidget : public ProjectExplorer::BuildConfigWidget
+class QMakeParserFactory : public ProjectExplorer::IBuildParserFactory
+{
+    Q_OBJECT
+public:
+    QMakeParserFactory() {}
+    virtual ~QMakeParserFactory();
+    virtual bool canCreate(const QString & name) const;
+    virtual ProjectExplorer::IBuildParser * create(const QString & name) const;
+};
+
+
+class QMakeParser : public ProjectExplorer::IBuildParser
 {
     Q_OBJECT
 
 public:
-    Qt4BuildEnvironmentWidget(Qt4Project *project);
-
-    QString displayName() const;
-    void init(ProjectExplorer::BuildConfiguration *bc);
-
-private slots:
-    void environmentModelUserChangesUpdated();
-    void clearSystemEnvironmentCheckBoxClicked(bool checked);
-
+    QMakeParser();
+    QString name() const;
+    virtual void stdOutput(const QString & line);
+    virtual void stdError(const QString & line);
 private:
-    ProjectExplorer::EnvironmentWidget *m_buildEnvironmentWidget;
-    QCheckBox *m_clearSystemEnvironmentCheckBox;
-    Qt4Project *m_pro;
-    Qt4BuildConfiguration *m_buildConfiguration;
 };
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // namesapce Interanal
+} // namespace ProjectExplorer
 
-#endif // QT4BUILDENVIRONMENTWIDGET_H
+#endif // QMAKEPARSER_H

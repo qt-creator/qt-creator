@@ -32,33 +32,21 @@
 
 #include "iprojectproperties.h"
 
-#include <QtCore/QHash>
-#include <QtGui/QComboBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-#include <QtGui/QGroupBox>
-#include <QtGui/QSpacerItem>
+#include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QLabel;
+class QMenu;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
+class BuildConfiguration;
 class IBuildStepFactory;
 
 namespace Internal {
-
-class BuildSettingsSubWidgets : public QWidget
-{
-    Q_OBJECT
-public:
-    BuildSettingsSubWidgets(QWidget *parent);
-    ~BuildSettingsSubWidgets();
-    void clear();
-    void addWidget(const QString &name, QWidget *widget);
-    QList<QWidget *> widgets() const;
-private:
-    QList<QWidget *> m_widgets;
-    QList<QLabel *> m_labels;
-    QList<QSpacerItem *> m_spacerItems;
-};
 
 class BuildSettingsPanelFactory : public IPanelFactory
 {
@@ -92,8 +80,11 @@ public:
     BuildSettingsWidget(Project *project);
     ~BuildSettingsWidget();
 
+    void clear();
+    void addSubWidget(const QString &name, QWidget *widget);
+    QList<QWidget *> subWidgets() const;
+
 private slots:
-    void buildConfigurationDisplayNameChanged(const QString &buildConfiguration);
     void updateBuildSettings();
     void currentIndexChanged(int index);
     void activeBuildConfigurationChanged();
@@ -105,18 +96,25 @@ private slots:
     void checkMakeActiveLabel();
     void makeActive();
 
+    void init();
+
 private:
-    void cloneConfiguration(const QString &toClone);
-    void deleteConfiguration(const QString &toDelete);
+    void cloneConfiguration(BuildConfiguration *toClone);
+    void deleteConfiguration(BuildConfiguration *toDelete);
 
     Project *m_project;
+    BuildConfiguration *m_buildConfiguration;
+
     QPushButton *m_addButton;
     QPushButton *m_removeButton;
     QComboBox *m_buildConfigurationComboBox;
-    BuildSettingsSubWidgets *m_subWidgets;
-    QString m_buildConfiguration;
     QMenu *m_addButtonMenu;
     QLabel *m_makeActiveLabel;
+
+    QList<QWidget *> m_subWidgets;
+    QList<QLabel *> m_labels;
+
+    int m_leftMargin;
 };
 
 } // namespace Internal

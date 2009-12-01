@@ -52,14 +52,14 @@ public:
 protected:
     using ASTVisitor::visit;
 
-    bool isType(Identifier *id) const;
+    bool isType(const Identifier *id) const;
     bool isType(const QByteArray &name) const;
 
-    void addType(Name *name);
+    void addType(const Name *name);
     void buildTypeMap(Class *klass);
     void buildMemberTypeMap(Symbol *member);
     void buildTypeMap(NamespaceBinding *binding, QSet<NamespaceBinding *> *processed);
-    void addProtocol(Name *name);
+    void addProtocol(const Name *name);
     bool isProtocol(const QByteArray &name) const;
 
     FunctionDeclaratorAST *currentFunctionDeclarator() const;

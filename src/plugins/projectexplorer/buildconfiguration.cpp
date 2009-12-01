@@ -44,14 +44,14 @@ IBuildStepFactory *findFactory(const QString &name)
     return 0;
 }
 
-BuildConfiguration::BuildConfiguration(const QString &name)
-    : m_name(name)
+BuildConfiguration::BuildConfiguration(Project *pro)
+    : m_project(pro)
 {
-    setDisplayName(name);
+
 }
 
-BuildConfiguration::BuildConfiguration(const QString &name, BuildConfiguration *source)
-    : m_values(source->m_values), m_name(name)
+BuildConfiguration::BuildConfiguration(BuildConfiguration *source)
+    : m_values(source->m_values), m_project(source->m_project)
 {
     foreach(BuildStep *originalbs, source->buildSteps()) {
         IBuildStepFactory *factory = findFactory(originalbs->name());
@@ -71,16 +71,6 @@ BuildConfiguration::~BuildConfiguration()
     qDeleteAll(m_cleanSteps);
 }
 
-void BuildConfiguration::setName(const QString &name)
-{
-    m_name = name;
-}
-
-QString BuildConfiguration::name() const
-{
-    return m_name;
-}
-
 QString BuildConfiguration::displayName() const
 {
     QVariant v = value("ProjectExplorer.BuildConfiguration.DisplayName");
@@ -90,7 +80,10 @@ QString BuildConfiguration::displayName() const
 
 void BuildConfiguration::setDisplayName(const QString &name)
 {
+    if (value("ProjectExplorer.BuildConfiguration.DisplayName").toString() == name)
+        return;
     setValue("ProjectExplorer.BuildConfiguration.DisplayName", name);
+    emit displayNameChanged();
 }
 
 QVariant BuildConfiguration::value(const QString & key) const
@@ -171,6 +164,12 @@ void BuildConfiguration::moveCleanStepUp(int position)
         return;
     m_cleanSteps.swap(position - 1, position);
 }
+
+Project *BuildConfiguration::project() const
+{
+    return m_project;
+}
+
 
 ///
 // IBuildConfigurationFactory

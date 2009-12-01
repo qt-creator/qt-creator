@@ -103,6 +103,7 @@ signals:
     void canNotCloseFile(const QString &filename, const QString &errorMessage);
     void installingStarted();
     void canNotInstall(const QString &packageFilename, const QString &errorMessage);
+    void installingFinished();
     void startingApplication();
     void applicationRunning(uint pid);
     void canNotRun(const QString &errorMessage);

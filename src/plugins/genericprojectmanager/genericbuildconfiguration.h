@@ -27,48 +27,30 @@
 **
 **************************************************************************/
 
-#ifndef QT4BUILDENVIRONMENTWIDGET_H
-#define QT4BUILDENVIRONMENTWIDGET_H
+#ifndef GENERICBUILDCONFIGURATION_H
+#define GENERICBUILDCONFIGURATION_H
 
-#include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildconfiguration.h>
 
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-QT_END_NAMESPACE
-
-namespace ProjectExplorer {
-class EnvironmentWidget;
-}
-
-namespace Qt4ProjectManager {
-
-class Qt4Project;
-
+namespace GenericProjectManager {
 namespace Internal {
-class Qt4BuildConfiguration;
 
-class Qt4BuildEnvironmentWidget : public ProjectExplorer::BuildConfigWidget
+class GenericProject;
+
+
+class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
-
 public:
-    Qt4BuildEnvironmentWidget(Qt4Project *project);
+    GenericBuildConfiguration(GenericProject *pro);
+    GenericBuildConfiguration(GenericBuildConfiguration *source);
 
-    QString displayName() const;
-    void init(ProjectExplorer::BuildConfiguration *bc);
+    GenericProject *genericProject() const;
 
-private slots:
-    void environmentModelUserChangesUpdated();
-    void clearSystemEnvironmentCheckBoxClicked(bool checked);
-
-private:
-    ProjectExplorer::EnvironmentWidget *m_buildEnvironmentWidget;
-    QCheckBox *m_clearSystemEnvironmentCheckBox;
-    Qt4Project *m_pro;
-    Qt4BuildConfiguration *m_buildConfiguration;
+    virtual ProjectExplorer::Environment environment() const;
+    virtual QString buildDirectory() const;
 };
 
+} // namespace GenericProjectManager
 } // namespace Internal
-} // namespace Qt4ProjectManager
-
-#endif // QT4BUILDENVIRONMENTWIDGET_H
+#endif // GENERICBUILDCONFIGURATION_H

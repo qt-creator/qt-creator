@@ -48,17 +48,17 @@ public:
 
     QList<LookupItem> resolveMemberExpression(const QList<LookupItem> &baseResults,
                                           unsigned accessOp,
-                                          Name *memberName,
+                                          const Name *memberName,
                                           bool *replacedDotOperator = 0) const;
 
     QList<LookupItem> resolveBaseExpression(const QList<LookupItem> &baseResults,
                                         int accessOp,
                                         bool *replacedDotOperator = 0) const;
 
-    QList<LookupItem> resolveMember(Name *memberName, Class *klass,
-                                Name *className = 0) const;
+    QList<LookupItem> resolveMember(const Name *memberName, Class *klass,
+                                    const Name *className = 0) const;
 
-    QList<LookupItem> resolveMember(Name *memberName, ObjCClass *klass) const;
+    QList<LookupItem> resolveMember(const Name *memberName, ObjCClass *klass) const;
 
 protected:
     QList<LookupItem> switchResults(const QList<LookupItem> &symbols);
@@ -125,12 +125,12 @@ class CPLUSPLUS_EXPORT ResolveClass
 public:
     ResolveClass();
 
-    QList<Symbol *> operator()(Name *name,
+    QList<Symbol *> operator()(const Name *name,
                                const LookupItem &p,
                                const LookupContext &context);
 
 private:
-    QList<Symbol *> resolveClass(Name *name,
+    QList<Symbol *> resolveClass(const Name *name,
                                  const LookupItem &p,
                                  const LookupContext &context);
 
@@ -143,7 +143,7 @@ class CPLUSPLUS_EXPORT ResolveObjCClass
 public:
     ResolveObjCClass();
 
-    QList<Symbol *> operator()(Name *name,
+    QList<Symbol *> operator()(const Name *name,
                                const LookupItem &p,
                                const LookupContext &context);
 };

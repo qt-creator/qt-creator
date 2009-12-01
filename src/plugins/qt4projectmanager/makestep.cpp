@@ -30,6 +30,7 @@
 #include "makestep.h"
 
 #include "qt4project.h"
+#include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -44,8 +45,8 @@ using ExtensionSystem::PluginManager;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-MakeStep::MakeStep(Qt4Project * project, ProjectExplorer::BuildConfiguration *bc)
-    : AbstractMakeStep(project, bc), m_clean(false)
+MakeStep::MakeStep(ProjectExplorer::BuildConfiguration *bc)
+    : AbstractMakeStep(bc), m_clean(false)
 {
 
 }
@@ -53,7 +54,7 @@ MakeStep::MakeStep(Qt4Project * project, ProjectExplorer::BuildConfiguration *bc
 MakeStep::MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc)
     : AbstractMakeStep(bs, bc),
     m_clean(bs->m_clean),
-    m_makeargs(bs->m_makeargs),
+    m_userArgs(bs->m_userArgs),
     m_makeCmd(bs->m_makeCmd)
 {
 
@@ -62,6 +63,11 @@ MakeStep::MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc)
 MakeStep::~MakeStep()
 {
 
+}
+
+Qt4BuildConfiguration *MakeStep::qt4BuildConfiguration() const
+{
+    return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
 }
 
 void MakeStep::setClean(bool clean)
@@ -78,7 +84,7 @@ void MakeStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
 
 void MakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
 {
-    m_makeargs = map.value("makeargs").toStringList();
+    m_userArgs = map.value("makeargs").toStringList();
     m_makeCmd = map.value("makeCmd").toString();
     if (map.value("clean").isValid() && map.value("clean").toBool())
         m_clean = true;
@@ -87,7 +93,7 @@ void MakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
 
 void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 {
-    map["makeargs"] = m_makeargs;
+    map["makeargs"] = m_userArgs;
     map["makeCmd"] = m_makeCmd;
     if (m_clean)
         map["clean"] = true;
@@ -96,15 +102,14 @@ void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 
 bool MakeStep::init()
 {
-    ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-    Environment environment = project()->environment(bc);
+    Qt4BuildConfiguration *bc = qt4BuildConfiguration();
+    Environment environment = bc->environment();
     setEnvironment(environment);
 
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
-    QString workingDirectory = qt4project->buildDirectory(bc);
+    QString workingDirectory = bc->buildDirectory();
     setWorkingDirectory(workingDirectory);
 
-    QString makeCmd = qt4project->makeCommand(bc);
+    QString makeCmd = bc->makeCommand();
     if (!m_makeCmd.isEmpty())
         makeCmd = m_makeCmd;
     if (!QFileInfo(makeCmd).isAbsolute()) {
@@ -123,17 +128,17 @@ bool MakeStep::init()
     // we should stop the clean queue
     // That is mostly so that rebuild works on a alrady clean project
     setIgnoreReturnValue(m_clean);
-    QStringList args = m_makeargs;
+    QStringList args = m_userArgs;
     if (!m_clean) {
-        if (!qt4project->defaultMakeTarget(bc).isEmpty())
-            args << qt4project->defaultMakeTarget(bc);
+        if (!bc->defaultMakeTarget().isEmpty())
+            args << bc->defaultMakeTarget();
     }
     // -w option enables "Enter"/"Leaving directory" messages, which we need for detecting the
     // absolute file path
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    ProjectExplorer::ToolChain *toolchain = qt4project->toolChain(bc);
+    ProjectExplorer::ToolChain *toolchain = bc->toolChain();
 
     ProjectExplorer::ToolChain::ToolChainType type =  ProjectExplorer::ToolChain::UNKNOWN;
     if (toolchain)
@@ -163,7 +168,7 @@ bool MakeStep::init()
 
 void MakeStep::run(QFutureInterface<bool> & fi)
 {
-    if (qobject_cast<Qt4Project *>(project())->rootProjectNode()->projectType() == ScriptTemplate) {
+    if (qt4BuildConfiguration()->qt4Project()->rootProjectNode()->projectType() == ScriptTemplate) {
         fi.reportResult(true);
         return;
     }
@@ -191,19 +196,19 @@ ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
     return new MakeStepConfigWidget(this);
 }
 
-QStringList MakeStep::makeArguments()
+QStringList MakeStep::userArguments()
 {
-    return m_makeargs;
+    return m_userArgs;
 }
 
-void MakeStep::setMakeArguments(const QStringList &arguments)
+void MakeStep::setUserArguments(const QStringList &arguments)
 {
-    m_makeargs = arguments;
-    emit changed();
+    m_userArgs = arguments;
+    emit userArgumentsChanged();
 }
 
 MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
-    : BuildStepConfigWidget(), m_makeStep(makeStep)
+    : BuildStepConfigWidget(), m_makeStep(makeStep), m_ignoreChange(false)
 {
     m_ui.setupUi(this);
     connect(m_ui.makeLineEdit, SIGNAL(textEdited(QString)),
@@ -211,9 +216,9 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(m_ui.makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeArgumentsLineEditTextEdited()));
 
-    connect(makeStep, SIGNAL(changed()),
-            this, SLOT(update()));
-    connect(makeStep->project(), SIGNAL(buildDirectoryChanged()),
+    connect(makeStep, SIGNAL(userArgumentsChanged()),
+            this, SLOT(userArgumentsChanged()));
+    connect(makeStep->buildConfiguration(), SIGNAL(buildDirectoryChanged()),
             this, SLOT(updateDetails()));
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
@@ -224,22 +229,20 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
 void MakeStepConfigWidget::updateMakeOverrideLabel()
 {
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(m_makeStep->project());
-    m_ui.makeLabel->setText(tr("Override %1:").arg(qt4project->
-        makeCommand(m_makeStep->buildConfiguration())));
+    Qt4BuildConfiguration *qt4bc = m_makeStep->qt4BuildConfiguration();
+    m_ui.makeLabel->setText(tr("Override %1:").arg(qt4bc->makeCommand()));
 }
 
 void MakeStepConfigWidget::updateDetails()
 {
-    Qt4Project *pro = static_cast<Qt4Project *>(m_makeStep->project());
-    ProjectExplorer::BuildConfiguration *bc = m_makeStep->buildConfiguration();
-    QString workingDirectory = pro->buildDirectory(bc);
+    Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();
+    QString workingDirectory = bc->buildDirectory();
 
-    QString makeCmd = pro->makeCommand(bc);
+    QString makeCmd = bc->makeCommand();
     if (!m_makeStep->m_makeCmd.isEmpty())
         makeCmd = m_makeStep->m_makeCmd;
     if (!QFileInfo(makeCmd).isAbsolute()) {
-        Environment environment = pro->environment(bc);
+        Environment environment = bc->environment();
         // Try to detect command in environment
         QString tmp = environment.searchInPath(makeCmd);
         if (tmp == QString::null) {
@@ -254,9 +257,9 @@ void MakeStepConfigWidget::updateDetails()
     // FIXME doing this without the user having a way to override this is rather bad
     // so we only do it for unix and if the user didn't override the make command
     // but for now this is the least invasive change
-    QStringList args = m_makeStep->makeArguments();
+    QStringList args = m_makeStep->userArguments();
     ProjectExplorer::ToolChain::ToolChainType t = ProjectExplorer::ToolChain::UNKNOWN;
-    ProjectExplorer::ToolChain *toolChain = pro->toolChain(bc);
+    ProjectExplorer::ToolChain *toolChain = bc->toolChain();
     if (toolChain)
         t = toolChain->type();
     if (t != ProjectExplorer::ToolChain::MSVC && t != ProjectExplorer::ToolChain::WINCE) {
@@ -278,9 +281,11 @@ QString MakeStepConfigWidget::displayName() const
     return m_makeStep->displayName();
 }
 
-void MakeStepConfigWidget::update()
+void MakeStepConfigWidget::userArgumentsChanged()
 {
-    init();
+    const QStringList &makeArguments = m_makeStep->userArguments();
+    m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
+    updateDetails();
 }
 
 void MakeStepConfigWidget::init()
@@ -290,7 +295,7 @@ void MakeStepConfigWidget::init()
     const QString &makeCmd = m_makeStep->m_makeCmd;
     m_ui.makeLineEdit->setText(makeCmd);
 
-    const QStringList &makeArguments = m_makeStep->makeArguments();
+    const QStringList &makeArguments = m_makeStep->userArguments();
     m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
     updateDetails();
 }
@@ -303,8 +308,10 @@ void MakeStepConfigWidget::makeLineEditTextEdited()
 
 void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
 {
-    m_makeStep->setMakeArguments(
+    m_ignoreChange = true;
+    m_makeStep->setUserArguments(
             ProjectExplorer::Environment::parseCombinedArgString(m_ui.makeArgumentsLineEdit->text()));
+    m_ignoreChange = false;
     updateDetails();
 }
 
@@ -325,10 +332,10 @@ bool MakeStepFactory::canCreate(const QString & name) const
     return (name == Constants::MAKESTEP);
 }
 
-ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::Project *pro, ProjectExplorer::BuildConfiguration *bc, const QString & name) const
+ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildConfiguration *bc, const QString & name) const
 {
     Q_UNUSED(name)
-    return new MakeStep(static_cast<Qt4Project *>(pro), bc);
+    return new MakeStep(bc);
 }
 
 ProjectExplorer::BuildStep *MakeStepFactory::clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const
@@ -336,9 +343,9 @@ ProjectExplorer::BuildStep *MakeStepFactory::clone(ProjectExplorer::BuildStep *b
     return new MakeStep(static_cast<MakeStep *>(bs), bc);
 }
 
-QStringList MakeStepFactory::canCreateForProject(ProjectExplorer::Project *pro) const
+QStringList MakeStepFactory::canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *pro) const
 {
-    if (qobject_cast<Qt4Project *>(pro))
+    if (qobject_cast<Qt4BuildConfiguration *>(pro))
         return QStringList() << Constants::MAKESTEP;
     else
         return QStringList();

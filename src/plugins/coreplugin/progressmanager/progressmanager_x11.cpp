@@ -29,6 +29,14 @@
 
 #include "progressmanager_p.h"
 
+void Core::Internal::ProgressManagerPrivate::init()
+{
+}
+
+void Core::Internal::ProgressManagerPrivate::cleanup()
+{
+}
+
 void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &text)
 {
     Q_UNUSED(text)

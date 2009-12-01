@@ -28,7 +28,6 @@ HEADERS += qt4projectmanagerplugin.h \
     qt4projectmanagerconstants.h \
     makestep.h \
     qmakestep.h \
-    embeddedpropertiespage.h \
     qt4runconfiguration.h \
     qtmodulesinfo.h \
     qt4projectconfigwidget.h \
@@ -39,7 +38,9 @@ HEADERS += qt4projectmanagerplugin.h \
     qtuicodemodelsupport.h \
     externaleditors.h \
     gettingstartedwelcomepagewidget.h \
-    gettingstartedwelcomepage.h
+    gettingstartedwelcomepage.h \
+    qt4buildconfiguration.h \
+    qmakeparser.h
 SOURCES += qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
     qt4project.cpp \
@@ -63,7 +64,6 @@ SOURCES += qt4projectmanagerplugin.cpp \
     wizards/qtwizard.cpp \
     makestep.cpp \
     qmakestep.cpp \
-    embeddedpropertiespage.cpp \
     qt4runconfiguration.cpp \
     qtmodulesinfo.cpp \
     qt4projectconfigwidget.cpp \
@@ -74,11 +74,12 @@ SOURCES += qt4projectmanagerplugin.cpp \
     qtuicodemodelsupport.cpp \
     externaleditors.cpp \
     gettingstartedwelcomepagewidget.cpp \
-    gettingstartedwelcomepage.cpp
+    gettingstartedwelcomepage.cpp \
+    qt4buildconfiguration.cpp \
+    qmakeparser.cpp
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \
-    embeddedpropertiespage.ui \
     qtversionmanager.ui \
     showbuildlog.ui \
     gettingstartedwelcomepagewidget.ui

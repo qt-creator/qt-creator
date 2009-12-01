@@ -73,6 +73,7 @@ TextEditorActionHandler::TextEditorActionHandler(const QString &context,
     m_selectEncodingAction(0),
     m_increaseFontSizeAction(0),
     m_decreaseFontSizeAction(0),
+    m_resetFontSizeAction(0),
     m_gotoBlockStartAction(0),
     m_gotoBlockEndAction(0),
     m_gotoBlockStartWithSelectionAction(0),
@@ -219,6 +220,12 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_decreaseFontSizeAction, Constants::DECREASE_FONT_SIZE, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
     connect(m_decreaseFontSizeAction, SIGNAL(triggered()), this, SLOT(decreaseFontSize()));
+    advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
+
+    m_resetFontSizeAction = new QAction(tr("Reset Font Size"), this);
+    command = am->registerAction(m_resetFontSizeAction, Constants::RESET_FONT_SIZE, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+0")));
+    connect(m_resetFontSizeAction, SIGNAL(triggered()), this, SLOT(resetFontSize()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
 
     m_gotoBlockStartAction = new QAction(tr("Goto Block Start"), this);
@@ -422,6 +429,7 @@ FUNCTION(collapse)
 FUNCTION(expand)
 FUNCTION2(increaseFontSize, zoomIn)
 FUNCTION2(decreaseFontSize, zoomOut)
+FUNCTION2(resetFontSize, zoomReset)
 FUNCTION(selectEncoding)
 FUNCTION(gotoBlockStart)
 FUNCTION(gotoBlockEnd)

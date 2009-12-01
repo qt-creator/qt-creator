@@ -2,6 +2,7 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtversionmanager.h"
+#include "qt4buildconfiguration.h"
 
 #include <utils/synchronousprocess.h>
 #include <projectexplorer/projectexplorer.h>
@@ -99,7 +100,8 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
     const Qt4Project *project = qt4ProjectFor(fileName);
     // Get the binary either from the current Qt version of the project or Path
     if (project) {
-        const QtVersion *qtVersion= project->qtVersion(project->activeBuildConfiguration());
+        Qt4BuildConfiguration *qt4bc = project->activeQt4BuildConfiguration();
+        const QtVersion *qtVersion= qt4bc->qtVersion();
         data->binary = (qtVersion->*commandAccessor)();
         data->workingDirectory = QFileInfo(project->file()->fileName()).absolutePath();
     } else {

@@ -57,7 +57,7 @@ void FindUsages::setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBi
     _globalNamespaceBinding = globalNamespaceBinding;
 }
 
-QList<int> FindUsages::operator()(Symbol *symbol, Identifier *id, AST *ast)
+QList<int> FindUsages::operator()(Symbol *symbol, const Identifier *id, AST *ast)
 {
     _processed.clear();
     _references.clear();
@@ -344,7 +344,7 @@ bool FindUsages::visit(QualifiedNameAST *ast)
 
 bool FindUsages::visit(EnumeratorAST *ast)
 {
-    Identifier *id = identifier(ast->identifier_token);
+    const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
         LookupContext context = currentContext(ast);
         const QList<Symbol *> candidates = context.resolve(control()->nameId(id));
@@ -358,7 +358,7 @@ bool FindUsages::visit(EnumeratorAST *ast)
 
 bool FindUsages::visit(SimpleNameAST *ast)
 {
-    Identifier *id = identifier(ast->identifier_token);
+    const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
         LookupContext context = currentContext(ast);
         const QList<Symbol *> candidates = context.resolve(ast->name);
@@ -370,7 +370,7 @@ bool FindUsages::visit(SimpleNameAST *ast)
 
 bool FindUsages::visit(DestructorNameAST *ast)
 {
-    Identifier *id = identifier(ast->identifier_token);
+    const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
         LookupContext context = currentContext(ast);
         const QList<Symbol *> candidates = context.resolve(ast->name);

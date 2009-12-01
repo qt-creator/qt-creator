@@ -10,7 +10,8 @@ HEADERS = genericproject.h \
     genericprojectwizard.h \
     genericprojectfileseditor.h \
     pkgconfigtool.h \
-    genericmakestep.h
+    genericmakestep.h \
+    genericbuildconfiguration.h
 SOURCES = genericproject.cpp \
     genericprojectplugin.cpp \
     genericprojectmanager.cpp \
@@ -18,8 +19,8 @@ SOURCES = genericproject.cpp \
     genericprojectwizard.cpp \
     genericprojectfileseditor.cpp \
     pkgconfigtool.cpp \
-    genericmakestep.cpp
+    genericmakestep.cpp \
+    genericbuildconfiguration.cpp
 RESOURCES += genericproject.qrc
 FORMS += genericmakestep.ui
-
 OTHER_FILES += GenericProjectManager.pluginspec

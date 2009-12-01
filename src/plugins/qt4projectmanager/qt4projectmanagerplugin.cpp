@@ -38,7 +38,6 @@
 #include "profileeditorfactory.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
-#include "embeddedpropertiespage.h"
 #include "qt4runconfiguration.h"
 #include "profilereader.h"
 #include "qtversionmanager.h"
@@ -46,6 +45,7 @@
 #include "externaleditors.h"
 #include "gettingstartedwelcomepage.h"
 #include "gettingstartedwelcomepagewidget.h"
+#include "qmakeparser.h"
 
 #ifdef QTCREATOR_WITH_S60
 #include "qt-s60/s60manager.h"
@@ -150,6 +150,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     addAutoReleasedObject(new QMakeStepFactory);
     addAutoReleasedObject(new MakeStepFactory);
+    addAutoReleasedObject(new QMakeParserFactory);
 
     addAutoReleasedObject(new Qt4RunConfigurationFactory);
 

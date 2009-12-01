@@ -186,19 +186,20 @@ private:
     }
 };
 
-class FindUses: protected ASTVisitor
+class FindLocalUses: protected ASTVisitor
 {
     Scope *_functionScope;
-
     FindScope findScope;
 
 public:
-    FindUses(TranslationUnit *translationUnit)
-        : ASTVisitor(translationUnit)
+    FindLocalUses(TranslationUnit *translationUnit)
+        : ASTVisitor(translationUnit), hasD(false), hasQ(false)
     { }
 
     // local and external uses.
     SemanticInfo::LocalUseMap localUses;
+    bool hasD;
+    bool hasQ;
 
     void operator()(FunctionDefinitionAST *ast)
     {
@@ -218,7 +219,7 @@ protected:
         if (! (ast && ast->name))
             return false;
 
-        Identifier *id = ast->name->identifier();
+        const Identifier *id = ast->name->identifier();
 
         if (scope) {
             for (Symbol *member = scope->lookat(id); member; member = member->next()) {
@@ -357,6 +358,16 @@ protected:
         return false;
     }
 
+    virtual bool visit(QtMemberDeclarationAST *ast)
+    {
+        if (tokenKind(ast->q_token) == T_Q_D)
+            hasD = true;
+        else
+            hasQ = true;
+
+        return true;
+    }
+
     virtual bool visit(ExpressionOrDeclarationStatementAST *ast)
     {
         accept(ast->declaration);
@@ -466,7 +477,7 @@ protected:
 
 class FindFunctionDefinitions: protected SymbolVisitor
 {
-    Name *_declarationName;
+    const Name *_declarationName;
     QList<Function *> *_functions;
 
 public:
@@ -475,7 +486,7 @@ public:
           _functions(0)
     { }
 
-    void operator()(Name *declarationName, Scope *globals,
+    void operator()(const Name *declarationName, Scope *globals,
                     QList<Function *> *functions)
     {
         _declarationName = declarationName;
@@ -491,8 +502,8 @@ protected:
 
     virtual bool visit(Function *function)
     {
-        Name *name = function->name();
-        if (QualifiedNameId *q = name->asQualifiedNameId())
+        const Name *name = function->name();
+        if (const QualifiedNameId *q = name->asQualifiedNameId())
             name = q->unqualifiedNameId();
 
         if (_declarationName->isEqualTo(name))
@@ -504,19 +515,19 @@ protected:
 
 } // end of anonymous namespace
 
-static QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &context)
+static const QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &context)
 {
-    Name *symbolName = s->name();
+    const Name *symbolName = s->name();
     if (! symbolName)
         return 0; // nothing to do.
 
-    QVector<Name *> names;
+    QVector<const Name *> names;
 
     for (Scope *scope = s->scope(); scope; scope = scope->enclosingScope()) {
         if (scope->isClassScope() || scope->isNamespaceScope()) {
             if (scope->owner() && scope->owner()->name()) {
-                Name *ownerName = scope->owner()->name();
-                if (QualifiedNameId *q = ownerName->asQualifiedNameId()) {
+                const Name *ownerName = scope->owner()->name();
+                if (const QualifiedNameId *q = ownerName->asQualifiedNameId()) {
                     for (unsigned i = 0; i < q->nameCount(); ++i) {
                         names.prepend(q->nameAt(i));
                     }
@@ -527,7 +538,7 @@ static QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext 
         }
     }
 
-    if (QualifiedNameId *q = symbolName->asQualifiedNameId()) {
+    if (const QualifiedNameId *q = symbolName->asQualifiedNameId()) {
         for (unsigned i = 0; i < q->nameCount(); ++i) {
             names.append(q->nameAt(i));
         }
@@ -929,6 +940,7 @@ void CPPEditor::updateMethodBoxIndex()
 }
 
 void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
+                              const SemanticInfo &semanticInfo,
                               QList<QTextEdit::ExtraSelection> *selections)
 {
     bool isUnused = false;
@@ -950,6 +962,14 @@ void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
         sel.cursor = QTextCursor(document());
         sel.cursor.setPosition(anchor);
         sel.cursor.setPosition(position, QTextCursor::KeepAnchor);
+
+        if (isUnused) {
+            if (semanticInfo.hasQ && sel.cursor.selectedText() == QLatin1String("q"))
+                continue; // skip q
+
+            else if (semanticInfo.hasD && sel.cursor.selectedText() == QLatin1String("d"))
+                continue; // skip d
+        }
 
         selections->append(sel);
     }
@@ -1001,27 +1021,28 @@ void CPPEditor::updateUsesNow()
     semanticRehighlight();
 }
 
-static bool isCompatible(Name *name, Name *otherName)
+static bool isCompatible(const Name *name, const Name *otherName)
 {
-    if (NameId *nameId = name->asNameId()) {
-        if (TemplateNameId *otherTemplId = otherName->asTemplateNameId())
+    if (const NameId *nameId = name->asNameId()) {
+        if (const TemplateNameId *otherTemplId = otherName->asTemplateNameId())
             return nameId->identifier()->isEqualTo(otherTemplId->identifier());
-    } else if (TemplateNameId *templId = name->asTemplateNameId()) {
-        if (NameId *otherNameId = otherName->asNameId())
+    } else if (const TemplateNameId *templId = name->asTemplateNameId()) {
+        if (const NameId *otherNameId = otherName->asNameId())
             return templId->identifier()->isEqualTo(otherNameId->identifier());
     }
 
     return name->isEqualTo(otherName);
 }
 
-static bool isCompatible(Function *definition, Symbol *declaration, QualifiedNameId *declarationName)
+static bool isCompatible(Function *definition, Symbol *declaration,
+                         const QualifiedNameId *declarationName)
 {
     Function *declTy = declaration->type()->asFunctionType();
     if (! declTy)
         return false;
 
-    Name *definitionName = definition->name();
-    if (QualifiedNameId *q = definitionName->asQualifiedNameId()) {
+    const Name *definitionName = definition->name();
+    if (const QualifiedNameId *q = definitionName->asQualifiedNameId()) {
         if (! isCompatible(q->unqualifiedNameId(), declaration->name()))
             return false;
         else if (q->nameCount() > declarationName->nameCount())
@@ -1041,8 +1062,8 @@ static bool isCompatible(Function *definition, Symbol *declaration, QualifiedNam
         }
 
         for (unsigned i = 0; i != q->nameCount(); ++i) {
-            Name *n = q->nameAt(q->nameCount() - i - 1);
-            Name *m = declarationName->nameAt(declarationName->nameCount() - i - 1);
+            const Name *n = q->nameAt(q->nameCount() - i - 1);
+            const Name *m = declarationName->nameAt(declarationName->nameCount() - i - 1);
             if (! isCompatible(n, m))
                 return false;
         }
@@ -1085,7 +1106,7 @@ void CPPEditor::switchDeclarationDefinition()
         QList<LookupItem> resolvedSymbols = typeOfExpression(QString(), doc, lastSymbol);
         const LookupContext &context = typeOfExpression.lookupContext();
 
-        QualifiedNameId *q = qualifiedNameIdForSymbol(f, context);
+        const QualifiedNameId *q = qualifiedNameIdForSymbol(f, context);
         QList<Symbol *> symbols = context.resolve(q);
 
         Symbol *declaration = 0;
@@ -1258,11 +1279,11 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol)
     if (! funTy)
         return 0; // symbol does not have function type.
 
-    Name *name = symbol->name();
+    const Name *name = symbol->name();
     if (! name)
         return 0; // skip anonymous functions!
 
-    if (QualifiedNameId *q = name->asQualifiedNameId())
+    if (const QualifiedNameId *q = name->asQualifiedNameId())
         name = q->unqualifiedNameId();
 
     // map from file names to function definitions.
@@ -1681,9 +1702,9 @@ void CPPEditor::performQuickFix(int index)
 {
     CPPQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
     QuickFixOperationPtr op = m_quickFixes.at(index);
-    //quickFixCollector->perform(op);
-    op->createChangeSet();
-    setChangeSet(op->changeSet());
+    quickFixCollector->perform(op);
+    //op->createChangeSet();
+    //setChangeSet(op->changeSet());
 }
 
 void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
@@ -1869,6 +1890,10 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
 
     m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
     m_occurrencesUnusedFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_UNUSED));
+    m_occurrencesUnusedFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+    m_occurrencesUnusedFormat.setUnderlineColor(m_occurrencesUnusedFormat.foreground().color());
+    m_occurrencesUnusedFormat.clearForeground();
+    m_occurrencesUnusedFormat.setToolTip(tr("Unused variable"));
     m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
 
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
@@ -1934,7 +1959,7 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
 
-    QList<QTextEdit::ExtraSelection> allSelections;
+    QList<QTextEdit::ExtraSelection> unusedSelections;
 
     m_renameSelections.clear();
 
@@ -1953,18 +1978,16 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
             }
         }
 
-        if (uses.size() == 1) {
+        if (uses.size() == 1)
             // it's an unused declaration
-            // highlightUses(uses, &allSelections);
-        } else if (good) {
-            QList<QTextEdit::ExtraSelection> selections;
-            highlightUses(uses, &selections);
-            m_renameSelections += selections;
-            allSelections += selections;
-        }
+            highlightUses(uses, semanticInfo, &unusedSelections);
+
+        else if (good && m_renameSelections.isEmpty())
+            highlightUses(uses, semanticInfo, &m_renameSelections);
     }
 
-    setExtraSelections(CodeSemanticsSelection, allSelections);
+    setExtraSelections(UnusedSymbolSelection, unusedSelections);
+    setExtraSelections(CodeSemanticsSelection, m_renameSelections);
 }
 
 SemanticHighlighter::Source CPPEditor::currentSource(bool force)
@@ -2078,7 +2101,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(translationUnit);
     FunctionDefinitionAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
 
-    FindUses useTable(translationUnit);
+    FindLocalUses useTable(translationUnit);
     useTable(currentFunctionDefinition);
 
     SemanticInfo semanticInfo;
@@ -2086,6 +2109,8 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     semanticInfo.snapshot = snapshot;
     semanticInfo.doc = doc;
     semanticInfo.localUses = useTable.localUses;
+    semanticInfo.hasQ = useTable.hasQ;
+    semanticInfo.hasD = useTable.hasD;
 
     return semanticInfo;
 }

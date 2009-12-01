@@ -45,9 +45,9 @@ class ProcessStepFactory : public IBuildStepFactory
 public:
     ProcessStepFactory();
     virtual bool canCreate(const QString &name) const;
-    virtual BuildStep *create(Project *pro, BuildConfiguration *bc, const QString &name) const;
+    virtual BuildStep *create(BuildConfiguration *bc, const QString &name) const;
     virtual BuildStep *clone(BuildStep *bs, BuildConfiguration *bc) const;
-    virtual QStringList canCreateForProject(Project *pro) const;
+    virtual QStringList canCreateForBuildConfiguration(BuildConfiguration *pro) const;
     virtual QString displayNameForName(const QString &name) const;
 };
 
@@ -55,7 +55,7 @@ class ProcessStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 public:
-    ProcessStep(Project *pro, BuildConfiguration *bc);
+    ProcessStep(BuildConfiguration *bc);
     ProcessStep(ProcessStep *bs, BuildConfiguration *bc);
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);

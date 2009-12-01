@@ -41,6 +41,8 @@
 #include "qt4projectmanagerconstants.h"
 #include "projectloadwizard.h"
 #include "qtversionmanager.h"
+#include "qt4buildconfiguration.h"
+#include "qt4buildconfiguration.h"
 
 #ifdef QTCREATOR_WITH_S60
 #include "qt-s60/gccetoolchain.h"
@@ -66,10 +68,6 @@ using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
 
 enum { debug = 0 };
-
-namespace {
-    const char * const KEY_QT_VERSION_ID = "QtVersionId";
-}
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -269,7 +267,7 @@ QString Qt4BuildConfigurationFactory::displayNameForType(const QString &type) co
     return QString();
 }
 
-bool Qt4BuildConfigurationFactory::create(const QString &type) const
+BuildConfiguration *Qt4BuildConfigurationFactory::create(const QString &type) const
 {
     QTC_ASSERT(m_versions.contains(type), return false);
     const VersionInfo &info = m_versions.value(type);
@@ -289,10 +287,24 @@ bool Qt4BuildConfigurationFactory::create(const QString &type) const
     m_project->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
                                      version,
                                      (version->defaultBuildConfig() | QtVersion::DebugBuild));
+    BuildConfiguration *bc =
     m_project->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
                                      version,
                                      (version->defaultBuildConfig() & ~QtVersion::DebugBuild));
-    return true;
+    return bc;
+}
+
+BuildConfiguration *Qt4BuildConfigurationFactory::clone(BuildConfiguration *source) const
+{
+    Qt4BuildConfiguration *oldbc = static_cast<Qt4BuildConfiguration *>(source);
+    Qt4BuildConfiguration *newbc = new Qt4BuildConfiguration(oldbc);
+    return newbc;
+}
+
+BuildConfiguration *Qt4BuildConfigurationFactory::restore() const
+{
+    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(m_project);
+    return bc;
 }
 
 /*!
@@ -323,9 +335,14 @@ Qt4Project::~Qt4Project()
     delete m_projectFiles;
 }
 
+Qt4BuildConfiguration *Qt4Project::activeQt4BuildConfiguration() const
+{
+    return static_cast<Qt4BuildConfiguration *>(activeBuildConfiguration());
+}
+
 void Qt4Project::defaultQtVersionChanged()
 {
-    if (qtVersionId(activeBuildConfiguration()) == 0)
+    if (activeQt4BuildConfiguration()->qtVersionId() == 0)
         m_rootProjectNode->update();
 }
 
@@ -333,9 +350,10 @@ void Qt4Project::qtVersionsChanged()
 {
     QtVersionManager *vm = QtVersionManager::instance();
     foreach (BuildConfiguration *bc, buildConfigurations()) {
-        if (!vm->version(qtVersionId(bc))->isValid()) {
-            setQtVersion(bc, 0);
-            if (bc == activeBuildConfiguration())
+        Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(bc);
+        if (!vm->version(qt4bc->qtVersionId())->isValid()) {
+            qt4bc->setQtVersion(0);
+            if (qt4bc == activeBuildConfiguration())
                 m_rootProjectNode->update();
         }
     }
@@ -365,8 +383,9 @@ bool Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
     // or if not, is reset to the default
 
     foreach (BuildConfiguration *bc, buildConfigurations()) {
-        qtVersionId(bc);
-        toolChainType(bc);
+        Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(bc);
+        qt4bc->qtVersionId();
+        qt4bc->toolChainType();
     }
 
     m_rootProjectNode = new Qt4ProFileNode(this, m_fileInfo->fileName(), this);
@@ -436,40 +455,42 @@ ProjectExplorer::IBuildConfigurationFactory *Qt4Project::buildConfigurationFacto
     return m_buildConfigurationFactory;
 }
 
-void Qt4Project::addQt4BuildConfiguration(QString buildConfigurationName, QtVersion *qtversion,
+Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString displayName, QtVersion *qtversion,
                                           QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                           QStringList additionalArguments)
 {
     bool debug = qmakeBuildConfiguration & QtVersion::DebugBuild;
 
     // Add the buildconfiguration
-    ProjectExplorer::BuildConfiguration *bc = new ProjectExplorer::BuildConfiguration(buildConfigurationName);
+    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(this);
+    bc->setDisplayName(displayName);
     addBuildConfiguration(bc);
 
-    QMakeStep *qmakeStep = new QMakeStep(this, bc);
+    QMakeStep *qmakeStep = new QMakeStep(bc);
     bc->insertBuildStep(0, qmakeStep);
 
-    MakeStep *makeStep = new MakeStep(this, bc);
+    MakeStep *makeStep = new MakeStep(bc);
     bc->insertBuildStep(1, makeStep);
 
-    MakeStep* cleanStep = new MakeStep(this, bc);
+    MakeStep* cleanStep = new MakeStep(bc);
     cleanStep->setClean(true);
     bc->insertCleanStep(0, cleanStep);
     if (!additionalArguments.isEmpty())
-        qmakeStep->m_qmakeArgs = additionalArguments;
+        qmakeStep->setUserArguments(additionalArguments);
 
     // set some options for qmake and make
     if (qmakeBuildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
-        makeStep->setMakeArguments(QStringList() << (debug ? "debug" : "release"));
+        makeStep->setUserArguments(QStringList() << (debug ? "debug" : "release"));
 
     bc->setValue("buildConfiguration", int(qmakeBuildConfiguration));
 
     // Finally set the qt version
     bool defaultQtVersion = (qtversion == 0);
     if (defaultQtVersion)
-        setQtVersion(bc, 0);
+        bc->setQtVersion(0);
     else
-        setQtVersion(bc, qtversion->uniqueId());
+        bc->setQtVersion(qtversion->uniqueId());
+    return bc;
 }
 
 namespace {
@@ -499,60 +520,12 @@ void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFile
     m_proFilesForCodeModelUpdate.append(pro);
 }
 
-ProjectExplorer::ToolChain *Qt4Project::toolChain(BuildConfiguration *configuration) const
-{
-    ToolChain::ToolChainType tct = toolChainType(configuration);
-    return qtVersion(configuration)->toolChain(tct);
-}
-
-QString Qt4Project::makeCommand(BuildConfiguration *configuration) const
-{
-    ToolChain *tc = toolChain(configuration);
-    return tc ? tc->makeCommand() : "make";
-}
-
-#ifdef QTCREATOR_WITH_S60
-static inline QString symbianMakeTarget(QtVersion::QmakeBuildConfig buildConfig,
-                                        const QString &type)
-{
-    QString rc = (buildConfig & QtVersion::DebugBuild) ?
-                 QLatin1String("debug-") : QLatin1String("release-");
-    rc += type;
-    return rc;
-}
-#endif
-
-QString Qt4Project::defaultMakeTarget(BuildConfiguration *configuration) const
-{
-#ifdef QTCREATOR_WITH_S60
-    ToolChain *tc = toolChain(configuration);
-    if (!tc)
-        return QString::null;
-    const QtVersion::QmakeBuildConfig buildConfig
-            = QtVersion::QmakeBuildConfig(activeBuildConfiguration()->value("buildConfiguration").toInt());
-
-    switch (tc->type()) {
-    case ToolChain::GCCE:
-    case ToolChain::GCCE_GNUPOC:
-        return symbianMakeTarget(buildConfig, QLatin1String("gcce"));
-    case ToolChain::RVCT_ARMV5:
-        return symbianMakeTarget(buildConfig, QLatin1String("armv5"));
-    case ToolChain::RVCT_ARMV6:
-    case ToolChain::RVCT_ARMV6_GNUPOC:
-        return symbianMakeTarget(buildConfig, QLatin1String("armv6"));
-    default:
-        break;
-    }
-#else
-    Q_UNUSED(configuration);
-#endif
-    return QString::null;
-}
-
 void Qt4Project::updateCodeModel()
 {
     if (debug)
         qDebug()<<"Qt4Project::updateCodeModel()";
+
+    Qt4BuildConfiguration *activeBC = activeQt4BuildConfiguration();
 
     CppTools::CppModelManagerInterface *modelmanager =
         ExtensionSystem::PluginManager::instance()
@@ -565,7 +538,7 @@ void Qt4Project::updateCodeModel()
     QStringList predefinedFrameworkPaths;
     QByteArray predefinedMacros;
 
-    ToolChain *tc = toolChain(activeBuildConfiguration());
+    ToolChain *tc = activeBC->toolChain();
     QList<HeaderPath> allHeaderPaths;
     if (tc) {
         predefinedMacros = tc->predefinedMacros();
@@ -584,7 +557,7 @@ void Qt4Project::updateCodeModel()
             predefinedIncludePaths.append(headerPath.path());
     }
 
-    const QHash<QString, QString> versionInfo = qtVersion(activeBuildConfiguration())->versionInfo();
+    const QHash<QString, QString> versionInfo = activeBC->qtVersion()->versionInfo();
     const QString newQtIncludePath = versionInfo.value(QLatin1String("QT_INSTALL_HEADERS"));
 
     predefinedIncludePaths.append(newQtIncludePath);
@@ -669,7 +642,7 @@ void Qt4Project::updateCodeModel()
         }
 
         // Add mkspec directory
-        info.includes.append(qtVersion(activeBuildConfiguration())->mkspecPath());
+        info.includes.append(activeBC->qtVersion()->mkspecPath());
 
         info.frameworkPaths = allFrameworkPaths;
 
@@ -683,7 +656,7 @@ void Qt4Project::updateCodeModel()
     }
 
     // Add mkspec directory
-    allIncludePaths.append(qtVersion(activeBuildConfiguration())->mkspecPath());
+    allIncludePaths.append(activeBC->qtVersion()->mkspecPath());
 
     // Dump things out
     // This is debugging output...
@@ -766,7 +739,6 @@ QStringList Qt4Project::frameworkPaths(const QString &fileName) const
 //  */
 void Qt4Project::update()
 {
-    // TODO Maybe remove this method completely?
     m_rootProjectNode->update();
     //updateCodeModel();
 }
@@ -841,126 +813,6 @@ Qt4ProFileNode *Qt4Project::rootProjectNode() const
     return m_rootProjectNode;
 }
 
-QString Qt4Project::buildDirectory(BuildConfiguration *configuration) const
-{
-    QString workingDirectory;
-    if (configuration->value("useShadowBuild").toBool())
-        workingDirectory = configuration->value("buildDirectory").toString();
-    if (workingDirectory.isEmpty())
-        workingDirectory = QFileInfo(file()->fileName()).absolutePath();
-    return workingDirectory;
-}
-
-ProjectExplorer::Environment Qt4Project::baseEnvironment(BuildConfiguration *configuration) const
-{
-    Environment env = useSystemEnvironment(configuration) ? Environment::systemEnvironment() : Environment();
-    qtVersion(configuration)->addToEnvironment(env);
-    ToolChain *tc = toolChain(configuration);
-    if (tc)
-        tc->addToEnvironment(env);
-    return env;
-}
-
-ProjectExplorer::Environment Qt4Project::environment(BuildConfiguration *configuration) const
-{
-    Environment env = baseEnvironment(configuration);
-    env.modify(userEnvironmentChanges(configuration));
-    return env;
-}
-
-void Qt4Project::setUseSystemEnvironment(BuildConfiguration *configuration, bool b)
-{
-    if (useSystemEnvironment(configuration) == b)
-        return;
-    configuration->setValue("clearSystemEnvironment", !b);
-    emit environmentChanged(configuration->name());
-}
-
-bool Qt4Project::useSystemEnvironment(BuildConfiguration *configuration) const
-{
-    bool b = !(configuration->value("clearSystemEnvironment").isValid()
-               && configuration->value("clearSystemEnvironment").toBool());
-    return b;
-}
-
-QList<ProjectExplorer::EnvironmentItem> Qt4Project::userEnvironmentChanges(BuildConfiguration *configuration) const
-{
-    return EnvironmentItem::fromStringList(configuration->value("userEnvironmentChanges").toStringList());
-}
-
-void Qt4Project::setUserEnvironmentChanges(BuildConfiguration *configuration, const QList<ProjectExplorer::EnvironmentItem> &diff)
-{
-    QStringList list = EnvironmentItem::toStringList(diff);
-    if (list == configuration->value("userEnvironmentChanges").toStringList())
-        return;
-    configuration->setValue("userEnvironmentChanges", list);
-    emit environmentChanged(configuration->name());
-}
-
-QString Qt4Project::qtDir(BuildConfiguration *configuration) const
-{
-    QtVersion *version = qtVersion(configuration);
-    if (version)
-        return version->versionInfo().value("QT_INSTALL_DATA");
-    return QString::null;
-}
-
-QtVersion *Qt4Project::qtVersion(BuildConfiguration *configuration) const
-{
-    return QtVersionManager::instance()->version(qtVersionId(configuration));
-}
-
-int Qt4Project::qtVersionId(BuildConfiguration *configuration) const
-{
-    QtVersionManager *vm = QtVersionManager::instance();
-    if (debug)
-        qDebug()<<"Looking for qtVersion ID of "<<configuration->name();
-    int id = 0;
-    QVariant vid = configuration->value(KEY_QT_VERSION_ID);
-    if (vid.isValid()) {
-        id = vid.toInt();
-        if (vm->version(id)->isValid()) {
-            return id;
-        } else {
-            configuration->setValue(KEY_QT_VERSION_ID, 0);
-            return 0;
-        }
-    } else {
-        // Backward compatibilty, we might have just the name:
-        QString vname = configuration->value("QtVersion").toString();
-        if (debug)
-            qDebug()<<"  Backward compatibility reading QtVersion"<<vname;
-        if (!vname.isEmpty()) {
-            const QList<QtVersion *> &versions = vm->versions();
-            foreach (const QtVersion * const version, versions) {
-                if (version->name() == vname) {
-                    if (debug)
-                        qDebug()<<"found name in versions";
-                    configuration->setValue(KEY_QT_VERSION_ID, version->uniqueId());
-                    return version->uniqueId();
-                }
-            }
-        }
-    }
-    if (debug)
-        qDebug()<<"  using qtversion with id ="<<id;
-    // Nothing found, reset to default
-    configuration->setValue(KEY_QT_VERSION_ID, id);
-    return id;
-}
-
-void Qt4Project::setQtVersion(BuildConfiguration *configuration, int id)
-{
-    configuration->setValue(KEY_QT_VERSION_ID, id);
-    emit qtVersionChanged(configuration);
-    updateActiveRunConfiguration();
-}
-
-void Qt4Project::setToolChainType(BuildConfiguration *configuration, ProjectExplorer::ToolChain::ToolChainType type)
-{
-    configuration->setValue("ToolChain", (int)type);
-    updateActiveRunConfiguration();
-}
 
 void Qt4Project::updateActiveRunConfiguration()
 {
@@ -968,76 +820,7 @@ void Qt4Project::updateActiveRunConfiguration()
     emit targetInformationChanged();
 }
 
-ProjectExplorer::ToolChain::ToolChainType Qt4Project::toolChainType(BuildConfiguration *configuration) const
-{
-    ToolChain::ToolChainType originalType = ToolChain::ToolChainType(configuration->value("ToolChain").toInt());
-    ToolChain::ToolChainType type = originalType;
-    const QtVersion *version = qtVersion(configuration);
-    if (!version->possibleToolChainTypes().contains(type)) // use default tool chain
-        type = version->defaultToolchainType();
-    if (type != originalType)
-        const_cast<Qt4Project *>(this)->setToolChainType(configuration, type);
-    return type;
-}
 
-QString Qt4Project::extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version)
-{
-    int index = list.indexOf("-spec");
-    if (index == -1)
-        index = list.indexOf("-platform");
-    if (index == -1)
-        return QString();
-
-    ++index;
-
-    if (index >= list.length())
-        return QString();
-
-    QString baseMkspecDir = version->versionInfo().value("QMAKE_MKSPECS");    
-    if (baseMkspecDir.isEmpty())
-        baseMkspecDir = version->versionInfo().value("QT_INSTALL_DATA") + "/mkspecs";
-
-    QString parsedSpec = QDir::cleanPath(list.at(index));
-#ifdef Q_OS_WIN
-    baseMkspecDir = baseMkspecDir.toLower();
-    parsedSpec = parsedSpec.toLower();
-#endif
-    // if the path is relative it can be
-    // relative to the working directory (as found in the Makefiles)
-    // or relatively to the mkspec directory
-    // if it is the former we need to get the canonical form
-    // for the other one we don't need to do anything
-    if (QFileInfo(parsedSpec).isRelative()) {
-        if(QFileInfo(directory + "/" + parsedSpec).exists()) {
-            parsedSpec = QDir::cleanPath(directory + "/" + parsedSpec);
-#ifdef Q_OS_WIN
-            parsedSpec = parsedSpec.toLower();
-#endif
-        } else {
-            parsedSpec = baseMkspecDir + "/" + parsedSpec;
-        }
-    }
-
-    QFileInfo f2(parsedSpec);
-    while (f2.isSymLink()) {
-        parsedSpec = f2.symLinkTarget();
-        f2.setFile(parsedSpec);
-    }
-
-    if (parsedSpec.startsWith(baseMkspecDir)) {
-        parsedSpec = parsedSpec.mid(baseMkspecDir.length() + 1);
-    } else {
-        QString sourceMkSpecPath = version->sourcePath() + "/mkspecs";
-        if (parsedSpec.startsWith(sourceMkSpecPath)) {
-            parsedSpec = parsedSpec.mid(sourceMkSpecPath.length() + 1);
-        }
-    }
-#ifdef Q_OS_WIN
-    parsedSpec = parsedSpec.toLower();
-#endif
-    return parsedSpec;
-
-}
 
 BuildConfigWidget *Qt4Project::createConfigWidget()
 {
@@ -1167,24 +950,6 @@ void Qt4Project::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *nod
     }
 }
 
-QMakeStep *Qt4Project::qmakeStep(ProjectExplorer::BuildConfiguration *bc) const
-{
-    QMakeStep *qs = 0;
-    foreach(BuildStep *bs, bc->buildSteps())
-        if ((qs = qobject_cast<QMakeStep *>(bs)) != 0)
-            return qs;
-    return 0;
-}
-
-MakeStep *Qt4Project::makeStep(ProjectExplorer::BuildConfiguration *bc) const
-{
-    MakeStep *qs = 0;
-    foreach(BuildStep *bs, bc->buildSteps())
-        if ((qs = qobject_cast<MakeStep *>(bs)) != 0)
-            return qs;
-    return 0;
-}
-
 bool Qt4Project::hasSubNode(Qt4PriFileNode *root, const QString &path)
 {
     if (root->path() == path)
@@ -1224,88 +989,6 @@ void Qt4Project::invalidateCachedTargetInformation()
 {
     emit targetInformationChanged();
 }
-
-void Qt4Project::emitBuildDirectoryChanged()
-{
-    emit buildDirectoryChanged();
-}
-
-// We match -spec and -platfrom separetly
-// We ignore -cache, because qmake contained a bug that it didn't
-// mention the -cache in the Makefile
-// That means changing the -cache option in the additional arguments
-// does not automatically rerun qmake. Alas, we could try more
-// intelligent matching for -cache, but i guess people rarely
-// do use that.
-
-QStringList Qt4Project::removeSpecFromArgumentList(const QStringList &old)
-{
-    if (!old.contains("-spec") && !old.contains("-platform") && !old.contains("-cache"))
-        return old;
-    QStringList newList;
-    bool ignoreNext = false;
-    foreach(const QString &item, old) {
-        if (ignoreNext) {
-            ignoreNext = false;
-        } else if (item == "-spec" || item == "-platform" || item == "-cache") {
-            ignoreNext = true;
-        } else {
-            newList << item;
-        }
-    }
-    return newList;
-}
-
-// returns true if both are equal
-bool Qt4Project::compareBuildConfigurationToImportFrom(BuildConfiguration *bc, const QString &workingDirectory)
-{
-    QMakeStep *qs = qmakeStep(bc);
-    if (QDir(workingDirectory).exists(QLatin1String("Makefile")) && qs) {
-        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(workingDirectory);
-        QtVersion *version = qtVersion(bc);
-        if (version->qmakeCommand() == qmakePath) {
-            // same qtversion
-            QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
-                    QtVersionManager::scanMakeFile(workingDirectory, version->defaultBuildConfig());
-            if (QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt()) == result.first) {
-                // The QMake Build Configuration are the same,
-                // now compare arguments lists
-                // we have to compare without the spec/platform cmd argument
-                // and compare that on its own
-                QString actualSpec = extractSpecFromArgumentList(qs->m_qmakeArgs, workingDirectory, version);
-                if (actualSpec.isEmpty()) {
-                    // Easy one the user has choosen not to override the settings
-                    actualSpec = version->mkspec();
-                }
-
-
-                QString parsedSpec = extractSpecFromArgumentList(result.second, workingDirectory, version);
-                QStringList actualArgs = removeSpecFromArgumentList(qs->m_qmakeArgs);
-                QStringList parsedArgs = removeSpecFromArgumentList(result.second);
-
-                if (debug) {
-                    qDebug()<<"Actual args:"<<actualArgs;
-                    qDebug()<<"Parsed args:"<<parsedArgs;
-                    qDebug()<<"Actual spec:"<<actualSpec;
-                    qDebug()<<"Parsed spec:"<<parsedSpec;
-                }
-
-                if (actualArgs == parsedArgs) {
-                    // Specs match exactly
-                    if (actualSpec == parsedSpec)
-                        return true;
-                    // Actual spec is the default one
-//                    qDebug()<<"AS vs VS"<<actualSpec<<version->mkspec();
-                    if ((actualSpec == version->mkspec() || actualSpec == "default")
-                        && (parsedSpec == version->mkspec() || parsedSpec == "default" || parsedSpec.isEmpty()))
-                        return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
 
 /*!
   Handle special case were a subproject of the qt directory is opened, and

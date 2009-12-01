@@ -28,10 +28,28 @@
 **************************************************************************/
 
 #include "qmakeparser.h"
-#include "projectexplorerconstants.h"
-#include "taskwindow.h"
+#include "qt4projectmanagerconstants.h"
+#include <projectexplorer/taskwindow.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
-using namespace ProjectExplorer;
+using namespace Qt4ProjectManager;
+using namespace Qt4ProjectManager::Internal;
+using ProjectExplorer::TaskWindow;
+
+QMakeParserFactory::~QMakeParserFactory()
+{
+}
+
+bool QMakeParserFactory::canCreate(const QString & name) const
+{
+    return (name == Constants::BUILD_PARSER_QMAKE);
+}
+
+ProjectExplorer::IBuildParser * QMakeParserFactory::create(const QString & name) const
+{
+    Q_UNUSED(name)
+    return new QMakeParser();
+}
 
 QMakeParser::QMakeParser()
 {
@@ -39,7 +57,7 @@ QMakeParser::QMakeParser()
 
 QString QMakeParser::name() const
 {
-    return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_QMAKE);
+    return QLatin1String(Qt4ProjectManager::Constants::BUILD_PARSER_QMAKE);
 }
 
 void QMakeParser::stdOutput(const QString & line)
@@ -57,7 +75,7 @@ void QMakeParser::stdError(const QString & line)
                                               lne /* description */,
                                               QString() /* filename */,
                                               -1 /* linenumber */,
-                                              Constants::TASK_CATEGORY_BUILDSYSTEM));
+                                              ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         return;
     }
 }

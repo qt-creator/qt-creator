@@ -29,6 +29,7 @@
 #include "makestep.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
+#include "cmakebuildconfiguration.h"
 
 #include <projectexplorer/projectexplorer.h>
 
@@ -42,15 +43,14 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
-MakeStep::MakeStep(CMakeProject *pro, BuildConfiguration *bc)
-    : AbstractMakeStep(pro, bc), m_pro(pro), m_clean(false), m_futureInterface(0)
+MakeStep::MakeStep(BuildConfiguration *bc)
+    : AbstractMakeStep(bc), m_clean(false), m_futureInterface(0)
 {
     m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
 }
 
 MakeStep::MakeStep(MakeStep *bs, BuildConfiguration *bc)
     : AbstractMakeStep(bs, bc),
-    m_pro(bs->m_pro),
     m_clean(bs->m_clean),
     m_futureInterface(0),
     m_buildTargets(bs->m_buildTargets),
@@ -62,6 +62,11 @@ MakeStep::MakeStep(MakeStep *bs, BuildConfiguration *bc)
 MakeStep::~MakeStep()
 {
 
+}
+
+CMakeBuildConfiguration *MakeStep::cmakeBuildConfiguration() const
+{
+    return static_cast<CMakeBuildConfiguration *>(buildConfiguration());
 }
 
 void MakeStep::setClean(bool clean)
@@ -96,18 +101,18 @@ void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 
 bool MakeStep::init()
 {
-    BuildConfiguration *bc = buildConfiguration();
-    setBuildParser(m_pro->buildParser(bc));
+    CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
+    setBuildParser(bc->buildParser());
 
     setEnabled(true);
-    setWorkingDirectory(m_pro->buildDirectory(bc));
+    setWorkingDirectory(bc->buildDirectory());
 
-    setCommand(m_pro->toolChain(bc)->makeCommand());
+    setCommand(bc->toolChain()->makeCommand());
 
     QStringList arguments = m_buildTargets;
     arguments << additionalArguments();
     setArguments(arguments);
-    setEnvironment(m_pro->environment(bc));
+    setEnvironment(bc->environment());
     setIgnoreReturnValue(m_clean);
 
     return AbstractMakeStep::init();
@@ -152,11 +157,6 @@ void MakeStep::stdOut(const QString &line)
             m_futureInterface->setProgressValue(percent);
     }
     AbstractMakeStep::stdOut(line);
-}
-
-CMakeProject *MakeStep::project() const
-{
-    return m_pro;
 }
 
 bool MakeStep::buildsTarget(const QString &target) const
@@ -206,7 +206,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     fl->addRow(tr("Targets:"), m_targetsList);
 
     // TODO update this list also on rescans of the CMakeLists.txt
-    CMakeProject *pro = m_makeStep->project();
+    // TODO shouldn't be accessing project
+    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeProject();
     foreach(const QString& target, pro->targets()) {
         QListWidgetItem *item = new QListWidgetItem(target, m_targetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -255,11 +256,13 @@ void MakeStepConfigWidget::updateDetails()
 {
     QStringList arguments = m_makeStep->m_buildTargets;
     arguments << m_makeStep->additionalArguments();
-    m_summaryText = tr("<b>Make:</b> %1 %2")
-                    .arg(m_makeStep->project()->toolChain(
-                            m_makeStep->buildConfiguration())
-                            ->makeCommand(),
-                         arguments.join(" "));
+
+    CMakeBuildConfiguration *bc = m_makeStep->cmakeBuildConfiguration();
+    ProjectExplorer::ToolChain *tc = bc->toolChain();
+    if (tc)
+        m_summaryText = tr("<b>Make:</b> %1 %2").arg(tc->makeCommand(), arguments.join(" "));
+    else
+        m_summaryText = tr("<b>Unknown Toolchain</b>");
     emit updateSummary();
 }
 
@@ -277,12 +280,10 @@ bool MakeStepFactory::canCreate(const QString &name) const
     return (Constants::MAKESTEP == name);
 }
 
-BuildStep *MakeStepFactory::create(Project *project, BuildConfiguration *bc, const QString &name) const
+BuildStep *MakeStepFactory::create(BuildConfiguration *bc, const QString &name) const
 {
     Q_ASSERT(name == Constants::MAKESTEP);
-    CMakeProject *pro = qobject_cast<CMakeProject *>(project);
-    Q_ASSERT(pro);
-    return new MakeStep(pro, bc);
+    return new MakeStep(bc);
 }
 
 BuildStep *MakeStepFactory::clone(BuildStep *bs, BuildConfiguration *bc) const
@@ -290,7 +291,7 @@ BuildStep *MakeStepFactory::clone(BuildStep *bs, BuildConfiguration *bc) const
     return new MakeStep(static_cast<MakeStep *>(bs), bc);
 }
 
-QStringList MakeStepFactory::canCreateForProject(Project * /* pro */) const
+QStringList MakeStepFactory::canCreateForBuildConfiguration(BuildConfiguration * /* pro */) const
 {
     return QStringList();
 }

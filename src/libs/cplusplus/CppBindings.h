@@ -53,7 +53,7 @@ class CPLUSPLUS_EXPORT Location
 public:
     Location();
     Location(Symbol *symbol);
-    Location(StringLiteral *fileId, unsigned sourceLocation);
+    Location(const StringLiteral *fileId, unsigned sourceLocation);
 
     inline bool isValid() const
     { return _fileId != 0; }
@@ -61,14 +61,14 @@ public:
     inline operator bool() const
     { return _fileId != 0; }
 
-    inline StringLiteral *fileId() const
+    inline const StringLiteral *fileId() const
     { return _fileId; }
 
     inline unsigned sourceLocation() const
     { return _sourceLocation; }
 
 private:
-    StringLiteral *_fileId;
+    const StringLiteral *_fileId;
     unsigned _sourceLocation;
 };
 
@@ -84,8 +84,8 @@ public:
     virtual NamespaceBinding *asNamespaceBinding() { return 0; }
     virtual ClassBinding *asClassBinding() { return 0; }
 
-    virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed) = 0;
-    virtual Binding *findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed) = 0;
+    virtual ClassBinding *findClassBinding(const Name *name, QSet<Binding *> *processed) = 0;
+    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed) = 0;
 };
 
 class CPLUSPLUS_EXPORT NamespaceBinding: public Binding
@@ -98,26 +98,26 @@ public:
     virtual ~NamespaceBinding();
 
     /// Returns this binding's name.
-    NameId *name() const;
+    const NameId *name() const;
 
     /// Returns this binding's identifier.
-    Identifier *identifier() const;
+    const Identifier *identifier() const;
 
     /// Returns the binding for the global namespace (aka ::).
     NamespaceBinding *globalNamespaceBinding();
 
     /// Returns the binding for the given namespace symbol.
-    NamespaceBinding *findNamespaceBinding(Name *name);
+    NamespaceBinding *findNamespaceBinding(const Name *name);
 
     /// Returns the binding associated with the given symbol.
     NamespaceBinding *findOrCreateNamespaceBinding(Namespace *symbol);
 
     NamespaceBinding *resolveNamespace(const Location &loc,
-                                       Name *name,
+                                       const Name *name,
                                        bool lookAtParent = true);
 
-    virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed);
-    virtual Binding *findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed);
+    virtual ClassBinding *findClassBinding(const Name *name, QSet<Binding *> *processed);
+    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed);
 
     /// Helpers.
     virtual QByteArray qualifiedId() const;
@@ -129,10 +129,10 @@ public:
     static ClassBinding *find(Class *symbol, NamespaceBinding *binding);
 
 private:
-    NamespaceBinding *findNamespaceBindingForNameId(NameId *name,
+    NamespaceBinding *findNamespaceBindingForNameId(const NameId *name,
                                                     bool lookAtParentNamespace);
 
-    NamespaceBinding *findNamespaceBindingForNameId_helper(NameId *name,
+    NamespaceBinding *findNamespaceBindingForNameId_helper(const NameId *name,
                                                            bool lookAtParentNamespace,
                                                            QSet<NamespaceBinding *> *processed);
 
@@ -165,14 +165,14 @@ public:
     virtual ClassBinding *asClassBinding() { return this; }
 
     /// Returns this binding's name.
-    Name *name() const;
+    const Name *name() const;
 
     /// Returns this binding's identifier.
-    Identifier *identifier() const;
+    const Identifier *identifier() const;
     virtual QByteArray qualifiedId() const;
 
-    virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed);
-    virtual Binding *findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed);
+    virtual ClassBinding *findClassBinding(const Name *name, QSet<Binding *> *processed);
+    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed);
 
     void dump();
 

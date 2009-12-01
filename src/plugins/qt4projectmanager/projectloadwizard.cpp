@@ -33,6 +33,7 @@
 #include "qt4projectmanager.h"
 #include "qmakestep.h"
 #include "makestep.h"
+#include "qt4buildconfiguration.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -66,9 +67,9 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
         QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
                 QtVersionManager::scanMakeFile(directory, m_importVersion->defaultBuildConfig());
         m_importBuildConfig = result.first;
-        m_additionalArguments = Qt4Project::removeSpecFromArgumentList(result.second);
+        m_additionalArguments = Qt4BuildConfiguration::removeSpecFromArgumentList(result.second);
 
-        QString parsedSpec = Qt4Project::extractSpecFromArgumentList(result.second, directory, m_importVersion);
+        QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArgumentList(result.second, directory, m_importVersion);
         QString versionSpec = m_importVersion->mkspec();
 
         // Compare mkspecs and add to additional arguments

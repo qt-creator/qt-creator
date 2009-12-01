@@ -29,6 +29,7 @@
 
 #include "cmakebuildenvironmentwidget.h"
 #include "cmakeproject.h"
+#include "cmakebuildconfiguration.h"
 #include <projectexplorer/environmenteditmodel.h>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QCheckBox>
@@ -41,7 +42,7 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
 CMakeBuildEnvironmentWidget::CMakeBuildEnvironmentWidget(CMakeProject *project)
-    : BuildConfigWidget(), m_pro(project)
+    : BuildConfigWidget(), m_pro(project), m_buildConfiguration(0)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
@@ -63,29 +64,26 @@ QString CMakeBuildEnvironmentWidget::displayName() const
     return tr("Build Environment");
 }
 
-void CMakeBuildEnvironmentWidget::init(const QString &buildConfigurationName)
+void CMakeBuildEnvironmentWidget::init(ProjectExplorer::BuildConfiguration *bc)
 {
     if (debug)
         qDebug() << "Qt4BuildConfigWidget::init()";
 
-    m_buildConfiguration = buildConfigurationName;
+    m_buildConfiguration = static_cast<CMakeBuildConfiguration *>(bc);
 
-    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(buildConfigurationName);
-    m_clearSystemEnvironmentCheckBox->setChecked(!m_pro->useSystemEnvironment(bc));
-    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(bc));
-    m_buildEnvironmentWidget->setUserChanges(m_pro->userEnvironmentChanges(bc));
+    m_clearSystemEnvironmentCheckBox->setChecked(!m_buildConfiguration->useSystemEnvironment());
+    m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
+    m_buildEnvironmentWidget->setUserChanges(m_buildConfiguration->userEnvironmentChanges());
     m_buildEnvironmentWidget->updateButtons();
 }
 
 void CMakeBuildEnvironmentWidget::environmentModelUserChangesUpdated()
 {
-    m_pro->setUserEnvironmentChanges(
-            m_pro->buildConfiguration(m_buildConfiguration), m_buildEnvironmentWidget->userChanges());
+    m_buildConfiguration->setUserEnvironmentChanges(m_buildEnvironmentWidget->userChanges());
 }
 
 void CMakeBuildEnvironmentWidget::clearSystemEnvironmentCheckBoxClicked(bool checked)
 {
-    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(m_buildConfiguration);
-    m_pro->setUseSystemEnvironment(bc, !checked);
-    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(bc));
+    m_buildConfiguration->setUseSystemEnvironment(!checked);
+    m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
 }

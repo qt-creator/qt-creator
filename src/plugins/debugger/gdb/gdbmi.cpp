@@ -348,6 +348,13 @@ void GdbMi::fromString(const QByteArray &ba)
     parseResultOrValue(from, to);
 }
 
+void GdbMi::fromStringMultiple(const QByteArray &ba)
+{
+    const char *from = ba.constBegin();
+    const char *to = ba.constEnd();
+    parseTuple_helper(from, to);
+}
+
 GdbMi GdbMi::findChild(const char *name) const
 {
     for (int i = 0; i < m_children.size(); ++i)

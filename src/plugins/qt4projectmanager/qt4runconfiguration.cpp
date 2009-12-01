@@ -33,6 +33,7 @@
 #include "profilereader.h"
 #include "qt4nodes.h"
 #include "qt4project.h"
+#include "qt4buildconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -80,12 +81,18 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFile
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
 
-    connect(pro, SIGNAL(environmentChanged(QString)),
-            this, SIGNAL(baseEnvironmentChanged()));
+//    TODO
+//    connect(pro, SIGNAL(environmentChanged(ProjectExplorer::BuildConfiguration *)),
+//            this, SIGNAL(baseEnvironmentChanged()));
 }
 
 Qt4RunConfiguration::~Qt4RunConfiguration()
 {
+}
+
+Qt4Project *Qt4RunConfiguration::qt4Project() const
+{
+    return static_cast<Qt4Project *>(project());
 }
 
 QString Qt4RunConfiguration::type() const
@@ -96,9 +103,9 @@ QString Qt4RunConfiguration::type() const
 bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
 #if defined(QTCREATOR_WITH_S60) || defined(QTCREATOR_WITH_MAEMO)
-    Qt4Project *pro = qobject_cast<Qt4Project*>(project());
-    QTC_ASSERT(pro, return false);
-    ProjectExplorer::ToolChain::ToolChainType type = pro->toolChainType(configuration);
+    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(configuration);
+    QTC_ASSERT(qt4bc, return false);
+    ProjectExplorer::ToolChain::ToolChainType type = qt4bc->toolChainType();
 #ifdef QTCREATOR_WITH_S60
     if (type == ProjectExplorer::ToolChain::WINSCW
         || type == ProjectExplorer::ToolChain::GCCE
@@ -479,7 +486,7 @@ ProjectExplorer::Environment Qt4RunConfiguration::baseEnvironment() const
     } else  if (m_baseEnvironmentBase == Qt4RunConfiguration::SystemEnvironmentBase) {
         env = ProjectExplorer::Environment::systemEnvironment();
     } else  if (m_baseEnvironmentBase == Qt4RunConfiguration::BuildEnvironmentBase) {
-        env = project()->environment(project()->activeBuildConfiguration());
+        env = project()->activeBuildConfiguration()->environment();
     }
     if (m_isUsingDyldImageSuffix) {
         env.set("DYLD_IMAGE_SUFFIX", "_debug");
@@ -554,8 +561,8 @@ void Qt4RunConfiguration::updateTarget()
     if (m_cachedTargetInformationValid)
         return;
     //qDebug()<<"updateTarget";
-    Qt4Project *pro = static_cast<Qt4Project *>(project());
-    Qt4PriFileNode * priFileNode = static_cast<Qt4Project *>(project())->rootProjectNode()->findProFileFor(m_proFilePath);
+    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
+    Qt4PriFileNode * priFileNode = qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
     if (!priFileNode) {
         m_workingDir = QString::null;
         m_executable = QString::null;
@@ -565,11 +572,11 @@ void Qt4RunConfiguration::updateTarget()
     }
     ProFileReader *reader = priFileNode->createProFileReader();
     reader->setCumulative(false);
-    reader->setQtVersion(pro->qtVersion(pro->activeBuildConfiguration()));
+    reader->setQtVersion(qt4bc->qtVersion());
 
     // Find out what flags we pass on to qmake, this code is duplicated in the qmake step
-    QtVersion::QmakeBuildConfigs defaultBuildConfiguration = pro->qtVersion(pro->activeBuildConfiguration())->defaultBuildConfig();
-    QtVersion::QmakeBuildConfigs projectBuildConfiguration = QtVersion::QmakeBuildConfig(pro->activeBuildConfiguration()->value("buildConfiguration").toInt());
+    QtVersion::QmakeBuildConfigs defaultBuildConfiguration = qt4bc->qtVersion()->defaultBuildConfig();
+    QtVersion::QmakeBuildConfigs projectBuildConfiguration = QtVersion::QmakeBuildConfig(qt4bc->value("buildConfiguration").toInt());
     QStringList addedUserConfigArguments;
     QStringList removedUserConfigArguments;
     if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))
@@ -592,7 +599,7 @@ void Qt4RunConfiguration::updateTarget()
     // Extract data
     QDir baseProjectDirectory = QFileInfo(project()->file()->fileName()).absoluteDir();
     QString relSubDir = baseProjectDirectory.relativeFilePath(QFileInfo(m_proFilePath).path());
-    QDir baseBuildDirectory = project()->buildDirectory(project()->activeBuildConfiguration());
+    QDir baseBuildDirectory = project()->activeBuildConfiguration()->buildDirectory();
     QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
 
     //qDebug()<<relSubDir<<baseDir;
@@ -653,8 +660,7 @@ void Qt4RunConfiguration::invalidateCachedTargetInformation()
 
 QString Qt4RunConfiguration::dumperLibrary() const
 {
-    Qt4Project *pro = qobject_cast<Qt4Project *>(project());
-    QtVersion *version = pro->qtVersion(pro->activeBuildConfiguration());
+    QtVersion *version = qt4Project()->activeQt4BuildConfiguration()->qtVersion();
     if (version)
         return version->debuggingHelperLibrary();
     else
@@ -663,8 +669,7 @@ QString Qt4RunConfiguration::dumperLibrary() const
 
 QStringList Qt4RunConfiguration::dumperLibraryLocations() const
 {
-    Qt4Project *pro = qobject_cast<Qt4Project *>(project());
-    QtVersion *version = pro->qtVersion(pro->activeBuildConfiguration());
+    QtVersion *version = qt4Project()->activeQt4BuildConfiguration()->qtVersion();
     if (version)
         return version->debuggingHelperLibraryLocations();
     else
@@ -685,8 +690,8 @@ Qt4RunConfiguration::BaseEnvironmentBase Qt4RunConfiguration::baseEnvironmentBas
 }
 ProjectExplorer::ToolChain::ToolChainType Qt4RunConfiguration::toolChainType() const
 {
-    Qt4Project *pro = qobject_cast<Qt4Project *>(project());
-    return pro->toolChainType(pro->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
+    return qt4bc->toolChainType();
 }
 
 ///

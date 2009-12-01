@@ -32,7 +32,6 @@
 #include "projectexplorerconstants.h"
 #include "gccparser.h"
 #include "msvcparser.h"
-#include "qmakeparser.h"
 
 using namespace ProjectExplorer::Internal;
 
@@ -64,19 +63,4 @@ ProjectExplorer::IBuildParser * MsvcParserFactory::create(const QString & name) 
 {
     Q_UNUSED(name)
     return new MsvcParser();
-}
-
-QMakeParserFactory::~QMakeParserFactory()
-{
-}
-
-bool QMakeParserFactory::canCreate(const QString & name) const
-{
-    return (name == Constants::BUILD_PARSER_QMAKE);
-}
-
-ProjectExplorer::IBuildParser * QMakeParserFactory::create(const QString & name) const
-{
-    Q_UNUSED(name)
-    return new QMakeParser();
 }

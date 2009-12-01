@@ -39,8 +39,8 @@
 
 using namespace ProjectExplorer;
 
-AbstractProcessStep::AbstractProcessStep(Project *pro, BuildConfiguration *bc)
-  : BuildStep(pro, bc), m_timer(0), m_futureInterface(0), m_process(0), m_eventLoop(0)
+AbstractProcessStep::AbstractProcessStep(BuildConfiguration *bc)
+  : BuildStep(bc), m_timer(0), m_futureInterface(0), m_process(0), m_eventLoop(0)
 {
 
 }

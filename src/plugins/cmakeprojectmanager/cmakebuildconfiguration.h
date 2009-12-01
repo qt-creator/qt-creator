@@ -27,27 +27,47 @@
 **
 **************************************************************************/
 
-#ifndef QMAKEPARSER_H
-#define QMAKEPARSER_H
+#ifndef CMAKEBUILDCONFIGURATION_H
+#define CMAKEBUILDCONFIGURATION_H
 
-#include "ibuildparser.h"
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/toolchain.h>
 
-#include <QtCore/QRegExp>
+namespace CMakeProjectManager {
+namespace Internal {
 
-namespace ProjectExplorer {
+class CMakeProject;
 
-class QMakeParser : public ProjectExplorer::IBuildParser
+class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
-
 public:
-    QMakeParser();
-    QString name() const;
-    virtual void stdOutput(const QString & line);
-    virtual void stdError(const QString & line);
+    CMakeBuildConfiguration(CMakeProject *pro);
+    CMakeBuildConfiguration(BuildConfiguration *source);
+    ~CMakeBuildConfiguration();
+
+    CMakeProject *cmakeProject() const;
+
+    ProjectExplorer::Environment environment() const;
+    ProjectExplorer::Environment baseEnvironment() const;
+    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
+    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
+    bool useSystemEnvironment() const;
+    void setUseSystemEnvironment(bool b);
+
+    virtual QString buildDirectory() const;
+    QString buildParser() const;
+
+    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    ProjectExplorer::ToolChain *toolChain() const;
+
+    void updateToolChain(const QString &compiler);
 private:
+    ProjectExplorer::ToolChain *m_toolChain;
 };
 
-} // namespace ProjectExplorer
 
-#endif // QMAKEPARSER_H
+} // namespace Internal
+} // namespace CMakeProjectManager
+
+#endif // CMAKEBUILDCONFIGURATION_H

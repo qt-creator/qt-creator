@@ -52,10 +52,10 @@ public:
 
     Control *control() const { return context.control(); }
 
-    FullySpecifiedType apply(Name *name);
+    FullySpecifiedType apply(const Name *name);
     FullySpecifiedType apply(const FullySpecifiedType &type);
 
-    int findSubstitution(Identifier *id) const;
+    int findSubstitution(const Identifier *id) const;
     FullySpecifiedType applySubstitution(int index) const;
 
 private:
@@ -207,7 +207,7 @@ private:
     public:
         ApplyToName(ApplySubstitution *q): q(q) {}
 
-        FullySpecifiedType operator()(Name *name)
+        FullySpecifiedType operator()(const Name *name)
         {
             FullySpecifiedType previousType = switchType(FullySpecifiedType());
             accept(name);
@@ -218,7 +218,7 @@ private:
         Control *control() const
         { return q->control(); }
 
-        int findSubstitution(Identifier *id) const
+        int findSubstitution(const Identifier *id) const
         { return q->findSubstitution(id); }
 
         FullySpecifiedType applySubstitution(int index) const
@@ -231,7 +231,7 @@ private:
             return previousType;
         }
 
-        virtual void visit(NameId *name)
+        virtual void visit(const NameId *name)
         {
             int index = findSubstitution(name->identifier());
 
@@ -242,7 +242,7 @@ private:
                 _type = control()->namedType(name);
         }
 
-        virtual void visit(TemplateNameId *name)
+        virtual void visit(const TemplateNameId *name)
         {
             QVarLengthArray<FullySpecifiedType, 8> arguments(name->templateArgumentCount());
             for (unsigned i = 0; i < name->templateArgumentCount(); ++i) {
@@ -250,17 +250,19 @@ private:
                 arguments[i] = q->apply(argTy);
             }
 
-            TemplateNameId *templId = control()->templateNameId(name->identifier(), arguments.data(), arguments.size());
+            const TemplateNameId *templId = control()->templateNameId(name->identifier(),
+                                                                      arguments.data(),
+                                                                      arguments.size());
             _type = control()->namedType(templId);
         }
 
-        virtual void visit(QualifiedNameId *name)
+        virtual void visit(const QualifiedNameId *name)
         {
-            QVarLengthArray<Name *, 8> names(name->nameCount());
+            QVarLengthArray<const Name *, 8> names(name->nameCount());
             for (unsigned i = 0; i < name->nameCount(); ++i) {
-                Name *n = name->nameAt(i);
+                const Name *n = name->nameAt(i);
 
-                if (TemplateNameId *templId = n->asTemplateNameId()) {
+                if (const TemplateNameId *templId = n->asTemplateNameId()) {
                     QVarLengthArray<FullySpecifiedType, 8> arguments(templId->templateArgumentCount());
                     for (unsigned templateArgIndex = 0; templateArgIndex < templId->templateArgumentCount(); ++templateArgIndex) {
                         FullySpecifiedType argTy = templId->templateArgumentAt(templateArgIndex);
@@ -273,29 +275,29 @@ private:
                 names[i] = n;
             }
 
-            QualifiedNameId *q = control()->qualifiedNameId(names.data(), names.size(), name->isGlobal());
+            const QualifiedNameId *q = control()->qualifiedNameId(names.data(), names.size(), name->isGlobal());
             _type = control()->namedType(q);
         }
 
-        virtual void visit(DestructorNameId *name)
+        virtual void visit(const DestructorNameId *name)
         {
             Overview oo;
             qWarning() << "ignored name:" << oo(name);
         }
 
-        virtual void visit(OperatorNameId *name)
+        virtual void visit(const OperatorNameId *name)
         {
             Overview oo;
             qWarning() << "ignored name:" << oo(name);
         }
 
-        virtual void visit(ConversionNameId *name)
+        virtual void visit(const ConversionNameId *name)
         {
             Overview oo;
             qWarning() << "ignored name:" << oo(name);
         }
 
-        virtual void visit(SelectorNameId *name)
+        virtual void visit(const SelectorNameId *name)
         {
             Overview oo;
             qWarning() << "ignored name:" << oo(name);
@@ -325,7 +327,7 @@ ApplySubstitution::~ApplySubstitution()
 {
 }
 
-FullySpecifiedType ApplySubstitution::apply(Name *name)
+FullySpecifiedType ApplySubstitution::apply(const Name *name)
 {
     FullySpecifiedType ty = applyToName(name);
     return ty;
@@ -337,12 +339,12 @@ FullySpecifiedType ApplySubstitution::apply(const FullySpecifiedType &type)
     return ty;
 }
 
-int ApplySubstitution::findSubstitution(Identifier *id) const
+int ApplySubstitution::findSubstitution(const Identifier *id) const
 {
     Q_ASSERT(id != 0);
 
     for (int index = 0; index < substitution.size(); ++index) {
-        QPair<Identifier *, FullySpecifiedType> s = substitution.at(index);
+        QPair<const Identifier *, FullySpecifiedType> s = substitution.at(index);
 
         if (id->isEqualTo(s.first))
             return index;

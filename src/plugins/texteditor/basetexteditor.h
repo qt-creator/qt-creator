@@ -382,6 +382,7 @@ public slots:
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
+    void zoomReset();
 
     void cutLine();
     void deleteLine();
@@ -417,6 +418,7 @@ protected:
     void keyPressEvent(QKeyEvent *e);
     void wheelEvent(QWheelEvent *e);
     void changeEvent(QEvent *e);
+    void focusOutEvent(QFocusEvent *e);
 
     void showEvent(QShowEvent *);
 
@@ -471,12 +473,14 @@ public:
         ParenthesesMatchingSelection,
         CodeWarningsSelection,
         CodeSemanticsSelection,
-        OtherSelection,
+        UnusedSymbolSelection,
         FakeVimSelection,
+        OtherSelection,
         NExtraSelectionKinds
     };
     void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
     QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
+    QString extraSelectionTooltip(int pos) const;
 
     struct BlockRange
     {
@@ -577,7 +581,8 @@ protected slots:
     virtual void slotUpdateBlockNotify(const QTextBlock &);
 
 signals:
-    void requestFontSize(int pointSize);
+    void requestFontZoom(int zoom);
+    void requestZoomReset();
     void requestBlockUpdate(const QTextBlock &);
     void requestAutoCompletion(TextEditor::ITextEditable *editor, bool forced);
     void requestQuickFix(TextEditor::ITextEditable *editor);

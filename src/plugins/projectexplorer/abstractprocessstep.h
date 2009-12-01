@@ -65,7 +65,7 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 {
     Q_OBJECT
 public:
-    AbstractProcessStep(Project *pro, BuildConfiguration *bc);
+    AbstractProcessStep(BuildConfiguration *bc);
     AbstractProcessStep(AbstractProcessStep *bs, BuildConfiguration *bc);
     /// reimplemented from BuildStep::init()
     /// You need to call this from YourBuildStep::init()

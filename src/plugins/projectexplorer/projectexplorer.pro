@@ -66,7 +66,6 @@ HEADERS += projectexplorer.h \
     projectexplorersettingspage.h \
     projectwelcomepage.h \
     projectwelcomepagewidget.h \
-    qmakeparser.h \
     baseprojectwizarddialog.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
@@ -121,7 +120,6 @@ SOURCES += projectexplorer.cpp \
     projectwelcomepage.cpp \
     projectwelcomepagewidget.cpp \
     corelistenercheckingforrunningbuild.cpp \
-    qmakeparser.cpp \
     baseprojectwizarddialog.cpp
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

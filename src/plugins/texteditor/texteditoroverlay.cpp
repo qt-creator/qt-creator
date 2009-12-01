@@ -36,7 +36,8 @@ void TextEditorOverlay::clear()
     update();
 }
 
-void TextEditorOverlay::addOverlaySelection(int begin, int end, const QColor &color, bool lockSize)
+void TextEditorOverlay::addOverlaySelection(int begin, int end,
+                                            const QColor &fg, const QColor &bg, bool lockSize)
 {
     if (end < begin)
         return;
@@ -44,7 +45,8 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end, const QColor &co
     QTextDocument *document = m_editor->document();
 
     OverlaySelection selection;
-    selection.m_color = color;
+    selection.m_fg = fg;
+    selection.m_bg = bg;
 
     selection.m_cursor_begin = QTextCursor(document);
     selection.m_cursor_begin.setPosition(begin);
@@ -60,9 +62,10 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end, const QColor &co
 }
 
 
-void TextEditorOverlay::addOverlaySelection(const QTextCursor &cursor, const QColor &color, bool lockSize)
+void TextEditorOverlay::addOverlaySelection(const QTextCursor &cursor,
+                                            const QColor &fg, const QColor &bg, bool lockSize)
 {
-    addOverlaySelection(cursor.selectionStart(), cursor.selectionEnd(), color, lockSize);
+    addOverlaySelection(cursor.selectionStart(), cursor.selectionEnd(), fg, bg, lockSize);
 }
 
 QRect TextEditorOverlay::rect() const
@@ -70,20 +73,21 @@ QRect TextEditorOverlay::rect() const
     return m_viewport->rect();
 }
 
-void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &begin, const QTextCursor &end, const QColor &color)
+QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, const QTextCursor &end,
+                                                    const QRect &clip)
 {
     if (begin.isNull() || end.isNull() || begin.position() > end.position())
-        return;
+        return QPainterPath();
 
 
     QPointF offset = m_editor->contentOffset();
     QRect viewportRect = rect();
     QTextDocument *document = m_editor->document();
 
-    if (m_editor->blockBoundingGeometry(begin.block()).translated(offset).top() > viewportRect.bottom() + 10
-        || m_editor->blockBoundingGeometry(end.block()).translated(offset).bottom() < viewportRect.top() - 10
+    if (m_editor->blockBoundingGeometry(begin.block()).translated(offset).top() > clip.bottom() + 10
+        || m_editor->blockBoundingGeometry(end.block()).translated(offset).bottom() < clip.top() - 10
         )
-        return; // nothing of the selection is visible
+        return QPainterPath(); // nothing of the selection is visible
 
     QTextBlock block = begin.block();
 
@@ -154,11 +158,12 @@ void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &beg
 
 
     if (selection.isEmpty())
-        return;
+        return QPainterPath();
 
     QVector<QPointF> points;
 
     const int margin = m_borderWidth/2;
+    const int extra = 0;
 
     points += (selection.at(0).topLeft() + selection.at(0).topRight()) / 2 + QPointF(0, -margin);
     points += selection.at(0).topRight() + QPointF(margin+1, -margin);
@@ -178,8 +183,8 @@ void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &beg
     }
 
     points += selection.at(selection.count()-1).topRight() + QPointF(margin+1, 0);
-    points += selection.at(selection.count()-1).bottomRight() + QPointF(margin+1, margin+1);
-    points += selection.at(selection.count()-1).bottomLeft() + QPointF(-margin, margin+1);
+    points += selection.at(selection.count()-1).bottomRight() + QPointF(margin+1, margin+extra);
+    points += selection.at(selection.count()-1).bottomLeft() + QPointF(-margin, margin+extra);
     points += selection.at(selection.count()-1).topLeft() + QPointF(-margin, 0);
 
     for(int i = selection.count()-2; i > 0; --i) {
@@ -188,11 +193,11 @@ void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &beg
                        selection.at(i).left(),
                        selection.at(i+1).left()) - margin;
 
-        points += QPointF(x, selection.at(i).bottom()+1);
+        points += QPointF(x, selection.at(i).bottom()+extra);
         points += QPointF(x, selection.at(i).top());
     }
 
-    points += selection.at(0).bottomLeft() + QPointF(-margin, 1);
+    points += selection.at(0).bottomLeft() + QPointF(-margin, extra);
     points += selection.at(0).topLeft() + QPointF(-margin, -margin);
 
 
@@ -223,21 +228,60 @@ void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &beg
         previous = points.at(i);
     }
     path.closeSubpath();
+    path.translate(offset);
+    return path;
+}
+
+void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &begin, const QTextCursor &end,
+                                       const QColor &fg, const QColor &bg)
+{
+    if (begin.isNull() || end.isNull() || begin.position() > end.position())
+        return;
+
+    QPainterPath path = createSelectionPath(begin, end, m_editor->viewport()->rect());
 
     painter->save();
-    QPen pen(color, m_borderWidth);
+    QColor penColor = fg;
+    penColor.setAlpha(220);
+    QPen pen(penColor, m_borderWidth);
     painter->translate(-.5, -.5);
-    QColor brush = color;
-    brush.setAlpha(30);
+
+    QRectF pathRect = path.controlPointRect();
+
+    if (bg.isValid()) {
+        QLinearGradient linearGrad(pathRect.topLeft(), pathRect.bottomLeft());
+        QColor col1 = fg.lighter(150);
+        col1.setAlpha(20);
+        QColor col2 = fg;
+        col2.setAlpha(80);
+        linearGrad.setColorAt(0, col1);
+        linearGrad.setColorAt(1, col2);
+        painter->setBrush(QBrush(linearGrad));
+    } else {
+        painter->setBrush(QBrush());
+    }
+
     painter->setRenderHint(QPainter::Antialiasing);
     pen.setJoinStyle(Qt::RoundJoin);
     painter->setPen(pen);
-    painter->setBrush(brush);
-    path.translate(offset);
     painter->drawPath(path);
     painter->restore();
 }
 
+void TextEditorOverlay::fillSelection(QPainter *painter, const QTextCursor &begin, const QTextCursor &end,
+                                       const QColor &color)
+{
+    if (begin.isNull() || end.isNull() || begin.position() > end.position())
+        return;
+
+    QPainterPath path = createSelectionPath(begin, end, m_editor->viewport()->rect());
+
+    painter->save();
+    painter->translate(-.5, -.5);
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->fillPath(path, color);
+    painter->restore();
+}
 
 void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
 {
@@ -252,9 +296,88 @@ void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
         paintSelection(painter,
                        selection.m_cursor_begin,
                        selection.m_cursor_end,
-                       selection.m_color
+                       selection.m_fg,
+                       selection.m_bg
                        );
     }
+}
+
+void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect &clip)
+{
+    Q_UNUSED(clip);
+    for (int i = 0; i < m_selections.size(); ++i) {
+        const OverlaySelection &selection = m_selections.at(i);
+        if (selection.m_fixedLength >= 0
+            && selection.m_cursor_end.position() - selection.m_cursor_begin.position()
+            != selection.m_fixedLength)
+            continue;
+
+        fillSelection(painter,
+                       selection.m_cursor_begin,
+                       selection.m_cursor_end,
+                       color
+                       );
+    }
+}
+
+void TextEditorOverlay::paintInverted(QPainter *painter, const QRect &clip, const QColor &color)
+{
+    QPainterPath path;
+    for (int i = 0; i < m_selections.size(); ++i) {
+        const OverlaySelection &selection = m_selections.at(i);
+        if (selection.m_fixedLength >= 0
+            && selection.m_cursor_end.position() - selection.m_cursor_begin.position()
+            != selection.m_fixedLength)
+            continue;
+        path.addPath(createSelectionPath(selection.m_cursor_begin, selection.m_cursor_end, clip));
+    }
+
+    QRect viewportRect = m_editor->viewport()->rect();
+    QColor background = Qt::black;
+    background.setAlpha(30);
+
+    if (path.isEmpty()) {
+        painter->fillRect(viewportRect, background);
+        return;
+    }
+
+//    QPainterPath all;
+//    all.addRect(viewportRect);
+//    QPainterPath inversion = all.subtracted(path);
+
+    painter->save();
+    QColor penColor = color;
+    penColor.setAlpha(220);
+    QPen pen(penColor, m_borderWidth);
+    QColor brush = color;
+    brush.setAlpha(30);
+    painter->translate(-.5, -.5);
+
+//    painter->setRenderHint(QPainter::Antialiasing);
+    //pen.setJoinStyle(Qt::RoundJoin);
+    painter->setPen(pen);
+    painter->setBrush(QBrush());
+    painter->drawPath(path);
+
+    painter->translate(.5, .5);
+
+    QPixmap shadow(clip.size());
+    shadow.fill(background);
+    QPainter pmp(&shadow);
+    pmp.translate(-.5, -.5);
+    pmp.setRenderHint(QPainter::Antialiasing);
+    pmp.setCompositionMode(QPainter::CompositionMode_Source);
+    path.translate(-clip.topLeft());
+    pen.setColor(Qt::transparent);
+    pmp.setPen(pen);
+    pmp.setBrush(Qt::transparent);
+    pmp.drawPath(path);
+    pmp.end();
+
+    painter->drawPixmap(clip.topLeft(), shadow);
+
+//    painter->fillPath(inversion, background);
+    painter->restore();
 }
 
 

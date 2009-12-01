@@ -30,32 +30,26 @@
 #ifndef PROJECTWINDOW_H
 #define PROJECTWINDOW_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QScrollArea>
-#include <QtGui/QComboBox>
 #include <QtCore/QPair>
-#include <QtGui/QStackedWidget>
-#include <QtGui/QPushButton>
-#include <QtGui/QToolButton>
+#include <QtCore/QMap>
+#include <QtGui/QComboBox>
 #include <QtGui/QLabel>
+#include <QtGui/QPushButton>
+#include <QtGui/QScrollArea>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QGridLayout;
-class QModelIndex;
-class QTabWidget;
-class QHBoxLayout;
-class QComboBox;
 class QMenu;
-class QSpacerItem;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
 class IPropertiesPanel;
 class Project;
-class ProjectExplorerPlugin;
-class SessionManager;
+class BuildConfiguration;
 
 namespace Internal {
 
@@ -78,16 +72,17 @@ private:
     struct Panel
     {
         // This does not take ownership of widget!
-        explicit Panel(QWidget * widget);
+        explicit Panel(QWidget *widget);
         ~Panel();
 
         QLabel *iconLabel;
         QWidget *lineWidget;
         QLabel *nameLabel;
         QWidget *panelWidget;
-        QSpacerItem *spacer;
     };
     QList<Panel *> m_panels;
+
+    void addPanelWidget(Panel *panel, int row);
 
     QGridLayout *m_layout;
     QWidget *m_root;
@@ -100,13 +95,15 @@ public:
     BuildConfigurationComboBox(ProjectExplorer::Project *p, QWidget *parent = 0);
     ~BuildConfigurationComboBox();
 private slots:
-    void nameChanged(const QString &buildConfiguration);
+    void nameChanged(BuildConfiguration *bc);
     void activeConfigurationChanged();
-    void addedBuildConfiguration(ProjectExplorer::Project *, const QString &buildConfiguration);
-    void removedBuildConfiguration(ProjectExplorer::Project *, const QString &buildConfiguration);
+    void addedBuildConfiguration(ProjectExplorer::Project *project,
+                                 BuildConfiguration *bc);
+    void removedBuildConfiguration(ProjectExplorer::Project *project,
+                                   BuildConfiguration *bc);
     void changedIndex(int newIndex);
 private:
-    int nameToIndex(const QString &buildConfiguration);
+    int buildConfigurationToIndex(BuildConfiguration *bc);
     bool ignoreIndexChange;
     ProjectExplorer::Project *m_project;
     QComboBox *m_comboBox;

@@ -57,7 +57,7 @@ Location::Location(Symbol *symbol)
       _sourceLocation(symbol->sourceLocation())
 { }
 
-Location::Location(StringLiteral *fileId, unsigned sourceLocation)
+Location::Location(const StringLiteral *fileId, unsigned sourceLocation)
     : _fileId(fileId), _sourceLocation(sourceLocation)
 { }
 
@@ -79,11 +79,11 @@ NamespaceBinding::~NamespaceBinding()
     qDeleteAll(classBindings);
 }
 
-NameId *NamespaceBinding::name() const
+const NameId *NamespaceBinding::name() const
 {
     if (symbols.size()) {
-        if (Name *name = symbols.first()->name()) {
-            NameId *nameId = name->asNameId();
+        if (const Name *name = symbols.first()->name()) {
+            const NameId *nameId = name->asNameId();
             Q_ASSERT(nameId != 0);
 
             return nameId;
@@ -93,9 +93,9 @@ NameId *NamespaceBinding::name() const
     return 0;
 }
 
-Identifier *NamespaceBinding::identifier() const
+const Identifier *NamespaceBinding::identifier() const
 {
-    if (NameId *nameId = name())
+    if (const NameId *nameId = name())
         return nameId->identifier();
 
     return 0;
@@ -113,7 +113,7 @@ NamespaceBinding *NamespaceBinding::globalNamespaceBinding()
     return it;
 }
 
-Binding *NamespaceBinding::findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed)
+Binding *NamespaceBinding::findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed)
 {
     if (processed->contains(this))
         return 0;
@@ -144,7 +144,7 @@ Binding *NamespaceBinding::findClassOrNamespaceBinding(Identifier *id, QSet<Bind
     return 0;
 }
 
-ClassBinding *NamespaceBinding::findClassBinding(Name *name, QSet<Binding *> *processed)
+ClassBinding *NamespaceBinding::findClassBinding(const Name *name, QSet<Binding *> *processed)
 {
     if (! name)
         return 0;
@@ -156,7 +156,7 @@ ClassBinding *NamespaceBinding::findClassBinding(Name *name, QSet<Binding *> *pr
         Binding *current = this;
 
         for (unsigned i = 0; i < q->nameCount(); ++i) {
-            Identifier *nameId = q->nameAt(i)->identifier();
+            const Identifier *nameId = q->nameAt(i)->identifier();
             if (! nameId)
                 return 0;
 
@@ -173,7 +173,7 @@ ClassBinding *NamespaceBinding::findClassBinding(Name *name, QSet<Binding *> *pr
 
     processed->insert(this);
 
-    Identifier *id = name->identifier();
+    const Identifier *id = name->identifier();
 
     foreach (ClassBinding *classBinding, classBindings) {
         if (id->isEqualTo(classBinding->identifier()))
@@ -191,19 +191,19 @@ ClassBinding *NamespaceBinding::findClassBinding(Name *name, QSet<Binding *> *pr
     return 0;
 }
 
-NamespaceBinding *NamespaceBinding::findNamespaceBinding(Name *name)
+NamespaceBinding *NamespaceBinding::findNamespaceBinding(const Name *name)
 {
     if (! name)
         return anonymousNamespaceBinding;
 
-    else if (NameId *nameId = name->asNameId())
+    else if (const NameId *nameId = name->asNameId())
         return findNamespaceBindingForNameId(nameId, /*lookAtParent = */ true);
 
     else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
         NamespaceBinding *current = this;
 
         for (unsigned i = 0; i < q->nameCount(); ++i) {
-            NameId *namespaceName = q->nameAt(i)->asNameId();
+            const NameId *namespaceName = q->nameAt(i)->asNameId();
             if (! namespaceName)
                 return 0;
 
@@ -225,14 +225,14 @@ NamespaceBinding *NamespaceBinding::findNamespaceBinding(Name *name)
     return 0;
 }
 
-NamespaceBinding *NamespaceBinding::findNamespaceBindingForNameId(NameId *name,
+NamespaceBinding *NamespaceBinding::findNamespaceBindingForNameId(const NameId *name,
                                                                   bool lookAtParentNamespace)
 {
     QSet<NamespaceBinding *> processed;
     return findNamespaceBindingForNameId_helper(name, lookAtParentNamespace, &processed);
 }
 
-NamespaceBinding *NamespaceBinding::findNamespaceBindingForNameId_helper(NameId *name,
+NamespaceBinding *NamespaceBinding::findNamespaceBindingForNameId_helper(const NameId *name,
                                                                          bool lookAtParentNamespace,
                                                                          QSet<NamespaceBinding *> *processed)
 {
@@ -242,12 +242,12 @@ NamespaceBinding *NamespaceBinding::findNamespaceBindingForNameId_helper(NameId 
     processed->insert(this);
 
     foreach (NamespaceBinding *binding, children) {
-        Name *bindingName = binding->name();
+        const Name *bindingName = binding->name();
 
         if (! bindingName)
             continue;
 
-        if (NameId *bindingNameId = bindingName->asNameId()) {
+        if (const NameId *bindingNameId = bindingName->asNameId()) {
             if (name->isEqualTo(bindingNameId))
                 return binding;
         }
@@ -296,7 +296,7 @@ NamespaceBinding *NamespaceBinding::findOrCreateNamespaceBinding(Namespace *symb
 }
 
 static void closure(const Location &loc,
-                    NamespaceBinding *binding, Name *name,
+                    NamespaceBinding *binding, const Name *name,
                     QList<NamespaceBinding *> *bindings)
 {
     if (bindings->contains(binding))
@@ -306,7 +306,7 @@ static void closure(const Location &loc,
 
     Q_ASSERT(name->isNameId());
 
-    Identifier *id = name->asNameId()->identifier();
+    const Identifier *id = name->asNameId()->identifier();
     bool ignoreUsingDirectives = false;
 
     foreach (Namespace *symbol, binding->symbols) {
@@ -334,13 +334,13 @@ static void closure(const Location &loc,
 
 
 NamespaceBinding *NamespaceBinding::resolveNamespace(const Location &loc,
-                                                     Name *name,
+                                                     const Name *name,
                                                      bool lookAtParent)
 {
     if (! name)
         return 0;
 
-    else if (NameId *nameId = name->asNameId()) {
+    else if (const NameId *nameId = name->asNameId()) {
         QList<NamespaceBinding *> bindings;
         closure(loc, this, nameId, &bindings);
 
@@ -394,7 +394,7 @@ QByteArray NamespaceBinding::qualifiedId() const
     s.append(parent->qualifiedId());
     s.append("::");
 
-    if (Identifier *id = identifier())
+    if (const Identifier *id = identifier())
         s.append(id->chars(), id->size());
 
     else
@@ -409,7 +409,7 @@ QByteArray ClassBinding::qualifiedId() const
     QByteArray s = parent->qualifiedId();
     s += "::";
 
-    if (Identifier *id = identifier())
+    if (const Identifier *id = identifier())
         s.append(id->chars(), id->size());
 
     else
@@ -418,7 +418,7 @@ QByteArray ClassBinding::qualifiedId() const
     return s;
 }
 
-Binding *ClassBinding::findClassOrNamespaceBinding(Identifier *id, QSet<Binding *> *processed)
+Binding *ClassBinding::findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed)
 {
     if (id->isEqualTo(identifier()))
         return this;
@@ -447,7 +447,7 @@ Binding *ClassBinding::findClassOrNamespaceBinding(Identifier *id, QSet<Binding 
     return 0;
 }
 
-ClassBinding *ClassBinding::findClassBinding(Name *name, QSet<Binding *> *processed)
+ClassBinding *ClassBinding::findClassBinding(const Name *name, QSet<Binding *> *processed)
 {
     if (! name)
         return 0;
@@ -461,7 +461,7 @@ ClassBinding *ClassBinding::findClassBinding(Name *name, QSet<Binding *> *proces
         Binding *currentBinding = this;
 
         for (unsigned i = 0; i < q->nameCount() - 1; ++i) {
-            Identifier *id = q->nameAt(i)->identifier();
+            const Identifier *id = q->nameAt(i)->identifier();
             if (! id)
                 return 0;
 
@@ -479,12 +479,12 @@ ClassBinding *ClassBinding::findClassBinding(Name *name, QSet<Binding *> *proces
         return 0;
     }
 
-    if (Identifier *id = name->identifier()) {
+    if (const Identifier *id = name->identifier()) {
         if (id->isEqualTo(identifier()))
             return this;
 
         foreach (ClassBinding *nestedClassBinding, children) {
-            if (Identifier *nestedClassId = nestedClassBinding->identifier()) {
+            if (const Identifier *nestedClassId = nestedClassBinding->identifier()) {
                 if (nestedClassId->isEqualTo(id))
                     return nestedClassBinding;
             }
@@ -549,7 +549,7 @@ ClassBinding::ClassBinding(ClassBinding *parentClass)
 ClassBinding::~ClassBinding()
 { qDeleteAll(children); }
 
-Name *ClassBinding::name() const
+const Name *ClassBinding::name() const
 {
     if (symbols.isEmpty())
         return 0;
@@ -557,9 +557,9 @@ Name *ClassBinding::name() const
     return symbols.first()->name();
 }
 
-Identifier *ClassBinding::identifier() const
+const Identifier *ClassBinding::identifier() const
 {
-    if (Name *n = name())
+    if (const Name *n = name())
         return n->identifier();
 
     return 0;
@@ -623,12 +623,12 @@ protected:
 
     NamespaceBinding *bind(Symbol *symbol, NamespaceBinding *binding);
     NamespaceBinding *findOrCreateNamespaceBinding(Namespace *symbol);
-    NamespaceBinding *resolveNamespace(const Location &loc, Name *name);
+    NamespaceBinding *resolveNamespace(const Location &loc, const Name *name);
 
     NamespaceBinding *switchNamespaceBinding(NamespaceBinding *binding);
 
     ClassBinding *findOrCreateClassBinding(Class *classSymbol);
-    ClassBinding *findClassBinding(Name *name);
+    ClassBinding *findClassBinding(const Name *name);
 
     ClassBinding *switchClassBinding(ClassBinding *binding);
 
@@ -665,7 +665,7 @@ NamespaceBinding *Binder::bind(Symbol *symbol, NamespaceBinding *binding)
 NamespaceBinding *Binder::findOrCreateNamespaceBinding(Namespace *symbol)
 { return namespaceBinding->findOrCreateNamespaceBinding(symbol); }
 
-NamespaceBinding *Binder::resolveNamespace(const Location &loc, Name *name)
+NamespaceBinding *Binder::resolveNamespace(const Location &loc, const Name *name)
 {
     if (! namespaceBinding)
         return 0;
@@ -694,7 +694,7 @@ ClassBinding *Binder::findOrCreateClassBinding(Class *classSymbol)
     return binding;
 }
 
-ClassBinding *Binder::findClassBinding(Name *name)
+ClassBinding *Binder::findClassBinding(const Name *name)
 {
     QSet<Binding *> processed;
 

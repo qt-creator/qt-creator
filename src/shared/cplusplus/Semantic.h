@@ -70,7 +70,7 @@ public:
     FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope);
 
     FullySpecifiedType check(DeclaratorAST *declarator, const FullySpecifiedType &type,
-                             Scope *scope, Name **name = 0); // ### ugly
+                             Scope *scope, const Name **name = 0); // ### ugly
 
     FullySpecifiedType check(PtrOperatorListAST *ptrOperators, const FullySpecifiedType &type,
                              Scope *scope);
@@ -83,11 +83,11 @@ public:
 
     void check(StatementAST *statement, Scope *scope);
 
-    Name *check(NameAST *name, Scope *scope);
+    const Name *check(NameAST *name, Scope *scope);
 
-    Name *check(NestedNameSpecifierListAST *name, Scope *scope);
+    const Name *check(NestedNameSpecifierListAST *name, Scope *scope);
 
-    Name *check(ObjCSelectorAST *args, Scope *scope);
+    const Name *check(ObjCSelectorAST *args, Scope *scope);
     FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope);
 
     void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);

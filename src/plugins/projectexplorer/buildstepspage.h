@@ -34,18 +34,17 @@
 #include <utils/detailswidget.h>
 
 QT_BEGIN_NAMESPACE
-class QTreeWidgetItem;
-class QHBoxLayout;
 class QPushButton;
-class QAbstractButton;
 class QToolButton;
 class QLabel;
 class QVBoxLayout;
+class QSignalMapper;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
 class Project;
+class BuildConfiguration;
 
 namespace Internal {
 
@@ -59,7 +58,7 @@ struct BuildStepsWidgetStruct
     Utils::DetailsWidget *detailsWidget;
     QToolButton *upButton;
     QToolButton *downButton;
-    QHBoxLayout *hbox;
+    QPushButton *removeButton;
 };
 
 class BuildStepsPage : public BuildConfigWidget
@@ -71,35 +70,37 @@ public:
     virtual ~BuildStepsPage();
 
     QString displayName() const;
-    void init(const QString &buildConfiguration);
+    void init(BuildConfiguration *bc);
 
 private slots:
     void updateAddBuildStepMenu();
     void addBuildStep();
-    void updateRemoveBuildStepMenu();
-    void removeBuildStep();
-    void upBuildStep();
-    void downBuildStep();
     void updateSummary();
+    void stepMoveUp(int pos);
+    void stepMoveDown(int pos);
+    void stepRemove(int pos);
 
 private:
-    void stepMoveUp(int pos);
+    void setupUi();
     void updateBuildStepButtonsState();
     void addBuildStepWidget(int pos, BuildStep *step);
 
-    Project *m_pro;
-    QString m_configuration;
+    BuildConfiguration * m_configuration;
     QHash<QAction *, QPair<QString, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
     bool m_clean;
 
-    QList<QHBoxLayout *> m_titleLayouts;
     QList<BuildStepsWidgetStruct> m_buildSteps;
 
     QVBoxLayout *m_vbox;
 
     QLabel *m_noStepsLabel;
     QPushButton *m_addButton;
-    QPushButton *m_removeButton;
+
+    QSignalMapper *m_upMapper;
+    QSignalMapper *m_downMapper;
+    QSignalMapper *m_removeMapper;
+
+    int m_leftMargin;
 };
 
 } // Internal

@@ -135,6 +135,7 @@ public:
     virtual bool match(UsingDirectiveAST *node, UsingDirectiveAST *pattern);
     virtual bool match(WhileStatementAST *node, WhileStatementAST *pattern);
     virtual bool match(QtMethodAST *node, QtMethodAST *pattern);
+    virtual bool match(QtMemberDeclarationAST *node, QtMemberDeclarationAST *pattern);
     virtual bool match(ObjCClassDeclarationAST *node, ObjCClassDeclarationAST *pattern);
     virtual bool match(ObjCClassForwardDeclarationAST *node, ObjCClassForwardDeclarationAST *pattern);
     virtual bool match(ObjCProtocolDeclarationAST *node, ObjCProtocolDeclarationAST *pattern);

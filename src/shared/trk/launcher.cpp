@@ -640,7 +640,11 @@ void Launcher::handleInstallPackageFinished(const TrkResult &result)
     if (result.errorCode()) {
         emit canNotInstall(d->m_installFileName, result.errorString());
         disconnectTrk();
-    } else if (d->m_startupActions & ActionRun) {
+        return;
+    } else {
+        emit installingFinished();
+    }
+    if (d->m_startupActions & ActionRun) {
         startInferiorIfNeeded();
     } else {
         disconnectTrk();

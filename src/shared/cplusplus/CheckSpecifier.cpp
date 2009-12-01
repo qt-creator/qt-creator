@@ -312,7 +312,7 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     if (ast->name)
         sourceLocation = ast->name->firstToken();
 
-    Name *className = semantic()->check(ast->name, _scope);
+    const Name *className = semantic()->check(ast->name, _scope);
     Class *klass = control()->newClass(sourceLocation, className);
     klass->setStartOffset(tokenAt(ast->firstToken()).offset);
     klass->setEndOffset(tokenAt(ast->lastToken()).offset);
@@ -330,7 +330,7 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
 
     for (BaseSpecifierListAST *it = ast->base_clause_list; it; it = it->next) {
         BaseSpecifierAST *base = it->value;
-        Name *baseClassName = semantic()->check(base->name, _scope);
+        const Name *baseClassName = semantic()->check(base->name, _scope);
         BaseClass *baseClass = control()->newBaseClass(ast->firstToken(), baseClassName);
         base->symbol = baseClass;
         if (base->virtual_token)
@@ -359,14 +359,14 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
 
 bool CheckSpecifier::visit(NamedTypeSpecifierAST *ast)
 {
-    Name *name = semantic()->check(ast->name, _scope);
+    const Name *name = semantic()->check(ast->name, _scope);
     _fullySpecifiedType.setType(control()->namedType(name));
     return false;
 }
 
 bool CheckSpecifier::visit(ElaboratedTypeSpecifierAST *ast)
 {
-    Name *name = semantic()->check(ast->name, _scope);
+    const Name *name = semantic()->check(ast->name, _scope);
     _fullySpecifiedType.setType(control()->namedType(name));
     return false;
 }
@@ -377,7 +377,7 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
     if (ast->name)
         sourceLocation = ast->name->firstToken();
 
-    Name *name = semantic()->check(ast->name, _scope);
+    const Name *name = semantic()->check(ast->name, _scope);
     Enum *e = control()->newEnum(sourceLocation, name);
     e->setStartOffset(tokenAt(ast->firstToken()).offset);
     e->setEndOffset(tokenAt(ast->lastToken()).offset);
@@ -386,10 +386,10 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
     _fullySpecifiedType.setType(e);
     for (EnumeratorListAST *it = ast->enumerator_list; it; it = it->next) {
         EnumeratorAST *enumerator = it->value;
-        Identifier *id = identifier(enumerator->identifier_token);
+        const Identifier *id = identifier(enumerator->identifier_token);
         if (! id)
             continue;
-        NameId *enumeratorName = control()->nameId(id);
+        const NameId *enumeratorName = control()->nameId(id);
         Declaration *decl = control()->newDeclaration(enumerator->firstToken(),
                                                          enumeratorName);
         e->addMember(decl);
@@ -403,7 +403,7 @@ bool CheckSpecifier::visit(TypeofSpecifierAST *ast)
     return false;
 }
 
-bool CheckSpecifier::visit(AttributeSpecifierAST *ast)
+bool CheckSpecifier::visit(AttributeSpecifierAST * /*ast*/)
 {
     return false;
 }

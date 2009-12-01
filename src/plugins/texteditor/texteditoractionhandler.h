@@ -104,6 +104,7 @@ private slots:
     void selectEncoding();
     void increaseFontSize();
     void decreaseFontSize();
+    void resetFontSize();
     void gotoBlockStart();
     void gotoBlockEnd();
     void gotoBlockStartWithSelection();
@@ -139,6 +140,7 @@ private:
     QAction *m_selectEncodingAction;
     QAction *m_increaseFontSizeAction;
     QAction *m_decreaseFontSizeAction;
+    QAction *m_resetFontSizeAction;
     QAction *m_gotoBlockStartAction;
     QAction *m_gotoBlockEndAction;
     QAction *m_gotoBlockStartWithSelectionAction;

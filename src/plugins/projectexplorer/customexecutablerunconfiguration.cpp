@@ -35,6 +35,7 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/debugginghelper.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 
@@ -251,8 +252,9 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
 
-    connect(pro, SIGNAL(environmentChanged(QString)),
-            this, SIGNAL(baseEnvironmentChanged()));
+// TODO
+//    connect(pro, SIGNAL(environmentChanged(ProjectExplorer::BuildConfiguration *)),
+//            this, SIGNAL(baseEnvironmentChanged()));
 
 }
 
@@ -279,7 +281,7 @@ QString CustomExecutableRunConfiguration::executable() const
 {
     QString exec;
     if (QDir::isRelativePath(m_executable)) {
-        Environment env = project()->environment(project()->activeBuildConfiguration());
+        Environment env = project()->activeBuildConfiguration()->environment();
         exec = env.searchInPath(m_executable);
     } else {
         exec = m_executable;
@@ -328,7 +330,7 @@ QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
 QString CustomExecutableRunConfiguration::workingDirectory() const
 {
     QString wd = m_workingDirectory;
-    QString bd = project()->buildDirectory(project()->activeBuildConfiguration());
+    QString bd = project()->activeBuildConfiguration()->buildDirectory();
     return wd.replace("$BUILDDIR", QDir::cleanPath(bd));
 }
 
@@ -345,7 +347,7 @@ ProjectExplorer::Environment CustomExecutableRunConfiguration::baseEnvironment()
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::SystemEnvironmentBase) {
         env = ProjectExplorer::Environment::systemEnvironment();
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::BuildEnvironmentBase) {
-        env = project()->environment(project()->activeBuildConfiguration());
+        env = project()->activeBuildConfiguration()->environment();
     }
     return env;
 }

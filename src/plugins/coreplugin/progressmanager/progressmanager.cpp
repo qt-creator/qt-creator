@@ -50,10 +50,7 @@ ProgressManagerPrivate::ProgressManagerPrivate(QObject *parent)
 
 ProgressManagerPrivate::~ProgressManagerPrivate()
 {
-}
-
-void ProgressManagerPrivate::init()
-{
+    cleanup();
 }
 
 void ProgressManagerPrivate::cancelTasks(const QString &type)

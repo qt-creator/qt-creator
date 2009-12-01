@@ -43,8 +43,11 @@ class Project;
 }
 
 namespace Qt4ProjectManager {
+class Qt4Project;
 
 namespace Internal {
+class Qt4BuildConfiguration;
+
 class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
@@ -52,55 +55,52 @@ public:
     QMakeStepFactory();
     virtual ~QMakeStepFactory();
     bool canCreate(const QString & name) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::Project * pro, ProjectExplorer::BuildConfiguration *bc, const QString & name) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString & name) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
-    QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
+    QStringList canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
     QString displayNameForName(const QString &name) const;
 };
-}
 
-class Qt4Project;
+} // namespace Internal
 
 
 class QMakeStep : public ProjectExplorer::AbstractMakeStep
 {
     Q_OBJECT
-    friend class Qt4Project; // TODO remove
-    // Currently used to access qmakeArgs
 public:
-    QMakeStep(Qt4Project * project, ProjectExplorer::BuildConfiguration *bc);
+    QMakeStep(ProjectExplorer::BuildConfiguration *bc);
     QMakeStep(QMakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
     ~QMakeStep();
+    Internal::Qt4BuildConfiguration *qt4BuildConfiguration() const;
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
     virtual QString name();
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
-    QStringList arguments();
     void setForced(bool b);
     bool forced();
 
-    QStringList qmakeArguments();
-    void setQMakeArguments(const QStringList &arguments);
+    QStringList allArguments();
+    QStringList userArguments();
+    void setUserArguments(const QStringList &arguments);
 
     virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
     virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 
 signals:
-    void changed();
+    void userArgumentsChanged();
 
 protected:
     virtual void processStartupFailed();
     virtual bool processFinished(int exitCode, QProcess::ExitStatus status);
 
 private:
-    Qt4Project *m_pro;
     // last values
     QStringList m_lastEnv;
     bool m_forced;
     bool m_needToRunQMake; // set in init(), read in run()
-    QStringList m_qmakeArgs;
+    QStringList m_userArgs;
 };
 
 
@@ -115,14 +115,15 @@ public:
 private slots:
     void qmakeArgumentsLineEditTextEdited();
     void buildConfigurationChanged();
-    void update();
-    void qtVersionChanged(ProjectExplorer::BuildConfiguration *bc);
+    void userArgumentsChanged();
+    void qtVersionChanged();
 private:
     void updateTitleLabel();
     void updateEffectiveQMakeCall();
     Ui::QMakeStep m_ui;
     QMakeStep *m_step;
     QString m_summaryText;
+    bool m_ignoreChange;
 };
 
 } // namespace Qt4ProjectManager

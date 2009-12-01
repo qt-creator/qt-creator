@@ -29,6 +29,7 @@
 
 #include "qt4buildenvironmentwidget.h"
 #include "qt4project.h"
+#include "qt4buildconfiguration.h"
 
 #include <projectexplorer/environmenteditmodel.h>
 
@@ -42,7 +43,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
-    : BuildConfigWidget(), m_pro(project)
+    : BuildConfigWidget(), m_pro(project), m_buildConfiguration(0)
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
@@ -65,28 +66,25 @@ QString Qt4BuildEnvironmentWidget::displayName() const
     return tr("Build Environment");
 }
 
-void Qt4BuildEnvironmentWidget::init(const QString &buildConfiguration)
+void Qt4BuildEnvironmentWidget::init(ProjectExplorer::BuildConfiguration *bc)
 {
     if (debug)
         qDebug() << "Qt4BuildConfigWidget::init()";
 
-    m_buildConfiguration = buildConfiguration;
-    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(buildConfiguration);
-    m_clearSystemEnvironmentCheckBox->setChecked(!m_pro->useSystemEnvironment(bc));
-    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(bc));
-    m_buildEnvironmentWidget->setUserChanges(m_pro->userEnvironmentChanges(bc));
+    m_buildConfiguration = static_cast<Qt4BuildConfiguration *>(bc);
+    m_clearSystemEnvironmentCheckBox->setChecked(!m_buildConfiguration->useSystemEnvironment());
+    m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
+    m_buildEnvironmentWidget->setUserChanges(m_buildConfiguration->userEnvironmentChanges());
     m_buildEnvironmentWidget->updateButtons();
 }
 
 void Qt4BuildEnvironmentWidget::environmentModelUserChangesUpdated()
 {
-    m_pro->setUserEnvironmentChanges(m_pro->buildConfiguration(m_buildConfiguration),
-                                     m_buildEnvironmentWidget->userChanges());
+    m_buildConfiguration->setUserEnvironmentChanges(m_buildEnvironmentWidget->userChanges());
 }
 
 void Qt4BuildEnvironmentWidget::clearSystemEnvironmentCheckBoxClicked(bool checked)
 {
-    ProjectExplorer::BuildConfiguration *bc = m_pro->buildConfiguration(m_buildConfiguration);
-    m_pro->setUseSystemEnvironment(bc, !checked);
-    m_buildEnvironmentWidget->setBaseEnvironment(m_pro->baseEnvironment(bc));
+    m_buildConfiguration->setUseSystemEnvironment(!checked);
+    m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
 }

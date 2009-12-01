@@ -31,6 +31,7 @@
 
 #include "projectexplorerconstants.h"
 #include "project.h"
+#include "buildconfiguration.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -46,8 +47,8 @@ namespace {
 bool debug = false;
 }
 
-AbstractMakeStep::AbstractMakeStep(Project *project, BuildConfiguration *bc)
-    : AbstractProcessStep(project, bc),
+AbstractMakeStep::AbstractMakeStep(BuildConfiguration *bc)
+    : AbstractProcessStep(bc),
       m_buildParser(0)
 {
 }
@@ -144,7 +145,7 @@ void AbstractMakeStep::slotAddToTaskWindow(const TaskWindow::Task &task)
             if (debug)
                 qDebug() << "No success. Trying all files in project ...";
             QString fileName = QFileInfo(filePath).fileName();
-            foreach (const QString &file, project()->files(ProjectExplorer::Project::AllFiles)) {
+            foreach (const QString &file, buildConfiguration()->project()->files(ProjectExplorer::Project::AllFiles)) {
                 QFileInfo candidate(file);
                 if (candidate.fileName() == fileName) {
                     if (debug)

@@ -46,7 +46,7 @@ class PROJECTEXPLORER_EXPORT AbstractMakeStep : public ProjectExplorer::Abstract
 {
     Q_OBJECT
 public:
-    AbstractMakeStep(Project * project, BuildConfiguration *bc);
+    AbstractMakeStep(BuildConfiguration *bc);
     AbstractMakeStep(AbstractMakeStep *bs, BuildConfiguration *bc);
     ~AbstractMakeStep();
     virtual bool init();

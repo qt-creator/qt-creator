@@ -162,12 +162,6 @@ QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
 QStringList QmlProject::files() const
 { return m_files; }
 
-QString QmlProject::buildParser(BuildConfiguration *configuration) const
-{
-    Q_UNUSED(configuration)
-    return QString();
-}
-
 QString QmlProject::name() const
 {
     return m_projectName;
@@ -196,18 +190,6 @@ bool QmlProject::isApplication() const
 bool QmlProject::hasBuildSettings() const
 {
     return false;
-}
-
-ProjectExplorer::Environment QmlProject::environment(BuildConfiguration *configuration) const
-{
-    Q_UNUSED(configuration)
-    return ProjectExplorer::Environment::systemEnvironment();
-}
-
-QString QmlProject::buildDirectory(BuildConfiguration *configuration) const
-{
-    Q_UNUSED(configuration)
-    return QString();
 }
 
 ProjectExplorer::BuildConfigWidget *QmlProject::createConfigWidget()

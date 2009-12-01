@@ -129,8 +129,8 @@ public:
     /// Returns the last Symbol in the scope.
     iterator lastSymbol() const;
 
-    Symbol *lookat(Name *name) const;
-    Symbol *lookat(Identifier *id) const;
+    Symbol *lookat(const Name *name) const;
+    Symbol *lookat(const Identifier *id) const;
     Symbol *lookat(int operatorId) const;
 
 private:

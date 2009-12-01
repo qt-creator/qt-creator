@@ -86,18 +86,12 @@ public:
     // Build configuration
     void addBuildConfiguration(BuildConfiguration *configuration);
     void removeBuildConfiguration(BuildConfiguration *configuration);
-    void copyBuildConfiguration(const QString &source, const QString &dest);
-    BuildConfiguration *buildConfiguration(const QString & name) const;
+
     QList<BuildConfiguration *> buildConfigurations() const;
-    // remove and add "QString uniqueConfigurationDisplayName(const QString &proposedName) const" instead
-    void setDisplayNameFor(BuildConfiguration *configuration, const QString &displayName);
     BuildConfiguration *activeBuildConfiguration() const;
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
 
     virtual IBuildConfigurationFactory *buildConfigurationFactory() const = 0;
-
-    void setValue(const QString &name, const QVariant &value);
-    QVariant value(const QString &name) const;
 
     // Running
     QList<RunConfiguration *> runConfigurations() const;
@@ -108,9 +102,6 @@ public:
     void setActiveRunConfiguration(RunConfiguration* runConfiguration);
 
     EditorConfiguration *editorConfiguration() const;
-
-    virtual Environment environment(BuildConfiguration *configuration) const = 0;
-    virtual QString buildDirectory(BuildConfiguration *configuration) const = 0;
 
     void saveSettings();
     bool restoreSettings();
@@ -132,7 +123,6 @@ public:
     static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
 signals:
     void fileListChanged();
-    void buildDirectoryChanged();
 
 // TODO clean up signal names
 // might be better to also have
@@ -146,12 +136,8 @@ signals:
     void removedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
     void addedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
 
-    void removedBuildConfiguration(ProjectExplorer::Project *p, const QString &name);
-    void addedBuildConfiguration(ProjectExplorer::Project *p, const QString &name);
-
-    // This signal is jut there for updating the tree list in the buildsettings wizard
-    void buildConfigurationDisplayNameChanged(const QString &buildConfiguration);
-    void environmentChanged(const QString &buildConfiguration);
+    void removedBuildConfiguration(ProjectExplorer::Project *p, ProjectExplorer::BuildConfiguration *bc);
+    void addedBuildConfiguration(ProjectExplorer::Project *p, ProjectExplorer::BuildConfiguration *bc);
 
 protected:
     /* This method is called when the project .user file is saved. Simply call
@@ -173,9 +159,8 @@ protected:
     virtual bool restoreSettingsImpl(PersistentSettingsReader &reader);
 
 private:
-    QMap<QString, QVariant> m_values;
     QList<BuildConfiguration *> m_buildConfigurationValues;
-    QString m_activeBuildConfiguration;
+    BuildConfiguration *m_activeBuildConfiguration;
     QList<RunConfiguration *> m_runConfigurations;
     RunConfiguration* m_activeRunConfiguration;
     EditorConfiguration *m_editorConfiguration;

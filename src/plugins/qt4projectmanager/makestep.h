@@ -43,8 +43,9 @@ class Project;
 }
 
 namespace Qt4ProjectManager {
-
 namespace Internal {
+class Qt4BuildConfiguration;
+
 class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
@@ -52,12 +53,12 @@ public:
     MakeStepFactory();
     virtual ~MakeStepFactory();
     bool canCreate(const QString & name) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::Project * pro, ProjectExplorer::BuildConfiguration *bc, const QString & name) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString & name) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
-    QStringList canCreateForProject(ProjectExplorer::Project *pro) const;
+    QStringList canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
     QString displayNameForName(const QString &name) const;
 };
-}
+} //namespace Internal
 
 class Qt4Project;
 
@@ -67,17 +68,20 @@ class MakeStep : public ProjectExplorer::AbstractMakeStep
     friend class MakeStepConfigWidget; // TODO remove this
     // used to access internal stuff
 public:
-    MakeStep(Qt4Project * project, ProjectExplorer::BuildConfiguration *bc);
+    MakeStep(ProjectExplorer::BuildConfiguration *bc);
     MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
     ~MakeStep();
+
+    Internal::Qt4BuildConfiguration *qt4BuildConfiguration() const;
+
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
     virtual QString name();
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
-    QStringList makeArguments();
-    void setMakeArguments(const QStringList &arguments);
+    QStringList userArguments();
+    void setUserArguments(const QStringList &arguments);
 
     virtual void restoreFromGlobalMap(const QMap<QString, QVariant> &map);
 
@@ -87,10 +91,10 @@ public:
     virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 
 signals:
-    void changed();
+    void userArgumentsChanged();
 private:
     bool m_clean;
-    QStringList m_makeargs;
+    QStringList m_userArgs;
     QString m_makeCmd;
 };
 
@@ -105,13 +109,14 @@ public:
 private slots:
     void makeLineEditTextEdited();
     void makeArgumentsLineEditTextEdited();
-    void update();
     void updateMakeOverrideLabel();
     void updateDetails();
+    void userArgumentsChanged();
 private:
     Ui::MakeStep m_ui;
     MakeStep *m_makeStep;
     QString m_summaryText;
+    bool m_ignoreChange;
 };
 
 } // Qt4ProjectManager

@@ -37,9 +37,11 @@
 #include "s60runconfigbluetoothstarter.h"
 #include "bluetoothlistener_gui.h"
 #include "serialdevicelister.h"
+#include "qt4buildconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -54,9 +56,17 @@
 #include <QtGui/QMainWindow>
 
 using namespace ProjectExplorer;
+using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 enum { debug = 0 };
+
+static const int    PROGRESS_PACKAGECREATED = 100;
+static const int    PROGRESS_PACKAGESIGNED = 200;
+static const int    PROGRESS_DEPLOYBASE = 200;
+static const int    PROGRESS_PACKAGEDEPLOYED = 300;
+static const int    PROGRESS_PACKAGEINSTALLED = 400;
+static const int    PROGRESS_MAX = 400;
 
 // Format information about a file
 static QString lsFile(const QString &f)
@@ -98,6 +108,11 @@ S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
 {
 }
 
+Qt4Project *S60DeviceRunConfiguration::qt4Project() const
+{
+    return static_cast<Qt4Project *>(project());
+}
+
 QString S60DeviceRunConfiguration::type() const
 {
     return QLatin1String("Qt4ProjectManager.DeviceRunConfiguration");
@@ -106,21 +121,22 @@ QString S60DeviceRunConfiguration::type() const
 ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType(
         ProjectExplorer::BuildConfiguration *configuration) const
 {
-    if (const Qt4Project *pro = qobject_cast<const Qt4Project*>(project()))
-        return pro->toolChainType(configuration);
+    if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(configuration))
+        return bc->toolChainType();
     return ProjectExplorer::ToolChain::INVALID;
 }
 
 ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType() const
 {
-    if (const Qt4Project *pro = qobject_cast<const Qt4Project*>(project()))
-        return pro->toolChainType(pro->activeBuildConfiguration());
+    if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration()))
+        return bc->toolChainType();
     return ProjectExplorer::ToolChain::INVALID;
 }
 
 bool S60DeviceRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
-    const ToolChain::ToolChainType type = toolChainType(configuration);
+    Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(configuration);
+    const ToolChain::ToolChainType type = qt4bc->toolChainType();
     return type == ToolChain::GCCE || type == ToolChain::RVCT_ARMV5 || type == ToolChain::RVCT_ARMV6;
 }
 
@@ -243,9 +259,8 @@ QString S60DeviceRunConfiguration::packageFileName() const
 
 QString S60DeviceRunConfiguration::localExecutableFileName() const
 {
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
-    S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(
-            qt4project->qtVersion(qt4project->activeBuildConfiguration()));
+    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(qt4bc->qtVersion());
 
     QString localExecutable = device.epocRoot;
     localExecutable += QString::fromLatin1("/epoc32/release/%1/%2/%3.exe")
@@ -258,15 +273,15 @@ void S60DeviceRunConfiguration::updateTarget()
 {
     if (m_cachedTargetInformationValid)
         return;
-    Qt4Project *pro = static_cast<Qt4Project *>(project());
-    Qt4PriFileNode * priFileNode = static_cast<Qt4Project *>(project())->rootProjectNode()->findProFileFor(m_proFilePath);
+    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
+    Qt4PriFileNode * priFileNode = qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
     if (!priFileNode) {
         m_baseFileName = QString::null;
         m_cachedTargetInformationValid = true;
         emit targetInformationChanged();
         return;
     }
-    QtVersion *qtVersion = pro->qtVersion(pro->activeBuildConfiguration());
+    QtVersion *qtVersion = qt4bc->qtVersion();
     ProFileReader *reader = priFileNode->createProFileReader();
     reader->setCumulative(false);
     reader->setQtVersion(qtVersion);
@@ -274,7 +289,7 @@ void S60DeviceRunConfiguration::updateTarget()
     // Find out what flags we pass on to qmake, this code is duplicated in the qmake step
     QtVersion::QmakeBuildConfigs defaultBuildConfiguration = qtVersion->defaultBuildConfig();
     QtVersion::QmakeBuildConfigs projectBuildConfiguration =
-            QtVersion::QmakeBuildConfigs(pro->activeBuildConfiguration()->value("buildConfiguration").toInt());
+            QtVersion::QmakeBuildConfigs(qt4bc->value("buildConfiguration").toInt());
     QStringList addedUserConfigArguments;
     QStringList removedUserConfigArguments;
     if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))
@@ -297,7 +312,7 @@ void S60DeviceRunConfiguration::updateTarget()
     // Extract data
     const QDir baseProjectDirectory = QFileInfo(project()->file()->fileName()).absoluteDir();
     const QString relSubDir = baseProjectDirectory.relativeFilePath(QFileInfo(m_proFilePath).path());
-    const QDir baseBuildDirectory = project()->buildDirectory(project()->activeBuildConfiguration());
+    const QDir baseBuildDirectory = qt4bc->buildDirectory();
     const QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
 
     // Directory
@@ -319,7 +334,7 @@ void S60DeviceRunConfiguration::updateTarget()
     m_packageTemplateFileName = QDir::cleanPath(
             m_workingDir + QLatin1Char('/') + m_targetName + QLatin1String("_template.pkg"));
 
-    switch (pro->toolChainType(pro->activeBuildConfiguration())) {
+    switch (qt4bc->toolChainType()) {
     case ToolChain::GCCE:
     case ToolChain::GCCE_GNUPOC:
         m_platform = QLatin1String("gcce");
@@ -407,7 +422,10 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_makesis(new QProcess(this)),
     m_signsis(0),
     m_launcher(0)
-{    
+{
+    // connect for automatically reporting the "finished deploy" state to the progress manager
+    connect(this, SIGNAL(finished()), this, SLOT(reportDeployFinished()));
+
     connect(m_makesis, SIGNAL(readyReadStandardError()),
             this, SLOT(readStandardError()));
     connect(m_makesis, SIGNAL(readyReadStandardOutput()),
@@ -417,10 +435,10 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     connect(m_makesis, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(makesisProcessFinished()));
 
-    Qt4Project *project = qobject_cast<Qt4Project *>(runConfiguration->project());
-    QTC_ASSERT(project, return);
-
     S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
+
+    Qt4BuildConfiguration *activeBuildConf = s60runConfig->qt4Project()->activeQt4BuildConfiguration();
+
     QTC_ASSERT(s60runConfig, return);
     m_toolChain = s60runConfig->toolChainType();
     m_serialPortName = s60runConfig->serialPortName();
@@ -432,18 +450,17 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_symbianTarget = s60runConfig->symbianTarget();
     m_packageTemplateFile = s60runConfig->packageTemplateFileName();
     m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
-    m_qtDir = project->qtVersion(project->activeBuildConfiguration())->versionInfo().value("QT_INSTALL_DATA");
+    m_qtDir = activeBuildConf->qtVersion()->versionInfo().value("QT_INSTALL_DATA");
     m_useCustomSignature = (s60runConfig->signingMode() == S60DeviceRunConfiguration::SignCustom);
     m_customSignaturePath = s60runConfig->customSignaturePath();
     m_customKeyPath = s60runConfig->customKeyPath();
 
-    ProjectExplorer::BuildConfiguration *const activeBuildConf = project->activeBuildConfiguration();
-    const S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(project->qtVersion(activeBuildConf));
+    const S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(activeBuildConf->qtVersion());
     switch (m_toolChain) {
     case ProjectExplorer::ToolChain::GCCE_GNUPOC:
     case ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC: {
             // 'sis' is a make target here. Set up with correct environment
-            ProjectExplorer::ToolChain *toolchain = project->toolChain(activeBuildConf);
+            ProjectExplorer::ToolChain *toolchain = activeBuildConf->toolChain();
             m_makesisTool = toolchain->makeCommand();
             m_toolsDirectory = device.epocRoot + QLatin1String("/epoc32/tools");
             ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
@@ -484,6 +501,13 @@ S60DeviceRunControlBase::~S60DeviceRunControlBase()
 
 void S60DeviceRunControlBase::start()
 {
+    m_deployProgress = new QFutureInterface<void>;
+    Core::ICore::instance()->progressManager()->addTask(m_deployProgress->future(),
+                                                        tr("Deploying"),
+                                                        QLatin1String("Symbian.Deploy"));
+    m_deployProgress->setProgressRange(0, PROGRESS_MAX);
+    m_deployProgress->setProgressValue(0);
+    m_deployProgress->reportStarted();
     emit started();
     if (m_serialPortName.isEmpty()) {
         error(this, tr("There is no device plugged in."));
@@ -603,6 +627,7 @@ void S60DeviceRunControlBase::makesisProcessFinished()
         emit finished();
         return;
     }
+    m_deployProgress->setProgressValue(PROGRESS_PACKAGECREATED);
     switch (m_toolChain) {
     case ProjectExplorer::ToolChain::GCCE_GNUPOC:
     case ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC:
@@ -644,6 +669,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
         stop();
         emit finished();
     } else {
+        m_deployProgress->setProgressValue(PROGRESS_PACKAGESIGNED);
         startDeployment();
     }
 }
@@ -659,6 +685,7 @@ void S60DeviceRunControlBase::startDeployment()
     connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(printCloseFileFailed(QString,QString)));
     connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
     connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(printInstallFailed(QString,QString)));
+    connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
     connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
     connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
 
@@ -727,12 +754,21 @@ void S60DeviceRunControlBase::printCopyingNotice()
 
 void S60DeviceRunControlBase::printCopyProgress(int progress)
 {
-    emit addToOutputWindow(this, tr("%1% copied.").arg(progress));
+    m_deployProgress->setProgressValue(PROGRESS_DEPLOYBASE + progress);
 }
 
 void S60DeviceRunControlBase::printInstallingNotice()
 {
+    m_deployProgress->setProgressValue(PROGRESS_PACKAGEDEPLOYED);
     emit addToOutputWindow(this, tr("Installing application..."));
+}
+
+void S60DeviceRunControlBase::printInstallingFinished()
+{
+    m_deployProgress->setProgressValue(PROGRESS_PACKAGEINSTALLED);
+    m_deployProgress->reportFinished();
+    delete m_deployProgress;
+    m_deployProgress = 0;
 }
 
 void S60DeviceRunControlBase::printInstallFailed(const QString &filename, const QString &errorMessage)
@@ -745,6 +781,15 @@ void S60DeviceRunControlBase::launcherFinished()
     m_launcher->deleteLater();
     m_launcher = 0;
     handleLauncherFinished();
+}
+
+void S60DeviceRunControlBase::reportDeployFinished()
+{
+    if (m_deployProgress) {
+        m_deployProgress->reportFinished();
+        delete m_deployProgress;
+        m_deployProgress = 0;
+    }
 }
 
 QMessageBox *S60DeviceRunControlBase::createTrkWaitingMessageBox(const QString &port, QWidget *parent)

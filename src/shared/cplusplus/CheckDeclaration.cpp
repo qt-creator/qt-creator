@@ -153,7 +153,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             if (elab_type_spec->name)
                 sourceLocation = elab_type_spec->name->firstToken();
 
-            Name *name = semantic()->check(elab_type_spec->name, _scope);
+            const Name *name = semantic()->check(elab_type_spec->name, _scope);
             ForwardClassDeclaration *symbol =
                     control()->newForwardClassDeclaration(sourceLocation, name);
 
@@ -172,7 +172,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
     List<Declaration *> **decl_it = &ast->symbols;
     for (DeclaratorListAST *it = ast->declarator_list; it; it = it->next) {
-        Name *name = 0;
+        const Name *name = 0;
         FullySpecifiedType declTy = semantic()->check(it->value, qualTy,
                                                       _scope, &name);
 
@@ -268,7 +268,7 @@ bool CheckDeclaration::visit(ExceptionDeclarationAST *ast)
     FullySpecifiedType ty = semantic()->check(ast->type_specifier_list, _scope);
     FullySpecifiedType qualTy = ty.qualifiedType();
 
-    Name *name = 0;
+    const Name *name = 0;
     FullySpecifiedType declTy = semantic()->check(ast->declarator, qualTy,
                                                   _scope, &name);
 
@@ -293,7 +293,7 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
 {
     FullySpecifiedType ty = semantic()->check(ast->decl_specifier_list, _scope);
     FullySpecifiedType qualTy = ty.qualifiedType();
-    Name *name = 0;
+    const Name *name = 0;
     FullySpecifiedType funTy = semantic()->check(ast->declarator, qualTy,
                                                  _scope, &name);
     if (! (funTy && funTy->isFunctionType())) {
@@ -378,8 +378,9 @@ bool CheckDeclaration::visit(LinkageSpecificationAST *ast)
 
 bool CheckDeclaration::visit(NamespaceAST *ast)
 {
-    Identifier *id = identifier(ast->identifier_token);
-    Name *namespaceName = control()->nameId(id);
+    const Name *namespaceName = 0;
+    if (const Identifier *id = identifier(ast->identifier_token))
+        namespaceName = control()->nameId(id);
 
     unsigned sourceLocation = ast->firstToken();
 
@@ -411,7 +412,7 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
             sourceLocation = ast->firstToken();
     }
 
-    Name *argName = 0;
+    const Name *argName = 0;
     FullySpecifiedType ty = semantic()->check(ast->type_specifier_list, _scope);
     FullySpecifiedType argTy = semantic()->check(ast->declarator, ty.qualifiedType(),
                                                  _scope, &argName);
@@ -445,7 +446,7 @@ bool CheckDeclaration::visit(TypenameTypeParameterAST *ast)
     if (ast->name)
         sourceLocation = ast->name->firstToken();
 
-    Name *name = semantic()->check(ast->name, _scope);
+    const Name *name = semantic()->check(ast->name, _scope);
     Argument *arg = control()->newArgument(sourceLocation, name); // ### new template type
     ast->symbol = arg;
     _scope->enterSymbol(arg);
@@ -458,7 +459,7 @@ bool CheckDeclaration::visit(TemplateTypeParameterAST *ast)
     if (ast->name)
         sourceLocation = ast->name->firstToken();
 
-    Name *name = semantic()->check(ast->name, _scope);
+    const Name *name = semantic()->check(ast->name, _scope);
     Argument *arg = control()->newArgument(sourceLocation, name); // ### new template type
     ast->symbol = arg;
     _scope->enterSymbol(arg);
@@ -467,7 +468,7 @@ bool CheckDeclaration::visit(TemplateTypeParameterAST *ast)
 
 bool CheckDeclaration::visit(UsingAST *ast)
 {
-    Name *name = semantic()->check(ast->name, _scope);
+    const Name *name = semantic()->check(ast->name, _scope);
 
     unsigned sourceLocation = ast->firstToken();
     if (ast->name)
@@ -481,7 +482,7 @@ bool CheckDeclaration::visit(UsingAST *ast)
 
 bool CheckDeclaration::visit(UsingDirectiveAST *ast)
 {
-    Name *name = semantic()->check(ast->name, _scope);
+    const Name *name = semantic()->check(ast->name, _scope);
 
     unsigned sourceLocation = ast->firstToken();
     if (ast->name)
@@ -510,7 +511,7 @@ bool CheckDeclaration::visit(ObjCProtocolForwardDeclarationAST *ast)
         else
             declarationLocation = sourceLocation;
 
-        Name *protocolName = semantic()->check(it->value, _scope);
+        const Name *protocolName = semantic()->check(it->value, _scope);
         ObjCForwardProtocolDeclaration *fwdProtocol = control()->newObjCForwardProtocolDeclaration(sourceLocation, protocolName);
         fwdProtocol->setStartOffset(tokenAt(ast->firstToken()).offset);
         fwdProtocol->setEndOffset(tokenAt(ast->lastToken()).offset);
@@ -533,7 +534,7 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
     else
         sourceLocation = ast->firstToken();
 
-    Name *protocolName = semantic()->check(ast->name, _scope);
+    const Name *protocolName = semantic()->check(ast->name, _scope);
     ObjCProtocol *protocol = control()->newObjCProtocol(sourceLocation, protocolName);
     protocol->setStartOffset(tokenAt(ast->firstToken()).offset);
     protocol->setEndOffset(tokenAt(ast->lastToken()).offset);
@@ -541,7 +542,7 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
     if (ast->protocol_refs && ast->protocol_refs->identifier_list) {
         for (ObjCIdentifierListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
             NameAST* name = iter->value;
-            Name *protocolName = semantic()->check(name, _scope);
+            const Name *protocolName = semantic()->check(name, _scope);
             ObjCBaseProtocol *baseProtocol = control()->newObjCBaseProtocol(name->firstToken(), protocolName);
             protocol->addProtocol(baseProtocol);
         }
@@ -571,7 +572,7 @@ bool CheckDeclaration::visit(ObjCClassForwardDeclarationAST *ast)
         else
             declarationLocation = sourceLocation;
 
-        Name *className = semantic()->check(it->value, _scope);
+        const Name *className = semantic()->check(it->value, _scope);
         ObjCForwardClassDeclaration *fwdClass = control()->newObjCForwardClassDeclaration(sourceLocation, className);
         fwdClass->setStartOffset(tokenAt(ast->firstToken()).offset);
         fwdClass->setEndOffset(tokenAt(ast->lastToken()).offset);
@@ -594,7 +595,7 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
     else
         sourceLocation = ast->firstToken();
 
-    Name *className = semantic()->check(ast->class_name, _scope);
+    const Name *className = semantic()->check(ast->class_name, _scope);
     ObjCClass *klass = control()->newObjCClass(sourceLocation, className);
     klass->setStartOffset(tokenAt(ast->firstToken()).offset);
     klass->setEndOffset(tokenAt(ast->lastToken()).offset);
@@ -603,12 +604,12 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
     klass->setInterface(ast->interface_token != 0);
 
     if (ast->category_name) {
-        Name *categoryName = semantic()->check(ast->category_name, _scope);
+        const Name *categoryName = semantic()->check(ast->category_name, _scope);
         klass->setCategoryName(categoryName);
     }
 
     if (ast->superclass) {
-        Name *superClassName = semantic()->check(ast->superclass, _scope);
+        const Name *superClassName = semantic()->check(ast->superclass, _scope);
         ObjCBaseClass *superKlass = control()->newObjCBaseClass(ast->superclass->firstToken(), superClassName);
         klass->setBaseClass(superKlass);
     }
@@ -616,7 +617,7 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
     if (ast->protocol_refs && ast->protocol_refs->identifier_list) {
         for (ObjCIdentifierListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
             NameAST* name = iter->value;
-            Name *protocolName = semantic()->check(name, _scope);
+            const Name *protocolName = semantic()->check(name, _scope);
             ObjCBaseProtocol *baseProtocol = control()->newObjCBaseProtocol(name->firstToken(), protocolName);
             klass->addProtocol(baseProtocol);
         }
@@ -711,14 +712,14 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
     }
 
     int propAttrs = ObjCPropertyDeclaration::None;
-    Name *getterName = 0, *setterName = 0;
+    const Name *getterName = 0, *setterName = 0;
 
     for (ObjCPropertyAttributeListAST *iter= ast->property_attribute_list; iter; iter = iter->next) {
         ObjCPropertyAttributeAST *attrAst = iter->value;
         if (!attrAst)
             continue;
 
-        Identifier *attrId = identifier(attrAst->attribute_identifier_token);
+        const Identifier *attrId = identifier(attrAst->attribute_identifier_token);
         if (attrId == control()->objcGetterId()) {
             if (checkPropertyAttribute(attrAst, propAttrs, ObjCPropertyDeclaration::Getter)) {
                 getterName = semantic()->check(attrAst->method_selector, _scope);

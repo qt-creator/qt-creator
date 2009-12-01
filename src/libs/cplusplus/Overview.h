@@ -66,14 +66,14 @@ public:
     int markedArgumentEnd() const;
     void setMarkedArgumentEnd(int end);
 
-    QString operator()(Name *name) const
+    QString operator()(const Name *name) const
     { return prettyName(name); }
 
-    QString operator()(const FullySpecifiedType &type, Name *name = 0) const
+    QString operator()(const FullySpecifiedType &type, const Name *name = 0) const
     { return prettyType(type, name); }
 
-    QString prettyName(Name *name) const;
-    QString prettyType(const FullySpecifiedType &type, Name *name = 0) const;
+    QString prettyName(const Name *name) const;
+    QString prettyType(const FullySpecifiedType &type, const Name *name = 0) const;
     QString prettyType(const FullySpecifiedType &type, const QString &name) const;
 
 private:

@@ -70,12 +70,12 @@ CheckDeclarator::~CheckDeclarator()
 FullySpecifiedType CheckDeclarator::check(DeclaratorAST *declarator,
                                           const FullySpecifiedType &type,
                                           Scope *scope,
-                                          Name **name)
+                                          const Name **name)
 {
     FullySpecifiedType previousType = switchFullySpecifiedType(type);
     Scope *previousScope = switchScope(scope);
     DeclaratorAST *previousDeclarator = switchDeclarator(declarator);
-    Name **previousName = switchName(name);
+    const Name **previousName = switchName(name);
     accept(declarator);
     (void) switchName(previousName);
     (void) switchDeclarator(previousDeclarator);
@@ -124,9 +124,9 @@ Scope *CheckDeclarator::switchScope(Scope *scope)
     return previousScope;
 }
 
-Name **CheckDeclarator::switchName(Name **name)
+const Name **CheckDeclarator::switchName(const Name **name)
 {
-    Name **previousName = _name;
+    const Name **previousName = _name;
     _name = name;
     return previousName;
 }
@@ -149,7 +149,7 @@ bool CheckDeclarator::visit(DeclaratorAST *ast)
 
 bool CheckDeclarator::visit(DeclaratorIdAST *ast)
 {
-    Name *name = semantic()->check(ast->name, _scope);
+    const Name *name = semantic()->check(ast->name, _scope);
     if (_name)
         *_name = name;
     return false;
@@ -219,7 +219,7 @@ bool CheckDeclarator::visit(ArrayDeclaratorAST *ast)
 
 bool CheckDeclarator::visit(PointerToMemberAST *ast)
 {
-    Name *memberName = semantic()->check(ast->nested_name_specifier_list, _scope);
+    const Name *memberName = semantic()->check(ast->nested_name_specifier_list, _scope);
     PointerToMemberType *ptrTy = control()->pointerToMemberType(memberName, _fullySpecifiedType);
     FullySpecifiedType ty(ptrTy);
     _fullySpecifiedType = ty;

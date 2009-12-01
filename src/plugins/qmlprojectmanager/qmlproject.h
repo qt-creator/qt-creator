@@ -71,9 +71,6 @@ public:
     virtual bool isApplication() const;
     virtual bool hasBuildSettings() const;
 
-    virtual ProjectExplorer::Environment environment(ProjectExplorer::BuildConfiguration *configuration) const;
-    virtual QString buildDirectory(ProjectExplorer::BuildConfiguration *configuration) const;
-
     virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
     virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
@@ -81,7 +78,6 @@ public:
     virtual QStringList files(FilesMode fileMode) const;
 
     QStringList targets() const;
-    QString buildParser(ProjectExplorer::BuildConfiguration *configuration) const;
 
     enum RefreshOptions {
         Files         = 0x01,

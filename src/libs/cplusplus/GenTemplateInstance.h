@@ -44,7 +44,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT GenTemplateInstance
 {
 public:
-    typedef QList< QPair<Identifier *, FullySpecifiedType> > Substitution;
+    typedef QList< QPair<const Identifier *, FullySpecifiedType> > Substitution;
 
 public:
     GenTemplateInstance(const LookupContext &context, const Substitution &substitution);

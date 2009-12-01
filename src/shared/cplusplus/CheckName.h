@@ -61,13 +61,13 @@ public:
     CheckName(Semantic *semantic);
     virtual ~CheckName();
 
-    Name *check(NameAST *name, Scope *scope);
-    Name *check(NestedNameSpecifierListAST *name, Scope *scope);
-    Name *check(ObjCSelectorAST *args, Scope *scope);
+    const Name *check(NameAST *name, Scope *scope);
+    const Name *check(NestedNameSpecifierListAST *name, Scope *scope);
+    const Name *check(ObjCSelectorAST *args, Scope *scope);
     void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);
 
 protected:
-    Name *switchName(Name *name);
+    const Name *switchName(const Name *name);
     Scope *switchScope(Scope *scope);
 
     using ASTVisitor::visit;
@@ -85,7 +85,7 @@ protected:
     virtual bool visit(ObjCMessageArgumentDeclarationAST *ast);
 
 private:
-    Name *_name;
+    const Name *_name;
     Scope *_scope;
 };
 

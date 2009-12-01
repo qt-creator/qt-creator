@@ -179,7 +179,6 @@ const char * const FORM_MIMETYPE = "application/x-designer";
 const char * const RESOURCE_MIMETYPE = "application/vnd.nokia.xml.qt.resource";
 
 // build parsers
-const char * const BUILD_PARSER_QMAKE       = "BuildParser.QMake";
 const char * const BUILD_PARSER_MSVC        = "BuildParser.MSVC";
 const char * const BUILD_PARSER_GCC         = "BuildParser.Gcc";
 const char * const BUILD_PARSER_RVCT        = "BuildParser.Rvct";

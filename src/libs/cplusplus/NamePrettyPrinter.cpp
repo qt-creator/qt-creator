@@ -48,7 +48,7 @@ const Overview *NamePrettyPrinter::overview() const
     return _overview;
 }
 
-QString NamePrettyPrinter::operator()(Name *name)
+QString NamePrettyPrinter::operator()(const Name *name)
 {
     QString previousName = switchName();
     accept(name);
@@ -62,18 +62,18 @@ QString NamePrettyPrinter::switchName(const QString &name)
     return previousName;
 }
 
-void NamePrettyPrinter::visit(NameId *name)
+void NamePrettyPrinter::visit(const NameId *name)
 {
-    Identifier *id = name->identifier();
+    const Identifier *id = name->identifier();
     if (id)
         _name = QString::fromLatin1(id->chars(), id->size());
     else
         _name = QLatin1String("anonymous");
 }
 
-void NamePrettyPrinter::visit(TemplateNameId *name)
+void NamePrettyPrinter::visit(const TemplateNameId *name)
 {
-    Identifier *id = name->identifier();
+    const Identifier *id = name->identifier();
     if (id)
         _name = QString::fromLatin1(id->chars(), id->size());
     else
@@ -93,14 +93,14 @@ void NamePrettyPrinter::visit(TemplateNameId *name)
     _name += QLatin1Char('>');
 }
 
-void NamePrettyPrinter::visit(DestructorNameId *name)
+void NamePrettyPrinter::visit(const DestructorNameId *name)
 {
-    Identifier *id = name->identifier();
+    const Identifier *id = name->identifier();
     _name += QLatin1Char('~');
     _name += QString::fromLatin1(id->chars(), id->size());
 }
 
-void NamePrettyPrinter::visit(OperatorNameId *name)
+void NamePrettyPrinter::visit(const OperatorNameId *name)
 {
     _name += QLatin1String("operator ");
     switch (name->kind()) { // ### i should probably do this in OperatorNameId
@@ -236,13 +236,13 @@ void NamePrettyPrinter::visit(OperatorNameId *name)
     } // switch
 }
 
-void NamePrettyPrinter::visit(ConversionNameId *name)
+void NamePrettyPrinter::visit(const ConversionNameId *name)
 {
     _name += QLatin1String("operator ");
     _name += overview()->prettyType(name->type());
 }
 
-void NamePrettyPrinter::visit(QualifiedNameId *name)
+void NamePrettyPrinter::visit(const QualifiedNameId *name)
 {
     if (name->isGlobal())
         _name += QLatin1String("::");
@@ -254,15 +254,14 @@ void NamePrettyPrinter::visit(QualifiedNameId *name)
     }
 }
 
-void NamePrettyPrinter::visit(SelectorNameId *name)
+void NamePrettyPrinter::visit(const SelectorNameId *name)
 {
     for (unsigned i = 0; i < name->nameCount(); ++i) {
-        Name *n = name->nameAt(i);
+        const Name *n = name->nameAt(i);
         if (!n)
             continue;
 
-        Identifier *id = n->identifier();
-        if (id) {
+        if (const Identifier *id = n->identifier()) {
             _name += QString::fromLatin1(id->chars(), id->size());
 
             if (name->hasArguments() || name->nameCount() > 1)

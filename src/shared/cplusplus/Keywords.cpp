@@ -65,7 +65,7 @@ static inline int classify2(const char *s, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify3(const char *s, bool) {
+static inline int classify3(const char *s, bool q) {
   if (s[0] == 'a') {
     if (s[1] == 's') {
       if (s[2] == 'm') {
@@ -98,6 +98,16 @@ static inline int classify3(const char *s, bool) {
     if (s[1] == 'r') {
       if (s[2] == 'y') {
         return T_TRY;
+      }
+    }
+  }
+  else if (q && s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'D') {
+        return T_Q_D;
+      }
+      else if (s[2] == 'Q') {
+        return T_Q_Q;
       }
     }
   }

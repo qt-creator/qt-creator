@@ -89,28 +89,28 @@ int ASTVisitor::tokenKind(unsigned index) const
 const char *ASTVisitor::spell(unsigned index) const
 { return translationUnit()->spell(index); }
 
-Identifier *ASTVisitor::identifier(unsigned index) const
+const Identifier *ASTVisitor::identifier(unsigned index) const
 { return translationUnit()->identifier(index); }
 
-Literal *ASTVisitor::literal(unsigned index) const
+const Literal *ASTVisitor::literal(unsigned index) const
 { return translationUnit()->literal(index); }
 
-NumericLiteral *ASTVisitor::numericLiteral(unsigned index) const
+const NumericLiteral *ASTVisitor::numericLiteral(unsigned index) const
 { return translationUnit()->numericLiteral(index); }
 
-StringLiteral *ASTVisitor::stringLiteral(unsigned index) const
+const StringLiteral *ASTVisitor::stringLiteral(unsigned index) const
 { return translationUnit()->stringLiteral(index); }
 
 void ASTVisitor::getPosition(unsigned offset,
                              unsigned *line,
                              unsigned *column,
-                             StringLiteral **fileName) const
+                             const StringLiteral **fileName) const
 { translationUnit()->getPosition(offset, line, column, fileName); }
 
 void ASTVisitor::getTokenPosition(unsigned index,
                                   unsigned *line,
                                   unsigned *column,
-                                  StringLiteral **fileName) const
+                                  const StringLiteral **fileName) const
 { translationUnit()->getTokenPosition(index, line, column, fileName); }
 
 void ASTVisitor::getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const

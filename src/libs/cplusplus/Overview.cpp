@@ -117,13 +117,13 @@ void Overview::setShowFullyQualifiedNamed(bool showFullyQualifiedNames)
     _showFullyQualifiedNames = showFullyQualifiedNames;
 }
 
-QString Overview::prettyName(Name *name) const
+QString Overview::prettyName(const Name *name) const
 {
     NamePrettyPrinter pp(this);
     return pp(name);
 }
 
-QString Overview::prettyType(const FullySpecifiedType &ty, Name *name) const
+QString Overview::prettyType(const FullySpecifiedType &ty, const Name *name) const
 {
     return prettyType(ty, prettyName(name));
 }

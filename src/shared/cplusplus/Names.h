@@ -52,24 +52,25 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "Name.h"
 #include "FullySpecifiedType.h"
+#include <vector>
 
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT QualifiedNameId: public Name
 {
 public:
-    QualifiedNameId(Name *const names[],
-                    unsigned nameCount,
-                    bool isGlobal = false);
+    template <typename _Iterator>
+    QualifiedNameId(_Iterator first, _Iterator last, bool isGlobal = false)
+        : _names(first, last), _isGlobal(isGlobal) {}
+
     virtual ~QualifiedNameId();
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
 
     unsigned nameCount() const;
-    Name *nameAt(unsigned index) const;
-    Name *const *names() const;
-    Name *unqualifiedNameId() const;
-
+    const Name *nameAt(unsigned index) const;
+    const Name *unqualifiedNameId() const;
+    const Name *const *names() const { return &_names[0]; } // ### remove me
     bool isGlobal() const;
 
     virtual bool isEqualTo(const Name *other) const;
@@ -77,94 +78,90 @@ public:
     virtual const QualifiedNameId *asQualifiedNameId() const
     { return this; }
 
-    virtual QualifiedNameId *asQualifiedNameId()
-    { return this; }
+    typedef std::vector<const Name *>::const_iterator NameIterator;
+
+    NameIterator firstName() const { return _names.begin(); }
+    NameIterator lastName() const { return _names.end(); }
 
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
-    Name **_names;
-    unsigned _nameCount;
+    std::vector<const Name *> _names;
     bool _isGlobal;
 };
 
 class CPLUSPLUS_EXPORT NameId: public Name
 {
 public:
-    NameId(Identifier *identifier);
+    NameId(const Identifier *identifier);
     virtual ~NameId();
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
 
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const NameId *asNameId() const
     { return this; }
 
-    virtual NameId *asNameId()
-    { return this; }
-
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
-    Identifier *_identifier;
+    const Identifier *_identifier;
 };
 
 class CPLUSPLUS_EXPORT DestructorNameId: public Name
 {
 public:
-    DestructorNameId(Identifier *identifier);
+    DestructorNameId(const Identifier *identifier);
     virtual ~DestructorNameId();
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
 
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const DestructorNameId *asDestructorNameId() const
     { return this; }
 
-    virtual DestructorNameId *asDestructorNameId()
-    { return this; }
-
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
-    Identifier *_identifier;
+    const Identifier *_identifier;
 };
 
 class CPLUSPLUS_EXPORT TemplateNameId: public Name
 {
 public:
-    TemplateNameId(Identifier *identifier,
-                   const FullySpecifiedType templateArguments[],
-                   unsigned templateArgumentCount);
+    template <typename _Iterator>
+    TemplateNameId(const Identifier *identifier, _Iterator first, _Iterator last)
+        : _identifier(identifier), _templateArguments(first, last) {}
+
     virtual ~TemplateNameId();
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
 
     // ### find a better name
     unsigned templateArgumentCount() const;
     const FullySpecifiedType &templateArgumentAt(unsigned index) const;
-    const FullySpecifiedType *templateArguments() const;
 
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const TemplateNameId *asTemplateNameId() const
     { return this; }
 
-    virtual TemplateNameId *asTemplateNameId()
-    { return this; }
+    typedef std::vector<FullySpecifiedType>::const_iterator TemplateArgumentIterator;
+
+    TemplateArgumentIterator firstTemplateArgument() const { return _templateArguments.begin(); }
+    TemplateArgumentIterator lastTemplateArgument() const { return _templateArguments.end(); }
 
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
-    Identifier *_identifier;
-    FullySpecifiedType *_templateArguments;
-    unsigned _templateArgumentCount;
+    const Identifier *_identifier;
+    std::vector<FullySpecifiedType> _templateArguments;
 };
 
 class CPLUSPLUS_EXPORT OperatorNameId: public Name
@@ -230,17 +227,14 @@ public:
 
     int kind() const;
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const OperatorNameId *asOperatorNameId() const
     { return this; }
 
-    virtual OperatorNameId *asOperatorNameId()
-    { return this; }
-
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
     int _kind;
@@ -254,17 +248,14 @@ public:
 
     FullySpecifiedType type() const;
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const ConversionNameId *asConversionNameId() const
     { return this; }
 
-    virtual ConversionNameId *asConversionNameId()
-    { return this; }
-
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
     FullySpecifiedType _type;
@@ -273,17 +264,16 @@ private:
 class CPLUSPLUS_EXPORT SelectorNameId: public Name
 {
 public:
-    SelectorNameId(Name *const names[],
-                   unsigned nameCount,
-                   bool hasArguments);
+    template <typename _Iterator>
+    SelectorNameId(_Iterator first, _Iterator last, bool hasArguments)
+        : _names(first, last), _hasArguments(hasArguments) {}
+
     virtual ~SelectorNameId();
 
-    virtual Identifier *identifier() const;
+    virtual const Identifier *identifier() const;
 
     unsigned nameCount() const;
-    Name *nameAt(unsigned index) const;
-    Name *const *names() const;
-
+    const Name *nameAt(unsigned index) const;
     bool hasArguments() const;
 
     virtual bool isEqualTo(const Name *other) const;
@@ -291,19 +281,19 @@ public:
     virtual const SelectorNameId *asSelectorNameId() const
     { return this; }
 
-    virtual SelectorNameId *asSelectorNameId()
-    { return this; }
+    typedef std::vector<const Name *>::const_iterator NameIterator;
+
+    NameIterator firstName() const { return _names.begin(); }
+    NameIterator lastName() const { return _names.end(); }
 
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
-    Name **_names;
-    unsigned _nameCount;
+    std::vector<const Name *> _names;
     bool _hasArguments;
 };
 
 } // end of namespace CPlusPlus
-
 
 #endif // CPLUSPLUS_NAMES_H

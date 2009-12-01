@@ -29,6 +29,14 @@
 
 #include "progressmanager_p.h"
 
+void Core::Internal::ProgressManagerPrivate::init()
+{
+}
+
+void Core::Internal::ProgressManagerPrivate::cleanup()
+{
+}
+
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
 #import <AppKit/NSDockTile.h>
 #import <AppKit/NSApplication.h>

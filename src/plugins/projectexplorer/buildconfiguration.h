@@ -31,6 +31,7 @@
 #define BUILDCONFIGURATION_H
 
 #include "projectexplorer_export.h"
+#include "environment.h"
 
 #include <QtCore/QHash>
 #include <QtCore/QString>
@@ -50,13 +51,13 @@ class PROJECTEXPLORER_EXPORT BuildConfiguration : public QObject
     Q_OBJECT
 
 public:
-    BuildConfiguration(const QString &name);
-    BuildConfiguration(const QString &name, BuildConfiguration *source);
-    ~BuildConfiguration();
-    QString name() const;
+    // ctors are protected
+    virtual ~BuildConfiguration();
+
     QString displayName() const;
     void setDisplayName(const QString &name);
 
+    // TODO remove those
     QVariant value(const QString &key) const;
     void setValue(const QString &key, QVariant value);
 
@@ -73,15 +74,26 @@ public:
     void removeCleanStep(int position);
     void moveCleanStepUp(int position);
 
-private:
-    void setName(const QString &name);
+    Project *project() const;
 
+    virtual Environment environment() const = 0;
+    virtual QString buildDirectory() const = 0;
+
+signals:
+    void environmentChanged();
+    void buildDirectoryChanged();
+    void displayNameChanged();
+
+protected:
+    BuildConfiguration(Project * project);
+    BuildConfiguration(BuildConfiguration *source);
+
+private:
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
 
     QHash<QString, QVariant> m_values;
-    QString m_name;
-    friend class Project; // for setName
+    Project *m_project;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory : public QObject
@@ -98,17 +110,22 @@ public:
     virtual QString displayNameForType(const QString &type) const = 0;
 
     // creates build configuration(s) for given type and adds them to project
-    // returns true if build configuration(s) actually have been added
-    virtual bool create(const QString &type) const = 0;
+    // if successfull returns the BuildConfiguration that should be shown in the
+    // project mode for editing
+    virtual BuildConfiguration *create(const QString &type) const = 0;
 
-// to come:
-// restore
-// clone
+    // clones a given BuildConfiguration, should not add it to the project
+    virtual BuildConfiguration *clone(BuildConfiguration *source) const = 0;
+
+    // restores a BuildConfiguration with the name and adds it to the project
+    virtual BuildConfiguration *restore() const = 0;
 
 signals:
     void availableCreationTypesChanged();
 };
 
 } // namespace ProjectExplorer
+
+Q_DECLARE_METATYPE(ProjectExplorer::BuildConfiguration *);
 
 #endif // BUILDCONFIGURATION_H

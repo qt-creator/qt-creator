@@ -32,6 +32,7 @@
 
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
+#include "cmakebuildconfiguration.h"
 #include "makestep.h"
 
 #include <projectexplorer/project.h>
@@ -73,7 +74,9 @@ public:
     QStringList availableCreationTypes() const;
     QString displayNameForType(const QString &type) const;
 
-    bool create(const QString &type) const;
+    ProjectExplorer::BuildConfiguration *create(const QString &type) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *restore() const;
 
 private:
     CMakeProject *m_project;
@@ -88,6 +91,8 @@ public:
     CMakeProject(CMakeManager *manager, const QString &filename);
     ~CMakeProject();
 
+    CMakeBuildConfiguration *activeCMakeBuildConfiguration() const;
+
     virtual QString name() const;
     virtual Core::IFile *file() const;
     virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
@@ -97,16 +102,6 @@ public:
 
     virtual bool isApplication() const;
 
-    //building environment
-    ProjectExplorer::Environment environment(ProjectExplorer::BuildConfiguration *configuration) const;
-    ProjectExplorer::Environment baseEnvironment(ProjectExplorer::BuildConfiguration *configuration) const;
-    void setUserEnvironmentChanges(ProjectExplorer::BuildConfiguration *configuration, const QList<ProjectExplorer::EnvironmentItem> &diff);
-    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges(ProjectExplorer::BuildConfiguration *configuration) const;
-    bool useSystemEnvironment(ProjectExplorer::BuildConfiguration *configuration) const;
-    void setUseSystemEnvironment(ProjectExplorer::BuildConfiguration *configuration, bool b);
-
-    virtual QString buildDirectory(ProjectExplorer::BuildConfiguration *configuration) const;
-
     virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
     virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
@@ -114,12 +109,10 @@ public:
 
     virtual QStringList files(FilesMode fileMode) const;
     QStringList targets() const;
-    QString buildParser(ProjectExplorer::BuildConfiguration *configuration) const;
+
     CMakeTarget targetForTitle(const QString &title);
 
     QString sourceDirectory() const;
-    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
-    ProjectExplorer::ToolChain *toolChain(ProjectExplorer::BuildConfiguration *configuration) const;
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
@@ -134,7 +127,6 @@ private slots:
 
 private:
     bool parseCMakeLists();
-    void updateToolChain(const QString &compiler);
 
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list);
@@ -150,7 +142,6 @@ private:
     CMakeProjectNode *m_rootNode;
     QStringList m_files;
     QList<CMakeTarget> m_targets;
-    ProjectExplorer::ToolChain *m_toolChain;
     ProjectExplorer::FileWatcher *m_watcher;
     bool m_insideFileChanged;
     QSet<QString> m_watchedFiles;
@@ -230,14 +221,14 @@ public:
 
     // This is called to set up the config widget before showing it
     // buildConfiguration is QString::null for the non buildConfiguration specific page
-    virtual void init(const QString &buildConfiguration);
+    virtual void init(ProjectExplorer::BuildConfiguration *bc);
 private slots:
     void openChangeBuildDirectoryDialog();
 private:
     CMakeProject *m_project;
     QLineEdit *m_pathLineEdit;
     QPushButton *m_changeButton;
-    QString m_buildConfiguration;
+    CMakeBuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

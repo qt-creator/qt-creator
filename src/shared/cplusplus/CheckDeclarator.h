@@ -65,7 +65,7 @@ public:
     FullySpecifiedType check(DeclaratorAST *declarator,
                              const FullySpecifiedType &type,
                              Scope *scope,
-                             Name **name);
+                             const Name **name);
 
     FullySpecifiedType check(PtrOperatorListAST *ptrOperators,
                              const FullySpecifiedType &type,
@@ -78,7 +78,7 @@ protected:
     DeclaratorAST *switchDeclarator(DeclaratorAST *declarator);
     FullySpecifiedType switchFullySpecifiedType(const FullySpecifiedType &type);
     Scope *switchScope(Scope *scope);
-    Name **switchName(Name **name);
+    const Name **switchName(const Name **name);
 
     using ASTVisitor::visit;
 
@@ -102,7 +102,7 @@ protected:
 private:
     DeclaratorAST *_declarator;
     Scope *_scope;
-    Name **_name;
+    const Name **_name;
     FullySpecifiedType _fullySpecifiedType;
 };
 

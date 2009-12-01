@@ -39,6 +39,7 @@
 
 static const char *fontFamilyKey = "FontFamily";
 static const char *fontSizeKey = "FontSize";
+static const char *fontZoomKey= "FontZoom";
 static const char *antialiasKey = "FontAntialias";
 static const char *schemeFileNameKey = "ColorScheme";
 
@@ -65,6 +66,7 @@ namespace TextEditor {
 FontSettings::FontSettings() :
     m_family(defaultFixedFontFamily()),
     m_fontSize(DEFAULT_FONT_SIZE),
+    m_fontZoom(100),
     m_antialias(DEFAULT_ANTIALIAS)
 {
 }
@@ -73,6 +75,7 @@ void FontSettings::clear()
 {
     m_family = defaultFixedFontFamily();
     m_fontSize = DEFAULT_FONT_SIZE;
+    m_fontZoom = 100;
     m_antialias = DEFAULT_ANTIALIAS;
     m_scheme.clear();
 }
@@ -86,6 +89,9 @@ void FontSettings::toSettings(const QString &category,
 
     if (m_fontSize != DEFAULT_FONT_SIZE || s->contains(QLatin1String(fontSizeKey)))
         s->setValue(QLatin1String(fontSizeKey), m_fontSize);
+
+    if (m_fontZoom!= 100 || s->contains(QLatin1String(fontZoomKey)))
+        s->setValue(QLatin1String(fontZoomKey), m_fontZoom);
 
     if (m_antialias != DEFAULT_ANTIALIAS || s->contains(QLatin1String(antialiasKey)))
         s->setValue(QLatin1String(antialiasKey), m_antialias);
@@ -110,6 +116,7 @@ bool FontSettings::fromSettings(const QString &category,
 
     m_family = s->value(group + QLatin1String(fontFamilyKey), defaultFixedFontFamily()).toString();
     m_fontSize = s->value(group + QLatin1String(fontSizeKey), m_fontSize).toInt();
+    m_fontZoom= s->value(group + QLatin1String(fontZoomKey), m_fontZoom).toInt();
     m_antialias = s->value(group + QLatin1String(antialiasKey), DEFAULT_ANTIALIAS).toBool();
 
     if (s->contains(group + QLatin1String(schemeFileNameKey))) {
@@ -144,6 +151,7 @@ bool FontSettings::equals(const FontSettings &f) const
     return m_family == f.m_family
             && m_schemeFileName == f.m_schemeFileName
             && m_fontSize == f.m_fontSize
+            && m_fontZoom == f.m_fontZoom
             && m_antialias == f.m_antialias
             && m_scheme == f.m_scheme;
 }
@@ -160,7 +168,7 @@ QTextCharFormat FontSettings::toTextCharFormat(const QString &category) const
 
     if (category == textCategory) {
         tf.setFontFamily(m_family);
-        tf.setFontPointSize(m_fontSize);
+        tf.setFontPointSize(m_fontSize * m_fontZoom / 100);
         tf.setFontStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
     }
 
@@ -211,6 +219,19 @@ int FontSettings::fontSize() const
 void FontSettings::setFontSize(int size)
 {
     m_fontSize = size;
+}
+
+/**
+ * Returns the configured font zoom factor in percent.
+ */
+int FontSettings::fontZoom() const
+{
+    return m_fontZoom;
+}
+
+void FontSettings::setFontZoom(int zoom)
+{
+    m_fontZoom = zoom;
 }
 
 /**

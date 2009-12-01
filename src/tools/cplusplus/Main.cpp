@@ -100,7 +100,7 @@ class FindASTNodes: protected ASTVisitor
 {
 public:
     FindASTNodes(Document::Ptr doc, QTextDocument *document)
-        : ASTVisitor(doc->control()), document(document)
+        : ASTVisitor(doc->translationUnit()), document(document)
     {
     }
 
@@ -159,8 +159,8 @@ class Accept0CG: protected ASTVisitor
     QTextStream *out;
 
 public:
-    Accept0CG(const QDir &cplusplusDir, Control *control)
-        : ASTVisitor(control), _cplusplusDir(cplusplusDir), out(0)
+    Accept0CG(const QDir &cplusplusDir, TranslationUnit *unit)
+        : ASTVisitor(unit), _cplusplusDir(cplusplusDir), out(0)
     { }
 
     void operator()(AST *ast)
@@ -296,8 +296,8 @@ class Match0CG: protected ASTVisitor
     QTextStream *out;
 
 public:
-    Match0CG(const QDir &cplusplusDir, Control *control)
-        : ASTVisitor(control), _cplusplusDir(cplusplusDir), out(0)
+    Match0CG(const QDir &cplusplusDir, TranslationUnit *unit)
+        : ASTVisitor(unit), _cplusplusDir(cplusplusDir), out(0)
     { }
 
     void operator()(AST *ast)
@@ -406,8 +406,8 @@ class MatcherCPPCG: protected ASTVisitor
     QTextStream *out;
 
 public:
-    MatcherCPPCG(const QDir &cplusplusDir, Control *control)
-        : ASTVisitor(control), _cplusplusDir(cplusplusDir), out(0)
+    MatcherCPPCG(const QDir &cplusplusDir, TranslationUnit *unit)
+        : ASTVisitor(unit), _cplusplusDir(cplusplusDir), out(0)
     { }
 
     void operator()(AST *ast)
@@ -560,7 +560,7 @@ class RemoveCastMethods: protected ASTVisitor
 {
 public:
     RemoveCastMethods(Document::Ptr doc, QTextDocument *document)
-        : ASTVisitor(doc->control()), document(document) {}
+        : ASTVisitor(doc->translationUnit()), document(document) {}
 
     QList<QTextCursor> operator()(AST *ast)
     {
@@ -666,13 +666,13 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
         out << document.toPlainText();
     }
 
-    Accept0CG cg(cplusplusDir, AST_h_document->control());
+    Accept0CG cg(cplusplusDir, AST_h_document->translationUnit());
     cg(AST_h_document->translationUnit()->ast());
 
-    Match0CG cg2(cplusplusDir, AST_h_document->control());
+    Match0CG cg2(cplusplusDir, AST_h_document->translationUnit());
     cg2(AST_h_document->translationUnit()->ast());
 
-    MatcherCPPCG cg3(cplusplusDir, AST_h_document->control());
+    MatcherCPPCG cg3(cplusplusDir, AST_h_document->translationUnit());
     cg3(AST_h_document->translationUnit()->ast());
 
     return astDerivedClasses;
@@ -682,7 +682,7 @@ class FindASTForwards: protected ASTVisitor
 {
 public:
     FindASTForwards(Document::Ptr doc, QTextDocument *document)
-        : ASTVisitor(doc->control()), document(document)
+        : ASTVisitor(doc->translationUnit()), document(document)
     {}
 
     QList<QTextCursor> operator()(AST *ast)
@@ -887,5 +887,5 @@ int main(int argc, char *argv[])
     astDerivedClasses.sort();
     generateASTFwd_h(snapshot, cplusplusDir, astDerivedClasses);
 
-    generateASTPatternBuilder_h(cplusplusDir);
+    //generateASTPatternBuilder_h(cplusplusDir);
 }

@@ -131,6 +131,14 @@ void QtMethodAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void QtMemberDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(type_id, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void BinaryExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

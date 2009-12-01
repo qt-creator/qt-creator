@@ -274,6 +274,25 @@ bool ASTMatcher::match(QtMethodAST *node, QtMethodAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(QtMemberDeclarationAST *node, QtMemberDeclarationAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->q_token = node->q_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->type_id)
+        pattern->type_id = node->type_id;
+    else if (! AST::match(node->type_id, pattern->type_id, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    return true;
+}
+
 bool ASTMatcher::match(BinaryExpressionAST *node, BinaryExpressionAST *pattern)
 {
     (void) node;

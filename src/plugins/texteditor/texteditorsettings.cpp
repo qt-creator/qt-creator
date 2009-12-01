@@ -170,8 +170,10 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
     connect(this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
 
-    connect(editor, SIGNAL(requestFontSize(int)),
-            this, SLOT(fontSizeRequested(int)));
+    connect(editor, SIGNAL(requestFontZoom(int)),
+            this, SLOT(fontZoomRequested(int)));
+    connect(editor, SIGNAL(requestZoomReset()),
+            this, SLOT(zoomResetRequested()));
 
     // Apply current settings (tab settings depend on font settings)
     editor->setFontSettings(fontSettings());
@@ -181,10 +183,17 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
 }
 
 
-void TextEditorSettings::fontSizeRequested(int pointSize)
+void TextEditorSettings::fontZoomRequested(int zoom)
 {
     FontSettings &fs = const_cast<FontSettings&>(m_fontSettingsPage->fontSettings());
-    fs.setFontSize(pointSize);
+    fs.setFontZoom(qMax(10, fs.fontZoom() + zoom));
+    m_fontSettingsPage->saveSettings();
+}
+
+void TextEditorSettings::zoomResetRequested()
+{
+    FontSettings &fs = const_cast<FontSettings&>(m_fontSettingsPage->fontSettings());
+    fs.setFontZoom(100);
     m_fontSettingsPage->saveSettings();
 }
 

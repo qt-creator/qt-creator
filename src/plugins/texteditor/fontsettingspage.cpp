@@ -258,7 +258,7 @@ QColor FormatDescription::foreground() const
             return m_format.foreground();
         }
     } else if (m_name == QLatin1String(Constants::C_OCCURRENCES_UNUSED)) {
-        return Qt::lightGray;
+        return Qt::darkYellow;
     } else if (m_name == QLatin1String(Constants::C_PARENTHESES)) {
         return QColor(Qt::red);
     }
@@ -360,6 +360,7 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
     d_ptr->ui.familyComboBox->setCurrentIndex(idx);
 
     d_ptr->ui.antialias->setChecked(d_ptr->m_value.antialias());
+    d_ptr->ui.zoomSpinBox->setValue(d_ptr->m_value.fontZoom());
 
     d_ptr->ui.schemeEdit->setFormatDescriptions(d_ptr->m_descriptions);
     d_ptr->ui.schemeEdit->setBaseFont(d_ptr->m_value.font());
@@ -367,9 +368,11 @@ QWidget *FontSettingsPage::createPage(QWidget *parent)
 
     connect(d_ptr->ui.familyComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(fontFamilySelected(QString)));
     connect(d_ptr->ui.sizeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(fontSizeSelected(QString)));
+    connect(d_ptr->ui.zoomSpinBox, SIGNAL(valueChanged(int)), this, SLOT(fontZoomChanged()));
     connect(d_ptr->ui.schemeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(colorSchemeSelected(int)));
     connect(d_ptr->ui.copyButton, SIGNAL(clicked()), this, SLOT(copyColorScheme()));
     connect(d_ptr->ui.deleteButton, SIGNAL(clicked()), this, SLOT(confirmDeleteColorScheme()));
+
 
     updatePointSizes();
     refreshColorSchemeList();
@@ -419,6 +422,11 @@ void FontSettingsPage::fontSizeSelected(const QString &sizeString)
         d_ptr->m_value.setFontSize(size);
         d_ptr->ui.schemeEdit->setBaseFont(d_ptr->m_value.font());
     }
+}
+
+void FontSettingsPage::fontZoomChanged()
+{
+    d_ptr->m_value.setFontZoom(d_ptr->ui.zoomSpinBox->value());
 }
 
 void FontSettingsPage::colorSchemeSelected(int index)

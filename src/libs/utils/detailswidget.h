@@ -3,6 +3,7 @@
 
 #include "utils_global.h"
 
+#include <QtGui/QPixmap>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -17,7 +18,8 @@ class QTCREATOR_UTILS_EXPORT DetailsWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString summaryText READ summaryText WRITE setSummaryText DESIGNABLE true)
-    Q_PROPERTY(bool expanded READ expanded WRITE setExpanded DESIGNABLE true)
+    Q_PROPERTY(bool expanded READ isExpanded WRITE setExpanded DESIGNABLE true)
+
 public:
     DetailsWidget(QWidget *parent = 0);
     ~DetailsWidget();
@@ -25,8 +27,7 @@ public:
     void setSummaryText(const QString &text);
     QString summaryText() const;
 
-    bool expanded() const;
-    void setExpanded(bool);
+    bool isExpanded() const;
 
     void setWidget(QWidget *widget);
     QWidget *widget() const;
@@ -34,21 +35,28 @@ public:
     void setToolWidget(QWidget *widget);
     QWidget *toolWidget() const;
 
+public slots:
+    void setExpanded(bool);
+
 protected:
     void paintEvent(QPaintEvent *paintEvent);
-
-private slots:
-    void detailsButtonClicked();
+    void enterEvent(QEvent *event);
+    void leaveEvent(QEvent *event);
 
 private:
-    void fixUpLayout();
-    QLabel *m_summaryLabel;
-    DetailsButton *m_detailsButton;
+    QPixmap cacheBackground(const QSize &size, bool expanded);
+    void changeHoverState(bool hovered);
 
-    QWidget *m_widget;
-    QWidget *m_toolWidget;
-    QWidget *m_dummyWidget;
+    DetailsButton *m_detailsButton;
     QGridLayout *m_grid;
+    QLabel *m_summaryLabel;
+    QWidget *m_toolWidget;
+    QWidget *m_widget;
+
+    QPixmap m_collapsedPixmap;
+    QPixmap m_expandedPixmap;
+
+    bool m_hovered;
 };
 }
 

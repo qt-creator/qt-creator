@@ -36,6 +36,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <QtCore/QProcess>
+#include <QtCore/QFutureInterface>
 
 QT_BEGIN_NAMESPACE
 class QMessageBox;
@@ -47,6 +48,8 @@ namespace Debugger {
 }
 
 namespace Qt4ProjectManager {
+class Qt4Project;
+
 namespace Internal {
 
 class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -60,6 +63,8 @@ public:
 
     explicit S60DeviceRunConfiguration(ProjectExplorer::Project *project, const QString &proFilePath);
     ~S60DeviceRunConfiguration();
+
+    Qt4Project *qt4Project() const;
 
     QString type() const;
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
@@ -172,9 +177,11 @@ private slots:
     void printCopyProgress(int progress);
     void printInstallingNotice();
     void printInstallFailed(const QString &filename, const QString &errorMessage);
+    void printInstallingFinished();
     void launcherFinished();
     void slotLauncherStateChanged(int);
     void slotWaitingForTrkClosed();
+    void reportDeployFinished();
 
 private:        
     bool createPackageFileFromTemplate(QString *errorMessage);
@@ -203,6 +210,7 @@ private:
     QString m_makesisTool;
     QString m_packageFile;
 
+    QFutureInterface<void> *m_deployProgress;
     trk::Launcher *m_launcher;
 };
 

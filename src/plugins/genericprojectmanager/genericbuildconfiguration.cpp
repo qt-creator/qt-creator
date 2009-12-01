@@ -27,59 +27,45 @@
 **
 **************************************************************************/
 
-#ifndef EMBEDDEDPROPERTIESPAGE_H
-#define EMBEDDEDPROPERTIESPAGE_H
+#include "genericbuildconfiguration.h"
+#include "genericproject.h"
 
-#include "ui_embeddedpropertiespage.h"
+using namespace GenericProjectManager;
+using namespace GenericProjectManager::Internal;
+using ProjectExplorer::BuildConfiguration;
 
-#include <projectexplorer/iprojectproperties.h>
+GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro)
+    : BuildConfiguration(pro)
+{
 
-#include <QtCore/QModelIndex>
-
-namespace ProjectExplorer {
-class Project;
 }
 
-namespace Qt4ProjectManager {
-
-namespace Internal {
-
-class EmbeddedPropertiesWidget;
-
-class EmbeddedPropertiesPanelFactory : public ProjectExplorer::IPanelFactory
+GenericBuildConfiguration::GenericBuildConfiguration(GenericBuildConfiguration *source)
+    : BuildConfiguration(source)
 {
-public:
-    virtual bool supports(ProjectExplorer::Project *project);
-    ProjectExplorer::IPropertiesPanel *createPanel(ProjectExplorer::Project *project);
-};
 
-class EmbeddedPropertiesPanel : public ProjectExplorer::IPropertiesPanel
+}
+
+ProjectExplorer::Environment GenericBuildConfiguration::environment() const
 {
-public:
-    EmbeddedPropertiesPanel(ProjectExplorer::Project *project);
-    ~EmbeddedPropertiesPanel();
+    return ProjectExplorer::Environment::systemEnvironment();
+}
 
-    QString name() const;
-    QWidget *widget() const;
-    QIcon icon() const;
-
-private:
-    EmbeddedPropertiesWidget *m_widget;
-    QIcon m_icon;
-};
-
-class EmbeddedPropertiesWidget : public QWidget
+QString GenericBuildConfiguration::buildDirectory() const
 {
-    Q_OBJECT
-public:
-    EmbeddedPropertiesWidget(ProjectExplorer::Project *project);
-    virtual ~EmbeddedPropertiesWidget();
- private:
-    Ui_EmbeddedPropertiesPage m_ui;
-    ProjectExplorer::Project *m_pro;
-};
+    QString buildDirectory = value("buildDirectory").toString();
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+    if (buildDirectory.isEmpty()) {
+        QFileInfo fileInfo(project()->file()->fileName());
 
-#endif // EMBEDDEDPROPERTIESPAGE_H
+        buildDirectory = fileInfo.absolutePath();
+    }
+
+    return buildDirectory;
+}
+
+GenericProject *GenericBuildConfiguration::genericProject() const
+{
+    return static_cast<GenericProject *>(project());
+}
+

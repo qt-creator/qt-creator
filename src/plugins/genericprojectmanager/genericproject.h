@@ -54,6 +54,7 @@ namespace Internal {
 class GenericProject;
 class GenericMakeStep;
 class GenericProjectFile;
+class GenericBuildConfiguration;
 
 class GenericBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
 {
@@ -66,7 +67,9 @@ public:
     QStringList availableCreationTypes() const;
     QString displayNameForType(const QString &type) const;
 
-    bool create(const QString &type) const;
+    ProjectExplorer::BuildConfiguration *create(const QString &type) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *restore() const;
 
 private:
     GenericProject *m_project;
@@ -92,9 +95,6 @@ public:
     virtual QList<ProjectExplorer::Project *> dependsOn();
 
     virtual bool isApplication() const;
-
-    virtual ProjectExplorer::Environment environment(ProjectExplorer::BuildConfiguration *configuration) const;
-    virtual QString buildDirectory(ProjectExplorer::BuildConfiguration *configuration) const;
 
     virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
     virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
@@ -193,7 +193,7 @@ public:
 
     virtual QString displayName() const;
 
-    virtual void init(const QString &buildConfiguration);
+    virtual void init(ProjectExplorer::BuildConfiguration *bc);
 
 private Q_SLOTS:
     void buildDirectoryChanged();
@@ -202,7 +202,7 @@ private Q_SLOTS:
 private:
     GenericProject *m_project;
     Utils::PathChooser *m_pathChooser;
-    QString m_buildConfiguration;
+    GenericBuildConfiguration *m_buildConfiguration;
 };
 
 } // namespace Internal

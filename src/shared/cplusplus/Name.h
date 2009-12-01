@@ -56,14 +56,11 @@ namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT Name
 {
-    Name(const Name &other);
-    void operator =(const Name &other);
-
 public:
     Name();
     virtual ~Name();
 
-    virtual Identifier *identifier() const = 0;
+    virtual const Identifier *identifier() const = 0;
 
     bool isNameId() const;
     bool isTemplateNameId() const;
@@ -81,21 +78,13 @@ public:
     virtual const QualifiedNameId *asQualifiedNameId() const { return 0; }
     virtual const SelectorNameId *asSelectorNameId() const { return 0; }
 
-    virtual NameId *asNameId() { return 0; }
-    virtual TemplateNameId *asTemplateNameId() { return 0; }
-    virtual DestructorNameId *asDestructorNameId() { return 0; }
-    virtual OperatorNameId *asOperatorNameId() { return 0; }
-    virtual ConversionNameId *asConversionNameId() { return 0; }
-    virtual QualifiedNameId *asQualifiedNameId() { return 0; }
-    virtual SelectorNameId *asSelectorNameId() { return 0; }
-
     virtual bool isEqualTo(const Name *other) const = 0;
 
-    void accept(NameVisitor *visitor);
-    static void accept(Name *name, NameVisitor *visitor);
+    void accept(NameVisitor *visitor) const;
+    static void accept(const Name *name, NameVisitor *visitor);
 
 protected:
-    virtual void accept0(NameVisitor *visitor) = 0;
+    virtual void accept0(NameVisitor *visitor) const = 0;
 };
 
 } // end of namespace CPlusPlus

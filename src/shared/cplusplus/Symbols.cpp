@@ -76,7 +76,7 @@ Scope *TemplateParameters::scope() const
 { return _scope; }
 
 UsingNamespaceDirective::UsingNamespaceDirective(TranslationUnit *translationUnit,
-                                                 unsigned sourceLocation, Name *name)
+                                                 unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
 { }
 
@@ -90,7 +90,7 @@ void UsingNamespaceDirective::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
 UsingDeclaration::UsingDeclaration(TranslationUnit *translationUnit,
-                                   unsigned sourceLocation, Name *name)
+                                   unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
 { }
 
@@ -103,7 +103,7 @@ FullySpecifiedType UsingDeclaration::type() const
 void UsingDeclaration::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
-Declaration::Declaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+Declaration::Declaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name),
       _templateParameters(0)
 { }
@@ -126,7 +126,7 @@ FullySpecifiedType Declaration::type() const
 void Declaration::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
-Argument::Argument(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+Argument::Argument(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name),
       _initializer(false)
 { }
@@ -149,7 +149,7 @@ FullySpecifiedType Argument::type() const
 void Argument::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
-Function::Function(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+Function::Function(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name),
      _templateParameters(0),
      _flags(0)
@@ -203,8 +203,8 @@ bool Function::isEqualTo(const Type *other) const
     else if (isVolatile() != o->isVolatile())
         return false;
 
-    Name *l = identity();
-    Name *r = o->identity();
+    const Name *l = identity();
+    const Name *r = o->identity();
     if (l == r || (l && l->isEqualTo(r))) {
         if (_arguments->symbolCount() != o->_arguments->symbolCount())
             return false;
@@ -315,7 +315,7 @@ void Function::visitSymbol0(SymbolVisitor *visitor)
     }
 }
 
-ScopedSymbol::ScopedSymbol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+ScopedSymbol::ScopedSymbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
 { _members = new Scope(this); }
 
@@ -361,7 +361,7 @@ void Block::visitSymbol0(SymbolVisitor *visitor)
     }
 }
 
-Enum::Enum(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+Enum::Enum(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name)
 { }
 
@@ -376,8 +376,8 @@ bool Enum::isEqualTo(const Type *other) const
     const Enum *o = other->asEnumType();
     if (! o)
         return false;
-    Name *l = identity();
-    Name *r = o->identity();
+    const Name *l = identity();
+    const Name *r = o->identity();
     if (l == r)
         return true;
     else if (! l)
@@ -405,7 +405,7 @@ void Enum::visitSymbol0(SymbolVisitor *visitor)
     }
 }
 
-Namespace::Namespace(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+Namespace::Namespace(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name)
 { }
 
@@ -417,8 +417,8 @@ bool Namespace::isEqualTo(const Type *other) const
     const Namespace *o = other->asNamespaceType();
     if (! o)
         return false;
-    Name *l = identity();
-    Name *r = o->identity();
+    const Name *l = identity();
+    const Name *r = o->identity();
     if (l == r || (l && l->isEqualTo(r)))
         return true;
     return false;
@@ -447,7 +447,7 @@ void Namespace::visitSymbol0(SymbolVisitor *visitor)
 FullySpecifiedType Namespace::type() const
 { return FullySpecifiedType(const_cast<Namespace *>(this)); }
 
-BaseClass::BaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+BaseClass::BaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name),
       _isVirtual(false)
 { }
@@ -468,7 +468,7 @@ void BaseClass::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
 ForwardClassDeclaration::ForwardClassDeclaration(TranslationUnit *translationUnit,
-                                                 unsigned sourceLocation, Name *name)
+                                                 unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name),
       _templateParameters(0)
 { }
@@ -512,7 +512,7 @@ bool ForwardClassDeclaration::matchType0(const Type *otherType, TypeMatcher *mat
     return false;
 }
 
-Class::Class(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+Class::Class(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name),
       _key(ClassKey),
       _templateParameters(0)
@@ -581,8 +581,8 @@ bool Class::isEqualTo(const Type *other) const
     const Class *o = other->asClassType();
     if (! o)
         return false;
-    Name *l = identity();
-    Name *r = o->identity();
+    const Name *l = identity();
+    const Name *r = o->identity();
     if (l == r || (l && l->isEqualTo(r)))
         return true;
     else
@@ -601,7 +601,7 @@ void Class::visitSymbol0(SymbolVisitor *visitor)
     }
 }
 
-ObjCBaseClass::ObjCBaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+ObjCBaseClass::ObjCBaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
 { }
 
@@ -614,7 +614,7 @@ FullySpecifiedType ObjCBaseClass::type() const
 void ObjCBaseClass::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
-ObjCBaseProtocol::ObjCBaseProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+ObjCBaseProtocol::ObjCBaseProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
 { }
 
@@ -627,7 +627,7 @@ FullySpecifiedType ObjCBaseProtocol::type() const
 void ObjCBaseProtocol::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
-ObjCClass::ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
+ObjCClass::ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name):
         ScopedSymbol(translationUnit, sourceLocation, name),
         _isInterface(false),
         _categoryName(0),
@@ -647,8 +647,8 @@ bool ObjCClass::isEqualTo(const Type *other) const
     if (!o)
         return false;
 
-    Name *l = identity();
-    Name *r = o->identity();
+    const Name *l = identity();
+    const Name *r = o->identity();
     if (l == r || (l && l->isEqualTo(r)))
         return true;
     else
@@ -680,7 +680,7 @@ bool ObjCClass::matchType0(const Type *otherType, TypeMatcher *matcher) const
     return false;
 }
 
-ObjCProtocol::ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
+ObjCProtocol::ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name):
         ScopedSymbol(translationUnit, sourceLocation, name)
 {
 }
@@ -697,8 +697,8 @@ bool ObjCProtocol::isEqualTo(const Type *other) const
     if (!o)
         return false;
 
-    Name *l = identity();
-    Name *r = o->identity();
+    const Name *l = identity();
+    const Name *r = o->identity();
     if (l == r || (l && l->isEqualTo(r)))
         return true;
     else
@@ -724,7 +724,8 @@ bool ObjCProtocol::matchType0(const Type *otherType, TypeMatcher *matcher) const
     return false;
 }
 
-ObjCForwardClassDeclaration::ObjCForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
+ObjCForwardClassDeclaration::ObjCForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation,
+                                                         const Name *name):
         Symbol(translationUnit, sourceLocation, name)
 {
 }
@@ -763,7 +764,8 @@ bool ObjCForwardClassDeclaration::matchType0(const Type *otherType, TypeMatcher 
     return false;
 }
 
-ObjCForwardProtocolDeclaration::ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name):
+ObjCForwardProtocolDeclaration::ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation,
+                                                               const Name *name):
         Symbol(translationUnit, sourceLocation, name)
 {
 }
@@ -802,7 +804,7 @@ bool ObjCForwardProtocolDeclaration::matchType0(const Type *otherType, TypeMatch
     return false;
 }
 
-ObjCMethod::ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+ObjCMethod::ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name),
      _flags(0)
 { _arguments = new Scope(this); }
@@ -818,8 +820,8 @@ bool ObjCMethod::isEqualTo(const Type *other) const
     if (! o)
         return false;
 
-    Name *l = identity();
-    Name *r = o->identity();
+    const Name *l = identity();
+    const Name *r = o->identity();
     if (l == r || (l && l->isEqualTo(r))) {
         if (_arguments->symbolCount() != o->_arguments->symbolCount())
             return false;
@@ -902,7 +904,7 @@ void ObjCMethod::visitSymbol0(SymbolVisitor *visitor)
 
 ObjCPropertyDeclaration::ObjCPropertyDeclaration(TranslationUnit *translationUnit,
                                                  unsigned sourceLocation,
-                                                 Name *name):
+                                                 const Name *name):
     Symbol(translationUnit, sourceLocation, name),
     _propertyAttributes(None),
     _getterName(0),

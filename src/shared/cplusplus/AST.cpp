@@ -246,7 +246,21 @@ unsigned QtMethodAST::lastToken() const
     return method_token + 1;
 }
 
+unsigned QtMemberDeclarationAST::firstToken() const
+{
+    return q_token;
+}
 
+unsigned QtMemberDeclarationAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (type_id)
+        return type_id->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    return q_token + 1;
+}
 
 unsigned BinaryExpressionAST::firstToken() const
 {

@@ -79,14 +79,14 @@ bool Name::isQualifiedNameId() const
 bool Name::isSelectorNameId() const
 { return asSelectorNameId() != 0; }
 
-void Name::accept(NameVisitor *visitor)
+void Name::accept(NameVisitor *visitor) const
 {
     if (visitor->preVisit(this))
         accept0(visitor);
     visitor->postVisit(this);
 }
 
-void Name::accept(Name *name, NameVisitor *visitor)
+void Name::accept(const Name *name, NameVisitor *visitor)
 {
     if (! name)
         return;

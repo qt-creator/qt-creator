@@ -27,7 +27,92 @@
 **
 **************************************************************************/
 
+#include <QtCore/QVariant>
+#include <QtGui/QMainWindow>
+
+#include <coreplugin/icore.h>
+
 #include "progressmanager_p.h"
+
+// for windows progress bar
+#ifndef __GNUC__ 
+#    include <shobjidl.h>
+#endif
+
+// Windows 7 SDK required
+#ifdef __ITaskbarList3_INTERFACE_DEFINED__
+
+namespace {
+    int total = 0;
+    ITaskbarList3* pITask = 0;
+}
+
+void Core::Internal::ProgressManagerPrivate::init()
+{
+    CoInitialize(NULL);
+    HRESULT hRes = CoCreateInstance(CLSID_TaskbarList,
+                                    NULL,CLSCTX_INPROC_SERVER,
+                                    IID_ITaskbarList3,(LPVOID*) &pITask);
+     if (FAILED(hRes))
+     {
+         pITask = 0;
+         CoUninitialize();
+         return;
+     }
+
+     pITask->HrInit();
+     return;
+}
+
+void Core::Internal::ProgressManagerPrivate::cleanup()
+{
+    if (pITask) {
+    pITask->Release();
+    pITask = NULL;
+    CoUninitialize();
+    }
+}
+
+
+void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &text)
+{
+    Q_UNUSED(text)
+}
+
+void Core::Internal::ProgressManagerPrivate::setApplicationProgressRange(int min, int max)
+{
+    total = max-min;
+}
+
+void Core::Internal::ProgressManagerPrivate::setApplicationProgressValue(int value)
+{
+    if (pITask) {
+        WId winId = Core::ICore::instance()->mainWindow()->winId();
+        pITask->SetProgressValue(winId, value, total);
+    }
+}
+
+void Core::Internal::ProgressManagerPrivate::setApplicationProgressVisible(bool visible)
+{
+    if (!pITask)
+        return;
+
+    WId winId = Core::ICore::instance()->mainWindow()->winId();
+    if (visible)
+        pITask->SetProgressState(winId, TBPF_NORMAL);
+    else
+        pITask->SetProgressState(winId, TBPF_NOPROGRESS);
+}
+
+#else
+
+void Core::Internal::ProgressManagerPrivate::init()
+{
+}
+
+void Core::Internal::ProgressManagerPrivate::cleanup()
+{
+}
 
 void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &text)
 {
@@ -49,3 +134,6 @@ void Core::Internal::ProgressManagerPrivate::setApplicationProgressVisible(bool 
 {
     Q_UNUSED(visible)
 }
+
+
+#endif // __ITaskbarList2_INTERFACE_DEFINED__

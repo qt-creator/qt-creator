@@ -65,12 +65,12 @@ class CPLUSPLUS_EXPORT TranslationUnit
     void operator =(const TranslationUnit &other);
 
 public:
-    TranslationUnit(Control *control, StringLiteral *fileId);
+    TranslationUnit(Control *control, const StringLiteral *fileId);
     ~TranslationUnit();
 
     Control *control() const;
 
-    StringLiteral *fileId() const;
+    const StringLiteral *fileId() const;
     const char *fileName() const;
     unsigned fileNameLength() const;
 
@@ -86,10 +86,10 @@ public:
     const char *spell(unsigned index) const;
 
     unsigned matchingBrace(unsigned index) const;
-    Identifier *identifier(unsigned index) const;
-    Literal *literal(unsigned index) const;
-    StringLiteral *stringLiteral(unsigned index) const;
-    NumericLiteral *numericLiteral(unsigned index) const;
+    const Identifier *identifier(unsigned index) const;
+    const Literal *literal(unsigned index) const;
+    const StringLiteral *stringLiteral(unsigned index) const;
+    const NumericLiteral *numericLiteral(unsigned index) const;
 
     MemoryPool *memoryPool() const;
     AST *ast() const;
@@ -129,26 +129,26 @@ public:
 
     void getTokenStartPosition(unsigned index, unsigned *line,
                                unsigned *column = 0,
-                               StringLiteral **fileName = 0) const;
+                               const StringLiteral **fileName = 0) const;
 
     void getTokenEndPosition(unsigned index, unsigned *line,
                              unsigned *column = 0,
-                             StringLiteral **fileName = 0) const;
+                             const StringLiteral **fileName = 0) const;
 
     void getPosition(unsigned offset,
                      unsigned *line,
                      unsigned *column = 0,
-                     StringLiteral **fileName = 0) const;
+                     const StringLiteral **fileName = 0) const;
 
     void getTokenPosition(unsigned index,
                           unsigned *line,
                           unsigned *column = 0,
-                          StringLiteral **fileName = 0) const;
+                          const StringLiteral **fileName = 0) const;
 
     void pushLineOffset(unsigned offset);
     void pushPreprocessorLine(unsigned offset,
                               unsigned line,
-                              StringLiteral *fileName);
+                              const StringLiteral *fileName);
 
     unsigned findPreviousLineOffset(unsigned tokenIndex) const;
 
@@ -156,11 +156,11 @@ public:
     struct PPLine {
         unsigned offset;
         unsigned line;
-        StringLiteral *fileName;
+        const StringLiteral *fileName;
 
         PPLine(unsigned offset = 0,
                unsigned line = 0,
-               StringLiteral *fileName = 0)
+               const StringLiteral *fileName = 0)
             : offset(offset), line(line), fileName(fileName)
         { }
 
@@ -181,7 +181,7 @@ private:
     void showErrorLine(unsigned index, unsigned column, FILE *out);
 
     Control *_control;
-    StringLiteral *_fileId;
+    const StringLiteral *_fileId;
     const char *_firstSourceChar;
     const char *_lastSourceChar;
     Array<Token, 8> *_tokens;

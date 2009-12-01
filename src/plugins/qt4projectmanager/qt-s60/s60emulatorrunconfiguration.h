@@ -45,6 +45,8 @@ namespace Utils {
 }
 
 namespace Qt4ProjectManager {
+class Qt4Project;
+
 namespace Internal {
 
 class S60EmulatorRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -53,6 +55,8 @@ class S60EmulatorRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     S60EmulatorRunConfiguration(ProjectExplorer::Project *project, const QString &proFilePath);
     ~S60EmulatorRunConfiguration();
+
+    Qt4Project *qt4Project() const;
 
     QString type() const;
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;

@@ -76,7 +76,7 @@ private:
 class CPLUSPLUS_EXPORT UsingNamespaceDirective: public Symbol
 {
 public:
-    UsingNamespaceDirective(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    UsingNamespaceDirective(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~UsingNamespaceDirective();
 
     // Symbol's interface
@@ -95,7 +95,7 @@ protected:
 class CPLUSPLUS_EXPORT UsingDeclaration: public Symbol
 {
 public:
-    UsingDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    UsingDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~UsingDeclaration();
 
     // Symbol's interface
@@ -114,7 +114,7 @@ protected:
 class CPLUSPLUS_EXPORT Declaration: public Symbol
 {
 public:
-    Declaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    Declaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~Declaration();
 
     TemplateParameters *templateParameters() const;
@@ -142,7 +142,7 @@ private:
 class CPLUSPLUS_EXPORT Argument: public Symbol
 {
 public:
-    Argument(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    Argument(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~Argument();
 
     void setType(const FullySpecifiedType &type);
@@ -170,7 +170,7 @@ private:
 class CPLUSPLUS_EXPORT ScopedSymbol: public Symbol
 {
 public:
-    ScopedSymbol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    ScopedSymbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ScopedSymbol();
 
     unsigned memberCount() const;
@@ -210,7 +210,7 @@ protected:
 class CPLUSPLUS_EXPORT ForwardClassDeclaration: public Symbol, public Type
 {
 public:
-    ForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    ForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ForwardClassDeclaration();
 
     TemplateParameters *templateParameters() const;
@@ -244,7 +244,7 @@ private:
 class CPLUSPLUS_EXPORT Enum: public ScopedSymbol, public Type
 {
 public:
-    Enum(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    Enum(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~Enum();
 
     // Symbol's interface
@@ -281,7 +281,7 @@ public:
     };
 
 public:
-    Function(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    Function(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~Function();
 
     bool isNormal() const;
@@ -372,7 +372,7 @@ private:
 class CPLUSPLUS_EXPORT Namespace: public ScopedSymbol, public Type
 {
 public:
-    Namespace(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    Namespace(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~Namespace();
 
     // Symbol's interface
@@ -402,7 +402,7 @@ protected:
 class CPLUSPLUS_EXPORT BaseClass: public Symbol
 {
 public:
-    BaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    BaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~BaseClass();
 
     bool isVirtual() const;
@@ -427,7 +427,7 @@ private:
 class CPLUSPLUS_EXPORT Class: public ScopedSymbol, public Type
 {
 public:
-    Class(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    Class(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~Class();
 
     enum Key {
@@ -484,7 +484,7 @@ private:
 class CPLUSPLUS_EXPORT ObjCBaseClass: public Symbol
 {
 public:
-    ObjCBaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    ObjCBaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ObjCBaseClass();
 
     // Symbol's interface
@@ -505,7 +505,7 @@ private:
 class CPLUSPLUS_EXPORT ObjCBaseProtocol: public Symbol
 {
 public:
-    ObjCBaseProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    ObjCBaseProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ObjCBaseProtocol();
 
     // Symbol's interface
@@ -526,7 +526,7 @@ private:
 class CPLUSPLUS_EXPORT ObjCForwardProtocolDeclaration: public Symbol, public Type
 {
 public:
-    ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ObjCForwardProtocolDeclaration();
 
     virtual FullySpecifiedType type() const;
@@ -556,7 +556,7 @@ private:
 class CPLUSPLUS_EXPORT ObjCProtocol: public ScopedSymbol, public Type
 {
 public:
-    ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ObjCProtocol();
 
     unsigned protocolCount() const
@@ -598,7 +598,7 @@ private:
 class CPLUSPLUS_EXPORT ObjCForwardClassDeclaration: public Symbol, public Type
 {
 public:
-    ObjCForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    ObjCForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ObjCForwardClassDeclaration();
 
     virtual FullySpecifiedType type() const;
@@ -628,15 +628,15 @@ private:
 class CPLUSPLUS_EXPORT ObjCClass: public ScopedSymbol, public Type
 {
 public:
-    ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ObjCClass();
 
     bool isInterface() const { return _isInterface; }
     void setInterface(bool isInterface) { _isInterface = isInterface; }
 
     bool isCategory() const { return _categoryName != 0; }
-    Name *categoryName() const { return _categoryName; }
-    void setCategoryName(Name *categoryName) { _categoryName = categoryName; }
+    const Name *categoryName() const { return _categoryName; }
+    void setCategoryName(const Name *categoryName) { _categoryName = categoryName; }
 
     ObjCBaseClass *baseClass() const
     { return _baseClass; }
@@ -677,7 +677,7 @@ protected:
 
 private:
     bool _isInterface;
-    Name *_categoryName;
+    const Name *_categoryName;
     ObjCBaseClass * _baseClass;
     Array<ObjCBaseProtocol *> _protocols;
 };
@@ -685,7 +685,7 @@ private:
 class CPLUSPLUS_EXPORT ObjCMethod: public ScopedSymbol, public Type
 {
 public:
-    ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ObjCMethod();
 
     FullySpecifiedType returnType() const;
@@ -760,7 +760,7 @@ public:
 public:
     ObjCPropertyDeclaration(TranslationUnit *translationUnit,
                             unsigned sourceLocation,
-                            Name *name);
+                            const Name *name);
     virtual ~ObjCPropertyDeclaration();
 
     bool hasAttribute(int attribute) const
@@ -775,16 +775,16 @@ public:
     bool hasSetter() const
     { return hasAttribute(Setter); }
 
-    Name *getterName() const
+    const Name *getterName() const
     { return _getterName; }
 
-    void setGetterName(Name *getterName)
+    void setGetterName(const Name *getterName)
     { _getterName = getterName; }
 
-    Name *setterName() const
+    const Name *setterName() const
     { return _setterName; }
 
-    void setSetterName(Name *setterName)
+    void setSetterName(const Name *setterName)
     { _setterName = setterName; }
 
     void setType(const FullySpecifiedType &type)
@@ -805,7 +805,8 @@ protected:
 private:
     FullySpecifiedType _type;
     int _propertyAttributes;
-    Name *_getterName, *_setterName;
+    const Name *_getterName;
+    const Name *_setterName;
 };
 
 } // end of namespace CPlusPlus

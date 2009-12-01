@@ -73,6 +73,7 @@ namespace Internal {
     class GCCPreprocessor;
     struct Qt4ProjectFiles;
     class Qt4ProjectConfigWidget;
+    class Qt4BuildConfiguration;
 
     class CodeModelInfo
     {
@@ -130,7 +131,9 @@ public:
     QStringList availableCreationTypes() const;
     QString displayNameForType(const QString &type) const;
 
-    bool create(const QString &type) const;
+    ProjectExplorer::BuildConfiguration *create(const QString &type) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *restore() const;
 
     void update();
 
@@ -155,16 +158,18 @@ public:
     explicit Qt4Project(Qt4Manager *manager, const QString &proFile);
     virtual ~Qt4Project();
 
+    Internal::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
+
     QString name() const;
     Core::IFile *file() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;
     ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
-    void addQt4BuildConfiguration(QString buildConfigurationName,
-                               QtVersion *qtversion,
-                               QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
-                               QStringList additionalArguments = QStringList());
+    Internal::Qt4BuildConfiguration *addQt4BuildConfiguration(QString displayName,
+                                                              QtVersion *qtversion,
+                                                              QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
+                                                              QStringList additionalArguments = QStringList());
 
     QList<Core::IFile *> dependencies();     //NBS remove
     QList<ProjectExplorer::Project *>dependsOn();
@@ -175,70 +180,31 @@ public:
 
     virtual QStringList files(FilesMode fileMode) const;
 
-    //building environment
-    ProjectExplorer::Environment environment(ProjectExplorer::BuildConfiguration *configuration) const;
-    ProjectExplorer::Environment baseEnvironment(ProjectExplorer::BuildConfiguration *configuration) const;
-    void setUserEnvironmentChanges(ProjectExplorer::BuildConfiguration *configuration, const QList<ProjectExplorer::EnvironmentItem> &diff);
-    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges(ProjectExplorer::BuildConfiguration *configuration) const;
-    bool useSystemEnvironment(ProjectExplorer::BuildConfiguration *configuration) const;
-    void setUseSystemEnvironment(ProjectExplorer::BuildConfiguration *configuration, bool b);
-
-    virtual QString buildDirectory(ProjectExplorer::BuildConfiguration *configuration) const;
     // returns the CONFIG variable from the .pro file
     QStringList qmakeConfig() const;
-    // returns the qtdir (depends on the current QtVersion)
-    QString qtDir(ProjectExplorer::BuildConfiguration *configuration) const;
-    //returns the qtVersion, if the project is set to use the default qt version, then
-    // that is returned
-    // to check wheter the project uses the default qt version use qtVersionId
-    QtVersion *qtVersion(ProjectExplorer::BuildConfiguration *configuration) const;
-
-    // returns the id of the qt version, if the project is using the default qt version
-    // this function returns 0
-    int qtVersionId(ProjectExplorer::BuildConfiguration *configuration) const;
-    //returns the name of the qt version, might be QString::Null, which means default qt version
-    // qtVersion is in general the better method to use
-    QString qtVersionName(ProjectExplorer::BuildConfiguration *configuration) const;
-
-    ProjectExplorer::ToolChain *toolChain(ProjectExplorer::BuildConfiguration *configuration) const;
-    void setToolChainType(ProjectExplorer::BuildConfiguration *configuration, ProjectExplorer::ToolChain::ToolChainType type);
-    ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
 
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
-    void setQtVersion(ProjectExplorer::BuildConfiguration *configuration, int id);
-
     QList<Internal::Qt4ProFileNode *> applicationProFiles() const;
 
-    // Those functions are used in a few places.
-    // The drawback is that we shouldn't actually depend on them beeing always there
-    // That is generally the stuff that is asked should normally be transfered to
-    // Qt4Project *
-    // So that we can later enable people to build qt4projects the way they would like
-    QMakeStep *qmakeStep(ProjectExplorer::BuildConfiguration *bc) const;
-    MakeStep *makeStep(ProjectExplorer::BuildConfiguration *bc) const;
     void notifyChanged(const QString &name);
-
-    QString makeCommand(ProjectExplorer::BuildConfiguration *configuration) const;
-    QString defaultMakeTarget(ProjectExplorer::BuildConfiguration *configuration) const;
 
     // Is called by qmakestep qt4configurationwidget if the settings change
     // Informs all Qt4RunConfigurations that their cached values are now invalid
     // the Qt4RunConfigurations will update as soon as asked
+
+    // TODO remove
     void invalidateCachedTargetInformation();
 
     virtual QByteArray predefinedMacros(const QString &fileName) const;
     virtual QStringList includePaths(const QString &fileName) const;
     virtual QStringList frameworkPaths(const QString &fileName) const;
 
-    bool compareBuildConfigurationToImportFrom(ProjectExplorer::BuildConfiguration *configuration, const QString &workingDirectory);
-
-    static QStringList removeSpecFromArgumentList(const QStringList &old);
-    static QString extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version);
+    // TODO can i remove this?
+    void updateActiveRunConfiguration();
 signals:
     void targetInformationChanged();
-    void qtVersionChanged(ProjectExplorer::BuildConfiguration *);
 
 public slots:
     void update();
@@ -268,17 +234,12 @@ private:
     static void findProFile(const QString& fileName, Internal::Qt4ProFileNode *root, QList<Internal::Qt4ProFileNode *> &list);
     static bool hasSubNode(Internal::Qt4PriFileNode *root, const QString &path);
 
-    // called by Qt4ProjectConfigWidget
-    // TODO remove once there's a setBuildDirectory call
-    void emitBuildDirectoryChanged();
-
     QList<Internal::Qt4ProFileNode *> m_applicationProFileChange;
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;
 
     void addDefaultBuild();
 
     static QString qmakeVarName(ProjectExplorer::FileType type);
-    void updateActiveRunConfiguration();
 
     Qt4Manager *m_manager;
     Internal::Qt4ProFileNode *m_rootProjectNode;

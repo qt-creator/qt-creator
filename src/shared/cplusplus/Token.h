@@ -236,8 +236,10 @@ enum Kind {
     T_Q_SIGNALS,
     T_Q_SLOTS,
     T_Q_FOREACH,
+    T_Q_D,
+    T_Q_Q,
 
-    T_LAST_KEYWORD = T_Q_FOREACH,
+    T_LAST_KEYWORD = T_Q_Q,
 
     // aliases
     T_OR = T_PIPE_PIPE,
@@ -333,10 +335,10 @@ public:
 
     union {
         void *ptr;
-        Literal *literal;
-        NumericLiteral *number;
-        StringLiteral *string;
-        Identifier *identifier;
+        const Literal *literal;
+        const NumericLiteral *number;
+        const StringLiteral *string;
+        const Identifier *identifier;
         unsigned close_brace;
         unsigned lineno;
     };

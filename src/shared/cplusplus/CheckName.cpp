@@ -69,9 +69,9 @@ CheckName::CheckName(Semantic *semantic)
 CheckName::~CheckName()
 { }
 
-Name *CheckName::check(NameAST *name, Scope *scope)
+const Name *CheckName::check(NameAST *name, Scope *scope)
 {
-    Name *previousName = switchName(0);
+    const Name *previousName = switchName(0);
     Scope *previousScope = switchScope(scope);
     accept(name);
 
@@ -82,12 +82,12 @@ Name *CheckName::check(NameAST *name, Scope *scope)
     return switchName(previousName);
 }
 
-Name *CheckName::check(NestedNameSpecifierListAST *nested_name_specifier_list, Scope *scope)
+const Name *CheckName::check(NestedNameSpecifierListAST *nested_name_specifier_list, Scope *scope)
 {
-    Name *previousName = switchName(0);
+    const Name *previousName = switchName(0);
     Scope *previousScope = switchScope(scope);
 
-    std::vector<Name *> names;
+    std::vector<const Name *> names;
     for (NestedNameSpecifierListAST *it = nested_name_specifier_list; it; it = it->next) {
         NestedNameSpecifierAST *nested_name_specifier = it->value;
         names.push_back(semantic()->check(nested_name_specifier->class_or_namespace_name, _scope));
@@ -100,9 +100,9 @@ Name *CheckName::check(NestedNameSpecifierListAST *nested_name_specifier_list, S
     return switchName(previousName);
 }
 
-Name *CheckName::check(ObjCSelectorAST *args, Scope *scope)
+const Name *CheckName::check(ObjCSelectorAST *args, Scope *scope)
 {
-    Name *previousName = switchName(0);
+    const Name *previousName = switchName(0);
     Scope *previousScope = switchScope(scope);
 
     accept(args);
@@ -113,7 +113,7 @@ Name *CheckName::check(ObjCSelectorAST *args, Scope *scope)
 
 void CheckName::check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope)
 {
-    Name *previousName = switchName(0);
+    const Name *previousName = switchName(0);
     Scope *previousScope = switchScope(scope);
 
     accept(arg);
@@ -122,9 +122,9 @@ void CheckName::check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope)
     (void) switchName(previousName);
 }
 
-Name *CheckName::switchName(Name *name)
+const Name *CheckName::switchName(const Name *name)
 {
-    Name *previousName = _name;
+    const Name *previousName = _name;
     _name = name;
     return previousName;
 }
@@ -138,14 +138,13 @@ Scope *CheckName::switchScope(Scope *scope)
 
 bool CheckName::visit(QualifiedNameAST *ast)
 {
-    std::vector<Name *> names;
+    std::vector<const Name *> names;
     for (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list; it; it = it->next) {
         NestedNameSpecifierAST *nested_name_specifier = it->value;
         names.push_back(semantic()->check(nested_name_specifier->class_or_namespace_name, _scope));
     }
     names.push_back(semantic()->check(ast->unqualified_name, _scope));
-    _name = control()->qualifiedNameId(&names[0], names.size(),
-                                          ast->global_scope_token != 0);
+    _name = control()->qualifiedNameId(&names[0], names.size(), ast->global_scope_token != 0);
 
     ast->name = _name;
     return false;
@@ -343,7 +342,7 @@ bool CheckName::visit(ConversionFunctionIdAST *ast)
 
 bool CheckName::visit(SimpleNameAST *ast)
 {
-    Identifier *id = identifier(ast->identifier_token);
+    const Identifier *id = identifier(ast->identifier_token);
     _name = control()->nameId(id);
     ast->name = _name;
     return false;
@@ -351,7 +350,7 @@ bool CheckName::visit(SimpleNameAST *ast)
 
 bool CheckName::visit(DestructorNameAST *ast)
 {
-    Identifier *id = identifier(ast->identifier_token);
+    const Identifier *id = identifier(ast->identifier_token);
     _name = control()->destructorNameId(id);
     ast->name = _name;
     return false;
@@ -359,7 +358,7 @@ bool CheckName::visit(DestructorNameAST *ast)
 
 bool CheckName::visit(TemplateIdAST *ast)
 {
-    Identifier *id = identifier(ast->identifier_token);
+    const Identifier *id = identifier(ast->identifier_token);
     std::vector<FullySpecifiedType> templateArguments;
     for (TemplateArgumentListAST *it = ast->template_argument_list; it;
             it = it->next) {
@@ -379,9 +378,9 @@ bool CheckName::visit(TemplateIdAST *ast)
 bool CheckName::visit(ObjCSelectorWithoutArgumentsAST *ast)
 {
     if (ast->name_token) {
-        std::vector<Name *> names;
-        Identifier *id = control()->findOrInsertIdentifier(spell(ast->name_token));
-        NameId *nameId = control()->nameId(id);
+        std::vector<const Name *> names;
+        const Identifier *id = control()->findOrInsertIdentifier(spell(ast->name_token));
+        const NameId *nameId = control()->nameId(id);
         names.push_back(nameId);
         _name = control()->selectorNameId(&names[0], names.size(), false);
         ast->selector_name = _name;
@@ -392,11 +391,11 @@ bool CheckName::visit(ObjCSelectorWithoutArgumentsAST *ast)
 
 bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
 {
-    std::vector<Name *> names;
+    std::vector<const Name *> names;
     for (ObjCSelectorArgumentListAST *it = ast->selector_argument_list; it; it = it->next) {
         if (it->value->name_token) {
-            Identifier *id = control()->findOrInsertIdentifier(spell(it->value->name_token));
-            NameId *nameId = control()->nameId(id);
+            const Identifier *id = control()->findOrInsertIdentifier(spell(it->value->name_token));
+            const NameId *nameId = control()->nameId(id);
             names.push_back(nameId);
         } else {
             // we have an incomplete name due, probably due to error recovery. So, back out completely
@@ -420,7 +419,7 @@ bool CheckName::visit(ObjCMessageArgumentDeclarationAST *ast)
         type = semantic()->check(ast->type_name, _scope);
 
     if (ast->param_name_token) {
-        Identifier *id = identifier(ast->param_name_token);
+        const Identifier *id = identifier(ast->param_name_token);
         _name = control()->nameId(id);
         ast->name = _name;
 

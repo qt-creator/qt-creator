@@ -204,22 +204,22 @@ void Scope::enterSymbol(Symbol *symbol)
     }
 }
 
-Symbol *Scope::lookat(Name *name) const
+Symbol *Scope::lookat(const Name *name) const
 {
     if (! name)
         return 0;
 
-    else if (OperatorNameId *opId = name->asOperatorNameId())
+    else if (const OperatorNameId *opId = name->asOperatorNameId())
         return lookat(opId->kind());
 
-    else if (Identifier *id = name->identifier())
+    else if (const Identifier *id = name->identifier())
         return lookat(id);
 
     else
         return 0;
 }
 
-Symbol *Scope::lookat(Identifier *id) const
+Symbol *Scope::lookat(const Identifier *id) const
 {
     if (! _hash || ! id)
         return 0;
@@ -227,21 +227,21 @@ Symbol *Scope::lookat(Identifier *id) const
     const unsigned h = id->hashCode() % _hashSize;
     Symbol *symbol = _hash[h];
     for (; symbol; symbol = symbol->_next) {
-        Name *identity = symbol->identity();
+        const Name *identity = symbol->identity();
         if (! identity) {
             continue;
-        } else if (NameId *nameId = identity->asNameId()) {
+        } else if (const NameId *nameId = identity->asNameId()) {
             if (nameId->identifier()->isEqualTo(id))
                 break;
-        } else if (TemplateNameId *t = identity->asTemplateNameId()) {
+        } else if (const TemplateNameId *t = identity->asTemplateNameId()) {
             if (t->identifier()->isEqualTo(id))
                 break;
-        } else if (DestructorNameId *d = identity->asDestructorNameId()) {
+        } else if (const DestructorNameId *d = identity->asDestructorNameId()) {
             if (d->identifier()->isEqualTo(id))
                 break;
         } else if (identity->isQualifiedNameId()) {
-            assert(0);
-        } else if (SelectorNameId *selectorNameId = identity->asSelectorNameId()) {
+            return 0;
+        } else if (const SelectorNameId *selectorNameId = identity->asSelectorNameId()) {
             if (selectorNameId->identifier()->isEqualTo(id))
                 break;
         }
@@ -257,8 +257,8 @@ Symbol *Scope::lookat(int operatorId) const
     const unsigned h = operatorId % _hashSize;
     Symbol *symbol = _hash[h];
     for (; symbol; symbol = symbol->_next) {
-        Name *identity = symbol->identity();
-        if (OperatorNameId *op = identity->asOperatorNameId()) {
+        const Name *identity = symbol->identity();
+        if (const OperatorNameId *op = identity->asOperatorNameId()) {
             if (op->kind() == operatorId)
                 break;
         }

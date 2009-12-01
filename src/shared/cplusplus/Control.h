@@ -66,30 +66,30 @@ public:
     void setDiagnosticClient(DiagnosticClient *diagnosticClient);
 
     /// Returns the canonical name id.
-    NameId *nameId(Identifier *id);
+    const NameId *nameId(const Identifier *id);
 
     /// Returns the canonical template name id.
-    TemplateNameId *templateNameId(Identifier *id,
-                                   FullySpecifiedType *const args = 0,
-                                   unsigned argc = 0);
+    const TemplateNameId *templateNameId(const Identifier *id,
+                                         const FullySpecifiedType *const args = 0,
+                                         unsigned argc = 0);
 
     /// Returns the canonical destructor name id.
-    DestructorNameId *destructorNameId(Identifier *id);
+    const DestructorNameId *destructorNameId(const Identifier *id);
 
     /// Returns the canonical operator name id.
-    OperatorNameId *operatorNameId(int operatorId);
+    const OperatorNameId *operatorNameId(int operatorId);
 
     /// Returns the canonical conversion name id.
-    ConversionNameId *conversionNameId(const FullySpecifiedType &type);
+    const ConversionNameId *conversionNameId(const FullySpecifiedType &type);
 
     /// Returns the canonical qualified name id.
-    QualifiedNameId *qualifiedNameId(Name *const *names,
-                                     unsigned nameCount,
-                                     bool isGlobal = false);
+    const QualifiedNameId *qualifiedNameId(const Name *const *names,
+                                           unsigned nameCount,
+                                           bool isGlobal = false);
 
-    SelectorNameId *selectorNameId(Name *const *names,
-                                   unsigned nameCount,
-                                   bool hasArguments);
+    const SelectorNameId *selectorNameId(const Name *const *names,
+                                         unsigned nameCount,
+                                         bool hasArguments);
 
     /// Returns a Type object of type VoidType.
     VoidType *voidType();
@@ -101,7 +101,7 @@ public:
     FloatType *floatType(int floatId);
 
     /// Returns a Type object of type PointertoMemberType.
-    PointerToMemberType *pointerToMemberType(Name *memberName,
+    PointerToMemberType *pointerToMemberType(const Name *memberName,
                                              const FullySpecifiedType &elementType);
 
     /// Returns a Type object of type PointerType.
@@ -114,76 +114,75 @@ public:
     ArrayType *arrayType(const FullySpecifiedType &elementType, unsigned size = 0);
 
     /// Returns a Type object of type NamedType.
-    NamedType *namedType(Name *name);
+    NamedType *namedType(const Name *name);
 
     /// Creates a new Declaration symbol.
-    Declaration *newDeclaration(unsigned sourceLocation, Name *name);
+    Declaration *newDeclaration(unsigned sourceLocation, const Name *name);
 
     /// Creates a new Argument symbol.
-    Argument *newArgument(unsigned sourceLocation, Name *name = 0);
+    Argument *newArgument(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new Function symbol.
-    Function *newFunction(unsigned sourceLocation, Name *name = 0);
+    Function *newFunction(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new Namespace symbol.
-    Namespace *newNamespace(unsigned sourceLocation, Name *name = 0);
+    Namespace *newNamespace(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new BaseClass symbol.
-    BaseClass *newBaseClass(unsigned sourceLocation, Name *name = 0);
+    BaseClass *newBaseClass(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new Class symbol.
-    Class *newClass(unsigned sourceLocation, Name *name = 0);
+    Class *newClass(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new Enum symbol.
-    Enum *newEnum(unsigned sourceLocation, Name *name = 0);
+    Enum *newEnum(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new Block symbol.
     Block *newBlock(unsigned sourceLocation);
 
     /// Creates a new UsingNamespaceDirective symbol.
-    UsingNamespaceDirective *newUsingNamespaceDirective(unsigned sourceLocation, Name *name = 0);
+    UsingNamespaceDirective *newUsingNamespaceDirective(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new UsingDeclaration symbol.
-    UsingDeclaration *newUsingDeclaration(unsigned sourceLocation, Name *name = 0);
+    UsingDeclaration *newUsingDeclaration(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new ForwardClassDeclaration symbol.
-    ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, Name *name = 0);
+    ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, const Name *name = 0);
 
-    ObjCBaseClass *newObjCBaseClass(unsigned sourceLocation, Name *name);
-    ObjCBaseProtocol *newObjCBaseProtocol(unsigned sourceLocation, Name *name);
+    ObjCBaseClass *newObjCBaseClass(unsigned sourceLocation, const Name *name);
+    ObjCBaseProtocol *newObjCBaseProtocol(unsigned sourceLocation, const Name *name);
 
     /// Creates a new Objective-C class symbol.
-    ObjCClass *newObjCClass(unsigned sourceLocation, Name *name = 0);
+    ObjCClass *newObjCClass(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new Objective-C class forward declaration symbol.
-    ObjCForwardClassDeclaration *newObjCForwardClassDeclaration(unsigned sourceLocation, Name *name = 0);
+    ObjCForwardClassDeclaration *newObjCForwardClassDeclaration(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new Objective-C protocol symbol.
-    ObjCProtocol *newObjCProtocol(unsigned sourceLocation, Name *name = 0);
+    ObjCProtocol *newObjCProtocol(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new Objective-C protocol forward declaration symbol.
-    ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name = 0);
+    ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new Objective-C method symbol.
-    ObjCMethod *newObjCMethod(unsigned sourceLocation, Name *name = 0);
+    ObjCMethod *newObjCMethod(unsigned sourceLocation, const Name *name = 0);
 
     /// Creates a new Objective-C @property declaration symbol.
-    ObjCPropertyDeclaration *newObjCPropertyDeclaration(unsigned sourceLocation, Name *name);
+    ObjCPropertyDeclaration *newObjCPropertyDeclaration(unsigned sourceLocation, const Name *name);
 
     // Objective-C specific context keywords.
-    Identifier *objcGetterId() const;
-    Identifier *objcSetterId() const;
-    Identifier *objcReadwriteId() const;
-    Identifier *objcReadonlyId() const;
-    Identifier *objcAssignId() const;
-    Identifier *objcRetainId() const;
-    Identifier *objcCopyId() const;
-    Identifier *objcNonatomicId() const;
+    const Identifier *objcGetterId() const;
+    const Identifier *objcSetterId() const;
+    const Identifier *objcReadwriteId() const;
+    const Identifier *objcReadonlyId() const;
+    const Identifier *objcAssignId() const;
+    const Identifier *objcRetainId() const;
+    const Identifier *objcCopyId() const;
+    const Identifier *objcNonatomicId() const;
 
-    Identifier *findIdentifier(const char *chars, unsigned size) const;
-
-    Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
-    Identifier *findOrInsertIdentifier(const char *chars);
+    const Identifier *findIdentifier(const char *chars, unsigned size) const;
+    const Identifier *findOrInsertIdentifier(const char *chars, unsigned size);
+    const Identifier *findOrInsertIdentifier(const char *chars);
 
     typedef const Identifier *const *IdentifierIterator;
     typedef const StringLiteral *const *StringLiteralIterator;
@@ -198,11 +197,11 @@ public:
     NumericLiteralIterator firstNumericLiteral() const;
     NumericLiteralIterator lastNumericLiteral() const;
 
-    StringLiteral *findOrInsertStringLiteral(const char *chars, unsigned size);
-    StringLiteral *findOrInsertStringLiteral(const char *chars);
+    const StringLiteral *findOrInsertStringLiteral(const char *chars, unsigned size);
+    const StringLiteral *findOrInsertStringLiteral(const char *chars);
 
-    NumericLiteral *findOrInsertNumericLiteral(const char *chars, unsigned size);
-    NumericLiteral *findOrInsertNumericLiteral(const char *chars);
+    const NumericLiteral *findOrInsertNumericLiteral(const char *chars, unsigned size);
+    const NumericLiteral *findOrInsertNumericLiteral(const char *chars);
 
 private:
     class Data;

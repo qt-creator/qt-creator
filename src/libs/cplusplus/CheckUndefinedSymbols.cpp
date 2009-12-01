@@ -65,7 +65,7 @@ void CheckUndefinedSymbols::operator()(AST *ast)
 QByteArray CheckUndefinedSymbols::templateParameterName(NameAST *ast) const
 {
     if (ast && ast->name) {
-        if (Identifier *id = ast->name->identifier())
+        if (const Identifier *id = ast->name->identifier())
             return QByteArray::fromRawData(id->chars(), id->size());
     }
 
@@ -92,7 +92,7 @@ bool CheckUndefinedSymbols::isType(const QByteArray &name) const
             Symbol *member = members->symbolAt(m);
 
             if (member->isTypedef() && member->isDeclaration()) {
-                if (Identifier *id = member->identifier()) {
+                if (const Identifier *id = member->identifier()) {
                     if (name == id->chars())
                         return true;
                 }
@@ -114,7 +114,7 @@ bool CheckUndefinedSymbols::isType(const QByteArray &name) const
     return _types.contains(name);
 }
 
-bool CheckUndefinedSymbols::isType(Identifier *id) const
+bool CheckUndefinedSymbols::isType(const Identifier *id) const
 {
     if (! id)
         return false;
@@ -122,21 +122,21 @@ bool CheckUndefinedSymbols::isType(Identifier *id) const
     return isType(QByteArray::fromRawData(id->chars(), id->size()));
 }
 
-void CheckUndefinedSymbols::addType(Name *name)
+void CheckUndefinedSymbols::addType(const Name *name)
 {
     if (! name)
         return;
 
-    if (Identifier *id = name->identifier())
+    if (const Identifier *id = name->identifier())
         _types.insert(QByteArray(id->chars(), id->size()));
 }
 
-void CheckUndefinedSymbols::addProtocol(Name *name)
+void CheckUndefinedSymbols::addProtocol(const Name *name)
 {
     if (!name)
         return;
 
-    if (Identifier *id = name->identifier())
+    if (const Identifier *id = name->identifier())
         _protocols.insert(QByteArray(id->chars(), id->size()));
 }
 
@@ -176,7 +176,7 @@ void CheckUndefinedSymbols::buildTypeMap(NamespaceBinding *binding, QSet<Namespa
     if (! processed->contains(binding)) {
         processed->insert(binding);
 
-        if (Identifier *id = binding->identifier()) {
+        if (const Identifier *id = binding->identifier()) {
             _namespaceNames.insert(QByteArray(id->chars(), id->size()));
         }
 
@@ -256,7 +256,7 @@ bool CheckUndefinedSymbols::visit(NamedTypeSpecifierAST *ast)
             unsigned line, col;
             getTokenStartPosition(ast->firstToken(), &line, &col);
             // qWarning() << _doc->fileName() << line << col;
-        } else if (Identifier *id = ast->name->name->identifier()) {
+        } else if (const Identifier *id = ast->name->name->identifier()) {
             if (! isType(id)) {
                 if (FunctionDeclaratorAST *functionDeclarator = currentFunctionDeclarator()) {
                     if (functionDeclarator->as_cpp_initializer)
@@ -294,7 +294,7 @@ bool CheckUndefinedSymbols::visit(ClassSpecifierAST *ast)
             Symbol *symbol = klass->memberAt(i);
 
             if (symbol->name() && symbol->name()->isNameId()) {
-                NameId *nameId = symbol->name()->asNameId();
+                const NameId *nameId = symbol->name()->asNameId();
 
                 if (! qstrcmp(nameId->identifier()->chars(), "qt_check_for_QOBJECT_macro")) {
                     hasQ_OBJECT_CHECK = true;
@@ -367,8 +367,8 @@ bool CheckUndefinedSymbols::visit(BaseSpecifierAST *base)
     if (NameAST *nameAST = base->name) {
         bool resolvedBaseClassName = false;
 
-        if (Name *name = nameAST->name) {
-            Identifier *id = name->identifier();
+        if (const Name *name = nameAST->name) {
+            const Identifier *id = name->identifier();
             const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
             if (isType(spell))
                 resolvedBaseClassName = true;
@@ -403,10 +403,10 @@ bool CheckUndefinedSymbols::visit(UsingDirectiveAST *ast)
 bool CheckUndefinedSymbols::visit(QualifiedNameAST *ast)
 {
     if (ast->name) {
-        QualifiedNameId *q = ast->name->asQualifiedNameId();
+        const QualifiedNameId *q = ast->name->asQualifiedNameId();
         for (unsigned i = 0; i < q->nameCount() - 1; ++i) {
-            Name *name = q->nameAt(i);
-            if (Identifier *id = name->identifier()) {
+            const Name *name = q->nameAt(i);
+            if (const Identifier *id = name->identifier()) {
                 const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
                 if (! (_namespaceNames.contains(spell) || isType(id))) {
                     translationUnit()->warning(ast->firstToken(),
@@ -474,8 +474,8 @@ bool CheckUndefinedSymbols::visit(ObjCClassDeclarationAST *ast)
     if (NameAST *nameAST = ast->superclass) {
         bool resolvedSuperClassName = false;
 
-        if (Name *name = nameAST->name) {
-            Identifier *id = name->identifier();
+        if (const Name *name = nameAST->name) {
+            const Identifier *id = name->identifier();
             const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
             if (isType(spell))
                 resolvedSuperClassName = true;
@@ -496,8 +496,8 @@ bool CheckUndefinedSymbols::visit(ObjCProtocolRefsAST *ast)
         if (NameAST *nameAST = iter->value) {
             bool resolvedProtocolName = false;
 
-            if (Name *name = nameAST->name) {
-                Identifier *id = name->identifier();
+            if (const Name *name = nameAST->name) {
+                const Identifier *id = name->identifier();
                 const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
                 if (isProtocol(spell))
                     resolvedProtocolName = true;
@@ -522,11 +522,11 @@ bool CheckUndefinedSymbols::visit(ObjCProtocolRefsAST *ast)
 bool CheckUndefinedSymbols::visit(ObjCPropertyDeclarationAST *ast)
 {
     for (List<ObjCPropertyDeclaration *> *iter = ast->symbols; iter; iter = iter->next) {
-        if (Name *getterName = iter->value->getterName()) {
+        if (/*Name *getterName = */ iter->value->getterName()) {
             // FIXME: resolve the symbol for the name, and check its signature.
         }
 
-        if (Name *setterName = iter->value->setterName()) {
+        if (/*Name *setterName = */ iter->value->setterName()) {
             // FIXME: resolve the symbol for the name, and check its signature.
         }
     }

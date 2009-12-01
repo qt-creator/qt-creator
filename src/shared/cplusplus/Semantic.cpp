@@ -132,7 +132,7 @@ void Semantic::check(DeclarationAST *declaration, Scope *scope, TemplateParamete
 { d->checkDeclaration->check(declaration, scope, templateParameters); }
 
 FullySpecifiedType Semantic::check(DeclaratorAST *declarator, const FullySpecifiedType &type,
-                                   Scope *scope, Name **name)
+                                   Scope *scope, const Name **name)
 { return d->checkDeclarator->check(declarator, type, scope, name); }
 
 FullySpecifiedType Semantic::check(PtrOperatorListAST *ptrOperators, const FullySpecifiedType &type,
@@ -154,13 +154,13 @@ FullySpecifiedType Semantic::check(ExpressionAST *expression, Scope *scope)
 void Semantic::check(StatementAST *statement, Scope *scope)
 { d->checkStatement->check(statement, scope); }
 
-Name *Semantic::check(NameAST *name, Scope *scope)
+const Name *Semantic::check(NameAST *name, Scope *scope)
 { return d->checkName->check(name, scope); }
 
-Name *Semantic::check(NestedNameSpecifierListAST *name, Scope *scope)
+const Name *Semantic::check(NestedNameSpecifierListAST *name, Scope *scope)
 { return d->checkName->check(name, scope); }
 
-Name *Semantic::check(ObjCSelectorAST *args, Scope *scope)
+const Name *Semantic::check(ObjCSelectorAST *args, Scope *scope)
 { return d->checkName->check(args, scope); }
 
 bool Semantic::skipFunctionBodies() const

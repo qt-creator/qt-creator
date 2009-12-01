@@ -36,15 +36,15 @@
 
 using namespace ProjectExplorer;
 
-BuildStep::BuildStep(Project * pro, BuildConfiguration *bc)
-    : m_project(pro), m_buildConfiguration(bc)
+BuildStep::BuildStep(BuildConfiguration *bc)
+    : m_buildConfiguration(bc)
 {
 }
 
 BuildStep::BuildStep(BuildStep *bs, BuildConfiguration *bc)
-    : m_project(bs->m_project), m_buildConfiguration(bc)
+    : m_buildConfiguration(bc)
 {
-
+    Q_UNUSED(bs);
 }
 
 BuildStep::~BuildStep()
@@ -66,11 +66,6 @@ void BuildStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
 void BuildStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
 {
     Q_UNUSED(map)
-}
-
-Project *BuildStep::project() const
-{
-    return m_project;
 }
 
 BuildConfiguration *BuildStep::buildConfiguration() const

@@ -186,10 +186,10 @@ private:
 class CPLUSPLUS_EXPORT PointerToMemberType: public Type
 {
 public:
-    PointerToMemberType(Name *memberName, const FullySpecifiedType &elementType);
+    PointerToMemberType(const Name *memberName, const FullySpecifiedType &elementType);
     virtual ~PointerToMemberType();
 
-    Name *memberName() const;
+    const Name *memberName() const;
     FullySpecifiedType elementType() const;
 
     virtual bool isEqualTo(const Type *other) const;
@@ -205,7 +205,7 @@ protected:
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
-    Name *_memberName;
+    const Name *_memberName;
     FullySpecifiedType _elementType;
 };
 
@@ -262,10 +262,10 @@ private:
 class CPLUSPLUS_EXPORT NamedType: public Type
 {
 public:
-    NamedType(Name *name);
+    NamedType(const Name *name);
     virtual ~NamedType();
 
-    Name *name() const;
+    const Name *name() const;
 
     virtual bool isEqualTo(const Type *other) const;
 
@@ -280,7 +280,7 @@ protected:
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
-    Name *_name;
+    const Name *_name;
 };
 
 } // end of namespace CPlusPlus

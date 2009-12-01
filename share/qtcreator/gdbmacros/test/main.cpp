@@ -35,6 +35,8 @@
 #include <QtCore/QMap>
 #include <QtCore/QSet>
 #include <QtCore/QVariant>
+#include <QtCore/QFileInfo>
+#include <QtCore/QCoreApplication>
 #include <QtGui/QAction>
 
 #include <string>
@@ -51,6 +53,7 @@ bool optTestUninitialized = false;
 bool optTestAll = false;
 bool optEmptyContainers = false;
 unsigned optVerbose = 0;
+const char *appPath = 0;
 
 // Provide address of type of be tested.
 // When testing unitialized memory, allocate at random.
@@ -482,7 +485,6 @@ static int dumpStdMapStringString()
     return 0;
 }
 
-
 static int dumpQObject()
 {
     // Requires the childOffset to be know, but that is not critical
@@ -514,6 +516,16 @@ static int dumpQObject()
     prepareInBuffer("QObjectChildList", "local.qobjectchildlist", "local.qobjectchildlist", "");
     qDumpObjectData440(2, 42, testAddress(&action), 1, 0, 0, 0, 0);
     fputs(qDumpOutBuffer, stdout);
+    return 0;
+}
+
+static int dumpQFileInfo()
+{
+    QFileInfo test(QString::fromLatin1(appPath));
+    prepareInBuffer("QFileInfo", "local.qfileinfo", "local.qfileinfo","");
+    qDumpObjectData440(2, 42, testAddress(&test), 1, 0, 0, 0, 0);
+    fputs(qDumpOutBuffer, stdout);
+    fputc('\n', stdout);
     return 0;
 }
 
@@ -566,6 +578,7 @@ static TypeDumpFunctionMap registerTypes()
     rc.insert("set<QString>", dumpStdQStringSet);
     rc.insert("map<int,string>", dumpStdMapIntString);
     rc.insert("map<string,string>", dumpStdMapStringString);
+    rc.insert("QFileInfo", dumpQFileInfo);
     rc.insert("QObject", dumpQObject);
     rc.insert("QObjectList", dumpQObjectList);
     rc.insert("QVariant", dumpQVariant);
@@ -592,6 +605,7 @@ static void usage(const char *b, const TypeDumpFunctionMap &tdm)
 
 int main(int argc, char *argv[])
 {
+    appPath = argv[0];
     printf("\nQt Creator Debugging Helper testing tool\n\n");
     printf("Running query protocol\n");
     qDumpObjectData440(1, 42, 0, 1, 0, 0, 0, 0);

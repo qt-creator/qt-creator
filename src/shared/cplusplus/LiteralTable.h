@@ -61,7 +61,7 @@ class LiteralTable
     void operator =(const LiteralTable &other);
 
 public:
-    typedef _Literal **iterator;
+    typedef _Literal *const *iterator;
 
 public:
     LiteralTable()
@@ -74,14 +74,14 @@ public:
 
     ~LiteralTable()
     {
-       if (_literals) {
-           _Literal **lastLiteral = _literals + _literalCount + 1;
-           for (_Literal **it = _literals; it != lastLiteral; ++it)
-              delete *it;
-           std::free(_literals);
-       }
-       if (_buckets)
-           std::free(_buckets);
+        if (_literals) {
+            _Literal **lastLiteral = _literals + _literalCount + 1;
+            for (_Literal **it = _literals; it != lastLiteral; ++it)
+                delete *it;
+            std::free(_literals);
+        }
+        if (_buckets)
+            std::free(_buckets);
     }
 
     bool empty() const
@@ -90,7 +90,7 @@ public:
     unsigned size() const
     { return _literalCount + 1; }
 
-    _Literal *at(unsigned index) const
+    const _Literal *at(unsigned index) const
     { return _literals[index]; }
 
     iterator begin() const
@@ -99,53 +99,53 @@ public:
     iterator end() const
     { return _literals + _literalCount + 1; }
 
-    _Literal *findLiteral(const char *chars, unsigned size) const
+    const _Literal *findLiteral(const char *chars, unsigned size) const
     {
-       if (_buckets) {
-           unsigned h = _Literal::hashCode(chars, size);
-           _Literal *literal = _buckets[h % _allocatedBuckets];
-           for (; literal; literal = static_cast<_Literal *>(literal->_next)) {
-               if (literal->size() == size && ! std::strncmp(literal->chars(), chars, size))
-                  return literal;
-           }
-       }
+        if (_buckets) {
+            unsigned h = _Literal::hashCode(chars, size);
+            _Literal *literal = _buckets[h % _allocatedBuckets];
+            for (; literal; literal = static_cast<_Literal *>(literal->_next)) {
+                if (literal->size() == size && ! std::strncmp(literal->chars(), chars, size))
+                    return literal;
+            }
+        }
 
-       return 0;
-   }
+        return 0;
+    }
 
-   _Literal *findOrInsertLiteral(const char *chars, unsigned size)
+    const _Literal *findOrInsertLiteral(const char *chars, unsigned size)
     {
-       if (_buckets) {
-           unsigned h = _Literal::hashCode(chars, size);
-           _Literal *literal = _buckets[h % _allocatedBuckets];
-           for (; literal; literal = static_cast<_Literal *>(literal->_next)) {
-               if (literal->size() == size && ! std::strncmp(literal->chars(), chars, size))
-                  return literal;
-           }
-       }
+        if (_buckets) {
+            unsigned h = _Literal::hashCode(chars, size);
+            _Literal *literal = _buckets[h % _allocatedBuckets];
+            for (; literal; literal = static_cast<_Literal *>(literal->_next)) {
+                if (literal->size() == size && ! std::strncmp(literal->chars(), chars, size))
+                    return literal;
+            }
+        }
 
-       _Literal *literal = new _Literal(chars, size);
+        _Literal *literal = new _Literal(chars, size);
 
-       if (++_literalCount == _allocatedLiterals) {
-           _allocatedLiterals <<= 1;
+        if (++_literalCount == _allocatedLiterals) {
+            _allocatedLiterals <<= 1;
 
-           if (! _allocatedLiterals)
-              _allocatedLiterals = 256;
+            if (! _allocatedLiterals)
+                _allocatedLiterals = 256;
 
-           _literals = (_Literal **) std::realloc(_literals, sizeof(_Literal *) * _allocatedLiterals);
-       }
+            _literals = (_Literal **) std::realloc(_literals, sizeof(_Literal *) * _allocatedLiterals);
+        }
 
-       _literals[_literalCount] = literal;
+        _literals[_literalCount] = literal;
 
-       if (! _buckets || _literalCount >= _allocatedBuckets * .6)
-           rehash();
-       else {
-           unsigned h = literal->hashCode() % _allocatedBuckets;
-           literal->_next = _buckets[h];
-           _buckets[h] = literal;
-       }
+        if (! _buckets || _literalCount >= _allocatedBuckets * .6)
+            rehash();
+        else {
+            unsigned h = literal->hashCode() % _allocatedBuckets;
+            literal->_next = _buckets[h];
+            _buckets[h] = literal;
+        }
 
-       return literal;
+        return literal;
     }
 
 protected:

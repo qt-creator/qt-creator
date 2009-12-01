@@ -307,7 +307,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // Build parsers
     addAutoReleasedObject(new GccParserFactory);
     addAutoReleasedObject(new MsvcParserFactory);
-    addAutoReleasedObject(new QMakeParserFactory);
 
     // Settings page
     addAutoReleasedObject(new ProjectExplorerSettingsPage);
@@ -1424,20 +1423,7 @@ void ProjectExplorerPlugin::buildProjectOnly()
         qDebug() << "ProjectExplorerPlugin::buildProjectOnly";
 
     if (saveModifiedFiles())
-        buildManager()->buildProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration()->name());
-}
-
-static QStringList configurations(const QList<Project *> &projects)
-{
-    QStringList result;
-    foreach (const Project * pro, projects) {
-        if (BuildConfiguration *bc = pro->activeBuildConfiguration()) {
-            result << bc->name();
-        } else {
-            result << QString::null;
-        }
-    }
-    return result;
+        buildManager()->buildProject(d->m_currentProject->activeBuildConfiguration());
 }
 
 void ProjectExplorerPlugin::buildProject()
@@ -1446,8 +1432,11 @@ void ProjectExplorerPlugin::buildProject()
         qDebug() << "ProjectExplorerPlugin::buildProject";
 
     if (saveModifiedFiles()) {
-        const QList<Project *> & projects = d->m_session->projectOrder(d->m_currentProject);
-        d->m_buildManager->buildProjects(projects, configurations(projects));
+        QList<BuildConfiguration *> configurations;
+        foreach (Project *pro, d->m_session->projectOrder(d->m_currentProject))
+            configurations << pro->activeBuildConfiguration();
+
+        d->m_buildManager->buildProjects(configurations);
     }
 }
 
@@ -1457,8 +1446,10 @@ void ProjectExplorerPlugin::buildSession()
         qDebug() << "ProjectExplorerPlugin::buildSession";
 
     if (saveModifiedFiles()) {
-        const QList<Project *> & projects = d->m_session->projectOrder();
-        d->m_buildManager->buildProjects(projects, configurations(projects));
+        QList<BuildConfiguration *> configurations;
+        foreach (Project *pro, d->m_session->projectOrder())
+            configurations << pro->activeBuildConfiguration();
+        d->m_buildManager->buildProjects(configurations);
     }
 }
 
@@ -1468,8 +1459,8 @@ void ProjectExplorerPlugin::rebuildProjectOnly()
         qDebug() << "ProjectExplorerPlugin::rebuildProjectOnly";
 
     if (saveModifiedFiles()) {
-        d->m_buildManager->cleanProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration()->name());
-        d->m_buildManager->buildProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration()->name());
+        d->m_buildManager->cleanProject(d->m_currentProject->activeBuildConfiguration());
+        d->m_buildManager->buildProject(d->m_currentProject->activeBuildConfiguration());
     }
 }
 
@@ -1479,11 +1470,13 @@ void ProjectExplorerPlugin::rebuildProject()
         qDebug() << "ProjectExplorerPlugin::rebuildProject";
 
     if (saveModifiedFiles()) {
-        const QList<Project *> & projects = d->m_session->projectOrder(d->m_currentProject);
-        const QStringList configs = configurations(projects);
+        const QList<Project *> &projects = d->m_session->projectOrder(d->m_currentProject);
+        QList<BuildConfiguration *> configurations;
+        foreach (Project *pro, projects)
+            configurations << pro->activeBuildConfiguration();
 
-        d->m_buildManager->cleanProjects(projects, configs);
-        d->m_buildManager->buildProjects(projects, configs);
+        d->m_buildManager->cleanProjects(configurations);
+        d->m_buildManager->buildProjects(configurations);
     }
 }
 
@@ -1494,10 +1487,12 @@ void ProjectExplorerPlugin::rebuildSession()
 
     if (saveModifiedFiles()) {
         const QList<Project *> & projects = d->m_session->projectOrder();
-        const QStringList configs = configurations(projects);
+        QList<BuildConfiguration *> configurations;
+        foreach (Project *pro, projects)
+            configurations << pro->activeBuildConfiguration();
 
-        d->m_buildManager->cleanProjects(projects, configs);
-        d->m_buildManager->buildProjects(projects, configs);
+        d->m_buildManager->cleanProjects(configurations);
+        d->m_buildManager->buildProjects(configurations);
     }
 }
 
@@ -1507,7 +1502,7 @@ void ProjectExplorerPlugin::cleanProjectOnly()
         qDebug() << "ProjectExplorerPlugin::cleanProjectOnly";
 
     if (saveModifiedFiles())
-        d->m_buildManager->cleanProject(d->m_currentProject, d->m_currentProject->activeBuildConfiguration()->name());
+        d->m_buildManager->cleanProject(d->m_currentProject->activeBuildConfiguration());
 }
 
 void ProjectExplorerPlugin::cleanProject()
@@ -1517,7 +1512,10 @@ void ProjectExplorerPlugin::cleanProject()
 
     if (saveModifiedFiles()) {
         const QList<Project *> & projects = d->m_session->projectOrder(d->m_currentProject);
-        d->m_buildManager->cleanProjects(projects, configurations(projects));
+        QList<BuildConfiguration *> configurations;
+        foreach (Project *pro, projects)
+            configurations << pro->activeBuildConfiguration();
+        d->m_buildManager->cleanProjects(configurations);
     }
 }
 
@@ -1528,21 +1526,24 @@ void ProjectExplorerPlugin::cleanSession()
 
     if (saveModifiedFiles()) {
         const QList<Project *> & projects = d->m_session->projectOrder();
-        d->m_buildManager->cleanProjects(projects, configurations(projects));
+        QList<BuildConfiguration *> configurations;
+        foreach (Project *pro, projects)
+            configurations << pro->activeBuildConfiguration();
+        d->m_buildManager->cleanProjects(configurations);
     }
 }
 
 void ProjectExplorerPlugin::runProject()
 {
-    runProjectImpl(startupProject());
+    runProjectImpl(startupProject(), ProjectExplorer::Constants::RUNMODE);
 }
 
 void ProjectExplorerPlugin::runProjectContextMenu()
 {
-    runProjectImpl(d->m_currentProject);
+    runProjectImpl(d->m_currentProject, ProjectExplorer::Constants::RUNMODE);
 }
 
-void ProjectExplorerPlugin::runProjectImpl(Project *pro)
+void ProjectExplorerPlugin::runProjectImpl(Project *pro, QString mode)
 {
     if (!pro)
         return;
@@ -1553,16 +1554,21 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro)
                 return;
         }
         if (saveModifiedFiles()) {
-            d->m_runMode = ProjectExplorer::Constants::RUNMODE;
+            d->m_runMode = mode;
             d->m_delayedRunConfiguration = pro->activeRunConfiguration();
 
             const QList<Project *> & projects = d->m_session->projectOrder(pro);
-            d->m_buildManager->buildProjects(projects, configurations(projects));
+            QList<BuildConfiguration *> configurations;
+            foreach(Project *pro, projects)
+                configurations << pro->activeBuildConfiguration();
+            d->m_buildManager->buildProjects(configurations);
+
+            updateRunAction();
         }
     } else {
         // TODO this ignores RunConfiguration::isEnabled()
         if (saveModifiedFiles())
-            executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
+            executeRunConfiguration(pro->activeRunConfiguration(), mode);
     }
 }
 
@@ -1572,25 +1578,7 @@ void ProjectExplorerPlugin::debugProject()
     if (!pro || d->m_debuggingRunControl )
         return;
 
-    if (d->m_projectExplorerSettings.buildBeforeRun && pro->hasBuildSettings()) {
-        if (!pro->activeRunConfiguration()->isEnabled()) {
-            if (!showBuildConfigDialog())
-                return;
-        }
-        if (saveModifiedFiles()) {
-            d->m_runMode = ProjectExplorer::Constants::DEBUGMODE;
-            d->m_delayedRunConfiguration = pro->activeRunConfiguration();
-
-            const QList<Project *> & projects = d->m_session->projectOrder(pro);
-            d->m_buildManager->buildProjects(projects, configurations(projects));
-
-            updateRunAction();
-        }
-    } else {
-        // TODO this ignores RunConfiguration::isEnabled()
-        if (saveModifiedFiles())
-            executeRunConfiguration(pro->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE);
-    }
+    runProjectImpl(pro, ProjectExplorer::Constants::DEBUGMODE);
 }
 
 bool ProjectExplorerPlugin::showBuildConfigDialog()
@@ -1965,14 +1953,14 @@ void ProjectExplorerPlugin::populateBuildConfigurationMenu()
     d->m_buildConfigurationMenu->clear();
     if (Project *pro = d->m_currentProject) {
         const BuildConfiguration *activeBC = pro->activeBuildConfiguration();
-        foreach (const BuildConfiguration *bc, pro->buildConfigurations()) {
+        foreach (BuildConfiguration *bc, pro->buildConfigurations()) {
             QString displayName = bc->displayName();
             QAction *act = new QAction(displayName, d->m_buildConfigurationActionGroup);
             if (debug)
-                qDebug() << "BuildConfiguration " << bc->name() << "active: " << activeBC->name();
+                qDebug() << "BuildConfiguration " << bc->displayName() << "active: " << activeBC->displayName();
             act->setCheckable(true);
             act->setChecked(bc == activeBC);
-            act->setData(bc->name());
+            act->setData(QVariant::fromValue(bc));
             d->m_buildConfigurationMenu->addAction(act);
         }
         d->m_buildConfigurationMenu->setEnabled(true);
@@ -1986,8 +1974,7 @@ void ProjectExplorerPlugin::buildConfigurationMenuTriggered(QAction *action)
     if (debug)
         qDebug() << "ProjectExplorerPlugin::buildConfigurationMenuTriggered";
 
-    d->m_currentProject->setActiveBuildConfiguration(d->m_currentProject->buildConfiguration(
-            action->data().toString()));
+    d->m_currentProject->setActiveBuildConfiguration(action->data().value<BuildConfiguration *>());
 }
 
 void ProjectExplorerPlugin::populateRunConfigurationMenu()
@@ -2136,9 +2123,6 @@ Internal::ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings
     return d->m_projectExplorerSettings;
 }
 
-// ---------- BuildConfigDialog -----------
-Q_DECLARE_METATYPE(BuildConfiguration*);
-
 BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
     : QDialog(parent),
     m_project(project)
@@ -2173,7 +2157,7 @@ BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
     RunConfiguration *activeRun = m_project->activeRunConfiguration();
     foreach (BuildConfiguration *config, m_project->buildConfigurations()) {
         if (activeRun->isEnabled(config)) {
-            m_configCombo->addItem(config->name(), qVariantFromValue(config));
+            m_configCombo->addItem(config->displayName(), QVariant::fromValue(config));
         }
     }
     if (m_configCombo->count() == 0) {

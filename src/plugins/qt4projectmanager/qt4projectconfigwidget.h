@@ -39,6 +39,7 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
+class Qt4BuildConfiguration;
 
 namespace Ui {
 class Qt4ProjectConfigWidget;
@@ -52,7 +53,7 @@ public:
     ~Qt4ProjectConfigWidget();
 
     QString displayName() const;
-    void init(const QString &buildConfiguration);
+    void init(ProjectExplorer::BuildConfiguration *bc);
 
 private slots:
     void changeConfigName(const QString &newName);
@@ -72,8 +73,7 @@ private:
     void setToolChain(int index);
     Ui::Qt4ProjectConfigWidget *m_ui;
     QAbstractButton *m_browseButton;
-    Qt4Project *m_pro;
-    QString m_buildConfiguration;
+    Qt4BuildConfiguration *m_buildConfiguration;
     Utils::DetailsWidget *m_detailsContainer;
 };
 
