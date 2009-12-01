@@ -38,7 +38,7 @@ DetailsWidget::DetailsWidget(QWidget *parent) :
     m_grid->setContentsMargins(0, 0, 0, 0);
     m_grid->setSpacing(0);
     m_grid->addWidget(m_summaryLabel, 0, 1);
-    m_grid->addWidget(m_detailsButton, 0, 2, 1, 1, Qt::AlignCenter);
+    m_grid->addWidget(m_detailsButton, 0, 2);
 
     m_detailsButton->setEnabled(false);
 
@@ -179,8 +179,8 @@ QPixmap DetailsWidget::cacheBackground(const QSize &size, bool expanded)
     p.drawRect(0, 0, size.width() - 1, size.height() - 1);
 
     if (expanded) {
-        p.drawLine(0, m_summaryLabel->height(),
-                   size.width(), m_summaryLabel->height());
+        p.drawLine(0, m_summaryLabel->height() - 1,
+                   m_summaryLabel->width(), m_summaryLabel->height() - 1);
     }
 
     return pixmap;
