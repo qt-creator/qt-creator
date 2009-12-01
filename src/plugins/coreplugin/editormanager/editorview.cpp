@@ -487,9 +487,9 @@ void EditorView::updateEditorHistory(IEditor *editor)
 void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
 {
     if (editor && editor != currentEditor()) {
-        qDebug() << Q_FUNC_INFO << "this should not happen!";
-        return;
+        return; // we only save editor sate for the current editor, when the user interacts
     }
+
     if (!editor)
         editor = currentEditor();
     if (!editor)
