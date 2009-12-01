@@ -37,7 +37,9 @@ void TextEditorOverlay::clear()
 }
 
 void TextEditorOverlay::addOverlaySelection(int begin, int end,
-                                            const QColor &fg, const QColor &bg, bool lockSize)
+                                            const QColor &fg, const QColor &bg,
+                                            bool lockSize,
+                                            bool dropShadow)
 {
     if (end < begin)
         return;
@@ -56,6 +58,8 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end,
 
     if (lockSize)
         selection.m_fixedLength = (end - begin);
+
+    selection.m_dropShadow = dropShadow;
 
     m_selections += selection;
     update();
@@ -232,9 +236,16 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
     return path;
 }
 
-void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &begin, const QTextCursor &end,
-                                       const QColor &fg, const QColor &bg)
+void TextEditorOverlay::paintSelection(QPainter *painter,
+                                       const OverlaySelection &selection)
 {
+
+    const QTextCursor &begin = selection.m_cursor_begin;
+    const QTextCursor &end= selection.m_cursor_end;
+    const QColor &fg = selection.m_fg;
+    const QColor &bg = selection.m_bg;
+
+
     if (begin.isNull() || end.isNull() || begin.position() > end.position())
         return;
 
@@ -268,9 +279,12 @@ void TextEditorOverlay::paintSelection(QPainter *painter, const QTextCursor &beg
     painter->restore();
 }
 
-void TextEditorOverlay::fillSelection(QPainter *painter, const QTextCursor &begin, const QTextCursor &end,
-                                       const QColor &color)
+void TextEditorOverlay::fillSelection(QPainter *painter,
+                                      const OverlaySelection &selection,
+                                      const QColor &color)
 {
+    const QTextCursor &begin = selection.m_cursor_begin;
+    const QTextCursor &end= selection.m_cursor_end;
     if (begin.isNull() || end.isNull() || begin.position() > end.position())
         return;
 
@@ -279,6 +293,11 @@ void TextEditorOverlay::fillSelection(QPainter *painter, const QTextCursor &begi
     painter->save();
     painter->translate(-.5, -.5);
     painter->setRenderHint(QPainter::Antialiasing);
+    if (selection.m_dropShadow) {
+        painter->translate(2, 2);
+        painter->fillPath(path, QColor(0, 0, 0, 100));
+        painter->translate(-2, -2);
+    }
     painter->fillPath(path, color);
     painter->restore();
 }
@@ -293,12 +312,7 @@ void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
             != selection.m_fixedLength)
             continue;
 
-        paintSelection(painter,
-                       selection.m_cursor_begin,
-                       selection.m_cursor_end,
-                       selection.m_fg,
-                       selection.m_bg
-                       );
+        paintSelection(painter, selection);
     }
 }
 
@@ -312,11 +326,7 @@ void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect
             != selection.m_fixedLength)
             continue;
 
-        fillSelection(painter,
-                       selection.m_cursor_begin,
-                       selection.m_cursor_end,
-                       color
-                       );
+        fillSelection(painter, selection, color);
     }
 }
 

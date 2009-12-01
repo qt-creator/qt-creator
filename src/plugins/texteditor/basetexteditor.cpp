@@ -1871,6 +1871,9 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
     if (m_searchExpr.isEmpty())
         return;
 
+    int blockPosition = block.position();
+
+    QTextCursor cursor = q->textCursor();
     QString text = block.text();
     text.replace(QChar::Nbsp, QLatin1Char(' '));
     int idx = -1;
@@ -1885,8 +1888,8 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
             continue;
 
         if (m_findScope.isNull()
-            || (block.position() + idx >= m_findScope.selectionStart()
-                && block.position() + idx + l <= m_findScope.selectionEnd())) {
+            || (blockPosition + idx >= m_findScope.selectionStart()
+                && blockPosition + idx + l <= m_findScope.selectionEnd())) {
             if (selections) {
                 QTextLayout::FormatRange selection;
                 selection.start = idx;
@@ -1895,10 +1898,12 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
                 selections->append(selection);
             }
 
-            overlay->addOverlaySelection(block.position() + idx,
-                                         block.position() + idx + l,
+            overlay->addOverlaySelection(blockPosition + idx,
+                                         blockPosition + idx + l,
                                          m_searchResultFormat.background().color().darker(120),
-                                         QColor());
+                                         QColor(), false,
+                                         (idx == cursor.selectionStart() - blockPosition
+                                          && idx + l == cursor.selectionEnd() - blockPosition));
 
         }
     }
@@ -2935,7 +2940,7 @@ void BaseTextEditor::slotCursorPositionChanged()
         saveCurrentCursorPositionForNavigation();
     }
 
-    if (d->m_parenthesesMatchingEnabled) {
+    if (d->m_parenthesesMatchingEnabled && hasFocus()) {
         // Delay update when no matching is displayed yet, to avoid flicker
         if (extraSelections(ParenthesesMatchingSelection).isEmpty()
             && d->m_animator == 0) {
@@ -4266,6 +4271,12 @@ void BaseTextEditor::changeEvent(QEvent *e)
             d->m_extraArea->update();
         }
     }
+}
+
+void BaseTextEditor::focusInEvent(QFocusEvent *e)
+{
+    QPlainTextEdit::focusInEvent(e);
+    slotCursorPositionChanged();
 }
 
 void BaseTextEditor::focusOutEvent(QFocusEvent *e)

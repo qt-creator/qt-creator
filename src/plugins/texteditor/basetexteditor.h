@@ -418,6 +418,7 @@ protected:
     void keyPressEvent(QKeyEvent *e);
     void wheelEvent(QWheelEvent *e);
     void changeEvent(QEvent *e);
+    void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
 
     void showEvent(QShowEvent *);

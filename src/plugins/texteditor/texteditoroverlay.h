@@ -8,12 +8,13 @@ namespace TextEditor {
 namespace Internal {
 
 struct TEXTEDITOR_EXPORT OverlaySelection {
-    OverlaySelection():m_fixedLength(-1){}
+    OverlaySelection():m_fixedLength(-1), m_dropShadow(false){}
     QTextCursor m_cursor_begin;
     QTextCursor m_cursor_end;
     QColor m_fg;
     QColor m_bg;
     int m_fixedLength;
+    bool m_dropShadow;
 };
 
 class TEXTEDITOR_EXPORT TextEditorOverlay : public QObject
@@ -47,16 +48,14 @@ public:
 
     void clear();
     void addOverlaySelection(const QTextCursor &cursor, const QColor &fg, const QColor &bg, bool lockSize = false);
-    void addOverlaySelection(int begin, int end, const QColor &fg, const QColor &bg, bool lockSize = false);
+    void addOverlaySelection(int begin, int end, const QColor &fg, const QColor &bg, bool lockSize = false, bool dropShadow = false);
 
     inline bool isEmpty() const { return m_selections.isEmpty(); }
 
 private:
     QPainterPath createSelectionPath(const QTextCursor &begin, const QTextCursor &end, const QRect& clip);
-    void paintSelection(QPainter *painter, const QTextCursor &begin, const QTextCursor &end,
-                        const QColor &fg, const QColor &bg);
-    void fillSelection(QPainter *painter, const QTextCursor &begin, const QTextCursor &end,
-                        const QColor &color);
+    void paintSelection(QPainter *painter, const OverlaySelection &selection);
+    void fillSelection(QPainter *painter, const OverlaySelection &selection, const QColor &color);
 
 };
 
