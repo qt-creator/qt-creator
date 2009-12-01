@@ -1,4 +1,5 @@
 bin/qmake
+bin/lrelease
 lib/libQtCore.so
 %%
 lib/libQtCore.la

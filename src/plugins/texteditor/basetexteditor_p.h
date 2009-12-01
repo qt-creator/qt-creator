@@ -253,6 +253,7 @@ public:
     QTimer *m_highlightBlocksTimer;
 
     QPointer<BaseTextEditorAnimator> m_animator;
+    int m_cursorBlockNumber;
 
 };
 

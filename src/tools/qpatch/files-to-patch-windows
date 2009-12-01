@@ -1,4 +1,5 @@
 bin/qmake.exe
+bin/lrelease.exe
 bin/QtCore4.dll
 bin/QtCored4.dll
 %%

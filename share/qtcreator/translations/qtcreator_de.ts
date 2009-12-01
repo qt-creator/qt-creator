@@ -12334,7 +12334,7 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
     <message>
         <location line="-28"/>
         <source>No Qt installed</source>
-        <translation>Qt ist nicht installiert&apos;</translation>
+        <translation>Qt ist nicht installiert</translation>
     </message>
 </context>
 <context>
