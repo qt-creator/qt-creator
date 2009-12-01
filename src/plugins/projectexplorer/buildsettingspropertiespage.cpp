@@ -146,6 +146,7 @@ void BuildSettingsWidget::init()
     }
 
     m_makeActiveLabel = new QLabel(this);
+    m_makeActiveLabel->setContentsMargins(m_leftMargin, 4, 0, 4);
     m_makeActiveLabel->setVisible(false);
     vbox->addWidget(m_makeActiveLabel);
 
