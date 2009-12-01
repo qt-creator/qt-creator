@@ -574,7 +574,7 @@ void BuildConfigurationComboBox::activeConfigurationChanged()
 }
 
 void BuildConfigurationComboBox::addedBuildConfiguration(ProjectExplorer::Project *project,
-                                                         BuildConfiguration *bc)
+                                                         ProjectExplorer::BuildConfiguration *bc)
 {
     Q_UNUSED(project);
     ignoreIndexChange = true;
