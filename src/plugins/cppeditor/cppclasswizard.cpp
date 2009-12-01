@@ -295,9 +295,9 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     // Copy/Assignment for shared data classes.
     if (params.classType == Utils::NewClassWidget::SharedDataClass) {
         headerStr << namespaceIndent << indent
-                  << unqualifiedClassName << "(const " << unqualifiedClassName << "&);\n"
+                  << unqualifiedClassName << "(const " << unqualifiedClassName << " &);\n"
                   << namespaceIndent << indent
-                  << unqualifiedClassName << "& operator=(const " << unqualifiedClassName << "&);\n"
+                  << unqualifiedClassName << " &operator=(const " << unqualifiedClassName << " &);\n"
                   << namespaceIndent << indent
                   << '~' << unqualifiedClassName << "();\n";
     }
