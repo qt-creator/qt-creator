@@ -78,10 +78,8 @@ private slots:
     void deviceConfigurationChanged(const QString &name);
     void resetDeviceConfigurations();
 
-    void updateTargetInformation();
-    
     void updateSimulatorPath();
-    void updateVisibleSimulatorParameter();
+    void updateTargetInformation();
 
 private:
     void setSimInfoVisible(const MaemoDeviceConfigurations::DeviceConfig &devConf);
