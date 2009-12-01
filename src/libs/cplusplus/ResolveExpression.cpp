@@ -181,11 +181,11 @@ bool ResolveExpression::visit(NewExpressionAST *ast)
 
 bool ResolveExpression::visit(TypeidExpressionAST *)
 {
-    Name *std_type_info[2];
+    const Name *std_type_info[2];
     std_type_info[0] = control()->nameId(control()->findOrInsertIdentifier("std"));
     std_type_info[1] = control()->nameId(control()->findOrInsertIdentifier("type_info"));
 
-    Name *q = control()->qualifiedNameId(std_type_info, 2, /*global=*/ true);
+    const Name *q = control()->qualifiedNameId(std_type_info, 2, /*global=*/ true);
     FullySpecifiedType ty(control()->namedType(q));
     addResult(ty);
 
@@ -277,8 +277,8 @@ bool ResolveExpression::visit(ThisExpressionAST *)
                 FullySpecifiedType ptrTy(control()->pointerType(classTy));
                 addResult(ptrTy, fun);
                 break;
-            } else if (QualifiedNameId *q = fun->name()->asQualifiedNameId()) {
-                Name *nestedNameSpecifier = 0;
+            } else if (const QualifiedNameId *q = fun->name()->asQualifiedNameId()) {
+                const Name *nestedNameSpecifier = 0;
                 if (q->nameCount() == 1 && q->isGlobal())
                     nestedNameSpecifier = q->nameAt(0);
                 else
@@ -355,7 +355,7 @@ bool ResolveExpression::visit(CompoundLiteralAST *ast)
 bool ResolveExpression::visit(QualifiedNameAST *ast)
 {
     ResolveClass resolveClass;
-    Name *name = ast->name;
+    const Name *name = ast->name;
 
     QList<Symbol *> symbols = _context.resolve(name);
     foreach (Symbol *symbol, symbols) {
@@ -451,7 +451,7 @@ bool ResolveExpression::visit(CallAST *ast)
         ++actualArgumentCount;
     }
 
-    Name *functionCallOp = control()->operatorNameId(OperatorNameId::FunctionCallOp);
+    const Name *functionCallOp = control()->operatorNameId(OperatorNameId::FunctionCallOp);
 
     foreach (const LookupItem &result, baseResults) {
         FullySpecifiedType ty = result.type().simplified();
@@ -495,7 +495,7 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
     const QList<LookupItem> indexResults = operator()(ast->expression);
     ResolveClass resolveClass;
 
-    Name *arrayAccessOp = control()->operatorNameId(OperatorNameId::ArrayAccessOp);
+    const Name *arrayAccessOp = control()->operatorNameId(OperatorNameId::ArrayAccessOp);
 
     foreach (const LookupItem &result, baseResults) {
         FullySpecifiedType ty = result.type().simplified();
@@ -537,7 +537,7 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
     QList<LookupItem> baseResults = _results;
 
     // Evaluate the expression-id that follows the access operator.
-    Name *memberName = 0;
+    const Name *memberName = 0;
     if (ast->member_name)
         memberName = ast->member_name->name;
 
@@ -594,7 +594,7 @@ ResolveExpression::resolveBaseExpression(const QList<LookupItem> &baseResults, i
 
         if (NamedType *namedTy = ty->asNamedType()) {
             ResolveClass resolveClass;
-            Name *arrowAccessOp = control()->operatorNameId(OperatorNameId::ArrowOp);
+            const Name *arrowAccessOp = control()->operatorNameId(OperatorNameId::ArrowOp);
             const QList<Symbol *> candidates = resolveClass(namedTy->name(), result, _context);
 
             foreach (Symbol *classObject, candidates) {                
@@ -663,7 +663,7 @@ ResolveExpression::resolveBaseExpression(const QList<LookupItem> &baseResults, i
 QList<LookupItem>
 ResolveExpression::resolveMemberExpression(const QList<LookupItem> &baseResults,
                                            unsigned accessOp,
-                                           Name *memberName,
+                                           const Name *memberName,
                                            bool *replacedDotOperator) const
 {
     ResolveClass resolveClass;
@@ -677,7 +677,7 @@ ResolveExpression::resolveMemberExpression(const QList<LookupItem> &baseResults,
             results += resolveMember(memberName, klass);
 
         else if (NamedType *namedTy = ty->asNamedType()) {
-            Name *className = namedTy->name();
+            const Name *className = namedTy->name();
             const QList<Symbol *> classes = resolveClass(className, r, _context);
 
             foreach (Symbol *c, classes) {
@@ -691,8 +691,8 @@ ResolveExpression::resolveMemberExpression(const QList<LookupItem> &baseResults,
 }
 
 QList<LookupItem>
-ResolveExpression::resolveMember(Name *memberName, Class *klass,
-                                 Name *className) const
+ResolveExpression::resolveMember(const Name *memberName, Class *klass,
+                                 const Name *className) const
 {
     QList<LookupItem> results;
 
@@ -709,19 +709,19 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
 
     foreach (Symbol *candidate, candidates) {
         FullySpecifiedType ty = candidate->type();
-        Name *unqualifiedNameId = className;
+        const Name *unqualifiedNameId = className;
         
-        if (QualifiedNameId *q = className->asQualifiedNameId())
+        if (const QualifiedNameId *q = className->asQualifiedNameId())
             unqualifiedNameId = q->unqualifiedNameId();
         
-        if (TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
+        if (const TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
             GenTemplateInstance::Substitution subst;
             
             for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
                 FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
                 
                 if (i < klass->templateParameterCount()) {
-                    Name *templArgName = klass->templateParameterAt(i)->name();
+                    const Name *templArgName = klass->templateParameterAt(i)->name();
                     if (templArgName && templArgName->identifier()) {
                         const Identifier *templArgId = templArgName->identifier();
                         subst.append(qMakePair(templArgId, templArgTy));
@@ -741,7 +741,7 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
 
 
 QList<LookupItem>
-ResolveExpression::resolveMember(Name *memberName, ObjCClass *klass) const
+ResolveExpression::resolveMember(const Name *memberName, ObjCClass *klass) const
 {
     QList<LookupItem> results;
 
@@ -774,7 +774,7 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
     if (!receiverResults.isEmpty()) {
         LookupItem result = receiverResults.first();
         FullySpecifiedType ty = result.type().simplified();
-        Name *klassName = 0;
+        const Name *klassName = 0;
 
         if (const ObjCClass *classTy = ty->asObjCClassType()) {
             // static access, e.g.:
@@ -805,7 +805,7 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
 ResolveClass::ResolveClass()
 { }
 
-QList<Symbol *> ResolveClass::operator()(Name *name,
+QList<Symbol *> ResolveClass::operator()(const Name *name,
                                          const LookupItem &p,
                                          const LookupContext &context)
 {
@@ -815,7 +815,7 @@ QList<Symbol *> ResolveClass::operator()(Name *name,
     return symbols;
 }
 
-QList<Symbol *> ResolveClass::resolveClass(Name *name,
+QList<Symbol *> ResolveClass::resolveClass(const Name *name,
                                            const LookupItem &p,
                                            const LookupContext &context)
 {
@@ -873,7 +873,7 @@ QList<Symbol *> ResolveClass::resolveClass(Name *name,
 ResolveObjCClass::ResolveObjCClass()
 {}
 
-QList<Symbol *> ResolveObjCClass::operator ()(Name *name,
+QList<Symbol *> ResolveObjCClass::operator ()(const Name *name,
                                               const LookupItem &p,
                                               const LookupContext &context)
 {

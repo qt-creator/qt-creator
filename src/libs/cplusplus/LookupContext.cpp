@@ -109,14 +109,14 @@ bool LookupContext::maybeValidSymbol(Symbol *symbol,
     return false;
 }
 
-QList<Scope *> LookupContext::resolveNestedNameSpecifier(QualifiedNameId *q,
-                                                          const QList<Scope *> &visibleScopes) const
+QList<Scope *> LookupContext::resolveNestedNameSpecifier(const QualifiedNameId *q,
+                                                         const QList<Scope *> &visibleScopes) const
 {
     QList<Symbol *> candidates;
     QList<Scope *> scopes = visibleScopes;
 
     for (unsigned i = 0; i < q->nameCount() - 1; ++i) {
-        Name *name = q->nameAt(i);
+        const Name *name = q->nameAt(i);
 
         candidates = resolveClassOrNamespace(name, scopes);
 
@@ -137,7 +137,7 @@ QList<Scope *> LookupContext::resolveNestedNameSpecifier(QualifiedNameId *q,
     return scopes;
 }
 
-QList<Symbol *> LookupContext::resolveQualifiedNameId(QualifiedNameId *q,
+QList<Symbol *> LookupContext::resolveQualifiedNameId(const QualifiedNameId *q,
                                                       const QList<Scope *> &visibleScopes,
                                                       ResolveMode mode) const
 {
@@ -153,7 +153,7 @@ QList<Symbol *> LookupContext::resolveQualifiedNameId(QualifiedNameId *q,
                 else if (! symbol->isClass())
                     continue;
 
-                QualifiedNameId *qq = symbol->name()->asQualifiedNameId();
+                const QualifiedNameId *qq = symbol->name()->asQualifiedNameId();
 
                 if (! qq)
                     continue;
@@ -167,8 +167,8 @@ QList<Symbol *> LookupContext::resolveQualifiedNameId(QualifiedNameId *q,
                     unsigned j = 0;
 
                     for (; j < q->nameCount(); ++j) {
-                        Name *classOrNamespaceName1 = q->nameAt(j);
-                        Name *classOrNamespaceName2 = qq->nameAt(j);
+                        const Name *classOrNamespaceName1 = q->nameAt(j);
+                        const Name *classOrNamespaceName2 = qq->nameAt(j);
 
                         if (! classOrNamespaceName1->isEqualTo(classOrNamespaceName2))
                             break;
@@ -205,7 +205,7 @@ QList<Symbol *> LookupContext::resolveQualifiedNameId(QualifiedNameId *q,
     return candidates;
 }
 
-QList<Symbol *> LookupContext::resolveOperatorNameId(OperatorNameId *opId,
+QList<Symbol *> LookupContext::resolveOperatorNameId(const OperatorNameId *opId,
                                                      const QList<Scope *> &visibleScopes,
                                                      ResolveMode) const
 {
@@ -226,7 +226,7 @@ QList<Symbol *> LookupContext::resolveOperatorNameId(OperatorNameId *opId,
     return candidates;
 }
 
-QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visibleScopes,
+QList<Symbol *> LookupContext::resolve(const Name *name, const QList<Scope *> &visibleScopes,
                                        ResolveMode mode) const
 {
     QList<Symbol *> candidates;
@@ -234,10 +234,10 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
     if (!name)
         return candidates; // nothing to do, the symbol is anonymous.
 
-    else if (QualifiedNameId *q = name->asQualifiedNameId())
+    else if (const QualifiedNameId *q = name->asQualifiedNameId())
         return resolveQualifiedNameId(q, visibleScopes, mode);
 
-    else if (OperatorNameId *opId = name->asOperatorNameId())
+    else if (const OperatorNameId *opId = name->asOperatorNameId())
         return resolveOperatorNameId(opId, visibleScopes, mode);
 
     else if (const Identifier *id = name->identifier()) {
@@ -256,14 +256,14 @@ QList<Symbol *> LookupContext::resolve(Name *name, const QList<Scope *> &visible
                         continue; // skip it, the symbol's id is not compatible with this lookup.
                 }
 
-                if (QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
+                if (const QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
 
                     if (name->isDestructorNameId() != q->unqualifiedNameId()->isDestructorNameId())
                         continue;
 
                     else if (q->nameCount() > 1) {
-                        Name *classOrNamespaceName = control()->qualifiedNameId(q->names(),
-                                                                                q->nameCount() - 1);
+                        const Name *classOrNamespaceName = control()->qualifiedNameId(q->names(),
+                                                                                      q->nameCount() - 1);
 
                         if (const Identifier *classOrNamespaceNameId = identifier(classOrNamespaceName)) {
                             if (classOrNamespaceNameId->isEqualTo(id))
@@ -418,7 +418,7 @@ void LookupContext::expandNamespace(Namespace *ns,
     if (Scope *encl = ns->enclosingNamespaceScope())
         expand(encl, visibleScopes, expandedScopes);
 
-    if (Name *nsName = ns->name()) {
+    if (const Name *nsName = ns->name()) {
         const QList<Symbol *> namespaceList = resolveNamespace(nsName, visibleScopes);
         foreach (Symbol *otherNs, namespaceList) {
             if (otherNs == ns)
@@ -478,7 +478,7 @@ void LookupContext::expandClass(Class *klass,
 
         for (unsigned i = 0; i < klass->baseClassCount(); ++i) {
             BaseClass *baseClass = klass->baseClassAt(i);
-            Name *baseClassName = baseClass->name();
+            const Name *baseClassName = baseClass->name();
             const QList<Symbol *> baseClassCandidates = resolveClass(baseClassName,
                                                                      classVisibleScopes);
 
@@ -515,8 +515,8 @@ void LookupContext::expandFunction(Function *function,
     if (! expandedScopes->contains(function->arguments()))
         expandedScopes->append(function->arguments());
 
-    if (QualifiedNameId *q = function->name()->asQualifiedNameId()) {
-        Name *nestedNameSpec = 0;
+    if (const QualifiedNameId *q = function->name()->asQualifiedNameId()) {
+        const Name *nestedNameSpec = 0;
         if (q->nameCount() == 1)
             nestedNameSpec = q->nameAt(0);
         else
@@ -565,7 +565,7 @@ void LookupContext::expandObjCClass(ObjCClass *klass,
 
     // expand the base class:
     if (ObjCBaseClass *baseClass = klass->baseClass()) {
-        Name *baseClassName = baseClass->name();
+        const Name *baseClassName = baseClass->name();
         const QList<Symbol *> baseClassCandidates = resolveObjCClass(baseClassName,
                                                                      visibleScopes);
 
@@ -577,7 +577,7 @@ void LookupContext::expandObjCClass(ObjCClass *klass,
 
     // expand the protocols:
     for (unsigned i = 0; i < klass->protocolCount(); ++i) {
-        Name *protocolName = klass->protocolAt(i)->name();
+        const Name *protocolName = klass->protocolAt(i)->name();
         const QList<Symbol *> protocolCandidates = resolveObjCProtocol(protocolName, visibleScopes);
         for (int j = 0; j < protocolCandidates.size(); ++j) {
             if (ObjCProtocol *protocolSymbol = protocolCandidates.at(j)->asObjCProtocol())

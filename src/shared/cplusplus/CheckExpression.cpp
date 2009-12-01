@@ -120,7 +120,7 @@ bool CheckExpression::visit(CastExpressionAST *ast)
 bool CheckExpression::visit(ConditionAST *ast)
 {
     FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifier_list, _scope);
-    Name *name = 0;
+    const Name *name = 0;
     FullySpecifiedType declTy = semantic()->check(ast->declarator, typeSpecTy.qualifiedType(),
                                                   _scope, &name);
     Declaration *decl = control()->newDeclaration(ast->declarator->firstToken(), name);
@@ -302,8 +302,7 @@ bool CheckExpression::visit(ThrowExpressionAST *ast)
 bool CheckExpression::visit(TypeIdAST *ast)
 {
     FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifier_list, _scope);
-    FullySpecifiedType declTy = semantic()->check(ast->declarator, typeSpecTy.qualifiedType(),
-                                                  _scope);
+    FullySpecifiedType declTy = semantic()->check(ast->declarator, typeSpecTy.qualifiedType(), _scope);
     _fullySpecifiedType = declTy;
     return false;
 }
@@ -316,7 +315,7 @@ bool CheckExpression::visit(UnaryExpressionAST *ast)
 
 bool CheckExpression::visit(QtMethodAST *ast)
 {
-    Name *name = 0;
+    const Name *name = 0;
     Scope dummy;
     FullySpecifiedType methTy = semantic()->check(ast->declarator, FullySpecifiedType(),
                                                   &dummy, &name);

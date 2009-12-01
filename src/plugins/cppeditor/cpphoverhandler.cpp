@@ -138,7 +138,7 @@ void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
     }
 }
 
-static QString buildHelpId(Symbol *symbol, Name *name)
+static QString buildHelpId(Symbol *symbol, const Name *name)
 {
     Scope *scope = 0;
 
@@ -161,13 +161,13 @@ static QString buildHelpId(Symbol *symbol, Name *name)
         Symbol *owner = scope->owner();
 
         if (owner && owner->name() && ! scope->isEnumScope()) {
-            Name *name = owner->name();
+            const Name *name = owner->name();
             const Identifier *id = 0;
 
-            if (NameId *nameId = name->asNameId())
+            if (const NameId *nameId = name->asNameId())
                 id = nameId->identifier();
 
-            else if (TemplateNameId *nameId = name->asTemplateNameId())
+            else if (const TemplateNameId *nameId = name->asTemplateNameId())
                 id = nameId->identifier();
 
             if (id)
@@ -182,7 +182,7 @@ static QString buildHelpId(Symbol *symbol, Name *name)
 static FullySpecifiedType resolve(const FullySpecifiedType &ty,
                                   const LookupContext &context,
                                   Symbol **resolvedSymbol,
-                                  Name **resolvedName)
+                                  const Name **resolvedName)
 {
     Control *control = context.control();
 
@@ -334,7 +334,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             Symbol *lookupSymbol = result.lastVisibleSymbol(); // lookup symbol
 
             Symbol *resolvedSymbol = lookupSymbol;
-            Name *resolvedName = lookupSymbol ? lookupSymbol->name() : 0;
+            const Name *resolvedName = lookupSymbol ? lookupSymbol->name() : 0;
             firstType = resolve(firstType, typeOfExpression.lookupContext(),
                                 &resolvedSymbol, &resolvedName);
 

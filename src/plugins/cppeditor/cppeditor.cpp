@@ -477,7 +477,7 @@ protected:
 
 class FindFunctionDefinitions: protected SymbolVisitor
 {
-    Name *_declarationName;
+    const Name *_declarationName;
     QList<Function *> *_functions;
 
 public:
@@ -486,7 +486,7 @@ public:
           _functions(0)
     { }
 
-    void operator()(Name *declarationName, Scope *globals,
+    void operator()(const Name *declarationName, Scope *globals,
                     QList<Function *> *functions)
     {
         _declarationName = declarationName;
@@ -502,8 +502,8 @@ protected:
 
     virtual bool visit(Function *function)
     {
-        Name *name = function->name();
-        if (QualifiedNameId *q = name->asQualifiedNameId())
+        const Name *name = function->name();
+        if (const QualifiedNameId *q = name->asQualifiedNameId())
             name = q->unqualifiedNameId();
 
         if (_declarationName->isEqualTo(name))
@@ -515,19 +515,19 @@ protected:
 
 } // end of anonymous namespace
 
-static QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &context)
+static const QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &context)
 {
-    Name *symbolName = s->name();
+    const Name *symbolName = s->name();
     if (! symbolName)
         return 0; // nothing to do.
 
-    QVector<Name *> names;
+    QVector<const Name *> names;
 
     for (Scope *scope = s->scope(); scope; scope = scope->enclosingScope()) {
         if (scope->isClassScope() || scope->isNamespaceScope()) {
             if (scope->owner() && scope->owner()->name()) {
-                Name *ownerName = scope->owner()->name();
-                if (QualifiedNameId *q = ownerName->asQualifiedNameId()) {
+                const Name *ownerName = scope->owner()->name();
+                if (const QualifiedNameId *q = ownerName->asQualifiedNameId()) {
                     for (unsigned i = 0; i < q->nameCount(); ++i) {
                         names.prepend(q->nameAt(i));
                     }
@@ -538,7 +538,7 @@ static QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext 
         }
     }
 
-    if (QualifiedNameId *q = symbolName->asQualifiedNameId()) {
+    if (const QualifiedNameId *q = symbolName->asQualifiedNameId()) {
         for (unsigned i = 0; i < q->nameCount(); ++i) {
             names.append(q->nameAt(i));
         }
@@ -1021,27 +1021,28 @@ void CPPEditor::updateUsesNow()
     semanticRehighlight();
 }
 
-static bool isCompatible(Name *name, Name *otherName)
+static bool isCompatible(const Name *name, const Name *otherName)
 {
-    if (NameId *nameId = name->asNameId()) {
-        if (TemplateNameId *otherTemplId = otherName->asTemplateNameId())
+    if (const NameId *nameId = name->asNameId()) {
+        if (const TemplateNameId *otherTemplId = otherName->asTemplateNameId())
             return nameId->identifier()->isEqualTo(otherTemplId->identifier());
-    } else if (TemplateNameId *templId = name->asTemplateNameId()) {
-        if (NameId *otherNameId = otherName->asNameId())
+    } else if (const TemplateNameId *templId = name->asTemplateNameId()) {
+        if (const NameId *otherNameId = otherName->asNameId())
             return templId->identifier()->isEqualTo(otherNameId->identifier());
     }
 
     return name->isEqualTo(otherName);
 }
 
-static bool isCompatible(Function *definition, Symbol *declaration, QualifiedNameId *declarationName)
+static bool isCompatible(Function *definition, Symbol *declaration,
+                         const QualifiedNameId *declarationName)
 {
     Function *declTy = declaration->type()->asFunctionType();
     if (! declTy)
         return false;
 
-    Name *definitionName = definition->name();
-    if (QualifiedNameId *q = definitionName->asQualifiedNameId()) {
+    const Name *definitionName = definition->name();
+    if (const QualifiedNameId *q = definitionName->asQualifiedNameId()) {
         if (! isCompatible(q->unqualifiedNameId(), declaration->name()))
             return false;
         else if (q->nameCount() > declarationName->nameCount())
@@ -1061,8 +1062,8 @@ static bool isCompatible(Function *definition, Symbol *declaration, QualifiedNam
         }
 
         for (unsigned i = 0; i != q->nameCount(); ++i) {
-            Name *n = q->nameAt(q->nameCount() - i - 1);
-            Name *m = declarationName->nameAt(declarationName->nameCount() - i - 1);
+            const Name *n = q->nameAt(q->nameCount() - i - 1);
+            const Name *m = declarationName->nameAt(declarationName->nameCount() - i - 1);
             if (! isCompatible(n, m))
                 return false;
         }
@@ -1105,7 +1106,7 @@ void CPPEditor::switchDeclarationDefinition()
         QList<LookupItem> resolvedSymbols = typeOfExpression(QString(), doc, lastSymbol);
         const LookupContext &context = typeOfExpression.lookupContext();
 
-        QualifiedNameId *q = qualifiedNameIdForSymbol(f, context);
+        const QualifiedNameId *q = qualifiedNameIdForSymbol(f, context);
         QList<Symbol *> symbols = context.resolve(q);
 
         Symbol *declaration = 0;
@@ -1278,11 +1279,11 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol)
     if (! funTy)
         return 0; // symbol does not have function type.
 
-    Name *name = symbol->name();
+    const Name *name = symbol->name();
     if (! name)
         return 0; // skip anonymous functions!
 
-    if (QualifiedNameId *q = name->asQualifiedNameId())
+    if (const QualifiedNameId *q = name->asQualifiedNameId())
         name = q->unqualifiedNameId();
 
     // map from file names to function definitions.

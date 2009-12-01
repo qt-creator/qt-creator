@@ -192,7 +192,7 @@ protected:
         return previousItem;
     }
 
-    TextEditor::CompletionItem newCompletionItem(Name *name)
+    TextEditor::CompletionItem newCompletionItem(const Name *name)
     {
         TextEditor::CompletionItem item(_collector);
         item.text = overview.prettyName(name);
@@ -200,25 +200,25 @@ protected:
         return item;
     }
 
-    virtual void visit(NameId *name)
+    virtual void visit(const NameId *name)
     { _item = newCompletionItem(name); }
 
-    virtual void visit(TemplateNameId *name)
+    virtual void visit(const TemplateNameId *name)
     {
         _item = newCompletionItem(name);
         _item.text = QLatin1String(name->identifier()->chars());
     }
 
-    virtual void visit(DestructorNameId *name)
+    virtual void visit(const DestructorNameId *name)
     { _item = newCompletionItem(name); }
 
-    virtual void visit(OperatorNameId *name)
+    virtual void visit(const OperatorNameId *name)
     { _item = newCompletionItem(name); }
 
-    virtual void visit(ConversionNameId *name)
+    virtual void visit(const ConversionNameId *name)
     { _item = newCompletionItem(name); }
 
-    virtual void visit(QualifiedNameId *name)
+    virtual void visit(const QualifiedNameId *name)
     { _item = newCompletionItem(name->unqualifiedNameId()); }
 };
 
@@ -890,13 +890,13 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
         FullySpecifiedType exprTy = result.type().simplified();
 
         if (Class *klass = exprTy->asClassType()) {
-            Name *className = klass->name();
+            const Name *className = klass->name();
             if (! className)
                 continue; // nothing to do for anonymoous classes.
 
             for (unsigned i = 0; i < klass->memberCount(); ++i) {
                 Symbol *member = klass->memberAt(i);
-                Name *memberName = member->name();
+                const Name *memberName = member->name();
 
                 if (! memberName)
                     continue; // skip anonymous member.
@@ -945,7 +945,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
     if (functions.isEmpty()) {
         ResolveExpression resolveExpression(context);
         ResolveClass resolveClass;
-        Name *functionCallOp = context.control()->operatorNameId(OperatorNameId::FunctionCallOp);
+        const Name *functionCallOp = context.control()->operatorNameId(OperatorNameId::FunctionCallOp);
 
         foreach (const LookupItem &result, results) {
             FullySpecifiedType ty = result.type().simplified();
@@ -1092,7 +1092,7 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
             classObjectCandidates.append(klass);
 
         else if (NamedType *namedTy = ty->asNamedType()) {
-            Name *className = namedTy->name();
+            const Name *className = namedTy->name();
             const QList<Symbol *> classes = resolveClass(className, r, context);
 
             foreach (Symbol *c, classes) {

@@ -251,8 +251,8 @@ static bool isCompatible(const Function *definition, const Symbol *declaration, 
     if (! declTy)
         return false;
 
-    Name *definitionName = definition->name();
-    if (QualifiedNameId *q = definitionName->asQualifiedNameId()) {
+    const Name *definitionName = definition->name();
+    if (const QualifiedNameId *q = definitionName->asQualifiedNameId()) {
         if (! isCompatible(q->unqualifiedNameId(), declaration->name()))
             return false;
         else if (q->nameCount() > declarationName->nameCount())
@@ -272,8 +272,8 @@ static bool isCompatible(const Function *definition, const Symbol *declaration, 
         }
 
         for (unsigned i = 0; i != q->nameCount(); ++i) {
-            Name *n = q->nameAt(q->nameCount() - i - 1);
-            Name *m = declarationName->nameAt(declarationName->nameCount() - i - 1);
+            const Name *n = q->nameAt(q->nameCount() - i - 1);
+            const Name *m = declarationName->nameAt(declarationName->nameCount() - i - 1);
             if (! isCompatible(n, m))
                 return false;
         }
@@ -291,13 +291,13 @@ static Document::Ptr findDefinition(const Function *functionDeclaration, int *li
     if (!cppModelManager)
         return Document::Ptr();
 
-    QVector<Name *> qualifiedName;
+    QVector<const Name *> qualifiedName;
     Scope *scope = functionDeclaration->scope();
     for (; scope; scope = scope->enclosingScope()) {
         if (scope->isClassScope() || scope->isNamespaceScope()) {
             if (scope->owner() && scope->owner()->name()) {
-                Name *scopeOwnerName = scope->owner()->name();
-                if (QualifiedNameId *q = scopeOwnerName->asQualifiedNameId()) {
+                const Name *scopeOwnerName = scope->owner()->name();
+                if (const QualifiedNameId *q = scopeOwnerName->asQualifiedNameId()) {
                     for (unsigned i = 0; i < q->nameCount(); ++i) {
                         qualifiedName.prepend(q->nameAt(i));
 
@@ -312,7 +312,7 @@ static Document::Ptr findDefinition(const Function *functionDeclaration, int *li
     qualifiedName.append(functionDeclaration->name());
 
     Control control;
-    QualifiedNameId *q = control.qualifiedNameId(&qualifiedName[0], qualifiedName.size());
+    const QualifiedNameId *q = control.qualifiedNameId(&qualifiedName[0], qualifiedName.size());
     LookupContext context(&control);
     const Snapshot documents = cppModelManager->snapshot();
     foreach (Document::Ptr doc, documents) {
@@ -321,13 +321,13 @@ static Document::Ptr findDefinition(const Function *functionDeclaration, int *li
         visibleScopes = context.expand(visibleScopes);
         foreach (Scope *visibleScope, visibleScopes) {
             Symbol *symbol = 0;
-            if (NameId *nameId = q->unqualifiedNameId()->asNameId())
+            if (const NameId *nameId = q->unqualifiedNameId()->asNameId())
                 symbol = visibleScope->lookat(nameId->identifier());
-            else if (DestructorNameId *dtorId = q->unqualifiedNameId()->asDestructorNameId())
+            else if (const DestructorNameId *dtorId = q->unqualifiedNameId()->asDestructorNameId())
                 symbol = visibleScope->lookat(dtorId->identifier());
-            else if (TemplateNameId *templNameId = q->unqualifiedNameId()->asTemplateNameId())
+            else if (const TemplateNameId *templNameId = q->unqualifiedNameId()->asTemplateNameId())
                 symbol = visibleScope->lookat(templNameId->identifier());
-            else if (OperatorNameId *opId = q->unqualifiedNameId()->asOperatorNameId())
+            else if (const OperatorNameId *opId = q->unqualifiedNameId()->asOperatorNameId())
                 symbol = visibleScope->lookat(opId->kind());
             // ### cast operators
             for (; symbol; symbol = symbol->next()) {

@@ -44,18 +44,18 @@ public:
     virtual ~NamePrettyPrinter();
 
     const Overview *overview() const;
-    QString operator()(Name *name);
+    QString operator()(const Name *name);
 
 protected:
     QString switchName(const QString &name = QString());
 
-    virtual void visit(NameId *name);
-    virtual void visit(TemplateNameId *name);
-    virtual void visit(DestructorNameId *name);
-    virtual void visit(OperatorNameId *name);
-    virtual void visit(ConversionNameId *name);
-    virtual void visit(QualifiedNameId *name);
-    virtual void visit(SelectorNameId *name);
+    virtual void visit(const NameId *name);
+    virtual void visit(const TemplateNameId *name);
+    virtual void visit(const DestructorNameId *name);
+    virtual void visit(const OperatorNameId *name);
+    virtual void visit(const ConversionNameId *name);
+    virtual void visit(const QualifiedNameId *name);
+    virtual void visit(const SelectorNameId *name);
 
 private:
     const Overview *_overview;

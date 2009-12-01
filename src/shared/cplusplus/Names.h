@@ -52,24 +52,22 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "Name.h"
 #include "FullySpecifiedType.h"
+#include <vector>
 
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT QualifiedNameId: public Name
 {
 public:
-    QualifiedNameId(Name *const names[],
-                    unsigned nameCount,
-                    bool isGlobal = false);
+    QualifiedNameId(const Name *const *names, unsigned nameCount, bool isGlobal = false);
     virtual ~QualifiedNameId();
 
     virtual const Identifier *identifier() const;
 
     unsigned nameCount() const;
-    Name *nameAt(unsigned index) const;
-    Name *const *names() const;
-    Name *unqualifiedNameId() const;
-
+    const Name *nameAt(unsigned index) const;
+    const Name *unqualifiedNameId() const;
+    const Name *const *names() const { return &_names[0]; } // ### remove me
     bool isGlobal() const;
 
     virtual bool isEqualTo(const Name *other) const;
@@ -77,15 +75,11 @@ public:
     virtual const QualifiedNameId *asQualifiedNameId() const
     { return this; }
 
-    virtual QualifiedNameId *asQualifiedNameId()
-    { return this; }
-
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
-    Name **_names;
-    unsigned _nameCount;
+    std::vector<const Name *> _names;
     bool _isGlobal;
 };
 
@@ -102,11 +96,8 @@ public:
     virtual const NameId *asNameId() const
     { return this; }
 
-    virtual NameId *asNameId()
-    { return this; }
-
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
     const Identifier *_identifier;
@@ -125,11 +116,8 @@ public:
     virtual const DestructorNameId *asDestructorNameId() const
     { return this; }
 
-    virtual DestructorNameId *asDestructorNameId()
-    { return this; }
-
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
     const Identifier *_identifier;
@@ -148,23 +136,18 @@ public:
     // ### find a better name
     unsigned templateArgumentCount() const;
     const FullySpecifiedType &templateArgumentAt(unsigned index) const;
-    const FullySpecifiedType *templateArguments() const;
 
     virtual bool isEqualTo(const Name *other) const;
 
     virtual const TemplateNameId *asTemplateNameId() const
     { return this; }
 
-    virtual TemplateNameId *asTemplateNameId()
-    { return this; }
-
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
     const Identifier *_identifier;
-    FullySpecifiedType *_templateArguments;
-    unsigned _templateArgumentCount;
+    std::vector<FullySpecifiedType> _templateArguments;
 };
 
 class CPLUSPLUS_EXPORT OperatorNameId: public Name
@@ -236,11 +219,8 @@ public:
     virtual const OperatorNameId *asOperatorNameId() const
     { return this; }
 
-    virtual OperatorNameId *asOperatorNameId()
-    { return this; }
-
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
     int _kind;
@@ -260,11 +240,8 @@ public:
     virtual const ConversionNameId *asConversionNameId() const
     { return this; }
 
-    virtual ConversionNameId *asConversionNameId()
-    { return this; }
-
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
     FullySpecifiedType _type;
@@ -273,17 +250,13 @@ private:
 class CPLUSPLUS_EXPORT SelectorNameId: public Name
 {
 public:
-    SelectorNameId(Name *const names[],
-                   unsigned nameCount,
-                   bool hasArguments);
+    SelectorNameId(const Name *const *names, unsigned nameCount, bool hasArguments);
     virtual ~SelectorNameId();
 
     virtual const Identifier *identifier() const;
 
     unsigned nameCount() const;
-    Name *nameAt(unsigned index) const;
-    Name *const *names() const;
-
+    const Name *nameAt(unsigned index) const;
     bool hasArguments() const;
 
     virtual bool isEqualTo(const Name *other) const;
@@ -291,15 +264,11 @@ public:
     virtual const SelectorNameId *asSelectorNameId() const
     { return this; }
 
-    virtual SelectorNameId *asSelectorNameId()
-    { return this; }
-
 protected:
-    virtual void accept0(NameVisitor *visitor);
+    virtual void accept0(NameVisitor *visitor) const;
 
 private:
-    Name **_names;
-    unsigned _nameCount;
+    std::vector<const Name *> _names;
     bool _hasArguments;
 };
 

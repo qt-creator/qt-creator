@@ -54,51 +54,42 @@
 
 using namespace CPlusPlus;
 
-QualifiedNameId::QualifiedNameId(Name *const names[],
+QualifiedNameId::QualifiedNameId(const Name *const *names,
                                  unsigned nameCount,
                                  bool isGlobal)
-    : _names(0),
-      _nameCount(nameCount),
+    : _names(names, names + nameCount),
       _isGlobal(isGlobal)
-{
-    if (_nameCount) {
-        _names = new Name *[_nameCount];
-        std::copy(&names[0], &names[nameCount], _names);
-    }
-}
+{ }
 
 QualifiedNameId::~QualifiedNameId()
-{ delete[] _names; }
+{ }
 
-void QualifiedNameId::accept0(NameVisitor *visitor)
+void QualifiedNameId::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }
 
 const Identifier *QualifiedNameId::identifier() const
 {
-    if (Name *u = unqualifiedNameId())
+    if (const Name *u = unqualifiedNameId())
         return u->identifier();
 
     return 0;
 }
 
 unsigned QualifiedNameId::nameCount() const
-{ return _nameCount; }
+{ return _names.size(); }
 
-Name *QualifiedNameId::nameAt(unsigned index) const
+const Name *QualifiedNameId::nameAt(unsigned index) const
 { return _names[index]; }
-
-Name *const *QualifiedNameId::names() const
-{ return _names; }
 
 bool QualifiedNameId::isGlobal() const
 { return _isGlobal; }
 
-Name *QualifiedNameId::unqualifiedNameId() const
+const Name *QualifiedNameId::unqualifiedNameId() const
 {
-    if (! _nameCount)
+    if (_names.empty())
         return 0;
 
-    return _names[_nameCount - 1];
+    return _names.back();
 }
 
 bool QualifiedNameId::isEqualTo(const Name *other) const
@@ -113,8 +104,8 @@ bool QualifiedNameId::isEqualTo(const Name *other) const
         if (count != q->nameCount())
             return false;
         for (unsigned i = 0; i < count; ++i) {
-            Name *l = nameAt(i);
-            Name *r = q->nameAt(i);
+            const Name *l = nameAt(i);
+            const Name *r = q->nameAt(i);
             if (! l->isEqualTo(r))
                 return false;
         }
@@ -129,7 +120,7 @@ NameId::NameId(const Identifier *identifier)
 NameId::~NameId()
 { }
 
-void NameId::accept0(NameVisitor *visitor)
+void NameId::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }
 
 const Identifier *NameId::identifier() const
@@ -152,7 +143,7 @@ DestructorNameId::DestructorNameId(const Identifier *identifier)
 DestructorNameId::~DestructorNameId()
 { }
 
-void DestructorNameId::accept0(NameVisitor *visitor)
+void DestructorNameId::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }
 
 const Identifier *DestructorNameId::identifier() const
@@ -169,36 +160,26 @@ bool DestructorNameId::isEqualTo(const Name *other) const
 }
 
 TemplateNameId::TemplateNameId(const Identifier *identifier,
-        const FullySpecifiedType templateArguments[],
-        unsigned templateArgumentCount)
+                               const FullySpecifiedType templateArguments[],
+                               unsigned templateArgumentCount)
     : _identifier(identifier),
-      _templateArguments(0),
-      _templateArgumentCount(templateArgumentCount)
-{
-    if (_templateArgumentCount) {
-        _templateArguments = new FullySpecifiedType[_templateArgumentCount];
-        std::copy(&templateArguments[0], &templateArguments[_templateArgumentCount],
-                  _templateArguments);
-    }
-}
+      _templateArguments(templateArguments, templateArguments + templateArgumentCount)
+{ }
 
 TemplateNameId::~TemplateNameId()
-{ delete[] _templateArguments; }
+{ }
 
-void TemplateNameId::accept0(NameVisitor *visitor)
+void TemplateNameId::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }
 
 const Identifier *TemplateNameId::identifier() const
 { return _identifier; }
 
 unsigned TemplateNameId::templateArgumentCount() const
-{ return _templateArgumentCount; }
+{ return _templateArguments.size(); }
 
 const FullySpecifiedType &TemplateNameId::templateArgumentAt(unsigned index) const
 { return _templateArguments[index]; }
-
-const FullySpecifiedType *TemplateNameId::templateArguments() const
-{ return _templateArguments; }
 
 bool TemplateNameId::isEqualTo(const Name *other) const
 {
@@ -209,9 +190,9 @@ bool TemplateNameId::isEqualTo(const Name *other) const
     const Identifier *r = t->identifier();
     if (! l->isEqualTo(r))
         return false;
-    if (_templateArgumentCount != t->_templateArgumentCount)
+    if (templateArgumentCount() != t->templateArgumentCount())
         return false;
-    for (unsigned i = 0; i < _templateArgumentCount; ++i) {
+    for (unsigned i = 0; i < templateArgumentCount(); ++i) {
         const FullySpecifiedType &l = _templateArguments[i];
         const FullySpecifiedType &r = t->_templateArguments[i];
         if (! l.isEqualTo(r))
@@ -227,7 +208,7 @@ OperatorNameId::OperatorNameId(int kind)
 OperatorNameId::~OperatorNameId()
 { }
 
-void OperatorNameId::accept0(NameVisitor *visitor)
+void OperatorNameId::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }
 
 int OperatorNameId::kind() const
@@ -251,7 +232,7 @@ ConversionNameId::ConversionNameId(const FullySpecifiedType &type)
 ConversionNameId::~ConversionNameId()
 { }
 
-void ConversionNameId::accept0(NameVisitor *visitor)
+void ConversionNameId::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }
 
 FullySpecifiedType ConversionNameId::type() const
@@ -268,41 +249,32 @@ bool ConversionNameId::isEqualTo(const Name *other) const
     return _type.isEqualTo(c->type());
 }
 
-SelectorNameId::SelectorNameId(Name *const names[],
+SelectorNameId::SelectorNameId(const Name *const *names,
                                unsigned nameCount,
                                bool hasArguments)
-    : _names(0),
-      _nameCount(nameCount),
+    : _names(names, names + nameCount),
       _hasArguments(hasArguments)
-{
-    if (_nameCount) {
-        _names = new Name *[_nameCount];
-        std::copy(&names[0], &names[nameCount], _names);
-    }
-}
+{ }
 
 SelectorNameId::~SelectorNameId()
-{ delete[] _names; }
+{ }
 
-void SelectorNameId::accept0(NameVisitor *visitor)
+void SelectorNameId::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }
 
 const Identifier *SelectorNameId::identifier() const
 {
-    if (! _nameCount)
+    if (_names.empty())
         return 0;
 
     return nameAt(0)->identifier();
 }
 
 unsigned SelectorNameId::nameCount() const
-{ return _nameCount; }
+{ return _names.size(); }
 
-Name *SelectorNameId::nameAt(unsigned index) const
+const Name *SelectorNameId::nameAt(unsigned index) const
 { return _names[index]; }
-
-Name *const *SelectorNameId::names() const
-{ return _names; }
 
 bool SelectorNameId::hasArguments() const
 { return _hasArguments; }
@@ -319,8 +291,8 @@ bool SelectorNameId::isEqualTo(const Name *other) const
         if (count != q->nameCount())
             return false;
         for (unsigned i = 0; i < count; ++i) {
-            Name *l = nameAt(i);
-            Name *r = q->nameAt(i);
+            const Name *l = nameAt(i);
+            const Name *r = q->nameAt(i);
             if (! l->isEqualTo(r))
                 return false;
         }

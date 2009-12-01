@@ -81,7 +81,7 @@ public:
 
 public:
     /// Constructs a Symbol with the given source location, name and translation unit.
-    Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name);
+    Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
 
     /// Destroy this Symbol.
     virtual ~Symbol();
@@ -121,10 +121,10 @@ public:
     void getEndPosition(unsigned *line, unsigned *column = 0, const StringLiteral **fileId = 0) const;
 
     /// Returns this Symbol's name.
-    Name *name() const;
+    const Name *name() const;
 
     /// Sets this Symbol's name.
-    void setName(Name *name); // ### dangerous
+    void setName(const Name *name); // ### dangerous
 
     /// Returns this Symbol's (optional) identifier
     const Identifier *identifier() const;
@@ -282,7 +282,7 @@ public:
     /// Returns this Symbol's index.
     unsigned index() const;
 
-    Name *identity() const;
+    const Name *identity() const;
 
     bool isGenerated() const;
 
@@ -320,7 +320,7 @@ private:
     unsigned _sourceOffset;
     unsigned _startOffset;
     unsigned _endOffset;
-    Name *_name;
+    const Name *_name;
     unsigned _hashCode;
     int _storage;
     int _visibility;

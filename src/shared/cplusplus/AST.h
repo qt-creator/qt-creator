@@ -303,7 +303,7 @@ public:
 class CPLUSPLUS_EXPORT NameAST: public ExpressionAST
 {
 public: // annotations
-    Name *name;
+    const Name *name;
 
 public:
     virtual NameAST *asName() { return this; }
@@ -342,7 +342,7 @@ public:
 class CPLUSPLUS_EXPORT ObjCSelectorAST: public AST
 {
 public: // annotation
-    Name *selector_name;
+    const Name *selector_name;
 
 public:
     virtual ObjCSelectorAST *asObjCSelector() { return this; }

@@ -154,7 +154,7 @@ bool CheckStatement::visit(ForeachStatementAST *ast)
     Scope *previousScope = switchScope(block->members());
     if (ast->type_specifier_list && ast->declarator) {
         FullySpecifiedType ty = semantic()->check(ast->type_specifier_list, _scope);
-        Name *name = 0;
+        const Name *name = 0;
         ty = semantic()->check(ast->declarator, ty, _scope, &name);
         unsigned location = ast->declarator->firstToken();
         if (CoreDeclaratorAST *core_declarator = ast->declarator->core_declarator)
@@ -183,7 +183,7 @@ bool CheckStatement::visit(ObjCFastEnumerationAST *ast)
     Scope *previousScope = switchScope(block->members());
     if (ast->type_specifier_list && ast->declarator) {
         FullySpecifiedType ty = semantic()->check(ast->type_specifier_list, _scope);
-        Name *name = 0;
+        const Name *name = 0;
         ty = semantic()->check(ast->declarator, ty, _scope, &name);
         unsigned location = ast->declarator->firstToken();
         if (CoreDeclaratorAST *core_declarator = ast->declarator->core_declarator)
@@ -312,7 +312,7 @@ bool CheckStatement::visit(WhileStatementAST *ast)
 
 bool CheckStatement::visit(QtMemberDeclarationAST *ast)
 {
-    Name *name = 0;
+    const Name *name = 0;
 
     if (tokenKind(ast->q_token) == T_Q_D)
         name = control()->nameId(control()->findOrInsertIdentifier("d"));
@@ -323,12 +323,13 @@ bool CheckStatement::visit(QtMemberDeclarationAST *ast)
 
     if (tokenKind(ast->q_token) == T_Q_D) {
         if (NamedType *namedTy = declTy->asNamedType()) {
-            if (NameId *nameId = namedTy->name()->asNameId()) {
+            if (const NameId *nameId = namedTy->name()->asNameId()) {
                 std::string privateClass;
                 privateClass += nameId->identifier()->chars();
                 privateClass += "Private";
                 
-                Name *privName = control()->nameId(control()->findOrInsertIdentifier(privateClass.c_str(), privateClass.size()));
+                const Name *privName = control()->nameId(control()->findOrInsertIdentifier(privateClass.c_str(),
+                                                                                           privateClass.size()));
                 declTy.setType(control()->namedType(privName));
             }
         }

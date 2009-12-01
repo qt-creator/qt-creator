@@ -122,7 +122,7 @@ bool CheckUndefinedSymbols::isType(const Identifier *id) const
     return isType(QByteArray::fromRawData(id->chars(), id->size()));
 }
 
-void CheckUndefinedSymbols::addType(Name *name)
+void CheckUndefinedSymbols::addType(const Name *name)
 {
     if (! name)
         return;
@@ -131,7 +131,7 @@ void CheckUndefinedSymbols::addType(Name *name)
         _types.insert(QByteArray(id->chars(), id->size()));
 }
 
-void CheckUndefinedSymbols::addProtocol(Name *name)
+void CheckUndefinedSymbols::addProtocol(const Name *name)
 {
     if (!name)
         return;
@@ -294,7 +294,7 @@ bool CheckUndefinedSymbols::visit(ClassSpecifierAST *ast)
             Symbol *symbol = klass->memberAt(i);
 
             if (symbol->name() && symbol->name()->isNameId()) {
-                NameId *nameId = symbol->name()->asNameId();
+                const NameId *nameId = symbol->name()->asNameId();
 
                 if (! qstrcmp(nameId->identifier()->chars(), "qt_check_for_QOBJECT_macro")) {
                     hasQ_OBJECT_CHECK = true;
@@ -367,7 +367,7 @@ bool CheckUndefinedSymbols::visit(BaseSpecifierAST *base)
     if (NameAST *nameAST = base->name) {
         bool resolvedBaseClassName = false;
 
-        if (Name *name = nameAST->name) {
+        if (const Name *name = nameAST->name) {
             const Identifier *id = name->identifier();
             const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
             if (isType(spell))
@@ -403,9 +403,9 @@ bool CheckUndefinedSymbols::visit(UsingDirectiveAST *ast)
 bool CheckUndefinedSymbols::visit(QualifiedNameAST *ast)
 {
     if (ast->name) {
-        QualifiedNameId *q = ast->name->asQualifiedNameId();
+        const QualifiedNameId *q = ast->name->asQualifiedNameId();
         for (unsigned i = 0; i < q->nameCount() - 1; ++i) {
-            Name *name = q->nameAt(i);
+            const Name *name = q->nameAt(i);
             if (const Identifier *id = name->identifier()) {
                 const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
                 if (! (_namespaceNames.contains(spell) || isType(id))) {
@@ -474,7 +474,7 @@ bool CheckUndefinedSymbols::visit(ObjCClassDeclarationAST *ast)
     if (NameAST *nameAST = ast->superclass) {
         bool resolvedSuperClassName = false;
 
-        if (Name *name = nameAST->name) {
+        if (const Name *name = nameAST->name) {
             const Identifier *id = name->identifier();
             const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
             if (isType(spell))
@@ -496,7 +496,7 @@ bool CheckUndefinedSymbols::visit(ObjCProtocolRefsAST *ast)
         if (NameAST *nameAST = iter->value) {
             bool resolvedProtocolName = false;
 
-            if (Name *name = nameAST->name) {
+            if (const Name *name = nameAST->name) {
                 const Identifier *id = name->identifier();
                 const QByteArray spell = QByteArray::fromRawData(id->chars(), id->size());
                 if (isProtocol(spell))

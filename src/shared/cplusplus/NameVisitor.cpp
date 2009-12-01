@@ -57,7 +57,5 @@ NameVisitor::NameVisitor()
 NameVisitor::~NameVisitor()
 { }
 
-void NameVisitor::accept(Name *name)
+void NameVisitor::accept(const Name *name)
 { Name::accept(name, this); }
-
-

@@ -70,7 +70,7 @@ public:
     virtual ~HashCode()
     { }
 
-    unsigned operator()(Name *name)
+    unsigned operator()(const Name *name)
     {
         unsigned previousValue = switchValue(0);
         accept(name);
@@ -85,25 +85,25 @@ protected:
         return previousValue;
     }
 
-    virtual void visit(NameId *name)
+    virtual void visit(const NameId *name)
     { _value = name->identifier()->hashCode(); }
 
-    virtual void visit(TemplateNameId *name)
+    virtual void visit(const TemplateNameId *name)
     { _value = name->identifier()->hashCode(); }
 
-    virtual void visit(DestructorNameId *name)
+    virtual void visit(const DestructorNameId *name)
     { _value = name->identifier()->hashCode(); }
 
-    virtual void visit(OperatorNameId *name)
+    virtual void visit(const OperatorNameId *name)
     { _value = unsigned(name->kind()); }
 
-    virtual void visit(ConversionNameId *)
+    virtual void visit(const ConversionNameId *)
     { _value = 0; } // ### TODO: implement me
 
-    virtual void visit(QualifiedNameId *name)
+    virtual void visit(const QualifiedNameId *name)
     { _value = operator()(name->unqualifiedNameId()); }
 
-    virtual void visit(SelectorNameId *name)
+    virtual void visit(const SelectorNameId *name)
     { _value = name->identifier()->hashCode(); }
 
 private:
@@ -120,47 +120,47 @@ public:
     virtual ~IdentityForName()
     { }
 
-    Name *operator()(Name *name)
+    const Name *operator()(const Name *name)
     {
-        Name *previousIdentity = switchIdentity(0);
+        const Name *previousIdentity = switchIdentity(0);
         accept(name);
         return switchIdentity(previousIdentity);
     }
 
 protected:
-    Name *switchIdentity(Name *identity)
+    const Name *switchIdentity(const Name *identity)
     {
-        Name *previousIdentity = _identity;
+        const Name *previousIdentity = _identity;
         _identity = identity;
         return previousIdentity;
     }
 
-    virtual void visit(NameId *name)
+    virtual void visit(const NameId *name)
     { _identity = name; }
 
-    virtual void visit(TemplateNameId *name)
+    virtual void visit(const TemplateNameId *name)
     { _identity = name; }
 
-    virtual void visit(DestructorNameId *name)
+    virtual void visit(const DestructorNameId *name)
     { _identity = name; }
 
-    virtual void visit(OperatorNameId *name)
+    virtual void visit(const OperatorNameId *name)
     { _identity = name; }
 
-    virtual void visit(ConversionNameId *name)
+    virtual void visit(const ConversionNameId *name)
     { _identity = name; }
 
-    virtual void visit(QualifiedNameId *name)
+    virtual void visit(const QualifiedNameId *name)
     { _identity = name->unqualifiedNameId(); }
 
-    virtual void visit(SelectorNameId *name)
+    virtual void visit(const SelectorNameId *name)
     { _identity = name; }
 
 private:
-    Name *_identity;
+    const Name *_identity;
 };
 
-Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, Name *name)
+Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : _control(translationUnit->control()),
       _sourceLocation(sourceLocation),
       _sourceOffset(0),
@@ -280,16 +280,16 @@ unsigned Symbol::endOffset() const
 void Symbol::setEndOffset(unsigned offset)
 { _endOffset = offset; }
 
-Name *Symbol::identity() const
+const Name *Symbol::identity() const
 {
     IdentityForName id;
     return id(_name);
 }
 
-Name *Symbol::name() const
+const Name *Symbol::name() const
 { return _name; }
 
-void Symbol::setName(Name *name)
+void Symbol::setName(const Name *name)
 {
     _name = name;
 

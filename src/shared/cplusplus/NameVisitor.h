@@ -63,18 +63,18 @@ public:
     NameVisitor();
     virtual ~NameVisitor();
 
-    void accept(Name *name);
+    void accept(const Name *name);
 
-    virtual bool preVisit(Name *) { return true; }
-    virtual void postVisit(Name *) {}
+    virtual bool preVisit(const Name *) { return true; }
+    virtual void postVisit(const Name *) {}
 
-    virtual void visit(NameId *) {}
-    virtual void visit(TemplateNameId *) {}
-    virtual void visit(DestructorNameId *) {}
-    virtual void visit(OperatorNameId *) {}
-    virtual void visit(ConversionNameId *) {}
-    virtual void visit(QualifiedNameId *) {}
-    virtual void visit(SelectorNameId *) {}
+    virtual void visit(const NameId *) {}
+    virtual void visit(const TemplateNameId *) {}
+    virtual void visit(const DestructorNameId *) {}
+    virtual void visit(const OperatorNameId *) {}
+    virtual void visit(const ConversionNameId *) {}
+    virtual void visit(const QualifiedNameId *) {}
+    virtual void visit(const SelectorNameId *) {}
 };
 
 } // end of namespace CPlusPlus

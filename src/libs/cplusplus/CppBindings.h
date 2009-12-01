@@ -84,7 +84,7 @@ public:
     virtual NamespaceBinding *asNamespaceBinding() { return 0; }
     virtual ClassBinding *asClassBinding() { return 0; }
 
-    virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed) = 0;
+    virtual ClassBinding *findClassBinding(const Name *name, QSet<Binding *> *processed) = 0;
     virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed) = 0;
 };
 
@@ -98,7 +98,7 @@ public:
     virtual ~NamespaceBinding();
 
     /// Returns this binding's name.
-    NameId *name() const;
+    const NameId *name() const;
 
     /// Returns this binding's identifier.
     const Identifier *identifier() const;
@@ -107,16 +107,16 @@ public:
     NamespaceBinding *globalNamespaceBinding();
 
     /// Returns the binding for the given namespace symbol.
-    NamespaceBinding *findNamespaceBinding(Name *name);
+    NamespaceBinding *findNamespaceBinding(const Name *name);
 
     /// Returns the binding associated with the given symbol.
     NamespaceBinding *findOrCreateNamespaceBinding(Namespace *symbol);
 
     NamespaceBinding *resolveNamespace(const Location &loc,
-                                       Name *name,
+                                       const Name *name,
                                        bool lookAtParent = true);
 
-    virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed);
+    virtual ClassBinding *findClassBinding(const Name *name, QSet<Binding *> *processed);
     virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed);
 
     /// Helpers.
@@ -129,10 +129,10 @@ public:
     static ClassBinding *find(Class *symbol, NamespaceBinding *binding);
 
 private:
-    NamespaceBinding *findNamespaceBindingForNameId(NameId *name,
+    NamespaceBinding *findNamespaceBindingForNameId(const NameId *name,
                                                     bool lookAtParentNamespace);
 
-    NamespaceBinding *findNamespaceBindingForNameId_helper(NameId *name,
+    NamespaceBinding *findNamespaceBindingForNameId_helper(const NameId *name,
                                                            bool lookAtParentNamespace,
                                                            QSet<NamespaceBinding *> *processed);
 
@@ -165,13 +165,13 @@ public:
     virtual ClassBinding *asClassBinding() { return this; }
 
     /// Returns this binding's name.
-    Name *name() const;
+    const Name *name() const;
 
     /// Returns this binding's identifier.
     const Identifier *identifier() const;
     virtual QByteArray qualifiedId() const;
 
-    virtual ClassBinding *findClassBinding(Name *name, QSet<Binding *> *processed);
+    virtual ClassBinding *findClassBinding(const Name *name, QSet<Binding *> *processed);
     virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed);
 
     void dump();

@@ -94,22 +94,22 @@ public:
     static Symbol *canonicalSymbol(const QList<LookupItem> &candidates,
                                    NamespaceBinding *globalNamespaceBinding);
 
-    QList<Symbol *> resolve(Name *name) const
+    QList<Symbol *> resolve(const Name *name) const
     { return resolve(name, visibleScopes()); }
 
-    QList<Symbol *> resolveNamespace(Name *name) const
+    QList<Symbol *> resolveNamespace(const Name *name) const
     { return resolveNamespace(name, visibleScopes()); }
 
-    QList<Symbol *> resolveClass(Name *name) const
+    QList<Symbol *> resolveClass(const Name *name) const
     { return resolveClass(name, visibleScopes()); }
 
-    QList<Symbol *> resolveClassOrNamespace(Name *name) const
+    QList<Symbol *> resolveClassOrNamespace(const Name *name) const
     { return resolveClassOrNamespace(name, visibleScopes()); }
 
-    QList<Symbol *> resolveObjCClass(Name *name) const
+    QList<Symbol *> resolveObjCClass(const Name *name) const
     { return resolveObjCClass(name, visibleScopes()); }
 
-    QList<Symbol *> resolveObjCProtocol(Name *name) const
+    QList<Symbol *> resolveObjCProtocol(const Name *name) const
     { return resolveObjCProtocol(name, visibleScopes()); }
 
     enum ResolveMode {
@@ -122,22 +122,22 @@ public:
         ResolveAll              = ResolveSymbol | ResolveClassOrNamespace | ResolveObjCClass | ResolveObjCProtocol
     };
 
-    QList<Symbol *> resolve(Name *name, const QList<Scope *> &visibleScopes,
+    QList<Symbol *> resolve(const Name *name, const QList<Scope *> &visibleScopes,
                             ResolveMode mode = ResolveAll) const;
 
-    QList<Symbol *> resolveNamespace(Name *name, const QList<Scope *> &visibleScopes) const
+    QList<Symbol *> resolveNamespace(const Name *name, const QList<Scope *> &visibleScopes) const
     { return resolve(name, visibleScopes, ResolveNamespace); }
 
-    QList<Symbol *> resolveClass(Name *name, const QList<Scope *> &visibleScopes) const
+    QList<Symbol *> resolveClass(const Name *name, const QList<Scope *> &visibleScopes) const
     { return resolve(name, visibleScopes, ResolveClass); }
 
-    QList<Symbol *> resolveClassOrNamespace(Name *name, const QList<Scope *> &visibleScopes) const
+    QList<Symbol *> resolveClassOrNamespace(const Name *name, const QList<Scope *> &visibleScopes) const
     { return resolve(name, visibleScopes, ResolveClassOrNamespace); }
 
-    QList<Symbol *> resolveObjCClass(Name *name, const QList<Scope *> &visibleScopes) const
+    QList<Symbol *> resolveObjCClass(const Name *name, const QList<Scope *> &visibleScopes) const
     { return resolve(name, visibleScopes, ResolveObjCClass); }
 
-    QList<Symbol *> resolveObjCProtocol(Name *name, const QList<Scope *> &visibleScopes) const
+    QList<Symbol *> resolveObjCProtocol(const Name *name, const QList<Scope *> &visibleScopes) const
     { return resolve(name, visibleScopes, ResolveObjCProtocol); }
 
     QList<Scope *> visibleScopes() const
@@ -187,15 +187,15 @@ public:
 private:
     static Symbol *canonicalSymbol(Symbol *symbol);
 
-    QList<Symbol *> resolveQualifiedNameId(QualifiedNameId *q,
+    QList<Symbol *> resolveQualifiedNameId(const QualifiedNameId *q,
                                            const QList<Scope *> &visibleScopes,
                                            ResolveMode mode) const;
 
-    QList<Symbol *> resolveOperatorNameId(OperatorNameId *opId,
+    QList<Symbol *> resolveOperatorNameId(const OperatorNameId *opId,
                                           const QList<Scope *> &visibleScopes,
                                           ResolveMode mode) const;
 
-    QList<Scope *> resolveNestedNameSpecifier(QualifiedNameId *q,
+    QList<Scope *> resolveNestedNameSpecifier(const QualifiedNameId *q,
                                                const QList<Scope *> &visibleScopes) const;
 
     const Identifier *identifier(const Name *name) const;

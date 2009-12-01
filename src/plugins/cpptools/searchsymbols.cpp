@@ -95,8 +95,8 @@ bool SearchSymbols::visit(Function *symbol)
         return false;
 
     QString extraScope;
-    if (Name *name = symbol->name()) {
-        if (QualifiedNameId *nameId = name->asQualifiedNameId()) {
+    if (const Name *name = symbol->name()) {
+        if (const QualifiedNameId *nameId = name->asQualifiedNameId()) {
             if (nameId->nameCount() > 1) {
                 extraScope = overview.prettyName(nameId->nameAt(nameId->nameCount() - 2));
             }

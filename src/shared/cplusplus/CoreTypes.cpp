@@ -90,7 +90,7 @@ bool VoidType::matchType0(const Type *otherType, TypeMatcher *matcher) const
     return false;
 }
 
-PointerToMemberType::PointerToMemberType(Name *memberName, const FullySpecifiedType &elementType)
+PointerToMemberType::PointerToMemberType(const Name *memberName, const FullySpecifiedType &elementType)
     : _memberName(memberName),
       _elementType(elementType)
 { }
@@ -98,7 +98,7 @@ PointerToMemberType::PointerToMemberType(Name *memberName, const FullySpecifiedT
 PointerToMemberType::~PointerToMemberType()
 { }
 
-Name *PointerToMemberType::memberName() const
+const Name *PointerToMemberType::memberName() const
 { return _memberName; }
 
 FullySpecifiedType PointerToMemberType::elementType() const
@@ -275,14 +275,14 @@ FullySpecifiedType ArrayType::elementType() const
 unsigned ArrayType::size() const
 { return _size; }
 
-NamedType::NamedType(Name *name)
+NamedType::NamedType(const Name *name)
     : _name(name)
 { }
 
 NamedType::~NamedType()
 { }
 
-Name *NamedType::name() const
+const Name *NamedType::name() const
 { return _name; }
 
 bool NamedType::isEqualTo(const Type *other) const
@@ -291,12 +291,12 @@ bool NamedType::isEqualTo(const Type *other) const
     if (! o)
         return false;
 
-    Name *name = _name;
-    if (QualifiedNameId *q = name->asQualifiedNameId())
+    const Name *name = _name;
+    if (const QualifiedNameId *q = name->asQualifiedNameId())
         name = q->unqualifiedNameId();
 
-    Name *otherName = o->name();
-    if (QualifiedNameId *q = otherName->asQualifiedNameId())
+    const Name *otherName = o->name();
+    if (const QualifiedNameId *q = otherName->asQualifiedNameId())
         otherName = q->unqualifiedNameId();
 
     return name->isEqualTo(otherName);

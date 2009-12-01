@@ -184,79 +184,78 @@ public:
         delete_array_entries(symbols);
     }
 
-    NameId *findOrInsertNameId(const Identifier *id)
+    const NameId *findOrInsertNameId(const Identifier *id)
     {
         if (! id)
             return 0;
-        std::map<const Identifier *, NameId *>::iterator it = nameIds.lower_bound(id);
+        std::map<const Identifier *, const NameId *>::iterator it = nameIds.lower_bound(id);
         if (it == nameIds.end() || it->first != id)
             it = nameIds.insert(it, std::make_pair(id, new NameId(id)));
         return it->second;
     }
 
-    TemplateNameId *findOrInsertTemplateNameId(const Identifier *id,
-        const std::vector<FullySpecifiedType> &templateArguments)
+    const TemplateNameId *findOrInsertTemplateNameId(const Identifier *id,
+                                                     const std::vector<FullySpecifiedType> &templateArguments)
     {
         if (! id)
             return 0;
         const TemplateNameIdKey key(id, templateArguments);
-        std::map<TemplateNameIdKey, TemplateNameId *>::iterator it =
+        std::map<TemplateNameIdKey, const TemplateNameId *>::iterator it =
                 templateNameIds.lower_bound(key);
         if (it == templateNameIds.end() || it->first != key) {
             const FullySpecifiedType *args = 0;
             if (templateArguments.size())
                 args = &templateArguments[0];
-            TemplateNameId *templ = new TemplateNameId(id, args,
-                                                       templateArguments.size());
+            const TemplateNameId *templ = new TemplateNameId(id, args, templateArguments.size());
             it = templateNameIds.insert(it, std::make_pair(key, templ));
         }
         return it->second;
     }
 
-    DestructorNameId *findOrInsertDestructorNameId(const Identifier *id)
+    const DestructorNameId *findOrInsertDestructorNameId(const Identifier *id)
     {
         if (! id)
             return 0;
-        std::map<const Identifier *, DestructorNameId *>::iterator it = destructorNameIds.lower_bound(id);
+        std::map<const Identifier *, const DestructorNameId *>::iterator it = destructorNameIds.lower_bound(id);
         if (it == destructorNameIds.end() || it->first != id)
             it = destructorNameIds.insert(it, std::make_pair(id, new DestructorNameId(id)));
         return it->second;
     }
 
-    OperatorNameId *findOrInsertOperatorNameId(int kind)
+    const OperatorNameId *findOrInsertOperatorNameId(int kind)
     {
         const int key(kind);
-        std::map<int, OperatorNameId *>::iterator it = operatorNameIds.lower_bound(key);
+        std::map<int, const OperatorNameId *>::iterator it = operatorNameIds.lower_bound(key);
         if (it == operatorNameIds.end() || it->first != key)
             it = operatorNameIds.insert(it, std::make_pair(key, new OperatorNameId(kind)));
         return it->second;
     }
 
-    ConversionNameId *findOrInsertConversionNameId(const FullySpecifiedType &type)
+    const ConversionNameId *findOrInsertConversionNameId(const FullySpecifiedType &type)
     {
-        std::map<FullySpecifiedType, ConversionNameId *>::iterator it =
+        std::map<FullySpecifiedType, const ConversionNameId *>::iterator it =
                 conversionNameIds.lower_bound(type);
         if (it == conversionNameIds.end() || it->first != type)
             it = conversionNameIds.insert(it, std::make_pair(type, new ConversionNameId(type)));
         return it->second;
     }
 
-    QualifiedNameId *findOrInsertQualifiedNameId(const std::vector<Name *> &names, bool isGlobal)
+    const QualifiedNameId *findOrInsertQualifiedNameId(const std::vector<const Name *> &names, bool isGlobal)
     {
         const QualifiedNameIdKey key(names, isGlobal);
-        std::map<QualifiedNameIdKey, QualifiedNameId *>::iterator it =
+        std::map<QualifiedNameIdKey, const QualifiedNameId *>::iterator it =
                 qualifiedNameIds.lower_bound(key);
         if (it == qualifiedNameIds.end() || it->first != key) {
-            QualifiedNameId *name = new QualifiedNameId(&names[0], names.size(), isGlobal);
+            const QualifiedNameId *name = new QualifiedNameId(&names[0], names.size(), isGlobal);
             it = qualifiedNameIds.insert(it, std::make_pair(key, name));
         }
         return it->second;
     }
 
-    SelectorNameId *findOrInsertSelectorNameId(const std::vector<Name *> &names, bool hasArguments)
+    const SelectorNameId *findOrInsertSelectorNameId(const std::vector<const Name *> &names, bool hasArguments)
     {
         const SelectorNameIdKey key(names, hasArguments);
-        std::map<SelectorNameIdKey, SelectorNameId *>::iterator it = selectorNameIds.lower_bound(key);
+        std::map<SelectorNameIdKey, const SelectorNameId *>::iterator it = selectorNameIds.lower_bound(key);
         if (it == selectorNameIds.end() || it->first != key)
             it = selectorNameIds.insert(it, std::make_pair(key, new SelectorNameId(&names[0], names.size(), hasArguments)));
         return it->second;
@@ -272,7 +271,7 @@ public:
         return floatTypes.intern(FloatType(kind));
     }
 
-    PointerToMemberType *findOrInsertPointerToMemberType(Name *memberName, const FullySpecifiedType &elementType)
+    PointerToMemberType *findOrInsertPointerToMemberType(const Name *memberName, const FullySpecifiedType &elementType)
     {
         return pointerToMemberTypes.intern(PointerToMemberType(memberName, elementType));
     }
@@ -292,12 +291,12 @@ public:
         return arrayTypes.intern(ArrayType(elementType, size));
     }
 
-    NamedType *findOrInsertNamedType(Name *name)
+    NamedType *findOrInsertNamedType(const Name *name)
     {
         return namedTypes.intern(NamedType(name));
     }
 
-    Declaration *newDeclaration(unsigned sourceLocation, Name *name)
+    Declaration *newDeclaration(unsigned sourceLocation, const Name *name)
     {
         Declaration *declaration = new Declaration(translationUnit,
                                                    sourceLocation, name);
@@ -305,7 +304,7 @@ public:
         return declaration;
     }
 
-    Argument *newArgument(unsigned sourceLocation, Name *name)
+    Argument *newArgument(unsigned sourceLocation, const Name *name)
     {
         Argument *argument = new Argument(translationUnit,
                                           sourceLocation, name);
@@ -313,7 +312,7 @@ public:
         return argument;
     }
 
-    Function *newFunction(unsigned sourceLocation, Name *name)
+    Function *newFunction(unsigned sourceLocation, const Name *name)
     {
         Function *function = new Function(translationUnit,
                                           sourceLocation, name);
@@ -321,7 +320,7 @@ public:
         return function;
     }
 
-    BaseClass *newBaseClass(unsigned sourceLocation, Name *name)
+    BaseClass *newBaseClass(unsigned sourceLocation, const Name *name)
     {
         BaseClass *baseClass = new BaseClass(translationUnit,
                                              sourceLocation, name);
@@ -336,7 +335,7 @@ public:
         return block;
     }
 
-    Class *newClass(unsigned sourceLocation, Name *name)
+    Class *newClass(unsigned sourceLocation, const Name *name)
     {
         Class *klass = new Class(translationUnit,
                                  sourceLocation, name);
@@ -344,7 +343,7 @@ public:
         return klass;
     }
 
-    Namespace *newNamespace(unsigned sourceLocation, Name *name)
+    Namespace *newNamespace(unsigned sourceLocation, const Name *name)
     {
         Namespace *ns = new Namespace(translationUnit,
                                       sourceLocation, name);
@@ -352,7 +351,7 @@ public:
         return ns;
     }
 
-    UsingNamespaceDirective *newUsingNamespaceDirective(unsigned sourceLocation, Name *name)
+    UsingNamespaceDirective *newUsingNamespaceDirective(unsigned sourceLocation, const Name *name)
     {
         UsingNamespaceDirective *u = new UsingNamespaceDirective(translationUnit,
                                                                  sourceLocation, name);
@@ -360,7 +359,7 @@ public:
         return u;
     }
 
-    ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, Name *name)
+    ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, const Name *name)
     {
         ForwardClassDeclaration *c = new ForwardClassDeclaration(translationUnit,
                                                                  sourceLocation, name);
@@ -368,63 +367,63 @@ public:
         return c;
     }
 
-    ObjCBaseClass *newObjCBaseClass(unsigned sourceLocation, Name *name)
+    ObjCBaseClass *newObjCBaseClass(unsigned sourceLocation, const Name *name)
     {
         ObjCBaseClass *c = new ObjCBaseClass(translationUnit, sourceLocation, name);
         symbols.push_back(c);
         return c;
     }
 
-    ObjCBaseProtocol *newObjCBaseProtocol(unsigned sourceLocation, Name *name)
+    ObjCBaseProtocol *newObjCBaseProtocol(unsigned sourceLocation, const Name *name)
     {
         ObjCBaseProtocol *p = new ObjCBaseProtocol(translationUnit, sourceLocation, name);
         symbols.push_back(p);
         return p;
     }
 
-    ObjCClass *newObjCClass(unsigned sourceLocation, Name *name)
+    ObjCClass *newObjCClass(unsigned sourceLocation, const Name *name)
     {
         ObjCClass *c = new ObjCClass(translationUnit, sourceLocation, name);
         symbols.push_back(c);
         return c;
     }
 
-    ObjCForwardClassDeclaration *newObjCForwardClassDeclaration(unsigned sourceLocation, Name *name)
+    ObjCForwardClassDeclaration *newObjCForwardClassDeclaration(unsigned sourceLocation, const Name *name)
     {
         ObjCForwardClassDeclaration *fwd = new ObjCForwardClassDeclaration(translationUnit, sourceLocation, name);
         symbols.push_back(fwd);
         return fwd;
     }
 
-    ObjCProtocol *newObjCProtocol(unsigned sourceLocation, Name *name)
+    ObjCProtocol *newObjCProtocol(unsigned sourceLocation, const Name *name)
     {
         ObjCProtocol *p = new ObjCProtocol(translationUnit, sourceLocation, name);
         symbols.push_back(p);
         return p;
     }
 
-    ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name)
+    ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(unsigned sourceLocation, const Name *name)
     {
         ObjCForwardProtocolDeclaration *fwd = new ObjCForwardProtocolDeclaration(translationUnit, sourceLocation, name);
         symbols.push_back(fwd);
         return fwd;
     }
 
-    ObjCMethod *newObjCMethod(unsigned sourceLocation, Name *name)
+    ObjCMethod *newObjCMethod(unsigned sourceLocation, const Name *name)
     {
         ObjCMethod *method = new ObjCMethod(translationUnit, sourceLocation, name);
         symbols.push_back(method);
         return method;
     }
 
-    ObjCPropertyDeclaration *newObjCPropertyDeclaration(unsigned sourceLocation, Name *name)
+    ObjCPropertyDeclaration *newObjCPropertyDeclaration(unsigned sourceLocation, const Name *name)
     {
         ObjCPropertyDeclaration *decl = new ObjCPropertyDeclaration(translationUnit, sourceLocation, name);
         symbols.push_back(decl);
         return decl;
     }
 
-    Enum *newEnum(unsigned sourceLocation, Name *name)
+    Enum *newEnum(unsigned sourceLocation, const Name *name)
     {
         Enum *e = new Enum(translationUnit,
                            sourceLocation, name);
@@ -432,7 +431,7 @@ public:
         return e;
     }
 
-    UsingDeclaration *newUsingDeclaration(unsigned sourceLocation, Name *name)
+    UsingDeclaration *newUsingDeclaration(unsigned sourceLocation, const Name *name)
     {
         UsingDeclaration *u = new UsingDeclaration(translationUnit,
                                                    sourceLocation, name);
@@ -466,10 +465,10 @@ public:
     };
 
     struct QualifiedNameIdKey {
-        std::vector<Name *> names;
+        std::vector<const Name *> names;
         bool isGlobal;
 
-        QualifiedNameIdKey(const std::vector<Name *> &names, bool isGlobal) :
+        QualifiedNameIdKey(const std::vector<const Name *> &names, bool isGlobal) :
             names(names), isGlobal(isGlobal)
         { }
 
@@ -489,10 +488,10 @@ public:
     };
 
     struct SelectorNameIdKey {
-        std::vector<Name *> _names;
+        std::vector<const Name *> _names;
         bool _hasArguments;
 
-        SelectorNameIdKey(const std::vector<Name *> &names, bool hasArguments): _names(names), _hasArguments(hasArguments) {}
+        SelectorNameIdKey(const std::vector<const Name *> &names, bool hasArguments): _names(names), _hasArguments(hasArguments) {}
 
         bool operator==(const SelectorNameIdKey &other) const
         { return _names == other._names && _hasArguments == other._hasArguments; }
@@ -522,13 +521,13 @@ public:
     // ### replace std::map with lookup tables. ASAP!
 
     // names
-    std::map<const Identifier *, NameId *> nameIds;
-    std::map<const Identifier *, DestructorNameId *> destructorNameIds;
-    std::map<int, OperatorNameId *> operatorNameIds;
-    std::map<FullySpecifiedType, ConversionNameId *> conversionNameIds;
-    std::map<TemplateNameIdKey, TemplateNameId *> templateNameIds;
-    std::map<QualifiedNameIdKey, QualifiedNameId *> qualifiedNameIds;
-    std::map<SelectorNameIdKey, SelectorNameId *> selectorNameIds;
+    std::map<const Identifier *, const NameId *> nameIds;
+    std::map<const Identifier *, const DestructorNameId *> destructorNameIds;
+    std::map<int, const OperatorNameId *> operatorNameIds;
+    std::map<FullySpecifiedType, const ConversionNameId *> conversionNameIds;
+    std::map<TemplateNameIdKey, const TemplateNameId *> templateNameIds;
+    std::map<QualifiedNameIdKey, const QualifiedNameId *> qualifiedNameIds;
+    std::map<SelectorNameIdKey, const SelectorNameId *> selectorNameIds;
 
     // types
     VoidType voidType;
@@ -635,39 +634,39 @@ const NumericLiteral *Control::findOrInsertNumericLiteral(const char *chars)
     return findOrInsertNumericLiteral(chars, length);
 }
 
-NameId *Control::nameId(const Identifier *id)
+const NameId *Control::nameId(const Identifier *id)
 { return d->findOrInsertNameId(id); }
 
-TemplateNameId *Control::templateNameId(const Identifier *id,
-                                        FullySpecifiedType *const args,
-                                        unsigned argv)
+const TemplateNameId *Control::templateNameId(const Identifier *id,
+                                              const FullySpecifiedType *const args,
+                                              unsigned argv)
 {
     std::vector<FullySpecifiedType> templateArguments(args, args + argv);
     return d->findOrInsertTemplateNameId(id, templateArguments);
 }
 
-DestructorNameId *Control::destructorNameId(const Identifier *id)
+const DestructorNameId *Control::destructorNameId(const Identifier *id)
 { return d->findOrInsertDestructorNameId(id); }
 
-OperatorNameId *Control::operatorNameId(int kind)
+const OperatorNameId *Control::operatorNameId(int kind)
 { return d->findOrInsertOperatorNameId(kind); }
 
-ConversionNameId *Control::conversionNameId(const FullySpecifiedType &type)
+const ConversionNameId *Control::conversionNameId(const FullySpecifiedType &type)
 { return d->findOrInsertConversionNameId(type); }
 
-QualifiedNameId *Control::qualifiedNameId(Name *const *names,
-                                             unsigned nameCount,
-                                             bool isGlobal)
+const QualifiedNameId *Control::qualifiedNameId(const Name *const *names,
+                                                unsigned nameCount,
+                                                bool isGlobal)
 {
-    std::vector<Name *> classOrNamespaceNames(names, names + nameCount);
+    std::vector<const Name *> classOrNamespaceNames(names, names + nameCount);
     return d->findOrInsertQualifiedNameId(classOrNamespaceNames, isGlobal);
 }
 
-SelectorNameId *Control::selectorNameId(Name *const *names,
-                                        unsigned nameCount,
-                                        bool hasArguments)
+const SelectorNameId *Control::selectorNameId(const Name *const *names,
+                                              unsigned nameCount,
+                                              bool hasArguments)
 {
-    std::vector<Name *> selectorNames(names, names + nameCount);
+    std::vector<const Name *> selectorNames(names, names + nameCount);
     return d->findOrInsertSelectorNameId(selectorNames, hasArguments);
 }
 
@@ -681,7 +680,7 @@ IntegerType *Control::integerType(int kind)
 FloatType *Control::floatType(int kind)
 { return d->findOrInsertFloatType(kind); }
 
-PointerToMemberType *Control::pointerToMemberType(Name *memberName, const FullySpecifiedType &elementType)
+PointerToMemberType *Control::pointerToMemberType(const Name *memberName, const FullySpecifiedType &elementType)
 { return d->findOrInsertPointerToMemberType(memberName, elementType); }
 
 PointerType *Control::pointerType(const FullySpecifiedType &elementType)
@@ -693,66 +692,66 @@ ReferenceType *Control::referenceType(const FullySpecifiedType &elementType)
 ArrayType *Control::arrayType(const FullySpecifiedType &elementType, unsigned size)
 { return d->findOrInsertArrayType(elementType, size); }
 
-NamedType *Control::namedType(Name *name)
+NamedType *Control::namedType(const Name *name)
 { return d->findOrInsertNamedType(name); }
 
-Argument *Control::newArgument(unsigned sourceLocation, Name *name)
+Argument *Control::newArgument(unsigned sourceLocation, const Name *name)
 { return d->newArgument(sourceLocation, name); }
 
-Function *Control::newFunction(unsigned sourceLocation, Name *name)
+Function *Control::newFunction(unsigned sourceLocation, const Name *name)
 { return d->newFunction(sourceLocation, name); }
 
-Namespace *Control::newNamespace(unsigned sourceLocation, Name *name)
+Namespace *Control::newNamespace(unsigned sourceLocation, const Name *name)
 { return d->newNamespace(sourceLocation, name); }
 
-BaseClass *Control::newBaseClass(unsigned sourceLocation, Name *name)
+BaseClass *Control::newBaseClass(unsigned sourceLocation, const Name *name)
 { return d->newBaseClass(sourceLocation, name); }
 
-Class *Control::newClass(unsigned sourceLocation, Name *name)
+Class *Control::newClass(unsigned sourceLocation, const Name *name)
 { return d->newClass(sourceLocation, name); }
 
-Enum *Control::newEnum(unsigned sourceLocation, Name *name)
+Enum *Control::newEnum(unsigned sourceLocation, const Name *name)
 { return d->newEnum(sourceLocation, name); }
 
 Block *Control::newBlock(unsigned sourceLocation)
 { return d->newBlock(sourceLocation); }
 
-Declaration *Control::newDeclaration(unsigned sourceLocation, Name *name)
+Declaration *Control::newDeclaration(unsigned sourceLocation, const Name *name)
 { return d->newDeclaration(sourceLocation, name); }
 
 UsingNamespaceDirective *Control::newUsingNamespaceDirective(unsigned sourceLocation,
-                                                                Name *name)
+                                                                const Name *name)
 { return d->newUsingNamespaceDirective(sourceLocation, name); }
 
-UsingDeclaration *Control::newUsingDeclaration(unsigned sourceLocation, Name *name)
+UsingDeclaration *Control::newUsingDeclaration(unsigned sourceLocation, const Name *name)
 { return d->newUsingDeclaration(sourceLocation, name); }
 
 ForwardClassDeclaration *Control::newForwardClassDeclaration(unsigned sourceLocation,
-                                                             Name *name)
+                                                             const Name *name)
 { return d->newForwardClassDeclaration(sourceLocation, name); }
 
-ObjCBaseClass *Control::newObjCBaseClass(unsigned sourceLocation, Name *name)
+ObjCBaseClass *Control::newObjCBaseClass(unsigned sourceLocation, const Name *name)
 { return d->newObjCBaseClass(sourceLocation, name); }
 
-ObjCBaseProtocol *Control::newObjCBaseProtocol(unsigned sourceLocation, Name *name)
+ObjCBaseProtocol *Control::newObjCBaseProtocol(unsigned sourceLocation, const Name *name)
 { return d->newObjCBaseProtocol(sourceLocation, name); }
 
-ObjCClass *Control::newObjCClass(unsigned sourceLocation, Name *name)
+ObjCClass *Control::newObjCClass(unsigned sourceLocation, const Name *name)
 { return d->newObjCClass(sourceLocation, name); }
 
-ObjCForwardClassDeclaration *Control::newObjCForwardClassDeclaration(unsigned sourceLocation, Name *name)
+ObjCForwardClassDeclaration *Control::newObjCForwardClassDeclaration(unsigned sourceLocation, const Name *name)
 { return d->newObjCForwardClassDeclaration(sourceLocation, name); }
 
-ObjCProtocol *Control::newObjCProtocol(unsigned sourceLocation, Name *name)
+ObjCProtocol *Control::newObjCProtocol(unsigned sourceLocation, const Name *name)
 { return d->newObjCProtocol(sourceLocation, name); }
 
-ObjCForwardProtocolDeclaration *Control::newObjCForwardProtocolDeclaration(unsigned sourceLocation, Name *name)
+ObjCForwardProtocolDeclaration *Control::newObjCForwardProtocolDeclaration(unsigned sourceLocation, const Name *name)
 { return d->newObjCForwardProtocolDeclaration(sourceLocation, name); }
 
-ObjCMethod *Control::newObjCMethod(unsigned sourceLocation, Name *name)
+ObjCMethod *Control::newObjCMethod(unsigned sourceLocation, const Name *name)
 { return d->newObjCMethod(sourceLocation, name); }
 
-ObjCPropertyDeclaration *Control::newObjCPropertyDeclaration(unsigned sourceLocation, Name *name)
+ObjCPropertyDeclaration *Control::newObjCPropertyDeclaration(unsigned sourceLocation, const Name *name)
 { return d->newObjCPropertyDeclaration(sourceLocation, name); }
 
 const Identifier *Control::objcGetterId() const
