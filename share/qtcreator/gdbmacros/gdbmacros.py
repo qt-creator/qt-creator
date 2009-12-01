@@ -420,6 +420,7 @@ def qqDumpQList(d, item):
 
 def qqDumpQImage(d, item):
     painters = item.value["painters"]
+    #warn("PAINTERS: %s" % painters)
     check(0 <= painters and painters < 1000)
     d_ptr = item.value["d"]
     if isNull(d_ptr):
@@ -1688,15 +1689,47 @@ def qqDumpQVariant(d, item):
         innert = d.ns + "QVariantHash"
     elif variantType == 64: # QVariant::Font
         inner = d.ns + "QFont"
+    elif variantType == 65: # QVariant::Pixmap
+        inner = d.ns + "QPixmap"
+    elif variantType == 66: # QVariant::Brush
+        inner = d.ns + "QBrush"
     elif variantType == 67: # QVariant::Color
         inner = d.ns + "QColor"
+    elif variantType == 68: # QVariant::Palette
+        inner = d.ns + "QPalette"
+    elif variantType == 69: # QVariant::Icon
+        inner = d.ns + "QIcon"
+    elif variantType == 70: # QVariant::Image
+        inner = d.ns + "QImage"
     elif variantType == 71: # QVariant::Polygon and PointArray
-        inner = d.ns + "QPointArray"
+        inner = d.ns + "QPolygon"
+    elif variantType == 72: # QVariant::Region
+        inner = d.ns + "QRegion"
+    elif variantType == 73: # QVariant::Bitmap
+        inner = d.ns + "QBitmap"
+    elif variantType == 74: # QVariant::Cursor
+        inner = d.ns + "QCursor"
     elif variantType == 75: # QVariant::SizePolicy
         inner = d.ns + "QSizePolicy"
     elif variantType == 76: # QVariant::KeySequence
         inner = d.ns + "QKeySequence"
-    elif variantType == 76: # QVariant::Quadernion
+    elif variantType == 77: # QVariant::Pen
+        inner = d.ns + "QPen"
+    elif variantType == 78: # QVariant::TextLength
+        inner = d.ns + "QTextLength"
+    elif variantType == 79: # QVariant::TextFormat
+        inner = d.ns + "QTextFormat"
+    elif variantType == 81: # QVariant::Transform
+        inner = d.ns + "QTransform"
+    elif variantType == 82: # QVariant::Matrix4x4
+        inner = d.ns + "QMatrix4x4"
+    elif variantType == 83: # QVariant::Vector2D
+        inner = d.ns + "QVector2D"
+    elif variantType == 84: # QVariant::Vector3D
+        inner = d.ns + "QVector3D"
+    elif variantType == 85: # QVariant::Vector4D
+        inner = d.ns + "QVector4D"
+    elif variantType == 86: # QVariant::Quadernion
         inner = d.ns + "QQuadernion"
     else:
         # FIXME: handle User types

@@ -196,8 +196,12 @@ class FrameCommand(gdb.Command):
         block = frame.block()
 
         # initialize namespace
-        type = str(gdb.parse_and_eval("&QString::null").type.target().unqualified())
-        d.ns = type[0:len(type) - len("QString::Null")]
+        try:
+            type = str(gdb.parse_and_eval("&QString::null").type.target().unqualified())
+            d.ns = type[0:len(type) - len("QString::null")]
+        except RuntimeError:
+            d.ns = ""
+
         #warn(" NAMESPACE IS: '%s'" % d.ns)
         #warn("FRAME %s: " % frame)
 
