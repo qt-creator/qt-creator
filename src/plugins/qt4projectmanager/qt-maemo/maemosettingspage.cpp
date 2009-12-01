@@ -127,11 +127,13 @@ private slots:
     void deleteConfig();
     void configNameEditingFinished();
     void deviceTypeChanged();
+    void authenticationTypeChanged();
     void hostNameEditingFinished();
     void portEditingFinished();
     void timeoutEditingFinished();
     void userNameEditingFinished();
     void passwordEditingFinished();
+    void keyFileEditingFinished();
 
 private:
     void initGui();
@@ -151,12 +153,10 @@ private:
 MaemoSettingsPage::MaemoSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
 {
-    qDebug("Creating maemo settings page");
 }
 
 MaemoSettingsPage::~MaemoSettingsPage()
 {
-    qDebug("deleting maemo settings page");
 }
 
 QString MaemoSettingsPage::id() const
@@ -193,7 +193,6 @@ void MaemoSettingsPage::apply()
 
 void MaemoSettingsPage::finish()
 {
-    // apply();
 }
 
 MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
@@ -203,13 +202,11 @@ MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
       m_nameValidator(m_devConfs)
 
 {
-    qDebug("creating maemo settings widget");
     initGui();
 }
 
 MaemoSettingsWidget::~MaemoSettingsWidget()
 {
-    qDebug("Deleting maemo settings widget");
 }
 
 void MaemoSettingsWidget::initGui()
@@ -265,11 +262,16 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfigurations::DeviceConfig 
         m_ui->deviceButton->setChecked(true);
     else
         m_ui->simulatorButton->setChecked(true);
+    if (devConfig.authentication == MaemoDeviceConfigurations::DeviceConfig::Password)
+        m_ui->passwordButton->setChecked(true);
+    else
+        m_ui->keyButton->setChecked(true);
     m_ui->hostLineEdit->setText(devConfig.host);
     m_ui->portLineEdit->setText(QString::number(devConfig.port));
     m_ui->timeoutLineEdit->setText(QString::number(devConfig.timeout));
     m_ui->userLineEdit->setText(devConfig.uname);
     m_ui->pwdLineEdit->setText(devConfig.pwd);
+    m_ui->keyFileLineEdit->setText(devConfig.keyFile);
     m_ui->detailsWidget->setEnabled(true);
     m_nameValidator.setName(devConfig.name);
     m_portValidator.setValue(devConfig.port);
@@ -284,13 +286,11 @@ void MaemoSettingsWidget::saveSettings()
 
 MaemoDeviceConfigurations::DeviceConfig &MaemoSettingsWidget::currentConfig()
 {
-    qDebug("%d/%d", m_ui->configListWidget->count(), m_devConfs.count());
     Q_ASSERT(m_ui->configListWidget->count() == m_devConfs.count());
     const QList<QListWidgetItem *> &selectedItems =
         m_ui->configListWidget->selectedItems();
     Q_ASSERT(selectedItems.count() == 1);
     const int selectedRow = m_ui->configListWidget->row(selectedItems.first());
-    qDebug("selected row = %d", selectedRow);
     Q_ASSERT(selectedRow < m_devConfs.count());
     return m_devConfs[selectedRow];
 }
@@ -309,6 +309,18 @@ void MaemoSettingsWidget::deviceTypeChanged()
         m_ui->deviceButton->isChecked()
             ? MaemoDeviceConfigurations::DeviceConfig::Physical
             : MaemoDeviceConfigurations::DeviceConfig::Simulator;
+}
+
+void MaemoSettingsWidget::authenticationTypeChanged()
+{
+    const bool usePassword = m_ui->passwordButton->isChecked();
+    currentConfig().authentication = usePassword
+        ? MaemoDeviceConfigurations::DeviceConfig::Password
+        : MaemoDeviceConfigurations::DeviceConfig::Key;
+    m_ui->pwdLineEdit->setEnabled(usePassword);
+    m_ui->passwordLabel->setEnabled(usePassword);
+    m_ui->keyFileLineEdit->setEnabled(!usePassword);
+    m_ui->keyLabel->setEnabled(!usePassword);
 }
 
 void MaemoSettingsWidget::hostNameEditingFinished()
@@ -344,6 +356,11 @@ void MaemoSettingsWidget::userNameEditingFinished()
 void MaemoSettingsWidget::passwordEditingFinished()
 {
     currentConfig().pwd = m_ui->pwdLineEdit->text();
+}
+
+void MaemoSettingsWidget::keyFileEditingFinished()
+{
+    currentConfig().keyFile = m_ui->keyFileLineEdit->text();
 }
 
 void MaemoSettingsWidget::selectionChanged()

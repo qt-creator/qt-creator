@@ -37,6 +37,7 @@
 #include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
+#include <QtGui/QDesktopServices>
 
 #include <algorithm>
 
@@ -52,9 +53,15 @@ namespace {
     const QLatin1String HostKey("Host");
     const QLatin1String PortKey("Port");
     const QLatin1String UserNameKey("Uname");
+    const QLatin1String AuthKey("Authentication");
+    const QLatin1String KeyFileKey("KeyFile");
     const QLatin1String PasswordKey("Password");
     const QLatin1String TimeoutKey("Timeout");
     const QLatin1String InternalIdKey("InternalId");
+
+    const QString DefaultKeyFile =
+        QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
+        + QLatin1String("/.ssh/id_rsa");
 };
 
 class DevConfIdMatcher
@@ -73,6 +80,8 @@ MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QString &name)
     : name(name),
       type(Physical),
       port(22),
+      authentication(Key),
+      keyFile(DefaultKeyFile),
       timeout(30),
       internalId(MaemoDeviceConfigurations::instance().m_nextId++)
 {
@@ -84,7 +93,9 @@ MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QSettings &settings)
       host(settings.value(HostKey).toString()),
       port(settings.value(PortKey, 22).toInt()),
       uname(settings.value(UserNameKey).toString()),
+      authentication(static_cast<AuthType>(settings.value(AuthKey).toInt())),
       pwd(settings.value(PasswordKey).toString()),
+      keyFile(settings.value(KeyFileKey).toString()),
       timeout(settings.value(TimeoutKey, 30).toInt()),
       internalId(settings.value(InternalIdKey, MaemoDeviceConfigurations::instance().m_nextId).toInt())
 {
@@ -110,7 +121,9 @@ void MaemoDeviceConfigurations::DeviceConfig::save(QSettings &settings) const
     settings.setValue(HostKey, host);
     settings.setValue(PortKey, port);
     settings.setValue(UserNameKey, uname);
+    settings.setValue(AuthKey, authentication);
     settings.setValue(PasswordKey, pwd);
+    settings.setValue(KeyFileKey, keyFile);
     settings.setValue(TimeoutKey, timeout);
     settings.setValue(InternalIdKey, internalId);
 }

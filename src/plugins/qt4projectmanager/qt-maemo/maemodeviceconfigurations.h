@@ -56,6 +56,7 @@ public:
     {
     public:
         enum DeviceType { Physical, Simulator };
+        enum AuthType { Password, Key };
         DeviceConfig();
         DeviceConfig(const QString &name);
         DeviceConfig(const QSettings &settings);
@@ -66,7 +67,9 @@ public:
         QString host;
         int port;
         QString uname;
+        AuthType authentication;
         QString pwd;
+        QString keyFile;
         int timeout;
         quint64 internalId;
 
