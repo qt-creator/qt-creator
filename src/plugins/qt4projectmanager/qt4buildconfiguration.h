@@ -63,8 +63,6 @@ public:
 
     virtual QString buildDirectory() const;
 
-    // returns the qtdir (depends on the current QtVersion)
-    QString qtDir() const;
     //returns the qtVersion, if the project is set to use the default qt version, then
     // that is returned
     // to check wheter the project uses the default qt version use qtVersionId

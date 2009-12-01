@@ -169,14 +169,6 @@ QString Qt4BuildConfiguration::defaultMakeTarget() const
     return QString::null;
 }
 
-QString Qt4BuildConfiguration::qtDir() const
-{
-    QtVersion *version = qtVersion();
-    if (version)
-        return version->versionInfo().value("QT_INSTALL_DATA");
-    return QString::null;
-}
-
 QtVersion *Qt4BuildConfiguration::qtVersion() const
 {
     return QtVersionManager::instance()->version(qtVersionId());
