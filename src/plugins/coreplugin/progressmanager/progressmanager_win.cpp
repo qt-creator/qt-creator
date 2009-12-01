@@ -35,7 +35,9 @@
 #include "progressmanager_p.h"
 
 // for windows progress bar
-#include <shobjidl.h>
+#ifndef __GNUC__ 
+#    include <shobjidl.h>
+#endif
 
 // Windows 7 SDK required
 #ifdef __ITaskbarList3_INTERFACE_DEFINED__
