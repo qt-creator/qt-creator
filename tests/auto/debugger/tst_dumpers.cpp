@@ -110,7 +110,9 @@ public:
 
     void testMi(const char* input)
     {
-        QCOMPARE('\n' + QString::fromLatin1(GdbMi(input).toString(false)),
+        GdbMi gdbmi;
+        gdbmi.fromString(QByteArray(input));
+        QCOMPARE('\n' + QString::fromLatin1(gdbmi.toString(false)),
             '\n' + QString(input));
     }
 
