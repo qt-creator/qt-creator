@@ -43,69 +43,6 @@ class SessionNode;
 
 namespace Internal {
 
-// A 1:1 mapping of the internal data model
-class DetailedModel : public QAbstractItemModel {
-    Q_OBJECT
-public:
-    DetailedModel(SessionNode *rootNode, QObject *parent);
-
-    // QAbstractItemModel
-    QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &index) const;
-    Qt::ItemFlags flags(const QModelIndex & index) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-
-    int rowCount(const QModelIndex & parent = QModelIndex()) const;
-    int columnCount(const QModelIndex & parent = QModelIndex()) const;
-    bool hasChildren(const QModelIndex & parent = QModelIndex()) const;
-
-    bool canFetchMore(const QModelIndex & parent) const;
-    void fetchMore(const QModelIndex & parent);
-
-    void reset();
-
-    void setStartupProject(ProjectNode * /* projectNode */) {}
-
-    Node *nodeForIndex(const QModelIndex &index) const;
-    QModelIndex indexForNode(const Node *node);
-
-    public slots:
-    void setProjectFilterEnabled(bool /* filter */) {}
-
-private slots:
-    void foldersAboutToBeAdded(FolderNode *parentFolder,
-                               const QList<FolderNode*> &newFolders);
-    void foldersAdded();
-
-    void foldersAboutToBeRemoved(FolderNode *parentFolder,
-                               const QList<FolderNode*> &staleFolders);
-
-    void filesAboutToBeAdded(FolderNode *folder,
-                               const QList<FileNode*> &newFiles);
-    void filesAdded();
-
-    void filesAboutToBeRemoved(FolderNode *folder,
-                               const QList<FileNode*> &staleFiles);
-
-private:
-    QList<Node*> childNodeList(FolderNode *folderNode) const;
-
-    void connectProject(ProjectNode *project);
-    void addToChildNodes(FolderNode *parentFolder, QList<Node*> newList);
-    void removeFromChildNodes(FolderNode *parentFolder, QList<Node*> newList);
-    QList<FolderNode*> recursiveSubFolders(FolderNode *parentFolder);
-
-    SessionNode *m_rootNode;
-    mutable QHash<FolderNode*, QList<Node*> > m_childNodes;
-    FolderNode *m_folderToAddTo;
-
-    friend class DetailedModelManager;
-};
-
-
-// displays "flattened" view without pri files, subdirs pro files & virtual folders
-// This view is optimized to be used in the edit mode sidebar
 class FlatModel : public QAbstractItemModel {
     Q_OBJECT
 public:
