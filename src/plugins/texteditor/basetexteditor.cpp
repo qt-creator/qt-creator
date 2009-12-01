@@ -629,7 +629,7 @@ void BaseTextEditorPrivate::collapseLicenseHeader()
     QTC_ASSERT(documentLayout, return);
     QTextBlock block = doc->firstBlock();
     const TabSettings &ts = m_document->tabSettings();
-    while (block.isValid()) {
+    while (block.isValid() && block.isVisible()) {
         TextBlockUserData *data = TextBlockUserData::canCollapse(block);
         if (data && block.next().isVisible()) {
             QChar character;
@@ -1348,14 +1348,18 @@ void BaseTextEditor::setBaseTextDocument(BaseTextDocument *doc)
     }
 }
 
+// called before reload
 void BaseTextEditor::memorizeCursorPosition()
 {
     d->m_tempState = saveState();
 }
 
+// called after reload
 void BaseTextEditor::restoreCursorPosition()
 {
     restoreState(d->m_tempState);
+    if (d->m_displaySettings.m_autoFoldFirstComment)
+        d->collapseLicenseHeader();
 }
 
 QByteArray BaseTextEditor::saveState() const
