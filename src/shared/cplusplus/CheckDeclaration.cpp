@@ -378,8 +378,9 @@ bool CheckDeclaration::visit(LinkageSpecificationAST *ast)
 
 bool CheckDeclaration::visit(NamespaceAST *ast)
 {
-    const Identifier *id = identifier(ast->identifier_token);
-    const Name *namespaceName = control()->nameId(id);
+    const Name *namespaceName = 0;
+    if (const Identifier *id = identifier(ast->identifier_token))
+        namespaceName = control()->nameId(id);
 
     unsigned sourceLocation = ast->firstToken();
 

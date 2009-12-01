@@ -50,16 +50,10 @@
 #include "NameVisitor.h"
 #include "Literals.h"
 #include <cstring>
+#include <cassert>
 #include <algorithm>
 
 using namespace CPlusPlus;
-
-QualifiedNameId::QualifiedNameId(const Name *const *names,
-                                 unsigned nameCount,
-                                 bool isGlobal)
-    : _names(names, names + nameCount),
-      _isGlobal(isGlobal)
-{ }
 
 QualifiedNameId::~QualifiedNameId()
 { }
@@ -159,13 +153,6 @@ bool DestructorNameId::isEqualTo(const Name *other) const
     return l->isEqualTo(r);
 }
 
-TemplateNameId::TemplateNameId(const Identifier *identifier,
-                               const FullySpecifiedType templateArguments[],
-                               unsigned templateArgumentCount)
-    : _identifier(identifier),
-      _templateArguments(templateArguments, templateArguments + templateArgumentCount)
-{ }
-
 TemplateNameId::~TemplateNameId()
 { }
 
@@ -248,13 +235,6 @@ bool ConversionNameId::isEqualTo(const Name *other) const
         return false;
     return _type.isEqualTo(c->type());
 }
-
-SelectorNameId::SelectorNameId(const Name *const *names,
-                               unsigned nameCount,
-                               bool hasArguments)
-    : _names(names, names + nameCount),
-      _hasArguments(hasArguments)
-{ }
 
 SelectorNameId::~SelectorNameId()
 { }

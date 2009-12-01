@@ -129,6 +129,76 @@ template <> struct Compare<ArrayType>
     }
 };
 
+template <> struct Compare<NameId>
+{
+    bool operator()(const NameId &name, const NameId &otherName) const
+    {
+        return name.identifier() < otherName.identifier();
+    }
+};
+
+template <> struct Compare<DestructorNameId>
+{
+    bool operator()(const DestructorNameId &name, const DestructorNameId &otherName) const
+    {
+        return name.identifier() < otherName.identifier();
+    }
+};
+
+template <> struct Compare<OperatorNameId>
+{
+    bool operator()(const OperatorNameId &name, const OperatorNameId &otherName) const
+    {
+        return name.kind() < otherName.kind();
+    }
+};
+
+template <> struct Compare<ConversionNameId>
+{
+    bool operator()(const ConversionNameId &name, const ConversionNameId &otherName) const
+    {
+        return name.type() < otherName.type();
+    }
+};
+template <> struct Compare<TemplateNameId>
+{
+    bool operator()(const TemplateNameId &name, const TemplateNameId &otherName) const
+    {
+        const Identifier *id = name.identifier();
+        const Identifier *otherId = otherName.identifier();
+
+        if (id == otherId)
+            return std::lexicographical_compare(name.firstTemplateArgument(), name.lastTemplateArgument(),
+                                                otherName.firstTemplateArgument(), otherName.lastTemplateArgument());
+
+        return id < otherId;
+    }
+};
+template <> struct Compare<QualifiedNameId>
+{
+    bool operator()(const QualifiedNameId &name, const QualifiedNameId &otherName) const
+    {
+        if (name.isGlobal() == otherName.isGlobal())
+            return std::lexicographical_compare(name.firstName(), name.lastName(),
+                                                otherName.firstName(), otherName.lastName());
+
+        return name.isGlobal() < otherName.isGlobal();
+    }
+};
+
+template <> struct Compare<SelectorNameId>
+{
+    bool operator()(const SelectorNameId &name, const SelectorNameId &otherName) const
+    {
+        if (name.hasArguments() == otherName.hasArguments())
+            return std::lexicographical_compare(name.firstName(), name.lastName(),
+                                                otherName.firstName(), otherName.lastName());
+
+        return name.hasArguments() < otherName.hasArguments();
+    }
+};
+
+
 template <typename _Tp>
 class Table: public std::set<_Tp, Compare<_Tp> >
 {
@@ -140,22 +210,11 @@ public:
 } // end of anonymous namespace
 
 template <typename _Iterator>
-static void delete_map_entries(_Iterator first, _Iterator last)
-{
-    for (; first != last; ++first)
-        delete first->second;
-}
-
-template <typename _Iterator>
 static void delete_array_entries(_Iterator first, _Iterator last)
 {
     for (; first != last; ++first)
         delete *first;
 }
-
-template <typename _Map>
-static void delete_map_entries(const _Map &m)
-{ delete_map_entries(m.begin(), m.end()); }
 
 template <typename _Array>
 static void delete_array_entries(const _Array &a)
@@ -172,14 +231,6 @@ public:
 
     ~Data()
     {
-        // names
-        delete_map_entries(nameIds);
-        delete_map_entries(destructorNameIds);
-        delete_map_entries(operatorNameIds);
-        delete_map_entries(conversionNameIds);
-        delete_map_entries(qualifiedNameIds);
-        delete_map_entries(templateNameIds);
-
         // symbols
         delete_array_entries(symbols);
     }
@@ -188,77 +239,41 @@ public:
     {
         if (! id)
             return 0;
-        std::map<const Identifier *, const NameId *>::iterator it = nameIds.lower_bound(id);
-        if (it == nameIds.end() || it->first != id)
-            it = nameIds.insert(it, std::make_pair(id, new NameId(id)));
-        return it->second;
+
+        return nameIds.intern(NameId(id));
     }
 
-    const TemplateNameId *findOrInsertTemplateNameId(const Identifier *id,
-                                                     const std::vector<FullySpecifiedType> &templateArguments)
+    template <typename _Iterator>
+    const TemplateNameId *findOrInsertTemplateNameId(const Identifier *id, _Iterator first, _Iterator last)
     {
-        if (! id)
-            return 0;
-        const TemplateNameIdKey key(id, templateArguments);
-        std::map<TemplateNameIdKey, const TemplateNameId *>::iterator it =
-                templateNameIds.lower_bound(key);
-        if (it == templateNameIds.end() || it->first != key) {
-            const FullySpecifiedType *args = 0;
-            if (templateArguments.size())
-                args = &templateArguments[0];
-            const TemplateNameId *templ = new TemplateNameId(id, args, templateArguments.size());
-            it = templateNameIds.insert(it, std::make_pair(key, templ));
-        }
-        return it->second;
+        return templateNameIds.intern(TemplateNameId(id, first, last));
     }
 
     const DestructorNameId *findOrInsertDestructorNameId(const Identifier *id)
     {
-        if (! id)
-            return 0;
-        std::map<const Identifier *, const DestructorNameId *>::iterator it = destructorNameIds.lower_bound(id);
-        if (it == destructorNameIds.end() || it->first != id)
-            it = destructorNameIds.insert(it, std::make_pair(id, new DestructorNameId(id)));
-        return it->second;
+        return destructorNameIds.intern(DestructorNameId(id));
     }
 
     const OperatorNameId *findOrInsertOperatorNameId(int kind)
     {
-        const int key(kind);
-        std::map<int, const OperatorNameId *>::iterator it = operatorNameIds.lower_bound(key);
-        if (it == operatorNameIds.end() || it->first != key)
-            it = operatorNameIds.insert(it, std::make_pair(key, new OperatorNameId(kind)));
-        return it->second;
+        return operatorNameIds.intern(OperatorNameId(kind));
     }
 
     const ConversionNameId *findOrInsertConversionNameId(const FullySpecifiedType &type)
     {
-        std::map<FullySpecifiedType, const ConversionNameId *>::iterator it =
-                conversionNameIds.lower_bound(type);
-        if (it == conversionNameIds.end() || it->first != type)
-            it = conversionNameIds.insert(it, std::make_pair(type, new ConversionNameId(type)));
-        return it->second;
+        return conversionNameIds.intern(ConversionNameId(type));
     }
 
-    const QualifiedNameId *findOrInsertQualifiedNameId(const std::vector<const Name *> &names, bool isGlobal)
+    template <typename _Iterator>
+    const QualifiedNameId *findOrInsertQualifiedNameId(_Iterator first, _Iterator last, bool isGlobal)
     {
-        const QualifiedNameIdKey key(names, isGlobal);
-        std::map<QualifiedNameIdKey, const QualifiedNameId *>::iterator it =
-                qualifiedNameIds.lower_bound(key);
-        if (it == qualifiedNameIds.end() || it->first != key) {
-            const QualifiedNameId *name = new QualifiedNameId(&names[0], names.size(), isGlobal);
-            it = qualifiedNameIds.insert(it, std::make_pair(key, name));
-        }
-        return it->second;
+        return qualifiedNameIds.intern(QualifiedNameId(first, last, isGlobal));
     }
 
-    const SelectorNameId *findOrInsertSelectorNameId(const std::vector<const Name *> &names, bool hasArguments)
+    template <typename _Iterator>
+    const SelectorNameId *findOrInsertSelectorNameId(_Iterator first, _Iterator last, bool hasArguments)
     {
-        const SelectorNameIdKey key(names, hasArguments);
-        std::map<SelectorNameIdKey, const SelectorNameId *>::iterator it = selectorNameIds.lower_bound(key);
-        if (it == selectorNameIds.end() || it->first != key)
-            it = selectorNameIds.insert(it, std::make_pair(key, new SelectorNameId(&names[0], names.size(), hasArguments)));
-        return it->second;
+        return selectorNameIds.intern(SelectorNameId(first, last, hasArguments));
     }
 
     IntegerType *findOrInsertIntegerType(int kind)
@@ -439,75 +454,6 @@ public:
         return u;
     }
 
-    struct TemplateNameIdKey {
-        const Identifier *id;
-        std::vector<FullySpecifiedType> templateArguments;
-
-        TemplateNameIdKey(const Identifier *id, const std::vector<FullySpecifiedType> &templateArguments)
-            : id(id), templateArguments(templateArguments)
-        { }
-
-        bool operator == (const TemplateNameIdKey &other) const
-        { return id == other.id && templateArguments == other.templateArguments; }
-
-        bool operator != (const TemplateNameIdKey &other) const
-        { return ! operator==(other); }
-
-        bool operator < (const TemplateNameIdKey &other) const
-        {
-            if (id == other.id)
-                return std::lexicographical_compare(templateArguments.begin(),
-                                                    templateArguments.end(),
-                                                    other.templateArguments.begin(),
-                                                    other.templateArguments.end());
-            return id < other.id;
-        }
-    };
-
-    struct QualifiedNameIdKey {
-        std::vector<const Name *> names;
-        bool isGlobal;
-
-        QualifiedNameIdKey(const std::vector<const Name *> &names, bool isGlobal) :
-            names(names), isGlobal(isGlobal)
-        { }
-
-        bool operator == (const QualifiedNameIdKey &other) const
-        { return isGlobal == other.isGlobal && names == other.names; }
-
-        bool operator != (const QualifiedNameIdKey &other) const
-        { return ! operator==(other); }
-
-        bool operator < (const QualifiedNameIdKey &other) const
-        {
-            if (isGlobal == other.isGlobal)
-                return std::lexicographical_compare(names.begin(), names.end(),
-                                                    other.names.begin(), other.names.end());
-            return isGlobal < other.isGlobal;
-        }
-    };
-
-    struct SelectorNameIdKey {
-        std::vector<const Name *> _names;
-        bool _hasArguments;
-
-        SelectorNameIdKey(const std::vector<const Name *> &names, bool hasArguments): _names(names), _hasArguments(hasArguments) {}
-
-        bool operator==(const SelectorNameIdKey &other) const
-        { return _names == other._names && _hasArguments == other._hasArguments; }
-
-        bool operator!=(const SelectorNameIdKey &other) const
-        { return !operator==(other); }
-
-        bool operator<(const SelectorNameIdKey &other) const
-        {
-            if (_hasArguments == other._hasArguments)
-                return std::lexicographical_compare(_names.begin(), _names.end(), other._names.begin(), other._names.end());
-            else
-                return _hasArguments < other._hasArguments;
-        }
-    };
-
     Control *control;
     TranslationUnit *translationUnit;
     DiagnosticClient *diagnosticClient;
@@ -521,13 +467,13 @@ public:
     // ### replace std::map with lookup tables. ASAP!
 
     // names
-    std::map<const Identifier *, const NameId *> nameIds;
-    std::map<const Identifier *, const DestructorNameId *> destructorNameIds;
-    std::map<int, const OperatorNameId *> operatorNameIds;
-    std::map<FullySpecifiedType, const ConversionNameId *> conversionNameIds;
-    std::map<TemplateNameIdKey, const TemplateNameId *> templateNameIds;
-    std::map<QualifiedNameIdKey, const QualifiedNameId *> qualifiedNameIds;
-    std::map<SelectorNameIdKey, const SelectorNameId *> selectorNameIds;
+    Table<NameId> nameIds;
+    Table<DestructorNameId> destructorNameIds;
+    Table<OperatorNameId> operatorNameIds;
+    Table<ConversionNameId> conversionNameIds;
+    Table<TemplateNameId> templateNameIds;
+    Table<QualifiedNameId> qualifiedNameIds;
+    Table<SelectorNameId> selectorNameIds;
 
     // types
     VoidType voidType;
@@ -641,8 +587,7 @@ const TemplateNameId *Control::templateNameId(const Identifier *id,
                                               const FullySpecifiedType *const args,
                                               unsigned argv)
 {
-    std::vector<FullySpecifiedType> templateArguments(args, args + argv);
-    return d->findOrInsertTemplateNameId(id, templateArguments);
+    return d->findOrInsertTemplateNameId(id, args, args + argv);
 }
 
 const DestructorNameId *Control::destructorNameId(const Identifier *id)
@@ -658,16 +603,14 @@ const QualifiedNameId *Control::qualifiedNameId(const Name *const *names,
                                                 unsigned nameCount,
                                                 bool isGlobal)
 {
-    std::vector<const Name *> classOrNamespaceNames(names, names + nameCount);
-    return d->findOrInsertQualifiedNameId(classOrNamespaceNames, isGlobal);
+    return d->findOrInsertQualifiedNameId(names, names + nameCount, isGlobal);
 }
 
 const SelectorNameId *Control::selectorNameId(const Name *const *names,
                                               unsigned nameCount,
                                               bool hasArguments)
 {
-    std::vector<const Name *> selectorNames(names, names + nameCount);
-    return d->findOrInsertSelectorNameId(selectorNames, hasArguments);
+    return d->findOrInsertSelectorNameId(names, names + nameCount, hasArguments);
 }
 
 
