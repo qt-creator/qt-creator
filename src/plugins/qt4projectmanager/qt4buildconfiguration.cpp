@@ -197,22 +197,6 @@ int Qt4BuildConfiguration::qtVersionId() const
             const_cast<Qt4BuildConfiguration *>(this)->setValue(KEY_QT_VERSION_ID, 0);
             return 0;
         }
-    } else {
-        // Backward compatibilty, we might have just the name:
-        QString vname = value("QtVersion").toString();
-        if (debug)
-            qDebug()<<"  Backward compatibility reading QtVersion"<<vname;
-        if (!vname.isEmpty()) {
-            const QList<QtVersion *> &versions = vm->versions();
-            foreach (const QtVersion * const version, versions) {
-                if (version->name() == vname) {
-                    if (debug)
-                        qDebug()<<"found name in versions";
-                    const_cast<Qt4BuildConfiguration *>(this)->setValue(KEY_QT_VERSION_ID, version->uniqueId());
-                    return version->uniqueId();
-                }
-            }
-        }
     }
     if (debug)
         qDebug()<<"  using qtversion with id ="<<id;
