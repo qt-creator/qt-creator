@@ -77,7 +77,8 @@ class QTCREATOR_UTILS_EXPORT NewClassWidget : public QWidget
     Q_PROPERTY(QStringList files READ files DESIGNABLE false USER true)
     Q_ENUMS(ClassType)
 public:
-    enum ClassType { NoClassType, ClassInheritsQObject, ClassInheritsQWidget };
+    enum ClassType { NoClassType, ClassInheritsQObject, ClassInheritsQWidget,
+                     SharedDataClass };
 
     explicit NewClassWidget(QWidget *parent = 0);
     ~NewClassWidget();

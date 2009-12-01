@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>418</width>
+    <width>431</width>
     <height>291</height>
    </rect>
   </property>
@@ -66,6 +66,11 @@
      <item>
       <property name="text">
        <string>Inherits QWidget</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Based on QSharedData</string>
       </property>
      </item>
     </widget>

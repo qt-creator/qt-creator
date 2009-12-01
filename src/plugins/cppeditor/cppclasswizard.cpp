@@ -262,12 +262,20 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
         headerStr << '\n';
         Utils::writeIncludeFileDirective(baseClass, true, headerStr);
     }
+    if (params.classType == Utils::NewClassWidget::SharedDataClass) {
+        headerStr << '\n';
+        Utils::writeIncludeFileDirective(QLatin1String("QSharedDataPointer"), true, headerStr);
+    }
 
     const QString namespaceIndent = Utils::writeOpeningNameSpaces(namespaceList, QString(), headerStr);
 
+    const QString sharedDataClass = unqualifiedClassName + QLatin1String("Data");
+
+    if (params.classType == Utils::NewClassWidget::SharedDataClass)
+        headerStr << '\n' << "class " << sharedDataClass << ";\n";
+
     // Class declaration
-    headerStr << '\n';
-    headerStr << namespaceIndent << "class " << unqualifiedClassName;
+    headerStr << '\n' << namespaceIndent << "class " << unqualifiedClassName;
     if (!baseClass.isEmpty())
         headerStr << " : public " << baseClass << "\n";
     else
@@ -284,8 +292,21 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
         headerStr << "explicit " << unqualifiedClassName << '(' << parentQObjectClass
                 << " *parent = 0);\n";
     }
+    // Copy/Assignment for shared data classes.
+    if (params.classType == Utils::NewClassWidget::SharedDataClass) {
+        headerStr << namespaceIndent << indent
+                  << unqualifiedClassName << "(const " << unqualifiedClassName << "&);\n"
+                  << namespaceIndent << indent
+                  << unqualifiedClassName << "& operator=(const " << unqualifiedClassName << "&);\n"
+                  << namespaceIndent << indent
+                  << '~' << unqualifiedClassName << "();\n";
+    }
     if (defineQObjectMacro)
         headerStr << '\n' << namespaceIndent << "signals:\n\n" << namespaceIndent << "public slots:\n\n";
+    if (params.classType == Utils::NewClassWidget::SharedDataClass) {
+        headerStr << '\n' << namespaceIndent << "private:\n"
+                  << namespaceIndent << indent << "QSharedDataPointer<" << sharedDataClass << "> data;\n";
+    }
     headerStr << namespaceIndent << "};\n";
 
     Utils::writeClosingNameSpaces(namespaceList, QString(), headerStr);
@@ -293,17 +314,29 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     headerStr << '\n';
     headerStr << "#endif // "<<  guard << '\n';
 
-
     // == Source file ==
     QTextStream sourceStr(source);
     sourceStr << license;
     Utils::writeIncludeFileDirective(params.headerFile, false, sourceStr);
+    if (params.classType == Utils::NewClassWidget::SharedDataClass)
+        Utils::writeIncludeFileDirective(QLatin1String("QSharedData"), true, sourceStr);
+
     Utils::writeOpeningNameSpaces(namespaceList, QString(), sourceStr);
+    // Private class:
+    if (params.classType == Utils::NewClassWidget::SharedDataClass) {
+        sourceStr << '\n' << namespaceIndent << "class " << sharedDataClass
+                  << " : public QSharedData {\n"
+                  << namespaceIndent << "public:\n"
+                  << namespaceIndent << "};\n";
+    }
 
     // Constructor
-    sourceStr << '\n' << namespaceIndent ;
+    sourceStr << '\n' << namespaceIndent;
     if (parentQObjectClass.isEmpty()) {
-        sourceStr << unqualifiedClassName << "::" << unqualifiedClassName << "()\n";
+        sourceStr << unqualifiedClassName << "::" << unqualifiedClassName << "()";
+        if (params.classType == Utils::NewClassWidget::SharedDataClass)
+            sourceStr << " : data(new " << sharedDataClass << ')';
+        sourceStr << '\n';
     } else {
         sourceStr << unqualifiedClassName << "::" << unqualifiedClassName
                 << '(' << parentQObjectClass << " *parent) :\n"
@@ -311,7 +344,25 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
     }
 
     sourceStr << namespaceIndent << "{\n" << namespaceIndent << "}\n";
-
+    if (params.classType == Utils::NewClassWidget::SharedDataClass) {
+        // Copy
+        sourceStr << '\n' << namespaceIndent << unqualifiedClassName << "::" << unqualifiedClassName << "(const "
+                << unqualifiedClassName << " &rhs) : data(rhs.data)\n"
+                << namespaceIndent << "{\n" << namespaceIndent << "}\n\n";
+        // Assignment
+        sourceStr << namespaceIndent << unqualifiedClassName << " &"
+                  << unqualifiedClassName << "::operator=(const " << unqualifiedClassName << " &rhs)\n"
+                  << namespaceIndent << "{\n"
+                  << namespaceIndent << indent << "if (this != &rhs)\n"
+                  << namespaceIndent << indent << indent << "data.operator=(rhs.data);\n"
+                  << namespaceIndent << indent << "return *this;\n"
+                  << namespaceIndent << "}\n\n";
+         // Destructor
+        sourceStr << namespaceIndent << unqualifiedClassName << "::~"
+                  << unqualifiedClassName << "()\n"
+                  << namespaceIndent << "{\n"
+                  << namespaceIndent << "}\n";
+    }
     Utils::writeClosingNameSpaces(namespaceList, QString(), sourceStr);
     return true;
 }
