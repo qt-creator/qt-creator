@@ -189,7 +189,6 @@ public:
 
     TextEditorOverlay *m_overlay;
     TextEditorOverlay *m_searchResultOverlay;
-    TextEditorOverlay *m_searchResultUnderlay;
 
     QBasicTimer collapsedBlockTimer;
     int visibleCollapsedBlockNumber;
@@ -224,9 +223,7 @@ public:
     QTextCharFormat m_searchScopeFormat;
     QTextCharFormat m_currentLineFormat;
     QTextCharFormat m_currentLineNumberFormat;
-    void highlightSearchResults(const QTextBlock &block,
-                                TextEditorOverlay *overlay,
-                                QVector<QTextLayout::FormatRange> *selections = 0);
+    void highlightSearchResults(const QTextBlock &block, TextEditorOverlay *overlay);
     QTimer *m_delayedUpdateTimer;
 
     BaseTextEditorEditable *m_editable;

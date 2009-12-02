@@ -61,6 +61,8 @@ void TextEditorOverlay::setVisible(bool b)
 
 void TextEditorOverlay::clear()
 {
+    if (m_selections.isEmpty())
+        return;
     m_selections.clear();
     update();
 }
@@ -90,7 +92,10 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end,
 
     selection.m_dropShadow = dropShadow;
 
-    m_selections += selection;
+    if (dropShadow)
+        m_selections.append(selection);
+    else
+        m_selections.prepend(selection);
     update();
 }
 

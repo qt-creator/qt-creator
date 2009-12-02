@@ -177,7 +177,6 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
 
     d->m_overlay = new TextEditorOverlay(this);
     d->m_searchResultOverlay = new TextEditorOverlay(this);
-    d->m_searchResultUnderlay = new TextEditorOverlay(this);
 
     d->setupDocumentSignals(d->m_document);
     d->setupDocumentSignals(d->m_document);
@@ -1865,8 +1864,7 @@ QTextBlock BaseTextEditor::collapsedBlockAt(const QPoint &pos, QRect *box) const
 }
 
 void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
-                                                   TextEditorOverlay *overlay,
-                                                   QVector<QTextLayout::FormatRange> *selections )
+                                                   TextEditorOverlay *overlay)
 {
     if (m_searchExpr.isEmpty())
         return;
@@ -1890,13 +1888,6 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
         if (m_findScope.isNull()
             || (blockPosition + idx >= m_findScope.selectionStart()
                 && blockPosition + idx + l <= m_findScope.selectionEnd())) {
-            if (selections) {
-                QTextLayout::FormatRange selection;
-                selection.start = idx;
-                selection.length = l;
-                selection.format = m_searchResultFormat;
-                selections->append(selection);
-            }
 
             overlay->addOverlaySelection(blockPosition + idx,
                                          blockPosition + idx + l,
@@ -2096,7 +2087,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 //    painter.setClipRect(er);
 
     bool editable = !isReadOnly();
-
     QTextBlock block = firstVisibleBlock();
 
     QAbstractTextDocumentLayout::PaintContext context = getPaintContext();
@@ -2134,60 +2124,85 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QPen cursor_pen;
 
     d->m_searchResultOverlay->clear();
-    d->m_searchResultUnderlay->clear();
+    if (!d->m_searchExpr.isEmpty()) { // first pass for the search result overlays
+
+        const int margin = 5;
+        QTextBlock blockFP = block;
+        QPointF offsetFP = offset;
+        while (blockFP.isValid()) {
+            QRectF r = blockBoundingRect(blockFP).translated(offsetFP);
+
+            if (r.bottom() >= er.top() - margin && r.top() <= er.bottom() + margin) {
+                d->highlightSearchResults(blockFP,
+                                          d->m_searchResultOverlay);
+            }
+            offsetFP.ry() += r.height();
+
+            if (offsetFP.y() > viewportRect.height() + margin)
+                break;
+
+            blockFP = blockFP.next();
+        }
+
+    } // end first pass
+
+    d->m_searchResultOverlay->fill(&painter,
+                                   d->m_searchResultFormat.background().color(),
+                                   e->rect());
+
 
     while (block.isValid()) {
 
         QRectF r = blockBoundingRect(block).translated(offset);
 
-        if (TextEditDocumentLayout::ifdefedOut(block)) {
-            QRectF rr = r;
-            rr.setWidth(viewport()->width());
-            if (lineX > 0)
-                rr.setRight(qMin(lineX, rr.right()));
-            painter.fillRect(rr, d->m_ifdefedOutFormat.background());
-        }
+        if (r.bottom() >= er.top() && r.top() <= er.bottom()) {
 
-
-        if (!d->m_highlightBlocksInfo.isEmpty()) {
-
-            int n = block.blockNumber();
-            int depth = 0;
-            foreach (int i, d->m_highlightBlocksInfo.open)
-                if (n >= i)
-                    ++depth;
-            foreach (int i, d->m_highlightBlocksInfo.close)
-                if (n > i)
-                    --depth;
-
-            int count = d->m_highlightBlocksInfo.count();
-            if (count) {
+            if (TextEditDocumentLayout::ifdefedOut(block)) {
                 QRectF rr = r;
                 rr.setWidth(viewport()->width());
                 if (lineX > 0)
                     rr.setRight(qMin(lineX, rr.right()));
-                for (int i = 0; i <= depth; ++i) {
-                    int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
-                    painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, i, count));
+                painter.fillRect(rr, d->m_ifdefedOutFormat.background());
+            }
+
+
+            if (!d->m_highlightBlocksInfo.isEmpty()) {
+
+                int n = block.blockNumber();
+                int depth = 0;
+                foreach (int i, d->m_highlightBlocksInfo.open)
+                    if (n >= i)
+                        ++depth;
+                foreach (int i, d->m_highlightBlocksInfo.close)
+                    if (n > i)
+                        --depth;
+
+                int count = d->m_highlightBlocksInfo.count();
+                if (count) {
+                    QRectF rr = r;
+                    rr.setWidth(viewport()->width());
+                    if (lineX > 0)
+                        rr.setRight(qMin(lineX, rr.right()));
+                    for (int i = 0; i <= depth; ++i) {
+                        int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
+                        painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, i, count));
+                    }
                 }
             }
-        }
 
-        QTextLayout *layout = block.layout();
+            QTextLayout *layout = block.layout();
 
 #if 0
-        QTextOption option = layout->textOption();
-        if (TextEditDocumentLayout::ifdefedOut(block)) {
-            option.setFlags(option.flags() /*| QTextOption::SuppressColors*/);
-            painter.setPen(d->m_ifdefedOutFormat.foreground().color());
-        } else {
-            option.setFlags(option.flags() & ~QTextOption::SuppressColors);
-            painter.setPen(context.palette.text().color());
-        }
-        layout->setTextOption(option);
+            QTextOption option = layout->textOption();
+            if (TextEditDocumentLayout::ifdefedOut(block)) {
+                option.setFlags(option.flags() /*| QTextOption::SuppressColors*/);
+                painter.setPen(d->m_ifdefedOutFormat.foreground().color());
+            } else {
+                option.setFlags(option.flags() & ~QTextOption::SuppressColors);
+                painter.setPen(context.palette.text().color());
+            }
+            layout->setTextOption(option);
 #endif
-
-        if (r.bottom() >= er.top() && r.top() <= er.bottom()) {
 
             int blpos = block.position();
             int bllen = block.length();
@@ -2230,9 +2245,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                     selections.append(o);
                 }
             }
-
-            d->highlightSearchResults(block, d->m_searchResultUnderlay, &selections);
-            d->m_searchResultOverlay->m_selections.append(d->m_searchResultUnderlay->m_selections);
             selections += prioritySelections;
 
             bool drawCursor = ((editable || true) // we want the cursor in read-only mode
@@ -2254,13 +2266,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 }
             }
 
-            if (d->m_searchResultUnderlay && !d->m_searchExpr.isEmpty()) {
-                d->m_searchResultUnderlay->fill(&painter,
-                                                d->m_searchResultFormat.background().color(),
-                                                e->rect());
-                d->m_searchResultUnderlay->clear();
-            }
-
             layout->draw(&painter, offset, selections, er);
 
             if ((drawCursor && !drawCursorAsBlock)
@@ -2276,17 +2281,15 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 cursor_cpos = cpos;
                 cursor_pen = painter.pen();
             }
-
-        } else if (r.bottom() >= er.top()-10 && r.top() <= er.bottom()+10) {
-                // search result overlays can cover adjacent blocks
-            d->highlightSearchResults(block, d->m_searchResultOverlay);
         }
 
         offset.ry() += r.height();
 
         if (offset.y() > viewportRect.height())
             break;
+
         block = block.next();
+
         if (!block.isVisible()) {
             if (block.blockNumber() == d->visibleCollapsedBlockNumber) {
                 visibleCollapsedBlock = block;
@@ -2496,11 +2499,10 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     if (d->m_overlay && d->m_overlay->isVisible())
         d->m_overlay->paint(&painter, e->rect());
     
-    if (d->m_searchResultOverlay && !d->m_searchExpr.isEmpty())
+    if (!d->m_searchResultOverlay->isEmpty()) {
         d->m_searchResultOverlay->paint(&painter, e->rect());
-//        d->m_searchResultOverlay->paintInverted(&painter, e->rect(), d->m_searchResultFormat.background().color());
-
-
+        d->m_searchResultOverlay->clear();
+    }
 
     // draw the cursor last, on top of everything
     if (cursor_layout) {
