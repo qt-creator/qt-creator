@@ -32,7 +32,7 @@
 
 #include <cpptools/cppmodelmanagerinterface.h>
 
-#include <qt_private/qdesigner_integration_p.h>
+#include "qt_private/qdesigner_integration_p.h"
 
 namespace Designer {
 namespace Internal {

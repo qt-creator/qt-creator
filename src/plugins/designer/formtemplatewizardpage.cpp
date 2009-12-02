@@ -31,7 +31,7 @@
 #include "formeditorw.h"
 #include "designerconstants.h"
 
-#include <qt_private/abstractnewformwidget_p.h>
+#include "qt_private/abstractnewformwidget_p.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QXmlStreamReader>

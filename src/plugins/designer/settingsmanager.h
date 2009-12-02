@@ -30,7 +30,7 @@
 #ifndef SETTINGSMANAGER_H
 #define SETTINGSMANAGER_H
 
-#include <qt_private/abstractsettings_p.h>
+#include "qt_private/abstractsettings_p.h"
 #include <QtCore/QSettings>
 
 namespace Designer {

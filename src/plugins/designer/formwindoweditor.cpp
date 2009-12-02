@@ -47,9 +47,9 @@
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
 #include <QtDesigner/QDesignerPropertyEditorInterface>
 #include <QtDesigner/QDesignerWidgetDataBaseInterface>
-#include <qt_private/formwindowbase_p.h>
-#include <qt_private/qtresourcemodel_p.h>
-#include <qt_private/qdesigner_integration_p.h>
+#include "qt_private/formwindowbase_p.h"
+#include "qt_private/qtresourcemodel_p.h"
+#include "qt_private/qdesigner_integration_p.h"
 
 #include <QtCore/QFile>
 #include <QtCore/QDir>

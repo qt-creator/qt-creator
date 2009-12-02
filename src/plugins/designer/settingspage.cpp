@@ -31,7 +31,7 @@
 #include "designerconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <qt_private/abstractoptionspage_p.h>
+#include "qt_private/abstractoptionspage_p.h"
 #include <QtCore/QCoreApplication>
 
 using namespace Designer::Internal;
