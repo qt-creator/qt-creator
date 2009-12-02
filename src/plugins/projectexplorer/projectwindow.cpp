@@ -515,8 +515,8 @@ BuildConfigurationComboBox::BuildConfigurationComboBox(Project *p, QWidget *pare
     addWidget(m_label);
 
     //m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    foreach(const BuildConfiguration *buildConfiguration, p->buildConfigurations())
-        m_comboBox->addItem(buildConfiguration->displayName(), buildConfiguration);
+    foreach(BuildConfiguration *buildConfiguration, p->buildConfigurations())
+        m_comboBox->addItem(buildConfiguration->displayName(), QVariant::fromValue(buildConfiguration));
     if (p->buildConfigurations().count() == 1) {
         m_label->setText(m_comboBox->itemText(0));
         setCurrentWidget(m_label);
