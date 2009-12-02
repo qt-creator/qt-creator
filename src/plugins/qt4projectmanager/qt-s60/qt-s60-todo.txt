@@ -2,15 +2,11 @@
     * When the refresh button is pressed
       the qtoptionspage is not updated to reflect the new versions
       though we update them in S60Manager
-    * Qt auto-detection fails if no winscw-udeb Qt libs are installed
 
 * QtVersion:
     * gui for overriding the default make target if necessary,
       make arguments --> make options
     * build parser should be defined/created by toolchain, not make step
-
-* Debugging helpers
-    * must probably be compiled for different toolchains
 
 * Tool chains
     * Qt4Project::setQtVersion should think about tool chains,
@@ -20,21 +16,10 @@
       tool chain?
     * seems that the make for building for device doesn't return useful exit code,
       so a run is started even if the build has errors
-    * gcce error parser (gcc seems not to be enough sometimes, and the make tool does not return valid exit codes`
-
-* Run Configurations
-    * handling of active run config getting disabled not optimal yet
-    * might be better from a user perspective if the run configuration
-      defines possible tool chains
-    * auto-create run configurations the first time s60 qt is selected.
 
 * Run on device
     * passphrase for signing
     * time stamp of copied sisx is ridiculous
     * don't copy the sisx all the time
     * don't hardcode copy destination
-    * be able to cancel the copy & install process
     * isRunning is wrong
-
-* WINSCW tool chain:
-    * predefined macros
