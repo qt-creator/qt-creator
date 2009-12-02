@@ -58,6 +58,7 @@ private:
 
 bool m_visible;
 int m_borderWidth;
+int m_dropShadowWidth;
 
 public:
     TextEditorOverlay(BaseTextEditor *editor);
@@ -65,8 +66,6 @@ public:
     QRect rect() const;
     void paint(QPainter *painter, const QRect &clip);
     void fill(QPainter *painter, const QColor &color, const QRect &clip);
-
-    void paintInverted(QPainter *painter, const QRect &clip, const QColor &color);
 
     bool isVisible() const { return m_visible; }
     void setVisible(bool b);
@@ -80,6 +79,8 @@ public:
     void addOverlaySelection(int begin, int end, const QColor &fg, const QColor &bg, bool lockSize = false, bool dropShadow = false);
 
     inline bool isEmpty() const { return m_selections.isEmpty(); }
+
+    inline int dropShadowWidth() const { return m_dropShadowWidth; }
 
 private:
     QPainterPath createSelectionPath(const QTextCursor &begin, const QTextCursor &end, const QRect& clip);

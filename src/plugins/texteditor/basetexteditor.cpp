@@ -2884,6 +2884,10 @@ void BaseTextEditor::slotUpdateRequest(const QRect &r, int dy)
         d->m_extraArea->scroll(0, dy);
     else if (r.width() > 4) { // wider than cursor width, not just cursor blinking
         d->m_extraArea->update(0, r.y(), d->m_extraArea->width(), r.height());
+        if (!d->m_searchExpr.isEmpty()) {
+            const int m = d->m_searchResultOverlay->dropShadowWidth();
+            viewport()->update(r.adjusted(-m, -m, m, m));
+        }
     }
 
     if (r.contains(viewport()->rect()))

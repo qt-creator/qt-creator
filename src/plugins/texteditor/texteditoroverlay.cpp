@@ -40,6 +40,7 @@ TextEditorOverlay::TextEditorOverlay(BaseTextEditor *editor)
     :QObject(editor) {
     m_visible = false;
     m_borderWidth = 1;
+    m_dropShadowWidth = 2;
     m_editor = editor;
     m_viewport = editor->viewport();
 }
@@ -328,9 +329,9 @@ void TextEditorOverlay::fillSelection(QPainter *painter,
     painter->translate(-.5, -.5);
     painter->setRenderHint(QPainter::Antialiasing);
     if (selection.m_dropShadow) {
-        painter->translate(2, 2);
+        painter->translate(m_dropShadowWidth, m_dropShadowWidth);
         painter->fillPath(path, QColor(0, 0, 0, 100));
-        painter->translate(-2, -2);
+        painter->translate(-m_dropShadowWidth, -m_dropShadowWidth);
     }
     painter->fillPath(path, color);
     painter->restore();
@@ -363,66 +364,4 @@ void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect
         fillSelection(painter, selection, color);
     }
 }
-
-void TextEditorOverlay::paintInverted(QPainter *painter, const QRect &clip, const QColor &color)
-{
-    QPainterPath path;
-    for (int i = 0; i < m_selections.size(); ++i) {
-        const OverlaySelection &selection = m_selections.at(i);
-        if (selection.m_fixedLength >= 0
-            && selection.m_cursor_end.position() - selection.m_cursor_begin.position()
-            != selection.m_fixedLength)
-            continue;
-        path.addPath(createSelectionPath(selection.m_cursor_begin, selection.m_cursor_end, clip));
-    }
-
-    QRect viewportRect = m_editor->viewport()->rect();
-    QColor background = Qt::black;
-    background.setAlpha(30);
-
-    if (path.isEmpty()) {
-        painter->fillRect(viewportRect, background);
-        return;
-    }
-
-//    QPainterPath all;
-//    all.addRect(viewportRect);
-//    QPainterPath inversion = all.subtracted(path);
-
-    painter->save();
-    QColor penColor = color;
-    penColor.setAlpha(220);
-    QPen pen(penColor, m_borderWidth);
-    QColor brush = color;
-    brush.setAlpha(30);
-    painter->translate(-.5, -.5);
-
-//    painter->setRenderHint(QPainter::Antialiasing);
-    //pen.setJoinStyle(Qt::RoundJoin);
-    painter->setPen(pen);
-    painter->setBrush(QBrush());
-    painter->drawPath(path);
-
-    painter->translate(.5, .5);
-
-    QPixmap shadow(clip.size());
-    shadow.fill(background);
-    QPainter pmp(&shadow);
-    pmp.translate(-.5, -.5);
-    pmp.setRenderHint(QPainter::Antialiasing);
-    pmp.setCompositionMode(QPainter::CompositionMode_Source);
-    path.translate(-clip.topLeft());
-    pen.setColor(Qt::transparent);
-    pmp.setPen(pen);
-    pmp.setBrush(Qt::transparent);
-    pmp.drawPath(path);
-    pmp.end();
-
-    painter->drawPixmap(clip.topLeft(), shadow);
-
-//    painter->fillPath(inversion, background);
-    painter->restore();
-}
-
-
 
