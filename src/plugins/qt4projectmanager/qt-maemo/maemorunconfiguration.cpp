@@ -36,6 +36,7 @@
 #include "qt4project.h"
 #include "qt4buildconfiguration.h"
 
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <debugger/debuggermanager.h>
@@ -47,7 +48,7 @@
 #include <projectexplorer/session.h>
 
 #include <QtCore/QDebug>
-
+#include <QtCore/QFuture>
 #include <QtCore/QPair>
 #include <QtCore/QProcess>
 #include <QtCore/QSharedPointer>
@@ -116,7 +117,7 @@ protected:
     const QString targetCmdLinePrefix() const;
     const QString remoteDir() const;
     const QStringList options() const;
-    virtual void deploymentFinished(bool success)=0;
+    void deploymentFinished(bool success);
     virtual bool setProcessEnvironment(QProcess &process);
 private slots:
     void readStandardError();
@@ -129,10 +130,20 @@ protected:
     const MaemoDeviceConfigurations::DeviceConfig devConfig;
 
 private:
+    virtual void handleDeploymentFinished(bool success)=0;
+
+    QFutureInterface<void> m_progress;
     QProcess deployProcess;
-    bool deployingExecutable;
-    bool deployingDumperLib;
-    QList<QPair<QString, QString> > deployables;
+    struct Deployable
+    {
+        typedef void (MaemoRunConfiguration::*updateFunc)();
+        Deployable(const QString &f, const QString &d, updateFunc u)
+            : fileName(f), dir(d), updateTimestamp(u) {}
+        QString fileName;
+        QString dir;
+        updateFunc updateTimestamp;
+    };
+    QList<Deployable> deployables;
 };
 
 class MaemoRunControl : public AbstractMaemoRunControl
@@ -149,7 +160,7 @@ private slots:
     void executionFinished();
 
 private:
-    void deploymentFinished(bool success);
+    virtual void handleDeploymentFinished(bool success);
     void startExecution();
 
     QProcess sshProcess;
@@ -176,7 +187,7 @@ private slots:
     void debuggerOutput(const QString &output);
 
 private:
-    void deploymentFinished(bool success);
+    virtual void handleDeploymentFinished(bool success);
 
     void startGdbServer();
     void gdbServerStartFailed(const QString &reason);
@@ -1037,24 +1048,24 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 {
     QTC_ASSERT(runConfig, return);
 
+    Core::ICore::instance()->progressManager()->addTask(m_progress.future(),
+        tr("Deploying"), QLatin1String("Maemo.Deploy"));
     if (devConfig.isValid()) {
         deployables.clear();
         if (runConfig->currentlyNeedsDeployment()) {
-            deployingExecutable = true;
-            deployables.append(qMakePair(executableFileName(),
-                QFileInfo(executableOnHost()).canonicalPath()));
-        } else {
-            deployingExecutable = false;
+            deployables.append(Deployable(executableFileName(),
+                QFileInfo(executableOnHost()).canonicalPath(),
+                &MaemoRunConfiguration::wasDeployed));
         }
-
         if (forDebugging && runConfig->debuggingHelpersNeedDeployment()) {
-            deployingDumperLib = true;
             const QFileInfo &info(runConfig->dumperLib());
-            deployables.append(qMakePair(info.fileName(), info.canonicalPath()));
-        } else {
-            deployingDumperLib = false;
+            deployables.append(Deployable(info.fileName(), info.canonicalPath(),
+                &MaemoRunConfiguration::debuggingHelpersDeployed));
         }
 
+        m_progress.setProgressRange(0, deployables.count());
+        m_progress.setProgressValue(0);
+        m_progress.reportStarted();
         deploy();
     } else {
         deploymentFinished(false);
@@ -1064,13 +1075,13 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 void AbstractMaemoRunControl::deploy()
 {
     if (!deployables.isEmpty()) {
-        QPair<QString, QString> pair = deployables.first();
-        emit addToOutputWindow(this, tr("File to deploy: %1.").arg(pair.first));
+        const Deployable &deployable = deployables.first();
+        emit addToOutputWindow(this, tr("File to deploy: %1.").arg(deployable.fileName));
 
         QStringList cmdArgs;
-        cmdArgs << "-P" << port() << options() << pair.first << (devConfig.uname
-            + "@" + devConfig.host + ":" + remoteDir());
-        deployProcess.setWorkingDirectory(pair.second);
+        cmdArgs << "-P" << port() << options() << deployable.fileName
+            << (devConfig.uname + "@" + devConfig.host + ":" + remoteDir());
+        deployProcess.setWorkingDirectory(deployable.dir);
 
         deployProcess.start(runConfig->scpCmd(), cmdArgs);
         if (!deployProcess.waitForStarted()) {
@@ -1100,15 +1111,9 @@ void AbstractMaemoRunControl::deployProcessFinished()
     if (deployProcess.exitCode() == 0) {
         emit addToOutputWindow(this, tr("Target deployed."));
         success = true;
-        if (deployingExecutable) {
-            runConfig->wasDeployed();
-            deployingExecutable = false;
-        }
-        if (deployingDumperLib) {
-            runConfig->debuggingHelpersDeployed();
-            deployingDumperLib = false;
-        }
-        deployables.removeFirst();
+        Deployable deployable = deployables.takeFirst();
+        (runConfig->*deployable.updateTimestamp)();
+        m_progress.setProgressValue(m_progress.progressValue() + 1);
     } else {
         emit error(this, tr("Deployment failed."));
         success = false;
@@ -1117,6 +1122,12 @@ void AbstractMaemoRunControl::deployProcessFinished()
         deploymentFinished(success);
     else
         deploy();
+}
+
+void AbstractMaemoRunControl::deploymentFinished(bool success)
+{
+    m_progress.reportFinished();
+    handleDeploymentFinished(success);
 }
 
 const QString AbstractMaemoRunControl::executableOnHost() const
@@ -1227,7 +1238,7 @@ void MaemoRunControl::start()
     startDeployment(false);
 }
 
-void MaemoRunControl::deploymentFinished(bool success)
+void MaemoRunControl::handleDeploymentFinished(bool success)
 {
     if (success)
         startExecution();
@@ -1336,7 +1347,7 @@ void MaemoDebugRunControl::start()
     startDeployment(true);
 }
 
-void MaemoDebugRunControl::deploymentFinished(bool success)
+void MaemoDebugRunControl::handleDeploymentFinished(bool success)
 {
     if (success) {
         startGdbServer();
