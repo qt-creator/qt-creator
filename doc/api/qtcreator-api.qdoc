@@ -165,6 +165,12 @@
     \o \l{Locator::ILocatorFilter}, \l{Locator::FilterEntry}, \l{Locator::BaseFileFilter}
 
     \row
+    \o Show a progress indicator for a concurrently running task.
+    \o You can show a progress indicator for your tasks in the left hand tool bar,
+       and also in the application icon (on platforms that support it).
+    \o \l{Core::ProgressManager}, \l{Core::FutureProgress}
+
+    \row
     \o
     \o
     \o
