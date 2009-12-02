@@ -247,7 +247,6 @@ bool S60Devices::detectQtForDevices()
         const QString indicator("\\src\\corelib\\kernel\\qobject.h");
         int indicatorlength = indicator.length();
         QByteArray buffer;
-        QByteArray previousBuffer;
         int index = -1;
         while (!qtDll.atEnd()) {
             buffer = qtDll.read(10000);
@@ -256,10 +255,10 @@ bool S60Devices::detectQtForDevices()
                 break;
             if (!qtDll.atEnd())
                 qtDll.seek(qtDll.pos()-indicatorlength);
-            previousBuffer = buffer;
         }
         int lastIndex = index;
-        while (index >= 0 && buffer.at(index)) --index;
+        while (index >= 0 && buffer.at(index))
+            --index;
         if (index < 0) { // this is untested
         } else {
             index += 2; // the 0 and another byte for some reason
