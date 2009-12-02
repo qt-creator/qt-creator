@@ -76,6 +76,8 @@ public:
     ICompletionCollector(QObject *parent = 0) : QObject(parent) {}
     virtual ~ICompletionCollector() {}
 
+    virtual QList<CompletionItem> getCompletions();
+
     /*
      * Returns true if this completion collector can be used with the given editor.
      */
@@ -110,6 +112,11 @@ public:
     /* Called when it's safe to clean up the completion items.
      */
     virtual void cleanup() = 0;
+
+protected:
+    static bool compareChar(const QChar &item, const QChar &other);
+    static bool lessThan(const QString &item, const QString &other);
+    static bool completionItemLessThan(const CompletionItem &item, const CompletionItem &other);
 };
 
 class TEXTEDITOR_EXPORT IQuickFixCollector : public ICompletionCollector

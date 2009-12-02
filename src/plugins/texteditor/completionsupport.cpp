@@ -169,54 +169,10 @@ void CompletionSupport::autoComplete_helper(ITextEditable *editor, bool forced,
     }
 }
 
-static bool compareChar(const QChar &l, const QChar &r)
-{
-    if (l == QLatin1Char('_'))
-        return false;
-    else if (r == QLatin1Char('_'))
-        return true;
-    else
-        return l < r;
-}
-
-static bool lessThan(const QString &l, const QString &r)
-{
-    return std::lexicographical_compare(l.begin(), l.end(),
-                                        r.begin(), r.end(),
-                                        compareChar);
-}
-
-static bool completionItemLessThan(const CompletionItem &i1, const CompletionItem &i2)
-{
-    // The order is case-insensitive in principle, but case-sensitive when this would otherwise mean equality
-    const QString lower1 = i1.text.toLower();
-    const QString lower2 = i2.text.toLower();
-    if (lower1 == lower2)
-        return lessThan(i1.text, i2.text);
-    else
-        return lessThan(lower1, lower2);
-}
-
 QList<CompletionItem> CompletionSupport::getCompletions() const
 {
-    QList<CompletionItem> completionItems;
+    if (m_completionCollector)
+        return m_completionCollector->getCompletions();
 
-    m_completionCollector->completions(&completionItems);
-
-    qStableSort(completionItems.begin(), completionItems.end(), completionItemLessThan);
-
-    // Remove duplicates
-    QString lastKey;
-    QList<CompletionItem> uniquelist;
-
-    foreach (const CompletionItem &item, completionItems) {
-        if (item.text != lastKey) {
-            uniquelist.append(item);
-            lastKey = item.text;
-        } else {
-            uniquelist.last().duplicateCount++;
-        }
-    }
-
-    return uniquelist;
+    return QList<CompletionItem>();
 }

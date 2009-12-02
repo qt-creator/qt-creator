@@ -64,6 +64,7 @@ public:
     void setObjcEnabled(bool objcEnabled)
     { m_objcEnabled = objcEnabled; }
 
+    QList<TextEditor::CompletionItem> getCompletions();
     bool supportsEditor(TextEditor::ITextEditable *editor);
     bool triggersCompletion(TextEditor::ITextEditable *editor);
     int startCompletion(TextEditor::ITextEditable *editor);

@@ -11,6 +11,7 @@ SOURCES += texteditorplugin.cpp \
     basetexteditor.cpp \
     behaviorsettingspage.cpp \
     texteditoractionhandler.cpp \
+    icompletioncollector.cpp \
     completionsupport.cpp \
     completionwidget.cpp \
     fontsettingspage.cpp \

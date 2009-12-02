@@ -1466,6 +1466,43 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
     }
 }
 
+QList<TextEditor::CompletionItem> CppCodeCompletion::getCompletions()
+{
+    QList<TextEditor::CompletionItem> completionItems;
+
+    completions(&completionItems);
+
+    qStableSort(completionItems.begin(), completionItems.end(), completionItemLessThan);
+
+    // Remove duplicates
+    QString lastKey;
+    QList<TextEditor::CompletionItem> uniquelist;
+
+    foreach (const TextEditor::CompletionItem &item, completionItems) {
+        if (item.text != lastKey) {
+            uniquelist.append(item);
+            lastKey = item.text;
+        } else {
+            TextEditor::CompletionItem &lastItem = uniquelist.last();
+            Symbol *symbol = qvariant_cast<Symbol *>(item.data);
+            Symbol *lastSymbol = qvariant_cast<Symbol *>(lastItem.data);
+
+            if (symbol && lastSymbol) {
+                Function *funTy = symbol->type()->asFunctionType();
+                Function *lastFunTy = lastSymbol->type()->asFunctionType();
+                if (funTy && lastFunTy) {
+                    if (funTy->argumentCount() == lastFunTy->argumentCount())
+                        continue;
+                }
+            }
+
+            ++lastItem.duplicateCount;
+        }
+    }
+
+    return uniquelist;
+}
+
 void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
 {
     Symbol *symbol = 0;
