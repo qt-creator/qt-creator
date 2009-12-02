@@ -2092,10 +2092,12 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QAbstractTextDocumentLayout::PaintContext context = getPaintContext();
 
     if (!d->m_findScope.isNull()) {
-        QAbstractTextDocumentLayout::Selection selection;
-        selection.format.setBackground(d->m_searchScopeFormat.background());
-        selection.cursor = d->m_findScope;
-        context.selections.prepend(selection);
+
+        TextEditorOverlay *overlay = new TextEditorOverlay(this);
+        overlay->addOverlaySelection(d->m_findScope, d->m_searchScopeFormat.background().color().darker(120),
+                                     d->m_searchScopeFormat.background().color());
+        overlay->paint(&painter, e->rect());
+        delete overlay;
     }
 
     BlockSelectionData *blockSelection = 0;
@@ -2145,6 +2147,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         }
 
     } // end first pass
+
 
     d->m_searchResultOverlay->fill(&painter,
                                    d->m_searchResultFormat.background().color(),
@@ -2978,13 +2981,25 @@ void BaseTextEditor::slotUpdateBlockNotify(const QTextBlock &block)
         /* an overlay might draw outside the block bounderies, force
            complete viewport update */
         viewport()->update();
-    } else if (block.previous().isValid() && block.userState() != block.previous().userState()) {
+    } else {
+        if (block.previous().isValid() && block.userState() != block.previous().userState()) {
         /* The syntax highlighting state changes. This opens up for
            the possibility that the paragraph has braces that support
            code folding. In this case, do the save thing and also
            update the previous block, which might contain a collapse
            box which now is invalid.*/
-        emit requestBlockUpdate(block.previous());
+            emit requestBlockUpdate(block.previous());
+        }
+        if (!d->m_findScope.isNull()) {
+            if (block.position() < d->m_findScope.selectionEnd()
+                && block.position()+block.length() >= d->m_findScope.selectionStart() ) {
+                QTextBlock b = block.document()->findBlock(d->m_findScope.selectionStart());
+                do {
+                    emit requestBlockUpdate(b);
+                    b = b.next();
+                } while (b.isValid() && b.position() < d->m_findScope.selectionEnd());
+            }
+        }
     }
     blockRecursion = false;
 }

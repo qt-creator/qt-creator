@@ -308,6 +308,18 @@ void TextEditorOverlay::paintSelection(QPainter *painter,
     }
 
     painter->setRenderHint(QPainter::Antialiasing);
+
+    if (selection.m_dropShadow) {
+        painter->save();
+        painter->translate(m_dropShadowWidth, m_dropShadowWidth);
+
+        QPainterPath clip = path;
+        clip.translate(-m_dropShadowWidth, -m_dropShadowWidth);
+        painter->setClipPath(clip.intersected(path));
+        painter->fillPath(path, QColor(0, 0, 0, 100));
+        painter->restore();
+    }
+
     pen.setJoinStyle(Qt::RoundJoin);
     painter->setPen(pen);
     painter->drawPath(path);
@@ -328,11 +340,6 @@ void TextEditorOverlay::fillSelection(QPainter *painter,
     painter->save();
     painter->translate(-.5, -.5);
     painter->setRenderHint(QPainter::Antialiasing);
-    if (selection.m_dropShadow) {
-        painter->translate(m_dropShadowWidth, m_dropShadowWidth);
-        painter->fillPath(path, QColor(0, 0, 0, 100));
-        painter->translate(-m_dropShadowWidth, -m_dropShadowWidth);
-    }
     painter->fillPath(path, color);
     painter->restore();
 }
