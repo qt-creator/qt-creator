@@ -42,6 +42,7 @@ TextEditorOverlay::TextEditorOverlay(BaseTextEditor *editor)
     m_borderWidth = 1;
     m_dropShadowWidth = 2;
     m_editor = editor;
+    m_alpha = true;
     m_viewport = editor->viewport();
 }
 
@@ -118,7 +119,6 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
     if (begin.isNull() || end.isNull() || begin.position() > end.position())
         return QPainterPath();
 
-
     QPointF offset = m_editor->contentOffset();
     QRect viewportRect = rect();
     QTextDocument *document = m_editor->document();
@@ -134,65 +134,78 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
 
     QVector<QRectF> selection;
 
-    for (; block.isValid() && block.blockNumber() <= end.blockNumber(); block = block.next()) {
-        if (! block.isVisible())
-            continue;
-
+    if (begin.position() == end.position()) {
+        // special case empty selections
         const QRectF blockGeometry = m_editor->blockBoundingGeometry(block);
         QTextLayout *blockLayout = block.layout();
-
-        QTextLine line = blockLayout->lineAt(0);
-
-        int beginChar = 0;
-        if (!inSelection) {
-            beginChar = begin.position() - begin.block().position();
-            line = blockLayout->lineForTextPosition(beginChar);
-            inSelection = true;
-        } else {
-            while (beginChar < block.length() && document->characterAt(block.position() + beginChar).isSpace())
-                ++beginChar;
-            if (beginChar == block.length())
-                beginChar = 0;
-        }
-
-        int lastLine = blockLayout->lineCount()-1;
-        int endChar = -1;
-        if (block == end.block()) {
-            endChar = end.position()  - end.block().position();
-            lastLine = blockLayout->lineForTextPosition(endChar).lineNumber();
-            inSelection = false;
-        } else {
-            endChar = block.length();
-            while (endChar > beginChar && document->characterAt(block.position() + endChar - 1).isSpace())
-                --endChar;
-        }
-
+        int pos = begin.position() - begin.block().position();
+        QTextLine line = blockLayout->lineForTextPosition(pos);
         QRectF lineRect = line.naturalTextRect();
-        if (beginChar < endChar) {
-            lineRect.setLeft(line.cursorToX(beginChar));
-            if (line.lineNumber() == lastLine)
-                lineRect.setRight(line.cursorToX(endChar));
-            selection += lineRect.translated(blockGeometry.topLeft());
+        int x = line.cursorToX(pos);
+        lineRect.setLeft(x - m_borderWidth);
+        lineRect.setRight(x + m_borderWidth);
+        selection += lineRect.translated(blockGeometry.topLeft());
+    } else {
+        for (; block.isValid() && block.blockNumber() <= end.blockNumber(); block = block.next()) {
+            if (! block.isVisible())
+                continue;
 
-            for (int lineIndex = line.lineNumber()+1; lineIndex <= lastLine; ++lineIndex) {
-                line = blockLayout->lineAt(lineIndex);
-                lineRect = line.naturalTextRect();
-                if (lineIndex == lastLine)
+            const QRectF blockGeometry = m_editor->blockBoundingGeometry(block);
+            QTextLayout *blockLayout = block.layout();
+
+            QTextLine line = blockLayout->lineAt(0);
+
+            int beginChar = 0;
+            if (!inSelection) {
+                beginChar = begin.position() - begin.block().position();
+                line = blockLayout->lineForTextPosition(beginChar);
+                inSelection = true;
+            } else {
+                while (beginChar < block.length() && document->characterAt(block.position() + beginChar).isSpace())
+                    ++beginChar;
+                if (beginChar == block.length())
+                    beginChar = 0;
+            }
+
+            int lastLine = blockLayout->lineCount()-1;
+            int endChar = -1;
+            if (block == end.block()) {
+                endChar = end.position()  - end.block().position();
+                lastLine = blockLayout->lineForTextPosition(endChar).lineNumber();
+                inSelection = false;
+            } else {
+                endChar = block.length();
+                while (endChar > beginChar && document->characterAt(block.position() + endChar - 1).isSpace())
+                    --endChar;
+            }
+
+            QRectF lineRect = line.naturalTextRect();
+            if (beginChar < endChar) {
+                lineRect.setLeft(line.cursorToX(beginChar));
+                if (line.lineNumber() == lastLine)
                     lineRect.setRight(line.cursorToX(endChar));
                 selection += lineRect.translated(blockGeometry.topLeft());
+
+                for (int lineIndex = line.lineNumber()+1; lineIndex <= lastLine; ++lineIndex) {
+                    line = blockLayout->lineAt(lineIndex);
+                    lineRect = line.naturalTextRect();
+                    if (lineIndex == lastLine)
+                        lineRect.setRight(line.cursorToX(endChar));
+                    selection += lineRect.translated(blockGeometry.topLeft());
+                }
+            } else { // empty lines
+                if (!selection.isEmpty())
+                    lineRect.setLeft(selection.last().left());
+                lineRect.setRight(lineRect.left() + 16);
+                selection += lineRect.translated(blockGeometry.topLeft());
             }
-        } else { // empty lines
-            if (!selection.isEmpty())
-                lineRect.setLeft(selection.last().left());
-            lineRect.setRight(lineRect.left() + 16);
-            selection += lineRect.translated(blockGeometry.topLeft());
+
+            if (!inSelection)
+                break;
+
+            if (blockGeometry.translated(offset).y() > 2*viewportRect.height())
+                break;
         }
-
-        if (!inSelection)
-            break;
-
-        if (blockGeometry.translated(offset).y() > 2*viewportRect.height())
-            break;
     }
 
 
@@ -288,21 +301,30 @@ void TextEditorOverlay::paintSelection(QPainter *painter,
 
     painter->save();
     QColor penColor = fg;
-    penColor.setAlpha(220);
+    if (m_alpha)
+        penColor.setAlpha(220);
     QPen pen(penColor, m_borderWidth);
     painter->translate(-.5, -.5);
 
     QRectF pathRect = path.controlPointRect();
 
     if (bg.isValid()) {
-        QLinearGradient linearGrad(pathRect.topLeft(), pathRect.bottomLeft());
-        QColor col1 = fg.lighter(150);
-        col1.setAlpha(20);
-        QColor col2 = fg;
-        col2.setAlpha(80);
-        linearGrad.setColorAt(0, col1);
-        linearGrad.setColorAt(1, col2);
-        painter->setBrush(QBrush(linearGrad));
+        if (!m_alpha || begin.blockNumber() != end.blockNumber()) {
+            // gradients are too slow for larger selections :(
+            QColor col = bg;
+            if (m_alpha)
+                col.setAlpha(50);
+            painter->setBrush(col);
+        } else {
+            QLinearGradient linearGrad(pathRect.topLeft(), pathRect.bottomLeft());
+            QColor col1 = fg.lighter(150);
+            col1.setAlpha(20);
+            QColor col2 = fg;
+            col2.setAlpha(80);
+            linearGrad.setColorAt(0, col1);
+            linearGrad.setColorAt(1, col2);
+            painter->setBrush(QBrush(linearGrad));
+        }
     } else {
         painter->setBrush(QBrush());
     }
@@ -311,12 +333,10 @@ void TextEditorOverlay::paintSelection(QPainter *painter,
 
     if (selection.m_dropShadow) {
         painter->save();
-        painter->translate(m_dropShadowWidth, m_dropShadowWidth);
-
-        QPainterPath clip = path;
-        clip.translate(-m_dropShadowWidth, -m_dropShadowWidth);
-        painter->setClipPath(clip.intersected(path));
-        painter->fillPath(path, QColor(0, 0, 0, 100));
+        QPainterPath shadow = path;
+        shadow.translate(m_dropShadowWidth, m_dropShadowWidth);
+        painter->setClipPath(shadow.intersected(path));
+        painter->fillPath(shadow, QColor(0, 0, 0, 100));
         painter->restore();
     }
 

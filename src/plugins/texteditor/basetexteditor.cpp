@@ -2097,6 +2097,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         TextEditorOverlay *overlay = new TextEditorOverlay(this);
         overlay->addOverlaySelection(d->m_findScope, d->m_searchScopeFormat.background().color().darker(120),
                                      d->m_searchScopeFormat.background().color());
+        overlay->setAlpha(false);
         overlay->paint(&painter, e->rect());
         delete overlay;
     }

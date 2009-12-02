@@ -59,6 +59,7 @@ private:
 bool m_visible;
 int m_borderWidth;
 int m_dropShadowWidth;
+bool m_alpha;
 
 public:
     TextEditorOverlay(BaseTextEditor *editor);
@@ -73,6 +74,8 @@ public:
     void setBorderWidth(int bw) {m_borderWidth = bw; }
 
     void update();
+
+    void setAlpha(bool enabled) { m_alpha = enabled; }
 
     void clear();
     void addOverlaySelection(const QTextCursor &cursor, const QColor &fg, const QColor &bg, bool lockSize = false);
