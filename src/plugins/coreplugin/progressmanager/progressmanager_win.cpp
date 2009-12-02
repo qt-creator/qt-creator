@@ -29,6 +29,11 @@
 
 #include <QtCore/QVariant>
 #include <QtGui/QMainWindow>
+#include <QtGui/QFont>
+#include <QtGui/QFontMetrics>
+#include <QtGui/QPixmap>
+#include <QtGui/QPainter>
+#include <QtGui/QLabel>
 
 #include <coreplugin/icore.h>
 
@@ -76,7 +81,22 @@ void Core::Internal::ProgressManagerPrivate::cleanup()
 
 void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &text)
 {
-    Q_UNUSED(text)
+    if (!pITask)
+        return;
+
+    WId winId = Core::ICore::instance()->mainWindow()->winId();
+    if (text.isNull()) {
+        pITask->SetOverlayIcon(winId, NULL, NULL);
+    } else {
+        QPixmap pix = QPixmap(":/projectexplorer/images/compile_error.png");
+        QPainter p(&pix);
+        p.setPen(Qt::white);
+        QFont font = p.font();
+        font.setPointSize(font.pointSize()-2);
+        p.setFont(font);
+        p.drawText(QRect(QPoint(0,0), pix.size()), Qt::AlignHCenter|Qt::AlignCenter, text);
+        pITask->SetOverlayIcon(winId, pix.toWinHICON(), text.utf16());
+    }
 }
 
 void Core::Internal::ProgressManagerPrivate::setApplicationProgressRange(int min, int max)
