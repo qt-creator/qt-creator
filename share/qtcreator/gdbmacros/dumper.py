@@ -116,6 +116,12 @@ def call(value, func):
     #warn("  -> %s" % result)
     return result
 
+def qtNamespace():
+    try:
+        type = str(gdb.parse_and_eval("&QString::null").type.target().unqualified())
+        return type[0:len(type) - len("QString::null")]
+    except RuntimeError:
+        return ""
 
 #######################################################################
 #
@@ -146,10 +152,6 @@ class FrameCommand(gdb.Command):
         super(FrameCommand, self).__init__("bb", gdb.COMMAND_OBSCURE)
 
     def invoke(self, arg, from_tty):
-        print('locals={iname="local",name="Locals",value=" ",type=" ",'
-            + 'children=[%s]}' % self.doit(arg).encode("latin1"))
-
-    def doit(self, arg):
         args = arg.split(' ')
         #warn("ARG: %s" % arg)
         #warn("ARGS: %s" % args)
@@ -193,15 +195,8 @@ class FrameCommand(gdb.Command):
         d = Dumper()
         d.dumpers = self.dumpers
         d.passExceptions = passExceptions
+        d.ns = qtNamespace()
         block = frame.block()
-
-        # initialize namespace
-        try:
-            type = str(gdb.parse_and_eval("&QString::null").type.target().unqualified())
-            d.ns = type[0:len(type) - len("QString::null")]
-        except RuntimeError:
-            d.ns = ""
-
         #warn(" NAMESPACE IS: '%s'" % d.ns)
         #warn("FRAME %s: " % frame)
 
@@ -244,9 +239,12 @@ class FrameCommand(gdb.Command):
                 break
 
             block = block.superblock
+            #warn("BLOCK %s: " % block)
 
         d.pushOutput()
-        return d.safeoutput
+
+        print('locals={iname="local",name="Locals",value=" ",type=" ",'
+            + 'children=[%s]}' % d.safeoutput)
 
 FrameCommand()
 

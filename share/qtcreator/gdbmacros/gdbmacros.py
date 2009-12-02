@@ -2029,10 +2029,32 @@ def qqDumpStdVector(d, item):
         d.endChildren()
 
 
-# needed
-#gdb.pretty_printers.append(QStringPrinter)
+def qqDumpstd__deque(d, item):
+    qqDumpStdDeque(d, item)
 
-#gdb.pretty_printers["^QStringList$"] = QStringPrinter
-#gdb.pretty_printers["^myns::QList<myns::QString>$"] = QStringPrinter
-#gdb.pretty_printers["^myns::QCoreApplication$"] = QStringPrinter
+def qqDumpstd__list(d, item):
+    qqDumpStdList(d, item)
 
+def qqDumpstd__map(d, item):
+    qqDumpStdMap(d, item)
+
+def qqDumpstd__set(d, item):
+    qqDumpStdSet(d, item)
+
+def qqDumpstd__vector(d, item):
+    qqDumpStdVector(d, item)
+
+def qqDumpstring(d, item):
+    qqDumpStdString(d, item)
+
+def qqDumpstd__string(d, item):
+    qqDumpStdString(d, item)
+
+def qqDumpstd__wstring(d, item):
+    qqDumpStdString(d, item)
+
+def qqDumpstd__basic_string(d, item):
+    qqDumpStdString(d, item)
+
+def qqDumpwstring(d, item):
+    qqDumpStdString(d, item)

@@ -605,10 +605,10 @@ static QString niceTypeHelper(const QString typeIn)
 QString WatchModel::niceType(const QString &typeIn) const
 {
     QString type = niceTypeHelper(typeIn);
-    if (theDebuggerBoolSetting(ShowStdNamespace))
+    if (!theDebuggerBoolSetting(ShowStdNamespace))
         type = type.remove("std::");
     IDebuggerEngine *engine = m_handler->m_manager->currentEngine();
-    if (engine && theDebuggerBoolSetting(ShowQtNamespace))
+    if (engine && !theDebuggerBoolSetting(ShowQtNamespace))
         type = type.remove(engine->qtNamespace());
     return type;
 }
