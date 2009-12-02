@@ -37,6 +37,8 @@
 
 typedef unsigned char byte;
 
+class QDateTime;
+
 namespace trk {
 
 enum Command {
@@ -92,6 +94,7 @@ void appendByte(QByteArray *ba, byte b);
 void appendShort(QByteArray *ba, ushort s, Endianness = TargetByteOrder);
 void appendInt(QByteArray *ba, uint i, Endianness = TargetByteOrder);
 void appendString(QByteArray *ba, const QByteArray &str, Endianness = TargetByteOrder, bool appendNullTerminator = true);
+void appendDateTime(QByteArray *ba, QDateTime dateTime, Endianness = TargetByteOrder);
 
 struct Library
 {
