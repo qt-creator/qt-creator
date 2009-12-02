@@ -168,25 +168,29 @@ class FrameCommand(gdb.Command):
         module = sys.modules[__name__]
         self.dumpers = {}
 
+        if useFancy == -1:
+            output = "dumpers=["
+            for key, value in module.__dict__.items():
+                if key.startswith("qqDump"):
+                    if output != "dumpers=[":
+                        output += ","
+                    output += '"' + key[6:] + '"'
+            output += "],"
+            #output += "qtversion=[%d,%d,%d]"
+            output += "qtversion=[4,6,0],"
+            output += "namespace=\"%s\"," % qtNamespace()
+            output += "dumperversion=\"2.0\","
+            output += "sizes=[],"
+            output += "expressions=[]"
+            output += "]"
+            print output
+            return
+  
         if useFancy:
             for key, value in module.__dict__.items():
                 #if callable(value):
                 if key.startswith("qqDump"):
                     self.dumpers[key[6:]] = value
-            self.dumpers["std__deque"]        = qqDumpStdDeque
-            self.dumpers["std__list"]         = qqDumpStdList
-            self.dumpers["std__map"]          = qqDumpStdMap
-            self.dumpers["std__set"]          = qqDumpStdSet
-            self.dumpers["std__vector"]       = qqDumpStdVector
-            self.dumpers["string"]            = qqDumpStdString
-            self.dumpers["std__string"]       = qqDumpStdString
-            self.dumpers["std__wstring"]      = qqDumpStdString
-            self.dumpers["std__basic_string"] = qqDumpStdString
-            self.dumpers["wstring"]           = qqDumpStdString
-            # Hack to work around gdb bug #10898
-            #self.dumpers["QString::string"]     = qqDumpStdString
-            #warn("DUMPERS: %s " % self.dumpers)
-
         try:
             frame = gdb.selected_frame()
         except RuntimeError:
@@ -400,7 +404,7 @@ class Dumper:
 
     def dumpInnerValueHelper(self, item, field = "value"):
         if isSimpleType(item.value.type):
-            self.putItemHelper(item, field)
+            self.safePutItemHelper(item, field)
 
     def safePutItemHelper(self, item):
         self.pushOutput()
@@ -436,7 +440,7 @@ class Dumper:
 
     def putItem(self, item):
         self.beginHash()
-        self.putItemHelper(item)
+        self.safePutItemHelper(item)
         self.endHash()
 
     def putItemOrPointer(self, item):
@@ -458,7 +462,7 @@ class Dumper:
                 self.putField("value", "(null)")
                 self.putField("numchild", "0")
         else:
-            self.putItemHelper(item)
+            self.safePutItemHelper(item)
 
 
     def putItemHelper(self, item, field = "value"):
@@ -547,7 +551,7 @@ class Dumper:
                     #    child.name = "*%s" % name
                     #    self.putField("name", child.name)
                     #self.putType(child.value.type)
-                    self.putItemHelper(child)
+                    self.safePutItemHelper(child)
                     self.endHash()
                     self.endChildren()
 
@@ -614,7 +618,7 @@ class Dumper:
                     #d.putField("iname", child.iname)
                     #d.putField("name", child.name)
                     #d.putType(child.value.type)
-                    self.putItemHelper(child)
+                    self.safePutItemHelper(child)
                     self.endHash()
                 self.endChildren()
 
