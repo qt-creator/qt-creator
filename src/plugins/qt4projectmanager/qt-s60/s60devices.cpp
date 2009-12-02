@@ -235,6 +235,9 @@ bool S60Devices::readWin()
 
 bool S60Devices::detectQtForDevices()
 {
+    // Do not normalize these backslashes since they are in ARM binaries:
+    const QByteArray indicator("\\src\\corelib\\kernel\\qobject.h");
+    const int indicatorlength = indicator.size();
     for (int i = 0; i < m_devices.size(); ++i) {
         if (!m_devices.at(i).qt.isEmpty())
             continue;
@@ -243,14 +246,11 @@ bool S60Devices::detectQtForDevices()
             m_devices[i].qt = QString();
             continue;
         }
-        // Do not normalize these backslashes since they are in ARM binaries:
-        const QString indicator("\\src\\corelib\\kernel\\qobject.h");
-        int indicatorlength = indicator.length();
         QByteArray buffer;
         int index = -1;
         while (!qtDll.atEnd()) {
             buffer = qtDll.read(10000);
-            index = buffer.indexOf(indicator.toLatin1());
+            index = buffer.indexOf(indicator);
             if (index >= 0)
                 break;
             if (!qtDll.atEnd())
