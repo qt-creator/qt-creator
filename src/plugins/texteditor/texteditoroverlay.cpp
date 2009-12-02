@@ -230,7 +230,7 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
                        selection.at(i+1).right()) + margin;
 
         points += QPointF(x+1, selection.at(i).top());
-        points += QPointF(x+1, selection.at(i).bottom()+1);
+        points += QPointF(x+1, selection.at(i).bottom());
 
     }
 
