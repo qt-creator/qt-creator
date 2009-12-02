@@ -1875,11 +1875,12 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
     QString text = block.text();
     text.replace(QChar::Nbsp, QLatin1Char(' '));
     int idx = -1;
+    int l = 1;
     while (idx < text.length()) {
-        idx = m_searchExpr.indexIn(text, idx + 1);
+        idx = m_searchExpr.indexIn(text, idx + l);
         if (idx < 0)
             break;
-        int l = m_searchExpr.matchedLength();
+        l = m_searchExpr.matchedLength();
         if ((m_findFlags & Find::IFindSupport::FindWholeWords)
             && ((idx && text.at(idx-1).isLetterOrNumber())
                 || (idx + l < text.length() && text.at(idx + l).isLetterOrNumber())))
