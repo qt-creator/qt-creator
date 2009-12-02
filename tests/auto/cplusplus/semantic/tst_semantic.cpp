@@ -34,7 +34,7 @@ public:
                            TranslationUnit::ParseMode mode,
                            bool enableObjc)
     {
-        StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
+        const StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
         unit->setSource(source.constData(), source.length());
         unit->setObjCEnabled(enableObjc);
@@ -79,7 +79,7 @@ public:
         { }
 
         virtual void report(int /*level*/,
-                            StringLiteral *fileName,
+                            const StringLiteral *fileName,
                             unsigned line, unsigned column,
                             const char *format, va_list ap)
         {
@@ -146,7 +146,7 @@ void tst_Semantic::function_declaration_1()
     QCOMPARE(funTy->argumentCount(), 0U);
 
     QVERIFY(decl->name()->isNameId());
-    Identifier *funId = decl->name()->asNameId()->identifier();
+    const Identifier *funId = decl->name()->asNameId()->identifier();
     QVERIFY(funId);
 
     const QByteArray foo(funId->chars(), funId->size());
@@ -175,10 +175,10 @@ void tst_Semantic::function_declaration_2()
     QVERIFY(! arg->hasInitializer());
 
     // check the argument's name.
-    NameId *argNameId = arg->name()->asNameId();
+    const NameId *argNameId = arg->name()->asNameId();
     QVERIFY(argNameId);
 
-    Identifier *argId = argNameId->identifier();
+    const Identifier *argId = argNameId->identifier();
     QVERIFY(argId);
 
     QCOMPARE(QByteArray(argId->chars(), argId->size()), QByteArray("s"));
@@ -190,13 +190,13 @@ void tst_Semantic::function_declaration_2()
     NamedType *namedTy = argTy->asReferenceType()->elementType()->asNamedType();
     QVERIFY(namedTy);
     QVERIFY(namedTy->name());
-    Identifier *namedTypeId = namedTy->name()->asNameId()->identifier();
+    const Identifier *namedTypeId = namedTy->name()->asNameId()->identifier();
     QVERIFY(namedTypeId);
     QCOMPARE(QByteArray(namedTypeId->chars(), namedTypeId->size()),
              QByteArray("QString"));
 
     QVERIFY(decl->name()->isNameId());
-    Identifier *funId = decl->name()->asNameId()->identifier();
+    const Identifier *funId = decl->name()->asNameId()->identifier();
     QVERIFY(funId);
 
     const QByteArray foo(funId->chars(), funId->size());
@@ -215,7 +215,7 @@ void tst_Semantic::function_definition_1()
     QCOMPARE(funTy->argumentCount(), 0U);
 
     QVERIFY(funTy->name()->isNameId());
-    Identifier *funId = funTy->name()->asNameId()->identifier();
+    const Identifier *funId = funTy->name()->asNameId()->identifier();
     QVERIFY(funId);
 
     const QByteArray foo(funId->chars(), funId->size());
@@ -239,9 +239,9 @@ void tst_Semantic::nested_class_1()
     Class *classObject = doc->globals->symbolAt(0)->asClass();
     QVERIFY(classObject);
     QVERIFY(classObject->name());
-    NameId *classObjectNameId = classObject->name()->asNameId();
+    const NameId *classObjectNameId = classObject->name()->asNameId();
     QVERIFY(classObjectNameId);
-    Identifier *objectId = classObjectNameId->identifier();
+    const Identifier *objectId = classObjectNameId->identifier();
     QCOMPARE(QByteArray(objectId->chars(), objectId->size()), QByteArray("Object"));
     QCOMPARE(classObject->baseClassCount(), 0U);
     QCOMPARE(classObject->members()->symbolCount(), 2U);
@@ -249,7 +249,7 @@ void tst_Semantic::nested_class_1()
     Class *classObjectData = doc->globals->symbolAt(1)->asClass();
     QVERIFY(classObjectData);
     QVERIFY(classObjectData->name());
-    QualifiedNameId *q = classObjectData->name()->asQualifiedNameId();
+    const QualifiedNameId *q = classObjectData->name()->asQualifiedNameId();
     QVERIFY(q);
     QCOMPARE(q->nameCount(), 2U);
     QVERIFY(q->nameAt(0)->asNameId());
@@ -426,7 +426,7 @@ void tst_Semantic::template_instance_1()
     QVERIFY(decl);
 
     GenTemplateInstance::Substitution subst;
-    Identifier *nameTp = control.findOrInsertIdentifier("_Tp");
+    const Identifier *nameTp = control.findOrInsertIdentifier("_Tp");
     FullySpecifiedType intTy(control.integerType(IntegerType::Int));
     subst.append(qMakePair(nameTp, intTy));
 

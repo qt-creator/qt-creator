@@ -21,7 +21,7 @@ public:
                            TranslationUnit::ParseMode mode,
                            bool blockErrors = false)
     {
-        StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
+        const StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
         unit->setObjCEnabled(true);
         unit->setSource(source.constData(), source.length());
