@@ -1735,13 +1735,8 @@ Sollen sie überschrieben werden?</translation>
 </context>
 <context>
     <name>Core::Internal::EditorView</name>
-    <message id="===============EditorView====================">
-        <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="-442"/>
-        <source>Go Back</source>
-        <translation>Vorheriges</translation>
-    </message>
     <message>
-        <location line="+0"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="-442"/>
         <source>Go Back</source>
         <translation>Vorheriges</translation>
     </message>
