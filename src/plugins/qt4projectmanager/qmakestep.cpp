@@ -87,22 +87,17 @@ QStringList QMakeStep::allArguments()
         arguments << QLatin1String("-unix");
 #endif
 
-    if (bc->value("buildConfiguration").isValid()) {
-        QStringList configarguments;
-        QtVersion::QmakeBuildConfigs defaultBuildConfiguration = bc->qtVersion()->defaultBuildConfig();
-        QtVersion::QmakeBuildConfigs projectBuildConfiguration = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt());
-        if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))
-            configarguments << "CONFIG-=debug_and_release";
-        if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (projectBuildConfiguration & QtVersion::BuildAll))
-            configarguments << "CONFIG+=debug_and_release";
-        if ((defaultBuildConfiguration & QtVersion::DebugBuild) && !(projectBuildConfiguration & QtVersion::DebugBuild))
-            configarguments << "CONFIG+=release";
-        if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (projectBuildConfiguration & QtVersion::DebugBuild))
-            configarguments << "CONFIG+=debug";
-        if (!configarguments.isEmpty())
-            arguments << configarguments;
-    } else {
-        qWarning()<< "The project should always have a qmake build configuration set";
+    // Find out what flags we pass on to qmake
+    QStringList addedUserConfigArguments;
+    QStringList removedUserConfigArguments;
+    bc->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
+    if (!removedUserConfigArguments.isEmpty()) {
+        foreach (const QString &removedConfig, removedUserConfigArguments)
+            arguments.append("CONFIG-=" + removedConfig);
+    }
+    if (!addedUserConfigArguments.isEmpty()) {
+        foreach (const QString &addedConfig, addedUserConfigArguments)
+            arguments.append("CONFIG+=" + addedConfig);
     }
 
     if (!additonalArguments.isEmpty())

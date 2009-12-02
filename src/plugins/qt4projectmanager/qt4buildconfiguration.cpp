@@ -133,7 +133,7 @@ QString Qt4BuildConfiguration::makeCommand() const
 }
 
 #ifdef QTCREATOR_WITH_S60
-static inline QString symbianMakeTarget(QtVersion::QmakeBuildConfig buildConfig,
+static inline QString symbianMakeTarget(QtVersion::QmakeBuildConfigs buildConfig,
                                         const QString &type)
 {
     QString rc = (buildConfig & QtVersion::DebugBuild) ?
@@ -149,8 +149,7 @@ QString Qt4BuildConfiguration::defaultMakeTarget() const
     ToolChain *tc = toolChain();
     if (!tc)
         return QString::null;
-    const QtVersion::QmakeBuildConfig buildConfig
-            = QtVersion::QmakeBuildConfig(value("buildConfiguration").toInt());
+    const QtVersion::QmakeBuildConfigs buildConfig = qmakeBuildConfiguration();
 
     switch (tc->type()) {
     case ToolChain::GCCE:
@@ -279,7 +278,7 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &workingDirectory)
             // same qtversion
             QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
                     QtVersionManager::scanMakeFile(workingDirectory, version->defaultBuildConfig());
-            if (QtVersion::QmakeBuildConfig(value("buildConfiguration").toInt()) == result.first) {
+            if (qmakeBuildConfiguration() == result.first) {
                 // The QMake Build Configuration are the same,
                 // now compare arguments lists
                 // we have to compare without the spec/platform cmd argument
@@ -401,4 +400,27 @@ QString Qt4BuildConfiguration::extractSpecFromArgumentList(const QStringList &li
 #endif
     return parsedSpec;
 
+}
+
+QtVersion::QmakeBuildConfigs Qt4BuildConfiguration::qmakeBuildConfiguration() const
+{
+    return QtVersion::QmakeBuildConfigs(value("buildConfiguration").toInt());
+}
+
+void Qt4BuildConfiguration::getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const
+{
+    QtVersion::QmakeBuildConfigs defaultBuildConfiguration = qtVersion()->defaultBuildConfig();
+    QtVersion::QmakeBuildConfigs userBuildConfiguration = qmakeBuildConfiguration();
+    if (removedUserConfigs) {
+        if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(userBuildConfiguration & QtVersion::BuildAll))
+            (*removedUserConfigs) << "debug_and_release";
+    }
+    if (addedUserConfigs) {
+        if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (userBuildConfiguration & QtVersion::BuildAll))
+            (*addedUserConfigs) << "debug_and_release";
+        if ((defaultBuildConfiguration & QtVersion::DebugBuild) && !(userBuildConfiguration & QtVersion::DebugBuild))
+            (*addedUserConfigs) << "release";
+        if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (userBuildConfiguration & QtVersion::DebugBuild))
+            (*addedUserConfigs) << "debug";
+    }
 }

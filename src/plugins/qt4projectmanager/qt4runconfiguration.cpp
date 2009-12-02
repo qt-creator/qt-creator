@@ -574,21 +574,11 @@ void Qt4RunConfiguration::updateTarget()
     reader->setCumulative(false);
     reader->setQtVersion(qt4bc->qtVersion());
 
-    // Find out what flags we pass on to qmake, this code is duplicated in the qmake step
-    QtVersion::QmakeBuildConfigs defaultBuildConfiguration = qt4bc->qtVersion()->defaultBuildConfig();
-    QtVersion::QmakeBuildConfigs projectBuildConfiguration = QtVersion::QmakeBuildConfig(qt4bc->value("buildConfiguration").toInt());
+    // Find out what flags we pass on to qmake
     QStringList addedUserConfigArguments;
     QStringList removedUserConfigArguments;
-    if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(projectBuildConfiguration & QtVersion::BuildAll))
-        removedUserConfigArguments << "debug_and_release";
-    if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (projectBuildConfiguration & QtVersion::BuildAll))
-        addedUserConfigArguments << "debug_and_release";
-    if ((defaultBuildConfiguration & QtVersion::DebugBuild) && !(projectBuildConfiguration & QtVersion::DebugBuild))
-        addedUserConfigArguments << "release";
-    if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (projectBuildConfiguration & QtVersion::DebugBuild))
-        addedUserConfigArguments << "debug";
-
-    reader->setUserConfigCmdArgs(addedUserConfigArguments, removedUserConfigArguments);
+    qt4bc->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
+    reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
 
     if (!reader->readProFile(m_proFilePath)) {
         delete reader;
@@ -618,7 +608,7 @@ void Qt4RunConfiguration::updateTarget()
         if (reader->values("CONFIG").contains("debug_and_release_target")) {
             //qDebug()<<"reader has debug_and_release_target";
             QString qmakeBuildConfig = "release";
-            if (projectBuildConfiguration & QtVersion::DebugBuild)
+            if (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild)
                 qmakeBuildConfig = "debug";
             if (!reader->contains("DESTDIR"))
                 m_workingDir += QLatin1Char('/') + qmakeBuildConfig;

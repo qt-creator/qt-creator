@@ -30,13 +30,14 @@
 #ifndef QT4BUILDCONFIGURATION_H
 #define QT4BUILDCONFIGURATION_H
 
+#include "qtversionmanager.h"
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/toolchain.h>
 
 namespace Qt4ProjectManager {
 
 class Qt4Project;
-class QtVersion;
 class QMakeStep;
 class MakeStep;
 
@@ -97,6 +98,9 @@ public:
     bool compareToImportFrom(const QString &workingDirectory);
     static QStringList removeSpecFromArgumentList(const QStringList &old);
     static QString extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version);
+
+    QtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
+    void getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const;
 
 signals:
     void qtVersionChanged();

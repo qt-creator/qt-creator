@@ -3068,7 +3068,7 @@ void ProFileEvaluator::setOutputDir(const QString &dir)
     d->m_outputDir = dir;
 }
 
-void ProFileEvaluator::setUserConfigCmdArgs(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs)
+void ProFileEvaluator::setConfigCommandLineArguments(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs)
 {
     d->m_addUserConfigCmdArgs = addUserConfigCmdArgs;
     d->m_removeUserConfigCmdArgs = removeUserConfigCmdArgs;

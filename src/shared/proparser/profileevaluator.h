@@ -112,7 +112,7 @@ public:
 
     // -nocache, -cache, -spec, QMAKESPEC
     // -set persistent value
-    void setUserConfigCmdArgs(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs);
+    void setConfigCommandLineArguments(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs);
     void setParsePreAndPostFiles(bool on); // Default is true
 
     bool queryProFile(ProFile *pro);

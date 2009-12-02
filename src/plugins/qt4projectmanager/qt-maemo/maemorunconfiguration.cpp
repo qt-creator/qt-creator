@@ -565,34 +565,11 @@ void MaemoRunConfiguration::updateTarget()
         reader->setCumulative(false);
         reader->setQtVersion(qtVersion);
 
-        // Find out what flags we pass on to qmake, this code is duplicated in
-        // the qmake step
-        QtVersion::QmakeBuildConfigs defaultBuildConfiguration =
-            qtVersion->defaultBuildConfig();
-        QtVersion::QmakeBuildConfig projectBuildConfiguration =
-            QtVersion::QmakeBuildConfig(qt4Project->activeBuildConfiguration()
-                ->value("buildConfiguration").toInt());
-
+        // Find out what flags we pass on to qmake
         QStringList addedUserConfigArguments;
         QStringList removedUserConfigArguments;
-        if ((defaultBuildConfiguration & QtVersion::BuildAll)
-            && !(projectBuildConfiguration & QtVersion::BuildAll))
-            removedUserConfigArguments << "debug_and_release";
-
-        if (!(defaultBuildConfiguration & QtVersion::BuildAll)
-            && (projectBuildConfiguration & QtVersion::BuildAll))
-            addedUserConfigArguments << "debug_and_release";
-
-        if ((defaultBuildConfiguration & QtVersion::DebugBuild)
-            && !(projectBuildConfiguration & QtVersion::DebugBuild))
-            addedUserConfigArguments << "release";
-
-        if (!(defaultBuildConfiguration & QtVersion::DebugBuild)
-            && (projectBuildConfiguration & QtVersion::DebugBuild))
-            addedUserConfigArguments << "debug";
-
-        reader->setUserConfigCmdArgs(addedUserConfigArguments,
-            removedUserConfigArguments);
+        qt4bc->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
+        reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
 
         if (!reader->readProFile(m_proFilePath)) {
             delete reader;
