@@ -1,19 +1,19 @@
-#ifndef IDCOLLECTOR_H
-#define IDCOLLECTOR_H
+#ifndef QMLIDCOLLECTOR_H
+#define QMLIDCOLLECTOR_H
 
 #include <QMap>
 #include <QPair>
 #include <QStack>
 #include <QString>
 
-#include "qmldocument.h"
-#include "qmljsastvisitor_p.h"
-#include "qmlsymbol.h"
+#include <qml/parser/qmljsastvisitor_p.h>
+#include <qml/qmldocument.h>
+#include <qml/qmlsymbol.h>
 
 namespace QmlEditor {
 namespace Internal {
 
-class IdCollector: protected QmlJS::AST::Visitor
+class QML_EXPORT QmlIdCollector: protected QmlJS::AST::Visitor
 {
 public:
     QMap<QString, QmlIdSymbol*> operator()(QmlDocument *doc);
@@ -37,4 +37,4 @@ private:
 } // namespace Internal
 } // namespace QmlEditor
 
-#endif // IDCOLLECTOR_H
+#endif // QMLIDCOLLECTOR_H

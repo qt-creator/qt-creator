@@ -31,18 +31,17 @@
 #include "qmleditorconstants.h"
 #include "qmlhighlighter.h"
 #include "qmleditorplugin.h"
-#include "qmldocument.h"
 #include "qmlmodelmanager.h"
 
-#include "qmljsastvisitor_p.h"
-#include "qmljsast_p.h"
-#include "qmljsengine_p.h"
 #include "qmlexpressionundercursor.h"
 #include "qmllookupcontext.h"
 #include "qmlresolveexpression.h"
-#include "rewriter_p.h"
 
-#include "idcollector.h"
+#include <qml/parser/qmljsastvisitor_p.h>
+#include <qml/parser/qmljsast_p.h>
+#include <qml/parser/qmljsengine_p.h>
+#include <qml/qmldocument.h>
+#include <qml/qmlidcollector.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -54,6 +53,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/changeset.h>
 #include <utils/uncommentselection.h>
 
 #include <QtCore/QTimer>
@@ -572,16 +572,14 @@ void ScriptEditor::renameIdUnderCursor()
                                                 QLineEdit::Normal,
                                                 id, &ok);
     if (ok) {
-        TextWriter writer;
-
-        QString code = toPlainText();
+        Utils::ChangeSet changeSet;
 
         foreach (const AST::SourceLocation &loc, m_ids.value(id)) {
-            writer.replace(loc.offset, loc.length, newId);
+            changeSet.replace(loc.offset, loc.length, newId);
         }
 
         QTextCursor tc = textCursor();
-        writer.write(&tc);
+        changeSet.apply(&tc);
     }
 }
 

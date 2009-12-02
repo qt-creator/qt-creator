@@ -32,15 +32,15 @@
 #include "qmlhoverhandler.h"
 #include "qmllookupcontext.h"
 #include "qmlresolveexpression.h"
-#include "qmlsymbol.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <debugger/debuggerconstants.h>
 #include <extensionsystem/pluginmanager.h>
+#include <qml/qmlsymbol.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
-#include <debugger/debuggerconstants.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>

@@ -1,12 +1,13 @@
-#include <QDebug>
-
-#include "qmljsast_p.h"
-#include "qmljsastvisitor_p.h"
-#include "qmljsengine_p.h"
-#include "qmljslexer_p.h"
-#include "qmljsnodepool_p.h"
-#include "qmljsparser_p.h"
 #include "qmlexpressionundercursor.h"
+
+#include <qml/parser/qmljsast_p.h>
+#include <qml/parser/qmljsastvisitor_p.h>
+#include <qml/parser/qmljsengine_p.h>
+#include <qml/parser/qmljslexer_p.h>
+#include <qml/parser/qmljsnodepool_p.h>
+#include <qml/parser/qmljsparser_p.h>
+
+#include <QDebug>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

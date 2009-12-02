@@ -1,6 +1,7 @@
-#include "qmljsast_p.h"
-#include "qmljsengine_p.h"
 #include "qmlresolveexpression.h"
+
+#include <qml/parser/qmljsast_p.h>
+#include <qml/parser/qmljsengine_p.h>
 
 using namespace QmlEditor;
 using namespace QmlEditor::Internal;

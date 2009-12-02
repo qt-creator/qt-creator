@@ -30,12 +30,9 @@
 #ifndef QMLEDITORW_H
 #define QMLEDITORW_H
 
+#include <qml/qmldocument.h>
+#include <qscripthighlighter/qscriptincrementalscanner.h>
 #include <texteditor/basetexteditor.h>
-
-#include "qmljsastfwd_p.h"
-#include "qmljsengine_p.h"
-#include "qmldocument.h"
-#include "qscriptincrementalscanner.h"
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

@@ -35,13 +35,13 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
-#include <qmleditor/qmleditor_global.h>
-#include <qmleditor/parser/qmljsengine_p.h>
-#include <qmleditor/qmlsymbol.h>
+#include "parser/qmljsengine_p.h"
+#include "qml_global.h"
+#include "qmlsymbol.h"
 
 namespace QmlEditor {
 
-class QMLEDITOR_EXPORT QmlDocument
+class QML_EXPORT QmlDocument
 {
 public:
     typedef QSharedPointer<QmlDocument> Ptr;
@@ -91,7 +91,7 @@ private:
     QmlSymbol::List _symbols;
 };
 
-class QMLEDITOR_EXPORT Snapshot: public QMap<QString, QmlDocument::Ptr>
+class QML_EXPORT Snapshot: public QMap<QString, QmlDocument::Ptr>
 {
 public:
     Snapshot();

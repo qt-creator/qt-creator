@@ -1,6 +1,6 @@
 #include <QDebug>
 
-#include "idcollector.h"
+#include "qmlidcollector.h"
 #include "qmljsast_p.h"
 #include "qmljsengine_p.h"
 
@@ -9,7 +9,7 @@ using namespace QmlJS::AST;
 using namespace QmlEditor;
 using namespace QmlEditor::Internal;
 
-QMap<QString, QmlIdSymbol*> IdCollector::operator()(QmlDocument *doc)
+QMap<QString, QmlIdSymbol*> QmlIdCollector::operator()(QmlDocument *doc)
 {
     _doc = doc;
     _ids.clear();
@@ -20,7 +20,7 @@ QMap<QString, QmlIdSymbol*> IdCollector::operator()(QmlDocument *doc)
     return _ids;
 }
 
-bool IdCollector::visit(UiArrayBinding *ast)
+bool QmlIdCollector::visit(UiArrayBinding *ast)
 {
     QmlSymbolFromFile *oldSymbol = switchSymbol(ast);
     Node::accept(ast->members, this);
@@ -28,7 +28,7 @@ bool IdCollector::visit(UiArrayBinding *ast)
     return false;
 }
 
-bool IdCollector::visit(QmlJS::AST::UiObjectBinding *ast)
+bool QmlIdCollector::visit(QmlJS::AST::UiObjectBinding *ast)
 {
     QmlSymbolFromFile *oldSymbol = switchSymbol(ast);
     Node::accept(ast->initializer, this);
@@ -36,7 +36,7 @@ bool IdCollector::visit(QmlJS::AST::UiObjectBinding *ast)
     return false;
 }
 
-bool IdCollector::visit(QmlJS::AST::UiObjectDefinition *ast)
+bool QmlIdCollector::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     QmlSymbolFromFile *oldSymbol = switchSymbol(ast);
     Node::accept(ast->initializer, this);
@@ -44,7 +44,7 @@ bool IdCollector::visit(QmlJS::AST::UiObjectDefinition *ast)
     return false;
 }
 
-bool IdCollector::visit(QmlJS::AST::UiScriptBinding *ast)
+bool QmlIdCollector::visit(QmlJS::AST::UiScriptBinding *ast)
 {
     if (!(ast->qualifiedId->next) && ast->qualifiedId->name->asString() == "id")
         if (ExpressionStatement *e = cast<ExpressionStatement*>(ast->statement))
@@ -55,7 +55,7 @@ bool IdCollector::visit(QmlJS::AST::UiScriptBinding *ast)
     return false;
 }
 
-QmlSymbolFromFile *IdCollector::switchSymbol(QmlJS::AST::UiObjectMember *node)
+QmlSymbolFromFile *QmlIdCollector::switchSymbol(QmlJS::AST::UiObjectMember *node)
 {
     QmlSymbolFromFile *newSymbol = 0;
 
@@ -77,7 +77,7 @@ QmlSymbolFromFile *IdCollector::switchSymbol(QmlJS::AST::UiObjectMember *node)
     return oldSymbol;
 }
 
-void IdCollector::addId(const QString &id, QmlJS::AST::UiScriptBinding *ast)
+void QmlIdCollector::addId(const QString &id, QmlJS::AST::UiScriptBinding *ast)
 {
     if (!_ids.contains(id) && _currentSymbol) {
         QmlSymbolFromFile *symbol = _currentSymbol->findMember(ast);

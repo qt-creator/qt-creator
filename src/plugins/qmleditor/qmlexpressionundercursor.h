@@ -1,13 +1,14 @@
 #ifndef QMLEXPRESSIONUNDERCURSOR_H
 #define QMLEXPRESSIONUNDERCURSOR_H
 
+
+#include <qml/parser/qmljsastfwd_p.h>
+#include <qml/qmldocument.h>
+#include <qml/qmlsymbol.h>
+
 #include <QStack>
 #include <QTextBlock>
 #include <QTextCursor>
-
-#include "qmldocument.h"
-#include "qmljsastfwd_p.h"
-#include "qmlsymbol.h"
 
 namespace QmlJS {
     class Engine;

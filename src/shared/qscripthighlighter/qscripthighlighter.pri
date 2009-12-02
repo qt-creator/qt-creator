@@ -1,4 +1,11 @@
-INCLUDEPATH *= $$PWD
+INCLUDEPATH *= $$PWD $$PWD/..
 
-SOURCES += $$PWD/qscripthighlighter.cpp $$PWD/qscriptincrementalscanner.cpp
-HEADERS += $$PWD/qscripthighlighter.h $$PWD/qscriptincrementalscanner.h
+DEFINES += QSCRIPTHIGHLIGHTER_BUILD_LIB
+
+SOURCES += $$PWD/qscriptincrementalscanner.cpp
+HEADERS += $$PWD/qscriptincrementalscanner.h $$PWD/qscripthighlighter_global.h
+
+contains(QT, gui) {
+    SOURCES += $$PWD/qscripthighlighter.cpp
+    HEADERS += $$PWD/qscripthighlighter.h
+}

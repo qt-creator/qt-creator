@@ -30,7 +30,7 @@
 #ifndef QMLSYNTAXHIGHLIGHTER_H
 #define QMLSYNTAXHIGHLIGHTER_H
 
-#include "qscripthighlighter.h"
+#include <qscripthighlighter/qscripthighlighter.h>
 #include <texteditor/basetexteditor.h>
 
 namespace QmlEditor {

@@ -1,9 +1,10 @@
 #ifndef QMLRESOLVEEXPRESSION_H
 #define QMLRESOLVEEXPRESSION_H
 
-#include "qmljsastvisitor_p.h"
 #include "qmllookupcontext.h"
-#include "qmlsymbol.h"
+
+#include <qml/parser/qmljsastvisitor_p.h>
+#include <qml/qmlsymbol.h>
 
 namespace QmlEditor {
 namespace Internal {

@@ -30,12 +30,13 @@
 #ifndef QMLMODELMANAGERINTERFACE_H
 #define QMLMODELMANAGERINTERFACE_H
 
+#include "qmleditor_global.h"
+
 #include <QObject>
 #include <QStringList>
 #include <QSharedPointer>
 
-#include <qmleditor/qmleditor_global.h>
-#include <qmleditor/qmldocument.h>
+#include <qml/qmldocument.h>
 
 namespace QmlEditor {
 

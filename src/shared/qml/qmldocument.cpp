@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "idcollector.h"
+#include "qmlidcollector.h"
 #include "qmldocument.h"
 #include "qmljsast_p.h"
 #include "qmljslexer_p.h"
@@ -114,7 +114,7 @@ bool QmlDocument::parse()
             if (iter->member)
                 _symbols.append(new QmlSymbolFromFile(_fileName, iter->member));
 
-         Internal::IdCollector collect;
+         Internal::QmlIdCollector collect;
         _ids = collect(this);
     }
 

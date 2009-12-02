@@ -2,9 +2,9 @@
 #define QMLTASKMANAGER_H
 
 #include <projectexplorer/taskwindow.h>
-#include <qmleditor/qmldocument.h>
-#include <QtCore/QObject>
+#include <qml/qmldocument.h>
 
+#include <QtCore/QObject>
 
 namespace QmlProjectManager {
 namespace Internal {

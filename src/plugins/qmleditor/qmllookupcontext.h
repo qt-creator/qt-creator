@@ -1,11 +1,11 @@
 #ifndef QMLLOOKUPCONTEXT_H
 #define QMLLOOKUPCONTEXT_H
 
-#include <QStack>
+#include <qml/parser/qmljsastvisitor_p.h>
+#include <qml/qmldocument.h>
+#include <qml/qmlsymbol.h>
 
-#include "qmldocument.h"
-#include "qmljsastvisitor_p.h"
-#include "qmlsymbol.h"
+#include <QStack>
 
 namespace QmlEditor {
 namespace Internal {

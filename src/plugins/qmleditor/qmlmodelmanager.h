@@ -30,12 +30,13 @@
 #ifndef QMLMODELMANAGER_H
 #define QMLMODELMANAGER_H
 
+#include "qmlmodelmanagerinterface.h"
+
+#include <qml/qmldocument.h>
+
 #include <QFuture>
 #include <QFutureSynchronizer>
 #include <QMutex>
-
-#include "qmldocument.h"
-#include "qmlmodelmanagerinterface.h"
 
 namespace Core {
 class ICore;

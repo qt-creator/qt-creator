@@ -4,11 +4,12 @@
 #include <QList>
 #include <QString>
 
-#include <qmleditor/parser/qmljsastfwd_p.h>
+#include <qml/parser/qmljsastfwd_p.h>
+#include <qml/qml_global.h>
 
 namespace QmlEditor {
 
-class QmlSymbol
+class QML_EXPORT QmlSymbol
 {
 public:
     typedef QList<QmlSymbol*> List;
@@ -33,7 +34,7 @@ protected:
     List _members;
 };
 
-class QmlBuildInSymbol: public QmlSymbol
+class QML_EXPORT QmlBuildInSymbol: public QmlSymbol
 {
 public:
     QmlBuildInSymbol(const QString &name): _name(name) {}
@@ -51,7 +52,7 @@ private:
     QString _name;
 };
 
-class QmlSymbolFromFile: public QmlSymbol
+class QML_EXPORT QmlSymbolFromFile: public QmlSymbol
 {
 public:
     QmlSymbolFromFile(const QString &fileName, QmlJS::AST::UiObjectMember *node);
@@ -81,7 +82,7 @@ private:
     QList<QmlJS::AST::Node*> todo;
 };
 
-class QmlIdSymbol: public QmlSymbolFromFile
+class QML_EXPORT QmlIdSymbol: public QmlSymbolFromFile
 {
 public:
     QmlIdSymbol(const QString &fileName, QmlJS::AST::UiScriptBinding *idNode, QmlSymbolFromFile *parentNode);
@@ -107,7 +108,7 @@ private:
     QmlSymbolFromFile *_parentNode;
 };
 
-class QmlPropertyDefinitionSymbol: public QmlSymbolFromFile
+class QML_EXPORT QmlPropertyDefinitionSymbol: public QmlSymbolFromFile
 {
 public:
     QmlPropertyDefinitionSymbol(const QString &fileName, QmlJS::AST::UiPublicMember *propertyNode);

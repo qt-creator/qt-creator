@@ -30,7 +30,8 @@
 #ifndef QSCRIPTSYNTAXHIGHLIGHTER_H
 #define QSCRIPTSYNTAXHIGHLIGHTER_H
 
-#include "qscriptincrementalscanner.h"
+#include <qscripthighlighter/qscripthighlighter_global.h>
+#include <qscripthighlighter/qscriptincrementalscanner.h>
 
 #include <QtCore/QVector>
 #include <QtCore/QSet>
@@ -38,7 +39,7 @@
 
 namespace SharedTools {
 
-class QScriptHighlighter : public QSyntaxHighlighter
+class QSCRIPTHIGHLIGHTER_EXPORT QScriptHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 public:

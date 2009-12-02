@@ -29,7 +29,7 @@
 
 #include "qmleditorplugin.h"
 
-#include "qscripthighlighter.h"
+#include "qmlhighlighter.h"
 #include "qmleditor.h"
 #include "qmleditorconstants.h"
 #include "qmleditorfactory.h"

@@ -2,48 +2,43 @@ TEMPLATE = lib
 TARGET = QmlEditor
 include(../../qtcreatorplugin.pri)
 include(qmleditor_dependencies.pri)
-include(parser/parser.pri)
-include(rewriter/rewriter.pri)
+
 CONFIG += help
-DEFINES += QMLEDITOR_LIBRARY \
+DEFINES += \
+    QMLEDITOR_LIBRARY \
     QT_CREATOR
-INCLUDEPATH += parser \
-    rewriter
-HEADERS += qmleditor.h \
+
+HEADERS += \
+    qmlcodecompletion.h \
+    qmleditor.h \
+    qmleditor_global.h \
+    qmleditoractionhandler.h \
+    qmleditorconstants.h \
     qmleditorfactory.h \
     qmleditorplugin.h \
-    qmlhighlighter.h \
-    qmleditoractionhandler.h \
-    qmlcodecompletion.h \
-    qmleditorconstants.h \
-    qmlhoverhandler.h \
-    qmldocument.h \
-    qmlmodelmanagerinterface.h \
-    qmleditor_global.h \
-    qmlmodelmanager.h \
-    qmlcodeformatter.h \
-    idcollector.h \
     qmlexpressionundercursor.h \
+    qmlfilewizard.h \
+    qmlhighlighter.h \
+    qmlhoverhandler.h \
     qmllookupcontext.h \
-    qmlresolveexpression.h \
-    qmlsymbol.h \
-    qmlfilewizard.h
-SOURCES += qmleditor.cpp \
+    qmlmodelmanager.h \
+    qmlmodelmanagerinterface.h \
+    qmlresolveexpression.h
+
+SOURCES += \
+    qmlcodecompletion.cpp \
+    qmleditor.cpp \
+    qmleditoractionhandler.cpp \
     qmleditorfactory.cpp \
     qmleditorplugin.cpp \
-    qmlhighlighter.cpp \
-    qmleditoractionhandler.cpp \
-    qmlcodecompletion.cpp \
-    qmlhoverhandler.cpp \
-    qmldocument.cpp \
-    qmlmodelmanagerinterface.cpp \
-    qmlmodelmanager.cpp \
-    qmlcodeformatter.cpp \
-    idcollector.cpp \
     qmlexpressionundercursor.cpp \
+    qmlfilewizard.cpp \
+    qmlhighlighter.cpp \
+    qmlhoverhandler.cpp \
     qmllookupcontext.cpp \
-    qmlresolveexpression.cpp \
-    qmlsymbol.cpp \
-    qmlfilewizard.cpp
+    qmlmodelmanager.cpp \
+    qmlmodelmanagerinterface.cpp \
+    qmlresolveexpression.cpp
+
 RESOURCES += qmleditor.qrc
 OTHER_FILES += QmlEditor.pluginspec

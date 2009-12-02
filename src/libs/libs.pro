@@ -7,4 +7,5 @@ SUBDIRS   = \
     extensionsystem \
     utils \
     utils/process_stub.pro \
-    cplusplus
+    cplusplus \
+    qml

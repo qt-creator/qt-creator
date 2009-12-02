@@ -1,13 +1,15 @@
 #ifndef QSCRIPTINCREMENTALSCANNER_H
 #define QSCRIPTINCREMENTALSCANNER_H
 
+#include <qscripthighlighter/qscripthighlighter_global.h>
+
 #include <QtCore/QList>
 #include <QtCore/QSet>
 #include <QtCore/QString>
 
 namespace SharedTools {
 
-class QScriptIncrementalScanner
+class QSCRIPTHIGHLIGHTER_EXPORT QScriptIncrementalScanner
 {
 public:
 
