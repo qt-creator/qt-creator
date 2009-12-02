@@ -37,6 +37,7 @@
 #include <QFileInfo>
 #include <QList>
 #include <QMap>
+#include <QBitArray>
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
@@ -338,7 +339,8 @@ public:
 
     QSharedPointer<NamespaceBinding> globalNamespaceBinding(Document::Ptr doc) const;
 
-    QStringList dependsOn(const QString &fileName) const;
+    QStringList filesDependingOn(const QString &fileName) const;
+    QMap<QString, QStringList> dependencyTable() const;
 
     void insert(Document::Ptr doc);
     Document::Ptr value(const QString &fileName) const;
@@ -347,6 +349,10 @@ public:
 
 private:
     void simplified_helper(Document::Ptr doc, Snapshot *snapshot) const;
+    void dependency_helper(QVector<QString> &files,
+                           QHash<QString, int> &fileIndex,
+                           QHash<int, QList<int> > &includes,
+                           QVector<QBitArray> &includeMap) const;
 };
 
 } // end of namespace CPlusPlus

@@ -124,7 +124,7 @@ static void find_helper(QFutureInterface<Usage> &future,
                 files.append(doc->fileName());
         }
     } else {
-        files += snapshot.dependsOn(sourceFile);
+        files += snapshot.filesDependingOn(sourceFile);
     }
     files.removeDuplicates();
     //qDebug() << "done in:" << tm.elapsed() << "number of files to parse:" << files.size();

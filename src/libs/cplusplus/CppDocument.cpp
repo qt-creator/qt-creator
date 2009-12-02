@@ -474,6 +474,11 @@ QSharedPointer<NamespaceBinding> Snapshot::globalNamespaceBinding(Document::Ptr 
     return CPlusPlus::bind(doc, *this);
 }
 
+Document::Ptr Snapshot::value(const QString &fileName) const
+{
+    return QMap<QString, Document::Ptr>::value(QDir::cleanPath(fileName));
+}
+
 Snapshot Snapshot::simplified(Document::Ptr doc) const
 {
     Snapshot snapshot;
@@ -496,20 +501,15 @@ void Snapshot::simplified_helper(Document::Ptr doc, Snapshot *snapshot) const
     }
 }
 
-QStringList Snapshot::dependsOn(const QString &fileName) const
+QStringList Snapshot::filesDependingOn(const QString &fileName) const
 {
-    const int n = size();
-
-    QVector<QString> files(n);
+    const int N = size();
+    QVector<QString> files(N);
     QHash<QString, int> fileIndex;
     QHash<int, QList<int> > includes;
+    QVector<QBitArray> includeMap(N);
 
-    QMapIterator<QString, Document::Ptr> it(*this);
-    for (int i = 0; it.hasNext(); ++i) {
-        it.next();
-        files[i] = it.key();
-        fileIndex[it.key()] = i;
-    }
+    dependency_helper(files, fileIndex, includes, includeMap);
 
     int index = fileIndex.value(fileName, -1);
     if (index == -1) {
@@ -517,7 +517,54 @@ QStringList Snapshot::dependsOn(const QString &fileName) const
         return QStringList();
     }
 
-    QVector<QBitArray> includeMap(files.size());
+    QStringList deps;
+    for (int i = 0; i < files.size(); ++i) {
+        const QBitArray &bits = includeMap.at(i);
+
+        if (bits.testBit(index))
+            deps.append(files.at(i));
+    }
+
+    return deps;
+}
+
+QMap<QString, QStringList> Snapshot::dependencyTable() const
+{
+    const int N = size();
+    QVector<QString> files(N);
+    QHash<QString, int> fileIndex;
+    QHash<int, QList<int> > includes;
+    QVector<QBitArray> includeMap(N);
+
+    dependency_helper(files, fileIndex, includes, includeMap);
+
+    QMap<QString, QStringList> depMap;
+
+    for (int index = 0; index < files.size(); ++index) {
+        QStringList deps;
+        for (int i = 0; i < files.size(); ++i) {
+            const QBitArray &bits = includeMap.at(i);
+
+            if (bits.testBit(index))
+                deps.append(files.at(i));
+        }
+        depMap[files.at(index)] = deps;
+    }
+
+    return depMap;
+}
+
+void Snapshot::dependency_helper(QVector<QString> &files,
+                                 QHash<QString, int> &fileIndex,
+                                 QHash<int, QList<int> > &includes,
+                                 QVector<QBitArray> &includeMap) const
+{
+    QMapIterator<QString, Document::Ptr> it(*this);
+    for (int i = 0; it.hasNext(); ++i) {
+        it.next();
+        files[i] = it.key();
+        fileIndex[it.key()] = i;
+    }
 
     for (int i = 0; i < files.size(); ++i) {
         if (Document::Ptr doc = value(files.at(i))) {
@@ -559,19 +606,4 @@ QStringList Snapshot::dependsOn(const QString &fileName) const
             }
         }
     } while (changed);
-
-    QStringList deps;
-    for (int i = 0; i < files.size(); ++i) {
-        const QBitArray &bits = includeMap.at(i);
-
-        if (bits.testBit(index))
-            deps.append(files.at(i));
-    }
-
-    return deps;
-}
-
-Document::Ptr Snapshot::value(const QString &fileName) const
-{
-    return QMap<QString, Document::Ptr>::value(QDir::cleanPath(fileName));
 }
