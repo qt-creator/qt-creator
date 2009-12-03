@@ -42,6 +42,13 @@
          <item row="0" column="1">
           <widget class="QLineEdit" name="nameLineEdit"/>
          </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Device type:</string>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="1">
           <widget class="QWidget" name="widget_2" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -62,6 +69,39 @@
              <widget class="QRadioButton" name="simulatorButton">
               <property name="text">
                <string>Local Simulator</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Authentication type:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QWidget" name="widget_3" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="passwordButton">
+              <property name="text">
+               <string>Password</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="keyButton">
+              <property name="text">
+               <string>Key</string>
               </property>
              </widget>
             </item>
@@ -122,46 +162,6 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Device type:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Authentication type:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QWidget" name="widget_3" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QRadioButton" name="passwordButton">
-              <property name="text">
-               <string>Password</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="keyButton">
-              <property name="text">
-               <string>Key</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
          <item row="8" column="0">
           <widget class="QLabel" name="keyLabel">
            <property name="text">
@@ -170,11 +170,7 @@
           </widget>
          </item>
          <item row="8" column="1">
-          <widget class="QLineEdit" name="keyFileLineEdit">
-           <property name="echoMode">
-            <enum>QLineEdit::Normal</enum>
-           </property>
-          </widget>
+          <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
          </item>
         </layout>
        </widget>
@@ -218,6 +214,17 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -419,12 +426,12 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>208</x>
-     <y>332</y>
+     <x>268</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>424</x>
-     <y>41</y>
+     <x>257</x>
+     <y>185</y>
     </hint>
    </hints>
   </connection>

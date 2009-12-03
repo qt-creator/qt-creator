@@ -214,7 +214,8 @@ void MaemoSettingsWidget::initGui()
     m_ui->setupUi(this);
     m_ui->nameLineEdit->setValidator(&m_nameValidator);
     m_ui->portLineEdit->setValidator(&m_portValidator);
-    m_ui->timeoutLineEdit->setValidator(&m_timeoutValidator);   
+    m_ui->timeoutLineEdit->setValidator(&m_timeoutValidator);
+    m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
     foreach(const MaemoDeviceConfigurations::DeviceConfig &devConf, m_devConfs)
         m_ui->configListWidget->addItem(devConf.name);
 }
@@ -271,7 +272,7 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfigurations::DeviceConfig 
     m_ui->timeoutLineEdit->setText(QString::number(devConfig.timeout));
     m_ui->userLineEdit->setText(devConfig.uname);
     m_ui->pwdLineEdit->setText(devConfig.pwd);
-    m_ui->keyFileLineEdit->setText(devConfig.keyFile);
+    m_ui->keyFileLineEdit->setPath(devConfig.keyFile);
     m_ui->detailsWidget->setEnabled(true);
     m_nameValidator.setName(devConfig.name);
     m_portValidator.setValue(devConfig.port);
@@ -360,7 +361,7 @@ void MaemoSettingsWidget::passwordEditingFinished()
 
 void MaemoSettingsWidget::keyFileEditingFinished()
 {
-    currentConfig().keyFile = m_ui->keyFileLineEdit->text();
+    currentConfig().keyFile = m_ui->keyFileLineEdit->path();
 }
 
 void MaemoSettingsWidget::selectionChanged()
