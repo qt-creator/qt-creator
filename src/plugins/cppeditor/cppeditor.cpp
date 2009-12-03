@@ -774,10 +774,10 @@ void CPPEditor::abortRename()
 {
     if (m_currentRenameSelection < 0)
         return;
+    m_renameSelections[m_currentRenameSelection].format = m_occurrencesFormat;
     m_currentRenameSelection = -1;
     m_currentRenameSelectionBegin = QTextCursor();
     m_currentRenameSelectionEnd = QTextCursor();
-    m_renameSelections.clear();
     setExtraSelections(CodeSemanticsSelection, m_renameSelections);
 }
 
