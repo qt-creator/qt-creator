@@ -1257,7 +1257,7 @@ void MaemoRunControl::executionFinished()
 
 void MaemoRunControl::stop()
 {
-    if (!isRunning()
+    if (!isRunning())
         return;
 
     stoppedByUser = true;
