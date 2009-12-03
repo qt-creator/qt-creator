@@ -3661,9 +3661,13 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
     case T_PLUS:
     case T_MINUS:
     case T_EXCLAIM: {
+        unsigned op = cursor();
         UnaryExpressionAST *ast = new (_pool) UnaryExpressionAST;
         ast->unary_op_token = consumeToken();
-        parseCastExpression(ast->expression);
+        if (! parseCastExpression(ast->expression)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
+        }
         node = ast;
         return true;
     }
@@ -3917,8 +3921,11 @@ bool Parser::parsePmExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parseCastExpression(rightExpr))
+        if (! parseCastExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
@@ -3939,8 +3946,11 @@ bool Parser::parseMultiplicativeExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parsePmExpression(rightExpr))
+        if (! parsePmExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
@@ -3961,8 +3971,11 @@ bool Parser::parseAdditiveExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parseMultiplicativeExpression(rightExpr))
+        if (! parseMultiplicativeExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
@@ -3983,8 +3996,11 @@ bool Parser::parseShiftExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parseAdditiveExpression(rightExpr))
+        if (! parseAdditiveExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
@@ -4006,8 +4022,11 @@ bool Parser::parseRelationalExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parseShiftExpression(rightExpr))
+        if (! parseShiftExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
@@ -4028,8 +4047,11 @@ bool Parser::parseEqualityExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parseRelationalExpression(rightExpr))
+        if (! parseRelationalExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
@@ -4050,8 +4072,11 @@ bool Parser::parseAndExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parseEqualityExpression(rightExpr))
+        if (! parseEqualityExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
@@ -4072,8 +4097,11 @@ bool Parser::parseExclusiveOrExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parseAndExpression(rightExpr))
+        if (! parseAndExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
@@ -4094,8 +4122,11 @@ bool Parser::parseInclusiveOrExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parseExclusiveOrExpression(rightExpr))
+        if (! parseExclusiveOrExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
@@ -4117,8 +4148,11 @@ bool Parser::parseLogicalAndExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parseInclusiveOrExpression(rightExpr))
+        if (! parseInclusiveOrExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
@@ -4139,8 +4173,11 @@ bool Parser::parseLogicalOrExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parseLogicalAndExpression(rightExpr))
+        if (! parseLogicalAndExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
@@ -4204,8 +4241,11 @@ bool Parser::parseAssignmentExpression(ExpressionAST *&node)
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
-        if (! parseAssignmentExpression(rightExpr))
+        if (! parseAssignmentExpression(rightExpr)) {
+            _translationUnit->error(op, "expected expression after token `%s'",
+                                    _translationUnit->spell(op));
             return false;
+        }
 
         BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
         ast->binary_op_token = op;
