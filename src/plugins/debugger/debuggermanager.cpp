@@ -63,6 +63,7 @@
 #include <projectexplorer/toolchain.h>
 #include <cplusplus/CppDocument.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -1492,7 +1493,8 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
         dialog.setDetailedText(details);
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
-        Core::ICore::instance()->showOptionsDialog(_("Qt4"), _("Qt Versions"));
+        Core::ICore::instance()->showOptionsDialog(_(Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY),
+                                                   _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
     } else if (dialog.clickedButton() == helperOff) {
         theDebuggerAction(UseDebuggingHelpers)->setValue(qVariantFromValue(false), false);
     }
