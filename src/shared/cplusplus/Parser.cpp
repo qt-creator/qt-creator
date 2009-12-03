@@ -163,50 +163,48 @@ bool Parser::skipUntil(int token)
     return false;
 }
 
-bool Parser::skipUntilDeclaration()
+void Parser::skipUntilDeclaration()
 {
-    while (int tk = LA()) {
-        switch (tk) {
-            case T_SEMICOLON:
-            case T_TILDE:
-            case T_COLON_COLON:
-            case T_IDENTIFIER:
-            case T_OPERATOR:
-            case T_CHAR:
-            case T_WCHAR_T:
-            case T_BOOL:
-            case T_SHORT:
-            case T_INT:
-            case T_LONG:
-            case T_SIGNED:
-            case T_UNSIGNED:
-            case T_FLOAT:
-            case T_DOUBLE:
-            case T_VOID:
-            case T_EXTERN:
-            case T_NAMESPACE:
-            case T_USING:
-            case T_TYPEDEF:
-            case T_ASM:
-            case T_TEMPLATE:
-            case T_EXPORT:
-            case T_CONST:
-            case T_VOLATILE:
-            case T_PUBLIC:
-            case T_PROTECTED:
-            case T_PRIVATE:
-            case T_CLASS:
-            case T_STRUCT:
-            case T_UNION:
-            case T_TYPENAME:
-                return true;
+    for (; ; consumeToken()) {
+        switch (LA()) {
+        case T_EOF_SYMBOL:
 
-            default:
-                consumeToken();
-        }
+        // names
+        case T_IDENTIFIER:
+        case T_COLON_COLON:
+        case T_TILDE:
+        case T_OPERATOR:
+
+        // empty declaration
+        case T_SEMICOLON:
+
+        // member specification
+        case T_USING:
+        case T_TEMPLATE:
+        case T_PUBLIC:
+        case T_PROTECTED:
+        case T_PRIVATE:
+        case T_Q_SIGNALS:
+        case T_Q_SLOTS:
+
+        // declarations
+        case T_ENUM:
+        case T_NAMESPACE:
+        case T_ASM:
+        case T_EXPORT:
+        case T_AT_CLASS:
+        case T_AT_INTERFACE:
+        case T_AT_PROTOCOL:
+        case T_AT_IMPLEMENTATION:
+        case T_AT_END:
+            return;
+
+        default:
+            if (lookAtBuiltinTypeSpecifier() || lookAtClassKey() ||
+                lookAtFunctionSpecifier() || lookAtStorageClassSpecifier())
+                return;
+        } // switch
     }
-
-    return false;
 }
 
 bool Parser::skipUntilStatement()

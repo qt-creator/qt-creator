@@ -251,7 +251,7 @@ public:
     bool lookAtObjCSelector() const;
 
     bool skipUntil(int token);
-    bool skipUntilDeclaration();
+    void skipUntilDeclaration();
     bool skipUntilStatement();
     bool skip(int l, int r);
 
