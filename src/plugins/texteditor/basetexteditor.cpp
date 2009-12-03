@@ -1007,8 +1007,10 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             cursor.insertBlock();
             indent(document(), cursor, QChar::Null);
         } else {
-            QString previousBlockText = cursor.block().text();
             cursor.insertBlock();
+
+            // After inserting the block, to avoid duplicating whitespace on the same line
+            const QString previousBlockText = cursor.block().previous().text();
             cursor.insertText(ts.indentationString(previousBlockText));
         }
         cursor.endEditBlock();
