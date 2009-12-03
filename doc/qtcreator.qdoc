@@ -2011,12 +2011,13 @@
     \list
         \o  Windows XP Service Pack 2
         \o  Windows Vista
-        \o  (K)Ubuntu Linux 5.04
         \o  (K)Ubuntu Linux 7.04 32bit and 64 bit
         \o  Mac OS 10.4 and later
     \endlist
 
-    \note Building the sources requires \bold{Qt 4.6.0} or later.
+    \note Building Qt Creator itself from source requires \bold{Qt 4.6.0} or later.
+          On Windows, MinGW 4.4 or Microsoft Visual Studio 2008 or later are required for compiling
+          Qt Creator itself.
 */
 
 
