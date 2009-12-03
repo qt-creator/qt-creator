@@ -61,9 +61,18 @@ public:
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
     ProjectExplorer::ToolChain *toolChain() const;
 
-    void updateToolChain(const QString &compiler);
+
+    void setBuildDirectory(const QString &buildDirectory);
+
+    QString msvcVersion() const;
+    void setMsvcVersion(const QString &msvcVersion);
+
+signals:
+    void msvcVersionChanged();
+
 private:
-    ProjectExplorer::ToolChain *m_toolChain;
+    void updateToolChain() const;
+    mutable ProjectExplorer::ToolChain *m_toolChain;
 };
 
 

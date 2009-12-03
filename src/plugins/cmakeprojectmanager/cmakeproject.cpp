@@ -104,7 +104,7 @@ BuildConfiguration *CMakeBuildConfigurationFactory::create(const QString &type) 
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-    BuildConfiguration *bc = new CMakeBuildConfiguration(m_project);
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project);
     bc->setDisplayName(buildConfigurationName);
 
     MakeStep *makeStep = new MakeStep(bc);
@@ -124,8 +124,8 @@ BuildConfiguration *CMakeBuildConfigurationFactory::create(const QString &type) 
     }
     m_project->addBuildConfiguration(bc); // this also makes the name unique
 
-    bc->setValue("buildDirectory", copw.buildDirectory());
-    bc->setValue("msvcVersion", copw.msvcVersion());
+    bc->setBuildDirectory(copw.buildDirectory());
+    bc->setMsvcVersion(copw.msvcVersion());
     m_project->parseCMakeLists();
 
     // Default to all
@@ -155,7 +155,8 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
       m_fileName(fileName),
       m_buildConfigurationFactory(new CMakeBuildConfigurationFactory(this)),
       m_rootNode(new CMakeProjectNode(m_fileName)),
-      m_insideFileChanged(false)
+      m_insideFileChanged(false),
+      m_lastActiveBuildConfiguration(0)
 {
     m_file = new CMakeFile(this, fileName);
 }
@@ -177,7 +178,13 @@ IBuildConfigurationFactory *CMakeProject::buildConfigurationFactory() const
 
 void CMakeProject::slotActiveBuildConfiguration()
 {
-    BuildConfiguration *activeBC = activeBuildConfiguration();
+    if (m_lastActiveBuildConfiguration)
+        disconnect(m_lastActiveBuildConfiguration, SIGNAL(environmentChanged()),
+                   this, SIGNAL(environmentChanged()));
+
+    CMakeBuildConfiguration *activeBC = activeCMakeBuildConfiguration();
+    connect(activeBC, SIGNAL(environmentChanged()),
+            this, SIGNAL(environmentChanged()));
     // Pop up a dialog asking the user to rerun cmake
     QFileInfo sourceFileInfo(m_fileName);
 
@@ -202,10 +209,11 @@ void CMakeProject::slotActiveBuildConfiguration()
                                     mode,
                                     activeBC->environment());
         copw.exec();
-        activeBC->setValue("msvcVersion", copw.msvcVersion());
+        activeBC->setMsvcVersion(copw.msvcVersion());
     }
     // reparse
     parseCMakeLists();
+    emit environmentChanged();
 }
 
 void CMakeProject::fileChanged(const QString &fileName)
@@ -218,9 +226,9 @@ void CMakeProject::fileChanged(const QString &fileName)
     m_insideFileChanged = false;
 }
 
-void CMakeProject::changeBuildDirectory(BuildConfiguration *configuration, const QString &newBuildDirectory)
+void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QString &newBuildDirectory)
 {
-    configuration->setValue("buildDirectory", newBuildDirectory);
+    bc->setBuildDirectory(newBuildDirectory);
     parseCMakeLists();
 }
 
@@ -242,16 +250,14 @@ bool CMakeProject::parseCMakeLists()
     //qDebug()<<"Parsing file "<<cbpFile;
     if (cbpparser.parseCbpFile(cbpFile)) {
         // ToolChain
-        activeBC->updateToolChain(cbpparser.compilerName());
+        // activeBC->updateToolChain(cbpparser.compilerName());
 
         m_projectName = cbpparser.projectName();
         m_rootNode->setFolderName(cbpparser.projectName());
 
         //qDebug()<<"Building Tree";
 
-
         QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
-
         QSet<QString> projectFiles;
         if (cbpparser.hasCMakeFiles()) {
             fileList.append(cbpparser.cmakeFileList());
@@ -263,7 +269,6 @@ bool CMakeProject::parseCMakeLists()
             fileList.append(new ProjectExplorer::FileNode(cmakeListTxt, ProjectExplorer::ProjectFileType, false));
             projectFiles.insert(cmakeListTxt);
         }
-
 
         QSet<QString> added = projectFiles;
         added.subtract(m_watchedFiles);
@@ -279,7 +284,6 @@ bool CMakeProject::parseCMakeLists()
         m_files.sort();
 
         buildTree(m_rootNode, fileList);
-
 
         //qDebug()<<"Adding Targets";
         m_targets = cbpparser.targets();
@@ -306,7 +310,8 @@ bool CMakeProject::parseCMakeLists()
         allIncludePaths.append(sourceDirectory());
 
         allIncludePaths.append(cbpparser.includeFiles());
-        CppTools::CppModelManagerInterface *modelmanager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
+        CppTools::CppModelManagerInterface *modelmanager =
+                ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
         if (modelmanager) {
             CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
             if (pinfo.includePaths != allIncludePaths
@@ -374,9 +379,11 @@ bool CMakeProject::parseCMakeLists()
     } else {
         // TODO report error
         qDebug()<<"Parsing failed";
-        activeBC->updateToolChain(QString::null);
+        // activeBC->updateToolChain(QString::null);
+        emit targetsChanged();
         return false;
     }
+    emit targetsChanged();
     return true;
 }
 
@@ -615,6 +622,11 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
     if (!hasUserFile && targets().contains("all"))
         makeStep->setBuildTarget("all", true);
 
+    m_lastActiveBuildConfiguration = activeCMakeBuildConfiguration();
+    if (m_lastActiveBuildConfiguration)
+        connect(m_lastActiveBuildConfiguration, SIGNAL(environmentChanged()),
+                this, SIGNAL(environmentChanged()));
+
     connect(this, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(slotActiveBuildConfiguration()));
     return true;
@@ -694,10 +706,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeProject *project)
     setLayout(fl);
     m_pathLineEdit = new QLineEdit(this);
     m_pathLineEdit->setReadOnly(true);
-    // TODO currently doesn't work
-    // since creating the cbp file also creates makefiles
-    // and then cmake builds in that directory instead of shadow building
-    // We need our own generator for that to work
 
     QHBoxLayout *hbox = new QHBoxLayout();
     hbox->addWidget(m_pathLineEdit);

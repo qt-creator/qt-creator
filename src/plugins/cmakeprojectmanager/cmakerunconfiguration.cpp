@@ -56,12 +56,8 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &t
 {
     setName(title);
 
-    connect(pro, SIGNAL(activeBuildConfigurationChanged()),
+    connect(pro, SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
-
-    // TODO
-//    connect(pro, SIGNAL(environmentChanged(ProjectExplorer::BuildConfiguration *)),
-//            this, SIGNAL(baseEnvironmentChanged()));
 }
 
 CMakeRunConfiguration::~CMakeRunConfiguration()
@@ -317,8 +313,8 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(resetButton, SIGNAL(clicked()),
             this, SLOT(resetWorkingDirectory()));
 
-    connect(m_environmentWidget, SIGNAL(userChangesUpdated()),
-            this, SLOT(userChangesUpdated()));
+    connect(m_environmentWidget, SIGNAL(userChangesChanged()),
+            this, SLOT(userChangesChanged()));
 
     connect(m_cmakeRunConfiguration, SIGNAL(workingDirectoryChanged(QString)),
             this, SLOT(workingDirectoryChanged(QString)));
@@ -351,7 +347,7 @@ void CMakeRunConfigurationWidget::resetWorkingDirectory()
     m_cmakeRunConfiguration->setUserWorkingDirectory("");
 }
 
-void CMakeRunConfigurationWidget::userChangesUpdated()
+void CMakeRunConfigurationWidget::userChangesChanged()
 {
     m_cmakeRunConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
 }

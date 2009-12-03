@@ -213,7 +213,8 @@ InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)
     label->setWordWrap(true);
     label->setText(tr("Qt Creator has detected an <b>in-source-build in %1</b> "
                    "which prevents shadow builds. Qt Creator will not allow you to change the build directory. "
-                   "If you want a shadow build, clean your source directory and re-open the project.").arg(m_cmakeWizard->buildDirectory()));
+                   "If you want a shadow build, clean your source directory and re-open the project.")
+                   .arg(m_cmakeWizard->buildDirectory()));
     layout()->addWidget(label);
 }
 
@@ -381,12 +382,16 @@ void CMakeRunPage::initializePage()
                 m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(msvcVersion), msvcVersion);
         }
 
-        if (cachedGenerator == "NMake Makefiles" && !msvcVersions.isEmpty())
+        if (cachedGenerator == "NMake Makefiles" && !msvcVersions.isEmpty()) {
             m_generatorComboBox->setCurrentIndex(0);
+            m_cmakeWizard->setMsvcVersion(msvcVersions.first());
+        }
 
         m_generatorComboBox->addItem(tr("MinGW Generator"), "mingw");
-        if (cachedGenerator == "MinGW Makefiles")
+        if (cachedGenerator == "MinGW Makefiles") {
             m_generatorComboBox->setCurrentIndex(m_generatorComboBox->count() - 1);
+            m_cmakeWizard->setMsvcVersion("");
+        }
     } else {
         // No new enough cmake, simply hide the combo box
         m_generatorComboBox->setVisible(false);
@@ -411,6 +416,8 @@ void CMakeRunPage::runCMake()
             if (version != "mingw") {
                 generator = "-GCodeBlocks - NMake Makefiles";
                 m_cmakeWizard->setMsvcVersion(version);
+            } else {
+                m_cmakeWizard->setMsvcVersion("");
             }
         }   
     }

@@ -112,7 +112,7 @@ private slots:
     void setArguments(const QString &args);
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged();
-    void userChangesUpdated();
+    void userChangesChanged();
     void setWorkingDirectory();
     void resetWorkingDirectory();
 private slots:

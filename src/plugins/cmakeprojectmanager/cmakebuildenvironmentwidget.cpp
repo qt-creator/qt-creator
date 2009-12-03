@@ -52,12 +52,11 @@ CMakeBuildEnvironmentWidget::CMakeBuildEnvironmentWidget(CMakeProject *project)
     m_buildEnvironmentWidget = new ProjectExplorer::EnvironmentWidget(this, m_clearSystemEnvironmentCheckBox);
     vbox->addWidget(m_buildEnvironmentWidget);
 
-    connect(m_buildEnvironmentWidget, SIGNAL(userChangesUpdated()),
-            this, SLOT(environmentModelUserChangesUpdated()));
+    connect(m_buildEnvironmentWidget, SIGNAL(userChangesChanged()),
+            this, SLOT(environmentModelUserChangesChanged()));
     connect(m_clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(clearSystemEnvironmentCheckBoxClicked(bool)));
 }
-
 
 QString CMakeBuildEnvironmentWidget::displayName() const
 {
@@ -77,7 +76,7 @@ void CMakeBuildEnvironmentWidget::init(ProjectExplorer::BuildConfiguration *bc)
     m_buildEnvironmentWidget->updateButtons();
 }
 
-void CMakeBuildEnvironmentWidget::environmentModelUserChangesUpdated()
+void CMakeBuildEnvironmentWidget::environmentModelUserChangesChanged()
 {
     m_buildConfiguration->setUserEnvironmentChanges(m_buildEnvironmentWidget->userChanges());
 }

@@ -217,6 +217,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
+
 }
 
 void MakeStepConfigWidget::additionalArgumentsEdited()
@@ -250,6 +251,24 @@ void MakeStepConfigWidget::init()
 
     m_additionalArguments->setText(Environment::joinArgumentList(m_makeStep->additionalArguments()));
     updateDetails();
+
+    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeProject();
+    connect(pro, SIGNAL(targetsChanged()),
+            this, SLOT(targetsChanged()));
+}
+
+void MakeStepConfigWidget::targetsChanged()
+{
+    disconnect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+    m_targetsList->clear();
+    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeProject();
+    foreach(const QString& target, pro->targets()) {
+        QListWidgetItem *item = new QListWidgetItem(target, m_targetsList);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        item->setCheckState(m_makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
+    }
+    connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+    updateSummary();
 }
 
 void MakeStepConfigWidget::updateDetails()

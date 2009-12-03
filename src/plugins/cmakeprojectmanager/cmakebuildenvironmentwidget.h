@@ -55,7 +55,7 @@ public:
     void init(ProjectExplorer::BuildConfiguration *bc);
 
 private slots:
-    void environmentModelUserChangesUpdated();
+    void environmentModelUserChangesChanged();
     void clearSystemEnvironmentCheckBoxClicked(bool checked);
 
 private:

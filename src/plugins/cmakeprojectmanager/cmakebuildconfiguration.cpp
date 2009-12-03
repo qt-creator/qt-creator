@@ -110,8 +110,6 @@ QString CMakeBuildConfiguration::buildDirectory() const
 
 QString CMakeBuildConfiguration::buildParser() const
 {
-    // TODO this is actually slightly wrong, but do i care?
-    // this should call toolchain(configuration)
     if (!m_toolChain)
         return QString::null;
     if (m_toolChain->type() == ProjectExplorer::ToolChain::GCC
@@ -134,22 +132,21 @@ ProjectExplorer::ToolChain::ToolChainType CMakeBuildConfiguration::toolChainType
 
 ProjectExplorer::ToolChain *CMakeBuildConfiguration::toolChain() const
 {
+    updateToolChain();
     return m_toolChain;
 }
 
-void CMakeBuildConfiguration::updateToolChain(const QString &compiler)
+void CMakeBuildConfiguration::updateToolChain() const
 {
-    //qDebug()<<"CodeBlocks Compilername"<<compiler
     ProjectExplorer::ToolChain *newToolChain = 0;
-    if (compiler == "gcc") {
+    if (msvcVersion().isEmpty()) {
 #ifdef Q_OS_WIN
         newToolChain = ProjectExplorer::ToolChain::createMinGWToolChain("gcc", QString());
 #else
         newToolChain = ProjectExplorer::ToolChain::createGccToolChain("gcc");
 #endif
-    } else if (compiler == "msvc8") {
+    } else { // msvc
         newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain(value("msvcVersion").toString(), false);
-    } else {
     }
 
     if (ProjectExplorer::ToolChain::equals(newToolChain, m_toolChain)) {
@@ -161,5 +158,26 @@ void CMakeBuildConfiguration::updateToolChain(const QString &compiler)
     }
 }
 
+void CMakeBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
+{
+    if (value("buildDirectory") == buildDirectory)
+        return;
+    setValue("buildDirectory", buildDirectory);
+    emit buildDirectoryChanged();
+}
 
+QString CMakeBuildConfiguration::msvcVersion() const
+{
+    return value("msvcVersion").toString();
+}
+
+void CMakeBuildConfiguration::setMsvcVersion(const QString &msvcVersion)
+{
+    if (value("msvcVersion").toString() == msvcVersion)
+        return;
+    setValue("msvcVersion", msvcVersion);
+    updateToolChain();
+
+    emit msvcVersionChanged();
+}
 

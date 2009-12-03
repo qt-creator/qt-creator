@@ -114,12 +114,19 @@ public:
 
     QString sourceDirectory() const;
 
+signals:
+    /// convenience signal emitted if the activeBuildConfiguration emits environmentChanged
+    /// or if the activeBuildConfiguration changes
+    void environmentChanged();
+    /// emitted after parsing
+    void targetsChanged();
+
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
     virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
 
     // called by CMakeBuildSettingsWidget
-    void changeBuildDirectory(ProjectExplorer::BuildConfiguration *configuration, const QString &newBuildDirectory);
+    void changeBuildDirectory(CMakeBuildConfiguration *bc, const QString &newBuildDirectory);
 
 private slots:
     void fileChanged(const QString &fileName);
@@ -145,6 +152,7 @@ private:
     ProjectExplorer::FileWatcher *m_watcher;
     bool m_insideFileChanged;
     QSet<QString> m_watchedFiles;
+    CMakeBuildConfiguration *m_lastActiveBuildConfiguration;
 
     friend class CMakeBuildConfigurationFactory; // for parseCMakeLists
 };
