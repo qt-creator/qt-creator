@@ -222,6 +222,7 @@
    <container>1</container>
    <slots>
     <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
    </slots>
   </customwidget>
  </customwidgets>
@@ -422,6 +423,22 @@
   <connection>
    <sender>keyFileLineEdit</sender>
    <signal>editingFinished()</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>keyFileEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>268</x>
+     <y>337</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>185</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>keyFileLineEdit</sender>
+   <signal>browsingFinished()</signal>
    <receiver>maemoSettingsWidget</receiver>
    <slot>keyFileEditingFinished()</slot>
    <hints>
