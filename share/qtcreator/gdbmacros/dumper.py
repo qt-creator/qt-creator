@@ -538,22 +538,13 @@ class Dumper:
 
             if not isHandled:
                 # Generic pointer type.
-                self.putField(field, str(value.address))
-                self.putNumChild(1)
                 #warn("GENERIC POINTER: %s" % value)
+                self.putField(field, str(value.address))
                 if self.isExpanded(item):
-                    self.beginChildren()
-                    child = Item(value.dereference(), item.iname, "*", "*" + name)
-                    self.beginHash()
-                    self.putField("iname", child.iname)
-                    #name = getattr(item, "name", None)
-                    #if not name is None:
-                    #    child.name = "*%s" % name
-                    #    self.putField("name", child.name)
-                    #self.putType(child.value.type)
-                    self.safePutItemHelper(child)
-                    self.endHash()
-                    self.endChildren()
+                    self.putItemOrPointerHelper(
+                        Item(item.value.dereference(), item.iname, None, None))
+                else:
+                    self.putNumChild(1)
 
         else:
             #warn("COMMON TYPE: %s " % value.type)
