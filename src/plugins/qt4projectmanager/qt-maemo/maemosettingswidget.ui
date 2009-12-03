@@ -416,7 +416,7 @@
    <sender>keyFileLineEdit</sender>
    <signal>editingFinished()</signal>
    <receiver>maemoSettingsWidget</receiver>
-   <slot>keyFileChanged()</slot>
+   <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>208</x>
@@ -441,6 +441,6 @@
   <slot>selectionChanged()</slot>
   <slot>deleteConfig()</slot>
   <slot>authenticationTypeChanged()</slot>
-  <slot>keyFileChanged()</slot>
+  <slot>keyFileEditingFinished()</slot>
  </slots>
 </ui>
