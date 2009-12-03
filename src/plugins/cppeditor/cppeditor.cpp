@@ -658,26 +658,30 @@ void CPPEditor::inAllRenameSelections(EditOperation operation,
     m_inRename = true;
     cursor.beginEditBlock();
 
-    const int offset = cursor.position() - currentRenameSelection.cursor.anchor();
+    const int startOffset = cursor.selectionStart() - currentRenameSelection.cursor.anchor();
+    const int endOffset = cursor.selectionEnd() - currentRenameSelection.cursor.anchor();
+    const int length = endOffset - startOffset;
 
     for (int i = 0; i < m_renameSelections.size(); ++i) {
         QTextEdit::ExtraSelection &s = m_renameSelections[i];
         int pos = s.cursor.anchor();
         int endPos = s.cursor.position();
-        s.cursor.setPosition(s.cursor.anchor() + offset);
+
+        s.cursor.setPosition(pos + startOffset);
+        s.cursor.setPosition(pos + endOffset, QTextCursor::KeepAnchor);
 
         switch (operation) {
         case DeletePreviousChar:
             s.cursor.deletePreviousChar();
-            --endPos;
+            endPos -= qMax(1, length);
             break;
         case DeleteChar:
             s.cursor.deleteChar();
-            --endPos;
+            endPos -= qMax(1, length);
             break;
         case InsertText:
             s.cursor.insertText(text);
-            endPos += text.length();
+            endPos += text.length() - length;
             break;
         }
 
@@ -1733,8 +1737,8 @@ void CPPEditor::keyPressEvent(QKeyEvent *e)
             // Eat backspace at start of name
             e->accept();
             return;
-        } else if (cursor.position() > currentRenameSelection.cursor.anchor()
-                && cursor.position() <= currentRenameSelection.cursor.position()) {
+        } else if (cursor.selectionStart() > currentRenameSelection.cursor.anchor()
+                && cursor.selectionEnd() <= currentRenameSelection.cursor.position()) {
 
             inAllRenameSelections(DeletePreviousChar, currentRenameSelection, cursor);
             e->accept();
@@ -1747,8 +1751,8 @@ void CPPEditor::keyPressEvent(QKeyEvent *e)
             // Eat delete at end of name
             e->accept();
             return;
-        } else if (cursor.position() >= currentRenameSelection.cursor.anchor()
-                && cursor.position() < currentRenameSelection.cursor.position()) {
+        } else if (cursor.selectionStart() >= currentRenameSelection.cursor.anchor()
+                && cursor.selectionEnd() < currentRenameSelection.cursor.position()) {
 
             inAllRenameSelections(DeleteChar, currentRenameSelection, cursor);
             e->accept();
@@ -1759,8 +1763,8 @@ void CPPEditor::keyPressEvent(QKeyEvent *e)
     default: {
         QString text = e->text();
         if (! text.isEmpty() && text.at(0).isPrint()) {
-            if (cursor.position() >= currentRenameSelection.cursor.anchor()
-                    && cursor.position() <= currentRenameSelection.cursor.position()) {
+            if (cursor.selectionStart() >= currentRenameSelection.cursor.anchor()
+                    && cursor.selectionEnd() <= currentRenameSelection.cursor.position()) {
 
                 inAllRenameSelections(InsertText, currentRenameSelection, cursor, text);
                 e->accept();
