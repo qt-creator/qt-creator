@@ -113,6 +113,8 @@ public:
 
     enum FilesMode { AllFiles, ExcludeGeneratedFiles };
     virtual QStringList files(FilesMode fileMode) const = 0;
+    // TODO: generalize to find source(s) of generated files?
+    virtual QString generatedUiHeader(const QString &formFile) const;
 
     // C++ specific
     // TODO do a C++ project as a base ?

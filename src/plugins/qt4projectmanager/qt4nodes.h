@@ -196,6 +196,10 @@ public:
 
     void updateCodeModelSupportFromBuild(const QStringList &files);
     void updateCodeModelSupportFromEditor(const QString &uiFileName, Designer::FormWindowEditor *fw);
+
+    QString uiDirectory() const;
+    static QString uiHeaderFile(const QString &uiDir, const QString &formFile);
+
 public slots:
     void scheduleUpdate();
     void update();
@@ -203,6 +207,8 @@ private slots:
     void buildStateChanged(ProjectExplorer::Project*);
 
 private:
+    typedef QHash<Qt4Variable, QStringList> Qt4VariablesHash;
+
     void createUiCodeModelSupport();
     QStringList updateUiFiles();
     Qt4ProFileNode *createSubProFileNode(const QString &path);
@@ -215,7 +221,7 @@ private:
     void invalidate();
 
     Qt4ProjectType m_projectType;
-    QHash<Qt4Variable, QStringList> m_varValues;
+    Qt4VariablesHash m_varValues;
     QTimer m_updateTimer;
 
     QMap<QString, QDateTime> m_uitimestamps;

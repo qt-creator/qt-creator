@@ -467,3 +467,9 @@ QStringList Project::frameworkPaths(const QString &) const
 {
     return QStringList();
 }
+
+QString Project::generatedUiHeader(const QString & /* formFile */) const
+{
+    return QString();
+}
+

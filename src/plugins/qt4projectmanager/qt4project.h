@@ -179,6 +179,7 @@ public:
     Internal::Qt4ProFileNode *rootProjectNode() const;
 
     virtual QStringList files(FilesMode fileMode) const;
+    virtual QString generatedUiHeader(const QString &formFile) const;
 
     // returns the CONFIG variable from the .pro file
     QStringList qmakeConfig() const;

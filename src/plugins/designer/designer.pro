@@ -35,6 +35,7 @@ HEADERS += formeditorplugin.h \
         settingsmanager.h \
         formtemplatewizardpage.h \
         formwizarddialog.h \
+        codemodelhelpers.h \
         designer_export.h
 
 SOURCES += formeditorplugin.cpp \
@@ -49,7 +50,8 @@ SOURCES += formeditorplugin.cpp \
         formeditorw.cpp \
         settingsmanager.cpp \
         formtemplatewizardpage.cpp \
-        formwizarddialog.cpp
+        formwizarddialog.cpp \
+        codemodelhelpers.cpp
 
 RESOURCES += designer.qrc
 

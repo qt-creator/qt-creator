@@ -1252,6 +1252,23 @@ void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName,
             qt4proFileNode->updateCodeModelSupportFromEditor(uiFileName, fw);
 }
 
+QString Qt4ProFileNode::uiDirectory() const
+{
+    const Qt4VariablesHash::const_iterator it = m_varValues.constFind(UiDirVar);
+    if (it != m_varValues.constEnd() && !it.value().isEmpty())
+        return it.value().front();
+    return buildDir();
+}
+
+QString Qt4ProFileNode::uiHeaderFile(const QString &uiDir, const QString &formFile)
+{
+    QString uiHeaderFilePath = uiDir;
+    uiHeaderFilePath += QLatin1String("/ui_");
+    uiHeaderFilePath += QFileInfo(formFile).completeBaseName();
+    uiHeaderFilePath += QLatin1String(".h");
+    return QDir::cleanPath(uiHeaderFilePath);
+}
+
 void Qt4ProFileNode::createUiCodeModelSupport()
 {
 //    qDebug()<<"creatUiCodeModelSupport()";
@@ -1271,17 +1288,10 @@ void Qt4ProFileNode::createUiCodeModelSupport()
         const QList<FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
 
         // Find the UiDir, there can only ever be one
-        QString uiDir = buildDir();
-        QStringList tmp = m_varValues[UiDirVar];
-        if (tmp.size() != 0)
-            uiDir = tmp.first();
-
-        foreach (FileNode *uiFile, uiFiles) {
-            QString uiHeaderFilePath
-                    = QString("%1/ui_%2.h").arg(uiDir, QFileInfo(uiFile->path()).completeBaseName());
-            uiHeaderFilePath = QDir::cleanPath(uiHeaderFilePath);
-
-//            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;
+        const  QString uiDir = uiDirectory();
+        foreach (const FileNode *uiFile, uiFiles) {
+            const QString uiHeaderFilePath = uiHeaderFile(uiDir, uiFile->path());
+//            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;           
             QMap<QString, Qt4UiCodeModelSupport *>::iterator it = oldCodeModelSupport.find(uiFile->path());
             if (it != oldCodeModelSupport.end()) {
 //                qDebug()<<"updated old codemodelsupport";

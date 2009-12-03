@@ -787,6 +787,38 @@ QStringList Qt4Project::files(FilesMode fileMode) const
     return files;
 }
 
+// Find the folder that contains a file a certain type (recurse down)
+static FolderNode *folderOf(FolderNode *in, FileType fileType, const QString &fileName)
+{
+    foreach(FileNode *fn, in->fileNodes())
+        if (fn->fileType() == fileType && fn->path() == fileName)
+            return in;
+    foreach(FolderNode *folder, in->subFolderNodes())
+        if (FolderNode *pn = folderOf(folder, fileType, fileName))
+            return pn;
+    return 0;
+}
+
+// Find the Qt4ProFileNode that contains a file of a certain type.
+// First recurse down to folder, then find the pro-file.
+static Qt4ProFileNode *proFileNodeOf(Qt4ProFileNode *in, FileType fileType, const QString &fileName)
+{
+    for (FolderNode *folder =  folderOf(in, fileType, fileName); folder; folder = folder->parentFolderNode())
+        if (Qt4ProFileNode *proFile = qobject_cast<Qt4ProFileNode *>(folder))
+            return proFile;
+    return 0;
+}
+
+QString Qt4Project::generatedUiHeader(const QString &formFile) const
+{
+    // Look in sub-profiles as SessionManager::projectForFile returns
+    // the top-level project only.
+    if (m_rootProjectNode)
+        if (const Qt4ProFileNode *pro = proFileNodeOf(m_rootProjectNode, FormType, formFile))
+            return Qt4ProFileNode::uiHeaderFile(pro->uiDirectory(), formFile);
+    return QString();
+}
+
 QList<ProjectExplorer::Project*> Qt4Project::dependsOn()
 {
     // NBS implement dependsOn
@@ -819,8 +851,6 @@ void Qt4Project::updateActiveRunConfiguration()
     emit runConfigurationsEnabledStateChanged();
     emit targetInformationChanged();
 }
-
-
 
 BuildConfigWidget *Qt4Project::createConfigWidget()
 {

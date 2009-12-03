@@ -31,6 +31,7 @@
 #include "qtcreatorintegration.h"
 #include "formeditorw.h"
 #include "formwindoweditor.h"
+#include "codemodelhelpers.h"
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cplusplus/Symbols.h>
@@ -570,7 +571,9 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
                                           QString *errorMessage)
 {
     const QString currentUiFile = m_few->activeFormWindow()->file()->fileName();
-
+#if 0
+    return Designer::Internal::navigateToSlot(currentUiFile, objectName, signalSignature, parameterNames, errorMessage);
+#endif
     // TODO: we should pass to findDocumentsIncluding an absolute path to generated .h file from ui.
     // Currently we are guessing the name of ui_<>.h file and pass the file name only to the findDocumentsIncluding().
     // The idea is that the .pro file knows if the .ui files is inside, and the .pro file knows it will
