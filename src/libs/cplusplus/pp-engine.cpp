@@ -746,6 +746,9 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
             else
                 out(*it);
         }
+
+        if (! markGeneratedTokens && dot->newline())
+            processNewline(/*force = */ true);
     }
 
     return previous;
