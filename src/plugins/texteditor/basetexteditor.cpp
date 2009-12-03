@@ -1225,7 +1225,9 @@ void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
 {
     // workaround for QTextControl bug
     bool selectionChange = cursor.hasSelection() || textCursor().hasSelection();
-    QPlainTextEdit::setTextCursor(cursor);
+    QTextCursor c = cursor;
+    c.setVisualNavigation(true);
+    QPlainTextEdit::setTextCursor(c);
     if (selectionChange)
         slotSelectionChanged();
 }
