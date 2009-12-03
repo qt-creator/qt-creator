@@ -1134,7 +1134,10 @@ const QStringList AbstractMaemoRunControl::options() const
     const bool usePassword =
         devConfig.authentication == MaemoDeviceConfigurations::DeviceConfig::Password;
     const QLatin1String opt("-o");
-    return QStringList() << opt
+    QStringList optionList;
+    if (!usePassword)
+        optionList << QLatin1String("-i") << devConfig.keyFile;
+    return optionList << opt
         << QString::fromLatin1("PasswordAuthentication=%1").
             arg(usePassword ? "yes" : "no") << opt
         << QString::fromLatin1("PubkeyAuthentication=%1").
