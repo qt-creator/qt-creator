@@ -818,9 +818,11 @@ void tst_Gdb::dump_misc()
     check("B","{iname='local.s',name='s',type='int *',"
             "value='-',numchild='1'}", "", 0);
     check("B","{iname='local.s',name='s',type='int *',"
-            "value='-',numchild='1',children=[{iname='local.s.*',"
-            "name='*s',type='int',value='1',numchild='0'}]}",
-            "local.s,local.model", 0);
+            "value='1',numchild='0'}", "local.s,local.model", 0);
+    //check("B","{iname='local.s',name='s',type='int *',"
+    //        "value='-',numchild='1',children=[{iname='local.s.*',"
+    //        "name='*s',type='int',value='1',numchild='0'}]}",
+    //        "local.s,local.model", 0);
 }
 
 
@@ -2719,6 +2721,8 @@ void tst_Gdb::dump_QString()
             "value='{...}',numchild='5',children=["
             "{name='d',type='"NS"QString::Data *',"
             "value='-',numchild='1'}]}", "local.s", 0);
+/*
+    // FIXME: changed after auto-deref commit
     check("B","{iname='local.s',name='s',type='"NS"QString',"
             "value='{...}',numchild='5',"
             "children=[{name='d',"
@@ -2726,6 +2730,7 @@ void tst_Gdb::dump_QString()
                 "children=[{iname='local.s.d.*',name='*d',"
                 "type='"NS"QString::Data',value='{...}',numchild='11'}]}]}",
             "local.s,local.s.d", 0);
+*/
     next();
     check("C","{iname='local.s',name='s',type='"NS"QString',"
             "valueencoded='7',value='680061006c006c006f00',numchild='0'}");
@@ -2788,10 +2793,11 @@ void tst_Gdb::dump_QTextCodec()
     // FIXME
     prepare("dump_QTextCodec");
     next();
-    check("D","{iname='local.codec',name='codec',type='"NS"QTextCodec *',"
-            "value='-',numchild='1',children=[{iname='local.codec.*',"
-            "name='*codec',type='"NS"QTextCodec',"
-            "value='{...}',numchild='2',children=[]}]}",
+    check("D", "{iname='local.codec',name='codec',type='"NS"QTextCodec *',"
+           "valueencoded='6',value='5554462d3136',numchild='2',children=["
+            "{name='name',type='"NS"QByteArray',valueencoded='6',"
+             "value='5554462d3136',numchild='6'},"
+            "{name='mibEnum',type='int',value='1015',numchild='0'}]}",
         "local.codec,local.codec.*");
 }
 
