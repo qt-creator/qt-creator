@@ -191,6 +191,9 @@ public:
     bool isOutdated() const;
     SemanticInfo semanticInfo() const;
 
+    virtual void paste(); // reimplemented from BaseTextEditor
+    virtual void cut(); // reimplemented from BaseTextEditor
+
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
     void setSortedMethodOverview(bool sort);
@@ -269,6 +272,8 @@ private:
                                const QTextEdit::ExtraSelection &currentRenameSelection,
                                QTextCursor cursor,
                                const QString &text = QString());
+    void startRename();
+    void finishRename();
     void abortRename();
 
     Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
@@ -292,7 +297,9 @@ private:
 
     QList<QTextEdit::ExtraSelection> m_renameSelections;
     int m_currentRenameSelection;
-    bool m_inRename;
+    bool m_inRename, m_inRenameChanged, m_firstRenameChange;
+    QTextCursor m_currentRenameSelectionBegin;
+    QTextCursor m_currentRenameSelectionEnd;
 
     mutable bool m_allowSkippingOfBlockEnd;
 

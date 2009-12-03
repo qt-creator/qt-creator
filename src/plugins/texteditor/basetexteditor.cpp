@@ -4349,7 +4349,10 @@ void BaseTextEditor::setExtraSelections(ExtraSelectionKind kind, const QList<QTe
     if (kind == CodeSemanticsSelection) {
         d->m_overlay->clear();
         foreach (const QTextEdit::ExtraSelection &selection, d->m_extraSelections[kind]) {
-            d->m_overlay->addOverlaySelection(selection.cursor, selection.format.background().color(), true);
+            d->m_overlay->addOverlaySelection(selection.cursor,
+                                              selection.format.background().color(),
+                                              selection.format.background().color(),
+                                              true);
         }
         d->m_overlay->setVisible(!d->m_overlay->isEmpty());
 

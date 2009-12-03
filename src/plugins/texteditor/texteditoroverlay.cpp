@@ -83,11 +83,8 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end,
     selection.m_fg = fg;
     selection.m_bg = bg;
 
-    selection.m_cursor_begin = QTextCursor(document);
-    selection.m_cursor_begin.setPosition(begin);
-
-    selection.m_cursor_end = QTextCursor(document);
-    selection.m_cursor_end.setPosition(end);
+    selection.m_cursor_begin = QTextCursor(document->docHandle(), begin);
+    selection.m_cursor_end = QTextCursor(document->docHandle(), end);
 
     if (lockSize)
         selection.m_fixedLength = (end - begin);

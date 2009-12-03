@@ -377,8 +377,8 @@ public:
 public slots:
     void setDisplayName(const QString &title);
 
-    void paste();
-    void cut();
+    virtual void paste();
+    virtual void cut();
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
