@@ -145,15 +145,14 @@ bool SearchSymbols::visit(Declaration *symbol)
 
 bool SearchSymbols::visit(Class *symbol)
 {
-    if (!(symbolsToSearchFor & Classes))
-        return false;
-
     QString name = symbolName(symbol);
     QString scopedName = scopedSymbolName(name);
     QString previousScope = switchScope(scopedName);
-    appendItem(separateScope ? name : scopedName,
-               separateScope ? previousScope : QString(),
-               ModelItemInfo::Class, symbol);
+    if (symbolsToSearchFor & Classes) {
+        appendItem(separateScope ? name : scopedName,
+                   separateScope ? previousScope : QString(),
+                   ModelItemInfo::Class, symbol);
+    }
     Scope *members = symbol->members();
     for (unsigned i = 0; i < members->symbolCount(); ++i) {
         accept(members->symbolAt(i));
