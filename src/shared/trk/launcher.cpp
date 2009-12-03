@@ -467,7 +467,7 @@ void Launcher::closeRemoteFile(bool failed)
 {
     QByteArray ba;
     appendInt(&ba, d->m_copyState.copyFileHandle, TargetByteOrder);
-    appendInt(&ba, QDateTime::currentDateTime().toTime_t(), TargetByteOrder);
+    appendDateTime(&ba, QDateTime::currentDateTime(), TargetByteOrder);
     d->m_device->sendTrkMessage(TrkCloseFile,
                                failed ? TrkCallback() : TrkCallback(this, &Launcher::handleFileCopied),
                                ba);

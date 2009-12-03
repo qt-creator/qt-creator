@@ -1437,7 +1437,7 @@ Ali jih želite nadomestiti?</translation>
 </context>
 <context>
     <name>Core::Internal::EditorView</name>
-    <message id="===============EditorView====================">
+    <message>
         <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="-442"/>
         <source>Go Back</source>
         <translation>Pojdi nazaj</translation>

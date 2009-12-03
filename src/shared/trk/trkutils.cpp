@@ -32,6 +32,9 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
+#include <QtCore/QDate>
+#include <QtCore/QDateTime>
+#include <QtCore/QTime>
 
 #define logMessage(s)  do { qDebug() << "TRKCLIENT: " << s; } while (0)
 
@@ -398,6 +401,18 @@ void appendString(QByteArray *ba, const QByteArray &str, Endianness endian, bool
     ba->append(str);
     if (appendNullTerminator)
         ba->append('\0');
+}
+
+void appendDateTime(QByteArray *ba, QDateTime dateTime, Endianness endian)
+{
+    // convert the QDateTime to UTC and append its representation to QByteArray
+    // format is the same as in FAT file system
+    dateTime = dateTime.toUTC();
+    const QTime utcTime = dateTime.time();
+    const QDate utcDate = dateTime.date();
+    uint fatDateTime = (utcTime.hour() << 11 | utcTime.minute() << 5 | utcTime.second()/2) << 16;
+    fatDateTime |= (utcDate.year()-1980) << 9 | utcDate.month() << 5 | utcDate.day();
+    appendInt(ba, fatDateTime, endian);
 }
 
 QByteArray errorMessage(byte code)
