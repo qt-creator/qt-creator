@@ -123,6 +123,44 @@ def qtNamespace():
     except RuntimeError:
         return ""
 
+def encodeByteArray(value):
+    d_ptr = value['d'].dereference()
+    data = d_ptr['data']
+    size = d_ptr['size']
+    alloc = d_ptr['alloc']
+    check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+    check(d_ptr["ref"]["_q_value"] > 0)
+    if size > 0:
+        checkAccess(data, 4)
+        checkAccess(data + size) == 0
+
+    innerType = gdb.lookup_type("char")
+    p = gdb.Value(data.cast(innerType.pointer()))
+    s = ""
+    for i in xrange(0, size):
+        s += "%02x" % int(p.dereference())
+        p += 1
+    return s
+
+def encodeString(value):
+    d_ptr = value['d'].dereference()
+    data = d_ptr['data']
+    size = d_ptr['size']
+    alloc = d_ptr['alloc']
+    check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+    if size > 0:
+        checkAccess(data, 4)
+        checkAccess(data + size * 2) == 0
+    check(d_ptr["ref"]["_q_value"] > 0)
+    p = gdb.Value(d_ptr["data"])
+    s = ""
+    for i in xrange(0, size):
+        val = int(p.dereference())
+        s += "%02x" % (val % 256)
+        s += "%02x" % (val / 256)
+        p += 1
+    return s
+
 #######################################################################
 #
 # Item
@@ -347,6 +385,26 @@ class Dumper:
         if int(numchild) != int(self.childNumChilds[-1]):
             self.putField("numchild", numchild)
 
+    def putValue(self, value, encoding = None):
+        if not encoding is None:
+            self.putField("valueencoded", encoding)
+        self.putField("value", value)
+
+    def putStringValue(self, value):
+        str = encodeString(value)
+        self.putCommaIfNeeded()
+        self.put('valueencoded="%d",value="%s"' % (7, str))
+
+    def putByteArrayValue(self, value):
+        str = encodeByteArray(value)
+        self.putCommaIfNeeded()
+        self.put('valueencoded="%d",value="%s"' % (6, str))
+
+    
+    def putName(self, name):
+        self.putCommaIfNeeded()
+        self.put('name="%s"' % name)
+
     def isExpanded(self, item):
         #warn("IS EXPANDED: %s in %s" % (item.iname, self.expandedINames))
         if item.iname is None:
@@ -383,16 +441,16 @@ class Dumper:
 
     def putIntItem(self, name, value):
         self.beginHash()
-        self.putField("name", name)
-        self.putField("value", value)
+        self.putName(name)
+        self.putValue(value)
         self.putType("int")
         self.putNumChild(0)
         self.endHash()
 
     def putBoolItem(self, name, value):
         self.beginHash()
-        self.putField("name", name)
-        self.putField("value", value)
+        self.putName(name)
+        self.putValue(value)
         self.putType("bool")
         self.putNumChild(0)
         self.endHash()
@@ -402,9 +460,9 @@ class Dumper:
         self.safeoutput += self.output
         self.output = ""
 
-    def dumpInnerValueHelper(self, item, field = "value"):
+    def dumpInnerValueHelper(self, item):
         if isSimpleType(item.value.type):
-            self.safePutItemHelper(item, field)
+            self.safePutItemHelper(item)
 
     def safePutItemHelper(self, item):
         self.pushOutput()
@@ -429,10 +487,10 @@ class Dumper:
                 #warn("Exception.")
                 #for line in tb:
                 #    warn("%s" % line)
-                self.putField("name", item.name)
-                self.putField("value", "<invalid>")
-                self.putField("type", str(item.value.type))
-                self.putField("numchild", "0")
+                self.putName(item.name)
+                self.putValue("<invalid>")
+                self.putType(str(item.value.type))
+                self.putNumChild(0)
                 #if self.isExpanded(item):
                 self.beginChildren()
                 self.endChildren()
@@ -459,16 +517,16 @@ class Dumper:
                 self.putItemOrPointerHelper(
                     Item(item.value.dereference(), item.iname, None, None))
             else:
-                self.putField("value", "(null)")
-                self.putField("numchild", "0")
+                self.putValue("(null)")
+                self.putNumChild(0)
         else:
             self.safePutItemHelper(item)
 
 
-    def putItemHelper(self, item, field = "value"):
+    def putItemHelper(self, item):
         name = getattr(item, "name", None)
         if not name is None:
-            self.putField("name", name)
+            self.putName(name)
 
         self.putType(item.value.type)
         # FIXME: Gui shows references stripped?
@@ -494,16 +552,15 @@ class Dumper:
         #warn(" DUMPERS: %s" % (strippedType in self.dumpers))
 
         if isSimpleType(type):
-            self.putField(field, value)
-            if field == "value":
-                self.putNumChild(0)
+            self.putValue(value)
+            self.putNumChild(0)
 
         elif strippedType in self.dumpers:
             self.dumpers[strippedType](self, item)
 
         elif type.code == gdb.TYPE_CODE_ENUM:
             #warn("GENERIC ENUM: %s" % value)
-            self.putField(field, value)
+            self.putValue(value)
             self.putNumChild(0)
             
 
@@ -511,7 +568,7 @@ class Dumper:
             isHandled = False
             #warn("GENERIC POINTER: %s" % value)
             if isNull(value):
-                self.putField(field, "0x0")
+                self.putValue("0x0")
                 self.putNumChild(0)
                 isHandled = True
 
@@ -524,8 +581,8 @@ class Dumper:
                 for i in xrange(0, 10):
                     if p.dereference() == 0:
                         # Found terminating NUL
-                        self.putField("%sencoded" % field, "6")
-                        self.put(',%s="' % field)
+                        self.putField("valueencoded", "6")
+                        self.put(',value="')
                         p = value
                         for j in xrange(0, i):
                             self.put('%02x' % int(p.dereference()))
@@ -539,11 +596,17 @@ class Dumper:
             if not isHandled:
                 # Generic pointer type.
                 #warn("GENERIC POINTER: %s" % value)
-                self.putField(field, str(value.address))
                 if self.isExpanded(item):
+                    #warn("GENERIC POINTER: %s" % item.value.type.target())
+                    self.put(',')
+                    # Temporary change to target type.
+                    self.childTypes.append(
+                        stripClassTag(str(item.value.type.target())))
                     self.putItemOrPointerHelper(
                         Item(item.value.dereference(), item.iname, None, None))
+                    self.childTypes.pop()
                 else:
+                    self.putValue(str(value.address))
                     self.putNumChild(1)
 
         else:
@@ -556,7 +619,7 @@ class Dumper:
             #fields = value.type.fields()
             fields = value.type.strip_typedefs().fields()
 
-            self.putField("value", "{...}")
+            self.putValue("{...}")
 
             if False:
                 numfields = 0
@@ -607,9 +670,8 @@ class Dumper:
                         child.name = "<anon>"
                     self.beginHash()
                     #d.putField("iname", child.iname)
-                    #d.putField("name", child.name)
+                    #d.putName(child.name)
                     #d.putType(child.value.type)
                     self.safePutItemHelper(child)
                     self.endHash()
                 self.endChildren()
-

@@ -8,34 +8,16 @@
 #######################################################################
 
 def qqDumpQByteArray(d, item):
-    #struct Data
-    #    QBasicAtomicInt ref;
-    #    int alloc, size;
-    #    char *data;
-    #    char array[1];
+    d.putByteArrayValue(item.value)
+
     d_ptr = item.value['d'].dereference()
-    data = d_ptr['data']
     size = d_ptr['size']
-    alloc = d_ptr['alloc']
-    check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    check(d_ptr["ref"]["_q_value"] > 0)
-    if size > 0:
-        checkAccess(data, 4)
-        checkAccess(data + size) == 0
-
-    innerType = gdb.lookup_type("char")
-    p = gdb.Value(data.cast(innerType.pointer()))
-    s = ""
-    for i in xrange(0, size):
-        s += "%02x" % int(p.dereference())
-        p += 1
-    d.putField("valueencoded", "6")
-    d.putField("value", s)
-
-    n = qmin(size, 1000)
-    d.putNumChild(n)
+    d.putNumChild(size)
 
     if d.isExpanded(item):
+        n = qmin(size, 1000)
+        innerType = gdb.lookup_type("char")
+        data = d_ptr['data']
         d.beginChildren(n, innerType)
         p = gdb.Value(data.cast(innerType.pointer()))
         for i in xrange(0, n):
@@ -49,7 +31,7 @@ def qqDumpQByteArray(d, item):
 def qqDumpQChar(d, item):
     ucs = int(item.value["ucs"])
     c = select(curses.ascii.isprint(ucs), ucs, '?')
-    d.putField("value", "'%c' (%d)" % (c, ucs))
+    d.putValue("'%c' (%d)" % (c, ucs))
     d.putNumChild(0)
 
 
@@ -64,29 +46,25 @@ def qqDumpQAbstractItem(d, item):
     columnCount = call(m, "columnCount(mi)")
     if columnCount < 0:
         return
-    value = call(m, "data(mi, Qt::DisplayRole).toString()")
-    d.putField("valueencoded", "7")
-    d.putField("value", encodeString(value))
-    d.putField("numchild", rowCount * columnCount)
+    d.putStringValue(call(m, "data(mi, Qt::DisplayRole).toString()"))
+    d.putNumChild(rowCount * columnCount)
     if d.isExpanded(item):
         innerType = gdb.lookup_type(d.ns + "QAbstractItem")
         d.beginChildren()
         for row in xrange(0, rowCount):
             for column in xrange(0, columnCount):
                 child = call(m, "index(row, column, mi)")
-                d.putField("name", "[%s,%s]" % (row, column))
+                d.putName("[%s,%s]" % (row, column))
                 rr = call(m, "rowCount(child)")
                 cc = call(m, "columnCount(child)")
-                d.putField("numchild", rr * cc)
-                d.putField("valueencoded", "6")
+                d.putNumChild(rr * cc)
                 d.putField("value",
-                    call(m, "data(child, Qt::DisplayRole).toString())"))
+                    call(m, "data(child, Qt::DisplayRole).toString())"), 6)
                 d.endHash()
         #d.beginHash()
-        #d.putField("name", "DisplayRole")
-        #d.putField("numchild", 0)
-        #d.putField("value", m->data(mi, Qt::DisplayRole).toString())
-        #d.putField("valueencoded", 2)
+        #d.putName("DisplayRole")
+        #d.putNumChild(0)
+        #d.putValue(m->data(mi, Qt::DisplayRole).toString(), 2)
         #d.putField("type", ns + "QString")
         #d.endHash()
         d.endChildren()
@@ -100,37 +78,33 @@ def qqDumpQAbstractItemModel(d, item):
     if columnCount < 0:
         return
 
-    d.putField("value", "(%s,%s)" % (rowCount, columnCount))
-    d.putField("numchild", "1")
+    d.putValue("(%s,%s)" % (rowCount, columnCount))
+    d.putNumChild(1)
     if d.isExpanded(item):
         d.beginChildren(1)
         d.beginHash()
-        d.putField("numchild", "1")
-        d.putField("name", d.ns + "QObject")
-        d.putField("valueencoded", "2")
-        d.putField("value", call(item.value, "objectName()"))
-        d.putField("type", d.ns + "QObject")
+        d.putNumChild(1)
+        d.putName(d.ns + "QObject")
+        d.putValue(call(item.value, "objectName()"), 2)
+        d.putType(d.ns + "QObject")
         d.putField("displayedtype", call(item, "m.metaObject()->className()"))
         d.endHash()
         for row in xrange(0, rowCount):
             for column in xrange(0, columnCount):
                 mi = call(m, "index(%s,%s)" % (row, column))
                 d.beginHash()
-                d.putField("name", "[%s,%s]" % (row, column))
-                d.putField("valueencoded", "6")
-                d.putField("value", "m.data(mi, Qt::DisplayRole).toString()")
-                #d.putField("numchild", (m.hasChildren(mi) ? "1" : "0"))
-                d.putField("numchild", "1") #m.rowCount(mi) * m.columnCount(mi))
-                d.putField("type", d.ns + "QAbstractItem")
+                d.putName("[%s,%s]" % (row, column))
+                d.putValue("m.data(mi, Qt::DisplayRole).toString()", 6)
+                #d.putNumChild((m.hasChildren(mi) ? 1 : 0)
+                d.putNumChild(1) #m.rowCount(mi) * m.columnCount(mi))
+                d.putType(d.ns + "QAbstractItem")
                 d.endHash()
         d.endChildren()
 
 
 def qqDumpQDateTime(d, item):
-    date = call(item.value, "toString(%sQt::TextDate)" % d.ns)
-    d.putField("valueencoded", "7")
-    d.putField("value", encodeString(date))
-    d.putField("numchild", "3")
+    d.putStringValue(call(item.value, "toString(%sQt::TextDate)" % d.ns))
+    d.putNumChild(3)
     if d.isExpanded(item):
         d.beginChildren(8)
         d.putCallItem("isNull", item, "isNull()")
@@ -151,10 +125,8 @@ def qqDumpQDateTime(d, item):
 
 
 def qqDumpQDir(d, item):
-    path = call(item.value, "path()")
-    d.putField("valueencoded", "7")
-    d.putField("value", encodeString(path))
-    d.putField("numchild", "2")
+    d.putStringValue(call(item.value, "path()"))
+    d.putNumChild(2)
     if d.isExpanded(item):
         d.beginChildren(2)
         d.putCallItem("absolutePath", item, "absolutePath()")
@@ -163,10 +135,8 @@ def qqDumpQDir(d, item):
 
 
 def qqDumpQFile(d, item):
-    fileName = call(item.value, "fileName()")
-    d.putField("valueencoded", "7")
-    d.putField("value", encodeString(fileName))
-    d.putField("numchild", "2")
+    d.putStringValue(call(item.value, "fileName()"))
+    d.putNumChild(2)
     if d.isExpanded(item):
         d.beginChildren(2)
         d.putCallItem("fileName", item, "fileName()")
@@ -175,10 +145,8 @@ def qqDumpQFile(d, item):
 
 
 def qqDumpQFileInfo(d, item):
-    filePath = call(item.value, "filePath()")
-    d.putField("valueencoded", "7")
-    d.putField("value", encodeString(filePath))
-    d.putField("numchild", "3")
+    d.putStringValue(call(item.value, "filePath()"))
+    d.putNumChild(3)
     if d.isExpanded(item):
         d.beginChildren(10, gdb.lookup_type(d.ns + "QString"))
         d.putCallItem("absolutePath", item, "absolutePath()")
@@ -205,10 +173,10 @@ def qqDumpQFileInfo(d, item):
         #QFile::Permissions permissions () const
         perms = call(item.value, "permissions()")
         d.beginHash()
-        d.putField("name", "permissions")
-        d.putField("value", " ")
-        d.putField("type", d.ns + "QFile::Permissions")
-        d.putField("numchild", 10)
+        d.putName("permissions")
+        d.putValue(" ")
+        d.putType(d.ns + "QFile::Permissions")
+        d.putNumChild(10)
         if d.isExpandedIName(item.iname + ".permissions"):
             d.beginChildren(10)
             d.putBoolItem("ReadOwner",  perms & 0x4000)
@@ -251,7 +219,7 @@ def qqDumpQFlags(d, item):
     i = item.value["i"]
     enumType = item.value.type.template_argument(0)
     #warn("QFLAGS: %s" % item.value["i"].cast(enumType)) 
-    d.putField("value", "%s (%s)" % (i.cast(enumType), i))
+    d.putValue("%s (%s)" % (i.cast(enumType), i))
     d.putNumChild(0)
 
 
@@ -298,7 +266,7 @@ def qqDumpQHash(d, item):
     check(d_ptr["ref"]["_q_value"] > 0)
 
     d.putItemCount(n)
-    d.putField("numchild", n)
+    d.putNumChild(n)
     if d.isExpanded(item):
         if n > 1000:
             n = 1000
@@ -316,7 +284,7 @@ def qqDumpQHash(d, item):
             key = it["key"]
             value = it["value"]
             if isSimpleKey and isSimpleValue:
-                d.putField("name", key)
+                d.putName(key)
                 d.putItemHelper(Item(value, item.iname, i, None))
                 d.putType(valueType)
             else:
@@ -333,19 +301,19 @@ def qqDumpQHashNode(d, item):
     value = item.value["value"]
 
     if isSimpleType(valueType):
-        d.dumpInnerValueHelper(Item(value))
+        d.safePutItemHelper(Item(value))
     else:
-        d.putField("value", " ")
+        d.putValue(" ")
 
-    d.putField("numchild", 2)
+    d.putNumChild(2)
     if d.isExpanded(item):
         d.beginChildren()
         d.beginHash()
-        d.putField("name", "key")
+        d.putName("key")
         d.putItemHelper(Item(key, None, None, None))
         d.endHash()
         d.beginHash()
-        d.putField("name", "value")
+        d.putName("value")
         d.putItemHelper(Item(value, None, None, None))
         d.endHash()
         d.endChildren()
@@ -374,7 +342,7 @@ def qqDumpQList(d, item):
         checkPointerRange(p, qmin(n, 100))
 
     d.putItemCount(n)
-    d.putField("numchild", n)
+    d.putNumChild(n)
     if d.isExpanded(item):
         # about 0.5s / 1000 items
         if n > 2000:
@@ -399,7 +367,7 @@ def qqDumpQList(d, item):
             if innerTypeIsPointer:
                 if isNull(p.dereference()):
                     d.beginHash()
-                    d.putField("value", "(null)")
+                    d.putValue("(null)")
                     d.putNumChild(0)
                     d.putType(p.dereference().type)
                     d.endHash()
@@ -424,17 +392,16 @@ def qqDumpQImage(d, item):
     check(0 <= painters and painters < 1000)
     d_ptr = item.value["d"]
     if isNull(d_ptr):
-        d.putField("value", "(null)")
+        d.putValue("(null)")
     else:
         check(d_ptr["ref"]["_q_value"] > 0)
-        d.putField("value", "(%dx%d)" % (d_ptr["width"], d_ptr["height"]))
-    d.putField("numchild", "0")
+        d.putValue("(%dx%d)" % (d_ptr["width"], d_ptr["height"]))
+    d.putNumChild(0)
     #    if d.isExpanded(item):
     #        d.beginChildren()
     #        d.beginHash()
-    #        d.putField("name", "data")
-    #        d.putField("type", d.ns +  "QImageData")
-    #        d.putField("addr", d.data)
+    #        d.putName("data")
+    #        d.putType(d.ns +  "QImageData")
     #        d.endHash()
     #        d.endChildren()
 
@@ -443,16 +410,15 @@ def qqDumpQImageData(d, item):
     pass
 #     const QImage &im = *reinterpret_cast<const QImage *>(d.data)
 #     const QByteArray ba(QByteArray::fromRawData((const char*)im.bits(), im.numBytes()))
-#     d.putField("type", d.ns + "QImageData")
-#     d.putField("numchild", "0")
+#     d.putType(d.ns + "QImageData")
+#     d.putNumChild(0)
 # #if 1
-#     d.putField("value", "<hover here>")
+#     d.putValue("<hover here>")
 #     d.putField("valuetooltipencoded", "1")
 #     d.putField("valuetooltipsize", ba.size())
 #     d.putField("valuetooltip", ba)
 # #else
-#     d.putField("valueencoded", "1")
-#     d.putField("value", ba)
+#     d.putValue(ba, 1)
 # #endif
 
 
@@ -465,7 +431,7 @@ def qqDumpQLinkedList(d, item):
     check(d_ptr["ref"]["_q_value"] > 0)
 
     d.putItemCount(n)
-    d.putField("numchild", n)
+    d.putNumChild(n)
 
     if d.isExpanded(item):
         innerType = item.value.type.template_argument(0)
@@ -482,10 +448,8 @@ def qqDumpQLinkedList(d, item):
 
 
 def qqDumpQLocale(d, item):
-    name = call(item.value, "name()")
-    d.putField("valueencoded", "7")
-    d.putField("value", encodeString(name))
-    d.putField("numchild", "8")
+    d.putStringValue(call(item.value, "name()"))
+    d.putNumChild(8)
     if d.isExpanded(item):
         d.beginChildren(1, gdb.lookup_type(d.ns + "QChar"), 0)
         d.putCallItem("country", item, "country()")
@@ -506,16 +470,16 @@ def qqDumpQLocale(d, item):
 
 
 def qqDumpQMapNode(d, item):
-    d.putField("value", " ")
-    d.putField("numchild", 2)
+    d.putValue(" ")
+    d.putNumChild(2)
     if d.isExpanded(item):
         d.beginChildren(2)
         d.beginHash()
-        d.putField("name", "key")
+        d.putName("key")
         d.putItemHelper(Item(item.value["key"], item.iname, "name", None))
         d.endHash()
         d.beginHash()
-        d.putField("name", "value")
+        d.putName("value")
         d.putItemHelper(Item(item.value["value"], item.iname, "value", None))
         d.endHash()
         d.endChildren()
@@ -529,7 +493,7 @@ def qqDumpQMap(d, item):
     check(d_ptr["ref"]["_q_value"] > 0)
 
     d.putItemCount(n)
-    d.putField("numchild", n)
+    d.putNumChild(n)
     if d.isExpanded(item):
         if n > 1000:
             n = 1000
@@ -561,12 +525,9 @@ def qqDumpQMap(d, item):
             key = node["key"]
             value = node["value"]
             #if isSimpleType(item.value.type): # or isStringType(d, item.value.type):
-            #    d.putItemHelper(item, field)
-            #dumpInnerValueHelper(d, Item(key), "name");
-            #dumpInnerValueHelper(d, Item(value, "value"))
             if isSimpleKey and isSimpleValue:
                 #d.putType(valueType)
-                d.putField("name", key)
+                d.putName(key)
                 d.putItemHelper(Item(value, item.iname, i, None))
             else:
                 d.putItemHelper(Item(node, item.iname, i, None))
@@ -585,24 +546,24 @@ def qqDumpQModelIndex(d, item):
     p = item.value["p"]
     m = item.value["m"]
     if r >= 0 and c >= 0 and not isNull(m):
-        d.putField("value", "(%s, %s)" % (r, c))
-        d.putField("numchild", 5)
+        d.putValue("(%s, %s)" % (r, c))
+        d.putNumChild(5)
         if d.isExpanded(item):
             d.beginChildren()
             d.putIntItem("row", r)
             d.putIntItem("column", c)
             d.putCallItem("parent", item, "parent()")
             d.beginHash()
-            d.putField("name", "model")
-            d.putField("value", m)
-            d.putField("type", d.ns + "QAbstractItemModel*")
-            d.putField("numchild", "1")
+            d.putName("model")
+            d.putValue(m)
+            d.putType(d.ns + "QAbstractItemModel*")
+            d.putNumChild(1)
             d.endHash()
 
             d.endChildren()
     else:
-        d.putField("value", "(invalid)")
-        d.putField("numchild", 0)
+        d.putValue("(invalid)")
+        d.putNumChild(0)
 
 
 def extractCString(table, offset):
@@ -637,9 +598,8 @@ def qqDumpQObject(d, item):
     #warn("METADATA: %s " % metaData)
     #warn("STRINGDATA: %s " % metaStringData)
     #warn("TYPE: %s " % item.value.type)
-    #d.putField("value", "")
-    d.putField("valueencoded", "7")
-    d.putField("value", encodeString(objectName))
+    #d.putValue("")
+    d.putStringValue(objectName)
     #QSignalMapper::staticMetaObject
     #check(d_ptr["ref"]["_q_value"] > 0)
     d.putNumChild(4)
@@ -654,10 +614,10 @@ def qqDumpQObject(d, item):
         d.beginHash()
         propertyCount = metaData[6]
         propertyData = metaData[7]
-        d.putField("name", "properties")
+        d.putName("properties")
         d.putItemCount(propertyCount)
-        d.putField("type", "")
-        d.putField("numchild", propertyCount)
+        d.putType(" ")
+        d.putNumChild(propertyCount)
         if d.isExpandedIName(item.iname + ".properties"):
             d.beginChildren()
             for property in xrange(0, propertyCount):
@@ -665,7 +625,7 @@ def qqDumpQObject(d, item):
                 offset = propertyData + 3 * property
                 propertyName = extractCString(metaStringData, metaData[offset])
                 propertyType = extractCString(metaStringData, metaData[offset + 1])
-                d.putField("name", propertyName)
+                d.putName(propertyName)
                 #flags = metaData[offset + 2]
                 #warn("FLAGS: %s " % flags)
                 warn("PROPERTY TYPE: %s " % propertyType)
@@ -679,12 +639,12 @@ def qqDumpQObject(d, item):
                 warn("TYPE:  %s" % value.type)
                 if True and propertyType == "QString":
                     # FIXME: re-use parts of QVariant dumper
-                    #d.putField("type", d.ns + "QString")
+                    #d.putType(d.ns + "QString")
                     data = value["d"]["data"]["ptr"]
                     innerType = gdb.lookup_type(d.ns + "QString")
                     d.putItemHelper(
                         Item(data.cast(innerType), item.iname, property, None))
-                    #d.putField("numchild", "0")
+                    #d.putNumChild(0)
                 else:
                     iname = "%s.properties.%s" % (item.iname, propertyName)
                     d.putItemHelper(Item(value, iname, propertyName))
@@ -695,10 +655,10 @@ def qqDumpQObject(d, item):
         # connections
         d.beginHash()
         connectionCount = 0
-        d.putField("name", "connections")
+        d.putName("connections")
         d.putItemCount(connectionCount)
-        d.putField("type", "")
-        d.putField("numchild", connectionCount)
+        d.putType(" ")
+        d.putNumChild(connectionCount)
         if connectionCount:
             d.putField("childtype", "")
             d.putField("childnumchild", "0")
@@ -711,8 +671,8 @@ def qqDumpQObject(d, item):
 
             for connection in xrange(0, connectionCount):
                 d.beginHash()
-                d.putField("name", "connection %d" % connection)
-                d.putField("value", "")
+                d.putName("connection %d" % connection)
+                d.putValue("")
                 d.endHash()
             d.endChildren()
         d.endHash()
@@ -720,10 +680,10 @@ def qqDumpQObject(d, item):
         # signals
         signalCount = metaData[13]
         d.beginHash()
-        d.putField("name", "signals")
+        d.putName("signals")
         d.putItemCount(signalCount)
-        d.putField("type", "")
-        d.putField("numchild", signalCount)
+        d.putType(" ")
+        d.putNumChild(signalCount)
         if signalCount:
             # FIXME: empty type does not work for childtype
             #d.putField("childtype", ".")
@@ -733,9 +693,9 @@ def qqDumpQObject(d, item):
             for signal in xrange(0, signalCount):
                 d.beginHash()
                 offset = metaData[14 + 5 * signal]
-                d.putField("name", "signal %d" % signal)
-                d.putField("type", "")
-                d.putField("value", extractCString(metaStringData, offset))
+                d.putName("signal %d" % signal)
+                d.putType(" ")
+                d.putValue(extractCString(metaStringData, offset))
                 d.endHash()
             d.endChildren()
         d.endHash()
@@ -743,10 +703,10 @@ def qqDumpQObject(d, item):
         # slots
         d.beginHash()
         slotCount = metaData[4] - signalCount
-        d.putField("name", "slots")
+        d.putName("slots")
         d.putItemCount(slotCount)
-        d.putField("type", "")
-        d.putField("numchild", slotCount)
+        d.putType(" ")
+        d.putNumChild(slotCount)
         if slotCount:
             #d.putField("childtype", ".")
             d.putField("childnumchild", "0")
@@ -755,9 +715,9 @@ def qqDumpQObject(d, item):
             for slot in xrange(0, slotCount):
                 d.beginHash()
                 offset = metaData[14 + 5 * (signalCount + slot)]
-                d.putField("name", "slot %d" % slot)
-                d.putField("type", "")
-                d.putField("value", extractCString(metaStringData, offset))
+                d.putName("slot %d" % slot)
+                d.putType(" ")
+                d.putValue(extractCString(metaStringData, offset))
                 d.endHash()
             d.endChildren()
         d.endHash()
@@ -867,8 +827,7 @@ def qqDumpQObject(d, item):
 #     checkAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
 #     const QObject *ob = reinterpret_cast<const QObject *>(d.data)
 #     const QMetaObject *mo = ob->metaObject()
-#     d.putField("value", ob->objectName())
-#     d.putField("valueencoded", "2")
+#     d.putValue(ob->objectName(), 2)
 #     d.putField("type", d.ns + "QObject")
 #     d.putField("displayedtype", mo->className())
 #     d.putField("numchild", 4)
@@ -882,7 +841,7 @@ def qqDumpQObject(d, item):
 #         }
 #         d.beginChildren()
 #         d.beginHash()
-#             d.putField("name", "properties")
+#             d.putName("properties")
 #             // using 'addr' does not work in gdb as 'exp' is recreated as
 #             // (type *)addr, and here we have different 'types':
 #             // QObject vs QObjectPropertyList!
@@ -892,14 +851,14 @@ def qqDumpQObject(d, item):
 #             d.putField("numchild", mo->propertyCount())
 #         d.endHash()
 #         d.beginHash()
-#             d.putField("name", "signals")
+#             d.putName("signals")
 #             d.putField("addr", d.data)
 #             d.putField("type", d.ns + "QObjectSignalList")
 #             d.putItemCount(signalCount)
 #             d.putField("numchild", signalCount)
 #         d.endHash()
 #         d.beginHash()
-#             d.putField("name", "slots")
+#             d.putName("slots")
 #             d.putField("addr", d.data)
 #             d.putField("type", d.ns + "QObjectSlotList")
 #             d.putItemCount(slotCount)
@@ -908,7 +867,7 @@ def qqDumpQObject(d, item):
 #         const QObjectList objectChildren = ob->children()
 #         if !objectChildren.empty()) {
 #             d.beginHash()
-#             d.putField("name", "children")
+#             d.putName("children")
 #             d.putField("addr", d.data)
 #             d.putField("type", ns + "QObjectChildList")
 #             d.putItemCount(objectChildren.size())
@@ -916,13 +875,13 @@ def qqDumpQObject(d, item):
 #             d.endHash()
 #         }
 #         d.beginHash()
-#             d.putField("name", "parent")
+#             d.putName("parent")
 #             dumpInnerValueHelper(d, ns + "QObject *", ob->parent())
 #         d.endHash()
 # #if 1
 #         d.beginHash()
-#             d.putField("name", "className")
-#             d.putField("value", ob->metaObject()->className())
+#             d.putName("className")
+#             d.putValue(ob->metaObject()->className())
 #             d.putField("type", "")
 #             d.putField("numchild", "0")
 #         d.endHash()
@@ -981,9 +940,9 @@ def qqDumpQObject(d, item):
 #     const QMetaEnum me = mop.enumerator()
 #     dumpMetaEnumType(d, me)
 #     if const char *enumValue = me.valueToKey(value)) {
-#         d.putField("value", enumValue)
+#         d.putValue(enumValue)
 #     } else {
-#         d.putField("value", value)
+#         d.putValue(value)
 #     }
 #     d.putField("numchild", 0)
 # }
@@ -994,12 +953,11 @@ def qqDumpQObject(d, item):
 #     const QMetaEnum me = mop.enumerator()
 #     dumpMetaEnumType(d, me)
 #     const QByteArray flagsValue = me.valueToKeys(value)
-#     if flagsValue.isEmpty()) {
-#         d.putField("value", value)
-#     } else {
-#         d.putField("value", flagsValue.constData())
-#     }
-#     d.putField("numchild", 0)
+#     if flagsValue.isEmpty():
+#         d.putValue(value)
+#     else:
+#         d.putValue(flagsValue.constData())
+#     d.putNumChild(0)
 # }
 #
 # #ifndef QT_BOOTSTRAPPED
@@ -1043,17 +1001,16 @@ def qqDumpQObject(d, item):
 #         for (int i = propertyCount; --i >= 0; ) {
 #             const QMetaProperty & prop = mo->property(i)
 #             d.beginHash()
-#             d.putField("name", prop.name())
+#             d.putName(prop.name())
 #             switch (prop.type()) {
 #             case QVariant::String:
 #                 d.putField("type", prop.typeName())
-#                 d.putField("value", prop.read(ob).toString())
-#                 d.putField("valueencoded", "2")
+#                 d.putValue(prop.read(ob).toString(), 2)
 #                 d.putField("numchild", "0")
 #                 break
 #             case QVariant::Bool:
 #                 d.putField("type", prop.typeName())
-#                 d.putField("value", (prop.read(ob).toBool() ? "true" : "false"))
+#                 d.putValue((prop.read(ob).toBool() ? "true" : "false"))
 #                 d.putField("numchild", "0")
 #                 break
 #             case QVariant::Int:
@@ -1062,7 +1019,7 @@ def qqDumpQObject(d, item):
 #                 } elif prop.isFlagType()) {
 #                     dumpMetaFlagValue(d, prop, prop.read(ob).toInt())
 #                 } else {
-#                     d.putField("value", prop.read(ob).toInt())
+#                     d.putValue(prop.read(ob).toInt())
 #                     d.putField("numchild", "0")
 #                 }
 #                 break
@@ -1152,7 +1109,7 @@ def qqDumpQObject(d, item):
 #     d.put(number).put(namePostfix)
 #     d.endItem()
 #     if partner == owner) {
-#         d.putField("value", "<this>")
+#         d.putValue("<this>")
 #         d.putField("type", owner->metaObject()->className())
 #         d.putField("numchild", 0)
 #         d.putField("addr", owner)
@@ -1183,9 +1140,9 @@ def qqDumpQObject(d, item):
 #                 d.endItem()
 #                 d.putField("type", "")
 #                 if conn.receiver)
-#                     d.putField("value", conn.receiver->metaObject()->method(conn.method).signature())
+#                     d.putValue(conn.receiver->metaObject()->method(conn.method).signature())
 #                 else
-#                     d.putField("value", "<invalid receiver>")
+#                     d.putValue("<invalid receiver>")
 #                 d.putField("numchild", "0")
 #             d.endHash()
 #             d.beginHash()
@@ -1224,8 +1181,8 @@ def qqDumpQObject(d, item):
 #                 int k = mo->indexOfSignal(method.signature())
 #                 const ConnectionList &connList = qConnectionList(ob, k)
 #                 d.beginHash()
-#                 d.putField("name", k)
-#                 d.putField("value", method.signature())
+#                 d.putName(k)
+#                 d.putValue(method.signature())
 #                 d.putField("numchild", connList.size())
 #                 d.putField("addr", d.data)
 #                 d.putField("type", ns + "QObjectSignal")
@@ -1269,7 +1226,7 @@ def qqDumpQObject(d, item):
 #                             d.put(s).put(" signal")
 #                         d.endItem()
 #                         d.putField("type", "")
-#                         d.putField("value", method.signature())
+#                         d.putValue(method.signature())
 #                         d.putField("numchild", "0")
 #                     d.endHash()
 #                     d.beginHash()
@@ -1317,8 +1274,8 @@ def qqDumpQObject(d, item):
 #             if method.methodType() == QMetaMethod::Slot) {
 #                 d.beginHash()
 #                 int k = mo->indexOfSlot(method.signature())
-#                 d.putField("name", k)
-#                 d.putField("value", method.signature())
+#                 d.putName(k)
+#                 d.putValue(method.signature())
 #
 #                 // count senders. expensive...
 #                 int numchild = 0
@@ -1348,30 +1305,7 @@ def qqDumpQObject(d, item):
 #         }
 # #endif
 #         d.endChildren()
-#     }
-#     d.disarm()
-# }
 #
-# static void dumpQObjectChildList(QDumper &d)
-# {
-#     const QObject *ob = reinterpret_cast<const QObject *>(d.data)
-#     const QObjectList children = ob->children()
-#     const int size = children.size()
-#
-#     d.putField("numchild", size)
-#     d.putItemCount(size)
-#     d.putField("type", ns + "QObjectChildList")
-#     if d.isExpanded(item):
-#         d.beginChildren()
-#         for (int i = 0; i != size; ++i) {
-#             d.beginHash()
-#             dumpInnerValueHelper(d, ns + "QObject *", children.at(i))
-#             d.endHash()
-#         }
-#         d.endChildren()
-#     }
-#     d.disarm()
-# }
 # #endif // QT_BOOTSTRAPPED
 
 
@@ -1380,11 +1314,11 @@ def qqDumpQPixmap(d, item):
     check(0 <= painters and painters < 1000)
     d_ptr = item.value["data"]["d"]
     if isNull(d_ptr):
-        d.putField("value", "(null)")
+        d.putValue("(null)")
     else:
         check(d_ptr["ref"]["_q_value"] > 0)
-        d.putField("value", "(%dx%d)" % (d_ptr["w"], d_ptr["h"]))
-    d.putField("numchild", "0")
+        d.putValue("(%dx%d)" % (d_ptr["w"], d_ptr["h"]))
+    d.putNumChild(0)
 
 
 def qqDumpQPoint(d, item):
@@ -1393,7 +1327,7 @@ def qqDumpQPoint(d, item):
     # should not be needed, but sometimes yield myns::QVariant::Private::Data::qreal
     x = x.cast(x.type.strip_typedefs())
     y = y.cast(y.type.strip_typedefs())
-    d.putField("value", "(%s, %s)" % (x, y))
+    d.putValue("(%s, %s)" % (x, y))
     d.putNumChild(2)
     if d.isExpanded(item):
         d.beginChildren(2, x.type.strip_typedefs())
@@ -1406,22 +1340,6 @@ def qqDumpQPointF(d, item):
     qqDumpQPoint(d, item)
 
 
-def qqDumpQSize(d, item):
-    w = item.value["wd"]
-    h = item.value["ht"]
-    d.putField("value", "(%s, %s)" % (w, h))
-    d.putNumChild(2)
-    if d.isExpanded(item):
-        d.beginChildren(2, w.type)
-        d.putItem(Item(w, item.iname, "w", "w"))
-        d.putItem(Item(h, item.iname, "h", "h"))
-        d.endChildren()
-
-
-def qqDumpQSizeF(d, item):
-    qqDumpQSize(d, item)
-
-
 def qqDumpQRect(d, item):
     def pp(l): return select(l >= 0, "+%s" % l, l)
     x1 = item.value["x1"]
@@ -1430,7 +1348,7 @@ def qqDumpQRect(d, item):
     y2 = item.value["y2"]
     w = x2 - x1 + 1
     h = y2 - y1 + 1
-    d.putField("value", "%sx%s%s%s" % (w, h, pp(x1), pp(y1)))
+    d.putValue("%sx%s%s%s" % (w, h, pp(x1), pp(y1)))
     d.putNumChild(4)
     if d.isExpanded(item):
         d.beginChildren(4, x1.type.strip_typedefs())
@@ -1452,7 +1370,7 @@ def qqDumpQRectF(d, item):
     y = y.cast(y.type.strip_typedefs())
     w = w.cast(w.type.strip_typedefs())
     h = h.cast(h.type.strip_typedefs())
-    d.putField("value", "%sx%s%s%s" % (w, h, pp(x), pp(y)))
+    d.putValue("%sx%s%s%s" % (w, h, pp(x), pp(y)))
     d.putNumChild(4)
     if d.isExpanded(item):
         d.beginChildren(4, x.type.strip_typedefs())
@@ -1460,59 +1378,6 @@ def qqDumpQRectF(d, item):
         d.putItem(Item(y, None, None, "y"))
         d.putItem(Item(w, None, None, "w"))
         d.putItem(Item(h, None, None, "h"))
-        d.endChildren()
-
-
-def encodeString(value):
-    d_ptr = value['d'].dereference()
-    data = d_ptr['data']
-    size = d_ptr['size']
-    alloc = d_ptr['alloc']
-    check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    if size > 0:
-        checkAccess(data, 4)
-        checkAccess(data + size * 2) == 0
-    check(d_ptr["ref"]["_q_value"] > 0)
-    p = gdb.Value(d_ptr["data"])
-    s = ""
-    for i in xrange(0, size):
-        val = int(p.dereference())
-        s += "%02x" % (val % 256)
-        s += "%02x" % (val / 256)
-        p += 1
-    return s
-
-
-def qqDumpQString(d, item):
-    str = encodeString(item.value)
-    d.putField("valueencoded", "7")
-    d.putField("value", str)
-    d.putNumChild(0)
-
-
-def qqDumpQStringList(d, item):
-    d_ptr = item.value['d']
-    begin = d_ptr['begin']
-    end = d_ptr['end']
-    n = end - begin
-    check(n >= 0)
-    check(n <= 10 * 1000 * 1000)
-    #    checkAccess(&list.front())
-    #    checkAccess(&list.back())
-    check(d_ptr["ref"]["_q_value"] > 0)
-    d.putItemCount(n)
-    d.putNumChild(n)
-    if d.isExpanded(item):
-        if n > 1000:
-            n = 1000
-        innerType = gdb.lookup_type(d.ns + "QString")
-        ptr = gdb.Value(d_ptr["array"]).cast(innerType.pointer())
-        d.beginChildren(n, innerType)
-        for i in xrange(0, n):
-            d.putItem(Item(ptr.dereference(), item.iname, i, None))
-            ptr += 1
-        if n < end - begin:
-            d.putEllipsis()
         d.endChildren()
 
 
@@ -1558,7 +1423,7 @@ def qqDumpQSet(d, item):
     check(d_ptr["ref"]["_q_value"] > 0)
 
     d.putItemCount(n)
-    d.putField("numchild", n)
+    d.putNumChild(n)
     if d.isExpanded(item):
         if n > 1000:
             n = 1000
@@ -1575,7 +1440,7 @@ def qqDumpQSet(d, item):
             key = it["key"]
             if isSimpleKey:
                 d.putType(keyType)
-                d.putItemHelper(Item(key, None, None, None), "value")
+                d.putItemHelper(Item(key, None, None, None))
             else:
                 d.putItemHelper(Item(key, item.iname, i, None))
             d.endHash()
@@ -1587,27 +1452,69 @@ def qqDumpQSharedPointer(d, item):
     qqDumpQWeakPointer(d, item)
 
 
+def qqDumpQSize(d, item):
+    w = item.value["wd"]
+    h = item.value["ht"]
+    d.putValue("(%s, %s)" % (w, h))
+    d.putNumChild(2)
+    if d.isExpanded(item):
+        d.beginChildren(2, w.type)
+        d.putItem(Item(w, item.iname, "w", "w"))
+        d.putItem(Item(h, item.iname, "h", "h"))
+        d.endChildren()
+
+
+def qqDumpQSizeF(d, item):
+    qqDumpQSize(d, item)
+
+
 def qqDumpQStack(d, item):
     qqDumpQVector(d, item)
+
+
+def qqDumpQString(d, item):
+    d.putStringValue(item.value)
+    d.putNumChild(0)
+
+
+def qqDumpQStringList(d, item):
+    d_ptr = item.value['d']
+    begin = d_ptr['begin']
+    end = d_ptr['end']
+    n = end - begin
+    check(n >= 0)
+    check(n <= 10 * 1000 * 1000)
+    #    checkAccess(&list.front())
+    #    checkAccess(&list.back())
+    check(d_ptr["ref"]["_q_value"] > 0)
+    d.putItemCount(n)
+    d.putNumChild(n)
+    if d.isExpanded(item):
+        if n > 1000:
+            n = 1000
+        innerType = gdb.lookup_type(d.ns + "QString")
+        ptr = gdb.Value(d_ptr["array"]).cast(innerType.pointer())
+        d.beginChildren(n, innerType)
+        for i in xrange(0, n):
+            d.putItem(Item(ptr.dereference(), item.iname, i, None))
+            ptr += 1
+        if n < end - begin:
+            d.putEllipsis()
+        d.endChildren()
 
 
 def qqDumpQTemporaryFile(d, item):
     qqDumpQFile(d, item)
 
 
-#FIXME: X(..)
-def qqDumpQTextCodecX(d, item):
-    #checkPointer(deref(d.data))
-    warn("VALUE: %s " % item.value)
-    #const QTextCodec &codec = *reinterpret_cast<const QTextCodec *>(d.data)
-    #d.putField("valueencoded", "1")
-    #d.putField("value", codec.name())
-    d.putField("type", d.ns + "QTextCodec")
-    d.putField("numchild", "2")
+def qqDumpQTextCodec(d, item):
+    value = call(item.value, "name()")
+    d.putValue(encodeByteArray(value), 6)
+    d.putNumChild(2)
     if d.isExpanded(item):
         d.beginChildren()
-        #d.putCallItem("name", codec.name())
-        #d.putCallItem("mibEnum", codec.mibEnum())
+        d.putCallItem("name", item, "name()")
+        d.putCallItem("mibEnum", item, "mibEnum()")
         d.endChildren()
 
 
@@ -1619,26 +1526,26 @@ def qqDumpQVariant(d, item):
     inner = ""
     innert = ""
     if variantType == 0: # QVariant::Invalid
-        d.putField("value", "(invalid)")
+        d.putValue("(invalid)")
         d.putNumChild(0)
     elif variantType == 1: # QVariant::Bool
-        d.putField("value", select(data["b"], "true", "false"))
+        d.putValue(select(data["b"], "true", "false"))
         d.putNumChild(0)
     elif variantType == 2: # QVariant::Int
-        d.putField("value", data["i"])
+        d.putValue(data["i"])
         d.putNumChild(0)
     elif variantType == 3: # uint
-        d.putField("value", data["u"])
+        d.putValue(data["u"])
         d.putNumChild(0)
     elif variantType == 4: # qlonglong
-        d.putField("value", data["ll"])
+        d.putValue(data["ll"])
         d.putNumChild(0)
     elif variantType == 5: # qulonglong
-        d.putField("value", data["ull"])
+        d.putValue(data["ull"])
         d.putNumChild(0)
     elif variantType == 6: # QVariant::Double
         value = data["d"]
-        d.putField("value", data["d"])
+        d.putValue(data["d"])
         d.putNumChild(0)
     elif variantType == 7: # QVariant::QChar
         inner = d.ns + "QChar"
@@ -1733,7 +1640,7 @@ def qqDumpQVariant(d, item):
         inner = d.ns + "QQuadernion"
     else:
         # FIXME: handle User types
-        d.putField("value", "(unknown type %d)" % variantType)
+        d.putValue("(unknown type %d)" % variantType)
         # typeName = QMetaType::typeName(typ)
         # exp =  "'qVariantValue<%s >'(*('"NS"QVariant'*)%p)"
         d.putNumChild(0)
@@ -1741,13 +1648,13 @@ def qqDumpQVariant(d, item):
     if len(inner):
         if len(innert) == 0:
             innert = inner
-        d.putField("value", "(%s)" % innert)
+        d.putValue("(%s)" % innert)
         d.putNumChild(1)
         if d.isExpanded(item):
             innerType = gdb.lookup_type(inner)
             d.beginChildren()
             d.beginHash()
-            #d.putField("name", "data")
+            #d.putName("data")
             #d.putField("type", innert)
             val = gdb.Value(data["ptr"]).cast(innerType)
             d.putItemHelper(Item(val, item.iname, "data", "data"))
@@ -1796,11 +1703,11 @@ def qqDumpQWeakPointer(d, item):
     d_ptr = item.value["d"]
     value = item.value["value"]
     if isNull(d_ptr) and isNull(value):
-        d.putField("value", "(null)")
+        d.putValue("(null)")
         d.putNumChild(0)
         return
     if isNull(value) or isNull(value):
-        d.putField("value", "<invalid>")
+        d.putValue("<invalid>")
         d.putNumChild(0)
         return
     weakref = d_ptr["weakref"]["_q_value"]
@@ -1813,9 +1720,9 @@ def qqDumpQWeakPointer(d, item):
     if isSimpleType(value.dereference()):
         d.putItemHelper(Item(value.dereference(), item.iname, None, None))
     else:
-        d.putField("value", "")
+        d.putValue("")
 
-    d.putField("numchild", 3)
+    d.putNumChild(3)
     if d.isExpanded(item):
         d.beginChildren(3)
         d.putItem(Item(value.dereference(), item.iname, "data", "data"))
@@ -1911,10 +1818,10 @@ def qqDumpStdMap(d, item):
 
             d.beginHash()
             if isSimpleKey and isSimpleValue:
-                d.putField("name", str(pair["first"]))
+                d.putName(str(pair["first"]))
                 d.putItemHelper(Item(pair["second"], item.iname, i, None))
             else:
-                d.putField("value", " ")
+                d.putValue(" ")
                 if d.isExpandedIName("%s.%d" % (item.iname, i)):
                     d.beginChildren(2, None)
                     iname = "%s.%d." % (item.iname, i)
@@ -1996,9 +1903,8 @@ def qqDumpStdString(d, item):
     for i in xrange(0, size):
         s += format % int(p.dereference())
         p += 1
-    d.putField("valueencoded", "6")
-    d.putField("value", s)
-    d.putField("numchild", 0)
+    d.putValue(s, 6)
+    d.putNumChild(0)
 
 
 def qqDumpStdVector(d, item):
