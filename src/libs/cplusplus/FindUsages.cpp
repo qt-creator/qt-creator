@@ -35,6 +35,7 @@
 #include <Names.h>
 #include <Symbols.h>
 #include <AST.h>
+#include <TranslationUnit.h>
 
 #include <QtCore/QDir>
 
@@ -63,16 +64,20 @@ QList<Usage> FindUsages::usages() const
 QList<int> FindUsages::references() const
 { return _references; }
 
-void FindUsages::operator()(Symbol *symbol, const Identifier *id, AST *ast)
+void FindUsages::operator()(Symbol *symbol)
 {
     _processed.clear();
     _references.clear();
     _usages.clear();
     _declSymbol = symbol;
-    _id = id;
-    if (_declSymbol && _id) {
+
+    _id = 0;
+    if (_declSymbol && 0 != & (_id = _declSymbol->identifier()))
+        _id = _doc->control()->findOrInsertIdentifier(_id->chars(), _id->size());
+
+    if (_id) {
         _exprDoc = Document::create("<references>");
-        accept(ast);
+        accept(_doc->translationUnit()->ast());
     }
 }
 

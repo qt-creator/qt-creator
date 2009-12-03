@@ -79,21 +79,11 @@ QList<int> CppFindReferences::references(Symbol *symbol,
                                          Document::Ptr doc,
                                          const Snapshot& snapshot) const
 {
-    const Identifier *id = 0;
-    if (const Identifier *symbolId = symbol->identifier())
-        id = doc->control()->findIdentifier(symbolId->chars(), symbolId->size());
-
     QList<int> references;
-
-    if (! id)
-        return references;
-
-    TranslationUnit *translationUnit = doc->translationUnit();
-    Q_ASSERT(translationUnit != 0);
 
     FindUsages findUsages(doc, snapshot, /*future = */ 0);
     findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
-    findUsages(symbol, id, translationUnit->ast());
+    findUsages(symbol);
     references = findUsages.references();
 
     return references;
@@ -165,26 +155,13 @@ static void find_helper(QFutureInterface<Usage> &future,
         doc->tokenize();
 
         Control *control = doc->control();
-        if (const Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size())) {
-            QTime tm;
-            tm.start();
-            doc->parse();
-
-            //qDebug() << "***" << unit->fileName() << "parsed in:" << tm.elapsed();
-
-            tm.start();
+        if (control->findIdentifier(symbolId->chars(), symbolId->size()) != 0) {
             doc->check();
-            //qDebug() << "***" << unit->fileName() << "checked in:" << tm.elapsed();
-
-            tm.start();
 
             FindUsages process(doc, snapshot, &future);
             process.setGlobalNamespaceBinding(bind(doc, snapshot));
 
-            TranslationUnit *unit = doc->translationUnit();
-            process(symbol, id, unit->ast());
-
-            //qDebug() << "***" << unit->fileName() << "processed in:" << tm.elapsed();
+            process(symbol);
         }
     }
 

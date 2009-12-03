@@ -64,7 +64,7 @@ public:
 
     void setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding);
 
-    void operator()(Symbol *symbol, const Identifier *id, AST *ast);
+    void operator()(Symbol *symbol);
 
     QList<Usage> usages() const;
     QList<int> references() const;
