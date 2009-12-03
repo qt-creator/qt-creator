@@ -56,25 +56,29 @@ public:
     void init(ProjectExplorer::BuildConfiguration *bc);
 
 private slots:
-    void changeConfigName(const QString &newName);
-    void setupQtVersionsComboBox();
-    void shadowBuildCheckBoxClicked(bool checked);
+    // User changes in our widgets
+    void configNameEdited(const QString &newName);
+    void shadowBuildClicked(bool checked);
     void onBeforeBeforeShadowBuildDirBrowsed();
-    void shadowBuildLineEditTextChanged();
-    void importLabelClicked();
-    void qtVersionComboBoxCurrentIndexChanged(const QString &);
+    void shadowBuildEdited();
+    void qtVersionSelected(const QString &);
+    void toolChainSelected(int index);
     void manageQtVersions();
-    void selectToolChain(int index);
-    void updateDetails();
+    void importLabelClicked();
 
+    // Changes triggered from creator
+    void qtVersionsChanged();
+    void qtVersionChanged();
+    void buildDirectoryChanged();
 private:
+    void updateDetails();
     void updateToolChainCombo();
     void updateImportLabel();
-    void setToolChain(int index);
     Ui::Qt4ProjectConfigWidget *m_ui;
     QAbstractButton *m_browseButton;
     Qt4BuildConfiguration *m_buildConfiguration;
     Utils::DetailsWidget *m_detailsContainer;
+    bool m_ignoreChange;
 };
 
 } // namespace Internal

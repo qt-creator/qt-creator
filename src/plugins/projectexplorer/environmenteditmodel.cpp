@@ -277,7 +277,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
                     m_items[pos].unset = false;
                     updateResultEnvironment();
                     emit dataChanged(index, index);
-                    emit userChangesUpdated();
+                    emit userChangesChanged();
                     return true;
                 }
                 // not found in m_items, so add it as a new variable
@@ -287,7 +287,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
                 m_items[index.row()].value = value.toString();
                 m_items[index.row()].unset = false;
                 emit dataChanged(index, index);
-                emit userChangesUpdated();
+                emit userChangesChanged();
                 return true;
             }
         }
@@ -328,14 +328,14 @@ QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
             m_items.insert(rowInChanges, item);
             updateResultEnvironment();
             emit dataChanged(index(rowInResult, 0, QModelIndex()), index(rowInResult, 1, QModelIndex()));
-            emit userChangesUpdated();
+            emit userChangesChanged();
             return index(rowInResult, 0, QModelIndex());
         } else {
             beginInsertRows(QModelIndex(), rowInResult, rowInResult);
             m_items.insert(rowInChanges, item);
             updateResultEnvironment();
             endInsertRows();
-            emit userChangesUpdated();
+            emit userChangesChanged();
             return index(rowInResult, 0, QModelIndex());
         }
     } else {
@@ -343,7 +343,7 @@ QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
         beginInsertRows(QModelIndex(), newPos, newPos);
         m_items.insert(newPos, item);
         endInsertRows();
-        emit userChangesUpdated();
+        emit userChangesChanged();
         return index(newPos, 0, QModelIndex());
     }
 }
@@ -358,13 +358,13 @@ void EnvironmentModel::removeVariable(const QString &name)
             m_items.removeAt(rowInChanges);
             updateResultEnvironment();
             emit dataChanged(index(rowInResult, 0, QModelIndex()), index(rowInResult, 1, QModelIndex()));
-            emit userChangesUpdated();
+            emit userChangesChanged();
         } else {
             beginRemoveRows(QModelIndex(), rowInResult, rowInResult);
             m_items.removeAt(rowInChanges);
             updateResultEnvironment();
             endRemoveRows();
-            emit userChangesUpdated();
+            emit userChangesChanged();
         }
     } else {
         int removePos = findInChanges(name);
@@ -372,7 +372,7 @@ void EnvironmentModel::removeVariable(const QString &name)
         m_items.removeAt(removePos);
         updateResultEnvironment();
         endRemoveRows();
-        emit userChangesUpdated();
+        emit userChangesChanged();
     }
 }
 
@@ -386,7 +386,7 @@ void EnvironmentModel::unset(const QString &name)
             m_items[pos].unset = true;
             updateResultEnvironment();
             emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
-            emit userChangesUpdated();
+            emit userChangesChanged();
             return;
         }
         pos = findInChangesInsertPosition(name);
@@ -394,13 +394,13 @@ void EnvironmentModel::unset(const QString &name)
         m_items[pos].unset = true;
         updateResultEnvironment();
         emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
-        emit userChangesUpdated();
+        emit userChangesChanged();
         return;
     } else {
         int pos = findInChanges(name);
         m_items[pos].unset = true;
         emit dataChanged(index(pos, 1, QModelIndex()), index(pos, 1, QModelIndex()));
-        emit userChangesUpdated();
+        emit userChangesChanged();
         return;
     }
 }
@@ -440,8 +440,8 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 {
     m_model = new EnvironmentModel();
     m_model->setMergedEnvironments(true);
-    connect(m_model, SIGNAL(userChangesUpdated()),
-            this, SIGNAL(userChangesUpdated()));
+    connect(m_model, SIGNAL(userChangesChanged()),
+            this, SIGNAL(userChangesChanged()));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
@@ -509,7 +509,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     connect(m_environmentTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
             this, SLOT(environmentCurrentIndexChanged(QModelIndex, QModelIndex)));
 
-    connect(m_model, SIGNAL(userChangesUpdated()), this, SLOT(updateSummaryText()));
+    connect(m_model, SIGNAL(userChangesChanged()), this, SLOT(updateSummaryText()));
 }
 
 EnvironmentWidget::~EnvironmentWidget()

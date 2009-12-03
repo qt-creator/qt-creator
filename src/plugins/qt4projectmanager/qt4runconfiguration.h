@@ -53,8 +53,8 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
-
 class Qt4PriFileNode;
+class Qt4ProFileNode;
 
 class Qt4RunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
@@ -109,9 +109,10 @@ signals:
     void effectiveTargetInformationChanged();
 
 private slots:
-    void setCommandLineArguments(const QString &argumentsString);
+    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
+    void setArguments(const QString &argumentsString);
     void setWorkingDirectory(const QString &workingDirectory);
-    void nameEdited(const QString&);
+    void setUserName(const QString&);
     void setRunMode(RunMode runMode);
 
 private:
@@ -152,11 +153,11 @@ protected:
     void showEvent(QShowEvent *event);
     void hideEvent(QHideEvent *event);
 private slots:
-    void setWorkingDirectory();
-    void resetWorkingDirectory();
-    void setCommandLineArguments(const QString &arguments);
+    void workDirectoryEdited();
+    void workingDirectoryReseted();
+    void argumentsEdited(const QString &arguments);
     void nameEdited(const QString &name);
-    void userChangesUpdated();
+    void userChangesEdited();
 
     void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);
@@ -169,7 +170,7 @@ private slots:
     void termToggled(bool);
     void usingDyldImageSuffixToggled(bool);
     void usingDyldImageSuffixChanged(bool);
-    void baseEnvironmentComboBoxChanged(int index);
+    void baseEnvironmentSelected(int index);
 
 private:
     void updateSummary();

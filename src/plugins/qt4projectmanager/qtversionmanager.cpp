@@ -181,8 +181,9 @@ void QtVersionManager::addVersion(QtVersion *version)
 {
     QTC_ASSERT(version != 0, return);
     m_versions.append(version);
-    m_uniqueIdToIndex.insert(version->uniqueId(), m_versions.count() - 1);
-    emit qtVersionsChanged();
+    int uniqueId = version->uniqueId();
+    m_uniqueIdToIndex.insert(uniqueId, m_versions.count() - 1);
+    emit qtVersionsChanged(QList<int>() << uniqueId);
     writeVersionsIntoSettings();
 }
 
@@ -190,8 +191,9 @@ void QtVersionManager::removeVersion(QtVersion *version)
 {
     QTC_ASSERT(version != 0, return);
     m_versions.removeAll(version);
-    m_uniqueIdToIndex.remove(version->uniqueId());
-    emit qtVersionsChanged();
+    int uniqueId = version->uniqueId();
+    m_uniqueIdToIndex.remove(uniqueId);
+    emit qtVersionsChanged(QList<int>() << uniqueId);
     writeVersionsIntoSettings();
     delete version;
 }
@@ -378,21 +380,78 @@ QtVersion *QtVersionManager::defaultVersion() const
         return m_emptyVersion;
 }
 
+class SortByUniqueId
+{
+public:
+    bool operator()(QtVersion *a, QtVersion *b)
+    {
+        return a->uniqueId() < b->uniqueId();
+    }
+};
+
+bool QtVersionManager::equals(QtVersion *a, QtVersion *b)
+{
+    if (a->m_qmakeCommand != b->m_qmakeCommand)
+        return false;
+    if (a->m_id != b->m_id)
+        return false;
+    if (a->m_mingwDirectory != b->m_mingwDirectory
+        || a->m_msvcVersion != b->m_msvcVersion
+        || a->m_mwcDirectory != b->m_mwcDirectory)
+        return false;
+    return true;
+}
+
 void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion)
 {
-    bool versionPathsChanged = m_versions.size() != newVersions.size();
-    if (!versionPathsChanged) {
-        for (int i = 0; i < m_versions.size(); ++i) {
-            if (m_versions.at(i)->qmakeCommand() != newVersions.at(i)->qmakeCommand()) {
-                versionPathsChanged = true;
-                break;
-            }
+    // We want to preserve the same order as in the settings dialog
+    // so we sort a copy
+    QList<QtVersion *> sortedNewVersions = newVersions;
+    SortByUniqueId sortByUniqueId;
+    qSort(sortedNewVersions.begin(), sortedNewVersions.end(), sortByUniqueId);
+    qSort(m_versions.begin(), m_versions.end(), sortByUniqueId);
+
+    QList<int> changedVersions;
+    // So we trying to find the minimal set of changed versions,
+    // iterate over both sorted list
+
+    // newVersions and oldVersions iterator
+    QList<QtVersion *>::const_iterator nit, nend, oit, oend;
+    nit = sortedNewVersions.constBegin();
+    nend = sortedNewVersions.constEnd();
+    oit = m_versions.constBegin();
+    oend = m_versions.constEnd();
+
+    while (nit != nend && oit != oend) {
+        int nid = (*nit)->uniqueId();
+        int oid = (*oit)->uniqueId();
+        if (nid < oid) {
+            changedVersions.push_back(nid);
+            ++nit;
+        } else if (oid < nid) {
+            changedVersions.push_back(oid);
+            ++oit;
+        } else {
+            if (!equals(*oit, *nit))
+                changedVersions.push_back(oid);
+            ++oit;
+            ++nit;
         }
     }
+
+    while (nit != nend) {
+        changedVersions.push_back((*nit)->uniqueId());
+    }
+
+    while (oit != oend) {
+        changedVersions.push_back((*oit)->uniqueId());
+    }
+
     qDeleteAll(m_versions);
     m_versions.clear();
     m_versions = newVersions;
-    if (versionPathsChanged)
+
+    if (!changedVersions.isEmpty())
         updateDocumentation();
     updateUniqueIdToIndexMap();
 
@@ -402,13 +461,13 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
         emitDefaultChanged = true;
     }
 
-    emit qtVersionsChanged();
-    if (emitDefaultChanged) {
-        emit defaultQtVersionChanged();
-    }
-
     updateExamples();
     writeVersionsIntoSettings();
+
+    if (!changedVersions.isEmpty())
+        emit qtVersionsChanged(changedVersions);
+    if (emitDefaultChanged)
+        emit defaultQtVersionChanged();
 }
 
 ///

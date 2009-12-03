@@ -40,14 +40,7 @@
 #include "qt4buildenvironmentwidget.h"
 #include "qt4projectmanagerconstants.h"
 #include "projectloadwizard.h"
-#include "qtversionmanager.h"
 #include "qt4buildconfiguration.h"
-#include "qt4buildconfiguration.h"
-
-#ifdef QTCREATOR_WITH_S60
-#include "qt-s60/gccetoolchain.h"
-#include "qt-s60/rvcttoolchain.h"
-#endif
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -236,6 +229,12 @@ Qt4BuildConfigurationFactory::Qt4BuildConfigurationFactory(Qt4Project *project)
     m_project(project)
 {
     update();
+
+    QtVersionManager *vm = QtVersionManager::instance();
+    connect(vm, SIGNAL(defaultQtVersionChanged()),
+            this, SLOT(update()));
+    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
+            this, SLOT(update()));
 }
 
 Qt4BuildConfigurationFactory::~Qt4BuildConfigurationFactory()
@@ -320,7 +319,8 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
     m_fileInfo(new Qt4ProjectFile(this, fileName, this)),
     m_isApplication(true),
-    m_projectFiles(new Qt4ProjectFiles)
+    m_projectFiles(new Qt4ProjectFiles),
+    m_lastActiveQt4BuildConfiguration(0)
 {
     m_manager->registerProject(this);
 
@@ -340,24 +340,9 @@ Qt4BuildConfiguration *Qt4Project::activeQt4BuildConfiguration() const
     return static_cast<Qt4BuildConfiguration *>(activeBuildConfiguration());
 }
 
-void Qt4Project::defaultQtVersionChanged()
+void Qt4Project::qtVersionChanged()
 {
-    if (activeQt4BuildConfiguration()->qtVersionId() == 0)
-        m_rootProjectNode->update();
-}
-
-void Qt4Project::qtVersionsChanged()
-{
-    QtVersionManager *vm = QtVersionManager::instance();
-    foreach (BuildConfiguration *bc, buildConfigurations()) {
-        Qt4BuildConfiguration *qt4bc = static_cast<Qt4BuildConfiguration *>(bc);
-        if (!vm->version(qt4bc->qtVersionId())->isValid()) {
-            qt4bc->setQtVersion(0);
-            if (qt4bc == activeBuildConfiguration())
-                m_rootProjectNode->update();
-        }
-    }
-    m_buildConfigurationFactory->update();
+    m_rootProjectNode->update();
 }
 
 void Qt4Project::updateFileList()
@@ -420,13 +405,6 @@ bool Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
     }
 
     // Now connect
-    QtVersionManager *vm = QtVersionManager::instance();
-    connect(vm, SIGNAL(defaultQtVersionChanged()),
-            this, SLOT(defaultQtVersionChanged()));
-    connect(vm, SIGNAL(qtVersionsChanged()),
-            this, SLOT(qtVersionsChanged()));
-
-
     connect(m_nodesWatcher, SIGNAL(foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &)),
             this, SLOT(foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &)));
     connect(m_nodesWatcher, SIGNAL(foldersAdded()), this, SLOT(checkForNewApplicationProjects()));
@@ -441,8 +419,45 @@ bool Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
                                           const Qt4ProjectManager::Internal::Qt4ProjectType)));
 
     connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
-            this, SLOT(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)));
+            this, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)));
+
+    connect(this, SIGNAL(activeBuildConfigurationChanged()),
+            this, SLOT(slotActiveBuildConfigurationChanged()));
+
+    m_lastActiveQt4BuildConfiguration = activeQt4BuildConfiguration();
+    if (m_lastActiveQt4BuildConfiguration) {
+        connect(m_lastActiveQt4BuildConfiguration, SIGNAL(qtVersionChanged()),
+                this, SLOT(update()));
+        connect(m_lastActiveQt4BuildConfiguration, SIGNAL(targetInformationChanged()),
+                this, SIGNAL(targetInformationChanged()));
+        connect(m_lastActiveQt4BuildConfiguration, SIGNAL(environmentChanged()),
+                this, SIGNAL(environmentChanged()));
+    }
+
     return true;
+}
+
+void Qt4Project::slotActiveBuildConfigurationChanged()
+{
+    if (m_lastActiveQt4BuildConfiguration) {
+        disconnect(m_lastActiveQt4BuildConfiguration, SIGNAL(qtVersionChanged()),
+                   this, SLOT(update()));
+        disconnect(m_lastActiveQt4BuildConfiguration, SIGNAL(targetInformationChanged()),
+                   this, SIGNAL(targetInformationChanged()));
+        disconnect(m_lastActiveQt4BuildConfiguration, SIGNAL(environmentChanged()),
+                   this, SIGNAL(environmentChanged()));
+    }
+    m_lastActiveQt4BuildConfiguration = activeQt4BuildConfiguration();
+    if (m_lastActiveQt4BuildConfiguration) {
+        connect(m_lastActiveQt4BuildConfiguration, SIGNAL(qtVersionChanged()),
+                this, SLOT(update()));
+        connect(m_lastActiveQt4BuildConfiguration, SIGNAL(targetInformationChanged()),
+                this, SIGNAL(targetInformationChanged()));
+        connect(m_lastActiveQt4BuildConfiguration, SIGNAL(environmentChanged()),
+                this, SIGNAL(environmentChanged()));
+    }
+    emit environmentChanged();
+    emit targetInformationChanged();
 }
 
 void Qt4Project::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
@@ -482,7 +497,7 @@ Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString displayName,
     if (qmakeBuildConfiguration & QtVersion::BuildAll) // debug_and_release => explicit targets
         makeStep->setUserArguments(QStringList() << (debug ? "debug" : "release"));
 
-    bc->setValue("buildConfiguration", int(qmakeBuildConfiguration));
+    bc->setQMakeBuildConfiguration(qmakeBuildConfiguration);
 
     // Finally set the qt version
     bool defaultQtVersion = (qtversion == 0);
@@ -845,13 +860,6 @@ Qt4ProFileNode *Qt4Project::rootProjectNode() const
     return m_rootProjectNode;
 }
 
-
-void Qt4Project::updateActiveRunConfiguration()
-{
-    emit runConfigurationsEnabledStateChanged();
-    emit targetInformationChanged();
-}
-
 BuildConfigWidget *Qt4Project::createConfigWidget()
 {
     return new Qt4ProjectConfigWidget(this);
@@ -969,17 +977,6 @@ void Qt4Project::projectTypeChanged(Qt4ProFileNode *node, const Qt4ProjectType o
     }
 }
 
-void Qt4Project::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node)
-{
-    foreach (RunConfiguration *rc, runConfigurations()) {
-        if (Qt4RunConfiguration *qt4rc = qobject_cast<Qt4RunConfiguration *>(rc)) {
-            if (qt4rc->proFilePath() == node->path()) {
-                qt4rc->invalidateCachedTargetInformation();
-            }
-        }
-    }
-}
-
 bool Qt4Project::hasSubNode(Qt4PriFileNode *root, const QString &path)
 {
     if (root->path() == path)
@@ -1013,11 +1010,6 @@ void Qt4Project::notifyChanged(const QString &name)
         foreach(Qt4ProFileNode *node, list)
             node->update();
     }
-}
-
-void Qt4Project::invalidateCachedTargetInformation()
-{
-    emit targetInformationChanged();
 }
 
 /*!

@@ -46,6 +46,7 @@ namespace Internal {
 
 class MaemoManager;
 class MaemoToolChain;
+class Qt4ProFileNode;
 using namespace ProjectExplorer;
 
 #define USE_SSL_PASSWORD 0
@@ -120,6 +121,7 @@ signals:
     void qemuProcessStatus(bool running);
 
 private slots:
+    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
     void updateDeviceConfigurations();
     void invalidateCachedTargetInformation();
 

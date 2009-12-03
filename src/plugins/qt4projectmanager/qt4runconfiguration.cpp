@@ -72,18 +72,14 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFile
     else
         setName(tr("Qt4RunConfiguration"));
 
-    connect(pro, SIGNAL(activeBuildConfigurationChanged()),
-            this, SLOT(invalidateCachedTargetInformation()));
-
     connect(pro, SIGNAL(targetInformationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
 
-    connect(pro, SIGNAL(activeBuildConfigurationChanged()),
+    connect(pro, SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
 
-//    TODO
-//    connect(pro, SIGNAL(environmentChanged(ProjectExplorer::BuildConfiguration *)),
-//            this, SIGNAL(baseEnvironmentChanged()));
+    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
 
 Qt4RunConfiguration::~Qt4RunConfiguration()
@@ -121,6 +117,12 @@ bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configu
     Q_UNUSED(configuration);
 #endif
     return true;
+}
+
+void Qt4RunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+{
+    if  (m_proFilePath == pro->path())
+        invalidateCachedTargetInformation();
 }
 
 //////
@@ -205,7 +207,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
                                         << tr("Build Environment"));
     m_baseEnvironmentComboBox->setCurrentIndex(qt4RunConfiguration->baseEnvironmentBase());
     connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(baseEnvironmentComboBoxChanged(int)));
+            this, SLOT(baseEnvironmentSelected(int)));
     baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
     baseEnvironmentLayout->addStretch(10);
 
@@ -216,20 +218,20 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     vboxTopLayout->addWidget(m_environmentWidget);
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
-            this, SLOT(setWorkingDirectory()));
+            this, SLOT(workDirectoryEdited()));
 
     connect(resetButton, SIGNAL(clicked()),
-            this, SLOT(resetWorkingDirectory()));
+            this, SLOT(workingDirectoryReseted()));
 
     connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(setCommandLineArguments(QString)));
+            this, SLOT(argumentsEdited(QString)));
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(nameEdited(QString)));
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
-    connect(m_environmentWidget, SIGNAL(userChangesUpdated()),
-            this, SLOT(userChangesUpdated()));
+    connect(m_environmentWidget, SIGNAL(userChangesChanged()),
+            this, SLOT(userChangesEdited()));
 
     connect(qt4RunConfiguration, SIGNAL(workingDirectoryChanged(QString)),
             this, SLOT(workingDirectoryChanged(QString)));
@@ -263,7 +265,7 @@ void Qt4RunConfigurationWidget::updateSummary()
     m_detailsContainer->setSummaryText(text);
 }
 
-void Qt4RunConfigurationWidget::baseEnvironmentComboBoxChanged(int index)
+void Qt4RunConfigurationWidget::baseEnvironmentSelected(int index)
 {
     m_ignoreChange = true;
     m_qt4RunConfiguration->setBaseEnvironmentBase(Qt4RunConfiguration::BaseEnvironmentBase(index));
@@ -288,14 +290,14 @@ void Qt4RunConfigurationWidget::userEnvironmentChangesChanged(const QList<Projec
     m_environmentWidget->setUserChanges(userChanges);
 }
 
-void Qt4RunConfigurationWidget::userChangesUpdated()
+void Qt4RunConfigurationWidget::userChangesEdited()
 {
     m_ignoreChange = true;
     m_qt4RunConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
     m_ignoreChange = false;
 }
 
-void Qt4RunConfigurationWidget::setWorkingDirectory()
+void Qt4RunConfigurationWidget::workDirectoryEdited()
 {
     if (m_ignoreChange)
         return;
@@ -304,24 +306,24 @@ void Qt4RunConfigurationWidget::setWorkingDirectory()
     m_ignoreChange = false;
 }
 
-void Qt4RunConfigurationWidget::resetWorkingDirectory()
+void Qt4RunConfigurationWidget::workingDirectoryReseted()
 {
     // This emits a signal connected to workingDirectoryChanged()
     // that sets the m_workingDirectoryEdit
     m_qt4RunConfiguration->setWorkingDirectory("");
 }
 
-void Qt4RunConfigurationWidget::setCommandLineArguments(const QString &args)
+void Qt4RunConfigurationWidget::argumentsEdited(const QString &args)
 {
     m_ignoreChange = true;
-    m_qt4RunConfiguration->setCommandLineArguments(args);
+    m_qt4RunConfiguration->setArguments(args);
     m_ignoreChange = false;
 }
 
 void Qt4RunConfigurationWidget::nameEdited(const QString &name)
 {
     m_ignoreChange = true;
-    m_qt4RunConfiguration->nameEdited(name);
+    m_qt4RunConfiguration->setUserName(name);
     m_ignoreChange = false;
 }
 
@@ -527,7 +529,7 @@ void Qt4RunConfiguration::setWorkingDirectory(const QString &wd)
     }
 }
 
-void Qt4RunConfiguration::setCommandLineArguments(const QString &argumentsString)
+void Qt4RunConfiguration::setArguments(const QString &argumentsString)
 {
     m_commandLineArguments = ProjectExplorer::Environment::parseCombinedArgString(argumentsString);
     emit commandLineArgumentsChanged(argumentsString);
@@ -539,14 +541,14 @@ void Qt4RunConfiguration::setRunMode(RunMode runMode)
     emit runModeChanged(runMode);
 }
 
-void Qt4RunConfiguration::nameEdited(const QString &name)
+void Qt4RunConfiguration::setUserName(const QString &name)
 {
     if (name == "") {
-        setName(tr("Qt4RunConfiguration"));
         m_userSetName = false;
+        setName(tr("Qt4RunConfiguration"));
     } else {
-        setName(name);
         m_userSetName = true;
+        setName(name);
     }
     emit nameChanged(name);
 }

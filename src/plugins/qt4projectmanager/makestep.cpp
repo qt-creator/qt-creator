@@ -212,9 +212,9 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 {
     m_ui.setupUi(this);
     connect(m_ui.makeLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(makeLineEditTextEdited()));
+            this, SLOT(makeEdited()));
     connect(m_ui.makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(makeArgumentsLineEditTextEdited()));
+            this, SLOT(makeArgumentsLineEdited()));
 
     connect(makeStep, SIGNAL(userArgumentsChanged()),
             this, SLOT(userArgumentsChanged()));
@@ -300,13 +300,13 @@ void MakeStepConfigWidget::init()
     updateDetails();
 }
 
-void MakeStepConfigWidget::makeLineEditTextEdited()
+void MakeStepConfigWidget::makeEdited()
 {
     m_makeStep->m_makeCmd = m_ui.makeLineEdit->text();
     updateDetails();
 }
 
-void MakeStepConfigWidget::makeArgumentsLineEditTextEdited()
+void MakeStepConfigWidget::makeArgumentsLineEdited()
 {
     m_ignoreChange = true;
     m_makeStep->setUserArguments(

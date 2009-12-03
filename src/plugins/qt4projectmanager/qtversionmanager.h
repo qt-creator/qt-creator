@@ -214,12 +214,14 @@ public:
     static QString findQMakeBinaryFromMakefile(const QString &directory);
 signals:
     void defaultQtVersionChanged();
-    void qtVersionsChanged();
+    void qtVersionsChanged(const QList<int> &uniqueIds);
     void updateExamples(QString, QString, QString);
 
 private slots:
     void updateExamples();
 private:
+    // This function is really simplistic...
+    static bool equals(QtVersion *a, QtVersion *b);
     static QString findQMakeLine(const QString &directory);
     static QString trimLine(const QString line);
     static QStringList splitLine(const QString &line);

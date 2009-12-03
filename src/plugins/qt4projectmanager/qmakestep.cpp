@@ -99,7 +99,6 @@ QStringList QMakeStep::allArguments()
         foreach (const QString &addedConfig, addedUserConfigArguments)
             arguments.append("CONFIG+=" + addedConfig);
     }
-
     if (!additonalArguments.isEmpty())
         arguments << additonalArguments;
 
@@ -232,17 +231,35 @@ void QMakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
     AbstractProcessStep::storeIntoLocalMap(map);
 }
 
+////
+// QMakeStepConfigWidget
+////
+
 QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     : BuildStepConfigWidget(), m_step(step), m_ignoreChange(false)
 {
     m_ui.setupUi(this);
     connect(m_ui.qmakeAdditonalArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(qmakeArgumentsLineEditTextEdited()));
-    connect(m_ui.buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(buildConfigurationChanged()));
+            this, SLOT(qmakeArgumentsLineEdited()));
+    connect(m_ui.buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(buildConfigurationSelected()));
     connect(step, SIGNAL(userArgumentsChanged()),
             this, SLOT(userArgumentsChanged()));
-    connect(step->buildConfiguration(), SIGNAL(qtVersionChanged()),
+    connect(step->qt4BuildConfiguration(), SIGNAL(qtVersionChanged()),
             this, SLOT(qtVersionChanged()));
+    connect(step->qt4BuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
+            this, SLOT(qmakeBuildConfigChanged()));
+}
+
+void QMakeStepConfigWidget::init()
+{
+    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->userArguments());
+    m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
+
+    qmakeBuildConfigChanged();
+
+    updateSummaryLabel();
+    updateEffectiveQMakeCall();
 }
 
 QString QMakeStepConfigWidget::summaryText() const
@@ -250,13 +267,69 @@ QString QMakeStepConfigWidget::summaryText() const
     return m_summaryText;
 }
 
+QString QMakeStepConfigWidget::displayName() const
+{
+    return m_step->displayName();
+}
+
 void QMakeStepConfigWidget::qtVersionChanged()
 {
-    updateTitleLabel();
+    updateSummaryLabel();
     updateEffectiveQMakeCall();
 }
 
-void QMakeStepConfigWidget::updateTitleLabel()
+void QMakeStepConfigWidget::qmakeBuildConfigChanged()
+{
+    Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
+    bool debug = bc->qmakeBuildConfiguration() & QtVersion::DebugBuild;
+    m_ignoreChange = true;
+    m_ui.buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
+    m_ignoreChange = false;
+    updateSummaryLabel();
+    updateEffectiveQMakeCall();
+}
+
+void QMakeStepConfigWidget::userArgumentsChanged()
+{
+    if (m_ignoreChange)
+        return;
+    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->userArguments());
+    m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
+    updateSummaryLabel();
+    updateEffectiveQMakeCall();
+}
+
+void QMakeStepConfigWidget::qmakeArgumentsLineEdited()
+{
+    m_ignoreChange = true;
+    m_step->setUserArguments(
+            ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
+    m_ignoreChange = false;
+
+    updateSummaryLabel();
+    updateEffectiveQMakeCall();
+}
+
+void QMakeStepConfigWidget::buildConfigurationSelected()
+{
+    if (m_ignoreChange)
+        return;
+    Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
+    QtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
+    if (m_ui.buildConfigurationComboBox->currentIndex() == 0) { // debug
+        buildConfiguration = buildConfiguration | QtVersion::DebugBuild;
+    } else {
+        buildConfiguration = buildConfiguration & ~QtVersion::DebugBuild;
+    }
+    m_ignoreChange = true;
+    bc->setQMakeBuildConfiguration(buildConfiguration);
+    m_ignoreChange = false;
+
+    updateSummaryLabel();
+    updateEffectiveQMakeCall();
+}
+
+void QMakeStepConfigWidget::updateSummaryLabel()
 {
     Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
@@ -278,63 +351,6 @@ void QMakeStepConfigWidget::updateTitleLabel()
     m_summaryText = tr("<b>QMake:</b> %1 %2").arg(program, args.join(QString(QLatin1Char(' '))));
     emit updateSummary();
 
-}
-
-void QMakeStepConfigWidget::qmakeArgumentsLineEditTextEdited()
-{
-    m_ignoreChange = true;
-    m_step->setUserArguments(
-            ProjectExplorer::Environment::parseCombinedArgString(m_ui.qmakeAdditonalArgumentsLineEdit->text()));
-    m_ignoreChange = false;
-
-    m_step->qt4BuildConfiguration()->qt4Project()->invalidateCachedTargetInformation();
-    updateTitleLabel();
-    updateEffectiveQMakeCall();
-}
-
-void QMakeStepConfigWidget::buildConfigurationChanged()
-{
-    ProjectExplorer::BuildConfiguration *bc = m_step->buildConfiguration();
-    QtVersion::QmakeBuildConfigs buildConfiguration = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt());
-    if (m_ui.buildConfigurationComboBox->currentIndex() == 0) {
-        // debug
-        buildConfiguration = buildConfiguration | QtVersion::DebugBuild;
-    } else {
-        buildConfiguration = buildConfiguration & ~QtVersion::DebugBuild;
-    }
-    bc->setValue("buildConfiguration", int(buildConfiguration));
-    m_step->qt4BuildConfiguration()->qt4Project()->invalidateCachedTargetInformation();
-    updateTitleLabel();
-    updateEffectiveQMakeCall();
-    // TODO if exact parsing is the default, we need to update the code model
-    // and all the Qt4ProFileNodes
-    // m_step->qt4Project()->update();
-}
-
-QString QMakeStepConfigWidget::displayName() const
-{
-    return m_step->displayName();
-}
-
-void QMakeStepConfigWidget::userArgumentsChanged()
-{
-    if (m_ignoreChange)
-        return;
-    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->userArguments());
-    m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
-    updateTitleLabel();
-    updateEffectiveQMakeCall();
-}
-
-void QMakeStepConfigWidget::init()
-{
-    QString qmakeArgs = ProjectExplorer::Environment::joinArgumentList(m_step->userArguments());
-    m_ui.qmakeAdditonalArgumentsLineEdit->setText(qmakeArgs);
-    ProjectExplorer::BuildConfiguration *bc = m_step->buildConfiguration();
-    bool debug = QtVersion::QmakeBuildConfig(bc->value("buildConfiguration").toInt()) & QtVersion::DebugBuild;
-    m_ui.buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
-    updateTitleLabel();
-    updateEffectiveQMakeCall();
 }
 
 void QMakeStepConfigWidget::updateEffectiveQMakeCall()

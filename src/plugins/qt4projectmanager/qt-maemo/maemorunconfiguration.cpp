@@ -268,10 +268,14 @@ MaemoRunConfiguration::MaemoRunConfiguration(Project *project,
     connect(&MaemoDeviceConfigurations::instance(), SIGNAL(updated()),
             this, SLOT(updateDeviceConfigurations()));
 
-    connect(project, SIGNAL(targetInformationChanged()), this,
-        SLOT(invalidateCachedTargetInformation()));
-    connect(project, SIGNAL(activeBuildConfigurationChanged()), this,
-        SLOT(invalidateCachedTargetInformation()));
+    connect(project, SIGNAL(targetInformationChanged()),
+            this, SLOT(invalidateCachedTargetInformation()));
+
+    connect(project, SIGNAL(targetInformationChanged()),
+            this, SLOT(enabledStateChanged()));
+
+    connect(project, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 
     qemu = new QProcess(this);
     connect(qemu, SIGNAL(error(QProcess::ProcessError)), &dumper,
@@ -314,6 +318,13 @@ QWidget *MaemoRunConfiguration::configurationWidget()
 {
     return new MaemoRunConfigurationWidget(this);
 }
+
+void MaemoRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+{
+    if (m_proFilePath == pro->path())
+        invalidateCachedTargetInformation();
+}
+
 
 void MaemoRunConfiguration::save(PersistentSettingsWriter &writer) const
 {

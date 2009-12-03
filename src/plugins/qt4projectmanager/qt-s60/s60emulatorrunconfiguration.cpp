@@ -62,16 +62,23 @@ S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Project *project, const
     else
         setName(tr("QtSymbianEmulatorRunConfiguration"));
 
-    connect(project, SIGNAL(activeBuildConfigurationChanged()),
-            this, SLOT(invalidateCachedTargetInformation()));
-
     connect(project, SIGNAL(targetInformationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
+
+    connect(project, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
 
 S60EmulatorRunConfiguration::~S60EmulatorRunConfiguration()
 {
 }
+
+void S60EmulatorRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+{
+    if (m_proFilePath == pro->path())
+        invalidateCachedTargetInformation();
+}
+
 
 Qt4Project *S60EmulatorRunConfiguration::qt4Project() const
 {

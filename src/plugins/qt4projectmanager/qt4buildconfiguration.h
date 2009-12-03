@@ -34,6 +34,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/toolchain.h>
+#include "qtversionmanager.h"
 
 namespace Qt4ProjectManager {
 
@@ -62,6 +63,7 @@ public:
     void setUseSystemEnvironment(bool b);
 
     virtual QString buildDirectory() const;
+    void setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory);
 
     //returns the qtVersion, if the project is set to use the default qt version, then
     // that is returned
@@ -81,6 +83,9 @@ public:
     void setToolChainType(ProjectExplorer::ToolChain::ToolChainType type);
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 
+    QtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
+    void setQMakeBuildConfiguration(QtVersion::QmakeBuildConfigs config);
+    void getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const;
 
     // Those functions are used in a few places.
     // The drawback is that we shouldn't actually depend on them beeing always there
@@ -97,11 +102,26 @@ public:
     static QStringList removeSpecFromArgumentList(const QStringList &old);
     static QString extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version);
 
-    QtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
-    void getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const;
 
 signals:
+    /// emitted if the qt version changes (either directly, or because the default qt version changed
+    /// or because the user changed the settings for the qt version
     void qtVersionChanged();
+    /// emitted iff the setToolChainType() funciton is called, not emitted for qtversion changes
+    /// even if those result in a toolchain change
+    void toolChainTypeChanged();
+    /// emitted for setQMakeBuildConfig, not emitted for qt version changes, even
+    /// if those change the qmakebuildconfig
+    void qmakeBuildConfigurationChanged();
+
+    /// a covenience signal, emitted if either the qtversion, the toolchainType or the qmake build
+    /// configuration changed
+    void targetInformationChanged();
+private slots:
+    void defaultQtVersionChanged();
+    void qtVersionsChanged(const QList<int> &changedVersions);
+private:
+    void init();
 };
 
 } // namespace Qt4ProjectManager

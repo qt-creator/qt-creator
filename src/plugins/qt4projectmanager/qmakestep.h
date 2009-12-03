@@ -109,16 +109,20 @@ class QMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
     Q_OBJECT
 public:
     QMakeStepConfigWidget(QMakeStep *step);
-    QString displayName() const;
     void init();
     QString summaryText() const;
+    QString displayName() const;
 private slots:
-    void qmakeArgumentsLineEditTextEdited();
-    void buildConfigurationChanged();
-    void userArgumentsChanged();
+    // slots for handling buildconfiguration/step signals
     void qtVersionChanged();
+    void qmakeBuildConfigChanged();
+    void userArgumentsChanged();
+
+    // slots for dealing with user changes in our UI
+    void qmakeArgumentsLineEdited();
+    void buildConfigurationSelected();
 private:
-    void updateTitleLabel();
+    void updateSummaryLabel();
     void updateEffectiveQMakeCall();
     Ui::QMakeStep m_ui;
     QMakeStep *m_step;

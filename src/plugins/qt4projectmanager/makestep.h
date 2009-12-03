@@ -82,10 +82,9 @@ public:
     virtual bool immutable() const;
     QStringList userArguments();
     void setUserArguments(const QStringList &arguments);
+    void setClean(bool clean);
 
     virtual void restoreFromGlobalMap(const QMap<QString, QVariant> &map);
-
-    void setClean(bool clean);
 
     virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
     virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
@@ -107,8 +106,10 @@ public:
     void init();
     QString summaryText() const;
 private slots:
-    void makeLineEditTextEdited();
-    void makeArgumentsLineEditTextEdited();
+    // User changes to our widgets
+    void makeEdited();
+    void makeArgumentsLineEdited();
+
     void updateMakeOverrideLabel();
     void updateDetails();
     void userArgumentsChanged();

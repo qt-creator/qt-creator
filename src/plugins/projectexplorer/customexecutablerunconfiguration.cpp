@@ -124,7 +124,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
                                         << tr("Build Environment"));
     m_baseEnvironmentComboBox->setCurrentIndex(rc->baseEnvironmentBase());
     connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(baseEnvironmentComboBoxChanged(int)));
+            this, SLOT(baseEnvironmentSelected(int)));
     baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
     baseEnvironmentLayout->addStretch(10);
 
@@ -136,20 +136,20 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     changed();
 
     connect(m_userName, SIGNAL(textEdited(QString)),
-            this, SLOT(setUserName(QString)));
+            this, SLOT(userNameEdited(QString)));
     connect(m_executableChooser, SIGNAL(changed(QString)),
-            this, SLOT(setExecutable()));
+            this, SLOT(executableEdited()));
     connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
-            this, SLOT(setCommandLineArguments(const QString&)));
+            this, SLOT(argumentsEdited(const QString&)));
     connect(m_workingDirectory, SIGNAL(changed(QString)),
-            this, SLOT(setWorkingDirectory()));
+            this, SLOT(workingDirectoryEdited()));
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
     connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
 
-    connect(m_environmentWidget, SIGNAL(userChangesUpdated()),
-            this, SLOT(userChangesUpdated()));
+    connect(m_environmentWidget, SIGNAL(userChangesChanged()),
+            this, SLOT(userChangesChanged()));
 
     connect(m_runConfiguration, SIGNAL(baseEnvironmentChanged()),
             this, SLOT(baseEnvironmentChanged()));
@@ -157,12 +157,12 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
             this, SLOT(userEnvironmentChangesChanged()));
 }
 
-void CustomExecutableConfigurationWidget::userChangesUpdated()
+void CustomExecutableConfigurationWidget::userChangesChanged()
 {
     m_runConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
 }
 
-void CustomExecutableConfigurationWidget::baseEnvironmentComboBoxChanged(int index)
+void CustomExecutableConfigurationWidget::baseEnvironmentSelected(int index)
 {
     m_ignoreChange = true;
     m_runConfiguration->setBaseEnvironmentBase(CustomExecutableRunConfiguration::BaseEnvironmentBase(index));
@@ -176,7 +176,9 @@ void CustomExecutableConfigurationWidget::baseEnvironmentChanged()
     if (m_ignoreChange)
         return;
 
-    m_baseEnvironmentComboBox->setCurrentIndex(CustomExecutableRunConfiguration::BaseEnvironmentBase(m_runConfiguration->baseEnvironmentBase()));
+    int index = CustomExecutableRunConfiguration::BaseEnvironmentBase(
+            m_runConfiguration->baseEnvironmentBase());
+    m_baseEnvironmentComboBox->setCurrentIndex(index);
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
 }
 
@@ -186,26 +188,26 @@ void CustomExecutableConfigurationWidget::userEnvironmentChangesChanged()
 }
 
 
-void CustomExecutableConfigurationWidget::setExecutable()
+void CustomExecutableConfigurationWidget::executableEdited()
 {
     m_ignoreChange = true;
     m_runConfiguration->setExecutable(m_executableChooser->path());
     m_ignoreChange = false;
 }
-void CustomExecutableConfigurationWidget::setCommandLineArguments(const QString &commandLineArguments)
+void CustomExecutableConfigurationWidget::argumentsEdited(const QString &arguments)
 {
     m_ignoreChange = true;
-    m_runConfiguration->setCommandLineArguments(commandLineArguments);
+    m_runConfiguration->setCommandLineArguments(arguments);
     m_ignoreChange = false;
 }
-void CustomExecutableConfigurationWidget::setWorkingDirectory()
+void CustomExecutableConfigurationWidget::workingDirectoryEdited()
 {
     m_ignoreChange = true;
     m_runConfiguration->setWorkingDirectory(m_workingDirectory->path());
     m_ignoreChange = false;
 }
 
-void CustomExecutableConfigurationWidget::setUserName(const QString &name)
+void CustomExecutableConfigurationWidget::userNameEdited(const QString &name)
 {
     m_ignoreChange = true;
     m_runConfiguration->setUserName(name);
@@ -250,16 +252,31 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
     setName(tr("Custom Executable"));
 
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
-            this, SIGNAL(baseEnvironmentChanged()));
+            this, SLOT(activeBuildConfigurationChanged()));
 
-// TODO
-//    connect(pro, SIGNAL(environmentChanged(ProjectExplorer::BuildConfiguration *)),
-//            this, SIGNAL(baseEnvironmentChanged()));
+    m_lastActiveBuildConfiguration = pro->activeBuildConfiguration();
 
+    if (m_lastActiveBuildConfiguration) {
+        connect(m_lastActiveBuildConfiguration, SIGNAL(environmentChanged()),
+                this, SIGNAL(baseEnvironmentChanged()));
+    }
 }
 
 CustomExecutableRunConfiguration::~CustomExecutableRunConfiguration()
 {
+}
+
+void CustomExecutableRunConfiguration::activeBuildConfigurationChanged()
+{
+    if (m_lastActiveBuildConfiguration) {
+        disconnect(m_lastActiveBuildConfiguration, SIGNAL(environmentChanged()),
+                   this, SIGNAL(baseEnvironmentChanged()));
+    }
+    m_lastActiveBuildConfiguration = project()->activeBuildConfiguration();
+    if (m_lastActiveBuildConfiguration) {
+        connect(m_lastActiveBuildConfiguration, SIGNAL(environmentChanged()),
+                this, SIGNAL(baseEnvironmentChanged()));
+    }
 }
 
 QString CustomExecutableRunConfiguration::type() const

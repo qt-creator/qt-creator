@@ -85,13 +85,12 @@ signals:
     void displayNameChanged();
 
 protected:
-    BuildConfiguration(Project * project);
+    BuildConfiguration(Project *project);
     BuildConfiguration(BuildConfiguration *source);
 
 private:
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
-
     QHash<QString, QVariant> m_values;
     Project *m_project;
 };

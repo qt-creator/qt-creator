@@ -768,8 +768,6 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
     m_updateTimer.setInterval(100);
     m_updateTimer.setSingleShot(true);
 
-    connect(m_project, SIGNAL(activeBuildConfigurationChanged()),
-            this, SLOT(update()));
     connect(&m_updateTimer, SIGNAL(timeout()),
             this, SLOT(update()));
 

@@ -82,7 +82,7 @@ public:
     QList<EnvironmentItem> userChanges() const;
     void setUserChanges(QList<EnvironmentItem> list);
 signals:
-    void userChangesUpdated();
+    void userChangesChanged();
 private:
     void updateResultEnvironment();
     int findInChanges(const QString &name) const;
@@ -115,7 +115,7 @@ public slots:
     void updateButtons();
 
 signals:
-    void userChangesUpdated();
+    void userChangesChanged();
     void detailsVisibleChanged(bool visible);
 
 private slots:

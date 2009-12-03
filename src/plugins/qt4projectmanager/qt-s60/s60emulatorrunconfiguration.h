@@ -48,6 +48,7 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
+class Qt4ProFileNode;
 
 class S60EmulatorRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -71,6 +72,7 @@ signals:
 
 private slots:
     void invalidateCachedTargetInformation();
+    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 private:
     void updateTarget();

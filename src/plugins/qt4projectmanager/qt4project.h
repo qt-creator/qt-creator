@@ -135,6 +135,7 @@ public:
     ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
     ProjectExplorer::BuildConfiguration *restore() const;
 
+private slots:
     void update();
 
 private:
@@ -191,21 +192,18 @@ public:
 
     void notifyChanged(const QString &name);
 
-    // Is called by qmakestep qt4configurationwidget if the settings change
-    // Informs all Qt4RunConfigurations that their cached values are now invalid
-    // the Qt4RunConfigurations will update as soon as asked
-
-    // TODO remove
-    void invalidateCachedTargetInformation();
-
     virtual QByteArray predefinedMacros(const QString &fileName) const;
     virtual QStringList includePaths(const QString &fileName) const;
     virtual QStringList frameworkPaths(const QString &fileName) const;
 
-    // TODO can i remove this?
-    void updateActiveRunConfiguration();
 signals:
+    /// convenience signal, emitted if either the active buildconfiguration emits
+    /// targetInformationChanged() or if the active build configuration changes
     void targetInformationChanged();
+    void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
+    /// convenience signal, emitted if either the active buildconfiguration emits
+    /// environmentChanged() or if the active build configuration changes
+    void environmentChanged();
 
 public slots:
     void update();
@@ -214,8 +212,8 @@ public slots:
 
 private slots:
     void updateCodeModel();
-    void defaultQtVersionChanged();
-    void qtVersionsChanged();
+    void qtVersionChanged();
+    void slotActiveBuildConfigurationChanged();
     void updateFileList();
 
     void foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &);
@@ -224,7 +222,6 @@ private slots:
     void projectTypeChanged(Qt4ProjectManager::Internal::Qt4ProFileNode *node,
                             const Qt4ProjectManager::Internal::Qt4ProjectType oldType,
                             const Qt4ProjectManager::Internal::Qt4ProjectType newType);
-    void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
 
 protected:
     virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &settingsReader);
@@ -261,6 +258,8 @@ private:
     QList<Qt4ProjectManager::Internal::Qt4ProFileNode *> m_proFilesForCodeModelUpdate;
 
     QMap<QString, Internal::CodeModelInfo> m_codeModelInfo;
+    Internal::Qt4BuildConfiguration *m_lastActiveQt4BuildConfiguration;
+
     friend class Qt4ProjectFile;
     friend class Internal::Qt4ProjectConfigWidget;
 };

@@ -45,18 +45,27 @@ namespace {
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro)
     : BuildConfiguration(pro)
 {
-
+    init();
 }
 
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BuildConfiguration *source)
     : BuildConfiguration(source)
 {
-
+    init();
 }
 
 Qt4BuildConfiguration::~Qt4BuildConfiguration()
 {
 
+}
+
+void Qt4BuildConfiguration::init()
+{
+    QtVersionManager *vm = QtVersionManager::instance();
+    connect(vm, SIGNAL(defaultQtVersionChanged()),
+            this, SLOT(defaultQtVersionChanged()));
+    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
+            this, SLOT(qtVersionsChanged(QList<int>)));
 }
 
 Qt4Project *Qt4BuildConfiguration::qt4Project() const
@@ -118,6 +127,14 @@ QString Qt4BuildConfiguration::buildDirectory() const
     if (workingDirectory.isEmpty())
         workingDirectory = QFileInfo(project()->file()->fileName()).absolutePath();
     return workingDirectory;
+}
+
+void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory)
+{
+    setValue("useShadowBuild", shadowBuild);
+    setValue("buildDirectory", buildDirectory);
+    emit buildDirectoryChanged();
+    emit targetInformationChanged();
 }
 
 ProjectExplorer::ToolChain *Qt4BuildConfiguration::toolChain() const
@@ -199,15 +216,21 @@ int Qt4BuildConfiguration::qtVersionId() const
 
 void Qt4BuildConfiguration::setQtVersion(int id)
 {
+    if (qtVersionId() == id)
+        return;
+
     setValue(KEY_QT_VERSION_ID, id);
     emit qtVersionChanged();
-    qt4Project()->updateActiveRunConfiguration();
+    emit targetInformationChanged();
 }
 
 void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolChainType type)
 {
+    if (value("ToolChain").toInt() == type)
+        return;
     setValue("ToolChain", (int)type);
-    qt4Project()->updateActiveRunConfiguration();
+    emit toolChainTypeChanged();
+    emit targetInformationChanged();
 }
 
 ProjectExplorer::ToolChain::ToolChainType Qt4BuildConfiguration::toolChainType() const
@@ -224,6 +247,37 @@ ProjectExplorer::ToolChain::ToolChainType Qt4BuildConfiguration::toolChainType()
     return type;
 }
 
+QtVersion::QmakeBuildConfigs Qt4BuildConfiguration::qmakeBuildConfiguration() const
+{
+    return QtVersion::QmakeBuildConfigs(value("buildConfiguration").toInt());
+}
+
+void Qt4BuildConfiguration::setQMakeBuildConfiguration(QtVersion::QmakeBuildConfigs config)
+{
+    if (value("buildConfiguration").toInt() == int(config))
+        return;
+    setValue("buildConfiguration", int(config));
+    emit qmakeBuildConfigurationChanged();
+    emit targetInformationChanged();
+}
+
+void Qt4BuildConfiguration::getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const
+{
+    QtVersion::QmakeBuildConfigs defaultBuildConfiguration = qtVersion()->defaultBuildConfig();
+    QtVersion::QmakeBuildConfigs userBuildConfiguration = qmakeBuildConfiguration();
+    if (removedUserConfigs) {
+        if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(userBuildConfiguration & QtVersion::BuildAll))
+            (*removedUserConfigs) << "debug_and_release";
+    }
+    if (addedUserConfigs) {
+        if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (userBuildConfiguration & QtVersion::BuildAll))
+            (*addedUserConfigs) << "debug_and_release";
+        if ((defaultBuildConfiguration & QtVersion::DebugBuild) && !(userBuildConfiguration & QtVersion::DebugBuild))
+            (*addedUserConfigs) << "release";
+        if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (userBuildConfiguration & QtVersion::DebugBuild))
+            (*addedUserConfigs) << "debug";
+    }
+}
 
 QMakeStep *Qt4BuildConfiguration::qmakeStep() const
 {
@@ -241,6 +295,24 @@ MakeStep *Qt4BuildConfiguration::makeStep() const
         if ((qs = qobject_cast<MakeStep *>(bs)) != 0)
             return qs;
     return 0;
+}
+
+void Qt4BuildConfiguration::defaultQtVersionChanged()
+{
+    if (qtVersionId() == 0) {
+        emit qtVersionChanged();
+        emit targetInformationChanged();
+    }
+}
+
+void Qt4BuildConfiguration::qtVersionsChanged(const QList<int> &changedVersions)
+{
+    if (changedVersions.contains(qtVersionId())) {
+        if (!qtVersion()->isValid())
+            setQtVersion(0);
+        emit qtVersionChanged();
+        emit targetInformationChanged();
+    }
 }
 
 // returns true if both are equal
@@ -375,28 +447,4 @@ QString Qt4BuildConfiguration::extractSpecFromArgumentList(const QStringList &li
     parsedSpec = parsedSpec.toLower();
 #endif
     return parsedSpec;
-
-}
-
-QtVersion::QmakeBuildConfigs Qt4BuildConfiguration::qmakeBuildConfiguration() const
-{
-    return QtVersion::QmakeBuildConfigs(value("buildConfiguration").toInt());
-}
-
-void Qt4BuildConfiguration::getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const
-{
-    QtVersion::QmakeBuildConfigs defaultBuildConfiguration = qtVersion()->defaultBuildConfig();
-    QtVersion::QmakeBuildConfigs userBuildConfiguration = qmakeBuildConfiguration();
-    if (removedUserConfigs) {
-        if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(userBuildConfiguration & QtVersion::BuildAll))
-            (*removedUserConfigs) << "debug_and_release";
-    }
-    if (addedUserConfigs) {
-        if (!(defaultBuildConfiguration & QtVersion::BuildAll) && (userBuildConfiguration & QtVersion::BuildAll))
-            (*addedUserConfigs) << "debug_and_release";
-        if ((defaultBuildConfiguration & QtVersion::DebugBuild) && !(userBuildConfiguration & QtVersion::DebugBuild))
-            (*addedUserConfigs) << "release";
-        if (!(defaultBuildConfiguration & QtVersion::DebugBuild) && (userBuildConfiguration & QtVersion::DebugBuild))
-            (*addedUserConfigs) << "debug";
-    }
 }

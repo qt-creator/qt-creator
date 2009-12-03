@@ -51,6 +51,7 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
+class Qt4ProFileNode;
 
 class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -100,6 +101,7 @@ signals:
 
 private slots:
     void invalidateCachedTargetInformation();
+    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 private:
     ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;

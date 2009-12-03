@@ -102,6 +102,8 @@ signals:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
 
+private slots:
+    void activeBuildConfigurationChanged();
 
 private:
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
@@ -126,6 +128,7 @@ private:
     QString m_userName;
     QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
     BaseEnvironmentBase m_baseEnvironmentBase;
+    ProjectExplorer::BuildConfiguration *m_lastActiveBuildConfiguration;
 };
 
 class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
@@ -154,16 +157,16 @@ public:
 private slots:
     void changed();
 
-    void setExecutable();
-    void setCommandLineArguments(const QString &commandLineArguments);
-    void setUserName(const QString &name);
-    void setWorkingDirectory();
+    void executableEdited();
+    void argumentsEdited(const QString &arguments);
+    void userNameEdited(const QString &name);
+    void workingDirectoryEdited();
     void termToggled(bool);
 
-    void userChangesUpdated();
+    void userChangesChanged();
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged();
-    void baseEnvironmentComboBoxChanged(int index);
+    void baseEnvironmentSelected(int index);
 private:
     bool m_ignoreChange;
     CustomExecutableRunConfiguration *m_runConfiguration;

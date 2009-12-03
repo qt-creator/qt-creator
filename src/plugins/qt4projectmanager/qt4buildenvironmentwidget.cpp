@@ -54,7 +54,7 @@ Qt4BuildEnvironmentWidget::Qt4BuildEnvironmentWidget(Qt4Project *project)
     m_buildEnvironmentWidget = new ProjectExplorer::EnvironmentWidget(this, m_clearSystemEnvironmentCheckBox);
     vbox->addWidget(m_buildEnvironmentWidget);
 
-    connect(m_buildEnvironmentWidget, SIGNAL(userChangesUpdated()),
+    connect(m_buildEnvironmentWidget, SIGNAL(userChangesChanged()),
             this, SLOT(environmentModelUserChangesUpdated()));
 
     connect(m_clearSystemEnvironmentCheckBox, SIGNAL(toggled(bool)),

@@ -97,12 +97,19 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
     else
         setName(tr("QtS60DeviceRunConfiguration"));
 
-    connect(project, SIGNAL(activeBuildConfigurationChanged()),
-            this, SLOT(invalidateCachedTargetInformation()));
-
     connect(project, SIGNAL(targetInformationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
+
+    connect(project, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
+
+void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+{
+    if (m_proFilePath == pro->path())
+        invalidateCachedTargetInformation();
+}
+
 
 S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
 {
