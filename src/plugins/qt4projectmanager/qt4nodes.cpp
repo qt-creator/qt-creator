@@ -226,8 +226,8 @@ namespace Internal {
 
             QList<FolderNode *> foldersToRemove;
             QList<FolderNode *> foldersToAdd;
-            QList<InternalNode *> internalNodesToUpdate;
-            QList<FolderNode *> folderNodesToUpdate;
+            typedef QPair<InternalNode *, FolderNode *> NodePair;
+            QList<NodePair> nodesToUpdate;
 
             // newFolders is already sorted
             qSort(existingFolderNodes.begin(), existingFolderNodes.end(), ProjectNode::sortFolderNodesByName);
@@ -245,12 +245,10 @@ namespace Internal {
                     if (!newNodeIter.value()->icon.isNull())
                         newNode->setIcon(newNodeIter.value()->icon);
                     foldersToAdd << newNode;
-                    internalNodesToUpdate << newNodeIter.value();
-                    folderNodesToUpdate << newNode;
+                    nodesToUpdate << NodePair(newNodeIter.value(), newNode);
                     ++newNodeIter;
                 } else { // *existingNodeIter->path() == *newPathIter
-                    internalNodesToUpdate << newNodeIter.value();
-                    folderNodesToUpdate << *existingNodeIter;
+                    nodesToUpdate << NodePair(newNodeIter.value(), *existingNodeIter);
                     ++existingNodeIter;
                     ++newNodeIter;
                 }
@@ -266,8 +264,7 @@ namespace Internal {
                 if (!newNodeIter.value()->icon.isNull())
                     newNode->setIcon(newNodeIter.value()->icon);
                 foldersToAdd << newNode;
-                internalNodesToUpdate << newNodeIter.value();
-                folderNodesToUpdate << newNode;
+                nodesToUpdate << NodePair(newNodeIter.value(), newNode);
                 ++newNodeIter;
             }
 
@@ -276,14 +273,8 @@ namespace Internal {
             if (!foldersToAdd.isEmpty())
                 projectNode->addFolderNodes(foldersToAdd, folder);
 
-            QList<FolderNode *>::const_iterator folderIt = folderNodesToUpdate.constBegin();
-            QList<InternalNode *>::const_iterator iNodeIt = internalNodesToUpdate.constBegin();
-            while (folderIt != folderNodesToUpdate.constEnd()
-                    && iNodeIt != internalNodesToUpdate.constEnd()) {
-                (*iNodeIt)->updateSubFolders(projectNode, *folderIt);
-                ++folderIt;
-                ++iNodeIt;
-            }
+            foreach (const NodePair &np, nodesToUpdate)
+                np.first->updateSubFolders(projectNode, np.second);
         }
 
         // Makes the folder's files match this internal node's file list
