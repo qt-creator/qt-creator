@@ -1181,7 +1181,8 @@ void WatchHandler::insertData(const WatchData &data)
     }
     if (data.isSomethingNeeded() && data.iname.contains('.')) {
         MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
-        if (!m_manager->currentEngine()->isSynchroneous()) {
+        IDebuggerEngine *engine = m_manager->currentEngine();
+        if (engine && !engine->isSynchroneous()) {
             m_manager->updateWatchData(data);
         } else {
             qDebug() << "ENDLESS LOOP: SOMETHING NEEDED: " << data.toString();
