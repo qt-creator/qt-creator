@@ -48,9 +48,9 @@
 #include <QtCore/QtDebug>
 #include <QtCore/QFileInfo>
 #include <QtCore/QByteArray>
+#include <QtCore/QMetaType>
 
-using namespace Mercurial::Internal;
-using namespace Mercurial;
+Q_DECLARE_METATYPE(QVariant)
 
 inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property, const QString &entry)
 {
@@ -60,10 +60,14 @@ inline Core::IEditor* locateEditor(const Core::ICore *core, const char *property
     return 0;
 }
 
+namespace Mercurial {
+namespace Internal  {
+
 MercurialClient::MercurialClient() :
     jobManager(0),
     core(Core::ICore::instance())
 {
+    qRegisterMetaType<QVariant>();
 }
 
 MercurialClient::~MercurialClient()
@@ -227,17 +231,18 @@ void MercurialClient::log(const QFileInfo &fileOrDir)
 
 void MercurialClient::revert(const QFileInfo &fileOrDir, const QString &revision)
 {
-    QStringList args(QLatin1String("revert"));
+    const QString filePath = fileOrDir.absoluteFilePath();
+    const QString workingDir = fileOrDir.isDir() ? filePath : fileOrDir.absolutePath();
 
+    QStringList args(QLatin1String("revert"));    
     if (!revision.isEmpty())
         args << QLatin1String("-r") << revision;
-    if (!fileOrDir.isDir())
-        args.append(fileOrDir.absoluteFilePath());
-    else
-        args.append(QLatin1String("--all"));
+    args.append(fileOrDir.isDir() ? QString(QLatin1String("--all")) : filePath);
 
-    QSharedPointer<HgTask> job(new HgTask(fileOrDir.isDir() ? fileOrDir.absoluteFilePath() :
-                                          fileOrDir.absolutePath(), args, false));
+    // Indicate repository change or file list
+    const QVariant cookie = fileOrDir.isDir() ? QVariant(filePath) : QVariant(QStringList(filePath));
+    QSharedPointer<HgTask> job(new HgTask(workingDir, args, false, cookie));
+    connect(job.data(), SIGNAL(succeeded(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(job);
 }
 
@@ -310,7 +315,10 @@ void MercurialClient::pull(const QFileInfo &repositoryRoot, const QString &repos
     if (!repository.isEmpty())
         args.append(repository);
 
-    QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
+    const QString path = repositoryRoot.absoluteFilePath();
+
+    QSharedPointer<HgTask> job(new HgTask(path, args, false, QVariant(path)));
+    connect(job.data(), SIGNAL(succeeded(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(job);
 }
 
@@ -382,7 +390,9 @@ void MercurialClient::update(const QFileInfo &repositoryRoot, const QString &rev
     if (!revision.isEmpty())
         args << revision;
 
-    QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
+    const QString path = repositoryRoot.absoluteFilePath();
+    QSharedPointer<HgTask> job(new HgTask(path, args, false, QVariant(path)));
+    connect(job.data(), SIGNAL(succeeded(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(job);
 }
 
@@ -451,3 +461,6 @@ void MercurialClient::enqueueJob(const QSharedPointer<HgTask> &job)
     }
     jobManager->enqueueJob(job);
 }
+
+} // namespace Internal
+} // namespace Mercurial

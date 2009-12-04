@@ -31,6 +31,8 @@
 #include "mercurialclient.h"
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QVariant>
+#include <QtCore/QStringList>
 
 using namespace Mercurial::Internal;
 
@@ -106,4 +108,18 @@ bool MercurialControl::vcsDelete(const QString &filename)
 bool MercurialControl::sccManaged(const QString &filename)
 {
     return mercurialClient->manifestSync(filename);
+}
+
+void MercurialControl::changed(const QVariant &v)
+{
+    switch (v.type()) {
+    case QVariant::String:
+        emit repositoryChanged(v.toString());
+        break;
+    case QVariant::StringList:
+        emit filesChanged(v.toStringList());
+        break;
+    default:
+        break;
+    }
 }

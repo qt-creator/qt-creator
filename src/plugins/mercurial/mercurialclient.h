@@ -36,6 +36,7 @@
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
+class QVariant;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -81,6 +82,8 @@ public:
 
 signals:
     void parsedStatus(const QList<QPair<QString, QString> > &statusList);
+    // Passes on changed signals from HgTask to Control.
+    void changed(const QVariant &v);
 
 public slots:
     void view(const QString &source, const QString &id);

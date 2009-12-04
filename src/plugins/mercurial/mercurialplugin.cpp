@@ -162,6 +162,7 @@ bool MercurialPlugin::initialize(const QStringList &arguments, QString *error_me
 
     mercurialVC = new MercurialControl(client);
     addAutoReleasedObject(mercurialVC);
+    connect(client, SIGNAL(changed(QVariant)), mercurialVC, SLOT(changed(QVariant)));
 
     static const char *describeSlot = SLOT(view(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);

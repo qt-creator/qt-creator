@@ -42,21 +42,34 @@
 using namespace Mercurial::Internal;
 using namespace Mercurial;
 
-HgTask::HgTask(const QString &repositoryRoot, const QStringList &arguments, bool emitRaw)
-        :   m_repositoryRoot(repositoryRoot),
-        arguments(arguments),
-        emitRaw(emitRaw),
-        editor(0)
+HgTask::HgTask(const QString &repositoryRoot,
+               const QStringList &arguments,
+               bool emitRaw,
+               const QVariant &cookie) :
+    m_repositoryRoot(repositoryRoot),
+    arguments(arguments),
+    emitRaw(emitRaw),
+    m_cookie(cookie),
+    editor(0)
+
 {
 }
 
-HgTask::HgTask(const QString &repositoryRoot, const QStringList &arguments, VCSBase::VCSBaseEditor *editor)
-        :   m_repositoryRoot(repositoryRoot),
-        arguments(arguments),
-        emitRaw(false),
-        editor(editor)
-
+HgTask::HgTask(const QString &repositoryRoot,
+               const QStringList &arguments,
+               VCSBase::VCSBaseEditor *editor,
+               const QVariant &cookie) :
+    m_repositoryRoot(repositoryRoot),
+    arguments(arguments),
+    emitRaw(false),
+    m_cookie(cookie),
+    editor(editor)
 {
+}
+
+void HgTask::emitSucceeded()
+{
+    emit succeeded(m_cookie);
 }
 
 MercurialJobRunner::MercurialJobRunner() :
@@ -206,6 +219,7 @@ void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
         if (stdOutput.isEmpty())
             stdOutput = hgProcess.readAllStandardError();
         emit output(stdOutput);
+        taskData->emitSucceeded();
     } else {
         emit error(QString::fromLocal8Bit(hgProcess.readAllStandardError()));
     }

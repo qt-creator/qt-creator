@@ -36,6 +36,7 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QStringList>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QVariant>
 #include <QtCore/QString>
 
 namespace VCSBase {
@@ -51,9 +52,13 @@ class HgTask : public QObject
 {
     Q_OBJECT
 public:
-    HgTask(const QString &workingDir, const QStringList &arguments, bool emitRaw=false);
-    HgTask(const QString &workingDir, const QStringList &arguments,
-           VCSBase::VCSBaseEditor *editor);
+    explicit HgTask(const QString &workingDir,
+                    const QStringList &arguments,
+                    bool emitRaw=false,
+                    const QVariant &cookie = QVariant());
+    explicit HgTask(const QString &workingDir, const QStringList &arguments,
+                    VCSBase::VCSBaseEditor *editor,
+                    const QVariant &cookie = QVariant());
 
     bool shouldEmit() { return emitRaw; }
     VCSBase::VCSBaseEditor* displayEditor() { return editor; }
@@ -61,12 +66,17 @@ public:
     QString repositoryRoot() { return m_repositoryRoot; }
 
 signals:
+    void succeeded(const QVariant &cookie); // Use a queued connection
     void rawData(const QByteArray &data);
+
+public slots:
+    void emitSucceeded();
 
 private:
     const QString m_repositoryRoot;
     const QStringList arguments;
     const bool emitRaw;
+    const QVariant m_cookie;
     VCSBase::VCSBaseEditor *editor;
 };
 

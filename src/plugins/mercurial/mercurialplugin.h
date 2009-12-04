@@ -153,7 +153,7 @@ private:
     OptionsPage *optionsPage;
     MercurialClient *client;
 
-    Core::IVersionControl *mercurialVC;
+    MercurialControl *mercurialVC;
     Core::ICore *core;
     Core::ActionManager *actionManager;
     Core::ActionContainer *mercurialContainer;
