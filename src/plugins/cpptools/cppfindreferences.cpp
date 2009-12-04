@@ -154,7 +154,7 @@ class MyReduce: public std::binary_function<QList<Usage> &, QList<Usage>, void>
 public:
     MyReduce(QFutureInterface<Usage> *future): future(future) {}
 
-    void operator()(QList<Usage> &uu, const QList<Usage> &usages)
+    void operator()(QList<Usage> &, const QList<Usage> &usages)
     {
         foreach (const Usage &u, usages)
             future->reportResult(u);
