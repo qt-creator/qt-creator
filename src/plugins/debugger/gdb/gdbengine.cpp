@@ -3543,10 +3543,20 @@ void GdbEngine::updateLocals(const QVariant &cookie)
         m_processedNames.clear();
         manager()->watchHandler()->beginCycle();
         m_toolTipExpression.clear();
-        QStringList expanded = m_manager->watchHandler()->expandedINames().toList();
-        postCommand(_("-interpreter-exec console \"bb %1 0 %2\"")
+        WatchHandler *handler = m_manager->watchHandler();
+        QStringList expanded = handler->expandedINames().toList();
+        QString watchers;
+        foreach (QString item, handler->watchedExpressions()) {
+            if (!watchers.isEmpty())
+                watchers += _("$");
+            //item.replace(_("\""), _("\\\""));
+            watchers += item;
+        }
+
+        postCommand(_("-interpreter-exec console \"bb %1 0 %2 %3\"")
                 .arg(int(theDebuggerBoolSetting(UseDebuggingHelpers)))
-                .arg(expanded.join(_(","))),
+                .arg(expanded.join(_(",")))
+                .arg(_(watchers.toLatin1().toBase64())),
             CB(handleStackFrame));
     } else {
         m_processedNames.clear();

@@ -644,7 +644,8 @@ static QString formattedValue(const WatchData &data,
 
 bool WatchModel::canFetchMore(const QModelIndex &index) const
 {
-    return !m_inExtraLayoutChanged && index.isValid() && !m_fetchTriggered.contains(watchItem(index)->iname);
+    return !m_inExtraLayoutChanged && index.isValid()
+        && !m_fetchTriggered.contains(watchItem(index)->iname);
 }
 
 void WatchModel::fetchMore(const QModelIndex &index)
@@ -1389,10 +1390,9 @@ void WatchHandler::loadWatchers()
     //reinitializeWatchersHelper();
 }
 
-void WatchHandler::saveWatchers()
+QStringList WatchHandler::watchedExpressions() const
 {
-    //qDebug() << "SAVE WATCHERS: " << m_watchers;
-    // Filter out valid watchers.
+    // Filter out invalid watchers.
     QStringList watcherNames;
     QHashIterator<QString, int> it(m_watcherNames);
     while (it.hasNext()) {
@@ -1401,7 +1401,13 @@ void WatchHandler::saveWatchers()
         if (!watcherName.isEmpty() && watcherName != watcherEditPlaceHolder())
             watcherNames.push_back(watcherName);
     }
-    m_manager->setSessionValue("Watchers", QVariant(watcherNames));
+    return watcherNames;
+}
+
+void WatchHandler::saveWatchers()
+{
+    //qDebug() << "SAVE WATCHERS: " << m_watchers;
+    m_manager->setSessionValue("Watchers", QVariant(watchedExpressions()));
 }
 
 void WatchHandler::loadTypeFormats()

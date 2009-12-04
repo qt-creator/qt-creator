@@ -274,6 +274,7 @@ public:
         { return m_expandedINames.contains(iname); }
     QSet<QString> expandedINames() const
         { return m_expandedINames; }
+    QStringList watchedExpressions() const;
 
     static QString watcherEditPlaceHolder();
 

@@ -6,6 +6,7 @@
 import sys
 import traceback
 import gdb
+import base64
 import curses.ascii
 
 verbosity = 0
@@ -195,10 +196,11 @@ class FrameCommand(gdb.Command):
         passExceptions = int(args[1])
         expandedINames = set()
         if len(args) > 2:
-            expandedINames = set(args[2].split(','))
-        watchers = set()
+            expandedINames = set(args[2].split(","))
+        watchers = ()
         if len(args) > 3:
-            watchers = set(args[3].split(','))
+            #watchers = set(args[3].split(','))
+            watchers = base64.b64decode(args[3]).split("$")
         #warn("EXPANDED INAMES: %s" % expandedINames)
         #warn("WATCHERS: %s" % watchers)
         module = sys.modules[__name__]
@@ -222,24 +224,31 @@ class FrameCommand(gdb.Command):
             print output
             return
   
+
         if useFancy:
             for key, value in module.__dict__.items():
                 #if callable(value):
                 if key.startswith("qqDump"):
                     self.dumpers[key[6:]] = value
-        try:
-            frame = gdb.selected_frame()
-        except RuntimeError:
-            return ""
 
         d = Dumper()
         d.dumpers = self.dumpers
         d.passExceptions = passExceptions
         d.ns = qtNamespace()
-        block = frame.block()
+        d.expandedINames = expandedINames
+        d.useFancy = useFancy
         #warn(" NAMESPACE IS: '%s'" % d.ns)
-        #warn("FRAME %s: " % frame)
 
+        #
+        # Locals
+        #
+        try:
+            frame = gdb.selected_frame()
+            #warn("FRAME %s: " % frame)
+        except RuntimeError:
+            return ""
+
+        block = frame.block()
         while True:
             if block is None:
                 warn("UNEXPECTED 'None' BLOCK")
@@ -263,8 +272,6 @@ class FrameCommand(gdb.Command):
                     continue
                 #warn("ITEM %s: " % item.value)
 
-                d.expandedINames = expandedINames
-                d.useFancy = useFancy
                 d.beginHash()
                 d.put('iname="%s",' % item.iname)
                 d.safePutItemHelper(item)
@@ -277,6 +284,30 @@ class FrameCommand(gdb.Command):
 
             block = block.superblock
             #warn("BLOCK %s: " % block)
+
+        #
+        # Watchers
+        #
+        watcherCount = 0
+        for watcher in watchers:
+            warn("HANDLING WATCH %s" % watcher)
+            name = str(watcherCount)
+            try:
+                value = gdb.parse_and_eval(watcher)
+                item = Item(value), "watch", name, name)
+                warn(" VALUE %s" % item.value)
+                d.beginHash()
+                d.put('iname="%s",' % item.iname)
+                d.safePutItemHelper(item)
+                d.endHash()
+            else:
+                d.beginHash()
+                d.put('iname="watch.%d",' % watcherCount)
+                d.put('name="%s",' % watcher)
+                d.put('value="<invalid>",' % watcherCount)
+                d.put('type=<unknown>,numchild="0"')
+                d.endHash()
+            watcherCount += 1
 
         d.pushOutput()
 
