@@ -696,12 +696,9 @@ void Qt4PriFileNode::save(ProFile *includeFile)
 void Qt4PriFileNode::clear()
 {
     // delete files && folders && projects
-    if (!fileNodes().isEmpty())
-        removeFileNodes(fileNodes(), this);
-    if (!subProjectNodes().isEmpty())
-        removeProjectNodes(subProjectNodes());
-    if (!subFolderNodes().isEmpty())
-        removeFolderNodes(subFolderNodes(), this);
+    removeFileNodes(fileNodes(), this);
+    removeProjectNodes(subProjectNodes());
+    removeFolderNodes(subFolderNodes(), this);
 }
 
 QStringList Qt4PriFileNode::varNames(FileType type)
