@@ -6,8 +6,6 @@
 import sys
 import traceback
 import gdb
-#import base64
-import types
 import curses.ascii
 
 verbosity = 0
@@ -268,11 +266,8 @@ class FrameCommand(gdb.Command):
                 d.expandedINames = expandedINames
                 d.useFancy = useFancy
                 d.beginHash()
-                d.putField("iname", item.iname)
-                d.put(",")
-
+                d.put('iname="%s",' % item.iname)
                 d.safePutItemHelper(item)
-
                 d.endHash()
 
             # The outermost block in a function has the function member
@@ -339,22 +334,22 @@ class Dumper:
         childNumChild = -1
         if numChild == 0:
             type = None
+        self.putCommaIfNeeded()
         if not type is None:
             childType = stripClassTag(str(type))
-            self.putField("childtype", childType)
+            self.put('childtype="%s",' % childType)
             if isSimpleType(type) or isStringType(self, type):
-                self.putField("childnumchild", "0")
+                self.put('childnumchild="0",')
                 childNumChild = 0
             elif type.code == gdb.TYPE_CODE_PTR:
-                self.putField("childnumchild", "1")
+                self.put('childnumchild="1",')
                 childNumChild = 1
         if not children is None:
-            self.putField("childnumchild", children)
+            self.put('childnumchild="%s",' % children)
             childNumChild = children
         self.childTypes.append(childType)
         self.childNumChilds.append(childNumChild)
         #warn("BEGIN: %s" % self.childTypes)
-        self.putCommaIfNeeded()
         self.put("children=[")
 
     def endChildren(self):
@@ -377,13 +372,13 @@ class Dumper:
         #warn("  EQUAL 2: %s " % (str(type) == self.childTypes[-1]))
         type = stripClassTag(str(type))
         if len(type) > 0 and type != self.childTypes[-1]:
-            self.putField("type", type)
-            #self.putField("type", str(type.unqualified()))
+            self.putCommaIfNeeded()
+            self.put('type="%s"' % type) # str(type.unqualified()) ?
 
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.childNumChilds[-1]))
-        if int(numchild) != int(self.childNumChilds[-1]):
-            self.putField("numchild", numchild)
+        if numchild != self.childNumChilds[-1]:
+            self.put(',numchild="%s"' % numchild)
 
     def putValue(self, value, encoding = None):
         if not encoding is None:
@@ -613,7 +608,7 @@ class Dumper:
             #warn("COMMON TYPE: %s " % value.type)
             #warn("INAME: %s " % item.iname)
             #warn("INAMES: %s " % self.expandedINames)
-            #warn("EXPANDED: %self " % (item.iname in self.expandedINames))
+            #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
 
             # insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953
             #fields = value.type.fields()
@@ -637,6 +632,7 @@ class Dumper:
                     innerType = value.type.target()
                 self.beginChildren(1, innerType)
 
+                baseNumber = 0
                 for field in fields:
                     #warn("FIELD: %s" % field)
                     #warn("  BITSIZE: %s" % field.bitsize)
@@ -657,21 +653,26 @@ class Dumper:
                     if field.name.startswith("_vptr."):
                         continue
 
-                    child = Item(None, item.iname, field.name, field.name)
                     #warn("FIELD NAME: %s" % field.name)
                     #warn("FIELD TYPE: %s" % field.type)
                     if field.name == stripClassTag(str(field.type)):
-                        # Field is base type.
-                        child.value = value.cast(field.type)
+                        # Field is base type. We cannot use field.name as part
+                        # of the iname as it might contain spaces and other
+                        # strange characters.
+                        child = Item(value.cast(field.type),
+                            item.iname, "@%d" % baseNumber, field.name)
+                        baseNumber += 1
+                        self.beginHash()
+                        self.putField("iname", child.iname)
+                        self.safePutItemHelper(child)
+                        self.endHash()
                     else:
                         # Data member.
-                        child.value = value[field.name]
-                    if not child.name:
-                        child.name = "<anon>"
-                    self.beginHash()
-                    #d.putField("iname", child.iname)
-                    #d.putName(child.name)
-                    #d.putType(child.value.type)
-                    self.safePutItemHelper(child)
-                    self.endHash()
+                        child = Item(value[field.name],
+                            item.iname, field.name, field.name)
+                        if not child.name:
+                            child.name = "<anon>"
+                        self.beginHash()
+                        self.safePutItemHelper(child)
+                        self.endHash()
                 self.endChildren()
