@@ -54,9 +54,12 @@
 
 #include <QtCore/QTime>
 #include <QtCore/QtConcurrentRun>
+#include <QtCore/QtConcurrentMap>
 #include <QtCore/QDir>
 #include <QtGui/QApplication>
 #include <qtconcurrent/runextensions.h>
+
+#include <functional>
 
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
@@ -81,13 +84,84 @@ QList<int> CppFindReferences::references(Symbol *symbol,
 {
     QList<int> references;
 
-    FindUsages findUsages(doc, snapshot, /*future = */ 0);
+    FindUsages findUsages(doc, snapshot);
     findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
     findUsages(symbol);
     references = findUsages.references();
 
     return references;
 }
+
+class MyProcess: public std::unary_function<QString, QList<Usage> >
+{
+    const QMap<QString, QString> wl;
+    const Snapshot snapshot;
+    Symbol *symbol;
+
+public:
+    MyProcess(const QMap<QString, QString> wl,
+              const Snapshot snapshot,
+              Symbol *symbol)
+        : wl(wl), snapshot(snapshot), symbol(symbol)
+    { }
+
+    QList<Usage> operator()(const QString &fileName)
+    {
+        QList<Usage> usages;
+        const Identifier *symbolId = symbol->identifier();
+
+        if (Document::Ptr previousDoc = snapshot.value(fileName)) {
+            Control *control = previousDoc->control();
+            if (! control->findIdentifier(symbolId->chars(), symbolId->size()))
+                return usages; // skip this document, it's not using symbolId.
+        }
+
+        QByteArray source;
+
+        if (wl.contains(fileName))
+            source = snapshot.preprocessedCode(wl.value(fileName), fileName);
+        else {
+            QFile file(fileName);
+            if (! file.open(QFile::ReadOnly))
+                return usages;
+
+            const QString contents = QTextStream(&file).readAll(); // ### FIXME
+            source = snapshot.preprocessedCode(contents, fileName);
+        }
+
+        Document::Ptr doc = snapshot.documentFromSource(source, fileName);
+        doc->tokenize();
+
+        Control *control = doc->control();
+        if (control->findIdentifier(symbolId->chars(), symbolId->size()) != 0) {
+            doc->check();
+
+            FindUsages process(doc, snapshot);
+            process.setGlobalNamespaceBinding(bind(doc, snapshot));
+
+            process(symbol);
+            usages = process.usages();
+        }
+
+        return usages;
+    }
+};
+
+class MyReduce: public std::binary_function<QList<Usage> &, QList<Usage>, void>
+{
+    QFutureInterface<Usage> *future;
+
+public:
+    MyReduce(QFutureInterface<Usage> *future): future(future) {}
+
+    void operator()(QList<Usage> &uu, const QList<Usage> &usages)
+    {
+        foreach (const Usage &u, usages)
+            future->reportResult(u);
+
+        future->setProgressValue(future->progressValue() + 1);
+    }
+};
 
 static void find_helper(QFutureInterface<Usage> &future,
                         const QMap<QString, QString> wl,
@@ -121,49 +195,10 @@ static void find_helper(QFutureInterface<Usage> &future,
 
     future.setProgressRange(0, files.size());
 
-    for (int i = 0; i < files.size(); ++i) {
-        if (future.isPaused())
-            future.waitForResume();
+    MyProcess process(wl, snapshot, symbol);
+    MyReduce reduce(&future);
 
-        if (future.isCanceled())
-            break;
-
-        const QString &fileName = files.at(i);
-        future.setProgressValueAndText(i, QFileInfo(fileName).fileName());
-
-        if (Document::Ptr previousDoc = snapshot.value(fileName)) {
-            Control *control = previousDoc->control();
-            const Identifier *id = control->findIdentifier(symbolId->chars(), symbolId->size());
-            if (! id)
-                continue; // skip this document, it's not using symbolId.
-        }
-
-        QByteArray source;
-
-        if (wl.contains(fileName))
-            source = snapshot.preprocessedCode(wl.value(fileName), fileName);
-        else {
-            QFile file(fileName);
-            if (! file.open(QFile::ReadOnly))
-                continue;
-
-            const QString contents = QTextStream(&file).readAll(); // ### FIXME
-            source = snapshot.preprocessedCode(contents, fileName);
-        }
-
-        Document::Ptr doc = snapshot.documentFromSource(source, fileName);
-        doc->tokenize();
-
-        Control *control = doc->control();
-        if (control->findIdentifier(symbolId->chars(), symbolId->size()) != 0) {
-            doc->check();
-
-            FindUsages process(doc, snapshot, &future);
-            process.setGlobalNamespaceBinding(bind(doc, snapshot));
-
-            process(symbol);
-        }
-    }
+    QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
 
     future.setProgressValue(files.size());
 }

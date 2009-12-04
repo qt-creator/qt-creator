@@ -41,9 +41,8 @@
 
 using namespace CPlusPlus;
 
-FindUsages::FindUsages(Document::Ptr doc, const Snapshot &snapshot, QFutureInterface<Usage> *future)
+FindUsages::FindUsages(Document::Ptr doc, const Snapshot &snapshot)
     : ASTVisitor(doc->translationUnit()),
-      _future(future),
       _doc(doc),
       _snapshot(snapshot),
       _source(_doc->source()),
@@ -131,12 +130,8 @@ void FindUsages::reportResult(unsigned tokenIndex)
 
     const int len = tk.f.length;
 
-    const Usage u(_doc->fileName(), line, lineText, col, len);
+    const Usage u(_doc->fileName(), lineText, line, col, len);
     _usages.append(u);
-
-    if (_future)
-        _future->reportResult(u);
-
     _references.append(tokenIndex);
 }
 

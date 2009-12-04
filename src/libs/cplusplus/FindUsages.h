@@ -34,9 +34,8 @@
 #include "CppDocument.h"
 #include "CppBindings.h"
 #include "Semantic.h"
-
 #include <ASTVisitor.h>
-#include <QtCore/QFutureInterface>
+#include <QtCore/QSet>
 
 namespace CPlusPlus {
 
@@ -46,7 +45,7 @@ public:
     Usage()
         : line(0), col(0), len(0) {}
 
-    Usage(const QString &path, int line, const QString &lineText, int col, int len)
+    Usage(const QString &path, const QString &lineText, int line, int col, int len)
         : path(path), lineText(lineText), line(line), col(col), len(len) {}
 
 public:
@@ -60,7 +59,7 @@ public:
 class CPLUSPLUS_EXPORT FindUsages: protected ASTVisitor
 {
 public:
-    FindUsages(Document::Ptr doc, const Snapshot &snapshot, QFutureInterface<Usage> *future);
+    FindUsages(Document::Ptr doc, const Snapshot &snapshot);
 
     void setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding);
 
@@ -103,7 +102,6 @@ protected:
     virtual void endVisit(SimpleDeclarationAST *);
 
 private:
-    QFutureInterface<Usage> *_future;
     const Identifier *_id;
     Symbol *_declSymbol;
     Document::Ptr _doc;
