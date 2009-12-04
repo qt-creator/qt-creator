@@ -332,7 +332,9 @@ void TextEditorOverlay::paintSelection(QPainter *painter,
         painter->save();
         QPainterPath shadow = path;
         shadow.translate(m_dropShadowWidth, m_dropShadowWidth);
-        painter->setClipPath(shadow.intersected(path));
+        QPainterPath clip;
+        clip.addRect(m_editor->viewport()->rect());
+        painter->setClipPath(clip - path);
         painter->fillPath(shadow, QColor(0, 0, 0, 100));
         painter->restore();
     }
