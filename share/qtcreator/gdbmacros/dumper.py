@@ -197,12 +197,7 @@ class FrameCommand(gdb.Command):
         expandedINames = set()
         if len(args) > 2:
             expandedINames = set(args[2].split(","))
-        watchers = ()
-        if len(args) > 3:
-            #watchers = set(args[3].split(','))
-            watchers = base64.b64decode(args[3]).split("$")
         #warn("EXPANDED INAMES: %s" % expandedINames)
-        #warn("WATCHERS: %s" % watchers)
         module = sys.modules[__name__]
         self.dumpers = {}
 
@@ -274,6 +269,7 @@ class FrameCommand(gdb.Command):
 
                 d.beginHash()
                 d.put('iname="%s",' % item.iname)
+                d.put('addr="%s",' % item.value.address)
                 d.safePutItemHelper(item)
                 d.endHash()
 
@@ -285,34 +281,78 @@ class FrameCommand(gdb.Command):
             block = block.superblock
             #warn("BLOCK %s: " % block)
 
+        d.pushOutput()
+        locals = d.safeoutput
+
+
         #
         # Watchers
         #
-        watcherCount = 0
-        for watcher in watchers:
-            warn("HANDLING WATCH %s" % watcher)
-            name = str(watcherCount)
-            try:
-                value = gdb.parse_and_eval(watcher)
-                item = Item(value, "watch", name, name)
-                warn(" VALUE %s" % item.value)
-                d.beginHash()
-                d.put('iname="%s",' % item.iname)
-                d.safePutItemHelper(item)
-                d.endHash()
-            except RuntimeError:
-                d.beginHash()
-                d.put('iname="watch.%d",' % watcherCount)
-                d.put('name="%s",' % watcher)
-                d.put('value="<invalid>",')
-                d.put('type=<unknown>,numchild="0"')
-                d.endHash()
-            watcherCount += 1
-
+        d.safeoutput = ""
+        watchers = ""
+        if len(args) > 3:
+            watchers = base64.b16decode(args[3], True)
+        for watcher in watchers.split("$$"):
+            (exp, name) = watcher.split("$")
+            self.handleWatch(d, exp, name)
         d.pushOutput()
+        watchers = d.safeoutput
 
         print('locals={iname="local",name="Locals",value=" ",type=" ",'
-            + 'children=[%s]}' % d.safeoutput)
+            + 'children=[' + locals + ']},'
+            + 'watchers={iname="watch",name="Watchers",value=" ",type=" ",'
+            + 'children=[' + watchers + ']}')
+
+
+    def handleWatch(self, d, exp, name):
+        warn("HANDLING WATCH %s, NAME: %s" % (exp, name))
+        if exp.startswith("["):
+            warn("EVAL: EXP: %s" % exp)
+            d.beginHash()
+            d.put('iname="watch.%s",' % name)
+            d.put('name="%s",' % exp)
+            d.put('exp="%s"' % exp)
+            try:
+                list = eval(exp)
+                warn("EVAL: LIST: %s" % list)
+                d.put('value=" "')
+                d.put('type=" "')
+                d.put('numchild="%d"' % len(list))
+                # This is a list of expressions to evaluate
+                d.beginChildren(len(list))
+                itemNumber = 0
+                for item in list:
+                    self.handleWatch(d, item, "%s.%d" % (name, itemNumber))
+                    itemNumber += 1
+                d.endChildren()
+            except:
+                warn("EVAL: ERROR CAUGHT")
+                d.put('value="<syntax error>"')
+                d.put('type=" "')
+                d.put('numchild="0"')
+                d.beginChildren(0)
+                d.endChildren()
+            d.endHash()
+            return
+
+        d.beginHash()
+        d.put('iname="watch.%s",' % name)
+        d.put('name="%s",' % exp)
+        d.put('exp="%s"' % exp)
+        handled = False
+        if exp == "<Edit>":
+            d.put(',value=" ",')
+            d.put('type=" ",numchild="0"')
+        else:
+            try:
+                value = gdb.parse_and_eval(exp)
+                item = Item(value, "watch", name, name)
+                d.safePutItemHelper(item)
+            except RuntimeError:
+                d.put(',value="<invalid>",')
+                d.put('type="<unknown>",numchild="0"')
+        d.endHash()
+
 
 FrameCommand()
 
