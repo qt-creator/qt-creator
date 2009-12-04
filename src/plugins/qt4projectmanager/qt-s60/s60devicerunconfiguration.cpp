@@ -291,7 +291,6 @@ void S60DeviceRunConfiguration::updateTarget()
     QtVersion *qtVersion = qt4bc->qtVersion();
     ProFileReader *reader = priFileNode->createProFileReader();
     reader->setCumulative(false);
-    reader->setQtVersion(qtVersion);
 
     // Find out what flags we pass on to qmake
     QStringList addedUserConfigArguments;

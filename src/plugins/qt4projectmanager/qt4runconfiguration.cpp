@@ -574,7 +574,6 @@ void Qt4RunConfiguration::updateTarget()
     }
     ProFileReader *reader = priFileNode->createProFileReader();
     reader->setCumulative(false);
-    reader->setQtVersion(qt4bc->qtVersion());
 
     // Find out what flags we pass on to qmake
     QStringList addedUserConfigArguments;
