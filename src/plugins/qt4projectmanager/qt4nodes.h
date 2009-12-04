@@ -128,10 +128,6 @@ public:
     bool renameFile(const FileType fileType,
                     const QString &filePath, const QString &newFilePath);
 
-    Qt4PriFileNode *findProFileFor(const QString &string);
-
-    //internal
-    ProFileReader *createProFileReader() const;
 protected:
     void clear();
     static QStringList varNames(FileType type);
@@ -149,8 +145,6 @@ protected:
                      const QStringList &filePaths,
                      QStringList *notChanged,
                      ChangeType change);
-
-    QString buildDir() const;
 
 private slots:
     void scheduleUpdate();
@@ -197,8 +191,15 @@ public:
     void updateCodeModelSupportFromBuild(const QStringList &files);
     void updateCodeModelSupportFromEditor(const QString &uiFileName, Designer::FormWindowEditor *fw);
 
+    QString buildDir() const;
+
     QString uiDirectory() const;
     static QString uiHeaderFile(const QString &uiDir, const QString &formFile);
+
+    Qt4ProFileNode *findProFileFor(const QString &string);
+
+    //internal
+    ProFileReader *createProFileReader() const;
 
 public slots:
     void scheduleUpdate();

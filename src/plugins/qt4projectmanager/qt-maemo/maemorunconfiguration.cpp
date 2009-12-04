@@ -565,15 +565,14 @@ void MaemoRunConfiguration::updateTarget()
 
     if (Qt4Project *qt4Project = project()) {
         Qt4BuildConfiguration *qt4bc = qt4Project->activeQt4BuildConfiguration();
-        Qt4PriFileNode * priFileNode = qt4Project->rootProjectNode()
-            ->findProFileFor(m_proFilePath);
-        if (!priFileNode) {
+        Qt4ProFileNode *proFileNode = qt4Project->rootProjectNode()->findProFileFor(m_proFilePath);
+        if (!proFileNode) {
             emit targetInformationChanged();
             return;
         }
 
         QtVersion *qtVersion = qt4bc->qtVersion();
-        ProFileReader *reader = priFileNode->createProFileReader();
+        ProFileReader *reader = proFileNode->createProFileReader();
         reader->setCumulative(false);
 
         // Find out what flags we pass on to qmake

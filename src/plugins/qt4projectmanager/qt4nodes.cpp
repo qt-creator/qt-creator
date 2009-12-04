@@ -728,13 +728,13 @@ QStringList Qt4PriFileNode::varNames(FileType type)
     return vars;
 }
 
-Qt4PriFileNode *Qt4PriFileNode::findProFileFor(const QString &fileName)
+Qt4ProFileNode *Qt4ProFileNode::findProFileFor(const QString &fileName)
 {
     if (fileName == path())
         return this;
     foreach (ProjectNode *pn, subProjectNodes())
-        if (Qt4PriFileNode *qt4PriFileNode = qobject_cast<Qt4PriFileNode *>(pn))
-            if (Qt4PriFileNode *result = qt4PriFileNode->findProFileFor(fileName))
+        if (Qt4ProFileNode *qt4ProFileNode = qobject_cast<Qt4ProFileNode *>(pn))
+            if (Qt4ProFileNode *result = qt4ProFileNode->findProFileFor(fileName))
                 return result;
     return 0;
 }
@@ -1084,7 +1084,7 @@ QStringList Qt4ProFileNode::updateUiFiles()
     return toUpdate;
 }
 
-ProFileReader *Qt4PriFileNode::createProFileReader() const
+ProFileReader *Qt4ProFileNode::createProFileReader() const
 {
     ProFileReader *reader = new ProFileReader();
     connect(reader, SIGNAL(errorFound(QString)),
@@ -1096,7 +1096,7 @@ ProFileReader *Qt4PriFileNode::createProFileReader() const
     if (version->isValid())
         reader->setQtVersion(version);
 
-    reader->setOutputDir(m_qt4ProFileNode->buildDir());
+    reader->setOutputDir(buildDir());
 
     return reader;
 }
@@ -1189,7 +1189,7 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
     return subProjectPaths;
 }
 
-QString Qt4PriFileNode::buildDir() const
+QString Qt4ProFileNode::buildDir() const
 {
     const QDir srcDirRoot = QFileInfo(m_project->rootProjectNode()->path()).absoluteDir();
     const QString relativeDir = srcDirRoot.relativeFilePath(m_projectDir);

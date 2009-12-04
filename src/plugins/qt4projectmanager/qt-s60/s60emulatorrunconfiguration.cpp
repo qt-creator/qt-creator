@@ -128,15 +128,15 @@ void S60EmulatorRunConfiguration::updateTarget()
     if (m_cachedTargetInformationValid)
         return;
     Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
-    Qt4PriFileNode * priFileNode = qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
-    if (!priFileNode) {
+    Qt4ProFileNode *proFileNode = qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
+    if (!proFileNode) {
         m_executable = QString::null;
         m_cachedTargetInformationValid = true;
         emit targetInformationChanged();
         return;
     }
     QtVersion *qtVersion = qt4bc->qtVersion();
-    ProFileReader *reader = priFileNode->createProFileReader();
+    ProFileReader *reader = proFileNode->createProFileReader();
     reader->setCumulative(false);
 
     // Find out what flags we pass on to qmake
