@@ -2819,7 +2819,7 @@ static void setWatchDataValueEditable(WatchData &data, const GdbMi &mi)
 static void setWatchDataExpression(WatchData &data, const GdbMi &mi)
 {
     if (mi.isValid())
-        data.exp = _('(' + mi.data() + ')');
+        data.exp = _(mi.data());
 }
 
 static void setWatchDataAddress(WatchData &data, const GdbMi &mi)
@@ -2827,7 +2827,7 @@ static void setWatchDataAddress(WatchData &data, const GdbMi &mi)
     if (mi.isValid()) {
         data.addr = _(mi.data());
         if (data.exp.isEmpty() && !data.addr.startsWith(_("$")))
-            data.exp = _("(*(") + gdbQuoteTypes(data.type) + _("*)") + data.addr + _c(')');
+            data.exp = _("*(") + gdbQuoteTypes(data.type) + _("*)") + data.addr;
     }
 }
 
@@ -2886,9 +2886,9 @@ void GdbEngine::runDirectDebuggingHelper(const WatchData &data, bool dumpChildre
     QString cmd;
 
     if (type == __("QString") || type.endsWith(__("::QString")))
-        cmd = _("qdumpqstring (&") + data.exp + _c(')');
+        cmd = _("qdumpqstring (&(") + data.exp + _("))");
     else if (type == __("QStringList") || type.endsWith(__("::QStringList")))
-        cmd = _("qdumpqstringlist (&") + data.exp + _c(')');
+        cmd = _("qdumpqstringlist (&(") + data.exp + _("))");
 
     QVariant var;
     var.setValue(data);
@@ -3546,17 +3546,22 @@ void GdbEngine::updateLocals(const QVariant &cookie)
         WatchHandler *handler = m_manager->watchHandler();
         QStringList expanded = handler->expandedINames().toList();
         QString watchers;
-        foreach (QString item, handler->watchedExpressions()) {
+        QHash<QString, int> watcherNames = handler->watcherNames();
+        QHashIterator<QString, int> it(watcherNames);
+        while (it.hasNext()) {
+            it.next();
             if (!watchers.isEmpty())
-                watchers += _("$");
-            //item.replace(_("\""), _("\\\""));
-            watchers += item;
+                watchers += _("$$");
+            if (it.key() == WatchHandler::watcherEditPlaceHolder()) 
+                watchers += _("<Edit>$%1").arg(it.value());
+            else
+                watchers += _("%1$%2").arg(it.key()).arg(it.value());
         }
 
         postCommand(_("-interpreter-exec console \"bb %1 0 %2 %3\"")
                 .arg(int(theDebuggerBoolSetting(UseDebuggingHelpers)))
                 .arg(expanded.join(_(",")))
-                .arg(_(watchers.toLatin1().toBase64())),
+                .arg(_(watchers.toLatin1().toHex())),
             CB(handleStackFrame));
     } else {
         m_processedNames.clear();
@@ -3598,18 +3603,22 @@ void GdbEngine::handleStackFrame(const GdbResponse &response)
         GdbMi all;
         all.fromStringMultiple(out);
         
-        //qDebug() << "\n\n\nALL: " << all.toString() << "\n";
         GdbMi locals = all.findChild("locals");
-        //qDebug() << "\n\n\nLOCALS: " << locals.toString() << "\n";
         WatchData *data = manager()->watchHandler()->findItem(_("local"));
         QTC_ASSERT(data, return);
-
         QList<WatchData> list;
-        //foreach (const GdbMi &local, locals.children)
-        //   handleChildren(*data, local, &list);
         handleChildren(*data, locals, &list);
         //for (int i = 0; i != list.size(); ++i)
-        //    qDebug() << "READ: " << list.at(i).toString();
+        //    qDebug() << "LOCAL: " << list.at(i).toString();
+        manager()->watchHandler()->insertBulkData(list);
+
+        GdbMi watchers = all.findChild("watchers");
+        data = manager()->watchHandler()->findItem(_("watch"));
+        QTC_ASSERT(data, return);
+        list.clear();
+        handleChildren(*data, watchers, &list);
+        //for (int i = 0; i != list.size(); ++i)
+        //    qDebug() << "WATCH: " << list.at(i).toString();
         manager()->watchHandler()->insertBulkData(list);
 
         // FIXME:

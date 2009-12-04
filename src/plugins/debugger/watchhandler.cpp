@@ -1268,7 +1268,12 @@ void WatchHandler::watchExpression(const QString &exp)
     if (exp.isEmpty() || exp == watcherEditPlaceHolder())
         data.setAllUnneeded();
     data.iname = watcherName(exp);
-    insertData(data);
+    IDebuggerEngine *engine = m_manager->currentEngine();
+    if (engine && engine->isSynchroneous())
+        m_manager->updateWatchData(data);
+    else
+        insertData(data);
+    m_manager->updateWatchData(data);
     saveWatchers();
 }
 

@@ -294,17 +294,17 @@ class FrameCommand(gdb.Command):
             name = str(watcherCount)
             try:
                 value = gdb.parse_and_eval(watcher)
-                item = Item(value), "watch", name, name)
+                item = Item(value, "watch", name, name)
                 warn(" VALUE %s" % item.value)
                 d.beginHash()
                 d.put('iname="%s",' % item.iname)
                 d.safePutItemHelper(item)
                 d.endHash()
-            else:
+            except RuntimeError:
                 d.beginHash()
                 d.put('iname="watch.%d",' % watcherCount)
                 d.put('name="%s",' % watcher)
-                d.put('value="<invalid>",' % watcherCount)
+                d.put('value="<invalid>",')
                 d.put('type=<unknown>,numchild="0"')
                 d.endHash()
             watcherCount += 1

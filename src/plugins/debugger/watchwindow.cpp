@@ -267,8 +267,15 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         actWatchKnownMemory = new QAction(tr("Open memory editor at %1").arg(address), &menu);
     menu.addSeparator();
 
-    int atype = (m_type == LocalsType) ? WatchExpression : RemoveWatchExpression;
-    menu.addAction(theDebuggerAction(atype)->updatedAction(exp));
+    QAction *actWatchOrRemove;
+    if (m_type == LocalsType) { 
+        actWatchOrRemove = theDebuggerAction(WatchExpression)->updatedAction(exp);
+    } else {
+        actWatchOrRemove = theDebuggerAction(RemoveWatchExpression)->updatedAction(exp);
+        // Also for the case where the user cleared the expression.
+        actWatchOrRemove->setEnabled(true);
+    }
+    menu.addAction(actWatchOrRemove);
 
     menu.addAction(actInsertNewWatchItem);
     menu.addAction(actSelectWidgetToWatch);

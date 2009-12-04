@@ -275,6 +275,8 @@ public:
     QSet<QString> expandedINames() const
         { return m_expandedINames; }
     QStringList watchedExpressions() const;
+    QHash<QString, int> watcherNames() const
+        { return m_watcherNames; }
 
     static QString watcherEditPlaceHolder();
 
