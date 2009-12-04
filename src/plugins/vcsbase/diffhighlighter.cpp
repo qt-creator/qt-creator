@@ -34,6 +34,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QtAlgorithms>
 #include <QtCore/QRegExp>
+#include <QtGui/QBrush>
 
 namespace VCSBase {
 
@@ -57,6 +58,7 @@ struct DiffHighlighterPrivate {
     const QChar m_diffInIndicator;
     const QChar m_diffOutIndicator;
     QTextCharFormat m_formats[NumDiffFormats];
+    QTextCharFormat m_addedTrailingWhiteSpaceFormat;
 };
 
 DiffHighlighterPrivate::DiffHighlighterPrivate(const QRegExp &filePattern) :
@@ -96,20 +98,53 @@ DiffHighlighter::~DiffHighlighter()
     delete m_d;
 }
 
+// Check trailing spaces
+static inline int trimmedLength(const QString &in)
+{
+    for (int pos = in.length() - 1; pos >= 0; pos--)
+        if (!in.at(pos).isSpace())
+            return pos + 1;
+    return 0;
+}
+
 void DiffHighlighter::highlightBlock(const QString &text)
 {
     if (text.isEmpty())
         return;
 
+    const int length = text.length();
     const DiffFormats format = m_d->analyzeLine(text);
-    if (format != DiffTextFormat)
-        setFormat(0, text.length(), m_d->m_formats[format]);
+    switch (format) {
+    case DiffTextFormat:
+        break;
+    case DiffInFormat: {
+            // Mark trailing whitespace.
+            const int trimmedLen = trimmedLength(text);
+            setFormat(0, trimmedLen, m_d->m_formats[format]);
+            if (trimmedLen != length)
+                setFormat(trimmedLen, length - trimmedLen, m_d->m_addedTrailingWhiteSpaceFormat);
+        }
+        break;
+    default:
+        setFormat(0, length, m_d->m_formats[format]);
+        break;
+    }
+}
+
+static inline QTextCharFormat invertedColorFormat(const QTextCharFormat &in)
+{
+    QTextCharFormat rc = in;
+    rc.setForeground(in.background());
+    rc.setBackground(in.foreground());
+    return rc;
 }
 
 void DiffHighlighter::setFormats(const QVector<QTextCharFormat> &s)
 {
     if (s.size() == NumDiffFormats) {
         qCopy(s.constBegin(), s.constEnd(), m_d->m_formats);
+        // Display trailing blanks with colors swapped
+        m_d->m_addedTrailingWhiteSpaceFormat = invertedColorFormat(m_d->m_formats[DiffInFormat]);
     } else {
         qWarning("%s: insufficient setting size: %d", Q_FUNC_INFO, s.size());
     }
