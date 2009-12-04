@@ -46,7 +46,7 @@ GccParser::GccParser()
     m_regExpLinker.setMinimal(true);
 
     //make[4]: Entering directory `/home/kkoehne/dev/ide-explorer/src/plugins/qtscripteditor'
-    m_makeDir.setPattern("^make.*: (\\w+) directory .(.+).$");
+    m_makeDir.setPattern("^(?:mingw32-)?make.*: (\\w+) directory .(.+).$");
     m_makeDir.setMinimal(true);
 }
 
