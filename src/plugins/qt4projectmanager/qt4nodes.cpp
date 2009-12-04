@@ -584,8 +584,10 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     *notChanged = filePaths;
 
     // Check for modified editors
-    if (!saveModifiedEditors(m_projectFilePath))
+    if (!saveModifiedEditors(m_projectFilePath)) {
+        delete reader;
         return;
+    }
 
     // Check if file is readonly
     ProEditorModel proModel;
