@@ -82,7 +82,7 @@ void tst_Lookup::base_class_defined_1()
     QCOMPARE(doc->globalSymbolCount(), 2U);
 
     Snapshot snapshot;
-    snapshot.insert(doc->fileName(), doc);
+    snapshot.insert(doc);
 
     Document::Ptr emptyDoc = Document::create("<empty>");
 
@@ -133,7 +133,7 @@ void tst_Lookup::simple_class_1()
     QCOMPARE(doc->globalSymbolCount(), 2U);
 
     Snapshot snapshot;
-    snapshot.insert(doc->fileName(), doc);
+    snapshot.insert(doc);
 
     Document::Ptr emptyDoc = Document::create("<empty>");
 
@@ -199,7 +199,7 @@ void tst_Lookup::class_with_baseclass()
     QCOMPARE(doc->globalSymbolCount(), 3U);
 
     Snapshot snapshot;
-    snapshot.insert(doc->fileName(), doc);
+    snapshot.insert(doc);
 
     Document::Ptr emptyDoc = Document::create("<empty>");
 
@@ -266,7 +266,7 @@ void tst_Lookup::class_with_protocol_with_protocol()
     QCOMPARE(doc->globalSymbolCount(), 4U);
 
     Snapshot snapshot;
-    snapshot.insert(doc->fileName(), doc);
+    snapshot.insert(doc);
 
     Document::Ptr emptyDoc = Document::create("<empty>");
 
