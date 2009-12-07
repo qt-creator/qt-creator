@@ -96,7 +96,7 @@ private slots:
     void checkMakeActiveLabel();
     void makeActive();
 
-    void init();
+    void setupUi();
 
 private:
     void cloneConfiguration(BuildConfiguration *toClone);

@@ -109,10 +109,10 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project) :
     m_leftMargin(0)
 {
     // Provide some time for our contentsmargins to get updated:
-    QTimer::singleShot(0, this, SLOT(init()));
+    QTimer::singleShot(0, this, SLOT(setupUi()));
 }
 
-void BuildSettingsWidget::init()
+void BuildSettingsWidget::setupUi()
 {
     QMargins margins(contentsMargins());
     m_leftMargin = margins.left();
