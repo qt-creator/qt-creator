@@ -22,6 +22,13 @@ def qmin(n, m):
         return n
     return m
 
+def value(expr):
+    value = gdb.parse_and_eval(expr)
+    try:
+        return int(value)
+    except:
+        return str(value)
+
 def isSimpleType(typeobj):
     type = str(typeobj)
     return type == "bool" \
@@ -122,6 +129,13 @@ def qtNamespace():
     except RuntimeError:
         return ""
 
+def encodeCharArray(p, size):
+    s = ""
+    for i in xrange(0, size):
+        s += "%02x" % int(p.dereference())
+        p += 1
+    return s
+
 def encodeByteArray(value):
     d_ptr = value['d'].dereference()
     data = d_ptr['data']
@@ -135,11 +149,7 @@ def encodeByteArray(value):
 
     innerType = gdb.lookup_type("char")
     p = gdb.Value(data.cast(innerType.pointer()))
-    s = ""
-    for i in xrange(0, size):
-        s += "%02x" % int(p.dereference())
-        p += 1
-    return s
+    return encodeCharArray(p, size)
 
 def encodeString(value):
     d_ptr = value['d'].dereference()
@@ -267,11 +277,41 @@ class FrameCommand(gdb.Command):
                     continue
                 #warn("ITEM %s: " % item.value)
 
-                d.beginHash()
-                d.put('iname="%s",' % item.iname)
-                d.put('addr="%s",' % item.value.address)
-                d.safePutItemHelper(item)
-                d.endHash()
+                type = item.value.type
+                if type.code == gdb.TYPE_CODE_PTR \
+                        and name == "argv" and str(type) == "char **":
+                    # Special handling for char** argv:
+                    n = 0
+                    p = item.value
+                    while not isNull(p.dereference()) and n <= 100:
+                        p += 1
+                        n += 1
+
+                    d.beginHash()
+                    d.put('iname="%s",' % item.iname)
+                    d.putName(name)
+                    d.putItemCount(select(n <= 100, n, "> 100"))
+                    d.putType(type)
+                    d.putNumChild(n)
+                    if d.isExpanded(item):
+                        p = item.value
+                        d.beginChildren(n)
+                        for i in xrange(0, n):
+                            value = p.dereference()
+                            d.putItemOrPointer(Item(value, item.iname, i, None))
+                            p += 1
+                        if n > 100:
+                            d.putEllipsis()
+                        d.endChildren()
+                    d.endHash()
+
+                else:
+                    # A "normal" local variable or parameter
+                    d.beginHash()
+                    d.put('iname="%s",' % item.iname)
+                    d.put('addr="%s",' % item.value.address)
+                    d.safePutItemHelper(item)
+                    d.endHash()
 
             # The outermost block in a function has the function member
             # FIXME: check whether this is guaranteed.
@@ -292,9 +332,10 @@ class FrameCommand(gdb.Command):
         watchers = ""
         if len(args) > 3:
             watchers = base64.b16decode(args[3], True)
-        for watcher in watchers.split("$$"):
-            (exp, name) = watcher.split("$")
-            self.handleWatch(d, exp, name)
+        if len(watchers) > 0:
+            for watcher in watchers.split("$$"):
+                (exp, name) = watcher.split("$")
+                self.handleWatch(d, exp, name)
         d.pushOutput()
         watchers = d.safeoutput
 
@@ -305,16 +346,16 @@ class FrameCommand(gdb.Command):
 
 
     def handleWatch(self, d, exp, name):
-        warn("HANDLING WATCH %s, NAME: %s" % (exp, name))
+        #warn("HANDLING WATCH %s, NAME: %s" % (exp, name))
         if exp.startswith("["):
-            warn("EVAL: EXP: %s" % exp)
+            #warn("EVAL: EXP: %s" % exp)
             d.beginHash()
             d.put('iname="watch.%s",' % name)
             d.put('name="%s",' % exp)
             d.put('exp="%s"' % exp)
             try:
                 list = eval(exp)
-                warn("EVAL: LIST: %s" % list)
+                #warn("EVAL: LIST: %s" % list)
                 d.put('value=" "')
                 d.put('type=" "')
                 d.put('numchild="%d"' % len(list))
@@ -578,7 +619,7 @@ class Dumper:
 
     def putItemOrPointerHelper(self, item):
         if item.value.type.code == gdb.TYPE_CODE_PTR \
-                and str(item.value.type.unqualified) != "char":
+                and str(item.value.type.target()) != "char":
             if not isNull(item.value):
                 self.putItemOrPointerHelper(
                     Item(item.value.dereference(), item.iname, None, None))
@@ -639,24 +680,20 @@ class Dumper:
                 isHandled = True
 
             target = str(type.target().unqualified())
-            #warn("TARGET: %s" % target)
             if target == "char" and not isHandled:
                 # Display values up to given length directly
                 firstNul = -1
                 p = value
-                for i in xrange(0, 10):
+                for i in xrange(0, 100):
                     if p.dereference() == 0:
                         # Found terminating NUL
                         self.putField("valueencoded", "6")
                         self.put(',value="')
-                        p = value
-                        for j in xrange(0, i):
-                            self.put('%02x' % int(p.dereference()))
-                            p += 1
+                        self.put(encodeCharArray(value, i))
                         self.put('"')
                         self.putNumChild(0)
                         isHandled = True
-                        break
+                        return
                     p += 1
 
             if not isHandled:

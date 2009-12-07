@@ -278,9 +278,6 @@ private:
     Thread m_thread;
 };
 
-//QMutex m_mutex;
-//QWaitCondition m_waitCondition;
-
 QByteArray buffer;
 QSemaphore freeBytes(1);
 QSemaphore usedBytes(0);
@@ -569,13 +566,6 @@ void tst_Gdb::check(const QByteArray &label, const QByteArray &expected0,
     qWarning() << label << "...";
     writeToGdb("bb " + N(int(fancy)) + " 1 " + expanded);
 
-    //m_mutex.lock();
-    //m_waitCondition.wait(&m_mutex);
-    //QByteArray ba = m_thread.m_output;
-    //m_thread.m_output.clear();
-    //m_mutex.unlock();
-    //GdbMi locals;
-
     //qDebug() << "\n1 ABOUT TO AQUIRE USED ";
     usedBytes.acquire();
     //qDebug() << "\n1 AQUIRED USED ";
@@ -602,7 +592,16 @@ void tst_Gdb::check(const QByteArray &label, const QByteArray &expected0,
         "children=[" + expected0 + "]}";
     int line = m_thread.m_line;
 
-    QByteArrayList l1 = actual.split(',');
+    QByteArrayList l1_0 = actual.split(',');
+    QByteArrayList l1;
+    for (int i = 0; i != l1_0.size(); ++i) {
+        const QByteArray &ba = l1_0.at(i);
+        if (ba.startsWith("watchers={iname"))
+            break;
+        if (!ba.startsWith("addr"))
+            l1.append(ba);
+    }
+
     QByteArrayList l2 = expected.split(',');
 
     bool ok = l1.size() == l2.size();
