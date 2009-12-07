@@ -816,12 +816,12 @@ void tst_Gdb::dump_misc()
     next();
     check("B","{iname='local.s',name='s',type='int *',"
             "value='-',numchild='1'}", "", 0);
-    check("B","{iname='local.s',name='s',type='int *',"
-            "value='1',numchild='0'}", "local.s,local.model", 0);
     //check("B","{iname='local.s',name='s',type='int *',"
-    //        "value='-',numchild='1',children=[{iname='local.s.*',"
-    //        "name='*s',type='int',value='1',numchild='0'}]}",
-    //        "local.s,local.model", 0);
+    //        "value='1',numchild='0'}", "local.s,local.model", 0);
+    check("B","{iname='local.s',name='s',type='int *',"
+            "value='-',numchild='1',children=["
+            "{name='*',type='int',value='1',numchild='0'}]}",
+            "local.s,local.model", 0);
 }
 
 
@@ -1641,7 +1641,7 @@ void tst_Gdb::dump_QList_int_star()
     check("E","{iname='local.list',name='list',"
             "type='"NS"QList<int*>',value='<3 items>',numchild='3',"
             "childtype='int',childnumchild='0',children=["
-            "{value='1'},{value='(null)',type='int *'},{value='2'}]}", "local.list");
+            "{value='1'},{value='0x0',type='int *'},{value='2'}]}", "local.list");
 }
 
 
@@ -1919,8 +1919,8 @@ void tst_Gdb::dump_QObject()
 
     check("G","{iname='local.ob',name='ob',type='"NS"QObject',valueencoded='7',"
       "value='41006e0020004f0062006a00650063007400',numchild='4',children=["
-        "{name='parent',type='"NS"QObject *',"
-            "value='0x0',numchild='0'},"
+        "{name='parent',value='0x0',type='"NS"QObject *',"
+            "numchild='0'},"
         "{name='children',type='-'," // NS"QObject{Data,}::QObjectList',"
             "value='<0 items>',numchild='0',children=[]},"
         "{name='properties',value='<1 items>',type=' ',numchild='1',children=["
@@ -2792,7 +2792,7 @@ void tst_Gdb::dump_QTextCodec()
     // FIXME
     prepare("dump_QTextCodec");
     next();
-    check("D", "{iname='local.codec',name='codec',type='"NS"QTextCodec *',"
+    check("D", "{iname='local.codec',name='codec',type='"NS"QTextCodec',"
            "valueencoded='6',value='5554462d3136',numchild='2',children=["
             "{name='name',type='"NS"QByteArray',valueencoded='6',"
              "value='5554462d3136',numchild='6'},"
@@ -3599,7 +3599,7 @@ void tst_Gdb::dump_std_vector()
                 "{type='" + listType + "',value='<1 items>',"
                     "childtype='int',"
                     "childnumchild='0',children=[{value='45'}]},"
-                "{value='(null)',numchild='0'}]},"
+                "{value='0x0',numchild='0'}]},"
             "{iname='local.list',name='list',type='" + listType + "',"
                 "value='<1 items>',numchild='1'}",
         "local.vector,local.vector.0");
