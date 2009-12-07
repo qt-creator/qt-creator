@@ -115,6 +115,7 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
 
 void Qt4PriFileNode::scheduleUpdate()
 {
+    ProFileCacheManager::instance()->discardFile(m_projectFilePath);
     m_qt4ProFileNode->scheduleUpdate();
 }
 

@@ -42,35 +42,27 @@ ProFileReader::ProFileReader(ProFileOption *option) : ProFileEvaluator(option)
 ProFileReader::~ProFileReader()
 {
     foreach (ProFile *pf, m_proFiles)
-        delete pf;
+        pf->deref();
 }
 
 bool ProFileReader::readProFile(const QString &fileName)
 {
-    //disable caching -> list of include files is not updated otherwise
-    ProFile *pro = new ProFile(fileName);
-    if (!queryProFile(pro)) {
-        delete pro;
-        return false;
+    if (ProFile *pro = parsedProFile(fileName)) {
+        aboutToEval(pro);
+        bool ok = accept(pro);
+        pro->deref();
+        return ok;
     }
-    m_includeFiles.insert(fileName, pro);
-    m_proFiles.append(pro);
-    return accept(pro);
+    return false;
 }
 
-ProFile *ProFileReader::parsedProFile(const QString &fileName)
+void ProFileReader::aboutToEval(ProFile *pro)
 {
-    ProFile *pro = ProFileEvaluator::parsedProFile(fileName);
-    if (pro) {
-        m_includeFiles.insert(fileName, pro);
+    if (!m_includeFiles.contains(pro->fileName())) {
+        m_includeFiles.insert(pro->fileName(), pro);
         m_proFiles.append(pro);
+        pro->ref();
     }
-    return pro;
-}
-
-void ProFileReader::releaseParsedProFile(ProFile *)
-{
-    return;
 }
 
 QList<ProFile*> ProFileReader::includeFiles() const
@@ -116,4 +108,53 @@ void ProFileReader::errorMessage(const QString &message)
 ProFile *ProFileReader::proFileFor(const QString &name)
 {
     return m_includeFiles.value(name);
+}
+
+
+
+ProFileCacheManager *ProFileCacheManager::s_instance = 0;
+
+ProFileCacheManager::ProFileCacheManager(QObject *parent) :
+        QObject(parent),
+        m_cache(0)
+{
+    s_instance = this;
+    m_timer.setSingleShot(true);
+    m_timer.setInterval(5000);
+    connect(&m_timer, SIGNAL(timeout()), SLOT(clear()));
+}
+
+ProFileCacheManager::~ProFileCacheManager()
+{
+    s_instance = 0;
+    clear();
+}
+
+ProFileCache *ProFileCacheManager::cache()
+{
+    m_timer.start();
+    if (!m_cache)
+        m_cache = new ProFileCache;
+    return m_cache;
+}
+
+void ProFileCacheManager::clear()
+{
+    // Just deleting the cache will be safe as long as the sequence of
+    // obtaining a cache pointer and using it is atomic as far as the main
+    // loop is concerned. Use a shared pointer once this is not true anymore.
+    delete m_cache;
+    m_cache = 0;
+}
+
+void ProFileCacheManager::discardFiles(const QString &prefix)
+{
+    if (m_cache)
+        m_cache->discardFiles(prefix);
+}
+
+void ProFileCacheManager::discardFile(const QString &fileName)
+{
+    if (m_cache)
+        m_cache->discardFile(fileName);
 }

@@ -42,6 +42,22 @@ QT_BEGIN_NAMESPACE
 
 class ProFileOption;
 
+class ProFileCache
+{
+public:
+    ProFileCache() {}
+    ~ProFileCache();
+
+    void addFile(ProFile *pro);
+    ProFile *getFile(const QString &fileName);
+
+    void discardFile(const QString &fileName);
+    void discardFiles(const QString &prefix);
+
+private:
+    QHash<QString, ProFile *> parsed_files;
+};
+
 class ProFileEvaluator
 {
     class Private;
@@ -74,8 +90,8 @@ public:
     void setConfigCommandLineArguments(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs);
     void setParsePreAndPostFiles(bool on); // Default is true
 
-    bool queryProFile(ProFile *pro);
-    bool queryProFile(ProFile *pro, const QString &content); // the same as above but the content is read from "content" string, not from filesystem
+    // If contents is non-null, it will be used instead of the file's actual content
+    ProFile *parsedProFile(const QString &fileName, const QString &contents = QString());
     bool accept(ProFile *pro);
 
     QStringList values(const QString &variableName) const;
@@ -87,8 +103,7 @@ public:
     QString propertyValue(const QString &val) const;
 
     // for our descendents
-    virtual ProFile *parsedProFile(const QString &fileName);
-    virtual void releaseParsedProFile(ProFile *proFile);
+    virtual void aboutToEval(ProFile *proFile); // only .pri, but not .prf. or .pro
     virtual void logMessage(const QString &msg);
     virtual void errorMessage(const QString &msg); // .pro parse errors
     virtual void fileMessage(const QString &msg); // error() and message() from .pro file
@@ -130,6 +145,7 @@ struct ProFileOption
     QString qmakespec;
     QString cachefile;
     QHash<QString, QString> properties;
+    ProFileCache *cache;
 
     enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
     TARG_MODE target_mode;

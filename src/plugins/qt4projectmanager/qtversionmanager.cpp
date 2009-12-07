@@ -1207,6 +1207,7 @@ void QtVersion::updateToolChainAndMkspec() const
 
     ProFileOption option;
     option.properties = versionInfo();
+    option.cache = ProFileCacheManager::instance()->cache();
     ProFileReader *reader = new ProFileReader(&option);
     reader->setCumulative(false);
     reader->setParsePreAndPostFiles(false);

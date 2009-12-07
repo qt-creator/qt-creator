@@ -867,6 +867,8 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode)
             if (version->isValid())
                 m_proFileOption->properties = version->versionInfo();
         }
+
+        m_proFileOption->cache = ProFileCacheManager::instance()->cache();
     }
     ++m_proFileOptionRefCnt;
 
@@ -883,6 +885,11 @@ void Qt4Project::destroyProFileReader(ProFileReader *reader)
 {
     delete reader;
     if (!--m_proFileOptionRefCnt) {
+        QString dir = QFileInfo(m_fileInfo->fileName()).absolutePath();
+        if (!dir.endsWith(QLatin1Char('/')))
+            dir += QLatin1Char('/');
+        m_proFileOption->cache->discardFiles(dir);
+
         delete m_proFileOption;
         m_proFileOption = 0;
     }
@@ -1040,8 +1047,10 @@ void Qt4Project::notifyChanged(const QString &name)
     if (files(Qt4Project::ExcludeGeneratedFiles).contains(name)) {
         QList<Qt4ProFileNode *> list;
         findProFile(name, rootProjectNode(), list);
-        foreach(Qt4ProFileNode *node, list)
+        foreach(Qt4ProFileNode *node, list) {
+            ProFileCacheManager::instance()->discardFile(name);
             node->update();
+        }
     }
 }
 

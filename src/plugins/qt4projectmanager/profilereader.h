@@ -34,6 +34,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QMap>
+#include <QtCore/QTimer>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -56,8 +57,7 @@ signals:
     void errorFound(const QString &error);
 
 private:
-    virtual ProFile *parsedProFile(const QString &fileName);
-    virtual void releaseParsedProFile(ProFile *proFile);
+    virtual void aboutToEval(ProFile *proFile);
     virtual void logMessage(const QString &msg);
     virtual void fileMessage(const QString &msg);
     virtual void errorMessage(const QString &msg);
@@ -65,6 +65,28 @@ private:
 private:
     QMap<QString, ProFile *> m_includeFiles;
     QList<ProFile *> m_proFiles;
+};
+
+class ProFileCacheManager : public QObject
+{
+    Q_OBJECT
+
+public:
+    static ProFileCacheManager *instance() { return s_instance; }
+    ProFileCache *cache();
+    void discardFiles(const QString &prefix);
+    void discardFile(const QString &fileName);
+
+private:
+    ProFileCacheManager(QObject *parent);
+    ~ProFileCacheManager();
+    Q_SLOT void clear();
+    QTimer m_timer;
+    ProFileCache *m_cache;
+
+    static ProFileCacheManager *s_instance;
+
+    friend class Qt4ProjectManagerPlugin;
 };
 
 } // namespace Internal

@@ -85,11 +85,59 @@ static void clearFunctions(ProFileEvaluator::FunctionDefs *defs)
 
 ///////////////////////////////////////////////////////////////////////
 //
+// ProFileCache
+//
+///////////////////////////////////////////////////////////////////////
+
+ProFileCache::~ProFileCache()
+{
+    foreach (ProFile *pro, parsed_files)
+        pro->deref();
+}
+
+void ProFileCache::discardFile(const QString &fileName)
+{
+    QHash<QString, ProFile *>::Iterator it = parsed_files.find(fileName);
+    if (it != parsed_files.end()) {
+        it.value()->deref();
+        parsed_files.erase(it);
+    }
+}
+
+void ProFileCache::discardFiles(const QString &prefix)
+{
+    QHash<QString, ProFile *>::Iterator
+            it = parsed_files.begin(),
+            end = parsed_files.end();
+    while (it != end)
+        if (it.key().startsWith(prefix)) {
+            it.value()->deref();
+            it = parsed_files.erase(it);
+        } else {
+            ++it;
+        }
+}
+
+void ProFileCache::addFile(ProFile *pro)
+{
+    parsed_files[pro->fileName()] = pro;
+    pro->ref();
+}
+
+ProFile *ProFileCache::getFile(const QString &fileName)
+{
+    ProFile *pro = parsed_files.value(fileName);
+    if (pro)
+        pro->ref();
+    return pro;
+}
+
+///////////////////////////////////////////////////////////////////////
+//
 // ProFileOption
 //
 ///////////////////////////////////////////////////////////////////////
 
-// ProFileOption
 ProFileOption::ProFileOption()
 {
 #ifdef Q_OS_WIN
@@ -112,6 +160,8 @@ ProFileOption::ProFileOption()
 #endif
 
     field_sep = QLatin1String(" ");
+
+    cache = 0;
 }
 
 ProFileOption::~ProFileOption()
@@ -199,6 +249,8 @@ public:
     ProFile *currentProFile() const;
 
     ProItem::ProItemReturn evaluateConditionalFunction(const QString &function, const QString &arguments);
+    ProFile *parsedProFile(const QString &fileName, bool cache,
+                           const QString &contents = QString());
     bool evaluateFile(const QString &fileName);
     bool evaluateFeatureFile(const QString &fileName,
                              QHash<QString, QStringList> *values = 0, FunctionDefs *defs = 0);
@@ -2776,20 +2828,20 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName, const
     return values(variableName, m_filevaluemap[pro], pro);
 }
 
-// virtual
-ProFile *ProFileEvaluator::parsedProFile(const QString &fileName)
+ProFile *ProFileEvaluator::Private::parsedProFile(const QString &fileName, bool cache,
+                                                  const QString &contents)
 {
-    ProFile *pro = new ProFile(fileName);
-    if (d->read(pro))
-        return pro;
-    delete pro;
-    return 0;
-}
-
-// virtual
-void ProFileEvaluator::releaseParsedProFile(ProFile *proFile)
-{
-    delete proFile;
+    ProFile *pro;
+    if (!m_option->cache || !(pro = m_option->cache->getFile(fileName))) {
+        pro = new ProFile(fileName);
+        if (!(contents.isNull() ? read(pro) : read(pro, contents))) {
+            delete pro;
+            return 0;
+        }
+        if (m_option->cache && cache)
+            m_option->cache->addFile(pro);
+    }
+    return pro;
 }
 
 bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
@@ -2803,10 +2855,10 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
             errorMessage(format("circular inclusion of %1").arg(fn));
             return false;
         }
-    ProFile *pro = q->parsedProFile(fn);
-    if (pro) {
+    if (ProFile *pro = parsedProFile(fn, true)) {
+        q->aboutToEval(pro);
         bool ok = (pro->Accept(this) == ProItem::ReturnTrue);
-        q->releaseParsedProFile(pro);
+        pro->deref();
         return ok;
     } else {
         return false;
@@ -2857,12 +2909,13 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
         bool cumulative = m_cumulative;
         m_cumulative = false;
 
-        // Don't use evaluateFile() here to avoid the virtual parsedProFile().
+        // Don't use evaluateFile() here to avoid calling aboutToEval().
         // The path is fully normalized already.
-        ProFile pro(fn);
         bool ok = false;
-        if (read(&pro))
-            ok = (pro.Accept(this) == ProItem::ReturnTrue);
+        if (ProFile *pro = parsedProFile(fn, true)) {
+            ok = (pro->Accept(this) == ProItem::ReturnTrue);
+            pro->deref();
+        }
 
         m_cumulative = cumulative;
         return ok;
@@ -3019,14 +3072,9 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType()
     return TT_Unknown;
 }
 
-bool ProFileEvaluator::queryProFile(ProFile *pro)
+ProFile *ProFileEvaluator::parsedProFile(const QString &fileName, const QString &contents)
 {
-    return d->read(pro);
-}
-
-bool ProFileEvaluator::queryProFile(ProFile *pro, const QString &content)
-{
-    return d->read(pro, content);
+    return d->parsedProFile(fileName, false, contents);
 }
 
 bool ProFileEvaluator::accept(ProFile *pro)
@@ -3037,6 +3085,10 @@ bool ProFileEvaluator::accept(ProFile *pro)
 QString ProFileEvaluator::propertyValue(const QString &name) const
 {
     return d->propertyValue(name);
+}
+
+void ProFileEvaluator::aboutToEval(ProFile *)
+{
 }
 
 void ProFileEvaluator::logMessage(const QString &message)

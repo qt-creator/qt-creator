@@ -169,6 +169,8 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(MaemoManager::instance());
 #endif
 
+    new ProFileCacheManager(this);
+
     // TODO reenable
     //m_embeddedPropertiesPage = new EmbeddedPropertiesPage;
     //addObject(m_embeddedPropertiesPage);
