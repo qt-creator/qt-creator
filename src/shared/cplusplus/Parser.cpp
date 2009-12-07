@@ -1832,16 +1832,32 @@ bool Parser::parseMemInitializerList(MemInitializerListAST *&node)
 
     if (parseMemInitializer(*initializer)) {
         initializer = &(*initializer)->next;
-        while (LA() == T_COMMA) {
-            consumeToken(); // consume T_COMMA
 
-            if (parseMemInitializer(*initializer))
-                initializer = &(*initializer)->next;
-            else
-                _translationUnit->error(cursor(), "expected a member initializer");
+        while (true) {
+
+            if (LA() == T_LBRACE)
+                break;
+
+            else if (LA() == T_COMMA || (LA() == T_IDENTIFIER && (LA(2) == T_LPAREN || LA(2) == T_COLON_COLON))) {
+                if (LA() != T_COMMA)
+                    _translationUnit->error(cursor(), "expected `,'");
+                else
+                    consumeToken();
+
+                if (parseMemInitializer(*initializer))
+                    initializer = &(*initializer)->next;
+                else
+                    _translationUnit->error(cursor(), "expected a member initializer");
+
+            } else break;
         }
+
+        if (LA() != T_LBRACE)
+            _translationUnit->error(cursor(), "expected `{'");
+
         return true;
     }
+
     return false;
 }
 
@@ -2892,10 +2908,26 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
         return true;
     } else if (! _inFunctionBody && declarator && (LA() == T_COLON || LA() == T_LBRACE || LA() == T_TRY)) {
         CtorInitializerAST *ctor_initializer = 0;
-        if (LA() == T_COLON)
+        bool hasCtorInitializer = false;
+        if (LA() == T_COLON) {
+            hasCtorInitializer = true;
             parseCtorInitializer(ctor_initializer);
 
-        if (LA() == T_LBRACE) {
+            if (LA() != T_LBRACE) {
+                const unsigned pos = cursor();
+
+                for (int n = 0; n < 3 && LA(); consumeToken(), ++n)
+                    if (LA() == T_LBRACE)
+                        break;
+
+                if (LA() != T_LBRACE) {
+                    _translationUnit->error(pos, "unexpected token `%s'", _translationUnit->spell(pos));
+                    rewind(pos);
+                }
+            }
+        }
+
+        if (LA() == T_LBRACE || hasCtorInitializer) {
             FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
             ast->qt_invokable_token = qt_invokable_token;
             ast->decl_specifier_list = decl_specifier_seq;
