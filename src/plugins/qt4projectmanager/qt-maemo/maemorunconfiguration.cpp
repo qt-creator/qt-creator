@@ -55,6 +55,7 @@
 
 #include <QtGui/QComboBox>
 #include <QtGui/QCheckBox>
+#include <QtGui/QDesktopServices>
 #include <QtGui/QFormLayout>
 #include <QtGui/QFrame>
 #include <QtGui/QHBoxLayout>
@@ -1146,6 +1147,10 @@ const QStringList AbstractMaemoRunControl::options() const
         devConfig.authentication == MaemoDeviceConfigurations::DeviceConfig::Password;
     const QLatin1String opt("-o");
     QStringList optionList;
+#ifdef Q_OS_WIN
+    optionList << opt << QString::fromLatin1("UserKnownHostsFile=%1/maemo_knownHosts").
+        arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
+#endif
     if (!usePassword)
         optionList << QLatin1String("-i") << devConfig.keyFile;
     return optionList << opt
@@ -1153,7 +1158,9 @@ const QStringList AbstractMaemoRunControl::options() const
             arg(usePassword ? "yes" : "no") << opt
         << QString::fromLatin1("PubkeyAuthentication=%1").
             arg(usePassword ? "no" : "yes") << opt
-        << QString::fromLatin1("ConnectTimeout=%1").arg(devConfig.timeout);
+        << QString::fromLatin1("ConnectTimeout=%1").arg(devConfig.timeout)
+        << opt << QLatin1String("CheckHostIP=no")
+        << opt << QLatin1String("StrictHostKeyChecking=no");
 }
 
 const QString AbstractMaemoRunControl::executableOnTarget() const
