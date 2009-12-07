@@ -64,45 +64,19 @@
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
-CppFindReferences::CppFindReferences(CppTools::CppModelManagerInterface *modelManager)
-    : QObject(modelManager),
-      _modelManager(modelManager),
-      _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
+namespace {
+
+class ProcessFile: public std::unary_function<QString, QList<Usage> >
 {
-    m_watcher.setPendingResultsLimit(1);
-    connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)), this, SLOT(displayResults(int,int)));
-    connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
-}
-
-CppFindReferences::~CppFindReferences()
-{
-}
-
-QList<int> CppFindReferences::references(Symbol *symbol,
-                                         Document::Ptr doc,
-                                         const Snapshot& snapshot) const
-{
-    QList<int> references;
-
-    FindUsages findUsages(doc, snapshot);
-    findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
-    findUsages(symbol);
-    references = findUsages.references();
-
-    return references;
-}
-
-class MyProcess: public std::unary_function<QString, QList<Usage> >
-{
-    const QMap<QString, QString> wl;
+    const QMap<QString, QString> workingList;
     const Snapshot snapshot;
     Symbol *symbol;
 
 public:
-    MyProcess(const QMap<QString, QString> wl,
+    ProcessFile(const QMap<QString, QString> workingList,
               const Snapshot snapshot,
               Symbol *symbol)
-        : wl(wl), snapshot(snapshot), symbol(symbol)
+        : workingList(workingList), snapshot(snapshot), symbol(symbol)
     { }
 
     QList<Usage> operator()(const QString &fileName)
@@ -118,8 +92,8 @@ public:
 
         QByteArray source;
 
-        if (wl.contains(fileName))
-            source = snapshot.preprocessedCode(wl.value(fileName), fileName);
+        if (workingList.contains(fileName))
+            source = snapshot.preprocessedCode(workingList.value(fileName), fileName);
         else {
             QFile file(fileName);
             if (! file.open(QFile::ReadOnly))
@@ -147,12 +121,12 @@ public:
     }
 };
 
-class MyReduce: public std::binary_function<QList<Usage> &, QList<Usage>, void>
+class UpdateUI: public std::binary_function<QList<Usage> &, QList<Usage>, void>
 {
     QFutureInterface<Usage> *future;
 
 public:
-    MyReduce(QFutureInterface<Usage> *future): future(future) {}
+    UpdateUI(QFutureInterface<Usage> *future): future(future) {}
 
     void operator()(QList<Usage> &, const QList<Usage> &usages)
     {
@@ -162,6 +136,36 @@ public:
         future->setProgressValue(future->progressValue() + 1);
     }
 };
+
+} // end of anonymous namespace
+
+CppFindReferences::CppFindReferences(CppTools::CppModelManagerInterface *modelManager)
+    : QObject(modelManager),
+      _modelManager(modelManager),
+      _resultWindow(ExtensionSystem::PluginManager::instance()->getObject<Find::SearchResultWindow>())
+{
+    m_watcher.setPendingResultsLimit(1);
+    connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)), this, SLOT(displayResults(int,int)));
+    connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
+}
+
+CppFindReferences::~CppFindReferences()
+{
+}
+
+QList<int> CppFindReferences::references(Symbol *symbol,
+                                         Document::Ptr doc,
+                                         const Snapshot& snapshot) const
+{
+    QList<int> references;
+
+    FindUsages findUsages(doc, snapshot);
+    findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
+    findUsages(symbol);
+    references = findUsages.references();
+
+    return references;
+}
 
 static void find_helper(QFutureInterface<Usage> &future,
                         const QMap<QString, QString> wl,
@@ -195,8 +199,8 @@ static void find_helper(QFutureInterface<Usage> &future,
 
     future.setProgressRange(0, files.size());
 
-    MyProcess process(wl, snapshot, symbol);
-    MyReduce reduce(&future);
+    ProcessFile process(wl, snapshot, symbol);
+    UpdateUI reduce(&future);
 
     QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
 
