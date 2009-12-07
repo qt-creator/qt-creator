@@ -68,12 +68,12 @@ namespace {
 
 class ProcessFile: public std::unary_function<QString, QList<Usage> >
 {
-    const QMap<QString, QString> workingList;
+    const QHash<QString, QString> workingList;
     const Snapshot snapshot;
     Symbol *symbol;
 
 public:
-    ProcessFile(const QMap<QString, QString> workingList,
+    ProcessFile(const QHash<QString, QString> workingList,
               const Snapshot snapshot,
               Symbol *symbol)
         : workingList(workingList), snapshot(snapshot), symbol(symbol)
@@ -168,7 +168,7 @@ QList<int> CppFindReferences::references(Symbol *symbol,
 }
 
 static void find_helper(QFutureInterface<Usage> &future,
-                        const QMap<QString, QString> wl,
+                        const QHash<QString, QString> workingList,
                         Snapshot snapshot,
                         Symbol *symbol)
 {
@@ -199,7 +199,7 @@ static void find_helper(QFutureInterface<Usage> &future,
 
     future.setProgressRange(0, files.size());
 
-    ProcessFile process(wl, snapshot, symbol);
+    ProcessFile process(workingList, snapshot, symbol);
     UpdateUI reduce(&future);
 
     QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
@@ -243,7 +243,7 @@ void CppFindReferences::findAll_helper(Symbol *symbol)
     _resultWindow->popup(true);
 
     const Snapshot snapshot = _modelManager->snapshot();
-    const QMap<QString, QString> wl = _modelManager->workingCopy();
+    const QHash<QString, QString> wl = _modelManager->workingCopy();
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 

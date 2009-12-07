@@ -36,12 +36,12 @@
 
 #include <texteditor/basetexteditor.h>
 
-#include <QMap>
-#include <QFutureInterface>
-#include <QFutureSynchronizer>
-#include <QMutex>
-#include <QTimer>
-#include <QTextEdit>
+#include <QtCore/QHash>
+#include <QtCore/QFutureInterface>
+#include <QtCore/QFutureSynchronizer>
+#include <QtCore/QMutex>
+#include <QtCore/QTimer>
+#include <QtGui/QTextEdit> // for QTextEdit::ExtraSelection
 
 namespace Core {
 class ICore;
@@ -73,7 +73,7 @@ public:
     virtual ~CppModelManager();
 
     virtual void updateSourceFiles(const QStringList &sourceFiles);
-    virtual QMap<QString, QString> workingCopy() const;
+    virtual QHash<QString, QString> workingCopy() const;
 
     virtual QList<ProjectInfo> projectInfos() const;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
@@ -131,7 +131,7 @@ private Q_SLOTS:
     void updateEditorSelections();
 
 private:
-    QMap<QString, QString> buildWorkingCopyList();
+    QHash<QString, QString> buildWorkingCopyList();
 
     QStringList projectFiles()
     {

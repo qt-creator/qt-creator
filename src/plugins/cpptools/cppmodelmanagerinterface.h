@@ -33,7 +33,7 @@
 #include <cpptools/cpptools_global.h>
 #include <cplusplus/CppDocument.h>
 #include <QtCore/QObject>
-#include <QtCore/QMap>
+#include <QtCore/QHash>
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
 
@@ -84,7 +84,7 @@ public:
 
     static CppModelManagerInterface *instance();
 
-    virtual QMap<QString, QString> workingCopy() const = 0;
+    virtual QHash<QString, QString> workingCopy() const = 0;
     virtual CPlusPlus::Snapshot snapshot() const = 0;
 
     virtual QList<ProjectInfo> projectInfos() const = 0;
