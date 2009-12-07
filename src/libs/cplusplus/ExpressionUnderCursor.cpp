@@ -46,6 +46,13 @@ ExpressionUnderCursor::~ExpressionUnderCursor()
 
 int ExpressionUnderCursor::startOfExpression(BackwardsScanner &tk, int index)
 {
+    if (tk[index - 1].is(T_GREATER)) {
+        const int matchingBraceIndex = tk.startOfMatchingBrace(index);
+
+        if (tk[matchingBraceIndex - 1].is(T_IDENTIFIER))
+            index = matchingBraceIndex - 1;
+    }
+
     index = startOfExpression_helper(tk, index);
 
     if (_jumpedComma) {
@@ -148,11 +155,11 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
         }
         return index - 1;
     } else if (tk[index - 1].is(T_RPAREN)) {
-        int rparenIndex = tk.startOfMatchingBrace(index);
-        if (rparenIndex != index) {
-            if (tk[rparenIndex - 1].is(T_GREATER)) {
-                int lessIndex = tk.startOfMatchingBrace(rparenIndex);
-                if (lessIndex != rparenIndex - 1) {
+        int matchingBraceIndex = tk.startOfMatchingBrace(index);
+        if (matchingBraceIndex != index) {
+            if (tk[matchingBraceIndex - 1].is(T_GREATER)) {
+                int lessIndex = tk.startOfMatchingBrace(matchingBraceIndex);
+                if (lessIndex != matchingBraceIndex - 1) {
                     if (tk[lessIndex - 1].is(T_DYNAMIC_CAST)     ||
                         tk[lessIndex - 1].is(T_STATIC_CAST)      ||
                         tk[lessIndex - 1].is(T_CONST_CAST)       ||
@@ -166,7 +173,7 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
                         return startOfExpression(tk, lessIndex);
                 }
             }
-            return startOfExpression(tk, rparenIndex);
+            return startOfExpression(tk, matchingBraceIndex);
         }
         return index;
     } else if (tk[index - 1].is(T_RBRACKET)) {
