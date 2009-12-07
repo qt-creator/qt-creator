@@ -506,7 +506,7 @@ QSharedPointer<NamespaceBinding> Snapshot::globalNamespaceBinding(Document::Ptr 
 
 Document::Ptr Snapshot::document(const QString &fileName) const
 {
-    return _documents.value(QDir::cleanPath(fileName));
+    return _documents.value(fileName);
 }
 
 Snapshot Snapshot::simplified(Document::Ptr doc) const
