@@ -107,8 +107,19 @@ bool CheckStatement::visit(CompoundStatementAST *ast)
     ast->symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
+    StatementAST *previousStatement = 0;
     for (StatementListAST *it = ast->statement_list; it; it = it->next) {
-        semantic()->check(it->value, _scope);
+        StatementAST *statement = it->value;
+        semantic()->check(statement, _scope);
+
+        if (statement && previousStatement) {
+            ExpressionStatementAST *expressionStatement = statement->asExpressionStatement();
+            CompoundStatementAST *compoundStatement = previousStatement->asCompoundStatement();
+            if (expressionStatement && ! expressionStatement->expression && compoundStatement && compoundStatement->rbrace_token)
+                translationUnit()->warning(compoundStatement->rbrace_token, "unnecessary semicolon after block");
+        }
+
+        previousStatement = statement;
     }
     (void) switchScope(previousScope);
     return false;
