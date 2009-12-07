@@ -46,7 +46,7 @@ class QML_EXPORT QmlDocument
 public:
     typedef QSharedPointer<QmlDocument> Ptr;
     typedef QList<QmlDocument::Ptr> PtrList;
-    typedef QMap<QString, QmlIdSymbol*> IdTable;
+    typedef QMap<QString, Qml::QmlIdSymbol*> IdTable;
 
 protected:
     QmlDocument(const QString &fileName);
@@ -73,8 +73,8 @@ public:
     QString path() const { return _path; }
     QString componentName() const { return _componentName; }
 
-    QmlSymbolFromFile *findSymbol(QmlJS::AST::Node *node) const;
-    QmlSymbol::List symbols() const
+    Qml::QmlSymbolFromFile *findSymbol(QmlJS::AST::Node *node) const;
+    Qml::QmlSymbol::List symbols() const
     { return _symbols; }
 
 private:
@@ -88,7 +88,7 @@ private:
     QString _source;
     bool _parsedCorrectly;
     IdTable _ids;
-    QmlSymbol::List _symbols;
+    Qml::QmlSymbol::List _symbols;
 };
 
 class QML_EXPORT Snapshot: public QMap<QString, QmlDocument::Ptr>

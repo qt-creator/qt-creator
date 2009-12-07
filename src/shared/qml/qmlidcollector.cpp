@@ -6,16 +6,16 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlEditor;
-using namespace QmlEditor::Internal;
+using namespace Qml;
+using namespace Qml::Internal;
 
-QMap<QString, QmlIdSymbol*> QmlIdCollector::operator()(QmlDocument *doc)
+QMap<QString, QmlIdSymbol*> QmlIdCollector::operator()(QmlEditor::QmlDocument &doc)
 {
-    _doc = doc;
+    _doc = &doc;
     _ids.clear();
     _currentSymbol = 0;
 
-    Node::accept(doc->program(), this);
+    Node::accept(doc.program(), this);
 
     return _ids;
 }

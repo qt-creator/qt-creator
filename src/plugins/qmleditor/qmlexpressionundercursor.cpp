@@ -9,6 +9,7 @@
 
 #include <QDebug>
 
+using namespace Qml;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
@@ -118,7 +119,7 @@ namespace QmlEditor {
 
             virtual bool visit(UiObjectBinding *ast)
             {
-                if (ast->initializer && ast->initializer->rbraceToken.offset < _pos && _pos <= ast->initializer->lbraceToken.end()) {
+                if (ast->initializer && ast->initializer->lbraceToken.offset < _pos && _pos <= ast->initializer->rbraceToken.end()) {
                     push(ast);
                     Node::accept(ast->initializer, this);
                 }
@@ -128,7 +129,7 @@ namespace QmlEditor {
 
             virtual bool visit(UiObjectDefinition *ast)
             {
-                if (ast->initializer && ast->initializer->rbraceToken.offset < _pos && _pos <= ast->initializer->lbraceToken.end()) {
+                if (ast->initializer && ast->initializer->lbraceToken.offset < _pos && _pos <= ast->initializer->rbraceToken.end()) {
                     push(ast);
                     Node::accept(ast->initializer, this);
                 }

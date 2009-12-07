@@ -42,14 +42,16 @@
 using namespace QmlEditor;
 using namespace QmlEditor::Internal;
 
-QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager,QObject *parent)
+QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, Qml::MetaType::QmlTypeSystem *typeSystem, QObject *parent)
     : TextEditor::ICompletionCollector(parent),
       m_modelManager(modelManager),
       m_editor(0),
       m_startPosition(0),
-      m_caseSensitivity(Qt::CaseSensitive)
+      m_caseSensitivity(Qt::CaseSensitive),
+      m_typeSystem(typeSystem)
 {
     Q_ASSERT(modelManager);
+    Q_ASSERT(typeSystem);
 }
 
 QmlCodeCompletion::~QmlCodeCompletion()
@@ -119,13 +121,13 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             cursor.setPosition(pos);
             expressionUnderCursor(cursor, qmlDocument);
 
-            QmlLookupContext context(expressionUnderCursor.expressionScopes(), qmlDocument, m_modelManager->snapshot());
+            QmlLookupContext context(expressionUnderCursor.expressionScopes(), qmlDocument, m_modelManager->snapshot(), m_typeSystem);
             QmlResolveExpression resolver(context);
 //            qDebug()<<"*** expression under cursor:"<<expressionUnderCursor.expressionNode();
-            QList<QmlSymbol*> symbols = resolver.visibleSymbols(expressionUnderCursor.expressionNode());
+            QList<Qml::QmlSymbol*> symbols = resolver.visibleSymbols(expressionUnderCursor.expressionNode());
 //            qDebug()<<"***"<<symbols.size()<<"visible symbols";
 
-            foreach (QmlSymbol *symbol, symbols) {
+            foreach (Qml::QmlSymbol *symbol, symbols) {
                 QString word;
 
                 if (symbol->isIdSymbol()) {

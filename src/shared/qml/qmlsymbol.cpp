@@ -2,13 +2,12 @@
 #include "qmljsengine_p.h"
 #include "qmlsymbol.h"
 
-using namespace QmlEditor;
+using namespace Qml;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
 QmlSymbol::~QmlSymbol()
 {
-    qDeleteAll(_members);
 }
 
 bool QmlSymbol::isBuildInSymbol()
@@ -35,15 +34,17 @@ QmlIdSymbol *QmlSymbol::asIdSymbol()
 QmlPropertyDefinitionSymbol *QmlSymbol::asPropertyDefinitionSymbol()
 { return 0; }
 
-const QmlSymbol::List QmlSymbol::members()
-{ return _members; }
-
 QmlBuildInSymbol::~QmlBuildInSymbol()
 {}
 
 QmlBuildInSymbol *QmlBuildInSymbol::asBuildInSymbol()
 { return this; }
 
+QmlSymbolWithMembers::~QmlSymbolWithMembers()
+{ qDeleteAll(_members); }
+
+const QmlSymbol::List QmlSymbolWithMembers::members()
+{ return _members; }
 
 QmlSymbolFromFile::QmlSymbolFromFile(const QString &fileName, QmlJS::AST::UiObjectMember *node):
         _fileName(fileName),

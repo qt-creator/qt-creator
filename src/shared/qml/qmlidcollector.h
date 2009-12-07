@@ -10,13 +10,13 @@
 #include <qml/qmldocument.h>
 #include <qml/qmlsymbol.h>
 
-namespace QmlEditor {
+namespace Qml {
 namespace Internal {
 
 class QML_EXPORT QmlIdCollector: protected QmlJS::AST::Visitor
 {
 public:
-    QMap<QString, QmlIdSymbol*> operator()(QmlDocument *doc);
+    QMap<QString, Qml::QmlIdSymbol*> operator()(QmlEditor::QmlDocument &doc);
 
 protected:
     virtual bool visit(QmlJS::AST::UiArrayBinding *ast);
@@ -25,16 +25,16 @@ protected:
     virtual bool visit(QmlJS::AST::UiScriptBinding *ast);
 
 private:
-    QmlSymbolFromFile *switchSymbol(QmlJS::AST::UiObjectMember *node);
+    Qml::QmlSymbolFromFile *switchSymbol(QmlJS::AST::UiObjectMember *node);
     void addId(const QString &id, QmlJS::AST::UiScriptBinding *ast);
 
 private:
-    QmlDocument *_doc;
-    QMap<QString, QmlIdSymbol*> _ids;
-    QmlSymbolFromFile *_currentSymbol;
+    QmlEditor::QmlDocument *_doc;
+    QMap<QString, Qml::QmlIdSymbol*> _ids;
+    Qml::QmlSymbolFromFile *_currentSymbol;
 };
 
 } // namespace Internal
-} // namespace QmlEditor
+} // namespace Qml
 
 #endif // QMLIDCOLLECTOR_H

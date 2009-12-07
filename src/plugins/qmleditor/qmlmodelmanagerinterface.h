@@ -37,6 +37,7 @@
 #include <QSharedPointer>
 
 #include <qml/qmldocument.h>
+#include <qml/metatype/qmltypesystem.h>
 
 namespace QmlEditor {
 

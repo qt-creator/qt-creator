@@ -94,6 +94,8 @@ bool QmlEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
     m_modelManager = new QmlModelManager(this);
     addAutoReleasedObject(m_modelManager);
+    Qml::MetaType::QmlTypeSystem *typeSystem = new Qml::MetaType::QmlTypeSystem;
+    addAutoReleasedObject(typeSystem);
 
     QList<int> context;
     context<< core->uniqueIDManager()->uniqueIdentifier(QmlEditor::Constants::C_QMLEDITOR);
@@ -122,7 +124,7 @@ bool QmlEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    m_completion = new QmlCodeCompletion(m_modelManager);
+    m_completion = new QmlCodeCompletion(m_modelManager, typeSystem);
     addAutoReleasedObject(m_completion);
 
     addAutoReleasedObject(new QmlHoverHandler());

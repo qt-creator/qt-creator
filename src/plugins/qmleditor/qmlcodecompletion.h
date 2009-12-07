@@ -1,6 +1,7 @@
 #ifndef QMLCODECOMPLETION_H
 #define QMLCODECOMPLETION_H
 
+#include <qml/metatype/qmltypesystem.h>
 #include <texteditor/icompletioncollector.h>
 
 namespace TextEditor {
@@ -18,7 +19,7 @@ class QmlCodeCompletion: public TextEditor::ICompletionCollector
     Q_OBJECT
 
 public:
-    QmlCodeCompletion(QmlModelManagerInterface *modelManager, QObject *parent = 0);
+    QmlCodeCompletion(QmlModelManagerInterface *modelManager, Qml::MetaType::QmlTypeSystem *typeSystem, QObject *parent = 0);
     virtual ~QmlCodeCompletion();
 
     Qt::CaseSensitivity caseSensitivity() const;
@@ -38,6 +39,7 @@ private:
     int m_startPosition;
     QList<TextEditor::CompletionItem> m_completions;
     Qt::CaseSensitivity m_caseSensitivity;
+    Qml::MetaType::QmlTypeSystem *m_typeSystem;
 };
 
 

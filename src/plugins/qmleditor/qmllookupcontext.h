@@ -1,6 +1,7 @@
 #ifndef QMLLOOKUPCONTEXT_H
 #define QMLLOOKUPCONTEXT_H
 
+#include <qml/metatype/qmltypesystem.h>
 #include <qml/parser/qmljsastvisitor_p.h>
 #include <qml/qmldocument.h>
 #include <qml/qmlsymbol.h>
@@ -13,33 +14,37 @@ namespace Internal {
 class QmlLookupContext
 {
 public:
-    QmlLookupContext(const QStack<QmlSymbol *> &scopes,
+    QmlLookupContext(const QStack<Qml::QmlSymbol *> &scopes,
                      const QmlDocument::Ptr &doc,
-                     const Snapshot &snapshot);
+                     const Snapshot &snapshot,
+                     Qml::MetaType::QmlTypeSystem *typeSystem);
 
-    QmlSymbol *resolve(const QString &name);
-    QmlSymbol *resolveType(const QString &name)
+    Qml::QmlSymbol *resolve(const QString &name);
+    Qml::QmlSymbol *resolveType(const QString &name)
     { return resolveType(name, _doc->fileName()); }
-    QmlSymbol *resolveType(QmlJS::AST::UiQualifiedId *name)
+    Qml::QmlSymbol *resolveType(QmlJS::AST::UiQualifiedId *name)
     { return resolveType(toString(name), _doc->fileName()); }
 
     QmlDocument::Ptr document() const
     { return _doc; }
 
-    QList<QmlSymbol*> visibleSymbolsInScope();
-    QList<QmlSymbol*> visibleTypes();
+    QList<Qml::QmlSymbol*> visibleSymbolsInScope();
+    QList<Qml::QmlSymbol*> visibleTypes();
+
+    QList<Qml::QmlSymbol*> expandType(Qml::QmlSymbol *symbol);
 
 private:
-    QmlSymbol *resolveType(const QString &name, const QString &fileName);
-    QmlSymbol *resolveProperty(const QString &name, QmlSymbol *scope, const QString &fileName);
-    QmlSymbol *resolveBuildinType(const QString &name);
+    Qml::QmlSymbol *resolveType(const QString &name, const QString &fileName);
+    Qml::QmlSymbol *resolveProperty(const QString &name, Qml::QmlSymbol *scope, const QString &fileName);
+    Qml::QmlSymbol *resolveBuildinType(const QString &name);
 
     static QString toString(QmlJS::AST::UiQualifiedId *id);
 
 private:
-    QStack<QmlSymbol *> _scopes;
+    QStack<Qml::QmlSymbol *> _scopes;
     QmlDocument::Ptr _doc;
     Snapshot _snapshot;
+    Qml::MetaType::QmlTypeSystem *m_typeSystem;
 };
 
 } // namespace Internal

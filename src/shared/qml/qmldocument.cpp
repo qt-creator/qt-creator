@@ -35,6 +35,7 @@
 #include "qmljsnodepool_p.h"
 #include "qmljsastfwd_p.h"
 
+using namespace Qml;
 using namespace QmlEditor;
 using namespace QmlJS;
 
@@ -115,7 +116,7 @@ bool QmlDocument::parse()
                 _symbols.append(new QmlSymbolFromFile(_fileName, iter->member));
 
          Internal::QmlIdCollector collect;
-        _ids = collect(this);
+        _ids = collect(*this);
     }
 
     return _parsedCorrectly;

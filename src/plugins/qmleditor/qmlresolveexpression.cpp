@@ -3,6 +3,7 @@
 #include <qml/parser/qmljsast_p.h>
 #include <qml/parser/qmljsengine_p.h>
 
+using namespace Qml;
 using namespace QmlEditor;
 using namespace QmlEditor::Internal;
 using namespace QmlJS;
@@ -16,8 +17,7 @@ QmlResolveExpression::QmlResolveExpression(const QmlLookupContext &context)
 QmlSymbol *QmlResolveExpression::typeOf(Node *node)
 {
     QmlSymbol *previousValue = switchValue(0);
-    if (node)
-        node->accept(this);
+    Node::accept(node, this);
     return switchValue(previousValue);
 }
 

@@ -26,7 +26,7 @@ public:
 
     void operator()(const QTextCursor &cursor, const QmlDocument::Ptr &doc);
 
-    QStack<QmlSymbol *> expressionScopes() const
+    QStack<Qml::QmlSymbol *> expressionScopes() const
     { return _expressionScopes; }
 
     QmlJS::AST::Node *expressionNode() const
@@ -45,7 +45,7 @@ private:
     QmlJS::AST::UiObjectMember *tryBinding(const QString &text);
 
 private:
-    QStack<QmlSymbol *> _expressionScopes;
+    QStack<Qml::QmlSymbol *> _expressionScopes;
     QmlJS::AST::Node *_expressionNode;
     int _expressionOffset;
     int _expressionLength;

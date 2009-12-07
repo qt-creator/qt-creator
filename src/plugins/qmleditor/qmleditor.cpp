@@ -37,6 +37,7 @@
 #include "qmllookupcontext.h"
 #include "qmlresolveexpression.h"
 
+#include <qml/metatype/qmltypesystem.h>
 #include <qml/parser/qmljsastvisitor_p.h>
 #include <qml/parser/qmljsast_p.h>
 #include <qml/parser/qmljsengine_p.h>
@@ -68,6 +69,7 @@ enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 250
 };
 
+using namespace Qml;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace SharedTools;
@@ -378,7 +380,8 @@ ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor)
 ScriptEditor::ScriptEditor(QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
     m_methodCombo(0),
-    m_modelManager(0)
+    m_modelManager(0),
+    m_typeSystem(0)
 {
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -397,6 +400,7 @@ ScriptEditor::ScriptEditor(QWidget *parent) :
     baseTextDocument()->setSyntaxHighlighter(new QmlHighlighter);
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<QmlModelManagerInterface>();
+    m_typeSystem = ExtensionSystem::PluginManager::instance()->getObject<Qml::MetaType::QmlTypeSystem>();
 
     if (m_modelManager) {
         connect(m_modelManager, SIGNAL(documentUpdated(QmlEditor::QmlDocument::Ptr)),
@@ -768,7 +772,7 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
     QmlExpressionUnderCursor expressionUnderCursor;
     expressionUnderCursor(expressionCursor, doc);
 
-    QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, snapshot);
+    QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, snapshot, m_typeSystem);
     QmlResolveExpression resolver(context);
     QmlSymbol *symbol = resolver.typeOf(expressionUnderCursor.expressionNode());
 

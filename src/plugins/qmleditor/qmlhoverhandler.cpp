@@ -52,6 +52,7 @@
 #include <QtHelp/QHelpEngineCore>
 
 using namespace Core;
+using namespace Qml;
 using namespace QmlEditor;
 using namespace QmlEditor::Internal;
 
@@ -186,7 +187,9 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         QmlExpressionUnderCursor expressionUnderCursor;
         expressionUnderCursor(tc, doc);
 
-        QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, m_modelManager->snapshot());
+        Qml::MetaType::QmlTypeSystem *typeSystem = ExtensionSystem::PluginManager::instance()->getObject<Qml::MetaType::QmlTypeSystem>();
+
+        QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, m_modelManager->snapshot(), typeSystem);
         QmlResolveExpression resolver(context);
         QmlSymbol *resolvedSymbol = resolver.typeOf(expressionUnderCursor.expressionNode());
 
