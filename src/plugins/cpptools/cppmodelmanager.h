@@ -217,6 +217,7 @@ private:
     unsigned m_revision;
 
     CppFindReferences *m_findReferences;
+    bool m_indexerEnabled;
 };
 
 } // namespace Internal

@@ -591,8 +591,6 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
     return previousDoc;
 }
 
-
-
 void CppTools::CppModelManagerInterface::updateModifiedSourceFiles()
 {
     const Snapshot snapshot = this->snapshot();
@@ -633,6 +631,7 @@ CppModelManager::CppModelManager(QObject *parent)
     : CppModelManagerInterface(parent)
 {
     m_findReferences = new CppFindReferences(this);
+    m_indexerEnabled = qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull();
 
     m_revision = 0;
     m_synchronizer.setCancelOnWait(true);
@@ -848,7 +847,7 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
     m_projects.insert(pinfo.project, pinfo);
     m_dirty = true;
 
-    if (qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull()) {
+    if (m_indexerEnabled) {
         QFuture<void> result = QtConcurrent::run(&CppModelManager::updateIncludesInPaths,
                                                  this,
                                                  pinfo.includePaths,
@@ -870,7 +869,7 @@ QStringList CppModelManager::includesInPath(const QString &path) const
 
 QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles)
 {
-    if (! sourceFiles.isEmpty() && qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull()) {
+    if (! sourceFiles.isEmpty() && m_indexerEnabled) {
         const QMap<QString, QString> workingCopy = buildWorkingCopyList();
 
         CppPreprocessor *preproc = new CppPreprocessor(this);
@@ -900,6 +899,7 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
             m_core->progressManager()->addTask(result, tr("Indexing"),
                             CppTools::Constants::TASK_INDEX);
         }
+
         return result;
     }
     return QFuture<void>();
