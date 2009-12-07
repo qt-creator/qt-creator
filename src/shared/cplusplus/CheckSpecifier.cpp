@@ -347,8 +347,17 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     int previousVisibility = semantic()->switchVisibility(visibility);
     int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
 
-    for (DeclarationListAST *member = ast->member_specifier_list; member; member = member->next) {
-        semantic()->check(member->value, klass->members());
+    DeclarationAST *previousDeclaration = 0;
+    for (DeclarationListAST *it = ast->member_specifier_list; it; it = it->next) {
+        DeclarationAST *declaration = it->value;
+        semantic()->check(declaration, klass->members());
+
+        if (previousDeclaration && declaration &&
+                declaration->asEmptyDeclaration() != 0 &&
+                previousDeclaration->asFunctionDefinition() != 0)
+            translationUnit()->warning(declaration->firstToken(), "unnecessary semicolon after function body");
+
+        previousDeclaration = declaration;
     }
 
     (void) semantic()->switchMethodKey(previousMethodKey);
