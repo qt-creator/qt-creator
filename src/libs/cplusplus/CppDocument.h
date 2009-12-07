@@ -33,15 +33,10 @@
 #include <CPlusPlusForwardDeclarations.h>
 #include "Macro.h"
 
-#include <QByteArray>
-#include <QFileInfo>
-#include <QList>
-#include <QMap>
-#include <QBitArray>
-#include <QSharedPointer>
-#include <QString>
-#include <QStringList>
-#include <QDateTime>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QDateTime>
+#include <QtCore/QHash>
+#include <QtCore/QFileInfo>
 
 namespace CPlusPlus {
 
@@ -323,7 +318,7 @@ private:
 
 class CPLUSPLUS_EXPORT Snapshot
 {
-    typedef QMap<QString, Document::Ptr> _Base;
+    typedef QHash<QString, Document::Ptr> _Base;
 
 public:
     Snapshot();
@@ -358,7 +353,7 @@ public:
     QSharedPointer<NamespaceBinding> globalNamespaceBinding(Document::Ptr doc) const;
 
     QStringList filesDependingOn(const QString &fileName) const;
-    QMap<QString, QStringList> dependencyTable() const;
+    QHash<QString, QStringList> dependencyTable() const;
 
 private:
     void simplified_helper(Document::Ptr doc, Snapshot *snapshot) const;

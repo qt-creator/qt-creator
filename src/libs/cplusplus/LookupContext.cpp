@@ -41,8 +41,6 @@
 
 #include <QtDebug>
 
-using namespace CPlusPlus;
-
 QT_BEGIN_NAMESPACE
 uint qHash(const CPlusPlus::LookupItem &key)
 {
@@ -51,6 +49,13 @@ uint qHash(const CPlusPlus::LookupItem &key)
     return ((h1 << 16) | (h1 >> 16)) ^ h2;
 }
 QT_END_NAMESPACE
+
+uint CPlusPlus::qHash(const CPlusPlus::LookupItem &key)
+{
+    return QT_PREPEND_NAMESPACE(qHash)(key);
+}
+
+using namespace CPlusPlus;
 
 /////////////////////////////////////////////////////////////////////
 // LookupContext

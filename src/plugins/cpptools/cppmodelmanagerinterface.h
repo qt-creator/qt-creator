@@ -35,6 +35,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 #include <QtCore/QPointer>
+#include <QtCore/QStringList>
 
 namespace ProjectExplorer {
     class Project;

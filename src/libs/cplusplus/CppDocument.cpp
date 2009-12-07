@@ -558,7 +558,7 @@ QStringList Snapshot::filesDependingOn(const QString &fileName) const
     return deps;
 }
 
-QMap<QString, QStringList> Snapshot::dependencyTable() const
+QHash<QString, QStringList> Snapshot::dependencyTable() const
 {
     const int N = size();
     QVector<QString> files(N);
@@ -568,7 +568,7 @@ QMap<QString, QStringList> Snapshot::dependencyTable() const
 
     dependency_helper(files, fileIndex, includes, includeMap);
 
-    QMap<QString, QStringList> depMap;
+    QHash<QString, QStringList> depMap;
 
     for (int index = 0; index < files.size(); ++index) {
         QStringList deps;

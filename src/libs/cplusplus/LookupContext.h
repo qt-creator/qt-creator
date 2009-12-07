@@ -228,12 +228,12 @@ private:
     QList<Scope *> _visibleScopes;
 };
 
-} // end of namespace CPlusPlus
+uint qHash(const CPlusPlus::LookupItem &result);
 
+} // end of namespace CPlusPlus
 
 QT_BEGIN_NAMESPACE
 uint qHash(const CPlusPlus::LookupItem &result);
 QT_END_NAMESPACE
-
 
 #endif // CPLUSPLUS_LOOKUPCONTEXT_H
