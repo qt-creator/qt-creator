@@ -214,6 +214,7 @@ void BuildStepsPage::addBuildStep()
         s.detailsWidget->setExpanded(true);
     }
 
+    m_noStepsLabel->setVisible(false);
     updateBuildStepButtonsState();
 }
 
@@ -242,6 +243,10 @@ void BuildStepsPage::stepRemove(int pos)
     m_clean ? m_configuration->removeCleanStep(pos) : m_configuration->removeBuildStep(pos);
 
     updateBuildStepButtonsState();
+
+    bool hasSteps(m_clean ? m_configuration->cleanSteps().isEmpty() :
+                            m_configuration->buildSteps().isEmpty());
+    m_noStepsLabel->setVisible(hasSteps);
 }
 
 void BuildStepsPage::setupUi()
