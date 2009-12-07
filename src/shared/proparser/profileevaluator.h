@@ -40,57 +40,16 @@
 
 QT_BEGIN_NAMESPACE
 
+class ProFileOption;
+
 class ProFileEvaluator
 {
     class Private;
-public:
 
+public:
     struct FunctionDefs {
         QHash<QString, ProBlock *> testFunctions;
         QHash<QString, ProBlock *> replaceFunctions;
-    };
-
-    // This struct is from qmake, but we are not using everything.
-    struct Option
-    {
-        Option();
-        ~Option();
-
-        //simply global convenience
-        //QString libtool_ext;
-        //QString pkgcfg_ext;
-        //QString prf_ext;
-        //QString prl_ext;
-        //QString ui_ext;
-        //QStringList h_ext;
-        //QStringList cpp_ext;
-        //QString h_moc_ext;
-        //QString cpp_moc_ext;
-        //QString obj_ext;
-        //QString lex_ext;
-        //QString yacc_ext;
-        //QString h_moc_mod;
-        //QString cpp_moc_mod;
-        //QString lex_mod;
-        //QString yacc_mod;
-        QString dir_sep;
-        QString dirlist_sep;
-        QString qmakespec;
-        QString cachefile;
-        QHash<QString, QString> properties;
-
-        enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
-        TARG_MODE target_mode;
-        //QString pro_ext;
-        //QString res_ext;
-
-      private:
-        friend class ProFileEvaluator;
-        friend class ProFileEvaluator::Private;
-        static QString field_sep; // Just a cache for quick construction
-        QHash<QString, QStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
-        FunctionDefs base_functions;
-        QStringList feature_roots;
     };
 
     enum TemplateType {
@@ -101,7 +60,7 @@ public:
         TT_Subdirs
     };
 
-    ProFileEvaluator(Option *option);
+    ProFileEvaluator(ProFileOption *option);
     virtual ~ProFileEvaluator();
 
     ProFileEvaluator::TemplateType templateType();
@@ -139,6 +98,51 @@ private:
 
     // This doesn't help gcc 3.3 ...
     template<typename T> friend class QTypeInfo;
+
+    friend class ProFileOption;
+};
+
+// This struct is from qmake, but we are not using everything.
+struct ProFileOption
+{
+    ProFileOption();
+    ~ProFileOption();
+
+    //simply global convenience
+    //QString libtool_ext;
+    //QString pkgcfg_ext;
+    //QString prf_ext;
+    //QString prl_ext;
+    //QString ui_ext;
+    //QStringList h_ext;
+    //QStringList cpp_ext;
+    //QString h_moc_ext;
+    //QString cpp_moc_ext;
+    //QString obj_ext;
+    //QString lex_ext;
+    //QString yacc_ext;
+    //QString h_moc_mod;
+    //QString cpp_moc_mod;
+    //QString lex_mod;
+    //QString yacc_mod;
+    QString dir_sep;
+    QString dirlist_sep;
+    QString qmakespec;
+    QString cachefile;
+    QHash<QString, QString> properties;
+
+    enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
+    TARG_MODE target_mode;
+    //QString pro_ext;
+    //QString res_ext;
+
+  private:
+    friend class ProFileEvaluator;
+    friend class ProFileEvaluator::Private;
+    static QString field_sep; // Just a cache for quick construction
+    QHash<QString, QStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
+    ProFileEvaluator::FunctionDefs base_functions;
+    QStringList feature_roots;
 };
 
 QT_END_NAMESPACE

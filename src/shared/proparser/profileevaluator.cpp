@@ -85,11 +85,12 @@ static void clearFunctions(ProFileEvaluator::FunctionDefs *defs)
 
 ///////////////////////////////////////////////////////////////////////
 //
-// Option
+// ProFileOption
 //
 ///////////////////////////////////////////////////////////////////////
 
-ProFileEvaluator::Option::Option()
+// ProFileOption
+ProFileOption::ProFileOption()
 {
 #ifdef Q_OS_WIN
     dirlist_sep = QLatin1Char(';');
@@ -113,12 +114,12 @@ ProFileEvaluator::Option::Option()
     field_sep = QLatin1String(" ");
 }
 
-ProFileEvaluator::Option::~Option()
+ProFileOption::~ProFileOption()
 {
     clearFunctions(&base_functions);
 }
 
-QString ProFileEvaluator::Option::field_sep;
+QString ProFileOption::field_sep;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -129,7 +130,7 @@ QString ProFileEvaluator::Option::field_sep;
 class ProFileEvaluator::Private : public AbstractProItemVisitor
 {
 public:
-    Private(ProFileEvaluator *q_, ProFileEvaluator::Option *option);
+    Private(ProFileEvaluator *q_, ProFileOption *option);
     ~Private();
 
     ProFileEvaluator *q;
@@ -248,7 +249,7 @@ public:
     QStringList m_removeUserConfigCmdArgs;
     bool m_parsePreAndPostFiles;
 
-    Option *m_option;
+    ProFileOption *m_option;
 };
 
 #if !defined(__GNUC__) || __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
@@ -256,7 +257,7 @@ Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::State, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::ProLoop, Q_MOVABLE_TYPE);
 #endif
 
-ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileEvaluator::Option *option)
+ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option)
   : q(q_), m_option(option)
 {
     // Configuration, more or less
@@ -1315,22 +1316,22 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
     QString features_concat = QLatin1String("/features");
     QStringList concat;
     switch (m_option->target_mode) {
-    case Option::TARG_MACX_MODE:
+    case ProFileOption::TARG_MACX_MODE:
         concat << QLatin1String("/features/mac");
         concat << QLatin1String("/features/macx");
         concat << QLatin1String("/features/unix");
         break;
-    case Option::TARG_UNIX_MODE:
+    case ProFileOption::TARG_UNIX_MODE:
         concat << QLatin1String("/features/unix");
         break;
-    case Option::TARG_WIN_MODE:
+    case ProFileOption::TARG_WIN_MODE:
         concat << QLatin1String("/features/win32");
         break;
-    case Option::TARG_MAC9_MODE:
+    case ProFileOption::TARG_MAC9_MODE:
         concat << QLatin1String("/features/mac");
         concat << QLatin1String("/features/mac9");
         break;
-    case Option::TARG_QNX6_MODE:
+    case ProFileOption::TARG_QNX6_MODE:
         concat << QLatin1String("/features/qnx6");
         concat << QLatin1String("/features/unix");
         break;
@@ -1431,7 +1432,7 @@ QString ProFileEvaluator::Private::currentDirectory() const
 
 void ProFileEvaluator::Private::doVariableReplace(QString *str)
 {
-    *str = expandVariableReferences(*str).join(Option::field_sep);
+    *str = expandVariableReferences(*str).join(ProFileOption::field_sep);
 }
 
 QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &str)
@@ -1556,7 +1557,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
                     current = str.left(start_var);
                 if (!replacement.isEmpty()) {
                     if (quote) {
-                        current += replacement.join(Option::field_sep);
+                        current += replacement.join(ProFileOption::field_sep);
                     } else {
                         current += replacement.takeFirst();
                         if (!replacement.isEmpty()) {
@@ -1722,7 +1723,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
 
     QStringList args; //why don't the builtin functions just use args_list? --Sam
     foreach (const QStringList &arg, args_list)
-        args += arg.join(Option::field_sep);
+        args += arg.join(ProFileOption::field_sep);
 
     enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                       E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
@@ -1834,7 +1835,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             if (args.count() != 2) {
                 logMessage(format("split(var, sep) requires one or two arguments"));
             } else {
-                const QString &sep = (args.count() == 2) ? args[1] : Option::field_sep;
+                const QString &sep = (args.count() == 2) ? args[1] : ProFileOption::field_sep;
                 foreach (const QString &var, values(args.first()))
                     foreach (const QString &splt, var.split(sep))
                         ret.append(splt);
@@ -2138,7 +2139,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
 
     QStringList args; //why don't the builtin functions just use args_list? --Sam
     foreach (const QStringList &arg, args_list)
-        args += arg.join(Option::field_sep);
+        args += arg.join(ProFileOption::field_sep);
 
     enum TestFunc { T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
                     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
@@ -2497,7 +2498,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("%1(variable, value) requires two arguments.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            QString rhs(args[1]), lhs(values(args[0]).join(Option::field_sep));
+            QString rhs(args[1]), lhs(values(args[0]).join(ProFileOption::field_sep));
             bool ok;
             int rhs_int = rhs.toInt(&ok);
             if (ok) { // do integer compare
@@ -2517,7 +2518,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("%1(variable, value) requires two arguments.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            return returnBool(values(args[0]).join(Option::field_sep) == args[1]);
+            return returnBool(values(args[0]).join(ProFileOption::field_sep) == args[1]);
         case T_CLEAR: {
             if (m_skipLevel && !m_cumulative)
                 return ProItem::ReturnFalse;
@@ -2923,7 +2924,7 @@ void ProFileEvaluator::Private::errorMessage(const QString &message) const
 //
 ///////////////////////////////////////////////////////////////////////
 
-ProFileEvaluator::ProFileEvaluator(ProFileEvaluator::Option *option)
+ProFileEvaluator::ProFileEvaluator(ProFileOption *option)
   : d(new Private(this, option))
 {
 }
