@@ -41,18 +41,11 @@
 
 #include <QtDebug>
 
-QT_BEGIN_NAMESPACE
-uint qHash(const CPlusPlus::LookupItem &key)
-{
-    const uint h1 = qHash(key.type().type());
-    const uint h2 = qHash(key.lastVisibleSymbol());
-    return ((h1 << 16) | (h1 >> 16)) ^ h2;
-}
-QT_END_NAMESPACE
-
 uint CPlusPlus::qHash(const CPlusPlus::LookupItem &key)
 {
-    return QT_PREPEND_NAMESPACE(qHash)(key);
+    const uint h1 = QT_PREPEND_NAMESPACE(qHash)(key.type().type());
+    const uint h2 = QT_PREPEND_NAMESPACE(qHash)(key.lastVisibleSymbol());
+    return ((h1 << 16) | (h1 >> 16)) ^ h2;
 }
 
 using namespace CPlusPlus;
