@@ -1,10 +1,39 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
 #include "detailswidget.h"
 #include "detailsbutton.h"
 
-#include <QtGui/QGridLayout>
 #include <QtCore/QStack>
-#include <QtGui/QLabel>
+
 #include <QtGui/QGridLayout>
+#include <QtGui/QLabel>
 #include <QtGui/QPainter>
 
 using namespace Utils;
@@ -41,6 +70,7 @@ DetailsWidget::DetailsWidget(QWidget *parent) :
     m_grid->addWidget(m_detailsButton, 0, 2);
 
     m_detailsButton->setEnabled(false);
+    m_summaryLabel->setEnabled(true);
 
     connect(m_detailsButton, SIGNAL(toggled(bool)),
             this, SLOT(setExpanded(bool)));
@@ -57,8 +87,8 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
 
     QPainter p(this);
 
-    const QRect paintArea(m_summaryLabel->geometry().topLeft(),
-                          contentsRect().bottomRight());
+    QPoint topLeft(m_summaryLabel->geometry().left(), contentsRect().top());
+    const QRect paintArea(topLeft, contentsRect().bottomRight());
 
     if (!isExpanded()) {
         if (m_collapsedPixmap.isNull() ||
@@ -102,14 +132,16 @@ bool DetailsWidget::isExpanded() const
     return m_widget->isVisible();
 }
 
-void DetailsWidget::setExpanded(bool visible)
+void DetailsWidget::setExpanded(bool expand)
 {
-    if (!m_widget)
+    if (!m_widget || isExpanded() == expand)
         return;
 
-    m_summaryLabel->setEnabled(!visible);
-    m_widget->setVisible(visible);
-    m_detailsButton->setChecked(visible);
+    m_summaryLabel->setEnabled(!expand);
+    m_widget->setVisible(expand);
+    m_detailsButton->setChecked(expand);
+
+    emit expanded(expand);
 }
 
 QWidget *DetailsWidget::widget() const
@@ -126,16 +158,19 @@ void DetailsWidget::setWidget(QWidget *widget)
 
     if (m_widget)
         m_grid->removeWidget(m_widget);
+
     m_widget = widget;
 
-    if (widget) {
+    if (m_widget) {
+        m_widget->setVisible(wasExpanded);
         m_widget->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
-        m_grid->addWidget(widget, 1, 1, 1, 2);
-        setExpanded(wasExpanded);
+        m_grid->addWidget(m_widget, 1, 1, 1, 2);
+        m_detailsButton->setEnabled(true);
+        m_detailsButton->setChecked(wasExpanded);
     } else {
         m_detailsButton->setEnabled(false);
+        m_detailsButton->setChecked(false);
     }
-    m_detailsButton->setEnabled(0 != m_widget);
 }
 
 void DetailsWidget::setToolWidget(QWidget *widget)
@@ -179,8 +214,8 @@ QPixmap DetailsWidget::cacheBackground(const QSize &size, bool expanded)
     p.drawRect(0, 0, size.width() - 1, size.height() - 1);
 
     if (expanded) {
-        p.drawLine(0, m_summaryLabel->height() - 1,
-                   m_summaryLabel->width(), m_summaryLabel->height() - 1);
+        p.drawLine(0, m_widget->geometry().top() - 1,
+                   m_summaryLabel->width(), m_widget->geometry().top() - 1);
     }
 
     return pixmap;
@@ -188,9 +223,10 @@ QPixmap DetailsWidget::cacheBackground(const QSize &size, bool expanded)
 
 void DetailsWidget::changeHoverState(bool hovered)
 {
-    m_hovered = hovered;
     if (!m_toolWidget)
         return;
 
-    m_toolWidget->setVisible(m_hovered);
+    m_toolWidget->setVisible(hovered);
+
+    m_hovered = hovered;
 }
