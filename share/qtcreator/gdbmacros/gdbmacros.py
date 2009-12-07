@@ -378,7 +378,6 @@ def qdump__QList(d, item):
 
 def qdump__QImage(d, item):
     painters = item.value["painters"]
-    #warn("PAINTERS: %s" % painters)
     check(0 <= painters and painters < 1000)
     d_ptr = item.value["d"]
     if isNull(d_ptr):
@@ -387,29 +386,20 @@ def qdump__QImage(d, item):
         check(d_ptr["ref"]["_q_value"] > 0)
         d.putValue("(%dx%d)" % (d_ptr["width"], d_ptr["height"]))
     d.putNumChild(0)
-    #    if d.isExpanded(item):
-    #        d.beginChildren()
-    #        d.beginHash()
-    #        d.putName("data")
-    #        d.putType(d.ns +  "QImageData")
-    #        d.endHash()
-    #        d.endChildren()
-
-
-def qdump__QImageData(d, item):
-    pass
-#     const QImage &im = *reinterpret_cast<const QImage *>(d.data)
-#     const QByteArray ba(QByteArray::fromRawData((const char*)im.bits(), im.numBytes()))
-#     d.putType(d.ns + "QImageData")
-#     d.putNumChild(0)
-# #if 1
-#     d.putValue("<hover here>")
-#     d.putField("valuetooltipencoded", "1")
-#     d.putField("valuetooltipsize", ba.size())
-#     d.putField("valuetooltip", ba)
-# #else
-#     d.putValue(ba, 1)
-# #endif
+    #d.putNumChild(1)
+    if d.isExpanded(item):
+        d.beginChildren()
+        d.beginHash()
+        d.putName("data")
+        d.putType(" ");
+        d.putNumChild(0)
+        bits = d_ptr["data"]
+        nbytes = d_ptr["nbytes"]
+        d.putValue("size: %s bytes" % nbytes);
+        d.putField("valuetooltipencoded", "6")
+        d.putField("valuetooltip", encodeCharArray(bits, nbytes))
+        d.endHash()
+        d.endChildren()
 
 
 def qdump__QLinkedList(d, item):
