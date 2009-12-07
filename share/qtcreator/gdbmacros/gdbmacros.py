@@ -7,7 +7,7 @@
 #
 #######################################################################
 
-def qqDumpQByteArray(d, item):
+def qdump__QByteArray(d, item):
     d.putByteArrayValue(item.value)
 
     d_ptr = item.value['d'].dereference()
@@ -28,14 +28,14 @@ def qqDumpQByteArray(d, item):
         d.endChildren()
 
 
-def qqDumpQChar(d, item):
+def qdump__QChar(d, item):
     ucs = int(item.value["ucs"])
     c = select(curses.ascii.isprint(ucs), ucs, '?')
     d.putValue("'%c' (%d)" % (c, ucs))
     d.putNumChild(0)
 
 
-def qqDumpQAbstractItem(d, item):
+def qdump__QAbstractItem(d, item):
     r = item.value["r"]
     c = item.value["c"]
     p = item.value["p"]
@@ -70,7 +70,7 @@ def qqDumpQAbstractItem(d, item):
         d.endChildren()
 
 
-def qqDumpQAbstractItemModel(d, item):
+def qdump__QAbstractItemModel(d, item):
     rowCount = call(item.value, "rowCount()")
     if rowCount < 0:
         return
@@ -102,7 +102,7 @@ def qqDumpQAbstractItemModel(d, item):
         d.endChildren()
 
 
-def qqDumpQDateTime(d, item):
+def qdump__QDateTime(d, item):
     d.putStringValue(call(item.value, "toString(%sQt::TextDate)" % d.ns))
     d.putNumChild(3)
     if d.isExpanded(item):
@@ -124,7 +124,7 @@ def qqDumpQDateTime(d, item):
         d.endChildren()
 
 
-def qqDumpQDir(d, item):
+def qdump__QDir(d, item):
     d.putStringValue(call(item.value, "path()"))
     d.putNumChild(2)
     if d.isExpanded(item):
@@ -134,7 +134,7 @@ def qqDumpQDir(d, item):
         d.endChildren()
 
 
-def qqDumpQFile(d, item):
+def qdump__QFile(d, item):
     d.putStringValue(call(item.value, "fileName()"))
     d.putNumChild(2)
     if d.isExpanded(item):
@@ -144,7 +144,7 @@ def qqDumpQFile(d, item):
         d.endChildren()
 
 
-def qqDumpQFileInfo(d, item):
+def qdump__QFileInfo(d, item):
     d.putStringValue(call(item.value, "filePath()"))
     d.putNumChild(3)
     if d.isExpanded(item):
@@ -214,7 +214,7 @@ def qqDumpQFileInfo(d, item):
         d.endChildren()
 
 
-def qqDumpQFlags(d, item):
+def qdump__QFlags(d, item):
     #warn("QFLAGS: %s" % item.value) 
     i = item.value["i"]
     enumType = item.value.type.template_argument(0)
@@ -223,7 +223,7 @@ def qqDumpQFlags(d, item):
     d.putNumChild(0)
 
 
-def qqDumpQHash(d, item):
+def qdump__QHash(d, item):
 
     def hashDataFirstNode(value):
         value = value.cast(hashDataType)
@@ -294,7 +294,7 @@ def qqDumpQHash(d, item):
         d.endChildren()
 
 
-def qqDumpQHashNode(d, item):
+def qdump__QHashNode(d, item):
     keyType = item.value.type.template_argument(0)
     valueType = item.value.type.template_argument(1)
     key = item.value["key"]
@@ -319,7 +319,7 @@ def qqDumpQHashNode(d, item):
         d.endChildren()
 
 
-def qqDumpQList(d, item):
+def qdump__QList(d, item):
     d_ptr = item.value["d"]
     begin = d_ptr["begin"]
     end = d_ptr["end"]
@@ -364,21 +364,11 @@ def qqDumpQList(d, item):
             inner = innerType
         d.beginChildren(n, inner)
         for i in xrange(0, n):
-            if innerTypeIsPointer:
-                if isNull(p.dereference()):
-                    d.beginHash()
-                    d.putValue("(null)")
-                    d.putNumChild(0)
-                    d.putType(p.dereference().type)
-                    d.endHash()
-                else:
-                    d.putItemOrPointer(Item(p.dereference(), item.iname, i, None))
+            if isInternal:
+                d.putItem(Item(p.dereference(), item.iname, i, None))
             else:
-                if isInternal:
-                    d.putItem(Item(p.dereference(), item.iname, i, None))
-                else:
-                    pp = p.cast(innerType.pointer().pointer()).dereference()
-                    d.putItem(Item(pp.dereference(), item.iname, i, None))
+                pp = p.cast(innerType.pointer().pointer()).dereference()
+                d.putItem(Item(pp.dereference(), item.iname, i, None))
             p += 1
 
         if n < end - begin:
@@ -386,7 +376,7 @@ def qqDumpQList(d, item):
         d.endChildren()
 
 
-def qqDumpQImage(d, item):
+def qdump__QImage(d, item):
     painters = item.value["painters"]
     #warn("PAINTERS: %s" % painters)
     check(0 <= painters and painters < 1000)
@@ -406,7 +396,7 @@ def qqDumpQImage(d, item):
     #        d.endChildren()
 
 
-def qqDumpQImageData(d, item):
+def qdump__QImageData(d, item):
     pass
 #     const QImage &im = *reinterpret_cast<const QImage *>(d.data)
 #     const QByteArray ba(QByteArray::fromRawData((const char*)im.bits(), im.numBytes()))
@@ -422,7 +412,7 @@ def qqDumpQImageData(d, item):
 # #endif
 
 
-def qqDumpQLinkedList(d, item):
+def qdump__QLinkedList(d, item):
     d_ptr = item.value["d"]
     e_ptr = item.value["e"]
     nn = d_ptr["size"]
@@ -440,14 +430,14 @@ def qqDumpQLinkedList(d, item):
         d.beginChildren(n, innerType)
         p = e_ptr["n"]
         for i in xrange(0, n):
-            d.putItemOrPointer(Item(p["t"], None, None, None))
+            d.safePutItem(Item(p["t"], None, None, None))
             p = p["n"]
         if n < nn:
             d.putEllipsis()
         d.endChildren()
 
 
-def qqDumpQLocale(d, item):
+def qdump__QLocale(d, item):
     d.putStringValue(call(item.value, "name()"))
     d.putNumChild(8)
     if d.isExpanded(item):
@@ -469,7 +459,7 @@ def qqDumpQLocale(d, item):
         d.endChildren()
 
 
-def qqDumpQMapNode(d, item):
+def qdump__QMapNode(d, item):
     d.putValue(" ")
     d.putNumChild(2)
     if d.isExpanded(item):
@@ -485,7 +475,7 @@ def qqDumpQMapNode(d, item):
         d.endChildren()
 
 
-def qqDumpQMap(d, item):
+def qdump__QMap(d, item):
     d_ptr = item.value["d"].dereference()
     e_ptr = item.value["e"].dereference()
     n = d_ptr["size"]
@@ -536,11 +526,11 @@ def qqDumpQMap(d, item):
         d.endChildren()
 
 
-def qqDumpMultiMap(d, item):
-    qqDumpMap(d, item)
+def qdump__MultiMap(d, item):
+    qdump__Map(d, item)
 
 
-def qqDumpQModelIndex(d, item):
+def qdump__QModelIndex(d, item):
     r = item.value["r"]
     c = item.value["c"]
     p = item.value["p"]
@@ -577,7 +567,7 @@ def extractCString(table, offset):
     return result
 
 
-def qqDumpQObject(d, item):
+def qdump__QObject(d, item):
     #warn("OBJECT: %s " % item.value)
     staticMetaObject = item.value["staticMetaObject"]
     #warn("SMO: %s " % staticMetaObject)
@@ -1309,7 +1299,7 @@ def qqDumpQObject(d, item):
 # #endif // QT_BOOTSTRAPPED
 
 
-def qqDumpQPixmap(d, item):
+def qdump__QPixmap(d, item):
     painters = item.value["painters"]
     check(0 <= painters and painters < 1000)
     d_ptr = item.value["data"]["d"]
@@ -1321,7 +1311,7 @@ def qqDumpQPixmap(d, item):
     d.putNumChild(0)
 
 
-def qqDumpQPoint(d, item):
+def qdump__QPoint(d, item):
     x = item.value["xp"]
     y = item.value["yp"]
     # should not be needed, but sometimes yield myns::QVariant::Private::Data::qreal
@@ -1336,11 +1326,11 @@ def qqDumpQPoint(d, item):
         d.endChildren()
 
 
-def qqDumpQPointF(d, item):
-    qqDumpQPoint(d, item)
+def qdump__QPointF(d, item):
+    qdump__QPoint(d, item)
 
 
-def qqDumpQRect(d, item):
+def qdump__QRect(d, item):
     def pp(l): return select(l >= 0, "+%s" % l, l)
     x1 = item.value["x1"]
     y1 = item.value["y1"]
@@ -1359,7 +1349,7 @@ def qqDumpQRect(d, item):
         d.endChildren()
 
 
-def qqDumpQRectF(d, item):
+def qdump__QRectF(d, item):
     def pp(l): return select(l >= 0, "+%s" % l, l)
     x = item.value["xp"]
     y = item.value["yp"]
@@ -1381,7 +1371,7 @@ def qqDumpQRectF(d, item):
         d.endChildren()
 
 
-def qqDumpQSet(d, item):
+def qdump__QSet(d, item):
 
     def hashDataFirstNode(value):
         value = value.cast(hashDataType)
@@ -1448,11 +1438,11 @@ def qqDumpQSet(d, item):
         d.endChildren()
 
 
-def qqDumpQSharedPointer(d, item):
-    qqDumpQWeakPointer(d, item)
+def qdump__QSharedPointer(d, item):
+    qdump__QWeakPointer(d, item)
 
 
-def qqDumpQSize(d, item):
+def qdump__QSize(d, item):
     w = item.value["wd"]
     h = item.value["ht"]
     d.putValue("(%s, %s)" % (w, h))
@@ -1464,20 +1454,20 @@ def qqDumpQSize(d, item):
         d.endChildren()
 
 
-def qqDumpQSizeF(d, item):
-    qqDumpQSize(d, item)
+def qdump__QSizeF(d, item):
+    qdump__QSize(d, item)
 
 
-def qqDumpQStack(d, item):
-    qqDumpQVector(d, item)
+def qdump__QStack(d, item):
+    qdump__QVector(d, item)
 
 
-def qqDumpQString(d, item):
+def qdump__QString(d, item):
     d.putStringValue(item.value)
     d.putNumChild(0)
 
 
-def qqDumpQStringList(d, item):
+def qdump__QStringList(d, item):
     d_ptr = item.value['d']
     begin = d_ptr['begin']
     end = d_ptr['end']
@@ -1503,11 +1493,11 @@ def qqDumpQStringList(d, item):
         d.endChildren()
 
 
-def qqDumpQTemporaryFile(d, item):
-    qqDumpQFile(d, item)
+def qdump__QTemporaryFile(d, item):
+    qdump__QFile(d, item)
 
 
-def qqDumpQTextCodec(d, item):
+def qdump__QTextCodec(d, item):
     value = call(item.value, "name()")
     d.putValue(encodeByteArray(value), 6)
     d.putNumChild(2)
@@ -1518,7 +1508,7 @@ def qqDumpQTextCodec(d, item):
         d.endChildren()
 
 
-def qqDumpQVariant(d, item):
+def qdump__QVariant(d, item):
     union = item.value["d"]
     data = union["data"]
     variantType = int(union["type"])
@@ -1662,7 +1652,7 @@ def qqDumpQVariant(d, item):
             d.endChildren()
 
 
-def qqDumpQVector(d, item):
+def qdump__QVector(d, item):
     #   QBasicAtomicInt ref;
     #   int alloc;
     #   int size;
@@ -1692,14 +1682,14 @@ def qqDumpQVector(d, item):
         p = gdb.Value(p_ptr["array"]).cast(innerType.pointer())
         d.beginChildren(n, innerType)
         for i in xrange(0, n):
-            d.putItemOrPointer(Item(p.dereference(), item.iname, i, None))
+            d.safePutItem(Item(p.dereference(), item.iname, i, None))
             p += 1
         if n < size:
             d.putEllipsis()
         d.endChildren()
 
 
-def qqDumpQWeakPointer(d, item):
+def qdump__QWeakPointer(d, item):
     d_ptr = item.value["d"]
     value = item.value["value"]
     if isNull(d_ptr) and isNull(value):
@@ -1738,7 +1728,7 @@ def qqDumpQWeakPointer(d, item):
 #
 #######################################################################
 
-def qqDumpStdDeque(d, item):
+def qdump__std__deque(d, item):
     impl = item.value["_M_impl"]
     start = impl["_M_start"]
     n = impl["_M_finish"]["_M_cur"] - start["_M_cur"]
@@ -1754,7 +1744,7 @@ def qqDumpStdDeque(d, item):
         plast = start["_M_last"]
         pnode = start["_M_node"]
         for i in xrange(0, n):
-            d.putItemOrPointer(Item(pcur.dereference(), item.iname, i, None))
+            d.safePutItem(Item(pcur.dereference(), item.iname, i, None))
             pcur += 1
             if pcur == plast:
                 newnode = pnode + 1
@@ -1768,7 +1758,7 @@ def qqDumpStdDeque(d, item):
         d.endChildren()
 
 
-def qqDumpStdList(d, item):
+def qdump__std__list(d, item):
     impl = item.value["_M_impl"]
     node = impl["_M_node"]
     head = node.address
@@ -1788,14 +1778,14 @@ def qqDumpStdList(d, item):
         for i in xrange(0, n):
             innerPointer = innerType.pointer()
             value = (p + 1).cast(innerPointer).dereference()
-            d.putItemOrPointer(Item(value, item.iname, i, None))
+            d.safePutItem(Item(value, item.iname, i, None))
             p = p["_M_next"]
         if n > 1000:
             d.putEllipsis()
         d.endChildren()
 
 
-def qqDumpStdMap(d, item):
+def qdump__std__map(d, item):
     impl = item.value["_M_t"]["_M_impl"]
     n = impl["_M_node_count"]
     check(0 <= n and n <= 100*1000*1000)
@@ -1849,7 +1839,7 @@ def qqDumpStdMap(d, item):
         d.endChildren()
 
 
-def qqDumpStdSet(d, item):
+def qdump__std__set(d, item):
     impl = item.value["_M_t"]["_M_impl"]
     n = impl["_M_node_count"]
     check(0 <= n and n <= 100*1000*1000)
@@ -1879,7 +1869,7 @@ def qqDumpStdSet(d, item):
         d.endChildren()
 
 
-def qqDumpStdString(d, item):
+def qdump__std__string(d, item):
     data = item.value["_M_dataplus"]["_M_p"]
     baseType = item.value.type.unqualified().strip_typedefs()
     charType = baseType.template_argument(0)
@@ -1907,7 +1897,7 @@ def qqDumpStdString(d, item):
     d.putNumChild(0)
 
 
-def qqDumpStdVector(d, item):
+def qdump__std__vector(d, item):
     impl = item.value["_M_impl"]
     start = impl["_M_start"]
     finish = impl["_M_finish"]
@@ -1928,39 +1918,21 @@ def qqDumpStdVector(d, item):
         innerType = item.value.type.template_argument(0)
         d.beginChildren(n, innerType)
         for i in xrange(0, n):
-            d.putItemOrPointer(Item(p.dereference(), item.iname, i, None))
+            d.safePutItem(Item(p.dereference(), item.iname, i, None))
             p += 1
         if n < size:
             d.putEllipsis()
         d.endChildren()
 
 
-def qqDumpstd__deque(d, item):
-    qqDumpStdDeque(d, item)
+def qdump__string(d, item):
+    qdump__std__string(d, item)
 
-def qqDumpstd__list(d, item):
-    qqDumpStdList(d, item)
+def qdump__std__wstring(d, item):
+    qdump__std__string(d, item)
 
-def qqDumpstd__map(d, item):
-    qqDumpStdMap(d, item)
+def qdump__std__basic_string(d, item):
+    qdump__std__string(d, item)
 
-def qqDumpstd__set(d, item):
-    qqDumpStdSet(d, item)
-
-def qqDumpstd__vector(d, item):
-    qqDumpStdVector(d, item)
-
-def qqDumpstring(d, item):
-    qqDumpStdString(d, item)
-
-def qqDumpstd__string(d, item):
-    qqDumpStdString(d, item)
-
-def qqDumpstd__wstring(d, item):
-    qqDumpStdString(d, item)
-
-def qqDumpstd__basic_string(d, item):
-    qqDumpStdString(d, item)
-
-def qqDumpwstring(d, item):
-    qqDumpStdString(d, item)
+def qdump__wstring(d, item):
+    qdump__std__string(d, item)

@@ -214,10 +214,10 @@ class FrameCommand(gdb.Command):
         if useFancy == -1:
             output = "dumpers=["
             for key, value in module.__dict__.items():
-                if key.startswith("qqDump"):
+                if key.startswith("qdump__"):
                     if output != "dumpers=[":
                         output += ","
-                    output += '"' + key[6:] + '"'
+                    output += '"' + key[7:] + '"'
             output += "],"
             #output += "qtversion=[%d,%d,%d]"
             output += "qtversion=[4,6,0],"
@@ -233,8 +233,8 @@ class FrameCommand(gdb.Command):
         if useFancy:
             for key, value in module.__dict__.items():
                 #if callable(value):
-                if key.startswith("qqDump"):
-                    self.dumpers[key[6:]] = value
+                if key.startswith("qdump__"):
+                    self.dumpers[key[7:]] = value
 
         d = Dumper()
         d.dumpers = self.dumpers
@@ -298,7 +298,7 @@ class FrameCommand(gdb.Command):
                         d.beginChildren(n)
                         for i in xrange(0, n):
                             value = p.dereference()
-                            d.putItemOrPointer(Item(value, item.iname, i, None))
+                            d.putItem(Item(value, item.iname, i, None))
                             p += 1
                         if n > 100:
                             d.putEllipsis()
@@ -506,7 +506,6 @@ class Dumper:
         str = encodeByteArray(value)
         self.putCommaIfNeeded()
         self.put('valueencoded="%d",value="%s"' % (6, str))
-
     
     def putName(self, name):
         self.putCommaIfNeeded()
@@ -530,6 +529,11 @@ class Dumper:
             self.output = self.output[0:pos]
 
     def stripNamespaceFromType(self, typeobj):
+        # This breaks for dumpers type names containing '__star'.
+        # But this should not happen as identifiers containing two
+        # subsequent underscores are reserved for the implemention.
+        if typeobj.code == gdb.TYPE_CODE_PTR:
+            return self.stripNamespaceFromType(typeobj.target()) + "__star"
         # FIXME: pass ns from plugin
         type = stripClassTag(str(typeobj))
         if len(self.ns) > 0 and type.startswith(self.ns):
@@ -571,6 +575,11 @@ class Dumper:
         if isSimpleType(item.value.type):
             self.safePutItemHelper(item)
 
+    def safePutItem(self, item):
+        self.beginHash()
+        self.safePutItemHelper(item)
+        self.endHash()
+
     def safePutItemHelper(self, item):
         self.pushOutput()
         # This is only used at the top level to ensure continuation
@@ -608,26 +617,21 @@ class Dumper:
         self.safePutItemHelper(item)
         self.endHash()
 
-    def putItemOrPointer(self, item):
-        self.beginHash()
-        self.putItemOrPointerHelper(item)
-        self.endHash()
-    
     def putCallItem(self, name, item, func):
         result = call(item.value, func)
         self.putItem(Item(result, item.iname, name, name))
 
-    def putItemOrPointerHelper(self, item):
-        if item.value.type.code == gdb.TYPE_CODE_PTR \
-                and str(item.value.type.target()) != "char":
-            if not isNull(item.value):
-                self.putItemOrPointerHelper(
-                    Item(item.value.dereference(), item.iname, None, None))
-            else:
-                self.putValue("(null)")
-                self.putNumChild(0)
-        else:
-            self.safePutItemHelper(item)
+    #def putItemOrPointerHelper(self, item):
+    #    if item.value.type.code == gdb.TYPE_CODE_PTR \
+    #            and str(item.value.type.target()) != "char":
+    #        if not isNull(item.value):
+    #            self.putItemOrPointerHelper(
+    #                Item(item.value.dereference(), item.iname, None, None))
+    #        else:
+    #            self.putValue("(null)")
+    #            self.putNumChild(0)
+    #    else:
+    #        self.safePutItemHelper(item)
 
 
     def putItemHelper(self, item):
@@ -635,7 +639,6 @@ class Dumper:
         if not name is None:
             self.putName(name)
 
-        self.putType(item.value.type)
         # FIXME: Gui shows references stripped?
         #warn("REAL INAME: %s " % item.iname)
         #warn("REAL TYPE: %s " % item.value.type)
@@ -659,61 +662,76 @@ class Dumper:
         #warn(" DUMPERS: %s" % (strippedType in self.dumpers))
 
         if isSimpleType(type):
+            #warn("IS SIMPLE: %s " % type)
+            self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
 
         elif strippedType in self.dumpers:
+            #warn("IS DUMPABLE: %s " % type)
+            self.putType(item.value.type)
             self.dumpers[strippedType](self, item)
 
         elif type.code == gdb.TYPE_CODE_ENUM:
             #warn("GENERIC ENUM: %s" % value)
+            self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
             
 
         elif type.code == gdb.TYPE_CODE_PTR:
-            isHandled = False
-            #warn("GENERIC POINTER: %s" % value)
-            if isNull(value):
-                self.putValue("0x0")
-                self.putNumChild(0)
-                isHandled = True
+            if self.useFancy:
+                #warn("A POINTER: %s" % value.type)
+                isHandled = False
+                if isNull(value):
+                    self.putValue("0x0")
+                    self.putType(item.value.type)
+                    self.putNumChild(0)
+                    isHandled = True
 
-            target = str(type.target().unqualified())
-            if target == "char" and not isHandled:
-                # Display values up to given length directly
-                firstNul = -1
-                p = value
-                for i in xrange(0, 100):
-                    if p.dereference() == 0:
-                        # Found terminating NUL
-                        self.putField("valueencoded", "6")
-                        self.put(',value="')
-                        self.put(encodeCharArray(value, i))
-                        self.put('"')
-                        self.putNumChild(0)
-                        isHandled = True
-                        return
-                    p += 1
+                target = str(type.target().unqualified())
+                if target == "void" and not isHandled:
+                    self.putType(item.value.type)
+                    self.putValue(str(value))
+                    self.putNumChild(0)
+                    isHandled = True
 
-            if not isHandled:
-                # Generic pointer type.
-                #warn("GENERIC POINTER: %s" % value)
-                if self.isExpanded(item):
-                    #warn("GENERIC POINTER: %s" % item.value.type.target())
-                    self.put(',')
-                    # Temporary change to target type.
+                if target == "char" and not isHandled:
+                    # Display values up to given length directly
+                    self.putType(item.value.type)
+                    firstNul = -1
+                    p = value
+                    for i in xrange(0, 100):
+                        if p.dereference() == 0:
+                            # Found terminating NUL
+                            self.putValue(encodeCharArray(value, i), "6")
+                            self.putNumChild(0)
+                            isHandled = True
+                            break
+                        p += 1
+
+                if not isHandled:
+                    ## Generic pointer type.
+                    #warn("GENERIC POINTER: %s" % value)
+                    innerType = item.value.type.target()
+                    self.putType(innerType)
                     self.childTypes.append(
-                        stripClassTag(str(item.value.type.target())))
-                    self.putItemOrPointerHelper(
+                        stripClassTag(str(innerType)))
+                    #self.putType(item.value.type.target())
+                    self.putItemHelper(
                         Item(item.value.dereference(), item.iname, None, None))
                     self.childTypes.pop()
-                else:
-                    self.putValue(str(value.address))
-                    self.putNumChild(1)
+            else:
+                self.putType(item.value.type)
+                self.putValue(str(value.address))
+                self.putNumChild(1)
+                if self.isExpanded(item):
+                    self.beginChildren()
+                    self.putItem(
+                          Item(item.value.dereference(), item.iname, "*", "*"))
+                    self.endChildren()
 
         else:
-            #warn("COMMON TYPE: %s " % value.type)
             #warn("INAME: %s " % item.iname)
             #warn("INAMES: %s " % self.expandedINames)
             #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
@@ -722,6 +740,7 @@ class Dumper:
             #fields = value.type.fields()
             fields = value.type.strip_typedefs().fields()
 
+            self.putType(item.value.type)
             self.putValue("{...}")
 
             if False:
