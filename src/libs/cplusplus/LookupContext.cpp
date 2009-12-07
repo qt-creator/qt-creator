@@ -89,7 +89,7 @@ Document::Ptr LookupContext::thisDocument() const
 { return _thisDocument; }
 
 Document::Ptr LookupContext::document(const QString &fileName) const
-{ return _snapshot.value(fileName); }
+{ return _snapshot.document(fileName); }
 
 Snapshot LookupContext::snapshot() const
 { return _snapshot; }
@@ -317,7 +317,7 @@ void LookupContext::buildVisibleScopes_helper(Document::Ptr doc, QList<Scope *> 
             scopes->append(doc->globalSymbols());
 
         foreach (const Document::Include &incl, doc->includes()) {
-            buildVisibleScopes_helper(_snapshot.value(incl.fileName()),
+            buildVisibleScopes_helper(_snapshot.document(incl.fileName()),
                                       scopes, processed);
         }
     }

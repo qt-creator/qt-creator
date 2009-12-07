@@ -530,8 +530,8 @@ static ClassDocumentPtrPair
         // Check the includes
         const unsigned recursionMaxIncludeDepth = maxIncludeDepth - 1u;
         foreach (const QString &include, doc->includedFiles()) {
-            const CPlusPlus::Snapshot::const_iterator it = docTable.constFind(include);
-            if (it != docTable.constEnd()) {
+            const CPlusPlus::Snapshot::const_iterator it = docTable.find(include);
+            if (it != docTable.end()) {
                 const Document::Ptr includeDoc = it.value();
                 const ClassDocumentPtrPair irc = findClassRecursively(docTable, it.value(), className, recursionMaxIncludeDepth, namespaceName);
                 if (irc.first)
@@ -589,14 +589,16 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         return false;
     }
     CPlusPlus::Snapshot docTable = cppModelManagerInstance()->snapshot();
-    for  (CPlusPlus::Snapshot::iterator it = docTable.begin(); it != docTable.end(); ) {
+    CPlusPlus::Snapshot newDocTable;
+
+    for  (CPlusPlus::Snapshot::iterator it = docTable.begin(); it != docTable.end(); ++it) {
         const ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(it.key());
-        if (project == uiProject) {
-            ++it;
-        } else {
-            it = docTable.erase(it);
-        }
+        if (project == uiProject)
+            newDocTable.insert(it.value());
     }
+
+    docTable = newDocTable;
+
     // take all docs, find the ones that include the ui_xx.h.
     QList<Document::Ptr> docList = findDocumentsIncluding(docTable, uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
 

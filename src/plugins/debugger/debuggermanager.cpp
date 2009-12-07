@@ -619,7 +619,7 @@ const CPlusPlus::Snapshot &DebuggerManager::cppCodeModelSnapshot() const
 
 void DebuggerManager::clearCppCodeModelSnapshot()
 {
-    d->m_codeModelSnapshot.clear();
+    d->m_codeModelSnapshot = CPlusPlus::Snapshot();
 }
 
 SourceFilesWindow *DebuggerManager::sourceFileWindow() const
@@ -1027,7 +1027,7 @@ void DebuggerManager::exitDebugger()
     // in turn will handle the cleanup.
     if (d->m_engine && state() != DebuggerNotReady)
         d->m_engine->exitDebugger();
-    d->m_codeModelSnapshot.clear();
+    d->m_codeModelSnapshot = CPlusPlus::Snapshot();
 }
 
 DebuggerStartParametersPtr DebuggerManager::startParameters() const

@@ -123,7 +123,7 @@ void TypeOfExpression::processEnvironment(Snapshot documents,
     processed->insert(doc->fileName());
     foreach (const Document::Include &incl, doc->includes()) {
         processEnvironment(documents,
-                           documents.value(incl.fileName()),
+                           documents.document(incl.fileName()),
                            env, processed);
     }
     foreach (const Macro &macro, doc->definedMacros())

@@ -268,7 +268,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
     const Snapshot documents = m_modelManager->snapshot();
     const QString fileName = editor->file()->fileName();
-    Document::Ptr doc = documents.value(fileName);
+    Document::Ptr doc = documents.document(fileName);
     if (!doc)
         return; // nothing to do
 

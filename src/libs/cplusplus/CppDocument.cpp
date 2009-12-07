@@ -440,10 +440,40 @@ Snapshot::~Snapshot()
 {
 }
 
+int Snapshot::size() const
+{
+    return _documents.size();
+}
+
+bool Snapshot::isEmpty() const
+{
+    return _documents.isEmpty();
+}
+
+Document::Ptr Snapshot::operator[](const QString &fileName) const
+{
+    return _documents.value(fileName, Document::Ptr());
+}
+
+Snapshot::const_iterator Snapshot::find(const QString &fileName) const
+{
+    return _documents.find(fileName);
+}
+
+void Snapshot::remove(const QString &fileName)
+{
+    _documents.remove(fileName);
+}
+
+bool Snapshot::contains(const QString &fileName) const
+{
+    return _documents.contains(fileName);
+}
+
 void Snapshot::insert(Document::Ptr doc)
 {
     if (doc)
-        insert(doc->fileName(), doc);
+        _documents.insert(doc->fileName(), doc);
 }
 
 QByteArray Snapshot::preprocessedCode(const QString &source, const QString &fileName) const
@@ -457,7 +487,7 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
 {
     Document::Ptr newDoc = Document::create(fileName);
 
-    if (Document::Ptr thisDocument = value(fileName)) {
+    if (Document::Ptr thisDocument = document(fileName)) {
         newDoc->_revision = thisDocument->_revision;
         newDoc->_lastModified = thisDocument->_lastModified;
         newDoc->_includes = thisDocument->_includes;
@@ -474,9 +504,9 @@ QSharedPointer<NamespaceBinding> Snapshot::globalNamespaceBinding(Document::Ptr 
     return CPlusPlus::bind(doc, *this);
 }
 
-Document::Ptr Snapshot::value(const QString &fileName) const
+Document::Ptr Snapshot::document(const QString &fileName) const
 {
-    return QMap<QString, Document::Ptr>::value(QDir::cleanPath(fileName));
+    return _documents.value(QDir::cleanPath(fileName));
 }
 
 Snapshot Snapshot::simplified(Document::Ptr doc) const
@@ -495,7 +525,7 @@ void Snapshot::simplified_helper(Document::Ptr doc, Snapshot *snapshot) const
         snapshot->insert(doc);
 
         foreach (const Document::Include &incl, doc->includes()) {
-            Document::Ptr includedDoc = value(incl.fileName());
+            Document::Ptr includedDoc = document(incl.fileName());
             simplified_helper(includedDoc, snapshot);
         }
     }
@@ -559,15 +589,14 @@ void Snapshot::dependency_helper(QVector<QString> &files,
                                  QHash<int, QList<int> > &includes,
                                  QVector<QBitArray> &includeMap) const
 {
-    QMapIterator<QString, Document::Ptr> it(*this);
-    for (int i = 0; it.hasNext(); ++i) {
-        it.next();
+    int i = 0;
+    for (const_iterator it = begin(); it != end(); ++it, ++i) {
         files[i] = it.key();
         fileIndex[it.key()] = i;
     }
 
     for (int i = 0; i < files.size(); ++i) {
-        if (Document::Ptr doc = value(files.at(i))) {
+        if (Document::Ptr doc = document(files.at(i))) {
             QBitArray bitmap(files.size());
             QList<int> directIncludes;
 

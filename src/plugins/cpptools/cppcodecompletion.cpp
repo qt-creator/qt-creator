@@ -793,7 +793,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     const Snapshot snapshot = m_manager->snapshot();
 
-    if (Document::Ptr thisDocument = snapshot.value(fileName)) {
+    if (Document::Ptr thisDocument = snapshot.document(fileName)) {
         Symbol *lastVisibleSymbol = thisDocument->findSymbolAt(line, column);
         typeOfExpression.setSnapshot(m_manager->snapshot());
 

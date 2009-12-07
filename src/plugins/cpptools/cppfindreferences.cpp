@@ -110,7 +110,7 @@ public:
         QList<Usage> usages;
         const Identifier *symbolId = symbol->identifier();
 
-        if (Document::Ptr previousDoc = snapshot.value(fileName)) {
+        if (Document::Ptr previousDoc = snapshot.document(fileName)) {
             Control *control = previousDoc->control();
             if (! control->findIdentifier(symbolId->chars(), symbolId->size()))
                 return usages; // skip this document, it's not using symbolId.

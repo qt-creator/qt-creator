@@ -126,7 +126,7 @@ public:
 
         void clear()
         {
-            snapshot.clear();
+            snapshot = CPlusPlus::Snapshot();
             fileName.clear();
             code.clear();
             line = 0;

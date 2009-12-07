@@ -502,7 +502,7 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc)
     foreach (const Document::Include &incl, doc->includes()) {
         QString includedFile = incl.fileName();
 
-        if (Document::Ptr includedDoc = snapshot.value(includedFile))
+        if (Document::Ptr includedDoc = snapshot.document(includedFile))
             mergeEnvironment(includedDoc);
         else
             run(includedFile);
@@ -553,7 +553,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
 
     //qDebug() << "parse file:" << fileName << "contents:" << contents.size();
 
-    Document::Ptr doc = snapshot.value(fileName);
+    Document::Ptr doc = snapshot.document(fileName);
     if (doc) {
         mergeEnvironment(doc);
         return;
@@ -574,7 +574,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
     doc->tokenize();
     doc->releaseSource();
 
-    snapshot.insert(doc->fileName(), doc);
+    snapshot.insert(doc);
     m_todo.remove(fileName);
 
     Process process(m_modelManager, snapshot, m_workingCopy);
@@ -955,7 +955,7 @@ void CppModelManager::onDocumentUpdated(Document::Ptr doc)
 
     protectSnapshot.lock();
 
-    Document::Ptr previous = m_snapshot.value(fileName);
+    Document::Ptr previous = m_snapshot.document(fileName);
 
     if (previous && (doc->revision() != 0 && doc->revision() < previous->revision()))
         outdated = true;
@@ -1351,7 +1351,7 @@ void CppModelManager::parse(QFutureInterface<void> &future,
 void CppModelManager::GC()
 {
     protectSnapshot.lock();
-    Snapshot documents = m_snapshot;
+    Snapshot currentSnapshot = m_snapshot;
     protectSnapshot.unlock();
 
     QSet<QString> processed;
@@ -1366,26 +1366,27 @@ void CppModelManager::GC()
 
         processed.insert(fn);
 
-        if (Document::Ptr doc = documents.value(fn)) {
+        if (Document::Ptr doc = currentSnapshot.document(fn)) {
             todo += doc->includedFiles();
         }
     }
 
     QStringList removedFiles;
-    QMutableMapIterator<QString, Document::Ptr> it(documents);
-    while (it.hasNext()) {
-        it.next();
-        const QString fn = it.key();
-        if (! processed.contains(fn)) {
-            removedFiles.append(fn);
-            it.remove();
-        }
+
+    Snapshot newSnapshot;
+    for (Snapshot::const_iterator it = currentSnapshot.begin(); it != currentSnapshot.end(); ++it) {
+        const QString fileName = it.key();
+
+        if (processed.contains(fileName))
+            newSnapshot.insert(it.value());
+        else
+            removedFiles.append(fileName);
     }
 
     emit aboutToRemoveFiles(removedFiles);
 
     protectSnapshot.lock();
-    m_snapshot = documents;
+    m_snapshot = newSnapshot;
     protectSnapshot.unlock();
 }
 

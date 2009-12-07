@@ -130,7 +130,7 @@ bool navigateToSlot(const QString &uiFileName,
         return false;
     }
     const CPlusPlus::Snapshot snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
-    const DocumentPtr generatedHeaderDoc = snapshot.value(generatedHeaderFile);
+    const DocumentPtr generatedHeaderDoc = snapshot.document(generatedHeaderFile);
     if (!generatedHeaderDoc) {
         *errorMessage = QCoreApplication::translate("Designer", "The generated header '%1' could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile);
         return false;

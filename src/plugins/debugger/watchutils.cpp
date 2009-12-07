@@ -354,10 +354,10 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
 {
     uninitializedVariables->clear();
     // Find document
-    if (snapshot.empty() || functionName.isEmpty() || file.isEmpty() || line < 1)
+    if (snapshot.isEmpty() || functionName.isEmpty() || file.isEmpty() || line < 1)
         return 1;
-    const CPlusPlus::Snapshot::ConstIterator docIt = snapshot.constFind(file);
-    if (docIt == snapshot.constEnd())
+    const CPlusPlus::Snapshot::const_iterator docIt = snapshot.find(file);
+    if (docIt == snapshot.end())
         return 2;
     const CPlusPlus::Document::Ptr doc = docIt.value();
     // Look at symbol at line and find its function. Either it is the
@@ -416,7 +416,7 @@ bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
                 << " returns (int) " << rc << " '"
                 << uninitializedVariables->join(QString(QLatin1Char(','))) << '\'';
         if (rc)
-            str << " of " << snapshot.keys().size() << " documents";
+            str << " of " << snapshot.size() << " documents";
         qDebug() << msg;
     }
     return rc == 0;

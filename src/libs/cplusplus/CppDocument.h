@@ -321,13 +321,31 @@ private:
     friend class Snapshot;
 };
 
-class CPLUSPLUS_EXPORT Snapshot: public QMap<QString, Document::Ptr>
+class CPLUSPLUS_EXPORT Snapshot
 {
     typedef QMap<QString, Document::Ptr> _Base;
 
 public:
     Snapshot();
     ~Snapshot();
+
+    typedef _Base::const_iterator iterator;
+    typedef _Base::const_iterator const_iterator;
+
+    int size() const; // ### remove
+    bool isEmpty() const;
+
+    void insert(Document::Ptr doc); // ### remove
+    void remove(const QString &fileName); // ### remove
+
+    const_iterator begin() const { return _documents.begin(); }
+    const_iterator end() const { return _documents.end(); }
+
+    bool contains(const QString &fileName) const;
+    Document::Ptr document(const QString &fileName) const;
+    Document::Ptr operator[](const QString &fileName) const;
+
+    const_iterator find(const QString &fileName) const;
 
     Snapshot simplified(Document::Ptr doc) const;
 
@@ -342,17 +360,15 @@ public:
     QStringList filesDependingOn(const QString &fileName) const;
     QMap<QString, QStringList> dependencyTable() const;
 
-    void insert(Document::Ptr doc);
-    Document::Ptr value(const QString &fileName) const;
-
-    using _Base::insert;
-
 private:
     void simplified_helper(Document::Ptr doc, Snapshot *snapshot) const;
     void dependency_helper(QVector<QString> &files,
                            QHash<QString, int> &fileIndex,
                            QHash<int, QList<int> > &includes,
                            QVector<QBitArray> &includeMap) const;
+
+private:
+    _Base _documents;
 };
 
 } // end of namespace CPlusPlus

@@ -606,7 +606,7 @@ protected:
         processed->insert(doc->fileName());
 
         foreach (const Document::Include &i, doc->includes()) {
-            if (Document::Ptr includedDoc = _snapshot.value(i.fileName())) {
+            if (Document::Ptr includedDoc = _snapshot.document(i.fileName())) {
                 /*NamepaceBinding *binding = */ bind(includedDoc, processed);
             }
         }

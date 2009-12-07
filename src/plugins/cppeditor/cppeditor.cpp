@@ -1162,7 +1162,7 @@ void CPPEditor::switchDeclarationDefinition()
 
     const Snapshot snapshot = m_modelManager->snapshot();
 
-    Document::Ptr doc = snapshot.value(file()->fileName());
+    Document::Ptr doc = snapshot.document(file()->fileName());
     if (!doc)
         return;
     Symbol *lastSymbol = doc->findSymbolAt(line, column);
@@ -1215,7 +1215,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     const Snapshot snapshot = m_modelManager->snapshot();
     int line = 0, column = 0;
     convertPosition(cursor.position(), &line, &column);
-    Document::Ptr doc = snapshot.value(file()->fileName());
+    Document::Ptr doc = snapshot.document(file()->fileName());
     if (!doc)
         return link;
 
@@ -1391,7 +1391,7 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol)
         it.next();
 
         // get the instance of the document.
-        Document::Ptr thisDocument = snapshot.value(it.key());
+        Document::Ptr thisDocument = snapshot.document(it.key());
 
         foreach (Function *f, it.value()) {
             // create a lookup context

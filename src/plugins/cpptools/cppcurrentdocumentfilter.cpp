@@ -74,7 +74,7 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(const QString &
 
     if (m_itemsOfCurrentDoc.isEmpty()) {
         Snapshot snapshot = m_modelManager->snapshot();
-        Document::Ptr thisDocument = snapshot.value(m_currentFileName);
+        Document::Ptr thisDocument = snapshot.document(m_currentFileName);
         if (thisDocument)
             m_itemsOfCurrentDoc = search(thisDocument);
     }

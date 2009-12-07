@@ -62,7 +62,7 @@ QString AbstractEditorSupport::functionAt(const CppModelManagerInterface *modelM
                                           int line, int column)
 {
     const CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-    const CPlusPlus::Document::Ptr document = snapshot.value(fileName);
+    const CPlusPlus::Document::Ptr document = snapshot.document(fileName);
     if (!document)
         return QString();
     if (const CPlusPlus::Symbol *symbol = document->findSymbolAt(line, column))
