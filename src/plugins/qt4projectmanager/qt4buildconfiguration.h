@@ -63,6 +63,8 @@ public:
     void setUseSystemEnvironment(bool b);
 
     virtual QString buildDirectory() const;
+    bool shadowBuild() const;
+    QString shadowBuildDirectory() const;
     void setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory);
 
     //returns the qtVersion, if the project is set to use the default qt version, then

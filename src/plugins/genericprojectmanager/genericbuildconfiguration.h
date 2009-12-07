@@ -49,6 +49,7 @@ public:
 
     virtual ProjectExplorer::Environment environment() const;
     virtual QString buildDirectory() const;
+    void setBuildDirectory(const QString &buildDirectory);
 };
 
 } // namespace GenericProjectManager

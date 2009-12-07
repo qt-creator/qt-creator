@@ -166,7 +166,7 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
 
     qtVersionsChanged();
 
-    bool shadowBuild = m_buildConfiguration->value("useShadowBuild").toBool();
+    bool shadowBuild = m_buildConfiguration->shadowBuild();
     m_ui->shadowBuildCheckBox->setChecked(shadowBuild);
     m_ui->shadowBuildDirEdit->setEnabled(shadowBuild);
     m_browseButton->setEnabled(shadowBuild);
@@ -225,7 +225,7 @@ void Qt4ProjectConfigWidget::qtVersionsChanged()
 
 void Qt4ProjectConfigWidget::buildDirectoryChanged()
 {
-    m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->value("buildDirectory").toString());
+    m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->shadowBuildDirectory());
     updateDetails();
     updateImportLabel();
 }
@@ -253,7 +253,7 @@ void Qt4ProjectConfigWidget::shadowBuildClicked(bool checked)
 
 void Qt4ProjectConfigWidget::shadowBuildEdited()
 {
-    if (m_buildConfiguration->value("buildDirectory").toString() == m_ui->shadowBuildDirEdit->path())
+    if (m_buildConfiguration->shadowBuildDirectory() == m_ui->shadowBuildDirEdit->path())
         return;
     m_ignoreChange = true;
     m_buildConfiguration->setShadowBuildAndDirectory(true, m_ui->shadowBuildDirEdit->path());

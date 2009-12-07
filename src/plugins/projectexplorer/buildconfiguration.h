@@ -57,10 +57,6 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &name);
 
-    // TODO remove those
-    QVariant value(const QString &key) const;
-    void setValue(const QString &key, QVariant value);
-
     QMap<QString, QVariant> toMap() const;
     void setValuesFromMap(QMap<QString, QVariant> map);
 
@@ -87,6 +83,10 @@ signals:
 protected:
     BuildConfiguration(Project *project);
     BuildConfiguration(BuildConfiguration *source);
+
+    // TODO remove those
+    QVariant value(const QString &key) const;
+    void setValue(const QString &key, QVariant value);
 
 private:
     QList<BuildStep *> m_buildSteps;

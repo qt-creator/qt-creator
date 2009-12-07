@@ -64,6 +64,14 @@ QString GenericBuildConfiguration::buildDirectory() const
     return buildDirectory;
 }
 
+void GenericBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
+{
+    if (value("buildDirectory").toString() == buildDirectory)
+        return;
+    setValue("buildDirectory", buildDirectory);
+    emit buildDirectoryChanged();
+}
+
 GenericProject *GenericBuildConfiguration::genericProject() const
 {
     return static_cast<GenericProject *>(project());

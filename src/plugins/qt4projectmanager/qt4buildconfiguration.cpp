@@ -119,6 +119,7 @@ void Qt4BuildConfiguration::setUserEnvironmentChanges(const QList<ProjectExplore
     emit environmentChanged();
 }
 
+/// returns the build directory
 QString Qt4BuildConfiguration::buildDirectory() const
 {
     QString workingDirectory;
@@ -129,8 +130,27 @@ QString Qt4BuildConfiguration::buildDirectory() const
     return workingDirectory;
 }
 
+/// returns whether this is a shadow build configuration or not
+/// note, even if shadowBuild() returns true, it might be using the
+/// source directory as the shadow build directorys, thus not
+/// still be a insource build
+bool Qt4BuildConfiguration::shadowBuild() const
+{
+    return value("useShadowBuild").toBool();
+}
+
+/// returns the shadow build directory if set
+/// \note buildDirectory() is probably the function you want to call
+QString Qt4BuildConfiguration::shadowBuildDirectory() const
+{
+    return value("buildDirectory").toString();
+}
+
 void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory)
 {
+    if (value("useShadowBuild").toBool() == shadowBuild
+        && value("buildDirectory").toString() == buildDirectory)
+        return;
     setValue("useShadowBuild", shadowBuild);
     setValue("buildDirectory", buildDirectory);
     emit buildDirectoryChanged();

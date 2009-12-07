@@ -525,7 +525,7 @@ bool GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
         const QLatin1String buildDirectory("buildDirectory");
 
         const QFileInfo fileInfo(file()->fileName());
-        bc->setValue(buildDirectory, fileInfo.absolutePath());
+        bc->setBuildDirectory(fileInfo.absolutePath());
 
         setActiveBuildConfiguration(bc);
     }
@@ -614,7 +614,7 @@ void GenericBuildSettingsWidget::init(BuildConfiguration *bc)
 
 void GenericBuildSettingsWidget::buildDirectoryChanged()
 {
-    m_buildConfiguration->setValue("buildDirectory", m_pathChooser->path());
+    m_buildConfiguration->setBuildDirectory(m_pathChooser->path());
 }
 
 void GenericBuildSettingsWidget::toolChainSelected(int index)

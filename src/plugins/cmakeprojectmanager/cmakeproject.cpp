@@ -573,10 +573,9 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
 
         CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(this);
         bc->setDisplayName("all");
-        addBuildConfiguration(bc);
-        bc->setValue("msvcVersion", copw.msvcVersion());
+        bc->setMsvcVersion(copw.msvcVersion());
         if (!copw.buildDirectory().isEmpty())
-            bc->setValue("buildDirectory", copw.buildDirectory());
+            bc->setBuildDirectory(copw.buildDirectory());
 
         // Now create a standard build configuration
         makeStep = new MakeStep(bc);
@@ -586,12 +585,14 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         MakeStep *cleanMakeStep = new MakeStep(bc);
         bc->insertCleanStep(0, cleanMakeStep);
         cleanMakeStep->setClean(true);
+
+        addBuildConfiguration(bc);
         setActiveBuildConfiguration(bc);
     } else {
         // We have a user file, but we could still be missing the cbp file
         // or simply run createXml with the saved settings
         QFileInfo sourceFileInfo(m_fileName);
-        BuildConfiguration *activeBC = activeBuildConfiguration();
+        CMakeBuildConfiguration *activeBC = activeCMakeBuildConfiguration();
         QString cbpFile = CMakeManager::findCbpFile(QDir(activeBC->buildDirectory()));
         QFileInfo cbpFileFi(cbpFile);
 
@@ -609,7 +610,7 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
                                         activeBC->environment());
             if (copw.exec() != QDialog::Accepted)
                 return false;
-            activeBC->setValue("msvcVersion", copw.msvcVersion());
+            activeBC->setMsvcVersion(copw.msvcVersion());
         }
     }
 
