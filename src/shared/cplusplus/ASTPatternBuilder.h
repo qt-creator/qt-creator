@@ -44,7 +44,7 @@ public:
     ASTPatternBuilder(): state(pool.state()) {}
     ~ASTPatternBuilder() {}
 
-    void reset() { pool.rewind(state); };
+    void reset() { pool.rewind(state); }
 
     SimpleSpecifierAST *SimpleSpecifier()
     {
