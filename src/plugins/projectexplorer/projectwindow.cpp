@@ -114,14 +114,13 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     QScrollArea(parent),
     m_root(new QWidget(this))
 {
-    // We want a 800px wide widget with and the scrollbar at the
+    // We want a 900px wide widget with and the scrollbar at the
     // side of the screen.
-    m_root->setMaximumWidth(800);
+    m_root->setFixedWidth(900);
     // The layout holding the individual panels:
     m_layout = new QGridLayout(m_root);
     m_layout->setColumnMinimumWidth(0, ICON_SIZE + 4);
     m_layout->setSpacing(0);
-    m_layout->setRowStretch(0, 10);
 
     // Add horizontal space to the left of our widget:
     QHBoxLayout *hbox = new QHBoxLayout;
@@ -219,7 +218,7 @@ QWidget *PanelsWidget::rootWidget() const
 
 void PanelsWidget::clear()
 {
-    foreach (Panel* p, m_panels) {
+    foreach (Panel *p, m_panels) {
         if (p->iconLabel)
             m_layout->removeWidget(p->iconLabel);
         if (p->lineWidget)
