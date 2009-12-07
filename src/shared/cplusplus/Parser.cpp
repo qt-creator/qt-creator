@@ -1837,6 +1837,8 @@ bool Parser::parseMemInitializerList(MemInitializerListAST *&node)
 
             if (parseMemInitializer(*initializer))
                 initializer = &(*initializer)->next;
+            else
+                _translationUnit->error(cursor(), "expected a member initializer");
         }
         return true;
     }
@@ -1847,19 +1849,18 @@ bool Parser::parseMemInitializer(MemInitializerListAST *&node)
 {
     DEBUG_THIS_RULE();
     NameAST *name = 0;
-    if (parseName(name) && LA() == T_LPAREN) {
-        MemInitializerAST *ast = new (_pool) MemInitializerAST;
-        ast->name = name;
-        ast->lparen_token = consumeToken();
-        parseExpressionList(ast->expression_list);
-        if (LA() == T_RPAREN)
-            ast->rparen_token = consumeToken();
+    if (! parseName(name))
+        return false;
 
-        node = new (_pool) MemInitializerListAST;
-        node->value = ast;
-        return true;
-    }
-    return false;
+    MemInitializerAST *ast = new (_pool) MemInitializerAST;
+    ast->name = name;
+    match(T_LPAREN, &ast->lparen_token);
+    parseExpressionList(ast->expression_list);
+    match(T_RPAREN, &ast->rparen_token);
+
+    node = new (_pool) MemInitializerListAST;
+    node->value = ast;
+    return true;
 }
 
 bool Parser::parseTypeIdList(ExpressionListAST *&node)
