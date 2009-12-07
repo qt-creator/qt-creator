@@ -35,7 +35,7 @@
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-ProFileReader::ProFileReader() : ProFileEvaluator(&m_option)
+ProFileReader::ProFileReader(ProFileOption *option) : ProFileEvaluator(option)
 {
 }
 
@@ -43,14 +43,6 @@ ProFileReader::~ProFileReader()
 {
     foreach (ProFile *pf, m_proFiles)
         delete pf;
-}
-
-void ProFileReader::setQtVersion(const QtVersion *qtVersion)
-{
-    if (qtVersion)
-        m_option.properties = qtVersion->versionInfo();
-    else
-        m_option.properties.clear();
 }
 
 bool ProFileReader::readProFile(const QString &fileName)

@@ -198,9 +198,6 @@ public:
 
     Qt4ProFileNode *findProFileFor(const QString &string);
 
-    //internal
-    ProFileReader *createProFileReader() const;
-
 public slots:
     void scheduleUpdate();
     void update();

@@ -135,8 +135,7 @@ void S60EmulatorRunConfiguration::updateTarget()
         emit targetInformationChanged();
         return;
     }
-    QtVersion *qtVersion = qt4bc->qtVersion();
-    ProFileReader *reader = proFileNode->createProFileReader();
+    ProFileReader *reader = qt4Project()->createProFileReader(proFileNode);
     reader->setCumulative(false);
 
     // Find out what flags we pass on to qmake
@@ -146,11 +145,12 @@ void S60EmulatorRunConfiguration::updateTarget()
     reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
 
     if (!reader->readProFile(m_proFilePath)) {
-        delete reader;
+        qt4Project()->destroyProFileReader(reader);
         Core::ICore::instance()->messageManager()->printToOutputPane(tr("Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));
         return;
     }
 
+    QtVersion *qtVersion = qt4bc->qtVersion();
     QString baseDir = S60Manager::instance()->deviceForQtVersion(qtVersion).epocRoot;
     QString qmakeBuildConfig = "urel";
     if (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild)
@@ -165,7 +165,7 @@ void S60EmulatorRunConfiguration::updateTarget()
             QDir::cleanPath(baseDir + QLatin1Char('/') + target));
     m_executable += QLatin1String(".exe");
 
-    delete reader;
+    qt4Project()->destroyProFileReader(reader);
     m_cachedTargetInformationValid = true;
     emit targetInformationChanged();
 }

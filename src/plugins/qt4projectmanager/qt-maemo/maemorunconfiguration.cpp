@@ -571,8 +571,7 @@ void MaemoRunConfiguration::updateTarget()
             return;
         }
 
-        QtVersion *qtVersion = qt4bc->qtVersion();
-        ProFileReader *reader = proFileNode->createProFileReader();
+        ProFileReader *reader = qt4Project->createProFileReader(proFileNode);
         reader->setCumulative(false);
 
         // Find out what flags we pass on to qmake
@@ -582,7 +581,7 @@ void MaemoRunConfiguration::updateTarget()
         reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
 
         if (!reader->readProFile(m_proFilePath)) {
-            delete reader;
+            qt4Project->destroyProFileReader(reader);
             Core::ICore::instance()->messageManager()->printToOutputPane(tr(
                 "Could not parse %1. The Maemo run configuration %2 "
                 "can not be started.").arg(m_proFilePath).arg(name()));
@@ -620,7 +619,7 @@ void MaemoRunConfiguration::updateTarget()
             target = QFileInfo(m_proFilePath).baseName();
 
         m_executable = QDir::cleanPath(baseDir + QLatin1Char('/') + target);
-        delete reader;
+        qt4Project->destroyProFileReader(reader);
     }
 
     emit targetInformationChanged();

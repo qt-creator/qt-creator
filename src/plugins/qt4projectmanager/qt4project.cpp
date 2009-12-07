@@ -320,7 +320,8 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_fileInfo(new Qt4ProjectFile(this, fileName, this)),
     m_isApplication(true),
     m_projectFiles(new Qt4ProjectFiles),
-    m_lastActiveQt4BuildConfiguration(0)
+    m_lastActiveQt4BuildConfiguration(0),
+    m_proFileOption(0)
 {
     m_manager->registerProject(this);
 
@@ -853,6 +854,38 @@ void Qt4Project::addDefaultBuild()
 void Qt4Project::proFileParseError(const QString &errorMessage)
 {
     Core::ICore::instance()->messageManager()->printToOutputPane(errorMessage);
+}
+
+ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode)
+{
+    if (!m_proFileOption) {
+        m_proFileOption = new ProFileOption;
+        m_proFileOptionRefCnt = 0;
+
+        if (Qt4BuildConfiguration *qt4bc = activeQt4BuildConfiguration()) {
+            QtVersion *version = qt4bc->qtVersion();
+            if (version->isValid())
+                m_proFileOption->properties = version->versionInfo();
+        }
+    }
+    ++m_proFileOptionRefCnt;
+
+    ProFileReader *reader = new ProFileReader(m_proFileOption);
+    connect(reader, SIGNAL(errorFound(QString)),
+            this, SLOT(proFileParseError(QString)));
+
+    reader->setOutputDir(qt4ProFileNode->buildDir());
+
+    return reader;
+}
+
+void Qt4Project::destroyProFileReader(ProFileReader *reader)
+{
+    delete reader;
+    if (!--m_proFileOptionRefCnt) {
+        delete m_proFileOption;
+        m_proFileOption = 0;
+    }
 }
 
 Qt4ProFileNode *Qt4Project::rootProjectNode() const

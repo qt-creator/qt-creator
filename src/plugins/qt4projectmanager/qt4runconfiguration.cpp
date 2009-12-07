@@ -572,7 +572,7 @@ void Qt4RunConfiguration::updateTarget()
         emit effectiveTargetInformationChanged();
         return;
     }
-    ProFileReader *reader = proFileNode->createProFileReader();
+    ProFileReader *reader = qt4Project()->createProFileReader(proFileNode);
     reader->setCumulative(false);
 
     // Find out what flags we pass on to qmake
@@ -582,7 +582,7 @@ void Qt4RunConfiguration::updateTarget()
     reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
 
     if (!reader->readProFile(m_proFilePath)) {
-        delete reader;
+        qt4Project()->destroyProFileReader(reader);
         Core::ICore::instance()->messageManager()->printToOutputPane(tr("Could not parse %1. The Qt4 run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));
         return;
     }
@@ -636,7 +636,7 @@ void Qt4RunConfiguration::updateTarget()
     m_executable += QLatin1String(".exe");
 #endif
 
-    delete reader;
+    qt4Project()->destroyProFileReader(reader);
 
     m_cachedTargetInformationValid = true;
 

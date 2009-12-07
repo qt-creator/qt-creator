@@ -1205,8 +1205,9 @@ void QtVersion::updateToolChainAndMkspec() const
 
 //    qDebug()<<"mkspec for "<<qmakeCommand()<<" is "<<m_mkspec<<m_mkspecFullPath;
 
-    ProFileReader *reader = new ProFileReader();
-    reader->setQtVersion(this);
+    ProFileOption option;
+    option.properties = versionInfo();
+    ProFileReader *reader = new ProFileReader(&option);
     reader->setCumulative(false);
     reader->setParsePreAndPostFiles(false);
     reader->readProFile(m_mkspecFullPath + "/qmake.conf");

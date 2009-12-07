@@ -59,7 +59,7 @@ namespace CppTools {
 }
 
 QT_BEGIN_NAMESPACE
-class ProFile;
+class ProFileOption;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
@@ -94,9 +94,6 @@ class Qt4RunStep;
 class Qt4ProjectFile : public Core::IFile
 {
     Q_OBJECT
-
-    // needed for createProFileReader
-    friend class Internal::Qt4RunConfiguration;
 
 public:
     Qt4ProjectFile(Qt4Project *project, const QString &filePath, QObject *parent = 0);
@@ -196,6 +193,9 @@ public:
     virtual QStringList includePaths(const QString &fileName) const;
     virtual QStringList frameworkPaths(const QString &fileName) const;
 
+    Internal::ProFileReader *createProFileReader(Internal::Qt4ProFileNode *qt4ProFileNode);
+    void destroyProFileReader(Internal::ProFileReader *reader);
+
 signals:
     /// convenience signal, emitted if either the active buildconfiguration emits
     /// targetInformationChanged() or if the active build configuration changes
@@ -262,6 +262,10 @@ private:
 
     friend class Qt4ProjectFile;
     friend class Internal::Qt4ProjectConfigWidget;
+
+    // cached data during project rescan
+    ProFileOption *m_proFileOption;
+    int m_proFileOptionRefCnt;
 };
 
 } // namespace Qt4ProjectManager

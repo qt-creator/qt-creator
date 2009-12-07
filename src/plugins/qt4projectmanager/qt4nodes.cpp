@@ -560,10 +560,10 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     if (filePaths.isEmpty())
         return;
 
-    ProFileReader *reader = m_qt4ProFileNode->createProFileReader();
+    ProFileReader *reader = m_project->createProFileReader(m_qt4ProFileNode);
     if (!reader->readProFile(m_qt4ProFileNode->path())) {
         m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
-        delete reader;
+        m_project->destroyProFileReader(reader);
         return;
     }
 
@@ -576,7 +576,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
 
     // Check for modified editors
     if (!saveModifiedEditors(m_projectFilePath)) {
-        delete reader;
+        m_project->destroyProFileReader(reader);
         return;
     }
 
@@ -661,7 +661,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
 
     // save file
     save(includeFile);
-    delete reader;
+    m_project->destroyProFileReader(reader);
 }
 
 void Qt4PriFileNode::save(ProFile *includeFile)
@@ -805,10 +805,10 @@ void Qt4ProFileNode::scheduleUpdate()
 
 void Qt4ProFileNode::update()
 {
-    ProFileReader *reader = createProFileReader();
+    ProFileReader *reader = m_project->createProFileReader(this);
     if (!reader->readProFile(m_projectFilePath)) {
         m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
-        delete reader;
+        m_project->destroyProFileReader(reader);
         invalidate();
         return;
     }
@@ -952,7 +952,7 @@ void Qt4ProFileNode::update()
         if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
             emit qt4Watcher->proFileUpdated(this);
 
-    delete reader;
+    m_project->destroyProFileReader(reader);
 }
 
 namespace {
@@ -1082,23 +1082,6 @@ QStringList Qt4ProFileNode::updateUiFiles()
         addFileNodes(toAdd, this);
     }
     return toUpdate;
-}
-
-ProFileReader *Qt4ProFileNode::createProFileReader() const
-{
-    ProFileReader *reader = new ProFileReader();
-    connect(reader, SIGNAL(errorFound(QString)),
-            m_project, SLOT(proFileParseError(QString)));
-
-    Qt4BuildConfiguration *qt4bc = m_project->activeQt4BuildConfiguration();
-
-    QtVersion *version = qt4bc->qtVersion();
-    if (version->isValid())
-        reader->setQtVersion(version);
-
-    reader->setOutputDir(buildDir());
-
-    return reader;
 }
 
 Qt4ProFileNode *Qt4ProFileNode::createSubProFileNode(const QString &path)
