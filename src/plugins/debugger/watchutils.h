@@ -70,6 +70,7 @@ bool hasLetterOrNumber(const QString &exp);
 bool hasSideEffects(const QString &exp);
 bool isKeyWord(const QString &exp);
 bool isPointerType(const QString &type);
+bool isCharPointerType(const QString &type);
 bool isAccessSpecifier(const QString &str);
 bool startsWithDigit(const QString &str);
 QString stripPointerType(QString type);

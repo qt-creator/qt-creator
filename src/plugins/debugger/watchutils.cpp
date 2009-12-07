@@ -268,6 +268,13 @@ bool isPointerType(const QString &type)
     return type.endsWith(QLatin1Char('*')) || type.endsWith(QLatin1String("* const"));
 }
 
+bool isCharPointerType(const QString &type)
+{
+    return type == QLatin1String("char *")
+        || type == QLatin1String("const char *")
+        || type == QLatin1String("char const *");
+}
+
 bool isAccessSpecifier(const QString &str)
 {
     static const QStringList items = QStringList()
@@ -568,6 +575,8 @@ bool isIntOrFloatType(const QString &type)
 GuessChildrenResult guessChildren(const QString &type)
 {
     if (isIntOrFloatType(type))
+        return HasNoChildren;
+    if (isCharPointerType(type))
         return HasNoChildren;
     if (isPointerType(type))
         return HasChildren;

@@ -166,7 +166,8 @@ void WatchData::setValue(const QString &value0)
     // "numchild" is sometimes lying
     //MODEL_DEBUG("\n\n\nPOINTER: " << type << value);
     if (isPointerType(type))
-        setHasChildren(value != "0x0" && value != "<null>");
+        setHasChildren(value != "0x0" && value != "<null>"
+            && !isCharPointerType(type));
 
     // pointer type information is available in the 'type'
     // column. No need to duplicate it here.
