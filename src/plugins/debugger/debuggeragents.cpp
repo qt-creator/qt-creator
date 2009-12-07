@@ -106,7 +106,7 @@ void MemoryViewAgent::init(quint64 addr)
         m_manager->showMessageBox(QMessageBox::Warning,
             tr("No memory viewer available"),
             tr("The memory contents cannot be shown as no viewer plugin "
-                "for binary daty has been loaded."));
+                "for binary data has been loaded."));
         deleteLater();
     }
 }
