@@ -1,7 +1,7 @@
 #include "QmlMetaTypeBackend.h"
 #include "qmltypesystem.h"
 
-using namespace Qml::MetaType;
+using namespace Qml;
 
 QmlMetaTypeBackend::QmlMetaTypeBackend(QmlTypeSystem *typeSystem):
         m_typeSystem(typeSystem)

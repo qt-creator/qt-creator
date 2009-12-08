@@ -8,7 +8,6 @@
 #include <QtCore/QList>
 
 namespace Qml {
-namespace MetaType {
 namespace Internal {
 
 class QmlDeclarativeSymbol;
@@ -29,19 +28,18 @@ public:
     virtual QmlSymbol *resolve(const QString &typeName, const QList<PackageInfo> &packages);
 
 protected:
-    QList<QmlSymbol *> members(const QKineticDesigner::NodeMetaInfo &metaInfo);
-    QList<QmlSymbol *> inheritedMembers(const QKineticDesigner::NodeMetaInfo &metaInfo);
-    QmlDeclarativeSymbol *typeOf(const QKineticDesigner::PropertyMetaInfo &metaInfo);
+    QList<QmlSymbol *> members(const Qml::NodeMetaInfo &metaInfo);
+    QList<QmlSymbol *> inheritedMembers(const Qml::NodeMetaInfo &metaInfo);
+    QmlDeclarativeSymbol *typeOf(const Qml::PropertyMetaInfo &metaInfo);
 
 private:
-    QmlDeclarativeSymbol *getSymbol(const QKineticDesigner::NodeMetaInfo &metaInfo);
+    QmlDeclarativeSymbol *getSymbol(const Qml::NodeMetaInfo &metaInfo);
 
 private:
     QMap<QString, QmlDeclarativeSymbol*> m_symbols;
 };
 
 } // namespace Internal
-} // namespace MetaType
 } // namespace Qml
 
 #endif // QTDECLARATIVEMETATYPEBACKEND_H

@@ -86,15 +86,13 @@ QmlEditorPlugin::~QmlEditorPlugin()
 
 bool QmlEditorPlugin::initialize(const QStringList & /*arguments*/, QString *error_message)
 {
-    typedef SharedTools::QScriptHighlighter QScriptHighlighter;
-
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/qmleditor/QmlEditor.mimetypes.xml"), error_message))
         return false;
 
     m_modelManager = new QmlModelManager(this);
     addAutoReleasedObject(m_modelManager);
-    Qml::MetaType::QmlTypeSystem *typeSystem = new Qml::MetaType::QmlTypeSystem;
+    Qml::QmlTypeSystem *typeSystem = new Qml::QmlTypeSystem;
     addAutoReleasedObject(typeSystem);
 
     QList<int> context;

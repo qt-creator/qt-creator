@@ -187,7 +187,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         QmlExpressionUnderCursor expressionUnderCursor;
         expressionUnderCursor(tc, doc);
 
-        Qml::MetaType::QmlTypeSystem *typeSystem = ExtensionSystem::PluginManager::instance()->getObject<Qml::MetaType::QmlTypeSystem>();
+        Qml::QmlTypeSystem *typeSystem = ExtensionSystem::PluginManager::instance()->getObject<Qml::QmlTypeSystem>();
 
         QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, m_modelManager->snapshot(), typeSystem);
         QmlResolveExpression resolver(context);

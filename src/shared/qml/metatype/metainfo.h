@@ -10,7 +10,7 @@
 #include <QStringList>
 #include <QtCore/QSharedPointer>
 
-namespace QKineticDesigner {
+namespace Qml {
 
 class ModelNode;
 class AbstractProperty;
@@ -27,10 +27,10 @@ QML_EXPORT bool operator!=(const MetaInfo &first, const MetaInfo &second);
 
 class QML_EXPORT MetaInfo
 {
-    friend class QKineticDesigner::Internal::MetaInfoPrivate;
-    friend class QKineticDesigner::Internal::MetaInfoParser;
-    friend class QKineticDesigner::NodeMetaInfo;
-    friend bool QKineticDesigner::operator==(const MetaInfo &, const MetaInfo &);
+    friend class Qml::Internal::MetaInfoPrivate;
+    friend class Qml::Internal::MetaInfoParser;
+    friend class Qml::NodeMetaInfo;
+    friend bool Qml::operator==(const MetaInfo &, const MetaInfo &);
 
 public:
     MetaInfo(const MetaInfo &metaInfo);
@@ -78,6 +78,6 @@ private:
     static QStringList s_pluginDirs;
 };
 
-} //namespace QKineticDesigner
+} // namespace Qml
 
 #endif // METAINFO_H

@@ -6,10 +6,8 @@
 #include "metainfo.h"
 #include <private/qmlvaluetype_p.h>
 
-namespace QKineticDesigner {
-
-namespace Internal
-{
+namespace Qml {
+namespace Internal {
 
 class PropertyMetaInfoData : public QSharedData
 {
@@ -42,7 +40,7 @@ public:
     QHash<QString, QVariant> defaultValueHash;
 };
 
-}
+} // namespace Internal
 
 /*!
 \class QKineticDesigner::PropertyMetaInfo
@@ -375,4 +373,4 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &originalVariant) const
     }
 }
 
-}
+} // namespace Qml

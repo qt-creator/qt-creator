@@ -42,7 +42,7 @@
 using namespace QmlEditor;
 using namespace QmlEditor::Internal;
 
-QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, Qml::MetaType::QmlTypeSystem *typeSystem, QObject *parent)
+QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, Qml::QmlTypeSystem *typeSystem, QObject *parent)
     : TextEditor::ICompletionCollector(parent),
       m_modelManager(modelManager),
       m_editor(0),

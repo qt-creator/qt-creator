@@ -400,7 +400,7 @@ ScriptEditor::ScriptEditor(QWidget *parent) :
     baseTextDocument()->setSyntaxHighlighter(new QmlHighlighter);
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<QmlModelManagerInterface>();
-    m_typeSystem = ExtensionSystem::PluginManager::instance()->getObject<Qml::MetaType::QmlTypeSystem>();
+    m_typeSystem = ExtensionSystem::PluginManager::instance()->getObject<Qml::QmlTypeSystem>();
 
     if (m_modelManager) {
         connect(m_modelManager, SIGNAL(documentUpdated(QmlEditor::QmlDocument::Ptr)),

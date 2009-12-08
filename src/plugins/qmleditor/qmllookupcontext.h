@@ -17,7 +17,7 @@ public:
     QmlLookupContext(const QStack<Qml::QmlSymbol *> &scopes,
                      const QmlDocument::Ptr &doc,
                      const Snapshot &snapshot,
-                     Qml::MetaType::QmlTypeSystem *typeSystem);
+                     Qml::QmlTypeSystem *typeSystem);
 
     Qml::QmlSymbol *resolve(const QString &name);
     Qml::QmlSymbol *resolveType(const QString &name)
@@ -44,7 +44,7 @@ private:
     QStack<Qml::QmlSymbol *> _scopes;
     QmlDocument::Ptr _doc;
     Snapshot _snapshot;
-    Qml::MetaType::QmlTypeSystem *m_typeSystem;
+    Qml::QmlTypeSystem *m_typeSystem;
 };
 
 } // namespace Internal

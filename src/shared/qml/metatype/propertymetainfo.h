@@ -7,7 +7,7 @@
 #include <QExplicitlySharedDataPointer>
 #include <QVariant>
 
-namespace QKineticDesigner {
+namespace Qml {
 
 class MetaInfo;
 class NodeMetaInfo;
@@ -22,10 +22,10 @@ class PropertyMetaInfoData;
 
 class QML_EXPORT PropertyMetaInfo
 {
-    friend class QKineticDesigner::Internal::MetaInfoPrivate;
-    friend class QKineticDesigner::Internal::MetaInfoParser;
-    friend class QKineticDesigner::MetaInfo;
-    friend class QKineticDesigner::NodeMetaInfo;
+    friend class Qml::Internal::MetaInfoPrivate;
+    friend class Qml::Internal::MetaInfoParser;
+    friend class Qml::MetaInfo;
+    friend class Qml::NodeMetaInfo;
 public:
     PropertyMetaInfo();
     ~PropertyMetaInfo();
@@ -78,7 +78,7 @@ private:
     QExplicitlySharedDataPointer<Internal::PropertyMetaInfoData> m_data;
 };
 
-}
+} // namespace Qml
 
 
 #endif // PROPERTYMETAINFO_H

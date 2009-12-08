@@ -2,6 +2,7 @@
 #include "metainfo.h"
 #include "propertymetainfo.h"
 
+#include <QDebug>
 #include <QPair>
 #include <QtAlgorithms>
 #include <QMetaProperty>
@@ -11,7 +12,7 @@ enum {
     debug = false
 };
 
-namespace QKineticDesigner {
+namespace Qml {
 namespace Internal {
 
 class MetaInfoPrivate
@@ -67,8 +68,6 @@ void MetaInfoPrivate::initialize()
 
     m_isInitialized = true;
 }
-
-
 
 void MetaInfoPrivate::parseProperties(NodeMetaInfo &nodeMetaInfo, const QMetaObject *qMetaObject) const
 {
@@ -219,7 +218,7 @@ void MetaInfoPrivate::parseNonQmlTypes()
 
 } // namespace Internal
 
-using QKineticDesigner::Internal::MetaInfoPrivate;
+using Qml::Internal::MetaInfoPrivate;
 
 MetaInfo MetaInfo::s_global;
 QStringList MetaInfo::s_pluginDirs;

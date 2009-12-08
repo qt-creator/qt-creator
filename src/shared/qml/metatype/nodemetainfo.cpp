@@ -12,8 +12,7 @@
 #include <QtDeclarative/QmlComponent>
 #include <private/qmlvaluetype_p.h>
 
-namespace QKineticDesigner {
-
+namespace Qml {
 namespace Internal {
 
 class NodeMetaInfoData : public QSharedData
@@ -668,28 +667,4 @@ void NodeMetaInfo::setQmlFile(const QString &filePath)
     m_data->qmlFile = filePath;
 }
 
-//QDataStream& operator<<(QDataStream& stream, const NodeMetaInfo& nodeMetaInfo)
-//{
-//    stream << nodeMetaInfo.typeName();
-//    stream << nodeMetaInfo.majorVersion();
-//    stream << nodeMetaInfo.minorVersionTo();
-//
-//    return stream;
-//}
-//
-//QDataStream& operator>>(QDataStream& stream, NodeMetaInfo& nodeMetaInfo)
-//{
-//    QString typeName;
-//    int minorVersion;
-//    int majorVersion;
-//
-//    stream >> minorVersion;
-//    stream >> majorVersion;
-//    stream >> typeName;
-//
-//    nodeMetaInfo = MetaInfo::global().nodeMetaInfo(typeName/*, majorVersion ,minorVersion*/);
-//
-//    return stream;
-//}
-
-} // namespace QKineticDesigner
+} // namespace Qml

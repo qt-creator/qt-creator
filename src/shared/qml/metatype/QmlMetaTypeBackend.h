@@ -6,7 +6,6 @@
 #include <qml/qmlsymbol.h>
 
 namespace Qml {
-namespace MetaType {
 
 class QmlTypeSystem;
 
@@ -27,7 +26,6 @@ private:
     QmlTypeSystem *m_typeSystem;
 };
 
-} // namespace MetaType
 } // namespace Qml
 
 #endif // QMLMETATYPEBACKEND_H

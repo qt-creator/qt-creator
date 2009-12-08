@@ -9,7 +9,6 @@
 #include <QDebug>
 
 using namespace Qml;
-using namespace Qml::MetaType;
 using namespace QmlEditor;
 using namespace QmlEditor::Internal;
 using namespace QmlJS;

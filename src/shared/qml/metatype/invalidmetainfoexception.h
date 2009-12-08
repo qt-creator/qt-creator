@@ -3,7 +3,7 @@
 
 #include "exception.h"
 
-namespace QKineticDesigner {
+namespace Qml {
 
 class QML_EXPORT InvalidMetaInfoException : public Exception
 {

@@ -10,7 +10,7 @@
 
 class QmlContext;
 
-namespace QKineticDesigner {
+namespace Qml {
 
 class MetaInfo;
 
@@ -26,10 +26,10 @@ class PropertyMetaInfo;
 
 class QML_EXPORT NodeMetaInfo
 {
-    friend class QKineticDesigner::MetaInfo;
-    friend class QKineticDesigner::Internal::ItemLibraryInfoData;
-    friend class QKineticDesigner::Internal::MetaInfoPrivate;
-    friend class QKineticDesigner::Internal::MetaInfoParser;
+    friend class Qml::MetaInfo;
+    friend class Qml::Internal::ItemLibraryInfoData;
+    friend class Qml::Internal::MetaInfoPrivate;
+    friend class Qml::Internal::MetaInfoParser;
     friend QML_EXPORT uint qHash(const NodeMetaInfo &nodeMetaInfo);
     friend QML_EXPORT bool operator ==(const NodeMetaInfo &firstNodeInfo, const NodeMetaInfo &secondNodeInfo);
 
@@ -98,6 +98,6 @@ private:
 QML_EXPORT uint qHash(const NodeMetaInfo &nodeMetaInfo);
 QML_EXPORT bool operator ==(const NodeMetaInfo &firstNodeInfo,
                             const NodeMetaInfo &secondNodeInfo);
-}
+} // namespace Qml
 
 #endif // NODEMETAINFO_H

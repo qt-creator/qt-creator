@@ -9,7 +9,6 @@
 #include <QtCore/QObject>
 
 namespace Qml {
-namespace MetaType {
 
 class QmlMetaTypeBackend;
 
@@ -28,7 +27,6 @@ private:
     QList<QmlMetaTypeBackend *> backends;
 };
 
-} // namespace MetaType
 } // namespace Qml
 
 #endif // QMLTYPESYSTEM_H

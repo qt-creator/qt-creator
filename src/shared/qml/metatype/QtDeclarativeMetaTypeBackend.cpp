@@ -4,7 +4,6 @@
 #include <QDebug>
 
 namespace Qml {
-namespace MetaType {
 namespace Internal {
 
 class QmlDeclarativeSymbol: public QmlBuildInSymbol
@@ -31,7 +30,7 @@ class QmlDeclarativeObjectSymbol: public QmlDeclarativeSymbol
     QmlDeclarativeObjectSymbol &operator=(const QmlDeclarativeObjectSymbol &);
 
 public:
-    QmlDeclarativeObjectSymbol(const QKineticDesigner::NodeMetaInfo &metaInfo, QtDeclarativeMetaTypeBackend* backend):
+    QmlDeclarativeObjectSymbol(const NodeMetaInfo &metaInfo, QtDeclarativeMetaTypeBackend* backend):
             QmlDeclarativeSymbol(backend),
             m_metaInfo(metaInfo)
     {
@@ -71,7 +70,7 @@ public:
     }
 
 public:
-    static QString key(const QKineticDesigner::NodeMetaInfo &metaInfo)
+    static QString key(const NodeMetaInfo &metaInfo)
     {
         return key(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
     }
@@ -107,7 +106,7 @@ private:
     }
 
 private:
-    QKineticDesigner::NodeMetaInfo m_metaInfo;
+    NodeMetaInfo m_metaInfo;
     QString m_name;
 
     bool m_membersToBeDone;
@@ -120,7 +119,7 @@ class QmlDeclarativePropertySymbol: public QmlDeclarativeSymbol
     QmlDeclarativePropertySymbol &operator=(const QmlDeclarativePropertySymbol &);
 
 public:
-    QmlDeclarativePropertySymbol(const QKineticDesigner::PropertyMetaInfo &metaInfo, QtDeclarativeMetaTypeBackend* backend):
+    QmlDeclarativePropertySymbol(const PropertyMetaInfo &metaInfo, QtDeclarativeMetaTypeBackend* backend):
             QmlDeclarativeSymbol(backend),
             m_metaInfo(metaInfo)
     {
@@ -146,21 +145,19 @@ public:
     }
 
 private:
-    QKineticDesigner::PropertyMetaInfo m_metaInfo;
+    PropertyMetaInfo m_metaInfo;
 };
     
 } // namespace Internal
-} // namespace MetaType
 } // namespace Qml
 
 using namespace Qml;
-using namespace Qml::MetaType;
-using namespace Qml::MetaType::Internal;
+using namespace Qml::Internal;
 
 QtDeclarativeMetaTypeBackend::QtDeclarativeMetaTypeBackend(QmlTypeSystem *typeSystem):
         QmlMetaTypeBackend(typeSystem)
 {
-    foreach (const QKineticDesigner::NodeMetaInfo &metaInfo, QKineticDesigner::MetaInfo::global().allTypes()) {
+    foreach (const NodeMetaInfo &metaInfo, MetaInfo::global().allTypes()) {
         m_symbols.insert(QmlDeclarativeObjectSymbol::key(metaInfo), new QmlDeclarativeObjectSymbol(metaInfo, this));
     }
 }
@@ -175,7 +172,7 @@ QList<QmlSymbol *> QtDeclarativeMetaTypeBackend::availableTypes(const QString &p
     QList<QmlSymbol *> result;
     const QString prefix = package + QLatin1Char('/');
 
-    foreach (const QKineticDesigner::NodeMetaInfo &metaInfo, QKineticDesigner::MetaInfo::global().allTypes()) {
+    foreach (const NodeMetaInfo &metaInfo, MetaInfo::global().allTypes()) {
         if (metaInfo.typeName().startsWith(prefix) && metaInfo.majorVersion() == majorVersion && metaInfo.minorVersion() == minorVersion)
             result.append(getSymbol(metaInfo));
     }
@@ -195,36 +192,36 @@ QmlSymbol *QtDeclarativeMetaTypeBackend::resolve(const QString &typeName, const 
     return 0;
 }
 
-QList<QmlSymbol *> QtDeclarativeMetaTypeBackend::members(const QKineticDesigner::NodeMetaInfo &metaInfo)
+QList<QmlSymbol *> QtDeclarativeMetaTypeBackend::members(const NodeMetaInfo &metaInfo)
 {
     QList<QmlSymbol *> result;
 
-    foreach (const QKineticDesigner::PropertyMetaInfo &propertyInfo, metaInfo.properties(false).values()) {
+    foreach (const PropertyMetaInfo &propertyInfo, metaInfo.properties(false).values()) {
         result.append(new QmlDeclarativePropertySymbol(propertyInfo, this));
     }
 
     return result;
 }
 
-QList<QmlSymbol *> QtDeclarativeMetaTypeBackend::inheritedMembers(const QKineticDesigner::NodeMetaInfo &metaInfo)
+QList<QmlSymbol *> QtDeclarativeMetaTypeBackend::inheritedMembers(const NodeMetaInfo &metaInfo)
 {
     QList<QmlSymbol *> result;
 
-    foreach (const QKineticDesigner::NodeMetaInfo &superNode, metaInfo.directSuperClasses()) {
+    foreach (const NodeMetaInfo &superNode, metaInfo.directSuperClasses()) {
         result.append(getSymbol(superNode)->members(true));
     }
 
     return result;
 }
 
-QmlDeclarativeSymbol *QtDeclarativeMetaTypeBackend::typeOf(const QKineticDesigner::PropertyMetaInfo &metaInfo)
+QmlDeclarativeSymbol *QtDeclarativeMetaTypeBackend::typeOf(const PropertyMetaInfo &metaInfo)
 {
     const QString key = QmlDeclarativeObjectSymbol::key(metaInfo.type(), metaInfo.typeMajorVersion(), metaInfo.typeMinorVersion());
 
     return m_symbols.value(key, 0);
 }
 
-QmlDeclarativeSymbol *QtDeclarativeMetaTypeBackend::getSymbol(const QKineticDesigner::NodeMetaInfo &metaInfo)
+QmlDeclarativeSymbol *QtDeclarativeMetaTypeBackend::getSymbol(const NodeMetaInfo &metaInfo)
 {
     const QString key = QmlDeclarativeObjectSymbol::key(metaInfo);
 

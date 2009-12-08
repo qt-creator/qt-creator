@@ -4,9 +4,8 @@
 #include <qml/qml_global.h>
 
 #include <QString>
-#include <QtDebug>
 
-namespace QKineticDesigner {
+namespace Qml {
 
 class QML_EXPORT Exception
 {
@@ -37,6 +36,6 @@ private:
 
 QML_EXPORT QDebug operator<<(QDebug debug, const Exception &exception);
 
-}
+} // namespace Qml
 
 #endif // EXCEPTION_H

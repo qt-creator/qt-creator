@@ -7,7 +7,7 @@
 
 \see NodeMetaInfo PropertyMetaInfo MetaInfo
 */
-namespace QKineticDesigner {
+using namespace Qml;
 /*!
 \brief Constructor
 
@@ -30,6 +30,4 @@ InvalidMetaInfoException::InvalidMetaInfoException(int line,
 QString InvalidMetaInfoException::type() const
 {
     return "InvalidMetaInfoException";
-}
-
 }

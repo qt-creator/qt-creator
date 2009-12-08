@@ -8,7 +8,6 @@
 #include <QDebug>
 
 using namespace Qml;
-using namespace Qml::MetaType;
 
 QmlTypeSystem::QmlTypeSystem()
 {

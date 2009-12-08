@@ -44,9 +44,7 @@ class ICore;
 }
 
 namespace Qml {
-    namespace MetaType {
-        class QmlTypeSystem;
-    }
+    class QmlTypeSystem;
 }
 
 namespace QmlEditor {
@@ -152,7 +150,7 @@ private:
     QList<QmlJS::DiagnosticMessage> m_diagnosticMessages;
     QmlDocument::Ptr m_document;
     QmlModelManagerInterface *m_modelManager;
-    Qml::MetaType::QmlTypeSystem *m_typeSystem;
+    Qml::QmlTypeSystem *m_typeSystem;
 };
 
 } // namespace Internal

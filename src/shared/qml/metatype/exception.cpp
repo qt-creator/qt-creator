@@ -5,6 +5,7 @@
 #include <cxxabi.h>
 #endif
 
+#include <QDebug>
 #include <QRegExp>
 
 /*!
@@ -18,8 +19,7 @@
     the result would be a inconsistent model or a crash.
 */
 
-
-namespace QKineticDesigner {
+using namespace Qml;
 
 #ifdef Q_OS_LINUX
 const char* demangle(const char* name)
@@ -160,4 +160,3 @@ QDebug operator<<(QDebug debug, const Exception &exception)
 
 \returns the type as a string
 */
-}
