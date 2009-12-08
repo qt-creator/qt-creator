@@ -1700,37 +1700,44 @@ static void indentCPPBlock(const CPPEditor::TabSettings &ts,
     ts.indentLine(block, indent);
 }
 
+static int indentationColumn(const TextEditor::TabSettings &tabSettings,
+                             const BackwardsScanner &scanner,
+                             int index)
+{
+    return tabSettings.indentationColumn(scanner.indentationString(index));
+}
+
 void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
     QTextCursor tc(block);
     tc.movePosition(QTextCursor::EndOfBlock);
 
+    const TabSettings &ts = tabSettings();
+
     BackwardsScanner tk(tc, QString(), 400);
     const int tokenCount = tk.startToken();
-    const int indentSize = tabSettings().m_indentSize;
 
     if (tokenCount != 0) {
         const SimpleToken firstToken = tk[0];
 
         if (firstToken.is(T_COLON)) {
-            const int indent = tk.indentation(-1) +  // indentation of the previous newline
-                               indentSize;
-            tabSettings().indentLine(block, indent);
+            const int previousLineIndent = indentationColumn(ts, tk, -1);
+            ts.indentLine(block, previousLineIndent + ts.m_indentSize);
             return;
         } else if ((firstToken.is(T_PUBLIC) || firstToken.is(T_PROTECTED) || firstToken.is(T_PRIVATE) ||
                     firstToken.is(T_Q_SIGNALS) || firstToken.is(T_Q_SLOTS)) &&
                     tk.size() > 1 && tk[1].is(T_COLON)) {
             const int startOfBlock = tk.startOfBlock(0);
             if (startOfBlock != 0) {
-                const int indent = tk.indentation(startOfBlock);
-                tabSettings().indentLine(block, indent);
+                const int indent = indentationColumn(ts, tk, startOfBlock);
+                ts.indentLine(block, indent);
                 return;
             }
         } else if (firstToken.is(T_CASE) || firstToken.is(T_DEFAULT)) {
             const int startOfBlock = tk.startOfBlock(0);
             if (startOfBlock != 0) {
-                const int indent = tk.indentation(startOfBlock);
-                tabSettings().indentLine(block, indent);
+                const int indent = indentationColumn(ts, tk, startOfBlock);
+                ts.indentLine(block, indent);
                 return;
             }
             return;
@@ -1749,15 +1756,15 @@ void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedCha
         const QString spell = tk.text(tokenIndex);
         if (tk[tokenIndex].followsNewline() && (spell.startsWith(QLatin1String("QT_")) ||
                                                 spell.startsWith(QLatin1String("Q_")))) {
-            const int indent = tk.indentation(tokenIndex);
-            tabSettings().indentLine(block, indent);
+            const int indent = indentationColumn(ts, tk, tokenIndex);
+            ts.indentLine(block, indent);
             return;
         }
     }
 
     const TextEditor::TextBlockIterator begin(doc->begin());
     const TextEditor::TextBlockIterator end(block.next());
-    indentCPPBlock(tabSettings(), block, begin, end, typedChar);
+    indentCPPBlock(ts, block, begin, end, typedChar);
 }
 
 bool CPPEditor::event(QEvent *e)

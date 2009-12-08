@@ -61,7 +61,7 @@ public:
     // n-la token is [startToken - n]
     SimpleToken operator[](int index) const; // ### deprecate
 
-    int indentation(int index) const;
+    QString indentationString(int index) const;
 
     int startOfLine(int index) const;
     int startOfMatchingBrace(int index) const;

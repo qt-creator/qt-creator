@@ -641,6 +641,7 @@ ResolveExpression::resolveBaseExpression(const QList<LookupItem> &baseResults, i
             foreach (Symbol *typedefCandidate, typedefCandidates) {
                 if (typedefCandidate->isTypedef() && typedefCandidate->type()->isNamedType()) {
                     ty = typedefCandidate->type();
+                    lastVisibleSymbol = typedefCandidate;
                     break;
                 }
             }
