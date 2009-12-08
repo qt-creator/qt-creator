@@ -72,10 +72,11 @@ void CMakeBuildEnvironmentWidget::init(ProjectExplorer::BuildConfiguration *bc)
         disconnect(m_buildConfiguration, SIGNAL(environmentChanged()),
                    this, SLOT(environmentChanged()));
     }
+    m_buildConfiguration = static_cast<CMakeBuildConfiguration *>(bc);
+
     connect(m_buildConfiguration, SIGNAL(environmentChanged()),
             this, SLOT(environmentChanged()));
 
-    m_buildConfiguration = static_cast<CMakeBuildConfiguration *>(bc);
 
     m_clearSystemEnvironmentCheckBox->setChecked(!m_buildConfiguration->useSystemEnvironment());
     m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
