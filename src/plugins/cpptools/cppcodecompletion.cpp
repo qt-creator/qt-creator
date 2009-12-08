@@ -1276,6 +1276,9 @@ void CppCodeCompletion::completeNamespace(const QList<Symbol *> &candidates,
     }
 
     foreach (Scope *scope, todo) {
+        if (! scope->isNamespaceScope())
+            continue;
+
         addCompletionItem(scope->owner());
 
         for (unsigned i = 0; i < scope->symbolCount(); ++i) {
@@ -1297,6 +1300,9 @@ void CppCodeCompletion::completeClass(const QList<Symbol *> &candidates,
     context.expand(klass->members(), context.visibleScopes(), &todo);
 
     foreach (Scope *scope, todo) {
+        if (! scope->isClassScope())
+            continue;
+
         addCompletionItem(scope->owner());
 
         for (unsigned i = 0; i < scope->symbolCount(); ++i) {
