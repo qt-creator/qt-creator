@@ -115,7 +115,7 @@ GitPlugin::GitPlugin() :
     m_blameAction(0),
     m_logProjectAction(0),
     m_undoFileAction(0),
-    m_undoProjectAction(0),
+    m_undoRepositoryAction(0),
     m_showAction(0),
     m_stageAction(0),
     m_unstageAction(0),
@@ -282,10 +282,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
     gitContainer->addAction(command);
 
-    m_undoProjectAction = new QAction(tr("Undo Project Changes"), this);
-    command = actionManager->registerAction(m_undoProjectAction, "Git.UndoProject", globalcontext);
+    m_undoRepositoryAction = new QAction(tr("Undo Repository Changes"), this);
+    command = actionManager->registerAction(m_undoRepositoryAction, "Git.UndoRepository", globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_undoProjectAction, SIGNAL(triggered()), this, SLOT(undoProjectChanges()));
+    connect(m_undoRepositoryAction, SIGNAL(triggered()), this, SLOT(undoRepositoryChanges()));
     gitContainer->addAction(command);
 
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Global"), this));
@@ -428,7 +428,7 @@ void GitPlugin::undoFileChanges()
     m_gitClient->revert(QStringList(state.currentFile()));
 }
 
-void GitPlugin::undoProjectChanges()
+void GitPlugin::undoRepositoryChanges()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
@@ -669,7 +669,7 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_diffProjectAction->setParameter(projectName);
     m_logProjectAction->setEnabled(projectEnabled);
     m_logProjectAction->setParameter(projectName);
-    m_undoProjectAction->setEnabled(projectEnabled);
+    m_undoRepositoryAction->setEnabled(projectEnabled);
 
     const bool repositoryEnabled = currentState().hasTopLevel();
     m_statusRepositoryAction->setEnabled(repositoryEnabled);

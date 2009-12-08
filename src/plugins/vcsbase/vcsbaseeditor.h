@@ -42,6 +42,10 @@ class QTextCodec;
 class QTextCursor;
 QT_END_NAMESPACE
 
+namespace Core {
+    class IVersionControl;
+}
+
 namespace VCSBase {
 
 struct VCSBaseEditorPrivate;
@@ -114,6 +118,7 @@ public:
     // The codec should be set on editors displaying diff or annotation
     // output.
     static QTextCodec *getCodec(const QString &source);
+    static QTextCodec *getCodec(const QString &workingDirectory, const QStringList &files);
 
     // Utility to return the editor from the IEditor returned by the editor
     // manager which is a BaseTextEditable.
@@ -163,6 +168,12 @@ private slots:
     void slotPopulateDiffBrowser();
     void slotDiffBrowse(int);
     void slotDiffCursorPositionChanged();
+
+protected:
+    /* A helper that can be used to locate a file in a diff in case it
+     * is relative. Tries to derive the directory from source and
+     * version control. */
+    QString findDiffFile(const QString &f, Core::IVersionControl *control = 0) const;
 
 private:
     // Implement to return a set of change identifiers in

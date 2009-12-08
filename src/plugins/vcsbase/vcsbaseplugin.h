@@ -142,12 +142,12 @@ protected:
     explicit VCSBasePlugin(const QString &submitEditorKind);
 
     void initialize(Core::IVersionControl *vc);
-    Core::IVersionControl *versionControl() const;
 
 public:   
     virtual ~VCSBasePlugin();
 
     const VCSBasePluginState &currentState() const;
+    Core::IVersionControl *versionControl() const;
 
 protected:
     enum ActionState { NoVCSEnabled, OtherVCSEnabled, VCSEnabled };

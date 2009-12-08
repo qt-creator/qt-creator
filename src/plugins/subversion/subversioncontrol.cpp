@@ -30,6 +30,8 @@
 #include "subversioncontrol.h"
 #include "subversionplugin.h"
 
+#include <QtCore/QFileInfo>
+
 using namespace Subversion;
 using namespace Subversion::Internal;
 
@@ -66,12 +68,14 @@ bool SubversionControl::vcsOpen(const QString & /* fileName */)
 
 bool SubversionControl::vcsAdd(const QString &fileName)
 {
-    return m_plugin->vcsAdd(fileName);
+    const QFileInfo fi(fileName);
+    return m_plugin->vcsAdd(fi.absolutePath(), fi.fileName());
 }
 
 bool SubversionControl::vcsDelete(const QString &fileName)
 {
-    return m_plugin->vcsDelete(fileName);
+    const QFileInfo fi(fileName);
+    return m_plugin->vcsDelete(fi.absolutePath(), fi.fileName());
 }
 
 bool SubversionControl::managesDirectory(const QString &directory) const

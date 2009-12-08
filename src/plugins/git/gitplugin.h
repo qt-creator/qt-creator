@@ -95,7 +95,7 @@ private slots:
     void blameFile();
     void logProject();
     void undoFileChanges();
-    void undoProjectChanges();
+    void undoRepositoryChanges();
     void stageFile();
     void unstageFile();
 
@@ -126,7 +126,7 @@ private:
     Utils::ParameterAction *m_blameAction;
     Utils::ParameterAction *m_logProjectAction;
     Utils::ParameterAction *m_undoFileAction;
-    QAction *m_undoProjectAction;
+    QAction *m_undoRepositoryAction;
     QAction *m_showAction;
     Utils::ParameterAction *m_stageAction;
     Utils::ParameterAction *m_unstageAction;

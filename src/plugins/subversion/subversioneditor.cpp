@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "subversioneditor.h"
+#include "subversionplugin.h"
 
 #include "annotationhighlighter.h"
 #include "subversionconstants.h"
@@ -36,6 +37,7 @@
 #include <vcsbase/diffhighlighter.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 #include <QtGui/QTextCursor>
 
 using namespace Subversion;
@@ -127,9 +129,10 @@ QString SubversionEditor::fileNameFromDiffSpecification(const QTextBlock &inBloc
             const int tabIndex = diffFileName.lastIndexOf(QLatin1Char('\t'));
             if (tabIndex != -1)
                 diffFileName.truncate(tabIndex);
+            const QString rc = findDiffFile(diffFileName, SubversionPlugin::subversionPluginInstance()->versionControl());
             if (Subversion::Constants::debug)
-                qDebug() << Q_FUNC_INFO << diffFileName;
-            return diffFileName;
+                qDebug() << Q_FUNC_INFO << diffFileName << rc << source();
+            return rc;
         }
     }
     return QString();

@@ -33,6 +33,7 @@
 #include "subversionsettings.h"
 
 #include <vcsbase/vcsbaseplugin.h>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QDir;
@@ -46,10 +47,6 @@ namespace Core {
 }
 namespace Utils {
     class ParameterAction;
-}
-
-namespace ProjectExplorer {
-    class ProjectExplorerPlugin;
 }
 
 namespace VCSBase {
@@ -82,7 +79,7 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
 
-    void svnDiff(const QStringList &files, QString diffname = QString());
+    void svnDiff(const QString  &workingDir, const QStringList &files, QString diffname = QString());
 
     SubversionSubmitEditor *openSubversionSubmitEditor(const QString &fileName);
 
@@ -90,8 +87,8 @@ public:
     void setSettings(const SubversionSettings &s);
 
     // IVersionControl
-    bool vcsAdd(const QString &fileName);
-    bool vcsDelete(const QString &fileName);
+    bool vcsAdd(const QString &workingDir, const QString &fileName);
+    bool vcsDelete(const QString &workingDir, const QString &fileName);
     bool managesDirectory(const QString &directory) const;
     QString findTopLevelForDirectory(const QString &directory) const;
 
@@ -112,7 +109,7 @@ private slots:
     void slotDescribe();
     void updateProject();
     void submitCurrentLog();
-    void diffFiles(const QStringList &);
+    void diffCommitFiles(const QStringList &);
 
 protected:
     virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
@@ -120,18 +117,17 @@ protected:
 
 private:
     inline bool isCommitEditorOpen() const;
-    QString currentFileName() const;
     Core::IEditor * showOutputInEditor(const QString& title, const QString &output,
                                        int editorType, const QString &source,
                                        QTextCodec *codec);
-    SubversionResponse runSvn(const QStringList &arguments, int timeOut,
+    SubversionResponse runSvn(const QString &workingDir,
+                              const QStringList &arguments, int timeOut,
                               bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0);
-    void annotate(const QString &file);
-    void filelog(const QString &file);
+    void annotate(const QString &workingDir, const QString &file);
+    void filelog(const QString &workingDir, const QStringList &file = QStringList());
     bool managesDirectory(const QDir &directory) const;
     QString findTopLevelForDirectoryI(const QString &directory) const;
-    QStringList currentProjectsTopLevels(QString *name = 0) const;
-    void startCommit(const QStringList &files);
+    void startCommit(const QString &workingDir, const QStringList &files = QStringList());
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();
     inline SubversionControl *subVersionControl() const;
@@ -140,20 +136,19 @@ private:
 
     SubversionSettings m_settings;
     QString m_commitMessageFileName;
-
-    ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
+    QString m_commitRepository;
 
     Utils::ParameterAction *m_addAction;
     Utils::ParameterAction *m_deleteAction;
     Utils::ParameterAction *m_revertAction;
-    QAction *m_diffProjectAction;
+    Utils::ParameterAction *m_diffProjectAction;
     Utils::ParameterAction *m_diffCurrentAction;
     QAction *m_commitAllAction;
     Utils::ParameterAction *m_commitCurrentAction;
     Utils::ParameterAction *m_filelogCurrentAction;
     Utils::ParameterAction *m_annotateCurrentAction;
-    QAction *m_statusAction;
-    QAction *m_updateProjectAction;
+    Utils::ParameterAction *m_statusProjectAction;
+    Utils::ParameterAction *m_updateProjectAction;
     QAction *m_describeAction;
 
     QAction *m_submitCurrentLogAction;

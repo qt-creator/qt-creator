@@ -37,6 +37,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/ifile.h>
+#include <coreplugin/iversioncontrol.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
@@ -595,6 +596,13 @@ QTextCodec *VCSBaseEditor::getCodec(const QString &source)
     return sys;
 }
 
+QTextCodec *VCSBaseEditor::getCodec(const QString &workingDirectory, const QStringList &files)
+{
+    if (files.empty())
+        return getCodec(workingDirectory);
+    return getCodec(workingDirectory + QLatin1Char('/') + files.front());
+}
+
 VCSBaseEditor *VCSBaseEditor::getVcsBaseEditor(const Core::IEditor *editor)
 {
     if (const TextEditor::BaseTextEditorEditable *be = qobject_cast<const TextEditor::BaseTextEditorEditable *>(editor))
@@ -665,6 +673,35 @@ QString VCSBaseEditor::getTitleId(const QString &workingDirectory, const QString
         break;
     }
     return fileNames.join(QLatin1String(", "));
+}
+
+// Find the complete file from a diff relative specification.
+QString VCSBaseEditor::findDiffFile(const QString &f, Core::IVersionControl *control /* = 0 */) const
+{
+    // Try the file.
+    const QFileInfo in(f);
+    if (in.isAbsolute())
+        return in.isFile() ? f : QString();
+    if (in.isFile())
+        return in.absoluteFilePath();
+    // Try in source directory
+    if (source().isEmpty())
+        return QString();
+    const QFileInfo sourceInfo(source());
+    const QString sourceDir = sourceInfo.isDir() ? sourceInfo.absoluteFilePath() : sourceInfo.absolutePath();
+    const QFileInfo sourceFileInfo(sourceDir + QLatin1Char('/') + f);
+    if (sourceFileInfo.isFile())
+        return sourceFileInfo.absoluteFilePath();
+    // Try to locate via repository.
+    if (!control)
+        return QString();
+    const QString topLevel = control->findTopLevelForDirectory(sourceDir);
+    if (topLevel.isEmpty())
+        return QString();
+    const QFileInfo topLevelFileInfo(topLevel + QLatin1Char('/') + f);
+    if (topLevelFileInfo.isFile())
+        return topLevelFileInfo.absoluteFilePath();
+    return QString();
 }
 
 } // namespace VCSBase
