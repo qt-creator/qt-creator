@@ -163,10 +163,19 @@ int NavigationWidget::storedWidth()
     return m_width;
 }
 
+void NavigationWidget::updateToggleText()
+{
+    if (isShown())
+        m_toggleSideBarAction->setText(tr("Hide Sidebar"));
+    else
+        m_toggleSideBarAction->setText(tr("Show Sidebar"));
+}
+
 void NavigationWidget::placeHolderChanged(NavigationWidgetPlaceHolder *holder)
 {
     m_toggleSideBarAction->setEnabled(holder);
     m_toggleSideBarAction->setChecked(holder && isShown());
+    updateToggleText();
 }
 
 void NavigationWidget::resizeEvent(QResizeEvent *re)
@@ -307,6 +316,7 @@ void NavigationWidget::setShown(bool b)
     } else {
         m_toggleSideBarAction->setChecked(false);
     }
+    updateToggleText();
 }
 
 bool NavigationWidget::isShown() const

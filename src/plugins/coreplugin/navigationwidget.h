@@ -107,6 +107,7 @@ private slots:
     void closeSubWidget();
 
 private:
+    void updateToggleText();
     NavigationSubWidget *insertSubItem(int position);
     QList<NavigationSubWidget *> m_subWidgets;
     QHash<QShortcut *, QString> m_shortcutMap;

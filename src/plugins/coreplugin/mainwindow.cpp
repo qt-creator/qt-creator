@@ -716,6 +716,7 @@ void MainWindow::registerDefaultActions()
                                         tr("Show Sidebar"), this);
     m_toggleSideBarAction->setCheckable(true);
     cmd = am->registerAction(m_toggleSideBarAction, Constants::TOGGLE_SIDEBAR, m_globalContext);
+    cmd->setAttribute(Command::CA_UpdateText);
 #ifdef Q_WS_MAC
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+0"));
 #else
