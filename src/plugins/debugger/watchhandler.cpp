@@ -632,7 +632,8 @@ static QString formattedValue(const WatchData &data, int format)
     if (isIntType(data.type)) {
         if (format <= 0)
             return data.value;
-        if (data.type.contains(QLatin1String("unsigned")))
+        // Evil hack, covers 'unsigned' as well as quint64.
+        if (data.type.contains(QLatin1Char('u')))
             return reformatInteger(data.value.toULongLong(), format);
         return reformatInteger(data.value.toLongLong(), format);
     }
