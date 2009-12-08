@@ -35,6 +35,7 @@
 #include "qt4project.h"
 #include "profilereader.h"
 #include "qmakestep.h"
+#include "qt4buildconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/basefilewizard.h>
@@ -247,12 +248,10 @@ void Qt4Manager::runQMakeContextMenu()
 
 void Qt4Manager::runQMake(ProjectExplorer::Project *p)
 {
-    QTC_ASSERT(p, return);
-    ProjectExplorer::BuildConfiguration *bc = p->activeBuildConfiguration();
-    QMakeStep *qs = 0;
-    foreach(BuildStep *bs, bc->buildSteps())
-        if ((qs = qobject_cast<QMakeStep *>(bs)) != 0)
-            break;
+    Qt4Project *qt4pro = qobject_cast<Qt4Project *>(p);
+    QTC_ASSERT(qt4pro, return);
+    Qt4BuildConfiguration *bc = qt4pro->activeQt4BuildConfiguration();
+    QMakeStep *qs = bc->qmakeStep();
 
     if (!qs)
         return;
