@@ -11,7 +11,6 @@ HEADERS += qt4projectmanagerplugin.h \
     profilehighlighter.h \
     profileeditorfactory.h \
     profilereader.h \
-    profilecache.h \
     wizards/qtprojectparameters.h \
     wizards/guiappwizard.h \
     wizards/consoleappwizard.h \
