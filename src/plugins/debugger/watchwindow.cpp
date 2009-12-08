@@ -210,9 +210,12 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QStringList alternativeFormats = 
         model()->data(mi0, TypeFormatListRole).toStringList();
-    const int typeFormat = qMax(int(DecimalFormat), model()->data(mi0, TypeFormatRole).toInt());
-    const int individualFormat = model()->data(mi0, IndividualFormatRole).toInt();
-    const int effectiveIndividualFormat = individualFormat == -1 ? typeFormat : individualFormat;
+    const int typeFormat =
+        qMax(int(DecimalFormat), model()->data(mi0, TypeFormatRole).toInt());
+    const int individualFormat =
+        model()->data(mi0, IndividualFormatRole).toInt();
+    const int effectiveIndividualFormat =
+        individualFormat == -1 ? typeFormat : individualFormat;
 
     QMenu typeFormatMenu;
     QMenu individualFormatMenu;

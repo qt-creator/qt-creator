@@ -168,6 +168,18 @@ enum IntegerFormat
     OctalFormat,
 };
 
+
+enum PointerFomat
+{
+    BaldPointerFormat = 0, // keep that at 0 as default
+    Latin1StringFormat,
+    Local8BitStringFormat,
+    Utf8StringFormat,
+    Utf16StringFormat,
+    Ucs4StringFormat,
+};
+
+
 enum DumpableFormat
 {
     PrettyFormat = 0, // keep that at 0 as default

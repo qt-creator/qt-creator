@@ -627,18 +627,35 @@ template <class IntType> QString reformatInteger(IntType value, int format)
     return QString::number(value); // not reached
 }
 
-static QString formattedValue(const WatchData &data,
-    int individualFormat, int typeFormat)
+static QString formattedValue(const WatchData &data, int format)
 {
     if (isIntType(data.type)) {
-        const int format = individualFormat == -1 ? typeFormat : individualFormat;
         if (format <= 0)
             return data.value;
-        if (data.type.contains(QLatin1String("unsigned"))) {            
+        if (data.type.contains(QLatin1String("unsigned")))
             return reformatInteger(data.value.toULongLong(), format);
-        } else {
-            return reformatInteger(data.value.toLongLong(), format);
-        }
+        return reformatInteger(data.value.toLongLong(), format);
+    }
+    if (0 && !data.addr.isEmpty()) {
+        if (format == BaldPointerFormat)
+            return data.value;
+        bool ok = false;
+        const void *addr =
+            reinterpret_cast<void *>(data.value.toULongLong(&ok, 0));
+        if (!ok || !addr)
+            return data.value;
+        // FIXME: add a round trip throught the debugger to prevent crashs?
+        if (format == Latin1StringFormat)
+            return QString::fromLatin1(static_cast<const char *>(addr));
+        if (format == Local8BitStringFormat)
+            return QString::fromLocal8Bit(static_cast<const char *>(addr));
+        if (format == Utf8StringFormat)
+            return QString::fromUtf8(static_cast<const char *>(addr));
+        if (format == Utf16StringFormat)
+            return QString::fromUtf16(static_cast<const ushort *>(addr));
+        if (format == Ucs4StringFormat)
+            return QString::fromUcs4(static_cast<const uint *>(addr));
+         return data.value;
     }
     return data.value;
 }
@@ -762,14 +779,20 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
     switch (role) {
         case Qt::DisplayRole: {
             switch (idx.column()) {
-                case 0: return data.name;
-                case 1: return formattedValue(data,
-                    m_handler->m_individualFormats.value(data.iname, -1),
-                    m_handler->m_typeFormats.value(data.type, -1));
-                case 2:
+                case 0:
+                    return data.name;
+                case 1: {
+                    int format = m_handler->m_individualFormats.value(data.iname, -1);
+                    if (format == -1)
+                        format = m_handler->m_typeFormats.value(data.type, -1);
+                    //qDebug() << "FORMATTED: " << format << formattedValue(data, format);
+                    return formattedValue(data, format);
+                }
+                case 2: {
                     if (!data.displayedType.isEmpty())
                         return data.displayedType;
                     return niceType(data.type);
+                }
                 default: break;
             }
             break;
@@ -806,12 +829,21 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             if (isIntType(data.type))
                 return QStringList() << tr("decimal") << tr("hexadecimal")
                     << tr("binary") << tr("octal");
+            if (!data.addr.isEmpty())
+                return QStringList()
+                    << tr("Bald pointer")
+                    << tr("Latin1 string")
+                    << tr("UTF8 string")
+                    << tr("UTF16 string")
+                    << tr("UCS4 string");
             break;
 
         case TypeFormatRole:
             return m_handler->m_typeFormats.value(data.type, -1);
+
         case IndividualFormatRole:
             return m_handler->m_individualFormats.value(data.iname, -1);
+
         case AddressRole: {
             if (!data.addr.isEmpty())
                 return data.addr;
