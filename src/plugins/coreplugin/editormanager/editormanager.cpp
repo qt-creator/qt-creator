@@ -355,7 +355,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_d->m_removeAllSplitsAction, SIGNAL(triggered()), this, SLOT(removeAllSplits()));
 
-    m_d->m_gotoOtherSplitAction = new QAction(tr("Goto Other Split"), this);
+    m_d->m_gotoOtherSplitAction = new QAction(tr("Go to Next Split"), this);
     cmd = am->registerAction(m_d->m_gotoOtherSplitAction, Constants::GOTO_OTHER_SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("%1,o").arg(prefix)));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);

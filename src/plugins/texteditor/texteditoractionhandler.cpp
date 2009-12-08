@@ -228,24 +228,24 @@ void TextEditorActionHandler::createActions()
     connect(m_resetFontSizeAction, SIGNAL(triggered()), this, SLOT(resetFontSize()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
 
-    m_gotoBlockStartAction = new QAction(tr("Goto Block Start"), this);
+    m_gotoBlockStartAction = new QAction(tr("Go to Block Start"), this);
     command = am->registerAction(m_gotoBlockStartAction, Constants::GOTO_BLOCK_START, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+[")));
     connect(m_gotoBlockStartAction, SIGNAL(triggered()), this, SLOT(gotoBlockStart()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
-    m_gotoBlockEndAction = new QAction(tr("Goto Block End"), this);
+    m_gotoBlockEndAction = new QAction(tr("Go to Block End"), this);
     command = am->registerAction(m_gotoBlockEndAction, Constants::GOTO_BLOCK_END, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+]")));
     connect(m_gotoBlockEndAction, SIGNAL(triggered()), this, SLOT(gotoBlockEnd()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
-    m_gotoBlockStartWithSelectionAction = new QAction(tr("Goto Block Start With Selection"), this);
+    m_gotoBlockStartWithSelectionAction = new QAction(tr("Go to Block Start With Selection"), this);
     command = am->registerAction(m_gotoBlockStartWithSelectionAction, Constants::GOTO_BLOCK_START_WITH_SELECTION, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+{")));
     connect(m_gotoBlockStartWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockStartWithSelection()));
 
-    m_gotoBlockEndWithSelectionAction = new QAction(tr("Goto Block End With Selection"), this);
+    m_gotoBlockEndWithSelectionAction = new QAction(tr("Go to Block End With Selection"), this);
     command = am->registerAction(m_gotoBlockEndWithSelectionAction, Constants::GOTO_BLOCK_END_WITH_SELECTION, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+}")));
     connect(m_gotoBlockEndWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockEndWithSelection()));
