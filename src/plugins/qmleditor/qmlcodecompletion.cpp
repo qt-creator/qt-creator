@@ -90,18 +90,6 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     m_startPosition = pos;
     m_completions.clear();
 
-//    foreach (const QString &word, edit->keywords()) {
-//        TextEditor::CompletionItem item(this);
-//        item.m_text = word;
-//        m_completions.append(item);
-//    }
-//
-//    foreach (const QString &word, edit->words()) {
-//        TextEditor::CompletionItem item(this);
-//        item.m_text = word;
-//        m_completions.append(item);
-//    }
-
     QmlDocument::Ptr qmlDocument = edit->qmlDocument();
 //    qDebug() << "*** document:" << qmlDocument;
     if (qmlDocument.isNull())

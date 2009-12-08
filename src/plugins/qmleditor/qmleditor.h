@@ -101,7 +101,6 @@ public:
     ~ScriptEditor();
 
     QList<Declaration> declarations() const;
-    QStringList words() const;
     QStringList keywords() const;
 
     QList<QmlJS::DiagnosticMessage> diagnosticMessages() const
@@ -145,7 +144,6 @@ private:
     QTimer *m_updateDocumentTimer;
     QComboBox *m_methodCombo;
     QList<Declaration> m_declarations;
-    QStringList m_words;
     QMap<QString, QList<QmlJS::AST::SourceLocation> > m_ids; // ### use QMultiMap
     QList<QmlJS::DiagnosticMessage> m_diagnosticMessages;
     QmlDocument::Ptr m_document;

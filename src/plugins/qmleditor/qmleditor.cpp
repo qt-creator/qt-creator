@@ -77,101 +77,6 @@ using namespace SharedTools;
 namespace QmlEditor {
 namespace Internal {
 
-class FindWords: protected Visitor
-{
-public:
-    QStringList operator()(AST::Node *node)
-    {
-        _words.clear();
-        accept(node);
-        return QStringList(_words.toList());
-    }
-
-protected:
-    void accept(AST::Node *node)
-    { AST::Node::acceptChild(node, this); }
-
-    using Visitor::visit;
-    using Visitor::endVisit;
-
-    void addWords(AST::UiQualifiedId *id)
-    {
-        for (; id; id = id->next) {
-            if (id->name)
-                _words.insert(id->name->asString());
-        }
-    }
-
-    virtual bool visit(AST::UiPublicMember *node)
-    {
-        if (node->name)
-            _words.insert(node->name->asString());
-
-        return true;
-    }
-
-    virtual bool visit(AST::UiQualifiedId *node)
-    {
-        if (node->name)
-            _words.insert(node->name->asString());
-
-        return true;
-    }
-
-    virtual bool visit(AST::IdentifierExpression *node)
-    {
-        if (node->name)
-            _words.insert(node->name->asString());
-
-        return true;
-    }
-
-    virtual bool visit(AST::FieldMemberExpression *node)
-    {
-        if (node->name)
-            _words.insert(node->name->asString());
-
-        return true;
-    }
-
-    virtual bool visit(AST::FunctionExpression *node)
-    {
-        if (node->name)
-            _words.insert(node->name->asString());
-
-        for (AST::FormalParameterList *it = node->formals; it; it = it->next) {
-            if (it->name)
-                _words.insert(it->name->asString());
-        }
-
-        return true;
-    }
-
-    virtual bool visit(AST::FunctionDeclaration *node)
-    {
-        if (node->name)
-            _words.insert(node->name->asString());
-
-        for (AST::FormalParameterList *it = node->formals; it; it = it->next) {
-            if (it->name)
-                _words.insert(it->name->asString());
-        }
-
-        return true;
-    }
-
-    virtual bool visit(AST::VariableDeclaration *node)
-    {
-        if (node->name)
-            _words.insert(node->name->asString());
-
-        return true;
-    }
-
-private:
-    QSet<QString> _words;
-};
-
 class FindIdDeclarations: protected Visitor
 {
 public:
@@ -415,9 +320,6 @@ ScriptEditor::~ScriptEditor()
 QList<Declaration> ScriptEditor::declarations() const
 { return m_declarations; }
 
-QStringList ScriptEditor::words() const
-{ return m_words; }
-
 Core::IEditor *ScriptEditorEditable::duplicate(QWidget *parent)
 {
     ScriptEditor *newEditor = new ScriptEditor(parent);
@@ -465,9 +367,6 @@ void ScriptEditor::onDocumentUpdated(QmlEditor::QmlDocument::Ptr doc)
     if (doc->isParsedCorrectly()) {
         FindDeclarations findDeclarations;
         m_declarations = findDeclarations(doc->program());
-
-        FindWords findWords;
-        m_words = findWords(doc->program());
 
         QStringList items;
         items.append(tr("<Select Symbol>"));
