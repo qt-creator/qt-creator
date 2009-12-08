@@ -148,7 +148,9 @@ public:
     void setType(const FullySpecifiedType &type);
 
     bool hasInitializer() const;
-    void setInitializer(bool hasInitializer);
+
+    const StringLiteral *initializer() const;
+    void setInitializer(const StringLiteral *initializer);
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
@@ -164,7 +166,7 @@ protected:
 
 private:
     FullySpecifiedType _type;
-    bool _initializer: 1;
+    const StringLiteral *_initializer;
 };
 
 class CPLUSPLUS_EXPORT ScopedSymbol: public Symbol

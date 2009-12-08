@@ -426,7 +426,7 @@ bool CheckName::visit(ObjCMessageArgumentDeclarationAST *ast)
         Argument *arg = control()->newArgument(ast->firstToken(), _name);
         ast->argument = arg;
         arg->setType(type);
-        arg->setInitializer(false);
+        arg->setInitializer(0);
         _scope->enterSymbol(arg);
     }
 

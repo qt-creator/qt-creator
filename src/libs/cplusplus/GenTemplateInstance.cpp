@@ -144,7 +144,7 @@ private:
                                                        originalArgument->name());
 
                 arg->setType(q->apply(originalArgument->type()));
-                arg->setInitializer(originalArgument->hasInitializer());
+                arg->setInitializer(originalArgument->initializer());
                 fun->arguments()->enterSymbol(arg);
             }
 

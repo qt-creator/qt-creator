@@ -128,17 +128,20 @@ void Declaration::visitSymbol0(SymbolVisitor *visitor)
 
 Argument::Argument(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name),
-      _initializer(false)
+      _initializer(0)
 { }
 
 Argument::~Argument()
 { }
 
 bool Argument::hasInitializer() const
+{ return _initializer != 0; }
+
+const StringLiteral *Argument::initializer() const
 { return _initializer; }
 
-void Argument::setInitializer(bool hasInitializer)
-{ _initializer = hasInitializer; }
+void Argument::setInitializer(const StringLiteral *initializer)
+{ _initializer = initializer; }
 
 void Argument::setType(const FullySpecifiedType &type)
 { _type = type; }

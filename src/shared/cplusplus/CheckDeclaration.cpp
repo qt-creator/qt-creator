@@ -56,6 +56,7 @@
 #include "Symbols.h"
 #include "Control.h"
 #include "Literals.h"
+#include <string>
 #include <cassert>
 
 using namespace CPlusPlus;
@@ -419,8 +420,19 @@ bool CheckDeclaration::visit(ParameterDeclarationAST *ast)
     FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
     Argument *arg = control()->newArgument(sourceLocation, argName);
     ast->symbol = arg;
-    if (ast->expression)
-        arg->setInitializer(true);
+    if (ast->expression) {
+        unsigned startOfExpression = ast->expression->firstToken();
+        unsigned endOfExpression = ast->expression->lastToken();
+        std::string buffer;
+        for (unsigned index = startOfExpression; index != endOfExpression; ++index) {
+            const Token &tk = tokenAt(index);
+            if (tk.whitespace() || tk.newline())
+                buffer += ' ';
+            buffer += tk.spell();
+        }
+        const StringLiteral *initializer = control()->findOrInsertStringLiteral(buffer.c_str(), buffer.size());
+        arg->setInitializer(initializer);
+    }
     arg->setType(argTy);
     _scope->enterSymbol(arg);
     return false;

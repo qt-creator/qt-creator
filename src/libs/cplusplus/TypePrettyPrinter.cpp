@@ -30,6 +30,7 @@
 #include "Overview.h"
 #include "TypePrettyPrinter.h"
 #include <FullySpecifiedType.h>
+#include <Literals.h>
 #include <CoreTypes.h>
 #include <Symbols.h>
 #include <Scope.h>
@@ -333,6 +334,11 @@ void TypePrettyPrinter::visit(Function *type)
                     name = arg->name();
 
                 _text += argumentText(arg->type(), name);
+
+                if (const StringLiteral *initializer = arg->initializer()) {
+                    _text += QLatin1String(" =");
+                    _text += QString::fromUtf8(initializer->chars(), initializer->size());
+                }
 
                 if (index + 1 == _overview->markedArgument())
                     const_cast<Overview*>(_overview)->setMarkedArgumentEnd(_text.length());
