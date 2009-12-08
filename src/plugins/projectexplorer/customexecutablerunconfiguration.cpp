@@ -300,6 +300,8 @@ QString CustomExecutableRunConfiguration::executable() const
     if (QDir::isRelativePath(m_executable)) {
         Environment env = project()->activeBuildConfiguration()->environment();
         exec = env.searchInPath(m_executable);
+        if (exec.isEmpty())
+            exec = QDir::cleanPath(workingDirectory() + "/" + m_executable);
     } else {
         exec = m_executable;
     }
