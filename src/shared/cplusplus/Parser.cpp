@@ -2719,7 +2719,7 @@ bool Parser::parseAttributeSpecifier(SpecifierListAST *&node)
     return true;
 }
 
-bool Parser::parseAttributeList(AttributeListAST *&node) // ### create the AST
+bool Parser::parseAttributeList(AttributeListAST *&) // ### create the AST
 {
     DEBUG_THIS_RULE();
 
