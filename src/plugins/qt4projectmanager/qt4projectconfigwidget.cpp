@@ -153,6 +153,8 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
                    this, SLOT(buildDirectoryChanged()));
         disconnect(m_buildConfiguration, SIGNAL(qtVersionChanged()),
                    this, SLOT(qtVersionChanged()));
+        disconnect(m_buildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
+                   this, SLOT(updateImportLabel()));
     }
 
     m_buildConfiguration = static_cast<Qt4BuildConfiguration *>(bc);
@@ -161,6 +163,8 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
             this, SLOT(buildDirectoryChanged()));
     connect(m_buildConfiguration, SIGNAL(qtVersionChanged()),
             this, SLOT(qtVersionChanged()));
+    connect(m_buildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
+            this, SLOT(updateImportLabel()));
 
     m_ui->nameLineEdit->setText(m_buildConfiguration->displayName());
 

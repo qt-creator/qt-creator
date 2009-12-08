@@ -70,10 +70,10 @@ private slots:
     void qtVersionsChanged();
     void qtVersionChanged();
     void buildDirectoryChanged();
+    void updateImportLabel();
 private:
     void updateDetails();
     void updateToolChainCombo();
-    void updateImportLabel();
     Ui::Qt4ProjectConfigWidget *m_ui;
     QAbstractButton *m_browseButton;
     Qt4BuildConfiguration *m_buildConfiguration;
