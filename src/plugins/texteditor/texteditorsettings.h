@@ -43,12 +43,13 @@ class FontSettingsPage;
 class FontSettings;
 struct TabSettings;
 struct StorageSettings;
+struct BehaviorSettings;
 struct DisplaySettings;
 
 /**
  * This class provides a central place for basic text editor settings. These
- * settings include font settings, tab settings, storage settings and display
- * settings.
+ * settings include font settings, tab settings, storage settings, behavior
+ * settings and display settings.
  */
 class TEXTEDITOR_EXPORT TextEditorSettings : public QObject
 {
@@ -65,12 +66,14 @@ public:
     FontSettings fontSettings() const;
     TabSettings tabSettings() const;
     StorageSettings storageSettings() const;
+    BehaviorSettings behaviorSettings() const;
     DisplaySettings displaySettings() const;
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);
     void tabSettingsChanged(const TextEditor::TabSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
+    void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
 
 private slots:

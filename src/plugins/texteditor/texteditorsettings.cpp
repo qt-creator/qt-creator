@@ -31,6 +31,7 @@
 #include "texteditorconstants.h"
 
 #include "basetexteditor.h"
+#include "behaviorsettings.h"
 #include "behaviorsettingspage.h"
 #include "displaysettings.h"
 #include "displaysettingspage.h"
@@ -135,6 +136,8 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
             this, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)));
     connect(m_behaviorSettingsPage, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)));
+    connect(m_behaviorSettingsPage, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
+            this, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)));
     connect(m_displaySettingsPage, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)));
 }
@@ -167,6 +170,8 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
             editor, SLOT(setTabSettings(TextEditor::TabSettings)));
     connect(this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
+    connect(this, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
+            editor, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
     connect(this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
 
@@ -179,6 +184,7 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
     editor->setFontSettings(fontSettings());
     editor->setTabSettings(tabSettings());
     editor->setStorageSettings(storageSettings());
+    editor->setBehaviorSettings(behaviorSettings());
     editor->setDisplaySettings(displaySettings());
 }
 
@@ -210,6 +216,11 @@ TabSettings TextEditorSettings::tabSettings() const
 StorageSettings TextEditorSettings::storageSettings() const
 {
     return m_behaviorSettingsPage->storageSettings();
+}
+
+BehaviorSettings TextEditorSettings::behaviorSettings() const
+{
+    return m_behaviorSettingsPage->behaviorSettings();
 }
 
 DisplaySettings TextEditorSettings::displaySettings() const

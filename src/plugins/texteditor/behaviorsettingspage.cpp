@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "behaviorsettingspage.h"
+
+#include "behaviorsettings.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "ui_behaviorsettingspage.h"
@@ -45,8 +47,11 @@ struct BehaviorSettingsPage::BehaviorSettingsPagePrivate
 
     const BehaviorSettingsPageParameters m_parameters;
     Ui::BehaviorSettingsPage m_page;
+
     TabSettings m_tabSettings;
     StorageSettings m_storageSettings;
+    BehaviorSettings m_behaviorSettings;
+
     QString m_searchKeywords;
 };
 
@@ -57,11 +62,12 @@ BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate
     if (const QSettings *s = Core::ICore::instance()->settings()) {
         m_tabSettings.fromSettings(m_parameters.settingsPrefix, s);
         m_storageSettings.fromSettings(m_parameters.settingsPrefix, s);
+        m_behaviorSettings.fromSettings(m_parameters.settingsPrefix, s);
     }
 }
 
 BehaviorSettingsPage::BehaviorSettingsPage(const BehaviorSettingsPageParameters &p,
-                                 QObject *parent)
+                                           QObject *parent)
   : Core::IOptionsPage(parent),
     m_d(new BehaviorSettingsPagePrivate(p))
 {
@@ -102,8 +108,10 @@ QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
           << ' ' << m_d->m_page.smartBackspace->text()
           << ' ' << m_d->m_page.cleanWhitespace->text()
           << ' ' << m_d->m_page.addFinalNewLine->text()
+          << ' ' << m_d->m_page.mouseNavigation->text()
           << ' ' << m_d->m_page.groupBoxTabAndIndentSettings->title()
-          << ' ' << m_d->m_page.groupBoxStorageSettings->title();
+          << ' ' << m_d->m_page.groupBoxStorageSettings->title()
+          << ' ' << m_d->m_page.groupBoxNavigation->title();
         m_d->m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;
@@ -113,8 +121,9 @@ void BehaviorSettingsPage::apply()
 {
     TabSettings newTabSettings;
     StorageSettings newStorageSettings;
+    BehaviorSettings newBehaviorSettings;
 
-    settingsFromUI(newTabSettings, newStorageSettings);
+    settingsFromUI(newTabSettings, newStorageSettings, newBehaviorSettings);
 
     Core::ICore *core = Core::ICore::instance();
     QSettings *s = core->settings();
@@ -134,10 +143,19 @@ void BehaviorSettingsPage::apply()
 
         emit storageSettingsChanged(newStorageSettings);
     }
+
+    if (newBehaviorSettings != m_d->m_behaviorSettings) {
+        m_d->m_behaviorSettings = newBehaviorSettings;
+        if (s)
+            m_d->m_behaviorSettings.toSettings(m_d->m_parameters.settingsPrefix, s);
+
+        emit behaviorSettingsChanged(newBehaviorSettings);
+    }
 }
 
 void BehaviorSettingsPage::settingsFromUI(TabSettings &tabSettings,
-                                          StorageSettings &storageSettings) const
+                                          StorageSettings &storageSettings,
+                                          BehaviorSettings &behaviorSettings) const
 {
     tabSettings.m_spacesForTabs = m_d->m_page.insertSpaces->isChecked();
     tabSettings.m_autoIndent = m_d->m_page.autoIndent->isChecked();
@@ -150,6 +168,8 @@ void BehaviorSettingsPage::settingsFromUI(TabSettings &tabSettings,
     storageSettings.m_inEntireDocument = m_d->m_page.inEntireDocument->isChecked();
     storageSettings.m_cleanIndentation = m_d->m_page.cleanIndentation->isChecked();
     storageSettings.m_addFinalNewLine = m_d->m_page.addFinalNewLine->isChecked();
+
+    behaviorSettings.m_mouseNavigation = m_d->m_page.mouseNavigation->isChecked();
 }
 
 void BehaviorSettingsPage::settingsToUI()
@@ -167,6 +187,9 @@ void BehaviorSettingsPage::settingsToUI()
     m_d->m_page.inEntireDocument->setChecked(storageSettings.m_inEntireDocument);
     m_d->m_page.cleanIndentation->setChecked(storageSettings.m_cleanIndentation);
     m_d->m_page.addFinalNewLine->setChecked(storageSettings.m_addFinalNewLine);
+
+    const BehaviorSettings &behaviorSettings = m_d->m_behaviorSettings;
+    m_d->m_page.mouseNavigation->setChecked(behaviorSettings.m_mouseNavigation);
 }
 
 TabSettings BehaviorSettingsPage::tabSettings() const
@@ -177,6 +200,11 @@ TabSettings BehaviorSettingsPage::tabSettings() const
 StorageSettings BehaviorSettingsPage::storageSettings() const
 {
     return m_d->m_storageSettings;
+}
+
+BehaviorSettings BehaviorSettingsPage::behaviorSettings() const
+{
+    return m_d->m_behaviorSettings;
 }
 
 bool BehaviorSettingsPage::matches(const QString &s) const

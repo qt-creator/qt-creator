@@ -40,6 +40,7 @@ namespace TextEditor {
 
 struct TabSettings;
 struct StorageSettings;
+struct BehaviorSettings;
 
 struct BehaviorSettingsPageParameters
 {
@@ -70,16 +71,19 @@ public:
 
     TabSettings tabSettings() const;
     StorageSettings storageSettings() const;
+    BehaviorSettings behaviorSettings() const;
 
     virtual bool matches(const QString &s) const;
 
 signals:
     void tabSettingsChanged(const TextEditor::TabSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
+    void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
 
 private:
     void settingsFromUI(TabSettings &rc,
-                        StorageSettings &storageSettings) const;
+                        StorageSettings &storageSettings,
+                        BehaviorSettings &behaviorSettings) const;
     void settingsToUI();
     struct BehaviorSettingsPagePrivate;
     BehaviorSettingsPagePrivate *m_d;

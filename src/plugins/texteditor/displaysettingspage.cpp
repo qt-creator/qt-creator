@@ -102,7 +102,6 @@ QWidget *DisplaySettingsPage::createPage(QWidget *parent)
           << ' ' << m_d->m_page.visualizeWhitespace->text()
           << ' ' << m_d->m_page.animateMatchingParentheses->text()
           << ' ' << m_d->m_page.enableTextWrapping->text()
-          << ' ' << m_d->m_page.mouseNavigation->text()
           << ' ' << m_d->m_page.autoFoldFirstComment->text();
         m_d->m_searchKeywords.remove(QLatin1Char('&'));
     }
@@ -138,7 +137,6 @@ void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings) const
     displaySettings.m_highlightCurrentLine = m_d->m_page.highlightCurrentLine->isChecked();
     displaySettings.m_highlightBlocks = m_d->m_page.highlightBlocks->isChecked();
     displaySettings.m_animateMatchingParentheses = m_d->m_page.animateMatchingParentheses->isChecked();
-    displaySettings.m_mouseNavigation = m_d->m_page.mouseNavigation->isChecked();
     displaySettings.m_markTextChanges = m_d->m_page.markTextChanges->isChecked();
     displaySettings.m_autoFoldFirstComment = m_d->m_page.autoFoldFirstComment->isChecked();
 }
@@ -155,7 +153,6 @@ void DisplaySettingsPage::settingsToUI()
     m_d->m_page.highlightCurrentLine->setChecked(displaySettings.m_highlightCurrentLine);
     m_d->m_page.highlightBlocks->setChecked(displaySettings.m_highlightBlocks);
     m_d->m_page.animateMatchingParentheses->setChecked(displaySettings.m_animateMatchingParentheses);
-    m_d->m_page.mouseNavigation->setChecked(displaySettings.m_mouseNavigation);
     m_d->m_page.markTextChanges->setChecked(displaySettings.m_markTextChanges);
     m_d->m_page.autoFoldFirstComment->setChecked(displaySettings.m_autoFoldFirstComment);
 }

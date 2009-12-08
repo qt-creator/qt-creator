@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>330</height>
+    <height>288</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
-   <item row="3" column="0">
+   <item row="2" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -138,22 +138,6 @@
          </spacer>
         </item>
        </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QGroupBox" name="groupBoxNavigation">
-     <property name="title">
-      <string>Navigation</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QCheckBox" name="mouseNavigation">
-        <property name="text">
-         <string>Enable &amp;mouse navigation</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>

@@ -9,6 +9,7 @@ SOURCES += texteditorplugin.cpp \
     plaintexteditorfactory.cpp \
     basetextdocument.cpp \
     basetexteditor.cpp \
+    behaviorsettings.cpp \
     behaviorsettingspage.cpp \
     texteditoractionhandler.cpp \
     icompletioncollector.cpp \
@@ -39,6 +40,7 @@ HEADERS += texteditorplugin.h \
     plaintexteditorfactory.h \
     basetexteditor_p.h \
     basetextdocument.h \
+    behaviorsettings.h \
     behaviorsettingspage.h \
     completionsupport.h \
     completionwidget.h \

@@ -62,6 +62,7 @@ class ITextMarkable;
 class TextEditorActionHandler;
 class BaseTextDocument;
 class FontSettings;
+struct BehaviorSettings;
 struct StorageSettings;
 
 struct Parenthesis;
@@ -505,6 +506,7 @@ public slots:
     void setFontSettingsIfVisible(const TextEditor::FontSettings &);
     virtual void setTabSettings(const TextEditor::TabSettings &);
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
+    virtual void setBehaviorSettings(const TextEditor::BehaviorSettings &);
     virtual void setStorageSettings(const TextEditor::StorageSettings &);
 
 protected:

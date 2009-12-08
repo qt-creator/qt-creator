@@ -34,6 +34,7 @@
 #include "texteditorplugin.h"
 #include "completionsupport.h"
 #endif
+#include "behaviorsettings.h"
 #include "basetextdocument.h"
 #include "basetexteditor_p.h"
 #include "codecselector.h"
@@ -48,8 +49,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 #include <utils/stylehelper.h>
-
 #endif
+
 #include <utils/linecolumnlabel.h>
 #include <utils/qtcassert.h>
 
@@ -4659,7 +4660,6 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     setCodeFoldingVisible(ds.m_displayFoldingMarkers);
     setHighlightCurrentLine(ds.m_highlightCurrentLine);
     setRevisionsVisible(ds.m_markTextChanges);
-    setMouseNavigationEnabled(ds.m_mouseNavigation);
 
     if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
         if (QSyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())
@@ -4682,6 +4682,11 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     slotCursorPositionChanged();
     viewport()->update();
     extraArea()->update();
+}
+
+void BaseTextEditor::setBehaviorSettings(const TextEditor::BehaviorSettings &bs)
+{
+    setMouseNavigationEnabled(bs.m_mouseNavigation);
 }
 
 void BaseTextEditor::setStorageSettings(const StorageSettings &storageSettings)

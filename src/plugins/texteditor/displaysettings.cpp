@@ -31,8 +31,6 @@
 
 #include <QtCore/QSettings>
 #include <QtCore/QString>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextDocument>
 
 static const char * const displayLineNumbersKey = "DisplayLineNumbers";
 static const char * const textWrappingKey = "TextWrapping";
@@ -43,7 +41,6 @@ static const char * const displayFoldingMarkersKey = "DisplayFoldingMarkers";
 static const char * const highlightCurrentLineKey = "HighlightCurrentLine2Key";
 static const char * const highlightBlocksKey = "HighlightBlocksKey";
 static const char * const animateMatchingParenthesesKey= "AnimateMatchingParenthesesKey";
-static const char * const mouseNavigationKey = "MouseNavigation";
 static const char * const markTextChangesKey = "MarkTextChanges";
 static const char * const autoFoldFirstCommentKey= "AutoFoldFirstComment";
 static const char * const groupPostfix = "DisplaySettings";
@@ -60,7 +57,6 @@ DisplaySettings::DisplaySettings() :
     m_highlightCurrentLine(false),
     m_highlightBlocks(false),
     m_animateMatchingParentheses(true),
-    m_mouseNavigation(true),
     m_markTextChanges(true),
     m_autoFoldFirstComment(true)
 {
@@ -81,7 +77,6 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine);
     s->setValue(QLatin1String(highlightBlocksKey), m_highlightBlocks);
     s->setValue(QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses);
-    s->setValue(QLatin1String(mouseNavigationKey), m_mouseNavigation);
     s->setValue(QLatin1String(markTextChangesKey), m_markTextChanges);
     s->setValue(QLatin1String(autoFoldFirstCommentKey), m_autoFoldFirstComment);
     s->endGroup();
@@ -105,7 +100,6 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_highlightCurrentLine = s->value(group + QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine).toBool();
     m_highlightBlocks = s->value(group + QLatin1String(highlightBlocksKey), m_highlightBlocks).toBool();
     m_animateMatchingParentheses = s->value(group + QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses).toBool();
-    m_mouseNavigation = s->value(group + QLatin1String(mouseNavigationKey), m_mouseNavigation).toBool();
     m_markTextChanges = s->value(group + QLatin1String(markTextChangesKey), m_markTextChanges).toBool();
     m_autoFoldFirstComment = s->value(group + QLatin1String(autoFoldFirstCommentKey), m_autoFoldFirstComment).toBool();
 }
@@ -121,7 +115,6 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_highlightCurrentLine == ds.m_highlightCurrentLine
         && m_highlightBlocks == ds.m_highlightBlocks
         && m_animateMatchingParentheses == ds.m_animateMatchingParentheses
-        && m_mouseNavigation == ds.m_mouseNavigation
         && m_markTextChanges == ds.m_markTextChanges
         && m_autoFoldFirstComment== ds.m_autoFoldFirstComment
         ;

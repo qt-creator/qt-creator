@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef DISPLAYSETTINGS_H
-#define DISPLAYSETTINGS_H
+#ifndef BEHAVIORSETTINGS_H
+#define BEHAVIORSETTINGS_H
 
 #include "texteditor_global.h"
 
@@ -38,31 +38,25 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-struct TEXTEDITOR_EXPORT DisplaySettings
+/**
+ * Settings that describe how the text editor behaves. This does not include
+ * the TabSettings and StorageSettings.
+ */
+struct TEXTEDITOR_EXPORT BehaviorSettings
 {
-    DisplaySettings();
+    BehaviorSettings();
 
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);
 
-    bool m_displayLineNumbers;
-    bool m_textWrapping;
-    bool m_showWrapColumn;
-    int m_wrapColumn;
-    bool m_visualizeWhitespace;
-    bool m_displayFoldingMarkers;
-    bool m_highlightCurrentLine;
-    bool m_highlightBlocks;
-    bool m_animateMatchingParentheses;
-    bool m_markTextChanges;
-    bool m_autoFoldFirstComment;
+    bool equals(const BehaviorSettings &bs) const;
 
-    bool equals(const DisplaySettings &ds) const;
+    bool m_mouseNavigation;
 };
 
-inline bool operator==(const DisplaySettings &t1, const DisplaySettings &t2) { return t1.equals(t2); }
-inline bool operator!=(const DisplaySettings &t1, const DisplaySettings &t2) { return !t1.equals(t2); }
+inline bool operator==(const BehaviorSettings &t1, const BehaviorSettings &t2) { return t1.equals(t2); }
+inline bool operator!=(const BehaviorSettings &t1, const BehaviorSettings &t2) { return !t1.equals(t2); }
 
 } // namespace TextEditor
 
-#endif // DISPLAYSETTINGS_H
+#endif // BEHAVIORSETTINGS_H

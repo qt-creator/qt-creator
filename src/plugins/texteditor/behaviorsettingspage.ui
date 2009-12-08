@@ -6,11 +6,11 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>615</width>
-    <height>367</height>
+    <width>463</width>
+    <height>421</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
     <widget class="QGroupBox" name="groupBoxTabAndIndentSettings">
      <property name="title">
@@ -270,6 +270,22 @@
        <widget class="QCheckBox" name="addFinalNewLine">
         <property name="text">
          <string>&amp;Ensure newline at end of file</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxNavigation">
+     <property name="title">
+      <string>Navigation</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="mouseNavigation">
+        <property name="text">
+         <string>Enable &amp;mouse navigation</string>
         </property>
        </widget>
       </item>

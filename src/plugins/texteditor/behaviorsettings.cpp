@@ -27,42 +27,48 @@
 **
 **************************************************************************/
 
-#ifndef DISPLAYSETTINGS_H
-#define DISPLAYSETTINGS_H
+#include "behaviorsettings.h"
 
-#include "texteditor_global.h"
+#include <QtCore/QSettings>
+#include <QtCore/QString>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+static const char * const mouseNavigationKey = "MouseNavigation";
+static const char * const groupPostfix = "BehaviorSettings";
 
 namespace TextEditor {
 
-struct TEXTEDITOR_EXPORT DisplaySettings
+BehaviorSettings::BehaviorSettings() :
+    m_mouseNavigation(true)
 {
-    DisplaySettings();
+}
 
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, const QSettings *s);
+void BehaviorSettings::toSettings(const QString &category, QSettings *s) const
+{
+    QString group = QLatin1String(groupPostfix);
+    if (!category.isEmpty())
+        group.insert(0, category);
+    s->beginGroup(group);
+    s->setValue(QLatin1String(mouseNavigationKey), m_mouseNavigation);
+    s->endGroup();
+}
 
-    bool m_displayLineNumbers;
-    bool m_textWrapping;
-    bool m_showWrapColumn;
-    int m_wrapColumn;
-    bool m_visualizeWhitespace;
-    bool m_displayFoldingMarkers;
-    bool m_highlightCurrentLine;
-    bool m_highlightBlocks;
-    bool m_animateMatchingParentheses;
-    bool m_markTextChanges;
-    bool m_autoFoldFirstComment;
+void BehaviorSettings::fromSettings(const QString &category, const QSettings *s)
+{
+    QString group = QLatin1String(groupPostfix);
+    if (!category.isEmpty())
+        group.insert(0, category);
+    group += QLatin1Char('/');
 
-    bool equals(const DisplaySettings &ds) const;
-};
+    *this = BehaviorSettings(); // Assign defaults
 
-inline bool operator==(const DisplaySettings &t1, const DisplaySettings &t2) { return t1.equals(t2); }
-inline bool operator!=(const DisplaySettings &t1, const DisplaySettings &t2) { return !t1.equals(t2); }
+    m_mouseNavigation = s->value(group + QLatin1String(mouseNavigationKey), m_mouseNavigation).toBool();
+}
+
+bool BehaviorSettings::equals(const BehaviorSettings &ds) const
+{
+    return m_mouseNavigation == ds.m_mouseNavigation
+        ;
+}
 
 } // namespace TextEditor
 
-#endif // DISPLAYSETTINGS_H
