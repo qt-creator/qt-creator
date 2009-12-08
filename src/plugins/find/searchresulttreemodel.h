@@ -69,20 +69,20 @@ signals:
 
 public slots:
     void clear();
-    void appendResultLine(int index, int lineNumber, const QString &rowText,
-                          int searchTermStart, int searchTermLength);
-    void appendResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
-                          int searchTermStart, int searchTermLength);
+    int addResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
+                      int searchTermStart, int searchTermLength);
 
 private:
-    void appendResultFile(const QString &fileName);
+    void appendResultLine(int index, int lineNumber, const QString &rowText,
+                          int searchTermStart, int searchTermLength);
+    int addResultFile(const QString &fileName);
     QVariant data(const SearchResultTextRow *row, int role) const;
     QVariant data(const SearchResultFile *file, int role) const;
     void initializeData();
     void disposeData();
 
     SearchResultTreeItem *m_rootItem;
-    SearchResultFile *m_lastAppendedResultFile;
+    SearchResultFile *m_lastAddedResultFile;
     QFont m_textEditorFont;
     bool m_showReplaceUI;
 };

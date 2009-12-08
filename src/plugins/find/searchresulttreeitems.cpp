@@ -92,6 +92,23 @@ const SearchResultTreeItem *SearchResultTreeItem::parent() const
     return m_parent;
 }
 
+static bool compareResultFiles(SearchResultTreeItem *a, SearchResultTreeItem *b)
+{
+    return static_cast<SearchResultFile *>(a)->fileName() <
+            static_cast<SearchResultFile *>(b)->fileName();
+}
+
+int SearchResultTreeItem::insertionIndex(SearchResultFile *child) const
+{
+    Q_ASSERT(m_type == Root);
+    return qLowerBound(m_children.begin(), m_children.end(), child, compareResultFiles) - m_children.begin();
+}
+
+void SearchResultTreeItem::insertChild(int index, SearchResultTreeItem *child)
+{
+    m_children.insert(index, child);
+}
+
 void SearchResultTreeItem::appendChild(SearchResultTreeItem *child)
 {
     m_children.append(child);
@@ -147,7 +164,7 @@ QString SearchResultFile::fileName() const
 }
 
 void SearchResultFile::appendResultLine(int index, int lineNumber, const QString &rowText, int searchTermStart,
-        int searchTermLength)
+                                        int searchTermLength)
 {
     SearchResultTreeItem *child = new SearchResultTextRow(index, lineNumber, rowText,
                                                           searchTermStart, searchTermLength, this);

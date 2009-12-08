@@ -68,12 +68,11 @@ void SearchResultTreeView::clear()
 void SearchResultTreeView::appendResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
                                             int searchTermStart, int searchTermLength)
 {
-    int rowsBefore = m_model->rowCount();
-    m_model->appendResultLine(index, fileName, lineNumber, rowText, searchTermStart, searchTermLength);
-    int rowsAfter = m_model->rowCount();
+    int insertionIndex = m_model->addResultLine(index, fileName, lineNumber, rowText,
+                                                searchTermStart, searchTermLength);
 
-    if (m_autoExpandResults && (rowsAfter > rowsBefore))
-        setExpanded(model()->index(model()->rowCount() - 1, 0), true);
+    if (m_autoExpandResults && insertionIndex != -1)
+        setExpanded(model()->index(insertionIndex, 0), true);
 }
 
 void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)

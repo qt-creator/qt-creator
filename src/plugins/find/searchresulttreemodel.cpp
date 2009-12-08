@@ -43,7 +43,7 @@ using namespace Find::Internal;
 
 SearchResultTreeModel::SearchResultTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
-    , m_lastAppendedResultFile(0)
+    , m_lastAddedResultFile(0)
     , m_showReplaceUI(false)
 {
     m_rootItem = new SearchResultTreeItem;
@@ -277,52 +277,62 @@ QVariant SearchResultTreeModel::headerData(int section, Qt::Orientation orientat
     return QVariant();
 }
 
-void SearchResultTreeModel::appendResultFile(const QString &fileName)
+/**
+ * Adds a file to the list of results and returns the index at which it was inserted.
+ */
+int SearchResultTreeModel::addResultFile(const QString &fileName)
 {
 #ifdef Q_OS_WIN
     if (fileName.contains(QLatin1Char('\\')))
         qWarning("SearchResultTreeModel::appendResultFile: File name with native separators added %s.\n", qPrintable(fileName));
 #endif
-    m_lastAppendedResultFile = new SearchResultFile(fileName, m_rootItem);
+    m_lastAddedResultFile = new SearchResultFile(fileName, m_rootItem);
 
     if (m_showReplaceUI) {
-        m_lastAppendedResultFile->setIsUserCheckable(true);
-        m_lastAppendedResultFile->setCheckState(Qt::Checked);
+        m_lastAddedResultFile->setIsUserCheckable(true);
+        m_lastAddedResultFile->setCheckState(Qt::Checked);
     }
 
-    const int childrenCount = m_rootItem->childrenCount();
-    beginInsertRows(QModelIndex(), childrenCount, childrenCount);
-    m_rootItem->appendChild(m_lastAppendedResultFile);
+    const int index = m_rootItem->insertionIndex(m_lastAddedResultFile);
+    beginInsertRows(QModelIndex(), index, index);
+    m_rootItem->insertChild(index, m_lastAddedResultFile);
     endInsertRows();
+    return index;
 }
 
 void SearchResultTreeModel::appendResultLine(int index, int lineNumber, const QString &rowText,
                                              int searchTermStart, int searchTermLength)
 {
-    if (!m_lastAppendedResultFile)
+    if (!m_lastAddedResultFile)
         return;
 
-    QModelIndex lastFile(createIndex(m_lastAppendedResultFile->rowOfItem(), 0, m_lastAppendedResultFile));
+    QModelIndex lastFile(createIndex(m_lastAddedResultFile->rowOfItem(), 0, m_lastAddedResultFile));
 
-    beginInsertRows(lastFile, m_lastAppendedResultFile->childrenCount(), m_lastAppendedResultFile->childrenCount());
-    m_lastAppendedResultFile->appendResultLine(index, lineNumber, rowText, searchTermStart, searchTermLength);
+    beginInsertRows(lastFile, m_lastAddedResultFile->childrenCount(), m_lastAddedResultFile->childrenCount());
+    m_lastAddedResultFile->appendResultLine(index, lineNumber, rowText, searchTermStart, searchTermLength);
     endInsertRows();
 
     dataChanged(lastFile, lastFile); // Make sure that the number after the file name gets updated
 }
 
-void SearchResultTreeModel::appendResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
-                                             int searchTermStart, int searchTermLength)
+/**
+ * Adds the search result to the list of results, creating a new file entry when
+ * necessary. Returns the insertion index when a new file entry was created.
+ */
+int SearchResultTreeModel::addResultLine(int index, const QString &fileName, int lineNumber, const QString &rowText,
+                                         int searchTermStart, int searchTermLength)
 {
-    if (!m_lastAppendedResultFile || (m_lastAppendedResultFile->fileName() != fileName))
-        appendResultFile(fileName);
+    int insertionIndex = -1;
+    if (!m_lastAddedResultFile || (m_lastAddedResultFile->fileName() != fileName))
+        insertionIndex = addResultFile(fileName);
 
     appendResultLine(index, lineNumber, rowText, searchTermStart, searchTermLength);
+    return insertionIndex;
 }
 
 void SearchResultTreeModel::clear()
 {
-    m_lastAppendedResultFile = NULL;
+    m_lastAddedResultFile = NULL;
     m_rootItem->clearChildren();
     reset();
 }

@@ -38,6 +38,7 @@ namespace Find {
 namespace Internal {
 
 class SearchResultTreeItem;
+class SearchResultFile;
 
 class SearchResultTreeItem
 {
@@ -55,6 +56,8 @@ public:
     ItemType itemType() const;
     const SearchResultTreeItem *parent() const;
     SearchResultTreeItem *childAt(int index) const;
+    int insertionIndex(SearchResultFile *child) const;
+    void insertChild(int index, SearchResultTreeItem *child);
     void appendChild(SearchResultTreeItem *child);
     int childrenCount() const;
     int rowOfItem() const;
