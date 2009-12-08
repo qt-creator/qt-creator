@@ -2083,7 +2083,7 @@ public:
     ExpressionAST *type_id;
 
 public: // annotations
-    Argument *symbol;
+    TypenameArgument *symbol;
 
 public:
     virtual TypenameTypeParameterAST *asTypenameTypeParameter() { return this; }
@@ -2109,7 +2109,7 @@ public:
     ExpressionAST *type_id;
 
 public:
-    Argument *symbol;
+    TypenameArgument *symbol;
 
 public:
     virtual TemplateTypeParameterAST *asTemplateTypeParameter() { return this; }

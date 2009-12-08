@@ -459,7 +459,9 @@ bool CheckDeclaration::visit(TypenameTypeParameterAST *ast)
         sourceLocation = ast->name->firstToken();
 
     const Name *name = semantic()->check(ast->name, _scope);
-    Argument *arg = control()->newArgument(sourceLocation, name); // ### new template type
+    TypenameArgument *arg = control()->newTypenameArgument(sourceLocation, name);
+    FullySpecifiedType ty = semantic()->check(ast->type_id, _scope);
+    arg->setType(ty);
     ast->symbol = arg;
     _scope->enterSymbol(arg);
     return false;
@@ -472,7 +474,9 @@ bool CheckDeclaration::visit(TemplateTypeParameterAST *ast)
         sourceLocation = ast->name->firstToken();
 
     const Name *name = semantic()->check(ast->name, _scope);
-    Argument *arg = control()->newArgument(sourceLocation, name); // ### new template type
+    TypenameArgument *arg = control()->newTypenameArgument(sourceLocation, name);
+    FullySpecifiedType ty = semantic()->check(ast->type_id, _scope);
+    arg->setType(ty);
     ast->symbol = arg;
     _scope->enterSymbol(arg);
     return false;
