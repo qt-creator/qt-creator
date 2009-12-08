@@ -57,8 +57,7 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &name);
 
-    QMap<QString, QVariant> toMap() const;
-    void setValuesFromMap(QMap<QString, QVariant> map);
+    virtual void toMap(QMap<QString, QVariant> &map) const;
 
     QList<BuildStep *> buildSteps() const;
     void insertBuildStep(int position, BuildStep *step);
@@ -82,16 +81,13 @@ signals:
 
 protected:
     BuildConfiguration(Project *project);
+    BuildConfiguration(Project *project, const QMap<QString, QVariant> &map);
     BuildConfiguration(BuildConfiguration *source);
-
-    // TODO remove those
-    QVariant value(const QString &key) const;
-    void setValue(const QString &key, QVariant value);
 
 private:
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
-    QHash<QString, QVariant> m_values;
+    QString m_displayName;
     Project *m_project;
 };
 
@@ -117,7 +113,7 @@ public:
     virtual BuildConfiguration *clone(BuildConfiguration *source) const = 0;
 
     // restores a BuildConfiguration with the name and adds it to the project
-    virtual BuildConfiguration *restore() const = 0;
+    virtual BuildConfiguration *restore(const QMap<QString, QVariant> &values) const = 0;
 
 signals:
     void availableCreationTypesChanged();

@@ -50,8 +50,15 @@ BuildConfiguration::BuildConfiguration(Project *pro)
 
 }
 
+BuildConfiguration::BuildConfiguration(Project *pro, const QMap<QString, QVariant> &map)
+    : m_project(pro)
+{
+    m_displayName = map.value("ProjectExplorer.BuildConfiguration.DisplayName").toString();
+}
+
 BuildConfiguration::BuildConfiguration(BuildConfiguration *source)
-    : m_values(source->m_values), m_project(source->m_project)
+    : m_displayName(source->m_displayName),
+    m_project(source->m_project)
 {
     foreach(BuildStep *originalbs, source->buildSteps()) {
         IBuildStepFactory *factory = findFactory(originalbs->name());
@@ -73,49 +80,20 @@ BuildConfiguration::~BuildConfiguration()
 
 QString BuildConfiguration::displayName() const
 {
-    QVariant v = value("ProjectExplorer.BuildConfiguration.DisplayName");
-    QTC_ASSERT(v.isValid(), return QString());
-    return v.toString();
+    return m_displayName;
 }
 
 void BuildConfiguration::setDisplayName(const QString &name)
 {
-    if (value("ProjectExplorer.BuildConfiguration.DisplayName").toString() == name)
+    if (m_displayName == name)
         return;
-    setValue("ProjectExplorer.BuildConfiguration.DisplayName", name);
+    m_displayName = name;
     emit displayNameChanged();
 }
 
-QVariant BuildConfiguration::value(const QString & key) const
+void BuildConfiguration::toMap(QMap<QString, QVariant> &map) const
 {
-    QHash<QString, QVariant>::const_iterator it = m_values.find(key);
-    if (it != m_values.constEnd())
-        return *it;
-    else
-        return QVariant();
-}
-
-void BuildConfiguration::setValue(const QString & key, QVariant value)
-{
-    m_values[key] = value;
-}
-
-void BuildConfiguration::setValuesFromMap(QMap<QString, QVariant> map)
-{
-    QMap<QString, QVariant>::const_iterator it, end;
-    end = map.constEnd();
-    for (it = map.constBegin(); it != end; ++it)
-        setValue(it.key(), it.value());
-}
-
-QMap<QString, QVariant> BuildConfiguration::toMap() const
-{
-    QMap<QString, QVariant> result;
-    QHash<QString, QVariant>::const_iterator it, end;
-    end = m_values.constEnd();
-    for (it = m_values.constBegin(); it != end; ++it)
-        result.insert(it.key(), it.value());
-    return result;
+    map.insert("ProjectExplorer.BuildConfiguration.DisplayName", m_displayName);
 }
 
 QList<BuildStep *> BuildConfiguration::buildSteps() const

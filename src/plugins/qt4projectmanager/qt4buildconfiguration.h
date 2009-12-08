@@ -48,7 +48,10 @@ class Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 public:
+    // new buildconfiguration
     Qt4BuildConfiguration(Qt4Project *pro);
+    // restore ctor
+    Qt4BuildConfiguration(Qt4Project *pro, const QMap<QString, QVariant> &values);
     // copy ctor
     Qt4BuildConfiguration(Qt4BuildConfiguration *source);
     ~Qt4BuildConfiguration();
@@ -104,6 +107,7 @@ public:
     static QStringList removeSpecFromArgumentList(const QStringList &old);
     static QString extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version);
 
+    void toMap(QMap<QString, QVariant> &map) const;
 
 signals:
     /// emitted if the qt version changes (either directly, or because the default qt version changed
@@ -124,6 +128,13 @@ private slots:
     void qtVersionsChanged(const QList<int> &changedVersions);
 private:
     void init();
+    bool m_clearSystemEnvironment;
+    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
+    bool m_shadowBuild;
+    QString m_buildDirectory;
+    mutable int m_qtVersion; // Changed if the qtversion is invalid
+    int m_toolChainType;
+    QtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
 };
 
 } // namespace Qt4ProjectManager

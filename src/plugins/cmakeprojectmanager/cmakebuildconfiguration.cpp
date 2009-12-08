@@ -35,15 +35,46 @@ using namespace CMakeProjectManager;
 using namespace Internal;
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeProject *pro)
-    : BuildConfiguration(pro), m_toolChain(0)
+    : BuildConfiguration(pro),
+    m_toolChain(0),
+    m_clearSystemEnvironment(false)
 {
 
 }
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(BuildConfiguration *source)
-    : BuildConfiguration(source), m_toolChain(0)
+CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeProject *pro, const QMap<QString, QVariant> &map)
+    : BuildConfiguration(pro, map),
+    m_toolChain(0)
 {
 
+    QMap<QString, QVariant>::const_iterator it = map.constFind("clearSystemEnvironment");
+    m_clearSystemEnvironment = (it != map.constEnd() && it.value().toBool());
+    m_userEnvironmentChanges =
+            ProjectExplorer::EnvironmentItem::fromStringList(
+                    map.value("userEnvironmentChanges").toStringList());
+    m_msvcVersion = map.value("msvcVersion").toString();
+    m_buildDirectory = map.value("buildDirectory").toString();
+
+}
+
+CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeBuildConfiguration *source)
+    : BuildConfiguration(source),
+    m_toolChain(0),
+    m_clearSystemEnvironment(source->m_clearSystemEnvironment),
+    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
+    m_buildDirectory(source->m_buildDirectory),
+    m_msvcVersion(source->m_msvcVersion)
+{
+
+}
+
+void CMakeBuildConfiguration::toMap(QMap<QString, QVariant> &map) const
+{
+    map.insert("userEnvironmentChanges",
+               ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert("msvcVersion", m_msvcVersion);
+    map.insert("buildDirectory", m_buildDirectory);
+    BuildConfiguration::toMap(map);
 }
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
@@ -73,36 +104,33 @@ ProjectExplorer::Environment CMakeBuildConfiguration::environment() const
 
 void CMakeBuildConfiguration::setUseSystemEnvironment(bool b)
 {
-    if (b == useSystemEnvironment())
+    if (b == m_clearSystemEnvironment)
         return;
-    setValue("clearSystemEnvironment", !b);
+    m_clearSystemEnvironment = !b;
     emit environmentChanged();
 }
 
 bool CMakeBuildConfiguration::useSystemEnvironment() const
 {
-    bool b = !(value("clearSystemEnvironment").isValid() &&
-               value("clearSystemEnvironment").toBool());
-    return b;
+    return !m_clearSystemEnvironment;
 }
 
 QList<ProjectExplorer::EnvironmentItem> CMakeBuildConfiguration::userEnvironmentChanges() const
 {
-    return ProjectExplorer::EnvironmentItem::fromStringList(value("userEnvironmentChanges").toStringList());
+    return m_userEnvironmentChanges;
 }
 
 void CMakeBuildConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
 {
-    QStringList list = ProjectExplorer::EnvironmentItem::toStringList(diff);
-    if (list == value("userEnvironmentChanges"))
+    if (m_userEnvironmentChanges == diff)
         return;
-    setValue("userEnvironmentChanges", list);
+    m_userEnvironmentChanges = diff;
     emit environmentChanged();
 }
 
 QString CMakeBuildConfiguration::buildDirectory() const
 {
-    QString buildDirectory = value("buildDirectory").toString();
+    QString buildDirectory = m_buildDirectory;
     if (buildDirectory.isEmpty())
         buildDirectory = cmakeProject()->sourceDirectory() + "/qtcreator-build";
     return buildDirectory;
@@ -146,7 +174,7 @@ void CMakeBuildConfiguration::updateToolChain() const
         newToolChain = ProjectExplorer::ToolChain::createGccToolChain("gcc");
 #endif
     } else { // msvc
-        newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain(value("msvcVersion").toString(), false);
+        newToolChain = ProjectExplorer::ToolChain::createMSVCToolChain(m_msvcVersion, false);
     }
 
     if (ProjectExplorer::ToolChain::equals(newToolChain, m_toolChain)) {
@@ -160,22 +188,22 @@ void CMakeBuildConfiguration::updateToolChain() const
 
 void CMakeBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
 {
-    if (value("buildDirectory") == buildDirectory)
+    if (m_buildDirectory == buildDirectory)
         return;
-    setValue("buildDirectory", buildDirectory);
+    m_buildDirectory = buildDirectory;
     emit buildDirectoryChanged();
 }
 
 QString CMakeBuildConfiguration::msvcVersion() const
 {
-    return value("msvcVersion").toString();
+    return m_msvcVersion;
 }
 
 void CMakeBuildConfiguration::setMsvcVersion(const QString &msvcVersion)
 {
-    if (value("msvcVersion").toString() == msvcVersion)
+    if (m_msvcVersion == msvcVersion)
         return;
-    setValue("msvcVersion", msvcVersion);
+    m_msvcVersion = msvcVersion;
     updateToolChain();
 
     emit msvcVersionChanged();

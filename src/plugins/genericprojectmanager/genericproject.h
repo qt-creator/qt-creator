@@ -69,7 +69,7 @@ public:
 
     ProjectExplorer::BuildConfiguration *create(const QString &type) const;
     ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *restore() const;
+    ProjectExplorer::BuildConfiguration *restore(const QMap<QString, QVariant> &map) const;
 
 private:
     GenericProject *m_project;

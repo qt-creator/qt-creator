@@ -141,9 +141,9 @@ BuildConfiguration *CMakeBuildConfigurationFactory::clone(ProjectExplorer::Build
     return bc;
 }
 
-BuildConfiguration *CMakeBuildConfigurationFactory::restore() const
+BuildConfiguration *CMakeBuildConfigurationFactory::restore(const QMap<QString, QVariant> &map) const
 {
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project);
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project, map);
     return bc;
 }
 

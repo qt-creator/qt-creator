@@ -43,13 +43,42 @@ namespace {
 }
 
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro)
-    : BuildConfiguration(pro)
+    : BuildConfiguration(pro),
+    m_clearSystemEnvironment(false),
+    m_shadowBuild(false),
+    m_qtVersion(0),
+    m_toolChainType(-1), // toolChainType() makes sure to return the default toolchainType
+    m_qmakeBuildConfiguration(0)
 {
     init();
 }
 
+Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro, const QMap<QString, QVariant> &map)
+    : BuildConfiguration(pro, map)
+{
+    init();
+    QMap<QString, QVariant>::const_iterator it;
+    it = map.constFind("clearSystemEnvironment");
+    m_clearSystemEnvironment = (it != map.constEnd() && it.value().toBool());
+
+    m_userEnvironmentChanges =
+            EnvironmentItem::fromStringList(map.value("userEnvironmentChanges").toStringList());
+    m_shadowBuild = map.value("useShadowBuild").toBool();
+    m_buildDirectory = map.value("buildDirectory").toString();
+    m_qtVersion = map.value(KEY_QT_VERSION_ID).toInt();
+    m_toolChainType = map.value("ToolChain").toInt();
+    m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value("buildConfiguration").toInt());
+}
+
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BuildConfiguration *source)
-    : BuildConfiguration(source)
+    : BuildConfiguration(source),
+    m_clearSystemEnvironment(source->m_clearSystemEnvironment),
+    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
+    m_shadowBuild(source->m_shadowBuild),
+    m_buildDirectory(source->m_buildDirectory),
+    m_qtVersion(source->m_qtVersion),
+    m_toolChainType(source->m_toolChainType),
+    m_qmakeBuildConfiguration(source->m_qmakeBuildConfiguration)
 {
     init();
 }
@@ -57,6 +86,18 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BuildConfiguration *source)
 Qt4BuildConfiguration::~Qt4BuildConfiguration()
 {
 
+}
+
+void Qt4BuildConfiguration::toMap(QMap<QString, QVariant> &map) const
+{
+    map.insert("clearSystemEnvironment", m_clearSystemEnvironment);
+    map.insert("userEnvironmentChanges", EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert("useShadowBuild", m_shadowBuild);
+    map.insert("buildDirectory", m_buildDirectory);
+    map.insert(KEY_QT_VERSION_ID, m_qtVersion);
+    map.insert("ToolChain", m_toolChainType);
+    map.insert("buildConfiguration", int(m_qmakeBuildConfiguration));
+    BuildConfiguration::toMap(map);
 }
 
 void Qt4BuildConfiguration::init()
@@ -94,28 +135,25 @@ void Qt4BuildConfiguration::setUseSystemEnvironment(bool b)
 {
     if (useSystemEnvironment() == b)
         return;
-    setValue("clearSystemEnvironment", !b);
+    m_clearSystemEnvironment = !b;
     emit environmentChanged();
 }
 
 bool Qt4BuildConfiguration::useSystemEnvironment() const
 {
-    bool b = !(value("clearSystemEnvironment").isValid()
-               && value("clearSystemEnvironment").toBool());
-    return b;
+    return !m_clearSystemEnvironment;
 }
 
 QList<ProjectExplorer::EnvironmentItem> Qt4BuildConfiguration::userEnvironmentChanges() const
 {
-    return EnvironmentItem::fromStringList(value("userEnvironmentChanges").toStringList());
+    return m_userEnvironmentChanges;
 }
 
 void Qt4BuildConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
 {
-    QStringList list = EnvironmentItem::toStringList(diff);
-    if (list == value("userEnvironmentChanges").toStringList())
+    if (m_userEnvironmentChanges == diff)
         return;
-    setValue("userEnvironmentChanges", list);
+    m_userEnvironmentChanges = diff;
     emit environmentChanged();
 }
 
@@ -123,8 +161,8 @@ void Qt4BuildConfiguration::setUserEnvironmentChanges(const QList<ProjectExplore
 QString Qt4BuildConfiguration::buildDirectory() const
 {
     QString workingDirectory;
-    if (value("useShadowBuild").toBool())
-        workingDirectory = value("buildDirectory").toString();
+    if (m_shadowBuild)
+        workingDirectory = m_buildDirectory;
     if (workingDirectory.isEmpty())
         workingDirectory = QFileInfo(project()->file()->fileName()).absolutePath();
     return workingDirectory;
@@ -136,23 +174,22 @@ QString Qt4BuildConfiguration::buildDirectory() const
 /// still be a insource build
 bool Qt4BuildConfiguration::shadowBuild() const
 {
-    return value("useShadowBuild").toBool();
+    return m_shadowBuild;
 }
 
 /// returns the shadow build directory if set
 /// \note buildDirectory() is probably the function you want to call
 QString Qt4BuildConfiguration::shadowBuildDirectory() const
 {
-    return value("buildDirectory").toString();
+    return m_buildDirectory;
 }
 
 void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory)
 {
-    if (value("useShadowBuild").toBool() == shadowBuild
-        && value("buildDirectory").toString() == buildDirectory)
+    if (m_shadowBuild == shadowBuild && m_buildDirectory == buildDirectory)
         return;
-    setValue("useShadowBuild", shadowBuild);
-    setValue("buildDirectory", buildDirectory);
+    m_shadowBuild = shadowBuild;
+    m_buildDirectory = buildDirectory;
     emit buildDirectoryChanged();
     emit targetInformationChanged();
 }
@@ -216,22 +253,12 @@ int Qt4BuildConfiguration::qtVersionId() const
     QtVersionManager *vm = QtVersionManager::instance();
     if (debug)
         qDebug()<<"Looking for qtVersion ID of "<<displayName();
-    int id = 0;
-    QVariant vid = value(KEY_QT_VERSION_ID);
-    if (vid.isValid()) {
-        id = vid.toInt();
-        if (vm->version(id)->isValid()) {
-            return id;
-        } else {
-            const_cast<Qt4BuildConfiguration *>(this)->setValue(KEY_QT_VERSION_ID, 0);
-            return 0;
-        }
+    if (vm->version(m_qtVersion)->isValid()) {
+        return m_qtVersion;
+    } else {
+        m_qtVersion = 0;
+        return 0;
     }
-    if (debug)
-        qDebug()<<"  using qtversion with id ="<<id;
-    // Nothing found, reset to default
-    const_cast<Qt4BuildConfiguration *>(this)->setValue(KEY_QT_VERSION_ID, id);
-    return id;
 }
 
 void Qt4BuildConfiguration::setQtVersion(int id)
@@ -239,7 +266,7 @@ void Qt4BuildConfiguration::setQtVersion(int id)
     if (qtVersionId() == id)
         return;
 
-    setValue(KEY_QT_VERSION_ID, id);
+    m_qtVersion = id;
     emit qtVersionChanged();
     emit targetInformationChanged();
     emit environmentChanged();
@@ -247,9 +274,9 @@ void Qt4BuildConfiguration::setQtVersion(int id)
 
 void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolChainType type)
 {
-    if (value("ToolChain").toInt() == type)
+    if (m_toolChainType == type)
         return;
-    setValue("ToolChain", (int)type);
+    m_toolChainType = type;
     emit toolChainTypeChanged();
     emit targetInformationChanged();
     emit environmentChanged();
@@ -257,7 +284,7 @@ void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolCha
 
 ProjectExplorer::ToolChain::ToolChainType Qt4BuildConfiguration::toolChainType() const
 {
-    ToolChain::ToolChainType originalType = ToolChain::ToolChainType(value("ToolChain").toInt());
+    ToolChain::ToolChainType originalType = ToolChain::ToolChainType(m_toolChainType);
     ToolChain::ToolChainType type = originalType;
     const QtVersion *version = qtVersion();
     if (!version->possibleToolChainTypes().contains(type)) {
@@ -271,14 +298,14 @@ ProjectExplorer::ToolChain::ToolChainType Qt4BuildConfiguration::toolChainType()
 
 QtVersion::QmakeBuildConfigs Qt4BuildConfiguration::qmakeBuildConfiguration() const
 {
-    return QtVersion::QmakeBuildConfigs(value("buildConfiguration").toInt());
+    return m_qmakeBuildConfiguration;
 }
 
 void Qt4BuildConfiguration::setQMakeBuildConfiguration(QtVersion::QmakeBuildConfigs config)
 {
-    if (value("buildConfiguration").toInt() == int(config))
+    if (m_qmakeBuildConfiguration == config)
         return;
-    setValue("buildConfiguration", int(config));
+    m_qmakeBuildConfiguration = config;
     emit qmakeBuildConfigurationChanged();
     emit targetInformationChanged();
 }
@@ -286,7 +313,7 @@ void Qt4BuildConfiguration::setQMakeBuildConfiguration(QtVersion::QmakeBuildConf
 void Qt4BuildConfiguration::getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const
 {
     QtVersion::QmakeBuildConfigs defaultBuildConfiguration = qtVersion()->defaultBuildConfig();
-    QtVersion::QmakeBuildConfigs userBuildConfiguration = qmakeBuildConfiguration();
+    QtVersion::QmakeBuildConfigs userBuildConfiguration = m_qmakeBuildConfiguration;
     if (removedUserConfigs) {
         if ((defaultBuildConfiguration & QtVersion::BuildAll) && !(userBuildConfiguration & QtVersion::BuildAll))
             (*removedUserConfigs) << "debug_and_release";

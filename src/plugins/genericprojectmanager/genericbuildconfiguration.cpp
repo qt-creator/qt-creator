@@ -40,10 +40,22 @@ GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro)
 
 }
 
+GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro, const QMap<QString, QVariant> &map)
+    : BuildConfiguration(pro, map)
+{
+    m_buildDirectory = map.value("buildDirectory").toString();
+}
+
 GenericBuildConfiguration::GenericBuildConfiguration(GenericBuildConfiguration *source)
-    : BuildConfiguration(source)
+    : BuildConfiguration(source),
+    m_buildDirectory(source->m_buildDirectory)
 {
 
+}
+
+void GenericBuildConfiguration::toMap(QMap<QString, QVariant> &map) const
+{
+    map.insert("buildDirectory", m_buildDirectory);
 }
 
 ProjectExplorer::Environment GenericBuildConfiguration::environment() const
@@ -53,22 +65,20 @@ ProjectExplorer::Environment GenericBuildConfiguration::environment() const
 
 QString GenericBuildConfiguration::buildDirectory() const
 {
-    QString buildDirectory = value("buildDirectory").toString();
-
+    QString buildDirectory = m_buildDirectory;
     if (buildDirectory.isEmpty()) {
         QFileInfo fileInfo(project()->file()->fileName());
 
         buildDirectory = fileInfo.absolutePath();
     }
-
     return buildDirectory;
 }
 
 void GenericBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
 {
-    if (value("buildDirectory").toString() == buildDirectory)
+    if (m_buildDirectory == buildDirectory)
         return;
-    setValue("buildDirectory", buildDirectory);
+    m_buildDirectory = buildDirectory;
     emit buildDirectoryChanged();
 }
 

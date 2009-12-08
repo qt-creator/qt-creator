@@ -300,9 +300,9 @@ BuildConfiguration *Qt4BuildConfigurationFactory::clone(BuildConfiguration *sour
     return newbc;
 }
 
-BuildConfiguration *Qt4BuildConfigurationFactory::restore() const
+BuildConfiguration *Qt4BuildConfigurationFactory::restore(const QMap<QString, QVariant> &values) const
 {
-    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(m_project);
+    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(m_project, values);
     return bc;
 }
 
@@ -480,7 +480,6 @@ Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString displayName,
     // Add the buildconfiguration
     Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(this);
     bc->setDisplayName(displayName);
-    addBuildConfiguration(bc);
 
     QMakeStep *qmakeStep = new QMakeStep(bc);
     bc->insertBuildStep(0, qmakeStep);
@@ -506,6 +505,7 @@ Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString displayName,
         bc->setQtVersion(0);
     else
         bc->setQtVersion(qtversion->uniqueId());
+    addBuildConfiguration(bc);
     return bc;
 }
 

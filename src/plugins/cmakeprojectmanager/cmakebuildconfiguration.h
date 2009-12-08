@@ -43,7 +43,8 @@ class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 public:
     CMakeBuildConfiguration(CMakeProject *pro);
-    CMakeBuildConfiguration(BuildConfiguration *source);
+    CMakeBuildConfiguration(CMakeProject *pro, const QMap<QString, QVariant> &map);
+    CMakeBuildConfiguration(CMakeBuildConfiguration *source);
     ~CMakeBuildConfiguration();
 
     CMakeProject *cmakeProject() const;
@@ -67,12 +68,18 @@ public:
     QString msvcVersion() const;
     void setMsvcVersion(const QString &msvcVersion);
 
+    void toMap(QMap<QString, QVariant> &map) const;
+
 signals:
     void msvcVersionChanged();
 
 private:
     void updateToolChain() const;
     mutable ProjectExplorer::ToolChain *m_toolChain;
+    bool m_clearSystemEnvironment;
+    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
+    QString m_buildDirectory;
+    QString m_msvcVersion;
 };
 
 

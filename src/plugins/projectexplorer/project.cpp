@@ -147,7 +147,8 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     //save buildsettings
     QStringList buildConfigurationNames;
     for(int i=0; i < bcs.size(); ++i) {
-        QMap<QString, QVariant> temp = bcs.at(i)->toMap();
+        QMap<QString, QVariant> temp;
+        bcs.at(i)->toMap(temp);
         writer.saveValue("buildConfiguration-" + QString::number(i), temp);
         buildConfigurationNames << QString::number(i);
     }
@@ -211,12 +212,10 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
     const QStringList buildConfigurationNames = reader.restoreValue("buildconfigurations").toStringList();
 
     foreach (const QString &buildConfigurationName, buildConfigurationNames) {
-        BuildConfiguration *bc = buildConfigurationFactory()->restore();
-
         QMap<QString, QVariant> temp =
             reader.restoreValue("buildConfiguration-" + buildConfigurationName).toMap();
-        bc->setValuesFromMap(temp);
 
+        BuildConfiguration *bc = buildConfigurationFactory()->restore(temp);
         // Restore build steps
         QVariant buildStepsValueVariant = reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-buildsteps");
         if(buildStepsValueVariant.isValid()) {

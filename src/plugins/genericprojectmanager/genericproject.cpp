@@ -162,9 +162,9 @@ BuildConfiguration *GenericBuildConfigurationFactory::clone(BuildConfiguration *
     return bc;
 }
 
-BuildConfiguration *GenericBuildConfigurationFactory::restore() const
+BuildConfiguration *GenericBuildConfigurationFactory::restore(const QMap<QString, QVariant> &map) const
 {
-    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project);
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project, map);
     return bc;
 }
 
