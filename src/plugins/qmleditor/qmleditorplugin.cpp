@@ -166,7 +166,7 @@ void QmlEditorPlugin::extensionsInitialized()
     helpManager->registerDocumentation(QStringList(qmlHelpFile));
 }
 
-void QmlEditorPlugin::initializeEditor(QmlEditor::Internal::ScriptEditor *editor)
+void QmlEditorPlugin::initializeEditor(QmlEditor::Internal::QmlTextEditor *editor)
 {
     QTC_ASSERT(m_instance, /**/);
 

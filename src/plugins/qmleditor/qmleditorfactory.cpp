@@ -69,7 +69,7 @@ Core::IFile *QmlEditorFactory::open(const QString &fileName)
 
 Core::IEditor *QmlEditorFactory::createEditor(QWidget *parent)
 {
-    ScriptEditor *rc = new ScriptEditor(parent);
+    QmlTextEditor *rc = new QmlTextEditor(parent);
     QmlEditorPlugin::instance()->initializeEditor(rc);
     return rc->editableInterface();
 }

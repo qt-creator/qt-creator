@@ -273,7 +273,7 @@ protected:
 #endif
 };
 
-ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor)
+ScriptEditorEditable::ScriptEditorEditable(QmlTextEditor *editor)
     : BaseTextEditorEditable(editor)
 {
 
@@ -282,7 +282,7 @@ ScriptEditorEditable::ScriptEditorEditable(ScriptEditor *editor)
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 }
 
-ScriptEditor::ScriptEditor(QWidget *parent) :
+QmlTextEditor::QmlTextEditor(QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
     m_methodCombo(0),
     m_modelManager(0),
@@ -313,16 +313,16 @@ ScriptEditor::ScriptEditor(QWidget *parent) :
     }
 }
 
-ScriptEditor::~ScriptEditor()
+QmlTextEditor::~QmlTextEditor()
 {
 }
 
-QList<Declaration> ScriptEditor::declarations() const
+QList<Declaration> QmlTextEditor::declarations() const
 { return m_declarations; }
 
 Core::IEditor *ScriptEditorEditable::duplicate(QWidget *parent)
 {
-    ScriptEditor *newEditor = new ScriptEditor(parent);
+    QmlTextEditor *newEditor = new QmlTextEditor(parent);
     newEditor->duplicateFrom(editor());
     QmlEditorPlugin::instance()->initializeEditor(newEditor);
     return newEditor->editableInterface();
@@ -333,17 +333,17 @@ const char *ScriptEditorEditable::kind() const
     return QmlEditor::Constants::C_QMLEDITOR;
 }
 
-ScriptEditor::Context ScriptEditorEditable::context() const
+QmlTextEditor::Context ScriptEditorEditable::context() const
 {
     return m_context;
 }
 
-void ScriptEditor::updateDocument()
+void QmlTextEditor::updateDocument()
 {
     m_updateDocumentTimer->start(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
 }
 
-void ScriptEditor::updateDocumentNow()
+void QmlTextEditor::updateDocumentNow()
 {
     // ### move in the parser thread.
 
@@ -354,7 +354,7 @@ void ScriptEditor::updateDocumentNow()
     m_modelManager->updateSourceFiles(QStringList() << fileName);
 }
 
-void ScriptEditor::onDocumentUpdated(QmlEditor::QmlDocument::Ptr doc)
+void QmlTextEditor::onDocumentUpdated(QmlEditor::QmlDocument::Ptr doc)
 {
     if (file()->fileName() != doc->fileName())
         return;
@@ -413,7 +413,7 @@ void ScriptEditor::onDocumentUpdated(QmlEditor::QmlDocument::Ptr doc)
     setExtraSelections(CodeWarningsSelection, selections);
 }
 
-void ScriptEditor::jumpToMethod(int index)
+void QmlTextEditor::jumpToMethod(int index)
 {
     if (index) {
         Declaration d = m_declarations.at(index - 1);
@@ -422,7 +422,7 @@ void ScriptEditor::jumpToMethod(int index)
     }
 }
 
-void ScriptEditor::updateMethodBoxIndex()
+void QmlTextEditor::updateMethodBoxIndex()
 {
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
@@ -457,15 +457,15 @@ void ScriptEditor::updateMethodBoxIndex()
     setExtraSelections(CodeSemanticsSelection, selections);
 }
 
-void ScriptEditor::updateMethodBoxToolTip()
+void QmlTextEditor::updateMethodBoxToolTip()
 {
 }
 
-void ScriptEditor::updateFileName()
+void QmlTextEditor::updateFileName()
 {
 }
 
-void ScriptEditor::renameIdUnderCursor()
+void QmlTextEditor::renameIdUnderCursor()
 {
     const QString id = wordUnderCursor();
     bool ok = false;
@@ -486,7 +486,7 @@ void ScriptEditor::renameIdUnderCursor()
     }
 }
 
-QStringList ScriptEditor::keywords() const
+QStringList QmlTextEditor::keywords() const
 {
     QStringList words;
 
@@ -496,7 +496,7 @@ QStringList ScriptEditor::keywords() const
     return words;
 }
 
-void ScriptEditor::setFontSettings(const TextEditor::FontSettings &fs)
+void QmlTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditor::setFontSettings(fs);
     QmlHighlighter *highlighter = qobject_cast<QmlHighlighter*>(baseTextDocument()->syntaxHighlighter());
@@ -519,7 +519,7 @@ void ScriptEditor::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->rehighlight();
 }
 
-QString ScriptEditor::wordUnderCursor() const
+QString QmlTextEditor::wordUnderCursor() const
 {
     QTextCursor tc = textCursor();
     tc.movePosition(QTextCursor::StartOfWord);
@@ -528,7 +528,7 @@ QString ScriptEditor::wordUnderCursor() const
     return word;
 }
 
-bool ScriptEditor::isElectricCharacter(const QChar &ch) const
+bool QmlTextEditor::isElectricCharacter(const QChar &ch) const
 {
     if (ch == QLatin1Char('}')
         || ch == QLatin1Char(']'))
@@ -536,7 +536,7 @@ bool ScriptEditor::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
-bool ScriptEditor::isClosingBrace(const QList<QScriptIncrementalScanner::Token> &tokens) const
+bool QmlTextEditor::isClosingBrace(const QList<QScriptIncrementalScanner::Token> &tokens) const
 {
 
     if (tokens.size() == 1) {
@@ -567,7 +567,7 @@ static int blockStartState(const QTextBlock &block)
         return state & 0xff;
 }
 
-void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar /*typedChar*/)
+void QmlTextEditor::indentBlock(QTextDocument *, QTextBlock block, QChar /*typedChar*/)
 {
     TextEditor::TabSettings ts = tabSettings();
 
@@ -610,14 +610,14 @@ void ScriptEditor::indentBlock(QTextDocument *, QTextBlock block, QChar /*typedC
     ts.indentLine(block, indent);
 }
 
-TextEditor::BaseTextEditorEditable *ScriptEditor::createEditableInterface()
+TextEditor::BaseTextEditorEditable *QmlTextEditor::createEditableInterface()
 {
     ScriptEditorEditable *editable = new ScriptEditorEditable(this);
     createToolBar(editable);
     return editable;
 }
 
-void ScriptEditor::createToolBar(ScriptEditorEditable *editable)
+void QmlTextEditor::createToolBar(ScriptEditorEditable *editable)
 {
     m_methodCombo = new QComboBox;
     m_methodCombo->setMinimumContentsLength(22);
@@ -640,7 +640,7 @@ void ScriptEditor::createToolBar(ScriptEditorEditable *editable)
     toolBar->insertWidget(actions.first(), m_methodCombo);
 }
 
-TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cursor, bool /*resolveTarget*/)
+TextEditor::BaseTextEditor::Link QmlTextEditor::findLinkAt(const QTextCursor &cursor, bool /*resolveTarget*/)
 {
     Link link;
 
@@ -691,7 +691,7 @@ TextEditor::BaseTextEditor::Link ScriptEditor::findLinkAt(const QTextCursor &cur
     return link;
 }
 
-void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
+void QmlTextEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = new QMenu();
 
@@ -715,7 +715,7 @@ void ScriptEditor::contextMenuEvent(QContextMenuEvent *e)
     menu->deleteLater();
 }
 
-void ScriptEditor::unCommentSelection()
+void QmlTextEditor::unCommentSelection()
 {
     Utils::unCommentSelection(this);
 }

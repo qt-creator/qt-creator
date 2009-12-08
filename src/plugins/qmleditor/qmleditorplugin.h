@@ -45,7 +45,7 @@ namespace Internal {
 
 class QmlEditorFactory;
 class QmlCodeCompletion;
-class ScriptEditor;
+class QmlTextEditor;
 
 class QmlEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -62,7 +62,7 @@ public:
     static QmlEditorPlugin *instance()
     { return m_instance; }
 
-    void initializeEditor(ScriptEditor *editor);
+    void initializeEditor(QmlTextEditor *editor);
 
 private:
     static QmlEditorPlugin *m_instance;

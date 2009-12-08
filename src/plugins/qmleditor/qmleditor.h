@@ -54,14 +54,14 @@ class QmlModelManagerInterface;
 namespace Internal {
 
 class QmlHighlighter;
-class ScriptEditor;
+class QmlTextEditor;
 
 class ScriptEditorEditable : public TextEditor::BaseTextEditorEditable
 {
     Q_OBJECT
 
 public:
-    ScriptEditorEditable(ScriptEditor *);
+    ScriptEditorEditable(QmlTextEditor *);
     QList<int> context() const;
 
     bool duplicateSupported() const { return true; }
@@ -90,15 +90,15 @@ struct Declaration
     { }
 };
 
-class ScriptEditor : public TextEditor::BaseTextEditor
+class QmlTextEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
     typedef QList<int> Context;
 
-    ScriptEditor(QWidget *parent = 0);
-    ~ScriptEditor();
+    QmlTextEditor(QWidget *parent = 0);
+    ~QmlTextEditor();
 
     QList<Declaration> declarations() const;
     QStringList keywords() const;

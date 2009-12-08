@@ -146,7 +146,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (!m_modelManager)
         return;
 
-    ScriptEditor *scriptEditor = qobject_cast<ScriptEditor *>(editor->widget());
+    QmlTextEditor *scriptEditor = qobject_cast<QmlTextEditor *>(editor->widget());
     if (!scriptEditor)
         return;
 

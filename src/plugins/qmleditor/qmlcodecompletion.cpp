@@ -65,7 +65,7 @@ void QmlCodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
 
 bool QmlCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 {
-    if (qobject_cast<ScriptEditor *>(editor->widget()))
+    if (qobject_cast<QmlTextEditor *>(editor->widget()))
         return true;
 
     return false;
@@ -78,7 +78,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     m_editor = editor;
 
-    ScriptEditor *edit = qobject_cast<ScriptEditor *>(m_editor->widget());
+    QmlTextEditor *edit = qobject_cast<QmlTextEditor *>(m_editor->widget());
     if (! edit)
         return -1;
 
