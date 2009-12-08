@@ -242,6 +242,7 @@ void Qt4BuildConfiguration::setQtVersion(int id)
     setValue(KEY_QT_VERSION_ID, id);
     emit qtVersionChanged();
     emit targetInformationChanged();
+    emit environmentChanged();
 }
 
 void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolChainType type)
@@ -251,6 +252,7 @@ void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolCha
     setValue("ToolChain", (int)type);
     emit toolChainTypeChanged();
     emit targetInformationChanged();
+    emit environmentChanged();
 }
 
 ProjectExplorer::ToolChain::ToolChainType Qt4BuildConfiguration::toolChainType() const
@@ -322,6 +324,7 @@ void Qt4BuildConfiguration::defaultQtVersionChanged()
     if (qtVersionId() == 0) {
         emit qtVersionChanged();
         emit targetInformationChanged();
+        emit environmentChanged();
     }
 }
 

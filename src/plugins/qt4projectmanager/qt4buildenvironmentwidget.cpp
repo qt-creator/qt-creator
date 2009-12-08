@@ -71,7 +71,15 @@ void Qt4BuildEnvironmentWidget::init(ProjectExplorer::BuildConfiguration *bc)
     if (debug)
         qDebug() << "Qt4BuildConfigWidget::init()";
 
+    if (m_buildConfiguration) {
+        disconnect(this, SIGNAL(environmentChanged()),
+                   this, SLOT(environmentChanged()));
+    }
+
     m_buildConfiguration = static_cast<Qt4BuildConfiguration *>(bc);
+    connect(m_buildConfiguration, SIGNAL(environmentChanged()),
+            this, SLOT(environmentChanged()));
+
     m_clearSystemEnvironmentCheckBox->setChecked(!m_buildConfiguration->useSystemEnvironment());
     m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
     m_buildEnvironmentWidget->setUserChanges(m_buildConfiguration->userEnvironmentChanges());
@@ -86,5 +94,10 @@ void Qt4BuildEnvironmentWidget::environmentModelUserChangesUpdated()
 void Qt4BuildEnvironmentWidget::clearSystemEnvironmentCheckBoxClicked(bool checked)
 {
     m_buildConfiguration->setUseSystemEnvironment(!checked);
+    m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
+}
+
+void Qt4BuildEnvironmentWidget::environmentChanged()
+{
     m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
 }

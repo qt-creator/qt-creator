@@ -57,6 +57,7 @@ public:
 private slots:
     void environmentModelUserChangesChanged();
     void clearSystemEnvironmentCheckBoxClicked(bool checked);
+    void environmentChanged();
 
 private:
     ProjectExplorer::EnvironmentWidget *m_buildEnvironmentWidget;

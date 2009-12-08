@@ -68,6 +68,13 @@ void CMakeBuildEnvironmentWidget::init(ProjectExplorer::BuildConfiguration *bc)
     if (debug)
         qDebug() << "Qt4BuildConfigWidget::init()";
 
+    if (m_buildConfiguration) {
+        disconnect(m_buildConfiguration, SIGNAL(environmentChanged()),
+                   this, SLOT(environmentChanged()));
+    }
+    connect(m_buildConfiguration, SIGNAL(environmentChanged()),
+            this, SLOT(environmentChanged()));
+
     m_buildConfiguration = static_cast<CMakeBuildConfiguration *>(bc);
 
     m_clearSystemEnvironmentCheckBox->setChecked(!m_buildConfiguration->useSystemEnvironment());
@@ -84,5 +91,10 @@ void CMakeBuildEnvironmentWidget::environmentModelUserChangesChanged()
 void CMakeBuildEnvironmentWidget::clearSystemEnvironmentCheckBoxClicked(bool checked)
 {
     m_buildConfiguration->setUseSystemEnvironment(!checked);
+    m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
+}
+
+void CMakeBuildEnvironmentWidget::environmentChanged()
+{
     m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
 }
