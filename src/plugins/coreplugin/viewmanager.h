@@ -43,7 +43,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class IView;
+class StatusBarWidget;
 
 namespace Internal {
 
@@ -62,13 +62,12 @@ public:
     void extensionsInitalized();
     void saveSettings(QSettings *settings);
 
-    IView * view(const QString & id);
 private slots:
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);
 
 private:
-    QMap<Core::IView *, QWidget *> m_viewMap;
+    QMap<Core::StatusBarWidget *, QWidget *> m_viewMap;
 
     MainWindow *m_mainWnd;
     QList<QWidget *> m_statusBarWidgets;

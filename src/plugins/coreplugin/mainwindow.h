@@ -48,7 +48,7 @@ namespace Core {
 
 class ActionManager;
 class BaseMode;
-class BaseView;
+class StatusBarWidget;
 class EditorManager;
 class FileManager;
 class IContext;
@@ -195,7 +195,7 @@ private:
     FancyTabWidget *m_modeStack;
     NavigationWidget *m_navigationWidget;
     RightPaneWidget *m_rightPaneWidget;
-    Core::BaseView *m_outputView;
+    Core::StatusBarWidget *m_outputView;
     VersionDialog *m_versionDialog;
 
     IContext * m_activeContext;

@@ -56,7 +56,7 @@ SOURCES += mainwindow.cpp \
     scriptmanager/scriptmanager.cpp \
     scriptmanager/qworkbench_wrapper.cpp \
     basemode.cpp \
-    baseview.cpp \
+    statusbarwidget.cpp \
     coreplugin.cpp \
     variablemanager.cpp \
     modemanager.cpp \
@@ -128,7 +128,6 @@ HEADERS += mainwindow.h \
     ioutputpane.h \
     coreconstants.h \
     iversioncontrol.h \
-    iview.h \
     ifilewizardextension.h \
     icorelistener.h \
     versiondialog.h \
@@ -138,7 +137,7 @@ HEADERS += mainwindow.h \
     scriptmanager/scriptmanager_p.h \
     core_global.h \
     basemode.h \
-    baseview.h \
+    statusbarwidget.h \
     coreplugin.h \
     variablemanager.h \
     modemanager.h \

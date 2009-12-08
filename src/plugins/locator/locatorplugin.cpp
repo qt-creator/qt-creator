@@ -41,7 +41,7 @@
 #include <QtCore/QFuture>
 #include <QtCore/QFutureWatcher>
 
-#include <coreplugin/baseview.h>
+#include <coreplugin/statusbarwidget.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/icore.h>
@@ -95,12 +95,11 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
 
     m_locatorWidget = new LocatorWidget(this);
     m_locatorWidget->setEnabled(false);
-    Core::BaseView *view = new Core::BaseView;
-    view->setUniqueViewName("Locator");
+    Core::StatusBarWidget *view = new Core::StatusBarWidget;
     view->setWidget(m_locatorWidget);
     view->setContext(QList<int>() << core->uniqueIDManager()
         ->uniqueIdentifier(QLatin1String("LocatorWidget")));
-    view->setDefaultPosition(Core::IView::First);
+    view->setPosition(Core::StatusBarWidget::First);
     addAutoReleasedObject(view);
 
     const QString actionId = QLatin1String("QtCreator.Locate");

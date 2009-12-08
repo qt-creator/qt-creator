@@ -32,7 +32,7 @@
 #include "coreconstants.h"
 #include "mainwindow.h"
 #include "uniqueidmanager.h"
-#include "iview.h"
+#include "statusbarwidget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -77,22 +77,21 @@ void ViewManager::init()
 
 void ViewManager::objectAdded(QObject *obj)
 {
-    IView *view = Aggregation::query<IView>(obj);
+    StatusBarWidget *view = Aggregation::query<StatusBarWidget>(obj);
     if (!view)
         return;
 
     QWidget *viewWidget = 0;
     viewWidget = view->widget();
-    m_statusBarWidgets.at(view->defaultPosition())->layout()->addWidget(viewWidget);
+    m_statusBarWidgets.at(view->position())->layout()->addWidget(viewWidget);
 
     m_viewMap.insert(view, viewWidget);
-    viewWidget->setObjectName(view->uniqueViewName());
     m_mainWnd->addContextObject(view);
 }
 
 void ViewManager::aboutToRemoveObject(QObject *obj)
 {
-    IView *view = Aggregation::query<IView>(obj);
+    StatusBarWidget *view = Aggregation::query<StatusBarWidget>(obj);
     if (!view)
         return;
     m_mainWnd->removeContextObject(view);
@@ -107,15 +106,4 @@ void ViewManager::extensionsInitalized()
 void ViewManager::saveSettings(QSettings *settings)
 {
     settings->setValue(QLatin1String("ViewGroup_Default"), m_mainWnd->saveState());
-}
-
-IView *ViewManager::view(const QString &id)
-{
-    QList<IView *> list =
-        ExtensionSystem::PluginManager::instance()->getObjects<IView>();
-    foreach (IView *view, list) {
-        if (view->uniqueViewName() == id)
-            return view;
-    }
-    return 0;
 }

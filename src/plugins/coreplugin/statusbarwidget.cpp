@@ -27,28 +27,54 @@
 **
 **************************************************************************/
 
-#ifndef IVIEW_H
-#define IVIEW_H
+#include "statusbarwidget.h"
 
-#include "core_global.h"
+#include <QtGui/QWidget>
 
-#include <coreplugin/icontext.h>
+using namespace Core;
 
-namespace Core {
-
-class CORE_EXPORT IView : public IContext
+StatusBarWidget::StatusBarWidget(QObject *parent)
+        : IContext(parent),
+    m_widget(0),
+    m_context(QList<int>()),
+    m_defaultPosition(StatusBarWidget::First)
 {
-    Q_OBJECT
-public:
-    enum ViewPosition { First=0, Second=1, Third=2 };
+}
 
-    IView(QObject *parent = 0) : IContext(parent) {}
-    virtual ~IView() {}
+StatusBarWidget::~StatusBarWidget()
+{
+    delete m_widget;
+}
 
-    virtual const char *uniqueViewName() const = 0;
-    virtual ViewPosition defaultPosition() const = 0;
-};
+QList<int> StatusBarWidget::context() const
+{
+    return m_context;
+}
 
-} // namespace Core
+QWidget *StatusBarWidget::widget()
+{
+    return m_widget;
+}
 
-#endif // IVIEW_H
+StatusBarWidget::StatusBarPosition StatusBarWidget::position() const
+{
+    return m_defaultPosition;
+}
+
+QWidget *StatusBarWidget::setWidget(QWidget *widget)
+{
+    QWidget *oldWidget = m_widget;
+    m_widget = widget;
+    return oldWidget;
+}
+
+void StatusBarWidget::setContext(const QList<int> &context)
+{
+    m_context = context;
+}
+
+void StatusBarWidget::setPosition(StatusBarWidget::StatusBarPosition position)
+{
+    m_defaultPosition = position;
+}
+

@@ -27,40 +27,39 @@
 **
 **************************************************************************/
 
-#ifndef BASEVIEW_H
-#define BASEVIEW_H
+#ifndef STATUSBARWIDGET_H
+#define STATUSBARWIDGET_H
 
 #include "core_global.h"
-#include "iview.h"
+#include "icontext.h"
 #include <QtCore/QPointer>
 
 namespace Core {
 
-class CORE_EXPORT BaseView : public IView
+class CORE_EXPORT StatusBarWidget : public IContext
 {
     Q_OBJECT
 
 public:
-    BaseView(QObject *parent = 0);
-    ~BaseView();
+    enum StatusBarPosition { First=0, Second=1, Third=2 };
+
+    StatusBarWidget(QObject *parent = 0);
+    ~StatusBarWidget();
 
     QList<int> context() const;
     QWidget *widget();
-    const char *uniqueViewName() const;
-    IView::ViewPosition defaultPosition() const;
+    StatusBarWidget::StatusBarPosition position() const;
 
-    void setUniqueViewName(const char *name);
     QWidget *setWidget(QWidget *widget);
     void setContext(const QList<int> &context);
-    void setDefaultPosition(IView::ViewPosition position);
+    void setPosition(StatusBarWidget::StatusBarPosition position);
 
 private:
-    const char *m_viewName;
     QPointer<QWidget> m_widget;
     QList<int> m_context;
-    IView::ViewPosition m_defaultPosition;
+    StatusBarWidget::StatusBarPosition m_defaultPosition;
 };
 
 } // namespace Core
 
-#endif // BASEVIEW_H
+#endif // STATUSBARWIDGET_H

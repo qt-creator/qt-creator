@@ -46,7 +46,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
-#include <coreplugin/baseview.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/variablemanager.h>
@@ -164,7 +163,6 @@ struct EditorManagerPrivate {
     QAction *m_gotoOtherSplitAction;
 
     Internal::OpenEditorsWindow *m_windowPopup;
-    Core::BaseView *m_openEditorsView;
     Internal::EditorClosingCoreListener *m_coreListener;
 
     QMap<QString, QVariant> m_editorStates;
