@@ -32,9 +32,6 @@
 
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/projectnodes.h>
-#include <coreplugin/dialogs/iwizard.h>
-
-#include <QtCore/QModelIndex>
 
 namespace Core {
     class IEditor;
@@ -47,6 +44,7 @@ class PluginManager;
 namespace ProjectExplorer {
 class Project;
 class ProjectExplorerPlugin;
+class Node;
 class QtVersionManager;
 }
 
@@ -105,14 +103,11 @@ private:
     QList<Qt4Project *> m_projects;
     void runQMake(ProjectExplorer::Project *p);
 
-    const QString m_mimeType;
     Internal::Qt4ProjectManagerPlugin *m_plugin;
-    ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 
     ProjectExplorer::Node *m_contextNode;
     ProjectExplorer::Project *m_contextProject;
 
-    int m_languageID;
     Core::IEditor *m_lastEditor;
     bool m_dirty;
 };

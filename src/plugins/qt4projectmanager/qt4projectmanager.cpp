@@ -41,23 +41,18 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/vcsmanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <utils/listutils.h>
+#include <utils/qtcassert.h>
 #include <designer/formwindoweditor.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
-#include <QtCore/QLinkedList>
 #include <QtCore/QVariant>
 #include <QtGui/QFileDialog>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -79,16 +74,11 @@ static const char* qt4FileTypes[] = {
 };
 
 Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin)
-  : m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)),
-    m_plugin(plugin),
-    m_projectExplorer(0),
+  : m_plugin(plugin),
     m_contextProject(0),
-    m_languageID(0),
     m_lastEditor(0),
     m_dirty(false)
 {
-    m_languageID = Core::UniqueIDManager::instance()->
-                   uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
 }
 
 Qt4Manager::~Qt4Manager()
@@ -113,7 +103,6 @@ void Qt4Manager::notifyChanged(const QString &name)
 
 void Qt4Manager::init()
 {
-    m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     connect(Core::EditorManager::instance(), SIGNAL(editorAboutToClose(Core::IEditor*)),
             this, SLOT(editorAboutToClose(Core::IEditor*)));
 
@@ -178,12 +167,13 @@ int Qt4Manager::projectContext() const
 
 int Qt4Manager::projectLanguage() const
 {
-    return m_languageID;
+    return Core::UniqueIDManager::instance()->
+           uniqueIdentifier(QLatin1String(ProjectExplorer::Constants::LANG_CXX));
 }
 
 QString Qt4Manager::mimeType() const
 {
-    return m_mimeType;
+    return QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);
 }
 
 ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
@@ -222,7 +212,7 @@ ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
 
 ProjectExplorer::ProjectExplorerPlugin *Qt4Manager::projectExplorer() const
 {
-    return m_projectExplorer;
+    return ProjectExplorer::ProjectExplorerPlugin::instance();
 }
 
 ProjectExplorer::Node *Qt4Manager::contextNode() const
@@ -247,7 +237,7 @@ ProjectExplorer::Project *Qt4Manager::contextProject() const
 
 void Qt4Manager::runQMake()
 {
-    runQMake(m_projectExplorer->currentProject());
+    runQMake(projectExplorer()->currentProject());
 }
 
 void Qt4Manager::runQMakeContextMenu()
@@ -257,6 +247,7 @@ void Qt4Manager::runQMakeContextMenu()
 
 void Qt4Manager::runQMake(ProjectExplorer::Project *p)
 {
+    QTC_ASSERT(p, return);
     ProjectExplorer::BuildConfiguration *bc = p->activeBuildConfiguration();
     QMakeStep *qs = 0;
     foreach(BuildStep *bs, bc->buildSteps())
@@ -267,7 +258,7 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p)
         return;
     //found qmakeStep, now use it
     qs->setForced(true);
-    m_projectExplorer->buildManager()->appendStep(qs);
+    projectExplorer()->buildManager()->appendStep(qs);
 }
 
 QString Qt4Manager::fileTypeId(ProjectExplorer::FileType type)
