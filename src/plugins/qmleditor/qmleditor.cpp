@@ -273,7 +273,7 @@ protected:
 #endif
 };
 
-ScriptEditorEditable::ScriptEditorEditable(QmlTextEditor *editor)
+QmlEditorEditable::QmlEditorEditable(QmlTextEditor *editor)
     : BaseTextEditorEditable(editor)
 {
 
@@ -320,7 +320,7 @@ QmlTextEditor::~QmlTextEditor()
 QList<Declaration> QmlTextEditor::declarations() const
 { return m_declarations; }
 
-Core::IEditor *ScriptEditorEditable::duplicate(QWidget *parent)
+Core::IEditor *QmlEditorEditable::duplicate(QWidget *parent)
 {
     QmlTextEditor *newEditor = new QmlTextEditor(parent);
     newEditor->duplicateFrom(editor());
@@ -328,12 +328,12 @@ Core::IEditor *ScriptEditorEditable::duplicate(QWidget *parent)
     return newEditor->editableInterface();
 }
 
-const char *ScriptEditorEditable::kind() const
+const char *QmlEditorEditable::kind() const
 {
     return QmlEditor::Constants::C_QMLEDITOR;
 }
 
-QmlTextEditor::Context ScriptEditorEditable::context() const
+QmlTextEditor::Context QmlEditorEditable::context() const
 {
     return m_context;
 }
@@ -612,12 +612,12 @@ void QmlTextEditor::indentBlock(QTextDocument *, QTextBlock block, QChar /*typed
 
 TextEditor::BaseTextEditorEditable *QmlTextEditor::createEditableInterface()
 {
-    ScriptEditorEditable *editable = new ScriptEditorEditable(this);
+    QmlEditorEditable *editable = new QmlEditorEditable(this);
     createToolBar(editable);
     return editable;
 }
 
-void QmlTextEditor::createToolBar(ScriptEditorEditable *editable)
+void QmlTextEditor::createToolBar(QmlEditorEditable *editable)
 {
     m_methodCombo = new QComboBox;
     m_methodCombo->setMinimumContentsLength(22);

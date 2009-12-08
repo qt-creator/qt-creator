@@ -84,7 +84,7 @@ QmlHoverHandler::QmlHoverHandler(QObject *parent)
 
 void QmlHoverHandler::editorOpened(IEditor *editor)
 {
-    ScriptEditorEditable *qmlEditor = qobject_cast<ScriptEditorEditable *>(editor);
+    QmlEditorEditable *qmlEditor = qobject_cast<QmlEditorEditable *>(editor);
     if (!qmlEditor)
         return;
 

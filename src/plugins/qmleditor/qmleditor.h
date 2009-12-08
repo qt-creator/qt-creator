@@ -56,12 +56,12 @@ namespace Internal {
 class QmlHighlighter;
 class QmlTextEditor;
 
-class ScriptEditorEditable : public TextEditor::BaseTextEditorEditable
+class QmlEditorEditable : public TextEditor::BaseTextEditorEditable
 {
     Q_OBJECT
 
 public:
-    ScriptEditorEditable(QmlTextEditor *);
+    QmlEditorEditable(QmlTextEditor *);
     QList<int> context() const;
 
     bool duplicateSupported() const { return true; }
@@ -129,7 +129,7 @@ private slots:
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
     TextEditor::BaseTextEditorEditable *createEditableInterface();
-    void createToolBar(ScriptEditorEditable *editable);
+    void createToolBar(QmlEditorEditable *editable);
     TextEditor::BaseTextEditor::Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true);
 
 private:
