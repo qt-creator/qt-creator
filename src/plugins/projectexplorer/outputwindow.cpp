@@ -200,7 +200,8 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
             delete old;
             m_outputWindows.remove(old);
             OutputWindow *ow = static_cast<OutputWindow *>(m_tabWidget->widget(i));
-            ow->appendOutput("");//New line
+            ow->grayOutOldContent();
+            ow->verticalScrollBar()->setValue(ow->verticalScrollBar()->maximum());
             m_outputWindows.insert(rc, ow);
             found = true;
             break;
@@ -243,9 +244,14 @@ void OutputPane::insertLine()
 
 void OutputPane::reRunRunControl()
 {
-    RunControl *rc = runControlForTab(m_tabWidget->currentIndex());
-    if (rc->runConfiguration()->project() != 0)
+    int index = m_tabWidget->currentIndex();
+    RunControl *rc = runControlForTab(index);
+    if (rc->runConfiguration() && rc->runConfiguration()->project() != 0) {
+        OutputWindow *ow = static_cast<OutputWindow *>(m_tabWidget->widget(index));
+        ow->grayOutOldContent();
+        ow->verticalScrollBar()->setValue(ow->verticalScrollBar()->maximum());
         rc->start();
+    }
 }
 
 void OutputPane::stopRunControl()
@@ -456,6 +462,22 @@ void OutputWindow::insertLine()
     setMaximumBlockCount(MaxBlockCount);
     appendPlainText(QString());
     enableUndoRedo();
+}
+
+void OutputWindow::grayOutOldContent()
+{
+    QTextCursor cursor = textCursor();
+    cursor.select(QTextCursor::Document);
+    QTextBlockFormat tbf;
+    const QColor bkgColor = palette().window().color();
+    const QColor fgdColor = palette().windowText().color();
+    tbf.setBackground(QColor((0.5 * bkgColor.red() + 0.5* fgdColor.red()),\
+                             (0.5 * bkgColor.green() + 0.5* fgdColor.green()),\
+                             (0.5 * bkgColor.blue() + 0.5* fgdColor.blue()) ));
+    cursor.mergeBlockFormat(tbf);
+
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertBlock(QTextBlockFormat());
 }
 
 void OutputWindow::enableUndoRedo()
