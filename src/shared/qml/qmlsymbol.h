@@ -42,16 +42,6 @@ public:
     virtual List members(bool includeBaseClassMembers) = 0;
 };
 
-class QML_EXPORT QmlPrimitiveSymbol: public QmlBuildInSymbol
-{
-public:
-    virtual ~QmlPrimitiveSymbol() = 0;
-
-    virtual bool isString() const = 0;
-    virtual bool isNumber() const = 0;
-    virtual bool isObject() const = 0;
-};
-
 class QML_EXPORT QmlSymbolWithMembers: public QmlSymbol
 {
 public:
