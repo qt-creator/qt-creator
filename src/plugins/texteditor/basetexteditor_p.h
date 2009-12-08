@@ -31,8 +31,10 @@
 #define BASETEXTEDITOR_P_H
 
 #include "basetexteditor.h"
+#include "displaysettings.h"
 #include "texteditoroverlay.h"
-#include <texteditor/fontsettings.h>
+#include "fontsettings.h"
+
 #include <utils/changeset.h>
 
 #include <QtCore/QBasicTimer>

@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "plaintexteditor.h"
+#include "tabsettings.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 

@@ -38,6 +38,7 @@
 #include "basetextdocument.h"
 #include "basetexteditor_p.h"
 #include "codecselector.h"
+#include "tabsettings.h"
 
 #ifndef TEXTEDITOR_STANDALONE
 #include <aggregation/aggregate.h>

@@ -28,10 +28,12 @@
 **************************************************************************/
 
 #include "texteditoractionhandler.h"
-#include "texteditorconstants.h"
+
 #include "basetexteditor.h"
-#include "texteditorplugin.h"
+#include "displaysettings.h"
 #include "linenumberfilter.h"
+#include "texteditorconstants.h"
+#include "texteditorplugin.h"
 
 #include <locator/locatormanager.h>
 #include <coreplugin/icore.h>

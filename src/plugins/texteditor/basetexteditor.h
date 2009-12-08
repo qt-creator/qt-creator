@@ -30,13 +30,12 @@
 #ifndef BASETEXTEDITOR_H
 #define BASETEXTEDITOR_H
 
-#include "displaysettings.h"
-#include "tabsettings.h"
 #include "itexteditable.h"
 
 #include <find/ifindsupport.h>
 
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QTextBlockUserData>
 
 QT_BEGIN_NAMESPACE
 class QKeyEvent;
@@ -63,7 +62,9 @@ class TextEditorActionHandler;
 class BaseTextDocument;
 class FontSettings;
 struct BehaviorSettings;
+struct DisplaySettings;
 struct StorageSettings;
+struct TabSettings;
 
 struct Parenthesis;
 typedef QVector<Parenthesis> Parentheses;
