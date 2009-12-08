@@ -637,11 +637,15 @@ ResolveExpression::resolveBaseExpression(const QList<LookupItem> &baseResults, i
 
         if (NamedType *namedTy = ty->asNamedType()) {
             const QList<Scope *> visibleScopes = _context.visibleScopes(result);
-            const QList<Symbol *> typedefCandidates = _context.resolve(namedTy->name(), visibleScopes);
-            foreach (Symbol *typedefCandidate, typedefCandidates) {
-                if (typedefCandidate->isTypedef() && typedefCandidate->type()->isNamedType()) {
-                    ty = typedefCandidate->type();
-                    lastVisibleSymbol = typedefCandidate;
+            const QList<Symbol *> candidates = _context.resolve(namedTy->name(), visibleScopes);
+            foreach (Symbol *candidate, candidates) {
+                if (candidate->isTypedef() && candidate->type()->isNamedType()) {
+                    ty = candidate->type();
+                    lastVisibleSymbol = candidate;
+                    break;
+                } else if (TypenameArgument *arg = candidate->asTypenameArgument()) {
+                    ty = arg->type();
+                    lastVisibleSymbol = candidate;
                     break;
                 }
             }

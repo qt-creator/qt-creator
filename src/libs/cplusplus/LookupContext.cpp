@@ -447,6 +447,9 @@ void LookupContext::expandClass(Class *klass,
                                 const QList<Scope *> &visibleScopes,
                                 QList<Scope *> *expandedScopes) const
 {
+    for (TemplateParameters *params = klass->templateParameters(); params; params = params->previous())
+        expand(params->scope(), visibleScopes, expandedScopes);
+
     for (unsigned i = 0; i < klass->memberCount(); ++i) {
         Symbol *symbol = klass->memberAt(i);
         if (Class *nestedClass = symbol->asClass()) {
@@ -510,6 +513,9 @@ void LookupContext::expandFunction(Function *function,
                                    const QList<Scope *> &visibleScopes,
                                    QList<Scope *> *expandedScopes) const
 {
+    for (TemplateParameters *params = function->templateParameters(); params; params = params->previous())
+        expand(params->scope(), visibleScopes, expandedScopes);
+
     if (! expandedScopes->contains(function->arguments()))
         expandedScopes->append(function->arguments());
 
