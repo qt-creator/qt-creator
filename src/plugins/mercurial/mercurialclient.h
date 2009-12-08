@@ -31,6 +31,7 @@
 #define MERCURIALCLIENT_H
 
 #include <QtCore/QObject>
+#include <QtCore/QStringList>
 #include <QtCore/QPair>
 #include <QtCore/QSharedPointer>
 
@@ -59,23 +60,24 @@ class MercurialClient : public QObject
 public:
     MercurialClient();
     ~MercurialClient();
-    bool add(const QString &fileName);
-    bool remove(const QString &fileName);
-    bool manifestSync(const QString &filename);
-    QString branchQuerySync(const QFileInfo &repositoryRoot);
-    void annotate(const QFileInfo &file);
-    void diff(const QFileInfo &fileOrDir);
-    void log(const QFileInfo &fileOrDir);
-    void import(const QFileInfo &repositoryRoot, const QStringList &files);
-    void pull(const QFileInfo &repositoryRoot, const QString &repository);
-    void push(const QFileInfo &repositoryRoot, const QString &repository);
-    void incoming(const QFileInfo &repositoryRoot, const QString &repository);
-    void outgoing(const QFileInfo &repositoryRoot);
-    void status(const QFileInfo &fileOrDir);
-    void statusWithSignal(const QFileInfo &fileOrDir);
-    void revert(const QFileInfo &fileOrDir, const QString &revision);
-    void update(const QFileInfo &repositoryRoot, const QString &revision);
-    void commit(const QFileInfo &repositoryRoot, const QStringList &files,
+    bool add(const QString &workingDir, const QString &fileName);
+    bool remove(const QString &workingDir, const QString &fileName);
+    bool manifestSync(const QString &repository, const QString &filename);
+    QString branchQuerySync(const QString &repositoryRoot);
+    void annotate(const QString &workingDir, const QString &files);
+    void diff(const QString &workingDir, const QStringList &files = QStringList());
+    void log(const QString &workingDir, const QStringList &files = QStringList());
+    void import(const QString &repositoryRoot, const QStringList &files);
+    void pull(const QString &repositoryRoot, const QString &repository = QString());
+    void push(const QString &repositoryRoot, const QString &repository = QString());
+    void incoming(const QString &repositoryRoot, const QString &repository = QString());
+    void outgoing(const QString &repositoryRoot);
+    void status(const QString &workingDir, const QString &file = QString());
+    void statusWithSignal(const QString &repository);
+    void revertFile(const QString &workingDir, const QString &file, const QString &revision = QString());
+    void revertRepository(const QString &workingDir, const QString &revision = QString());
+    void update(const QString &repositoryRoot, const QString &revision = QString());
+    void commit(const QString &repositoryRoot, const QStringList &files,
                 const QString &commiterInfo, const QString &commitMessageFile);
 
     static QString findTopLevelForFile(const QFileInfo &file);
@@ -93,9 +95,12 @@ private slots:
     void statusParser(const QByteArray &data);
 
 private:
-    bool executeHgSynchronously(const QFileInfo &file, const QStringList &args,
+    bool executeHgSynchronously(const QString  &workingDir,
+                                const QStringList &args,
                                 QByteArray *output=0) const;
     void enqueueJob(const QSharedPointer<HgTask> &);
+    void revert(const QString &workingDir, const QString &argument,
+                const QString &revision, const QVariant &cookie);
 
     MercurialJobRunner *jobManager;
     Core::ICore *core;

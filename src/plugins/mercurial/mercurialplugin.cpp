@@ -48,10 +48,8 @@
 #include <coreplugin/filemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/project.h>
 #include <utils/parameteraction.h>
+#include <utils/qtcassert.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
@@ -72,11 +70,6 @@
 
 using namespace Mercurial::Internal;
 using namespace Mercurial;
-
-bool ListenForClose::editorAboutToClose(Core::IEditor *editor)
-{
-    return MercurialPlugin::instance()->closeEditor(editor);
-}
 
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
@@ -122,11 +115,11 @@ static inline const VCSBase::VCSBaseEditorParameters *findType(int ie)
 MercurialPlugin *MercurialPlugin::m_instance = 0;
 
 MercurialPlugin::MercurialPlugin() :
+        VCSBase::VCSBasePlugin(QLatin1String(Constants::COMMITKIND)),
         optionsPage(0),
         client(0),
-        mercurialVC(0),
-        projectExplorer(0),
-        changeLog(0)
+        changeLog(0),
+        m_menuAction(0)
 {
     m_instance = this;
 }
@@ -143,12 +136,11 @@ MercurialPlugin::~MercurialPlugin()
     m_instance = 0;
 }
 
-bool MercurialPlugin::initialize(const QStringList &arguments, QString *error_message)
+bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * /*error_message */)
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(error_message)
-
     typedef VCSBase::VCSEditorFactory<MercurialEditor> MercurialEditorFactory;
+
+    VCSBase::VCSBasePlugin::initialize(new MercurialControl(client));
 
     core = Core::ICore::instance();
     actionManager = core->actionManager();
@@ -160,9 +152,7 @@ bool MercurialPlugin::initialize(const QStringList &arguments, QString *error_me
     client = new MercurialClient();
     connect(optionsPage, SIGNAL(settingsChanged()), client, SLOT(settingsChanged()));
 
-    mercurialVC = new MercurialControl(client);
-    addAutoReleasedObject(mercurialVC);
-    connect(client, SIGNAL(changed(QVariant)), mercurialVC, SLOT(changed(QVariant)));
+    connect(client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
 
     static const char *describeSlot = SLOT(view(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
@@ -173,8 +163,6 @@ bool MercurialPlugin::initialize(const QStringList &arguments, QString *error_me
 
     addAutoReleasedObject(new CloneWizard);
 
-    addAutoReleasedObject(new ListenForClose);
-
     createMenu();
 
     createSubmitEditorActions();
@@ -184,10 +172,6 @@ bool MercurialPlugin::initialize(const QStringList &arguments, QString *error_me
 
 void MercurialPlugin::extensionsInitialized()
 {
-    projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (projectExplorer)
-        connect(projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
-                this, SLOT(currentProjectChanged(ProjectExplorer::Project *)));
 }
 
 const MercurialSettings &MercurialPlugin::settings() const
@@ -216,11 +200,6 @@ void MercurialPlugin::createMenu()
     QMenu *menu = mercurialContainer->menu();
     menu->setTitle(tr("Mercurial"));
 
-    if (QAction *visibleAction = menu->menuAction()) {
-        visibleAction->setEnabled(mercurialVC->isEnabled());
-        connect(mercurialVC, SIGNAL(enabledChanged(bool)), visibleAction, SLOT(setVisible(bool)));
-    }
-
     createFileActions(context);
     createSeparator(context, QLatin1String("FileDirSeperator"));
     createDirectoryActions(context);
@@ -234,11 +213,7 @@ void MercurialPlugin::createMenu()
     // Request the Tools menu and add the Mercurial menu to it
     Core::ActionContainer *toolsMenu = actionManager->actionContainer(QLatin1String(Core::Constants::M_TOOLS));
     toolsMenu->addMenu(mercurialContainer);
-
-    connect(core, SIGNAL(contextChanged(Core::IContext *)), this, SLOT(updateActions()));
-    connect(core->fileManager(), SIGNAL(currentFileChanged(const QString &)),
-            this, SLOT(updateActions()));
-
+    m_menuAction = mercurialContainer->menu()->menuAction();
 }
 
 void MercurialPlugin::createFileActions(const QList<int> &context)
@@ -281,30 +256,41 @@ void MercurialPlugin::createFileActions(const QList<int> &context)
 
 void MercurialPlugin::annotateCurrentFile()
 {
-    client->annotate(currentFile());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void MercurialPlugin::diffCurrentFile()
 {
-    client->diff(currentFile());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void MercurialPlugin::logCurrentFile()
 {
-    client->log(currentFile());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    client->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void MercurialPlugin::revertCurrentFile()
 {
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+
     RevertDialog reverter;
     if (reverter.exec() != QDialog::Accepted)
         return;
-    client->revert(currentFile(), reverter.revision());
+    client->revertFile(state.currentFileTopLevel(), state.relativeCurrentFile(), reverter.revision());
 }
 
 void MercurialPlugin::statusCurrentFile()
 {
-    client->status(currentFile());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    client->status(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void MercurialPlugin::createDirectoryActions(const QList<int> &context)
@@ -313,25 +299,25 @@ void MercurialPlugin::createDirectoryActions(const QList<int> &context)
     Core::Command *command;
 
     action = new QAction(tr("Diff"), this);
-    actionList.append(action);
+    m_repositoryActionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::DIFFMULTI), context);
     connect(action, SIGNAL(triggered()), this, SLOT(diffRepository()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Log"), this);
-    actionList.append(action);
+    m_repositoryActionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::LOGMULTI), context);
     connect(action, SIGNAL(triggered()), this, SLOT(logRepository()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Revert..."), this);
-    actionList.append(action);
+    m_repositoryActionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::REVERTMULTI), context);
     connect(action, SIGNAL(triggered()), this, SLOT(revertMulti()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Status"), this);
-    actionList.append(action);
+    m_repositoryActionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::STATUSMULTI), context);
     connect(action, SIGNAL(triggered()), this, SLOT(statusMulti()));
     mercurialContainer->addAction(command);
@@ -339,67 +325,77 @@ void MercurialPlugin::createDirectoryActions(const QList<int> &context)
 
 void MercurialPlugin::diffRepository()
 {
-    client->diff(currentProjectRoot());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    client->diff(state.topLevel());
 }
 
 void MercurialPlugin::logRepository()
 {
-    client->log(currentProjectRoot());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    client->log(state.topLevel());
 }
 
 void MercurialPlugin::revertMulti()
 {
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+
     RevertDialog reverter;
     if (reverter.exec() != QDialog::Accepted)
         return;
-    client->revert(currentProjectRoot(), reverter.revision());
+    client->revertRepository(state.topLevel(), reverter.revision());
 }
 
 void MercurialPlugin::statusMulti()
 {
-    client->status(currentProjectRoot());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+
+    client->status(state.topLevel());
 }
 
 void MercurialPlugin::createRepositoryActions(const QList<int> &context)
 {
     QAction *action = new QAction(tr("Pull..."), this);
-    actionList.append(action);
+    m_repositoryActionList.append(action);
     Core::Command *command = actionManager->registerAction(action, QLatin1String(Constants::PULL), context);
     connect(action, SIGNAL(triggered()), this, SLOT(pull()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Push..."), this);
-    actionList.append(action);
+    m_repositoryActionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::PUSH), context);
     connect(action, SIGNAL(triggered()), this, SLOT(push()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Update..."), this);
-    actionList.append(action);
+    m_repositoryActionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::UPDATE), context);
     connect(action, SIGNAL(triggered()), this, SLOT(update()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Import..."), this);
-    actionList.append(action);
+    m_repositoryActionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::IMPORT), context);
     connect(action, SIGNAL(triggered()), this, SLOT(import()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Incoming..."), this);
-    actionList.append(action);
+    m_repositoryActionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::INCOMING), context);
     connect(action, SIGNAL(triggered()), this, SLOT(incoming()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Outgoing..."), this);
-    actionList.append(action);
+    m_repositoryActionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::OUTGOING), context);
     connect(action, SIGNAL(triggered()), this, SLOT(outgoing()));
     mercurialContainer->addAction(command);
 
     action = new QAction(tr("Commit..."), this);
-    actionList.append(action);
+    m_repositoryActionList.append(action);
     command = actionManager->registerAction(action, QLatin1String(Constants::COMMIT), context);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+C")));
     connect(action, SIGNAL(triggered()), this, SLOT(commit()));
@@ -408,35 +404,45 @@ void MercurialPlugin::createRepositoryActions(const QList<int> &context)
 
 void MercurialPlugin::pull()
 {
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+
     SrcDestDialog dialog;
     dialog.setWindowTitle(tr("Pull Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    QString repository = dialog.getRepositoryString();
-    client->pull(currentProjectRoot(), repository);
+    client->pull(state.topLevel(), dialog.getRepositoryString());
 }
 
 void MercurialPlugin::push()
 {
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+
     SrcDestDialog dialog;
     dialog.setWindowTitle(tr("Push Destination"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    QString repository = dialog.getRepositoryString();
-    client->push(currentProjectRoot(), repository);
+    client->push(state.topLevel(), dialog.getRepositoryString());
 }
 
 void MercurialPlugin::update()
 {
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+
     RevertDialog updateDialog;
     updateDialog.setWindowTitle(tr("Update"));
     if (updateDialog.exec() != QDialog::Accepted)
         return;
-    client->update(currentProjectRoot(), updateDialog.revision());
+    client->update(state.topLevel(), updateDialog.revision());
 }
 
 void MercurialPlugin::import()
 {
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+
     QFileDialog importDialog;
     importDialog.setFileMode(QFileDialog::ExistingFiles);
     importDialog.setViewMode(QFileDialog::Detail);
@@ -445,22 +451,26 @@ void MercurialPlugin::import()
         return;
 
     const QStringList fileNames = importDialog.selectedFiles();
-    client->import(currentProjectRoot(), fileNames);
+    client->import(state.topLevel(), fileNames);
 }
 
 void MercurialPlugin::incoming()
 {
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+
     SrcDestDialog dialog;
     dialog.setWindowTitle(tr("Incoming Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    QString repository = dialog.getRepositoryString();
-    client->incoming(currentProjectRoot(), repository);
+    client->incoming(state.topLevel(), dialog.getRepositoryString());
 }
 
 void MercurialPlugin::outgoing()
 {
-    client->outgoing(currentProjectRoot());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    client->outgoing(state.topLevel());
 }
 
 void MercurialPlugin::createSubmitEditorActions()
@@ -487,9 +497,14 @@ void MercurialPlugin::commit()
     if (VCSBase::VCSBaseSubmitEditor::raiseSubmitEditor())
         return;
 
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+
+    m_submitRepository = state.topLevel();
+
     connect(client, SIGNAL(parsedStatus(QList<QPair<QString,QString> >)),
             this, SLOT(showCommitWidget(QList<QPair<QString,QString> >)));
-    client->statusWithSignal(currentProjectRoot());
+    client->statusWithSignal(m_submitRepository);
 }
 
 void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &status)
@@ -528,25 +543,23 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
         outputWindow->appendError(tr("Unable to create a commit editor."));
         return;
     }
-    const QString msg = tr("Commit changes for \"%1\".").arg(currentProjectName());
+
+    const QString msg = tr("Commit changes for \"%1\".").arg(m_submitRepository);
     commitEditor->setDisplayName(msg);
 
-    QString branch = client->branchQuerySync(currentProjectRoot());
+    QString branch = client->branchQuerySync(m_submitRepository);
 
-    commitEditor->setFields(currentProjectRoot(), branch, mercurialSettings.userName(),
+    commitEditor->setFields(m_submitRepository, branch, mercurialSettings.userName(),
                             mercurialSettings.email(), status);
 
     commitEditor->registerActions(editorUndo, editorRedo, editorCommit, editorDiff);
-    connect(commitEditor, SIGNAL(diffSelectedFiles(const QStringList &)),
-            this, SLOT(diffFromEditorSelected(const QStringList &)));
+    connect(commitEditor, SIGNAL(diffSelectedFiles(QStringList)),
+            this, SLOT(diffFromEditorSelected(QStringList)));
 }
 
 void MercurialPlugin::diffFromEditorSelected(const QStringList &files)
 {
-    foreach (const QString &file, files) {
-        const QFileInfo toDiff(QDir(currentProjectRoot().absoluteFilePath()).absoluteFilePath(file));
-        client->diff(toDiff);
-    }
+    client->diff(m_submitRepository, files);
 }
 
 void MercurialPlugin::commitFromEditor()
@@ -558,12 +571,12 @@ void MercurialPlugin::commitFromEditor()
     core->editorManager()->closeEditors(core->editorManager()->editorsForFileName(changeLog->fileName()));
 }
 
-bool MercurialPlugin::closeEditor(Core::IEditor *editor)
+bool MercurialPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor)
 {
-    if (!changeLog || !editor || qstrcmp(editor->kind(), Constants::COMMITKIND))
+    if (!changeLog)
         return true;
-    Core::IFile *editorFile = editor->file();
-    CommitEditor *commitEditor = qobject_cast<CommitEditor *>(editor);
+    Core::IFile *editorFile = submitEditor->file();
+    CommitEditor *commitEditor = qobject_cast<CommitEditor *>(submitEditor);
     if (!editorFile || !commitEditor)
         return true;
 
@@ -590,8 +603,7 @@ bool MercurialPlugin::closeEditor(Core::IEditor *editor)
         editorFile->save();
         core->fileManager()->unblockFileChange(editorFile);
 
-        const QFileInfo repoRoot(commitEditor->repoRoot());
-        client->commit(repoRoot, files, commitEditor->committerInfo(),
+        client->commit(commitEditor->repoRoot(), files, commitEditor->committerInfo(),
                        editorFile->fileName());
     }
     return true;
@@ -601,6 +613,7 @@ void MercurialPlugin::deleteCommitLog()
     if (changeLog) {
         delete changeLog;
         changeLog = 0;
+        m_submitRepository.clear();
     }
 }
 
@@ -630,68 +643,28 @@ void MercurialPlugin::createSeparator(const QList<int> &context, const QString &
     mercurialContainer->addAction(actionManager->registerAction(action, id, context));
 }
 
-void MercurialPlugin::updateActions()
+void MercurialPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
-    const QFileInfo  file = currentFile();
-    const QString filename = file.fileName();
-    const QString repoRoot = client->findTopLevelForFile(file);
-    bool enable = false;
+    if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
+        return;
 
-    //File menu Items should only be enabled for files that are below a mercurial repository
-    enable = !repoRoot.isEmpty();
+    const QString filename = currentState().currentFileName();
+    const bool fileEnabled = !filename.isEmpty();
+    const bool repoEnabled = currentState().hasTopLevel();
+
     annotateFile->setParameter(filename);
-    annotateFile->setEnabled(enable);
+    annotateFile->setEnabled(fileEnabled);
     diffFile->setParameter(filename);
-    diffFile->setEnabled(enable);
+    diffFile->setEnabled(fileEnabled);
     logFile->setParameter(filename);
-    logFile->setEnabled(enable);
+    logFile->setEnabled(fileEnabled);
     revertFile->setParameter(filename);
-    revertFile->setEnabled(enable);
+    revertFile->setEnabled(fileEnabled);
     statusFile->setParameter(filename);
-    statusFile->setEnabled(enable);
+    statusFile->setEnabled(fileEnabled);
 
-    //repository actions
-    if (projectMapper.contains(currentProjectName()))
-        enable = true;
-    else
-        enable = false;
-
-    foreach (QAction *action, actionList)
-        action->setEnabled(enable);
-}
-
-QFileInfo MercurialPlugin::currentFile()
-{
-    QString fileName = core->fileManager()->currentFile();
-    QFileInfo fileInfo(fileName);
-    return fileInfo;
-}
-
-QString MercurialPlugin::currentProjectName()
-{
-    if (projectExplorer)
-        if (projectExplorer->currentProject())
-            return projectExplorer->currentProject()->name();
-    return QString();
-}
-
-void MercurialPlugin::currentProjectChanged(ProjectExplorer::Project *project)
-{
-    if (!project)
-        return;
-
-    if (projectMapper.contains(project->name()))
-        return;
-
-    QString repoRoot = client->findTopLevelForFile(QFileInfo(project->file()->fileName()));
-
-    if (!repoRoot.isEmpty())
-        projectMapper.insert(project->name(), QFileInfo(repoRoot));
-}
-
-QFileInfo MercurialPlugin::currentProjectRoot()
-{
-    return projectMapper.value(currentProjectName());
+    foreach (QAction *repoAction, m_repositoryActionList)
+        repoAction->setEnabled(repoEnabled);
 }
 
 Q_EXPORT_PLUGIN(MercurialPlugin)

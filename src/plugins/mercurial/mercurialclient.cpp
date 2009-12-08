@@ -78,48 +78,46 @@ MercurialClient::~MercurialClient()
     }
 }
 
-bool MercurialClient::add(const QString &filename)
+bool MercurialClient::add(const QString &workingDir, const QString &filename)
 {
-    QFileInfo file(filename);
     QStringList args;
-    args << QLatin1String("add") << file.absoluteFilePath();
-
-    return executeHgSynchronously(file, args);
+    args << QLatin1String("add") << filename;
+    return executeHgSynchronously(workingDir, args);
 }
 
-bool MercurialClient::remove(const QString &filename)
+bool MercurialClient::remove(const QString &workingDir, const QString &filename)
 {
-    QFileInfo file(filename);
     QStringList args;
-    args << QLatin1String("remove") << file.absoluteFilePath();
-
-    return executeHgSynchronously(file, args);
+    args << QLatin1String("remove") << filename;
+    return executeHgSynchronously(workingDir, args);
 }
 
-bool MercurialClient::manifestSync(const QString &filename)
+bool MercurialClient::manifestSync(const QString &repository, const QString &relativeFilename)
 {
-    QFileInfo file(filename);
-    QStringList args(QLatin1String("manifest"));
+    // This  only works when called from the repo and outputs paths relative to it.
+    const QStringList args(QLatin1String("manifest"));
 
     QByteArray output;
-    executeHgSynchronously(file, args, &output);
+    executeHgSynchronously(repository, args, &output);
+    const QDir repositoryDir(repository);
+    const QFileInfo needle = QFileInfo(repositoryDir, relativeFilename);
 
     const QStringList files = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
-
     foreach (const QString &fileName, files) {
-        const QFileInfo managedFile(fileName);
-        if (file == managedFile)
+        const QFileInfo managedFile(repositoryDir, fileName);
+        if (needle == managedFile)
             return true;
     }
-
     return false;
 }
 
-bool MercurialClient::executeHgSynchronously(const QFileInfo &file, const QStringList &args,
+bool MercurialClient::executeHgSynchronously(const QString  &workingDir,
+                                             const QStringList &args,
                                              QByteArray *output) const
 {
     QProcess hgProcess;
-    hgProcess.setWorkingDirectory(file.isDir() ? file.absoluteFilePath() : file.absolutePath());
+    if (!workingDir.isEmpty())
+        hgProcess.setWorkingDirectory(workingDir);
 
     const MercurialSettings &settings = MercurialPlugin::instance()->settings();
     const QString binary = settings.binary();
@@ -152,7 +150,7 @@ bool MercurialClient::executeHgSynchronously(const QFileInfo &file, const QStrin
     return false;
 }
 
-QString MercurialClient::branchQuerySync(const QFileInfo &repositoryRoot)
+QString MercurialClient::branchQuerySync(const QString &repositoryRoot)
 {
     QByteArray output;
     if (executeHgSynchronously(repositoryRoot, QStringList(QLatin1String("branch")), &output))
@@ -161,66 +159,53 @@ QString MercurialClient::branchQuerySync(const QFileInfo &repositoryRoot)
     return QLatin1String("Unknown Branch");
 }
 
-void MercurialClient::annotate(const QFileInfo &file)
+void MercurialClient::annotate(const QString &workingDir, const QString &file)
 {
     QStringList args;
-    args << QLatin1String("annotate") << QLatin1String("-u") << QLatin1String("-c") << QLatin1String("-d") << file.absoluteFilePath();
+    args << QLatin1String("annotate") << QLatin1String("-u") << QLatin1String("-c") << QLatin1String("-d") << file;
 
     const QString kind = QLatin1String(Constants::ANNOTATELOG);
-    const QString title = tr("Hg Annotate %1").arg(file.fileName());
+    const QString id   = VCSBase::VCSBaseEditor::getSource(workingDir, QStringList(file));
+    const QString title = tr("Hg Annotate %1").arg(id);
+    const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, file);
 
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, file.absolutePath(), true,
-                                                     "annotate", file.absoluteFilePath());
+    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, source, true,
+                                                     "annotate", id);
 
-    QSharedPointer<HgTask> job(new HgTask(file.absolutePath(), args, editor));
+    QSharedPointer<HgTask> job(new HgTask(workingDir, args, editor));
     enqueueJob(job);
 }
 
-void MercurialClient::diff(const QFileInfo &fileOrDir)
+void MercurialClient::diff(const QString &workingDir, const QStringList &files)
 {
     QStringList args;
-    QString id;
-    QString workingPath;
-
     args << QLatin1String("diff") << QLatin1String("-g") << QLatin1String("-p")
          << QLatin1String("-U 8");
-
-    if (!fileOrDir.isDir()) {
-        args.append(fileOrDir.absoluteFilePath());
-        id = fileOrDir.absoluteFilePath();
-        workingPath = fileOrDir.absolutePath();
-    } else {
-        id = MercurialPlugin::instance()->currentProjectName();
-        workingPath = fileOrDir.absoluteFilePath();
-    }
+    if (!files.isEmpty())
+        args.append(files);
 
     const QString kind = QLatin1String(Constants::DIFFLOG);
-    const QString title = tr("Hg diff %1").arg(fileOrDir.isDir() ? id : fileOrDir.fileName());
-
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, workingPath, true,
+    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir,files);
+    const QString title = tr("Hg diff %1").arg(id);
+    const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, files);
+    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, source, true,
                                                      "diff", id);
 
-    QSharedPointer<HgTask> job(new HgTask(workingPath, args, editor));
+    QSharedPointer<HgTask> job(new HgTask(workingDir, args, editor));
     enqueueJob(job);
 }
 
-void MercurialClient::log(const QFileInfo &fileOrDir)
+
+void MercurialClient::log(const QString &workingDir, const QStringList &files)
 {
     QStringList args(QLatin1String("log"));
-    QString id;
-    QString workingDir;
-
-    if (!fileOrDir.isDir()) {
-        args.append(fileOrDir.absoluteFilePath());
-        id = fileOrDir.absoluteFilePath();
-        workingDir = fileOrDir.absolutePath();
-    } else {
-        id = MercurialPlugin::instance()->currentProjectName();
-        workingDir = fileOrDir.absoluteFilePath();
-    }
+    if (!files.empty())
+        args.append(files);
 
     const QString kind = QLatin1String(Constants::FILELOG);
-    const QString title = tr("Hg log %1").arg(fileOrDir.isDir() ? id : fileOrDir.fileName());
+    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir,files);
+    const QString title = tr("Hg log %1").arg(id);
+    const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, files);
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, workingDir, true,
                                                      "log", id);
@@ -229,42 +214,51 @@ void MercurialClient::log(const QFileInfo &fileOrDir)
     enqueueJob(job);
 }
 
-void MercurialClient::revert(const QFileInfo &fileOrDir, const QString &revision)
+void MercurialClient::revertFile(const QString &workingDir,
+                                 const QString &file,
+                                 const QString &revision)
 {
-    const QString filePath = fileOrDir.absoluteFilePath();
-    const QString workingDir = fileOrDir.isDir() ? filePath : fileOrDir.absolutePath();
+    const QStringList cookieList(workingDir + QLatin1Char('/') + file);
+    revert(workingDir, file, revision, QVariant(cookieList));
+}
 
+void MercurialClient::revertRepository(const QString &workingDir,
+                                       const QString &revision)
+{
+    revert(workingDir, QLatin1String("--all"), revision, QVariant(workingDir));
+}
+
+void MercurialClient::revert(const QString &workingDir,
+                             const QString &argument,
+                             const QString &revision,
+                             const QVariant &cookie)
+{
     QStringList args(QLatin1String("revert"));    
     if (!revision.isEmpty())
         args << QLatin1String("-r") << revision;
-    args.append(fileOrDir.isDir() ? QString(QLatin1String("--all")) : filePath);
+    args.append(argument);
 
     // Indicate repository change or file list
-    const QVariant cookie = fileOrDir.isDir() ? QVariant(filePath) : QVariant(QStringList(filePath));
     QSharedPointer<HgTask> job(new HgTask(workingDir, args, false, cookie));
     connect(job.data(), SIGNAL(succeeded(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(job);
 }
 
-void MercurialClient::status(const QFileInfo &fileOrDir)
+void MercurialClient::status(const QString &workingDir, const QString &file)
 {
     QStringList args(QLatin1String("status"));
-    if (!fileOrDir.isDir())
-        args.append(fileOrDir.absoluteFilePath());
-
-    QSharedPointer<HgTask> job(new HgTask(fileOrDir.isDir() ? fileOrDir.absoluteFilePath() :
-                                          fileOrDir.absolutePath(), args, false));
+    if (!file.isEmpty())
+        args.append(file);
+    QSharedPointer<HgTask> job(new HgTask(workingDir, args, false));
     enqueueJob(job);
 }
 
-void MercurialClient::statusWithSignal(const QFileInfo &repositoryRoot)
+void MercurialClient::statusWithSignal(const QString &repositoryRoot)
 {
     const QStringList args(QLatin1String("status"));
-
-    QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, true));
+    QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, true));
     connect(job.data(), SIGNAL(rawData(QByteArray)),
             this, SLOT(statusParser(QByteArray)));
-
     enqueueJob(job);
 }
 
@@ -299,72 +293,71 @@ void MercurialClient::statusParser(const QByteArray &data)
     emit parsedStatus(statusList);
 }
 
-void MercurialClient::import(const QFileInfo &repositoryRoot, const QStringList &files)
+void MercurialClient::import(const QString &repositoryRoot, const QStringList &files)
 {
     QStringList args;
     args << QLatin1String("import") << QLatin1String("--no-commit");
     args += files;
 
-    QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
+    QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, false));
     enqueueJob(job);
 }
 
-void MercurialClient::pull(const QFileInfo &repositoryRoot, const QString &repository)
+void MercurialClient::pull(const QString &repositoryRoot, const QString &repository)
 {
     QStringList args(QLatin1String("pull"));
     if (!repository.isEmpty())
         args.append(repository);
-
-    const QString path = repositoryRoot.absoluteFilePath();
-
-    QSharedPointer<HgTask> job(new HgTask(path, args, false, QVariant(path)));
+    QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, false, QVariant(repositoryRoot)));
     connect(job.data(), SIGNAL(succeeded(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(job);
 }
 
-void MercurialClient::push(const QFileInfo &repositoryRoot, const QString &repository)
+void MercurialClient::push(const QString &repositoryRoot, const QString &repository)
 {
     QStringList args(QLatin1String("push"));
     if (!repository.isEmpty())
         args.append(repository);
 
-    QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
+    QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, false));
     enqueueJob(job);
 }
 
-void MercurialClient::incoming(const QFileInfo &repositoryRoot, const QString &repository)
+void MercurialClient::incoming(const QString &repositoryRoot, const QString &repository)
 {
     QStringList args;
     args << QLatin1String("incoming") << QLatin1String("-g") << QLatin1String("-p");
     if (!repository.isEmpty())
         args.append(repository);
 
-    QString id = MercurialPlugin::instance()->currentProjectName();
+    QString id = repositoryRoot;
+    if (!repository.isEmpty()) {
+        id += QDir::separator();
+        id += repository;
+    }
 
     const QString kind = QLatin1String(Constants::DIFFLOG);
     const QString title = tr("Hg incoming %1").arg(id);
 
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, repositoryRoot.absoluteFilePath(),
+    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, repositoryRoot,
                                                      true, "incoming", id);
 
-    QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, editor));
+    QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, editor));
     enqueueJob(job);
 }
 
-void MercurialClient::outgoing(const QFileInfo &repositoryRoot)
+void MercurialClient::outgoing(const QString &repositoryRoot)
 {
     QStringList args;
     args << QLatin1String("outgoing") << QLatin1String("-g") << QLatin1String("-p");
 
-    QString id = MercurialPlugin::instance()->currentProjectName();
-
     const QString kind = QLatin1String(Constants::DIFFLOG);
-    const QString title = tr("Hg outgoing %1").arg(id);
+    const QString title = tr("Hg outgoing %1").arg(repositoryRoot);
 
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, repositoryRoot.absoluteFilePath(), true,
-                                                     "outgoing", id);
+    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, repositoryRoot, true,
+                                                     "outgoing", repositoryRoot);
 
-    QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, editor));
+    QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, editor));
     enqueueJob(job);
 }
 
@@ -384,26 +377,25 @@ void MercurialClient::view(const QString &source, const QString &id)
     enqueueJob(job);
 }
 
-void MercurialClient::update(const QFileInfo &repositoryRoot, const QString &revision)
+void MercurialClient::update(const QString &repositoryRoot, const QString &revision)
 {
     QStringList args(QLatin1String("update"));
     if (!revision.isEmpty())
         args << revision;
 
-    const QString path = repositoryRoot.absoluteFilePath();
-    QSharedPointer<HgTask> job(new HgTask(path, args, false, QVariant(path)));
+    QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, false, QVariant(repositoryRoot)));
     connect(job.data(), SIGNAL(succeeded(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(job);
 }
 
-void MercurialClient::commit(const QFileInfo &repositoryRoot, const QStringList &files,
+void MercurialClient::commit(const QString &repositoryRoot, const QStringList &files,
                              const QString &committerInfo, const QString &commitMessageFile)
 {
     QStringList args(QLatin1String("commit"));
     if (!committerInfo.isEmpty())
         args << QLatin1String("-u") << committerInfo;
     args << QLatin1String("-l") << commitMessageFile << files;
-    QSharedPointer<HgTask> job(new HgTask(repositoryRoot.absoluteFilePath(), args, false));
+    QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, false));
     enqueueJob(job);
 }
 

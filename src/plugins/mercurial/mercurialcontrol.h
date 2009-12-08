@@ -50,8 +50,6 @@ public:
     explicit MercurialControl(MercurialClient *mercurialClient);
 
     QString name() const;
-    bool isEnabled() const;
-    void setEnabled(bool enabled);
     bool managesDirectory(const QString &filename) const;
     QString findTopLevelForDirectory(const QString &directory) const;
     bool supportsOperation(Operation operation) const;
@@ -65,9 +63,6 @@ public slots:
     // files changed signals according to the variant's type:
     // String -> repository, StringList -> files
     void changed(const QVariant&);
-
-signals:
-    void enabledChanged(bool);
 
 private:
     MercurialClient *mercurialClient;

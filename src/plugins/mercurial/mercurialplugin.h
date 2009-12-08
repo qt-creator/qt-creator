@@ -32,8 +32,7 @@
 
 #include "mercurialsettings.h"
 
-#include <extensionsystem/iplugin.h>
-#include <coreplugin/icorelistener.h>
+#include <vcsbase/vcsbaseplugin.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QHash>
@@ -57,9 +56,8 @@ namespace Utils {
 class ParameterAction;
 } //namespace Utils
 
-namespace ProjectExplorer {
-class ProjectExplorerPlugin;
-class Project;
+namespace VCSBase {
+class VCSBaseSubmitEditor;
 }
 
 namespace Mercurial {
@@ -71,7 +69,7 @@ class MercurialControl;
 class MercurialEditor;
 class MercurialSettings;
 
-class MercurialPlugin : public ExtensionSystem::IPlugin
+class MercurialPlugin : public VCSBase::VCSBasePlugin
 {
     Q_OBJECT
 
@@ -81,10 +79,7 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
     static MercurialPlugin *instance() { return m_instance; }
-    QFileInfo currentFile();
-    QString currentProjectName();
-    QFileInfo currentProjectRoot();
-    bool closeEditor(Core::IEditor *editor);
+
     QStringList standardArguments() const;
 
     const MercurialSettings &settings() const;
@@ -130,10 +125,9 @@ private slots:
     void init();
     void serve();*/
 
-    //change the sates of the actions in the Mercurial Menu i.e. 2 be context sensitive
-    void updateActions();
-    void currentProjectChanged(ProjectExplorer::Project *project);
-
+protected:
+    virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
+    virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
 
 private:
     //methods
@@ -153,15 +147,11 @@ private:
     OptionsPage *optionsPage;
     MercurialClient *client;
 
-    MercurialControl *mercurialVC;
     Core::ICore *core;
     Core::ActionManager *actionManager;
     Core::ActionContainer *mercurialContainer;
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer;
 
-    //provide a mapping of projectName -> repositoryRoot for each project
-    QHash<QString, QFileInfo> projectMapper;
-    QList<QAction *> actionList;
+    QList<QAction *> m_repositoryActionList;
     QTemporaryFile *changeLog;
 
     //Menu Items (file actions)
@@ -177,14 +167,9 @@ private:
     QAction *editorDiff;
     QAction *editorUndo;
     QAction *editorRedo;
-};
+    QAction *m_menuAction;
 
-class ListenForClose : public Core::ICoreListener
-{
-    Q_OBJECT
-public:
-    ListenForClose(QObject *parent=0) : Core::ICoreListener(parent) {}
-    bool editorAboutToClose(Core::IEditor *editor);
+    QString m_submitRepository;
 };
 
 } //namespace Internal

@@ -33,6 +33,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QVariant>
 #include <QtCore/QStringList>
+#include <QtCore/QDir>
 
 using namespace Mercurial::Internal;
 
@@ -45,19 +46,6 @@ MercurialControl::MercurialControl(MercurialClient *client)
 QString MercurialControl::name() const
 {
     return tr("Mercurial");
-}
-
-bool MercurialControl::isEnabled() const
-{
-    return mercurialEnabled;
-}
-
-void MercurialControl::setEnabled(bool enabled)
-{
-    if (mercurialEnabled != enabled) {
-        mercurialEnabled = enabled;
-        emit enabledChanged(mercurialEnabled);
-    }
 }
 
 bool MercurialControl::managesDirectory(const QString &directory) const
@@ -97,17 +85,24 @@ bool MercurialControl::vcsOpen(const QString &filename)
 
 bool MercurialControl::vcsAdd(const QString &filename)
 {
-    return mercurialClient->add(filename);
+    const QFileInfo fi(filename);
+    return mercurialClient->add(fi.absolutePath(), fi.fileName());
 }
 
 bool MercurialControl::vcsDelete(const QString &filename)
 {
-    return mercurialClient->remove(filename);
+    const QFileInfo fi(filename);
+    return mercurialClient->remove(fi.absolutePath(), fi.fileName());
 }
 
 bool MercurialControl::sccManaged(const QString &filename)
 {
-    return mercurialClient->manifestSync(filename);
+    const QFileInfo fi(filename);
+    const QString topLevel = findTopLevelForDirectory(fi.absolutePath());
+    if (topLevel.isEmpty())
+        return false;
+    const QDir topLevelDir(topLevel);
+    return mercurialClient->manifestSync(topLevel, topLevelDir.relativeFilePath(filename));
 }
 
 void MercurialControl::changed(const QVariant &v)
