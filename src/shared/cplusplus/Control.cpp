@@ -327,6 +327,14 @@ public:
         return argument;
     }
 
+    TypenameArgument *newTypenameArgument(unsigned sourceLocation, const Name *name)
+    {
+        TypenameArgument *argument = new TypenameArgument(translationUnit,
+                                                          sourceLocation, name);
+        symbols.push_back(argument);
+        return argument;
+    }
+
     Function *newFunction(unsigned sourceLocation, const Name *name)
     {
         Function *function = new Function(translationUnit,
@@ -640,6 +648,9 @@ NamedType *Control::namedType(const Name *name)
 
 Argument *Control::newArgument(unsigned sourceLocation, const Name *name)
 { return d->newArgument(sourceLocation, name); }
+
+TypenameArgument *Control::newTypenameArgument(unsigned sourceLocation, const Name *name)
+{ return d->newTypenameArgument(sourceLocation, name); }
 
 Function *Control::newFunction(unsigned sourceLocation, const Name *name)
 { return d->newFunction(sourceLocation, name); }

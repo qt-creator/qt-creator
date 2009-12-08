@@ -169,6 +169,30 @@ private:
     const StringLiteral *_initializer;
 };
 
+class CPLUSPLUS_EXPORT TypenameArgument: public Symbol
+{
+public:
+    TypenameArgument(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    virtual ~TypenameArgument();
+
+    void setType(const FullySpecifiedType &type);
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    virtual const TypenameArgument *asTypenameArgument() const
+    { return this; }
+
+    virtual TypenameArgument *asTypenameArgument()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+
+private:
+    FullySpecifiedType _type;
+};
+
 class CPLUSPLUS_EXPORT ScopedSymbol: public Symbol
 {
 public:

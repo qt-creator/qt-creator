@@ -72,6 +72,7 @@ public:
     virtual bool visit(UsingDeclaration *) { return true; }
     virtual bool visit(Declaration *) { return true; }
     virtual bool visit(Argument *) { return true; }
+    virtual bool visit(TypenameArgument *) { return true; }
     virtual bool visit(BaseClass *) { return true; }
     virtual bool visit(Enum *) { return true; }
     virtual bool visit(Function *) { return true; }

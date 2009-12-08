@@ -152,6 +152,22 @@ FullySpecifiedType Argument::type() const
 void Argument::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
+TypenameArgument::TypenameArgument(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
+    : Symbol(translationUnit, sourceLocation, name)
+{ }
+
+TypenameArgument::~TypenameArgument()
+{ }
+
+void TypenameArgument::setType(const FullySpecifiedType &type)
+{ _type = type; }
+
+FullySpecifiedType TypenameArgument::type() const
+{ return _type; }
+
+void TypenameArgument::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
 Function::Function(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : ScopedSymbol(translationUnit, sourceLocation, name),
      _templateParameters(0),

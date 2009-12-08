@@ -204,6 +204,9 @@ public:
     /// Returns true if this Symbol is an Argument.
     bool isArgument() const;
 
+    /// Returns true if this Symbol is a Typename argument.
+    bool isTypenameArgument() const;
+
     /// Returns true if this Symbol is a BaseClass.
     bool isBaseClass() const;
 
@@ -241,6 +244,7 @@ public:
     virtual const UsingDeclaration *asUsingDeclaration() const { return 0; }
     virtual const Declaration *asDeclaration() const { return 0; }
     virtual const Argument *asArgument() const { return 0; }
+    virtual const TypenameArgument *asTypenameArgument() const { return 0; }
     virtual const BaseClass *asBaseClass() const { return 0; }
     virtual const ForwardClassDeclaration *asForwardClassDeclaration() const { return 0; }
     virtual const ObjCBaseClass *asObjCBaseClass() const { return 0; }
@@ -262,6 +266,7 @@ public:
     virtual UsingDeclaration *asUsingDeclaration() { return 0; }
     virtual Declaration *asDeclaration() { return 0; }
     virtual Argument *asArgument() { return 0; }
+    virtual TypenameArgument *asTypenameArgument() { return 0; }
     virtual BaseClass *asBaseClass() { return 0; }
     virtual ForwardClassDeclaration *asForwardClassDeclaration() { return 0; }
     virtual ObjCBaseClass *asObjCBaseClass() { return 0; }

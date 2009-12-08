@@ -463,6 +463,9 @@ bool Symbol::isDeclaration() const
 bool Symbol::isArgument() const
 { return asArgument() != 0; }
 
+bool Symbol::isTypenameArgument() const
+{ return asTypenameArgument() != 0; }
+
 bool Symbol::isBaseClass() const
 { return asBaseClass() != 0; }
 

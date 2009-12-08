@@ -116,6 +116,7 @@ class UsingNamespaceDirective;
 class UsingDeclaration;
 class Declaration;
 class Argument;
+class TypenameArgument;
 class Function;
 class Namespace;
 class BaseClass;

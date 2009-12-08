@@ -122,6 +122,9 @@ public:
     /// Creates a new Argument symbol.
     Argument *newArgument(unsigned sourceLocation, const Name *name = 0);
 
+    /// Creates a new Argument symbol.
+    TypenameArgument *newTypenameArgument(unsigned sourceLocation, const Name *name = 0);
+
     /// Creates a new Function symbol.
     Function *newFunction(unsigned sourceLocation, const Name *name = 0);
 
