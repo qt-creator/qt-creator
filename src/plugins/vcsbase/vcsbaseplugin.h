@@ -30,56 +30,146 @@
 #ifndef VCSBASEPLUGIN_H
 #define VCSBASEPLUGIN_H
 
+#include "vcsbase_global.h"
+
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
+#include <QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
-class QStandardItemModel;
+class QAction;
 QT_END_NAMESPACE
 
-namespace VCSBase {
+namespace Core {
+    class IVersionControl;
+}
+
+namespace VCSBase {  
 namespace Internal {
+    struct State;
+}
 
-struct VCSBaseSettings;
-class VCSBaseSettingsPage;
+class VCSBaseSubmitEditor;
+struct VCSBasePluginPrivate;
+class VCSBasePluginStateData;
+class VCSBasePlugin;
 
-class VCSBasePlugin : public ExtensionSystem::IPlugin
+/* VCSBasePlugin and VCSBasePluginState: Provide a base class for
+ * VCS plugins. It mainly takes care of maintaining the
+ * VCS-relevant state of Qt Creator which is a tuple of
+ *
+ * 1) Current file    and it's version system control/top level
+ * 2) Current project and it's version system control/top level
+ *
+ * (reflected in VCSBasePluginState). The plugin connects to the
+ * relevant change signals in Qt Creator and calls the virtual
+ * updateActions() for the plugins to update their menu actions
+ * according to the new state. This is done centrally to avoid
+ * single plugins repeatedly invoking searches/QFileInfo on files,
+ * etc.
+ *
+ * If current file/project are managed
+ * by different version controls, the project is discarded and only
+ * the current file is taken into account, allowing to do a diff
+ * also when the project of a file is not opened.
+ *
+ * When triggering an action, a copy of the state should be made to
+ * keep it, as it may rapidly change due to context changes, etc.
+ *
+ * The class also detects the VCS plugin submit editor closing and calls
+ * the virtual submitEditorAboutToClose() to trigger the submit process. */
+
+class VCSBASE_EXPORT VCSBasePluginState
+{
+public:
+    VCSBasePluginState();
+    VCSBasePluginState(const VCSBasePluginState &);
+    VCSBasePluginState &operator=(const VCSBasePluginState &);
+    ~VCSBasePluginState();
+
+    void clear();
+
+    bool isEmpty() const;
+    bool hasFile() const;
+    bool hasProject() const;
+    bool hasTopLevel() const;
+
+    // Current file.
+    QString currentFile() const;
+    QString currentFileName() const;
+    QString currentFileDirectory() const;
+    QString currentFileTopLevel() const;
+    // Convenience: Returns file relative to top level.
+    QString relativeCurrentFile() const;
+
+    // Current project.
+    QString currentProjectPath() const;
+    QString currentProjectName() const;
+    QString currentProjectTopLevel() const;
+    /* Convenience: Returns project path relative to top level if it
+     * differs from top level (else empty()) as an argument list to do
+     * eg a 'vcs diff <args>' */
+    QStringList relativeCurrentProject() const;
+
+    // Top level directory for actions on the top level. Preferably
+    // the file one.
+    QString topLevel() const;
+
+    bool equals(const VCSBasePluginState &rhs) const;
+
+    friend VCSBASE_EXPORT QDebug operator<<(QDebug in, const VCSBasePluginState &state);
+
+private:
+    friend class VCSBasePlugin;
+    bool equals(const Internal::State &s) const;
+    void setState(const Internal::State &s);
+
+    QSharedDataPointer<VCSBasePluginStateData> data;
+};
+
+VCSBASE_EXPORT QDebug operator<<(QDebug in, const VCSBasePluginState &state);
+
+inline bool operator==(const VCSBasePluginState &s1, const VCSBasePluginState &s2)
+{ return s1.equals(s2); }
+inline bool operator!=(const VCSBasePluginState &s1, const VCSBasePluginState &s2)
+{ return !s1.equals(s2); }
+
+class VCSBASE_EXPORT VCSBasePlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 
-public:
-    VCSBasePlugin();
-    ~VCSBasePlugin();
+protected:
+    explicit VCSBasePlugin(const QString &submitEditorKind);
 
-    bool initialize(const QStringList &arguments, QString *error_message);
+    void initialize(Core::IVersionControl *vc);
+    Core::IVersionControl *versionControl() const;
 
-    void extensionsInitialized();
+public:   
+    virtual ~VCSBasePlugin();
 
-    static VCSBasePlugin *instance();
+    const VCSBasePluginState &currentState() const;
 
-    VCSBaseSettings settings() const;
+protected:
+    enum ActionState { NoVCSEnabled, OtherVCSEnabled, VCSEnabled };
 
-    // Model of user nick names used for the submit
-    // editor. Stored centrally here to achieve delayed
-    // initialization and updating on settings change.
-    QStandardItemModel *nickNameModel();
+    // Implement to enable the plugin menu actions according to state.
+    virtual void updateActions(ActionState as) = 0;
+    // Implement to start the submit process.   
+    virtual bool submitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor) = 0;
 
-signals:
-    void settingsChanged(const VCSBase::Internal::VCSBaseSettings& s);
+    // A helper to enable the VCS menu action according to state:
+    // NoVCSEnabled->(visible,disabled), OtherVCSEnabled->(invisible), else
+    // enabled. Returns whether actions should be set up further.
+    static bool enableMenuAction(ActionState as, QAction *in);
 
 private slots:
-    void slotSettingsChanged();
+    void slotSubmitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor, bool *result);
+    void slotStateChanged(const VCSBase::Internal::State &s, Core::IVersionControl *vc);
 
 private:
-    void populateNickNameModel();
-
-    static VCSBasePlugin *m_instance;
-    VCSBaseSettingsPage *m_settingsPage;
-    QStandardItemModel *m_nickNameModel;
+    VCSBasePluginPrivate *d;
 };
 
-} // namespace Internal
 } // namespace VCSBase
 
 #endif // VCSBASEPLUGIN_H

@@ -630,5 +630,41 @@ bool VCSBaseEditor::gotoLineOfEditor(Core::IEditor *e, int lineNumber)
     return false;
 }
 
+// Return source file or directory string depending on parameters
+// ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
+QString VCSBaseEditor::getSource(const QString &workingDirectory,
+                                 const QString &fileName)
+{
+    if (fileName.isEmpty())
+        return workingDirectory;
+
+    QString rc = workingDirectory;
+    const QChar slash = QLatin1Char('/');
+    if (!rc.isEmpty() && !(rc.endsWith(slash) || rc.endsWith(QLatin1Char('\\'))))
+        rc += slash;
+    rc += fileName;
+    return rc;
+}
+
+QString VCSBaseEditor::getSource(const QString &workingDirectory,
+                                 const QStringList &fileNames)
+{
+    return fileNames.size() == 1 ?
+            getSource(workingDirectory, fileNames.front()) :
+            workingDirectory;
+}
+
+QString VCSBaseEditor::getTitleId(const QString &workingDirectory, const QStringList &fileNames)
+{
+    switch (fileNames.size()) {
+    case 0:
+        return workingDirectory;
+    case 1:
+        return fileNames.front();
+    default:
+        break;
+    }
+    return fileNames.join(QLatin1String(", "));
+}
 
 } // namespace VCSBase

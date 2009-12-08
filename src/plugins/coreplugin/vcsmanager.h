@@ -35,20 +35,26 @@
 #include <QtCore/QString>
 #include <QtCore/QObject>
 
+QT_BEGIN_NAMESPACE
+class QDebug;
+QT_END_NAMESPACE
+
 namespace Core {
 
 struct VCSManagerPrivate;
 class IVersionControl;
 
-// The VCSManager has only one notable function:
-// findVersionControlFor(), which returns the IVersionControl * for a given
-// filename. Note that the VCSManager assumes that if a IVersionControl *
-// manages a directory, then it also manages all the files and all the
-// subdirectories.
-//
-// It works by asking all IVersionControl * if they manage the file, and ask
-// for the topmost directory it manages. This information is cached and
-// VCSManager thus knows pretty fast which IVersionControl * is responsible.
+/* VCSManager:
+ * 1) Provides functionality for finding the IVersionControl * for a given
+ *    filename (findVersionControlForDirectory). Note that the VCSManager assumes
+ *    that if a IVersionControl * manages a directory, then it also manages
+ *    all the files and all the subdirectories.
+ *    It works by asking all IVersionControl * if they manage the file, and ask
+ *    for the topmost directory it manages. This information is cached and
+ *    VCSManager thus knows pretty fast which IVersionControl * is responsible.
+ * 2) Passes on the changes from the version controls caused by updating or
+ *    branching repositories and routes them to its signals (repositoryChanged,
+ *    filesChanged). */
 
 class CORE_EXPORT VCSManager : public QObject
 {
@@ -60,18 +66,15 @@ public:
 
     void extensionsInitialized();
 
-    IVersionControl *findVersionControlForDirectory(const QString &directory);
-
-    // Enable the VCS managing a certain directory only. This should
-    // be used by project manager classes.
-    void setVCSEnabled(const QString &directory);
-    // Enable all VCS.
-    void setAllVCSEnabled();
+    IVersionControl *findVersionControlForDirectory(const QString &directory,
+                                                    QString *topLevelDirectory = 0);
 
     // Shows a confirmation dialog, whether the file should also be deleted
     // from revision control Calls sccDelete on the file. Returns false
     // if a failure occurs
     bool showDeleteDialog(const QString &fileName);
+
+    friend CORE_EXPORT QDebug operator<<(QDebug in, const VCSManager &);
 
 signals:
     void repositoryChanged(const QString &repository);
@@ -80,6 +83,8 @@ signals:
 private:
     VCSManagerPrivate *m_d;
 };
+
+CORE_EXPORT QDebug operator<<(QDebug in, const VCSManager &);
 
 } // namespace Core
 

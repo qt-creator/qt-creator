@@ -128,6 +128,15 @@ public:
     //Helper to go to line of editor if it is a text editor
     static bool gotoLineOfEditor(Core::IEditor *e, int lineNumber);
 
+    // Convenience functions to determine the source to pass on to a diff
+    // editor if one has a call consisting of working directory and file arguments.
+    // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
+    static QString getSource(const QString &workingDirectory, const QString &fileName);
+    static QString getSource(const QString &workingDirectory, const QStringList &fileNames);   
+    // Convenience functions to determine an title/id to identify the editor
+    // from the arguments (','-joined arguments or directory).
+    static QString getTitleId(const QString &workingDirectory, const QStringList &fileNames);
+
 signals:
     void describeRequested(const QString &source, const QString &change);
 

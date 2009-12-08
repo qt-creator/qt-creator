@@ -46,9 +46,6 @@ public:
 
     virtual QString name() const;
 
-    virtual bool isEnabled() const;
-    virtual void setEnabled(bool enabled);
-
     bool managesDirectory(const QString &directory) const;
     virtual QString findTopLevelForDirectory(const QString &directory) const;
 

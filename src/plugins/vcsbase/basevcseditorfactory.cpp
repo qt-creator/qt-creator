@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "basevcseditorfactory.h"
-#include "vcsbaseplugin.h"
 #include "vcsbaseeditor.h"
 
 #include <coreplugin/editormanager/editormanager.h>

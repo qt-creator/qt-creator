@@ -34,8 +34,7 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/icorelistener.h>
-#include <extensionsystem/iplugin.h>
+#include <vcsbase/vcsbaseplugin.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QObject>
@@ -56,19 +55,6 @@ namespace Perforce {
 namespace Internal {
 
 class PerforceVersionControl;
-class PerforcePlugin;
-
-// Just a proxy for PerforcePlugin
-class CoreListener : public Core::ICoreListener
-{
-    Q_OBJECT
-public:
-    CoreListener(PerforcePlugin *plugin) : m_plugin(plugin) { }
-    bool editorAboutToClose(Core::IEditor *editor);
-    bool coreAboutToClose() { return true; }
-private:
-    PerforcePlugin *m_plugin;
-};
 
 struct PerforceResponse
 {
@@ -78,7 +64,7 @@ struct PerforceResponse
     QString message;
 };
 
-class PerforcePlugin : public ExtensionSystem::IPlugin
+class PerforcePlugin : public VCSBase::VCSBasePlugin
 {
     Q_OBJECT
 
@@ -94,8 +80,6 @@ public:
     bool vcsOpen(const QString &fileName);
     bool vcsAdd(const QString &fileName);
     bool vcsDelete(const QString &filename);
-    // Displays the message for the submit mesage
-    bool editorAboutToClose(Core::IEditor *editor);
 
     void p4Diff(const QStringList &files, QString diffname = QString());
 
@@ -130,10 +114,13 @@ private slots:
     void filelogCurrentFile();
     void filelog();
 
-    void updateActions();
     void submitCurrentLog();
     void printPendingChanges();
     void slotDiff(const QStringList &files);
+
+protected:
+    virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
+    virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
 
 private:
     QStringList environment() const;
@@ -163,6 +150,7 @@ private:
     bool isCommitEditorOpen() const;
 
     void updateCheckout(const QStringList &dirs = QStringList());
+    inline PerforceVersionControl *perforceVersionControl() const;
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 
@@ -191,12 +179,11 @@ private:
 
     QAction *m_undoAction;
     QAction *m_redoAction;
-
+    QAction *m_menuAction;
 
     static PerforcePlugin *m_perforcePluginInstance;
     QString pendingChangesData();
 
-    PerforceVersionControl *m_versionControl;
     PerforceSettings m_settings;
 };
 

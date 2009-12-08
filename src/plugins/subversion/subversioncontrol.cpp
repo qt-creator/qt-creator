@@ -44,19 +44,6 @@ QString SubversionControl::name() const
     return QLatin1String("subversion");
 }
 
-bool SubversionControl::isEnabled() const
-{
-     return m_enabled;
-}
-
-void SubversionControl::setEnabled(bool enabled)
-{
-    if (m_enabled != enabled) {
-        m_enabled = enabled;
-        emit enabledChanged(m_enabled);
-    }
-}
-
 bool SubversionControl::supportsOperation(Operation operation) const
 {
     bool rc = true;

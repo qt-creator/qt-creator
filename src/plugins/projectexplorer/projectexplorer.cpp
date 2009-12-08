@@ -1323,13 +1323,6 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
     if (projectChanged) {
         if (debug)
             qDebug() << "ProjectExplorer - currentProjectChanged(" << (project ? project->name() : "0") << ")";
-        // Enable the right VCS
-        if (const Core::IFile *projectFile = project ? project->file() : static_cast<const Core::IFile *>(0)) {
-            core->vcsManager()->setVCSEnabled(QFileInfo(projectFile->fileName()).absolutePath());
-        } else {
-            core->vcsManager()->setAllVCSEnabled();
-        }
-
         emit currentProjectChanged(project);
         updateActions();
     }

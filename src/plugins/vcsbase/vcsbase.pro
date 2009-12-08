@@ -5,6 +5,8 @@ include(../../qtcreatorplugin.pri)
 include(vcsbase_dependencies.pri)
 HEADERS += vcsbase_global.h \
     vcsbaseconstants.h \
+    vcsplugin.h \
+    corelistener.h \
     vcsbaseplugin.h \
     baseannotationhighlighter.h \
     diffhighlighter.h \
@@ -25,7 +27,9 @@ HEADERS += vcsbase_global.h \
     basecheckoutwizardpage.h \
     vcsbaseoutputwindow.h
 
-SOURCES += vcsbaseplugin.cpp \
+SOURCES += vcsplugin.cpp \
+    vcsbaseplugin.cpp \
+    corelistener.cpp \
     baseannotationhighlighter.cpp \
     diffhighlighter.cpp \
     vcsbasetextdocument.cpp \

@@ -56,10 +56,6 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
-
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -105,23 +101,16 @@ static inline const VCSBase::VCSBaseEditorParameters *findType(int ie)
 using namespace Git;
 using namespace Git::Internal;
 
-// CoreListener
-
-bool CoreListener::editorAboutToClose(Core::IEditor *editor)
-{
-    return m_plugin->editorAboutToClose(editor);
-}
-
 // GitPlugin
 
 GitPlugin *GitPlugin::m_instance = 0;
 
 GitPlugin::GitPlugin() :
+    VCSBase::VCSBasePlugin(QLatin1String(Git::Constants::GITSUBMITEDITOR_KIND)),
     m_core(0),
     m_diffAction(0),
     m_diffProjectAction(0),
-    m_statusAction(0),
-    m_statusProjectAction(0),
+    m_statusRepositoryAction(0),
     m_logAction(0),
     m_blameAction(0),
     m_logProjectAction(0),
@@ -141,8 +130,8 @@ GitPlugin::GitPlugin() :
     m_stashPopAction(0),
     m_stashListAction(0),
     m_branchListAction(0),
+    m_menuAction(0),
     m_gitClient(0),
-    m_versionControl(0),
     m_changeSelectionDialog(0),
     m_submitActionTriggered(false)
 {
@@ -192,15 +181,17 @@ static Core::Command *createSeparator(Core::ActionManager *am,
 
 bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    typedef VCSBase::VCSEditorFactory<GitEditor> GitEditorFactory;
-    typedef VCSBase::VCSSubmitEditorFactory<GitSubmitEditor> GitSubmitEditorFactory;
-
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
+    typedef VCSBase::VCSEditorFactory<GitEditor> GitEditorFactory;
+    typedef VCSBase::VCSSubmitEditorFactory<GitSubmitEditor> GitSubmitEditorFactory;
+
+    VCSBase::VCSBasePlugin::initialize(new GitVersionControl(m_gitClient));
+
     m_core = Core::ICore::instance();
     m_gitClient = new GitClient(this);
-    // Create the globalco6664324b12a3339d18251df1cd69a1da06d1e2dcntext list to register actions accordingly
+    // Create the globalcontext list to register actions accordingly
     QList<int> globalcontext;
     globalcontext << m_core->uniqueIDManager()->uniqueIdentifier(Core::Constants::C_GLOBAL);
 
@@ -212,13 +203,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new GitEditorFactory(editorParameters + i, m_gitClient, describeSlot));
 
-    addAutoReleasedObject(new CoreListener(this));
-
     addAutoReleasedObject(new GitSubmitEditorFactory(&submitParameters));
-
-    m_versionControl = new GitVersionControl(m_gitClient);
-    addAutoReleasedObject(m_versionControl);
-
     addAutoReleasedObject(new CloneWizard);
     addAutoReleasedObject(new Gitorious::Internal::GitoriousCloneWizard);
 
@@ -232,11 +217,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         actionManager->createMenu(QLatin1String("Git"));
     gitContainer->menu()->setTitle(tr("&Git"));
     toolsContainer->addMenu(gitContainer);
-    if (QAction *ma = gitContainer->menu()->menuAction()) {
-        ma->setEnabled(m_versionControl->isEnabled());
-        connect(m_versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
-    }
-
+    m_menuAction = gitContainer->menu()->menuAction();
     Core::Command *command;
 
     m_diffAction = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
@@ -244,13 +225,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+D")));
     connect(m_diffAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
-    gitContainer->addAction(command);
-
-    m_statusAction = new Utils::ParameterAction(tr("File Status"), tr("Status Related to \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
-    command = actionManager->registerAction(m_statusAction, "Git.Status", globalcontext);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+S")));
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_statusAction, SIGNAL(triggered()), this, SLOT(statusFile()));
     gitContainer->addAction(command);
 
     m_logAction = new Utils::ParameterAction(tr("Log File"), tr("Log of \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
@@ -296,10 +270,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffCurrentProject()));
     gitContainer->addAction(command);
 
-    m_statusProjectAction = new Utils::ParameterAction(tr("Project Status"), tr("Status Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
-    command = actionManager->registerAction(m_statusProjectAction, "Git.StatusProject", globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_statusProjectAction, SIGNAL(triggered()), this, SLOT(statusProject()));
+    m_statusRepositoryAction = new QAction(tr("Repository Status"), this);
+    command = actionManager->registerAction(m_statusRepositoryAction, "Git.StatusRepository", globalcontext);
+    connect(m_statusRepositoryAction, SIGNAL(triggered()), this, SLOT(statusRepository()));
     gitContainer->addAction(command);
 
     m_logProjectAction = new Utils::ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
@@ -386,12 +359,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_redoAction = new QAction(tr("&Redo"), this);
     command = actionManager->registerAction(m_redoAction, Core::Constants::REDO, submitContext);
 
-    // Ask for updates of our actions, in case context switches
-    connect(m_core, SIGNAL(contextChanged(Core::IContext *)),
-        this, SLOT(updateActions()));
-    connect(m_core->fileManager(), SIGNAL(currentFileChanged(const QString &)),
-        this, SLOT(updateActions()));
-
     return true;
 }
 
@@ -399,9 +366,9 @@ void GitPlugin::extensionsInitialized()
 {
 }
 
-GitVersionControl *GitPlugin::versionControl() const
+GitVersionControl *GitPlugin::gitVersionControl() const
 {
-    return m_versionControl;
+    return static_cast<GitVersionControl *>(versionControl());
 }
 
 void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList &staged)
@@ -411,127 +378,83 @@ void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList 
 
 void GitPlugin::diffCurrentFile()
 {
-    const QFileInfo fileInfo = currentFile();
-    const QString fileName = fileInfo.fileName();
-    const QString workingDirectory = fileInfo.absolutePath();
-    m_gitClient->diff(workingDirectory, QStringList(), fileName);
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    m_gitClient->diff(state.currentFileTopLevel(), QStringList(), state.relativeCurrentFile());
 }
 
 void GitPlugin::diffCurrentProject()
 {
-    QString workingDirectory = getWorkingDirectory();
-    if (workingDirectory.isEmpty())
-        return;
-    m_gitClient->diff(workingDirectory, QStringList(), QString());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasProject(), return)
+    m_gitClient->diff(state.currentProjectTopLevel(), QStringList(), state.relativeCurrentProject());
 }
 
-QFileInfo GitPlugin::currentFile() const
+void GitPlugin::statusRepository()
 {
-    QString fileName = m_core->fileManager()->currentFile();
-    QFileInfo fileInfo(fileName);
-    return fileInfo;
-}
-
-QString GitPlugin::getWorkingDirectory()
-{
-    QString workingDirectory;
-    if (const ProjectExplorer::ProjectExplorerPlugin *p = ProjectExplorer::ProjectExplorerPlugin::instance())
-        if (p && p->currentNode())
-            workingDirectory = QFileInfo(p->currentNode()->path()).absolutePath();
-
-    if (Git::Constants::debug > 1)
-        qDebug() << Q_FUNC_INFO << "Project" << workingDirectory;
-
-    if (workingDirectory.isEmpty())
-        workingDirectory = QFileInfo(m_core->fileManager()->currentFile()).absolutePath();
-    if (Git::Constants::debug > 1)
-        qDebug() << Q_FUNC_INFO << "file" << workingDirectory;
-
-    if (workingDirectory.isEmpty()) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Could not find working directory"));
-        return QString();
-    }
-    return workingDirectory;
-}
-
-void GitPlugin::statusProject()
-{
-    QString workingDirectory = getWorkingDirectory();
-    if (workingDirectory.isEmpty())
-        return;
-    m_gitClient->status(workingDirectory);
-}
-
-void GitPlugin::statusFile()
-{
-    m_gitClient->status(currentFile().absolutePath());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    m_gitClient->status(state.topLevel());
 }
 
 void GitPlugin::logFile()
 {
-    const QFileInfo fileInfo = currentFile();    
-    const QString fileName = fileInfo.fileName();
-    const QString workingDirectory = fileInfo.absolutePath();
-    m_gitClient->log(workingDirectory, fileName);
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    m_gitClient->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void GitPlugin::blameFile()
 {
-    const QFileInfo fileInfo = currentFile();
-    const QString fileName = fileInfo.fileName();
-    const QString workingDirectory = fileInfo.absolutePath();
-
-    m_gitClient->blame(workingDirectory, fileName,
-                       VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(fileInfo.absoluteFilePath()));
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    const int lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
+    m_gitClient->blame(state.currentFileTopLevel(), state.relativeCurrentFile(), lineNumber);
 }
 
 void GitPlugin::logProject()
 {
-    QString workingDirectory = getWorkingDirectory();
-    if (workingDirectory.isEmpty())
-        return;
-    m_gitClient->log(workingDirectory, QString());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasProject(), return)
+    m_gitClient->log(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void GitPlugin::undoFileChanges()
 {
-    const QFileInfo fileInfo = currentFile();
-    Core::FileChangeBlocker fcb(fileInfo.filePath());
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    Core::FileChangeBlocker fcb(state.currentFile());
     fcb.setModifiedReload(true);
-
-    m_gitClient->revert(QStringList(fileInfo.absoluteFilePath()));
+    m_gitClient->revert(QStringList(state.currentFile()));
 }
 
 void GitPlugin::undoProjectChanges()
 {
-    const QString workingDirectory = getWorkingDirectory();
-    if (workingDirectory.isEmpty())
-        return;
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    const QString msg = tr("Would you like to revert all pending changes to the repository\n%1?").arg(state.topLevel());
     const QMessageBox::StandardButton answer
             = QMessageBox::question(m_core->mainWindow(),
-                                    tr("Revert"),
-                                    tr("Would you like to revert all pending changes to the project?"),
+                                    tr("Revert"), msg,
                                     QMessageBox::Yes|QMessageBox::No,
                                     QMessageBox::No);
     if (answer == QMessageBox::No)
         return;
-    m_gitClient->hardReset(workingDirectory, QString());
+    m_gitClient->hardReset(state.topLevel(), QString());
 }
 
 void GitPlugin::stageFile()
 {
-    const QFileInfo fileInfo = currentFile();
-    const QString fileName = fileInfo.fileName();
-    const QString workingDirectory = fileInfo.absolutePath();
-    m_gitClient->addFile(workingDirectory, fileName);
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    m_gitClient->addFile(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void GitPlugin::unstageFile()
 {
-    const QFileInfo fileInfo = currentFile();
-    const QString fileName = fileInfo.fileName();
-    const QString workingDirectory = fileInfo.absolutePath();
-    m_gitClient->synchronousReset(workingDirectory, QStringList(fileName));
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    m_gitClient->synchronousReset(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void GitPlugin::startCommit()
@@ -543,15 +466,12 @@ void GitPlugin::startCommit()
         return;
     }
 
-    // Find repository and get commit data
-    const QFileInfo currentFileInfo = currentFile();
-    if (!currentFileInfo.exists())
-        return;
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
 
-    const QString workingDirectory = currentFileInfo.absolutePath();
     QString errorMessage, commitTemplate;
     CommitData data;
-    if (!m_gitClient->getCommitData(workingDirectory, &commitTemplate, &data, &errorMessage)) {
+    if (!m_gitClient->getCommitData(state.topLevel(), &commitTemplate, &data, &errorMessage)) {
         VCSBase::VCSBaseOutputWindow::instance()->append(errorMessage);
         return;
     }
@@ -606,13 +526,12 @@ void GitPlugin::submitCurrentLog()
     m_core->editorManager()->closeEditors(editors);
 }
 
-bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
+bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor)
 {
-    // Closing a submit editor?
-    if (!iEditor || !isCommitEditorOpen() || qstrcmp(iEditor->kind(), Constants::GITSUBMITEDITOR_KIND))
-        return true;
-    Core::IFile *fileIFace = iEditor->file();
-    const GitSubmitEditor *editor = qobject_cast<GitSubmitEditor *>(iEditor);
+    if (!isCommitEditorOpen())
+        return false;
+    Core::IFile *fileIFace = submitEditor->file();
+    const GitSubmitEditor *editor = qobject_cast<GitSubmitEditor *>(submitEditor);
     if (!fileIFace || !editor)
         return true;
     // Submit editor closing. Make it write out the commit message
@@ -668,15 +587,14 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
 
 void GitPlugin::pull()
 {
-    const QString workingDirectory = getWorkingDirectory();
-    if (workingDirectory.isEmpty())
-        return;
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
 
-    switch (m_gitClient->ensureStash(workingDirectory)) {
+    switch (m_gitClient->ensureStash(state.topLevel())) {
         case GitClient::StashUnchanged:
         case GitClient::Stashed:
         case GitClient::NotStashed:
-            m_gitClient->pull(workingDirectory);
+            m_gitClient->pull(state.topLevel());
         default:
         break;
     }
@@ -684,34 +602,33 @@ void GitPlugin::pull()
 
 void GitPlugin::push()
 {
-    const QString workingDirectory = getWorkingDirectory();
-    if (!workingDirectory.isEmpty())
-        m_gitClient->push(workingDirectory);
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    m_gitClient->push(state.topLevel());
 }
 
 void GitPlugin::stash()
 {
-    const QString workingDirectory = getWorkingDirectory();
-    if (!workingDirectory.isEmpty())
-        m_gitClient->stash(workingDirectory);
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    m_gitClient->stash(state.topLevel());
 }
 
 void GitPlugin::stashPop()
 {
-    const QString workingDirectory = getWorkingDirectory();
-    if (!workingDirectory.isEmpty())
-        m_gitClient->stashPop(workingDirectory);
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    m_gitClient->stashPop(state.topLevel());
 }
 
 void GitPlugin::branchList()
 {
-    const QString workingDirectory = getWorkingDirectory();
-    if (workingDirectory.isEmpty())
-        return;
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
     QString errorMessage;
     BranchDialog dialog(m_core->mainWindow());
 
-    if (!dialog.init(m_gitClient, workingDirectory, &errorMessage)) {
+    if (!dialog.init(m_gitClient, state.topLevel(), &errorMessage)) {
         VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
         return;
     }
@@ -720,85 +637,67 @@ void GitPlugin::branchList()
 
 void GitPlugin::stashList()
 {
-    const QString workingDirectory = getWorkingDirectory();
-    if (!workingDirectory.isEmpty())
-        m_gitClient->stashList(workingDirectory);
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    m_gitClient->stashList(state.topLevel());
 }
 
-void GitPlugin::updateActions()
+void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
-    const QFileInfo current = currentFile();
-    const QString fileName = current.fileName();
-    const QString currentDirectory = getWorkingDirectory();
-    const QString repository = m_gitClient->findRepositoryForFile(current.absoluteFilePath());
-    // First check for file commands and if the current file is inside
-    // a Git-repository
+    if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
+        return;
+
+    const QString fileName = currentState().currentFileName();
     m_diffAction->setParameter(fileName);
-    m_statusAction->setParameter(fileName);
     m_logAction->setParameter(fileName);
     m_blameAction->setParameter(fileName);
     m_undoFileAction->setParameter(fileName);
     m_stageAction->setParameter(fileName);
     m_unstageAction->setParameter(fileName);
 
-    bool enabled = !fileName.isEmpty() && !repository.isEmpty();
-    m_diffAction->setEnabled(enabled);
-    m_statusAction->setEnabled(enabled);
-    m_logAction->setEnabled(enabled);
-    m_blameAction->setEnabled(enabled);
-    m_undoFileAction->setEnabled(enabled);
-    m_stageAction->setEnabled(enabled);
-    m_unstageAction->setEnabled(enabled);
+    bool fileEnabled = !fileName.isEmpty();
+    m_diffAction->setEnabled(fileEnabled);
+    m_logAction->setEnabled(fileEnabled);
+    m_blameAction->setEnabled(fileEnabled);
+    m_undoFileAction->setEnabled(fileEnabled);
+    m_stageAction->setEnabled(fileEnabled);
+    m_unstageAction->setEnabled(fileEnabled);
 
-    if (repository.isEmpty()) {
-        // If the file is not in a repository, the corresponding project will
-        // be neither and we can disable everything and return
-        m_diffProjectAction->setEnabled(false);
-        m_diffProjectAction->setParameter(repository);
-        m_statusProjectAction->setParameter(repository);
-        m_statusProjectAction->setEnabled(false);
-        m_logProjectAction->setParameter(repository);
-        m_logProjectAction->setEnabled(false);
-        m_undoProjectAction->setEnabled(false);
-        return;
-    }
+    const QString projectName = currentState().currentProjectName();
+    const bool projectEnabled = !projectName.isEmpty();
+    m_diffProjectAction->setEnabled(projectEnabled);
+    m_diffProjectAction->setParameter(projectName);
+    m_logProjectAction->setEnabled(projectEnabled);
+    m_logProjectAction->setParameter(projectName);
+    m_undoProjectAction->setEnabled(projectEnabled);
 
-    // We only know the file is in some repository, we do not know
-    // anything about any project so far.
-    QString project;
-    if (const ProjectExplorer::ProjectExplorerPlugin *p = ProjectExplorer::ProjectExplorerPlugin::instance()) {
-        if (const ProjectExplorer::Node *node = p->currentNode())
-            if (const ProjectExplorer::Node *projectNode = node->projectNode())
-                project = QFileInfo(projectNode->path()).completeBaseName();
-    }
+    const bool repositoryEnabled = currentState().hasTopLevel();
+    m_statusRepositoryAction->setEnabled(repositoryEnabled);
+    m_branchListAction->setEnabled(repositoryEnabled);
+    m_stashListAction->setEnabled(repositoryEnabled);
+    m_stashPopAction->setEnabled(repositoryEnabled);
 
-    enabled = !project.isEmpty();
-    m_diffProjectAction->setEnabled(enabled);
-    m_diffProjectAction->setParameter(project);
-    m_statusProjectAction->setEnabled(enabled);
-    m_statusProjectAction->setParameter(project);
-    m_logProjectAction->setEnabled(enabled);
-    m_logProjectAction->setParameter(project);
-    m_undoProjectAction->setEnabled(enabled);
+    // Prompts for repo.
+    m_showAction->setEnabled(true);
 }
 
 void GitPlugin::showCommit()
 {
+    const VCSBase::VCSBasePluginState state = currentState();
+
     if (!m_changeSelectionDialog)
         m_changeSelectionDialog = new ChangeSelectionDialog();
 
-    const QFileInfo currentInfo = currentFile();
-    QString repositoryLocation = m_gitClient->findRepositoryForFile(currentInfo.absoluteFilePath());
-    if (!repositoryLocation.isEmpty())
-        m_changeSelectionDialog->m_ui.repositoryEdit->setText(repositoryLocation);
+    if (state.hasTopLevel())
+        m_changeSelectionDialog->setRepository(state.topLevel());
 
     if (m_changeSelectionDialog->exec() != QDialog::Accepted)
         return;
-    const QString change = m_changeSelectionDialog->m_ui.changeNumberEdit->text();
+    const QString change = m_changeSelectionDialog->change();
     if (change.isEmpty())
         return;
 
-    m_gitClient->show(m_changeSelectionDialog->m_ui.repositoryEdit->text(), change);
+    m_gitClient->show(m_changeSelectionDialog->repository(), change);
 }
 
 GitSettings GitPlugin::settings() const

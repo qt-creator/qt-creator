@@ -33,8 +33,7 @@
 #include "cvssettings.h"
 #include "cvsutils.h"
 
-#include <coreplugin/icorelistener.h>
-#include <extensionsystem/iplugin.h>
+#include <vcsbase/vcsbaseplugin.h>
 
 QT_BEGIN_NAMESPACE
 class QDir;
@@ -53,6 +52,10 @@ namespace Utils {
 
 namespace ProjectExplorer {
     class ProjectExplorerPlugin;
+}
+
+namespace VCSBase {
+    class VCSBaseSubmitEditor;
 }
 
 namespace CVS {
@@ -80,7 +83,7 @@ struct CVSResponse
  * the diff editor has an additional property specifying the
  * base directory for its interaction to work. */
 
-class CVSPlugin : public ExtensionSystem::IPlugin
+class CVSPlugin : public VCSBase::VCSBasePlugin
 {
     Q_OBJECT
 
@@ -90,7 +93,6 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *error_message);
     virtual void extensionsInitialized();
-    virtual bool editorAboutToClose(Core::IEditor *editor);
 
     void cvsDiff(const QStringList &files, QString diffname = QString());
 
@@ -108,7 +110,6 @@ public:
     static CVSPlugin *cvsPluginInstance();
 
 private slots:
-    void updateActions();
     void addCurrentFile();
     void deleteCurrentFile();
     void revertCurrentFile();
@@ -123,6 +124,10 @@ private slots:
     void updateProject();
     void submitCurrentLog();
     void diffFiles(const QStringList &);
+
+protected:
+    virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
+    virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
 
 private:
     bool isCommitEditorOpen() const;
@@ -152,9 +157,9 @@ private:
     void startCommit(const QString &file);
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();
+    inline CVSControl *cvsVersionControl() const;
 
     CVSSettings m_settings;
-    CVSControl *m_versionControl;
     QString m_commitMessageFileName;
 
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
@@ -175,30 +180,10 @@ private:
     QAction *m_submitDiffAction;
     QAction *m_submitUndoAction;
     QAction *m_submitRedoAction;
+    QAction *m_menuAction;
     bool    m_submitActionTriggered;
 
     static CVSPlugin *m_cvsPluginInstance;
-};
-
-// Just a proxy for CVSPlugin
-class CoreListener : public Core::ICoreListener
-{
-    Q_OBJECT
-public:
-    CoreListener(CVSPlugin *plugin) : m_plugin(plugin) { }
-
-    // Start commit when submit editor closes
-    bool editorAboutToClose(Core::IEditor *editor) {
-        return m_plugin->editorAboutToClose(editor);
-    }
-
-    // TODO: how to handle that ???
-    bool coreAboutToClose() {
-        return true;
-    }
-
-private:
-    CVSPlugin *m_plugin;
 };
 
 } // namespace CVS

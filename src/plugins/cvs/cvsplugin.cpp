@@ -151,7 +151,7 @@ Core::IEditor* locateEditor(const char *property, const QString &entry)
 CVSPlugin *CVSPlugin::m_cvsPluginInstance = 0;
 
 CVSPlugin::CVSPlugin() :
-    m_versionControl(0),
+    VCSBase::VCSBasePlugin(QLatin1String(CVS::Constants::CVSCOMMITEDITOR_KIND)),
     m_projectExplorer(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -168,6 +168,7 @@ CVSPlugin::CVSPlugin() :
     m_submitDiffAction(0),
     m_submitUndoAction(0),
     m_submitRedoAction(0),
+    m_menuAction(0),
     m_submitActionTriggered(false)
 {
 }
@@ -205,10 +206,8 @@ static inline Core::Command *createSeparator(QObject *parent,
     return ami->registerAction(tmpaction, id, globalcontext);
 }
 
-bool CVSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
-
     typedef VCSBase::VCSSubmitEditorFactory<CVSSubmitEditor> CVSSubmitEditorFactory;
     typedef VCSBase::VCSEditorFactory<CVSEditor> CVSEditorFactory;
     using namespace Constants;
@@ -216,20 +215,16 @@ bool CVSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     using namespace Core::Constants;
     using namespace ExtensionSystem;
 
+    VCSBase::VCSBasePlugin::initialize(new CVSControl(this));
+
     m_cvsPluginInstance = this;
     Core::ICore *core = Core::ICore::instance();
 
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.cvs/CVS.mimetypes.xml"), errorMessage))
         return false;
 
-
-    m_versionControl = new CVSControl(this);
-    addAutoReleasedObject(m_versionControl);
-
     if (QSettings *settings = core->settings())
         m_settings.fromSettings(settings);
-
-    addAutoReleasedObject(new CoreListener(this));
 
     addAutoReleasedObject(new SettingsPage);
 
@@ -250,10 +245,7 @@ bool CVSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         ami->createMenu(QLatin1String(CMD_ID_CVS_MENU));
     cvsMenu->menu()->setTitle(tr("&CVS"));
     toolsContainer->addMenu(cvsMenu);
-    if (QAction *ma = cvsMenu->menu()->menuAction()) {
-        ma->setEnabled(m_versionControl->isEnabled());
-        connect(m_versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
-    }
+    m_menuAction = cvsMenu->menu()->menuAction();
 
     QList<int> globalcontext;
     globalcontext << core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);
@@ -360,30 +352,21 @@ bool CVSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_submitRedoAction = new QAction(tr("&Redo"), this);
     command = ami->registerAction(m_submitRedoAction, Core::Constants::REDO, cvscommitcontext);
-
-    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext *)), this, SLOT(updateActions()));
-
     return true;
 }
 
 void CVSPlugin::extensionsInitialized()
 {
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (m_projectExplorer) {
-        connect(m_projectExplorer,
-            SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            m_cvsPluginInstance, SLOT(updateActions()));
-    }
-    updateActions();
 }
 
-bool CVSPlugin::editorAboutToClose(Core::IEditor *iEditor)
+bool CVSPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor)
 {
-    if (!iEditor || !isCommitEditorOpen() || qstrcmp(Constants::CVSCOMMITEDITOR, iEditor->kind()))
+    if (!isCommitEditorOpen())
         return true;
 
-    Core::IFile *fileIFace = iEditor->file();
-    const CVSSubmitEditor *editor = qobject_cast<CVSSubmitEditor *>(iEditor);
+    Core::IFile *fileIFace = submitEditor->file();
+    const CVSSubmitEditor *editor = qobject_cast<CVSSubmitEditor *>(submitEditor);
     if (!fileIFace || !editor)
         return true;
 
@@ -488,8 +471,11 @@ CVSSubmitEditor *CVSPlugin::openCVSSubmitEditor(const QString &fileName)
     return submitEditor;
 }
 
-void CVSPlugin::updateActions()
+void CVSPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
+    if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
+        return;
+
     m_diffProjectAction->setEnabled(true);
     m_commitAllAction->setEnabled(true);
     m_statusAction->setEnabled(true);
@@ -554,7 +540,7 @@ void CVSPlugin::revertCurrentFile()
     const CVSResponse revertResponse = runCVS(args, files, cvsShortTimeOut, true);
     if (revertResponse.result == CVSResponse::Ok) {
         fcb.setModifiedReload(true);
-        m_versionControl->emitFilesChanged(files);
+        cvsVersionControl()->emitFilesChanged(files);
     }
 }
 
@@ -738,7 +724,7 @@ void CVSPlugin::updateProject()
         const CVSResponse response = runCVS(args, topLevels, cvsLongTimeOut, true);
         if (response.result == CVSResponse::Ok)
             foreach(const QString &topLevel, topLevels)
-                m_versionControl->emitRepositoryChanged(topLevel);
+                cvsVersionControl()->emitRepositoryChanged(topLevel);
     }
 }
 
@@ -1191,6 +1177,11 @@ QString CVSPlugin::findTopLevelForDirectoryI(const QString &directory) const
             return lastDirectory.absolutePath();
     }
     return QString();
+}
+
+CVSControl *CVSPlugin::cvsVersionControl() const
+{
+    return static_cast<CVSControl *>(versionControl());
 }
 
 }

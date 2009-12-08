@@ -180,8 +180,8 @@ static inline QStringList svnDirectories()
 SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
 
 SubversionPlugin::SubversionPlugin() :
+    VCSBase::VCSBasePlugin(QLatin1String(Subversion::Constants::SUBVERSIONCOMMITEDITOR_KIND)),
     m_svnDirectories(svnDirectories()),
-    m_versionControl(0),
     m_projectExplorer(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -199,6 +199,7 @@ SubversionPlugin::SubversionPlugin() :
     m_submitDiffAction(0),
     m_submitUndoAction(0),
     m_submitRedoAction(0),
+    m_menuAction(0),
     m_submitActionTriggered(false)
 {
 }
@@ -237,10 +238,8 @@ static inline Core::Command *createSeparator(QObject *parent,
     return ami->registerAction(tmpaction, id, globalcontext);
 }
 
-bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
-    Q_UNUSED(arguments)
-
     typedef VCSBase::VCSSubmitEditorFactory<SubversionSubmitEditor> SubversionSubmitEditorFactory;
     typedef VCSBase::VCSEditorFactory<SubversionEditor> SubversionEditorFactory;
     using namespace Constants;
@@ -248,19 +247,17 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     using namespace Core::Constants;
     using namespace ExtensionSystem;
 
+    VCSBase::VCSBasePlugin::initialize(new SubversionControl(this));
+
     m_subversionPluginInstance = this;
     Core::ICore *core = Core::ICore::instance();
 
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"), errorMessage))
         return false;
 
-    m_versionControl = new SubversionControl(this);
-    addAutoReleasedObject(m_versionControl);
-
     if (QSettings *settings = core->settings())
         m_settings.fromSettings(settings);
 
-    addAutoReleasedObject(new CoreListener(this));
     addAutoReleasedObject(new SettingsPage);
 
     addAutoReleasedObject(new SubversionSubmitEditorFactory(&submitParameters));
@@ -280,11 +277,7 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
         ami->createMenu(QLatin1String(CMD_ID_SUBVERSION_MENU));
     subversionMenu->menu()->setTitle(tr("&Subversion"));
     toolsContainer->addMenu(subversionMenu);
-    if (QAction *ma = subversionMenu->menu()->menuAction()) {
-        ma->setEnabled(m_versionControl->isEnabled());
-        connect(m_versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
-    }
-
+    m_menuAction = subversionMenu->menu()->menuAction();
     QList<int> globalcontext;
     globalcontext << core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);
 
@@ -396,29 +389,21 @@ bool SubversionPlugin::initialize(const QStringList &arguments, QString *errorMe
     m_submitRedoAction = new QAction(tr("&Redo"), this);
     command = ami->registerAction(m_submitRedoAction, Core::Constants::REDO, svncommitcontext);
 
-    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext *)), this, SLOT(updateActions()));
-
     return true;
 }
 
 void SubversionPlugin::extensionsInitialized()
 {
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (m_projectExplorer) {
-        connect(m_projectExplorer,
-            SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            m_subversionPluginInstance, SLOT(updateActions()));
-    }
-    updateActions();
 }
 
-bool SubversionPlugin::editorAboutToClose(Core::IEditor *iEditor)
+bool SubversionPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor)
 {
-    if ( !iEditor || !isCommitEditorOpen() || qstrcmp(Constants::SUBVERSIONCOMMITEDITOR, iEditor->kind()))
+    if (!isCommitEditorOpen())
         return true;
 
-    Core::IFile *fileIFace = iEditor->file();
-    const SubversionSubmitEditor *editor = qobject_cast<SubversionSubmitEditor *>(iEditor);
+    Core::IFile *fileIFace = submitEditor->file();
+    const SubversionSubmitEditor *editor = qobject_cast<SubversionSubmitEditor *>(submitEditor);
     if (!fileIFace || !editor)
         return true;
 
@@ -511,8 +496,11 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
     return submitEditor;
 }
 
-void SubversionPlugin::updateActions()
+void SubversionPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
+    if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
+        return;
+
     m_diffProjectAction->setEnabled(true);
     m_commitAllAction->setEnabled(true);
     m_statusAction->setEnabled(true);
@@ -574,7 +562,7 @@ void SubversionPlugin::revertCurrentFile()
     const SubversionResponse revertResponse = runSvn(args, subversionShortTimeOut, true);
     if (!revertResponse.error) {
         fcb.setModifiedReload(true);
-        m_versionControl->emitFilesChanged(QStringList(file));
+        subVersionControl()->emitFilesChanged(QStringList(file));
     }
 }
 
@@ -752,9 +740,10 @@ void SubversionPlugin::updateProject()
     args.push_back(QLatin1String(nonInteractiveOptionC));
     args.append(topLevels);
     const SubversionResponse response = runSvn(args, subversionLongTimeOut, true);
-    if (!response.error)
+    if (!response.error) {
         foreach(const QString &repo, topLevels)
-            m_versionControl->emitRepositoryChanged(repo);
+            subVersionControl()->emitRepositoryChanged(repo);
+    }
 }
 
 void SubversionPlugin::annotateCurrentFile()
@@ -1084,6 +1073,11 @@ QString SubversionPlugin::findTopLevelForDirectoryI(const QString &directory) co
             return QDir::toNativeSeparators(lastDirectory.absolutePath());
     }
     return QString();
+}
+
+SubversionControl *SubversionPlugin::subVersionControl() const
+{
+    return static_cast<SubversionControl *>(versionControl());
 }
 
 Q_EXPORT_PLUGIN(SubversionPlugin)

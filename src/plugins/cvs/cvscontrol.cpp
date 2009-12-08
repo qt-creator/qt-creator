@@ -44,19 +44,6 @@ QString CVSControl::name() const
     return QLatin1String("cvs");
 }
 
-bool CVSControl::isEnabled() const
-{
-     return m_enabled;
-}
-
-void CVSControl::setEnabled(bool enabled)
-{
-    if (m_enabled != enabled) {
-        m_enabled = enabled;
-        emit enabledChanged(m_enabled);
-    }
-}
-
 bool CVSControl::supportsOperation(Operation operation) const
 {
     bool rc = true;

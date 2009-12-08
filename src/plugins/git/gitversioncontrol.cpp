@@ -44,19 +44,6 @@ QString GitVersionControl::name() const
     return QLatin1String("git");
 }
 
-bool GitVersionControl::isEnabled() const
-{
-    return m_enabled;
-}
-
-void GitVersionControl::setEnabled(bool enabled)
-{
-    if (m_enabled != enabled) {
-        m_enabled = enabled;
-        emit enabledChanged(m_enabled);
-    }
-}
-
 bool GitVersionControl::supportsOperation(Operation operation) const
 {
     bool rc = false;

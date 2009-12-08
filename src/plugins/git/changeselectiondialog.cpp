@@ -32,7 +32,8 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-using namespace Git::Internal;
+namespace Git {
+namespace Internal {
 
 ChangeSelectionDialog::ChangeSelectionDialog(QWidget *parent)
     : QDialog(parent)
@@ -40,6 +41,21 @@ ChangeSelectionDialog::ChangeSelectionDialog(QWidget *parent)
     m_ui.setupUi(this);
     connect(m_ui.repositoryButton, SIGNAL(clicked()), this, SLOT(selectWorkingDirectory()));
     setWindowTitle(tr("Select a Git commit"));
+}
+
+QString ChangeSelectionDialog::change() const
+{
+    return m_ui.changeNumberEdit->text();
+}
+
+QString ChangeSelectionDialog::repository() const
+{
+    return m_ui.repositoryEdit->text();
+}
+
+void ChangeSelectionDialog::setRepository(const QString &s)
+{
+    m_ui.repositoryEdit->setText(s);
 }
 
 void ChangeSelectionDialog::selectWorkingDirectory()
@@ -66,4 +82,7 @@ void ChangeSelectionDialog::selectWorkingDirectory()
     QMessageBox::critical(this, tr("Error"),
                           tr("Selected directory is not a Git repository"));
 
+}
+
+}
 }

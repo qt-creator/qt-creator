@@ -31,9 +31,9 @@
 #define GITPLUGIN_H
 
 #include "settingspage.h"
+#include "vcsbase/vcsbaseplugin.h"
 
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icorelistener.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QObject>
@@ -49,7 +49,6 @@ QT_END_NAMESPACE
 namespace Core {
 class IEditorFactory;
 class ICore;
-class IVersionControl;
 }
 namespace Utils {
 class ParameterAction;
@@ -66,19 +65,7 @@ class GitSubmitEditor;
 struct CommitData;
 struct GitSettings;
 
-// Just a proxy for GitPlugin
-class CoreListener : public Core::ICoreListener
-{
-    Q_OBJECT
-public:
-    CoreListener(GitPlugin *plugin) : m_plugin(plugin) { }
-    bool editorAboutToClose(Core::IEditor *editor);
-    bool coreAboutToClose() { return true; }
-private:
-    GitPlugin *m_plugin;
-};
-
-class GitPlugin : public ExtensionSystem::IPlugin
+class GitPlugin : public VCSBase::VCSBasePlugin
 {
     Q_OBJECT
 
@@ -91,25 +78,19 @@ public:
     virtual bool initialize(const QStringList &arguments, QString *error_message);
     virtual void extensionsInitialized();
 
-    QString getWorkingDirectory();
+    GitVersionControl *gitVersionControl() const;
 
     GitSettings settings() const;
     void setSettings(const GitSettings &s);
 
-    GitClient *gitClient() const;
-    GitVersionControl *versionControl() const;
-
-public slots:
-    void updateActions();
-    bool editorAboutToClose(Core::IEditor *editor);
+    GitClient *gitClient() const;  
 
 private slots:
     void diffCurrentFile();
     void diffCurrentProject();
     void submitEditorDiff(const QStringList &unstaged, const QStringList &staged);
     void submitCurrentLog();
-    void statusFile();
-    void statusProject();
+    void statusRepository();
     void logFile();
     void blameFile();
     void logProject();
@@ -127,9 +108,12 @@ private slots:
     void pull();
     void push();
 
+protected:
+    virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
+    virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
+
 private:
     bool isCommitEditorOpen() const;
-    QFileInfo currentFile() const;
     Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
     void cleanCommitMessageFile();
 
@@ -137,8 +121,7 @@ private:
     Core::ICore *m_core;
     Utils::ParameterAction *m_diffAction;
     Utils::ParameterAction *m_diffProjectAction;
-    Utils::ParameterAction *m_statusAction;
-    Utils::ParameterAction *m_statusProjectAction;
+    QAction *m_statusRepositoryAction;
     Utils::ParameterAction *m_logAction;
     Utils::ParameterAction *m_blameAction;
     Utils::ParameterAction *m_logProjectAction;
@@ -159,9 +142,9 @@ private:
     QAction *m_stashPopAction;
     QAction *m_stashListAction;
     QAction *m_branchListAction;
+    QAction *m_menuAction;
 
     GitClient                   *m_gitClient;
-    GitVersionControl           *m_versionControl;
     ChangeSelectionDialog       *m_changeSelectionDialog;
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;

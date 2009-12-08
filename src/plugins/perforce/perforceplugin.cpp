@@ -153,21 +153,13 @@ static const char * const CMD_ID_SEPARATOR2 = "Perforce.Separator2";
 static const char * const CMD_ID_SEPARATOR3 = "Perforce.Separator3";
 
 ////
-// CoreListener
-////
-
-bool CoreListener::editorAboutToClose(Core::IEditor *editor)
-{
-    return m_plugin->editorAboutToClose(editor);
-}
-
-////
 // PerforcePlugin
 ////
 
 PerforcePlugin *PerforcePlugin::m_perforcePluginInstance = NULL;
 
 PerforcePlugin::PerforcePlugin() :
+    VCSBase::VCSBasePlugin(QLatin1String(Constants::PERFORCESUBMITEDITOR_KIND)),
     m_editAction(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -190,8 +182,7 @@ PerforcePlugin::PerforcePlugin() :
     m_submitActionTriggered(false),
     m_diffSelectedFiles(0),
     m_undoAction(0),
-    m_redoAction(0),
-    m_versionControl(0)
+    m_redoAction(0)
 {
 }
 
@@ -201,13 +192,12 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Perforce::Constants::C_PERFORCESUBMITEDITOR
 };
 
-bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMessage)
+bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * errorMessage)
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     typedef VCSBase::VCSEditorFactory<PerforceEditor> PerforceEditorFactory;
     typedef VCSBase::VCSSubmitEditorFactory<PerforceSubmitEditor> PerforceSubmitEditorFactory;
+
+    VCSBase::VCSBasePlugin::initialize(new PerforceVersionControl(this));
 
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"), errorMessage))
@@ -227,11 +217,6 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new PerforceEditorFactory(editorParameters + i, this, describeSlot));
 
-    m_versionControl = new PerforceVersionControl(this);
-    addAutoReleasedObject(m_versionControl);
-
-    addAutoReleasedObject(new CoreListener(this));
-
     //register actions
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
 
@@ -242,10 +227,7 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
         am->createMenu(QLatin1String(CMD_ID_PERFORCE_MENU));
     mperforce->menu()->setTitle(tr("&Perforce"));
     mtools->addMenu(mperforce);
-    if (QAction *ma = mperforce->menu()->menuAction()) {
-        ma->setEnabled(m_versionControl->isEnabled());
-        connect(m_versionControl, SIGNAL(enabledChanged(bool)), ma, SLOT(setVisible(bool)));
-    }
+    m_menuAction = mperforce->menu()->menuAction();
 
     QList<int> globalcontext;
     globalcontext << Core::Constants::C_GLOBAL_ID;
@@ -397,24 +379,12 @@ bool PerforcePlugin::initialize(const QStringList &arguments, QString *errorMess
     m_redoAction = new QAction(tr("&Redo"), this);
     command = am->registerAction(m_redoAction, Core::Constants::REDO, perforcesubmitcontext);
 
-    connect(core, SIGNAL(contextChanged(Core::IContext *)),
-        this, SLOT(updateActions()));
-
-    connect(core->fileManager(), SIGNAL(currentFileChanged(const QString &)),
-        this, SLOT(updateActions()));
-
     return true;
 }
 
 void PerforcePlugin::extensionsInitialized()
 {
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (m_projectExplorer) {
-        connect(m_projectExplorer,
-            SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(updateActions()));
-    }
-    updateActions();
 }
 
 void PerforcePlugin::openCurrentFile()
@@ -455,7 +425,7 @@ void PerforcePlugin::revertCurrentFile()
     fcb.setModifiedReload(true);
     PerforceResponse result2 = runP4Cmd(QStringList() << QLatin1String("revert") << fileName, QStringList(), CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     if (!result2.error)
-        m_versionControl->emitFilesChanged(QStringList(fileName));
+        perforceVersionControl()->emitFilesChanged(QStringList(fileName));
 }
 
 void PerforcePlugin::diffCurrentFile()
@@ -519,7 +489,7 @@ void PerforcePlugin::updateCheckout(const QStringList &dirs)
     const PerforceResponse resp = runP4Cmd(args, QStringList(), CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     if (!dirs.empty())
         foreach(const QString &dir, dirs)
-            m_versionControl->emitRepositoryChanged(dir);
+            perforceVersionControl()->emitRepositoryChanged(dir);
 }
 
 void PerforcePlugin::printOpenedFileList()
@@ -680,8 +650,11 @@ void PerforcePlugin::filelog(const QString &fileName)
     }
 }
 
-void PerforcePlugin::updateActions()
+void PerforcePlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
+    if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
+        return;
+
     const QString fileName = currentFileName();
     const QString baseName = fileName.isEmpty() ? fileName : QFileInfo(fileName).fileName();
 
@@ -993,19 +966,16 @@ bool PerforcePlugin::isCommitEditorOpen() const
     return !m_commitMessageFileName.isEmpty();
 }
 
-bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
+bool PerforcePlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor)
 {
-    if (!editor || !isCommitEditorOpen())
+    if (!isCommitEditorOpen())
         return true;
-    Core::ICore *core = Core::ICore::instance();
-    Core::IFile *fileIFace = editor->file();
-    if (!fileIFace)
+    Core::IFile *fileIFace = submitEditor->file();
+    const PerforceSubmitEditor *perforceEditor = qobject_cast<PerforceSubmitEditor *>(submitEditor);
+    if (!fileIFace || !perforceEditor)
         return true;
-    const PerforceSubmitEditor *perforceEditor = qobject_cast<PerforceSubmitEditor *>(editor);
-    if (!perforceEditor)
-        return true;
-    QFileInfo editorFile(fileIFace->fileName());
-    QFileInfo changeFile(m_commitMessageFileName);
+    const QFileInfo editorFile(fileIFace->fileName());
+    const QFileInfo changeFile(m_commitMessageFileName);
     if (editorFile.absoluteFilePath() == changeFile.absoluteFilePath()) {
         // Prompt the user. Force a prompt unless submit was actually invoked (that
         // is, the editor was closed or shutdown).
@@ -1025,9 +995,10 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             m_settings.setPromptToSubmit(wantsPrompt);
             m_settings.toSettings(Core::ICore::instance()->settings());
         }
-        core->fileManager()->blockFileChange(fileIFace);
+        Core::FileManager *fileManager = Core::ICore::instance()->fileManager();
+        fileManager->blockFileChange(fileIFace);
         fileIFace->save();
-        core->fileManager()->unblockFileChange(fileIFace);
+        fileManager->unblockFileChange(fileIFace);
         if (answer == VCSBase::VCSBaseSubmitEditor::SubmitConfirmed) {
             QFile commitMessageFile(m_commitMessageFileName);
             if (!commitMessageFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
@@ -1071,7 +1042,7 @@ bool PerforcePlugin::editorAboutToClose(Core::IEditor *editor)
             const QString output = QString::fromLocal8Bit(proc.readAll());
             VCSBase::VCSBaseOutputWindow::instance()->append(output);
             if (output.contains(QLatin1String("Out of date files must be resolved or reverted)"))) {
-                QMessageBox::warning(editor->widget(), tr("Pending change"), tr("Could not submit the change, because your workspace was out of date. Created a pending submit instead."));
+                QMessageBox::warning(submitEditor->widget(), tr("Pending change"), tr("Could not submit the change, because your workspace was out of date. Created a pending submit instead."));
             }
             QApplication::restoreOverrideCursor();
         }
@@ -1217,6 +1188,11 @@ PerforcePlugin *PerforcePlugin::perforcePluginInstance()
 {
     QTC_ASSERT(m_perforcePluginInstance, return 0);
     return m_perforcePluginInstance;
+}
+
+PerforceVersionControl *PerforcePlugin::perforceVersionControl() const
+{
+    return static_cast<PerforceVersionControl *>(versionControl());
 }
 
 Q_EXPORT_PLUGIN(PerforcePlugin)

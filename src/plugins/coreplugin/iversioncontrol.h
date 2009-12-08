@@ -48,13 +48,6 @@ public:
 
     virtual QString name() const = 0;
 
-    virtual bool isEnabled() const = 0;
-
-    /*!
-     * Enable the VCS, that is, make its menu actions visible.
-     */
-    virtual void setEnabled(bool enabled) = 0;
-
     /*!
      * Returns whether files in this directory should be managed with this
      * version control.

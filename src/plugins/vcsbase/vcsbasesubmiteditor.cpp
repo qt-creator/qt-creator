@@ -29,7 +29,7 @@
 
 #include "vcsbasesubmiteditor.h"
 #include "vcsbasesettings.h"
-#include "vcsbaseplugin.h"
+#include "vcsplugin.h"
 #include "nicknamedialog.h"
 #include "submiteditorfile.h"
 
@@ -75,7 +75,7 @@ namespace VCSBase {
 
 static inline QString submitMessageCheckScript()
 {
-    return Internal::VCSBasePlugin::instance()->settings().submitMessageCheckScript;
+    return Internal::VCSPlugin::instance()->settings().submitMessageCheckScript;
 }
 
 struct VCSBaseSubmitEditorPrivate
@@ -127,7 +127,7 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
     connect(m_d->m_widget, SIGNAL(diffSelected(QStringList)), this, SLOT(slotDiffSelectedVCSFiles(QStringList)));
     connect(m_d->m_widget->descriptionEdit(), SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
 
-    const Internal::VCSBaseSettings settings = Internal::VCSBasePlugin::instance()->settings();
+    const Internal::VCSBaseSettings settings = Internal::VCSPlugin::instance()->settings();
     // Add additional context menu settings
     if (!settings.submitMessageCheckScript.isEmpty() || !settings.nickNameMailMap.isEmpty()) {
         QAction *sep = new QAction(this);
@@ -152,7 +152,7 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
 
     // wrapping. etc
     slotUpdateEditorSettings(settings);
-    connect(Internal::VCSBasePlugin::instance(),
+    connect(Internal::VCSPlugin::instance(),
             SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)),
             this, SLOT(slotUpdateEditorSettings(VCSBase::Internal::VCSBaseSettings)));
 
@@ -199,7 +199,7 @@ void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
     if (fields.empty())
         return;
     // Create a completer on user names
-    const QStandardItemModel *nickNameModel = Internal::VCSBasePlugin::instance()->nickNameModel();
+    const QStandardItemModel *nickNameModel = Internal::VCSPlugin::instance()->nickNameModel();
     QCompleter *completer = new QCompleter(Internal::NickNameDialog::nickNameList(nickNameModel), this);
 
     Utils::SubmitFieldWidget *fieldWidget = new Utils::SubmitFieldWidget;
@@ -487,7 +487,7 @@ VCSBaseSubmitEditor::PromptSubmitResult
 QString VCSBaseSubmitEditor::promptForNickName()
 {
     if (!m_d->m_nickNameDialog)
-        m_d->m_nickNameDialog = new Internal::NickNameDialog(Internal::VCSBasePlugin::instance()->nickNameModel(), m_d->m_widget);
+        m_d->m_nickNameDialog = new Internal::NickNameDialog(Internal::VCSPlugin::instance()->nickNameModel(), m_d->m_widget);
     if (m_d->m_nickNameDialog->exec() == QDialog::Accepted)
        return m_d->m_nickNameDialog->nickName();
     return QString();

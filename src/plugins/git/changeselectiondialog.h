@@ -37,21 +37,22 @@
 namespace Git {
 namespace Internal {
 
-class GitPlugin;
-
 class ChangeSelectionDialog : public QDialog
 {
     Q_OBJECT
 public:
     ChangeSelectionDialog(QWidget *parent = 0);
 
+    QString change() const;
+
+    QString repository() const;
+    void setRepository(const QString &s);
+
 public slots:
     void selectWorkingDirectory();
 
-private:
-    friend class GitPlugin;
+private:    
     Ui_ChangeSelectionDialog m_ui;
-
 };
 
 } // namespace Internal

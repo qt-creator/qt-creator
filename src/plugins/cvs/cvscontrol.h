@@ -45,9 +45,6 @@ public:
     explicit CVSControl(CVSPlugin *plugin);
     virtual QString name() const;
 
-    virtual bool isEnabled() const;
-    virtual void setEnabled(bool enabled);
-
     virtual bool managesDirectory(const QString &directory) const;
     virtual QString findTopLevelForDirectory(const QString &directory) const;
 
@@ -58,9 +55,6 @@ public:
 
     void emitRepositoryChanged(const QString &s);
     void emitFilesChanged(const QStringList &l);
-
-signals:
-    void enabledChanged(bool);
 
 private:
     bool m_enabled;

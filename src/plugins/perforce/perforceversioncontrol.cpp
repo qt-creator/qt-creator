@@ -38,23 +38,10 @@ PerforceVersionControl::PerforceVersionControl(PerforcePlugin *plugin) :
     m_plugin(plugin)
 {
 }
-
+    
 QString PerforceVersionControl::name() const
 {
     return QLatin1String("perforce");
-}
-
-bool PerforceVersionControl::isEnabled() const
-{
-     return m_enabled;
-}
-
-void PerforceVersionControl::setEnabled(bool enabled)
-{
-    if (m_enabled != enabled) {
-        m_enabled = enabled;
-        emit enabledChanged(m_enabled);
-    }
 }
 
 bool PerforceVersionControl::supportsOperation(Operation operation) const

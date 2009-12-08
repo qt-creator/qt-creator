@@ -147,19 +147,6 @@ QString GitClient::findRepositoryForDirectory(const QString &dir)
     return QString();
 }
 
-// Return source file or directory string depending on parameters
-// ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
-static QString source(const QString &workingDirectory, const QString &fileName)
-{
-    if (fileName.isEmpty())
-        return workingDirectory;
-    QString rc = workingDirectory;
-    if (!rc.isEmpty() && !rc.endsWith(QDir::separator()))
-        rc += QDir::separator();
-    rc += fileName;
-    return rc;
-}
-
 /* Create an editor associated to VCS output of a source file/directory
  * (using the file's codec). Makes use of a dynamic property to find an
  * existing instance and to reuse it (in case, say, 'git diff foo' is
@@ -253,8 +240,7 @@ void GitClient::diff(const QString &workingDirectory,
 
     const QString kind = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_KIND);
     const QString title = tr("Git Diff %1").arg(fileName);
-    const QString sourceFile = source(workingDirectory, fileName);
-
+    const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, fileName);
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, sourceFile, true, "originalFileName", sourceFile);
     executeGit(workingDirectory, arguments, editor);
 }
@@ -267,10 +253,10 @@ void GitClient::status(const QString &workingDirectory)
     executeGit(workingDirectory, statusArgs, 0, true);
 }
 
-void GitClient::log(const QString &workingDirectory, const QString &fileName)
+void GitClient::log(const QString &workingDirectory, const QStringList &fileNames)
 {
     if (Git::Constants::debug)
-        qDebug() << "log" << workingDirectory << fileName;
+        qDebug() << "log" << workingDirectory << fileNames;
 
     QStringList arguments;
     arguments << QLatin1String("log") << QLatin1String(noColorOption);
@@ -278,12 +264,14 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName)
     if (m_settings.logCount > 0)
          arguments << QLatin1String("-n") << QString::number(m_settings.logCount);
 
-    if (!fileName.isEmpty())
-        arguments << fileName;
+    if (!fileNames.isEmpty())
+        arguments.append(fileNames);
 
-    const QString title = tr("Git Log %1").arg(fileName);
+    const QString msgArg = fileNames.empty() ? workingDirectory :
+                           fileNames.join(QString(", "));
+    const QString title = tr("Git Log %1").arg(msgArg);
     const QString kind = QLatin1String(Git::Constants::GIT_LOG_EDITOR_KIND);
-    const QString sourceFile = source(workingDirectory, fileName);
+    const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, fileNames);
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, sourceFile, false, "logFileName", sourceFile);
     executeGit(workingDirectory, arguments, editor);
 }
@@ -313,7 +301,7 @@ void GitClient::blame(const QString &workingDirectory, const QString &fileName, 
 
     const QString kind = QLatin1String(Git::Constants::GIT_BLAME_EDITOR_KIND);
     const QString title = tr("Git Blame %1").arg(fileName);
-    const QString sourceFile = source(workingDirectory, fileName);
+    const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, fileName);
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, sourceFile, true, "blameFileName", sourceFile);
     executeGit(workingDirectory, arguments, editor, false, GitCommand::NoReport, lineNumber);
@@ -912,7 +900,7 @@ void GitClient::revert(const QStringList &files)
     QString errorMessage;
     switch (revertI(files, &isDirectory, &errorMessage)) {
     case RevertOk:
-        m_plugin->versionControl()->emitFilesChanged(files);
+        m_plugin->gitVersionControl()->emitFilesChanged(files);
         break;
     case RevertCanceled:
         break;
@@ -1020,7 +1008,7 @@ void GitClient::connectRepositoryChanged(const QString & repository, GitCommand 
     if (!m_repositoryChangedSignalMapper) {
         m_repositoryChangedSignalMapper = new QSignalMapper(this);
         connect(m_repositoryChangedSignalMapper, SIGNAL(mapped(QString)),
-                m_plugin->versionControl(), SIGNAL(repositoryChanged(QString)));
+                m_plugin->gitVersionControl(), SIGNAL(repositoryChanged(QString)));
     }
     m_repositoryChangedSignalMapper->setMapping(cmd, repository);
     connect(cmd, SIGNAL(success()), m_repositoryChangedSignalMapper, SLOT(map()),
