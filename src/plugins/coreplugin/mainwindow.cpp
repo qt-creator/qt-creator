@@ -53,7 +53,7 @@
 #include "settingsdialog.h"
 #include "variablemanager.h"
 #include "versiondialog.h"
-#include "viewmanager.h"
+#include "statusbarmanager.h"
 #include "uniqueidmanager.h"
 #include "manhattanstyle.h"
 #include "dialogs/iwizard.h"
@@ -127,7 +127,7 @@ MainWindow::MainWindow() :
     m_scriptManager(new ScriptManagerPrivate(this)),
     m_variableManager(new VariableManager(this)),
     m_vcsManager(new VCSManager),
-    m_viewManager(0),
+    m_statusBarManager(0),
     m_modeManager(0),
     m_mimeDatabase(new MimeDatabase),
     m_navigationWidget(0),
@@ -190,7 +190,7 @@ MainWindow::MainWindow() :
     m_modeStack = new FancyTabWidget(this);
     m_modeManager = new ModeManager(this, m_modeStack);
     m_modeManager->addWidget(m_progressManager->progressView());
-    m_viewManager = new ViewManager(this);
+    m_statusBarManager = new StatusBarManager(this);
     m_messageManager = new MessageManager;
     m_editorManager = new EditorManager(m_coreImpl, this);
     m_editorManager->hide();
@@ -256,7 +256,7 @@ MainWindow::~MainWindow()
     pm->removeObject(m_outputMode);
     delete m_outputMode;
     m_outputMode = 0;
-    //we need to delete editormanager and viewmanager explicitly before the end of the destructor,
+    //we need to delete editormanager and statusbarmanager explicitly before the end of the destructor,
     //because they might trigger stuff that tries to access data from editorwindow, like removeContextWidget
 
     // All modes are now gone
@@ -268,8 +268,8 @@ MainWindow::~MainWindow()
 
     delete m_editorManager;
     m_editorManager = 0;
-    delete m_viewManager;
-    m_viewManager = 0;
+    delete m_statusBarManager;
+    m_statusBarManager = 0;
     delete m_progressManager;
     m_progressManager = 0;
     pm->removeObject(m_coreImpl);
@@ -294,7 +294,7 @@ bool MainWindow::init(QString *errorMessage)
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     pm->addObject(m_coreImpl);
-    m_viewManager->init();
+    m_statusBarManager->init();
     m_modeManager->init();
     m_progressManager->init();
     QWidget *outputModeWidget = new QWidget;
@@ -322,7 +322,7 @@ bool MainWindow::init(QString *errorMessage)
     pm->addObject(m_shortcutSettings);
 
     // Add widget to the bottom, we create the view here instead of inside the
-    // OutputPaneManager, since the ViewManager needs to be initilized before
+    // OutputPaneManager, since the StatusBarManager needs to be initilized before
     m_outputView = new Core::StatusBarWidget;
     m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
     m_outputView->setPosition(Core::StatusBarWidget::Second);
@@ -344,7 +344,7 @@ void MainWindow::extensionsInitialized()
 {
     m_editorManager->init();
 
-    m_viewManager->extensionsInitalized();
+    m_statusBarManager->extensionsInitalized();
 
     m_messageManager->init();
     OutputPaneManager::instance()->init();

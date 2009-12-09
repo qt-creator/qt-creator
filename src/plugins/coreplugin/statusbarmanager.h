@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef VIEWMANAGER_H
-#define VIEWMANAGER_H
+#ifndef STATUSBARMANAGER_H
+#define STATUSBARMANAGER_H
 
 #include <QtCore/QMap>
 #include <QtGui/QWidget>
@@ -50,13 +50,13 @@ namespace Internal {
 class MainWindow;
 class NavigationWidget;
 
-class ViewManager : public QObject
+class StatusBarManager : public QObject
 {
     Q_OBJECT
 
 public:
-    ViewManager(MainWindow *mainWnd);
-    ~ViewManager();
+    StatusBarManager(MainWindow *mainWnd);
+    ~StatusBarManager();
 
     void init();
     void extensionsInitalized();
@@ -73,4 +73,4 @@ private:
 } // namespace Internal
 } // namespace Core
 
-#endif // VIEWMANAGER_H
+#endif // STATUSBARMANAGER_H

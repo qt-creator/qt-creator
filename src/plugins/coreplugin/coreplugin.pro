@@ -32,7 +32,7 @@ SOURCES += mainwindow.cpp \
     messageoutputwindow.cpp \
     outputpane.cpp \
     vcsmanager.cpp \
-    viewmanager.cpp \
+    statusbarmanager.cpp \
     versiondialog.cpp \
     editormanager/editormanager.cpp \
     editormanager/editorview.cpp \
@@ -92,7 +92,7 @@ HEADERS += mainwindow.h \
     messageoutputwindow.h \
     outputpane.h \
     vcsmanager.h \
-    viewmanager.h \
+    statusbarmanager.h \
     editormanager/editormanager.h \
     editormanager/editorview.h \
     editormanager/openeditorsmodel.h \

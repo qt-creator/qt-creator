@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "viewmanager.h"
+#include "statusbarmanager.h"
 
 #include "coreconstants.h"
 #include "mainwindow.h"
@@ -47,7 +47,7 @@
 using namespace Core;
 using namespace Core::Internal;
 
-ViewManager::ViewManager(MainWindow *mainWnd)
+StatusBarManager::StatusBarManager(MainWindow *mainWnd)
   : QObject(mainWnd),
     m_mainWnd(mainWnd)
 {
@@ -63,11 +63,11 @@ ViewManager::ViewManager(MainWindow *mainWnd)
                                                   new QLabel(), 1);
 }
 
-ViewManager::~ViewManager()
+StatusBarManager::~StatusBarManager()
 {
 }
 
-void ViewManager::init()
+void StatusBarManager::init()
 {
     connect(ExtensionSystem::PluginManager::instance(), SIGNAL(objectAdded(QObject*)),
             this, SLOT(objectAdded(QObject*)));
@@ -75,7 +75,7 @@ void ViewManager::init()
             this, SLOT(aboutToRemoveObject(QObject*)));
 }
 
-void ViewManager::objectAdded(QObject *obj)
+void StatusBarManager::objectAdded(QObject *obj)
 {
     StatusBarWidget *view = Aggregation::query<StatusBarWidget>(obj);
     if (!view)
@@ -88,7 +88,7 @@ void ViewManager::objectAdded(QObject *obj)
     m_mainWnd->addContextObject(view);
 }
 
-void ViewManager::aboutToRemoveObject(QObject *obj)
+void StatusBarManager::aboutToRemoveObject(QObject *obj)
 {
     StatusBarWidget *view = Aggregation::query<StatusBarWidget>(obj);
     if (!view)
@@ -96,6 +96,6 @@ void ViewManager::aboutToRemoveObject(QObject *obj)
     m_mainWnd->removeContextObject(view);
 }
 
-void ViewManager::extensionsInitalized()
+void StatusBarManager::extensionsInitalized()
 {
 }

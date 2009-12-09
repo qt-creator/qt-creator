@@ -63,7 +63,6 @@ class SettingsDatabase;
 class UniqueIDManager;
 class VariableManager;
 class VCSManager;
-class ViewManagerInterface;
 class IMode;
 
 namespace Internal {
@@ -75,7 +74,7 @@ class GeneralSettings;
 class NavigationWidget;
 class ProgressManagerPrivate;
 class ShortcutSettings;
-class ViewManager;
+class StatusBarManager;
 class VersionDialog;
 
 class CORE_EXPORT MainWindow : public EventFilteringMainWindow
@@ -189,7 +188,7 @@ private:
     ScriptManager *m_scriptManager;
     VariableManager *m_variableManager;
     VCSManager *m_vcsManager;
-    ViewManager *m_viewManager;
+    StatusBarManager *m_statusBarManager;
     ModeManager *m_modeManager;
     MimeDatabase *m_mimeDatabase;
     FancyTabWidget *m_modeStack;
