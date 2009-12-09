@@ -190,6 +190,7 @@ void MercurialClient::diff(const QString &workingDir, const QStringList &files)
     const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, files);
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, source, true,
                                                      "diff", id);
+    editor->setDiffBaseDirectory(workingDir);
 
     QSharedPointer<HgTask> job(new HgTask(workingDir, args, editor));
     enqueueJob(job);

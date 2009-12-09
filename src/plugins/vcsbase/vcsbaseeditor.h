@@ -87,6 +87,7 @@ struct VCSBASE_EXPORT VCSBaseEditorParameters {
 class VCSBASE_EXPORT VCSBaseEditor : public TextEditor::BaseTextEditor
 {
     Q_PROPERTY(QString source READ source WRITE setSource)
+    Q_PROPERTY(QString diffBaseDirectory READ diffBaseDirectory WRITE setDiffBaseDirectory)
     Q_PROPERTY(QTextCodec *codec READ codec WRITE setCodec)
     Q_OBJECT
 protected:
@@ -104,6 +105,10 @@ public:
 
     QTextCodec *codec() const;
     void setCodec(QTextCodec *);
+
+    // Base directory for diff views
+    QString diffBaseDirectory() const;
+    void setDiffBaseDirectory(const QString &d);
 
     bool isModified() const;
 
@@ -137,7 +142,7 @@ public:
     // editor if one has a call consisting of working directory and file arguments.
     // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
     static QString getSource(const QString &workingDirectory, const QString &fileName);
-    static QString getSource(const QString &workingDirectory, const QStringList &fileNames);   
+    static QString getSource(const QString &workingDirectory, const QStringList &fileNames);
     // Convenience functions to determine an title/id to identify the editor
     // from the arguments (','-joined arguments or directory).
     static QString getTitleId(const QString &workingDirectory, const QStringList &fileNames);
@@ -171,8 +176,8 @@ private slots:
 
 protected:
     /* A helper that can be used to locate a file in a diff in case it
-     * is relative. Tries to derive the directory from source and
-     * version control. */
+     * is relative. Tries to derive the directory from base directory,
+     * source and version control. */
     QString findDiffFile(const QString &f, Core::IVersionControl *control = 0) const;
 
 private:

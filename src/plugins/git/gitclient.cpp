@@ -196,6 +196,7 @@ void GitClient::diff(const QString &workingDirectory,
     const QString title = tr("Git Diff");
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, workingDirectory, true, "originalFileName", workingDirectory);
+    editor->setDiffBaseDirectory(workingDirectory);
 
     // Create a batch of 2 commands to be run after each other in case
     // we have a mixture of staged/unstaged files as is the case

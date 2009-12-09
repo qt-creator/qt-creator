@@ -30,9 +30,9 @@
 #include "giteditor.h"
 
 #include "annotationhighlighter.h"
-#include "gitclient.h"
 #include "gitconstants.h"
 #include "gitplugin.h"
+#include "gitsettings.h"
 #include <QtCore/QTextCodec>
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -122,21 +122,14 @@ VCSBase::BaseAnnotationHighlighter *GitEditor::createAnnotationHighlighter(const
 
 QString GitEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
 {
-    QString errorMessage;
-    // Check for "+++ b/src/plugins/git/giteditor.cpp" (blame and diff)
+        // Check for "+++ b/src/plugins/git/giteditor.cpp" (blame and diff)
     // Go back chunks.
     const QString newFileIndicator = QLatin1String("+++ b/");
     for (QTextBlock  block = inBlock; block.isValid(); block = block.previous()) {
         QString diffFileName = block.text();
         if (diffFileName.startsWith(newFileIndicator)) {
             diffFileName.remove(0, newFileIndicator.size());
-            const QString fileOrDir = source();
-            const QString repo = QFileInfo(fileOrDir).isDir() ?
-                GitClient::findRepositoryForDirectory(fileOrDir) : GitClient::findRepositoryForFile(fileOrDir);
-            const QString absPath = QDir(repo).absoluteFilePath(diffFileName);
-            if (Git::Constants::debug)
-                qDebug() << "fileNameFromDiffSpecification" << repo << diffFileName << absPath;
-            return absPath;
+            return findDiffFile(diffFileName, GitPlugin::instance()->versionControl());
         }
     }
     return QString();
@@ -195,3 +188,4 @@ void GitEditor::commandFinishedGotoLine(bool ok, const QVariant &v)
 
 } // namespace Internal
 } // namespace Git
+

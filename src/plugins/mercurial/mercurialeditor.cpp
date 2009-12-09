@@ -30,7 +30,7 @@
 #include "mercurialeditor.h"
 #include "annotationhighlighter.h"
 #include "constants.h"
-#include "mercurialclient.h"
+#include "mercurialplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <vcsbase/diffhighlighter.h>
@@ -103,10 +103,8 @@ QString MercurialEditor::fileNameFromDiffSpecification(const QTextBlock &diffFil
         QTextFragment fragment = iterator.fragment();
         if(fragment.isValid()) {
             if (fragment.text().startsWith(filechangeId)) {
-                const QFileInfo sourceFile(source());
-                const QDir repository(MercurialClient::findTopLevelForFile(sourceFile));
                 const QString filename = fragment.text().remove(0, filechangeId.size());
-                return repository.absoluteFilePath(filename);
+                return findDiffFile(filename, MercurialPlugin::instance()->versionControl());
             }
         }
     }

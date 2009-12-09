@@ -142,34 +142,10 @@ QString CVSEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) cons
             const int tabIndex = diffFileName.indexOf(QLatin1Char('\t'));
             if (tabIndex != -1)
                 diffFileName.truncate(tabIndex);
-            // Add base dir
-            if (!m_diffBaseDir.isEmpty()) {
-                diffFileName.insert(0, QLatin1Char('/'));
-                diffFileName.insert(0, m_diffBaseDir);
-            }
-
-            if (CVS::Constants::debug)
-                qDebug() << "fileNameFromDiffSpecification" << m_diffBaseDir << diffFileName;
-            return diffFileName;
+            return findDiffFile(diffFileName);
         }
     }
     return QString();
-}
-
-QString CVSEditor::diffBaseDir() const
-{
-    return m_diffBaseDir;
-}
-
-void CVSEditor::setDiffBaseDir(const QString &d)
-{
-    m_diffBaseDir = d;
-}
-
-void CVSEditor::setDiffBaseDir(Core::IEditor *editor, const QString &db)
-{
-    if (CVSEditor *cvsEditor = qobject_cast<CVSEditor*>(editor->widget()))
-        cvsEditor->setDiffBaseDir(db);
 }
 
 }

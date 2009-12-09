@@ -30,6 +30,8 @@
 #include "cvscontrol.h"
 #include "cvsplugin.h"
 
+#include <QtCore/QFileInfo>
+
 using namespace CVS;
 using namespace CVS::Internal;
 
@@ -66,12 +68,14 @@ bool CVSControl::vcsOpen(const QString & /* fileName */)
 
 bool CVSControl::vcsAdd(const QString &fileName)
 {
-    return m_plugin->vcsAdd(fileName);
+    const QFileInfo fi(fileName);
+    return m_plugin->vcsAdd(fi.absolutePath(), fi.fileName());
 }
 
 bool CVSControl::vcsDelete(const QString &fileName)
 {
-    return m_plugin->vcsDelete(fileName);
+    const QFileInfo fi(fileName);
+    return m_plugin->vcsDelete(fi.absolutePath(), fi.fileName());
 }
 
 bool CVSControl::managesDirectory(const QString &directory) const
@@ -93,4 +97,3 @@ void CVSControl::emitFilesChanged(const QStringList &l)
 {
     emit filesChanged(l);
 }
-

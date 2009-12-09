@@ -451,6 +451,12 @@ void SubversionPlugin::diffCommitFiles(const QStringList &files)
     svnDiff(m_commitRepository, files);
 }
 
+static inline void setDiffBaseDirectory(Core::IEditor *editor, const QString &db)
+{
+    if (VCSBase::VCSBaseEditor *ve = qobject_cast<VCSBase::VCSBaseEditor*>(editor->widget()))
+        ve->setDiffBaseDirectory(db);
+}
+
 void SubversionPlugin::svnDiff(const QString &workingDir, const QStringList &files, QString diffname)
 {
     if (Subversion::Constants::debug)
@@ -475,11 +481,13 @@ void SubversionPlugin::svnDiff(const QString &workingDir, const QStringList &fil
         if (Core::IEditor *editor = locateEditor("originalFileName", files.front())) {
             editor->createNew(response.stdOut);
             Core::EditorManager::instance()->activateEditor(editor);
+            setDiffBaseDirectory(editor, workingDir);
             return;
         }
     }
     const QString title = QString::fromLatin1("svn diff %1").arg(diffname);
     Core::IEditor *editor = showOutputInEditor(title, response.stdOut, VCSBase::DiffOutput, source, codec);
+    setDiffBaseDirectory(editor, workingDir);
     if (files.count() == 1)
         editor->setProperty("originalFileName", files.front());
 }

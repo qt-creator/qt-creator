@@ -50,10 +50,6 @@ namespace Utils {
     class ParameterAction;
 }
 
-namespace ProjectExplorer {
-    class ProjectExplorerPlugin;
-}
-
 namespace VCSBase {
     class VCSBaseSubmitEditor;
 }
@@ -73,15 +69,7 @@ struct CVSResponse
     QString stdOut;
     QString stdErr;
     QString message;
-    QString workingDirectory;
 };
-
-/* This plugin differs from the other VCS plugins in that it
- * runs CVS commands from a working directory using relative
- * path specifications, which is a requirement imposed by
- * Tortoise CVS. This has to be taken into account; for example,
- * the diff editor has an additional property specifying the
- * base directory for its interaction to work. */
 
 class CVSPlugin : public VCSBase::VCSBasePlugin
 {
@@ -94,7 +82,7 @@ public:
     virtual bool initialize(const QStringList &arguments, QString *error_message);
     virtual void extensionsInitialized();
 
-    void cvsDiff(const QStringList &files, QString diffname = QString());
+    void cvsDiff(const QString &workingDir, const QStringList &files);
 
     CVSSubmitEditor *openCVSSubmitEditor(const QString &fileName);
 
@@ -102,8 +90,8 @@ public:
     void setSettings(const CVSSettings &s);
 
     // IVersionControl
-    bool vcsAdd(const QString &fileName);
-    bool vcsDelete(const QString &fileName);
+    bool vcsAdd(const QString &workingDir, const QString &fileName);
+    bool vcsDelete(const QString &workingDir, const QString &fileName);
     bool managesDirectory(const QString &directory) const;
     QString findTopLevelForDirectory(const QString &directory) const;
 
@@ -123,7 +111,7 @@ private slots:
     void slotDescribe(const QString &source, const QString &changeNr);
     void updateProject();
     void submitCurrentLog();
-    void diffFiles(const QStringList &);
+    void diffCommitFiles(const QStringList &);
 
 protected:
     virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
@@ -131,15 +119,9 @@ protected:
 
 private:
     bool isCommitEditorOpen() const;
-    QString currentFileName() const;
     Core::IEditor * showOutputInEditor(const QString& title, const QString &output,
                                        int editorType, const QString &source,
                                        QTextCodec *codec);
-    CVSResponse runCVS(const QStringList &arguments,
-                       QStringList fileArguments,
-                       int timeOut,
-                       bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0,
-                       bool mergeStderr = false);
 
     CVSResponse runCVS(const QString &workingDirectory,
                        const QStringList &arguments,
@@ -147,34 +129,33 @@ private:
                        bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0,
                        bool mergeStderr = false);
 
-    void annotate(const QString &file);
+    void annotate(const QString &workingDir, const QString &file);
     bool describe(const QString &source, const QString &changeNr, QString *errorMessage);
+    bool describe(const QString &toplevel, const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &repository, QList<CVS_LogEntry> entries, QString *errorMessage);
-    void filelog(const QString &file);
+    void filelog(const QString &workingDir, const QStringList &files = QStringList());
     bool managesDirectory(const QDir &directory) const;
     QString findTopLevelForDirectoryI(const QString &directory) const;
-    QStringList currentProjectsTopLevels(QString *name = 0) const;
-    void startCommit(const QString &file);
+    void startCommit(const QString &workingDir, const QStringList &files = QStringList());
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();
     inline CVSControl *cvsVersionControl() const;
 
     CVSSettings m_settings;
     QString m_commitMessageFileName;
-
-    ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
+    QString m_commitRepository;
 
     Utils::ParameterAction *m_addAction;
     Utils::ParameterAction *m_deleteAction;
     Utils::ParameterAction *m_revertAction;
-    QAction *m_diffProjectAction;
+    Utils::ParameterAction *m_diffProjectAction;
     Utils::ParameterAction *m_diffCurrentAction;
     QAction *m_commitAllAction;
     Utils::ParameterAction *m_commitCurrentAction;
     Utils::ParameterAction *m_filelogCurrentAction;
     Utils::ParameterAction *m_annotateCurrentAction;
-    QAction *m_statusAction;
-    QAction *m_updateProjectAction;
+    Utils::ParameterAction *m_statusProjectAction;
+    Utils::ParameterAction *m_updateProjectAction;
 
     QAction *m_submitCurrentLogAction;
     QAction *m_submitDiffAction;

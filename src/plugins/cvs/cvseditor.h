@@ -45,13 +45,6 @@ public:
     explicit CVSEditor(const VCSBase::VCSBaseEditorParameters *type,
                             QWidget *parent);
 
-    // Diff mode requires a base directory since CVS commands
-    // are run with relative paths (see plugin).
-    QString diffBaseDir() const;
-    void setDiffBaseDir(const QString &d);
-
-    static void setDiffBaseDir(Core::IEditor *editor, const QString &db);
-
 private:
     virtual QSet<QString> annotationChanges() const;
     virtual QString changeUnderCursor(const QTextCursor &) const;

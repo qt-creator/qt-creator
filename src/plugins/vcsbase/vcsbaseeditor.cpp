@@ -147,6 +147,7 @@ struct VCSBaseEditorPrivate
     QAction *m_describeAction;
     QString m_currentChange;
     QString m_source;
+    QString m_diffBaseDirectory;
 
     QRegExp m_diffFilePattern;
     QList<int> m_diffSections; // line number where this section starts
@@ -208,6 +209,16 @@ QString VCSBaseEditor::source() const
 void VCSBaseEditor::setSource(const  QString &source)
 {
     d->m_source = source;
+}
+
+QString VCSBaseEditor::diffBaseDirectory() const
+{
+    return d->m_diffBaseDirectory;
+}
+
+void VCSBaseEditor::setDiffBaseDirectory(const QString &bd)
+{
+    d->m_diffBaseDirectory = bd;
 }
 
 QTextCodec *VCSBaseEditor::codec() const
@@ -678,18 +689,25 @@ QString VCSBaseEditor::getTitleId(const QString &workingDirectory, const QString
 // Find the complete file from a diff relative specification.
 QString VCSBaseEditor::findDiffFile(const QString &f, Core::IVersionControl *control /* = 0 */) const
 {
-    // Try the file.
+    // Try the file itself, expand to absolute.
     const QFileInfo in(f);
     if (in.isAbsolute())
         return in.isFile() ? f : QString();
     if (in.isFile())
         return in.absoluteFilePath();
-    // Try in source directory
+    // 1) Try base dir
+    const QChar slash = QLatin1Char('/');
+    if (!d->m_diffBaseDirectory.isEmpty()) {
+        const QFileInfo baseFileInfo(d->m_diffBaseDirectory + slash + f);
+        if (baseFileInfo.isFile())
+            return baseFileInfo.absoluteFilePath();
+    }
+    // 2) Try in source (which can be file or directory)
     if (source().isEmpty())
         return QString();
     const QFileInfo sourceInfo(source());
     const QString sourceDir = sourceInfo.isDir() ? sourceInfo.absoluteFilePath() : sourceInfo.absolutePath();
-    const QFileInfo sourceFileInfo(sourceDir + QLatin1Char('/') + f);
+    const QFileInfo sourceFileInfo(sourceDir + slash + f);
     if (sourceFileInfo.isFile())
         return sourceFileInfo.absoluteFilePath();
     // Try to locate via repository.
@@ -698,7 +716,7 @@ QString VCSBaseEditor::findDiffFile(const QString &f, Core::IVersionControl *con
     const QString topLevel = control->findTopLevelForDirectory(sourceDir);
     if (topLevel.isEmpty())
         return QString();
-    const QFileInfo topLevelFileInfo(topLevel + QLatin1Char('/') + f);
+    const QFileInfo topLevelFileInfo(topLevel + slash + f);
     if (topLevelFileInfo.isFile())
         return topLevelFileInfo.absoluteFilePath();
     return QString();
