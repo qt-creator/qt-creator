@@ -122,19 +122,7 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     m_layout->setColumnMinimumWidth(0, ICON_SIZE + 4);
     m_layout->setSpacing(0);
 
-    // Add horizontal space to the left of our widget:
-    QHBoxLayout *hbox = new QHBoxLayout;
-    hbox->setMargin(0);
-    hbox->setSpacing(0);
-
-    hbox->addWidget(m_root);
-    hbox->addStretch(10);
-
-    // create a widget to hold the scrollarea:
-    QWidget * scrollArea = new QWidget();
-    scrollArea->setLayout(hbox);
-
-    setWidget(scrollArea);
+    setWidget(m_root);
     setFrameStyle(QFrame::NoFrame);
     setWidgetResizable(true);
 }
