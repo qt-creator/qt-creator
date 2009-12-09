@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "completionsettingspage.h"
-#include "cppcodecompletion.h"
 #include "ui_completionsettingspage.h"
 
 #include <coreplugin/icore.h>
@@ -63,7 +62,6 @@ QString CompletionSettingsPage::trName() const
 
 QString CompletionSettingsPage::category() const
 {
-
     return QLatin1String(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
 }
 
@@ -77,11 +75,24 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
 
-    m_page->caseSensitive->setChecked(m_completion->caseSensitivity() == Qt::CaseSensitive);
+    int caseSensitivityIndex;
+    switch (m_completion->caseSensitivity()) {
+    case CppCodeCompletion::CaseSensitive:
+        caseSensitivityIndex = 0;
+        break;
+    case CppCodeCompletion::CaseInsensitive:
+        caseSensitivityIndex = 1;
+        break;
+    case CppCodeCompletion::FirstLetterCaseSensitive:
+        caseSensitivityIndex = 2;
+        break;
+    }
+
+    m_page->caseSensitivity->setCurrentIndex(caseSensitivityIndex);
     m_page->autoInsertBrackets->setChecked(m_completion->autoInsertBrackets());
     m_page->partiallyComplete->setChecked(m_completion->isPartialCompletionEnabled());
     if (m_searchKeywords.isEmpty()) {
-        QTextStream(&m_searchKeywords) << m_page->caseSensitive->text()
+        QTextStream(&m_searchKeywords) << m_page->caseSensitivityLabel->text()
                 << ' ' << m_page->autoInsertBrackets->text()
                 << ' ' << m_page->partiallyComplete->text();
         m_searchKeywords.remove(QLatin1Char('&'));
@@ -91,8 +102,7 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
 
 void CompletionSettingsPage::apply()
 {
-    m_completion->setCaseSensitivity(
-            m_page->caseSensitive->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    m_completion->setCaseSensitivity(caseSensitivity());
     m_completion->setAutoInsertBrackets(m_page->autoInsertBrackets->isChecked());
     m_completion->setPartialCompletionEnabled(m_page->partiallyComplete->isChecked());
 }
@@ -100,4 +110,16 @@ void CompletionSettingsPage::apply()
 bool CompletionSettingsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+}
+
+CppCodeCompletion::CaseSensitivity CompletionSettingsPage::caseSensitivity() const
+{
+    switch (m_page->caseSensitivity->currentIndex()) {
+    case 0: // Full
+        return CppCodeCompletion::CaseSensitive;
+    case 1: // None
+        return CppCodeCompletion::CaseInsensitive;
+    default: // First letter
+        return CppCodeCompletion::FirstLetterCaseSensitive;
+    }
 }

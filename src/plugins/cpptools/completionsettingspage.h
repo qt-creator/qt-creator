@@ -32,14 +32,14 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include "cppcodecompletion.h"
+
 QT_BEGIN_NAMESPACE
 class Ui_CompletionSettingsPage;
 QT_END_NAMESPACE
 
 namespace CppTools {
 namespace Internal {
-
-class CppCodeCompletion;
 
 class CompletionSettingsPage : public Core::IOptionsPage
 {
@@ -60,6 +60,8 @@ public:
     virtual bool matches(const QString &) const;
 
 private:
+    CppCodeCompletion::CaseSensitivity caseSensitivity() const;
+
     CppCodeCompletion *m_completion;
     Ui_CompletionSettingsPage *m_page;
     QString m_searchKeywords;

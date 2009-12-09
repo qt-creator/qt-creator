@@ -76,8 +76,14 @@ public:
 
     QIcon iconForSymbol(CPlusPlus::Symbol *symbol) const;
 
-    Qt::CaseSensitivity caseSensitivity() const;
-    void setCaseSensitivity(Qt::CaseSensitivity caseSensitivity);
+    enum CaseSensitivity {
+        CaseInsensitive,
+        CaseSensitive,
+        FirstLetterCaseSensitive
+    };
+
+    CaseSensitivity caseSensitivity() const;
+    void setCaseSensitivity(CaseSensitivity caseSensitivity);
 
     bool autoInsertBrackets() const;
     void setAutoInsertBrackets(bool autoInsertBrackets);
@@ -136,7 +142,7 @@ private:
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;     // Position of the cursor from which completion started
 
-    Qt::CaseSensitivity m_caseSensitivity;
+    CaseSensitivity m_caseSensitivity;
     bool m_autoInsertBrackets;
     bool m_partialCompletionEnabled;
     bool m_forcedCompletion;

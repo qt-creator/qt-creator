@@ -476,7 +476,7 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
       m_manager(manager),
       m_editor(0),
       m_startPosition(-1),
-      m_caseSensitivity(Qt::CaseSensitive),
+      m_caseSensitivity(FirstLetterCaseSensitive),
       m_autoInsertBrackets(true),
       m_partialCompletionEnabled(true),
       m_forcedCompletion(false),
@@ -490,12 +490,12 @@ QIcon CppCodeCompletion::iconForSymbol(Symbol *symbol) const
     return m_icons.iconForSymbol(symbol);
 }
 
-Qt::CaseSensitivity CppCodeCompletion::caseSensitivity() const
+CppCodeCompletion::CaseSensitivity CppCodeCompletion::caseSensitivity() const
 {
     return m_caseSensitivity;
 }
 
-void CppCodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
+void CppCodeCompletion::setCaseSensitivity(CaseSensitivity caseSensitivity)
 {
     m_caseSensitivity = caseSensitivity;
 }
@@ -1438,20 +1438,29 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
              *
              * Meaning it allows any sequence of lower-case characters to preceed an
              * upper-case character. So for example gAC matches getActionController.
+             *
+             * It also implements the first-letter-only case sensitivity.
              */
             QString keyRegExp;
             keyRegExp += QLatin1Char('^');
             bool first = true;
             foreach (const QChar &c, key) {
-                if (c.isUpper() && !first) {
+                if (c.isUpper() && !first)
                     keyRegExp += QLatin1String("[a-z0-9_]*");
-                    keyRegExp += c;
+
+                if (m_caseSensitivity == FirstLetterCaseSensitive && !first) {
+                    keyRegExp += QLatin1Char('[');
+                    keyRegExp += QRegExp::escape(c.toLower());
+                    keyRegExp += QRegExp::escape(c.toUpper());
+                    keyRegExp += QLatin1Char(']');
                 } else {
                     keyRegExp += QRegExp::escape(c);
                 }
+
                 first = false;
             }
-            const QRegExp regExp(keyRegExp, m_caseSensitivity);
+            const QRegExp regExp(keyRegExp, (m_caseSensitivity == CaseInsensitive)
+                                 ? Qt::CaseInsensitive : Qt::CaseSensitive);
 
             foreach (TextEditor::CompletionItem item, m_completions) {
                 if (regExp.indexIn(item.text) == 0) {
