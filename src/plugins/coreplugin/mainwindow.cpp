@@ -1161,7 +1161,6 @@ void MainWindow::writeSettings()
     m_settings->endGroup();
 
     m_fileManager->saveRecentFiles();
-    m_viewManager->saveSettings(m_settings);
     m_actionManager->saveSettings(m_settings);
     m_editorManager->saveSettings();
     m_navigationWidget->saveSettings(m_settings);

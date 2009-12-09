@@ -51,7 +51,7 @@ ViewManager::ViewManager(MainWindow *mainWnd)
   : QObject(mainWnd),
     m_mainWnd(mainWnd)
 {
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i <= StatusBarWidget::Last; ++i) {
         QWidget *w = new QWidget();
         m_mainWnd->statusBar()->insertPermanentWidget(i, w);
         w->setLayout(new QHBoxLayout);
@@ -59,8 +59,8 @@ ViewManager::ViewManager(MainWindow *mainWnd)
         w->layout()->setMargin(0);
         m_statusBarWidgets.append(w);
     }
-    QLabel *l = new QLabel();
-    m_mainWnd->statusBar()->insertPermanentWidget(3, l, 1);
+    m_mainWnd->statusBar()->insertPermanentWidget(StatusBarWidget::Last+1,
+                                                  new QLabel(), 1);
 }
 
 ViewManager::~ViewManager()
@@ -85,7 +85,6 @@ void ViewManager::objectAdded(QObject *obj)
     viewWidget = view->widget();
     m_statusBarWidgets.at(view->position())->layout()->addWidget(viewWidget);
 
-    m_viewMap.insert(view, viewWidget);
     m_mainWnd->addContextObject(view);
 }
 
@@ -99,11 +98,4 @@ void ViewManager::aboutToRemoveObject(QObject *obj)
 
 void ViewManager::extensionsInitalized()
 {
-    QSettings *settings = m_mainWnd->settings();
-    m_mainWnd->restoreState(settings->value(QLatin1String("ViewGroup_Default"), QByteArray()).toByteArray());
-}
-
-void ViewManager::saveSettings(QSettings *settings)
-{
-    settings->setValue(QLatin1String("ViewGroup_Default"), m_mainWnd->saveState());
 }

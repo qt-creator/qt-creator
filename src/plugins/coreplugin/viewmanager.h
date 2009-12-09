@@ -60,15 +60,12 @@ public:
 
     void init();
     void extensionsInitalized();
-    void saveSettings(QSettings *settings);
 
 private slots:
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);
 
 private:
-    QMap<Core::StatusBarWidget *, QWidget *> m_viewMap;
-
     MainWindow *m_mainWnd;
     QList<QWidget *> m_statusBarWidgets;
 };
