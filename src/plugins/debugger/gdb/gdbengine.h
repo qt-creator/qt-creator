@@ -328,6 +328,7 @@ private: ////////// View & Data Stuff //////////
     void breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt);
     void sendInsertBreakpoint(int index);
     QString breakLocation(const QString &file) const;
+    void reloadBreakListInternal();
 
     //
     // Modules specific stuff
@@ -379,8 +380,11 @@ private: ////////// View & Data Stuff //////////
     QMap<QString, QString> m_shortToFullName;
     QMap<QString, QString> m_fullToShortName;
 
+    void invalidateSourcesList();
     bool m_sourcesListOutdated;
     bool m_sourcesListUpdating;
+    bool m_breakListOutdated;
+    bool m_breakListUpdating;
 
     //
     // Stack specific stuff

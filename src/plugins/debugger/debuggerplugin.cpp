@@ -360,6 +360,7 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(MaximalStackDepth), 
         m_ui.spinBoxMaximalStackDepth);
     m_group.insert(theDebuggerAction(LogTimeStamps), 0);
+    m_group.insert(theDebuggerAction(UsePreciseBreakpoints), 0);
 
 #ifdef USE_REVERSE_DEBUGGING
     m_ui.checkBoxEnableReverseDebugging->hide();

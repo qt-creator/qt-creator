@@ -248,6 +248,14 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setText(tr("Synchronize breakpoints"));
     instance->insertItem(SynchronizeBreakpoints, item);
 
+    item = new SavedAction(instance);
+    item->setText(tr("Use precise breakpoints"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    item->setSettingsKey(debugModeGroup, QLatin1String("UsePreciseBreakpoints"));
+    instance->insertItem(UsePreciseBreakpoints, item);
+
     //
     // Settings
     //
