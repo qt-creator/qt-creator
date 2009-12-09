@@ -45,7 +45,6 @@
 using namespace ProjectExplorer;
 
 EnvironmentModel::EnvironmentModel()
-    : m_mergedEnvironments(false)
 {}
 
 EnvironmentModel::~EnvironmentModel()
@@ -53,10 +52,7 @@ EnvironmentModel::~EnvironmentModel()
 
 QString EnvironmentModel::indexToVariable(const QModelIndex &index) const
 {
-    if (m_mergedEnvironments)
-        return m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row());
-    else
-        return m_items.at(index.row()).name;
+    return m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row());
 }
 
 void EnvironmentModel::updateResultEnvironment()
@@ -77,27 +73,12 @@ void EnvironmentModel::setBaseEnvironment(const ProjectExplorer::Environment &en
     reset();
 }
 
-void EnvironmentModel::setMergedEnvironments(bool b)
-{
-    if (m_mergedEnvironments == b)
-        return;
-    m_mergedEnvironments = b;
-    if (b)
-        updateResultEnvironment();
-    reset();
-}
-
-bool EnvironmentModel::mergedEnvironments()
-{
-    return m_mergedEnvironments;
-}
-
 int EnvironmentModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
 
-    return m_mergedEnvironments ? m_resultEnvironment.size() : m_items.count();
+    return m_resultEnvironment.size();
 }
 int EnvironmentModel::columnCount(const QModelIndex &parent) const
 {
@@ -116,41 +97,27 @@ bool EnvironmentModel::changes(const QString &name) const
 QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
 {
     if ((role == Qt::DisplayRole || role == Qt::EditRole) && index.isValid()) {
-        if ((m_mergedEnvironments && index.row() >= m_resultEnvironment.size()) ||
-           (!m_mergedEnvironments && index.row() >= m_items.count())) {
+        if (index.row() >= m_resultEnvironment.size()) {
             return QVariant();
         }
 
         if (index.column() == 0) {
-            if (m_mergedEnvironments) {
-                return m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row());
-            } else {
-                return m_items.at(index.row()).name;
-            }
+            return m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row());
         } else if (index.column() == 1) {
-            if (m_mergedEnvironments) {
-                if (role == Qt::EditRole) {
-                    int pos = findInChanges(indexToVariable(index));
-                    if (pos != -1)
-                        return m_items.at(pos).value;
-                }
-                return m_resultEnvironment.value(m_resultEnvironment.constBegin() + index.row());
-            } else {
-                if (m_items.at(index.row()).unset)
-                    return tr("<UNSET>");
-                else
-                    return m_items.at(index.row()).value;
+            if (role == Qt::EditRole) {
+                int pos = findInChanges(indexToVariable(index));
+                if (pos != -1)
+                    return m_items.at(pos).value;
             }
+            return m_resultEnvironment.value(m_resultEnvironment.constBegin() + index.row());
         }
     }
     if (role == Qt::FontRole) {
-        if (m_mergedEnvironments) {
-            // check wheter this environment variable exists in m_items
-            if (changes(m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row()))) {
-                QFont f;
-                f.setBold(true);
-                return QVariant(f);
-            }
+        // check wheter this environment variable exists in m_items
+        if (changes(m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row()))) {
+            QFont f;
+            f.setBold(true);
+            return QVariant(f);
         }
         return QFont();
     }
@@ -250,17 +217,13 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
                 return false;
 
             EnvironmentItem old("", "");
-            if (m_mergedEnvironments) {
-                int pos = findInChanges(indexToVariable(index));
-                if (pos != -1) {
-                    old = m_items.at(pos);
-                } else {
-                    old.name = m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row());
-                    old.value = m_resultEnvironment.value(m_resultEnvironment.constBegin() + index.row());
-                    old.unset = false;
-                }
+            int pos = findInChanges(indexToVariable(index));
+            if (pos != -1) {
+                old = m_items.at(pos);
             } else {
-                old = m_items.at(index.row());
+                old.name = m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row());
+                old.value = m_resultEnvironment.value(m_resultEnvironment.constBegin() + index.row());
+                old.unset = false;
             }
 
             if (changes(old.name))
@@ -269,27 +232,19 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
             addVariable(old);
             return true;
         } else if (index.column() == 1) {
-            if (m_mergedEnvironments) {
-                const QString &name = indexToVariable(index);
-                int pos = findInChanges(name);
-                if (pos != -1) {
-                    m_items[pos].value = value.toString();
-                    m_items[pos].unset = false;
-                    updateResultEnvironment();
-                    emit dataChanged(index, index);
-                    emit userChangesChanged();
-                    return true;
-                }
-                // not found in m_items, so add it as a new variable
-                addVariable(EnvironmentItem(name, value.toString()));
-                return true;
-            } else {
-                m_items[index.row()].value = value.toString();
-                m_items[index.row()].unset = false;
+            const QString &name = indexToVariable(index);
+            int pos = findInChanges(name);
+            if (pos != -1) {
+                m_items[pos].value = value.toString();
+                m_items[pos].unset = false;
+                updateResultEnvironment();
                 emit dataChanged(index, index);
                 emit userChangesChanged();
                 return true;
             }
+            // not found in m_items, so add it as a new variable
+            addVariable(EnvironmentItem(name, value.toString()));
+            return true;
         }
     }
     return false;
@@ -298,78 +253,54 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
 QModelIndex EnvironmentModel::addVariable()
 {
     const QString name = tr("<VARIABLE>");
-    if (m_mergedEnvironments) {
-        int i = findInResult(name);
-        if (i != -1)
-            return index(i, 0, QModelIndex());
-    } else {
-        int i = findInChanges(name);
-        if (i != -1)
-            return index(i, 0, QModelIndex());
-    }
+    int i = findInResult(name);
+    if (i != -1)
+        return index(i, 0, QModelIndex());
     // Don't exist, really add them
     return addVariable(EnvironmentItem(name, tr("<VALUE>")));
 }
 
 QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
 {
-    if (m_mergedEnvironments) {
-        bool existsInBaseEnvironment = (m_baseEnvironment.find(item.name) != m_baseEnvironment.constEnd());
-        int rowInResult;
-        if (existsInBaseEnvironment)
-            rowInResult = findInResult(item.name);
-        else
-            rowInResult = findInResultInsertPosition(item.name);
-        int rowInChanges = findInChangesInsertPosition(item.name);
+    bool existsInBaseEnvironment = (m_baseEnvironment.find(item.name) != m_baseEnvironment.constEnd());
+    int rowInResult;
+    if (existsInBaseEnvironment)
+        rowInResult = findInResult(item.name);
+    else
+        rowInResult = findInResultInsertPosition(item.name);
+    int rowInChanges = findInChangesInsertPosition(item.name);
 
-        //qDebug() << "addVariable " << item.name << existsInBaseEnvironment << rowInResult << rowInChanges;
+    //qDebug() << "addVariable " << item.name << existsInBaseEnvironment << rowInResult << rowInChanges;
 
-        if (existsInBaseEnvironment) {
-            m_items.insert(rowInChanges, item);
-            updateResultEnvironment();
-            emit dataChanged(index(rowInResult, 0, QModelIndex()), index(rowInResult, 1, QModelIndex()));
-            emit userChangesChanged();
-            return index(rowInResult, 0, QModelIndex());
-        } else {
-            beginInsertRows(QModelIndex(), rowInResult, rowInResult);
-            m_items.insert(rowInChanges, item);
-            updateResultEnvironment();
-            endInsertRows();
-            emit userChangesChanged();
-            return index(rowInResult, 0, QModelIndex());
-        }
+    if (existsInBaseEnvironment) {
+        m_items.insert(rowInChanges, item);
+        updateResultEnvironment();
+        emit dataChanged(index(rowInResult, 0, QModelIndex()), index(rowInResult, 1, QModelIndex()));
+        emit userChangesChanged();
+        return index(rowInResult, 0, QModelIndex());
     } else {
-        int newPos = findInChangesInsertPosition(item.name);
-        beginInsertRows(QModelIndex(), newPos, newPos);
-        m_items.insert(newPos, item);
+        beginInsertRows(QModelIndex(), rowInResult, rowInResult);
+        m_items.insert(rowInChanges, item);
+        updateResultEnvironment();
         endInsertRows();
         emit userChangesChanged();
-        return index(newPos, 0, QModelIndex());
+        return index(rowInResult, 0, QModelIndex());
     }
 }
 
 void EnvironmentModel::removeVariable(const QString &name)
 {
-    if (m_mergedEnvironments) {
-        int rowInResult = findInResult(name);
-        int rowInChanges = findInChanges(name);
-        bool existsInBaseEnvironment = m_baseEnvironment.find(name) != m_baseEnvironment.constEnd();
-        if (existsInBaseEnvironment) {
-            m_items.removeAt(rowInChanges);
-            updateResultEnvironment();
-            emit dataChanged(index(rowInResult, 0, QModelIndex()), index(rowInResult, 1, QModelIndex()));
-            emit userChangesChanged();
-        } else {
-            beginRemoveRows(QModelIndex(), rowInResult, rowInResult);
-            m_items.removeAt(rowInChanges);
-            updateResultEnvironment();
-            endRemoveRows();
-            emit userChangesChanged();
-        }
+    int rowInResult = findInResult(name);
+    int rowInChanges = findInChanges(name);
+    bool existsInBaseEnvironment = m_baseEnvironment.find(name) != m_baseEnvironment.constEnd();
+    if (existsInBaseEnvironment) {
+        m_items.removeAt(rowInChanges);
+        updateResultEnvironment();
+        emit dataChanged(index(rowInResult, 0, QModelIndex()), index(rowInResult, 1, QModelIndex()));
+        emit userChangesChanged();
     } else {
-        int removePos = findInChanges(name);
-        beginRemoveRows(QModelIndex(), removePos, removePos);
-        m_items.removeAt(removePos);
+        beginRemoveRows(QModelIndex(), rowInResult, rowInResult);
+        m_items.removeAt(rowInChanges);
         updateResultEnvironment();
         endRemoveRows();
         emit userChangesChanged();
@@ -378,31 +309,22 @@ void EnvironmentModel::removeVariable(const QString &name)
 
 void EnvironmentModel::unset(const QString &name)
 {
-    if (m_mergedEnvironments) {
-        int row = findInResult(name);
-        // look in m_items for the variable
-        int pos = findInChanges(name);
-        if (pos != -1) {
-            m_items[pos].unset = true;
-            updateResultEnvironment();
-            emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
-            emit userChangesChanged();
-            return;
-        }
-        pos = findInChangesInsertPosition(name);
-        m_items.insert(pos, EnvironmentItem(name, ""));
+    int row = findInResult(name);
+    // look in m_items for the variable
+    int pos = findInChanges(name);
+    if (pos != -1) {
         m_items[pos].unset = true;
         updateResultEnvironment();
         emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
         emit userChangesChanged();
         return;
-    } else {
-        int pos = findInChanges(name);
-        m_items[pos].unset = true;
-        emit dataChanged(index(pos, 1, QModelIndex()), index(pos, 1, QModelIndex()));
-        emit userChangesChanged();
-        return;
     }
+    pos = findInChangesInsertPosition(name);
+    m_items.insert(pos, EnvironmentItem(name, ""));
+    m_items[pos].unset = true;
+    updateResultEnvironment();
+    emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
+    emit userChangesChanged();
 }
 
 bool EnvironmentModel::isUnset(const QString &name)
@@ -439,7 +361,6 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     : QWidget(parent)
 {
     m_model = new EnvironmentModel();
-    m_model->setMergedEnvironments(true);
     connect(m_model, SIGNAL(userChangesChanged()),
             this, SIGNAL(userChangesChanged()));
 
@@ -523,16 +444,6 @@ void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &e
     m_model->setBaseEnvironment(env);
 }
 
-void EnvironmentWidget::setMergedEnvironments(bool b)
-{
-    m_model->setMergedEnvironments(b);
-}
-
-bool EnvironmentWidget::mergedEnvironments()
-{
-    return m_model->mergedEnvironments();
-}
-
 QList<EnvironmentItem> EnvironmentWidget::userChanges() const
 {
     return m_model->userChanges();
@@ -590,11 +501,10 @@ void EnvironmentWidget::removeEnvironmentButtonClicked()
 
 // unset in Merged Environment Mode means, unset if it comes from the base environment
 // or remove when it is just a change we added
-// unset in changes view, means just unset
 void EnvironmentWidget::unsetEnvironmentButtonClicked()
 {
     const QString &name = m_model->indexToVariable(m_environmentTreeView->currentIndex());
-    if (!m_model->isInBaseEnvironment(name) && m_model->mergedEnvironments())
+    if (!m_model->isInBaseEnvironment(name))
         m_model->removeVariable(name);
     else
         m_model->unset(name);
@@ -606,16 +516,11 @@ void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &curren
     Q_UNUSED(previous)
     if (current.isValid()) {
         m_editButton->setEnabled(true);
-        if (m_model->mergedEnvironments()) {
-            const QString &name = m_model->indexToVariable(current);
-            bool modified = m_model->isInBaseEnvironment(name) && m_model->changes(name);
-            bool unset = m_model->isUnset(name);
-            m_removeButton->setEnabled(modified || unset);
-            m_unsetButton->setEnabled(!unset);
-        } else {
-            m_removeButton->setEnabled(true);
-            m_unsetButton->setEnabled(!m_model->isUnset(m_model->indexToVariable(current)));
-        }
+        const QString &name = m_model->indexToVariable(current);
+        bool modified = m_model->isInBaseEnvironment(name) && m_model->changes(name);
+        bool unset = m_model->isUnset(name);
+        m_removeButton->setEnabled(modified || unset);
+        m_unsetButton->setEnabled(!unset);
     } else {
         m_editButton->setEnabled(false);
         m_removeButton->setEnabled(false);

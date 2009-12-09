@@ -58,8 +58,6 @@ public:
     EnvironmentModel();
     ~EnvironmentModel();
     void setBaseEnvironment(const ProjectExplorer::Environment &env);
-    void setMergedEnvironments(bool b);
-    bool mergedEnvironments();
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
 
@@ -93,7 +91,6 @@ private:
     ProjectExplorer::Environment m_baseEnvironment;
     ProjectExplorer::Environment m_resultEnvironment;
     QList<EnvironmentItem> m_items;
-    bool m_mergedEnvironments;
 };
 
 class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget
@@ -104,9 +101,6 @@ public:
     ~EnvironmentWidget();
 
     void setBaseEnvironment(const ProjectExplorer::Environment &env);
-
-    void setMergedEnvironments(bool b);
-    bool mergedEnvironments();
 
     QList<EnvironmentItem> userChanges() const;
     void setUserChanges(QList<EnvironmentItem> list);
@@ -134,8 +128,6 @@ private:
     QPushButton *m_addButton;
     QPushButton *m_removeButton;
     QPushButton *m_unsetButton;
-
-
 };
 
 } // namespace ProjectExplorer
