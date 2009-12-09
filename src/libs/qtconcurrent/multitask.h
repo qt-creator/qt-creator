@@ -95,7 +95,7 @@ public:
         loop->exec();
         futureInterface.reportFinished();
         QThreadPool::globalInstance()->reserveThread();
-        qDeleteAll(watchers.values());
+        qDeleteAll(watchers);
         delete selfWatcher;
         delete loop;
     }
@@ -113,8 +113,7 @@ protected:
         if (finished.contains(watcher))
             finished[watcher] = true;
         bool allFinished = true;
-        const QList<bool> finishedValues = finished.values();
-        foreach (bool isFinished, finishedValues) {
+        foreach (bool isFinished, finished) {
             if (!isFinished) {
                 allFinished = false;
                 break;
@@ -146,8 +145,7 @@ private:
     void updateProgress()
     {
         int progressSum = 0;
-        const QList<QFutureWatcher<R> *> watchersValues = watchers.values();
-        foreach (QFutureWatcher<R> *watcher, watchersValues) {
+        foreach (QFutureWatcher<R> *watcher, watchers) {
             if (watcher->progressMinimum() == watcher->progressMaximum()) {
                 if (watcher->future().isFinished() && !watcher->future().isCanceled())
                     progressSum += 100;
@@ -161,8 +159,7 @@ private:
     void updateProgressText()
     {
         QString text;
-        const QList<QFutureWatcher<R> *> watchersValues = watchers.values();
-        foreach (QFutureWatcher<R> *watcher, watchersValues) {
+        foreach (QFutureWatcher<R> *watcher, watchers) {
             if (!watcher->progressText().isEmpty())
                 text += watcher->progressText() + "\n";
         }

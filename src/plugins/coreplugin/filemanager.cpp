@@ -390,8 +390,8 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
 
             // There can be several FileInterfaces pointing to the same file
             // Select one that is not readonly.
-            if (!(modifiedFilesMap.values().contains(name)
-                && file->isReadOnly()))
+            if (!(modifiedFilesMap.key(name, 0)
+                    && file->isReadOnly()))
                 modifiedFilesMap.insert(file, name);
         }
     }

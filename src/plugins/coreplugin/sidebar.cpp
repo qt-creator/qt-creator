@@ -68,7 +68,7 @@ SideBar::SideBar(QList<SideBarItem*> itemList,
 
 SideBar::~SideBar()
 {
-    qDeleteAll(m_itemMap.values());
+    qDeleteAll(m_itemMap);
 }
 
 QStringList SideBar::availableItems() const

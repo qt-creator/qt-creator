@@ -194,9 +194,10 @@ void ModeManager::addAction(Command *command, int priority, QMenu *menu)
 
     // Count the number of commands with a higher priority
     int index = 0;
-    foreach (int p, m_actions.values())
+    foreach (int p, m_actions) {
         if (p > priority)
             ++index;
+    }
 
     m_actionBar->insertAction(index, command->action(), menu);
 }

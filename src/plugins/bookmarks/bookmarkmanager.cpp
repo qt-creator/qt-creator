@@ -329,7 +329,7 @@ BookmarkManager::~BookmarkManager()
     end = m_bookmarksMap.end();
     for (it = m_bookmarksMap.begin(); it != end; ++it) {
         FileNameBookmarksMap *bookmarks = it.value();
-        qDeleteAll(bookmarks->values());
+        qDeleteAll(*bookmarks);
         delete bookmarks;
     }
 }

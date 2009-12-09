@@ -34,6 +34,7 @@
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <QtCore/QAbstractItemModel>
+#include <QtCore/QMultiMap>
 #include <QtCore/QList>
 #include <QtGui/QListView>
 #include <QtGui/QPixmap>

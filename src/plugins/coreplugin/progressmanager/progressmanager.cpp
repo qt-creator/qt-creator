@@ -316,7 +316,7 @@ void ProgressManagerPrivate::taskFinished()
     m_runningTasks.remove(task);
     delete task;
 
-    if (!m_runningTasks.values().contains(type)) {
+    if (!m_runningTasks.key(type, 0)) {
         emit allTasksFinished(type);
     }
 }
