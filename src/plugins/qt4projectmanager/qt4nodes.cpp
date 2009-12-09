@@ -202,7 +202,7 @@ namespace Internal {
                 i.next();
                 i.value()->compress();
                 if (i.value()->files.isEmpty() && i.value()->subnodes.size() == 1) {
-                    QString key = i.value()->subnodes.keys().at(0);
+                    QString key = i.value()->subnodes.begin().key();
                     newSubnodes.insert(i.key()+separator+key, i.value()->subnodes.value(key));
                     i.value()->subnodes.clear();
                     delete i.value();
