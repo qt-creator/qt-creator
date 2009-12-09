@@ -94,9 +94,6 @@ on slow machines. In this case the value should be increased.</string>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
-        <property name="specialValueText">
-         <string>&lt;unlimited&gt;</string>
-        </property>
         <property name="minimum">
          <number>20</number>
         </property>

@@ -195,8 +195,8 @@ GdbEngine::GdbEngine(DebuggerManager *manager) :
 
     m_commandTimer = new QTimer(this);
     m_commandTimer->setSingleShot(true);
-    m_commandTimer->setInterval(
-        1000 * qMin(20, theDebuggerAction(GdbWatchdogTimeout)->value().toInt()));
+    QVariant timeOut = theDebuggerAction(GdbWatchdogTimeout)->value();
+    m_commandTimer->setInterval(1000 * qMax(20, timeOut.toInt()));
     connect(m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
 
     // Needs no resetting in initializeVariables()
