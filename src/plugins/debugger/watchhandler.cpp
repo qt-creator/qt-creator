@@ -1048,7 +1048,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
         foreach (const WatchItem &data, list)
             qDebug() << data.toString();
         qDebug() << "NEW LIST: ";
-        foreach (const WatchItem &data, newList.values())
+        foreach (const WatchItem &data, newList)
             qDebug() << data.toString();
         qDebug() << "P->CHILDREN: ";
         foreach (const WatchItem *item, parent->children)
