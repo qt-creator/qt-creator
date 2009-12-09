@@ -34,9 +34,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QHash>
 #include <QtCore/QSet>
-#include <QtGui/QStandardItem>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QTreeView>
+#include <QtCore/QAbstractItemModel>
 #include <QtScript/QScriptValue>
 
 QT_BEGIN_NAMESPACE

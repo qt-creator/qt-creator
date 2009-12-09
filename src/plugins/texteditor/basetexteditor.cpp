@@ -1504,12 +1504,22 @@ bool BaseTextEditor::codeFoldingSupported() const
 
 void BaseTextEditor::setMouseNavigationEnabled(bool b)
 {
-    d->m_mouseNavigationEnabled = b;
+    d->m_behaviorSettings.m_mouseNavigation = b;
 }
 
 bool BaseTextEditor::mouseNavigationEnabled() const
 {
-    return d->m_mouseNavigationEnabled;
+    return d->m_behaviorSettings.m_mouseNavigation;
+}
+
+void BaseTextEditor::setScrollWheelZoomingEnabled(bool b)
+{
+    d->m_behaviorSettings.m_scrollWheelZooming = b;
+}
+
+bool BaseTextEditor::scrollWheelZoomingEnabled() const
+{
+    return d->m_behaviorSettings.m_scrollWheelZooming;
 }
 
 void BaseTextEditor::setRevisionsVisible(bool b)
@@ -1547,7 +1557,6 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_marksVisible(false),
     m_codeFoldingVisible(false),
     m_codeFoldingSupported(false),
-    m_mouseNavigationEnabled(true),
     m_revisionsVisible(false),
     m_lineNumbersVisible(true),
     m_highlightCurrentLine(true),
@@ -3110,7 +3119,7 @@ void BaseTextEditor::mousePressEvent(QMouseEvent *e)
 
 void BaseTextEditor::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (d->m_mouseNavigationEnabled
+    if (mouseNavigationEnabled()
         && d->m_linkPressed
         && e->modifiers() & Qt::ControlModifier
         && !(e->modifiers() & Qt::ShiftModifier)
@@ -3516,8 +3525,8 @@ void BaseTextEditor::handleBackspaceKey()
 
 void BaseTextEditor::wheelEvent(QWheelEvent *e)
 {
-  d->clearVisibleCollapsedBlock();
-    if (e->modifiers() & Qt::ControlModifier) {
+    d->clearVisibleCollapsedBlock();
+    if (scrollWheelZoomingEnabled() && e->modifiers() & Qt::ControlModifier) {
         const int delta = e->delta();
         if (delta < 0)
             zoomOut();
@@ -3644,7 +3653,7 @@ void BaseTextEditor::updateLink(QMouseEvent *e)
 {
     bool linkFound = false;
 
-    if (d->m_mouseNavigationEnabled && e->modifiers() & Qt::ControlModifier) {
+    if (mouseNavigationEnabled() && e->modifiers() & Qt::ControlModifier) {
         // Link emulation behaviour for 'go to definition'
         const QTextCursor cursor = cursorForPosition(e->pos());
 
@@ -4688,6 +4697,7 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
 void BaseTextEditor::setBehaviorSettings(const TextEditor::BehaviorSettings &bs)
 {
     setMouseNavigationEnabled(bs.m_mouseNavigation);
+    setScrollWheelZoomingEnabled(bs.m_scrollWheelZooming);
 }
 
 void BaseTextEditor::setStorageSettings(const StorageSettings &storageSettings)

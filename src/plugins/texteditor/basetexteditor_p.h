@@ -31,6 +31,7 @@
 #define BASETEXTEDITOR_P_H
 
 #include "basetexteditor.h"
+#include "behaviorsettings.h"
 #include "displaysettings.h"
 #include "texteditoroverlay.h"
 #include "fontsettings.h"
@@ -181,8 +182,10 @@ public:
     // end parentheses matcher
 
     QWidget *m_extraArea;
+
     DisplaySettings m_displaySettings;
-    TextEditor::FontSettings m_fontSettings;
+    FontSettings m_fontSettings;
+    BehaviorSettings m_behaviorSettings;
 
     int extraAreaSelectionAnchorBlockNumber;
     int extraAreaToggleMarkBlockNumber;
@@ -205,7 +208,6 @@ public:
     uint m_marksVisible : 1;
     uint m_codeFoldingVisible : 1;
     uint m_codeFoldingSupported : 1;
-    uint m_mouseNavigationEnabled : 1;
     uint m_revisionsVisible : 1;
     uint m_lineNumbersVisible : 1;
     uint m_highlightCurrentLine : 1;

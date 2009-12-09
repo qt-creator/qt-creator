@@ -360,6 +360,9 @@ public:
     void setMouseNavigationEnabled(bool b);
     bool mouseNavigationEnabled() const;
 
+    void setScrollWheelZoomingEnabled(bool b);
+    bool scrollWheelZoomingEnabled() const;
+
     void setRevisionsVisible(bool b);
     bool revisionsVisible() const;
 

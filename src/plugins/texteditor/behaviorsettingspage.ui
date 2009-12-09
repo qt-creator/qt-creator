@@ -277,15 +277,22 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBoxNavigation">
+    <widget class="QGroupBox" name="groupBoxMouse">
      <property name="title">
-      <string>Navigation</string>
+      <string>Mouse</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="QCheckBox" name="mouseNavigation">
         <property name="text">
          <string>Enable &amp;mouse navigation</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="scrollWheelZooming">
+        <property name="text">
+         <string>Enable scroll &amp;wheel zooming</string>
         </property>
        </widget>
       </item>

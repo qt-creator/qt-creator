@@ -109,9 +109,10 @@ QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
           << ' ' << m_d->m_page.cleanWhitespace->text()
           << ' ' << m_d->m_page.addFinalNewLine->text()
           << ' ' << m_d->m_page.mouseNavigation->text()
+          << ' ' << m_d->m_page.scrollWheelZooming->text()
           << ' ' << m_d->m_page.groupBoxTabAndIndentSettings->title()
           << ' ' << m_d->m_page.groupBoxStorageSettings->title()
-          << ' ' << m_d->m_page.groupBoxNavigation->title();
+          << ' ' << m_d->m_page.groupBoxMouse->title();
         m_d->m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;
@@ -170,6 +171,7 @@ void BehaviorSettingsPage::settingsFromUI(TabSettings &tabSettings,
     storageSettings.m_addFinalNewLine = m_d->m_page.addFinalNewLine->isChecked();
 
     behaviorSettings.m_mouseNavigation = m_d->m_page.mouseNavigation->isChecked();
+    behaviorSettings.m_scrollWheelZooming = m_d->m_page.scrollWheelZooming->isChecked();
 }
 
 void BehaviorSettingsPage::settingsToUI()
@@ -190,6 +192,7 @@ void BehaviorSettingsPage::settingsToUI()
 
     const BehaviorSettings &behaviorSettings = m_d->m_behaviorSettings;
     m_d->m_page.mouseNavigation->setChecked(behaviorSettings.m_mouseNavigation);
+    m_d->m_page.scrollWheelZooming->setChecked(behaviorSettings.m_scrollWheelZooming);
 }
 
 TabSettings BehaviorSettingsPage::tabSettings() const

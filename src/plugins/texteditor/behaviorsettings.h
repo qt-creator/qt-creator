@@ -52,6 +52,7 @@ struct TEXTEDITOR_EXPORT BehaviorSettings
     bool equals(const BehaviorSettings &bs) const;
 
     bool m_mouseNavigation;
+    bool m_scrollWheelZooming;
 };
 
 inline bool operator==(const BehaviorSettings &t1, const BehaviorSettings &t2) { return t1.equals(t2); }

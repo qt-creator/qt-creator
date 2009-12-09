@@ -33,12 +33,14 @@
 #include <QtCore/QString>
 
 static const char * const mouseNavigationKey = "MouseNavigation";
+static const char * const scrollWheelZoomingKey = "ScrollWheelZooming";
 static const char * const groupPostfix = "BehaviorSettings";
 
 namespace TextEditor {
 
 BehaviorSettings::BehaviorSettings() :
-    m_mouseNavigation(true)
+    m_mouseNavigation(true),
+    m_scrollWheelZooming(true)
 {
 }
 
@@ -49,6 +51,7 @@ void BehaviorSettings::toSettings(const QString &category, QSettings *s) const
         group.insert(0, category);
     s->beginGroup(group);
     s->setValue(QLatin1String(mouseNavigationKey), m_mouseNavigation);
+    s->setValue(QLatin1String(scrollWheelZoomingKey), m_scrollWheelZooming);
     s->endGroup();
 }
 
@@ -62,11 +65,13 @@ void BehaviorSettings::fromSettings(const QString &category, const QSettings *s)
     *this = BehaviorSettings(); // Assign defaults
 
     m_mouseNavigation = s->value(group + QLatin1String(mouseNavigationKey), m_mouseNavigation).toBool();
+    m_scrollWheelZooming = s->value(group + QLatin1String(scrollWheelZoomingKey), m_scrollWheelZooming).toBool();
 }
 
 bool BehaviorSettings::equals(const BehaviorSettings &ds) const
 {
     return m_mouseNavigation == ds.m_mouseNavigation
+        && m_scrollWheelZooming == ds.m_scrollWheelZooming
         ;
 }
 
