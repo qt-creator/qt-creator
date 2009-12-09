@@ -757,6 +757,8 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
 void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                               QByteArray *result)
 {
+    const int previousIfLevel = iflevel;
+
     QByteArray *previousResult = _result;
     _result = result;
 
@@ -889,6 +891,8 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
     env->currentFile = previousFileName;
     env->currentLine = previousCurrentLine;
     _result = previousResult;
+
+    iflevel = previousIfLevel;
 }
 
 void Preprocessor::collectActualArguments(QVector<MacroArgumentReference> *actuals)
