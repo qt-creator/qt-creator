@@ -399,6 +399,12 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setText(tr("Execute line"));
     instance->insertItem(ExecuteCommand, item);
 
+    item = new SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("WatchdogTimeout"));
+    item->setDefaultValue(20);
+    instance->insertItem(GdbWatchdogTimeout, item);
+
+
     return instance;
 }
 
