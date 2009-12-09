@@ -3400,6 +3400,9 @@ bool Parser::parseNameId(NameAST *&name)
     if (! parseName(name))
         return false;
 
+    if (LA() == T_RPAREN || LA() == T_COMMA)
+        return true;
+
     QualifiedNameAST *qualified_name_id = name->asQualifiedName();
 
     TemplateIdAST *template_id = 0;
