@@ -57,6 +57,19 @@
       <item row="2" column="1">
        <widget class="Utils::PathChooser" name="scriptFileChooser"/>
       </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxUsePreciseBreakpoints">
+        <property name="text">
+         <string>Use full path information to set breakpoints</string>
+        </property>
+        <property name="toolTip">
+         <string>When this option is checked, the debugger plugin attempts
+to extract full path information for all source files from gdb. This is a
+slow process but enables setting breakpoints in files with the same file
+name in different directories.</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

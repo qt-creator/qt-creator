@@ -128,6 +128,7 @@ enum DebuggerActionCode
     SelectedPluginBreakpoints,
     NoPluginBreakpoints,
     SelectedPluginBreakpointsPattern,
+    UsePreciseBreakpoints
 };
 
 // singleton access
