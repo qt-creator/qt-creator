@@ -214,7 +214,7 @@ struct Range
         : beginPos(qMin(b, e)), endPos(qMax(b, e)), rangemode(m)
     {}
 
-    QString toString() const 
+    QString toString() const
     {
         return QString("%1-%2 (mode: %3)").arg(beginPos).arg(endPos)
             .arg(rangemode);
@@ -291,6 +291,8 @@ public:
     int firstPositionInLine(int line) const; // 1 based line, 0 based pos
     int lastPositionInLine(int line) const; // 1 based line, 0 based pos
     int lineForPosition(int pos) const;  // 1 based line, 0 based pos
+    QString lineContents(int line) const; // 1 based line
+    void setLineContents(int line, const QString &contents) const; // 1 based line
 
     // all zero-based counting
     int cursorLineOnScreen() const;
@@ -1893,9 +1895,50 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
     EDITOR(setTextCursor(m_tc));
 }
 
+// result: (needle, replacement, opions)
+static bool isSubstitution(const QString &cmd0, QStringList *result)
+{
+    QString cmd;
+    if (cmd0.startsWith("substitute"))
+        cmd = cmd0.mid(10);
+    else if (cmd0.startsWith('s'))
+        cmd = cmd0.mid(1);
+    else
+        return false;
+    // we have /{pattern}/{string}/[flags]  now
+    if (cmd.isEmpty())
+        return false;
+    const QChar separator = cmd.at(0);
+    int pos1 = -1;
+    int pos2 = -1;
+    int i;
+    for (i = 1; i < cmd.size(); ++i) {
+        if (cmd.at(i) == separator && cmd.at(i - 1) != '\\') {
+            pos1 = i;
+            break;
+        }
+    }
+    if (pos1 == -1)
+        return false;
+    for (++i; i < cmd.size(); ++i) {
+        if (cmd.at(i) == separator && cmd.at(i - 1) != '\\') {
+            pos2 = i;
+            break;
+        }
+    }
+    if (pos2 == -1)
+        pos2 = cmd.size();
+
+    result->append(cmd.mid(1, pos1 - 1));
+    result->append(cmd.mid(pos1 + 1, pos2 - pos1 - 1));
+    result->append(cmd.mid(pos2 + 1));
+    return true;
+}
+
 void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 {
     QString cmd = cmd0;
+    // FIXME: that seems to be different for %w and %s
     if (cmd.startsWith(QLatin1Char('%')))
         cmd = "1,$" + cmd.mid(1);
 
@@ -1921,7 +1964,9 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     static QRegExp reNormal("^norm(al)?( (.*))?$");
     static QRegExp reSet("^set?( (.*))?$");
     static QRegExp reWrite("^[wx]q?a?!?( (.*))?$");
-    static QRegExp reSubstitute("^s(.)(.*)\\1(.*)\\1([gi]*)");
+    //static QRegExp reSubstitute("^s(.)(.*)\\1(.*)(\\1([gi]*))?$");
+    //reSubstitute.setMinimal(true);
+    QStringList arguments;
 
     enterCommandMode();
     showBlackMessage(QString());
@@ -2023,26 +2068,25 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         leaveVisualMode();
         setPosition(firstPositionInLine(beginLine));
         //qDebug() << "FILTER: " << command;
-        showBlackMessage(FakeVimHandler::tr("%n lines filtered", 0, text.count('\n')));
+        showBlackMessage(FakeVimHandler::tr("%n lines filtered", 0,
+            text.count('\n')));
     } else if (cmd.startsWith(QLatin1Char('>'))) {
         m_anchor = firstPositionInLine(beginLine);
         setPosition(firstPositionInLine(endLine));
         shiftRegionRight(1);
         leaveVisualMode();
-        showBlackMessage(FakeVimHandler::tr("%n lines >ed %1 time", 0, (endLine - beginLine + 1)).arg(1));
+        showBlackMessage(FakeVimHandler::tr("%n lines >ed %1 time", 0,
+            (endLine - beginLine + 1)).arg(1));
     } else if (cmd == "red" || cmd == "redo") { // :redo
         redo();
         updateMiniBuffer();
     } else if (reNormal.indexIn(cmd) != -1) { // :normal
         //qDebug() << "REPLAY: " << reNormal.cap(3);
         replay(reNormal.cap(3), 1);
-    } else if (reSubstitute.indexIn(cmd) != -1) { // :substitute
-        QString needle = reSubstitute.cap(2);
-        const QString replacement = reSubstitute.cap(3);
-        QString flags = reSubstitute.cap(4);
-        const bool startOfLineOnly = needle.startsWith('^');
-        if (startOfLineOnly)
-           needle.remove(0, 1);
+    } else if (isSubstitution(cmd, &arguments)) { // :substitute
+        QString needle = arguments.at(0);
+        const QString replacement = arguments.at(1);
+        QString flags = arguments.at(2);
         needle.replace('$', '\n');
         needle.replace("\\\n", "\\$");
         QRegExp pattern(needle);
@@ -2050,30 +2094,34 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             pattern.setCaseSensitivity(Qt::CaseInsensitive);
         const bool global = flags.contains('g');
         beginEditBlock();
-        for (int line = beginLine; line <= endLine; ++line) {
-            const int start = firstPositionInLine(line);
-            const int end = lastPositionInLine(line);
-            for (int position = start; position <= end && position >= start; ) {
-                position = pattern.indexIn(m_tc.document()->toPlainText(), position);
-                if (startOfLineOnly && position != start)
+        for (int line = endLine; line >= beginLine; --line) {
+            QString origText = lineContents(line);
+            QString text = origText;
+            int pos = 0;
+            while (true) {
+                pos = pattern.indexIn(text, pos, QRegExp::CaretAtZero);
+                if (pos == -1)
                     break;
-                if (position != -1) {
-                    m_tc.setPosition(position);
-                    m_tc.movePosition(QTextCursor::NextCharacter,
-                        KeepAnchor, pattern.matchedLength());
-                    QString text = m_tc.selectedText();
-                    if (text.endsWith(ParagraphSeparator)) {
-                        text = replacement + "\n";
-                    } else {
-                        text.replace(ParagraphSeparator, "\n");
-                        text.replace(pattern, replacement);
+                if (pattern.cap(0).isEmpty())
+                    break;
+                QStringList caps = pattern.capturedTexts();
+                QString matched = text.mid(pos, caps.at(0).size());
+                QString repl = replacement;
+                for (int i = 1; i < caps.size(); ++i)
+                    repl.replace("\\" + QString::number(i), caps.at(i));
+                for (int i = 0; i < repl.size(); ++i) {
+                    if (repl.at(i) == '&' && (i == 0 || repl.at(i - 1) != '\\')) {
+                        repl.replace(i, 1, caps.at(0));
+                        i += caps.at(0).size();
                     }
-                    m_tc.removeSelectedText();
-                    m_tc.insertText(text);
                 }
+                text = text.left(pos) + repl + text.mid(pos + matched.size());
+                pos += matched.size();
                 if (!global)
                     break;
             }
+            if (text != origText)
+                setLineContents(line, text);
         }
         endEditBlock();
     } else if (reSet.indexIn(cmd) != -1) { // :set
@@ -2713,6 +2761,21 @@ void FakeVimHandler::Private::fixMarks(int positionAction, int positionChange)
                 m_marks.remove(i.key());
         }
     }
+}
+
+QString FakeVimHandler::Private::lineContents(int line) const
+{
+    return m_tc.document()->findBlockByNumber(line - 1).text();
+}
+
+void FakeVimHandler::Private::setLineContents(int line, const QString &contents) const
+{
+    QTextBlock block = m_tc.document()->findBlockByNumber(line - 1);
+    QTextCursor tc = m_tc;
+    tc.setPosition(block.position());
+    tc.setPosition(block.position() + block.length() - 1, KeepAnchor);
+    tc.removeSelectedText();
+    tc.insertText(contents);
 }
 
 int FakeVimHandler::Private::firstPositionInLine(int line) const
