@@ -59,7 +59,7 @@ namespace CppTools {
 }
 
 QT_BEGIN_NAMESPACE
-class ProFileOption;
+struct ProFileOption;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
