@@ -247,7 +247,7 @@ bool DebuggerListener::coreAboutToClose()
         break;
     }
     const QString question = cleanTermination ?
-        tr("A debugging session is still in progress. Would you like to terminate it?") :
+        tr("A debugging session is still in progress.\nWould you like to terminate it?") :
         tr("A debugging session is still in progress. Terminating the session in the current"
            " state (%1) can leave the target in an inconsistent state."
            " Would you still like to terminate it?")

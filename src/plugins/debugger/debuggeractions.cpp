@@ -267,8 +267,8 @@ DebuggerSettings *DebuggerSettings::instance()
     item = new SavedAction(instance);
     item->setText(tr("Use precise breakpoints"));
     item->setCheckable(true);
-    item->setDefaultValue(true);
-    item->setValue(true);
+    item->setDefaultValue(false);
+    item->setValue(false);
     item->setSettingsKey(debugModeGroup, QLatin1String("UsePreciseBreakpoints"));
     instance->insertItem(UsePreciseBreakpoints, item);
 
