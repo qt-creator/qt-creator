@@ -57,7 +57,6 @@
 #include "scriptwrappers.h"
 #include "session.h"
 #include "sessiondialog.h"
-#include "buildparserfactory.h"
 #include "projectexplorersettingspage.h"
 #include "projectwelcomepage.h"
 #include "projectwelcomepagewidget.h"
@@ -303,10 +302,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
     addAutoReleasedObject(new ProjectFileWizardExtension);
-
-    // Build parsers
-    addAutoReleasedObject(new GccParserFactory);
-    addAutoReleasedObject(new MsvcParserFactory);
 
     // Settings page
     addAutoReleasedObject(new ProjectExplorerSettingsPage);

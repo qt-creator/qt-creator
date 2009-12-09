@@ -46,8 +46,6 @@ class GuiAppWizard;
 class EmptyProjectWizard;
 class QMakeStepFactory;
 class MakeStepFactory;
-class GccParserFactory;
-class MsvcParserFactory;
 class EmbeddedPropertiesPage;
 class GettingStartedWelcomePage;
 

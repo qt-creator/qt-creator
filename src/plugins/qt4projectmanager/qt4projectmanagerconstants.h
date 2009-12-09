@@ -78,8 +78,6 @@ const char * const QT_SETTINGS_TR_CATEGORY    = QT_TRANSLATE_NOOP("Qt4ProjectMan
 const char * const QTVERSION_SETTINGS_PAGE_ID = "Qt Versions";
 const char * const QTVERSION_SETTINGS_PAGE_NAME = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Versions");
 
-// BuildParser
-const char * const BUILD_PARSER_QMAKE       = "BuildParser.QMake";
 } // namespace Constants
 } // namespace Qt4ProjectManager
 

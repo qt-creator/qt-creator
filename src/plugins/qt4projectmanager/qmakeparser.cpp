@@ -29,53 +29,30 @@
 
 #include "qmakeparser.h"
 #include "qt4projectmanagerconstants.h"
+
 #include <projectexplorer/taskwindow.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <utils/qtcassert.h>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::TaskWindow;
 
-QMakeParserFactory::~QMakeParserFactory()
-{
-}
-
-bool QMakeParserFactory::canCreate(const QString & name) const
-{
-    return (name == Constants::BUILD_PARSER_QMAKE);
-}
-
-ProjectExplorer::IBuildParser * QMakeParserFactory::create(const QString & name) const
-{
-    Q_UNUSED(name)
-    return new QMakeParser();
-}
-
 QMakeParser::QMakeParser()
 {
 }
 
-QString QMakeParser::name() const
-{
-    return QLatin1String(Qt4ProjectManager::Constants::BUILD_PARSER_QMAKE);
-}
-
-void QMakeParser::stdOutput(const QString & line)
-{
-    Q_UNUSED(line)
-}
-
-void QMakeParser::stdError(const QString & line)
+void QMakeParser::stdError(const QString &line)
 {
     QString lne(line.trimmed());
-    if (lne.startsWith("Project ERROR:"))
-    {
-        lne = lne.mid(15);
-        emit addToTaskWindow(TaskWindow::Task(TaskWindow::Error,
-                                              lne /* description */,
-                                              QString() /* filename */,
-                                              -1 /* linenumber */,
-                                              ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    if (lne.startsWith("Project ERROR:")) {
+        const QString description = lne.mid(15);
+        emit addTask(TaskWindow::Task(TaskWindow::Error,
+                                      description,
+                                      QString() /* filename */,
+                                      -1 /* linenumber */,
+                                      ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         return;
     }
+    IOutputParser::stdError(line);
 }

@@ -57,7 +57,6 @@ public:
     void setUseSystemEnvironment(bool b);
 
     virtual QString buildDirectory() const;
-    QString buildParser() const;
 
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
     ProjectExplorer::ToolChain *toolChain() const;

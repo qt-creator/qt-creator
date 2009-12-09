@@ -32,6 +32,7 @@
 #include "cmakebuildconfiguration.h"
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/gnumakeparser.h>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QGroupBox>
@@ -43,14 +44,14 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
-MakeStep::MakeStep(BuildConfiguration *bc)
-    : AbstractMakeStep(bc), m_clean(false), m_futureInterface(0)
+MakeStep::MakeStep(BuildConfiguration *bc) :
+    AbstractProcessStep(bc), m_clean(false), m_futureInterface(0)
 {
     m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
 }
 
-MakeStep::MakeStep(MakeStep *bs, BuildConfiguration *bc)
-    : AbstractMakeStep(bs, bc),
+MakeStep::MakeStep(MakeStep *bs, BuildConfiguration *bc) :
+    AbstractProcessStep(bs, bc),
     m_clean(bs->m_clean),
     m_futureInterface(0),
     m_buildTargets(bs->m_buildTargets),
@@ -78,7 +79,7 @@ void MakeStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
 {
     if (map.value("clean").isValid() && map.value("clean").toBool())
         m_clean = true;
-    AbstractMakeStep::restoreFromGlobalMap(map);
+    AbstractProcessStep::restoreFromGlobalMap(map);
 }
 
 void MakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
@@ -87,7 +88,7 @@ void MakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
     m_additionalArguments = map["additionalArguments"].toStringList();
     if (map.value("clean").isValid() && map.value("clean").toBool())
         m_clean = true;
-    AbstractMakeStep::restoreFromLocalMap(map);
+    AbstractProcessStep::restoreFromLocalMap(map);
 }
 
 void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
@@ -96,13 +97,12 @@ void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
     map["additionalArguments"] = m_additionalArguments;
     if (m_clean)
         map["clean"] = true;
-    AbstractMakeStep::storeIntoLocalMap(map);
+    AbstractProcessStep::storeIntoLocalMap(map);
 }
 
 bool MakeStep::init()
 {
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
-    setBuildParser(bc->buildParser());
 
     setEnabled(true);
     setWorkingDirectory(bc->buildDirectory());
@@ -115,14 +115,18 @@ bool MakeStep::init()
     setEnvironment(bc->environment());
     setIgnoreReturnValue(m_clean);
 
-    return AbstractMakeStep::init();
+    setOutputParser(new ProjectExplorer::GnuMakeParser(workingDirectory()));
+    if (bc->toolChain())
+        appendOutputParser(bc->toolChain()->outputParser());
+
+    return AbstractProcessStep::init();
 }
 
 void MakeStep::run(QFutureInterface<bool> &fi)
 {
     m_futureInterface = &fi;
     m_futureInterface->setProgressRange(0, 100);
-    AbstractMakeStep::run(fi);
+    AbstractProcessStep::run(fi);
     m_futureInterface->setProgressValue(100);
     m_futureInterface->reportFinished();
     m_futureInterface = 0;
@@ -135,7 +139,7 @@ QString MakeStep::name()
 
 QString MakeStep::displayName()
 {
-    return "Make";
+    return QLatin1String("Make");
 }
 
 BuildStepConfigWidget *MakeStep::createConfigWidget()
@@ -156,7 +160,7 @@ void MakeStep::stdOut(const QString &line)
         if (ok)
             m_futureInterface->setProgressValue(percent);
     }
-    AbstractMakeStep::stdOut(line);
+    AbstractProcessStep::stdOutput(line);
 }
 
 bool MakeStep::buildsTarget(const QString &target) const

@@ -151,7 +151,6 @@ protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
 private:
-    // These correspond to ProjectExplorer::BuildParserInterface::PatternType.
     bool m_includeUnknowns;
     bool m_includeWarnings;
     bool m_includeErrors;

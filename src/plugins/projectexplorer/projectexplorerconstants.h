@@ -178,15 +178,6 @@ const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
 const char * const FORM_MIMETYPE = "application/x-designer";
 const char * const RESOURCE_MIMETYPE = "application/vnd.nokia.xml.qt.resource";
 
-// build parsers
-const char * const BUILD_PARSER_MSVC        = "BuildParser.MSVC";
-const char * const BUILD_PARSER_GCC         = "BuildParser.Gcc";
-const char * const BUILD_PARSER_RVCT        = "BuildParser.Rvct";
-const char * const BUILD_PARSER_WINSCW      = "BuildParser.Winscw";
-const char * const BUILD_PARSER_ABLD_GCCE   = "BuildParser.ABLD.Gcce";
-const char * const BUILD_PARSER_ABLD_WINSCW = "BuildParser.ABLD.Winscw";
-const char * const BUILD_PARSER_ABLD_RVCT   = "BuildParser.ABLD.Rvct";
-
 // settings page
 const char * const PROJECTEXPLORER_SETTINGS_CATEGORY  = "K.ProjectExplorer";
 const char * const PROJECTEXPLORER_SETTINGS_ID = "ProjectExplorer.ProjectExplorer";

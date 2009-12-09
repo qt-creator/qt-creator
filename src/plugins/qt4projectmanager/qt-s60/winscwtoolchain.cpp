@@ -29,9 +29,10 @@
 
 #include "winscwtoolchain.h"
 
+#include "winscwparser.h"
+
 #include <QtCore/QByteArray>
 #include <QtCore/QString>
-#include <QtDebug>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
@@ -108,7 +109,12 @@ void WINSCWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 
 QString WINSCWToolChain::makeCommand() const
 {
-    return "make";
+    return QLatin1String("make");
+}
+
+IOutputParser *WINSCWToolChain::outputParser() const
+{
+    return new WinscwParser;
 }
 
 bool WINSCWToolChain::equals(ToolChain *other) const

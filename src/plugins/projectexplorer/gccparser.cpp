@@ -43,39 +43,19 @@ GccParser::GccParser()
 
     m_regExpLinker.setPattern("^(\\S*)\\(\\S+\\):\\s(.+)$");
     m_regExpLinker.setMinimal(true);
-
-    //make[4]: Entering directory `/home/kkoehne/dev/ide-explorer/src/plugins/qtscripteditor'
-    m_makeDir.setPattern("^(?:mingw32-)?make.*: (\\w+) directory .(.+).$");
-    m_makeDir.setMinimal(true);
 }
 
-QString GccParser::name() const
-{
-    return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_GCC);
-}
-
-void GccParser::stdOutput(const QString & line)
-{
-    QString lne = line.trimmed();
-
-    if (m_makeDir.indexIn(lne) > -1) {
-        if (m_makeDir.cap(1) == "Leaving")
-                emit leaveDirectory(m_makeDir.cap(2));
-            else
-                emit enterDirectory(m_makeDir.cap(2));
-    }
-}
-
-void GccParser::stdError(const QString & line)
+void GccParser::stdError(const QString &line)
 {
     QString lne = line.trimmed();
     if (m_regExpLinker.indexIn(lne) > -1) {
         QString description = m_regExpLinker.cap(2);
-        emit addToTaskWindow(TaskWindow::Task(TaskWindow::Error,
-                                              description,
-                                              m_regExpLinker.cap(1) /* filename */,
-                                              -1 /* linenumber */,
-                                              Constants::TASK_CATEGORY_COMPILE));
+        emit addTask(TaskWindow::Task(TaskWindow::Error,
+                                      description,
+                                      m_regExpLinker.cap(1) /* filename */,
+                                      -1 /* linenumber */,
+                                      Constants::TASK_CATEGORY_COMPILE));
+        return;
     } else if (m_regExp.indexIn(lne) > -1) {
         TaskWindow::Task task(TaskWindow::Unknown,
                               m_regExp.cap(6) /* description */,
@@ -87,20 +67,24 @@ void GccParser::stdError(const QString & line)
         else if (m_regExp.cap(5) == "error")
             task.type = TaskWindow::Error;
 
-        emit addToTaskWindow(task);
+        emit addTask(task);
+        return;
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
-        emit addToTaskWindow(TaskWindow::Task(TaskWindow::Unknown,
-                                              lne /* description */,
-                                              m_regExpIncluded.cap(1) /* filename */,
-                                              m_regExpIncluded.cap(2).toInt() /* linenumber */,
-                                              Constants::TASK_CATEGORY_COMPILE));
+        emit addTask(TaskWindow::Task(TaskWindow::Unknown,
+                                      lne /* description */,
+                                      m_regExpIncluded.cap(1) /* filename */,
+                                      m_regExpIncluded.cap(2).toInt() /* linenumber */,
+                                      Constants::TASK_CATEGORY_COMPILE));
+        return;
     } else if (lne.startsWith(QLatin1String("collect2:")) ||
                lne.startsWith(QLatin1String("ERROR:")) ||
                lne == QLatin1String("* cpp failed")) {
-        emit addToTaskWindow(TaskWindow::Task(TaskWindow::Error,
-                                              lne /* description */,
-                                              QString() /* filename */,
-                                              -1 /* linenumber */,
-                                              Constants::TASK_CATEGORY_COMPILE));
+        emit addTask(TaskWindow::Task(TaskWindow::Error,
+                                      lne /* description */,
+                                      QString() /* filename */,
+                                      -1 /* linenumber */,
+                                      Constants::TASK_CATEGORY_COMPILE));
+        return;
     }
+    IOutputParser::stdError(line);
 }

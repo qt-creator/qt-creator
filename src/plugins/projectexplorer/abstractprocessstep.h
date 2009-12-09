@@ -38,9 +38,12 @@
 
 QT_BEGIN_NAMESPACE
 class QEventLoop;
+class QTimer;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
+
+class IOutputParser;
 
 /*!
   AbstractProcessStep is a convenience class, which can be used as a base class instead of BuildStep.
@@ -67,6 +70,8 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 public:
     AbstractProcessStep(BuildConfiguration *bc);
     AbstractProcessStep(AbstractProcessStep *bs, BuildConfiguration *bc);
+    virtual ~AbstractProcessStep();
+
     /// reimplemented from BuildStep::init()
     /// You need to call this from YourBuildStep::init()
     virtual bool init();
@@ -105,10 +110,17 @@ public:
     /// should be called from init()
     void setEnvironment(Environment env);
 
-    // TODO can I remove this?
     QString workingDirectory() const;
-protected:
 
+    // derived classes needs to call this function
+    /// Delete all existing output parsers and start a new chain with the
+    /// given parser.
+    void setOutputParser(ProjectExplorer::IOutputParser *parser);
+    /// Append the given output parser to the existing chain of parsers.
+    void appendOutputParser(ProjectExplorer::IOutputParser *parser);
+    ProjectExplorer::IOutputParser *outputParser() const;
+
+protected:
     /// Called after the process is started
     /// the default implementation adds a process started message to the output message
     virtual void processStarted();
@@ -121,18 +133,22 @@ protected:
     /// Called for each line of output on stdOut()
     /// the default implementation adds the line to the
     /// application output window
-    virtual void stdOut(const QString &line);
+    virtual void stdOutput(const QString &line);
     /// Called for each line of output on StdErrror()
     /// the default implementation adds the line to the
     /// application output window
     virtual void stdError(const QString &line);
+
 private slots:
     void processReadyReadStdOutput();
     void processReadyReadStdError();
     void slotProcessFinished(int, QProcess::ExitStatus);
     void checkForCancel();
-private:
 
+    void taskAdded(const ProjectExplorer::TaskWindow::Task &task);
+    void outputAdded(const QString &string);
+
+private:
     QTimer *m_timer;
     QFutureInterface<bool> *m_futureInterface;
     QString m_workingDirectory;
@@ -143,6 +159,7 @@ private:
     QProcess *m_process;
     QEventLoop *m_eventLoop;
     ProjectExplorer::Environment m_environment;
+    ProjectExplorer::IOutputParser *m_outputParserChain;
 };
 
 } // namespace ProjectExplorer

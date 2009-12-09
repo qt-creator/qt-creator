@@ -132,9 +132,9 @@ void BuildManager::cancel()
         // (And we want those to be before the cancel message.)
         QTimer::singleShot(0, this, SLOT(emitCancelMessage()));
 
-        disconnect(m_currentBuildStep, SIGNAL(addToTaskWindow(ProjectExplorer::TaskWindow::Task)),
+        disconnect(m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
                    this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
-        disconnect(m_currentBuildStep, SIGNAL(addToOutputWindow(QString)),
+        disconnect(m_currentBuildStep, SIGNAL(addOutput(QString)),
                    this, SLOT(addToOutputWindow(QString)));
         decrementActiveBuildSteps(m_currentBuildStep->buildConfiguration()->project());
 
@@ -269,9 +269,9 @@ void BuildManager::nextBuildQueue()
     if (m_canceling)
         return;
 
-    disconnect(m_currentBuildStep, SIGNAL(addToTaskWindow(ProjectExplorer::TaskWindow::Task)),
+    disconnect(m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
                this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
-    disconnect(m_currentBuildStep, SIGNAL(addToOutputWindow(QString)),
+    disconnect(m_currentBuildStep, SIGNAL(addOutput(QString)),
                this, SLOT(addToOutputWindow(QString)));
 
     ++m_progress;
@@ -311,9 +311,9 @@ void BuildManager::nextStep()
         m_currentBuildStep = m_buildQueue.front();
         m_buildQueue.pop_front();
 
-        connect(m_currentBuildStep, SIGNAL(addToTaskWindow(ProjectExplorer::TaskWindow::Task)),
+        connect(m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
                 this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
-        connect(m_currentBuildStep, SIGNAL(addToOutputWindow(QString)),
+        connect(m_currentBuildStep, SIGNAL(addOutput(QString)),
                 this, SLOT(addToOutputWindow(QString)));
 
         bool init = m_currentBuildStep->init();

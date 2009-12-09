@@ -33,7 +33,7 @@
 #include "ui_makestep.h"
 #include "qtversionmanager.h"
 
-#include <projectexplorer/abstractmakestep.h>
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/projectexplorer.h>
 
 namespace ProjectExplorer {
@@ -62,7 +62,7 @@ public:
 
 class Qt4Project;
 
-class MakeStep : public ProjectExplorer::AbstractMakeStep
+class MakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
     friend class MakeStepConfigWidget; // TODO remove this

@@ -33,26 +33,24 @@
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/gnumakeparser.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
-using ProjectExplorer::IBuildParserFactory;
-using ProjectExplorer::IBuildParser;
 using ProjectExplorer::Environment;
 using ExtensionSystem::PluginManager;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-MakeStep::MakeStep(ProjectExplorer::BuildConfiguration *bc)
-    : AbstractMakeStep(bc), m_clean(false)
+MakeStep::MakeStep(ProjectExplorer::BuildConfiguration *bc) :
+    AbstractProcessStep(bc), m_clean(false)
 {
 
 }
 
-MakeStep::MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc)
-    : AbstractMakeStep(bs, bc),
+MakeStep::MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc) :
+    AbstractProcessStep(bs, bc),
     m_clean(bs->m_clean),
     m_userArgs(bs->m_userArgs),
     m_makeCmd(bs->m_makeCmd)
@@ -79,7 +77,7 @@ void MakeStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
 {
     if (map.value("clean").isValid() && map.value("clean").toBool())
         m_clean = true;
-    ProjectExplorer::AbstractMakeStep::restoreFromGlobalMap(map);
+    ProjectExplorer::AbstractProcessStep::restoreFromGlobalMap(map);
 }
 
 void MakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
@@ -88,7 +86,7 @@ void MakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
     m_makeCmd = map.value("makeCmd").toString();
     if (map.value("clean").isValid() && map.value("clean").toBool())
         m_clean = true;
-    ProjectExplorer::AbstractMakeStep::restoreFromLocalMap(map);
+    ProjectExplorer::AbstractProcessStep::restoreFromLocalMap(map);
 }
 
 void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
@@ -97,7 +95,7 @@ void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
     map["makeCmd"] = m_makeCmd;
     if (m_clean)
         map["clean"] = true;
-    ProjectExplorer::AbstractMakeStep::storeIntoLocalMap(map);
+    ProjectExplorer::AbstractProcessStep::storeIntoLocalMap(map);
 }
 
 bool MakeStep::init()
@@ -116,8 +114,8 @@ bool MakeStep::init()
         // Try to detect command in environment
         QString tmp = environment.searchInPath(makeCmd);
         if (tmp == QString::null) {
-            emit addToOutputWindow(tr("<font color=\"#ff0000\">Could not find make command: %1 "\
-                                      "in the build environment</font>").arg(makeCmd));
+            emit addOutput(tr("<font color=\"#ff0000\">Could not find make command: %1 "\
+                              "in the build environment</font>").arg(makeCmd));
             return false;
         }
         makeCmd = tmp;
@@ -140,30 +138,22 @@ bool MakeStep::init()
     // but for now this is the least invasive change
     ProjectExplorer::ToolChain *toolchain = bc->toolChain();
 
-    ProjectExplorer::ToolChain::ToolChainType type =  ProjectExplorer::ToolChain::UNKNOWN;
-    if (toolchain)
-        type = toolchain->type();
-    if (type != ProjectExplorer::ToolChain::MSVC && type != ProjectExplorer::ToolChain::WINCE) {
-        if (m_makeCmd.isEmpty())
-            args << "-w";
+    if (toolchain) {
+        if (toolchain->type() != ProjectExplorer::ToolChain::MSVC &&
+            toolchain->type() != ProjectExplorer::ToolChain::WINCE) {
+            if (m_makeCmd.isEmpty())
+                args << "-w";
+        }
     }
 
     setEnabled(true);
     setArguments(args);
 
-    if (type == ProjectExplorer::ToolChain::MSVC || type == ProjectExplorer::ToolChain::WINCE)
-        setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_MSVC);
-    else if (ProjectExplorer::ToolChain::GCCE == type)
-        setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_ABLD_GCCE);
-    else if (ProjectExplorer::ToolChain::WINSCW == type)
-        setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_ABLD_WINSCW);
-    else if (ProjectExplorer::ToolChain::RVCT_ARMV5 == type ||
-             ProjectExplorer::ToolChain::RVCT_ARMV6 == type)
-        setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_ABLD_RVCT);
-    else
-        setBuildParser(ProjectExplorer::Constants::BUILD_PARSER_GCC);
+    setOutputParser(new ProjectExplorer::GnuMakeParser(workingDirectory));
+    if (toolchain)
+        appendOutputParser(toolchain->outputParser());
 
-    return AbstractMakeStep::init();
+    return AbstractProcessStep::init();
 }
 
 void MakeStep::run(QFutureInterface<bool> & fi)
@@ -173,7 +163,7 @@ void MakeStep::run(QFutureInterface<bool> & fi)
         return;
     }
 
-    AbstractMakeStep::run(fi);
+    AbstractProcessStep::run(fi);
 }
 
 QString MakeStep::name()
@@ -183,7 +173,7 @@ QString MakeStep::name()
 
 QString MakeStep::displayName()
 {
-    return "Make";
+    return QLatin1String("Make");
 }
 
 bool MakeStep::immutable() const

@@ -45,14 +45,13 @@
 #include "externaleditors.h"
 #include "gettingstartedwelcomepage.h"
 #include "gettingstartedwelcomepagewidget.h"
-#include "qmakeparser.h"
 
 #ifdef QTCREATOR_WITH_S60
-#include "qt-s60/s60manager.h"
+#    include "qt-s60/s60manager.h"
 #endif
 
 #ifdef QTCREATOR_WITH_MAEMO
-#include "qt-maemo/maemomanager.h"
+#    include "qt-maemo/maemomanager.h"
 #endif
 
 #include <coreplugin/icore.h>
@@ -68,13 +67,11 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <texteditor/texteditoractionhandler.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QtPlugin>
-#include <QtGui/QMenu>
-
 #ifdef WITH_TESTS
-#include <QTest>
+#    include <QTest>
 #endif
+
+#include <QtCore/QtPlugin>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
@@ -92,17 +89,6 @@ Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
     removeObject(m_welcomePage);
     delete m_welcomePage;
 }
-/*
-static Core::Command *createSeparator(Core::ActionManager *am,
-                                       QObject *parent,
-                                       const QString &name,
-                                       const QList<int> &context)
-{
-    QAction *tmpaction = new QAction(parent);
-    tmpaction->setSeparator(true);
-    return am->registerAction(tmpaction, name, context);
-}
-*/
 
 bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
@@ -150,7 +136,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     addAutoReleasedObject(new QMakeStepFactory);
     addAutoReleasedObject(new MakeStepFactory);
-    addAutoReleasedObject(new QMakeParserFactory);
 
     addAutoReleasedObject(new Qt4RunConfigurationFactory);
 

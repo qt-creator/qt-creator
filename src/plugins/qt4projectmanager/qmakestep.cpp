@@ -29,36 +29,33 @@
 
 #include "qmakestep.h"
 
+#include "qmakeparser.h"
+#include "qt4buildconfiguration.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4projectmanager.h"
-#include "makestep.h"
 #include "qtversionmanager.h"
-#include "qt4buildconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
-#include <QFileDialog>
-#include <QDir>
-#include <QFile>
-#include <QCoreApplication>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
 
-QMakeStep::QMakeStep(ProjectExplorer::BuildConfiguration *bc)
-    : AbstractMakeStep(bc), m_forced(false)
+QMakeStep::QMakeStep(ProjectExplorer::BuildConfiguration *bc) :
+    AbstractProcessStep(bc), m_forced(false)
 {
 }
 
-QMakeStep::QMakeStep(QMakeStep *bs, ProjectExplorer::BuildConfiguration *bc)
-    : AbstractMakeStep(bs, bc),
+QMakeStep::QMakeStep(QMakeStep *bs, ProjectExplorer::BuildConfiguration *bc) :
+    AbstractProcessStep(bs, bc),
     m_forced(false),
     m_userArgs(bs->m_userArgs)
 {
-
 }
 
 QMakeStep::~QMakeStep()
@@ -112,9 +109,9 @@ bool QMakeStep::init()
 
     if (!qtVersion->isValid()) {
 #if defined(Q_WS_MAC)
-        emit addToOutputWindow(tr("\n<font color=\"#ff0000\"><b>No valid Qt version set. Set one in Preferences </b></font>\n"));
+        emit addOutput(tr("\n<font color=\"#ff0000\"><b>No valid Qt version set. Set one in Preferences </b></font>\n"));
 #else
-        emit addToOutputWindow(tr("\n<font color=\"#ff0000\"><b>No valid Qt version set. Set one in Tools/Options </b></font>\n"));
+        emit addOutput(tr("\n<font color=\"#ff0000\"><b>No valid Qt version set. Set one in Tools/Options </b></font>\n"));
 #endif
         return false;
     }
@@ -124,7 +121,7 @@ bool QMakeStep::init()
 
     QString program = qtVersion->qmakeCommand();
 
-    // Check wheter we need to run qmake
+    // Check whether we need to run qmake
     m_needToRunQMake = true;
     if (QDir(workingDirectory).exists(QLatin1String("Makefile"))) {
         QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(workingDirectory);
@@ -144,8 +141,8 @@ bool QMakeStep::init()
     setArguments(args);
     setEnvironment(qt4bc->environment());
 
-    setBuildParser(Qt4ProjectManager::Constants::BUILD_PARSER_QMAKE);
-    return AbstractMakeStep::init();
+    setOutputParser(new QMakeParser);
+    return AbstractProcessStep::init();
 }
 
 void QMakeStep::run(QFutureInterface<bool> &fi)
@@ -157,21 +154,21 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
     }
 
     if (!m_needToRunQMake) {
-        emit addToOutputWindow(tr("<font color=\"#0000ff\">Configuration unchanged, skipping QMake step.</font>"));
+        emit addOutput(tr("<font color=\"#0000ff\">Configuration unchanged, skipping QMake step.</font>"));
         fi.reportResult(true);
         return;
     }
-    AbstractMakeStep::run(fi);
+    AbstractProcessStep::run(fi);
 }
 
 QString QMakeStep::name()
 {
-    return Constants::QMAKESTEP;
+    return QLatin1String(Constants::QMAKESTEP);
 }
 
 QString QMakeStep::displayName()
 {
-    return "QMake";
+    return QLatin1String("QMake");
 }
 
 void QMakeStep::setForced(bool b)

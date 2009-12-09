@@ -30,25 +30,25 @@
 #ifndef WINSCWPARSER_H
 #define WINSCWPARSER_H
 
-#include <projectexplorer/ibuildparser.h>
+#include <projectexplorer/ioutputparser.h>
 
 #include <QtCore/QRegExp>
 
 namespace Qt4ProjectManager {
 
-class WinscwParser : public ProjectExplorer::IBuildParser
+class WinscwParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 
 public:
     WinscwParser();
-    QString name() const;
-    virtual void stdOutput(const QString & line);
-    virtual void stdError(const QString & line);
+
+    virtual void stdOutput(const QString &line);
+    virtual void stdError(const QString &line);
+
 private:
     QRegExp m_compilerProblem;
     QRegExp m_linkerProblem;
-    QRegExp m_makeDir;
 };
 
 } // namespace Qt4ProjectManager

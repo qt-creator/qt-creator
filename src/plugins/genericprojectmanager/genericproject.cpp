@@ -424,28 +424,6 @@ void GenericProject::setToolChainType(ProjectExplorer::ToolChain::ToolChainType 
     }
 }
 
-QString GenericProject::buildParser(BuildConfiguration *configuration) const
-{
-    Q_UNUSED(configuration)
-    if (m_toolChain) {
-        switch (m_toolChain->type()) {
-        case ProjectExplorer::ToolChain::GCC:
-        //case ProjectExplorer::ToolChain::LinuxICC:
-        case ProjectExplorer::ToolChain::MinGW:
-            return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_GCC);
-
-        case ProjectExplorer::ToolChain::MSVC:
-        case ProjectExplorer::ToolChain::WINCE:
-            return ProjectExplorer::Constants::BUILD_PARSER_MSVC;
-
-        default:
-            break;
-        } // switch
-    }
-
-    return QString();
-}
-
 ProjectExplorer::ToolChain *GenericProject::toolChain() const
 {
     return m_toolChain;

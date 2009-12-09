@@ -19,7 +19,8 @@ HEADERS += projectexplorer.h \
     session.h \
     dependenciespanel.h \
     allprojectsfilter.h \
-    ibuildparser.h \
+    ioutputparser.h \
+    gnumakeparser.h \
     projectexplorerconstants.h \
     projectexplorersettings.h \
     corelistenercheckingforrunningbuild.h \
@@ -57,12 +58,10 @@ HEADERS += projectexplorer.h \
     currentprojectfind.h \
     toolchain.h \
     cesdkhandler.h \
-    buildparserfactory.h \
     gccparser.h \
     msvcparser.h \
     filewatcher.h \
     debugginghelper.h \
-    abstractmakestep.h \
     projectexplorersettingspage.h \
     projectwelcomepage.h \
     projectwelcomepagewidget.h \
@@ -71,6 +70,8 @@ SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
     compileoutputwindow.cpp \
+    ioutputparser.cpp \
+    gnumakeparser.cpp \
     taskwindow.cpp \
     outputwindow.cpp \
     persistentsettings.cpp \
@@ -85,7 +86,6 @@ SOURCES += projectexplorer.cpp \
     pluginfilefactory.cpp \
     buildstep.cpp \
     buildconfiguration.cpp \
-    ibuildparser.cpp \
     environment.cpp \
     buildsettingspropertiespage.cpp \
     environmenteditmodel.cpp \
@@ -110,12 +110,10 @@ SOURCES += projectexplorer.cpp \
     currentprojectfind.cpp \
     toolchain.cpp \
     cesdkhandler.cpp \
-    buildparserfactory.cpp \
     gccparser.cpp \
     msvcparser.cpp \
     filewatcher.cpp \
     debugginghelper.cpp \
-    abstractmakestep.cpp \
     projectexplorersettingspage.cpp \
     projectwelcomepage.cpp \
     projectwelcomepagewidget.cpp \

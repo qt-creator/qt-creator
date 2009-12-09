@@ -27,35 +27,36 @@
 **
 **************************************************************************/
 
-#include "s60buildparserfactory.h"
-#include "abldparser.h"
-#include "rvctparser.h"
-#include "winscwparser.h"
+#ifndef GNUMAKEPARSER_H
+#define GNUMAKEPARSER_H
 
-#include <projectexplorer/projectexplorerconstants.h>
+#include "ioutputparser.h"
 
-using namespace Qt4ProjectManager::Internal;
+#include <QtCore/QRegExp>
+#include <QtCore/QStringList>
 
-S60ParserFactory::~S60ParserFactory()
+namespace ProjectExplorer {
+
+class PROJECTEXPLORER_EXPORT GnuMakeParser : public ProjectExplorer::IOutputParser
 {
-}
+    Q_OBJECT
 
-bool S60ParserFactory::canCreate(const QString & name) const
-{
-    return ((name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_ABLD_GCCE)) ||
-            (name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_ABLD_WINSCW)) ||
-            (name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_ABLD_RVCT)) ||
-            (name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_RVCT)) ||
-            (name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_WINSCW)));
-}
+public:
+    explicit GnuMakeParser(const QString &dir = QString());
 
-ProjectExplorer::IBuildParser * S60ParserFactory::create(const QString & name) const
-{
-    if (name ==  QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_RVCT))
-        return new RvctParser();
-    if (name == QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_WINSCW))
-        return new WinscwParser();
+    virtual void stdOutput(const QString &line);
 
-    return new AbldParser(name);
-}
+public slots:
+    virtual void taskAdded(const ProjectExplorer::TaskWindow::Task &task);
 
+private:
+    void addDirectory(const QString &dir);
+    void removeDirectory(const QString &dir);
+
+    QRegExp m_makeDir;
+    QStringList m_directories;
+};
+
+} // namespace ProjectExplorer
+
+#endif // GNUMAKEPARSER_H

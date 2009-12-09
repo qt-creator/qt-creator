@@ -30,23 +30,23 @@
 #ifndef MSVCPARSER_H
 #define MSVCPARSER_H
 
-#include "ibuildparser.h"
+#include "ioutputparser.h"
 #include "taskwindow.h"
 
 #include <QtCore/QRegExp>
+#include <QtCore/QString>
 
 namespace ProjectExplorer {
 
-class MsvcParser :  public ProjectExplorer::IBuildParser
+class MsvcParser :  public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 
 public:
     MsvcParser();
-    QString name() const;
 
-    virtual void stdOutput(const QString & line);
-    virtual void stdError(const QString & line);
+    virtual void stdOutput(const QString &line);
+
 private:
     TaskWindow::TaskType toType(int number);
     QRegExp m_compileRegExp;

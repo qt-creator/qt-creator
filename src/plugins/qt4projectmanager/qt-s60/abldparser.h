@@ -30,27 +30,23 @@
 #ifndef ABLDPARSER_H
 #define ABLDPARSER_H
 
-#include <projectexplorer/ibuildparser.h>
+#include <projectexplorer/ioutputparser.h>
 
 #include <QtCore/QRegExp>
 
 namespace Qt4ProjectManager {
 
-class AbldParser : public ProjectExplorer::IBuildParser
+class AbldParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 
 public:
-    AbldParser(const QString & name);
-    ~AbldParser();
+    AbldParser();
 
-    QString name() const;
     virtual void stdOutput(const QString & line);
     virtual void stdError(const QString & line);
-private:
-    ProjectExplorer::IBuildParser * m_subparser;
-    const QString m_name;
 
+private:
     QRegExp m_perlIssue;
 
     QString m_currentFile;

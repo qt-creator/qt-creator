@@ -40,6 +40,7 @@
 namespace ProjectExplorer {
 
 class Environment;
+class IOutputParser;
 class Project;
 
 class PROJECTEXPLORER_EXPORT HeaderPath
@@ -97,6 +98,7 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env) = 0;
     virtual ToolChainType type() const = 0;
     virtual QString makeCommand() const = 0;
+    virtual IOutputParser *outputParser() const = 0;
 
     ToolChain();
     virtual ~ToolChain();
@@ -125,11 +127,13 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
+    virtual IOutputParser *outputParser() const;
 
 protected:
     virtual bool equals(ToolChain *other) const;
     QByteArray m_predefinedMacros;
     QList<HeaderPath> m_systemHeaderPaths;
+
 private:
     QString m_gcc;
 };
@@ -142,8 +146,11 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
+    virtual IOutputParser *outputParser() const;
+
 protected:
     virtual bool equals(ToolChain *other) const;
+
 private:
     QString m_mingwPath;
 };
@@ -158,10 +165,13 @@ public:
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
     virtual QString makeCommand() const;
+    virtual IOutputParser *outputParser() const;
+
 protected:
     virtual bool equals(ToolChain *other) const;
     QByteArray m_predefinedMacros;
     QString m_name;
+
 private:
     mutable QList<QPair<QString, QString> > m_values;
     mutable bool m_valuesSet;
@@ -178,8 +188,10 @@ public:
     virtual QList<HeaderPath> systemHeaderPaths();
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
+
 protected:
     virtual bool equals(ToolChain *other) const;
+
 private:
     QString m_platform;
 };

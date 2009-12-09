@@ -32,7 +32,7 @@
 
 #include "ui_qmakestep.h"
 
-#include <projectexplorer/abstractmakestep.h>
+#include <projectexplorer/abstractprocessstep.h>
 
 #include <QStringList>
 
@@ -64,7 +64,7 @@ public:
 } // namespace Internal
 
 
-class QMakeStep : public ProjectExplorer::AbstractMakeStep
+class QMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
 public:

@@ -36,7 +36,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
-#include <utils/qtcassert.h>
+#include <projectexplorer/gnumakeparser.h>
 #include <coreplugin/variablemanager.h>
 
 #include <QtGui/QFormLayout>
@@ -48,13 +48,13 @@
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
 
-GenericMakeStep::GenericMakeStep(ProjectExplorer::BuildConfiguration *bc)
-    : AbstractMakeStep(bc)
+GenericMakeStep::GenericMakeStep(ProjectExplorer::BuildConfiguration *bc) :
+    AbstractProcessStep(bc)
 {
 }
 
-GenericMakeStep::GenericMakeStep(GenericMakeStep *bs, ProjectExplorer::BuildConfiguration *bc)
-    : AbstractMakeStep(bs, bc)
+GenericMakeStep::GenericMakeStep(GenericMakeStep *bs, ProjectExplorer::BuildConfiguration *bc) :
+    AbstractProcessStep(bs, bc)
 {
     m_buildTargets = bs->m_buildTargets;
     m_makeArguments = bs->m_makeArguments;
@@ -73,9 +73,6 @@ GenericBuildConfiguration *GenericMakeStep::genericBuildConfiguration() const
 bool GenericMakeStep::init()
 {
     GenericBuildConfiguration *bc = genericBuildConfiguration();
-    //TODO
-    const QString buildParser = genericBuildConfiguration()->genericProject()->buildParser(bc);
-    setBuildParser(buildParser);
 
     setEnabled(true);
     Core::VariableManager *vm = Core::VariableManager::instance();
@@ -87,7 +84,12 @@ bool GenericMakeStep::init()
     setArguments(replacedArguments());
 
     setEnvironment(bc->environment());
-    return AbstractMakeStep::init();
+
+    setOutputParser(new ProjectExplorer::GnuMakeParser(buildDir));
+    if (bc->genericProject()->toolChain())
+        appendOutputParser(bc->genericProject()->toolChain()->outputParser());
+
+    return AbstractProcessStep::init();
 }
 
 void GenericMakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
@@ -95,7 +97,7 @@ void GenericMakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
     m_buildTargets = map.value("buildTargets").toStringList();
     m_makeArguments = map.value("makeArguments").toStringList();
     m_makeCommand = map.value("makeCommand").toString();
-    ProjectExplorer::AbstractMakeStep::restoreFromLocalMap(map);
+    ProjectExplorer::AbstractProcessStep::restoreFromLocalMap(map);
 }
 
 void GenericMakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
@@ -103,7 +105,7 @@ void GenericMakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
     map["buildTargets"] = m_buildTargets;
     map["makeArguments"] = m_makeArguments;
     map["makeCommand"] = m_makeCommand;
-    ProjectExplorer::AbstractMakeStep::storeIntoLocalMap(map);
+    ProjectExplorer::AbstractProcessStep::storeIntoLocalMap(map);
 }
 
 QStringList GenericMakeStep::replacedArguments() const

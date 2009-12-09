@@ -47,6 +47,7 @@ public:
     void addToEnvironment(ProjectExplorer::Environment &env);
     ProjectExplorer::ToolChain::ToolChainType type() const;
     QString makeCommand() const;
+    ProjectExplorer::IOutputParser *outputParser() const;
 
 protected:
     bool equals(ToolChain *other) const;

@@ -30,26 +30,24 @@
 #ifndef RVCTPARSER_H
 #define RVCTPARSER_H
 
-#include <projectexplorer/ibuildparser.h>
+#include <projectexplorer/ioutputparser.h>
 
 #include <QtCore/QRegExp>
 
 namespace Qt4ProjectManager {
 
-class RvctParser : public ProjectExplorer::IBuildParser
+class RvctParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 
 public:
     RvctParser();
-    QString name() const;
-    virtual void stdOutput(const QString & line);
     virtual void stdError(const QString & line);
+
 private:
     QRegExp m_warningOrError;
     QRegExp m_doneWithFile;
     QRegExp m_linkerProblem;
-    QRegExp m_makeDir;
 
     bool m_additionalInfo;
     QString m_lastFile;

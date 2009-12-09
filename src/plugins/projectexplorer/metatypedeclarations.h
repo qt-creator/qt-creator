@@ -38,7 +38,7 @@ class ProjectInterface;
 class IProjectManager;
 class SessionManager;
 class IApplicationOutput;
-class IBuildParser;
+class IOutputParser;
 class GlobalConfigManagerInterface;
 
 namespace Internal {
@@ -53,7 +53,7 @@ Q_DECLARE_METATYPE(ProjectExplorer::IProjectManager*)
 Q_DECLARE_METATYPE(ProjectExplorer::IApplicationOutput*)
 Q_DECLARE_METATYPE(ProjectExplorer::Internal::CommandQObject*)
 Q_DECLARE_METATYPE(QList<ProjectExplorer::Internal::CommandQObject*>)
-Q_DECLARE_METATYPE(ProjectExplorer::IBuildParser*)
+Q_DECLARE_METATYPE(ProjectExplorer::IOutputParser*)
 
 Q_DECLARE_METATYPE(ProjectExplorer::GlobalConfigManagerInterface*)
 Q_DECLARE_METATYPE(ProjectExplorer::TaskWindow::Task)

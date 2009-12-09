@@ -27,46 +27,56 @@
 **
 **************************************************************************/
 
-#ifndef IBUILDPARSER_H
-#define IBUILDPARSER_H
-
-#include "projectexplorer_export.h"
-#include "taskwindow.h"
-
-#include <QtCore/QObject>
-#include <QtCore/QString>
+#include "ioutputparser.h"
+#include "utils/qtcassert.h"
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT IBuildParser : public QObject
+IOutputParser::IOutputParser() : m_parser(0)
 {
-    Q_OBJECT
-public:
-    virtual ~IBuildParser() {}
-    virtual QString name() const = 0;
 
-    virtual void stdOutput(const QString & line) = 0;
-    virtual void stdError(const QString & line) = 0;
+}
 
-Q_SIGNALS:
-    void enterDirectory(const QString &dir);
-    void leaveDirectory(const QString &dir);
-    void addToOutputWindow(const QString & string);
-    void addToTaskWindow(const ProjectExplorer::TaskWindow::Task &task);
-};
-
-class PROJECTEXPLORER_EXPORT IBuildParserFactory
-    : public QObject
+IOutputParser::~IOutputParser()
 {
-    Q_OBJECT
+    delete m_parser;
+}
 
-public:
-    IBuildParserFactory() {}
-    virtual ~IBuildParserFactory();
-    virtual bool canCreate(const QString & name) const = 0;
-    virtual IBuildParser * create(const QString & name) const = 0;
-};
+void IOutputParser::appendOutputParser(IOutputParser *parser)
+{
+    QTC_ASSERT(parser, return);
+    if (m_parser) {
+        m_parser->appendOutputParser(parser);
+        return;
+    }
 
-} // namespace ProjectExplorer
+    m_parser = parser;
+    connect(parser, SIGNAL(addOutput(QString)),
+            this, SLOT(outputAdded(QString)));
+    connect(parser, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
+            this, SLOT(taskAdded(ProjectExplorer::TaskWindow::Task)));
+}
 
-#endif // IBUILDPARSER_H
+void IOutputParser::stdOutput(const QString &line)
+{
+    if (m_parser)
+        m_parser->stdOutput(line);
+}
+
+void IOutputParser::stdError(const QString &line)
+{
+    if (m_parser)
+        m_parser->stdError(line);
+}
+
+void IOutputParser::outputAdded(const QString &string)
+{
+    emit addOutput(string);
+}
+
+void IOutputParser::taskAdded(const ProjectExplorer::TaskWindow::Task &task)
+{
+    emit addTask(task);
+}
+
+}

@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "rvcttoolchain.h"
+#include "rvctparser.h"
+
 #include <QtCore/QProcess>
 
 using namespace ProjectExplorer;
@@ -137,6 +139,11 @@ void RVCTToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 QString RVCTToolChain::makeCommand() const
 {
     return QLatin1String("make");
+}
+
+ProjectExplorer::IOutputParser *RVCTToolChain::outputParser() const
+{
+    return new RvctParser;
 }
 
 bool RVCTToolChain::equals(ToolChain *otherIn) const

@@ -30,7 +30,7 @@
 #ifndef GENERICMAKESTEP_H
 #define GENERICMAKESTEP_H
 
-#include <projectexplorer/abstractmakestep.h>
+#include <projectexplorer/abstractprocessstep.h>
 
 QT_BEGIN_NAMESPACE
 class QListWidgetItem;
@@ -51,7 +51,7 @@ struct GenericMakeStepSettings
 
 };
 
-class GenericMakeStep : public ProjectExplorer::AbstractMakeStep
+class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
     friend class GenericMakeStepConfigWidget; // TODO remove again?

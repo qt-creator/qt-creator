@@ -30,11 +30,11 @@
 #ifndef BUILDSTEP_H
 #define BUILDSTEP_H
 
-#include "ibuildparser.h"
 #include "projectexplorer_export.h"
+#include "taskwindow.h"
 
-#include <QtGui/QWidget>
 #include <QtCore/QFutureInterface>
+#include <QtGui/QWidget>
 
 namespace ProjectExplorer {
 class BuildConfiguration;
@@ -109,11 +109,13 @@ public:
 
     BuildConfiguration *buildConfiguration() const;
 
-Q_SIGNALS:
-    void addToTaskWindow(const ProjectExplorer::TaskWindow::Task &task);
-    // The string is added to the output window
+signals:
+    // Add a task.
+    void addTask(const ProjectExplorer::TaskWindow::Task &task);
+    // The string is added to the generated output, usually in the output
+    // window.
     // It should be in html format, that is properly escaped
-    void addToOutputWindow(const QString &string);
+    void addOutput(const QString &string);
 
 private:
     BuildConfiguration *m_buildConfiguration;

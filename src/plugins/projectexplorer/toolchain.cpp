@@ -31,10 +31,12 @@
 #include "project.h"
 #include "cesdkhandler.h"
 #include "projectexplorersettings.h"
+#include "gccparser.h"
+#include "msvcparser.h"
 
+#include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
-#include <QtCore/QDebug>
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
 #include <QtCore/QTemporaryFile>
@@ -93,7 +95,6 @@ QStringList ToolChain::availableMSVCVersions()
 {
     QSettings registry(MSVC_RegKey, QSettings::NativeFormat);
     QStringList versions = registry.allKeys();
-    // qDebug() << "AVAILABLE MSVC VERSIONS:" << versions << "at" << MSVC_RegKey;
     return versions;
 }
 
@@ -241,7 +242,12 @@ void GccToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 
 QString GccToolChain::makeCommand() const
 {
-    return "make";
+    return QLatin1String("make");
+}
+
+IOutputParser *GccToolChain::outputParser() const
+{
+    return new GccParser;
 }
 
 bool GccToolChain::equals(ToolChain *other) const
@@ -268,21 +274,22 @@ bool MinGWToolChain::equals(ToolChain *other) const
 
 void MinGWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
-    //qDebug()<<"MinGWToolChain::addToEnvironment";
     if (m_mingwPath.isEmpty())
         return;
     QString binDir = m_mingwPath + "/bin";
     if (QFileInfo(binDir).exists())
         env.prependOrSetPath(binDir);
-//    if (QFileInfo(binDir).exists())
-//        qDebug()<<"Adding "<<binDir<<" to the PATH";
 }
 
 QString MinGWToolChain::makeCommand() const
 {
-    return "mingw32-make.exe";
+    return QLatin1String("mingw32-make.exe");
 }
 
+IOutputParser *MinGWToolChain::outputParser() const
+{
+    return new GccParser;
+}
 
 MSVCToolChain::MSVCToolChain(const QString &name, bool amd64)
     : m_name(name), m_valuesSet(false), m_amd64(amd64)
@@ -382,7 +389,6 @@ QByteArray MSVCToolChain::predefinedMacros()
         }
         QFile::remove(tmpFilePath);
     }
-    //qDebug() << m_predefinedMacros;
     return m_predefinedMacros;
 }
 
@@ -412,7 +418,6 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
             varsbat = path + "bin\\amd64\\vcvarsamd64.bat";
         else
             varsbat = path + "bin\\vcvars32.bat";
-        //        qDebug() << varsbat;
         if (QFileInfo(varsbat).exists()) {
             QTemporaryFile tf(QDir::tempPath() + "\\XXXXXX.bat");
             if (!tf.open())
@@ -465,9 +470,14 @@ QString MSVCToolChain::makeCommand() const
         if (QFileInfo(jom).exists())
             return jom;
         else
-            return "jom.exe";
+            return QLatin1String("jom.exe");
     }
-    return "nmake.exe";
+    return QLatin1String("nmake.exe");
+}
+
+IOutputParser *MSVCToolChain::outputParser() const
+{
+    return new MsvcParser;
 }
 
 WinCEToolChain::WinCEToolChain(const QString &name, const QString &platform)
@@ -521,14 +531,8 @@ void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 
     path += "/";
 
-//        qDebug()<<"MSVC path"<<path;
-//        qDebug()<<"looking for platform name in"<< path() + "/mkspecs/" + mkspec() +"/qmake.conf";
     // Find Platform name
-//        qDebug()<<"Platform Name"<<m_platform;
-
     CeSdkHandler cesdkhandler;
     cesdkhandler.parse(path);
     cesdkhandler.find(m_platform).addToEnvironment(env);
-    //qDebug()<<"WinCE Final Environment:";
-    //qDebug()<<env.toStringList();
 }

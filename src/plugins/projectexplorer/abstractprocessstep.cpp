@@ -28,27 +28,43 @@
 **************************************************************************/
 
 #include "abstractprocessstep.h"
+#include "buildconfiguration.h"
 #include "buildstep.h"
+#include "ioutputparser.h"
 #include "project.h"
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QProcess>
 #include <QtCore/QEventLoop>
-#include <QtCore/QDebug>
 #include <QtCore/QTimer>
 #include <QtGui/QTextDocument>
 
 using namespace ProjectExplorer;
 
-AbstractProcessStep::AbstractProcessStep(BuildConfiguration *bc)
-  : BuildStep(bc), m_timer(0), m_futureInterface(0), m_process(0), m_eventLoop(0)
+AbstractProcessStep::AbstractProcessStep(BuildConfiguration *bc) :
+    BuildStep(bc), m_timer(0), m_futureInterface(0),
+    m_enabled(true), m_ignoreReturnValue(false),
+    m_process(0), m_eventLoop(0), m_outputParserChain(0)
 {
 
 }
 
-AbstractProcessStep::AbstractProcessStep(AbstractProcessStep *bs, BuildConfiguration *bc)
-    : BuildStep(bs, bc), m_timer(0), m_futureInterface(0), m_process(0), m_eventLoop(0)
+AbstractProcessStep::AbstractProcessStep(AbstractProcessStep *bs,
+                                         BuildConfiguration *bc) :
+    BuildStep(bs, bc), m_timer(0), m_futureInterface(0),
+    m_enabled(bs->m_enabled), m_ignoreReturnValue(bs->m_ignoreReturnValue),
+    m_process(0), m_eventLoop(0), m_outputParserChain(0)
 {
 
+}
+
+AbstractProcessStep::~AbstractProcessStep()
+{
+    delete m_process;
+    delete m_timer;
+    // do not delete m_futureInterface, we do not own it.
+    delete m_outputParserChain;
 }
 
 void AbstractProcessStep::setCommand(const QString &cmd)
@@ -59,6 +75,34 @@ void AbstractProcessStep::setCommand(const QString &cmd)
 QString AbstractProcessStep::workingDirectory() const
 {
     return m_workingDirectory;
+}
+
+void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser)
+{
+    delete m_outputParserChain;
+    m_outputParserChain = parser;
+
+    if (m_outputParserChain) {
+        connect(parser, SIGNAL(addOutput(QString)),
+                this, SLOT(outputAdded(QString)));
+        connect(parser, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
+                this, SLOT(taskAdded(ProjectExplorer::TaskWindow::Task)));
+    }
+}
+
+void AbstractProcessStep::appendOutputParser(ProjectExplorer::IOutputParser *parser)
+{
+    if (!parser)
+        return;
+
+    QTC_ASSERT(m_outputParserChain, return);
+    m_outputParserChain->appendOutputParser(parser);
+    return;
+}
+
+ProjectExplorer::IOutputParser *AbstractProcessStep::outputParser() const
+{
+    return m_outputParserChain;
 }
 
 void AbstractProcessStep::setWorkingDirectory(const QString &workingDirectory)
@@ -96,7 +140,7 @@ bool AbstractProcessStep::init()
     return true;
 }
 
-void AbstractProcessStep::run(QFutureInterface<bool> & fi)
+void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 {
     m_futureInterface = &fi;
     if (!m_enabled) {
@@ -155,23 +199,22 @@ void AbstractProcessStep::run(QFutureInterface<bool> & fi)
 
 void AbstractProcessStep::processStarted()
 {
-    emit addToOutputWindow(tr("<font color=\"#0000ff\">Starting: %1 %2</font>\n").arg(m_command, Qt::escape(m_arguments.join(" "))));
+    emit addOutput(tr("<font color=\"#0000ff\">Starting: %1 %2</font>\n").arg(m_command, Qt::escape(m_arguments.join(" "))));
 }
 
 bool AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
     const bool ok = status == QProcess::NormalExit && (exitCode == 0 || m_ignoreReturnValue);
-    if (ok) {
-        emit addToOutputWindow(tr("<font color=\"#0000ff\">Exited with code %1.</font>").arg(m_process->exitCode()));
-    } else {
-        emit addToOutputWindow(tr("<font color=\"#ff0000\"><b>Exited with code %1.</b></font>").arg(m_process->exitCode()));
-    }
+    if (ok)
+        emit addOutput(tr("<font color=\"#0000ff\">Exited with code %1.</font>").arg(m_process->exitCode()));
+    else
+        emit addOutput(tr("<font color=\"#ff0000\"><b>Exited with code %1.</b></font>").arg(m_process->exitCode()));
     return ok;
 }
 
 void AbstractProcessStep::processStartupFailed()
 {
-   emit addToOutputWindow(tr("<font color=\"#ff0000\">Could not start process %1 </b></font>").arg(m_command));
+   emit addOutput(tr("<font color=\"#ff0000\">Could not start process %1 </b></font>").arg(m_command));
 }
 
 void AbstractProcessStep::processReadyReadStdOutput()
@@ -179,13 +222,15 @@ void AbstractProcessStep::processReadyReadStdOutput()
     m_process->setReadChannel(QProcess::StandardOutput);
     while (m_process->canReadLine()) {
         QString line = QString::fromLocal8Bit(m_process->readLine()).trimmed();
-        stdOut(line);
+        stdOutput(line);
     }
 }
 
-void AbstractProcessStep::stdOut(const QString &line)
+void AbstractProcessStep::stdOutput(const QString &line)
 {
-    emit addToOutputWindow(Qt::escape(line));
+    if (m_outputParserChain)
+        m_outputParserChain->stdOutput(line);
+    emit addOutput(Qt::escape(line));
 }
 
 void AbstractProcessStep::processReadyReadStdError()
@@ -199,7 +244,10 @@ void AbstractProcessStep::processReadyReadStdError()
 
 void AbstractProcessStep::stdError(const QString &line)
 {
-    emit addToOutputWindow(QLatin1String("<font color=\"#ff0000\">") + Qt::escape(line) + QLatin1String("</font>"));
+    if (m_outputParserChain)
+        m_outputParserChain->stdError(line);
+    else
+        emit addOutput(QLatin1String("<font color=\"#ff0000\">") + Qt::escape(line) + QLatin1String("</font>"));
 }
 
 void AbstractProcessStep::checkForCancel()
@@ -212,6 +260,54 @@ void AbstractProcessStep::checkForCancel()
     }
 }
 
+void AbstractProcessStep::taskAdded(const ProjectExplorer::TaskWindow::Task &task)
+{
+    TaskWindow::Task editable(task);
+    QString filePath = QDir::cleanPath(task.file.trimmed());
+    if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
+        // We have no save way to decide which file in which subfolder
+        // is meant. Therefore we apply following heuristics:
+        // 1. Check if file is unique in whole project
+        // 2. Otherwise try again without any ../
+        // 3. give up.
+
+        QList<QFileInfo> possibleFiles;
+        QString fileName = QFileInfo(filePath).fileName();
+        foreach (const QString &file, buildConfiguration()->project()->files(ProjectExplorer::Project::AllFiles)) {
+            QFileInfo candidate(file);
+            if (candidate.fileName() == fileName)
+                possibleFiles << candidate;
+        }
+
+        if (possibleFiles.count() == 1) {
+            editable.file = possibleFiles.first().filePath();
+        } else {
+            // More then one filename, so do a better compare
+            // Chop of any "../"
+            while (filePath.startsWith("../"))
+                filePath = filePath.mid(3);
+            int count = 0;
+            QString possibleFilePath;
+            foreach(const QFileInfo &fi, possibleFiles) {
+                if (fi.filePath().endsWith(filePath)) {
+                    possibleFilePath = fi.filePath();
+                    ++count;
+                }
+            }
+            if (count == 1)
+                editable.file = possibleFilePath;
+            else
+                qWarning() << "Could not find absolute location of file " << filePath;
+        }
+    }
+    emit addTask(editable);
+}
+
+void AbstractProcessStep::outputAdded(const QString &string)
+{
+    emit addOutput(string);
+}
+
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
     QString line = QString::fromLocal8Bit(m_process->readAllStandardError()).trimmed();
@@ -220,7 +316,7 @@ void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 
     line = QString::fromLocal8Bit(m_process->readAllStandardOutput()).trimmed();
     if (!line.isEmpty())
-        stdOut(line);
+        stdOutput(line);
 
     m_eventLoop->exit(0);
 }

@@ -30,26 +30,24 @@
 #ifndef GCCPARSER_H
 #define GCCPARSER_H
 
-#include "ibuildparser.h"
+#include "ioutputparser.h"
 
 #include <QtCore/QRegExp>
 
 namespace ProjectExplorer {
 
-class GccParser : public ProjectExplorer::IBuildParser
+class GccParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 
 public:
     GccParser();
-    QString name() const;
-    virtual void stdOutput(const QString & line);
-    virtual void stdError(const QString & line);
+    virtual void stdError(const QString &line);
+
 private:
     QRegExp m_regExp;
     QRegExp m_regExpIncluded;
     QRegExp m_regExpLinker;
-    QRegExp m_makeDir;
 };
 
 } // namespace ProjectExplorer

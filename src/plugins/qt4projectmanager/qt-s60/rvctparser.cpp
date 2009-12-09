@@ -32,6 +32,7 @@
 #include <projectexplorer/taskwindow.h>
 
 using namespace ProjectExplorer;
+using namespace ProjectExplorer::Constants;
 using namespace Qt4ProjectManager;
 
 RvctParser::RvctParser() :
@@ -48,46 +49,28 @@ RvctParser::RvctParser() :
     // linker problems:
     m_linkerProblem.setPattern("^(\\S*)\\(\\S+\\):\\s(.+)$");
     m_linkerProblem.setMinimal(true);
-
-    //make[4]: Entering directory `/home/kkoehne/dev/ide-explorer/src/plugins/qtscripteditor'
-    m_makeDir.setPattern("^make.*: (\\w+) directory .(.+).$");
-    m_makeDir.setMinimal(true);
-}
-
-QString RvctParser::name() const
-{
-    return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_RVCT);
-}
-
-void RvctParser::stdOutput(const QString &line)
-{
-    QString lne = line.trimmed();
-
-    if (m_makeDir.indexIn(lne) > -1) {
-        if (m_makeDir.cap(1) == "Leaving")
-            emit leaveDirectory(m_makeDir.cap(2));
-        else
-            emit enterDirectory(m_makeDir.cap(2));
-    }
 }
 
 void RvctParser::stdError(const QString &line)
 {
     QString lne = line.trimmed();
     if (m_linkerProblem.indexIn(lne) > -1) {
-       emit addToTaskWindow(TaskWindow::Task(TaskWindow::Error,
-                                             m_linkerProblem.cap(2) /* description */,
-                                             m_linkerProblem.cap(1) /* filename */,
-                                             -1 /* linenumber */,
-                                             Constants::TASK_CATEGORY_COMPILE));
-   } else if (m_warningOrError.indexIn(lne) > -1) {
+       emit addTask(TaskWindow::Task(TaskWindow::Error,
+                                     m_linkerProblem.cap(2) /* description */,
+                                     m_linkerProblem.cap(1) /* filename */,
+                                     -1 /* linenumber */,
+                                     TASK_CATEGORY_COMPILE));
+       return;
+   }
+
+   if (m_warningOrError.indexIn(lne) > -1) {
        m_lastFile = m_warningOrError.cap(1);
        m_lastLine = m_warningOrError.cap(2).toInt();
 
        TaskWindow::Task task(TaskWindow::Unknown,
                              m_warningOrError.cap(5) /* description */,
                              m_lastFile, m_lastLine,
-                             Constants::TASK_CATEGORY_COMPILE);
+                             TASK_CATEGORY_COMPILE);
        if (m_warningOrError.cap(4) == "Warning")
            task.type = TaskWindow::Warning;
        else if (m_warningOrError.cap(4) == "Error")
@@ -95,14 +78,21 @@ void RvctParser::stdError(const QString &line)
 
        m_additionalInfo = true;
 
-       emit addToTaskWindow(task);
-   } else if (m_doneWithFile.indexIn(lne) > -1) {
+       emit addTask(task);
+       return;
+   }
+
+   if (m_doneWithFile.indexIn(lne) > -1) {
        m_additionalInfo = false;
-   } else if (m_additionalInfo) {
+       return;
+   }
+   if (m_additionalInfo) {
        // Report any lines after a error/warning message as these contain
        // additional information on the problem.
-       emit addToTaskWindow(TaskWindow::Task(TaskWindow::Unknown, lne,
-                                             m_lastFile,  m_lastLine,
-                                             Constants::TASK_CATEGORY_COMPILE));
+       emit addTask(TaskWindow::Task(TaskWindow::Unknown, lne,
+                                     m_lastFile,  m_lastLine,
+                                     TASK_CATEGORY_COMPILE));
+       return;
    }
+   IOutputParser::stdError(line);
 }

@@ -103,7 +103,6 @@ public:
     virtual QStringList files(FilesMode fileMode) const;
 
     QStringList targets() const;
-    QString buildParser(ProjectExplorer::BuildConfiguration *configuration) const;
     ProjectExplorer::ToolChain *toolChain() const;
 
     bool setFiles(const QStringList &filePaths);

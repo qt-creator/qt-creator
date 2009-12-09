@@ -30,9 +30,6 @@
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QDir>
-
 using namespace ProjectExplorer;
 
 MsvcParser::MsvcParser()
@@ -43,26 +40,15 @@ MsvcParser::MsvcParser()
     m_linkRegExp.setMinimal(true);
 }
 
-QString MsvcParser::name() const
-{
-    return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_MSVC);
-}
-
-void MsvcParser::stdError(const QString & line)
-{
-    Q_UNUSED(line)
-    //do nothing
-}
-
-void MsvcParser::stdOutput(const QString & line)
+void MsvcParser::stdOutput(const QString &line)
 {
     QString lne = line.trimmed();
     if (m_compileRegExp.indexIn(lne) > -1 && m_compileRegExp.numCaptures() == 4) {
-        emit addToTaskWindow(TaskWindow::Task(toType(m_compileRegExp.cap(3).toInt()) /* task type */,
-                                              m_compileRegExp.cap(4) /* description */,
-                                              m_compileRegExp.cap(1) /* filename */,
-                                              m_compileRegExp.cap(2).toInt() /* linenumber */,
-                                              Constants::TASK_CATEGORY_COMPILE));
+        emit addTask(TaskWindow::Task(toType(m_compileRegExp.cap(3).toInt()) /* task type */,
+                                      m_compileRegExp.cap(4) /* description */,
+                                      m_compileRegExp.cap(1) /* filename */,
+                                      m_compileRegExp.cap(2).toInt() /* linenumber */,
+                                      Constants::TASK_CATEGORY_COMPILE));
         return;
     }
     if (m_linkRegExp.indexIn(lne) > -1 && m_linkRegExp.numCaptures() == 3) {
@@ -70,13 +56,14 @@ void MsvcParser::stdOutput(const QString & line)
         if (fileName.contains(QLatin1String("LINK"), Qt::CaseSensitive))
             fileName.clear();
 
-        emit addToTaskWindow(TaskWindow::Task(toType(m_linkRegExp.cap(2).toInt()) /* task type */,
-                                              m_linkRegExp.cap(3) /* description */,
-                                              fileName /* filename */,
-                                              -1 /* line number */,
-                                              Constants::TASK_CATEGORY_COMPILE));
+        emit addTask(TaskWindow::Task(toType(m_linkRegExp.cap(2).toInt()) /* task type */,
+                                      m_linkRegExp.cap(3) /* description */,
+                                      fileName /* filename */,
+                                      -1 /* line number */,
+                                      Constants::TASK_CATEGORY_COMPILE));
         return;
     }
+    IOutputParser::stdError(line);
 }
 
 TaskWindow::TaskType MsvcParser::toType(int number)

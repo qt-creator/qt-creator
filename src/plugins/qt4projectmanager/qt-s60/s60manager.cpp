@@ -36,7 +36,6 @@
 #include "rvcttoolchain.h"
 #include "s60emulatorrunconfiguration.h"
 #include "s60devicerunconfiguration.h"
-#include "s60buildparserfactory.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -117,9 +116,6 @@ S60Manager::S60Manager(QObject *parent)
                                                 S60DeviceRunConfiguration>
                                                 (QLatin1String(ProjectExplorer::Constants::RUNMODE),
                                                  tr("Run on Device"), parent));
-
-    // Build parsers
-    addAutoReleasedObject(new S60ParserFactory);
 
     if (Debugger::DebuggerManager::instance())
         addAutoReleasedObject(new RunControlFactory<S60DeviceDebugRunControl,

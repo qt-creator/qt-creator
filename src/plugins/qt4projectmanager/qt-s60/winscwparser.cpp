@@ -33,6 +33,7 @@
 
 using namespace Qt4ProjectManager;
 using namespace ProjectExplorer;
+using namespace ProjectExplorer::Constants;
 
 WinscwParser::WinscwParser()
 {
@@ -43,41 +44,26 @@ WinscwParser::WinscwParser()
     // WINSCW issue:
     m_compilerProblem.setPattern("^([^\\(\\)]+[^\\d]):(\\d+):\\s(.+)$");
     m_compilerProblem.setMinimal(true);
-
-    //make[4]: Entering directory `/home/kkoehne/dev/ide-explorer/src/plugins/qtscripteditor'
-    m_makeDir.setPattern("^make.*: (\\w+) directory .(.+).$");
-    m_makeDir.setMinimal(true);
-}
-
-QString WinscwParser::name() const
-{
-    return QLatin1String(ProjectExplorer::Constants::BUILD_PARSER_WINSCW);
 }
 
 void WinscwParser::stdOutput(const QString &line)
 {
     QString lne = line.trimmed();
 
-    if (m_makeDir.indexIn(lne) > -1) {
-        if (m_makeDir.cap(1) == "Leaving")
-            emit leaveDirectory(m_makeDir.cap(2));
-        else
-            emit enterDirectory(m_makeDir.cap(2));
-        return;
-    }
-
     if (m_compilerProblem.indexIn(lne) > -1) {
         TaskWindow::Task task(TaskWindow::Error,
                               m_compilerProblem.cap(3) /* description */,
                               m_compilerProblem.cap(1) /* filename */,
                               m_compilerProblem.cap(2).toInt() /* linenumber */,
-                              Constants::TASK_CATEGORY_COMPILE);
+                              TASK_CATEGORY_COMPILE);
         if (task.description.startsWith("warning: ")) {
             task.type = TaskWindow::Warning;
             task.description = task.description.mid(9);
         }
-        emit addToTaskWindow(task);
+        emit addTask(task);
+        return;
     }
+    IOutputParser::stdOutput(line);
 }
 
 void WinscwParser::stdError(const QString &line)
@@ -85,10 +71,12 @@ void WinscwParser::stdError(const QString &line)
     QString lne = line.trimmed();
 
     if (m_linkerProblem.indexIn(lne) > -1) {
-        emit addToTaskWindow(TaskWindow::Task(TaskWindow::Error,
-                                              m_linkerProblem.cap(2) /* description */,
-                                              m_linkerProblem.cap(1) /* filename */,
-                                              -1 /* linenumber */,
-                                              Constants::TASK_CATEGORY_COMPILE));
+        emit addTask(TaskWindow::Task(TaskWindow::Error,
+                                      m_linkerProblem.cap(2) /* description */,
+                                      m_linkerProblem.cap(1) /* filename */,
+                                      -1 /* linenumber */,
+                                      TASK_CATEGORY_COMPILE));
+        return;
     }
+    IOutputParser::stdError(line);
 }

@@ -27,50 +27,54 @@
 **
 **************************************************************************/
 
-#ifndef ABSTRACTMAKESTEP_H
-#define ABSTRACTMAKESTEP_H
+#ifndef IOUTPUTPARSER_H
+#define IOUTPUTPARSER_H
 
 #include "projectexplorer_export.h"
-#include "abstractprocessstep.h"
 #include "taskwindow.h"
 
-namespace ProjectExplorer {
-class BuildStep;
-class IBuildStepFactory;
-class Project;
-}
+#include <QtCore/QObject>
+#include <QtCore/QString>
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT AbstractMakeStep : public ProjectExplorer::AbstractProcessStep
+class PROJECTEXPLORER_EXPORT IOutputParser : public QObject
 {
     Q_OBJECT
 public:
-    AbstractMakeStep(BuildConfiguration *bc);
-    AbstractMakeStep(AbstractMakeStep *bs, BuildConfiguration *bc);
-    ~AbstractMakeStep();
-    virtual bool init();
-    virtual void run(QFutureInterface<bool> &);
+    IOutputParser();
+    virtual ~IOutputParser();
 
-protected:
-    // derived classes needs to call these functions
-    virtual void stdOut(const QString &line);
+    /// Append a subparser to this parser.
+    /// IOutputParser will take ownership.
+    void appendOutputParser(IOutputParser *parser);
+
+    /// Called once for each line if standard output to parse.
+    virtual void stdOutput(const QString &line);
+    /// Called once for each line if standard error to parse.
     virtual void stdError(const QString &line);
 
-    // derived classes needs to call this function
-    void setBuildParser(const QString &parser);
-    QString buildParser() const;
-private slots:
-    void slotAddToTaskWindow(const ProjectExplorer::TaskWindow::Task &task);
-    void addDirectory(const QString &dir);
-    void removeDirectory(const QString &dir);
+signals:
+    /// Should be emitted whenever some additional information should be
+    /// added to the output.
+    /// Note: This is additional information. There is no need to add each
+    /// line!
+    void addOutput(const QString &string);
+    /// Should be emitted for each task seen in the output.
+    void addTask(const ProjectExplorer::TaskWindow::Task &task);
+
+public slots:
+    /// Subparsers have their addOutput signal connected to this slot.
+    /// This method can be overwritten to change the string.
+    virtual void outputAdded(const QString &string);
+    /// Subparsers have their addTask signal connected to this slot.
+    /// This method can be overwritten to change the task.
+    virtual void taskAdded(const ProjectExplorer::TaskWindow::Task &task);
+
 private:
-    QString m_buildParserName;
-    ProjectExplorer::IBuildParser *m_buildParser;
-    QString m_buildConfiguration;
-    QSet<QString> m_openDirectories;
+    IOutputParser *m_parser;
 };
 
-} // ProjectExplorer
+} // namespace ProjectExplorer
 
-#endif // ABSTRACTMAKESTEP_H
+#endif // IOUTPUTPARSER_H

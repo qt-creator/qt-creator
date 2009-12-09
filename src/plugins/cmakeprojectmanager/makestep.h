@@ -30,7 +30,7 @@
 #ifndef MAKESTEP_H
 #define MAKESTEP_H
 
-#include <projectexplorer/abstractmakestep.h>
+#include <projectexplorer/abstractprocessstep.h>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -43,7 +43,7 @@ namespace Internal {
 
 class CMakeBuildConfiguration;
 
-class MakeStep : public ProjectExplorer::AbstractMakeStep
+class MakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
     friend class MakeStepConfigWidget; // TODO remove

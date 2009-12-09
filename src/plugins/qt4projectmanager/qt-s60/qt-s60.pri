@@ -12,7 +12,6 @@
         $$PWD/serialdevicelister.cpp \
         $$PWD/rvcttoolchain.cpp \
         $$PWD/s60runconfigbluetoothstarter.cpp \
-        $$PWD/s60buildparserfactory.cpp \
         $$PWD/abldparser.cpp \
         $$PWD/rvctparser.cpp \
         $$PWD/winscwparser.cpp
@@ -27,7 +26,6 @@
         $$PWD/serialdevicelister.h \
         $$PWD/rvcttoolchain.h \
         $$PWD/s60runconfigbluetoothstarter.h \
-        $$PWD/s60buildparserfactory.h \
         $$PWD/abldparser.h \
         $$PWD/rvctparser.h \
         $$PWD/winscwparser.h
