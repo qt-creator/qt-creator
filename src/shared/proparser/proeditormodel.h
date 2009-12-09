@@ -49,7 +49,6 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 class ProCommandManager;
-class ProItemInfoManager;
 
 class ProEditorModel : public QAbstractItemModel
 {
@@ -59,8 +58,6 @@ public:
     ProEditorModel(QObject *parent = 0);
     ~ProEditorModel();
 
-    void setInfoManager(ProItemInfoManager *infomanager);
-    ProItemInfoManager *infoManager() const;
     ProCommandManager *cmdManager() const;
 
     void setProFiles(QList<ProFile*> proFiles);
@@ -69,7 +66,6 @@ public:
     QList<QModelIndex> findVariables(const QStringList &varname, const QModelIndex &parent = QModelIndex()) const;
     QList<QModelIndex> findBlocks(const QModelIndex &parent = QModelIndex()) const;
 
-    bool moveItem(const QModelIndex &index, int row);
     bool insertItem(ProItem *item, int row, const QModelIndex &parent);
     bool removeItem(const QModelIndex &index);
 
@@ -82,7 +78,6 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
@@ -105,7 +100,6 @@ private:
     ProCommandManager *m_cmdmanager;
     QList<ProFile*> m_proFiles;
     QSet<ProFile*> m_changed;
-    ProItemInfoManager *m_infomanager;
 
     friend class ProAddCommand;
     friend class ProRemoveCommand;

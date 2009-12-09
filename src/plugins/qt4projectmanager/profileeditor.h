@@ -45,8 +45,6 @@ class Qt4Project;
 namespace Internal {
 
 class ProFileEditorFactory;
-class ProItemInfoManager;
-class ProEditorModel;
 class ProFileHighlighter;
 
 class ProFileEditor;

@@ -31,7 +31,6 @@
 #include "proitems.h"
 #include "proeditormodel.h"
 #include "procommandmanager.h"
-#include "proiteminfo.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QMimeData>
@@ -236,23 +235,11 @@ private:
 ProEditorModel::ProEditorModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    m_infomanager = 0;
     m_cmdmanager = new ProCommandManager(this);
 }
 
 ProEditorModel::~ProEditorModel()
 {
-}
-
-void ProEditorModel::setInfoManager(ProItemInfoManager *infomanager)
-{
-    m_infomanager = infomanager;
-    reset();
-}
-
-ProItemInfoManager *ProEditorModel::infoManager() const
-{
-    return m_infomanager;
 }
 
 ProCommandManager *ProEditorModel::cmdManager() const
@@ -312,10 +299,6 @@ QString ProEditorModel::blockName(ProBlock *block) const
     // variables has a name
     if (block->blockKind() & ProBlock::VariableKind) {
         ProVariable *v = static_cast<ProVariable*>(block);
-        if (m_infomanager) {
-            if (ProVariableInfo *info = m_infomanager->variable(v->variable()))
-                return info->name();
-        }
         return v->variable();
     }
 
@@ -479,13 +462,6 @@ QVariant ProEditorModel::data(const QModelIndex &index, int role) const
     } else if (item->kind() == ProItem::ValueKind) {
         ProValue *value = static_cast<ProValue*>(item);
         if (role == Qt::DisplayRole) {
-            ProVariable *var = proVariable(index.parent());
-            if (var && m_infomanager) {
-                if (ProVariableInfo *varinfo = m_infomanager->variable(var->variable())) {
-                    if (ProValueInfo *valinfo = varinfo->value(value->value()))
-                        return QVariant(valinfo->name());
-                }
-            }
             return QVariant(value->value());
         } else if (role == Qt::DecorationRole) {
             return QIcon(":/proparser/images/value.png");
@@ -495,96 +471,6 @@ QVariant ProEditorModel::data(const QModelIndex &index, int role) const
     }
 
     return QVariant();
-}
-
-bool ProEditorModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    static bool block = false;
-
-    if (block)
-        return false;
-
-    if (role != Qt::EditRole)
-        return false;
-
-    ProItem *item = proItem(index);
-    if (!item)
-        return false;
-
-    if (item->kind() == ProItem::ValueKind) {
-        ProValue *val = static_cast<ProValue *>(item);
-        if (val->value() == value.toString())
-            return false;
-
-        block = true;
-        m_cmdmanager->beginGroup(tr("Change Item"));
-        bool result = m_cmdmanager->command(new ProRemoveCommand(this, index));
-        if (result) {
-            ProValue *item = new ProValue(value.toString(), proVariable(index.parent()));
-            result = m_cmdmanager->command(new ProAddCommand(this, item, index.row(), index.parent()));
-        }
-        block = false;
-
-        m_cmdmanager->endGroup();
-        markProFileModified(index);
-        emit dataChanged(index,index);
-        return result;
-    } else if (item->kind() == ProItem::BlockKind) {
-        ProBlock *block = proBlock(index);
-        if (block->blockKind() & ProBlock::VariableKind) {
-            ProVariable *var = static_cast<ProVariable *>(block);
-            if (value.type() == QVariant::Int) {
-                if ((int)var->variableOperator() == value.toInt())
-                    return false;
-
-                m_cmdmanager->beginGroup(tr("Change Variable Assignment"));
-                m_cmdmanager->command(new ChangeProVariableOpCommand(this, var,
-                    (ProVariable::VariableOperator)value.toInt()));
-                m_cmdmanager->endGroup();
-                markProFileModified(index);
-                emit dataChanged(index,index);
-                return true;
-            } else {
-                if (var->variable() == value.toString())
-                    return false;
-
-                m_cmdmanager->beginGroup(tr("Change Variable Type"));
-                m_cmdmanager->command(new ChangeProVariableIdCommand(this, var,
-                    value.toString()));
-                m_cmdmanager->endGroup();
-                markProFileModified(index);
-                emit dataChanged(index,index);
-                return true;
-            }
-        } else if (block->blockKind() & ProBlock::ScopeContentsKind) {
-            ProBlock *scope = block->parent();
-            QString oldExp = expressionToString(scope);
-            if (oldExp == value.toString())
-                return false;
-
-            m_cmdmanager->beginGroup(tr("Change Scope Condition"));
-            m_cmdmanager->command(new ChangeProScopeCommand(this, scope, value.toString()));
-            m_cmdmanager->endGroup();
-            markProFileModified(index);
-            emit dataChanged(index,index);
-            return true;
-        } else if (block->blockKind() & ProBlock::ProFileKind) {
-            return false;
-        } else {
-            QString oldExp = expressionToString(block);
-            if (oldExp == value.toString())
-                return false;
-
-            m_cmdmanager->beginGroup(tr("Change Expression"));
-            m_cmdmanager->command(new ChangeProAdvancedCommand(this, block, value.toString()));
-            m_cmdmanager->endGroup();
-            markProFileModified(index);
-            emit dataChanged(index,index);
-            return true;
-        }
-    }
-
-    return false;
 }
 
 Qt::ItemFlags ProEditorModel::flags(const QModelIndex &index) const
@@ -611,29 +497,6 @@ QMimeData *ProEditorModel::mimeData(const QModelIndexList &indexes) const
     QString xml = ProXmlParser::itemToString(item);
     data->setText(xml);
     return data;
-}
-
-bool ProEditorModel::moveItem(const QModelIndex &index, int row)
-{
-    if (!index.isValid())
-        return false;
-
-    int oldrow = index.row();
-    QModelIndex parentIndex = index.parent();
-
-    if (oldrow == row)
-        return false;
-
-    ProItem *item = proItem(index);
-
-    m_cmdmanager->beginGroup(tr("Move Item"));
-    bool result = m_cmdmanager->command(new ProRemoveCommand(this, index, false));
-    if (result)
-        result = m_cmdmanager->command(new ProAddCommand(this, item, row, parentIndex, false));
-    m_cmdmanager->endGroup();
-    markProFileModified(index);
-
-    return result;
 }
 
 bool ProEditorModel::removeModelItem(const QModelIndex &index)
@@ -793,14 +656,7 @@ QString ProEditorModel::expressionToString(ProBlock *block, bool display) const
                 break; }
             case ProItem::ConditionKind: {
                 ProCondition *v = static_cast<ProCondition*>(item);
-                if (m_infomanager && display) {
-                    if (ProScopeInfo *info = m_infomanager->scope(v->text()))
-                        result += info->name();
-                    else
-                        result += v->text();
-                } else {
-                    result += v->text();
-                }
+                result += v->text();
                 break;
             }
             case ProItem::OperatorKind: {
