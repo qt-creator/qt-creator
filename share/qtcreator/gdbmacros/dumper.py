@@ -9,6 +9,10 @@ import gdb
 import base64
 import curses.ascii
 
+# only needed for gdb 7.0
+import os
+import tempfile
+
 verbosity = 0
 verbosity = 1
 
@@ -22,12 +26,94 @@ def qmin(n, m):
         return n
     return m
 
+def parseAndEvaluate(exp):
+    if gdb.VERSION.startswith("6.8.50.2009"):
+        return gdb.parse_and_eval(exp)
+    # Work around non-existing gdb.parse_and_eval as in released 7.0
+    gdb.execute("set logging redirect on")
+    gdb.execute("set logging on")
+    gdb.execute("print %s" % exp)
+    gdb.execute("set logging off")
+    return gdb.history(0)
+
+def listOfLocals():
+    try:
+        frame = gdb.selected_frame()
+        #warn("FRAME %s: " % frame)
+    except RuntimeError:
+        return ""
+
+    items = []
+    if gdb.VERSION.startswith("6.8.50.2009"):
+        # archer-tromey-python
+        block = frame.block()
+        while True:
+            if block is None:
+                warn("UNEXPECTED 'None' BLOCK")
+                break
+            for symbol in block:
+                name = symbol.print_name
+                
+                if name == "__in_chrg":
+                    continue
+
+                # "NotImplementedError: Symbol type not yet supported in
+                # Python scripts."
+                #warn("SYMBOL %s: " % symbol.value)
+                #warn("SYMBOL %s  (%s): " % (symbol, name))
+                item = Item(0, "local", name, name)
+                try:
+                    item.value = frame.read_var(name)  # this is a gdb value
+                except RuntimeError:
+                    # happens for  void foo() { std::string s; std::wstring w; }
+                    #warn("  FRAME READ VAR ERROR: %s (%s): " % (symbol, name))
+                    continue
+                #warn("ITEM %s: " % item.value)
+                items.append(item)
+            # The outermost block in a function has the function member
+            # FIXME: check whether this is guaranteed.
+            if not block.function is None:
+                break
+
+            block = block.superblock
+    else:
+        # Assuming gdb 7.0 release.
+        file = tempfile.mkstemp(prefix="gdbpy_")
+        filename = file[1]
+        gdb.execute("set logging file %s" % filename)
+        gdb.execute("set logging redirect on")
+        gdb.execute("set logging on")
+        gdb.execute("info locals")
+        gdb.execute("info args")
+        gdb.execute("set logging off")
+        gdb.execute("set logging redirect off")
+        file = open(filename, "r")
+        for line in file:
+            if len(line) == 0 or line.startswith(" "):
+                continue
+            pos = line.find(" = ")
+            if pos < 0:
+                continue
+            name = line[0:pos]
+            item = Item(0, "local", name, name)
+            try:
+                item.value = frame.read_var(name)  # this is a gdb value
+            except RuntimeError:
+                continue
+            items.append(item)
+        file.close()
+        os.remove(filename)
+
+    return items
+
+
 def value(expr):
-    value = gdb.parse_and_eval(expr)
+    value = parseAndEvaluate(expr)
     try:
         return int(value)
     except:
         return str(value)
+
 
 def isSimpleType(typeobj):
     type = str(typeobj)
@@ -40,6 +126,7 @@ def isSimpleType(typeobj):
         or type == "short" or type.startswith("short ") \
         or type == "signed" or  type.startswith("signed ") \
         or type == "unsigned" or type.startswith("unsigned ")
+
 
 def isStringType(d, typeobj):
     type = str(typeobj)
@@ -114,17 +201,17 @@ def checkPointerRange(p, n):
 def call(value, func):
     #warn("CALL: %s -> %s" % (value, func))
     type = stripClassTag(str(value.type))
-    if type.find(':') >= 0:
+    if type.find(":") >= 0:
         type = "'" + type + "'"
     exp = "((%s*)%s)->%s" % (type, value.address, func)
     #warn("CALL: %s" % exp)
-    result = gdb.parse_and_eval(exp)
+    result = parseAndEvaluate(exp)
     #warn("  -> %s" % result)
     return result
 
 def qtNamespace():
     try:
-        type = str(gdb.parse_and_eval("&QString::null").type.target().unqualified())
+        type = str(parseAndEvaluate("&QString::null").type.target().unqualified())
         return type[0:len(type) - len("QString::null")]
     except RuntimeError:
         return ""
@@ -247,79 +334,44 @@ class FrameCommand(gdb.Command):
         #
         # Locals
         #
-        try:
-            frame = gdb.selected_frame()
-            #warn("FRAME %s: " % frame)
-        except RuntimeError:
-            return ""
+        for item in listOfLocals():
+            #warn("ITEM %s: " % item.value)
 
-        block = frame.block()
-        while True:
-            if block is None:
-                warn("UNEXPECTED 'None' BLOCK")
-                break
-            for symbol in block:
-                name = symbol.print_name
-                
-                if name == "__in_chrg":
-                    continue
+            type = item.value.type
+            if type.code == gdb.TYPE_CODE_PTR \
+                    and item.name == "argv" and str(type) == "char **":
+                # Special handling for char** argv:
+                n = 0
+                p = item.value
+                while not isNull(p.dereference()) and n <= 100:
+                    p += 1
+                    n += 1
 
-                # "NotImplementedError: Symbol type not yet supported in
-                # Python scripts."
-                #warn("SYMBOL %s: " % symbol.value)
-                #warn("SYMBOL %s  (%s): " % (symbol, name))
-                item = Item(0, "local", name, name)
-                try:
-                    item.value = frame.read_var(name)  # this is a gdb value
-                except RuntimeError:
-                    # happens for  void foo() { std::string s; std::wstring w; }
-                    #warn("  FRAME READ VAR ERROR: %s (%s): " % (symbol, name))
-                    continue
-                #warn("ITEM %s: " % item.value)
-
-                type = item.value.type
-                if type.code == gdb.TYPE_CODE_PTR \
-                        and name == "argv" and str(type) == "char **":
-                    # Special handling for char** argv:
-                    n = 0
+                d.beginHash()
+                d.put('iname="%s",' % item.iname)
+                d.putName(item.name)
+                d.putItemCount(select(n <= 100, n, "> 100"))
+                d.putType(type)
+                d.putNumChild(n)
+                if d.isExpanded(item):
                     p = item.value
-                    while not isNull(p.dereference()) and n <= 100:
+                    d.beginChildren(n)
+                    for i in xrange(0, n):
+                        value = p.dereference()
+                        d.putItem(Item(value, item.iname, i, None))
                         p += 1
-                        n += 1
+                    if n > 100:
+                        d.putEllipsis()
+                    d.endChildren()
+                d.endHash()
 
-                    d.beginHash()
-                    d.put('iname="%s",' % item.iname)
-                    d.putName(name)
-                    d.putItemCount(select(n <= 100, n, "> 100"))
-                    d.putType(type)
-                    d.putNumChild(n)
-                    if d.isExpanded(item):
-                        p = item.value
-                        d.beginChildren(n)
-                        for i in xrange(0, n):
-                            value = p.dereference()
-                            d.putItem(Item(value, item.iname, i, None))
-                            p += 1
-                        if n > 100:
-                            d.putEllipsis()
-                        d.endChildren()
-                    d.endHash()
-
-                else:
-                    # A "normal" local variable or parameter
-                    d.beginHash()
-                    d.put('iname="%s",' % item.iname)
-                    d.put('addr="%s",' % item.value.address)
-                    d.safePutItemHelper(item)
-                    d.endHash()
-
-            # The outermost block in a function has the function member
-            # FIXME: check whether this is guaranteed.
-            if not block.function is None:
-                break
-
-            block = block.superblock
-            #warn("BLOCK %s: " % block)
+            else:
+                # A "normal" local variable or parameter
+                d.beginHash()
+                d.put('iname="%s",' % item.iname)
+                d.put('addr="%s",' % item.value.address)
+                d.safePutItemHelper(item)
+                d.endHash()
 
         d.pushOutput()
         locals = d.safeoutput
@@ -386,7 +438,7 @@ class FrameCommand(gdb.Command):
             d.put('type=" ",numchild="0"')
         else:
             try:
-                value = gdb.parse_and_eval(exp)
+                value = parseAndEvaluate(exp)
                 item = Item(value, "watch", name, name)
                 d.safePutItemHelper(item)
             except RuntimeError:

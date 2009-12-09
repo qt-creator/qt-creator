@@ -4365,8 +4365,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
 
     postCommand(_("show version"), CB(handleShowVersion));
 
-    postCommand(_("source -p ") + dumperSourcePath + _("dumper.py"));
-    postCommand(_("source -p ") + dumperSourcePath + _("gdbmacros.py"));
+    postCommand(_("python execfile('%1dumper.py')").arg(dumperSourcePath));
+    postCommand(_("python execfile('%1gdbmacros.py')").arg(dumperSourcePath));
 
     postCommand(_("-interpreter-exec console \"help bb\""),
         CB(handleIsSynchroneous));

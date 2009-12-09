@@ -613,7 +613,6 @@ def qdump__QObject(d, item):
                 #     % (d.ns, item.value.address, propertyName)
                 #exp = '"((\'%sQObject\'*)%s)"' % (d.ns, item.value.address,)
                 #warn("EXPRESSION:  %s" % exp)
-                #value = gdb.parse_and_eval(exp)
                 value = call(item.value, 'property("%s")' % propertyName)
                 warn("VALUE:  %s" % value)
                 warn("TYPE:  %s" % value.type)
