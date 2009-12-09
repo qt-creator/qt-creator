@@ -128,6 +128,8 @@ ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const 
     if (! end)
         return 0;
 
+    QString baseDir = QFileInfo(path()).path();
+
     QString folderName;
     for (int i = 0; i < end; ++i) {
         folderName.append(components.at(i));
@@ -142,7 +144,8 @@ ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const 
     else if (FolderNode *folder = m_folderByName.value(folderName))
         return folder;
 
-    FolderNode *folder = new FolderNode(component);
+    FolderNode *folder = new FolderNode(baseDir + "/" + folderName);
+    folder->setFolderName(component);
     m_folderByName.insert(folderName, folder);
 
     FolderNode *parent = findOrCreateFolderByName(components, end - 1);
