@@ -40,7 +40,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class ProFileOption;
+struct ProFileOption;
 
 class ProFileCache
 {
@@ -114,7 +114,7 @@ private:
     // This doesn't help gcc 3.3 ...
     template<typename T> friend class QTypeInfo;
 
-    friend class ProFileOption;
+    friend struct ProFileOption;
 };
 
 // This struct is from qmake, but we are not using everything.
