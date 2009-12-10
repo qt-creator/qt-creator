@@ -2089,7 +2089,10 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
         data->bpLineNumber = re.cap(4);
         QString full = fullName(re.cap(3));
         if (full.isEmpty()) {
-            qDebug() << "NO FULL NAME KNOWN FOR" << re.cap(3);
+            // FIXME: This happens without UsePreciseBreakpoints regularily.
+            // We need to revive that "fill full name mapping bit by bit"
+            // approach of 1.2.x
+            //qDebug() << "NO FULL NAME KNOWN FOR" << re.cap(3);
             full = cleanupFullName(re.cap(3));
             if (full.isEmpty()) {
                 qDebug() << "FILE IS NOT RESOLVABLE" << re.cap(3);
