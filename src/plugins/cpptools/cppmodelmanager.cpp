@@ -138,8 +138,6 @@ static const char pp_configuration[] =
     "#define __extension__\n"
     "#define __context__\n"
     "#define __range__\n"
-    "#define __asm(a...)\n"
-    "#define __asm__(a...)\n"
     "#define   restrict\n"
     "#define __restrict\n"
     "#define __restrict__\n"
