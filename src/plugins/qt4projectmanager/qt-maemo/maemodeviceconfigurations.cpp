@@ -146,6 +146,7 @@ void MaemoDeviceConfigurations::save()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
+    qDebug("Writing next id: %llu", m_nextId);
     settings->setValue(IdCounterKey, m_nextId);
     settings->beginWriteArray(ConfigListKey, m_devConfigs.count());
     for (int i = 0; i < m_devConfigs.count(); ++i) {
@@ -166,8 +167,9 @@ MaemoDeviceConfigurations::MaemoDeviceConfigurations(QObject *parent)
 void MaemoDeviceConfigurations::load()
 {
     QSettings *settings = Core::ICore::instance()->settings();
-    m_nextId = settings->value(IdCounterKey, 1).toULongLong();
     settings->beginGroup(SettingsGroup);
+    m_nextId = settings->value(IdCounterKey, 1).toULongLong();
+    qDebug("Read next id: %llu", m_nextId);
     int count = settings->beginReadArray(ConfigListKey);
     for (int i = 0; i < count; ++i) {
         settings->setArrayIndex(i);

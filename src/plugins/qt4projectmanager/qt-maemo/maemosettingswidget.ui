@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>515</width>
-    <height>372</height>
+    <height>387</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,14 +43,14 @@
           <widget class="QLineEdit" name="nameLineEdit"/>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="deviceTypeLabel">
            <property name="text">
             <string>Device type:</string>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QWidget" name="widget_2" native="true">
+          <widget class="QWidget" name="deviceTypeButtonsWidget" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <property name="topMargin">
              <number>0</number>
@@ -76,14 +76,14 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_8">
+          <widget class="QLabel" name="authTypeLabel">
            <property name="text">
             <string>Authentication type:</string>
            </property>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QWidget" name="widget_3" native="true">
+          <widget class="QWidget" name="authTypeButtonsWidget" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <property name="topMargin">
              <number>0</number>

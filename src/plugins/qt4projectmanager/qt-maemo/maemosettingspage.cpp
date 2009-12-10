@@ -218,6 +218,14 @@ void MaemoSettingsWidget::initGui()
     m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
     foreach(const MaemoDeviceConfigurations::DeviceConfig &devConf, m_devConfs)
         m_ui->configListWidget->addItem(devConf.name);
+
+
+#if 1 // Password authentication does not currently work due to ssh/scp issues.
+    m_ui->authTypeLabel->hide();
+    m_ui->authTypeButtonsWidget->hide();
+    m_ui->passwordLabel->hide();
+    m_ui->pwdLineEdit->hide();
+#endif
 }
 
 void MaemoSettingsWidget::addConfig()
