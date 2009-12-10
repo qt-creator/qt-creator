@@ -346,6 +346,7 @@ QByteArray MSVCToolChain::predefinedMacros()
 {
     if (m_predefinedMacros.isEmpty()) {
         m_predefinedMacros += "#define __MSVCRT__\n"
+                              "#define __w64\n"
                               "#define __int64 long long\n"
                               "#define __int32 long\n"
                               "#define __int16 short\n"
