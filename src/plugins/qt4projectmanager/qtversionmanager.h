@@ -210,7 +210,8 @@ public:
     void removeVersion(QtVersion *version);
 
     // Static Methods
-    static QPair<QtVersion::QmakeBuildConfigs, QStringList> scanMakeFile(const QString &directory, QtVersion::QmakeBuildConfigs defaultBuildConfig);
+    static QPair<QtVersion::QmakeBuildConfigs, QStringList> scanMakeFile(const QString &directory,
+                                                                         QtVersion::QmakeBuildConfigs defaultBuildConfig);
     static QString findQMakeBinaryFromMakefile(const QString &directory);
 signals:
     void defaultQtVersionChanged();
@@ -225,8 +226,12 @@ private:
     static QString findQMakeLine(const QString &directory);
     static QString trimLine(const QString line);
     static QStringList splitLine(const QString &line);
-    static void parseParts(const QStringList &parts, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments, QStringList *additionalArguments);
-    static QtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments, QtVersion::QmakeBuildConfigs defaultBuildConfig);
+    static void parseParts(const QStringList &parts,
+                           QList<QMakeAssignment> *assignments,
+                           QList<QMakeAssignment> *afterAssignments,
+                           QStringList *additionalArguments);
+    static QtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments,
+                                                                    QtVersion::QmakeBuildConfigs defaultBuildConfig);
     // Used by QtOptionsPage
     void setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion);
     // Used by QtVersion

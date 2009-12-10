@@ -75,18 +75,27 @@ public:
     bool isInBaseEnvironment(const QString &name);
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     QString indexToVariable(const QModelIndex &index) const;
+    QModelIndex index(const QString &name);
     bool changes(const QString &key) const;
-
     QList<EnvironmentItem> userChanges() const;
     void setUserChanges(QList<EnvironmentItem> list);
+
 signals:
     void userChangesChanged();
+    /// Strictly speaking this is a hack to work around
+    /// the problem that we don't emit the right signals
+    /// on editing a variable
+    /// Don't try to fix that with out consulting me
+    /// In short it's impossible to emit the right signals
+    /// and to ensure that the model is in a consistent
+    /// state at each signal emission
+    void renamedVariable(const QString &newName);
 private:
     void updateResultEnvironment();
     int findInChanges(const QString &name) const;
-    int findInResult(const QString &name) const;
     int findInChangesInsertPosition(const QString &name) const;
     int findInResultInsertPosition(const QString &name) const;
+    int findInResult(const QString &name) const;
 
     ProjectExplorer::Environment m_baseEnvironment;
     ProjectExplorer::Environment m_resultEnvironment;
@@ -119,6 +128,7 @@ private slots:
     void unsetEnvironmentButtonClicked();
     void environmentCurrentIndexChanged(const QModelIndex &current, const QModelIndex &previous);
     void updateSummaryText();
+    void renamedVariable(const QString &name);
 
 private:
     EnvironmentModel *m_model;

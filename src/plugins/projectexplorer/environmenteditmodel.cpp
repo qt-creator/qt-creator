@@ -178,6 +178,14 @@ int EnvironmentModel::findInChangesInsertPosition(const QString &name) const
     return m_items.size();
 }
 
+QModelIndex EnvironmentModel::index(const QString &name)
+{
+    int row = findInResult(name);
+    if (row == -1)
+        return QModelIndex();
+    return index(row, 0);
+}
+
 int EnvironmentModel::findInResult(const QString &name) const
 {
     Environment::const_iterator it;
@@ -230,6 +238,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
                 removeVariable(old.name);
             old.name = newName;
             addVariable(old);
+            emit renamedVariable(newName);
             return true;
         } else if (index.column() == 1) {
             const QString &name = indexToVariable(index);
@@ -364,6 +373,9 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     connect(m_model, SIGNAL(userChangesChanged()),
             this, SIGNAL(userChangesChanged()));
 
+    connect(m_model, SIGNAL(renamedVariable(QString)),
+            this, SLOT(renamedVariable(QString)));
+
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
 
@@ -437,6 +449,13 @@ EnvironmentWidget::~EnvironmentWidget()
 {
     delete m_model;
     m_model = 0;
+}
+
+void EnvironmentWidget::renamedVariable(const QString& name)
+{
+    QModelIndex idx = m_model->index(name);
+    m_environmentTreeView->setCurrentIndex(idx);
+    m_environmentTreeView->setFocus();
 }
 
 void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &env)
