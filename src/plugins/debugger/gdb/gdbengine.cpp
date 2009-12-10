@@ -194,8 +194,6 @@ GdbEngine::GdbEngine(DebuggerManager *manager) :
 
     m_commandTimer = new QTimer(this);
     m_commandTimer->setSingleShot(true);
-    QVariant timeOut = theDebuggerAction(GdbWatchdogTimeout)->value();
-    m_commandTimer->setInterval(1000 * qMax(20, timeOut.toInt()));
     connect(m_commandTimer, SIGNAL(timeout()), SLOT(commandTimeout()));
 
     // Needs no resetting in initializeVariables()
@@ -4390,6 +4388,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
         SLOT(readGdbStandardError()));
 
     debugMessage(_("GDB STARTED, INITIALIZING IT"));
+    int timeOut = theDebuggerAction(GdbWatchdogTimeout)->value().toInt();
+    m_commandTimer->setInterval(1000 * qMax(20, timeOut));
 
     postCommand(_("show version"), CB(handleShowVersion));
 
