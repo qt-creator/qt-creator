@@ -20,7 +20,7 @@ def qdump__QByteArray(d, item):
         data = d_ptr['data']
         d.beginChildren(n, innerType)
         p = gdb.Value(data.cast(innerType.pointer()))
-        for i in xrange(0, n):
+        for i in xrange(n):
             d.putItem(Item(p.dereference(), item.iname, i, None))
             p += 1
         if n < size:
@@ -51,8 +51,8 @@ def qdump__QAbstractItem(d, item):
     if d.isExpanded(item):
         innerType = gdb.lookup_type(d.ns + "QAbstractItem")
         d.beginChildren()
-        for row in xrange(0, rowCount):
-            for column in xrange(0, columnCount):
+        for row in xrange(rowCount):
+            for column in xrange(columnCount):
                 child = call(m, "index(row, column, mi)")
                 d.putName("[%s,%s]" % (row, column))
                 rr = call(m, "rowCount(child)")
@@ -89,8 +89,8 @@ def qdump__QAbstractItemModel(d, item):
         d.putType(d.ns + "QObject")
         d.putField("displayedtype", call(item, "m.metaObject()->className()"))
         d.endHash()
-        for row in xrange(0, rowCount):
-            for column in xrange(0, columnCount):
+        for row in xrange(rowCount):
+            for column in xrange(columnCount):
                 mi = call(m, "index(%s,%s)" % (row, column))
                 d.beginHash()
                 d.putName("[%s,%s]" % (row, column))
@@ -246,7 +246,7 @@ def qdump__QHash(d, item):
         numBuckets = d["numBuckets"]
         start = (node["h"] % numBuckets) + 1
         bucket = d["buckets"] + start
-        for n in xrange(0, numBuckets - start):
+        for n in xrange(numBuckets - start):
             if bucket.dereference() != next:
                 return bucket.dereference()
             bucket += 1
@@ -278,7 +278,7 @@ def qdump__QHash(d, item):
         innerType = e_ptr.dereference().type
         inner = select(isSimpleKey and isSimpleValue, valueType, innerType)
         d.beginChildren(n, inner)
-        for i in xrange(0, n):
+        for i in xrange(n):
             it = node.dereference().cast(innerType)
             d.beginHash()
             key = it["key"]
@@ -363,7 +363,7 @@ def qdump__QList(d, item):
         else:
             inner = innerType
         d.beginChildren(n, inner)
-        for i in xrange(0, n):
+        for i in xrange(n):
             if isInternal:
                 d.putItem(Item(p.dereference(), item.iname, i, None))
             else:
@@ -419,7 +419,7 @@ def qdump__QLinkedList(d, item):
             n = 1000
         d.beginChildren(n, innerType)
         p = e_ptr["n"]
-        for i in xrange(0, n):
+        for i in xrange(n):
             d.safePutItem(Item(p["t"], None, None, None))
             p = p["n"]
         if n < nn:
@@ -496,7 +496,7 @@ def qdump__QMap(d, item):
         innerType = select(isSimpleKey and isSimpleValue, valueType, nodeType)
 
         d.beginChildren(n, innerType)
-        for i in xrange(0, n):
+        for i in xrange(n):
             itd = it.dereference()
             base = it.cast(charPtr) - payloadSize
             node = base.cast(nodeType.pointer()).dereference()
@@ -600,7 +600,7 @@ def qdump__QObject(d, item):
         d.putNumChild(propertyCount)
         if d.isExpandedIName(item.iname + ".properties"):
             d.beginChildren()
-            for property in xrange(0, propertyCount):
+            for property in xrange(propertyCount):
                 d.beginHash()
                 offset = propertyData + 3 * property
                 propertyName = extractCString(metaStringData, metaData[offset])
@@ -648,7 +648,7 @@ def qdump__QObject(d, item):
             connectionLists = d_ptr["connectionLists"]
             warn("CONNECTIONLISTS: %s " % connectionLists)
 
-            for connection in xrange(0, connectionCount):
+            for connection in xrange(connectionCount):
                 d.beginHash()
                 d.putName("connection %d" % connection)
                 d.putValue("")
@@ -669,7 +669,7 @@ def qdump__QObject(d, item):
             d.putField("childnumchild", "0")
         if d.isExpandedIName(item.iname + ".signals"):
             d.beginChildren()
-            for signal in xrange(0, signalCount):
+            for signal in xrange(signalCount):
                 d.beginHash()
                 offset = metaData[14 + 5 * signal]
                 d.putName("signal %d" % signal)
@@ -691,7 +691,7 @@ def qdump__QObject(d, item):
             d.putField("childnumchild", "0")
         if d.isExpandedIName(item.iname + ".slots"):
             d.beginChildren()
-            for slot in xrange(0, slotCount):
+            for slot in xrange(slotCount):
                 d.beginHash()
                 offset = metaData[14 + 5 * (signalCount + slot)]
                 d.putName("slot %d" % slot)
@@ -1383,7 +1383,7 @@ def qdump__QSet(d, item):
         numBuckets = d["numBuckets"]
         start = (node["h"] % numBuckets) + 1
         bucket = d["buckets"] + start
-        for n in xrange(0, numBuckets - start):
+        for n in xrange(numBuckets - start):
             if bucket.dereference() != next:
                 return bucket.dereference()
             bucket += 1
@@ -1413,7 +1413,7 @@ def qdump__QSet(d, item):
 
         innerType = e_ptr.dereference().type
         d.beginChildren(n, keyType)
-        for i in xrange(0, n):
+        for i in xrange(n):
             it = node.dereference().cast(innerType)
             d.beginHash()
             key = it["key"]
@@ -1474,7 +1474,7 @@ def qdump__QStringList(d, item):
         innerType = gdb.lookup_type(d.ns + "QString")
         ptr = gdb.Value(d_ptr["array"]).cast(innerType.pointer())
         d.beginChildren(n, innerType)
-        for i in xrange(0, n):
+        for i in xrange(n):
             d.putItem(Item(ptr.dereference(), item.iname, i, None))
             ptr += 1
         if n < end - begin:
@@ -1670,7 +1670,7 @@ def qdump__QVector(d, item):
             n = 10000
         p = gdb.Value(p_ptr["array"]).cast(innerType.pointer())
         d.beginChildren(n, innerType)
-        for i in xrange(0, n):
+        for i in xrange(n):
             d.safePutItem(Item(p.dereference(), item.iname, i, None))
             p += 1
         if n < size:
@@ -1732,7 +1732,7 @@ def qdump__std__deque(d, item):
         pfirst = start["_M_first"]
         plast = start["_M_last"]
         pnode = start["_M_node"]
-        for i in xrange(0, n):
+        for i in xrange(n):
             d.safePutItem(Item(pcur.dereference(), item.iname, i, None))
             pcur += 1
             if pcur == plast:
@@ -1764,7 +1764,7 @@ def qdump__std__list(d, item):
         p = node["_M_next"]
         innerType = item.value.type.template_argument(0)
         d.beginChildren(n, innerType)
-        for i in xrange(0, n):
+        for i in xrange(n):
             innerPointer = innerType.pointer()
             value = (p + 1).cast(innerPointer).dereference()
             d.safePutItem(Item(value, item.iname, i, None))
@@ -1792,7 +1792,7 @@ def qdump__std__map(d, item):
         node = impl["_M_header"]["_M_left"]
         d.beginChildren(n, select(n > 0, innerType, pairType),
             select(isSimpleKey and isSimpleValue, None, 2))
-        for i in xrange(0, qmin(n, 1000)):
+        for i in xrange(qmin(n, 1000)):
             pair = (node + 1).cast(pairPointer).dereference()
 
             d.beginHash()
@@ -1838,7 +1838,7 @@ def qdump__std__set(d, item):
         valueType = item.value.type.template_argument(0)
         node = impl["_M_header"]["_M_left"]
         d.beginChildren(n, valueType)
-        for i in xrange(0, qmin(n, 1000)):
+        for i in xrange(qmin(n, 1000)):
             element = (node + 1).cast(valueType.pointer()).dereference()
             d.putItem(Item(element, item.iname, i, None))
 
@@ -1879,7 +1879,7 @@ def qdump__std__string(d, item):
     s = ""
     format = "%%0%dx" % (2 * charType.sizeof)
     n = qmin(size, 1000)
-    for i in xrange(0, size):
+    for i in xrange(size):
         s += format % int(p.dereference())
         p += 1
     d.putValue(s, 6)
@@ -1906,7 +1906,7 @@ def qdump__std__vector(d, item):
         p = start
         innerType = item.value.type.template_argument(0)
         d.beginChildren(n, innerType)
-        for i in xrange(0, n):
+        for i in xrange(n):
             d.safePutItem(Item(p.dereference(), item.iname, i, None))
             p += 1
         if n < size:

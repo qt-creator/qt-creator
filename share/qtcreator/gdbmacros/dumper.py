@@ -194,7 +194,7 @@ def stripClassTag(type):
     return type
 
 def checkPointerRange(p, n):
-    for i in xrange(0, n):
+    for i in xrange(n):
         checkPointer(p)
         ++p
 
@@ -218,7 +218,7 @@ def qtNamespace():
 
 def encodeCharArray(p, size):
     s = ""
-    for i in xrange(0, size):
+    for i in xrange(size):
         s += "%02x" % int(p.dereference())
         p += 1
     return s
@@ -250,7 +250,7 @@ def encodeString(value):
     check(d_ptr["ref"]["_q_value"] > 0)
     p = gdb.Value(d_ptr["data"])
     s = ""
-    for i in xrange(0, size):
+    for i in xrange(size):
         val = int(p.dereference())
         s += "%02x" % (val % 256)
         s += "%02x" % (val / 256)
@@ -356,7 +356,7 @@ class FrameCommand(gdb.Command):
                 if d.isExpanded(item):
                     p = item.value
                     d.beginChildren(n)
-                    for i in xrange(0, n):
+                    for i in xrange(n):
                         value = p.dereference()
                         d.putItem(Item(value, item.iname, i, None))
                         p += 1
@@ -673,19 +673,6 @@ class Dumper:
         result = call(item.value, func)
         self.putItem(Item(result, item.iname, name, name))
 
-    #def putItemOrPointerHelper(self, item):
-    #    if item.value.type.code == gdb.TYPE_CODE_PTR \
-    #            and str(item.value.type.target()) != "char":
-    #        if not isNull(item.value):
-    #            self.putItemOrPointerHelper(
-    #                Item(item.value.dereference(), item.iname, None, None))
-    #        else:
-    #            self.putValue("(null)")
-    #            self.putNumChild(0)
-    #    else:
-    #        self.safePutItemHelper(item)
-
-
     def putItemHelper(self, item):
         name = getattr(item, "name", None)
         if not name is None:
@@ -753,7 +740,7 @@ class Dumper:
                     self.putType(item.value.type)
                     firstNul = -1
                     p = value
-                    for i in xrange(0, 100):
+                    for i in xrange(100):
                         if p.dereference() == 0:
                             # Found terminating NUL
                             self.putValue(encodeCharArray(value, i), "6")
@@ -769,7 +756,6 @@ class Dumper:
                     self.putType(innerType)
                     self.childTypes.append(
                         stripClassTag(str(innerType)))
-                    #self.putType(item.value.type.target())
                     self.putItemHelper(
                         Item(item.value.dereference(), item.iname, None, None))
                     self.childTypes.pop()
@@ -823,7 +809,7 @@ class Dumper:
                     if field.name is None:
                         innerType = value.type.target()
                         p = value.cast(innerType.pointer())
-                        for i in xrange(0, value.type.sizeof / innerType.sizeof):
+                        for i in xrange(value.type.sizeof / innerType.sizeof):
                             self.putItem(Item(p.dereference(), item.iname, i, None))
                             p = p + 1
                         continue
