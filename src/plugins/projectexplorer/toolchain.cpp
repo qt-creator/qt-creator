@@ -323,7 +323,7 @@ QByteArray msvcCompilationFile() {
                                    "_M_CEE_SAFE","_M_IX86","_M_IA64",
                                    "_M_IX86_FP","_M_MPPC","_M_MRX000",
                                    "_M_PPC","_M_X64","_MANAGED",
-                                   "_MFC_VER","_MSC_BUILD","_MSC_EXTENSIONS",
+                                   "_MFC_VER","_MSC_BUILD", /* "_MSC_EXTENSIONS", */
                                    "_MSC_FULL_VER","_MSC_VER","__MSVC_RUNTIME_CHECKS",
                                    "_MT", "_NATIVE_WCHAR_T_DEFINED", "_OPENMP",
                                    "_VC_NODEFAULTLIB", "_WCHAR_T_DEFINED", "_WIN32",
