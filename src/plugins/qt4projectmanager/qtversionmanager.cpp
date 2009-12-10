@@ -696,9 +696,9 @@ QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &directory)
     QFile makefile(directory + "/Makefile" );
     if (makefile.exists() && makefile.open(QFile::ReadOnly)) {
         QTextStream ts(&makefile);
+        QRegExp r1("QMAKE\\s*=(.*)");
         while (!ts.atEnd()) {
             QString line = ts.readLine();
-            QRegExp r1("QMAKE\\s*=(.*)");
             if (r1.exactMatch(line)) {
                 if (debugAdding)
                     qDebug()<<"#~~ QMAKE is:"<<r1.cap(1).trimmed();
@@ -737,7 +737,7 @@ QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(
 {
     if (debug)
         qDebug()<<"ScanMakeFile, the gory details:";
-    QtVersion::QmakeBuildConfigs result = QtVersion::NoBuild;
+    QtVersion::QmakeBuildConfigs result = defaultBuildConfig;
     QStringList result2;
 
     QString line = findQMakeLine(directory);
