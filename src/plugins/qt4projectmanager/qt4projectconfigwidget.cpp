@@ -229,6 +229,8 @@ void Qt4ProjectConfigWidget::qtVersionsChanged()
 
 void Qt4ProjectConfigWidget::buildDirectoryChanged()
 {
+    if (m_ignoreChange)
+        return;
     m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->shadowBuildDirectory());
     updateDetails();
     updateImportLabel();
@@ -248,7 +250,7 @@ void Qt4ProjectConfigWidget::shadowBuildClicked(bool checked)
     bool b = m_ui->shadowBuildCheckBox->isChecked();
 
     m_ignoreChange = true;
-    m_buildConfiguration->setShadowBuildAndDirectory(b, b ? m_ui->shadowBuildDirEdit->path() : QString::null);
+    m_buildConfiguration->setShadowBuildAndDirectory(b, m_ui->shadowBuildDirEdit->path());
     m_ignoreChange = false;
 
     updateDetails();
