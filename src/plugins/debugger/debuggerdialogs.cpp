@@ -430,8 +430,7 @@ void StartRemoteDialog::setRemoteArchitecture(const QString &arch)
 
 QString StartRemoteDialog::remoteArchitecture() const
 {
-    int index = m_ui->architectureComboBox->currentIndex();
-    return m_ui->architectureComboBox->itemText(index);
+    return m_ui->architectureComboBox->currentText();
 }
 
 void StartRemoteDialog::setServerStartScript(const QString &scriptName)

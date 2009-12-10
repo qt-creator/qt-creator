@@ -1350,11 +1350,13 @@ void DebuggerPlugin::startRemoteApplication()
     QStringList arches;
     arches.append(_("i386:x86-64:intel"));
     arches.append(_("i386"));
+    QString lastUsed = configValue(_("LastRemoteArchitecture")).toString();
+    if (!arches.contains(lastUsed))
+        arches.prepend(lastUsed);
     dlg.setRemoteArchitectures(arches);
     dlg.setRemoteChannel(
             configValue(_("LastRemoteChannel")).toString());
-    dlg.setRemoteArchitecture(
-            configValue(_("LastRemoteArchitecture")).toString());
+    dlg.setRemoteArchitecture(lastUsed);
     dlg.setServerStartScript(
             configValue(_("LastServerStartScript")).toString());
     dlg.setUseServerStartScript(
