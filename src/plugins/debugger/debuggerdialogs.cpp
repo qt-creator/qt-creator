@@ -385,8 +385,10 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    m_ui->executablePathChooser->setExpectedKind(Utils::PathChooser::File);
+    m_ui->executablePathChooser->setPromptDialogTitle(tr("Select Executable"));
     m_ui->serverStartScript->setExpectedKind(Utils::PathChooser::File);
-    m_ui->serverStartScript->setPromptDialogTitle(tr("Select Executable"));
+    m_ui->serverStartScript->setPromptDialogTitle(tr("Select Start Script"));
 
     connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)), 
         this, SLOT(updateState()));
@@ -410,6 +412,16 @@ void StartRemoteDialog::setRemoteChannel(const QString &channel)
 QString StartRemoteDialog::remoteChannel() const
 {
     return m_ui->channelLineEdit->text();
+}
+
+void StartRemoteDialog::setLocalExecutable(const QString &executable)
+{
+    m_ui->executablePathChooser->setPath(executable);
+}
+
+QString StartRemoteDialog::localExecutable() const
+{
+    return m_ui->executablePathChooser->path();
 }
 
 void StartRemoteDialog::setRemoteArchitectures(const QStringList &list)
@@ -453,12 +465,12 @@ bool StartRemoteDialog::useServerStartScript() const
     return m_ui->useServerStartScriptCheckBox->isChecked();
 }
 
-void StartRemoteDialog::setSysroot(const QString &sysroot)
+void StartRemoteDialog::setSysRoot(const QString &sysroot)
 {
     m_ui->sysrootPathChooser->setPath(sysroot);
 }
 
-const QString StartRemoteDialog::sysroot() const
+QString StartRemoteDialog::sysRoot() const
 {
     return m_ui->sysrootPathChooser->path();
 }

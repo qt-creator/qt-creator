@@ -166,7 +166,7 @@ void RemoteGdbAdapter::startInferior()
             + startParameters().processArgs.join(_(" ")));
 
     m_engine->postCommand(_("set target-async on"), CB(handleSetTargetAsync));
-
+    QString x = startParameters().executable;
     QFileInfo fi(startParameters().executable);
     QString fileName = fi.absoluteFilePath();
     m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName),

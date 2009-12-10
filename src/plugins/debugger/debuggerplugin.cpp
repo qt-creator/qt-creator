@@ -1340,7 +1340,8 @@ void DebuggerPlugin::attachCore(const QString &core, const QString &exe)
     sp->coreFile = core;
     sp->startMode = AttachCore;
     if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
-        ProjectExplorerPlugin::instance()->startRunControl(runControl, ProjectExplorer::Constants::DEBUGMODE);
+        ProjectExplorerPlugin::instance()->
+            startRunControl(runControl, ProjectExplorer::Constants::DEBUGMODE);
 }
 
 void DebuggerPlugin::startRemoteApplication()
@@ -1356,28 +1357,33 @@ void DebuggerPlugin::startRemoteApplication()
     dlg.setRemoteArchitectures(arches);
     dlg.setRemoteChannel(
             configValue(_("LastRemoteChannel")).toString());
+    dlg.setLocalExecutable(
+            configValue(_("LastLocalExecutable")).toString());
     dlg.setRemoteArchitecture(lastUsed);
     dlg.setServerStartScript(
             configValue(_("LastServerStartScript")).toString());
     dlg.setUseServerStartScript(
             configValue(_("LastUseServerStartScript")).toBool());
-    dlg.setSysroot(configValue(_("LastSysroot")).toString());
+    dlg.setSysRoot(configValue(_("LastSysroot")).toString());
     if (dlg.exec() != QDialog::Accepted)
         return;
     setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
+    setConfigValue(_("LastLocalExecutable"), dlg.localExecutable());
     setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
     setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
     setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
-    setConfigValue(_("LastSysroot"), dlg.sysroot());
+    setConfigValue(_("LastSysroot"), dlg.sysRoot());
     sp->remoteChannel = dlg.remoteChannel();
     sp->remoteArchitecture = dlg.remoteArchitecture();
+    sp->executable = dlg.localExecutable();
     sp->startMode = StartRemote;
     if (dlg.useServerStartScript())
         sp->serverStartScript = dlg.serverStartScript();
-    sp->sysRoot = dlg.sysroot();
+    sp->sysRoot = dlg.sysRoot();
 
     if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
-        ProjectExplorerPlugin::instance()->startRunControl(runControl, ProjectExplorer::Constants::DEBUGMODE);
+        ProjectExplorerPlugin::instance()
+            ->startRunControl(runControl, ProjectExplorer::Constants::DEBUGMODE);
 }
 
 #include "debuggerplugin.moc"

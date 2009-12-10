@@ -134,14 +134,16 @@ public:
     void setRemoteChannel(const QString &host);
     void setRemoteArchitecture(const QString &arch);
     void setRemoteArchitectures(const QStringList &arches);
+    void setLocalExecutable(const QString &executable);
+    QString localExecutable() const;
     QString remoteChannel() const;
     QString remoteArchitecture() const;
     void setServerStartScript(const QString &scriptName);
     QString serverStartScript() const;
     void setUseServerStartScript(bool on);
     bool useServerStartScript() const;
-    void setSysroot(const QString &sysroot);
-    const QString sysroot() const;
+    void setSysRoot(const QString &sysRoot);
+    QString sysRoot() const;
 
 private slots:
     void updateState();
