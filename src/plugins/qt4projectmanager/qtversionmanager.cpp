@@ -441,10 +441,12 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
 
     while (nit != nend) {
         changedVersions.push_back((*nit)->uniqueId());
+        ++nit;
     }
 
     while (oit != oend) {
         changedVersions.push_back((*oit)->uniqueId());
+        ++oit;
     }
 
     qDeleteAll(m_versions);
