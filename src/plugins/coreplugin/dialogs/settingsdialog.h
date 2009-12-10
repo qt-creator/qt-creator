@@ -69,6 +69,8 @@ public:
     // at least once
     bool execDialog();
 
+    virtual QSize sizeHint() const;
+
 public slots:
     void done(int);
 

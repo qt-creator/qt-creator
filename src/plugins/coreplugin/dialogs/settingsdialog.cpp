@@ -189,6 +189,26 @@ static QStandardItemModel *pageModel(const QList<IOptionsPage*> &pages,
     return model;
 }
 
+// ----------- Pages tree view
+
+/**
+ * Special version of a QTreeView that has the width of the first column as
+ * minimum size.
+ */
+class PageTree : public QTreeView
+{
+public:
+    PageTree(QWidget *parent = 0) : QTreeView(parent)
+    {
+        setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+    }
+
+    virtual QSize sizeHint() const
+    {
+        return QSize(sizeHintForColumn(0) + frameWidth() * 2, 100);
+    }
+};
+
 // ----------- SettingsDialog
 
 // Helpers to sort by category. id
@@ -215,7 +235,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
     m_applied(false),
     m_stackedLayout(new QStackedLayout),
     m_filterLineEdit(new Utils::FilterLineEdit),
-    m_pageTree(new QTreeView),
+    m_pageTree(new PageTree),
     m_headerLabel(new QLabel)
 {
     createGui();
@@ -235,7 +255,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
 
     // Create pages with title labels with a larger, bold font, left-aligned
     // with the group boxes of the page.
-    foreach(IOptionsPage *page, m_pages)
+    foreach (IOptionsPage *page, m_pages)
         m_stackedLayout->addWidget(page->createPage(0));
 
     QModelIndex initialIndex;
@@ -251,7 +271,6 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
         const QModelIndex proxyIndex = m_proxyModel->mapFromSource(initialIndex);
         m_pageTree->selectionModel()->setCurrentIndex(proxyIndex, QItemSelectionModel::ClearAndSelect);
     }
-    m_pageTree->resizeColumnToContents(0);
 
     // The order of the slot connection matters here, the filter slot
     // opens the matching page after the model has filtered.
@@ -423,6 +442,14 @@ void SettingsDialog::done(int val)
     settings->setValue(QLatin1String(categoryKeyC), m_currentCategory);
     settings->setValue(QLatin1String(pageKeyC), m_currentPage);
     QDialog::done(val);
+}
+
+/**
+ * Override to make sure the settings dialog starts up as small as possible.
+ */
+QSize SettingsDialog::sizeHint() const
+{
+    return minimumSize();
 }
 
 }
