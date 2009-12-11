@@ -77,6 +77,7 @@
 #include <QtGui/QTextEdit>
 
 #include <climits>
+#include <ctype.h>
 
 //#define DEBUG_KEY  1
 #if DEBUG_KEY
@@ -187,6 +188,13 @@ enum EventResult
     EventPassedToCore
 };
 
+struct Indentation
+{
+    Indentation(int p, int l) : physical(p), logical(l) {}
+    int physical; // number of characters
+    int logical;
+};
+
 struct CursorPosition
 {
     // for jump history
@@ -294,13 +302,14 @@ public:
     QString lineContents(int line) const; // 1 based line
     void setLineContents(int line, const QString &contents) const; // 1 based line
 
-    // all zero-based counting
-    int cursorLineOnScreen() const;
     int linesOnScreen() const;
     int columnsOnScreen() const;
+    int linesInDocument() const;
+
+    // all zero-based counting
+    int cursorLineOnScreen() const;
     int cursorLineInDocument() const;
     int cursorColumnInDocument() const;
-    int linesInDocument() const;
     int firstVisibleLineInDocument() const;
     void scrollToLineInDocument(int line);
     void scrollUp(int count);
@@ -366,6 +375,7 @@ public:
     // this asks the layer above (e.g. the fake vim plugin or the
     // stand-alone test application to handle the command)
     void passUnknownExCommand(const QString &cmd);
+
 
 public:
     QTextEdit *m_textedit;
@@ -465,6 +475,8 @@ public:
     int m_cursorWidth;
 
     // auto-indent
+    QString tabExpand(int len) const;
+    Indentation indentation(const QString &line) const;
     void insertAutomaticIndentation(bool goingDown);
     bool removeAutomaticIndentation(); // true if something removed
     // number of autoindented characters
@@ -1691,10 +1703,24 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         insertAutomaticIndentation(true);
         setTargetColumn();
     } else if (key == Key_Backspace || key == control('h')) {
-        if (!removeAutomaticIndentation())
-            if (!m_lastInsertion.isEmpty() || hasConfig(ConfigBackspace, "start")) {
-                m_tc.deletePreviousChar();
-                m_lastInsertion.chop(1);
+        if (!removeAutomaticIndentation()
+            && (!m_lastInsertion.isEmpty()
+                || hasConfig(ConfigBackspace, "start")))
+            {
+                int line = cursorLineInDocument() + 1;
+                int col = cursorColumnInDocument();
+                QString data = lineContents(line);
+                Indentation ind = indentation(data);
+                if (col <= ind.logical) {
+                    int ts = config(ConfigTabStop).toInt();
+                    int newcol = col - 1 - (col - 1) % ts;
+                    data = tabExpand(newcol) + data.mid(col);
+                    setLineContents(line, data);
+                    m_lastInsertion.clear(); // FIXME
+                } else {
+                    m_tc.deletePreviousChar();
+                    m_lastInsertion.chop(1);
+                }
                 setTargetColumn();
             }
     } else if (key == Key_Delete) {
@@ -1709,7 +1735,9 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         moveUp(count() * (linesOnScreen() - 2));
         m_lastInsertion.clear();
     } else if (key == Key_Tab && hasConfig(ConfigExpandTab)) {
-        QString str = QString(theFakeVimSetting(ConfigTabStop)->value().toInt(), ' ');
+        int ts = config(ConfigTabStop).toInt();
+        int col = cursorColumnInDocument();
+        QString str = QString(ts - col % ts, ' ');
         m_lastInsertion.append(str);
         m_tc.insertText(str);
         setTargetColumn();
@@ -1901,7 +1929,8 @@ static bool isSubstitution(const QString &cmd0, QStringList *result)
     QString cmd;
     if (cmd0.startsWith("substitute"))
         cmd = cmd0.mid(10);
-    else if (cmd0.startsWith('s'))
+    else if (cmd0.startsWith('s') && cmd0.size() > 1
+            && !isalpha(cmd0.at(1).unicode()))
         cmd = cmd0.mid(1);
     else
         return false;
@@ -1964,8 +1993,6 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
     static QRegExp reNormal("^norm(al)?( (.*))?$");
     static QRegExp reSet("^set?( (.*))?$");
     static QRegExp reWrite("^[wx]q?a?!?( (.*))?$");
-    //static QRegExp reSubstitute("^s(.)(.*)\\1(.*)(\\1([gi]*))?$");
-    //reSubstitute.setMinimal(true);
     QStringList arguments;
 
     enterCommandMode();
@@ -2006,7 +2033,8 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         QFile file1(fileName);
         bool exists = file1.exists();
         if (exists && !forced && !noArgs) {
-            showRedMessage(FakeVimHandler::tr("File '%1' exists (add ! to override)").arg(fileName));
+            showRedMessage(FakeVimHandler::tr
+                ("File '%1' exists (add ! to override)").arg(fileName));
         } else if (file1.open(QIODevice::ReadWrite)) {
             file1.close();
             QTextCursor tc = m_tc;
@@ -2026,7 +2054,8 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
                     QTextStream ts(&file2);
                     ts << contents;
                 } else {
-                    showRedMessage(FakeVimHandler::tr("Cannot open file '%1' for writing").arg(fileName));
+                    showRedMessage(FakeVimHandler::tr
+                       ("Cannot open file '%1' for writing").arg(fileName));
                 }
             }
             // check result by reading back
@@ -2041,9 +2070,10 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             else if (quit)
                 passUnknownExCommand(forced ? "q!" : "q");
         } else {
-            showRedMessage(FakeVimHandler::tr("Cannot open file '%1' for reading").arg(fileName));
+            showRedMessage(FakeVimHandler::tr
+                ("Cannot open file '%1' for reading").arg(fileName));
         }
-    } else if (cmd.startsWith("r ")) { // :r
+    } else if (cmd.startsWith(QLatin1String("r "))) { // :r
         m_currentFileName = cmd.mid(2);
         QFile file(m_currentFileName);
         file.open(QIODevice::ReadOnly);
@@ -2889,13 +2919,42 @@ void FakeVimHandler::Private::recordNewUndo()
     //beginEditBlock();
 }
 
+Indentation FakeVimHandler::Private::indentation(const QString &line) const
+{
+    int ts = config(ConfigTabStop).toInt();
+    int physical = 0;
+    int logical = 0;
+    int n = line.size();
+    while (physical < n) {
+        QChar c = line.at(physical);
+        if (c == QLatin1Char(' '))
+            ++logical;
+        else if (c == QLatin1Char('\t'))
+            logical += ts - logical % ts;
+        else
+            break;
+        ++physical;
+    }
+    return Indentation(physical, logical);
+}
+
+QString FakeVimHandler::Private::tabExpand(int n) const
+{
+    int ts = config(ConfigTabStop).toInt();
+    if (hasConfig(ConfigExpandTab) || ts < 1)
+        return QString(n, QLatin1Char(' '));
+    return QString(n / ts, QLatin1Char('\t'))
+         + QString(n % ts, QLatin1Char(' '));
+}
+
 void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown)
 {
     if (!hasConfig(ConfigAutoIndent))
         return;
     QTextBlock block = goingDown ? m_tc.block().previous() : m_tc.block().next();
     QString text = block.text();
-    int pos = 0, n = text.size();
+    int pos = 0;
+    int n = text.size();
     while (pos < n && text.at(pos).isSpace())
         ++pos;
     text.truncate(pos);
@@ -2933,6 +2992,7 @@ void FakeVimHandler::Private::replay(const QString &command, int n)
     }
     m_inReplay = false;
 }
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -3013,10 +3073,30 @@ void FakeVimHandler::showRedMessage(const QString &msg)
    d->showRedMessage(msg);
 }
 
+
 QWidget *FakeVimHandler::widget()
 {
     return d->editor();
 }
+
+// Test only
+int FakeVimHandler::physicalIndentation(const QString &line) const
+{
+    Indentation ind = d->indentation(line);
+    return ind.physical;
+}
+
+int FakeVimHandler::logicalIndentation(const QString &line) const
+{
+    Indentation ind = d->indentation(line);
+    return ind.logical;
+}
+
+QString FakeVimHandler::tabExpand(int n) const
+{
+    return d->tabExpand(n);
+}
+
 
 } // namespace Internal
 } // namespace FakeVim

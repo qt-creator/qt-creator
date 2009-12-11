@@ -55,6 +55,9 @@ public slots:
     void changeExtraInformation(const QString &info) { m_infoMessage = info; }
     
 private slots:
+    // functional tests
+    void indentation();
+
     // command mode
     void command_Cxx_down_dot();
     void command_Gyyp();
@@ -257,6 +260,81 @@ QString tst_FakeVim::insertCursor(const QString &needle0)
         qDebug() << "Cannot find: \n----\n" + needle + "\n----\n";
     lines0.replace(pos, needle.size(), needle0);
     return lines0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//
+// Command mode
+//
+//////////////////////////////////////////////////////////////////////////
+
+void tst_FakeVim::indentation()
+{
+    setup();
+    sendEx("set expandtab");
+    sendEx("set tabstop=4");
+    sendEx("set shiftwidth=4");
+    QCOMPARE(m_handler->physicalIndentation("      \t\t\tx"), 6 + 3);
+    QCOMPARE(m_handler->logicalIndentation ("      \t\t\tx"), 4 + 3 * 4);
+    QCOMPARE(m_handler->physicalIndentation("     \t\t\tx"), 5 + 3);
+    QCOMPARE(m_handler->logicalIndentation ("     \t\t\tx"), 4 + 3 * 4);
+
+    QCOMPARE(m_handler->tabExpand(3), QLatin1String("   "));
+    QCOMPARE(m_handler->tabExpand(4), QLatin1String("    "));
+    QCOMPARE(m_handler->tabExpand(5), QLatin1String("     "));
+    QCOMPARE(m_handler->tabExpand(6), QLatin1String("      "));
+    QCOMPARE(m_handler->tabExpand(7), QLatin1String("       "));
+    QCOMPARE(m_handler->tabExpand(8), QLatin1String("        "));
+    QCOMPARE(m_handler->tabExpand(9), QLatin1String("         "));
+
+    sendEx("set expandtab");
+    sendEx("set tabstop=8");
+    sendEx("set shiftwidth=4");
+    QCOMPARE(m_handler->physicalIndentation("      \t\t\tx"), 6 + 3);
+    QCOMPARE(m_handler->logicalIndentation ("      \t\t\tx"), 0 + 3 * 8);
+    QCOMPARE(m_handler->physicalIndentation("     \t\t\tx"), 5 + 3);
+    QCOMPARE(m_handler->logicalIndentation ("     \t\t\tx"), 0 + 3 * 8);
+
+    QCOMPARE(m_handler->tabExpand(3), QLatin1String("   "));
+    QCOMPARE(m_handler->tabExpand(4), QLatin1String("    "));
+    QCOMPARE(m_handler->tabExpand(5), QLatin1String("     "));
+    QCOMPARE(m_handler->tabExpand(6), QLatin1String("      "));
+    QCOMPARE(m_handler->tabExpand(7), QLatin1String("       "));
+    QCOMPARE(m_handler->tabExpand(8), QLatin1String("        "));
+    QCOMPARE(m_handler->tabExpand(9), QLatin1String("         "));
+
+    sendEx("set noexpandtab");
+    sendEx("set tabstop=4");
+    sendEx("set shiftwidth=4");
+    QCOMPARE(m_handler->physicalIndentation("      \t\t\tx"), 6 + 3);
+    QCOMPARE(m_handler->logicalIndentation ("      \t\t\tx"), 4 + 3 * 4);
+    QCOMPARE(m_handler->physicalIndentation("     \t\t\tx"), 5 + 3);
+    QCOMPARE(m_handler->logicalIndentation ("     \t\t\tx"), 4 + 3 * 4);
+
+    QCOMPARE(m_handler->tabExpand(3), QLatin1String("   "));
+    QCOMPARE(m_handler->tabExpand(4), QLatin1String("\t"));
+    QCOMPARE(m_handler->tabExpand(5), QLatin1String("\t "));
+    QCOMPARE(m_handler->tabExpand(6), QLatin1String("\t  "));
+    QCOMPARE(m_handler->tabExpand(7), QLatin1String("\t   "));
+    QCOMPARE(m_handler->tabExpand(8), QLatin1String("\t\t"));
+    QCOMPARE(m_handler->tabExpand(9), QLatin1String("\t\t "));
+
+    sendEx("set noexpandtab");
+    sendEx("set tabstop=8");
+    sendEx("set shiftwidth=4");
+    QCOMPARE(m_handler->physicalIndentation("      \t\t\tx"), 6 + 3);
+    QCOMPARE(m_handler->logicalIndentation ("      \t\t\tx"), 0 + 3 * 8);
+    QCOMPARE(m_handler->physicalIndentation("     \t\t\tx"), 5 + 3);
+    QCOMPARE(m_handler->logicalIndentation ("     \t\t\tx"), 0 + 3 * 8);
+
+    QCOMPARE(m_handler->tabExpand(3), QLatin1String("   "));
+    QCOMPARE(m_handler->tabExpand(4), QLatin1String("    "));
+    QCOMPARE(m_handler->tabExpand(5), QLatin1String("     "));
+    QCOMPARE(m_handler->tabExpand(6), QLatin1String("      "));
+    QCOMPARE(m_handler->tabExpand(7), QLatin1String("       "));
+    QCOMPARE(m_handler->tabExpand(8), QLatin1String("\t"));
+    QCOMPARE(m_handler->tabExpand(9), QLatin1String("\t "));
 }
 
 

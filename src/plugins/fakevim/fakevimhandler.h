@@ -63,6 +63,11 @@ public slots:
     void setupWidget();
     void restoreWidget();
 
+    // Test only
+    int physicalIndentation(const QString &line) const;
+    int logicalIndentation(const QString &line) const;
+    QString tabExpand(int n) const;
+
 signals:
     void commandBufferChanged(const QString &msg);
     void statusDataChanged(const QString &msg);
@@ -84,7 +89,7 @@ public:
 
 private:
     bool eventFilter(QObject *ob, QEvent *ev);
-    friend class Private;
+
     Private *d;
 };
 

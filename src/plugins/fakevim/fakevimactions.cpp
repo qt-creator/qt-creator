@@ -119,9 +119,11 @@ FakeVimSettings *theFakeVimSettings()
     item->setText(QCoreApplication::translate("FakeVim::Internal", "Toggle vim-style editing"));
     item->setSettingsKey(group, QLatin1String("UseFakeVim"));
     item->setCheckable(true);
+    item->setValue(false);
     instance->insertItem(ConfigUseFakeVim, item);
 
     item = new SavedAction(instance);
+    item->setValue(false);
     item->setDefaultValue(false);
     item->setSettingsKey(group, QLatin1String("StartOfLine"));
     item->setCheckable(true);
@@ -134,11 +136,13 @@ FakeVimSettings *theFakeVimSettings()
 
     item = new SavedAction(instance);
     item->setDefaultValue(false);
+    item->setValue(false);
     item->setSettingsKey(group, QLatin1String("SmartTab"));
     instance->insertItem(ConfigSmartTab, item, QLatin1String("smarttab"), QLatin1String("sta"));
 
     item = new SavedAction(instance);
     item->setDefaultValue(true);
+    item->setValue(true);
     item->setSettingsKey(group, QLatin1String("HlSearch"));
     item->setCheckable(true);
     instance->insertItem(ConfigHlSearch, item, QLatin1String("hlsearch"), QLatin1String("hls"));
@@ -150,18 +154,22 @@ FakeVimSettings *theFakeVimSettings()
 
     item = new SavedAction(instance);
     item->setDefaultValue(false);
+    item->setValue(false);
     item->setSettingsKey(group, QLatin1String("ExpandTab"));
     item->setCheckable(true);
     instance->insertItem(ConfigExpandTab, item, QLatin1String("expandtab"), QLatin1String("et"));
 
     item = new SavedAction(instance);
     item->setDefaultValue(false);
+    item->setValue(false);
     item->setSettingsKey(group, QLatin1String("AutoIndent"));
+    item->setValue(false);
     item->setCheckable(true);
     instance->insertItem(ConfigAutoIndent, item, QLatin1String("autoindent"), QLatin1String("ai"));
 
     item = new SavedAction(instance);
     item->setDefaultValue(true);
+    item->setValue(true);
     item->setSettingsKey(group, QLatin1String("IncSearch"));
     item->setCheckable(true);
     instance->insertItem(ConfigIncSearch, item, QLatin1String("incsearch"), QLatin1String("is"));
