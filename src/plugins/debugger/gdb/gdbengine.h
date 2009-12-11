@@ -177,7 +177,6 @@ private: ////////// Gdb Command Management //////////
         Discardable = 2,  // No need to wait for the reply before continuing inferior
         RebuildModel = 4, // Trigger model rebuild when no such commands are pending any more
         WatchUpdate = Discardable | RebuildModel,
-        EmbedToken = 8,   // Expand %1 in the command to the command token
         RunRequest = 16,  // Callback expects GdbResultRunning instead of GdbResultDone
         ExitRequest = 32, // Callback expects GdbResultExit instead of GdbResultDone
         LosesChild = 64   // Auto-set inferior shutdown related states

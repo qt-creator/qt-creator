@@ -801,8 +801,6 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
     cmd.postTime = QTime::currentTime();
     m_cookieForToken[currentToken()] = cmd;
     cmd.command = QString::number(currentToken()) + cmd.command;
-    if (cmd.flags & EmbedToken)
-        cmd.command = cmd.command.arg(currentToken());
     gdbInputAvailable(LogInput, cmd.command);
 
     m_gdbAdapter->write(cmd.command.toLatin1() + "\r\n");
@@ -2968,11 +2966,10 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
 
     QString cmd;
     QTextStream(&cmd) << "call " << "(void*)qDumpObjectData440(" <<
-            protocol << ',' << "%1+1"                // placeholder for token
-            <<',' <<  addr << ',' << (dumpChildren ? "1" : "0")
+            protocol << ",0," <<  addr << ',' << (dumpChildren ? "1" : "0")
             << ',' << extraArgs.join(QString(_c(','))) <<  ')';
 
-    postCommand(cmd, WatchUpdate | EmbedToken);
+    postCommand(cmd, WatchUpdate);
 
     showStatusMessage(msgRetrievingWatchData(m_pendingRequests + 1), 10000);
 
@@ -4094,7 +4091,7 @@ void GdbEngine::tryLoadDebuggingHelpers()
 void GdbEngine::tryQueryDebuggingHelpers()
 {
     // retrieve list of dumpable classes
-    postCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
+    postCommand(_("call (void*)qDumpObjectData440(1,0,0,0,0,0,0,0)"));
     postCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
 }
 
@@ -4102,7 +4099,7 @@ void GdbEngine::recheckDebuggingHelperAvailability()
 {
     if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
         // retreive list of dumpable classes
-        postCommand(_("call (void*)qDumpObjectData440(1,%1+1,0,0,0,0,0,0)"), EmbedToken);
+        postCommand(_("call (void*)qDumpObjectData440(1,0,0,0,0,0,0,0)"));
         postCommand(_("p (char*)&qDumpOutBuffer"), CB(handleQueryDebuggingHelper));
     }
 }
