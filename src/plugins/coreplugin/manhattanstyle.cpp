@@ -83,14 +83,12 @@ bool panelWidget(const QWidget *widget)
     if (qobject_cast<const QDialog *>(widget->window()))
         return false;
 
-    // Style toolbars, statusbar and menubar
-    if (qobject_cast<const QToolBar *>(widget) ||
-        qobject_cast<const QStatusBar *>(widget) ||
-        qobject_cast<const QMenuBar *>(widget))
-        return styleEnabled(widget);
-
     const QWidget *p = widget;
     while (p) {
+        if (qobject_cast<const QToolBar *>(p) ||
+            qobject_cast<const QStatusBar *>(p) ||
+            qobject_cast<const QMenuBar *>(p))
+            return styleEnabled(widget);
         if (p->property("panelwidget").toBool())
             return true;
         p = p->parentWidget();
