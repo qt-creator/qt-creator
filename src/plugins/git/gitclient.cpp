@@ -791,8 +791,11 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     // Do the final commit
     QStringList args;
     args << QLatin1String("commit")
-         << QLatin1String("-F") << QDir::toNativeSeparators(messageFile)
-         << QLatin1String("--author") << data.authorString();
+         << QLatin1String("-F") << QDir::toNativeSeparators(messageFile);
+
+    const QString &authorString =  data.authorString();
+    if (!authorString.isEmpty())
+         args << QLatin1String("--author") << authorString;
 
     QByteArray outputText;
     QByteArray errorText;
