@@ -1444,23 +1444,27 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
             QString keyRegExp;
             keyRegExp += QLatin1Char('^');
             bool first = true;
+            const QLatin1String wordContinuation("[a-z0-9_]*");
             foreach (const QChar &c, key) {
-                if (c.isUpper() && !first)
-                    keyRegExp += QLatin1String("[a-z0-9_]*");
+                if (m_caseSensitivity == CaseInsensitive ||
+                    (m_caseSensitivity == FirstLetterCaseSensitive && !first)) {
 
-                if (m_caseSensitivity == FirstLetterCaseSensitive && !first) {
-                    keyRegExp += QLatin1Char('[');
-                    keyRegExp += QRegExp::escape(c.toLower());
+                    keyRegExp += QLatin1String("(?:");
+                    if (c.isUpper() && !first)
+                        keyRegExp += wordContinuation;
                     keyRegExp += QRegExp::escape(c.toUpper());
-                    keyRegExp += QLatin1Char(']');
+                    keyRegExp += "|";
+                    keyRegExp += QRegExp::escape(c.toLower());
+                    keyRegExp += QLatin1Char(')');
                 } else {
+                    if (c.isUpper() && !first)
+                        keyRegExp += wordContinuation;
                     keyRegExp += QRegExp::escape(c);
                 }
 
                 first = false;
             }
-            const QRegExp regExp(keyRegExp, (m_caseSensitivity == CaseInsensitive)
-                                 ? Qt::CaseInsensitive : Qt::CaseSensitive);
+            const QRegExp regExp(keyRegExp);
 
             foreach (TextEditor::CompletionItem item, m_completions) {
                 if (regExp.indexIn(item.text) == 0) {
