@@ -224,7 +224,6 @@ static QList<ProcData> processList()
     return unixProcessList();
 #endif
 }
-
 ///////////////////////////////////////////////////////////////////////
 //
 // AttachExternalDialog
@@ -385,8 +384,11 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 {
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    m_ui->debuggerPathChooser->setExpectedKind(Utils::PathChooser::File);
+    m_ui->debuggerPathChooser->setPromptDialogTitle(tr("Select Debugger"));
     m_ui->executablePathChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui->executablePathChooser->setPromptDialogTitle(tr("Select Executable"));
+    m_ui->sysrootPathChooser->setPromptDialogTitle(tr("Select Sysroot"));
     m_ui->serverStartScript->setExpectedKind(Utils::PathChooser::File);
     m_ui->serverStartScript->setPromptDialogTitle(tr("Select Start Script"));
 
@@ -422,6 +424,16 @@ void StartRemoteDialog::setLocalExecutable(const QString &executable)
 QString StartRemoteDialog::localExecutable() const
 {
     return m_ui->executablePathChooser->path();
+}
+
+void StartRemoteDialog::setDebugger(const QString &debugger)
+{
+    m_ui->debuggerPathChooser->setPath(debugger);
+}
+
+QString StartRemoteDialog::debugger() const
+{
+    return m_ui->debuggerPathChooser->path();
 }
 
 void StartRemoteDialog::setRemoteArchitectures(const QStringList &list)

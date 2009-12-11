@@ -135,6 +135,7 @@ public:
     void setRemoteArchitecture(const QString &arch);
     void setRemoteArchitectures(const QStringList &arches);
     void setLocalExecutable(const QString &executable);
+    void setDebugger(const QString &debugger);
     QString localExecutable() const;
     QString remoteChannel() const;
     QString remoteArchitecture() const;
@@ -144,6 +145,7 @@ public:
     bool useServerStartScript() const;
     void setSysRoot(const QString &sysRoot);
     QString sysRoot() const;
+    QString debugger() const;
 
 private slots:
     void updateState();

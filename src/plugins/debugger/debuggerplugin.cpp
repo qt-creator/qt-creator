@@ -1359,6 +1359,7 @@ void DebuggerPlugin::startRemoteApplication()
             configValue(_("LastRemoteChannel")).toString());
     dlg.setLocalExecutable(
             configValue(_("LastLocalExecutable")).toString());
+    dlg.setDebugger(configValue(_("LastDebugger")).toString());
     dlg.setRemoteArchitecture(lastUsed);
     dlg.setServerStartScript(
             configValue(_("LastServerStartScript")).toString());
@@ -1369,6 +1370,7 @@ void DebuggerPlugin::startRemoteApplication()
         return;
     setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
     setConfigValue(_("LastLocalExecutable"), dlg.localExecutable());
+    setConfigValue(_("LastDebugger"), dlg.debugger());
     setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
     setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
     setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
@@ -1376,6 +1378,7 @@ void DebuggerPlugin::startRemoteApplication()
     sp->remoteChannel = dlg.remoteChannel();
     sp->remoteArchitecture = dlg.remoteArchitecture();
     sp->executable = dlg.localExecutable();
+    sp->debuggerCommand = dlg.debugger();
     sp->startMode = StartRemote;
     if (dlg.useServerStartScript())
         sp->serverStartScript = dlg.serverStartScript();
