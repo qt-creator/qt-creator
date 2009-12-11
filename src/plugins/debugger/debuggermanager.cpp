@@ -468,7 +468,8 @@ void DebuggerManager::init()
 
     d->m_actions.breakAction = new QAction(tr("Toggle Breakpoint"), this);
 
-    d->m_actions.watchAction = new QAction(tr("Add to Watch Window"), this);
+    d->m_actions.watchAction1 = new QAction(tr("Add to Watch Window"), this);
+    d->m_actions.watchAction2 = new QAction(tr("Add to Watch Window"), this);
 
     d->m_actions.reverseDirectionAction = new QAction(tr("Reverse Direction"), this);
     d->m_actions.reverseDirectionAction->setCheckable(true);
@@ -492,7 +493,9 @@ void DebuggerManager::init()
         this, SLOT(runToFunctionExec()));
     connect(d->m_actions.jumpToLineAction, SIGNAL(triggered()),
         this, SLOT(jumpToLineExec()));
-    connect(d->m_actions.watchAction, SIGNAL(triggered()),
+    connect(d->m_actions.watchAction1, SIGNAL(triggered()),
+        this, SLOT(addToWatchWindow()));
+    connect(d->m_actions.watchAction2, SIGNAL(triggered()),
         this, SLOT(addToWatchWindow()));
     connect(d->m_actions.breakAction, SIGNAL(triggered()),
         this, SLOT(toggleBreakpoint()));
@@ -1669,7 +1672,8 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     if (stopped)
         QApplication::alert(mainWindow(), 3000);
 
-    d->m_actions.watchAction->setEnabled(true);
+    d->m_actions.watchAction1->setEnabled(true);
+    d->m_actions.watchAction2->setEnabled(true);
     d->m_actions.breakAction->setEnabled(true);
 
     bool interruptIsExit = !running;

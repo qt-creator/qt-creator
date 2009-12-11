@@ -119,7 +119,8 @@ const char * const JUMP_TO_LINE         = "Debugger.JumpToLine";
 const char * const TOGGLE_BREAK         = "Debugger.ToggleBreak";
 const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
 const char * const BREAK_AT_MAIN        = "Debugger.BreakAtMain";
-const char * const ADD_TO_WATCH         = "Debugger.AddToWatch";
+const char * const ADD_TO_WATCH1        = "Debugger.AddToWatch1";
+const char * const ADD_TO_WATCH2        = "Debugger.AddToWatch2";
 const char * const OPERATE_BY_INSTRUCTION  = "Debugger.OperateByInstruction";
 
 #ifdef Q_WS_MAC
@@ -801,16 +802,24 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Watch"), globalcontext);
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(actions.watchAction,
-        Constants::ADD_TO_WATCH, cppeditorcontext);
+    cmd = am->registerAction(actions.watchAction1,
+        Constants::ADD_TO_WATCH1, cppeditorcontext);
     cmd->action()->setEnabled(true);
-    cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
+    //cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
     mdebug->addAction(cmd);
-    // QTCREATORBUG-342 asks for that unconditionally
-    //ActionContainer *editorContextMenu =
-    //    am->actionContainer(CppEditor::Constants::M_CONTEXT);
-    //editorContextMenu->addAction(cmd);
-    //cmd->setAttribute(Command::CA_Hide);
+
+    ActionContainer *editorContextMenu =
+        am->actionContainer(CppEditor::Constants::M_CONTEXT);
+    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Views"),
+        debuggercontext);
+    editorContextMenu->addAction(cmd);
+    cmd->setAttribute(Command::CA_Hide);
+    cmd = am->registerAction(actions.watchAction2,
+        Constants::ADD_TO_WATCH2, debuggercontext);
+    cmd->action()->setEnabled(true);
+    //cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
+    editorContextMenu->addAction(cmd);
+    cmd->setAttribute(Command::CA_Hide);
 
     // Views menu
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Views"), globalcontext);
