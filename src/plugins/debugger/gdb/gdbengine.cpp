@@ -614,7 +614,7 @@ void GdbEngine::readGdbStandardError()
 
 void GdbEngine::readGdbStandardOutput()
 {
-    if (m_commandTimer->isActive())
+    if (m_commandTimer->isActive()) 
         m_commandTimer->start(); // Retrigger
 
     int newstart = 0;
@@ -811,19 +811,47 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
         setState(InferiorShuttingDown);
 }
 
+int GdbEngine::commandTimeoutTime() const
+{
+    int time = theDebuggerAction(GdbWatchdogTimeout)->value().toInt();
+    return 1000 * qMax(20, time);
+}
+
 void GdbEngine::commandTimeout()
 {
-    // FIXME this needs a proper message box
-    debugMessage(_("TIMED OUT WAITING FOR GDB REPLY. COMMANDS STILL IN PROGRESS:"));
+    qDebug("TIMEOUT");
     QList<int> keys = m_cookieForToken.keys();
     qSort(keys);
+    bool killIt = false;
     foreach (int key, keys) {
-        const GdbCommand &cmd = m_cookieForToken[key];
+        const GdbCommand &cmd = m_cookieForToken.value(key);
+        if (!(cmd.flags & NonCriticalResponse))
+            killIt = true;
         debugMessage(_("  %1: %2 => %3").arg(key).arg(cmd.command).arg(_(cmd.callbackName)));
     }
-    // This is an entirely undefined state, so we just pull the emergency brake.
-    manager()->watchHandler()->endCycle();
-    m_gdbProc.kill();
+    if (killIt) {
+        debugMessage(_("TIMED OUT WAITING FOR GDB REPLY. COMMANDS STILL IN PROGRESS:"));
+        int timeOut = m_commandTimer->interval();
+        //m_commandTimer->stop();
+        QString msg = tr("The gdb process has not produced any response "
+            "to a command within %1 seconds. This may been it is stuck "
+            "in an endless loop or taking longer than expected to perform "
+            "the operation it was reqested.\nYou have a choice of waiting "
+            "longer or abort debugging.").arg(timeOut);
+        QMessageBox *mb = showMessageBox(QMessageBox::Critical,
+            tr("Gdb not responding"), msg, 
+            QMessageBox::Ok | QMessageBox::Cancel);
+        mb->button(QMessageBox::Cancel)->setText(tr("Give gdb more time"));
+        mb->button(QMessageBox::Ok)->setText(tr("Stop debugging"));
+        if (mb->exec() == QMessageBox::Ok) {
+            debugMessage(_("KILLING DEBUGGER AS REQUESTED BY USER"));
+            // This is an undefined state, so we just pull the emergency brake.
+            manager()->watchHandler()->endCycle();
+            m_gdbProc.kill();
+        } else {
+            debugMessage(_("CONTINUE DEBUGGER AS REQUESTED BY USER"));
+        }
+    }
 }
 
 void GdbEngine::handleResultRecord(GdbResponse *response)
@@ -2969,7 +2997,7 @@ void GdbEngine::runDebuggingHelper(const WatchData &data0, bool dumpChildren)
             protocol << ",0," <<  addr << ',' << (dumpChildren ? "1" : "0")
             << ',' << extraArgs.join(QString(_c(','))) <<  ')';
 
-    postCommand(cmd, WatchUpdate);
+    postCommand(cmd, WatchUpdate | NonCriticalResponse);
 
     showStatusMessage(msgRetrievingWatchData(m_pendingRequests + 1), 10000);
 
@@ -4388,13 +4416,14 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
         SLOT(readGdbStandardError()));
 
     debugMessage(_("GDB STARTED, INITIALIZING IT"));
-    int timeOut = theDebuggerAction(GdbWatchdogTimeout)->value().toInt();
-    m_commandTimer->setInterval(1000 * qMax(20, timeOut));
+    m_commandTimer->setInterval(commandTimeoutTime());
 
     postCommand(_("show version"), CB(handleShowVersion));
 
-    postCommand(_("python execfile('%1dumper.py')").arg(dumperSourcePath));
-    postCommand(_("python execfile('%1gdbmacros.py')").arg(dumperSourcePath));
+    postCommand(_("python execfile('%1dumper.py')").arg(dumperSourcePath),
+        NonCriticalResponse);
+    postCommand(_("python execfile('%1gdbmacros.py')").arg(dumperSourcePath),
+        NonCriticalResponse);
 
     postCommand(_("-interpreter-exec console \"help bb\""),
         CB(handleIsSynchroneous));
@@ -4620,9 +4649,10 @@ void GdbEngine::addOptionPages(QList<Core::IOptionsPage*> *opts) const
     opts->push_back(new TrkOptionsPage(m_trkOptions));
 }
 
-void GdbEngine::showMessageBox(int icon, const QString &title, const QString &text)
+QMessageBox * GdbEngine::showMessageBox(int icon, const QString &title,
+    const QString &text, int buttons)
 {
-    m_manager->showMessageBox(icon, title, text);
+    return m_manager->showMessageBox(icon, title, text, buttons);
 }
 
 bool GdbEngine::isSynchroneous() const

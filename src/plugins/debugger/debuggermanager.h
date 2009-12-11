@@ -39,11 +39,12 @@
 #include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
+class QAbstractItemModel;
 class QAction;
+class QDebug;
 class QDockWidget;
 class QLabel;
-class QDebug;
-class QAbstractItemModel;
+class QMessageBox;
 class QPoint;
 class QVariant;
 QT_END_NAMESPACE
@@ -180,7 +181,8 @@ public:
     DebuggerStartParametersPtr startParameters() const;
     qint64 inferiorPid() const;
 
-    void showMessageBox(int icon, const QString &title, const QString &text);
+    QMessageBox *showMessageBox(int icon, const QString &title, const QString &text,
+        int buttons = 0);
 
     bool debuggerActionsEnabled() const;
 

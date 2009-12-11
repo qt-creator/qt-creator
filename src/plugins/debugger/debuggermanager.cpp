@@ -1551,13 +1551,14 @@ void DebuggerManager::setSessionValue(const QString &name, const QVariant &value
     emit setSessionValueRequested(name, value);
 }
 
-void DebuggerManager::showMessageBox(int icon,
-    const QString &title, const QString &text)
+QMessageBox *DebuggerManager::showMessageBox(int icon, const QString &title,
+    const QString &text, int buttons)
 {
     QMessageBox *mb = new QMessageBox(QMessageBox::Icon(icon),
-        title, text, QMessageBox::NoButton, mainWindow());
+        title, text, QMessageBox::StandardButtons(buttons), mainWindow());
     mb->setAttribute(Qt::WA_DeleteOnClose);
     mb->show();
+    return mb;
 }
 
 DebuggerState DebuggerManager::state() const
