@@ -27,11 +27,16 @@
 **
 **************************************************************************/
 
+#include "command_p.h"
+
+#include "icore.h"
+#include "uniqueidmanager.h"
+
 #include <QtCore/QDebug>
+#include <QtCore/QTextStream>
+
 #include <QtGui/QAction>
 #include <QtGui/QShortcut>
-
-#include "command_p.h"
 
 /*!
     \class Core::Command
@@ -467,6 +472,20 @@ bool OverrideableAction::setCurrentContext(const QList<int> &context)
     return false;
 }
 
+static inline QString msgActionWarning(QAction *newAction, int k, QAction *oldAction)
+{
+    QString msg;
+    QTextStream str(&msg);
+    str << "addOverrideAction " << newAction->objectName() << '/' << newAction->text()
+         << ": Action ";
+    if (oldAction)
+        str << oldAction->objectName() << '/' << oldAction->text();
+    str << " is already registered for context " << k << ' '
+        << Core::ICore::instance()->uniqueIDManager()->stringForUniqueIdentifier(k)
+        << '.';
+    return msg;
+}
+
 void OverrideableAction::addOverrideAction(QAction *action, const QList<int> &context)
 {
     if (context.isEmpty()) {
@@ -475,7 +494,7 @@ void OverrideableAction::addOverrideAction(QAction *action, const QList<int> &co
         for (int i=0; i<context.size(); ++i) {
             int k = context.at(i);
             if (m_contextActionMap.contains(k))
-                qWarning() << QString("addOverrideAction: action already registered for context when registering '%1'").arg(action->text());
+                qWarning("%s", qPrintable(msgActionWarning(action, k, m_contextActionMap.value(k, 0))));
             m_contextActionMap.insert(k, action);
         }
     }

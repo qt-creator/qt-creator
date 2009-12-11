@@ -29,6 +29,10 @@
 
 #include "perforceversioncontrol.h"
 #include "perforceplugin.h"
+#include "perforceconstants.h"
+
+#include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
 
 namespace Perforce {
 namespace Internal {
@@ -38,7 +42,7 @@ PerforceVersionControl::PerforceVersionControl(PerforcePlugin *plugin) :
     m_plugin(plugin)
 {
 }
-    
+
 QString PerforceVersionControl::name() const
 {
     return QLatin1String("perforce");
@@ -58,27 +62,36 @@ bool PerforceVersionControl::supportsOperation(Operation operation) const
 
 bool PerforceVersionControl::vcsOpen(const QString &fileName)
 {
-    return m_plugin->vcsOpen(fileName);
+    const QFileInfo fi(fileName);
+    return m_plugin->vcsOpen(fi.absolutePath(), fi.fileName());
 }
 
 bool PerforceVersionControl::vcsAdd(const QString &fileName)
 {
-    return m_plugin->vcsAdd(fileName);
+    const QFileInfo fi(fileName);
+    return m_plugin->vcsAdd(fi.absolutePath(), fi.fileName());
 }
 
 bool PerforceVersionControl::vcsDelete(const QString &fileName)
 {
-    return m_plugin->vcsDelete(fileName);
+    const QFileInfo fi(fileName);
+    return m_plugin->vcsDelete(fi.absolutePath(), fi.fileName());
 }
 
 bool PerforceVersionControl::managesDirectory(const QString &directory) const
 {
-    return m_plugin->managesDirectory(directory);
+    const bool rc = m_plugin->managesDirectory(directory);
+    if (Perforce::Constants::debug)
+        qDebug() << "managesDirectory" << directory << rc;
+    return rc;
 }
 
 QString PerforceVersionControl::findTopLevelForDirectory(const QString &directory) const
 {
-    return m_plugin->findTopLevelForDirectory(directory);
+    const QString rc = m_plugin->findTopLevelForDirectory(directory);
+    if (Perforce::Constants::debug)
+        qDebug() << "findTopLevelForDirectory" << directory << rc;
+    return rc;
 }
 
 void PerforceVersionControl::emitRepositoryChanged(const QString &s)

@@ -27,68 +27,62 @@
 **
 **************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#ifndef PERFORCECHECKER_H
+#define PERFORCECHECKER_H
 
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
-
-#include <coreplugin/dialogs/ioptionspage.h>
-
-#include "ui_settingspage.h"
+#include <QtCore/QObject>
+#include <QtCore/QProcess>
 
 namespace Perforce {
 namespace Internal {
 
-class PerforceSettings;
-class PerforceChecker;
-struct Settings;
+// Perforce checker:  Calls perforce asynchronously to do
+// a check of the configuration and emits signals with the top level or
+// an error message.
 
-class SettingsPageWidget : public QWidget {
-    Q_OBJECT
-public:
-    explicit SettingsPageWidget(QWidget *parent);
-
-    void setSettings(const PerforceSettings &);
-    Settings settings() const;
-
-    QString searchKeywords() const;
-
-private slots:
-    void slotTest();
-    void setStatusText(const QString &);
-    void setStatusError(const QString &);
-    void testSucceeded(const QString &repo);
-
-private:
-
-    Ui::SettingsPage m_ui;
-    QPointer<PerforceChecker> m_checker;
-};
-
-class SettingsPage : public Core::IOptionsPage
+class PerforceChecker : public QObject
 {
     Q_OBJECT
-
 public:
-    SettingsPage();
+    explicit PerforceChecker(QObject *parent = 0);
+    virtual ~PerforceChecker();
 
-    QString id() const;
-    QString trName() const;
-    QString category() const;
-    QString trCategory() const;
+public slots:
+    void start(const QString &binary,
+               const QStringList &basicArgs = QStringList(),
+               int timeoutMS = -1);
 
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-    virtual bool matches(const QString &) const;
+    bool isRunning() const;
+
+    bool useOverideCursor() const;
+    void setUseOverideCursor(bool v);
+
+    static bool ensureProcessStopped(QProcess &p);
+
+signals:
+    void succeeded(const QString &repositoryRoot);
+    void failed(const QString &errorMessage);
+
+private slots:
+    void slotError(QProcess::ProcessError error);
+    void slotFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void slotTimeOut();
 
 private:
-    QString m_searchKeywords;
-    SettingsPageWidget* m_widget;
+    void emitFailed(const QString &);
+    void emitSucceeded(const QString &);
+    void parseOutput(const QString &);
+    inline void resetOverrideCursor();
+
+    QProcess m_process;
+    QString m_binary;
+    int m_timeOutMS;
+    bool m_timedOut;
+    bool m_useOverideCursor;
+    bool m_isOverrideCursor;
 };
 
-} // namespace Internal
-} // namespace Perforce
+}
+}
 
-#endif // SETTINGSPAGE_H
+#endif // PERFORCECHECKER_H

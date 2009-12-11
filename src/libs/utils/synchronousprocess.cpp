@@ -220,6 +220,16 @@ void SynchronousProcess::setEnvironment(const QStringList &e)
     m_d->m_process.setEnvironment(e);
 }
 
+void SynchronousProcess::setProcessEnvironment(const QProcessEnvironment &environment)
+{
+    m_d->m_process.setProcessEnvironment(environment);
+}
+
+QProcessEnvironment SynchronousProcess::processEnvironment() const
+{
+    return m_d->m_process.processEnvironment();
+}
+
 void SynchronousProcess::setWorkingDirectory(const QString &workingDirectory)
 {
     m_d->m_process.setWorkingDirectory(workingDirectory);

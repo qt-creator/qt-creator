@@ -30,6 +30,7 @@
 #include "settingspage.h"
 #include "perforcesettings.h"
 #include "perforceplugin.h"
+#include "perforcechecker.h"
 
 #include <vcsbase/vcsbaseconstants.h>
 
@@ -52,15 +53,24 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 
 void SettingsPageWidget::slotTest()
 {
-    QString message;
-    QApplication::setOverrideCursor(Qt::BusyCursor);
-    setStatusText(true, tr("Testing..."));
-    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    const bool ok = settings().check(&message);
-    QApplication::restoreOverrideCursor();
-    if (ok)
-        message = tr("Test succeeded.");
-    setStatusText(ok, message);
+    if (!m_checker) {
+        m_checker = new PerforceChecker(this);
+        m_checker->setUseOverideCursor(true);
+        connect(m_checker.data(), SIGNAL(failed(QString)), this, SLOT(setStatusError(QString)));
+        connect(m_checker.data(), SIGNAL(succeeded(QString)), this, SLOT(testSucceeded(QString)));
+    }
+
+    if (m_checker->isRunning())
+        return;
+
+    setStatusText(tr("Testing..."));
+    const Settings s = settings();
+    m_checker->start(s.p4Command, s.commonP4Arguments(), 10000);
+}
+
+void SettingsPageWidget::testSucceeded(const QString &repo)
+{
+    setStatusText(tr("Test succeeded (%1).").arg(repo));
 }
 
 Settings SettingsPageWidget::settings() const
@@ -83,13 +93,17 @@ void SettingsPageWidget::setSettings(const PerforceSettings &s)
     m_ui.clientLineEdit->setText(s.p4Client());
     m_ui.userLineEdit->setText(s.p4User());
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit());
-    const QString errorString = s.errorString();
-    setStatusText(errorString.isEmpty(), errorString);
 }
 
-void SettingsPageWidget::setStatusText(bool ok, const QString &t)
+void SettingsPageWidget::setStatusText(const QString &t)
 {
-    m_ui.errorLabel->setStyleSheet(ok ? QString() : QString(QLatin1String("background-color: red")));
+    m_ui.errorLabel->setStyleSheet(QString::null);
+    m_ui.errorLabel->setText(t);
+}
+
+void SettingsPageWidget::setStatusError(const QString &t)
+{
+    m_ui.errorLabel->setStyleSheet(QLatin1String("background-color: red"));
     m_ui.errorLabel->setText(t);
 }
 

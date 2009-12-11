@@ -35,16 +35,18 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/iversioncontrol.h>
 #include <vcsbase/vcsbaseplugin.h>
-#include <projectexplorer/projectexplorer.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QHash>
 
 QT_BEGIN_NAMESPACE
 class QFile;
 class QAction;
 class QTextCodec;
+class QTemporaryFile;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -58,7 +60,10 @@ class PerforceVersionControl;
 
 struct PerforceResponse
 {
+    PerforceResponse();
+
     bool error;
+    int exitCode;
     QString stdOut;
     QString stdErr;
     QString message;
@@ -75,13 +80,13 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
 
-    bool managesDirectory(const QString &directory) const;
-    QString findTopLevelForDirectory(const QString &directory) const;
-    bool vcsOpen(const QString &fileName);
-    bool vcsAdd(const QString &fileName);
-    bool vcsDelete(const QString &filename);
+    bool managesDirectory(const QString &directory);
+    QString findTopLevelForDirectory(const QString &directory);
+    bool vcsOpen(const QString &workingDir, const QString &fileName);
+    bool vcsAdd(const QString &workingDir, const QString &fileName);
+    bool vcsDelete(const QString &workingDir, const QString &filename);
 
-    void p4Diff(const QStringList &files, QString diffname = QString());
+    void p4Diff(const QString &workingDir, const QStringList &files);
 
     Core::IEditor *openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames);
 
@@ -105,9 +110,11 @@ private slots:
     void diffCurrentFile();
     void diffCurrentProject();
     void updateCurrentProject();
+    void revertCurrentProject();
+    void revertUnchangedCurrentProject();
     void updateAll();
     void diffAllOpened();
-    void submit();
+    void startSubmitProject();
     void describeChange();
     void annotateCurrentFile();
     void annotate();
@@ -116,55 +123,80 @@ private slots:
 
     void submitCurrentLog();
     void printPendingChanges();
-    void slotDiff(const QStringList &files);
+    void slotSubmitDiff(const QStringList &files);
+    void slotTopLevelFound(const QString &);
+    void slotTopLevelFailed(const QString &);
 
 protected:
     virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
     virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
 
+
 private:
-    QStringList environment() const;
+    typedef QHash<QString, bool> ManagedDirectoryCache;
 
     Core::IEditor *showOutputInEditor(const QString& title, const QString output,
                                       int editorType,
                                       QTextCodec *codec = 0);
 
-    // Verbosity flags for runP4Cmd.
-    enum  RunLogFlags { CommandToWindow = 0x1, StdOutToWindow = 0x2, StdErrToWindow = 0x4, ErrorToWindow = 0x8 };
+    // Flags for runP4Cmd.
+    enum RunFlags { CommandToWindow = 0x1, StdOutToWindow = 0x2,
+                    StdErrToWindow = 0x4, ErrorToWindow = 0x8,
+                    OverrideDiffEnvironment = 0x10,
+                    // Run completely synchronously, no signals emitted
+                    RunFullySynchronous = 0x20,
+                    IgnoreExitCode = 0x40,
+                    ShowBusyCursor = 0x80
+                   };
 
     // args are passed as command line arguments
     // extra args via a tempfile and the option -x "temp-filename"
-    PerforceResponse runP4Cmd(const QStringList &args,
+    PerforceResponse runP4Cmd(const QString &workingDir,
+                              const QStringList &args,
+                              unsigned flags = CommandToWindow|StdErrToWindow|ErrorToWindow,
                               const QStringList &extraArgs = QStringList(),
-                              unsigned logFlags = CommandToWindow|StdErrToWindow|ErrorToWindow,
+                              const QByteArray &stdInput = QByteArray(),
                               QTextCodec *outputCodec = 0) const;
 
-    void openFiles(const QStringList &files);
+    inline PerforceResponse synchronousProcess(const QString &workingDir,
+                                               const QStringList &args,
+                                               unsigned flags,
+                                               const QByteArray &stdInput,
+                                               QTextCodec *outputCodec) const;
+
+    inline PerforceResponse fullySynchronousProcess(const QString &workingDir,
+                                                    const QStringList &args,
+                                                    unsigned flags,
+                                                    const QByteArray &stdInput,
+                                                    QTextCodec *outputCodec) const;
 
     QString clientFilePath(const QString &serverFilePath);
-    QString currentFileName();
-    bool checkP4Configuration(QString *errorMessage = 0) const;
-    void annotate(const QString &fileName);
-    void filelog(const QString &fileName);
+    void annotate(const QString &workingDir, const QString &fileName);
+    void filelog(const QString &workingDir, const QStringList &fileNames);
     void cleanCommitMessageFile();
     bool isCommitEditorOpen() const;
+    QSharedPointer<QTemporaryFile> createTemporaryArgumentFile(const QStringList &extraArgs) const;
+    void getTopLevel();
+    QString pendingChangesData();
 
-    void updateCheckout(const QStringList &dirs = QStringList());
+    void updateCheckout(const QString &workingDir = QString(),
+                        const QStringList &dirs = QStringList());
+    bool revertProject(const QString &workingDir, const QStringList &args, bool unchangedOnly);
+
     inline PerforceVersionControl *perforceVersionControl() const;
-
-    ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 
     Utils::ParameterAction *m_editAction;
     Utils::ParameterAction *m_addAction;
     Utils::ParameterAction *m_deleteAction;
     QAction *m_openedAction;
-    Utils::ParameterAction *m_revertAction;
-    Utils::ParameterAction *m_diffCurrentAction;
+    Utils::ParameterAction *m_revertFileAction;
+    Utils::ParameterAction *m_diffFileAction;
     Utils::ParameterAction *m_diffProjectAction;
     Utils::ParameterAction *m_updateProjectAction;
+    Utils::ParameterAction *m_revertProjectAction;
+    Utils::ParameterAction *m_revertUnchangedAction;
     QAction *m_diffAllAction;
-    QAction *m_resolveAction;
-    QAction *m_submitAction;
+    Utils::ParameterAction *m_submitProjectAction;
     QAction *m_pendingAction;
     QAction *m_describeAction;
     Utils::ParameterAction *m_annotateCurrentAction;
@@ -176,15 +208,16 @@ private:
     bool m_submitActionTriggered;
     QAction *m_diffSelectedFiles;
     QString m_commitMessageFileName;
-
+    QString m_commitWorkingDirectory;
+    mutable QString m_tempFilePattern;
     QAction *m_undoAction;
     QAction *m_redoAction;
     QAction *m_menuAction;
 
     static PerforcePlugin *m_perforcePluginInstance;
-    QString pendingChangesData();
 
     PerforceSettings m_settings;
+    ManagedDirectoryCache m_managedDirectoryCache;
 };
 
 } // namespace Perforce

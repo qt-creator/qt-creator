@@ -204,7 +204,7 @@ void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
 
     Utils::SubmitFieldWidget *fieldWidget = new Utils::SubmitFieldWidget;
     connect(fieldWidget, SIGNAL(browseButtonClicked(int,QString)),
-            this, SLOT(slotSetFieldNickName(int)));    
+            this, SLOT(slotSetFieldNickName(int)));
     fieldWidget->setCompleter(completer);
     fieldWidget->setAllowDuplicateFields(true);
     fieldWidget->setHasBrowseButton(true);
@@ -557,7 +557,7 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     if (!checkProcess.waitForFinished()) {
         *errorMessage = tr("The check script '%1' could not be run: %2").arg(checkScript, checkProcess.errorString());
         return false;
-    }    
+    }
     const int exitCode = checkProcess.exitCode();
     if (exitCode != 0) {
         *errorMessage = QString::fromLocal8Bit(checkProcess.readAllStandardError());
@@ -581,32 +581,23 @@ QIcon VCSBaseSubmitEditor::submitIcon()
 // Compile a list if files in the current projects. TODO: Recurse down qrc files?
 QStringList VCSBaseSubmitEditor::currentProjectFiles(bool nativeSeparators, QString *name)
 {
-    using namespace ProjectExplorer;
     if (name)
         name->clear();
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    if (!pe)
-        return QStringList();
-    QStringList files;
-    if (const Project *currentProject = pe->currentProject()) {
-        files << currentProject->files(Project::ExcludeGeneratedFiles);
-        if (name)
-            *name = currentProject->name();
-    } else {
-        if (const SessionManager *session = pe->session()) {
+
+    if (ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance()) {
+        if (const ProjectExplorer::Project *currentProject = pe->currentProject()) {
+            QStringList files = currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
             if (name)
-                *name = session->file()->fileName();
-            const QList<Project *> projects = session->projects();
-            foreach (Project *project, projects)
-                files << project->files(Project::ExcludeGeneratedFiles);
+                *name = currentProject->name();
+            if (nativeSeparators && !files.empty()) {
+                const QStringList::iterator end = files.end();
+                for (QStringList::iterator it = files.begin(); it != end; ++it)
+                    *it = QDir::toNativeSeparators(*it);
+            }
+            return files;
         }
     }
-    if (nativeSeparators && !files.empty()) {
-        const QStringList::iterator end = files.end();
-        for (QStringList::iterator it = files.begin(); it != end; ++it)
-            *it = QDir::toNativeSeparators(*it);
-    }
-    return files;
+    return QStringList();
 }
 
 // Reduce a list of untracked files reported by a VCS down to the files
