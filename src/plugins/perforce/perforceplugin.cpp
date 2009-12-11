@@ -600,6 +600,7 @@ void PerforcePlugin::startSubmitProject()
     }
 
     QStringList fstatLines = fstatResult.stdOut.split(QLatin1Char('\n'));
+qDebug() <<     "O" << fstatResult.stdOut << "L" << fstatLines;
     QStringList depotFileNames;
     foreach (const QString &line, fstatLines) {
         if (line.startsWith("... depotFile"))
@@ -972,6 +973,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
     }
     if (!stdInput.isEmpty()) {
         if (process.write(stdInput) == -1) {
+            PerforceChecker::ensureProcessStopped(process);
             response.error = true;
             response.message = tr("Unable to write input data to process %1: %2").arg(m_settings.p4Command(), process.errorString());
             return response;
@@ -996,6 +998,9 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
     const QByteArray stdOut = process.readAllStandardOutput();
     response.stdOut = outputCodec ? outputCodec->toUnicode(stdOut.constData(), stdOut.size()) :
                                     QString::fromLocal8Bit(stdOut);
+    const QChar cr = QLatin1Char('\r');
+    response.stdErr.remove(cr);
+    response.stdOut.remove(cr);
     // Logging
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     if ((flags & StdErrToWindow) && !response.stdErr.isEmpty())
