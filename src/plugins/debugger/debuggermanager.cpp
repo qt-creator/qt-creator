@@ -35,6 +35,7 @@
 #include "debuggerconstants.h"
 #include "idebuggerengine.h"
 #include "debuggerstringutils.h"
+#include "watchutils.h"
 
 #include "breakwindow.h"
 #include "debuggeroutputwindow.h"
@@ -57,13 +58,16 @@
 #ifdef Q_OS_WIN
 #  include "shared/peutils.h"
 #endif
+
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <projectexplorer/toolchain.h>
 #include <cplusplus/CppDocument.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <texteditor/itexteditor.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -1178,14 +1182,31 @@ void DebuggerManager::dumpLog()
 
 void DebuggerManager::addToWatchWindow()
 {
+    using namespace Core;
+    using namespace TextEditor;
     // requires a selection, but that's the only case we want...
-    QObject *ob = 0;
-    queryCurrentTextEditor(0, 0, &ob);
-    QPlainTextEdit *editor = qobject_cast<QPlainTextEdit*>(ob);
+    EditorManager *editorManager = EditorManager::instance();
+    if (!editorManager)
+        return;
+    IEditor *editor = editorManager->currentEditor();
     if (!editor)
         return;
-    QTextCursor tc = editor->textCursor();
-    theDebuggerAction(WatchExpression)->setValue(tc.selectedText());
+    ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
+    if (!textEditor)
+        return;
+    QTextCursor tc;
+    QPlainTextEdit *ptEdit = qobject_cast<QPlainTextEdit*>(editor->widget());
+    if (ptEdit)
+        tc = ptEdit->textCursor();
+    QString exp;
+    if (tc.hasSelection()) {
+        exp = tc.selectedText();
+    } else {
+        int line, column;
+        exp = cppExpressionAt(textEditor, tc.position(), &line, &column);
+    }
+    if (!exp.isEmpty())
+        d->m_watchHandler->watchExpression(exp);
 }
 
 void DebuggerManager::setBreakpoint(const QString &fileName, int lineNumber)
@@ -1647,7 +1668,7 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     if (stopped)
         QApplication::alert(mainWindow(), 3000);
 
-    d->m_actions.watchAction->setEnabled(stopped);
+    d->m_actions.watchAction->setEnabled(true);
     d->m_actions.breakAction->setEnabled(true);
 
     bool interruptIsExit = !running;

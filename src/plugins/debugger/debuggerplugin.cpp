@@ -803,8 +803,14 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     cmd = am->registerAction(actions.watchAction,
         Constants::ADD_TO_WATCH, cppeditorcontext);
-    //cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
+    cmd->action()->setEnabled(true);
+    cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
     mdebug->addAction(cmd);
+    // QTCREATORBUG-342 asks for that unconditionally
+    //ActionContainer *editorContextMenu =
+    //    am->actionContainer(CppEditor::Constants::M_CONTEXT);
+    //editorContextMenu->addAction(cmd);
+    //cmd->setAttribute(Command::CA_Hide);
 
     // Views menu
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Views"), globalcontext);
