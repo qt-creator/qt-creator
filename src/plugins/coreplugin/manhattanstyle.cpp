@@ -76,16 +76,22 @@ bool styleEnabled(const QWidget *widget)
 // Consider making this a QStyle state
 bool panelWidget(const QWidget *widget)
 {
-    const QWidget *p = widget;
+    if (!widget)
+        return false;
 
+    // Dont style dialogs or explicitly ignored widgets
+    if (qobject_cast<const QDialog *>(widget->window()))
+        return false;
+
+    // Style toolbars, statusbar and menubar
+    if (qobject_cast<const QToolBar *>(widget) ||
+        qobject_cast<const QStatusBar *>(widget) ||
+        qobject_cast<const QMenuBar *>(widget))
+        return styleEnabled(widget);
+
+    const QWidget *p = widget;
     while (p) {
-        if (qobject_cast<const QToolBar *>(p) && styleEnabled(p))
-            return true;
-        else if (qobject_cast<const QStatusBar *>(p) && styleEnabled(p))
-            return true;
-        else if (qobject_cast<const QMenuBar *>(p) && styleEnabled(p))
-            return true;
-        else if (p->property("panelwidget").toBool())
+        if (p->property("panelwidget").toBool())
             return true;
         p = p->parentWidget();
     }
