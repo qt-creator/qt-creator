@@ -1415,11 +1415,15 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
                 moveToEndOfLine();
                 setAnchor();
                 moveRight();
-                while (characterAtCursor() == ' ')
-                    moveRight();
-                removeSelectedText();
-                if (!m_gflag)
+                if (m_gflag) {
+                    removeSelectedText();
+                } else {
+                    while (characterAtCursor() == ' '
+                        || characterAtCursor() == '\t')
+                        moveRight();
+                    removeSelectedText();
                     m_tc.insertText(" ");
+                }
             }
             if (!m_gflag)
                 moveLeft();
