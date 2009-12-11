@@ -889,8 +889,7 @@ void QtVersion::updateVersionInfo() const
     m_hasDocumentation = false;
 
     QFileInfo qmake(qmakeCommand());
-    if (ProjectExplorer::DebuggingHelperLibrary::possibleQMakeCommands().contains(qmake.fileName())
-        && qmake.exists()) {
+    if (qmake.exists() && qmake.isExecutable()) {
         static const char * const variables[] = {
              "QT_VERSION",
              "QT_INSTALL_DATA",
