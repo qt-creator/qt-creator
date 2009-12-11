@@ -176,9 +176,10 @@ enum MoveType
 
 enum RangeMode
 {
-    RangeCharMode,
-    RangeLineMode,
-    RangeBlockMode,
+    RangeCharMode,  // v
+    RangeLineMode,  // V
+    RangeBlockMode, // Ctrl-v
+    RangeBlockAndTailMode, // Ctrl-v for D and X
 };
 
 enum EventResult
@@ -1286,13 +1287,14 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_rangemode = RangeLineMode;
         yankSelectedText();
         removeSelectedText();
+        moveToFirstNonBlankOnLine();
     } else if ((key == 'd' || key == 'x') && m_visualMode == VisualBlockMode) {
         leaveVisualMode();
         m_rangemode = RangeBlockMode;
         yankSelectedText();
         removeSelectedText();
         setPosition(qMin(position(), anchor()));
-    } else if (key == 'D') {
+    } else if (key == 'D' && m_visualMode == NoVisualMode) {
         setAnchor();
         m_submode = DeleteSubMode;
         moveDown(qMax(count() - 1, 0));
@@ -1300,6 +1302,20 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToEndOfLine();
         setDotCommand("D");
         finishMovement();
+    } else if ((key == 'D' || key == 'X') &&
+         (m_visualMode == VisualCharMode || m_visualMode == VisualLineMode)) {
+        leaveVisualMode();
+        m_rangemode = RangeLineMode;
+        m_submode = NoSubMode;
+        yankSelectedText();
+        removeSelectedText();
+        moveToFirstNonBlankOnLine();
+    } else if ((key == 'D' || key == 'X') && m_visualMode == VisualBlockMode) {
+        leaveVisualMode();
+        m_rangemode = RangeBlockAndTailMode;
+        yankSelectedText();
+        removeSelectedText();
+        setPosition(qMin(position(), anchor()));
     } else if (key == control('d')) {
         int sline = cursorLineOnScreen();
         // FIXME: this should use the "scroll" option, and "count"
@@ -2686,6 +2702,7 @@ void FakeVimHandler::Private::removeText(const Range &range)
             tc.removeSelectedText();
             return;
         }
+        case RangeBlockAndTailMode: 
         case RangeBlockMode: {
             int beginLine = lineForPosition(range.beginPos);
             int endLine = lineForPosition(range.endPos);
@@ -2693,16 +2710,17 @@ void FakeVimHandler::Private::removeText(const Range &range)
             int column2 = range.endPos - firstPositionInLine(endLine);
             int beginColumn = qMin(column1, column2);
             int endColumn = qMax(column1, column2);
-            qDebug() << "COLS: " << beginColumn << endColumn;
-
+            if (range.rangemode == RangeBlockAndTailMode)
+                endColumn = INT_MAX - 1;
             QTextBlock block = m_tc.document()->findBlockByNumber(endLine - 1);
-            beginEditBlock();
+            beginEditBlock(range.beginPos);
             for (int i = beginLine; i <= endLine && block.isValid(); ++i) {
                 int bCol = qMin(beginColumn, block.length() - 1);
                 int eCol = qMin(endColumn + 1, block.length() - 1);
                 tc.setPosition(block.position() + bCol, MoveAnchor);
                 tc.setPosition(block.position() + eCol, KeepAnchor);
-                fixMarks(block.position() + bCol, tc.selectionStart() - tc.selectionEnd());
+                fixMarks(block.position() + bCol,
+                         tc.selectionStart() - tc.selectionEnd());
                 tc.removeSelectedText();
                 block = block.previous();
             }
