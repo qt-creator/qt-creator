@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/qmlinspector" >
+        <file>images/logo.png</file>
+    </qresource>
+</RCC>
+

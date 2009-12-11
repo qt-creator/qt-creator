@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>engines.qml</file>
+        <file>engine.png</file>
+        <file>refresh.png</file>
+    </qresource>
+</RCC>
