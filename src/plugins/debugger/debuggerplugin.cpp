@@ -895,7 +895,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     MiniSplitter *splitter = new MiniSplitter;
     splitter->addWidget(m_manager->mainWindow());
-    splitter->addWidget(new OutputPanePlaceHolder(m_debugMode));
+    splitter->addWidget(new OutputPanePlaceHolder(m_debugMode, splitter));
     splitter->setStretchFactor(0, 10);
     splitter->setStretchFactor(1, 0);
     splitter->setOrientation(Qt::Vertical);
