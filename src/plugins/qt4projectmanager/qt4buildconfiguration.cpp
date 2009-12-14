@@ -114,6 +114,15 @@ Qt4Project *Qt4BuildConfiguration::qt4Project() const
     return static_cast<Qt4Project *>(project());
 }
 
+QString Qt4BuildConfiguration::baseEnvironmentText() const
+{
+    if (useSystemEnvironment())
+        return tr("System Environment");
+    else
+        return tr("Clean Environment");
+    return QString::null;
+}
+
 ProjectExplorer::Environment Qt4BuildConfiguration::baseEnvironment() const
 {
     Environment env = useSystemEnvironment() ? Environment::systemEnvironment() : Environment();

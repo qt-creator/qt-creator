@@ -90,6 +90,8 @@ private:
     void setBaseEnvironmentBase(BaseEnvironmentBase env);
     BaseEnvironmentBase baseEnvironmentBase() const;
     ProjectExplorer::Environment baseEnvironment() const;
+    QString baseEnvironmentText() const;
+
     void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
     QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
 

@@ -213,6 +213,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_qt4RunConfiguration->baseEnvironmentText());
     m_environmentWidget->setUserChanges(m_qt4RunConfiguration->userEnvironmentChanges());
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     vboxTopLayout->addWidget(m_environmentWidget);
@@ -271,6 +272,7 @@ void Qt4RunConfigurationWidget::baseEnvironmentSelected(int index)
     m_qt4RunConfiguration->setBaseEnvironmentBase(Qt4RunConfiguration::BaseEnvironmentBase(index));
 
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_qt4RunConfiguration->baseEnvironmentText());
     m_ignoreChange = false;
 }
 
@@ -281,6 +283,7 @@ void Qt4RunConfigurationWidget::baseEnvironmentChanged()
 
     m_baseEnvironmentComboBox->setCurrentIndex(m_qt4RunConfiguration->baseEnvironmentBase());
     m_environmentWidget->setBaseEnvironment(m_qt4RunConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_qt4RunConfiguration->baseEnvironmentText());
 }
 
 void Qt4RunConfigurationWidget::userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges)
@@ -478,6 +481,17 @@ QString Qt4RunConfiguration::workingDirectory() const
 QStringList Qt4RunConfiguration::commandLineArguments() const
 {
     return m_commandLineArguments;
+}
+
+QString Qt4RunConfiguration::baseEnvironmentText() const
+{
+    if (m_baseEnvironmentBase == Qt4RunConfiguration::CleanEnvironmentBase)
+        return tr("Clean Environment");
+    else  if (m_baseEnvironmentBase == Qt4RunConfiguration::SystemEnvironmentBase)
+        return tr("System Environment");
+    else  if (m_baseEnvironmentBase == Qt4RunConfiguration::BuildEnvironmentBase)
+        return tr("Build Environment");
+    return QString::null;
 }
 
 ProjectExplorer::Environment Qt4RunConfiguration::baseEnvironment() const

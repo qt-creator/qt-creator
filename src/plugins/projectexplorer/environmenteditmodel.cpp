@@ -463,6 +463,12 @@ void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &e
     m_model->setBaseEnvironment(env);
 }
 
+void EnvironmentWidget::setBaseEnvironmentText(const QString &text)
+{
+    m_baseEnvironmentText = text;
+    updateSummaryText();
+}
+
 QList<EnvironmentItem> EnvironmentWidget::userChanges() const
 {
     return m_model->userChanges();
@@ -479,17 +485,20 @@ void EnvironmentWidget::updateSummaryText()
     QString text;
     const QList<EnvironmentItem> &list = m_model->userChanges();
     foreach (const EnvironmentItem &item, list) {
-        if (!text.isEmpty())
+        if (item.name != EnvironmentModel::tr("<VARIABLE>")) {
             text.append("<br>");
-	if (item.name != EnvironmentModel::tr("<VARIABLE>")) {
             if (item.unset)
                 text.append(tr("Unset <b>%1</b>").arg(item.name));
             else
                 text.append(tr("Set <b>%1</b> to <b>%2</b>").arg(item.name, item.value));
         }
     }
+
     if (text.isEmpty())
-        text = tr("Summary: No changes to Environment");
+        text.prepend(tr("Using <b>%1</b>").arg(m_baseEnvironmentText));
+    else
+        text.prepend(tr("Using <b>%1</b> and").arg(m_baseEnvironmentText));
+
     m_detailsContainer->setSummaryText(text);
 }
 

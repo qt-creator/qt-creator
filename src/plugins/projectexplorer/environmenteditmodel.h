@@ -109,6 +109,7 @@ public:
     EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget = 0);
     ~EnvironmentWidget();
 
+    void setBaseEnvironmentText(const QString &text);
     void setBaseEnvironment(const ProjectExplorer::Environment &env);
 
     QList<EnvironmentItem> userChanges() const;
@@ -132,6 +133,7 @@ private slots:
 
 private:
     EnvironmentModel *m_model;
+    QString m_baseEnvironmentText;
     Utils::DetailsWidget *m_detailsContainer;
     QTreeView *m_environmentTreeView;
     QPushButton *m_editButton;
