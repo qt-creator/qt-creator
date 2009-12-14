@@ -153,6 +153,7 @@ private:
     QMap<int, QPointer<QAction> > m_contextActionMap;
     bool m_active;
     bool m_contextInitialized;
+    QAction m_dummyShortcutEater;
 };
 
 } // namespace Internal
