@@ -529,7 +529,7 @@ void OverrideableAction::actionChanged()
     m_action->setVisible(m_currentAction->isVisible());
 
     m_dummyShortcutEater.setShortcuts(m_action->shortcuts());
-    m_dummyShortcutEater.setEnabled(!m_action->isEnabled());
+    m_dummyShortcutEater.setEnabled(m_action->isVisible() && !m_action->isEnabled());
 }
 
 bool OverrideableAction::isActive() const
