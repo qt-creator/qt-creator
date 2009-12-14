@@ -68,9 +68,6 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 
-enum { p4Timeout = 20000 };
-enum { longTimeoutFactor = 4 };
-
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput,
@@ -895,7 +892,7 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     // Run, connect stderr to the output window
     Utils::SynchronousProcess process;
-    const int timeOut = (flags & LongTimeOut) ? longTimeoutFactor * p4Timeout : p4Timeout;
+    const int timeOut = (flags & LongTimeOut) ? m_settings.longTimeOutMS() : m_settings.timeOutMS();
     process.setTimeout(timeOut);
     process.setStdOutCodec(outputCodec);
     if (flags & OverrideDiffEnvironment)
@@ -983,7 +980,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
         process.closeWriteChannel();
     }
 
-    const int timeOut = (flags & LongTimeOut) ? longTimeoutFactor * p4Timeout : p4Timeout;
+    const int timeOut = (flags & LongTimeOut) ? m_settings.longTimeOutMS() : m_settings.timeOutMS();
     if (!process.waitForFinished(timeOut)) {
         PerforceChecker::ensureProcessStopped(process);
         response.error = true;

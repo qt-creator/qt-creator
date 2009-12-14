@@ -58,6 +58,7 @@ struct Settings {
     QString p4User;
     QString errorString;
     bool defaultEnv;
+    int timeOutS;
     bool promptToSubmit;
 };
 
@@ -91,6 +92,10 @@ public:
 
     void setSettings(const Settings &s);
     Settings settings() const;
+
+    inline int timeOutS()      const { return m_settings.timeOutS;  }
+    inline int timeOutMS()     const { return m_settings.timeOutS * 10000;  }
+    inline int longTimeOutMS() const { return m_settings.timeOutS * 100000; }
 
     QString topLevel() const;
     QString topLevelSymLinkTarget() const;

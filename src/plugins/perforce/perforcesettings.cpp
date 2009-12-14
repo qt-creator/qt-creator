@@ -46,6 +46,9 @@ static const char *portKeyC = "Port";
 static const char *clientKeyC = "Client";
 static const char *userKeyC = "User";
 static const char *promptToSubmitKeyC = "PromptForSubmit";
+static const char *timeOutKeyC = "TimeOut";
+
+enum { defaultTimeOutS = 30 };
 
 static QString defaultCommand()
 {
@@ -62,6 +65,7 @@ namespace Internal {
 
 Settings::Settings() :
     defaultEnv(true),
+    timeOutS(defaultTimeOutS),
     promptToSubmit(true)
 {
 }
@@ -71,7 +75,7 @@ bool Settings::equals(const Settings &rhs) const
     return defaultEnv == rhs.defaultEnv
             && p4Command == rhs.p4Command && p4Port == rhs.p4Port
             && p4Client == rhs.p4Client && p4User == rhs.p4User
-            && promptToSubmit == rhs.promptToSubmit;
+            && timeOutS == rhs.timeOutS && promptToSubmit == rhs.promptToSubmit;
 };
 
 QStringList Settings::commonP4Arguments() const
@@ -105,6 +109,7 @@ void PerforceSettings::fromSettings(QSettings *settings)
     m_settings.p4Port = settings->value(QLatin1String(portKeyC), QString()).toString();
     m_settings.p4Client = settings->value(QLatin1String(clientKeyC), QString()).toString();
     m_settings.p4User = settings->value(QLatin1String(userKeyC), QString()).toString();
+    m_settings.timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
     m_settings.promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     settings->endGroup();
 }
@@ -117,6 +122,7 @@ void PerforceSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(portKeyC), m_settings.p4Port);
     settings->setValue(QLatin1String(clientKeyC), m_settings.p4Client);
     settings->setValue(QLatin1String(userKeyC), m_settings.p4User);
+    settings->setValue(QLatin1String(timeOutKeyC), m_settings.timeOutS);
     settings->setValue(QLatin1String(promptToSubmitKeyC), m_settings.promptToSubmit);
     settings->endGroup();
 }

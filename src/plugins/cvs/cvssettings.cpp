@@ -39,6 +39,9 @@ static const char *promptToSubmitKeyC = "PromptForSubmit";
 static const char *diffOptionsKeyC = "DiffOptions";
 static const char *describeByCommitIdKeyC = "DescribeByCommitId";
 static const char *defaultDiffOptions = "-du";
+static const char *timeOutKeyC = "TimeOut";
+
+enum { defaultTimeOutS = 30 };
 
 static QString defaultCommand()
 {
@@ -56,6 +59,7 @@ namespace CVS {
 CVSSettings::CVSSettings() :
     cvsCommand(defaultCommand()),
     cvsDiffOptions(QLatin1String(defaultDiffOptions)),
+    timeOutS(defaultTimeOutS),
     promptToSubmit(true),
     describeByCommitId(true)
 {
@@ -69,6 +73,7 @@ void CVSSettings::fromSettings(QSettings *settings)
     cvsRoot = settings->value(QLatin1String(rootC), QString()).toString();
     cvsDiffOptions = settings->value(QLatin1String(diffOptionsKeyC), QLatin1String(defaultDiffOptions)).toString();
     describeByCommitId = settings->value(QLatin1String(describeByCommitIdKeyC), true).toBool();
+    timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
     settings->endGroup();
 }
 
@@ -78,7 +83,8 @@ void CVSSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(commandKeyC), cvsCommand);
     settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
     settings->setValue(QLatin1String(rootC), cvsRoot);
-    settings->setValue(QLatin1String(diffOptionsKeyC), cvsDiffOptions);
+    settings->setValue(QLatin1String(diffOptionsKeyC), cvsDiffOptions);    
+    settings->setValue(QLatin1String(timeOutKeyC), timeOutS);
     settings->setValue(QLatin1String(describeByCommitIdKeyC), describeByCommitId);
     settings->endGroup();
 }
@@ -89,6 +95,7 @@ bool CVSSettings::equals(const CVSSettings &s) const
         && describeByCommitId == s.describeByCommitId
         && cvsCommand         == s.cvsCommand
         && cvsRoot            == s.cvsRoot
+        && timeOutS           == s.timeOutS
         && cvsDiffOptions     == s.cvsDiffOptions;
 }
 
