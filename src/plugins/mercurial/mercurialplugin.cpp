@@ -555,6 +555,7 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
     commitEditor->registerActions(editorUndo, editorRedo, editorCommit, editorDiff);
     connect(commitEditor, SIGNAL(diffSelectedFiles(QStringList)),
             this, SLOT(diffFromEditorSelected(QStringList)));
+    commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
 }
 
 void MercurialPlugin::diffFromEditorSelected(const QStringList &files)

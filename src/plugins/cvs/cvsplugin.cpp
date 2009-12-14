@@ -626,6 +626,7 @@ void CVSPlugin::startCommit(const QString &workingDir, const QStringList &files)
     changeTmpFile.close();
     // Create a submit editor and set file list
     CVSSubmitEditor *editor = openCVSSubmitEditor(m_commitMessageFileName);
+    editor->setCheckScriptWorkingDirectory(m_commitRepository);
     editor->setStateList(statusOutput);
 }
 

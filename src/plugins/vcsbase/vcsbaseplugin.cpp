@@ -170,11 +170,15 @@ void StateListener::slotStateChanged()
     const Core::ICore *core = Core::ICore::instance();
     Core::VCSManager *vcsManager = core->vcsManager();
 
-    // Get the current file. Are we on a temporary submit editor or something? Ignore.
+    // Get the current file. Are we on a temporary submit editor indicated by
+    // temporary path prefix or does the file contains a hash, indicating a project
+    // folder?
     State state;
     state.currentFile = core->fileManager()->currentFile();
-    if (!state.currentFile.isEmpty() && state.currentFile.startsWith(QDir::tempPath()))
-        state.currentFile.clear();
+    if (!state.currentFile.isEmpty()) {
+        if (state.currentFile.contains(QLatin1Char('#')) || state.currentFile.startsWith(QDir::tempPath()))
+            state.currentFile.clear();
+    }
     // Get the file and its control. Do not use the file unless we find one
     Core::IVersionControl *fileControl = 0;
     if (!state.currentFile.isEmpty()) {

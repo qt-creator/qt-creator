@@ -499,6 +499,7 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
     QTC_ASSERT(submitEditor, /**/);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffCommitFiles(QStringList)));
+    submitEditor->setCheckScriptWorkingDirectory(m_commitRepository);
 
     return submitEditor;
 }

@@ -513,6 +513,7 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     // mechanism. Disable them correctly.
     submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentAction, m_diffSelectedFilesAction);
     submitEditor->setCommitData(cd);
+    submitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
     connect(submitEditor, SIGNAL(diff(QStringList,QStringList)), this, SLOT(submitEditorDiff(QStringList,QStringList)));
     return editor;
 }

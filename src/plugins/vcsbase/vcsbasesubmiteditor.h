@@ -79,8 +79,7 @@ struct VCSBASE_EXPORT VCSBaseSubmitEditorParameters {
  * signal and then asking the IFile interface of the editor to save the file
  * within a IFileManager::blockFileChange() section
  * and to launch the submit process. In addition, the action registered
- * for submit sho src/libs/utils/submiteditorwidget.h
-uld be connected to a slot triggering the close of the
+ * for submit should be connected to a slot triggering the close of the
  * current editor in the editor manager. */
 
 class VCSBASE_EXPORT VCSBaseSubmitEditor : public Core::IEditor
@@ -90,6 +89,7 @@ class VCSBASE_EXPORT VCSBaseSubmitEditor : public Core::IEditor
     Q_PROPERTY(QAbstractItemView::SelectionMode fileListSelectionMode READ fileListSelectionMode WRITE setFileListSelectionMode DESIGNABLE true)
     Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true)
     Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true)
+    Q_PROPERTY(QString checkScriptWorkingDirectory READ checkScriptWorkingDirectory WRITE setCheckScriptWorkingDirectory DESIGNABLE true)
 public:
     typedef QList<int> Context;
 
@@ -129,6 +129,9 @@ public:
 
     int lineWrapWidth() const;
     void setLineWrapWidth(int);
+
+    QString checkScriptWorkingDirectory() const;
+    void setCheckScriptWorkingDirectory(const QString &);
 
     // Core::IEditor
     virtual bool createNew(const QString &contents);
