@@ -264,7 +264,7 @@ def encodeString(value):
 #######################################################################
 
 class Item:
-    def __init__(self, value, parentiname, iname, name):
+    def __init__(self, value, parentiname, iname, name = None):
         self.value = value
         if iname is None:
             self.iname = parentiname
@@ -463,6 +463,8 @@ class Dumper:
         self.safeoutput = ""
         self.childTypes = [""]
         self.childNumChilds = [-1]
+        self.maxNumChilds = [-1]
+        self.numChilds = [-1]
 
     def put(self, value):
         self.output += value
@@ -493,34 +495,49 @@ class Dumper:
     def endItem(self):
         self.put('"')
 
-    def beginChildren(self, numChild = 1, type = None, children = None):
+    def beginChildren(self, numChild_ = 1, childType_ = None, childNumChild_ = None):
         childType = ""
         childNumChild = -1
+        if type(numChild_) is list:
+            numChild = numChild_[0]
+            maxNumChild = numChild_[1]
+        else:
+            numChild = numChild_
+            maxNumChild = numChild_
         if numChild == 0:
-            type = None
+            childType_ = None
         self.putCommaIfNeeded()
-        if not type is None:
-            childType = stripClassTag(str(type))
+        if not childType_ is None:
+            childType = stripClassTag(str(childType_))
             self.put('childtype="%s",' % childType)
-            if isSimpleType(type) or isStringType(self, type):
+            if isSimpleType(childType_) or isStringType(self, childType_):
                 self.put('childnumchild="0",')
                 childNumChild = 0
-            elif type.code == gdb.TYPE_CODE_PTR:
+            elif childType_.code == gdb.TYPE_CODE_PTR:
                 self.put('childnumchild="1",')
                 childNumChild = 1
-        if not children is None:
-            self.put('childnumchild="%s",' % children)
-            childNumChild = children
+        if not childNumChild_ is None:
+            self.put('childnumchild="%s",' % childNumChild_)
+            childNumChild = childNumChild_
         self.childTypes.append(childType)
         self.childNumChilds.append(childNumChild)
+        self.numChilds.append(numChild)
+        self.maxNumChilds.append(maxNumChild)
         #warn("BEGIN: %s" % self.childTypes)
         self.put("children=[")
 
     def endChildren(self):
         #warn("END: %s" % self.childTypes)
+        numChild = self.numChilds.pop()
+        maxNumChild = self.maxNumChilds.pop()
+        if maxNumChild < numChild:
+            self.putEllipsis();
         self.childTypes.pop()
         self.childNumChilds.pop()
         self.put(']')
+
+    def childRange(self):
+        return xrange(qmin(self.maxNumChilds[-1], self.numChilds[-1]))
 
     # convenience
     def putItemCount(self, count):

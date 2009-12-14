@@ -15,16 +15,13 @@ def qdump__QByteArray(d, item):
     d.putNumChild(size)
 
     if d.isExpanded(item):
-        n = qmin(size, 1000)
         innerType = gdb.lookup_type("char")
         data = d_ptr['data']
-        d.beginChildren(n, innerType)
+        d.beginChildren([size, 1000], innerType)
         p = gdb.Value(data.cast(innerType.pointer()))
-        for i in xrange(n):
-            d.putItem(Item(p.dereference(), item.iname, i, None))
+        for i in d.childRange():
+            d.putItem(Item(p.dereference(), item.iname, i))
             p += 1
-        if n < size:
-            d.putEllipsis()
         d.endChildren()
 
 
@@ -257,38 +254,35 @@ def qdump__QHash(d, item):
 
     d_ptr = item.value["d"]
     e_ptr = item.value["e"]
-    n = d_ptr["size"]
+    size = d_ptr["size"]
 
     hashDataType = d_ptr.type
     hashNodeType = e_ptr.type
 
-    check(0 <= n and n <= 100 * 1000 * 1000)
+    check(0 <= size and size <= 100 * 1000 * 1000)
     check(d_ptr["ref"]["_q_value"] > 0)
 
-    d.putItemCount(n)
-    d.putNumChild(n)
+    d.putItemCount(size)
+    d.putNumChild(size)
     if d.isExpanded(item):
-        if n > 1000:
-            n = 1000
-
         isSimpleKey = isSimpleType(keyType)
         isSimpleValue = isSimpleType(valueType)
         node = hashDataFirstNode(item.value)
 
         innerType = e_ptr.dereference().type
         inner = select(isSimpleKey and isSimpleValue, valueType, innerType)
-        d.beginChildren(n, inner)
-        for i in xrange(n):
+        d.beginChildren([size, 1000], inner)
+        for i in d.childRange():
             it = node.dereference().cast(innerType)
             d.beginHash()
             key = it["key"]
             value = it["value"]
             if isSimpleKey and isSimpleValue:
                 d.putName(key)
-                d.putItemHelper(Item(value, item.iname, i, None))
+                d.putItemHelper(Item(value, item.iname, i))
                 d.putType(valueType)
             else:
-                d.putItemHelper(Item(it, item.iname, i, None))
+                d.putItemHelper(Item(it, item.iname, i))
             d.endHash()
             node = hashDataNextNode(node)
         d.endChildren()
@@ -310,11 +304,11 @@ def qdump__QHashNode(d, item):
         d.beginChildren()
         d.beginHash()
         d.putName("key")
-        d.putItemHelper(Item(key, None, None, None))
+        d.putItemHelper(Item(key, None, None))
         d.endHash()
         d.beginHash()
         d.putName("value")
-        d.putItemHelper(Item(value, None, None, None))
+        d.putItemHelper(Item(value, None, None))
         d.endHash()
         d.endChildren()
 
@@ -325,8 +319,8 @@ def qdump__QList(d, item):
     end = d_ptr["end"]
     array = d_ptr["array"]
     check(begin >= 0 and end >= 0 and end <= 1000 * 1000 * 1000)
-    n = end - begin
-    check(n >= 0)
+    size = end - begin
+    check(size >= 0)
     #if n > 0:
     #    checkAccess(&list.front())
     #    checkAccess(&list.back())
@@ -339,15 +333,11 @@ def qdump__QList(d, item):
         and str(innerType.target().unqualified()) != "char"
     if innerTypeIsPointer:
         p = gdb.Value(array).cast(innerType.pointer()) + begin
-        checkPointerRange(p, qmin(n, 100))
+        checkPointerRange(p, qmin(size, 100))
 
-    d.putItemCount(n)
-    d.putNumChild(n)
+    d.putItemCount(size)
+    d.putNumChild(size)
     if d.isExpanded(item):
-        # about 0.5s / 1000 items
-        if n > 2000:
-            n = 2000
-
         innerSize = innerType.sizeof
         # The exact condition here is:
         #  QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic
@@ -362,17 +352,15 @@ def qdump__QList(d, item):
             inner = innerType.target()
         else:
             inner = innerType
-        d.beginChildren(n, inner)
-        for i in xrange(n):
+        # about 0.5s / 1000 items
+        d.beginChildren([size, 2000], inner)
+        for i in d.childRange():
             if isInternal:
-                d.putItem(Item(p.dereference(), item.iname, i, None))
+                d.putItem(Item(p.dereference(), item.iname, i))
             else:
                 pp = p.cast(innerType.pointer().pointer()).dereference()
-                d.putItem(Item(pp.dereference(), item.iname, i, None))
+                d.putItem(Item(pp.dereference(), item.iname, i))
             p += 1
-
-        if n < end - begin:
-            d.putEllipsis()
         d.endChildren()
 
 
@@ -405,25 +393,17 @@ def qdump__QImage(d, item):
 def qdump__QLinkedList(d, item):
     d_ptr = item.value["d"]
     e_ptr = item.value["e"]
-    nn = d_ptr["size"]
-    n = nn
+    n = d_ptr["size"]
     check(0 <= n and n <= 100*1000*1000)
     check(d_ptr["ref"]["_q_value"] > 0)
-
     d.putItemCount(n)
     d.putNumChild(n)
-
     if d.isExpanded(item):
-        innerType = item.value.type.template_argument(0)
-        if n > 1000:
-            n = 1000
-        d.beginChildren(n, innerType)
+        d.beginChildren([n, 1000], item.value.type.template_argument(0))
         p = e_ptr["n"]
-        for i in xrange(n):
-            d.safePutItem(Item(p["t"], None, None, None))
+        for i in d.childRange():
+            d.safePutItem(Item(p["t"], None, None))
             p = p["n"]
-        if n < nn:
-            d.putEllipsis()
         d.endChildren()
 
 
@@ -456,11 +436,11 @@ def qdump__QMapNode(d, item):
         d.beginChildren(2)
         d.beginHash()
         d.putName("key")
-        d.putItemHelper(Item(item.value["key"], item.iname, "name", None))
+        d.putItemHelper(Item(item.value["key"], item.iname, "name"))
         d.endHash()
         d.beginHash()
         d.putName("value")
-        d.putItemHelper(Item(item.value["value"], item.iname, "value", None))
+        d.putItemHelper(Item(item.value["value"], item.iname, "value"))
         d.endHash()
         d.endChildren()
 
@@ -508,9 +488,9 @@ def qdump__QMap(d, item):
             if isSimpleKey and isSimpleValue:
                 #d.putType(valueType)
                 d.putName(key)
-                d.putItemHelper(Item(value, item.iname, i, None))
+                d.putItemHelper(Item(value, item.iname, i))
             else:
-                d.putItemHelper(Item(node, item.iname, i, None))
+                d.putItemHelper(Item(node, item.iname, i))
             d.endHash()
             it = it.dereference()["forward"].dereference()
         d.endChildren()
@@ -622,7 +602,7 @@ def qdump__QObject(d, item):
                     data = value["d"]["data"]["ptr"]
                     innerType = gdb.lookup_type(d.ns + "QString")
                     d.putItemHelper(
-                        Item(data.cast(innerType), item.iname, property, None))
+                        Item(data.cast(innerType), item.iname, property))
                     #d.putNumChild(0)
                 else:
                     iname = "%s.properties.%s" % (item.iname, propertyName)
@@ -1393,35 +1373,30 @@ def qdump__QSet(d, item):
 
     d_ptr = item.value["q_hash"]["d"]
     e_ptr = item.value["q_hash"]["e"]
-    n = d_ptr["size"]
+    size = d_ptr["size"]
 
     hashDataType = d_ptr.type
     hashNodeType = e_ptr.type
 
-    check(0 <= n and n <= 100 * 1000 * 1000)
+    check(0 <= size and size <= 100 * 1000 * 1000)
     check(d_ptr["ref"]["_q_value"] > 0)
 
-    d.putItemCount(n)
-    d.putNumChild(n)
+    d.putItemCount(size)
+    d.putNumChild(size)
     if d.isExpanded(item):
-        if n > 1000:
-            n = 1000
-
         isSimpleKey = isSimpleType(keyType)
-
         node = hashDataFirstNode(item.value)
-
         innerType = e_ptr.dereference().type
-        d.beginChildren(n, keyType)
-        for i in xrange(n):
+        d.beginChildren([size, 1000], keyType)
+        for i in xrange(size):
             it = node.dereference().cast(innerType)
             d.beginHash()
             key = it["key"]
             if isSimpleKey:
                 d.putType(keyType)
-                d.putItemHelper(Item(key, None, None, None))
+                d.putItemHelper(Item(key, None, None))
             else:
-                d.putItemHelper(Item(key, item.iname, i, None))
+                d.putItemHelper(Item(key, item.iname, i))
             d.endHash()
             node = hashDataNextNode(node)
         d.endChildren()
@@ -1460,25 +1435,21 @@ def qdump__QStringList(d, item):
     d_ptr = item.value['d']
     begin = d_ptr['begin']
     end = d_ptr['end']
-    n = end - begin
-    check(n >= 0)
-    check(n <= 10 * 1000 * 1000)
+    size = end - begin
+    check(size >= 0)
+    check(size <= 10 * 1000 * 1000)
     #    checkAccess(&list.front())
     #    checkAccess(&list.back())
     check(d_ptr["ref"]["_q_value"] > 0)
-    d.putItemCount(n)
-    d.putNumChild(n)
+    d.putItemCount(size)
+    d.putNumChild(size)
     if d.isExpanded(item):
-        if n > 1000:
-            n = 1000
         innerType = gdb.lookup_type(d.ns + "QString")
         ptr = gdb.Value(d_ptr["array"]).cast(innerType.pointer())
-        d.beginChildren(n, innerType)
-        for i in xrange(n):
-            d.putItem(Item(ptr.dereference(), item.iname, i, None))
+        d.beginChildren([size, 1000], innerType)
+        for i in d.childRange():
+            d.putItem(Item(ptr.dereference(), item.iname, i))
             ptr += 1
-        if n < end - begin:
-            d.putEllipsis()
         d.endChildren()
 
 
@@ -1642,11 +1613,6 @@ def qdump__QVariant(d, item):
 
 
 def qdump__QVector(d, item):
-    #   QBasicAtomicInt ref;
-    #   int alloc;
-    #   int size;
-    #   uint sharable : 1;
-    #   uint capacity : 1;
     d_ptr = item.value["d"]
     p_ptr = item.value["p"]
     alloc = d_ptr["alloc"]
@@ -1655,26 +1621,15 @@ def qdump__QVector(d, item):
     check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     check(d_ptr["ref"]["_q_value"] > 0)
 
-    # Check pointers
     innerType = item.value.type.template_argument(0)
-    #if innerType.code == gdb.TYPE_CODE_PTR and nn > 0:
-    #  for (int i = 0; i != size; ++i)
-    #       if const void *p = addOffset(v, i * innersize + typeddatasize))
-    #             checkAccess(deref(p))
-
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded(item):
-        n = size
-        if n > 10000:
-            n = 10000
         p = gdb.Value(p_ptr["array"]).cast(innerType.pointer())
-        d.beginChildren(n, innerType)
-        for i in xrange(n):
-            d.safePutItem(Item(p.dereference(), item.iname, i, None))
+        d.beginChildren([size, 2000], innerType)
+        for i in d.childRange():
+            d.safePutItem(Item(p.dereference(), item.iname, i))
             p += 1
-        if n < size:
-            d.putEllipsis()
         d.endChildren()
 
 
@@ -1697,7 +1652,7 @@ def qdump__QWeakPointer(d, item):
 
     innerType = item.value.type.template_argument(0)
     if isSimpleType(value.dereference()):
-        d.putItemHelper(Item(value.dereference(), item.iname, None, None))
+        d.putItemHelper(Item(value.dereference(), item.iname, None))
     else:
         d.putValue("")
 
@@ -1720,20 +1675,20 @@ def qdump__QWeakPointer(d, item):
 def qdump__std__deque(d, item):
     impl = item.value["_M_impl"]
     start = impl["_M_start"]
-    n = impl["_M_finish"]["_M_cur"] - start["_M_cur"]
-    d.putItemCount(n)
-    d.putNumChild(n)
+    size = impl["_M_finish"]["_M_cur"] - start["_M_cur"]
+    d.putItemCount(size)
+    d.putNumChild(size)
     if d.isExpanded(item):
         innerType = item.value.type.template_argument(0)
         innerSize = innerType.sizeof
         bufsize = select(innerSize < 512, 512 / innerSize, 1)
-        d.beginChildren(n, innerType)
+        d.beginChildren([size, 2000], innerType)
         pcur = start["_M_cur"]
         pfirst = start["_M_first"]
         plast = start["_M_last"]
         pnode = start["_M_node"]
-        for i in xrange(n):
-            d.safePutItem(Item(pcur.dereference(), item.iname, i, None))
+        for i in d.childRange():
+            d.safePutItem(Item(pcur.dereference(), item.iname, i))
             pcur += 1
             if pcur == plast:
                 newnode = pnode + 1
@@ -1741,9 +1696,6 @@ def qdump__std__deque(d, item):
                 pfirst = newnode.dereference()
                 plast = pfirst + bufsize
                 pcur = pfirst
-            
-        if n > 1000:
-            d.putEllipsis()
         d.endChildren()
 
 
@@ -1751,35 +1703,33 @@ def qdump__std__list(d, item):
     impl = item.value["_M_impl"]
     node = impl["_M_node"]
     head = node.address
-    n = 0
+    size = 0
     p = node["_M_next"]
-    while p != head and n <= 1001:
-        n += 1
+    while p != head and size <= 1001:
+        size += 1
         p = p["_M_next"]
 
-    d.putItemCount(select(n <= 1000, n, "> 1000"))
-    d.putNumChild(n)
+    d.putItemCount(select(size <= 1000, size, "> 1000"))
+    d.putNumChild(size)
 
     if d.isExpanded(item):
         p = node["_M_next"]
         innerType = item.value.type.template_argument(0)
-        d.beginChildren(n, innerType)
-        for i in xrange(n):
+        d.beginChildren([size, 1000], innerType)
+        for i in d.childRange():
             innerPointer = innerType.pointer()
             value = (p + 1).cast(innerPointer).dereference()
-            d.safePutItem(Item(value, item.iname, i, None))
+            d.safePutItem(Item(value, item.iname, i))
             p = p["_M_next"]
-        if n > 1000:
-            d.putEllipsis()
         d.endChildren()
 
 
 def qdump__std__map(d, item):
     impl = item.value["_M_t"]["_M_impl"]
-    n = impl["_M_node_count"]
-    check(0 <= n and n <= 100*1000*1000)
-    d.putItemCount(n)
-    d.putNumChild(n)
+    size = impl["_M_node_count"]
+    check(0 <= size and size <= 100*1000*1000)
+    d.putItemCount(size)
+    d.putNumChild(size)
 
     if d.isExpanded(item):
         keyType = item.value.type.template_argument(0)
@@ -1790,15 +1740,15 @@ def qdump__std__map(d, item):
         innerType = select(isSimpleKey and isSimpleValue, valueType, pairType)
         pairPointer = pairType.pointer()
         node = impl["_M_header"]["_M_left"]
-        d.beginChildren(n, select(n > 0, innerType, pairType),
+        d.beginChildren([size, 1000], select(size > 0, innerType, pairType),
             select(isSimpleKey and isSimpleValue, None, 2))
-        for i in xrange(qmin(n, 1000)):
+        for i in d.childRange():
             pair = (node + 1).cast(pairPointer).dereference()
 
             d.beginHash()
             if isSimpleKey and isSimpleValue:
                 d.putName(str(pair["first"]))
-                d.putItemHelper(Item(pair["second"], item.iname, i, None))
+                d.putItemHelper(Item(pair["second"], item.iname, i))
             else:
                 d.putValue(" ")
                 if d.isExpandedIName("%s.%d" % (item.iname, i)):
@@ -1822,25 +1772,22 @@ def qdump__std__map(d, item):
                 node = node["_M_right"]
                 while not isNull(node["_M_left"]):
                     node = node["_M_left"]
-
-        if n >= 1000:
-            d.putEllipsis()
         d.endChildren()
 
 
 def qdump__std__set(d, item):
     impl = item.value["_M_t"]["_M_impl"]
-    n = impl["_M_node_count"]
-    check(0 <= n and n <= 100*1000*1000)
-    d.putItemCount(n)
-    d.putNumChild(n)
+    size = impl["_M_node_count"]
+    check(0 <= size and size <= 100*1000*1000)
+    d.putItemCount(size)
+    d.putNumChild(size)
     if d.isExpanded(item):
         valueType = item.value.type.template_argument(0)
         node = impl["_M_header"]["_M_left"]
-        d.beginChildren(n, valueType)
-        for i in xrange(qmin(n, 1000)):
+        d.beginChildren([size, 1000], valueType)
+        for i in d.childRange():
             element = (node + 1).cast(valueType.pointer()).dereference()
-            d.putItem(Item(element, item.iname, i, None))
+            d.putItem(Item(element, item.iname, i))
 
             if isNull(node["_M_right"]):
                 parent = node["_M_parent"]
@@ -1853,8 +1800,6 @@ def qdump__std__set(d, item):
                 node = node["_M_right"]
                 while not isNull(node["_M_left"]):
                     node = node["_M_left"]
-        if n >= 1000:
-            d.putEllipsis()
         d.endChildren()
 
 
@@ -1902,15 +1847,11 @@ def qdump__std__vector(d, item):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded(item):
-        n = qmin(size, 10000)
         p = start
-        innerType = item.value.type.template_argument(0)
-        d.beginChildren(n, innerType)
-        for i in xrange(n):
-            d.safePutItem(Item(p.dereference(), item.iname, i, None))
+        d.beginChildren([size, 10000], item.value.type.template_argument(0))
+        for i in d.childRange():
+            d.safePutItem(Item(p.dereference(), item.iname, i))
             p += 1
-        if n < size:
-            d.putEllipsis()
         d.endChildren()
 
 
