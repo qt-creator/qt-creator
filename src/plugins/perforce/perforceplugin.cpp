@@ -69,6 +69,7 @@
 #include <QtGui/QMessageBox>
 
 enum { p4Timeout = 20000 };
+enum { longTimeoutFactor = 4 };
 
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
@@ -866,9 +867,9 @@ static inline QString msgNotStarted(const QString &cmd)
     return PerforcePlugin::tr("Could not start perforce '%1'. Please check your settings in the preferences.").arg(cmd);
 }
 
-static inline QString msgTimeout()
+static inline QString msgTimeout(int timeOut)
 {
-    return PerforcePlugin::tr("Perforce did not respond within timeout limit (%1 ms).").arg(p4Timeout );
+    return PerforcePlugin::tr("Perforce did not respond within timeout limit (%1 ms).").arg(timeOut );
 }
 
 static inline QString msgCrash()
@@ -893,7 +894,8 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     // Run, connect stderr to the output window
     Utils::SynchronousProcess process;
-    process.setTimeout(p4Timeout);
+    const int timeOut = (flags & LongTimeOut) ? longTimeoutFactor * p4Timeout : p4Timeout;
+    process.setTimeout(timeOut);
     process.setStdOutCodec(outputCodec);
     if (flags & OverrideDiffEnvironment)
         process.setProcessEnvironment(overrideDiffEnvironmentVariable());
@@ -980,10 +982,11 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
         process.closeWriteChannel();
     }
 
-    if (!process.waitForFinished(p4Timeout)) {
+    const int timeOut = (flags & LongTimeOut) ? longTimeoutFactor * p4Timeout : p4Timeout;
+    if (!process.waitForFinished(timeOut)) {
         PerforceChecker::ensureProcessStopped(process);
         response.error = true;
-        response.message = msgTimeout();
+        response.message = msgTimeout(timeOut);
         return response;
     }
     if (process.exitStatus() != QProcess::NormalExit) {
@@ -1199,7 +1202,7 @@ bool PerforcePlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *subm
     QStringList submitArgs;
     submitArgs << QLatin1String("submit") << QLatin1String("-i");
     const PerforceResponse submitResponse = runP4Cmd(m_settings.topLevelSymLinkTarget(), submitArgs,
-                                                     RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
+                                                     LongTimeOut|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
                                                      QStringList(), changeDescription);
     if (submitResponse.error) {
         VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("p4 submit failed: %1").arg(submitResponse.message));

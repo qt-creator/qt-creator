@@ -146,7 +146,8 @@ private:
                     // Run completely synchronously, no signals emitted
                     RunFullySynchronous = 0x20,
                     IgnoreExitCode = 0x40,
-                    ShowBusyCursor = 0x80
+                    ShowBusyCursor = 0x80,
+                    LongTimeOut = 0x100
                    };
 
     // args are passed as command line arguments
