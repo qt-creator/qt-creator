@@ -221,12 +221,20 @@ void SubmitEditorWidget::unregisterActions(QAction *editorUndoAction,  QAction *
     }
 }
 
-// Make sure we have one terminating NL
-static inline QString trimMessageText(const QString &t)
+// Make sure we have one terminating NL. Do not trim front as leading space might be
+// required for some formattings.
+static inline QString trimMessageText(QString t)
 {
-    QString rc = t.trimmed();
-    rc += QLatin1Char('\n');
-    return rc;
+    if (t.isEmpty())
+        return t;
+    // Trim back of string.
+    const int last = t.size() - 1;
+    int lastWordCharacter = last;
+    for ( ; lastWordCharacter >= 0 && t.at(lastWordCharacter).isSpace() ; lastWordCharacter--) ;
+    if (lastWordCharacter != last)
+        t.truncate(lastWordCharacter + 1);
+    t += QLatin1Char('\n');
+    return t;
 }
 
 // Extract the wrapped text from a text edit, which performs

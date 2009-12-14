@@ -624,6 +624,7 @@ Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName,
     submitEditor->restrictToProjectFiles(depotFileNames);
     submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentLogAction, m_diffSelectedFiles);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(slotSubmitDiff(QStringList)));
+    submitEditor->setCheckScriptWorkingDirectory(m_commitWorkingDirectory);
     return editor;
 }
 

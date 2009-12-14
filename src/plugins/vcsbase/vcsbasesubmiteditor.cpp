@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "vcsbasesubmiteditor.h"
+#include "vcsbaseoutputwindow.h"
 #include "vcsbasesettings.h"
 #include "vcsplugin.h"
 #include "nicknamedialog.h"
@@ -88,6 +89,7 @@ struct VCSBaseSubmitEditorPrivate
     QToolBar *m_toolWidget;
     const VCSBaseSubmitEditorParameters *m_parameters;
     QString m_displayName;
+    QString m_checkScriptWorkingDirectory;
     VCSBase::Internal::SubmitEditorFile *m_file;
     QList<int> m_contexts;
 
@@ -314,6 +316,16 @@ void VCSBaseSubmitEditor::setDisplayName(const QString &title)
     m_d->m_displayName = title;
 }
 
+QString VCSBaseSubmitEditor::checkScriptWorkingDirectory() const
+{
+    return m_d->m_checkScriptWorkingDirectory;
+}
+
+void VCSBaseSubmitEditor::setCheckScriptWorkingDirectory(const QString &s)
+{
+    m_d->m_checkScriptWorkingDirectory = s;
+}
+
 bool VCSBaseSubmitEditor::duplicateSupported() const
 {
     return false;
@@ -531,6 +543,13 @@ bool VCSBaseSubmitEditor::checkSubmitMessage(QString *errorMessage) const
     return rc;
 }
 
+static inline QString msgCheckScript(const QString &workingDir, const QString &cmd)
+{
+    return workingDir.isEmpty() ?
+           VCSBaseSubmitEditor::tr("Executing %1").arg(cmd) :
+           VCSBaseSubmitEditor::tr("Executing [%1] %2").arg(workingDir, cmd);
+}
+
 bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript, QString *errorMessage) const
 {
     // Write out message
@@ -548,8 +567,13 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     messageFile.write(fileContents().toUtf8());
     messageFile.close();
     // Run check process
+    VCSBaseOutputWindow *outputWindow = VCSBaseOutputWindow::instance();
+    outputWindow->appendCommand(msgCheckScript(m_d->m_checkScriptWorkingDirectory, checkScript));
     QProcess checkProcess;
+    if (!m_d->m_checkScriptWorkingDirectory.isEmpty())
+        checkProcess.setWorkingDirectory(m_d->m_checkScriptWorkingDirectory);
     checkProcess.start(checkScript, QStringList(messageFileName));
+    checkProcess.closeWriteChannel();
     if (!checkProcess.waitForStarted()) {
         *errorMessage = tr("The check script '%1' could not be started: %2").arg(checkScript, checkProcess.errorString());
         return false;
@@ -558,11 +582,23 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
         *errorMessage = tr("The check script '%1' could not be run: %2").arg(checkScript, checkProcess.errorString());
         return false;
     }
+    if (checkProcess.exitStatus() != QProcess::NormalExit) {
+        *errorMessage = tr("The check script '%1' crashed").arg(checkScript);
+        return false;
+    }
+    const QString stdOut = QString::fromLocal8Bit(checkProcess.readAllStandardOutput());
+    if (!stdOut.isEmpty())
+        outputWindow->appendSilently(stdOut);
+    const QString stdErr = QString::fromLocal8Bit(checkProcess.readAllStandardError());    
+    if (!stdErr.isEmpty())
+        outputWindow->appendSilently(stdErr);
     const int exitCode = checkProcess.exitCode();
     if (exitCode != 0) {
-        *errorMessage = QString::fromLocal8Bit(checkProcess.readAllStandardError());
+        const QString exMessage = tr("The check script returned exit code %1.").arg(exitCode);
+        outputWindow->appendError(exMessage);
+        *errorMessage = stdErr;
         if (errorMessage->isEmpty())
-            *errorMessage = tr("The check script returned exit code %1.").arg(exitCode);
+            *errorMessage = exMessage;
         return false;
     }
     return true;
