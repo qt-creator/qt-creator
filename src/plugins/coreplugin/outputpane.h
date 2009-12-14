@@ -33,6 +33,7 @@
 #include "core_global.h"
 
 #include <QtCore/QMap>
+#include <QtGui/QPushButton>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -40,7 +41,7 @@ class QAction;
 class QComboBox;
 class QToolButton;
 class QStackedWidget;
-class QPushButton;
+class QMenu;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -101,7 +102,6 @@ private slots:
     void showPage(bool focus);
     void togglePage(bool focus);
     void clearPage();
-    void updateToolTip();
     void buttonTriggered();
     void updateNavigateState();
 
@@ -136,6 +136,25 @@ private:
     QWidget *m_buttonsWidget;
     QMap<int, QPushButton *> m_buttons;
     QMap<QAction *, int> m_actions;
+    QMenu *m_morePanesMenu;
+};
+
+class OutputPaneToggleButton : public QPushButton
+{
+    Q_OBJECT
+public:
+    OutputPaneToggleButton(int number, const QString &text, QAction *action,
+                           QWidget *parent = 0);
+    QSize sizeHint() const;
+    void paintEvent(QPaintEvent *event);
+
+private slots:
+    void updateToolTip();
+
+private:
+    QString m_number;
+    QString m_text;
+    QAction *m_action;
 };
 
 } // namespace Internal

@@ -53,30 +53,11 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
-#include <QtGui/QPushButton>
 #include <QtGui/QToolButton>
 #include <QtGui/QStackedWidget>
 
 using namespace Core;
 using namespace Core::Internal;
-
-namespace Core {
-namespace Internal {
-
-class OutputPaneToggleButton : public QPushButton
-{
-public:
-    OutputPaneToggleButton(int number, const QString &text, QWidget *parent = 0);
-    QSize sizeHint() const;
-    void paintEvent(QPaintEvent *event);
-
-private:
-    QString m_number;
-    QString m_text;
-};
-
-} // namespace Internal
-} // namespace Core
 
 OutputPanePlaceHolder *OutputPanePlaceHolder::m_current = 0;
 
@@ -231,8 +212,13 @@ QWidget *OutputPaneManager::buttonsWidget()
 }
 
 // Return shortcut as Ctrl+<number>
-static inline int paneShortCut(int modifier, int number)
+static inline int paneShortCut(int number)
 {
+#ifdef Q_WS_MAC
+    int modifier = Qt::CTRL;
+#else
+    int modifier = Qt::ALT;
+#endif
     return modifier | (Qt::Key_0 + number);
 }
 
@@ -267,6 +253,7 @@ void OutputPaneManager::init()
     cmd = am->registerAction(sep, QLatin1String("Coreplugin.OutputPane.Sep"), globalcontext);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
+    m_morePanesMenu = new QMenu(this);
     QList<IOutputPane*> panes = ExtensionSystem::PluginManager::instance()
         ->getObjects<IOutputPane>();
     QMultiMap<int, IOutputPane*> sorted;
@@ -304,19 +291,16 @@ void OutputPaneManager::init()
         QAction *action = new QAction(outPane->name(), this);
 
         Command *cmd = am->registerAction(action, actionId, QList<int>() << Constants::C_GLOBAL_ID);
-        if (outPane->priorityInStatusBar() != -1) {
-#ifdef Q_WS_MAC
-            cmd->setDefaultKeySequence(QKeySequence(paneShortCut(Qt::CTRL, shortcutNumber)));
-#else
-            cmd->setDefaultKeySequence(QKeySequence(paneShortCut(Qt::ALT, shortcutNumber)));
-#endif
-        }
+
         mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
         m_actions.insert(cmd->action(), idx);
 
-        // TODO priority -1
-        if (outPane->priorityInStatusBar() != -1) {
-            QPushButton *button = new OutputPaneToggleButton(shortcutNumber, outPane->name());
+        if (outPane->priorityInStatusBar() == -1) {
+            m_morePanesMenu->addAction(cmd->action());
+        } else {
+            cmd->setDefaultKeySequence(QKeySequence(paneShortCut(shortcutNumber)));
+            QPushButton *button = new OutputPaneToggleButton(shortcutNumber, outPane->name(),
+                                                             cmd->action());
             ++shortcutNumber;
             m_buttonsWidget->layout()->addWidget(button);
             connect(button, SIGNAL(clicked()), this, SLOT(buttonTriggered()));
@@ -327,8 +311,20 @@ void OutputPaneManager::init()
         m_widgetComboBox->addItem(outPane->name(), idx);
 
         connect(cmd->action(), SIGNAL(triggered()), this, SLOT(shortcutTriggered()));
-        connect(cmd->action(), SIGNAL(changed()), this, SLOT(updateToolTip()));
     } while (it != begin);
+
+    // add the "More..." button
+    {
+        QString actionId = QString("QtCreator.Pane.More");
+        QAction *action = new QAction(tr("More..."), this);
+        Command *cmd = am->registerAction(action, actionId, QList<int>() << Constants::C_GLOBAL_ID);
+        cmd->setDefaultKeySequence(QKeySequence(paneShortCut(shortcutNumber)));
+        QPushButton *moreButton = new OutputPaneToggleButton(shortcutNumber, tr("More..."),
+                                                             cmd->action());
+        moreButton->setMenu(m_morePanesMenu);
+        m_buttonsWidget->layout()->addWidget(moreButton);
+        connect(cmd->action(), SIGNAL(triggered()), moreButton, SLOT(showMenu()));
+    }
 
     changePage();
 }
@@ -376,16 +372,6 @@ void OutputPaneManager::buttonTriggered()
         slotHide();
     } else {
         showPage(idx, true);
-    }
-}
-
-void OutputPaneManager::updateToolTip()
-{
-    QAction *action = qobject_cast<QAction*>(sender());
-    if (action) {
-        QPushButton *button = m_buttons.value(m_actions.value(action));
-        if (button)
-            button->setToolTip(action->toolTip());
     }
 }
 
@@ -562,10 +548,12 @@ void OutputPaneManager::clearPage()
 }
 
 
-OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text, QWidget *parent)
+OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
+                                               QAction *action, QWidget *parent)
     : QPushButton(parent)
     , m_number(QString::number(number))
     , m_text(text)
+    , m_action(action)
 {
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
@@ -573,12 +561,21 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text, 
             "QPushButton { border-image: url(:/core/images/panel_button.png) 2 2 2 19;"
                          " border-width: 2px 2px 2px 19px; padding-left: -17; padding-right: 4 } "
             "QPushButton:checked { border-image: url(:/core/images/panel_button_checked.png) 2 2 2 19 } "
+            "QPushButton::menu-indicator { width:0; height:0 }"
 #ifndef Q_WS_MAC // Mac UIs usually don't hover
             "QPushButton:checked:hover { border-image: url(:/core/images/panel_button_checked_hover.png) 2 2 2 19 } "
             "QPushButton:pressed:hover { border-image: url(:/core/images/panel_button_pressed.png) 2 2 2 19 } "
             "QPushButton:hover { border-image: url(:/core/images/panel_button_hover.png) 2 2 2 19 } "
 #endif
             );
+    if (m_action)
+        connect(m_action, SIGNAL(changed()), this, SLOT(updateToolTip()));
+}
+
+void OutputPaneToggleButton::updateToolTip()
+{
+    Q_ASSERT(m_action);
+    setToolTip(m_action->toolTip());
 }
 
 QSize OutputPaneToggleButton::sizeHint() const
