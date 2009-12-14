@@ -166,10 +166,13 @@ void FindPlugin::setupMenu()
     cmd = am->registerAction(separator, QLatin1String("Find.Sep.Actions"), globalcontext);
     mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
 
-    m_openFindDialog = new QAction(tr("Find..."), this);
+    Core::ActionContainer *mfindadvanced = am->createMenu(Constants::M_FIND_ADVANCED);
+    mfindadvanced->menu()->setTitle(tr("Advanced Find"));
+    mfind->addMenu(mfindadvanced, Constants::G_FIND_FILTERS);
+    m_openFindDialog = new QAction(tr("Open Advanced Find..."), this);
     cmd = am->registerAction(m_openFindDialog, QLatin1String("Find.Dialog"), globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
-    mfind->addAction(cmd, Constants::G_FIND_FILTERS);
+    mfindadvanced->addAction(cmd);
     connect(m_openFindDialog, SIGNAL(triggered()), this, SLOT(openFindFilter()));
 }
 
@@ -181,7 +184,7 @@ void FindPlugin::setupFilterMenuItems()
     Core::Command *cmd;
     QList<int> globalcontext = QList<int>() << Core::Constants::C_GLOBAL_ID;
 
-    Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
+    Core::ActionContainer *mfindadvanced = am->actionContainer(Constants::M_FIND_ADVANCED);
     m_filterActions.clear();
     bool haveEnabledFilters = false;
     foreach (IFindFilter *filter, findInterfaces) {
@@ -193,7 +196,7 @@ void FindPlugin::setupFilterMenuItems()
         action->setData(qVariantFromValue(filter));
         cmd = am->registerAction(action, QLatin1String("FindFilter.")+filter->id(), globalcontext);
         cmd->setDefaultKeySequence(filter->defaultShortcut());
-        mfind->addAction(cmd, Constants::G_FIND_FILTERS);
+        mfindadvanced->addAction(cmd, Constants::G_FIND_FILTERS);
         m_filterActions.insert(filter, action);
         connect(action, SIGNAL(triggered(bool)), this, SLOT(openFindFilter()));
         connect(filter, SIGNAL(changed()), this, SLOT(filterChanged()));

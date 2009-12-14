@@ -34,6 +34,7 @@ namespace Find {
 namespace Constants {
 
 const char * const M_FIND            = "Find.FindMenu";
+const char * const M_FIND_ADVANCED   = "Find.FindAdvancedMenu";
 const char * const G_FIND_CURRENTDOCUMENT = "Find.FindMenu.CurrentDocument";
 const char * const G_FIND_FILTERS    = "Find.FindMenu.Filters";
 const char * const G_FIND_FLAGS      = "Find.FindMenu.Flags";
