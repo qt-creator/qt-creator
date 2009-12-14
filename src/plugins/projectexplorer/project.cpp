@@ -85,7 +85,7 @@ void Project::addBuildConfiguration(BuildConfiguration *configuration)
     // add it
     m_buildConfigurationValues.push_back(configuration);
 
-    emit addedBuildConfiguration(this, configuration);
+    emit addedBuildConfiguration(configuration);
 }
 
 void Project::removeBuildConfiguration(BuildConfiguration *configuration)
@@ -96,7 +96,7 @@ void Project::removeBuildConfiguration(BuildConfiguration *configuration)
 
     m_buildConfigurationValues.removeOne(configuration);
 
-    emit removedBuildConfiguration(this, configuration);
+    emit removedBuildConfiguration(configuration);
     delete configuration;
 }
 

@@ -97,10 +97,8 @@ public:
 private slots:
     void nameChanged(BuildConfiguration *bc);
     void activeConfigurationChanged();
-    void addedBuildConfiguration(ProjectExplorer::Project *project,
-                                 ProjectExplorer::BuildConfiguration *bc);
-    void removedBuildConfiguration(ProjectExplorer::Project *project,
-                                   ProjectExplorer::BuildConfiguration *bc);
+    void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
+    void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void changedIndex(int newIndex);
 private:
     int buildConfigurationToIndex(BuildConfiguration *bc);
