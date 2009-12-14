@@ -467,11 +467,13 @@ void OutputWindow::grayOutOldContent()
     QTextCursor cursor = textCursor();
     cursor.select(QTextCursor::Document);
     QTextBlockFormat tbf;
-    const QColor bkgColor = palette().window().color();
-    const QColor fgdColor = palette().windowText().color();
-    tbf.setBackground(QColor((0.5 * bkgColor.red() + 0.5* fgdColor.red()),\
-                             (0.5 * bkgColor.green() + 0.5* fgdColor.green()),\
-                             (0.5 * bkgColor.blue() + 0.5* fgdColor.blue()) ));
+    const QColor bkgColor = palette().base().color();
+    const QColor fgdColor = palette().text().color();
+    double bkgFactor = 0.85;
+    double fgdFactor = 1.-bkgFactor;
+    tbf.setBackground(QColor((bkgFactor * bkgColor.red() + fgdFactor * fgdColor.red()),
+                             (bkgFactor * bkgColor.green() + fgdFactor * fgdColor.green()),
+                             (bkgFactor * bkgColor.blue() + fgdFactor * fgdColor.blue()) ));
     cursor.mergeBlockFormat(tbf);
 
     cursor.movePosition(QTextCursor::End);
