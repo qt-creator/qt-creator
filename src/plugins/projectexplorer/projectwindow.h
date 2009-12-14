@@ -95,7 +95,7 @@ public:
     BuildConfigurationComboBox(ProjectExplorer::Project *p, QWidget *parent = 0);
     ~BuildConfigurationComboBox();
 private slots:
-    void nameChanged(BuildConfiguration *bc);
+    void displayNameChanged();
     void activeConfigurationChanged();
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
