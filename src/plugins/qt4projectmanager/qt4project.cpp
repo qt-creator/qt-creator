@@ -489,6 +489,7 @@ Qt4BuildConfiguration *Qt4Project::addQt4BuildConfiguration(QString displayName,
 
     MakeStep* cleanStep = new MakeStep(bc);
     cleanStep->setClean(true);
+    cleanStep->setUserArguments(QStringList() << "clean");
     bc->insertCleanStep(0, cleanStep);
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
