@@ -196,7 +196,7 @@ void FindPlugin::setupFilterMenuItems()
         action->setData(qVariantFromValue(filter));
         cmd = am->registerAction(action, QLatin1String("FindFilter.")+filter->id(), globalcontext);
         cmd->setDefaultKeySequence(filter->defaultShortcut());
-        mfindadvanced->addAction(cmd, Constants::G_FIND_FILTERS);
+        mfindadvanced->addAction(cmd);
         m_filterActions.insert(filter, action);
         connect(action, SIGNAL(triggered(bool)), this, SLOT(openFindFilter()));
         connect(filter, SIGNAL(changed()), this, SLOT(filterChanged()));
