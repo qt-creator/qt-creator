@@ -79,6 +79,12 @@ QByteArray CheckUndefinedSymbols::templateParameterName(DeclarationAST *ast) con
             return templateParameterName(d->name);
         else if (TemplateTypeParameterAST *d = ast->asTemplateTypeParameter())
             return templateParameterName(d->name);
+        else if (ParameterDeclarationAST *d = ast->asParameterDeclaration()) {
+            if (d->symbol) {
+                if (const Identifier *id = d->symbol->identifier())
+                    return QByteArray::fromRawData(id->chars(), id->size());
+            }
+        }
     }
     return QByteArray();
 }

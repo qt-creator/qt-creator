@@ -242,10 +242,6 @@ QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &direc
 
 QString DebuggingHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 {
-    QString binary = qmakePath.mid(qmakePath.lastIndexOf('/')+1);
-    if (!possibleQMakeCommands().contains(binary))
-        return QString();
-
     QProcess qmake;
     qmake.start(qmakePath, QStringList(QLatin1String("--version")));
     if (!qmake.waitForFinished())

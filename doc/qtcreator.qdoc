@@ -1103,7 +1103,8 @@
             \o Notes
         \row
             \o Gdb
-            \o Requires gdb version 6.8.
+            \o Requires gdb version 6.8 on Linux. On Mac OS X, please install the latest available Xcode
+               available for your OS version.
         \row
             \o Debugging tools for Windows
             \o Using this engine requires you to install the

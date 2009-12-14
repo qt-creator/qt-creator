@@ -3409,11 +3409,10 @@ void BaseTextEditor::indentOrUnindent(bool doIndent)
     int pos = cursor.position();
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
 
-
     QTextDocument *doc = document();
-    if (!cursor.hasSelection()
-        || (doc->findBlock(cursor.selectionStart()) == doc->findBlock(cursor.selectionEnd()) )) {
-        cursor.removeSelectedText();
+
+    if (!cursor.hasSelection() && doIndent) {
+        // Insert tab if there is no selection and indent is requested
         QTextBlock block = cursor.block();
         QString text = block.text();
         int indentPosition = (cursor.position() - block.position());;
@@ -3426,6 +3425,7 @@ void BaseTextEditor::indentOrUnindent(bool doIndent)
         cursor.removeSelectedText();
         cursor.insertText(tabSettings.indentationString(startColumn, targetColumn));
     } else {
+        // Indent or unindent the selected lines
         int anchor = cursor.anchor();
         int start = qMin(anchor, pos);
         int end = qMax(anchor, pos);
