@@ -600,7 +600,6 @@ void PerforcePlugin::startSubmitProject()
     }
 
     QStringList fstatLines = fstatResult.stdOut.split(QLatin1Char('\n'));
-qDebug() <<     "O" << fstatResult.stdOut << "L" << fstatLines;
     QStringList depotFileNames;
     foreach (const QString &line, fstatLines) {
         if (line.startsWith("... depotFile"))
@@ -1335,7 +1334,7 @@ void PerforcePlugin::slotTopLevelFound(const QString &t)
 
 void PerforcePlugin::slotTopLevelFailed(const QString &errorMessage)
 {
-    VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Perforce: Unable to determine the repository: %1").arg(errorMessage));
+    VCSBase::VCSBaseOutputWindow::instance()->appendSilently(tr("Perforce: Unable to determine the repository: %1").arg(errorMessage));
     if (Perforce::Constants::debug)
         qDebug() << errorMessage;
 }
