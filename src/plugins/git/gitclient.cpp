@@ -749,8 +749,12 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     d->panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
 
     // Get the commit template
-    const QString templateFilename = readConfigValue(workingDirectory, QLatin1String("commit.template"));
+    QString templateFilename = readConfigValue(workingDirectory, QLatin1String("commit.template"));
     if (!templateFilename.isEmpty()) {
+        // Make relative to repository
+        const QFileInfo templateFileInfo(templateFilename);
+        if (templateFileInfo.isRelative())
+            templateFilename = repoDirectory + QLatin1Char('/') + templateFilename;
         QFile templateFile(templateFilename);
         if (templateFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
             *commitTemplate = QString::fromLocal8Bit(templateFile.readAll());
