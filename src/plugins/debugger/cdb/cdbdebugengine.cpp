@@ -655,7 +655,7 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     m_d->m_dumper->reset(dumperLibName, dumperEnabled);
 
     setState(InferiorStarting, Q_FUNC_INFO, __LINE__);
-    manager()->showStatusMessage("Starting Debugger", -1);
+    manager()->showStatusMessage("Starting Debugger", messageTimeOut);
 
     QString errorMessage;
     bool rc = false;
@@ -692,7 +692,6 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
         break;
     }
     if (rc) {
-        manager()->showStatusMessage(tr("Debugger running"), -1);
         if (needWatchTimer)
             startWatchTimer();
             emit startSuccessful();
@@ -732,8 +731,6 @@ bool CdbDebugEngine::startAttachDebugger(qint64 pid, DebuggerStartMode sm, QStri
 
 bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *errorMessage)
 {
-    showStatusMessage("Starting Debugger", -1);
-
     DEBUG_CREATE_PROCESS_OPTIONS dbgopts;
     memset(&dbgopts, 0, sizeof(dbgopts));
     dbgopts.CreateFlags = DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS;
@@ -1190,7 +1187,7 @@ bool CdbDebugEnginePrivate::continueInferior(QString *errorMessage)
         setCodeLevel();
         m_engine->killWatchTimer();
         manager()->resetLocation();
-        manager()->showStatusMessage(CdbDebugEngine::tr("Running requested..."), 5000);
+        manager()->showStatusMessage(CdbDebugEngine::tr("Running requested..."), messageTimeOut);
 
         if (!continueInferiorProcess(errorMessage))
             break;
