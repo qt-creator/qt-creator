@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>CVS::Internal::SettingsPage</class>
  <widget class="QWidget" name="CVS::Internal::SettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>447</width>
+    <height>281</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="miscGroupBox">
@@ -38,30 +46,50 @@
       <string>Miscellaneous</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="diffOptionsLabel">
         <property name="text">
          <string>Diff Options:</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <widget class="QLineEdit" name="diffOptionsLineEdit"/>
       </item>
-      <item row="1" column="0" colspan="2">
+      <item row="2" column="0" colspan="2">
        <widget class="QCheckBox" name="promptToSubmitCheckBox">
         <property name="text">
          <string>Prompt on submit</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
+      <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="describeByCommitIdCheckBox">
         <property name="toolTip">
          <string>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit id). Otherwise, only the respective file will be displayed.</string>
         </property>
         <property name="text">
          <string>Describe all files matching commit id</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="timeOutLabel">
+        <property name="text">
+         <string>Timeout:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="timeOutSpinBox">
+        <property name="suffix">
+         <string>s</string>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>360</number>
         </property>
        </widget>
       </item>

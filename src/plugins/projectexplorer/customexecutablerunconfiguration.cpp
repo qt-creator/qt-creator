@@ -130,6 +130,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     m_environmentWidget = new EnvironmentWidget(this, baseEnvironmentWidget);
     m_environmentWidget->setBaseEnvironment(rc->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(rc->baseEnvironmentText());
     m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
     vbox->addWidget(m_environmentWidget);
 
@@ -168,6 +169,7 @@ void CustomExecutableConfigurationWidget::baseEnvironmentSelected(int index)
     m_runConfiguration->setBaseEnvironmentBase(CustomExecutableRunConfiguration::BaseEnvironmentBase(index));
 
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
     m_ignoreChange = false;
 }
 
@@ -180,6 +182,7 @@ void CustomExecutableConfigurationWidget::baseEnvironmentChanged()
             m_runConfiguration->baseEnvironmentBase());
     m_baseEnvironmentComboBox->setCurrentIndex(index);
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
 }
 
 void CustomExecutableConfigurationWidget::userEnvironmentChangesChanged()
@@ -356,6 +359,18 @@ QString CustomExecutableRunConfiguration::workingDirectory() const
 QStringList CustomExecutableRunConfiguration::commandLineArguments() const
 {
     return m_cmdArguments;
+}
+
+QString CustomExecutableRunConfiguration::baseEnvironmentText() const
+{
+    if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::CleanEnvironmentBase) {
+        return tr("Clean Environment");
+    } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::SystemEnvironmentBase) {
+        return tr("System Environment");
+    } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::BuildEnvironmentBase) {
+        return tr("Build Environment");
+    }
+    return QString::null;
 }
 
 ProjectExplorer::Environment CustomExecutableRunConfiguration::baseEnvironment() const

@@ -324,7 +324,7 @@ void BaseTextDocument::cleanWhitespace(QTextCursor& cursor, bool cleanIndentatio
 
     while (block.isValid() && block != end) {
 
-        if (inEntireDocument || block.revision() > documentLayout->lastSaveRevision) {
+        if (inEntireDocument || block.revision() != documentLayout->lastSaveRevision) {
 
             QString blockText = block.text();
             if (int trailing = m_tabSettings.trailingWhitespaces(blockText)) {

@@ -95,6 +95,14 @@ ProjectExplorer::Environment CMakeBuildConfiguration::baseEnvironment() const
     return env;
 }
 
+QString CMakeBuildConfiguration::baseEnvironmentText() const
+{
+    if (useSystemEnvironment())
+        return tr("System Environment");
+    else
+        return tr("Clear Environment");
+}
+
 ProjectExplorer::Environment CMakeBuildConfiguration::environment() const
 {
     ProjectExplorer::Environment env = baseEnvironment();

@@ -42,6 +42,7 @@ class QComboBox;
 class QToolButton;
 class QStackedWidget;
 class QMenu;
+class QSplitter;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -60,16 +61,19 @@ class CORE_EXPORT OutputPanePlaceHolder : public QWidget
     friend class Core::Internal::OutputPaneManager; // needs to set m_visible and thus access m_current
     Q_OBJECT
 public:
-    OutputPanePlaceHolder(Core::IMode *mode, QWidget *parent = 0);
+    OutputPanePlaceHolder(Core::IMode *mode, QSplitter *parent = 0);
     ~OutputPanePlaceHolder();
     void setCloseable(bool b);
     bool closeable();
     static OutputPanePlaceHolder *getCurrent() { return m_current; }
+    inline bool canMaximizeOrMinimize() const { return m_splitter != 0; }
+    void maximizeOrMinimize(bool maximize);
 
 private slots:
     void currentModeChanged(Core::IMode *);
 private:
     Core::IMode *m_mode;
+    QSplitter *m_splitter;
     bool m_closeable;
     static OutputPanePlaceHolder* m_current;
 };
@@ -93,6 +97,7 @@ public slots:
     void slotNext();
     void slotPrev();
     void shortcutTriggered();
+    void slotMinMax();
 
 protected:
     void focusInEvent(QFocusEvent *e);
@@ -121,6 +126,9 @@ private:
     QComboBox *m_widgetComboBox;
     QToolButton *m_clearButton;
     QToolButton *m_closeButton;
+
+    QAction *m_minMaxAction;
+    QToolButton *m_minMaxButton;
 
     QAction *m_nextAction;
     QAction *m_prevAction;

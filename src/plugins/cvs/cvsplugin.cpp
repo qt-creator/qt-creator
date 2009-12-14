@@ -79,11 +79,6 @@ static inline QString msgLogParsingFailed()
     return CVSPlugin::tr("Parsing of the log output failed");
 }
 
-// Timeout for normal output commands
-enum { cvsShortTimeOut = 10000 };
-// Timeout for submit, update
-enum { cvsLongTimeOut = 120000 };
-
 static const char * const CMD_ID_CVS_MENU    = "CVS.Menu";
 static const char * const CMD_ID_ADD                = "CVS.Add";
 static const char * const CMD_ID_DELETE_FILE        = "CVS.Delete";
@@ -434,7 +429,7 @@ void CVSPlugin::cvsDiff(const QString &workingDir, const QStringList &files)
 
     // CVS returns the diff exit code (1 if files differ), which is
     // undistinguishable from a "file not found" error, unfortunately.
-    const CVSResponse response = runCVS(workingDir, args, cvsShortTimeOut, false, codec);
+    const CVSResponse response = runCVS(workingDir, args, m_settings.timeOutMS(), false, codec);
     switch (response.result) {
     case CVSResponse::NonNullExitCode:
     case CVSResponse::Ok:
@@ -518,7 +513,7 @@ void CVSPlugin::revertCurrentFile()
     QTC_ASSERT(state.hasFile(), return)
     QStringList args;
     args << QLatin1String("diff") << state.relativeCurrentFile();
-    const CVSResponse diffResponse = runCVS(state.currentFileTopLevel(), args, cvsShortTimeOut, false);
+    const CVSResponse diffResponse = runCVS(state.currentFileTopLevel(), args, m_settings.timeOutMS(), false);
     switch (diffResponse.result) {
     case CVSResponse::Ok:
         return; // Not modified, diff exit code 0
@@ -539,7 +534,7 @@ void CVSPlugin::revertCurrentFile()
     // revert
     args.clear();
     args << QLatin1String("update") << QLatin1String("-C") << state.relativeCurrentFile();
-    const CVSResponse revertResponse = runCVS(state.currentFileTopLevel(), args, cvsShortTimeOut, true);
+    const CVSResponse revertResponse = runCVS(state.currentFileTopLevel(), args, m_settings.timeOutMS(), true);
     if (revertResponse.result == CVSResponse::Ok) {
         fcb.setModifiedReload(true);
         cvsVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
@@ -589,7 +584,7 @@ void CVSPlugin::startCommit(const QString &workingDir, const QStringList &files)
     // We need the "Examining <subdir>" stderr output to tell
     // where we are, so, have stdout/stderr channels merged.
     QStringList args = QStringList(QLatin1String("status"));
-    const CVSResponse response = runCVS(workingDir, args, cvsShortTimeOut, false, 0, true);
+    const CVSResponse response = runCVS(workingDir, args, m_settings.timeOutMS(), false, 0, true);
     if (response.result != CVSResponse::Ok)
         return;
     // Get list of added/modified/deleted files and purge out undesired ones
@@ -638,7 +633,7 @@ bool CVSPlugin::commit(const QString &messageFile,
     QStringList args = QStringList(QLatin1String("commit"));
     args << QLatin1String("-F") << messageFile;
     args.append(fileList);
-    const CVSResponse response = runCVS(m_commitRepository, args, cvsLongTimeOut, true);
+    const CVSResponse response = runCVS(m_commitRepository, args, m_settings.longTimeOutMS(), true);
     return response.result == CVSResponse::Ok ;
 }
 
@@ -658,7 +653,7 @@ void CVSPlugin::filelog(const QString &workingDir, const QStringList &files)
     QStringList args;
     args << QLatin1String("log");
     args.append(files);
-    const CVSResponse response = runCVS(workingDir, args, cvsShortTimeOut, false, codec);
+    const CVSResponse response = runCVS(workingDir, args, m_settings.timeOutMS(), false, codec);
     if (response.result != CVSResponse::Ok)
         return;
 
@@ -683,7 +678,7 @@ void CVSPlugin::updateProject()
    QStringList args(QLatin1String("update"));
    args.push_back(QLatin1String("-dR"));
    args.append(state.relativeCurrentProject());
-   const CVSResponse response = runCVS(state.currentProjectTopLevel(), args, cvsLongTimeOut, true);
+   const CVSResponse response = runCVS(state.currentProjectTopLevel(), args, m_settings.longTimeOutMS(), true);
    if (response.result == CVSResponse::Ok)
        cvsVersionControl()->emitRepositoryChanged(state.currentProjectTopLevel());
 }
@@ -703,7 +698,7 @@ void CVSPlugin::annotate(const QString &workingDir, const QString &file)
     const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, file);
     QStringList args;
     args << QLatin1String("annotate") << file;
-    const CVSResponse response = runCVS(workingDir, args, cvsShortTimeOut, false, codec);
+    const CVSResponse response = runCVS(workingDir, args, m_settings.timeOutMS(), false, codec);
     if (response.result != CVSResponse::Ok)
         return;
 
@@ -729,7 +724,7 @@ void CVSPlugin::projectStatus()
     QTC_ASSERT(state.hasProject(), return)
     QStringList args;
     args << QLatin1String("status") << state.relativeCurrentProject();
-    const CVSResponse response = runCVS(state.currentProjectTopLevel(), args, cvsShortTimeOut, false);
+    const CVSResponse response = runCVS(state.currentProjectTopLevel(), args, m_settings.timeOutMS(), false);
     if (response.result == CVSResponse::Ok)
         showOutputInEditor(tr("Project status"), response.stdOut, VCSBase::RegularCommandOutput, state.currentProjectTopLevel(), 0);
 }
@@ -787,7 +782,7 @@ bool CVSPlugin::describe(const QString &toplevel, const QString &file, const
     // Run log to obtain commit id and details
     QStringList args;
     args << QLatin1String("log") << (QLatin1String("-r") + changeNr) << file;
-    const CVSResponse logResponse = runCVS(toplevel, args, cvsShortTimeOut, false);
+    const CVSResponse logResponse = runCVS(toplevel, args, m_settings.timeOutMS(), false);
     if (logResponse.result != CVSResponse::Ok) {
         *errorMessage = logResponse.message;
         return false;
@@ -808,7 +803,7 @@ bool CVSPlugin::describe(const QString &toplevel, const QString &file, const
         args.clear();
         args << QLatin1String("log") << QLatin1String("-d") << (dateS  + QLatin1Char('<') + nextDayS);
 
-        const CVSResponse repoLogResponse = runCVS(toplevel, args, cvsLongTimeOut, false);
+        const CVSResponse repoLogResponse = runCVS(toplevel, args, m_settings.longTimeOutMS(), false);
         if (repoLogResponse.result != CVSResponse::Ok) {
             *errorMessage = repoLogResponse.message;
             return false;
@@ -844,7 +839,7 @@ bool CVSPlugin::describe(const QString &repositoryPath,
         // Run log
         QStringList args(QLatin1String("log"));
         args << (QLatin1String("-r") + it->revisions.front().revision) << it->file;
-        const CVSResponse logResponse = runCVS(repositoryPath, args, cvsShortTimeOut, false);
+        const CVSResponse logResponse = runCVS(repositoryPath, args, m_settings.timeOutMS(), false);
         if (logResponse.result != CVSResponse::Ok) {
             *errorMessage =  logResponse.message;
             return false;
@@ -860,7 +855,7 @@ bool CVSPlugin::describe(const QString &repositoryPath,
             args << m_settings.cvsDiffOptions << QLatin1String("-r") << previousRev
                     << QLatin1String("-r") << it->revisions.front().revision
                     << it->file;
-            const CVSResponse diffResponse = runCVS(repositoryPath, args, cvsShortTimeOut, false, codec);
+            const CVSResponse diffResponse = runCVS(repositoryPath, args, m_settings.timeOutMS(), false, codec);
             switch (diffResponse.result) {
             case CVSResponse::Ok:
             case CVSResponse::NonNullExitCode: // Diff exit code != 0
@@ -1037,7 +1032,7 @@ bool CVSPlugin::vcsAdd(const QString &workingDir, const QString &rawFileName)
 {
     QStringList args;
     args << QLatin1String("add") << rawFileName;
-    const CVSResponse response = runCVS(workingDir, args, cvsShortTimeOut, true);
+    const CVSResponse response = runCVS(workingDir, args, m_settings.timeOutMS(), true);
     return response.result == CVSResponse::Ok;
 }
 
@@ -1045,7 +1040,7 @@ bool CVSPlugin::vcsDelete(const QString &workingDir, const QString &rawFileName)
 {
     QStringList args;
     args << QLatin1String("remove") << QLatin1String("-f") << rawFileName;
-    const CVSResponse response = runCVS(workingDir, args, cvsShortTimeOut, true);
+    const CVSResponse response = runCVS(workingDir, args, m_settings.timeOutMS(), true);
     return response.result == CVSResponse::Ok;
 }
 

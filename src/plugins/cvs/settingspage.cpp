@@ -57,6 +57,7 @@ CVSSettings SettingsPageWidget::settings() const
     rc.cvsCommand = m_ui.commandPathChooser->path();
     rc.cvsRoot = m_ui.rootLineEdit->text();
     rc.cvsDiffOptions = m_ui.diffOptionsLineEdit->text();
+    rc.timeOutS = m_ui.timeOutSpinBox->value();
     rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
     rc.describeByCommitId = m_ui.describeByCommitIdCheckBox->isChecked();
     return rc;
@@ -67,6 +68,7 @@ void SettingsPageWidget::setSettings(const CVSSettings &s)
     m_ui.commandPathChooser->setPath(s.cvsCommand);
     m_ui.rootLineEdit->setText(s.cvsRoot);
     m_ui.diffOptionsLineEdit->setText(s.cvsDiffOptions);
+    m_ui.timeOutSpinBox->setValue(s.timeOutS);
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
     m_ui.describeByCommitIdCheckBox->setChecked(s.describeByCommitId);
 }

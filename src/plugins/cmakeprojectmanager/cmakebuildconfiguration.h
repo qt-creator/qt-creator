@@ -51,6 +51,7 @@ public:
 
     ProjectExplorer::Environment environment() const;
     ProjectExplorer::Environment baseEnvironment() const;
+    QString baseEnvironmentText() const;
     void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
     QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
     bool useSystemEnvironment() const;

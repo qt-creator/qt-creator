@@ -195,6 +195,18 @@ ProjectExplorer::Environment CMakeRunConfiguration::baseEnvironment() const
     return env;
 }
 
+QString CMakeRunConfiguration::baseEnvironmentText() const
+{
+    if (m_baseEnvironmentBase == CMakeRunConfiguration::CleanEnvironmentBase) {
+        return tr("Clean Environment");
+    } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::SystemEnvironmentBase) {
+        return tr("System Environment");
+    } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::BuildEnvironmentBase) {
+        return tr("Build Environment");
+    }
+    return QString();
+}
+
 void CMakeRunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
 {
     if (m_baseEnvironmentBase == env)
@@ -301,6 +313,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 
     m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
     m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_cmakeRunConfiguration->baseEnvironmentText());
     m_environmentWidget->setUserChanges(m_cmakeRunConfiguration->userEnvironmentChanges());
 
     vbx->addWidget(m_environmentWidget);
@@ -358,6 +371,7 @@ void CMakeRunConfigurationWidget::baseEnvironmentComboBoxChanged(int index)
     m_cmakeRunConfiguration->setBaseEnvironmentBase(CMakeRunConfiguration::BaseEnvironmentBase(index));
 
     m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_cmakeRunConfiguration->baseEnvironmentText());
     m_ignoreChange = false;
 }
 
@@ -368,6 +382,7 @@ void CMakeRunConfigurationWidget::baseEnvironmentChanged()
 
     m_baseEnvironmentComboBox->setCurrentIndex(m_cmakeRunConfiguration->baseEnvironmentBase());
     m_environmentWidget->setBaseEnvironment(m_cmakeRunConfiguration->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_cmakeRunConfiguration->baseEnvironmentText());
 }
 
 void CMakeRunConfigurationWidget::userEnvironmentChangesChanged()

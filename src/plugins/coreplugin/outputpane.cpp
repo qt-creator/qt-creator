@@ -43,6 +43,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/styledbar.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 
@@ -51,6 +52,7 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QFocusEvent>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QSplitter>
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QToolButton>
@@ -61,9 +63,10 @@ using namespace Core::Internal;
 
 OutputPanePlaceHolder *OutputPanePlaceHolder::m_current = 0;
 
-OutputPanePlaceHolder::OutputPanePlaceHolder(Core::IMode *mode, QWidget *parent)
+OutputPanePlaceHolder::OutputPanePlaceHolder(Core::IMode *mode, QSplitter* parent)
    : QWidget(parent), m_mode(mode), m_closeable(true)
 {
+    m_splitter = parent;
     setVisible(false);
     setLayout(new QVBoxLayout);
     QSizePolicy sp;
@@ -111,6 +114,40 @@ void OutputPanePlaceHolder::currentModeChanged(Core::IMode *mode)
     }
 }
 
+void OutputPanePlaceHolder::maximizeOrMinimize(bool maximize)
+{
+    if (!m_splitter)
+        return;
+    int idx = m_splitter->indexOf(this);
+    if (idx < 0)
+        return;
+
+    QList<int> sizes = m_splitter->sizes();
+
+    if (maximize) {
+        int sum;
+        foreach(int s, sizes)
+            sum += s;
+        for (int i = 0; i < sizes.count(); ++i) {
+            sizes[i] = 32;
+        }
+        sizes[idx] = sum - (sizes.count()-1) * 32;
+    } else {
+        int target = sizeHint().height();
+        int space = sizes[idx] - target;
+        if (space > 0) {
+            for (int i = 0; i < sizes.count(); ++i) {
+                sizes[i] += space / (sizes.count()-1);
+            }
+            sizes[idx] = target;
+        }
+    }
+
+    m_splitter->setSizes(sizes);
+
+}
+
+
 ////
 // OutputPaneManager
 ////
@@ -138,6 +175,8 @@ void OutputPaneManager::updateStatusButtons(bool visible)
     int idx = m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt();
     if (m_buttons.value(idx))
         m_buttons.value(idx)->setChecked(visible);
+    m_minMaxButton->setVisible(OutputPanePlaceHolder::m_current
+                               && OutputPanePlaceHolder::m_current->canMaximizeOrMinimize());
 }
 
 OutputPaneManager::OutputPaneManager(QWidget *parent) :
@@ -145,6 +184,8 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_widgetComboBox(new QComboBox),
     m_clearButton(new QToolButton),
     m_closeButton(new QToolButton),
+    m_minMaxAction(0),
+    m_minMaxButton(new QToolButton),
     m_nextAction(0),
     m_prevAction(0),
     m_lastIndex(-1),
@@ -168,6 +209,10 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_prevAction->setText(tr("Previous Item"));
     connect(m_prevAction, SIGNAL(triggered()), this, SLOT(slotPrev()));
 
+    m_minMaxAction = new QAction(this);
+    m_minMaxAction->setText(tr("Minimize/Maximize Output Pane"));
+    m_minMaxButton->setArrowType(Qt::UpArrow);
+
     m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
 
@@ -185,6 +230,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_nextToolButton = new QToolButton;
     toolLayout->addWidget(m_nextToolButton);
     toolLayout->addWidget(m_opToolBarWidgets);
+    toolLayout->addWidget(m_minMaxButton);
     toolLayout->addWidget(m_closeButton);
     mainlayout->addWidget(m_toolBar);
     mainlayout->addWidget(m_outputWidgetPane, 10);
@@ -247,6 +293,12 @@ void OutputPaneManager::init()
     m_nextToolButton->setDefaultAction(cmd->action());
     cmd->setDefaultKeySequence(QKeySequence("F6"));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
+
+    cmd = am->registerAction(m_minMaxAction, "Coreplugin.OutputPane.minmax", globalcontext);
+    cmd->setDefaultKeySequence(QKeySequence("Ctrl+9"));
+    mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
+    m_minMaxButton->setDefaultAction(cmd->action());
+    connect(m_minMaxAction, SIGNAL(triggered()), this, SLOT(slotMinMax()));
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
@@ -351,6 +403,18 @@ void OutputPaneManager::shortcutTriggered()
             outputPane->popup(true);
         }
     }
+}
+
+
+void OutputPaneManager::slotMinMax()
+{
+    QTC_ASSERT(OutputPanePlaceHolder::m_current, return);
+
+    if (!OutputPanePlaceHolder::m_current->isVisible()) // easier than disabling/enabling the action
+        return;
+    bool maximize = m_minMaxButton->arrowType() == Qt::UpArrow;
+    OutputPanePlaceHolder::m_current->maximizeOrMinimize(maximize);
+    m_minMaxButton->setArrowType(maximize ? Qt::DownArrow : Qt::UpArrow);
 }
 
 void OutputPaneManager::buttonTriggered()

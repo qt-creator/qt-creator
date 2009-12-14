@@ -58,6 +58,7 @@ SubversionSettings SettingsPageWidget::settings() const
     rc.useAuthentication = m_ui.userGroupBox->isChecked();
     rc.user =  m_ui.usernameLineEdit->text();
     rc.password = m_ui.passwordLineEdit->text();
+    rc.timeOutS = m_ui.timeOutSpinBox->value();
     if (rc.user.isEmpty())
         rc.useAuthentication = false;
     rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
@@ -70,6 +71,7 @@ void SettingsPageWidget::setSettings(const SubversionSettings &s)
     m_ui.usernameLineEdit->setText(s.user);
     m_ui.passwordLineEdit->setText(s.password);
     m_ui.userGroupBox->setChecked(s.useAuthentication);
+    m_ui.timeOutSpinBox->setValue(s.timeOutS);
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
 }
 

@@ -396,7 +396,7 @@ QWidget *QmlInspectorMode::createModeWindow()
     // right-side window with editor, output etc.
     Core::MiniSplitter *mainWindowSplitter = new Core::MiniSplitter;
     mainWindowSplitter->addWidget(createMainView());
-    mainWindowSplitter->addWidget(new Core::OutputPanePlaceHolder(this));
+    mainWindowSplitter->addWidget(new Core::OutputPanePlaceHolder(this, mainWindowSplitter));
     mainWindowSplitter->setStretchFactor(0, 10);
     mainWindowSplitter->setStretchFactor(1, 0);
     mainWindowSplitter->setOrientation(Qt::Vertical);

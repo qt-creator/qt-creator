@@ -269,4 +269,3 @@ QStringList DebuggingHelperLibrary::possibleQMakeCommands()
     return result;
 #endif
 }
-

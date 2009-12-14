@@ -71,11 +71,6 @@
 
 using namespace Subversion::Internal;
 
-// Timeout for normal output commands
-enum { subversionShortTimeOut = 10000 };
-// Timeout for submit, update
-enum { subversionLongTimeOut = 120000 };
-
 static const char * const CMD_ID_SUBVERSION_MENU    = "Subversion.Menu";
 static const char * const CMD_ID_ADD                = "Subversion.Add";
 static const char * const CMD_ID_DELETE_FILE        = "Subversion.Delete";
@@ -470,7 +465,7 @@ void SubversionPlugin::svnDiff(const QString &workingDir, const QStringList &fil
     QStringList args(QLatin1String("diff"));
     args << files;
 
-    const SubversionResponse response = runSvn(workingDir, args, subversionShortTimeOut, false, codec);
+    const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), false, codec);
     if (response.error)
         return;
 
@@ -551,7 +546,7 @@ void SubversionPlugin::revertCurrentFile()
     QStringList args(QLatin1String("diff"));
     args.push_back(state.relativeCurrentFile());
 
-    const SubversionResponse diffResponse = runSvn(state.currentFileTopLevel(), args, subversionShortTimeOut, false);
+    const SubversionResponse diffResponse = runSvn(state.currentFileTopLevel(), args, m_settings.timeOutMS(), false);
     if (diffResponse.error)
         return;
 
@@ -568,7 +563,7 @@ void SubversionPlugin::revertCurrentFile()
     args.clear();
     args << QLatin1String("revert") << state.relativeCurrentFile();
 
-    const SubversionResponse revertResponse = runSvn(state.currentFileTopLevel(), args, subversionShortTimeOut, true);
+    const SubversionResponse revertResponse = runSvn(state.currentFileTopLevel(), args, m_settings.timeOutMS(), true);
     if (!revertResponse.error) {
         fcb.setModifiedReload(true);
         subVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
@@ -618,7 +613,7 @@ void SubversionPlugin::startCommit(const QString &workingDir, const QStringList 
     QStringList args(QLatin1String("status"));
     args += files;
 
-    const SubversionResponse response = runSvn(workingDir, args, subversionShortTimeOut, false);
+    const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), false);
     if (response.error)
         return;
 
@@ -659,7 +654,7 @@ bool SubversionPlugin::commit(const QString &messageFile,
     QStringList args = QStringList(QLatin1String("commit"));
     args << QLatin1String(nonInteractiveOptionC) << QLatin1String("--file") << messageFile;
     args.append(subVersionFileList);
-    const SubversionResponse response = runSvn(m_commitRepository, args, subversionLongTimeOut, true);
+    const SubversionResponse response = runSvn(m_commitRepository, args, m_settings.longTimeOutMS(), true);
     return !response.error ;
 }
 
@@ -678,7 +673,7 @@ void SubversionPlugin::filelog(const QString &workingDir, const QStringList &fil
     foreach(const QString &file, files)
         args.append(QDir::toNativeSeparators(file));
 
-    const SubversionResponse response = runSvn(workingDir, args, subversionShortTimeOut, false, codec);
+    const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), false, codec);
     if (response.error)
         return;
 
@@ -705,7 +700,7 @@ void SubversionPlugin::updateProject()
     QStringList args(QLatin1String("update"));
     args.push_back(QLatin1String(nonInteractiveOptionC));
     args.append(state.relativeCurrentProject());
-    const SubversionResponse response = runSvn(state.currentProjectTopLevel(), args, subversionLongTimeOut, true);
+    const SubversionResponse response = runSvn(state.currentProjectTopLevel(), args, m_settings.longTimeOutMS(), true);
     if (!response.error)
         subVersionControl()->emitRepositoryChanged(state.currentProjectTopLevel());
 }
@@ -725,7 +720,7 @@ void SubversionPlugin::annotate(const QString &workingDir, const QString &file)
     args.push_back(QLatin1String("-v"));
     args.append(QDir::toNativeSeparators(file));
 
-    const SubversionResponse response = runSvn(workingDir, args, subversionShortTimeOut, false, codec);
+    const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), false, codec);
     if (response.error)
         return;
 
@@ -753,7 +748,7 @@ void SubversionPlugin::projectStatus()
     QTC_ASSERT(state.hasProject(), return);
     QStringList args(QLatin1String("status"));
     args += state.relativeCurrentProject();
-    runSvn(state.currentProjectTopLevel(), args, subversionShortTimeOut, true);
+    runSvn(state.currentProjectTopLevel(), args, m_settings.timeOutMS(), true);
 }
 
 void SubversionPlugin::describe(const QString &source, const QString &changeNr)
@@ -776,7 +771,7 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     QStringList args(QLatin1String("log"));
     args.push_back(QLatin1String("-r"));
     args.push_back(changeNr);
-    const SubversionResponse logResponse = runSvn(topLevel, args, subversionShortTimeOut, false);
+    const SubversionResponse logResponse = runSvn(topLevel, args, m_settings.timeOutMS(), false);
     if (logResponse.error)
         return;
     description = logResponse.stdOut;
@@ -790,7 +785,7 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     args.push_back(diffArg);
 
     QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(source);
-    const SubversionResponse response = runSvn(topLevel, args, subversionShortTimeOut, false, codec);
+    const SubversionResponse response = runSvn(topLevel, args, m_settings.timeOutMS(), false, codec);
     if (response.error)
         return;
     description += response.stdOut;
@@ -963,7 +958,7 @@ bool SubversionPlugin::vcsAdd(const QString &workingDir, const QString &rawFileN
     QStringList args(QLatin1String("add"));
     args.push_back(file);
 
-    const SubversionResponse response = runSvn(workingDir, args, subversionShortTimeOut, true);
+    const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), true);
     return !response.error;
 }
 
@@ -974,7 +969,7 @@ bool SubversionPlugin::vcsDelete(const QString &workingDir, const QString &rawFi
     QStringList args(QLatin1String("delete"));
     args.push_back(file);
 
-    const SubversionResponse response = runSvn(workingDir, args, subversionShortTimeOut, true);
+    const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), true);
     return !response.error;
 }
 

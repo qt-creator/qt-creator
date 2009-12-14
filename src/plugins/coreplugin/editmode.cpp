@@ -68,7 +68,7 @@ EditMode::EditMode(EditorManager *editorManager) :
     MiniSplitter *splitter = new MiniSplitter;
     splitter->setOrientation(Qt::Vertical);
     splitter->insertWidget(0, rightPaneSplitter);
-    splitter->insertWidget(1, new Core::OutputPanePlaceHolder(this));
+    splitter->insertWidget(1, new Core::OutputPanePlaceHolder(this, splitter));
     splitter->setStretchFactor(0, 3);
     splitter->setStretchFactor(1, 0);
 
