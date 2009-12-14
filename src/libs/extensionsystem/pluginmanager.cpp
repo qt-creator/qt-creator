@@ -321,6 +321,91 @@ QList<PluginSpec *> PluginManager::plugins() const
 }
 
 /*!
+    \fn QString PluginManager::serializedArguments() const
+
+    Serialize plugin options and arguments for sending in a single string
+    via QtSingleApplication:
+    ":myplugin|-option1|-option2|:arguments|argument1|argument2",
+    as a list of lists started by a keyword with a colon. Arguments are last.
+
+    \sa setPluginPaths()
+*/
+
+static const char argumentKeywordC[] = ":arguments";
+
+QString PluginManager::serializedArguments() const
+{
+    const QChar separator = QLatin1Char('|');
+    QString rc;
+    foreach (const PluginSpec *ps, plugins()) {
+        if (!ps->arguments().isEmpty()) {
+            if (!rc.isEmpty())
+                rc += separator;
+            rc += QLatin1Char(':');
+            rc += ps->name();
+            rc += separator;
+            rc +=  ps->arguments().join(QString(separator));
+        }
+    }
+    if (!d->arguments.isEmpty()) {
+        if (!rc.isEmpty())
+            rc += separator;
+        rc += QLatin1String(argumentKeywordC);
+        // If the argument appears to be a file, make it absolute
+        // when sending to another instance.
+        foreach(const QString &argument, d->arguments) {
+            rc += separator;
+            const QFileInfo fi(argument);
+            if (fi.exists() && fi.isRelative()) {
+                rc += fi.absoluteFilePath();
+            } else {
+                rc += argument;
+            }
+        }
+    }
+    return rc;
+}
+
+/* Extract a sublist from the serialized arguments
+ * indicated by a keyword starting with a colon indicator:
+ * ":a,i1,i2,:b:i3,i4" with ":a" -> "i1,i2"
+ */
+static QStringList subList(const QStringList &in, const QString &key)
+{
+    QStringList rc;
+    // Find keyword and copy arguments until end or next keyword
+    const QStringList::const_iterator inEnd = in.constEnd();
+    QStringList::const_iterator it = qFind(in.constBegin(), inEnd, key);
+    if (it != inEnd) {
+        const QChar nextIndicator = QLatin1Char(':');
+        for (++it; it != inEnd && !it->startsWith(nextIndicator); ++it)
+            rc.append(*it);
+    }
+    return rc;
+}
+
+/*!
+    \fn PluginManager::remoteArguments(const QString &argument)
+
+    Parses the options encoded by serializedArguments() const
+    and passes them on to the respective plugins along with the arguments.
+*/
+
+void PluginManager::remoteArguments(const QString &serializedArgument)
+{
+    if (serializedArgument.isEmpty())
+        return;
+    QStringList serializedArguments = serializedArgument.split(QLatin1Char('|'));
+    const QStringList arguments = subList(serializedArguments, QLatin1String(argumentKeywordC));
+    foreach (const PluginSpec *ps, plugins()) {
+        if (ps->state() == PluginSpec::Running) {
+            const QStringList pluginOptions = subList(serializedArguments, QLatin1Char(':') + ps->name());
+            ps->plugin()->remoteCommand(pluginOptions, arguments);
+        }
+    }
+}
+
+/*!
     \fn bool PluginManager::parseOptions(const QStringList &args, const QMap<QString, bool> &appOptions, QMap<QString, QString> *foundAppOptions, QString *errorString)
     Takes the list of command line options in \a args and parses them.
     The plugin manager itself might process some options itself directly (-noload <plugin>), and

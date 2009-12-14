@@ -36,7 +36,6 @@
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
-class QAbstractItemView;
 class QAction;
 class QCursor;
 class QMenu;
@@ -68,6 +67,15 @@ class DebuggerPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 public:
+    struct AttachRemoteParameters {
+        AttachRemoteParameters();
+
+        quint64 attachPid;
+        QString attachCore;
+        // Event handle for attaching to crashed Windows processes.
+        quint64 winCrashEvent;
+    };
+
     DebuggerPlugin();
     ~DebuggerPlugin();
 
@@ -75,6 +83,7 @@ private:
     virtual bool initialize(const QStringList &arguments, QString *error_message);
     virtual void shutdown();
     virtual void extensionsInitialized();
+    virtual void remoteCommand(const QStringList &options, const QStringList &arguments);
 
     QVariant configValue(const QString &name) const;
 
@@ -106,16 +115,11 @@ private slots:
     void startRemoteApplication();
     void attachExternalApplication();
     void attachCore();
-    void attachCmdLinePid();
-    void attachCmdLineCore();
+    void attachCmdLine();
 
 private:
     void readSettings();
     void writeSettings() const;
-    bool parseArguments(const QStringList &args, QString *errorMessage);
-    inline bool parseArgument(QStringList::const_iterator &it,
-                              const QStringList::const_iterator& end,
-                              QString *errorMessage);
     void attachExternalApplication(qint64 pid, const QString &crashParameter = QString());
     void attachCore(const QString &core, const QString &exeFileName);
 
@@ -131,11 +135,9 @@ private:
     QString m_previousMode;
     TextEditor::BaseTextMark *m_locationMark;
     int m_gdbRunningContext;
+    AttachRemoteParameters m_attachRemoteParameters;
     unsigned m_cmdLineEnabledEngines;
-    quint64 m_cmdLineAttachPid;
-    QString m_cmdLineAttachCore;
-    // Event handle for attaching to crashed Windows processes.
-    quint64 m_cmdLineWinCrashEvent;
+
     QAction *m_toggleLockedAction;
 
     QAction *m_startExternalAction;

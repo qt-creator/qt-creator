@@ -41,6 +41,7 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QString>
 #include <QtCore/QDir>
+#include <QtCore/QTime>
 #include <QtCore/QProcess>
 #include <QtGui/QPushButton>
 
@@ -61,6 +62,7 @@ static const WCHAR *debuggerRegistryValueNameC = L"Debugger";
 static const WCHAR *debuggerRegistryDefaultValueNameC = L"Debugger.Default";
 
 static const char *linkC = "http://msdn.microsoft.com/en-us/library/cc266343.aspx";
+static const char *creatorBinaryC = "qtcreator.exe";
 
 static inline QString wCharToQString(const WCHAR *w) { return QString::fromUtf16(reinterpret_cast<const ushort *>(w)); }
 #ifdef __GNUC__
@@ -343,23 +345,49 @@ static QString getProcessBaseName(DWORD pid)
 
 // ------- main modes
 
-bool startCreatorAsDebugger(QString *errorMessage)
+static bool waitForProcess(DWORD pid)
+{
+    HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION|READ_CONTROL|SYNCHRONIZE, false, pid);
+    if (handle == NULL)
+        return false;
+    const DWORD waitResult = WaitForSingleObject(handle, INFINITE);
+    CloseHandle(handle);
+    return waitResult == WAIT_OBJECT_0;
+}
+
+bool startCreatorAsDebugger(bool asClient, QString *errorMessage)
 {
     const QString dir = QApplication::applicationDirPath();
-    const QString binary = dir + QLatin1String("/qtcreator.exe");
+    const QString binary = dir + QLatin1Char('/') + QLatin1String(creatorBinaryC);
     QStringList args;
+    if (asClient)
+        args << QLatin1String("-client");
     args << QLatin1String("-debug") << QString::number(argProcessId)
             << QLatin1String("-wincrashevent") << QString::number(argWinCrashEvent);
     if (debug)
         qDebug() << binary << args;
     QProcess p;
     p.setWorkingDirectory(dir);
+    QTime executionTime;
+    executionTime.start();
     p.start(binary, args, QIODevice::NotOpen);
     if (!p.waitForStarted()) {
         *errorMessage = QString::fromLatin1("Unable to start %1!").arg(binary);
         return false;
     }
-    p.waitForFinished(-1);
+    // Short execution time: indicates that -client was passed on attach to
+    // another running instance of Qt Creator. Keep alive as long as user
+    // does not close the process. If that fails, try to launch 2nd instance.
+    const bool waitResult = p.waitForFinished(-1);
+    const bool ranAsClient = asClient && (executionTime.elapsed() < 10000);
+    if (waitResult && p.exitStatus() == QProcess::NormalExit && ranAsClient) {
+        if (p.exitCode() == 0) {
+            waitForProcess(argProcessId);
+        } else {
+            errorMessage->clear();
+            return startCreatorAsDebugger(false, errorMessage);
+        }
+    }
     return true;
 }
 
@@ -408,7 +436,8 @@ bool startDefaultDebugger(QString *errorMessage)
 bool chooseDebugger(QString *errorMessage)
 {
     QString defaultDebugger;
-    const QString msg = QString::fromLatin1("The application \"%1\" (process id %2)  crashed. Would you like to debug it?").arg(getProcessBaseName(argProcessId)).arg(argProcessId);
+    const QString processName = getProcessBaseName(argProcessId);
+    const QString msg = QString::fromLatin1("The application \"%1\" (process id %2)  crashed. Would you like to debug it?").arg(processName).arg(argProcessId);
     QMessageBox msgBox(QMessageBox::Information, QLatin1String(titleC), msg, QMessageBox::Cancel);
     QPushButton *creatorButton = msgBox.addButton(QLatin1String("Debug with Qt Creator"), QMessageBox::AcceptRole);
     QPushButton *defaultButton = msgBox.addButton(QLatin1String("Debug with default debugger"), QMessageBox::AcceptRole);
@@ -416,8 +445,10 @@ bool chooseDebugger(QString *errorMessage)
                               && !defaultDebugger.isEmpty());
     msgBox.exec();
     if (msgBox.clickedButton() == creatorButton) {
-        // Just in case, default to standard
-        if (startCreatorAsDebugger(errorMessage))
+        // Just in case, default to standard. Do not run as client in the unlikely case
+        // Creator crashed
+        const bool canRunAsClient = !processName.contains(QLatin1String(creatorBinaryC), Qt::CaseInsensitive);
+        if (startCreatorAsDebugger(canRunAsClient, errorMessage))
             return true;
         return startDefaultDebugger(errorMessage);
     }
@@ -552,7 +583,7 @@ int main(int argc, char *argv[])
         usage(QCoreApplication::applicationFilePath(), errorMessage);
         break;
     case ForceCreatorMode:
-        ex = startCreatorAsDebugger(&errorMessage) ? 0 : -1;
+        ex = startCreatorAsDebugger(true, &errorMessage) ? 0 : -1;
         break;
     case ForceDefaultMode:
         ex = startDefaultDebugger(&errorMessage) ? 0 : -1;

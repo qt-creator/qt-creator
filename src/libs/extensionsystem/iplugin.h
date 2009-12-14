@@ -55,6 +55,7 @@ public:
     virtual bool initialize(const QStringList &arguments, QString *errorString) = 0;
     virtual void extensionsInitialized() = 0;
     virtual void shutdown() { }
+    virtual void remoteCommand(const QStringList & /* options */, const QStringList & /* arguments */) { }
 
     PluginSpec *pluginSpec() const;
 

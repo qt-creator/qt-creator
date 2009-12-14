@@ -108,6 +108,8 @@ public:
     void formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation) const;
     void formatPluginVersions(QTextStream &str) const;
 
+    QString serializedArguments() const;
+
     bool runningTests() const;
     QString testDataDirectory() const;
 
@@ -116,6 +118,10 @@ signals:
     void aboutToRemoveObject(QObject *obj);
 
     void pluginsChanged();
+
+public slots:
+    void remoteArguments(const QString &serializedArguments);
+
 private slots:
     void startTests();
 

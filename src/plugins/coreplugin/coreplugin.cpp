@@ -87,16 +87,15 @@ void CorePlugin::extensionsInitialized()
     m_mainWindow->extensionsInitialized();
 }
 
-void CorePlugin::remoteArgument(const QString& arg)
+void CorePlugin::remoteCommand(const QStringList & /* options */, const QStringList &args)
 {
-    // An empty argument is sent to trigger activation
-    // of the window via QtSingleApplication. It should be
-    // the last of a sequence.
-    if (arg.isEmpty()) {
-        m_mainWindow->activateWindow();
-    } else {
-        m_mainWindow->openFiles(QStringList(arg));
-    }
+    m_mainWindow->openFiles(args);
+    m_mainWindow->activateWindow();
+}
+
+void CorePlugin::fileOpenRequest(const QString &f)
+{
+    remoteCommand(QStringList(), QStringList(f));
 }
 
 void CorePlugin::shutdown()

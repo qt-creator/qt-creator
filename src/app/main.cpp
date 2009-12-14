@@ -134,40 +134,6 @@ static inline QString msgSendArgumentFailed()
     return QCoreApplication::translate("Application", "Unable to send command line arguments to the already running instance. It appears to be not responding.");
 }
 
-// Prepare a remote argument: If it is a relative file, add the current directory
-// since the the central instance might be running in a different directory.
-
-static inline QString prepareRemoteArgument(const QString &a)
-{
-    QFileInfo fi(a);
-    if (!fi.exists())
-        return a;
-    if (fi.isRelative())
-        return fi.absoluteFilePath();
-    return a;
-}
-
-// Send the arguments to an already running instance of Qt Creator
-static bool sendArguments(SharedTools::QtSingleApplication &app, const QStringList &arguments)
-{
-    if (!arguments.empty()) {
-        // Send off arguments
-        const QStringList::const_iterator acend = arguments.constEnd();
-        for (QStringList::const_iterator it = arguments.constBegin(); it != acend; ++it) {
-            if (!app.sendMessage(prepareRemoteArgument(*it))) {
-                displayError(msgSendArgumentFailed());
-                return false;
-            }
-        }
-    }
-    // Special empty argument means: Show and raise (the slot just needs to be triggered)
-    if (!app.sendMessage(QString())) {
-        displayError(msgSendArgumentFailed());
-        return false;
-    }
-    return true;
-}
-
 static inline QStringList getPluginPaths()
 {
     QStringList rc;
@@ -287,8 +253,13 @@ int main(int argc, char **argv)
     }
 
     const bool isFirstInstance = !app.isRunning();
-    if (!isFirstInstance && foundAppOptions.contains(QLatin1String(CLIENT_OPTION)))
-        return sendArguments(app, pluginManager.arguments()) ? 0 : -1;
+    if (!isFirstInstance && foundAppOptions.contains(QLatin1String(CLIENT_OPTION))) {
+        if (!app.sendMessage(pluginManager.serializedArguments())) {
+            displayError(msgSendArgumentFailed());
+            return -1;
+        }
+        return 0;
+    }
 
     pluginManager.loadPlugins();
     if (coreplugin->hasError()) {
@@ -311,9 +282,10 @@ int main(int argc, char **argv)
         // Silently fallback to unconnected instances for any subsequent
         // instances.
         app.initialize();
-        QObject::connect(&app, SIGNAL(messageReceived(QString)), coreplugin->plugin(), SLOT(remoteArgument(QString)));
+        QObject::connect(&app, SIGNAL(messageReceived(QString)),
+                         &pluginManager, SLOT(remoteArguments(QString)));
     }
-    QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(), SLOT(remoteArgument(QString)));
+    QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(), SLOT(fileOpenRequest(QString)));
 
     // Do this after the event loop has started
     QTimer::singleShot(100, &pluginManager, SLOT(startTests()));

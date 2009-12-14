@@ -111,6 +111,7 @@ private slots:
     void slotConsoleStubStarted();
     void slotConsoleStubError(const QString &msg);
     void slotConsoleStubTerminated();    
+    void slotBreakAttachToCrashed();
     void warning(const QString &w);
 
 private:

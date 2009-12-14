@@ -812,8 +812,14 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
         if (!crashParameter.isEmpty()) {
             ULONG64 evtNr = crashParameter.toULongLong();
             const HRESULT hr = m_cif.debugControl->SetNotifyEventHandle(evtNr);
-            if (FAILED(hr))
+            // Unless QtCreator is spawned by the debugger and inherits the handles,
+            // the event handling does not work reliably
+            // (that is, the crash event is not delivered).
+            if (SUCCEEDED(hr)) {
+                QTimer::singleShot(0, m_engine, SLOT(slotBreakAttachToCrashed()));
+            } else {
                 m_engine->warning(QString::fromLatin1("Handshake failed on event #%1: %2").arg(evtNr).arg(msgComFailed("SetNotifyEventHandle", hr)));
+            }
         }
     }
     m_engine->setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
@@ -1232,6 +1238,17 @@ bool CdbDebugEnginePrivate::interruptInterferiorProcess(QString *errorMessage)
     m_interrupted = true;
 #endif
     return true;
+}
+
+void CdbDebugEngine::slotBreakAttachToCrashed()
+{
+    // Force a break when attaching to crashed process (if Creator was not spawned
+    // from handler).
+    if (state() != InferiorStopped) {
+        manager()->showDebuggerOutput(LogMisc, QLatin1String("Forcing break..."));
+        m_d->m_dumper->disable();
+        interruptInferior();
+    }
 }
 
 void CdbDebugEngine::interruptInferior()

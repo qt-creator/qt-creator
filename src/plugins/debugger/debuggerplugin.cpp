@@ -505,14 +505,19 @@ bool DebuggingHelperOptionPage::matches(const QString &s) const
 //
 ///////////////////////////////////////////////////////////////////////
 
+
+DebuggerPlugin::AttachRemoteParameters::AttachRemoteParameters() :
+    attachPid(0),
+    winCrashEvent(0)
+{
+}
+
 DebuggerPlugin::DebuggerPlugin()
   : m_manager(0),
     m_debugMode(0),
     m_locationMark(0),
     m_gdbRunningContext(0),
     m_cmdLineEnabledEngines(AllEngineTypes),
-    m_cmdLineAttachPid(0),
-    m_cmdLineWinCrashEvent(0),
     m_toggleLockedAction(0)
 {}
 
@@ -555,9 +560,10 @@ static QString msgInvalidNumericParameter(const QString &a, const QString &numbe
 }
 
 // Parse arguments
-bool DebuggerPlugin::parseArgument(QStringList::const_iterator &it,
-                                   const QStringList::const_iterator &cend,
-                                   QString *errorMessage)
+static bool parseArgument(QStringList::const_iterator &it,
+                          const QStringList::const_iterator &cend,
+                          DebuggerPlugin::AttachRemoteParameters *attachRemoteParameters,
+                          unsigned *enabledEngines, QString *errorMessage)
 {
     const QString &option = *it;
     // '-debug <pid>'
@@ -568,10 +574,10 @@ bool DebuggerPlugin::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         bool ok;
-        m_cmdLineAttachPid = it->toULongLong(&ok);
+        attachRemoteParameters->attachPid = it->toULongLong(&ok);
         if (!ok) {
-            m_cmdLineAttachPid = 0;
-            m_cmdLineAttachCore = *it;
+            attachRemoteParameters->attachPid = 0;
+            attachRemoteParameters->attachCore = *it;
         }
         return true;
     }
@@ -584,7 +590,7 @@ bool DebuggerPlugin::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         bool ok;
-        m_cmdLineWinCrashEvent = it->toULongLong(&ok);
+        attachRemoteParameters->winCrashEvent = it->toULongLong(&ok);
         if (!ok) {
             *errorMessage = msgInvalidNumericParameter(option, *it);
             return false;
@@ -593,40 +599,55 @@ bool DebuggerPlugin::parseArgument(QStringList::const_iterator &it,
     }
     // engine disabling
     if (option == QLatin1String("-disable-cdb")) {
-        m_cmdLineEnabledEngines &= ~CdbEngineType;
+        *enabledEngines &= ~Debugger::CdbEngineType;
         return true;
     }
     if (option == QLatin1String("-disable-gdb")) {
-        m_cmdLineEnabledEngines &= ~GdbEngineType;
+        *enabledEngines &= ~Debugger::GdbEngineType;
         return true;
     }
     if (option == QLatin1String("-disable-sdb")) {
-        m_cmdLineEnabledEngines &= ~ScriptEngineType;
+        *enabledEngines &= ~Debugger::ScriptEngineType;
         return true;
     }
 
-    *errorMessage = tr("Invalid debugger option: %1").arg(option);
+    *errorMessage = DebuggerPlugin::tr("Invalid debugger option: %1").arg(option);
     return false;
 }
 
-bool DebuggerPlugin::parseArguments(const QStringList &args, QString *errorMessage)
+static bool parseArguments(const QStringList &args,
+                           DebuggerPlugin::AttachRemoteParameters *attachRemoteParameters,
+                           unsigned *enabledEngines, QString *errorMessage)
 {
     const QStringList::const_iterator cend = args.constEnd();
     for (QStringList::const_iterator it = args.constBegin(); it != cend; ++it)
-        if (!parseArgument(it, cend, errorMessage))
+        if (!parseArgument(it, cend, attachRemoteParameters, enabledEngines, errorMessage))
             return false;
     if (Debugger::Constants::Internal::debug)
         qDebug().nospace() << args << "engines=0x"
-            << QString::number(m_cmdLineEnabledEngines, 16)
-            << " pid" << m_cmdLineAttachPid
-            << " core" << m_cmdLineAttachCore << '\n';
+            << QString::number(*enabledEngines, 16)
+            << " pid" << attachRemoteParameters->attachPid
+            << " core" << attachRemoteParameters->attachCore << '\n';
     return true;
+}
+
+void DebuggerPlugin::remoteCommand(const QStringList &options, const QStringList &)
+{
+    QString errorMessage;
+    AttachRemoteParameters parameters;
+    unsigned dummy = 0;
+    // Did we receive a request for debugging (unless it is ourselves)?
+    if (parseArguments(options, &parameters, &dummy, &errorMessage)
+        && parameters.attachPid != quint64(QCoreApplication::applicationPid())) {
+        m_attachRemoteParameters = parameters;
+        attachCmdLine();
+    }
 }
 
 bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     // Do not fail the whole plugin if something goes wrong here
-    if (!parseArguments(arguments, errorMessage)) {
+    if (!parseArguments(arguments, &m_attachRemoteParameters, &m_cmdLineEnabledEngines, errorMessage)) {
         *errorMessage = tr("Error evaluating command line arguments: %1")
             .arg(*errorMessage);
         qWarning("%s\n", qPrintable(*errorMessage));
@@ -1000,18 +1021,25 @@ void DebuggerPlugin::extensionsInitialized()
     //qDebug() << "EXTENSIONS INITIALIZED:" << env;
     if (!env.isEmpty())
         m_manager->runTest(QString::fromLocal8Bit(env));
-    if (m_cmdLineAttachPid)
-        QTimer::singleShot(0, this, SLOT(attachCmdLinePid()));
-    if (!m_cmdLineAttachCore.isEmpty())
-        QTimer::singleShot(0, this, SLOT(attachCmdLineCore()));
+    if (m_attachRemoteParameters.attachPid || !m_attachRemoteParameters.attachCore.isEmpty())
+        QTimer::singleShot(0, this, SLOT(attachCmdLine()));
 }
 
-void DebuggerPlugin::attachCmdLinePid()
+void DebuggerPlugin::attachCmdLine()
 {
-    m_manager->showStatusMessage(tr("Attaching to PID %1.").arg(m_cmdLineAttachPid));
-    const QString crashParameter =
-        m_cmdLineWinCrashEvent ? QString::number(m_cmdLineWinCrashEvent) : QString();
-    attachExternalApplication(m_cmdLineAttachPid, crashParameter);
+    if (m_manager->state() != DebuggerNotReady)
+        return;
+    if (m_attachRemoteParameters.attachPid) {
+        m_manager->showStatusMessage(tr("Attaching to PID %1.").arg(m_attachRemoteParameters.attachPid));
+        const QString crashParameter =
+                m_attachRemoteParameters.winCrashEvent ? QString::number(m_attachRemoteParameters.winCrashEvent) : QString();
+        attachExternalApplication(m_attachRemoteParameters.attachPid, crashParameter);
+        return;
+    }
+    if (!m_attachRemoteParameters.attachCore.isEmpty()) {
+        m_manager->showStatusMessage(tr("Attaching to core %1.").arg(m_attachRemoteParameters.attachCore));
+        attachCore(m_attachRemoteParameters.attachCore, QString());
+    }
 }
 
 /*! Activates the previous mode when the current mode is the debug mode. */
@@ -1324,12 +1352,6 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashP
     sp->startMode = crashParameter.isEmpty() ? AttachExternal : AttachCrashedExternal;
     if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
         ProjectExplorerPlugin::instance()->startRunControl(runControl, ProjectExplorer::Constants::DEBUGMODE);
-}
-
-void DebuggerPlugin::attachCmdLineCore()
-{
-    m_manager->showStatusMessage(tr("Attaching to core %1.").arg(m_cmdLineAttachCore));
-    attachCore(m_cmdLineAttachCore, QString());
 }
 
 void DebuggerPlugin::attachCore()
