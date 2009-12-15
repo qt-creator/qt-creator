@@ -40,7 +40,7 @@
 
 #include <string>
 #include <cstdlib>
-#include <cstdlib>
+#include <sstream>
 
 using namespace CPlusPlus;
 
@@ -74,6 +74,14 @@ int main(int argc, char *argv[])
     TranslationUnit unit(&control, control.findOrInsertStringLiteral("<stdin>"));
     unit.setSource(source.c_str(), source.size());
     unit.parse();
+
+    if (TranslationUnitAST *ast = unit.ast()->asTranslationUnit()) {
+        Semantic sem(&unit);
+        Namespace *globalNamespace = control.newNamespace(0);
+        for (List<DeclarationAST *> *it = ast->declaration_list; it; it = it->next) {
+            sem.check(it->value, globalNamespace->members());
+        }
+    }
 
     return EXIT_SUCCESS;
 }
