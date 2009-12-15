@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 
+#include "Preprocessor.h"
 #include <AST.h>
 #include <ASTVisitor.h>
 #include <Control.h>
@@ -44,7 +45,21 @@
 
 using namespace CPlusPlus;
 
+enum { BLOCK_SIZE = 4 * 1024};
+
+void parse(const char *fileName, const char *source, unsigned size);
+int runWithSystemPreprocessor(int argc, char *argv[]);
+int runWithNewPreprocessor(int argc, char *argv[]);
+
 int main(int argc, char *argv[])
+{
+    if (getenv("CPLUSPLUS_WITH_NEW_PREPROCESSOR"))
+        return runWithNewPreprocessor(argc, argv);
+
+    return runWithSystemPreprocessor(argc, argv);
+}
+
+int runWithSystemPreprocessor(int argc, char *argv[])
 {
     std::string cmdline;
     cmdline += "gcc -E -xc++ -U__BLOCKS__";
@@ -54,14 +69,13 @@ int main(int argc, char *argv[])
         cmdline += argv[i];
     }
 
-    enum { BLOCK_SIZE = 4 * 1024};
     char block[BLOCK_SIZE];
 
-    std::string source;
+    std::string preprocessedCode;
 
     if (FILE *fp = popen(cmdline.c_str(), "r")) {
         while (size_t sz = fread(block, 1, BLOCK_SIZE, fp))
-            source.append(block, sz);
+            preprocessedCode.append(block, sz);
 
         pclose(fp);
 
@@ -70,9 +84,46 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    parse("<stdin>", preprocessedCode.c_str(), preprocessedCode.size());
+    return EXIT_SUCCESS;
+}
+
+int runWithNewPreprocessor(int argc, char *argv[])
+{
+    if (argc == 1) {
+        fprintf(stderr, "c++: No such file or directory\n");
+        return EXIT_FAILURE;
+    }
+
+    char block[BLOCK_SIZE];
+
+    std::string source;
+
+    if (FILE *fp = fopen(argv[1], "r")) {
+        while (size_t sz = fread(block, 1, BLOCK_SIZE, fp))
+            source.append(block, sz);
+
+        fclose(fp);
+
+    } else {
+        fprintf(stderr, "c++: No such file or directory\n");
+        return EXIT_FAILURE;
+    }
+
+    std::ostringstream out;
+    Preprocessor pp(out);
+    pp(source.c_str(), source.size(), StringRef(argv[1]));
+
+    const std::string preprocessedCode = out.str();
+    parse(argv[1], preprocessedCode.c_str(), preprocessedCode.size());
+    return EXIT_SUCCESS;
+}
+
+void parse(const char *fileName, const char *source, unsigned size)
+{
     Control control;
-    TranslationUnit unit(&control, control.findOrInsertStringLiteral("<stdin>"));
-    unit.setSource(source.c_str(), source.size());
+    TranslationUnit unit(&control, control.findOrInsertStringLiteral(fileName));
+    unit.setSource(source, size);
     unit.parse();
 
     if (TranslationUnitAST *ast = unit.ast()->asTranslationUnit()) {
@@ -82,6 +133,4 @@ int main(int argc, char *argv[])
             sem.check(it->value, globalNamespace->members());
         }
     }
-
-    return EXIT_SUCCESS;
 }
