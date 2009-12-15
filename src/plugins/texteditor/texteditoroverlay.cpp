@@ -151,12 +151,14 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
             QTextLayout *blockLayout = block.layout();
 
             QTextLine line = blockLayout->lineAt(0);
+            bool firstOrLastBlock = false;
 
             int beginChar = 0;
             if (!inSelection) {
                 beginChar = begin.position() - begin.block().position();
                 line = blockLayout->lineForTextPosition(beginChar);
                 inSelection = true;
+                firstOrLastBlock = true;
             } else {
                 while (beginChar < block.length() && document->characterAt(block.position() + beginChar).isSpace())
                     ++beginChar;
@@ -170,6 +172,7 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
                 endChar = end.position()  - end.block().position();
                 lastLine = blockLayout->lineForTextPosition(endChar).lineNumber();
                 inSelection = false;
+                firstOrLastBlock = true;
             } else {
                 endChar = block.length();
                 while (endChar > beginChar && document->characterAt(block.position() + endChar - 1).isSpace())
@@ -191,9 +194,17 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
                     selection += lineRect.translated(blockGeometry.topLeft());
                 }
             } else { // empty lines
-                if (!selection.isEmpty())
+                const int emptyLineSelectionSize = 16;
+                if (!firstOrLastBlock && !selection.isEmpty()) { // middle
                     lineRect.setLeft(selection.last().left());
-                lineRect.setRight(lineRect.left() + 16);
+                } else if (inSelection) { // first line
+                    lineRect.setLeft(line.cursorToX(beginChar));
+                } else { // last line
+                    if (endChar == 0)
+                        break;
+                    lineRect.setLeft(line.cursorToX(endChar) - emptyLineSelectionSize);
+                }
+                lineRect.setRight(lineRect.left() + emptyLineSelectionSize);
                 selection += lineRect.translated(blockGeometry.topLeft());
             }
 
