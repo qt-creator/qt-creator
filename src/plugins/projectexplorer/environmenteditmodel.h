@@ -36,13 +36,9 @@
 #include <QtCore/QAbstractItemModel>
 #include <QtGui/QWidget>
 
-
 QT_BEGIN_NAMESPACE
-class QCheckBox;
 class QTreeView;
 class QPushButton;
-class QLabel;
-class QStackedWidget;
 QT_END_NAMESPACE
 
 namespace Utils {

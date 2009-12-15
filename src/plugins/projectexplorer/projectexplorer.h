@@ -44,9 +44,7 @@ class QComboBox;
 QT_END_NAMESPACE
 
 namespace Core {
-class IContext;
 class IMode;
-class IFileFactory;
 }
 
 namespace Utils {
