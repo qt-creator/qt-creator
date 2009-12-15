@@ -786,6 +786,9 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
     if (doc->fileName() != file()->fileName())
         return;
 
+    if (doc->editorRevision() != editorRevision())
+        return;
+
     if (! m_initialized) {
         m_initialized = true;
 
@@ -1059,6 +1062,16 @@ void CPPEditor::highlightUses(const QList<SemanticInfo::Use> &uses,
 
 void CPPEditor::updateMethodBoxIndexNow()
 {
+    if (! m_overviewModel->document())
+        return;
+
+    if (m_overviewModel->document()->editorRevision() != editorRevision()) {
+        m_updateMethodBoxTimer->start();
+        return;
+    }
+
+    m_updateMethodBoxTimer->stop();
+
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
 
@@ -1409,9 +1422,14 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol)
     return 0;
 }
 
+unsigned CPPEditor::editorRevision() const
+{
+    return document()->revision();
+}
+
 bool CPPEditor::isOutdated() const
 {
-    if (m_lastSemanticInfo.revision != document()->revision())
+    if (m_lastSemanticInfo.revision != editorRevision())
         return true;
 
     return false;
@@ -2026,7 +2044,7 @@ void CPPEditor::semanticRehighlight()
 
 void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 {
-    if (semanticInfo.revision != document()->revision()) {
+    if (semanticInfo.revision != editorRevision()) {
         // got outdated semantic info
         semanticRehighlight();
         return;
@@ -2077,10 +2095,10 @@ SemanticHighlighter::Source CPPEditor::currentSource(bool force)
     const QString fileName = file()->fileName();
 
     QString code;
-    if (force || m_lastSemanticInfo.revision != document()->revision())
+    if (force || m_lastSemanticInfo.revision != editorRevision())
         code = toPlainText(); // get the source code only when needed.
 
-    const int revision = document()->revision();
+    const unsigned revision = editorRevision();
     SemanticHighlighter::Source source(snapshot, fileName, code,
                                        line, column, revision);
     source.force = force;

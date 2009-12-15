@@ -111,7 +111,8 @@ private:
 Document::Document(const QString &fileName)
     : _fileName(QDir::cleanPath(fileName)),
       _globalNamespace(0),
-      _revision(0)
+      _revision(0),
+      _editorRevision(0)
 {
     _control = new Control();
 
@@ -146,6 +147,16 @@ unsigned Document::revision() const
 void Document::setRevision(unsigned revision)
 {
     _revision = revision;
+}
+
+unsigned Document::editorRevision() const
+{
+    return _editorRevision;
+}
+
+void Document::setEditorRevision(unsigned editorRevision)
+{
+    _editorRevision = editorRevision;
 }
 
 QDateTime Document::lastModified() const
@@ -489,6 +500,7 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
 
     if (Document::Ptr thisDocument = document(fileName)) {
         newDoc->_revision = thisDocument->_revision;
+        newDoc->_editorRevision = thisDocument->_editorRevision;
         newDoc->_lastModified = thisDocument->_lastModified;
         newDoc->_includes = thisDocument->_includes;
         newDoc->_definedMacros = thisDocument->_definedMacros;

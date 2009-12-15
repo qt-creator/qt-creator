@@ -190,8 +190,8 @@ public: // attributes
 protected:
     CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
 
-    bool includeFile(const QString &absoluteFilePath, QString *result);
-    QString tryIncludeFile(QString &fileName, IncludeType type);
+    bool includeFile(const QString &absoluteFilePath, QString *result, unsigned *revision);
+    QString tryIncludeFile(QString &fileName, IncludeType type, unsigned *revision);
 
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 
@@ -328,14 +328,16 @@ void CppPreprocessor::resetEnvironment()
     m_processed.clear();
 }
 
-bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QString *result)
+bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QString *result, unsigned *revision)
 {
     if (absoluteFilePath.isEmpty() || m_included.contains(absoluteFilePath))
         return true;
 
     if (m_workingCopy.contains(absoluteFilePath)) {
         m_included.insert(absoluteFilePath);
-        *result = m_workingCopy.source(absoluteFilePath);
+        const QPair<QString, unsigned> r = m_workingCopy.get(absoluteFilePath);
+        *result = r.first;
+        *revision = r.second;
         return true;
     }
 
@@ -356,12 +358,12 @@ bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QString *resu
     return false;
 }
 
-QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
+QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type, unsigned *revision)
 {
     QFileInfo fileInfo(fileName);
     if (fileName == QLatin1String(pp_configuration_file) || fileInfo.isAbsolute()) {
         QString contents;
-        includeFile(fileName, &contents);
+        includeFile(fileName, &contents, revision);
         return contents;
     }
 
@@ -372,7 +374,7 @@ QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
         path += fileName;
         path = QDir::cleanPath(path);
         QString contents;
-        if (includeFile(path, &contents)) {
+        if (includeFile(path, &contents, revision)) {
             fileName = path;
             return contents;
         }
@@ -384,7 +386,7 @@ QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
         path += fileName;
         path = QDir::cleanPath(path);
         QString contents;
-        if (includeFile(path, &contents)) {
+        if (includeFile(path, &contents, revision)) {
             fileName = path;
             return contents;
         }
@@ -397,7 +399,7 @@ QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
         path += fileName;
         path = QDir::cleanPath(path);
         QString contents;
-        if (includeFile(path, &contents)) {
+        if (includeFile(path, &contents, revision)) {
             fileName = path;
             return contents;
         }
@@ -416,7 +418,7 @@ QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
             path += name;
             path = QDir::cleanPath(path);
             QString contents;
-            if (includeFile(path, &contents)) {
+            if (includeFile(path, &contents, revision)) {
                 fileName = path;
                 return contents;
             }
@@ -431,7 +433,7 @@ QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type)
         if (projectFile.endsWith(path)) {
             fileName = projectFile;
             QString contents;
-            includeFile(fileName, &contents);
+            includeFile(fileName, &contents, revision);
             return contents;
         }
     }
@@ -524,13 +526,13 @@ void CppPreprocessor::stopSkippingBlocks(unsigned offset)
         m_currentDoc->stopSkippingBlocks(offset);
 }
 
-void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
-                                   unsigned line)
+void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned line)
 {
     if (fileName.isEmpty())
         return;
 
-    QString contents = tryIncludeFile(fileName, type);
+    unsigned editorRevision = 0;
+    QString contents = tryIncludeFile(fileName, type, &editorRevision);
     fileName = QDir::cleanPath(fileName);
     if (m_currentDoc) {
         m_currentDoc->addIncludeFile(fileName, line);
@@ -560,6 +562,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type,
 
     doc = Document::create(fileName);
     doc->setRevision(m_revision);
+    doc->setEditorRevision(editorRevision);
 
     QFileInfo info(fileName);
     if (info.exists())
@@ -797,7 +800,7 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
         TextEditor::ITextEditor *textEditor = it.key();
         CppEditorSupport *editorSupport = it.value();
         QString fileName = textEditor->file()->fileName();
-        workingCopy.insert(fileName, editorSupport->contents());
+        workingCopy.insert(fileName, editorSupport->contents(), editorSupport->editorRevision());
     }
 
     QSetIterator<AbstractEditorSupport *> jt(m_addtionalEditorSupport);

@@ -79,10 +79,10 @@ public:
     typedef QHashIterator<CPlusPlus::Symbol *, QList<Use> > LocalUseIterator;
 
     SemanticInfo()
-        : revision(-1), hasQ(false), hasD(false)
+        : revision(0), hasQ(false), hasD(false)
     { }
 
-    int revision;
+    unsigned revision;
     bool hasQ: 1;
     bool hasD: 1;
     CPlusPlus::Snapshot snapshot;
@@ -188,6 +188,7 @@ public:
 
     void indentInsertedText(const QTextCursor &tc);
 
+    unsigned editorRevision() const;
     bool isOutdated() const;
     SemanticInfo semanticInfo() const;
 

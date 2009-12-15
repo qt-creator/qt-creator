@@ -81,25 +81,20 @@ public:
     class WorkingCopy
     {
     public:
-        typedef QHash<QString, QString> Table;
-
-        typedef Table::const_iterator iterator;
-        typedef Table::const_iterator const_iterator;
-
-    public:
-        const_iterator begin() const { return _elements.begin(); }
-        const_iterator end() const { return _elements.end(); }
-
-        void insert(const QString &fileName, const QString &source)
-        { _elements.insert(fileName, source); }
+        void insert(const QString &fileName, const QString &source, unsigned revision = 0)
+        { _elements.insert(fileName, qMakePair(source, revision)); }
 
         bool contains(const QString &fileName) const
         { return _elements.contains(fileName); }
 
         QString source(const QString &fileName) const
+        { return _elements.value(fileName).first; }
+
+        QPair<QString, unsigned> get(const QString &fileName) const
         { return _elements.value(fileName); }
 
     private:
+        typedef QHash<QString, QPair<QString, unsigned> > Table;
         Table _elements;
     };
 

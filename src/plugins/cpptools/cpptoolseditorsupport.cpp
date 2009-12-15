@@ -84,6 +84,16 @@ QString CppEditorSupport::contents()
     return _cachedContents;
 }
 
+unsigned CppEditorSupport::editorRevision() const
+{
+    if (_textEditor) {
+        if (TextEditor::BaseTextEditor *ed = qobject_cast<TextEditor::BaseTextEditor *>(_textEditor->widget()))
+            return ed->document()->revision();
+    }
+
+    return 0;
+}
+
 int CppEditorSupport::updateDocumentInterval() const
 { return _updateDocumentInterval; }
 

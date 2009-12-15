@@ -70,6 +70,7 @@ public:
     void setUpdateDocumentInterval(int updateDocumentInterval);
 
     QString contents();
+    unsigned editorRevision() const;
 
 Q_SIGNALS:
     void contentsChanged();

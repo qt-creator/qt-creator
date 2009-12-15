@@ -1012,7 +1012,7 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 
     const SemanticInfo info = _editor->semanticInfo();
 
-    if (info.revision != _editor->document()->revision()) {
+    if (info.revision != _editor->editorRevision()) {
         // outdated
         qWarning() << "TODO: outdated semantic info, force a reparse.";
         return -1;

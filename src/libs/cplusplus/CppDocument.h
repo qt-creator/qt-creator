@@ -60,6 +60,9 @@ public:
     unsigned revision() const;
     void setRevision(unsigned revision);
 
+    unsigned editorRevision() const;
+    void setEditorRevision(unsigned editorRevision);
+
     QDateTime lastModified() const;
     void setLastModified(const QDateTime &lastModified);
 
@@ -312,6 +315,7 @@ private:
     QByteArray _source;
     QDateTime _lastModified;
     unsigned _revision;
+    unsigned _editorRevision;
 
     friend class Snapshot;
 };
