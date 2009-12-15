@@ -645,6 +645,7 @@ ProBlock *ProEditorModel::proBlock(const QModelIndex &index) const
 
 QString ProEditorModel::expressionToString(ProBlock *block, bool display) const
 {
+    Q_UNUSED(display);
     QString result;
     QList<ProItem*> items = block->items();
     for (int i = 0; i < items.count(); ++i) {
