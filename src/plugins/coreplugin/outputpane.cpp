@@ -125,7 +125,7 @@ void OutputPanePlaceHolder::maximizeOrMinimize(bool maximize)
     QList<int> sizes = m_splitter->sizes();
 
     if (maximize) {
-        int sum;
+        int sum = 0;
         foreach(int s, sizes)
             sum += s;
         for (int i = 0; i < sizes.count(); ++i) {
