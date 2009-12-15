@@ -163,7 +163,6 @@ private slots:
     void updateFocusWidget(QWidget *old, QWidget *now);
     void setSidebarVisible(bool visible);
     void destroyVersionDialog();
-    void modeChanged(Core::IMode *mode);
 
 private:
     void updateContextObject(IContext *context);
@@ -201,7 +200,6 @@ private:
 
     QMap<QWidget *, IContext *> m_contextWidgets;
 
-    BaseMode *m_outputMode;
     GeneralSettings *m_generalSettings;
     ShortcutSettings *m_shortcutSettings;
 

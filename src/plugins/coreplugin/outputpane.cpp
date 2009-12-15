@@ -536,10 +536,10 @@ void OutputPaneManager::showPage(int idx, bool focus)
         if (!OutputPanePlaceHolder::m_current) {
             // In this mode we don't have a placeholder
             // switch to the output mode and switch the page
-            ICore::instance()->modeManager()->activateMode(Constants::MODE_OUTPUT);
-            ensurePageVisible(idx);
-        } else {
-            // else we make that page visible
+            ICore::instance()->modeManager()->activateMode(Constants::MODE_EDIT);
+        }
+        if (OutputPanePlaceHolder::m_current) {
+            // make the page visible
             OutputPanePlaceHolder::m_current->setVisible(true);
             ensurePageVisible(idx);
             if (focus && out->canFocus())

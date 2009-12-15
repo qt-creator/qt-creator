@@ -55,7 +55,7 @@ FancyTabBar::FancyTabBar(QWidget *parent)
     : QWidget(parent)
 {
     m_hoverIndex = -1;
-    m_currentIndex = 0;
+    m_currentIndex = -1;
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     setStyle(new QWindowsStyle);
     setMinimumWidth(qMax(2 * m_rounding, 40));

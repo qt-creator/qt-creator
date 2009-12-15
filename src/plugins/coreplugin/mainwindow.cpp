@@ -134,7 +134,6 @@ MainWindow::MainWindow() :
     m_rightPaneWidget(0),
     m_versionDialog(0),
     m_activeContext(0),
-    m_outputMode(0),
     m_generalSettings(new GeneralSettings),
     m_shortcutSettings(new ShortcutSettings),
     m_focusToEditor(0),
@@ -253,9 +252,6 @@ MainWindow::~MainWindow()
     m_uniqueIDManager = 0;
     delete m_vcsManager;
     m_vcsManager = 0;
-    pm->removeObject(m_outputMode);
-    delete m_outputMode;
-    m_outputMode = 0;
     //we need to delete editormanager and statusbarmanager explicitly before the end of the destructor,
     //because they might trigger stuff that tries to access data from editorwindow, like removeContextWidget
 
@@ -297,27 +293,7 @@ bool MainWindow::init(QString *errorMessage)
     m_statusBarManager->init();
     m_modeManager->init();
     m_progressManager->init();
-    QWidget *outputModeWidget = new QWidget;
-    outputModeWidget->setLayout(new QVBoxLayout);
-    outputModeWidget->layout()->setMargin(0);
-    outputModeWidget->layout()->setSpacing(0);
-    m_outputMode = new BaseMode;
-    m_outputMode->setName(tr("Output"));
-    m_outputMode->setUniqueModeName(Constants::MODE_OUTPUT);
-    m_outputMode->setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Output.png")));
-    m_outputMode->setPriority(Constants::P_MODE_OUTPUT);
-    m_outputMode->setWidget(outputModeWidget);
-    OutputPanePlaceHolder *oph = new OutputPanePlaceHolder(m_outputMode);
-    oph->setCloseable(false);
-    outputModeWidget->layout()->addWidget(oph);
-    oph->setVisible(true); // since the output pane placeholder is invisible at startup by default (which makes sense in most cases)
-    outputModeWidget->setFocusProxy(oph);
 
-    connect(m_modeManager, SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(modeChanged(Core::IMode*)), Qt::QueuedConnection);
-
-    m_outputMode->setContext(m_globalContext);
-    pm->addObject(m_outputMode);
     pm->addObject(m_generalSettings);
     pm->addObject(m_shortcutSettings);
 
@@ -328,16 +304,6 @@ bool MainWindow::init(QString *errorMessage)
     m_outputView->setPosition(Core::StatusBarWidget::Second);
     pm->addObject(m_outputView);
     return true;
-}
-
-void MainWindow::modeChanged(Core::IMode *mode)
-{
-    if (mode == m_outputMode) {
-        int idx = OutputPaneManager::instance()->m_widgetComboBox->itemData(OutputPaneManager::instance()->m_widgetComboBox->currentIndex()).toInt();
-        IOutputPane *out = OutputPaneManager::instance()->m_pageMap.value(idx);
-        if (out && out->canFocus())
-            out->setFocus();
-    }
 }
 
 void MainWindow::extensionsInitialized()

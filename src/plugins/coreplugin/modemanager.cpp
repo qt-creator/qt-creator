@@ -93,7 +93,10 @@ void ModeManager::addWidget(QWidget *widget)
 
 IMode *ModeManager::currentMode() const
 {
-    return m_modes.at(m_modeStack->currentIndex());
+    int currentIndex = m_modeStack->currentIndex();
+    if (currentIndex < 0)
+        return 0;
+    return m_modes.at(currentIndex);
 }
 
 int ModeManager::indexOf(const QString &id) const
