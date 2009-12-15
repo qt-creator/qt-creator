@@ -4,6 +4,7 @@
 // Run the fixnavi.pl script to adjust the links to the index order.
 // **********************************************************************
 
+
 /*!
     \contentspage{index.html}{Qt Creator}
     \page index.html
@@ -1322,7 +1323,7 @@
     \note The set of watched items is saved in your session.
 
 
-    \section1 Debugging Helper Library
+    \section1 Debugging Helper Library with C++
 
     While debugging, Qt Creator dynamically loads a helper library into your
     program. This helper library enables Qt Creator to pretty print Qt and STL
@@ -1332,6 +1333,257 @@
     the internal data structures of Qt can change between versions, the debugging
     helper library is built for each Qt version.
 
+
+    \section1 Debugging Helper Library with Python
+
+    Using a gdb version that has Python scripting available it is possible to
+    use Debugging Helpers also for user defined types. All that is needed is
+    to define one Python function per user defined type in .gdbinit.
+
+    The function's name has to be qdump__NS__Foo where  NS::Foo is the class
+    or class template to be examined. Nested namespaces are possible.
+
+    Qt Creator's debugger integration will call this function whenever it
+    wants to display an object of this type. The function gets passed two
+    parameters, 'd' of type 'Dumper', and 'item' of type 'Item'. The function
+    itself has to feed the Dumper object with certain information that
+    are used to build up the object and it's children's display in the
+    Locals-and-Watchers view.
+
+
+    Example:
+
+    \code
+    def qdump__QVector(d, item):
+        d_ptr = item.value["d"]
+        p_ptr = item.value["p"]
+        alloc = d_ptr["alloc"]
+        size = d_ptr["size"]
+
+        check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
+        check(d_ptr["ref"]["_q_value"] > 0)
+
+        innerType = item.value.type.template_argument(0)
+        d.putItemCount(size)
+        d.putNumChild(size)
+        if d.isExpanded(item):
+            p = gdb.Value(p_ptr["array"]).cast(innerType.pointer())
+            d.beginChildren([size, 2000], innerType)
+            for i in d.childRange():
+                d.safePutItem(Item(p.dereference(), item.iname, i))
+                p += 1
+            d.endChildren()
+    \endcode
+
+    \section2
+
+    The 'Item' Python class is a thin wrapper around values corresponding to one
+    line in the Locals-and-Watchers view. Its members are the following:
+
+    \list
+
+    \o \gui{__init__(self, value, parentiname, iname, name = None)} - A
+       constructor. The object's internal name is created by concatenating
+       \a parentiname and \a iname. If \c None is passed as \a name, a
+       serial number is used.
+
+    \o \gui{value} - An object of type gdb.Value representing the value to
+        be displayed.
+
+    \o \gui{iname} - The internal name of the object, i.e. a dot-separated
+    list of identifiers, corresponding to the position of the object's
+    representation in the view.
+
+    \o \gui{name} - An optional name. If given, it will be used in the
+    \gui{name} column of the view. If not, a simple number in brackets
+    will be used instead.
+
+    \endlist
+
+
+    \section2
+
+    For each line in the Locals and Watcher view, a string like the following
+    needs to be created and channeled to Creator's debugger plugin.
+    \code
+    "{iname='some internal name',
+      addr='object address in memory',
+      name='contents of the name column',
+      value='contents of the value column',
+      type='contents of the type column',
+      numchild='number of children',        // zero/nonzero is sufficient
+      childtype='default type of children', // optional
+      childnumchild='default number of grandchildren', // optional
+      children=[              // only needed if item is expanded in view
+         {iname='internal name of first child',
+          ... },
+         {iname='internal name of second child',
+          ... },
+         ...
+      ]}"
+    \endcode
+
+    While in theory, this string can be build up entirely manually, it is
+    easier to employ the 'Dumper' Python class for that purpose. It contains
+    a complete framework to take care of the 'iname' and 'addr' fields,
+    to handle children of simple types, references,
+    pointers, enums, known and unknown structs as well as some
+    convenience method to handle common situations.
+
+    The 'Dumper' members are the following:
+
+    \list
+
+    \o \gui{__init__(self)} - Initializes the output to an empty string and
+        empties the child stack.
+
+    \o \gui{put(self, value)} - Low level method to directly append to the
+        output string.
+
+    \o \gui{putCommaIfNeeded(self)} - Appends a comma if the current output
+        ends in '}', '"' or ']' .
+
+    \o \gui{putField(self, name, value)} - Appends a comma if needed, and a
+         name='value' field.
+
+    \o \gui{beginHash(self)} - Appends a comma if needed and a '{', marking
+        the begin of a set of fields.
+
+    \o \gui{endHash(self)} - Appends a '}', marking the end of a set of
+        fields.
+
+    \o \gui{beginItem(self, name)} - Starts writing a field by writing \c {name='}.
+
+    \o \gui{endItem(self)} - Ends writing a field by writing \c {'}.
+
+    \o \gui{beginChildren(self, numChild_ = 1, childType_ = None, childNumChild_ = None)}
+        - Starts writing a list of \a numChild children, with type
+        \a childType_ and \a childNumChild grandchildren each. If \a numChild_
+        is a list of two integers, the first one specifies the actual number
+        of children and the second the maximum number of children to print.
+
+    \o \gui{endChildren(self)} - Ends writing a list of children.
+
+    \o \gui{childRange(self)} - Return the range of children specified in
+        \c beginChildren.
+
+    \o \gui{putItemCount(self, count)} - Appends a field  \c {value='<%d items'}
+        to the output.
+
+    \o \gui{putEllipsis(self)} - Appends fields
+        \c {'{name="<incomplete>",value="",type="",numchild="0"}'}. This is
+        automatically done by \c endChildren if the number of children to
+        print is smaller than the number of actual children.
+
+    \o \gui{putName(self, name)} - Appends a \c {name='...'} field.
+
+    \o \gui{putType(self, type)} - Appends a field \c {type='...'} unless the
+        \a type coincides with the parent's default child type.
+
+    \o \gui{putNumChild(self, numchild)} - Appends a field \c {numchild='...'}
+        unless the \a numchild coincides with the parent's default child numchild
+        value.
+
+    \o \gui{putValue(self, value, encoding = None)} - Append a file \c {value='...'},
+        optionally followed by a field \c {valueencoding='...'}. The \a value
+        needs to be convertiable to a string entirely consisting of
+        alphanumerical values. The \a encoding parameter can be used to
+        specify the encoding in case the real value had to be encoded in some
+        way to meet the alphanumerical-only requirement.
+        Currently the following encodings are supported:
+
+        \list
+            \o 0: unencoded 8 bit data, interpreted as Latin1.
+
+            \o 1: base64 encoded 8 bit data, used for QByteArray,
+                double quotes will be added.
+
+            \o 2: base64 encoded 16 bit data, used for QString,
+                double quotes will be added.
+
+            \o 3: base64 encoded 32 bit data,
+                double quotes will be added.
+
+            \o 4: base64 encoded 16 bit data, without quotes (see 2)
+
+            \o 5: base64 encoded 8 bit data, without quotes (see 1)
+
+            \o 6: %02x encoded 8 bit data (as with \c QByteArray::toHex),
+                double quotes will be added.
+
+            \o 7: %04x encoded 16 bit data (as with \c QByteArray::toHex),
+                double quotes will be added.
+        \endlist
+
+    \o \gui{putStringValue(self, value)} - Encodes a QString and calls
+        \c putValue with the correct \a encoding setting.
+
+    \o \gui{putByteArrayValue(self, value)} - Encodes a QByteArray and calls
+        \c putValue with the corrent \a encoding setting.
+
+    \o \gui{isExpanded(self, item)} - Checks whether the item with the
+        internal name \c item.iname is expanded in the view.
+
+    \o \gui{isExpandedIName(self, iname)} - Checks whether the item with the
+        internal name \c iname is expanded in the view.
+
+    \o \gui{putIntItem(self, name, value)} - Equivalent to
+        \code
+        self.beginHash()
+        self.putName(name)
+        self.putValue(value)
+        self.putType("int")
+        self.putNumChild(0)
+        self.endHash()
+        \endcode
+
+    \o \gui{putBoolItem(self, name, value)} - Equivalent to
+        \code
+        self.beginHash()
+        self.putName(name)
+        self.putValue(value)
+        self.putType("bool")
+        self.putNumChild(0)
+        self.endHash()
+        \endcode
+
+    \o \gui{pushOutput(self)} - Moves output string to a safe location
+        from with it will be send to the frontend even if further operations
+        raise exception.
+
+    \o \gui{putCallItem(self, name, item, func)} -
+        Uses gdb to call the function \a func on the value specified by
+        \a {item.value} and output the resulting item. This function is
+        not available when debugging core dumps and it is not available
+        on the Symbian platform due to restrictions imposed by AppTRK.
+
+    \o \gui{putItemHelper(self, item)} - The "master function", handling
+        basic types, references, pointers and enums directly, iterates
+        over base classes and class members of compound types and calls
+        \c qdump__* functions whenever appropriate.
+
+    \o \gui{putItem(self, item)} - Equivalent to
+        self.beginHash()
+        self.putItemHelper(item)
+        self.endHash()
+
+    \o \gui{safePutItemHelper(self, item)} - Calls \c putItemHelper(self, item).
+        If an exception is raised, catch it, and replace all output produced by
+        \c putItemHelper by \code
+            self.putName(item.name)
+            self.putValue("<invalid>")
+            self.putType(str(item.value.type))
+            self.putNumChild(0)
+            self.beginChildren()
+            self.endChildren() \endcode
+
+
+    \o \gui{safePutItem(self, item)} - Equivalent to
+        self.beginHash()
+        self.safePutItemHelper(item)
+        self.endHash()
+
+    \endlist
 
     \section1 Walkthrough for the Debugger Frontend
 
