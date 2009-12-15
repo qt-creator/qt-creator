@@ -396,7 +396,7 @@ public:
     int m_subsubdata;
     QString m_input;
     QTextCursor m_tc;
-    QTextCursor m_oldTc; // copy from last event to check for external changes
+    int m_oldPosition; // copy from last event to check for external changes
     int m_anchor;
     static QHash<int, Register> m_registers;
     int m_register;
@@ -589,8 +589,18 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     // Fake "End of line"
     m_tc = EDITOR(textCursor());
 
-    if (m_tc.position() != m_oldTc.position())
+    // Position changed externally
+    if (m_tc.position() != m_oldPosition) {
         setTargetColumn();
+        if (m_mode == InsertMode) {
+            int dist = m_tc.position() - m_oldPosition;
+            // Try to compensate for code completion
+            if (dist > 0 && dist <= cursorColumnInDocument()) {
+                Range range(m_oldPosition, m_tc.position());
+                m_lastInsertion.append(text(range));
+            }
+        }
+    }
 
     m_tc.setVisualNavigation(true);
 
@@ -617,8 +627,8 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     if (m_fakeEnd)
         moveLeft();
 
-    m_oldTc = m_tc;
     EDITOR(setTextCursor(m_tc));
+    m_oldPosition = m_tc.position();
     return result;
 }
 
