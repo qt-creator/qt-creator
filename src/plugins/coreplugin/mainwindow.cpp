@@ -843,7 +843,11 @@ void MainWindow::setFocusToEditor()
             editor->widget()->setFocus();
 
     bool focusWasAlreadyInEditor = (focusWidget && focusWidget == qApp->focusWidget());
-    if (focusWasAlreadyInEditor) {
+    if (!focusWasAlreadyInEditor) {
+        if (OutputPanePlaceHolder::getCurrent() &&
+            OutputPanePlaceHolder::getCurrent()->isVisible())
+            OutputPanePlaceHolder::getCurrent()->unmaximize();
+    } else {
         bool stuffVisible =
                 (FindToolBarPlaceHolder::getCurrent() &&
                  FindToolBarPlaceHolder::getCurrent()->isVisible())

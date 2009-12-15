@@ -66,12 +66,15 @@ public:
     void setCloseable(bool b);
     bool closeable();
     static OutputPanePlaceHolder *getCurrent() { return m_current; }
-    inline bool canMaximizeOrMinimize() const { return m_splitter != 0; }
-    void maximizeOrMinimize(bool maximize);
+
+    void unmaximize();
+    bool isMaximized() const;
 
 private slots:
     void currentModeChanged(Core::IMode *);
 private:
+    inline bool canMaximizeOrMinimize() const { return m_splitter != 0; }
+    void maximizeOrMinimize(bool maximize);
     Core::IMode *m_mode;
     QSplitter *m_splitter;
     bool m_closeable;
@@ -91,6 +94,8 @@ public:
     bool closeable();
     QWidget *buttonsWidget();
     void updateStatusButtons(bool visible);
+
+    bool isMaximized()const;
 
 public slots:
     void slotHide();

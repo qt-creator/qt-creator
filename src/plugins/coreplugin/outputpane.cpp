@@ -147,6 +147,16 @@ void OutputPanePlaceHolder::maximizeOrMinimize(bool maximize)
 
 }
 
+bool OutputPanePlaceHolder::isMaximized() const
+{
+    return OutputPaneManager::instance()->isMaximized();
+}
+
+void OutputPanePlaceHolder::unmaximize()
+{
+    if (OutputPaneManager::instance()->isMaximized())
+        OutputPaneManager::instance()->slotMinMax();
+}
 
 ////
 // OutputPaneManager
@@ -405,6 +415,10 @@ void OutputPaneManager::shortcutTriggered()
     }
 }
 
+bool OutputPaneManager::isMaximized()const
+{
+    return m_minMaxButton->arrowType() == Qt::DownArrow;
+}
 
 void OutputPaneManager::slotMinMax()
 {
