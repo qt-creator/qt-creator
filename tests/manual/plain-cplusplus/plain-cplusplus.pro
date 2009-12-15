@@ -9,6 +9,8 @@ macx {
 include(../../../src/shared/cplusplus/cplusplus.pri)
 
 # Input
+HEADERS += Preprocessor.h
+SOURCES += Preprocessor.cpp
 SOURCES += main.cpp
 
 unix {
