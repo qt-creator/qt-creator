@@ -544,8 +544,29 @@ void PerforcePlugin::updateCheckout(const QString &workingDir, const QStringList
 
 void PerforcePlugin::printOpenedFileList()
 {
-    runP4Cmd(m_settings.topLevel(), QStringList(QLatin1String("opened")),
-             CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+    const PerforceResponse perforceResponse
+            = runP4Cmd(m_settings.topLevel(), QStringList(QLatin1String("opened")),
+                       CommandToWindow|StdErrToWindow|ErrorToWindow);
+    if (perforceResponse.error || perforceResponse.stdOut.isEmpty())
+        return;
+    // reformat "//depot/file.cpp#1 - description" into "file.cpp # - description"
+    // for context menu opening to work. This produces absolute paths, then.
+    VCSBase::VCSBaseOutputWindow *outWin = VCSBase::VCSBaseOutputWindow::instance();
+    QString errorMessage;
+    QString mapped;
+    const QChar delimiter = QLatin1Char('#');
+    foreach (const QString &line, perforceResponse.stdOut.split(QLatin1Char('\n'))) {
+        mapped.clear();
+        const int delimiterPos = line.indexOf(delimiter);
+        if (delimiterPos > 0)
+            mapped = fileNameFromPerforceName(line.left(delimiterPos), true, &errorMessage);
+        if (mapped.isEmpty()) {
+            outWin->appendSilently(line);
+        } else {
+            outWin->appendSilently(mapped + QLatin1Char(' ') + line.mid(delimiterPos));
+        }
+    }
+    outWin->popup();
 }
 
 void PerforcePlugin::startSubmitProject()
@@ -1282,6 +1303,7 @@ static inline QString msgWhereFailed(const QString & file, const QString &why)
 
 // Map a perforce name "//xx" to its real name in the file system
 QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
+                                                 bool quiet,
                                                  QString *errorMessage) const
 {
     // All happy, already mapped
@@ -1290,8 +1312,10 @@ QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
     // "where" remaps the file to client file tree
     QStringList args;
     args << QLatin1String("where") << perforceName;
-    const PerforceResponse response = runP4Cmd(m_settings.topLevelSymLinkTarget(), args,
-                                               RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
+    unsigned flags = RunFullySynchronous;
+    if (!quiet)
+        flags |= CommandToWindow|StdErrToWindow|ErrorToWindow;
+    const PerforceResponse response = runP4Cmd(m_settings.topLevelSymLinkTarget(), args, flags);
     if (response.error) {
         *errorMessage = msgWhereFailed(perforceName, response.message);
         return QString::null;

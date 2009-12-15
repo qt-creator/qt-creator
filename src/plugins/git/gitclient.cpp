@@ -251,7 +251,11 @@ void GitClient::status(const QString &workingDirectory)
     // @TODO: Use "--no-color" once it is supported
     QStringList statusArgs(QLatin1String("status"));
     statusArgs << QLatin1String("-u");
-    executeGit(workingDirectory, statusArgs, 0, true);
+    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
+    outwin->setRepository(workingDirectory);
+    GitCommand *command = executeGit(workingDirectory, statusArgs, 0, true);
+    connect(command, SIGNAL(finished(bool,QVariant)), outwin, SLOT(clearRepository()),
+            Qt::QueuedConnection);
 }
 
 void GitClient::log(const QString &workingDirectory, const QStringList &fileNames)

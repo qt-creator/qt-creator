@@ -748,7 +748,10 @@ void SubversionPlugin::projectStatus()
     QTC_ASSERT(state.hasProject(), return);
     QStringList args(QLatin1String("status"));
     args += state.relativeCurrentProject();
+    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
+    outwin->setRepository(state.currentProjectTopLevel());
     runSvn(state.currentProjectTopLevel(), args, m_settings.timeOutMS(), true);
+    outwin->clearRepository();
 }
 
 void SubversionPlugin::describe(const QString &source, const QString &changeNr)

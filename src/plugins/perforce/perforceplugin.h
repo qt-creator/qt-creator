@@ -96,7 +96,9 @@ public:
     void setSettings(const Settings &s);
 
     // Map a perforce name "//xx" to its real name in the file system
-    QString fileNameFromPerforceName(const QString& perforceName, QString *errorMessage) const;
+    QString fileNameFromPerforceName(const QString& perforceName,
+                                     bool quiet,
+                                     QString *errorMessage) const;
 
 public slots:
     void describe(const QString &source, const QString &n);

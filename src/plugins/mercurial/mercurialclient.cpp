@@ -250,7 +250,11 @@ void MercurialClient::status(const QString &workingDir, const QString &file)
     QStringList args(QLatin1String("status"));
     if (!file.isEmpty())
         args.append(file);
+    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
+    outwin->setRepository(workingDir);
     QSharedPointer<HgTask> job(new HgTask(workingDir, args, false));
+    connect(job.data(), SIGNAL(succeeded(QVariant)), outwin, SLOT(clearRepository()),
+            Qt::QueuedConnection);
     enqueueJob(job);
 }
 

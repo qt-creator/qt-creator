@@ -145,7 +145,7 @@ QString PerforceEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock)
             if (revisionPos != -1 && revisionPos < diffFileName.length() - 1)
                 diffFileName.truncate(revisionPos);
             // Ask plugin to map back
-            const QString fileName = m_plugin->fileNameFromPerforceName(diffFileName.trimmed(), &errorMessage);
+            const QString fileName = m_plugin->fileNameFromPerforceName(diffFileName.trimmed(), false, &errorMessage);
             if (fileName.isEmpty())
                 qWarning("%s", qPrintable(errorMessage));
             return fileName;

@@ -30,20 +30,36 @@
 #include "vcsbaseoutputwindow.h"
 
 #include <utils/qtcassert.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QTextCharFormat>
 #include <QtGui/QContextMenuEvent>
+#include <QtGui/QTextBlock>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
+#include <QtGui/QTextDocument>
+#include <QtGui/QTextBlockUserData>
 
 #include <QtCore/QPointer>
 #include <QtCore/QTextCodec>
 #include <QtCore/QTime>
+#include <QtCore/QPoint>
+#include <QtCore/QFileInfo>
 
 namespace VCSBase {
 
 namespace Internal {
+
+// Store repository along with text blocks
+class RepositoryUserData : public QTextBlockUserData    {
+public:
+    explicit RepositoryUserData(const QString &repo) : m_repository(repo) {}
+    const QString &repository() const { return m_repository; }
+
+private:
+    const QString m_repository;
+};
 
 // A plain text edit with a special context menu containing "Clear" and
 // and functions to append specially formatted entries.
@@ -51,7 +67,7 @@ class OutputWindowPlainTextEdit : public QPlainTextEdit {
 public:
     explicit OutputWindowPlainTextEdit(QWidget *parent);
 
-    void appendLines(QString s);
+    void appendLines(QString s, const QString &repository = QString());
     // Append red error text and pop up.
     void appendError(const QString &text);
     // Append warning error text and pop up.
@@ -63,6 +79,8 @@ protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
 
 private:
+    QString identifierUnderCursor(const QPoint &pos, QString *repository = 0) const;
+
     const QTextCharFormat m_defaultFormat;
     QTextCharFormat m_errorFormat;
     QTextCharFormat m_warningFormat;
@@ -83,27 +101,100 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     m_commandFormat.setFontWeight(QFont::Bold);
 }
 
+// Search back for beginning of word
+static inline int firstWordCharacter(const QString &s, int startPos)
+{
+    for ( ; startPos >= 0 ; startPos--) {
+        if (s.at(startPos).isSpace())
+            return startPos + 1;
+    }
+    return 0;
+}
+
+QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos, QString *repository) const
+{
+    if (repository)
+        repository->clear();
+    // Get the blank-delimited word under cursor. Note that
+    // using "SelectWordUnderCursor" does not work since it breaks
+    // at delimiters like '/'. Get the whole line
+    QTextCursor cursor = cursorForPosition(widgetPos);
+    const int cursorDocumentPos = cursor.position();
+    cursor.select(QTextCursor::BlockUnderCursor);
+    if (!cursor.hasSelection())
+        return QString();
+    QString block = cursor.selectedText();
+    // Determine cursor position within line and find blank-delimited word
+    const int cursorPos = cursorDocumentPos - cursor.block().position();
+    const int blockSize = block.size();
+    if (cursorPos < 0 || cursorPos >= blockSize || block.at(cursorPos).isSpace())
+        return QString();
+    // Retrieve repository if desired
+    if (repository)
+        if (QTextBlockUserData *data = cursor.block().userData())
+            *repository = static_cast<const RepositoryUserData*>(data)->repository();
+    // Find first non-space character of word and find first non-space character past
+    const int startPos = firstWordCharacter(block, cursorPos);
+    int endPos = cursorPos;
+    for ( ; endPos < blockSize && !block.at(endPos).isSpace(); endPos++) ;
+    return endPos > startPos ? block.mid(startPos, endPos - startPos) : QString();
+}
+
 void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu *menu = createStandardContextMenu();
+    // Add 'open file'
+    QString repository;
+    const QString token = identifierUnderCursor(event->pos(), &repository);
+    QAction *openAction = 0;
+    if (!token.isEmpty()) {
+        // Check for a file, expand via repository if relative
+        QFileInfo fi(token);
+        if (!repository.isEmpty() && !fi.isFile() && fi.isRelative())
+            fi = QFileInfo(repository + QLatin1Char('/') + token);
+        if (fi.isFile())  {
+            menu->addSeparator();
+            openAction = menu->addAction(VCSBaseOutputWindow::tr("Open \"%1\"").arg(fi.fileName()));
+            openAction->setData(fi.absoluteFilePath());
+        }
+    }
+    // Add 'clear'
     menu->addSeparator();
     QAction *clearAction = menu->addAction(VCSBaseOutputWindow::tr("Clear"));
-    connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
-    menu->exec(event->globalPos());
+
+    // Run
+    QAction *action = menu->exec(event->globalPos());
+    if (action) {
+        if (action == clearAction) {
+            clear();
+            return;
+        }
+        if (action == openAction) {
+            const QString fileName = action->data().toString();
+            Core::EditorManager::instance()->openEditor(fileName);
+        }
+    }
     delete menu;
 }
 
-void OutputWindowPlainTextEdit::appendLines(QString s)
+void OutputWindowPlainTextEdit::appendLines(QString s, const QString &repository)
 {
     if (s.isEmpty())
         return;
     // Avoid additional new line character generated by appendPlainText
     if (s.endsWith(QLatin1Char('\n')))
         s.truncate(s.size() - 1);
+    const int previousLineCount = document()->lineCount();
     appendPlainText(s);
     // Scroll down
     moveCursor(QTextCursor::End);
     ensureCursorVisible();
+    if (!repository.isEmpty()) {
+        // Associate repository with new data.
+        QTextBlock block = document()->findBlockByLineNumber(previousLineCount);
+        for ( ; block.isValid(); block = block.next())
+            block.setUserData(new RepositoryUserData(repository));
+    }
 }
 
 void OutputWindowPlainTextEdit::appendError(const QString &text)
@@ -135,6 +226,7 @@ void OutputWindowPlainTextEdit::appendCommand(const QString &text)
 struct VCSBaseOutputWindowPrivate {
     static VCSBaseOutputWindow *instance;
     QPointer<Internal::OutputWindowPlainTextEdit> plainTextEdit;
+    QString repository;
 };
 
 VCSBaseOutputWindow *VCSBaseOutputWindowPrivate::instance = 0;
@@ -236,7 +328,7 @@ void VCSBaseOutputWindow::setData(const QByteArray &data)
 void VCSBaseOutputWindow::appendSilently(const QString &text)
 {
     QTC_ASSERT(d->plainTextEdit, return)
-    d->plainTextEdit->appendLines(text);
+    d->plainTextEdit->appendLines(text, d->repository);
 }
 
 void VCSBaseOutputWindow::append(const QString &text)
@@ -290,6 +382,21 @@ VCSBaseOutputWindow *VCSBaseOutputWindow::instance()
         Q_UNUSED(w)
     }
     return VCSBaseOutputWindowPrivate::instance;
+}
+
+QString VCSBaseOutputWindow::repository() const
+{
+    return d->repository;
+}
+
+void VCSBaseOutputWindow::setRepository(const QString &r)
+{
+    d->repository = r;
+}
+
+void VCSBaseOutputWindow::clearRepository()
+{
+    d->repository.clear();
 }
 
 } // namespace VCSBase
