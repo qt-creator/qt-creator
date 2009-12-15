@@ -463,7 +463,8 @@ public:
         // ### This may not be such a good idea, consider nested ifs...
         for (; index != -1; --index) {
             IfStatementAST *ifStatement = path.at(index)->asIfStatement();
-            if (ifStatement && isCursorOn(ifStatement->statement)
+            if (ifStatement && ifStatement->statement
+                && isCursorOn(ifStatement->statement)
                 && ! ifStatement->statement->asCompoundStatement()) {
                 _statement = ifStatement->statement;
                 return index;
@@ -668,7 +669,7 @@ public:
             }
         }
 
-        if (! pattern)
+        if (! pattern || ! pattern->statement)
             return -1;
 
         unsigned splitKind = 0;
