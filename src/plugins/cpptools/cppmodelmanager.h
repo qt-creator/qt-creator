@@ -73,7 +73,7 @@ public:
     virtual ~CppModelManager();
 
     virtual void updateSourceFiles(const QStringList &sourceFiles);
-    virtual QHash<QString, QString> workingCopy() const;
+    virtual WorkingCopy workingCopy() const;
 
     virtual QList<ProjectInfo> projectInfos() const;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
@@ -131,7 +131,7 @@ private Q_SLOTS:
     void updateEditorSelections();
 
 private:
-    QHash<QString, QString> buildWorkingCopyList();
+    WorkingCopy buildWorkingCopyList();
 
     QStringList projectFiles()
     {

@@ -78,13 +78,15 @@ public:
         QStringList frameworkPaths;
     };
 
+    typedef QHash<QString, QString> WorkingCopy;
+
 public:
     CppModelManagerInterface(QObject *parent = 0) : QObject(parent) {}
     virtual ~CppModelManagerInterface() {}
 
     static CppModelManagerInterface *instance();
 
-    virtual QHash<QString, QString> workingCopy() const = 0;
+    virtual WorkingCopy workingCopy() const = 0;
     virtual CPlusPlus::Snapshot snapshot() const = 0;
 
     virtual QList<ProjectInfo> projectInfos() const = 0;

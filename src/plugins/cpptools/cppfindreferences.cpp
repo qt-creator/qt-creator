@@ -243,13 +243,13 @@ void CppFindReferences::findAll_helper(Symbol *symbol)
     _resultWindow->popup(true);
 
     const Snapshot snapshot = _modelManager->snapshot();
-    const QHash<QString, QString> wl = _modelManager->workingCopy();
+    const CppTools::CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
     QFuture<Usage> result;
 
-    result = QtConcurrent::run(&find_helper, wl, snapshot, symbol);
+    result = QtConcurrent::run(&find_helper, workingCopy, snapshot, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching..."),

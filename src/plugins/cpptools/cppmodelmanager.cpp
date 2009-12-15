@@ -788,9 +788,9 @@ void CppModelManager::renameUsages(CPlusPlus::Symbol *symbol)
         m_findReferences->renameUsages(symbol);
 }
 
-QHash<QString, QString> CppModelManager::buildWorkingCopyList()
+CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
 {
-    QHash<QString, QString> workingCopy;
+    WorkingCopy workingCopy;
     QMapIterator<TextEditor::ITextEditor *, CppEditorSupport *> it(m_editorSupport);
     while (it.hasNext()) {
         it.next();
@@ -814,7 +814,7 @@ QHash<QString, QString> CppModelManager::buildWorkingCopyList()
     return workingCopy;
 }
 
-QHash<QString, QString> CppModelManager::workingCopy() const
+CppModelManager::WorkingCopy CppModelManager::workingCopy() const
 {
     return const_cast<CppModelManager *>(this)->buildWorkingCopyList();
 }
@@ -869,7 +869,7 @@ QStringList CppModelManager::includesInPath(const QString &path) const
 QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles)
 {
     if (! sourceFiles.isEmpty() && m_indexerEnabled) {
-        const QHash<QString, QString> workingCopy = buildWorkingCopyList();
+        const WorkingCopy workingCopy = buildWorkingCopyList();
 
         CppPreprocessor *preproc = new CppPreprocessor(this);
         preproc->setRevision(++m_revision);
