@@ -71,7 +71,8 @@ public:
     ~MaemoRunConfiguration();
 
     QString type() const;
-    bool isEnabled() const;
+    bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
+    using RunConfiguration::isEnabled;
     QWidget *configurationWidget();
     Qt4Project *project() const;
 

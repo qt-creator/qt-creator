@@ -307,9 +307,9 @@ Qt4Project *MaemoRunConfiguration::project() const
     return pro;
 }
 
-bool MaemoRunConfiguration::isEnabled() const
+bool MaemoRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *config) const
 {
-    Qt4BuildConfiguration *qt4bc = project()->activeQt4BuildConfiguration();
+    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration*>(config);
     QTC_ASSERT(qt4bc, return false);
     ToolChain::ToolChainType type = qt4bc->toolChainType();
     return type == ToolChain::GCC_MAEMO;
