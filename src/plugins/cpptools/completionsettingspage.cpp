@@ -75,7 +75,7 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
 
-    int caseSensitivityIndex;
+    int caseSensitivityIndex = 0;
     switch (m_completion->caseSensitivity()) {
     case CppCodeCompletion::CaseSensitive:
         caseSensitivityIndex = 0;
