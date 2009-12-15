@@ -78,7 +78,30 @@ public:
         QStringList frameworkPaths;
     };
 
-    typedef QHash<QString, QString> WorkingCopy;
+    class WorkingCopy
+    {
+    public:
+        typedef QHash<QString, QString> Table;
+
+        typedef Table::const_iterator iterator;
+        typedef Table::const_iterator const_iterator;
+
+    public:
+        const_iterator begin() const { return _elements.begin(); }
+        const_iterator end() const { return _elements.end(); }
+
+        void insert(const QString &fileName, const QString &source)
+        { _elements.insert(fileName, source); }
+
+        bool contains(const QString &fileName) const
+        { return _elements.contains(fileName); }
+
+        QString source(const QString &fileName) const
+        { return _elements.value(fileName); }
+
+    private:
+        Table _elements;
+    };
 
 public:
     CppModelManagerInterface(QObject *parent = 0) : QObject(parent) {}

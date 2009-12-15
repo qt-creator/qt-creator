@@ -68,15 +68,15 @@ namespace {
 
 class ProcessFile: public std::unary_function<QString, QList<Usage> >
 {
-    const QHash<QString, QString> workingList;
+    const CppTools::CppModelManagerInterface::WorkingCopy workingCopy;
     const Snapshot snapshot;
     Symbol *symbol;
 
 public:
-    ProcessFile(const QHash<QString, QString> workingList,
-              const Snapshot snapshot,
-              Symbol *symbol)
-        : workingList(workingList), snapshot(snapshot), symbol(symbol)
+    ProcessFile(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy,
+                const Snapshot snapshot,
+                Symbol *symbol)
+        : workingCopy(workingCopy), snapshot(snapshot), symbol(symbol)
     { }
 
     QList<Usage> operator()(const QString &fileName)
@@ -92,8 +92,8 @@ public:
 
         QByteArray source;
 
-        if (workingList.contains(fileName))
-            source = snapshot.preprocessedCode(workingList.value(fileName), fileName);
+        if (workingCopy.contains(fileName))
+            source = snapshot.preprocessedCode(workingCopy.source(fileName), fileName);
         else {
             QFile file(fileName);
             if (! file.open(QFile::ReadOnly))
@@ -168,7 +168,7 @@ QList<int> CppFindReferences::references(Symbol *symbol,
 }
 
 static void find_helper(QFutureInterface<Usage> &future,
-                        const QHash<QString, QString> workingList,
+                        const CppTools::CppModelManagerInterface::WorkingCopy workingCopy,
                         Snapshot snapshot,
                         Symbol *symbol)
 {
@@ -199,7 +199,7 @@ static void find_helper(QFutureInterface<Usage> &future,
 
     future.setProgressRange(0, files.size());
 
-    ProcessFile process(workingList, snapshot, symbol);
+    ProcessFile process(workingCopy, snapshot, symbol);
     UpdateUI reduce(&future);
 
     QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);

@@ -171,7 +171,7 @@ public:
     virtual ~CppPreprocessor();
 
     void setRevision(unsigned revision);
-    void setWorkingCopy(const QHash<QString, QString> &workingCopy);
+    void setWorkingCopy(const CppModelManagerInterface::WorkingCopy &workingCopy);
     void setIncludePaths(const QStringList &includePaths);
     void setFrameworkPaths(const QStringList &frameworkPaths);
     void setProjectFiles(const QStringList &files);
@@ -215,7 +215,7 @@ private:
     Preprocessor preprocess;
     QStringList m_includePaths;
     QStringList m_systemIncludePaths;
-    QHash<QString, QString> m_workingCopy;
+    CppModelManagerInterface::WorkingCopy m_workingCopy;
     QStringList m_projectFiles;
     QStringList m_frameworkPaths;
     QSet<QString> m_included;
@@ -241,7 +241,7 @@ CppPreprocessor::~CppPreprocessor()
 void CppPreprocessor::setRevision(unsigned revision)
 { m_revision = revision; }
 
-void CppPreprocessor::setWorkingCopy(const QHash<QString, QString> &workingCopy)
+void CppPreprocessor::setWorkingCopy(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy)
 { m_workingCopy = workingCopy; }
 
 void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
@@ -263,13 +263,13 @@ class Process: public std::unary_function<Document::Ptr, void>
 {
     QPointer<CppModelManager> _modelManager;
     Snapshot _snapshot;
-    QHash<QString, QString> _workingCopy;
+    CppModelManager::WorkingCopy _workingCopy;
     Document::Ptr _doc;
 
 public:
     Process(QPointer<CppModelManager> modelManager,
             Snapshot snapshot,
-            const QHash<QString, QString> &workingCopy)
+            const CppModelManager::WorkingCopy &workingCopy)
         : _modelManager(modelManager),
           _snapshot(snapshot),
           _workingCopy(workingCopy)
@@ -335,7 +335,7 @@ bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QString *resu
 
     if (m_workingCopy.contains(absoluteFilePath)) {
         m_included.insert(absoluteFilePath);
-        *result = m_workingCopy.value(absoluteFilePath);
+        *result = m_workingCopy.source(absoluteFilePath);
         return true;
     }
 
@@ -797,19 +797,19 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
         TextEditor::ITextEditor *textEditor = it.key();
         CppEditorSupport *editorSupport = it.value();
         QString fileName = textEditor->file()->fileName();
-        workingCopy[fileName] = editorSupport->contents();
+        workingCopy.insert(fileName, editorSupport->contents());
     }
 
     QSetIterator<AbstractEditorSupport *> jt(m_addtionalEditorSupport);
     while (jt.hasNext()) {
         AbstractEditorSupport *es =  jt.next();
-        workingCopy[es->fileName()] = es->contents();
+        workingCopy.insert(es->fileName(), es->contents());
     }
 
     // add the project configuration file
     QByteArray conf(pp_configuration);
     conf += definedMacros();
-    workingCopy[pp_configuration_file] = conf;
+    workingCopy.insert(pp_configuration_file, conf);
 
     return workingCopy;
 }
