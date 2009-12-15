@@ -62,6 +62,7 @@ SOURCES += \
 
 FORMS += $$PWD/cdboptionspagewidget.ui
 
+LIBS+=-lpsapi
 } else {
    message("Debugging Tools for Windows could not be found in $$CDB_PATH")
 } # exists($$CDB_PATH)
