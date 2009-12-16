@@ -88,7 +88,6 @@ OutputPane::OutputPane()
     m_stopAction->setEnabled(false);
 
     Core::Command *cmd = am->registerAction(m_stopAction, Constants::STOP, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+R")));
 
     m_stopButton = new QToolButton;
     m_stopButton->setDefaultAction(cmd->action());

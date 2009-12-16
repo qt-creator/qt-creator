@@ -194,6 +194,8 @@ const char *executionStatusString(CIDebugControl *ctl);
 QString msgDebugEngineComResult(HRESULT hr);
 QString msgComFailed(const char *func, HRESULT hr);
 
+enum { messageTimeOut = 5000 };
+
 enum { debugCDB = 0 };
 enum { debugCDBExecution = 0 };
 enum { debugCDBWatchHandling = 0 };

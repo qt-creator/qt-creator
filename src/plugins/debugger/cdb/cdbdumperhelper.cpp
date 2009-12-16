@@ -288,13 +288,13 @@ bool CdbDumperInitThread::ensureDumperInitialized(CdbDumperHelper &h, QString *e
         eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
     QApplication::restoreOverrideCursor();
     if (thread.m_ok) {
-        h.m_manager->showStatusMessage(QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Stopped / Custom dumper library initialized."), -1);
+        h.m_manager->showStatusMessage(QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Stopped / Custom dumper library initialized."), messageTimeOut);
         h.m_manager->showDebuggerOutput(LogMisc, h.m_helper.toString());
         h.m_state = CdbDumperHelper::Initialized;
     } else {
         h.m_state = CdbDumperHelper::Disabled; // No message here
         *errorMessage = QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The custom dumper library could not be initialized: %1").arg(*errorMessage);
-        h.m_manager->showStatusMessage(*errorMessage, -1);
+        h.m_manager->showStatusMessage(*errorMessage, messageTimeOut);
         h.m_manager->showQtDumperLibraryWarning(*errorMessage);
     }
     if (loadDebug)
@@ -332,7 +332,7 @@ void CdbDumperInitThread ::run()
         break;
     }
     // Perform remaining initialization    
-    emit statusMessage(QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Initializing dumpers..."), -1);
+    emit statusMessage(QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Initializing dumpers..."), 60000);
     m_ok = m_helper.initResolveSymbols(m_errorMessage) && m_helper.initKnownTypes(m_errorMessage);
 }
 
@@ -404,7 +404,7 @@ void CdbDumperHelper::moduleLoadHook(const QString &module, HANDLE debuggeeHandl
         // for the thread to finish as this would lock up.
         if (m_tryInjectLoad && module.contains(QLatin1String("Qt"), Qt::CaseInsensitive)) {
             // Also shows up in the log window.
-            m_manager->showStatusMessage(msgLoading(m_library, true), 10000);
+            m_manager->showStatusMessage(msgLoading(m_library, true), messageTimeOut);
             QString errorMessage;
             SharedLibraryInjector sh(GetProcessId(debuggeeHandle));
             if (sh.remoteInject(m_library, false, &errorMessage)) {

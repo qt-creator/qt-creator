@@ -49,6 +49,18 @@ using namespace Debugger::Internal;
 //
 //////////////////////////////////////////////////////////////////
 
+// Compare file names case insensitively on Windows.
+static inline bool fileNameMatch(const QString &f1, const QString &f2)
+{
+    return f1.compare(f2,
+#ifdef Q_OS_WIN
+                      Qt::CaseInsensitive
+#else
+                      Qt::CaseSensitive
+#endif
+                      ) == 0;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -236,7 +248,7 @@ bool BreakpointData::isLocatedAt(const QString &fileName_, int lineNumber_) cons
         return true;
     return false;
     */
-    return lineNumber_ == markerLineNumber && fileName_ == markerFileName;
+    return lineNumber_ == markerLineNumber && fileNameMatch(fileName_, markerFileName);
 }
 
 bool BreakpointData::conditionsMatch() const
@@ -310,7 +322,7 @@ int BreakHandler::findBreakpoint(const BreakpointData &needle)
             return index;
         // at least at a position we were looking for
         // FIXME: breaks multiple breakpoints at the same location
-        if (data->fileName == needle.bpFileName
+        if (fileNameMatch(data->fileName, needle.bpFileName)
                 && data->lineNumber == needle.bpLineNumber)
             return index;
     }

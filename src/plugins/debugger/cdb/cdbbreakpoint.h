@@ -80,7 +80,8 @@ struct CDBBreakPoint
                                        QString *errorMessage, QStringList *warnings);
 
     // Return a 'canonical' file (using '/' and capitalized drive letter)
-    static QString canonicalSourceFile(const QString &f);
+    static QString normalizeFileName(const QString &f);
+    static void clearNormalizeFileNameCache();
 
     QString fileName;       // short name of source file
     QString condition;      // condition associated with breakpoint

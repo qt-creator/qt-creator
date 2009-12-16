@@ -116,7 +116,7 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
             frame.line = ulLine;
             // Vitally important  to use canonical file that matches editormanager,
             // else the marker will not show.
-            frame.file = CDBBreakPoint::canonicalSourceFile(QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf)));
+            frame.file = CDBBreakPoint::normalizeFileName(QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf)));
         }
         m_frames.push_back(frame);
     }
