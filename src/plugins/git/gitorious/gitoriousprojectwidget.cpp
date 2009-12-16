@@ -32,7 +32,6 @@
 #include "gitorious.h"
 #include "ui_gitoriousprojectwidget.h"
 
-#include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QRegExp>
@@ -71,9 +70,7 @@ GitoriousProjectWidget::GitoriousProjectWidget(int hostIndex,
     ui->infoToolButton->setEnabled(false);
     connect(ui->infoToolButton, SIGNAL(clicked()), this, SLOT(slotInfo()));
     // Filter
-    connect(ui->filterLineEdit, SIGNAL(textChanged(QString)), m_filterModel, SLOT(setFilterFixedString(QString)));
-    ui->filterClearButton->setIcon(QIcon(Core::Constants::ICON_RESET));
-    connect(ui->filterClearButton, SIGNAL(clicked()), ui->filterLineEdit, SLOT(clear()));
+    connect(ui->filterLineEdit, SIGNAL(filterChanged(QString)), m_filterModel, SLOT(setFilterFixedString(QString)));
     // Updater
     ui->updateCheckBox->setChecked(true);
     if (Gitorious::instance().hostState(hostIndex) != GitoriousHost::ProjectsQueryRunning)

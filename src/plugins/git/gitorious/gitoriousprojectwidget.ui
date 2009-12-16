@@ -14,27 +14,6 @@
    <string>WizardPage</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="filterLabel">
-       <property name="text">
-        <string>Filter:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="filterLineEdit"/>
-     </item>
-     <item>
-      <widget class="QToolButton" name="filterClearButton">
-       <property name="text">
-        <string>...</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="1" column="0">
     <widget class="QTreeView" name="projectTreeView"/>
    </item>
@@ -69,8 +48,23 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="0">
+    <widget class="Utils::FilterLineEdit" name="filterLineEdit"/>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::FancyLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/fancylineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::FilterLineEdit</class>
+   <extends>Utils::FancyLineEdit</extends>
+   <header location="global">utils/filterlineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

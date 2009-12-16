@@ -248,7 +248,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     QPushButton *refreshButton = new QPushButton(tr("Refresh"));
     connect(refreshButton, SIGNAL(clicked()), this, SLOT(rebuildProcessList()));
     m_ui->buttonBox->addButton(refreshButton, QDialogButtonBox::ActionRole);
-    m_ui->filterLineEdit->setFocus(Qt::TabFocusReason);
+    m_ui->filterWidget->setFocus(Qt::TabFocusReason);
 
     // Do not use activated, will be single click in Oxygen
     connect(m_ui->procView, SIGNAL(doubleClicked(QModelIndex)),
@@ -256,11 +256,10 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     connect(m_ui->pidLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(pidChanged(QString)));
 
-    connect(m_ui->filterClearToolButton, SIGNAL(clicked()),
-            m_ui->filterLineEdit, SLOT(clear()));
-    connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)),
+    connect(m_ui->filterWidget, SIGNAL(filterChanged(QString)),
             this, SLOT(setFilterString(QString)));
 
+    setMinimumHeight(500);
     rebuildProcessList();
 }
 

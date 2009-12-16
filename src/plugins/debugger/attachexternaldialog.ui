@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>561</width>
-    <height>866</height>
+    <width>650</width>
+    <height>549</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,6 +22,9 @@
    </property>
    <item>
     <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     </property>
      <item row="0" column="0">
       <widget class="QLabel" name="pidLabel">
        <property name="text">
@@ -32,31 +35,8 @@
      <item row="0" column="1">
       <widget class="QLineEdit" name="pidLineEdit"/>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="filterLabel">
-       <property name="text">
-        <string>Filter:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QWidget" name="filterWidget" native="true">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLineEdit" name="filterLineEdit"/>
-        </item>
-        <item>
-         <widget class="QToolButton" name="filterClearToolButton">
-          <property name="text">
-           <string>Clear</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+     <item row="1" column="0" colspan="2">
+      <widget class="Utils::FilterLineEdit" name="filterWidget"/>
      </item>
     </layout>
    </item>
@@ -86,6 +66,18 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::FancyLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/fancylineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::FilterLineEdit</class>
+   <extends>Utils::FancyLineEdit</extends>
+   <header location="global">utils/filterlineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

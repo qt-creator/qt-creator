@@ -174,7 +174,7 @@ NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
             SLOT(slotDoubleClicked(QModelIndex)));
     connect(m_ui->filterTreeView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             this, SLOT(slotCurrentItemChanged(QModelIndex)));
-    connect(m_ui->filterLineEdit, SIGNAL(textChanged(QString)),
+    connect(m_ui->filterLineEdit, SIGNAL(filterChanged(QString)),
             m_filterModel, SLOT(setFilterFixedString(QString)));
 }
 

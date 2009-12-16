@@ -33,7 +33,6 @@
 #include "gitorious.h"
 #include "ui_gitoriousrepositorywizardpage.h"
 
-#include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -90,9 +89,7 @@ GitoriousRepositoryWizardPage::GitoriousRepositoryWizardPage(const GitoriousProj
 
     ui->setupUi(this);
     // Filter
-    connect(ui->filterLineEdit, SIGNAL(textChanged(QString)), m_filterModel, SLOT(setFilterFixedString(QString)));
-    ui->filterClearButton->setIcon(QIcon(Core::Constants::ICON_RESET));
-    connect(ui->filterClearButton, SIGNAL(clicked()), ui->filterLineEdit, SLOT(clear()));
+    connect(ui->filterLineEdit, SIGNAL(filterChanged(QString)), m_filterModel, SLOT(setFilterFixedString(QString)));
     // Tree view
     ui->repositoryTreeView->setModel(m_filterModel);
     ui->repositoryTreeView->setUniformRowHeights(true);

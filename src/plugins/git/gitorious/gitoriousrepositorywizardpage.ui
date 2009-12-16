@@ -15,31 +15,33 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="filterLabel">
-       <property name="text">
-        <string>Filter:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="filterLineEdit"/>
-     </item>
-     <item>
-      <widget class="QToolButton" name="filterClearButton">
-       <property name="text">
-        <string>...</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="Utils::FilterLineEdit" name="filterLineEdit">
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QTreeView" name="repositoryTreeView"/>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::FancyLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/fancylineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::FilterLineEdit</class>
+   <extends>Utils::FancyLineEdit</extends>
+   <header location="global">utils/filterlineedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>filterLineEdit</tabstop>
+  <tabstop>repositoryTreeView</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
