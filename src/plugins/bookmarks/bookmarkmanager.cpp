@@ -35,6 +35,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -227,15 +228,24 @@ BookmarkView::~BookmarkView()
 void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu;
-    QAction *remove = menu.addAction(tr("&Remove Bookmark"));
-    QAction *removeAll = menu.addAction(tr("Remove all Bookmarks"));
+    QAction *moveUp = menu.addAction(tr("Move Up"));
+    QAction *moveDown = menu.addAction(tr("Move Down"));
+    QAction *remove = menu.addAction(tr("&Remove"));
+    QAction *removeAll = menu.addAction(tr("Remove All"));
     m_contextMenuIndex = indexAt(event->pos());
-    if (!m_contextMenuIndex.isValid())
+    if (!m_contextMenuIndex.isValid()) {
+        moveUp->setEnabled(false);
+        moveDown->setEnabled(false);
         remove->setEnabled(false);
+    }
 
     if (model()->rowCount() == 0)
         removeAll->setEnabled(false);
 
+    connect(moveUp, SIGNAL(triggered()),
+            m_manager, SLOT(moveUp()));
+    connect(moveDown, SIGNAL(triggered()),
+            m_manager, SLOT(moveDown()));
     connect(remove, SIGNAL(triggered()),
             this, SLOT(removeFromContextMenu()));
     connect(removeAll, SIGNAL(triggered()),
@@ -251,18 +261,16 @@ void BookmarkView::removeFromContextMenu()
 
 void BookmarkView::removeBookmark(const QModelIndex& index)
 {
-    BookmarkManager *manager = static_cast<BookmarkManager *>(model());
-    Bookmark *bm = manager->bookmarkForIndex(index);
-    manager->removeBookmark(bm);
+    Bookmark *bm = m_manager->bookmarkForIndex(index);
+    m_manager->removeBookmark(bm);
 }
 
 // The perforcemance of this function could be greatly improved.
 //
 void BookmarkView::removeAll()
 {
-    BookmarkManager *manager = static_cast<BookmarkManager *>(model());
-    while (manager->rowCount()) {
-        QModelIndex index = manager->index(0, 0);
+    while (m_manager->rowCount()) {
+        QModelIndex index = m_manager->index(0, 0);
         removeBookmark(index);
     }
 }
@@ -271,6 +279,7 @@ void BookmarkView::setModel(QAbstractItemModel *model)
 {
     BookmarkManager *manager = qobject_cast<BookmarkManager *>(model);
     QTC_ASSERT(manager, return);
+    m_manager = manager;
     QListView::setModel(model);
     setSelectionModel(manager->selectionModel());
     setSelectionMode(QAbstractItemView::SingleSelection);
@@ -279,10 +288,9 @@ void BookmarkView::setModel(QAbstractItemModel *model)
 
 void BookmarkView::gotoBookmark(const QModelIndex &index)
 {
-    BookmarkManager *bm = static_cast<BookmarkManager *>(model());
-    Bookmark *bk = bm->bookmarkForIndex(index);
-    if (!bm->gotoBookmark(bk))
-        bm->removeBookmark(bk);
+    Bookmark *bk = m_manager->bookmarkForIndex(index);
+    if (!m_manager->gotoBookmark(bk))
+        m_manager->removeBookmark(bk);
 }
 
 ////

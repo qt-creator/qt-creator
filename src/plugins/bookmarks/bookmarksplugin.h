@@ -85,8 +85,6 @@ private:
     QAction *m_nextAction;
     QAction *m_docPrevAction;
     QAction *m_docNextAction;
-    QAction *m_moveUpAction;
-    QAction *m_moveDownAction;
 
     QAction *m_bookmarkMarginAction;
     int m_bookmarkMarginActionLineNumber;

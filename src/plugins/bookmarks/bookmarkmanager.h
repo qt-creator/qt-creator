@@ -151,6 +151,7 @@ protected:
 private:
     BookmarkContext *m_bookmarkContext;
     QModelIndex m_contextMenuIndex;
+    BookmarkManager *m_manager;
 };
 
 class BookmarkContext : public Core::IContext

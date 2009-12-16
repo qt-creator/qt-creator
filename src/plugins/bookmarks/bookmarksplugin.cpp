@@ -98,21 +98,6 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     cmd = am->registerAction(sep, QLatin1String("Bookmarks.Sep.Toggle"), textcontext);
     mbm->addAction(cmd);
 
-    // Move Up
-    m_moveUpAction = new QAction(tr("Move Up"), this);
-    cmd = am->registerAction(m_moveUpAction, BOOKMARKS_MOVEUP_ACTION, context);
-    mbm->addAction(cmd);
-
-    // Move Down
-    m_moveDownAction = new QAction(tr("Move Down"), this);
-    cmd = am->registerAction(m_moveDownAction, BOOKMARKS_MOVEDOWN_ACTION, context);
-    mbm->addAction(cmd);
-
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("Bookmarks.Sep.Navigation"), context);
-    mbm->addAction(cmd);
-
     //Previous
     m_prevAction = new QAction(tr("Previous Bookmark"), this);
     cmd = am->registerAction(m_prevAction, BOOKMARKS_PREV_ACTION, globalcontext);
@@ -155,8 +140,6 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     connect(m_nextAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(next()));
     connect(m_docPrevAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(prevInDocument()));
     connect(m_docNextAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(nextInDocument()));
-    connect(m_moveUpAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(moveUp()));
-    connect(m_moveDownAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(moveDown()));
     connect(m_bookmarkManager, SIGNAL(updateActions(int)), this, SLOT(updateActions(int)));
     updateActions(m_bookmarkManager->state());
     addAutoReleasedObject(new BookmarkViewFactory(m_bookmarkManager));
@@ -192,8 +175,6 @@ void BookmarksPlugin::updateActions(int state)
     m_nextAction->setEnabled(hasbm);
     m_docPrevAction->setEnabled(hasdocbm);
     m_docNextAction->setEnabled(hasdocbm);
-    m_moveUpAction->setEnabled(hasbm);
-    m_moveDownAction->setEnabled(hasbm);
 }
 
 void BookmarksPlugin::editorOpened(Core::IEditor *editor)
