@@ -125,7 +125,6 @@ public:
     void appendOutput(const QString &out);
     void appendOutputInline(const QString &out);
     void insertLine();
-    void grayOutOldContent();
 
     void showEvent(QShowEvent *);
 
