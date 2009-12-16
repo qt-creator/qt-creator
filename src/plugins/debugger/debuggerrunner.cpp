@@ -131,9 +131,8 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
         break;
     }
     if (const ProjectExplorer::Project *project = runConfiguration->project()) {
-        if (project->activeBuildConfiguration())
-            m_startParameters->buildDir =
-                project->activeBuildConfiguration()->buildDirectory();
+        m_startParameters->buildDir =
+            project->activeBuildConfiguration()->buildDirectory();
     }
     m_startParameters->useTerminal =
         runConfiguration->runMode() == LocalApplicationRunConfiguration::Console;
