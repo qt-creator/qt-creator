@@ -425,11 +425,8 @@ QKeySequence Action::keySequence() const
 
 OverrideableAction::OverrideableAction(int id)
     : Action(id), m_currentAction(0), m_active(false),
-    m_contextInitialized(false),
-    m_dummyShortcutEater(this)
+    m_contextInitialized(false)
 {
-    Core::ICore::instance()->mainWindow()->addAction(&m_dummyShortcutEater);
-    m_dummyShortcutEater.setEnabled(false);
 }
 
 void OverrideableAction::setAction(QAction *action)
@@ -473,7 +470,6 @@ bool OverrideableAction::setCurrentContext(const QList<int> &context)
     if (hasAttribute(CA_Hide))
         m_action->setVisible(false);
     m_action->setEnabled(false);
-    m_dummyShortcutEater.setEnabled(false);
     m_active = false;
     return false;
 }
@@ -527,9 +523,6 @@ void OverrideableAction::actionChanged()
 
     m_action->setEnabled(m_currentAction->isEnabled());
     m_action->setVisible(m_currentAction->isVisible());
-
-    m_dummyShortcutEater.setShortcuts(m_action->shortcuts());
-    m_dummyShortcutEater.setEnabled(m_action->isVisible() && !m_action->isEnabled());
 }
 
 bool OverrideableAction::isActive() const
