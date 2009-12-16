@@ -136,36 +136,29 @@ private:
     QString m_fileName;
 };
 
-class QmlRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
+class QmlRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 public:
     QmlRunConfiguration(QmlProject *pro);
     virtual ~QmlRunConfiguration();
 
-    virtual QString type() const;
-    virtual QString executable() const;
-    virtual RunMode runMode() const;
-    virtual QString workingDirectory() const;
-    virtual QStringList commandLineArguments() const;
-    virtual ProjectExplorer::Environment environment() const;
-    virtual QString dumperLibrary() const;
-    virtual QStringList dumperLibraryLocations() const;
-    virtual QWidget *configurationWidget();
+    QString viewerPath() const;
+    QStringList viewerArguments() const;
+    QString workingDirectory() const;
 
-    ProjectExplorer::ToolChain::ToolChainType toolChainType() const { return ProjectExplorer::ToolChain::OTHER; }
+    // RunConfiguration
+    virtual QString type() const;
+    virtual QWidget *configurationWidget();
 
     virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
     virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 
 private Q_SLOTS:
+    QString mainScript() const;
     void setMainScript(const QString &scriptFile);
     void onQmlViewerChanged();
     void onQmlViewerArgsChanged();
-
-
-private:
-    QString mainScript() const;
 
 private:
     QmlProject *m_project;
@@ -200,6 +193,41 @@ private:
     QLatin1String m_type;
 };
 
+class QmlRunControl : public ProjectExplorer::RunControl {
+    Q_OBJECT
+public:
+    explicit QmlRunControl(QmlRunConfiguration *runConfiguration);
+    virtual ~QmlRunControl ();
+
+    // RunControl
+    virtual void start();
+    virtual void stop();
+    virtual bool isRunning() const;
+
+private slots:
+    void processExited(int exitCode);
+    void slotAddToOutputWindow(const QString &line);
+    void slotError(const QString & error);
+
+private:
+    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
+
+    QString m_executable;
+    QStringList m_commandLineArguments;
+};
+
+class QmlRunControlFactory : public ProjectExplorer::IRunControlFactory {
+    Q_OBJECT
+public:
+    explicit QmlRunControlFactory(QObject *parent = 0);
+    virtual ~QmlRunControlFactory();
+
+    // IRunControlFactory
+    virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
+    virtual ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
+    virtual QString displayName() const;
+    virtual QWidget *configurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
+};
 
 } // namespace Internal
 } // namespace QmlProjectManager

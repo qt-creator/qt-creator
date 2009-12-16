@@ -56,6 +56,7 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QMessageBox>
 #include <QtGui/QLineEdit>
+#include <QtGui/QLabel>
 
 using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
@@ -299,7 +300,7 @@ void QmlProjectFile::modified(ReloadBehavior *)
 }
 
 QmlRunConfiguration::QmlRunConfiguration(QmlProject *pro)
-    : ProjectExplorer::LocalApplicationRunConfiguration(pro),
+    : ProjectExplorer::RunConfiguration(pro),
       m_project(pro),
       m_type(Constants::QMLRUNCONFIGURATION)
 {
@@ -322,25 +323,14 @@ QString QmlRunConfiguration::type() const
     return m_type;
 }
 
-QString QmlRunConfiguration::executable() const
+QString QmlRunConfiguration::viewerPath() const
 {
     if (!m_qmlViewerCustomPath.isEmpty())
         return m_qmlViewerCustomPath;
     return m_qmlViewerDefaultPath;
 }
 
-QmlRunConfiguration::RunMode QmlRunConfiguration::runMode() const
-{
-    return Gui;
-}
-
-QString QmlRunConfiguration::workingDirectory() const
-{
-    QFileInfo projectFile(m_project->file()->fileName());
-    return projectFile.absolutePath();
-}
-
-QStringList QmlRunConfiguration::commandLineArguments() const
+QStringList QmlRunConfiguration::viewerArguments() const
 {
     QStringList args;
 
@@ -350,23 +340,13 @@ QStringList QmlRunConfiguration::commandLineArguments() const
     const QString s = mainScript();
     if (! s.isEmpty())
         args.append(s);
-
     return args;
 }
 
-ProjectExplorer::Environment QmlRunConfiguration::environment() const
+QString QmlRunConfiguration::workingDirectory() const
 {
-    return ProjectExplorer::Environment::systemEnvironment();
-}
-
-QString QmlRunConfiguration::dumperLibrary() const
-{
-    return QString();
-}
-
-QStringList QmlRunConfiguration::dumperLibraryLocations() const
-{
-    return QStringList();
+    QFileInfo projectFile(m_project->file()->fileName());
+    return projectFile.absolutePath();
 }
 
 QWidget *QmlRunConfiguration::configurationWidget()
@@ -403,7 +383,7 @@ QWidget *QmlRunConfiguration::configurationWidget()
 
     Utils::PathChooser *qmlViewer = new Utils::PathChooser;
     qmlViewer->setExpectedKind(Utils::PathChooser::Command);
-    qmlViewer->setPath(executable());
+    qmlViewer->setPath(viewerPath());
     connect(qmlViewer, SIGNAL(changed(QString)), this, SLOT(onQmlViewerChanged()));
 
     QLineEdit *qmlViewerArgs = new QLineEdit;
@@ -449,7 +429,7 @@ void QmlRunConfiguration::onQmlViewerArgsChanged()
 
 void QmlRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
 {
-    ProjectExplorer::LocalApplicationRunConfiguration::save(writer);
+    ProjectExplorer::RunConfiguration::save(writer);
 
     writer.saveValue(QLatin1String("qmlviewer"), m_qmlViewerCustomPath);
     writer.saveValue(QLatin1String("qmlviewerargs"), m_qmlViewerArgs);
@@ -458,7 +438,7 @@ void QmlRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer
 
 void QmlRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
 {
-    ProjectExplorer::LocalApplicationRunConfiguration::restore(reader);
+    ProjectExplorer::RunConfiguration::restore(reader);
 
     m_qmlViewerCustomPath = reader.restoreValue(QLatin1String("qmlviewer")).toString();
     m_qmlViewerArgs = reader.restoreValue(QLatin1String("qmlviewerargs")).toString();
@@ -502,4 +482,92 @@ ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::create(ProjectExp
     return new QmlRunConfiguration(pro);
 }
 
+QmlRunControl::QmlRunControl(QmlRunConfiguration *runConfiguration)
+    : RunControl(runConfiguration)
+{
+    m_applicationLauncher.setEnvironment(ProjectExplorer::Environment::systemEnvironment().toStringList());
+    m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());
 
+    m_executable = runConfiguration->viewerPath();
+    m_commandLineArguments = runConfiguration->viewerArguments();
+
+    connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
+            this, SLOT(slotError(QString)));
+    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString)),
+            this, SLOT(slotAddToOutputWindow(QString)));
+    connect(&m_applicationLauncher, SIGNAL(processExited(int)),
+            this, SLOT(processExited(int)));
+    connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
+            this, SLOT(bringApplicationToForeground(qint64)));
+}
+
+QmlRunControl::~QmlRunControl()
+{
+}
+
+void QmlRunControl::start()
+{
+    m_applicationLauncher.start(ApplicationLauncher::Gui, m_executable, m_commandLineArguments);
+    emit started();
+    emit addToOutputWindow(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)));
+}
+
+void QmlRunControl::stop()
+{
+    m_applicationLauncher.stop();
+}
+
+bool QmlRunControl::isRunning() const
+{
+    return m_applicationLauncher.isRunning();
+}
+
+void QmlRunControl::slotError(const QString &err)
+{
+    emit error(this, err);
+    emit finished();
+}
+
+void QmlRunControl::slotAddToOutputWindow(const QString &line)
+{
+    emit addToOutputWindowInline(this, line);
+}
+
+void QmlRunControl::processExited(int exitCode)
+{
+    emit addToOutputWindow(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode));
+    emit finished();
+}
+
+QmlRunControlFactory::QmlRunControlFactory(QObject *parent)
+    : IRunControlFactory::IRunControlFactory(parent)
+{
+}
+
+QmlRunControlFactory::~QmlRunControlFactory()
+{
+
+}
+
+bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
+{
+    return (mode == ProjectExplorer::Constants::RUNMODE)
+            && (qobject_cast<QmlRunConfiguration*>(runConfiguration) != 0);
+}
+
+RunControl *QmlRunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
+{
+    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
+    return new QmlRunControl(qobject_cast<QmlRunConfiguration *>(runConfiguration));
+}
+
+QString QmlRunControlFactory::displayName() const
+{
+    return tr("Run");
+}
+
+QWidget *QmlRunControlFactory::configurationWidget(RunConfiguration *runConfiguration)
+{
+    Q_UNUSED(runConfiguration)
+    return new QLabel("TODO add Configuration widget");
+}
