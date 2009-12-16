@@ -465,18 +465,23 @@ void OutputWindow::insertLine()
 void OutputWindow::grayOutOldContent()
 {
     QTextCursor cursor = textCursor();
+    cursor.movePosition(QTextCursor::End);
+    QTextCharFormat endFormat = cursor.charFormat();
+
     cursor.select(QTextCursor::Document);
-    QTextBlockFormat tbf;
+
+    QTextCharFormat format;
     const QColor bkgColor = palette().base().color();
     const QColor fgdColor = palette().text().color();
-    double bkgFactor = 0.85;
+    double bkgFactor = 0.50;
     double fgdFactor = 1.-bkgFactor;
-    tbf.setBackground(QColor((bkgFactor * bkgColor.red() + fgdFactor * fgdColor.red()),
+    format.setForeground(QColor((bkgFactor * bkgColor.red() + fgdFactor * fgdColor.red()),
                              (bkgFactor * bkgColor.green() + fgdFactor * fgdColor.green()),
                              (bkgFactor * bkgColor.blue() + fgdFactor * fgdColor.blue()) ));
-    cursor.mergeBlockFormat(tbf);
+    cursor.mergeCharFormat(format);
 
     cursor.movePosition(QTextCursor::End);
+    cursor.setCharFormat(endFormat);
     cursor.insertBlock(QTextBlockFormat());
 }
 
