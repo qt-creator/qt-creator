@@ -87,7 +87,8 @@ MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QString &name)
 {
 }
 
-MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QSettings &settings)
+MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QSettings &settings,
+                                                      quint64 &nextId)
     : name(settings.value(NameKey).toString()),
       type(static_cast<DeviceType>(settings.value(TypeKey, Physical).toInt())),
       host(settings.value(HostKey).toString()),
@@ -97,11 +98,10 @@ MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QSettings &settings)
       pwd(settings.value(PasswordKey).toString()),
       keyFile(settings.value(KeyFileKey).toString()),
       timeout(settings.value(TimeoutKey, 30).toInt()),
-      internalId(settings.value(InternalIdKey, MaemoDeviceConfigurations::instance().m_nextId).toInt())
+      internalId(settings.value(InternalIdKey, nextId).toInt())
 {
-    if (internalId == MaemoDeviceConfigurations::instance().m_nextId)
-        ++MaemoDeviceConfigurations::instance().m_nextId;
-    qDebug("%s: name = %s, id = %llu", Q_FUNC_INFO, qPrintable(name), internalId);
+    if (internalId == nextId)
+        ++nextId;
 }
 
 MaemoDeviceConfigurations::DeviceConfig::DeviceConfig()
@@ -146,7 +146,6 @@ void MaemoDeviceConfigurations::save()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
-    qDebug("Writing next id: %llu", m_nextId);
     settings->setValue(IdCounterKey, m_nextId);
     settings->beginWriteArray(ConfigListKey, m_devConfigs.count());
     for (int i = 0; i < m_devConfigs.count(); ++i) {
@@ -169,11 +168,10 @@ void MaemoDeviceConfigurations::load()
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
     m_nextId = settings->value(IdCounterKey, 1).toULongLong();
-    qDebug("Read next id: %llu", m_nextId);
     int count = settings->beginReadArray(ConfigListKey);
     for (int i = 0; i < count; ++i) {
         settings->setArrayIndex(i);
-        m_devConfigs.append(DeviceConfig(*settings));
+        m_devConfigs.append(DeviceConfig(*settings, m_nextId));
     }
     settings->endArray();
     settings->endGroup();
@@ -181,21 +179,17 @@ void MaemoDeviceConfigurations::load()
 
 MaemoDeviceConfigurations::DeviceConfig MaemoDeviceConfigurations::find(const QString &name) const
 {
-    qDebug("%s: Looking for name %s", Q_FUNC_INFO, qPrintable(name));
     QList<DeviceConfig>::ConstIterator resultIt =
         std::find_if(m_devConfigs.constBegin(), m_devConfigs.constEnd(),
                      DevConfNameMatcher(name));
-    qDebug("Found: %d", resultIt != m_devConfigs.constEnd());
     return resultIt == m_devConfigs.constEnd() ? DeviceConfig() : *resultIt;
 }
 
 MaemoDeviceConfigurations::DeviceConfig MaemoDeviceConfigurations::find(int id) const
 {
-    qDebug("%s: Looking for id %d", Q_FUNC_INFO, id);
     QList<DeviceConfig>::ConstIterator resultIt =
         std::find_if(m_devConfigs.constBegin(), m_devConfigs.constEnd(),
                      DevConfIdMatcher(id));
-    qDebug("Found: %d", resultIt != m_devConfigs.constEnd());
     return resultIt == m_devConfigs.constEnd() ? DeviceConfig() : *resultIt;
 }
 

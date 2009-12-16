@@ -59,7 +59,7 @@ public:
         enum AuthType { Password, Key };
         DeviceConfig();
         DeviceConfig(const QString &name);
-        DeviceConfig(const QSettings &settings);
+        DeviceConfig(const QSettings &settings, quint64 &nextId);
         void save(QSettings &settings) const;
         bool isValid() const;
         QString name;
