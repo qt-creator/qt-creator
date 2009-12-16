@@ -127,8 +127,11 @@ template <class Widget>
 {
     const QString className = name();
     QString rc;
-    // Name: 'QClass' -> 'class'
+    // Name: 'Namespace::QClass' -> 'class'
     QString name = className;
+    const int lastColonPos = name.lastIndexOf(QLatin1Char(':'));
+    if (lastColonPos != -1)
+        name.remove(0, lastColonPos + 1);
     if (name.startsWith(QLatin1Char('Q')))
         name.remove(0, 1);
     name[0] = name.at(0).toLower();
