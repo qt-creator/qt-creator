@@ -27,49 +27,57 @@
 **
 **************************************************************************/
 
-#ifndef QTPROJECTPARAMETERS_H
-#define QTPROJECTPARAMETERS_H
+#ifndef TESTWIZARDDIALOG_H
+#define TESTWIZARDDIALOG_H
 
-#include <QtCore/QString>
-
-QT_BEGIN_NAMESPACE
-class QTextStream;
-QT_END_NAMESPACE
+#include "qtwizard.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-// Create a macro name by taking a file name, upper casing it and
-// appending a suffix.
-QString createMacro(const QString &name, const QString &suffix);
+class TestWizardPage;
 
-// Base parameters for application project generation with functionality to
-// write a .pro-file section.
+// Parameters of the test wizard.
+struct TestWizardParameters {
+    enum { requiresQApplicationDefault = 0 };
 
-struct QtProjectParameters {
-    enum Type { ConsoleApp, GuiApp, StaticLibrary, SharedLibrary, Qt4Plugin, EmptyProject };
+    static const char *filePrefix;
 
-    QtProjectParameters();
-    // Return project path as "path/name"
-    QString projectPath() const;
-    void writeProFile(QTextStream &) const;
-    static void writeProFileHeader(QTextStream &);
+    TestWizardParameters();
 
-    // Shared library: Name of export macro (XXX_EXPORT)
-    static QString exportMacro(const QString &projectName);
-    // Shared library: name of #define indicating compilation within library
-    static QString libraryMacro(const QString &projectName);
+
+    enum Type { Test, Benchmark };
 
     Type type;
-    QString name;
-    QString target;
-    QString path;
-    QString selectedModules;
-    QString deselectedModules;
-    QString targetDirectory;
+    bool initializationCode;
+    bool useDataSet;
+    bool requiresQApplication;
+
+    QString className;
+    QString testSlot;
+    QString fileName;
+};
+
+class TestWizardDialog : public BaseQt4ProjectWizardDialog
+{
+    Q_OBJECT
+public:
+    explicit TestWizardDialog(const QString &templateName,
+                              const QIcon &icon,
+                              const QList<QWizardPage*> &extensionPages,
+                              QWidget *parent = 0);
+
+    TestWizardParameters testParameters() const;
+    QtProjectParameters projectParameters() const;
+
+private slots:
+    void slotCurrentIdChanged(int id);
+
+private:
+    TestWizardPage *m_testPage;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // QTPROJECTPARAMETERS_H
+#endif // TESTWIZARDDIALOG_H

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Qt4ProjectManager::Internal::TestWizardPage</class>
+ <widget class="QWizardPage" name="Qt4ProjectManager::Internal::TestWizardPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>WizardPage</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="testClassLabel">
+       <property name="text">
+        <string>Class name:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="Utils::ClassNameValidatingLineEdit" name="testClassLineEdit"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="typeLabel">
+       <property name="text">
+        <string>Type:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="typeComboBox">
+       <item>
+        <property name="text">
+         <string>Test</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Benchmark</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="fileLabel">
+       <property name="text">
+        <string>File:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="Utils::FileNameValidatingLineEdit" name="fileLineEdit">
+       <property name="allowDirectories">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="2">
+      <widget class="QCheckBox" name="initCheckBox">
+       <property name="text">
+        <string>Generate initialization and cleanup code</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Test slot:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="Utils::ClassNameValidatingLineEdit" name="testSlotLineEdit"/>
+     </item>
+     <item row="4" column="0" colspan="2">
+      <widget class="QCheckBox" name="qApplicationCheckBox">
+       <property name="text">
+        <string>Requires QApplication</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="QCheckBox" name="dataCheckBox">
+       <property name="text">
+        <string>Use a test data set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>194</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::ClassNameValidatingLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/classnamevalidatinglineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::FileNameValidatingLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/filenamevalidatinglineedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

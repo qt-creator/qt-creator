@@ -190,7 +190,7 @@ protected:
     virtual bool postGenerateFiles(const GeneratedFiles &l, QString *errorMessage);
 
     // Utility that returns the preferred suffix for a mime type
-    QString preferredSuffix(const QString &mimeType) const;
+    static QString preferredSuffix(const QString &mimeType);
 
     // Utility that performs an overwrite check on a set of files. It checks if
     // the file exists, can be overwritten at all and prompts the user.

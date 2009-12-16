@@ -27,49 +27,53 @@
 **
 **************************************************************************/
 
-#ifndef QTPROJECTPARAMETERS_H
-#define QTPROJECTPARAMETERS_H
+#ifndef TESTWIZARDPAGE_H
+#define TESTWIZARDPAGE_H
 
-#include <QtCore/QString>
-
-QT_BEGIN_NAMESPACE
-class QTextStream;
-QT_END_NAMESPACE
+#include <QtGui/QWizardPage>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-// Create a macro name by taking a file name, upper casing it and
-// appending a suffix.
-QString createMacro(const QString &name, const QString &suffix);
+namespace Ui {
+    class TestWizardPage;
+}
 
-// Base parameters for application project generation with functionality to
-// write a .pro-file section.
+struct TestWizardParameters;
 
-struct QtProjectParameters {
-    enum Type { ConsoleApp, GuiApp, StaticLibrary, SharedLibrary, Qt4Plugin, EmptyProject };
+/* TestWizardPage: Let's the user input test class name, slot
+ * (for which a CLassNameValidatingLineEdit is abused) and file name. */
 
-    QtProjectParameters();
-    // Return project path as "path/name"
-    QString projectPath() const;
-    void writeProFile(QTextStream &) const;
-    static void writeProFileHeader(QTextStream &);
+class TestWizardPage : public QWizardPage {
+    Q_OBJECT
+public:
+    explicit TestWizardPage(QWidget *parent = 0);
+    ~TestWizardPage();
+    virtual bool isComplete() const;
 
-    // Shared library: Name of export macro (XXX_EXPORT)
-    static QString exportMacro(const QString &projectName);
-    // Shared library: name of #define indicating compilation within library
-    static QString libraryMacro(const QString &projectName);
+    TestWizardParameters parameters() const;
+    QString sourcefileName() const;
 
-    Type type;
-    QString name;
-    QString target;
-    QString path;
-    QString selectedModules;
-    QString deselectedModules;
-    QString targetDirectory;
+public slots:
+    void setProjectName(const QString &);
+
+private slots:
+    void slotClassNameEdited(const QString&);
+    void slotFileNameEdited();
+    void slotUpdateValid();
+
+protected:
+    void changeEvent(QEvent *e);
+
+private:
+    const QString m_sourceSuffix;
+    const bool m_lowerCaseFileNames;
+    Ui::TestWizardPage *ui;
+    bool m_fileNameEdited;
+    bool m_valid;
+
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
-
-#endif // QTPROJECTPARAMETERS_H
+#endif // TESTWIZARDPAGE_H

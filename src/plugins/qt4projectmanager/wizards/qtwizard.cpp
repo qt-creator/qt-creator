@@ -71,22 +71,22 @@ QtWizard::QtWizard(const QString &id, const QString &name,
 {
 }
 
-QString QtWizard::sourceSuffix()  const
+QString QtWizard::sourceSuffix()
 {
     return preferredSuffix(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
 }
 
-QString QtWizard::headerSuffix()  const
+QString QtWizard::headerSuffix()
 {
     return preferredSuffix(QLatin1String(Constants::CPP_HEADER_MIMETYPE));
 }
 
-QString QtWizard::formSuffix()    const
+QString QtWizard::formSuffix()
 {
     return preferredSuffix(QLatin1String(Constants::FORM_MIMETYPE));
 }
 
-QString QtWizard::profileSuffix() const
+QString QtWizard::profileSuffix()
 {
     return preferredSuffix(QLatin1String(Constants::PROFILE_MIMETYPE));
 }
@@ -102,7 +102,7 @@ bool QtWizard::postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMe
     return true;
 }
 
-QString QtWizard::templateDir() const
+QString QtWizard::templateDir()
 {
     QString rc = Core::ICore::instance()->resourcePath();
     rc += QLatin1String("/templates/qt4project");

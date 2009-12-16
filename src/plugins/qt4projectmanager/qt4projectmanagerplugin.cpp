@@ -33,6 +33,7 @@
 #include "wizards/consoleappwizard.h"
 #include "wizards/guiappwizard.h"
 #include "wizards/librarywizard.h"
+#include "wizards/testwizard.h"
 #include "wizards/emptyprojectwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
 #include "profileeditorfactory.h"
@@ -132,6 +133,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     LibraryWizard *libWizard = new LibraryWizard;
     addAutoReleasedObject(libWizard);
+    addAutoReleasedObject(new TestWizard);
     addAutoReleasedObject(new CustomWidgetWizard);
 
     addAutoReleasedObject(new QMakeStepFactory);

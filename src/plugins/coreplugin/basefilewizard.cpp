@@ -643,7 +643,7 @@ QString BaseFileWizard::buildFileName(const QString &path,
     return rc;
 }
 
-QString BaseFileWizard::preferredSuffix(const QString &mimeType) const
+QString BaseFileWizard::preferredSuffix(const QString &mimeType)
 {
     const QString rc = Core::ICore::instance()->mimeDatabase()->preferredSuffixByType(mimeType);
     if (rc.isEmpty())

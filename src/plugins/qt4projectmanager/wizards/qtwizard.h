@@ -60,12 +60,14 @@ protected:
              const QString &description,
              const QIcon &icon);
 
-    QString templateDir() const;
+public:
 
-    QString sourceSuffix()  const;
-    QString headerSuffix()  const;
-    QString formSuffix()    const;
-    QString profileSuffix() const;
+    static QString templateDir();
+
+    static QString sourceSuffix();
+    static QString headerSuffix();
+    static QString formSuffix();
+    static QString profileSuffix();
 
     // Query CppTools settings for the class wizard settings
     static bool lowerCaseFiles();

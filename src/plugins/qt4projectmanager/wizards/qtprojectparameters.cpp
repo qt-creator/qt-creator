@@ -60,8 +60,9 @@ void QtProjectParameters::writeProFile(QTextStream &str) const
         str << "QT       += " << selectedModules << "\n\n";
     if (!deselectedModules.isEmpty())
         str << "QT       -= " << deselectedModules << "\n\n";
-    if (!name.isEmpty())
-        str << "TARGET = " <<  name << '\n';
+    const QString &effectiveTarget = target.isEmpty() ? name : target;
+    if (!effectiveTarget.isEmpty())
+        str << "TARGET = " <<  effectiveTarget << '\n';
     switch (type) {
     case ConsoleApp:
         // Mac: Command line apps should not be bundles

@@ -21,6 +21,9 @@ HEADERS += qt4projectmanagerplugin.h \
     wizards/guiappwizarddialog.h \
     wizards/emptyprojectwizard.h \
     wizards/emptyprojectwizarddialog.h \
+    wizards/testwizard.h \
+    wizards/testwizarddialog.h \
+    wizards/testwizardpage.h \
     wizards/modulespage.h \
     wizards/filespage.h \
     wizards/qtwizard.h \
@@ -58,6 +61,9 @@ SOURCES += qt4projectmanagerplugin.cpp \
     wizards/guiappwizarddialog.cpp \
     wizards/emptyprojectwizard.cpp \
     wizards/emptyprojectwizarddialog.cpp \
+    wizards/testwizard.cpp \
+    wizards/testwizarddialog.cpp \
+    wizards/testwizardpage.cpp \
     wizards/modulespage.cpp \
     wizards/filespage.cpp \
     wizards/qtwizard.cpp \
@@ -81,7 +87,8 @@ FORMS += makestep.ui \
     qt4projectconfigwidget.ui \
     qtversionmanager.ui \
     showbuildlog.ui \
-    gettingstartedwelcomepagewidget.ui
+    gettingstartedwelcomepagewidget.ui \
+    wizards/testwizardpage.ui
 RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc
 include(../../shared/proparser/proparser.pri)
