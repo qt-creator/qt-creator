@@ -85,6 +85,10 @@ void MaemoToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         .arg(targetRoot())));
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
         .arg(toolchainRoot())));
+#ifdef Q_OS_WIN
+    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madbin")
+        .arg(maddeRoot())));
+#endif
 }
 
 QString MaemoToolChain::makeCommand() const
