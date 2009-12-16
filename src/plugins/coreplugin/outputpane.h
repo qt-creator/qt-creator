@@ -41,7 +41,6 @@ class QAction;
 class QComboBox;
 class QToolButton;
 class QStackedWidget;
-class QMenu;
 class QSplitter;
 QT_END_NAMESPACE
 
@@ -149,7 +148,6 @@ private:
     QWidget *m_buttonsWidget;
     QMap<int, QPushButton *> m_buttons;
     QMap<QAction *, int> m_actions;
-    QMenu *m_morePanesMenu;
 };
 
 class OutputPaneToggleButton : public QPushButton

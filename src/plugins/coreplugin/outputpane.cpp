@@ -53,7 +53,6 @@
 #include <QtGui/QFocusEvent>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QSplitter>
-#include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QToolButton>
 #include <QtGui/QStackedWidget>
@@ -315,7 +314,6 @@ void OutputPaneManager::init()
     cmd = am->registerAction(sep, QLatin1String("Coreplugin.OutputPane.Sep"), globalcontext);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
-    m_morePanesMenu = new QMenu(this);
     QList<IOutputPane*> panes = ExtensionSystem::PluginManager::instance()
         ->getObjects<IOutputPane>();
     QMultiMap<int, IOutputPane*> sorted;
@@ -357,9 +355,7 @@ void OutputPaneManager::init()
         mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
         m_actions.insert(cmd->action(), idx);
 
-        if (outPane->priorityInStatusBar() == -1) {
-            m_morePanesMenu->addAction(cmd->action());
-        } else {
+        if (outPane->priorityInStatusBar() != -1) {
             cmd->setDefaultKeySequence(QKeySequence(paneShortCut(shortcutNumber)));
             QPushButton *button = new OutputPaneToggleButton(shortcutNumber, outPane->name(),
                                                              cmd->action());
@@ -374,19 +370,6 @@ void OutputPaneManager::init()
 
         connect(cmd->action(), SIGNAL(triggered()), this, SLOT(shortcutTriggered()));
     } while (it != begin);
-
-    // add the "More..." button
-    {
-        QString actionId = QString("QtCreator.Pane.More");
-        QAction *action = new QAction(tr("More..."), this);
-        Command *cmd = am->registerAction(action, actionId, QList<int>() << Constants::C_GLOBAL_ID);
-        cmd->setDefaultKeySequence(QKeySequence(paneShortCut(shortcutNumber)));
-        QPushButton *moreButton = new OutputPaneToggleButton(shortcutNumber, tr("More..."),
-                                                             cmd->action());
-        moreButton->setMenu(m_morePanesMenu);
-        m_buttonsWidget->layout()->addWidget(moreButton);
-        connect(cmd->action(), SIGNAL(triggered()), moreButton, SLOT(showMenu()));
-    }
 
     changePage();
 }
