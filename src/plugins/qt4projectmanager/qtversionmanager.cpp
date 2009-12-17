@@ -294,7 +294,9 @@ void QtVersionManager::addNewVersionsFromInstaller()
 {
     // Add new versions which may have been installed by the WB installer in the form:
     // NewQtVersions="qt 4.3.2=c:\\qt\\qt432\bin\qmake.exe;qt embedded=c:\\qtembedded;"
-    // or NewQtVersions="qt 4.3.2=c:\\qt\\qt432bin\qmake.exe=c:\\qtcreator\\mingw\\=prependToPath;
+    // or NewQtVersions="qt 4.3.2=c:\\qt\\qt432bin\qmake.exe=c:\\qtcreator\\mingw\\;
+    // i.e.
+    // NewQtVersions="versionname=pathtoversion=mingw=s60sdk=gcce=carbide;"
     // Duplicate entries are not added, the first new version is set as default.
     QSettings *settings = Core::ICore::instance()->settings();
 
@@ -312,11 +314,17 @@ void QtVersionManager::addNewVersionsFromInstaller()
     bool defaultVersionWasReset = false;
     foreach (QString newVersion, newVersionsList) {
         QStringList newVersionData = newVersion.split('=');
-        if (newVersionData.count()>=2) {
+        if (newVersionData.count() >= 2) {
             if (QFile::exists(newVersionData[1])) {
                 QtVersion *version = new QtVersion(newVersionData[0], newVersionData[1], m_idcount++ );
                 if (newVersionData.count() >= 3)
                     version->setMingwDirectory(newVersionData[2]);
+                if (newVersionData.count() >= 4)
+                    version->setS60SDKDirectory(newVersionData[3]);
+                if (newVersionData.count() >= 5)
+                    version->setGcceDirectory(newVersionData[4]);
+                if (newVersionData.count() >= 6)
+                    version->setMwcDirectory(newVersionData[5]);
 
                 bool versionWasAlreadyInList = false;
                 foreach(const QtVersion * const it, m_versions) {
