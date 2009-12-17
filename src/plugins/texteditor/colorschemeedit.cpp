@@ -143,7 +143,8 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     QWidget(parent),
     m_curItem(-1),
     m_ui(new Ui::ColorSchemeEdit),
-    m_formatsModel(new FormatsModel(this))
+    m_formatsModel(new FormatsModel(this)),
+    m_readOnly(false)
 {
     m_ui->setupUi(this);
     m_ui->itemList->setModel(m_formatsModel);
@@ -178,6 +179,11 @@ void ColorSchemeEdit::setBaseFont(const QFont &font)
 
 void ColorSchemeEdit::setReadOnly(bool readOnly)
 {
+    if (m_readOnly == readOnly)
+        return;
+
+    m_readOnly = readOnly;
+
     const bool enabled = !readOnly;
     m_ui->foregroundLabel->setEnabled(enabled);
     m_ui->foregroundToolButton->setEnabled(enabled);
@@ -216,7 +222,9 @@ void ColorSchemeEdit::updateControls()
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(format.foreground()));
     m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(format.background()));
 
-    m_ui->eraseBackgroundToolButton->setEnabled(m_curItem > 0 && format.background().isValid());
+    m_ui->eraseBackgroundToolButton->setEnabled(!m_readOnly
+                                                && m_curItem > 0
+                                                && format.background().isValid());
 
     const bool boldBlocked = m_ui->boldCheckBox->blockSignals(true);
     m_ui->boldCheckBox->setChecked(format.bold());
