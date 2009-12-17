@@ -31,6 +31,7 @@
 
 #include "maemodeviceconfigurations.h"
 #include "maemomanager.h"
+#include "maemosettingspage.h"
 #include "maemotoolchain.h"
 #include "profilereader.h"
 #include "qt4project.h"
@@ -81,6 +82,7 @@ private slots:
     void argumentsEdited(const QString &args);
     void deviceConfigurationChanged(const QString &name);
     void resetDeviceConfigurations();
+    void showSettingsDialog();
 
     void updateSimulatorPath();
     void updateTargetInformation();
@@ -752,9 +754,15 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     mainLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     m_configNameLineEdit = new QLineEdit(m_runConfiguration->name());
     mainLayout->addRow(tr("Run configuration name:"), m_configNameLineEdit);
+    QWidget *devConfWidget = new QWidget;
+    QHBoxLayout *devConfLayout = new QHBoxLayout(devConfWidget);
     m_devConfBox = new QComboBox;
     m_devConfBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    mainLayout->addRow(new QLabel(tr("Device Configuration:")), m_devConfBox);
+    devConfLayout->addWidget(m_devConfBox);
+    QLabel *addDevConfLabel
+        = new QLabel(tr("<a href=\"#\">Manage device configurations</a>"));
+    devConfLayout->addWidget(addDevConfLabel);
+    mainLayout->addRow(new QLabel(tr("Device Configuration:")), devConfWidget);
     m_executableLabel = new QLabel(m_runConfiguration->executable());
     mainLayout->addRow(tr("Executable:"), m_executableLabel);
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
@@ -780,6 +788,8 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
             SLOT(deviceConfigurationChanged(QString)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
+    connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
+        SLOT(showSettingsDialog()));
 }
 
 void MaemoRunConfigurationWidget::configNameEdited(const QString &text)
@@ -831,6 +841,13 @@ void MaemoRunConfigurationWidget::resetDeviceConfigurations()
         m_runConfiguration->deviceConfig();
     m_devConfBox->setCurrentIndex(m_devConfBox->findText(devConf.name));
     setSimInfoVisible(devConf);
+}
+
+void MaemoRunConfigurationWidget::showSettingsDialog()
+{
+    MaemoSettingsPage *settingsPage = MaemoManager::instance()->settingsPage();
+    Core::ICore::instance()->showOptionsDialog(settingsPage->category(),
+                                               settingsPage->id());
 }
 
 // #pragma mark -- MaemoRunConfigurationFactory

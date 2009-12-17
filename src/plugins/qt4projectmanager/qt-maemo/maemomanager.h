@@ -74,6 +74,8 @@ public:
 
     void setQemuSimulatorStarterEnabled(bool state);
 
+    MaemoSettingsPage *settingsPage() const { return m_settingsPage; }
+
 public slots:
     void triggered();
     void updateQemuSimulatorStarter(bool running);
