@@ -146,6 +146,7 @@ public:
     QString viewerPath() const;
     QStringList viewerArguments() const;
     QString workingDirectory() const;
+    uint debugServerPort() const;
 
     // RunConfiguration
     virtual QString type() const;
@@ -159,9 +160,11 @@ private Q_SLOTS:
     void setMainScript(const QString &scriptFile);
     void onQmlViewerChanged();
     void onQmlViewerArgsChanged();
+    void onDebugServerPortChanged();
 
 private:
     QmlProject *m_project;
+    uint m_debugServerPort;
     QString m_scriptFile;
     QString m_qmlViewerCustomPath;
     QString m_qmlViewerDefaultPath;
@@ -196,7 +199,7 @@ private:
 class QmlRunControl : public ProjectExplorer::RunControl {
     Q_OBJECT
 public:
-    explicit QmlRunControl(QmlRunConfiguration *runConfiguration);
+    explicit QmlRunControl(QmlRunConfiguration *runConfiguration, bool debugMode);
     virtual ~QmlRunControl ();
 
     // RunControl

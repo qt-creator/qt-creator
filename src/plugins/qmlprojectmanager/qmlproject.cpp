@@ -57,6 +57,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
+#include <QtGui/QSpinBox>
 
 using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
@@ -302,7 +303,8 @@ void QmlProjectFile::modified(ReloadBehavior *)
 QmlRunConfiguration::QmlRunConfiguration(QmlProject *pro)
     : ProjectExplorer::RunConfiguration(pro),
       m_project(pro),
-      m_type(Constants::QMLRUNCONFIGURATION)
+      m_type(Constants::QMLRUNCONFIGURATION),
+      m_debugServerPort(3768)
 {
     setName(tr("QML Viewer"));
 
@@ -349,6 +351,11 @@ QString QmlRunConfiguration::workingDirectory() const
     return projectFile.absolutePath();
 }
 
+uint QmlRunConfiguration::debugServerPort() const
+{
+    return m_debugServerPort;
+}
+
 QWidget *QmlRunConfiguration::configurationWidget()
 {
     QWidget *config = new QWidget;
@@ -390,9 +397,16 @@ QWidget *QmlRunConfiguration::configurationWidget()
     qmlViewerArgs->setText(m_qmlViewerArgs);
     connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onQmlViewerArgsChanged()));
 
+    QSpinBox *debugPort = new QSpinBox;
+    debugPort->setMinimum(1024); // valid registered/dynamic/free ports according to http://www.iana.org/assignments/port-numbers
+    debugPort->setMaximum(65535);
+    debugPort->setValue(m_debugServerPort);
+    connect(debugPort, SIGNAL(valueChanged(int)), this, SLOT(onDebugServerPortChanged()));
+
     form->addRow(tr("QML Viewer"), qmlViewer);
     form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
     form->addRow(tr("Main QML File:"), combo);
+    form->addRow(tr("Debugging Port:"), debugPort);
 
     return config;
 }
@@ -427,6 +441,13 @@ void QmlRunConfiguration::onQmlViewerArgsChanged()
         m_qmlViewerArgs = lineEdit->text();
 }
 
+void QmlRunConfiguration::onDebugServerPortChanged()
+{
+    if (QSpinBox *spinBox = qobject_cast<QSpinBox*>(sender())) {
+        m_debugServerPort = spinBox->value();
+    }
+}
+
 void QmlRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
 {
     ProjectExplorer::RunConfiguration::save(writer);
@@ -434,6 +455,7 @@ void QmlRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer
     writer.saveValue(QLatin1String("qmlviewer"), m_qmlViewerCustomPath);
     writer.saveValue(QLatin1String("qmlviewerargs"), m_qmlViewerArgs);
     writer.saveValue(QLatin1String("mainscript"), m_scriptFile);
+    writer.saveValue(QLatin1String("debugserverport"), m_debugServerPort);
 }
 
 void QmlRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
@@ -443,9 +465,12 @@ void QmlRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReade
     m_qmlViewerCustomPath = reader.restoreValue(QLatin1String("qmlviewer")).toString();
     m_qmlViewerArgs = reader.restoreValue(QLatin1String("qmlviewerargs")).toString();
     m_scriptFile = reader.restoreValue(QLatin1String("mainscript")).toString();
+    m_debugServerPort = reader.restoreValue(QLatin1String("debugserverport")).toUInt();
 
     if (m_scriptFile.isEmpty())
         m_scriptFile = tr("<Current File>");
+    if (m_debugServerPort == 0)
+        m_debugServerPort = 3768;
 }
 
 QmlRunConfigurationFactory::QmlRunConfigurationFactory()
@@ -482,10 +507,14 @@ ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::create(ProjectExp
     return new QmlRunConfiguration(pro);
 }
 
-QmlRunControl::QmlRunControl(QmlRunConfiguration *runConfiguration)
+QmlRunControl::QmlRunControl(QmlRunConfiguration *runConfiguration, bool debugMode)
     : RunControl(runConfiguration)
 {
-    m_applicationLauncher.setEnvironment(ProjectExplorer::Environment::systemEnvironment().toStringList());
+    Environment environment = ProjectExplorer::Environment::systemEnvironment();
+    if (debugMode)
+        environment.set("QML_DEBUG_SERVER_PORT", QString::number(runConfiguration->debugServerPort()));
+
+    m_applicationLauncher.setEnvironment(environment.toStringList());
     m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());
 
     m_executable = runConfiguration->viewerPath();
@@ -551,14 +580,14 @@ QmlRunControlFactory::~QmlRunControlFactory()
 
 bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
-    return (mode == ProjectExplorer::Constants::RUNMODE)
-            && (qobject_cast<QmlRunConfiguration*>(runConfiguration) != 0);
+    return (qobject_cast<QmlRunConfiguration*>(runConfiguration) != 0);
 }
 
 RunControl *QmlRunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    return new QmlRunControl(qobject_cast<QmlRunConfiguration *>(runConfiguration));
+    return new QmlRunControl(qobject_cast<QmlRunConfiguration *>(runConfiguration),
+                             mode == ProjectExplorer::Constants::DEBUGMODE);
 }
 
 QString QmlRunControlFactory::displayName() const
