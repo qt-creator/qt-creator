@@ -540,7 +540,7 @@ void QmlRunControl::processExited(int exitCode)
 }
 
 QmlRunControlFactory::QmlRunControlFactory(QObject *parent)
-    : IRunControlFactory::IRunControlFactory(parent)
+    : IRunControlFactory(parent)
 {
 }
 
