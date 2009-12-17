@@ -119,11 +119,9 @@ private slots:
     void updateCurrentQtName();
     void updateCurrentQMakeLocation();
     void updateCurrentMingwDirectory();
-#ifdef QTCREATOR_WITH_S60
     void updateCurrentMwcDirectory();
     void updateCurrentS60SDKDirectory();
     void updateCurrentGcceDirectory();
-#endif
     void msvcVersionChanged();
     void buildDebuggingHelper();
     void showDebuggingBuildLog();

@@ -215,7 +215,6 @@ QString Qt4BuildConfiguration::makeCommand() const
     return tc ? tc->makeCommand() : "make";
 }
 
-#ifdef QTCREATOR_WITH_S60
 static inline QString symbianMakeTarget(QtVersion::QmakeBuildConfigs buildConfig,
                                         const QString &type)
 {
@@ -224,11 +223,9 @@ static inline QString symbianMakeTarget(QtVersion::QmakeBuildConfigs buildConfig
     rc += type;
     return rc;
 }
-#endif
 
 QString Qt4BuildConfiguration::defaultMakeTarget() const
 {
-#ifdef QTCREATOR_WITH_S60
     ToolChain *tc = toolChain();
     if (!tc)
         return QString::null;
@@ -246,9 +243,6 @@ QString Qt4BuildConfiguration::defaultMakeTarget() const
     default:
         break;
     }
-#else
-
-#endif
     return QString::null;
 }
 

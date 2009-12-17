@@ -102,10 +102,11 @@ S60Manager::S60Manager(QObject *parent)
         m_serialDeviceLister(new SerialDeviceLister(this))
 {
     m_instance = this;
- 
+#ifdef QTCREATOR_WITH_S60
     addAutoReleasedObject(new S60DevicesPreferencePane(m_devices, this));
+#endif
     m_devices->detectQtForDevices(); // Order!
-  
+
     addAutoReleasedObject(new S60EmulatorRunConfigurationFactory(this));
     addAutoReleasedObject(new RunControlFactory<S60EmulatorRunControl,
                                                 S60EmulatorRunConfiguration>

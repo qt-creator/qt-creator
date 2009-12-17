@@ -32,9 +32,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "profilereader.h"
 
-#ifdef QTCREATOR_WITH_S60
 #include "qt-s60/s60manager.h"
-#endif
 #ifdef QTCREATOR_WITH_MAEMO
 #include "qt-maemo/maemomanager.h"
 #endif
@@ -1225,7 +1223,6 @@ void QtVersion::updateToolChainAndMkspec() const
         m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatformName));
     } else if (makefileGenerator == QLatin1String("SYMBIAN_ABLD") ||
                makefileGenerator == QLatin1String("SYMBIAN_SBSV2")) {
-#ifdef QTCREATOR_WITH_S60
         if (S60Manager *s60mgr = S60Manager::instance()) {
 #    ifdef Q_OS_WIN
             m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this))
@@ -1237,7 +1234,6 @@ void QtVersion::updateToolChainAndMkspec() const
                          << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC));
 #    endif
         }
-#endif
     } else if (qt_arch == "arm") {
 #ifdef QTCREATOR_WITH_MAEMO
         m_toolChains << ToolChainPtr(MaemoManager::instance()->maemoToolChain(this));

@@ -1,10 +1,5 @@
 include(../../../shared/trk/trk.pri)
 
-!isEmpty(SUPPORT_QT_S60) {
-    message("Adding experimental support for Qt/S60 applications.")
-    DEFINES += QTCREATOR_WITH_S60
-}
-
 HEADERS += \
     $$PWD/gdbmi.h \
     $$PWD/gdbengine.h \

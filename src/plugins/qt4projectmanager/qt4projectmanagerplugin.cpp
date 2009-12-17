@@ -47,9 +47,7 @@
 #include "gettingstartedwelcomepage.h"
 #include "gettingstartedwelcomepagewidget.h"
 
-#ifdef QTCREATOR_WITH_S60
-#    include "qt-s60/s60manager.h"
-#endif
+#include "qt-s60/s60manager.h"
 
 #ifdef QTCREATOR_WITH_MAEMO
 #    include "qt-maemo/maemomanager.h"
@@ -148,9 +146,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 #endif
     addAutoReleasedObject(new LinguistExternalEditor);
 
-#ifdef QTCREATOR_WITH_S60
     addAutoReleasedObject(new S60Manager);
-#endif
 
 #ifdef QTCREATOR_WITH_MAEMO
     addAutoReleasedObject(MaemoManager::instance());
