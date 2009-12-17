@@ -1144,10 +1144,6 @@ const QStringList AbstractMaemoRunControl::options() const
         devConfig.authentication == MaemoDeviceConfigurations::DeviceConfig::Password;
     const QLatin1String opt("-o");
     QStringList optionList;
-#ifdef Q_OS_WIN
-    optionList << opt << QString::fromLatin1("UserKnownHostsFile=%1/maemo_knownHosts").
-        arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
-#endif
     if (!usePassword)
         optionList << QLatin1String("-i") << devConfig.keyFile;
     return optionList << opt
