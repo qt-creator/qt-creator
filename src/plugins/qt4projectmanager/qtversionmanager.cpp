@@ -203,12 +203,14 @@ void QtVersionManager::updateDocumentation()
     Help::HelpManager *helpManager
         = ExtensionSystem::PluginManager::instance()->getObject<Help::HelpManager>();
     Q_ASSERT(helpManager);
-    QStringList fileEndings = QStringList() << "/qch/qt.qch" << "/qch/qmake.qch" << "/qch/designer.qch";
     QStringList files;
     foreach (QtVersion *version, m_versions) {
-        QString docPath = version->documentationPath();
-        foreach (const QString &fileEnding, fileEndings)
-            files << docPath+fileEnding;
+        const QString docPath = version->documentationPath() + QLatin1String("/qch/");
+        const QDir versionHelpDir(docPath);
+        foreach (const QString &helpFile,
+                versionHelpDir.entryList(QStringList() << QLatin1String("*.qch"), QDir::Files))
+            files << docPath + helpFile;
+
     }
     helpManager->registerDocumentation(files);
 }
