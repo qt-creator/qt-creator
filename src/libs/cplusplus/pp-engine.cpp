@@ -664,6 +664,20 @@ Preprocessor::State Preprocessor::createStateFromSource(const QByteArray &source
 
 void Preprocessor::processNewline(bool force)
 {
+    if (_dot != _tokens.constBegin()) {
+        TokenIterator prevTok = _dot - 1;
+
+        if (prevTok->isLiteral()) {
+            const char *ptr = _source.constBegin() + prevTok->begin();
+            const char *end = ptr + prevTok->length();
+
+            for (; ptr != end; ++ptr) {
+                if (*ptr == '\n')
+                    ++env->currentLine;
+            }
+        }
+    }
+
     if (! force && env->currentLine == _dot->lineno)
         return;
 
