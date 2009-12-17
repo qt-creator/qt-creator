@@ -54,6 +54,8 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
     BaseQt4ProjectWizardDialog(true, parent),
     m_testPage(new TestWizardPage)
 {
+    setIntroDescription(tr("This wizard generates a Qt4 unit test "
+                           "consisting of a single source file with a test object."));
     setWindowIcon(icon);
     setWindowTitle(templateName);
     setSelectedModules(QLatin1String("core testlib"), true);
