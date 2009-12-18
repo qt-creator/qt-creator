@@ -84,7 +84,7 @@ void DependenciesModel::resetModel()
 
 int DependenciesModel::rowCount(const QModelIndex &index) const
 {
-    return index.isValid() ? 0 : m_projects.size();
+    return index.isValid() ? 0 : m_projects.isEmpty() ? 1 : m_projects.size();
 }
 
 int DependenciesModel::columnCount(const QModelIndex &index) const
@@ -94,6 +94,11 @@ int DependenciesModel::columnCount(const QModelIndex &index) const
 
 QVariant DependenciesModel::data(const QModelIndex &index, int role) const
 {
+    if (m_projects.isEmpty())
+        return role == Qt::DisplayRole
+            ? tr("<No other projects in this session>")
+            : QVariant();
+
     const Project *p = m_projects.at(index.row());
 
     switch (role) {
@@ -135,6 +140,9 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
 
 Qt::ItemFlags DependenciesModel::flags(const QModelIndex &index) const
 {
+    if (m_projects.isEmpty())
+        return Qt::NoItemFlags;
+
     Qt::ItemFlags rc = QAbstractListModel::flags(index);
     if (index.column() == 0)
         rc |= Qt::ItemIsUserCheckable | Qt::ItemIsEditable;
