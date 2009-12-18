@@ -253,6 +253,7 @@ private: ////////// Gdb Command Management //////////
     CommandsDoneCallback m_commandsDoneCallback;
 
     QList<GdbCommand> m_commandsToRunOnTemporaryBreak;
+    int gdbVersion() const { return m_gdbVersion; }
 
 private: ////////// Gdb Output, State & Capability Handling //////////
 

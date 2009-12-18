@@ -147,6 +147,7 @@ void Snapshot::reset()
     memory.clear();
     for (int i = 0; i < RegisterCount; ++i)
         registers[i] = 0;
+    registerValid = false;
     wantedMemory = MemoryRange();
 }
 
@@ -197,9 +198,11 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     m_running(false),
     m_trkDevice(new trk::TrkDevice),
     m_gdbAckMode(true),
-    m_verbose(0),
-    m_bufferedMemoryRead(true)
+    m_verbose(0)
 {
+    m_bufferedMemoryRead = false;
+    m_bufferedMemoryRead = true;
+
     const QByteArray trkVerbose = qgetenv("QTC_TRK_VERBOSE");
     if (!trkVerbose.isEmpty()) {
         bool ok;
@@ -210,6 +213,7 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
 
     m_gdbServer = 0;
     m_gdbConnection = 0;
+    m_snapshot.reset();
 #ifdef Q_OS_WIN
     const DWORD portOffset = GetCurrentProcessId() % 100;
 #else
@@ -388,11 +392,11 @@ void TrkGdbAdapter::slotEmitDelayedInferiorStartFailed()
 void TrkGdbAdapter::logMessage(const QString &msg)
 {
     if (m_verbose) {
-#ifdef STANDALONE_RUNNER
-        emit output(msg);
-#else
-        m_engine->debugMessage(msg);
-#endif
+//#ifdef STANDALONE_RUNNER
+//        emit output(msg);
+//#else
+        m_engine->debugMessage("TRK LOG: " + msg);
+//#endif
     }
 }
 
@@ -629,9 +633,15 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
 
     else if (cmd == "g") {
         // Read general registers.
-        logMessage(msgGdbPacket(QLatin1String("Read registers")));
-        sendGdbServerAck();
-        reportRegisters();
+        if (m_snapshot.registerValid) {
+            logMessage(msgGdbPacket(QLatin1String("Read registers")));
+            sendGdbServerAck();
+            reportRegisters();
+        } else {
+            sendTrkMessage(0x12,
+                TrkCB(handleAndReportReadRegisters),
+                trkReadRegistersMessage());
+        }
     }
 
     else if (cmd.startsWith("Hc")) {
@@ -692,21 +702,27 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerAck();
         bool ok = false;
         const uint registerNumber = cmd.mid(1).toInt(&ok, 16);
-        QByteArray logMsg = "Read Register";
-        if (registerNumber == RegisterPSGdb) {
-            QByteArray ba;
-            appendInt(&ba, m_snapshot.registers[RegisterPSTrk], LittleEndian);
-            logMsg += dumpRegister(registerNumber, m_snapshot.registers[RegisterPSTrk]);
-            sendGdbServerMessage(ba.toHex(), logMsg);
-        } else if (registerNumber < 16) {
-            QByteArray ba;
-            appendInt(&ba, m_snapshot.registers[registerNumber], LittleEndian);
-            logMsg += dumpRegister(registerNumber, m_snapshot.registers[registerNumber]);
-            sendGdbServerMessage(ba.toHex(), logMsg);
+        if (m_snapshot.registerValid) {
+            QByteArray logMsg = "Read Register";
+            if (registerNumber == RegisterPSGdb) {
+                QByteArray ba;
+                appendInt(&ba, m_snapshot.registers[RegisterPSTrk], LittleEndian);
+                logMsg += dumpRegister(registerNumber, m_snapshot.registers[RegisterPSTrk]);
+                sendGdbServerMessage(ba.toHex(), logMsg);
+            } else if (registerNumber < 16) {
+                QByteArray ba;
+                appendInt(&ba, m_snapshot.registers[registerNumber], LittleEndian);
+                logMsg += dumpRegister(registerNumber, m_snapshot.registers[registerNumber]);
+                sendGdbServerMessage(ba.toHex(), logMsg);
+            } else {
+                sendGdbServerMessage("0000", "read single unknown register #"
+                    + QByteArray::number(registerNumber));
+                //sendGdbServerMessage("E01", "read single unknown register");
+            }
         } else {
-            sendGdbServerMessage("0000", "read single unknown register #"
-                + QByteArray::number(registerNumber));
-            //sendGdbServerMessage("E01", "read single unknown register");
+            sendTrkMessage(0x12,
+                TrkCB(handleAndReportReadRegister),
+                trkReadRegistersMessage(), registerNumber);
         }
     }
 
@@ -815,18 +831,42 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd.startsWith("qXfer:features:read:target.xml:")) {
         //  $qXfer:features:read:target.xml:0,7ca#46...Ack
         sendGdbServerAck();
-        sendGdbServerMessage("l<target><architecture>symbianelf</architecture></target>");
+        //sendGdbServerMessage("l<target><architecture>symbianelf</architecture></target>");
+        sendGdbServerMessage("l<target><architecture>arm</architecture></target>");
+        //sendGdbServerMessage("l<target><architecture>arm-none-symbianelf</architecture></target>");
+    }
+
+    else if (cmd == "qfThreadInfo") {
+        // That's the _first_ query package.
+        sendGdbServerAck();
+        if (!m_session.threads.isEmpty()) {
+            QByteArray response = "m";
+            // FIXME: Limit packet length by using qsThreadInfo packages?
+            qDebug()  << "CURRENT THREAD: " << m_session.tid;
+            response += hexNumber(m_session.tid);
+            sendGdbServerMessage(response, "thread information transfered");
+        } else {
+            sendGdbServerMessage("l", "thread information transfer finished");
+        }
+    }
+
+    else if (cmd == "qsThreadInfo") {
+        // That's a following query package
+        sendGdbServerAck();
+        sendGdbServerMessage("l", "thread information transfer finished");
     }
 
     else if (cmd.startsWith("qXfer:libraries:read")) {
         sendGdbServerAck();
-        /*
-            <library-list>
-              <library name="/lib/libc.so.6">
-                <segment address="0x10000000"/>
-              </library>
-            </library-list>
-i        */
+        QByteArray response = "l<library-list>";
+        for (int i = 0; i != m_session.libraries.size(); ++i) {
+            const Library &lib = m_session.libraries.at(i);
+            response += "<library name=\"" + lib.name + "\">";
+            response += "<segment address=\"0x" + hexNumber(lib.codeseg) + "\"/>";
+            response += "</library>";
+        }
+        response += "</library-list>";
+        sendGdbServerMessage(response, "library information transfered");
     }
 
     else if (cmd == "QStartNoAckMode") {
@@ -853,6 +893,13 @@ i        */
         m_running = true;
         QByteArray ba = trkStepRangeMessage(0x01);  // options "step into"
         sendTrkMessage(0x19, TrkCB(handleStepInto), ba, "Step range");
+    }
+
+    else if (cmd.startsWith('T')) {
+        // FIXME: check whether thread is alive
+        sendGdbServerAck();
+        sendGdbServerMessage("OK"); // pretend all is well
+        //sendGdbServerMessage("E nn");
     }
 
     else if (cmd == "vCont?") {
@@ -908,7 +955,7 @@ i        */
     }
 
     else if (cmd.startsWith("qPart:") || cmd.startsWith("qXfer:"))  {
-        QByteArray data  = cmd.mid(1 + cmd.indexOf(':'));
+        QByteArray data = cmd.mid(1 + cmd.indexOf(':'));
         // "qPart:auxv:read::0,147": Read OS auxiliary data (see info aux)
         bool handled = false;
         if (data.startsWith("auxv:read::")) {
@@ -928,6 +975,7 @@ i        */
                 }
             }
         } // auxv read
+
         if (!handled) {
             const QString msg = QLatin1String("FIXME unknown 'XFER'-request: ")
                 + QString::fromAscii(cmd);
@@ -1136,7 +1184,7 @@ void TrkGdbAdapter::handleDeleteProcess2(const TrkResult &result)
 
 void TrkGdbAdapter::handleReadRegisters(const TrkResult &result)
 {
-    logMessage("       RESULT: " + result.toString());
+    logMessage("       REGISTER RESULT: " + result.toString());
     // [80 0B 00   00 00 00 00   C9 24 FF BC   00 00 00 00   00
     //  60 00 00   00 00 00 00   78 67 79 70   00 00 00 00   00...]
     if (result.errorCode()) {
@@ -1146,6 +1194,7 @@ void TrkGdbAdapter::handleReadRegisters(const TrkResult &result)
     const char *data = result.data.data() + 1; // Skip ok byte
     for (int i = 0; i < RegisterCount; ++i)
         m_snapshot.registers[i] = extractInt(data + 4 * i);
+    m_snapshot.registerValid = true;
 } 
 
 void TrkGdbAdapter::handleWriteRegister(const TrkResult &result)
@@ -1174,6 +1223,34 @@ void TrkGdbAdapter::reportRegisters()
         }
     }
     sendGdbServerMessage(ba, logMsg);
+}
+
+void TrkGdbAdapter::handleAndReportReadRegisters(const TrkResult &result)
+{
+    handleReadRegisters(result);
+    reportRegisters();
+}
+
+void TrkGdbAdapter::handleAndReportReadRegister(const TrkResult &result)
+{
+    handleReadRegisters(result);
+    int registerNumber = result.cookie.toInt();
+    QByteArray logMsg = "Read Register";
+    if (registerNumber == RegisterPSGdb) {
+        QByteArray ba;
+        appendInt(&ba, m_snapshot.registers[RegisterPSTrk], LittleEndian);
+        logMsg += dumpRegister(registerNumber, m_snapshot.registers[RegisterPSTrk]);
+        sendGdbServerMessage(ba.toHex(), logMsg);
+    } else if (registerNumber < 16) {
+        QByteArray ba;
+        appendInt(&ba, m_snapshot.registers[registerNumber], LittleEndian);
+        logMsg += dumpRegister(registerNumber, m_snapshot.registers[registerNumber]);
+        sendGdbServerMessage(ba.toHex(), logMsg);
+    } else {
+        sendGdbServerMessage("0000", "read single unknown register #"
+            + QByteArray::number(registerNumber));
+        //sendGdbServerMessage("E01", "read single unknown register");
+    }
 }
 
 static void appendRegister(QByteArray *ba, uint regno, uint value)
@@ -1312,7 +1389,7 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
         logMessage(_("Requesting buffered memory %1 bytes from 0x%2")
             .arg(MemoryChunkSize).arg(blockaddr, 0, 16));
         MemoryRange range(blockaddr, blockaddr + MemoryChunkSize);
-        MEMORY_DEBUGX("   FETCH MEMORY : " << range);
+        MEMORY_DEBUG("   FETCH MEMORY : " << range);
         sendTrkMessage(0x10, TrkCB(handleReadMemoryBuffered),
             trkReadMemoryMessage(range),
             QVariant::fromValue(range));
@@ -1323,7 +1400,7 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
         sendTrkMessage(0x10, TrkCB(handleReadMemoryUnbuffered),
             trkReadMemoryMessage(needed),
             QVariant::fromValue(needed));
-        MEMORY_DEBUGX("   FETCH MEMORY : " << needed);
+        MEMORY_DEBUG("   FETCH MEMORY : " << needed);
     }
 }
 

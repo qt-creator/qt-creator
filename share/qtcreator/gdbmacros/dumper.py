@@ -26,8 +26,12 @@ def qmin(n, m):
         return n
     return m
 
+def isGoodGdb():
+    return gdb.VERSION.startswith("6.8.50.2009") \
+       and gdb.VERSION != "6.8.50.20090630-cvs"
+
 def parseAndEvaluate(exp):
-    if gdb.VERSION.startswith("6.8.50.2009"):
+    if isGoodGdb():
         return gdb.parse_and_eval(exp)
     # Work around non-existing gdb.parse_and_eval as in released 7.0
     gdb.execute("set logging redirect on")
@@ -41,10 +45,10 @@ def listOfLocals():
         frame = gdb.selected_frame()
         #warn("FRAME %s: " % frame)
     except RuntimeError:
-        return ""
+        return []
 
     items = []
-    if gdb.VERSION.startswith("6.8.50.2009"):
+    if isGoodGdb():
         # archer-tromey-python
         block = frame.block()
         while True:
@@ -77,9 +81,11 @@ def listOfLocals():
 
             block = block.superblock
     else:
-        # Assuming gdb 7.0 release.
+        # Assuming gdb 7.0 release or 6.8-symbianelf.
         file = tempfile.mkstemp(prefix="gdbpy_")
         filename = file[1]
+        gdb.execute("set logging off")
+        gdb.execute("set logging redirect off")
         gdb.execute("set logging file %s" % filename)
         gdb.execute("set logging redirect on")
         gdb.execute("set logging on")

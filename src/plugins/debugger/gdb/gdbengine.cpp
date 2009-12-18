@@ -1244,11 +1244,16 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     //  signal-meaning="Trace/breakpoint trap",thread-id="2",
     //  frame={addr="0x7c91120f",func="ntdll!DbgUiConnectToDbg",
     //  args=[],from="C:\\WINDOWS\\system32\\ntdll.dll"}
-    //if (reason == "signal-received"
-    //      && data.findChild("signal-name").data() == "SIGTRAP") {
-    //    continueInferiorInternal();
-    //    return;
-    //}
+    // also seen on gdb 6.8-symbianelf without qXfer:libraries:read+;
+    // FIXME: remote.c parses "loaded" reply. It should be turning
+    // that into a TARGET_WAITKIND_LOADED. Does it?
+    // The bandaid here has the problem that it breaks for 'next' over a
+    // statement that indirectly loads shared libraries
+    if (reason == "signal-received"
+          && data.findChild("signal-name").data() == "SIGTRAP") {
+        continueInferiorInternal();
+        return;
+    }
 
     // jump over well-known frames
     static int stepCounter = 0;
