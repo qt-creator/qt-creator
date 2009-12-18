@@ -172,6 +172,13 @@ bool Scope::isPrototypeScope() const
     return false;
 }
 
+bool Scope::isObjCClassScope() const
+{
+    if (_owner)
+        return _owner->isObjCClass();
+    return false;
+}
+
 bool Scope::isFunctionScope() const
 {
     Function *f = 0;

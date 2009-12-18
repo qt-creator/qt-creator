@@ -111,6 +111,9 @@ public:
     /// Returns true if this scope's owner is a Prototype Symbol.
     bool isPrototypeScope() const;
 
+    /// Returns true if this scope's owner is an ObjCClass Symbol.
+    bool isObjCClassScope() const;
+
     /// Adds a Symbol to this Scope.
     void enterSymbol(Symbol *symbol);
 
