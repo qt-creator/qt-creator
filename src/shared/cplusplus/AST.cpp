@@ -1939,7 +1939,11 @@ unsigned ObjCMessageExpressionAST::lastToken() const
 
 unsigned ObjCMessageArgumentAST::firstToken() const
 {
-    return parameter_value_expression->firstToken();
+    if (parameter_value_expression)
+        return parameter_value_expression->firstToken();
+
+    // ### assert?
+    return 0;
 }
 
 unsigned ObjCMessageArgumentAST::lastToken() const
