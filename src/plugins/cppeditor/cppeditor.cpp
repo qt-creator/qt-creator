@@ -201,13 +201,23 @@ public:
     bool hasD;
     bool hasQ;
 
-    void operator()(FunctionDefinitionAST *ast)
+    void operator()(DeclarationAST *ast)
     {
         localUses.clear();
 
-        if (ast && ast->symbol) {
-            _functionScope = ast->symbol->members();
-            accept(ast);
+        if (!ast)
+            return;
+
+        if (FunctionDefinitionAST *def = ast->asFunctionDefinition()) {
+            if (def->symbol) {
+                _functionScope = def->symbol->members();
+                accept(ast);
+            }
+        } else if (ObjCMethodDeclarationAST *decl = ast->asObjCMethodDeclaration()) {
+            if (decl->method_prototype->symbol) {
+                _functionScope = decl->method_prototype->symbol->members();
+                accept(ast);
+            }
         }
     }
 
@@ -392,7 +402,7 @@ class FunctionDefinitionUnderCursor: protected ASTVisitor
 {
     unsigned _line;
     unsigned _column;
-    FunctionDefinitionAST *_functionDefinition;
+    DeclarationAST *_functionDefinition;
 
 public:
     FunctionDefinitionUnderCursor(TranslationUnit *translationUnit)
@@ -400,7 +410,7 @@ public:
           _line(0), _column(0)
     { }
 
-    FunctionDefinitionAST *operator()(AST *ast, unsigned line, unsigned column)
+    DeclarationAST *operator()(AST *ast, unsigned line, unsigned column)
     {
         _functionDefinition = 0;
         _line = line;
@@ -416,22 +426,34 @@ protected:
             return false;
 
         else if (FunctionDefinitionAST *def = ast->asFunctionDefinition()) {
-            unsigned startLine, startColumn;
-            unsigned endLine, endColumn;
-            getTokenStartPosition(def->firstToken(), &startLine, &startColumn);
-            getTokenEndPosition(def->lastToken() - 1, &endLine, &endColumn);
+            return checkDeclaration(def);
+        }
 
-            if (_line > startLine || (_line == startLine && _column >= startColumn)) {
-                if (_line < endLine || (_line == endLine && _column < endColumn)) {
-                    _functionDefinition = def;
-                    return false;
-                }
-            }
+        else if (ObjCMethodDeclarationAST *method = ast->asObjCMethodDeclaration()) {
+            if (method->function_body)
+                return checkDeclaration(method);
         }
 
         return true;
     }
 
+private:
+    bool checkDeclaration(DeclarationAST *ast)
+    {
+        unsigned startLine, startColumn;
+        unsigned endLine, endColumn;
+        getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
+        getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
+
+        if (_line > startLine || (_line == startLine && _column >= startColumn)) {
+            if (_line < endLine || (_line == endLine && _column < endColumn)) {
+                _functionDefinition = ast;
+                return false;
+            }
+        }
+
+        return true;
+    }
 };
 
 class ProcessDeclarators: protected ASTVisitor
@@ -2195,7 +2217,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     AST *ast = translationUnit->ast();
 
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(translationUnit);
-    FunctionDefinitionAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
+    DeclarationAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
 
     FindLocalUses useTable(translationUnit);
     useTable(currentFunctionDefinition);
