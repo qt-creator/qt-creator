@@ -209,6 +209,7 @@ public:
 
 private slots:
     void processExited(int exitCode);
+    void slotBringApplicationToForeground(qint64 pid);
     void slotAddToOutputWindow(const QString &line);
     void slotError(const QString & error);
 
@@ -217,6 +218,7 @@ private:
 
     QString m_executable;
     QStringList m_commandLineArguments;
+    bool m_debugMode;
 };
 
 class QmlRunControlFactory : public ProjectExplorer::IRunControlFactory {

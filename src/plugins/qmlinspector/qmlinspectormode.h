@@ -62,12 +62,7 @@ class QmlInspectorMode : public Core::BaseMode
 public:
     QmlInspectorMode(QObject *parent = 0);
     
-    
-    quint16 viewerPort() const;
-    
 signals:
-    void startViewer();
-    void stopViewer();
     void statusMessage(const QString &text);
     
 public slots: 
@@ -84,19 +79,11 @@ private slots:
     void treeObjectActivated(const QmlDebugObjectReference &obj);
 
 private:
-    struct Actions {
-        QAction *startAction;
-        QAction *stopAction;
-    };
-    
-    void initActions();
     QWidget *createModeWindow();
     QWidget *createMainView();
     void initWidgets();
     QWidget *createBottomWindow();
     QToolButton *createToolButton(QAction *action);
-    
-    Actions m_actions;
     
     QmlDebugConnection *m_conn;
     QmlEngineDebug *m_client;
@@ -111,8 +98,6 @@ private:
     CanvasFrameRate *m_frameRateWidget;
     ExpressionQueryWidget *m_expressionWidget;
 
-    QLineEdit *m_addressEdit;
-    QSpinBox *m_portSpinBox;
     EngineSpinBox *m_engineSpinBox;
 };
 

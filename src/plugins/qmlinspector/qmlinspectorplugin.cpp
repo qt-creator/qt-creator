@@ -26,7 +26,6 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#include "runcontrol.h"
 #include "qmlinspector.h"
 #include "qmlinspectormode.h"
 #include "inspectoroutputpane.h"
@@ -36,6 +35,7 @@
 #include <private/qmldebugclient_p.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/modemanager.h>
 
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
@@ -55,8 +55,7 @@ QT_BEGIN_NAMESPACE
 
 
 QmlInspectorPlugin::QmlInspectorPlugin()
-    : m_inspectMode(0),
-      m_runControl(0)
+    : m_inspectMode(0)
 {
 }
 
@@ -89,8 +88,6 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
     context.append(uidm->uniqueIdentifier(Core::Constants::C_NAVIGATION_PANE));
 
     m_inspectMode = new QmlInspectorMode(this);
-    connect(m_inspectMode, SIGNAL(startViewer()), SLOT(startViewer()));
-    connect(m_inspectMode, SIGNAL(stopViewer()), SLOT(stopViewer()));
     m_inspectMode->setContext(context);
     addObject(m_inspectMode);
 
@@ -100,9 +97,9 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
     connect(m_inspectMode, SIGNAL(statusMessage(QString)),
             m_outputPane, SLOT(addInspectorStatus(QString)));
 
-    m_runControlFactory = new QmlInspectorRunControlFactory(this);
-    addAutoReleasedObject(m_runControlFactory);
-    
+    connect(core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*)),
+            SLOT(currentModeChanged(Core::IMode*)));
+
     return true;
 }
 
@@ -110,50 +107,10 @@ void QmlInspectorPlugin::extensionsInitialized()
 {
 }
 
-void QmlInspectorPlugin::startViewer()
+void QmlInspectorPlugin::currentModeChanged(Core::IMode *mode)
 {
-    stopViewer();
-    
-    ProjectExplorer::Project *project = 0;
-    ProjectExplorer::ProjectExplorerPlugin *plugin = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (plugin)
-        project = plugin->currentProject();
-    if (!project) {
-        qDebug() << "No project loaded"; // TODO should this just run the debugger without a viewer?
-        return;
-    }
-        
-    ProjectExplorer::RunConfiguration *rc = project->activeRunConfiguration();
-
-    QmlInspector::StartParameters sp;
-    sp.port = m_inspectMode->viewerPort();
-
-    m_runControl = m_runControlFactory->create(rc, ProjectExplorer::Constants::RUNMODE, sp);
-
-    if (m_runControl) {
-        connect(m_runControl, SIGNAL(started()), m_inspectMode, SLOT(connectToViewer()));
-        connect(m_runControl, SIGNAL(finished()), m_inspectMode, SLOT(disconnectFromViewer()));
-
-        connect(m_runControl, SIGNAL(addToOutputWindow(RunControl*,QString)),
-                m_outputPane, SLOT(addOutput(RunControl*,QString)));
-        connect(m_runControl, SIGNAL(addToOutputWindowInline(RunControl*,QString)),
-                m_outputPane, SLOT(addOutputInline(RunControl*,QString)));
-        connect(m_runControl, SIGNAL(error(RunControl*,QString)),
-                m_outputPane, SLOT(addErrorOutput(RunControl*,QString)));
- 
-        m_runControl->start();
-        m_outputPane->popup(false);
-    }
-    
-}
-
-void QmlInspectorPlugin::stopViewer()
-{
-    if (m_runControl) {
-        m_runControl->stop();
-        m_runControl->deleteLater();
-        m_runControl = 0;
-    }
+    if (mode == m_inspectMode) 
+        m_inspectMode->connectToViewer();
 }
 
 

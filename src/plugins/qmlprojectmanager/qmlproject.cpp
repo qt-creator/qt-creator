@@ -39,6 +39,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/modemanager.h>
 
 #include <qmleditor/qmlmodelmanagerinterface.h>
 
@@ -58,6 +59,7 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
 #include <QtGui/QSpinBox>
+
 
 using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
@@ -508,7 +510,7 @@ ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::create(ProjectExp
 }
 
 QmlRunControl::QmlRunControl(QmlRunConfiguration *runConfiguration, bool debugMode)
-    : RunControl(runConfiguration)
+    : RunControl(runConfiguration), m_debugMode(debugMode)
 {
     Environment environment = ProjectExplorer::Environment::systemEnvironment();
     if (debugMode)
@@ -527,7 +529,7 @@ QmlRunControl::QmlRunControl(QmlRunConfiguration *runConfiguration, bool debugMo
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
-            this, SLOT(bringApplicationToForeground(qint64)));
+            this, SLOT(slotBringApplicationToForeground(qint64)));
 }
 
 QmlRunControl::~QmlRunControl()
@@ -549,6 +551,16 @@ void QmlRunControl::stop()
 bool QmlRunControl::isRunning() const
 {
     return m_applicationLauncher.isRunning();
+}
+
+void QmlRunControl::slotBringApplicationToForeground(qint64 pid)
+{
+    if (m_debugMode) {
+        Core::ICore *core = Core::ICore::instance();
+        core->modeManager()->activateMode(QLatin1String("QML_INSPECT_MODE"));
+    }
+
+    bringApplicationToForeground(pid);
 }
 
 void QmlRunControl::slotError(const QString &err)

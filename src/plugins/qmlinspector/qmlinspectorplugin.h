@@ -38,14 +38,12 @@ QT_BEGIN_NAMESPACE
 
 class QStringList;
 
-
-class QmlInspectorRunControlFactory;
 class QmlInspectorMode;
 class InspectorOutputPane;
 
-namespace ProjectExplorer
+namespace Core
 {
-    class RunControl;
+    class IMode;
 }
 
 class QmlInspectorPlugin : public ExtensionSystem::IPlugin
@@ -61,15 +59,11 @@ public:
     virtual void shutdown();
 
 private slots:
-    void startViewer();
-    void stopViewer();
+    void currentModeChanged(Core::IMode *mode);
 
 private:
     QmlInspectorMode *m_inspectMode;
     InspectorOutputPane *m_outputPane;
-    
-    QmlInspectorRunControlFactory *m_runControlFactory;
-    QPointer<ProjectExplorer::RunControl> m_runControl;
 };
 
 

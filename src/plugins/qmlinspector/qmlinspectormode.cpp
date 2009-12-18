@@ -75,6 +75,8 @@
 #include <QtGui/qlabel.h>
 #include <QtGui/qspinbox.h>
 
+#include <QtNetwork/QHostAddress>
+
 
 QT_BEGIN_NAMESPACE
 
@@ -156,17 +158,11 @@ QmlInspectorMode::QmlInspectorMode(QObject *parent)
 {    
     m_watchTableModel = new WatchTableModel(0, this);
 
-    initActions();
     setWidget(createModeWindow());
 
     setName(tr("QML Inspect"));
     setIcon(QIcon(":/qmlinspector/images/logo.png"));
-    setUniqueModeName("QML_INSPECT_MODE");    
-}
-
-quint16 QmlInspectorMode::viewerPort() const
-{
-    return m_portSpinBox->value();
+    setUniqueModeName("QML_INSPECT_MODE");
 }
 
 void QmlInspectorMode::connectToViewer()
@@ -181,12 +177,30 @@ void QmlInspectorMode::connectToViewer()
         delete m_conn;
     }
 
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject();
+    if (!project) {
+        emit statusMessage(tr("No active project, debugging canceled."));
+        return;
+    }
+
+    ProjectExplorer::RunConfiguration* config = project->activeRunConfiguration();
+    if (!config) {
+        emit statusMessage(tr("Cannot find project run configuration, debugging canceled."));
+        return;
+    }
+
+    // TODO load from QmlProject settings!!
+    QHostAddress host = QHostAddress::LocalHost;
+    quint16 port = 3768;
+
     m_conn = new QmlDebugConnection(this);
     connect(m_conn, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
             SLOT(connectionStateChanged()));
     connect(m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
             SLOT(connectionError()));
-    m_conn->connectToHost(m_addressEdit->text(), m_portSpinBox->value());
+
+    emit statusMessage(tr("[Inspector] set to connect to debug server %1:%2").arg(host.toString()).arg(port));
+    m_conn->connectToHost(host, port);
 }
 
 void QmlInspectorMode::disconnectFromViewer()
@@ -201,8 +215,6 @@ void QmlInspectorMode::connectionStateChanged()
         case QAbstractSocket::UnconnectedState:
         {
             emit statusMessage(tr("[Inspector] disconnected.\n\n"));
-            m_addressEdit->setEnabled(true);
-            m_portSpinBox->setEnabled(true);
 
             delete m_engineQuery;
             m_engineQuery = 0;
@@ -219,8 +231,6 @@ void QmlInspectorMode::connectionStateChanged()
         case QAbstractSocket::ConnectedState:
         {
             emit statusMessage(tr("[Inspector] connected.\n"));
-            m_addressEdit->setEnabled(false);
-            m_portSpinBox->setEnabled(false);
 
             if (!m_client) {
                 m_client = new QmlEngineDebug(m_conn, this);
@@ -250,29 +260,6 @@ void QmlInspectorMode::connectionError()
     emit statusMessage(tr("[Inspector] error: (%1) %2", "%1=error code, %2=error message")
             .arg(m_conn->error()).arg(m_conn->errorString()));
 }
-
-void QmlInspectorMode::initActions()
-{
-    m_actions.startAction = new QAction(tr("Start Inspector"), this);
-    m_actions.startAction->setIcon(QIcon(ProjectExplorer::Constants::ICON_RUN));
-    
-    m_actions.stopAction = new QAction(tr("Stop Inspector"), this);
-    m_actions.stopAction->setIcon(QIcon(ProjectExplorer::Constants::ICON_STOP));
-
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
-    Core::UniqueIDManager *uidm = core->uniqueIDManager();
-
-    QList<int> context;
-    context << uidm->uniqueIdentifier(QmlInspector::Constants::C_INSPECTOR);
-
-    am->registerAction(m_actions.startAction, QmlInspector::Constants::RUN, context);
-    connect(m_actions.startAction, SIGNAL(triggered()), SIGNAL(startViewer()));
-    
-    am->registerAction(m_actions.stopAction, QmlInspector::Constants::STOP, context);
-    connect(m_actions.stopAction, SIGNAL(triggered()), SIGNAL(stopViewer()));
-}    
-
 
 QToolButton *QmlInspectorMode::createToolButton(QAction *action)
 {
@@ -329,10 +316,9 @@ QWidget *QmlInspectorMode::createMainView()
     
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();    
-    configBarLayout->addWidget(createToolButton(am->command(QmlInspector::Constants::RUN)->action()));
-    configBarLayout->addWidget(createToolButton(am->command(QmlInspector::Constants::STOP)->action()));
-    configBarLayout->addWidget(m_addressEdit);
-    configBarLayout->addWidget(m_portSpinBox);
+    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
+    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
+
     configBarLayout->addStretch();
        
     QWidget *widgetAboveTabs = new QWidget;
@@ -449,15 +435,6 @@ void QmlInspectorMode::initWidgets()
 
     connect(m_objectTreeWidget, SIGNAL(currentObjectChanged(QmlDebugObjectReference)),
             m_expressionWidget, SLOT(setCurrentObject(QmlDebugObjectReference)));
-
-    m_addressEdit = new QLineEdit;
-    m_addressEdit->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    m_addressEdit->setText("127.0.0.1");
-
-    m_portSpinBox = new QSpinBox;
-    m_portSpinBox->setMinimum(1024);
-    m_portSpinBox->setMaximum(20000);
-    m_portSpinBox->setValue(3768);
 
     m_engineSpinBox = new EngineSpinBox;
     m_engineSpinBox->setEnabled(false);

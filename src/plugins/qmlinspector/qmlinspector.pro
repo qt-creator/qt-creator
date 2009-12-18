@@ -9,13 +9,11 @@ include(components/qmldebugger.pri)
 HEADERS += qmlinspectorplugin.h \
            qmlinspector.h \
            qmlinspectormode.h \
-           inspectoroutputpane.h \
-           runcontrol.h
+           inspectoroutputpane.h
 
 SOURCES += qmlinspectorplugin.cpp \
            qmlinspectormode.cpp \
-           inspectoroutputpane.cpp \
-           runcontrol.cpp 
+           inspectoroutputpane.cpp
 
 OTHER_FILES += QmlInspector.pluginspec
 RESOURCES += qmlinspector.qrc
