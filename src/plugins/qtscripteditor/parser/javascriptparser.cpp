@@ -1180,10 +1180,12 @@ case 266: {
         }
 
         QString msg = QString::fromUtf8("Unexpected token");
-        if (const char *tokenSpell = spell[token_buffer[0].token]) {
-            msg += QLatin1String(": `");
-            msg += QLatin1String(tokenSpell);
-            msg += QLatin1Char('\'');
+        if (token_buffer[0].token >= 0 && token_buffer[0].token < TERMINAL_COUNT) { // ### FIXME: band-aid, see QTCREATORBUG-509.
+            if (const char *tokenSpell = spell[token_buffer[0].token]) {
+                msg += QLatin1String(": `");
+                msg += QLatin1String(tokenSpell);
+                msg += QLatin1Char('\'');
+            }
         }
 
         diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error,
