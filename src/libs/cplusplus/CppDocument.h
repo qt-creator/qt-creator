@@ -73,7 +73,8 @@ public:
 
     void appendMacro(const Macro &macro);
     void addMacroUse(const Macro &macro, unsigned offset, unsigned length,
-                     const QVector<MacroArgumentReference> &range, bool inCondition);
+                     unsigned beginLine, const QVector<MacroArgumentReference> &range,
+                     bool inCondition);
     void addUndefinedMacroUse(const QByteArray &name, unsigned offset);
 
     Control *control() const;
@@ -234,14 +235,15 @@ public:
         Macro _macro;
         QVector<Block> _arguments;
         bool _inCondition;
+        unsigned _beginLine;
 
     public:
         inline MacroUse(const Macro &macro,
-                        unsigned begin = 0,
-                        unsigned end = 0)
+                        unsigned begin, unsigned end, unsigned beginLine)
             : Block(begin, end),
               _macro(macro),
-              _inCondition(false)
+              _inCondition(false),
+              _beginLine(beginLine)
         { }
 
         const Macro &macro() const
@@ -255,6 +257,9 @@ public:
 
         bool isInCondition() const
         { return _inCondition; }
+
+        unsigned beginLine() const
+        { return _beginLine; }
 
     private:
         void setArguments(const QVector<Block> &arguments)
@@ -275,7 +280,7 @@ public:
     public:
         inline UndefinedMacroUse(
                 const QByteArray &name,
-                unsigned begin = 0)
+                unsigned begin)
             : Block(begin, begin + name.length()),
               _name(name)
         { }
@@ -297,6 +302,10 @@ public:
 
     QList<UndefinedMacroUse> undefinedMacroUses() const
     { return _undefinedMacroUses; }
+
+    const Macro *findMacroDefinitionAt(unsigned line) const;
+    const MacroUse *findMacroUseAt(unsigned offset) const;
+    const UndefinedMacroUse *findUndefinedMacroUseAt(unsigned offset) const;
 
 private:
     Symbol *findSymbolAt(unsigned line, unsigned column, Scope *scope) const;

@@ -92,6 +92,18 @@ public:
     void setLine(unsigned line)
     { _line = line; }
 
+    unsigned offset() const
+    { return _offset; }
+
+    void setOffset(unsigned offset)
+    { _offset = offset; }
+
+    unsigned length() const
+    { return _length; }
+
+    void setLength(unsigned length)
+    { _length = length; }
+
     bool isHidden() const
     { return f._hidden; }
 
@@ -129,6 +141,8 @@ private:
     QVector<QByteArray> _formals;
     QString _fileName;
     unsigned _line;
+    unsigned _offset;
+    unsigned _length;
 
     union
     {

@@ -1363,15 +1363,14 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         }
     } else {
         // Handle macro uses
-        foreach (const Document::MacroUse use, doc->macroUses()) {
-            if (use.contains(endOfName - 1)) {
-                const Macro &macro = use.macro();
-                link.fileName = macro.fileName();
-                link.line = macro.line();
-                link.pos = use.begin();
-                link.length = use.end() - use.begin();
-                return link;
-            }
+        const Document::MacroUse *use = doc->findMacroUseAt(endOfName - 1);
+        if (use) {
+            const Macro &macro = use->macro();
+            link.fileName = macro.fileName();
+            link.line = macro.line();
+            link.pos = use->begin();
+            link.length = use->end() - use->begin();
+            return link;
         }
     }
 

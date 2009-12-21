@@ -194,9 +194,10 @@ void Document::appendMacro(const Macro &macro)
 }
 
 void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length,
+                           unsigned beginLine,
                            const QVector<MacroArgumentReference> &actuals, bool inCondition)
 {
-    MacroUse use(macro, offset, offset + length);
+    MacroUse use(macro, offset, offset + length, beginLine);
     use.setInCondition(inCondition);
 
     foreach (const MacroArgumentReference &actual, actuals) {
@@ -328,6 +329,33 @@ Symbol *Document::findSymbolAt(unsigned line, unsigned column, Scope *scope) con
     }
 
     return previousSymbol;
+}
+
+const Macro *Document::findMacroDefinitionAt(unsigned line) const
+{
+    foreach (const Macro &macro, _definedMacros) {
+        if (macro.line() == line)
+            return &macro;
+    }
+    return 0;
+}
+
+const Document::MacroUse *Document::findMacroUseAt(unsigned offset) const
+{
+    foreach (const Document::MacroUse &use, _macroUses) {
+        if (use.contains(offset))
+            return &use;
+    }
+    return 0;
+}
+
+const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(unsigned offset) const
+{
+    foreach (const Document::UndefinedMacroUse &use, _undefinedMacroUses) {
+        if (use.contains(offset))
+            return &use;
+    }
+    return 0;
 }
 
 Document::Ptr Document::create(const QString &fileName)
