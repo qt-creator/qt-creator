@@ -166,6 +166,13 @@ using namespace Core::Internal;
     in QFutureInterface. After the long taking operation has finished,
     we report so through the QFutureInterface object, and delete it
     afterwards.
+
+    \section1 Customizing progress appearance
+
+    You can set a custom widget to show below the progress bar itself,
+    using the FutureProgress object returned by the addTask() method.
+    Also use this object to get notified when the user clicks on the
+    progress indicator.
 */
 
 /*!
@@ -193,13 +200,14 @@ using namespace Core::Internal;
 /*!
     \fn FutureProgress *Core::ProgressManager::addTask(const QFuture<void> &future, const QString &title, const QString &type, ProgressFlags flags = 0)
 
-    Shows a progress indicator for the given task.
+    Shows a progress indicator for task given by the QFuture object \a future.
     The progress indicator shows the specified \a title along with the progress bar.
     The \a type of a task will specify a logical grouping with other
     running tasks. Via the \a flags parameter you can e.g. let the
     progress indicator stay visible after the task has finished.
     Returns an object that represents the created progress indicator,
-    which can be used to further customize.
+    which can be used to further customize. The FutureProgress object's
+    life is managed by the ProgressManager and is guaranteed to live
 */
 
 /*!
