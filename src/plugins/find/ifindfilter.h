@@ -53,7 +53,11 @@ public:
     virtual QString name() const = 0;
     virtual bool isEnabled() const = 0;
     virtual QKeySequence defaultShortcut() const = 0;
+    virtual bool isReplaceSupported() const { return false; }
+
     virtual void findAll(const QString &txt, QTextDocument::FindFlags findFlags) = 0;
+    virtual void replaceAll(const QString &txt, QTextDocument::FindFlags findFlags)
+    { Q_UNUSED(txt) Q_UNUSED(findFlags) }
 
     virtual QWidget *createConfigWidget() { return 0; }
     virtual void writeSettings(QSettings *settings) { Q_UNUSED(settings) }

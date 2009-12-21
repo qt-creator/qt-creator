@@ -106,8 +106,16 @@ public:
     QString projectsDirectory() const;
     void setProjectsDirectory(const QString &);
 
+public slots:
+    /* Used to notify e.g. the code model to update the given files. Does *not*
+       lead to any editors to reload or any other editor manager actions. */
+    void notifyFilesChangedInternally(const QStringList &files);
+
 signals:
     void currentFileChanged(const QString &filePath);
+    /* Used to notify e.g. the code model to update the given files. Does *not*
+       lead to any editors to reload or any other editor manager actions. */
+    void filesChangedInternally(const QStringList &files);
 
 private slots:
     void fileDestroyed(QObject *obj);

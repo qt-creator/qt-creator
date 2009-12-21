@@ -29,6 +29,8 @@
 
 #include "vcsmanager.h"
 #include "iversioncontrol.h"
+#include "icore.h"
+#include "filemanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -74,9 +76,10 @@ VCSManager::~VCSManager()
 void VCSManager::extensionsInitialized()
 {
     // Change signal connections
+    FileManager *fileManager = ICore::instance()->fileManager();
     foreach (IVersionControl *versionControl, allVersionControls()) {
         connect(versionControl, SIGNAL(filesChanged(QStringList)),
-                this, SIGNAL(filesChanged(QStringList)));
+                fileManager, SIGNAL(filesChangedInternally(QStringList)));
         connect(versionControl, SIGNAL(repositoryChanged(QString)),
                 this, SIGNAL(repositoryChanged(QString)));
     }

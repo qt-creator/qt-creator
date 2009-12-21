@@ -78,7 +78,6 @@ public:
 
 signals:
     void repositoryChanged(const QString &repository);
-    void filesChanged(const QStringList &files);
 
 private:
     VCSManagerPrivate *m_d;

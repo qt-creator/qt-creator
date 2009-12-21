@@ -32,6 +32,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/filemanager.h>
 #include <find/textfindconstants.h>
 #include <find/searchresultwindow.h>
 #include <texteditor/itexteditor.h>
@@ -104,6 +105,41 @@ void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlag
                                                                         Constants::TASK_SEARCH);
     progress->setWidget(createProgressWidget());
     connect(progress, SIGNAL(clicked()), m_resultWindow, SLOT(popup()));
+}
+
+void BaseFileFind::replaceAll(const QString &txt, QTextDocument::FindFlags findFlags)
+{
+    m_isSearching = true;
+    emit changed();
+    if (m_filterCombo)
+        updateComboEntries(m_filterCombo, false);
+    m_watcher.setFuture(QFuture<FileSearchResult>());
+    SearchResult *result = m_resultWindow->startNewSearch(SearchResultWindow::SearchAndReplace);
+    connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
+    connect(result, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
+            this, SLOT(doReplace(QString,QList<Find::SearchResultItem>)));
+    m_resultWindow->popup(true);
+    if (m_useRegExp)
+        m_watcher.setFuture(Utils::findInFilesRegExp(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
+    else
+        m_watcher.setFuture(Utils::findInFiles(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
+    Core::FutureProgress *progress =
+        Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
+                                                                        "Search",
+                                                                        Constants::TASK_SEARCH);
+    progress->setWidget(createProgressWidget());
+    connect(progress, SIGNAL(clicked()), m_resultWindow, SLOT(popup()));
+}
+
+void BaseFileFind::doReplace(const QString &text,
+                               const QList<Find::SearchResultItem> &items)
+{
+    QStringList files = replaceAll(text, items);
+    Core::FileManager *fileManager = Core::ICore::instance()->fileManager();
+    if (!files.isEmpty()) {
+        fileManager->notifyFilesChangedInternally(files);
+        m_resultWindow->hide();
+    }
 }
 
 void BaseFileFind::displayResult(int index) {
@@ -236,4 +272,97 @@ void BaseFileFind::syncRegExpSetting(bool useRegExp)
 void BaseFileFind::openEditor(const Find::SearchResultItem &item)
 {
     TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.searchTermStart);
+}
+
+#pragma mark Static methods
+
+static void applyChanges(QTextDocument *doc, const QString &text, const QList<Find::SearchResultItem> &items)
+{
+    QList<QTextCursor> cursors;
+
+    foreach (const Find::SearchResultItem &item, items) {
+        const int blockNumber = item.lineNumber - 1;
+        QTextCursor tc(doc->findBlockByNumber(blockNumber));
+
+        const int cursorPosition = tc.position() + item.searchTermStart;
+
+        int cursorIndex = 0;
+        for (; cursorIndex < cursors.size(); ++cursorIndex) {
+            const QTextCursor &tc = cursors.at(cursorIndex);
+
+            if (tc.position() == cursorPosition)
+                break;
+        }
+
+        if (cursorIndex != cursors.size())
+            continue; // skip this change.
+
+        tc.setPosition(cursorPosition);
+        tc.setPosition(tc.position() + item.searchTermLength,
+                       QTextCursor::KeepAnchor);
+        cursors.append(tc);
+    }
+
+    foreach (QTextCursor tc, cursors)
+        tc.insertText(text);
+}
+
+QStringList BaseFileFind::replaceAll(const QString &text,
+                               const QList<Find::SearchResultItem> &items)
+{
+    if (text.isEmpty() || items.isEmpty())
+        return QStringList();
+
+    QHash<QString, QList<Find::SearchResultItem> > changes;
+
+    foreach (const Find::SearchResultItem &item, items)
+        changes[item.fileName].append(item);
+
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+
+    QHashIterator<QString, QList<Find::SearchResultItem> > it(changes);
+    while (it.hasNext()) {
+        it.next();
+
+        const QString fileName = it.key();
+        const QList<Find::SearchResultItem> items = it.value();
+
+        const QList<Core::IEditor *> editors = editorManager->editorsForFileName(fileName);
+        TextEditor::BaseTextEditor *textEditor = 0;
+        foreach (Core::IEditor *editor, editors) {
+            textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
+            if (textEditor != 0)
+                break;
+        }
+
+        if (textEditor != 0) {
+            QTextCursor tc = textEditor->textCursor();
+            tc.beginEditBlock();
+            applyChanges(textEditor->document(), text, items);
+            tc.endEditBlock();
+        } else {
+            QFile file(fileName);
+
+            if (file.open(QFile::ReadOnly)) {
+                QTextStream stream(&file);
+                // ### set the encoding
+                const QString plainText = stream.readAll();
+                file.close();
+
+                QTextDocument doc;
+                doc.setPlainText(plainText);
+
+                applyChanges(&doc, text, items);
+
+                QFile newFile(fileName);
+                if (newFile.open(QFile::WriteOnly)) {
+                    QTextStream stream(&newFile);
+                    // ### set the encoding
+                    stream << doc.toPlainText();
+                }
+            }
+        }
+    }
+
+    return changes.keys();
 }

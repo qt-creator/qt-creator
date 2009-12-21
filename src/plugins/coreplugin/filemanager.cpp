@@ -781,6 +781,11 @@ void FileManager::setFileDialogLastVisitedDirectory(const QString &directory)
     d->m_lastVisitedDirectory = directory;
 }
 
+void FileManager::notifyFilesChangedInternally(const QStringList &files)
+{
+    emit filesChangedInternally(files);
+}
+
 // -------------- FileChangeBlocker
 
 FileChangeBlocker::FileChangeBlocker(const QString &fileName)

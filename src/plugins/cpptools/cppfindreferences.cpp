@@ -32,6 +32,7 @@
 #include "cpptoolsconstants.h"
 
 #include <texteditor/basetexteditor.h>
+#include <texteditor/basefilefind.h>
 #include <find/searchresultwindow.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filesearch.h>
@@ -294,63 +295,11 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
 {
     Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
 
-    if (text.isEmpty())
-        return;
-
-    QHash<QString, QList<Find::SearchResultItem> > changes;
-
-    foreach (const Find::SearchResultItem &item, items)
-        changes[item.fileName].append(item);
-
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-
-    QHashIterator<QString, QList<Find::SearchResultItem> > it(changes);
-    while (it.hasNext()) {
-        it.next();
-
-        const QString fileName = it.key();
-        const QList<Find::SearchResultItem> items = it.value();
-
-        const QList<Core::IEditor *> editors = editorManager->editorsForFileName(fileName);
-        TextEditor::BaseTextEditor *textEditor = 0;
-        foreach (Core::IEditor *editor, editors) {
-            textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
-            if (textEditor != 0)
-                break;
-        }
-
-        if (textEditor != 0) {
-            QTextCursor tc = textEditor->textCursor();
-            tc.beginEditBlock();
-            applyChanges(textEditor->document(), text, items);
-            tc.endEditBlock();
-        } else {
-            QFile file(fileName);
-
-            if (file.open(QFile::ReadOnly)) {
-                QTextStream stream(&file);
-                // ### set the encoding
-                const QString plainText = stream.readAll();
-                file.close();
-
-                QTextDocument doc;
-                doc.setPlainText(plainText);
-
-                applyChanges(&doc, text, items);
-
-                QFile newFile(fileName);
-                if (newFile.open(QFile::WriteOnly)) {
-                    QTextStream stream(&newFile);
-                    // ### set the encoding
-                    stream << doc.toPlainText();
-                }
-            }
-        }
+    const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items);
+    if (!fileNames.isEmpty()) {
+        _modelManager->updateSourceFiles(fileNames);
+        _resultWindow->hide();
     }
-
-    const QStringList fileNames = changes.keys();
-    _modelManager->updateSourceFiles(fileNames);
-    _resultWindow->hide();
 }
 
 void CppFindReferences::displayResults(int first, int last)
