@@ -234,8 +234,10 @@ bool TabSettings::guessSpacesForTabs(const QTextBlock& _block) const {
         QVector<QTextBlock> currentBlocks(2, _block); // [0] looks back; [1] looks forward
         int maxLookAround = 100;
         while (maxLookAround-- > 0) {
-            currentBlocks[0] = currentBlocks.at(0).previous();
-            currentBlocks[1] = currentBlocks.at(1).next();
+            if (currentBlocks.at(0).isValid())
+                currentBlocks[0] = currentBlocks.at(0).previous();
+            if (currentBlocks.at(1).isValid())
+                currentBlocks[1] = currentBlocks.at(1).next();
             bool done = true;
             foreach(QTextBlock block, currentBlocks) {
                 if (block.isValid())
