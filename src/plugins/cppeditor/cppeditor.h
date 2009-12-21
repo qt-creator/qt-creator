@@ -227,6 +227,8 @@ protected:
     CPlusPlus::Symbol *findCanonicalSymbol(const QTextCursor &cursor,
                                            CPlusPlus::Document::Ptr doc,
                                            const CPlusPlus::Snapshot &snapshot) const;
+    const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
+                                               CPlusPlus::Document::Ptr doc) const;
 
 private Q_SLOTS:
     void updateFileName();

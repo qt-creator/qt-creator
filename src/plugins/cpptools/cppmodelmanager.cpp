@@ -792,6 +792,11 @@ void CppModelManager::renameUsages(CPlusPlus::Symbol *symbol)
         m_findReferences->renameUsages(symbol);
 }
 
+void CppModelManager::findMacroUsages(const CPlusPlus::Macro &macro)
+{
+    m_findReferences->findMacroUses(macro);
+}
+
 CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
 {
     WorkingCopy workingCopy;

@@ -861,11 +861,30 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
     return canonicalSymbol;
 }
 
+const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor,
+                                                  Document::Ptr doc) const
+{
+    if (! doc)
+        return 0;
+
+    int line, col;
+    convertPosition(cursor.position(), &line, &col);
+
+    if (const Macro *macro = doc->findMacroDefinitionAt(line))
+        return macro;
+
+    if (const Document::MacroUse *use = doc->findMacroUseAt(cursor.position()))
+        return &use->macro();
+
+    return 0;
+}
 
 void CPPEditor::findUsages()
 {    
     if (Symbol *canonicalSymbol = markSymbols()) {
         m_modelManager->findUsages(canonicalSymbol);
+    } else if (const Macro *macro = findCanonicalMacro(textCursor(), m_lastSemanticInfo.doc)) {
+        m_modelManager->findMacroUsages(*macro);
     }
 }
 

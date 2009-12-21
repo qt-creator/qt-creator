@@ -123,6 +123,8 @@ public:
     virtual void renameUsages(CPlusPlus::Symbol *symbol) = 0;
     virtual void findUsages(CPlusPlus::Symbol *symbol) = 0;
 
+    virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
+
 public Q_SLOTS:
     void updateModifiedSourceFiles();
     virtual void updateSourceFiles(const QStringList &sourceFiles) = 0;    

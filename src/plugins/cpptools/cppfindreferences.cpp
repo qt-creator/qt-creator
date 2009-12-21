@@ -65,6 +65,20 @@
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
+static QString getSource(const QString &fileName,
+                         const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy)
+{
+    if (workingCopy.contains(fileName)) {
+        return workingCopy.source(fileName);
+    } else {
+        QFile file(fileName);
+        if (! file.open(QFile::ReadOnly))
+            return QString();
+
+        return QTextStream(&file).readAll(); // ### FIXME
+    }
+}
+
 namespace {
 
 class ProcessFile: public std::unary_function<QString, QList<Usage> >
@@ -91,18 +105,8 @@ public:
                 return usages; // skip this document, it's not using symbolId.
         }
 
-        QByteArray source;
-
-        if (workingCopy.contains(fileName))
-            source = snapshot.preprocessedCode(workingCopy.source(fileName), fileName);
-        else {
-            QFile file(fileName);
-            if (! file.open(QFile::ReadOnly))
-                return usages;
-
-            const QString contents = QTextStream(&file).readAll(); // ### FIXME
-            source = snapshot.preprocessedCode(contents, fileName);
-        }
+        QByteArray source = snapshot.preprocessedCode(
+                getSource(fileName, workingCopy), fileName);
 
         Document::Ptr doc = snapshot.documentFromSource(source, fileName);
         doc->tokenize();
@@ -292,5 +296,125 @@ void CppFindReferences::searchFinished()
 void CppFindReferences::openEditor(const Find::SearchResultItem &item)
 {
     TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.searchTermStart);
+}
+
+
+namespace {
+
+class FindMacroUsesInFile: public std::unary_function<QString, QList<Usage> >
+{
+    const CppTools::CppModelManagerInterface::WorkingCopy workingCopy;
+    const Snapshot snapshot;
+    const Macro &macro;
+
+public:
+    FindMacroUsesInFile(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy,
+                        const Snapshot snapshot,
+                        const Macro &macro)
+        : workingCopy(workingCopy), snapshot(snapshot), macro(macro)
+    { }
+
+    QList<Usage> operator()(const QString &fileName)
+    {
+        QList<Usage> usages;
+
+        const Document::Ptr &doc = snapshot.document(fileName);
+        QByteArray source;
+
+        foreach (const Document::MacroUse &use, doc->macroUses()) {
+            const Macro &useMacro = use.macro();
+            if (useMacro.line() == macro.line()
+                && useMacro.fileName() == macro.fileName())
+                {
+                if (source.isEmpty())
+                    source = getSource(fileName, workingCopy).toLatin1(); // ### FIXME: Encoding?
+
+                unsigned lineStart;
+                const QString &lineSource = matchingLine(use.begin(), source, &lineStart);
+                usages.append(Usage(fileName, lineSource, use.beginLine(),
+                                    use.begin() - lineStart, use.length()));
+            }
+        }
+
+        return usages;
+    }
+
+    // ### FIXME: Pretty close to FindUsages::matchingLine.
+    static QString matchingLine(unsigned position, const QByteArray &source,
+                                unsigned *lineStart = 0)
+    {
+        const char *beg = source.constData();
+        const char *start = beg + position;
+        for (; start != beg - 1; --start) {
+            if (*start == '\n')
+                break;
+        }
+
+        ++start;
+
+        const char *end = start + 1;
+        for (; *end; ++end) {
+            if (*end == '\n')
+                break;
+        }
+
+        if (lineStart)
+            *lineStart = start - beg;
+
+        // ### FIXME: Encoding?
+        const QString matchingLine = QString::fromUtf8(start, end - start);
+        return matchingLine;
+    }
+};
+
+} // end of anonymous namespace
+
+static void findMacroUses_helper(QFutureInterface<Usage> &future,
+                        const CppTools::CppModelManagerInterface::WorkingCopy workingCopy,
+                        const Snapshot snapshot,
+                        const Macro macro)
+{
+    const QString& sourceFile = macro.fileName();
+    QStringList files(sourceFile);
+    files += snapshot.filesDependingOn(sourceFile);
+    files.removeDuplicates();
+
+    future.setProgressRange(0, files.size());
+
+    FindMacroUsesInFile process(workingCopy, snapshot, macro);
+    UpdateUI reduce(&future);
+    QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
+
+    future.setProgressValue(files.size());
+}
+
+void CppFindReferences::findMacroUses(const Macro &macro)
+{
+    Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchOnly);
+
+    _resultWindow->popup(true);
+
+    connect(search, SIGNAL(activated(Find::SearchResultItem)),
+            this, SLOT(openEditor(Find::SearchResultItem)));
+
+    const Snapshot snapshot = _modelManager->snapshot();
+    const CppTools::CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
+
+    // add the macro definition itself
+    {
+        // ### FIXME: Encoding?
+        const QByteArray &source = getSource(macro.fileName(), workingCopy).toLatin1();
+        _resultWindow->addResult(macro.fileName(), macro.line(),
+                                 source.mid(macro.offset(), macro.length()), 0, macro.length());
+    }
+
+    QFuture<Usage> result;
+    result = QtConcurrent::run(&findMacroUses_helper, workingCopy, snapshot, macro);
+    m_watcher.setFuture(result);
+
+    Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
+    Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching..."),
+                                                              CppTools::Constants::TASK_SEARCH);
+    connect(progress, SIGNAL(clicked()), _resultWindow, SLOT(popup()));
 }
 
