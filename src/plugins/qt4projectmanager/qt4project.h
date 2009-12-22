@@ -148,6 +148,22 @@ private:
     QMap<QString, VersionInfo> m_versions;
 };
 
+struct Qt4TargetInformation
+{
+    enum ErrorCode {
+        NoError,
+        InvalidProjectError,
+        ProParserError
+    };
+
+    ErrorCode error;
+    bool hasCustomDestDir;
+    QString baseDestDir;
+    QString workingDir;
+    QString target;
+    QString executable;
+};
+
 class Qt4Project : public ProjectExplorer::Project
 {
     Q_OBJECT
@@ -195,6 +211,9 @@ public:
 
     Internal::ProFileReader *createProFileReader(Internal::Qt4ProFileNode *qt4ProFileNode);
     void destroyProFileReader(Internal::ProFileReader *reader);
+
+    Qt4TargetInformation targetInformation(Internal::Qt4BuildConfiguration *buildConfiguration,
+                                           const QString &proFilePath);
 
 signals:
     /// convenience signal, emitted if either the active buildconfiguration emits

@@ -570,81 +570,22 @@ void Qt4RunConfiguration::updateTarget()
 {
     if (m_cachedTargetInformationValid)
         return;
-    //qDebug()<<"updateTarget";
-    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
-    Qt4ProFileNode *proFileNode = qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
-    if (!proFileNode) {
+    Qt4TargetInformation info = qt4Project()->targetInformation(qt4Project()->activeQt4BuildConfiguration(),
+                                                                m_proFilePath);
+    if (info.error != Qt4TargetInformation::NoError) {
+        if (info.error == Qt4TargetInformation::ProParserError) {
+            Core::ICore::instance()->messageManager()->printToOutputPane(
+                    tr("Could not parse %1. The Qt4 run configuration %2 can not be started.")
+                    .arg(m_proFilePath).arg(name()));
+        }
         m_workingDir = QString::null;
         m_executable = QString::null;
         m_cachedTargetInformationValid = true;
         emit effectiveTargetInformationChanged();
         return;
     }
-    ProFileReader *reader = qt4Project()->createProFileReader(proFileNode);
-    reader->setCumulative(false);
-
-    // Find out what flags we pass on to qmake
-    QStringList addedUserConfigArguments;
-    QStringList removedUserConfigArguments;
-    qt4bc->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
-    reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
-
-    if (!reader->readProFile(m_proFilePath)) {
-        qt4Project()->destroyProFileReader(reader);
-        Core::ICore::instance()->messageManager()->printToOutputPane(tr("Could not parse %1. The Qt4 run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));
-        return;
-    }
-
-    // Extract data
-    QDir baseProjectDirectory = QFileInfo(project()->file()->fileName()).absoluteDir();
-    QString relSubDir = baseProjectDirectory.relativeFilePath(QFileInfo(m_proFilePath).path());
-    QDir baseBuildDirectory = project()->activeBuildConfiguration()->buildDirectory();
-    QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
-
-    //qDebug()<<relSubDir<<baseDir;
-
-    // Working Directory
-    if (reader->contains("DESTDIR")) {
-        //qDebug()<<"reader contains destdir:"<<reader->value("DESTDIR");
-        m_workingDir = reader->value("DESTDIR");
-        if (QDir::isRelativePath(m_workingDir)) {
-            m_workingDir = baseDir + QLatin1Char('/') + m_workingDir;
-            //qDebug()<<"was relative and expanded to"<<m_workingDir;
-        }
-    } else {
-        //qDebug()<<"reader didn't contain DESTDIR, setting to "<<baseDir;
-        m_workingDir = baseDir;
-        if (reader->values("CONFIG").contains("debug_and_release_target")) {
-            //qDebug()<<"reader has debug_and_release_target";
-            QString qmakeBuildConfig = "release";
-            if (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild)
-                qmakeBuildConfig = "debug";
-            if (!reader->contains("DESTDIR"))
-                m_workingDir += QLatin1Char('/') + qmakeBuildConfig;
-        }
-    }
-
-    QString target = reader->value("TARGET");
-    if (target.isEmpty())
-        target = QFileInfo(m_proFilePath).baseName();
-
-#if defined (Q_OS_MAC)
-    if (reader->values("CONFIG").contains("app_bundle")) {
-        m_workingDir += QLatin1Char('/')
-                   + target
-                   + QLatin1String(".app/Contents/MacOS");
-    }
-#endif
-
-    m_workingDir = QDir::cleanPath(m_workingDir);
-    m_executable = QDir::cleanPath(m_workingDir + QLatin1Char('/') + target);
-    //qDebug()<<"##### updateTarget sets:"<<m_workingDir<<m_executable;
-
-#if defined (Q_OS_WIN)
-    m_executable += QLatin1String(".exe");
-#endif
-
-    qt4Project()->destroyProFileReader(reader);
+    m_workingDir = info.workingDir;
+    m_executable = info.executable;
 
     m_cachedTargetInformationValid = true;
 

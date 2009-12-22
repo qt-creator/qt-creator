@@ -565,64 +565,24 @@ void MaemoRunConfiguration::updateTarget()
     m_executable = QString::null;
     m_cachedTargetInformationValid = true;
 
-    if (Qt4Project *qt4Project = project()) {
-        Qt4BuildConfiguration *qt4bc = qt4Project->activeQt4BuildConfiguration();
-        Qt4ProFileNode *proFileNode = qt4Project->rootProjectNode()->findProFileFor(m_proFilePath);
-        if (!proFileNode) {
-            emit targetInformationChanged();
-            return;
-        }
-
-        ProFileReader *reader = qt4Project->createProFileReader(proFileNode);
-        reader->setCumulative(false);
-
-        // Find out what flags we pass on to qmake
-        QStringList addedUserConfigArguments;
-        QStringList removedUserConfigArguments;
-        qt4bc->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
-        reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
-
-        if (!reader->readProFile(m_proFilePath)) {
-            qt4Project->destroyProFileReader(reader);
+    Qt4TargetInformation info = project()->targetInformation(project()->activeQt4BuildConfiguration(),
+                                                             m_proFilePath);
+    if (info.error != Qt4TargetInformation::NoError) {
+        if (info.error == Qt4TargetInformation::ProParserError) {
             Core::ICore::instance()->messageManager()->printToOutputPane(tr(
                 "Could not parse %1. The Maemo run configuration %2 "
                 "can not be started.").arg(m_proFilePath).arg(name()));
-            emit targetInformationChanged();
-            return;
         }
-
-        // Extract data
-        QDir baseProjectDirectory =
-            QFileInfo(project()->file()->fileName()).absoluteDir();
-        QString relSubDir =
-            baseProjectDirectory.relativeFilePath(QFileInfo(m_proFilePath).path());
-        QDir baseBuildDirectory = qt4bc->buildDirectory();
-        QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
-
-        if (!reader->contains("DESTDIR")) {
-#if 0   // TODO: fix this, seems to be wrong on windows
-            if (reader->values("CONFIG").contains("debug_and_release_target")) {
-                QString qmakeBuildConfig = "release";
-                if (projectBuildConfiguration & QtVersion::DebugBuild)
-                    qmakeBuildConfig = "debug";
-                baseDir += QLatin1Char('/') + qmakeBuildConfig;
-            }
-#endif
-        } else {
-            const QString &destDir = reader->value("DESTDIR");
-            if (QDir::isRelativePath(destDir))
-                baseDir += QLatin1Char('/') + destDir;
-            else
-                baseDir = destDir;
-        }
-
-        QString target = reader->value("TARGET");
-        if (target.isEmpty())
-            target = QFileInfo(m_proFilePath).baseName();
-
-        m_executable = QDir::cleanPath(baseDir + QLatin1Char('/') + target);
-        qt4Project->destroyProFileReader(reader);
+        emit targetInformationChanged();
+        return;
     }
+
+    QString baseDir;
+    if (info.hasCustomDestDir)
+        baseDir = info.workingDir;
+    else
+        baseDir = info.baseDestDir;
+    m_executable = QDir::cleanPath(baseDir + QLatin1Char('/') + info.target);
 
     emit targetInformationChanged();
 }

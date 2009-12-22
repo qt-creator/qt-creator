@@ -127,29 +127,21 @@ void S60EmulatorRunConfiguration::updateTarget()
 {
     if (m_cachedTargetInformationValid)
         return;
-    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
-    Qt4ProFileNode *proFileNode = qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
-    if (!proFileNode) {
+    Qt4TargetInformation info = qt4Project()->targetInformation(qt4Project()->activeQt4BuildConfiguration(),
+                                                                m_proFilePath);
+    if (info.error != Qt4TargetInformation::NoError) {
+        if (info.error == Qt4TargetInformation::ProParserError) {
+            Core::ICore::instance()->messageManager()->printToOutputPane(
+                    tr("Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.")
+                    .arg(m_proFilePath).arg(name()));
+        }
         m_executable = QString::null;
         m_cachedTargetInformationValid = true;
         emit targetInformationChanged();
         return;
     }
-    ProFileReader *reader = qt4Project()->createProFileReader(proFileNode);
-    reader->setCumulative(false);
 
-    // Find out what flags we pass on to qmake
-    QStringList addedUserConfigArguments;
-    QStringList removedUserConfigArguments;
-    qt4bc->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
-    reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
-
-    if (!reader->readProFile(m_proFilePath)) {
-        qt4Project()->destroyProFileReader(reader);
-        Core::ICore::instance()->messageManager()->printToOutputPane(tr("Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));
-        return;
-    }
-
+    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
     QtVersion *qtVersion = qt4bc->qtVersion();
     QString baseDir = S60Manager::instance()->deviceForQtVersion(qtVersion).epocRoot;
     QString qmakeBuildConfig = "urel";
@@ -157,15 +149,10 @@ void S60EmulatorRunConfiguration::updateTarget()
         qmakeBuildConfig = "udeb";
     baseDir += "/epoc32/release/winscw/" + qmakeBuildConfig;
 
-    QString target = reader->value("TARGET");
-    if (target.isEmpty())
-        target = QFileInfo(m_proFilePath).baseName();
-
     m_executable = QDir::toNativeSeparators(
-            QDir::cleanPath(baseDir + QLatin1Char('/') + target));
+            QDir::cleanPath(baseDir + QLatin1Char('/') + info.target));
     m_executable += QLatin1String(".exe");
 
-    qt4Project()->destroyProFileReader(reader);
     m_cachedTargetInformationValid = true;
     emit targetInformationChanged();
 }

@@ -896,6 +896,85 @@ void Qt4Project::destroyProFileReader(ProFileReader *reader)
     }
 }
 
+Qt4TargetInformation Qt4Project::targetInformation(Qt4BuildConfiguration *buildConfiguration,
+                                       const QString &proFilePath)
+{
+    Qt4TargetInformation info;
+    Qt4ProFileNode *proFileNode = rootProjectNode()->findProFileFor(proFilePath);
+    if (!proFileNode) {
+        info.error = Qt4TargetInformation::InvalidProjectError;
+        return info;
+    }
+    ProFileReader *reader = createProFileReader(proFileNode);
+    reader->setCumulative(false);
+
+    // Find out what flags we pass on to qmake
+    QStringList addedUserConfigArguments;
+    QStringList removedUserConfigArguments;
+    buildConfiguration->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
+    reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
+
+    if (!reader->readProFile(proFilePath)) {
+        destroyProFileReader(reader);
+        info.error = Qt4TargetInformation::ProParserError;
+        return info;
+    }
+
+    // Extract data
+    const QDir baseProjectDirectory = QFileInfo(file()->fileName()).absoluteDir();
+    const QString relSubDir = baseProjectDirectory.relativeFilePath(QFileInfo(proFilePath).path());
+    const QDir baseBuildDirectory = buildConfiguration->buildDirectory();
+    const QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
+    info.baseDestDir = QDir::cleanPath(baseDir);
+    //qDebug()<<relSubDir<<baseDir;
+
+    // Working Directory
+    if (reader->contains("DESTDIR")) {
+        info.hasCustomDestDir = true;
+        //qDebug() << "reader contains destdir:" << reader->value("DESTDIR");
+        info.workingDir = reader->value("DESTDIR");
+        if (QDir::isRelativePath(info.workingDir)) {
+            info.workingDir = baseDir + QLatin1Char('/') + info.workingDir;
+            //qDebug() << "was relative and expanded to" << info.workingDir;
+        }
+    } else {
+        info.hasCustomDestDir = false;
+        //qDebug() << "reader didn't contain DESTDIR, setting to " << baseDir;
+        info.workingDir = baseDir;
+        if (reader->values("CONFIG").contains("debug_and_release_target")) {
+            //qDebug() << "reader has debug_and_release_target";
+            QString qmakeBuildConfig = "release";
+            if (buildConfiguration->qmakeBuildConfiguration() & QtVersion::DebugBuild)
+                qmakeBuildConfig = "debug";
+            info.workingDir += QLatin1Char('/') + qmakeBuildConfig;
+        }
+    }
+
+    info.target = reader->value("TARGET");
+    if (info.target.isEmpty())
+        info.target = QFileInfo(proFilePath).baseName();
+
+#if defined (Q_OS_MAC)
+    if (reader->values("CONFIG").contains("app_bundle")) {
+        info.workingDir += QLatin1Char('/')
+                   + info.target
+                   + QLatin1String(".app/Contents/MacOS");
+    }
+#endif
+
+    info.workingDir = QDir::cleanPath(info.workingDir);
+    info.executable = QDir::cleanPath(info.workingDir + QLatin1Char('/') + info.target);
+    //qDebug() << "##### updateTarget sets:" << info.workingDir << info.executable;
+
+#if defined (Q_OS_WIN)
+    info.executable += QLatin1String(".exe");
+#endif
+
+    destroyProFileReader(reader);
+    info.error = Qt4TargetInformation::NoError;
+    return info;
+}
+
 Qt4ProFileNode *Qt4Project::rootProjectNode() const
 {
     return m_rootProjectNode;
