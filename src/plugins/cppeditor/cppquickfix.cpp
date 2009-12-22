@@ -748,6 +748,70 @@ private:
     IfStatementAST *pattern;
 };
 
+/*
+  Replace
+    "abcd"
+  With
+    QLatin1String("abcd")
+*/
+class WrapStringLiteral: public QuickFixOperation
+{
+public:
+    WrapStringLiteral()
+        : stringLiteral(0)
+    {}
+
+    virtual QString description() const
+    {
+        return QLatin1String("Enclose in QLatin1String(...)"); // ### tr?
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        if (path.isEmpty())
+            return -1;
+
+        int index = path.size() - 1;
+        stringLiteral = path[index]->asStringLiteral();
+
+        if (!stringLiteral)
+            return -1;
+
+        // check if it is already wrapped in QLatin1String or -Literal
+        if (index-2 < 0)
+            return index;
+
+        CallAST *call = path[index-1]->asCall();
+        PostfixExpressionAST *postfixExp = path[index-2]->asPostfixExpression();
+        if (call && postfixExp
+            && postfixExp->base_expression
+            && postfixExp->postfix_expression_list
+            && postfixExp->postfix_expression_list->value == call)
+        {
+            NameAST *callName = postfixExp->base_expression->asName();
+            if (!callName)
+                return index;
+
+            QByteArray callNameString(tokenAt(callName->firstToken()).spell());
+            if (callNameString == "QLatin1String"
+                || callNameString == "QLatin1Literal"
+                )
+                return -1;
+        }
+
+        return index;
+    }
+
+    virtual void createChangeSet()
+    {
+        insert(startOf(stringLiteral), "QLatin1String(");
+        insert(endOf(stringLiteral), ")");
+    }
+
+private:
+    StringLiteralAST *stringLiteral;
+};
+
 } // end of anonymous namespace
 
 
@@ -1033,6 +1097,7 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         QSharedPointer<AddBracesToIfOp> addBracesToIfOp(new AddBracesToIfOp());
         QSharedPointer<UseInverseOp> useInverseOp(new UseInverseOp());
         QSharedPointer<FlipBinaryOp> flipBinaryOp(new FlipBinaryOp());
+        QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral());
 
         QList<QuickFixOperationPtr> candidates;
         candidates.append(rewriteLogicalAndOp);
@@ -1043,6 +1108,7 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         candidates.append(addBracesToIfOp);
         candidates.append(useInverseOp);
         candidates.append(flipBinaryOp);
+        candidates.append(wrapStringLiteral);
 
         QMap<int, QList<QuickFixOperationPtr> > matchedOps;
 
