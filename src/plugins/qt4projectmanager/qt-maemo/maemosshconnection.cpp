@@ -56,15 +56,9 @@ namespace {
     ne7ssh ssh;
 }
 
-MaemoSshConnection::Ptr MaemoSshConnection::connect(
-    const MaemoDeviceConfig &devConf, bool shell)
-{
-    return MaemoSshConnection::Ptr(new MaemoSshConnection(devConf, shell));
-}
-
 MaemoSshConnection::MaemoSshConnection(const MaemoDeviceConfig &devConf,
                                        bool shell)
-    : m_channel(-1), m_prompt(0), m_stopRequested(false)
+    : m_channel(-1), m_stopRequested(false)
 {
     const QString *authString;
     int (ne7ssh::*connFunc)(const char *, int, const char *, const char *, bool, int);
@@ -79,53 +73,88 @@ MaemoSshConnection::MaemoSshConnection(const MaemoDeviceConfig &devConf,
         devConf.uname.toAscii(), authString->toAscii(), shell, devConf.timeout);
     if (m_channel == -1)
         throw MaemoSshException(tr("Could not connect to host"));
-
-    if (shell) {
-        m_prompt = devConf.uname == QLatin1String("root") ? "# " : "$ ";
-        if (!ssh.waitFor(m_channel, m_prompt, devConf.timeout)) {
-            const QString error = tr("Could not start remote shell: %1").
-                                  arg(ssh.errors()->pop(m_channel));
-            ssh.close(m_channel);
-            throw MaemoSshException(error);
-        }
-    }
 }
 
 MaemoSshConnection::~MaemoSshConnection()
 {
     qDebug("%s", Q_FUNC_INFO);
-    if (m_prompt) {
-        ssh.send("exit\n", m_channel);
-        ssh.waitFor(m_channel, m_prompt, 1);
-    }
-
     ssh.close(m_channel);
 }
 
-void MaemoSshConnection::runCommand(const QString &command)
+const char *MaemoSshConnection::lastError()
+{
+    return ssh.errors()->pop(channel());
+}
+
+void MaemoSshConnection::stop()
+{
+    m_stopRequested = true;
+}
+
+MaemoInteractiveSshConnection::MaemoInteractiveSshConnection(const MaemoDeviceConfig &devConf)
+    : MaemoSshConnection(devConf, true), m_prompt(0)
+{
+    m_prompt = devConf.uname == QLatin1String("root") ? "# " : "$ ";
+    if (!ssh.waitFor(channel(), m_prompt, devConf.timeout)) {
+        const QString error
+            = tr("Could not start remote shell: %1").arg(lastError());
+        throw MaemoSshException(error);
+    }
+}
+
+MaemoInteractiveSshConnection::~MaemoInteractiveSshConnection()
+{
+    ssh.send("exit\n", channel());
+    ssh.waitFor(channel(), m_prompt, 1);
+}
+
+void MaemoInteractiveSshConnection::runCommand(const QString &command)
 {
     if (!ssh.send((command + QLatin1String("\n")).toLatin1().data(),
-                  m_channel)) {
+                  channel())) {
         throw MaemoSshException(tr("Error running command: %1")
-                                .arg(ssh.errors()->pop(m_channel)));
+                                .arg(lastError()));
     }
 
     bool done;
     do {
-        done = ssh.waitFor(m_channel, m_prompt, 3);
-        const char * const error = ssh.errors()->pop(m_channel);
+        done = ssh.waitFor(channel(), m_prompt, 2);
+        const char * const error = lastError();
         if (error)
             throw MaemoSshException(tr("SSH error: %1").arg(error));
-        const char * const output = ssh.read(m_channel);
+        const char * const output = ssh.read(channel());
         if (output)
             emit remoteOutput(QLatin1String(output));
-    } while (!done && !m_stopRequested);
+    } while (!done && !stopRequested());
 }
 
-void MaemoSshConnection::stopCommand()
+MaemoInteractiveSshConnection::Ptr MaemoInteractiveSshConnection::create(const MaemoDeviceConfig &devConf)
 {
-    m_stopRequested = true;
+    return Ptr(new MaemoInteractiveSshConnection(devConf));
 }
+
+MaemoSftpConnection::MaemoSftpConnection(const MaemoDeviceConfig &devConf)
+    : MaemoSshConnection(devConf, false)
+{
+    // TODO: Initialize sftp subsystem
+}
+
+MaemoSftpConnection::~MaemoSftpConnection()
+{
+
+}
+
+void MaemoSftpConnection::transferFiles(const QStringList &filePaths,
+                                        const QStringList &targetDirs)
+{
+
+}
+
+MaemoSftpConnection::Ptr MaemoSftpConnection::create(const MaemoDeviceConfig &devConf)
+{
+    return Ptr(new MaemoSftpConnection(devConf));
+}
+
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

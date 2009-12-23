@@ -54,7 +54,7 @@ MaemoSshRunner::MaemoSshRunner(const MaemoDeviceConfig &devConf, const QString &
 void MaemoSshRunner::run()
 {
     try {
-        m_connection = MaemoSshConnection::connect(m_devConf, true);
+        m_connection = MaemoInteractiveSshConnection::create(m_devConf);
         emit connectionEstablished();
         connect(m_connection.data(), SIGNAL(remoteOutput(QString)),
                 this, SIGNAL(remoteOutput(QString)));
@@ -67,7 +67,7 @@ void MaemoSshRunner::run()
 void MaemoSshRunner::stop()
 {
     if (!m_connection.isNull())
-        m_connection->stopCommand();
+        m_connection->stop();
     wait();
 }
 

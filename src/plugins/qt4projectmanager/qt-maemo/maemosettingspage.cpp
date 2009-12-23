@@ -156,7 +156,7 @@ private:
     PortAndTimeoutValidator m_portValidator;
     PortAndTimeoutValidator m_timeoutValidator;
     NameValidator m_nameValidator;
-#ifdef USE_SSH_LIBS
+#ifdef USE_SSH_LIB
     MaemoSshRunner *m_deviceTester;
 #endif
     QString m_deviceTestOutput;
@@ -213,7 +213,7 @@ MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
       m_ui(new Ui_maemoSettingsWidget),
       m_devConfs(MaemoDeviceConfigurations::instance().devConfigs()),
       m_nameValidator(m_devConfs)
-#ifdef USE_SSH_LIBS
+#ifdef USE_SSH_LIB
       , m_deviceTester(0)
 #endif
 
@@ -392,7 +392,7 @@ void MaemoSettingsWidget::keyFileEditingFinished()
 
 void MaemoSettingsWidget::testConfig()
 {
-#ifdef USE_SSH_LIBS
+#ifdef USE_SSH_LIB
     qDebug("Oh yes, this config will be tested!");
     if (m_deviceTester)
         return;
@@ -430,7 +430,7 @@ void MaemoSettingsWidget::processSshOutput(const QString &data)
 
 void MaemoSettingsWidget::handleSshFinished()
 {
-#ifdef USE_SSH_LIBS
+#ifdef USE_SSH_LIB
     qDebug("================> %s", Q_FUNC_INFO);
     if (!m_deviceTester)
         return;
@@ -449,7 +449,7 @@ void MaemoSettingsWidget::handleSshFinished()
 
 void MaemoSettingsWidget::stopConfigTest()
 {
-#ifdef USE_SSH_LIBS
+#ifdef USE_SSH_LIB
     qDebug("================> %s", Q_FUNC_INFO);
     if (m_deviceTester) {
         qDebug("Actually doing something");

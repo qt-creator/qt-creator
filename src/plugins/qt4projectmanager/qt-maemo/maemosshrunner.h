@@ -71,7 +71,7 @@ private:
     const MaemoDeviceConfig m_devConf;
     const QString m_command;
     QString m_error;
-    MaemoSshConnection::Ptr m_connection;
+    MaemoInteractiveSshConnection::Ptr m_connection;
 };
 
 } // namespace Internal

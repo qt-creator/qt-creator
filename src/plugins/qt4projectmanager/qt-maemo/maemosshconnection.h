@@ -42,11 +42,16 @@
 #ifndef MAEMOSSHCONNECTION_H
 #define MAEMOSSHCONNECTION_H
 
+// #define USE_SSH_LIB
 #ifdef USE_SSH_LIB
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QScopedPointer>
 #include <QtCore/QSharedPointer>
+
+QT_BEGIN_NAMESPACE
+class QStringList;
+QT_END_NAMESPACE
 
 class ne7ssh;
 
@@ -66,26 +71,59 @@ private:
 
 class MaemoSshConnection : public QObject
 {
-    Q_OBJECT
     Q_DISABLE_COPY(MaemoSshConnection)
-    friend class MaemoSshFacility;
 public:
-    typedef QSharedPointer<MaemoSshConnection> Ptr;
+    void stop();
+    virtual ~MaemoSshConnection();
 
-    static Ptr connect(const MaemoDeviceConfig &devConf, bool shell);
+protected:
+    MaemoSshConnection(const MaemoDeviceConfig &devConf, bool shell);
+    int channel() const { return m_channel; }
+    bool stopRequested() const {return m_stopRequested; }
+    const char *lastError();
+
+private:
+    int m_channel;
+    volatile bool m_stopRequested;
+};
+
+class MaemoInteractiveSshConnection : public MaemoSshConnection
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(MaemoInteractiveSshConnection)
+public:
+    typedef QSharedPointer<MaemoInteractiveSshConnection> Ptr;
+
+    static Ptr create(const MaemoDeviceConfig &devConf);
     void runCommand(const QString &command);
-    void stopCommand();
-    ~MaemoSshConnection();
+    virtual ~MaemoInteractiveSshConnection();
 
 signals:
     void remoteOutput(const QString &output);
 
 private:
-    MaemoSshConnection(const MaemoDeviceConfig &devConf, bool shell);
+    MaemoInteractiveSshConnection(const MaemoDeviceConfig &devConf);
 
-    int m_channel;
     const char *m_prompt;
-    volatile bool m_stopRequested;
+};
+
+class MaemoSftpConnection : public MaemoSshConnection
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(MaemoSftpConnection)
+public:
+    typedef QSharedPointer<MaemoSftpConnection> Ptr;
+
+    static Ptr create(const MaemoDeviceConfig &devConf);
+    void transferFiles(const QStringList &filePaths,
+                       const QStringList &targetDirs);
+    virtual ~MaemoSftpConnection();
+
+signals:
+    void fileCopied(const QString &filePath);
+
+private:
+    MaemoSftpConnection(const MaemoDeviceConfig &devConf);
 };
 
 } // namespace Internal
