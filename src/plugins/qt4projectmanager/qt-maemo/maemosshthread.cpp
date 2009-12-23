@@ -39,13 +39,72 @@
 **
 ****************************************************************************/
 
-#include "maemosshrunner.h"
+#include "maemosshthread.h"
 
 #ifdef USE_SSH_LIB
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
+MaemoSshThread::MaemoSshThread(const MaemoDeviceConfig &devConf)
+    : m_devConf(devConf)
+{
+}
+
+void MaemoSshThread::run()
+{
+    try {
+        runInternal();
+    } catch (const MaemoSshException &e) {
+        m_error = e.error();
+    }
+}
+
+void MaemoSshThread::stop()
+{
+    connection()->stop();
+}
+
+
+MaemoSshRunner::MaemoSshRunner(const MaemoDeviceConfig &devConf,
+                               const QString &command)
+    : MaemoSshThread(devConf), m_command(command)
+{
+}
+
+void MaemoSshRunner::runInternal()
+{
+    m_connection = MaemoInteractiveSshConnection::create(m_devConf);
+    emit connectionEstablished();
+    connect(m_connection.data(), SIGNAL(remoteOutput(QString)),
+            this, SIGNAL(remoteOutput(QString)));
+    m_connection->runCommand(m_command);
+}
+
+MaemoSshConnection::Ptr MaemoSshRunner::connection()
+{
+    return m_connection;
+}
+
+MaemoSshDeployer::MaemoSshDeployer(const MaemoDeviceConfig &devConf,
+    const QStringList &filePaths, const QStringList &targetDirs)
+    : MaemoSshThread(devConf), m_filePaths(filePaths), m_targetDirs(targetDirs)
+{
+}
+
+void MaemoSshDeployer::runInternal()
+{
+    m_connection = MaemoSftpConnection::create(m_devConf);
+    emit connectionEstablished();
+    connect(m_connection.data(), SIGNAL(fileCopied(QString)),
+            this, SIGNAL(fileCopied(QString)));
+    m_connection->transferFiles(m_filePaths, m_targetDirs);
+}
+
+MaemoSshConnection::Ptr MaemoSshDeployer::connection()
+{
+    return m_connection;
+}
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

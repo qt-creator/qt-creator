@@ -42,7 +42,7 @@
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include "maemodeviceconfigurations.h"
-#include "maemosshrunner.h"
+#include "maemosshthread.h"
 
 #include "ui_maemosettingswidget.h"
 #include "maemosettingspage.h"

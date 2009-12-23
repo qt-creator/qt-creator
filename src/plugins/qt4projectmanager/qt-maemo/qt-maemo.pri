@@ -10,14 +10,14 @@ SUPPORT_QT_MAEMO = $$(QTCREATOR_WITH_MAEMO)
         $$PWD/maemodeviceconfigurations.h \
         $$PWD/maemosettingspage.h \
         $$PWD/maemosshconnection.h \
-        $$PWD/maemosshrunner.h
+        $$PWD/maemosshthread.h
     SOURCES += $$PWD/maemorunconfiguration.cpp \
         $$PWD/maemomanager.cpp \
         $$PWD/maemotoolchain.cpp \
         $$PWD/maemodeviceconfigurations.cpp \
         $$PWD/maemosettingspage.cpp \
         $$PWD/maemosshconnection.cpp \
-        $$PWD/maemosshrunner.cpp
+        $$PWD/maemosshthread.cpp
     FORMS += $$PWD/maemosettingswidget.ui
     RESOURCES += $$PWD/qt-maemo.qrc
 }

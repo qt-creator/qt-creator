@@ -39,13 +39,13 @@
 **
 ****************************************************************************/
 
-#ifndef MAEMOSSHRUNNER_H
-#define MAEMOSSHRUNNER_H
+#ifndef MAEMOSSHTHREAD_H
+#define MAEMOSSHTHREAD_H
 
 #include "maemodeviceconfigurations.h"
 #include "maemosshconnection.h"
 
-#include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QThread>
 
 #ifdef USE_SSH_LIB
@@ -53,10 +53,74 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
+class MaemoSshThread : public QThread
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(MaemoSshThread)
+public:
+    QString error() const { return m_error; }
+    bool hasError() const { return !m_error.isEmpty(); }
+    void stop();
+    virtual void run();
+
+signals:
+    void connectionEstablished();
+
+protected:
+    MaemoSshThread(const MaemoDeviceConfig &devConf);
+    virtual void runInternal()=0;
+
+    const MaemoDeviceConfig m_devConf;
+
+private:
+    virtual MaemoSshConnection::Ptr connection()=0;
+
+    QString m_error;
+};
+
+
+class MaemoSshRunner : public MaemoSshThread
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(MaemoSshRunner)
+public:
+    MaemoSshRunner(const MaemoDeviceConfig &devConf, const QString &command);
+
+signals:
+    void remoteOutput(const QString &output);
+
+private:
+    virtual MaemoSshConnection::Ptr connection();
+    virtual void runInternal();
+
+    const QString m_command;
+    MaemoInteractiveSshConnection::Ptr m_connection;
+};
+
+
+class MaemoSshDeployer : public MaemoSshThread
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(MaemoSshDeployer)
+public:
+    MaemoSshDeployer(const MaemoDeviceConfig &devConf,
+        const QStringList &filePaths, const QStringList &targetDirs);
+
+signals:
+    void fileCopied(const QString &filePath);
+
+private:
+    virtual MaemoSshConnection::Ptr connection();
+    virtual void runInternal();
+
+    const QStringList m_filePaths;
+    const QStringList m_targetDirs;
+    MaemoSftpConnection::Ptr m_connection;
+};
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
 #endif
 
-#endif // MAEMOSSHRUNNER_H
+#endif // MAEMOSSHTHREAD_H

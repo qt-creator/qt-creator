@@ -42,7 +42,6 @@
 #ifndef MAEMOSSHCONNECTION_H
 #define MAEMOSSHCONNECTION_H
 
-// #define USE_SSH_LIB
 #ifdef USE_SSH_LIB
 
 #include <QtCore/QObject>
@@ -75,6 +74,8 @@ class MaemoSshConnection : public QObject
 {
     Q_DISABLE_COPY(MaemoSshConnection)
 public:
+    typedef QSharedPointer<MaemoSshConnection> Ptr;
+
     void stop();
     virtual ~MaemoSshConnection();
 
