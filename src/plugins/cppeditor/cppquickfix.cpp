@@ -31,6 +31,7 @@
 #include "cppeditor.h"
 
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/ResolveExpression.h>
 
 #include <TranslationUnit.h>
 #include <ASTVisitor.h>
@@ -843,7 +844,6 @@ Snapshot QuickFixOperation::snapshot() const
 void QuickFixOperation::setSnapshot(const CPlusPlus::Snapshot &snapshot)
 {
     _snapshot = snapshot;
-    _typeOfExpression.setSnapshot(snapshot);
 }
 
 CPPEditor *QuickFixOperation::editor() const
@@ -1063,14 +1063,16 @@ void QuickFixOperation::apply()
  *
  * NOTE: The fully specified types only stay valid until the next call to typeOf.
  */
-const QList<LookupItem> QuickFixOperation::typeOf(const CPlusPlus::ExpressionAST *ast)
+const QList<LookupItem> QuickFixOperation::typeOf(CPlusPlus::ExpressionAST *ast)
 {
     unsigned line, column;
     document()->translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
     Symbol *lastVisibleSymbol = document()->findSymbolAt(line, column);
 
-    return _typeOfExpression(textOf(ast), document(), lastVisibleSymbol,
-                             TypeOfExpression::Preprocess);
+    _lookupContext = LookupContext(lastVisibleSymbol, document(), document(), snapshot());
+
+    ResolveExpression resolveExpression(_lookupContext);
+    return resolveExpression(ast);
 }
 
 CPPQuickFixCollector::CPPQuickFixCollector()

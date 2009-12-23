@@ -33,7 +33,7 @@
 #include <texteditor/icompletioncollector.h>
 
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/TypeOfExpression.h>
+#include <cplusplus/LookupContext.h>
 #include <ASTfwd.h>
 
 #include <utils/changeset.h>
@@ -128,7 +128,7 @@ protected:
     Range createRange(CPlusPlus::AST *ast) const; // ### rename me
     void reindent(const Range &range);
 
-    const QList<CPlusPlus::LookupItem> typeOf(const CPlusPlus::ExpressionAST *ast);
+    const QList<CPlusPlus::LookupItem> typeOf(CPlusPlus::ExpressionAST *ast);
 
 private:
     CPlusPlus::Document::Ptr _document;
@@ -137,7 +137,7 @@ private:
     Utils::ChangeSet _changeSet;
     CPPEditor *_editor;
     CPlusPlus::AST *_topLevelNode;
-    CPlusPlus::TypeOfExpression _typeOfExpression;
+    CPlusPlus::LookupContext _lookupContext;
 };
 
 class CPPQuickFixCollector: public TextEditor::IQuickFixCollector
