@@ -42,10 +42,12 @@
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include "maemodeviceconfigurations.h"
+#include "maemosshrunner.h"
 
 #include "ui_maemosettingswidget.h"
 #include "maemosettingspage.h"
 
+#include <QtCore/QRegExp>
 #include <QtGui/QIntValidator>
 
 #include <algorithm>
@@ -56,11 +58,11 @@ namespace Internal {
 #define PAGE_ID "ZZ.Maemo Device Configurations"
 #define PAGE_ID_TR "Maemo Device Configurations"
 
-bool configNameExists(const QList<MaemoDeviceConfigurations::DeviceConfig> &devConfs,
+bool configNameExists(const QList<MaemoDeviceConfig> &devConfs,
                       const QString &name)
 {
     return std::find_if(devConfs.constBegin(), devConfs.constEnd(),
-        MaemoDeviceConfigurations::DevConfNameMatcher(name)) != devConfs.constEnd();
+        DevConfNameMatcher(name)) != devConfs.constEnd();
 }
 
 class PortAndTimeoutValidator : public QIntValidator
@@ -86,7 +88,7 @@ private:
 class NameValidator : public QValidator
 {
 public:
-    NameValidator(const QList<MaemoDeviceConfigurations::DeviceConfig> &devConfs)
+    NameValidator(const QList<MaemoDeviceConfig> &devConfs)
         : m_devConfs(devConfs)
     {
     }
@@ -110,7 +112,7 @@ public:
 
 private:
     QString m_oldName;
-    const QList<MaemoDeviceConfigurations::DeviceConfig> &m_devConfs;
+    const QList<MaemoDeviceConfig> &m_devConfs;
 };
 
 
@@ -134,20 +136,31 @@ private slots:
     void userNameEditingFinished();
     void passwordEditingFinished();
     void keyFileEditingFinished();
+    void testConfig();
+    void enableTestStop();
+    void processSshOutput(const QString &data);
+    void handleSshFinished();
+    void stopConfigTest();
 
 private:
     void initGui();
-    void display(const MaemoDeviceConfigurations::DeviceConfig &devConfig);
-    MaemoDeviceConfigurations::DeviceConfig &currentConfig();
+    void display(const MaemoDeviceConfig &devConfig);
+    MaemoDeviceConfig &currentConfig();
     void setPortOrTimeout(const QLineEdit *lineEdit, int &confVal,
                           PortAndTimeoutValidator &validator);
     void clearDetails();
+    QString parseTestOutput();
 
     Ui_maemoSettingsWidget *m_ui;
-    QList<MaemoDeviceConfigurations::DeviceConfig> m_devConfs;
+    QList<MaemoDeviceConfig> m_devConfs;
     PortAndTimeoutValidator m_portValidator;
     PortAndTimeoutValidator m_timeoutValidator;
     NameValidator m_nameValidator;
+#ifdef USE_SSH_LIBS
+    MaemoSshRunner *m_deviceTester;
+#endif
+    QString m_deviceTestOutput;
+    QString m_defaultTestOutput;
 };
 
 MaemoSettingsPage::MaemoSettingsPage(QObject *parent)
@@ -200,6 +213,9 @@ MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
       m_ui(new Ui_maemoSettingsWidget),
       m_devConfs(MaemoDeviceConfigurations::instance().devConfigs()),
       m_nameValidator(m_devConfs)
+#ifdef USE_SSH_LIBS
+      , m_deviceTester(0)
+#endif
 
 {
     initGui();
@@ -216,11 +232,13 @@ void MaemoSettingsWidget::initGui()
     m_ui->portLineEdit->setValidator(&m_portValidator);
     m_ui->timeoutLineEdit->setValidator(&m_timeoutValidator);
     m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
-    foreach(const MaemoDeviceConfigurations::DeviceConfig &devConf, m_devConfs)
+    foreach(const MaemoDeviceConfig &devConf, m_devConfs)
         m_ui->configListWidget->addItem(devConf.name);
+    m_defaultTestOutput = m_ui->testResultEdit->toPlainText();
 
-
-#if 1 // Password authentication does not currently work due to ssh/scp issues.
+#ifndef USE_SSH_LIB // Password authentication does not currently work due to ssh/scp issues.
+    m_ui->testConfigButton->hide();
+    m_ui->testResultEdit->hide();
     m_ui->authTypeLabel->hide();
     m_ui->authTypeButtonsWidget->hide();
     m_ui->passwordLabel->hide();
@@ -239,7 +257,7 @@ void MaemoSettingsWidget::addConfig()
         isUnique = !configNameExists(m_devConfs, newName);
     } while (!isUnique);
 
-    m_devConfs.append(MaemoDeviceConfigurations::DeviceConfig(newName));
+    m_devConfs.append(MaemoDeviceConfig(newName));
     m_ui->configListWidget->addItem(newName);
     m_ui->configListWidget->setCurrentRow(m_ui->configListWidget->count() - 1);
     m_ui->nameLineEdit->selectAll();
@@ -264,14 +282,14 @@ void MaemoSettingsWidget::deleteConfig()
     selectionChanged();
 }
 
-void MaemoSettingsWidget::display(const MaemoDeviceConfigurations::DeviceConfig &devConfig)
+void MaemoSettingsWidget::display(const MaemoDeviceConfig &devConfig)
 {
     m_ui->nameLineEdit->setText(devConfig.name);
-    if (devConfig.type == MaemoDeviceConfigurations::DeviceConfig::Physical)
+    if (devConfig.type == MaemoDeviceConfig::Physical)
         m_ui->deviceButton->setChecked(true);
     else
         m_ui->simulatorButton->setChecked(true);
-    if (devConfig.authentication == MaemoDeviceConfigurations::DeviceConfig::Password)
+    if (devConfig.authentication == MaemoDeviceConfig::Password)
         m_ui->passwordButton->setChecked(true);
     else
         m_ui->keyButton->setChecked(true);
@@ -293,7 +311,7 @@ void MaemoSettingsWidget::saveSettings()
     MaemoDeviceConfigurations::instance().setDevConfigs(m_devConfs);
 }
 
-MaemoDeviceConfigurations::DeviceConfig &MaemoSettingsWidget::currentConfig()
+MaemoDeviceConfig &MaemoSettingsWidget::currentConfig()
 {
     Q_ASSERT(m_ui->configListWidget->count() == m_devConfs.count());
     const QList<QListWidgetItem *> &selectedItems =
@@ -316,16 +334,16 @@ void MaemoSettingsWidget::deviceTypeChanged()
 {
     currentConfig().type =
         m_ui->deviceButton->isChecked()
-            ? MaemoDeviceConfigurations::DeviceConfig::Physical
-            : MaemoDeviceConfigurations::DeviceConfig::Simulator;
+            ? MaemoDeviceConfig::Physical
+            : MaemoDeviceConfig::Simulator;
 }
 
 void MaemoSettingsWidget::authenticationTypeChanged()
 {
     const bool usePassword = m_ui->passwordButton->isChecked();
     currentConfig().authentication = usePassword
-        ? MaemoDeviceConfigurations::DeviceConfig::Password
-        : MaemoDeviceConfigurations::DeviceConfig::Key;
+        ? MaemoDeviceConfig::Password
+        : MaemoDeviceConfig::Key;
     m_ui->pwdLineEdit->setEnabled(usePassword);
     m_ui->passwordLabel->setEnabled(usePassword);
     m_ui->keyFileLineEdit->setEnabled(!usePassword);
@@ -372,17 +390,129 @@ void MaemoSettingsWidget::keyFileEditingFinished()
     currentConfig().keyFile = m_ui->keyFileLineEdit->path();
 }
 
+void MaemoSettingsWidget::testConfig()
+{
+#ifdef USE_SSH_LIBS
+    qDebug("Oh yes, this config will be tested!");
+    if (m_deviceTester)
+        return;
+
+    m_ui->testResultEdit->setPlainText(m_defaultTestOutput);
+    QLatin1String sysInfoCmd("uname -rsm");
+    QLatin1String qtInfoCmd("dpkg -l |grep libqt "
+        "|sed 's/[[:space:]][[:space:]]*/ /g' "
+        "|cut -d ' ' -f 2,3 |sed 's/~.*//g'");
+    QString command(sysInfoCmd + " && " + qtInfoCmd);
+    m_deviceTester = new MaemoSshRunner(currentConfig(), command);
+    connect(m_deviceTester, SIGNAL(connectionEstablished()),
+            this, SLOT(enableTestStop()));
+    connect(m_deviceTester, SIGNAL(remoteOutput(QString)),
+            this, SLOT(processSshOutput(QString)));
+    connect(m_deviceTester, SIGNAL(finished()),
+            this, SLOT(handleSshFinished()));
+    m_deviceTester->start();
+#endif
+}
+
+void MaemoSettingsWidget::enableTestStop()
+{
+    m_ui->testConfigButton->disconnect();
+    m_ui->testConfigButton->setText(tr("Stop test"));
+    connect(m_ui->testConfigButton, SIGNAL(clicked()),
+            this, SLOT(stopConfigTest()));
+}
+
+void MaemoSettingsWidget::processSshOutput(const QString &data)
+{
+    qDebug("%s", qPrintable(data));
+    m_deviceTestOutput.append(data);
+}
+
+void MaemoSettingsWidget::handleSshFinished()
+{
+#ifdef USE_SSH_LIBS
+    qDebug("================> %s", Q_FUNC_INFO);
+    if (!m_deviceTester)
+        return;
+
+    QString output;
+    if (m_deviceTester->hasError()) {
+        output = tr("Device configuration test failed:\n");
+        output.append(m_deviceTester->error());
+    } else {
+        output = parseTestOutput();
+    }
+    m_ui->testResultEdit->setPlainText(output);
+    stopConfigTest();
+#endif
+}
+
+void MaemoSettingsWidget::stopConfigTest()
+{
+#ifdef USE_SSH_LIBS
+    qDebug("================> %s", Q_FUNC_INFO);
+    if (m_deviceTester) {
+        qDebug("Actually doing something");
+        m_deviceTester->disconnect();
+        const bool buttonWasEnabled = m_ui->testConfigButton->isEnabled();
+        m_ui->testConfigButton->setEnabled(false);
+        m_deviceTester->stop();
+        delete m_deviceTester;
+        m_deviceTester = 0;
+        m_deviceTestOutput.clear();
+        m_ui->testConfigButton->setText(tr("Test"));
+        m_ui->testConfigButton->disconnect();
+        connect(m_ui->testConfigButton, SIGNAL(clicked()),
+                this, SLOT(testConfig()));
+        m_ui->testConfigButton->setEnabled(buttonWasEnabled);
+    }
+#endif
+}
+
+QString MaemoSettingsWidget::parseTestOutput()
+{
+    QString output;
+    const QRegExp unamePattern(QLatin1String("Linux (\\S+)\\s(\\S+)"));
+    int index = unamePattern.indexIn(m_deviceTestOutput);
+    if (index == -1) {
+        output = tr("Device configuration test failed: Unexpected output:\n");
+        output.append(m_deviceTestOutput);
+        return output;
+    }
+
+    output = tr("Hardware architecture: %1\n").arg(unamePattern.cap(2));
+    output.append(tr("Kernel version: %1\n").arg(unamePattern.cap(1)));
+    output.prepend(tr("Device configuration successful.\n"));
+    const QRegExp dkpgPattern(QLatin1String("libqt\\S+ \\d\\.\\d\\.\\d"));
+    index = dkpgPattern.indexIn(m_deviceTestOutput);
+    if (index == -1) {
+        output.append("No Qt packages installed.");
+        return output;
+    }
+    output.append("List of installed Qt packages:\n");
+    do {
+        output.append(QLatin1String("\t") + dkpgPattern.cap(0)
+                      + QLatin1String("\n"));
+        index = dkpgPattern.indexIn(m_deviceTestOutput, index + 1);
+    } while (index != -1);
+    return output;
+}
+
 void MaemoSettingsWidget::selectionChanged()
 {
     const QList<QListWidgetItem *> &selectedItems =
         m_ui->configListWidget->selectedItems();
     Q_ASSERT(selectedItems.count() <= 1);
+    stopConfigTest();
+    m_ui->testResultEdit->setPlainText(m_defaultTestOutput);
     if (selectedItems.isEmpty()) {
         m_ui->removeConfigButton->setEnabled(false);
+        m_ui->testConfigButton->setEnabled(false);
         clearDetails();
         m_ui->detailsWidget->setEnabled(false);
     } else {
         m_ui->removeConfigButton->setEnabled(true);
+        m_ui->testConfigButton->setEnabled(true);
         display(currentConfig());
     }
 }

@@ -68,7 +68,7 @@ class DevConfIdMatcher
 {
 public:
     DevConfIdMatcher(quint64 id) : m_id(id) {}
-    bool operator()(const MaemoDeviceConfigurations::DeviceConfig &devConfig)
+    bool operator()(const MaemoDeviceConfig &devConfig)
     {
         return devConfig.internalId == m_id;
     }
@@ -76,7 +76,7 @@ private:
     const quint64 m_id;
 };
 
-MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QString &name)
+MaemoDeviceConfig::MaemoDeviceConfig(const QString &name)
     : name(name),
       type(Physical),
       port(22),
@@ -87,8 +87,8 @@ MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QString &name)
 {
 }
 
-MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QSettings &settings,
-                                                      quint64 &nextId)
+MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
+                                     quint64 &nextId)
     : name(settings.value(NameKey).toString()),
       type(static_cast<DeviceType>(settings.value(TypeKey, Physical).toInt())),
       host(settings.value(HostKey).toString()),
@@ -104,17 +104,17 @@ MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QSettings &settings,
         ++nextId;
 }
 
-MaemoDeviceConfigurations::DeviceConfig::DeviceConfig()
+MaemoDeviceConfig::MaemoDeviceConfig()
     : internalId(InvalidId)
 {
 }
 
-bool MaemoDeviceConfigurations::DeviceConfig::isValid() const
+bool MaemoDeviceConfig::isValid() const
 {
     return internalId != InvalidId;
 }
 
-void MaemoDeviceConfigurations::DeviceConfig::save(QSettings &settings) const
+void MaemoDeviceConfig::save(QSettings &settings) const
 {
     settings.setValue(NameKey, name);
     settings.setValue(TypeKey, type);
@@ -128,7 +128,7 @@ void MaemoDeviceConfigurations::DeviceConfig::save(QSettings &settings) const
     settings.setValue(InternalIdKey, internalId);
 }
 
-void MaemoDeviceConfigurations::setDevConfigs(const QList<DeviceConfig> &devConfigs)
+void MaemoDeviceConfigurations::setDevConfigs(const QList<MaemoDeviceConfig> &devConfigs)
 {
     m_devConfigs = devConfigs;
     save();
@@ -162,7 +162,6 @@ MaemoDeviceConfigurations::MaemoDeviceConfigurations(QObject *parent)
     load();
 }
 
-
 void MaemoDeviceConfigurations::load()
 {
     QSettings *settings = Core::ICore::instance()->settings();
@@ -171,26 +170,26 @@ void MaemoDeviceConfigurations::load()
     int count = settings->beginReadArray(ConfigListKey);
     for (int i = 0; i < count; ++i) {
         settings->setArrayIndex(i);
-        m_devConfigs.append(DeviceConfig(*settings, m_nextId));
+        m_devConfigs.append(MaemoDeviceConfig(*settings, m_nextId));
     }
     settings->endArray();
     settings->endGroup();
 }
 
-MaemoDeviceConfigurations::DeviceConfig MaemoDeviceConfigurations::find(const QString &name) const
+MaemoDeviceConfig MaemoDeviceConfigurations::find(const QString &name) const
 {
-    QList<DeviceConfig>::ConstIterator resultIt =
+    QList<MaemoDeviceConfig>::ConstIterator resultIt =
         std::find_if(m_devConfigs.constBegin(), m_devConfigs.constEnd(),
                      DevConfNameMatcher(name));
-    return resultIt == m_devConfigs.constEnd() ? DeviceConfig() : *resultIt;
+    return resultIt == m_devConfigs.constEnd() ? MaemoDeviceConfig() : *resultIt;
 }
 
-MaemoDeviceConfigurations::DeviceConfig MaemoDeviceConfigurations::find(int id) const
+MaemoDeviceConfig MaemoDeviceConfigurations::find(int id) const
 {
-    QList<DeviceConfig>::ConstIterator resultIt =
+    QList<MaemoDeviceConfig>::ConstIterator resultIt =
         std::find_if(m_devConfigs.constBegin(), m_devConfigs.constEnd(),
                      DevConfIdMatcher(id));
-    return resultIt == m_devConfigs.constEnd() ? DeviceConfig() : *resultIt;
+    return resultIt == m_devConfigs.constEnd() ? MaemoDeviceConfig() : *resultIt;
 }
 
 MaemoDeviceConfigurations *MaemoDeviceConfigurations::m_instance = 0;

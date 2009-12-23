@@ -88,7 +88,7 @@ private slots:
     void updateTargetInformation();
 
 private:
-    void setSimInfoVisible(const MaemoDeviceConfigurations::DeviceConfig &devConf);
+    void setSimInfoVisible(const MaemoDeviceConfig &devConf);
 
     QLineEdit *m_configNameLineEdit;
     QLineEdit *m_argsLineEdit;
@@ -130,7 +130,7 @@ private slots:
 protected:
     ErrorDumper dumper;
     MaemoRunConfiguration *runConfig; // TODO this pointer can be invalid
-    const MaemoDeviceConfigurations::DeviceConfig devConfig;
+    const MaemoDeviceConfig devConfig;
 
 private:
     virtual void handleDeploymentFinished(bool success)=0;
@@ -399,13 +399,12 @@ bool MaemoRunConfiguration::fileNeedsDeployment(const QString &path,
         || QFileInfo(path).lastModified() > lastDeployed;
 }
 
-void MaemoRunConfiguration::setDeviceConfig(
-    const MaemoDeviceConfigurations::DeviceConfig &devConf)
+void MaemoRunConfiguration::setDeviceConfig(const MaemoDeviceConfig &devConf)
 {
     m_devConfig = devConf;
 }
 
-MaemoDeviceConfigurations::DeviceConfig MaemoRunConfiguration::deviceConfig() const
+MaemoDeviceConfig MaemoRunConfiguration::deviceConfig() const
 {
     return m_devConfig;
 }
@@ -774,17 +773,15 @@ void MaemoRunConfigurationWidget::updateSimulatorPath()
 
 void MaemoRunConfigurationWidget::deviceConfigurationChanged(const QString &name)
 {
-    const MaemoDeviceConfigurations::DeviceConfig &devConfig =
-            MaemoDeviceConfigurations::instance().find(name);
+    const MaemoDeviceConfig &devConfig
+        = MaemoDeviceConfigurations::instance().find(name);
     setSimInfoVisible(devConfig);
     m_runConfiguration->setDeviceConfig(devConfig);
 }
 
-void MaemoRunConfigurationWidget::setSimInfoVisible(
-    const MaemoDeviceConfigurations::DeviceConfig &devConf)
+void MaemoRunConfigurationWidget::setSimInfoVisible(const MaemoDeviceConfig &devConf)
 {
-    const bool isSimulator =
-        devConf.type == MaemoDeviceConfigurations::DeviceConfig::Simulator;
+    const bool isSimulator = devConf.type == MaemoDeviceConfig::Simulator;
     m_simPathNameLabel->setVisible(isSimulator);
     m_simPathValueLabel->setVisible(isSimulator);
 }
@@ -792,13 +789,12 @@ void MaemoRunConfigurationWidget::setSimInfoVisible(
 void MaemoRunConfigurationWidget::resetDeviceConfigurations()
 {
     m_devConfBox->clear();
-    const QList<MaemoDeviceConfigurations::DeviceConfig> &devConfs =
+    const QList<MaemoDeviceConfig> &devConfs =
         MaemoDeviceConfigurations::instance().devConfigs();
-    foreach (const MaemoDeviceConfigurations::DeviceConfig &devConf, devConfs)
+    foreach (const MaemoDeviceConfig &devConf, devConfs)
         m_devConfBox->addItem(devConf.name);
-    m_devConfBox->addItem(MaemoDeviceConfigurations::DeviceConfig().name);
-    const MaemoDeviceConfigurations::DeviceConfig &devConf =
-        m_runConfiguration->deviceConfig();
+    m_devConfBox->addItem(MaemoDeviceConfig().name);
+    const MaemoDeviceConfig &devConf = m_runConfiguration->deviceConfig();
     m_devConfBox->setCurrentIndex(m_devConfBox->findText(devConf.name));
     setSimInfoVisible(devConf);
 }
@@ -992,8 +988,7 @@ QWidget* MaemoRunControlFactory::configurationWidget(RunConfiguration *config)
 AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc)
     : RunControl(rc)
     , runConfig(qobject_cast<MaemoRunConfiguration *>(rc))
-    , devConfig(runConfig ? runConfig->deviceConfig()
-                          : MaemoDeviceConfigurations::DeviceConfig())
+    , devConfig(runConfig ? runConfig->deviceConfig() : MaemoDeviceConfig())
 {
     setProcessEnvironment(deployProcess);
 
@@ -1117,8 +1112,8 @@ const QString AbstractMaemoRunControl::remoteDir() const
 
 const QStringList AbstractMaemoRunControl::options() const
 {
-    const bool usePassword =
-        devConfig.authentication == MaemoDeviceConfigurations::DeviceConfig::Password;
+    const bool usePassword
+        = devConfig.authentication == MaemoDeviceConfig::Password;
     const QLatin1String opt("-o");
     QStringList optionList;
     if (!usePassword)

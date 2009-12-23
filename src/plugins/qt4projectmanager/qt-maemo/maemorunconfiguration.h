@@ -91,8 +91,8 @@ public:
     const QString sysRoot() const;
     const QStringList arguments() const;
     void setArguments(const QStringList &args);
-    void setDeviceConfig(const MaemoDeviceConfigurations::DeviceConfig &deviceConfig);
-    MaemoDeviceConfigurations::DeviceConfig deviceConfig() const;
+    void setDeviceConfig(const MaemoDeviceConfig &deviceConfig);
+    MaemoDeviceConfig deviceConfig() const;
 
     QString simulator() const;
     QString simulatorArgs() const;
@@ -158,7 +158,7 @@ private:
 
     QString m_gdbPath;
 
-    MaemoDeviceConfigurations::DeviceConfig m_devConfig;
+    MaemoDeviceConfig m_devConfig;
     QStringList m_arguments;
 
     QDateTime m_lastDeployed;
