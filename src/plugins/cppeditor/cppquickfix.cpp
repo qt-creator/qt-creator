@@ -841,7 +841,10 @@ Snapshot QuickFixOperation::snapshot() const
 { return _snapshot; }
 
 void QuickFixOperation::setSnapshot(const CPlusPlus::Snapshot &snapshot)
-{ _snapshot = snapshot; }
+{
+    _snapshot = snapshot;
+    _typeOfExpression.setSnapshot(snapshot);
+}
 
 CPPEditor *QuickFixOperation::editor() const
 { return _editor; }
@@ -1032,7 +1035,7 @@ QString QuickFixOperation::textOf(int firstOffset, int lastOffset) const
     return tc.selectedText();
 }
 
-QString QuickFixOperation::textOf(AST *ast) const
+QString QuickFixOperation::textOf(const AST *ast) const
 {
     return textOf(startOf(ast), endOf(ast));
 }
@@ -1052,6 +1055,22 @@ void QuickFixOperation::apply()
         reindent(range);
 
     _textCursor.endEditBlock();
+}
+
+/**
+ * Returns a list of possible fully specified types associated with the
+ * given expression.
+ *
+ * NOTE: The fully specified types only stay valid until the next call to typeOf.
+ */
+const QList<LookupItem> QuickFixOperation::typeOf(const CPlusPlus::ExpressionAST *ast)
+{
+    unsigned line, column;
+    document()->translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
+    Symbol *lastVisibleSymbol = document()->findSymbolAt(line, column);
+
+    return _typeOfExpression(textOf(ast), document(), lastVisibleSymbol,
+                             TypeOfExpression::Preprocess);
 }
 
 CPPQuickFixCollector::CPPQuickFixCollector()
