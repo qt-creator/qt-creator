@@ -58,6 +58,7 @@ protected:
     void applyPtrOperators(bool wantSpace = true);
     void acceptType(const FullySpecifiedType &ty);
 
+    virtual void visit(UndefinedType *type);
     virtual void visit(VoidType *type);
     virtual void visit(IntegerType *type);
     virtual void visit(FloatType *type);
