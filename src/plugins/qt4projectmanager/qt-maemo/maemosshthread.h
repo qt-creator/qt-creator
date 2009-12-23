@@ -62,6 +62,7 @@ public:
     bool hasError() const { return !m_error.isEmpty(); }
     void stop();
     virtual void run();
+    ~MaemoSshThread();
 
 signals:
     void connectionEstablished();
@@ -69,13 +70,14 @@ signals:
 protected:
     MaemoSshThread(const MaemoDeviceConfig &devConf);
     virtual void runInternal()=0;
-
+    void setConnection(const MaemoSshConnection::Ptr &connection);
+    
     const MaemoDeviceConfig m_devConf;
 
 private:
-    virtual MaemoSshConnection::Ptr connection()=0;
 
     QString m_error;
+    MaemoSshConnection::Ptr m_connection;
 };
 
 
@@ -90,11 +92,9 @@ signals:
     void remoteOutput(const QString &output);
 
 private:
-    virtual MaemoSshConnection::Ptr connection();
     virtual void runInternal();
 
     const QString m_command;
-    MaemoInteractiveSshConnection::Ptr m_connection;
 };
 
 
@@ -110,12 +110,10 @@ signals:
     void fileCopied(const QString &filePath);
 
 private:
-    virtual MaemoSshConnection::Ptr connection();
     virtual void runInternal();
 
     const QStringList m_filePaths;
     const QStringList m_targetDirs;
-    MaemoSftpConnection::Ptr m_connection;
 };
 
 } // namespace Internal

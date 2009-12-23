@@ -51,6 +51,12 @@ MaemoSshThread::MaemoSshThread(const MaemoDeviceConfig &devConf)
 {
 }
 
+MaemoSshThread::~MaemoSshThread()
+{
+    stop();
+    wait();
+}
+
 void MaemoSshThread::run()
 {
     try {
@@ -62,9 +68,14 @@ void MaemoSshThread::run()
 
 void MaemoSshThread::stop()
 {
-    connection()->stop();
+    m_connection->stop();
 }
 
+void MaemoSshThread::setConnection(const MaemoSshConnection::Ptr &connection)
+{
+    m_connection = connection;
+    emit connectionEstablished();
+}
 
 MaemoSshRunner::MaemoSshRunner(const MaemoDeviceConfig &devConf,
                                const QString &command)
@@ -74,16 +85,12 @@ MaemoSshRunner::MaemoSshRunner(const MaemoDeviceConfig &devConf,
 
 void MaemoSshRunner::runInternal()
 {
-    m_connection = MaemoInteractiveSshConnection::create(m_devConf);
-    emit connectionEstablished();
-    connect(m_connection.data(), SIGNAL(remoteOutput(QString)),
+    MaemoInteractiveSshConnection::Ptr connection
+        = MaemoInteractiveSshConnection::create(m_devConf);
+    setConnection(connection);
+    connect(connection.data(), SIGNAL(remoteOutput(QString)),
             this, SIGNAL(remoteOutput(QString)));
-    m_connection->runCommand(m_command);
-}
-
-MaemoSshConnection::Ptr MaemoSshRunner::connection()
-{
-    return m_connection;
+    connection->runCommand(m_command);
 }
 
 MaemoSshDeployer::MaemoSshDeployer(const MaemoDeviceConfig &devConf,
@@ -94,16 +101,12 @@ MaemoSshDeployer::MaemoSshDeployer(const MaemoDeviceConfig &devConf,
 
 void MaemoSshDeployer::runInternal()
 {
-    m_connection = MaemoSftpConnection::create(m_devConf);
-    emit connectionEstablished();
-    connect(m_connection.data(), SIGNAL(fileCopied(QString)),
+    MaemoSftpConnection::Ptr connection
+        = MaemoSftpConnection::create(m_devConf);
+    setConnection(connection);
+    connect(connection.data(), SIGNAL(fileCopied(QString)),
             this, SIGNAL(fileCopied(QString)));
-    m_connection->transferFiles(m_filePaths, m_targetDirs);
-}
-
-MaemoSshConnection::Ptr MaemoSshDeployer::connection()
-{
-    return m_connection;
+    connection->transferFiles(m_filePaths, m_targetDirs);
 }
 
 } // namespace Internal
