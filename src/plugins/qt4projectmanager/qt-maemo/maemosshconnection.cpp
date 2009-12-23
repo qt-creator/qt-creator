@@ -47,8 +47,10 @@
 
 #include "/opt/ne7ssh/include/ne7ssh.h"
 
-#include <QtCore/QMutex>
-#include <QtCore/QMutexLocker>
+#include <QtCore/QStringBuilder>
+#include <QtCore/QStringList>
+
+#include <cstdio>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -134,9 +136,12 @@ MaemoInteractiveSshConnection::Ptr MaemoInteractiveSshConnection::create(const M
 }
 
 MaemoSftpConnection::MaemoSftpConnection(const MaemoDeviceConfig &devConf)
-    : MaemoSshConnection(devConf, false)
+    : MaemoSshConnection(devConf, false),
+      sftp(new Ne7SftpSubsystem)
 {
-    // TODO: Initialize sftp subsystem
+    if (!ssh.initSftp(*sftp, channel()) || !sftp->setTimeout(devConf.timeout))
+        throw MaemoSshException(tr("Error setting up SFTP subsystem: %1")
+                                .arg(lastError()));
 }
 
 MaemoSftpConnection::~MaemoSftpConnection()
@@ -147,14 +152,28 @@ MaemoSftpConnection::~MaemoSftpConnection()
 void MaemoSftpConnection::transferFiles(const QStringList &filePaths,
                                         const QStringList &targetDirs)
 {
-
+    Q_ASSERT(filePaths.count() == targetDirs.count());
+    for (int i = 0; i < filePaths.count(); ++i) {
+        const QString &curFile = filePaths.at(i);
+        QSharedPointer<FILE> filePtr(fopen(curFile.toLatin1().data(), "rb"),
+                                     &std::fclose);
+        if (filePtr.isNull())
+            throw MaemoSshException(tr("Could not open file '%1'").arg(curFile));
+        const QString &targetFile
+             = targetDirs.at(i) % QLatin1String("/") % curFile;
+        if (!sftp->put(filePtr.data(), targetFile.toLatin1().data())) {
+            const QString &error = tr("Could not copy local file '%1' "
+                    "to remote file '%2': %3").arg(curFile, targetFile)
+                    .arg(lastError());
+            throw MaemoSshException(error);
+        }
+    }
 }
 
 MaemoSftpConnection::Ptr MaemoSftpConnection::create(const MaemoDeviceConfig &devConf)
 {
     return Ptr(new MaemoSftpConnection(devConf));
 }
-
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

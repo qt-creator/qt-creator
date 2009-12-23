@@ -45,15 +45,17 @@
 // #define USE_SSH_LIB
 #ifdef USE_SSH_LIB
 
-#include <QtCore/QCoreApplication>
+#include <QtCore/QObject>
 #include <QtCore/QScopedPointer>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QString>
 
 QT_BEGIN_NAMESPACE
 class QStringList;
 QT_END_NAMESPACE
 
 class ne7ssh;
+class Ne7SftpSubsystem;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -124,6 +126,8 @@ signals:
 
 private:
     MaemoSftpConnection(const MaemoDeviceConfig &devConf);
+
+    QScopedPointer<Ne7SftpSubsystem> sftp;
 };
 
 } // namespace Internal
