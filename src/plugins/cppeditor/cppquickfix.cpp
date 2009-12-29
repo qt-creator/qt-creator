@@ -85,7 +85,7 @@ protected:
                 unsigned endLine, endColumn;
                 getTokenEndPosition(lastToken - 1, &endLine, &endColumn);
 
-                if (_line < endLine || (_line == endLine && _column < endColumn)) {
+                if (_line < endLine || (_line == endLine && _column <= endColumn)) {
                     _nodes.append(ast);
                     return true;
                 }
