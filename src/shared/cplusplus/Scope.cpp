@@ -187,6 +187,14 @@ bool Scope::isFunctionScope() const
     return false;
 }
 
+bool Scope::isObjCMethodScope() const
+{
+    ObjCMethod *m = 0;
+    if (_owner && 0 != (m = _owner->asObjCMethod()))
+        return m->arguments() != this;
+    return false;
+}
+
 void Scope::enterSymbol(Symbol *symbol)
 {
     if (++_symbolCount == _allocatedSymbols) {

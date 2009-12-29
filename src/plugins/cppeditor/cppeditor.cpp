@@ -155,6 +155,9 @@ private:
     virtual bool visit(Function *function)
     { return processScope(function->members()); }
 
+    virtual bool visit(ObjCMethod *method)
+    { return processScope(method->members()); }
+
     bool processScope(Scope *scope)
     {
         if (_scope || ! scope)
@@ -258,9 +261,15 @@ protected:
     }
 
     virtual bool visit(SimpleNameAST *ast)
+    { return findMemberForToken(ast->firstToken(), ast); }
+
+    virtual bool visit(ObjCMessageArgumentDeclarationAST *ast)
+    { return findMemberForToken(ast->param_name_token, ast); }
+
+    bool findMemberForToken(unsigned tokenIdx, NameAST *ast)
     {
         unsigned line, column;
-        getTokenStartPosition(ast->firstToken(), &line, &column);
+        getTokenStartPosition(tokenIdx, &line, &column);
 
         Scope *scope = findScope(line, column,
                                  _functionScope->owner(),
@@ -272,6 +281,12 @@ protected:
                 if (findMember(fun->members(), ast, line, column))
                     return false;
                 else if (findMember(fun->arguments(), ast, line, column))
+                    return false;
+            } else if (scope->isObjCMethodScope()) {
+                ObjCMethod *method = scope->owner()->asObjCMethod();
+                if (findMember(method->members(), ast, line, column))
+                    return false;
+                else if (findMember(method->arguments(), ast, line, column))
                     return false;
             } else if (scope->isBlockScope()) {
                 if (findMember(scope, ast, line, column))
@@ -393,6 +408,12 @@ protected:
 
         accept(ast->exception_specification);
 
+        return false;
+    }
+
+    virtual bool visit(ObjCMethodPrototypeAST *ast)
+    {
+        accept(ast->argument_list);
         return false;
     }
 };
