@@ -423,7 +423,7 @@ bool CheckName::visit(ObjCMessageArgumentDeclarationAST *ast)
         _name = control()->nameId(id);
         ast->name = _name;
 
-        Argument *arg = control()->newArgument(ast->firstToken(), _name);
+        Argument *arg = control()->newArgument(ast->param_name_token, _name);
         ast->argument = arg;
         arg->setType(type);
         arg->setInitializer(0);

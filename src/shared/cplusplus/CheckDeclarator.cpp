@@ -97,10 +97,11 @@ FullySpecifiedType CheckDeclarator::check(PtrOperatorListAST *ptrOperators,
 FullySpecifiedType CheckDeclarator::check(ObjCMethodPrototypeAST *methodPrototype,
                                           Scope *scope)
 {
+    FullySpecifiedType previousType = switchFullySpecifiedType(FullySpecifiedType());
     Scope *previousScope = switchScope(scope);
     accept(methodPrototype);
     (void) switchScope(previousScope);
-    return _fullySpecifiedType;
+    return switchFullySpecifiedType(previousType);
 }
 
 DeclaratorAST *CheckDeclarator::switchDeclarator(DeclaratorAST *declarator)
