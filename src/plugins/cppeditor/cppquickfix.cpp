@@ -833,6 +833,72 @@ private:
     bool isObjCStringLiteral;
 };
 
+class CStringToNSString: public QuickFixOperation
+{
+public:
+    CStringToNSString()
+        : stringLiteral(0), qlatin1Call(0)
+    {}
+
+    virtual QString description() const
+    { return QLatin1String("Convert to Objective-C string literal"); }// ### tr?
+
+    virtual int match(const QList<AST *> &path)
+    {
+        if (path.isEmpty())
+            return -1;
+
+        int index = path.size() - 1;
+        stringLiteral = path[index]->asStringLiteral();
+
+        if (!stringLiteral)
+            return -1;
+
+        if (charAt(startOf(stringLiteral)) == QLatin1Char('@'))
+            return -1;
+
+        // check if it is already wrapped in QLatin1String or -Literal
+        if (index-2 < 0)
+            return index;
+
+        CallAST *call = path[index-1]->asCall();
+        PostfixExpressionAST *postfixExp = path[index-2]->asPostfixExpression();
+        if (call && postfixExp
+            && postfixExp->base_expression
+            && postfixExp->postfix_expression_list
+            && postfixExp->postfix_expression_list->value == call)
+        {
+            NameAST *callName = postfixExp->base_expression->asName();
+            if (!callName)
+                return index;
+
+            if (!(postfixExp->postfix_expression_list->next)) {
+                QByteArray callNameString(tokenAt(callName->firstToken()).spell());
+                if (callNameString == "QLatin1String"
+                    || callNameString == "QLatin1Literal"
+                    )
+                    qlatin1Call = postfixExp;
+            }
+        }
+
+        return index;
+    }
+
+    virtual void createChangeSet()
+    {
+        if (qlatin1Call) {
+            replace(startOf(qlatin1Call), startOf(stringLiteral), QLatin1String("@"));
+            remove(endOf(stringLiteral), endOf(qlatin1Call));
+        } else {
+            insert(startOf(stringLiteral), "@");
+        }
+    }
+
+private:
+    StringLiteralAST *stringLiteral;
+    PostfixExpressionAST *qlatin1Call;
+};
+
 } // end of anonymous namespace
 
 
@@ -1144,6 +1210,7 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         QSharedPointer<UseInverseOp> useInverseOp(new UseInverseOp());
         QSharedPointer<FlipBinaryOp> flipBinaryOp(new FlipBinaryOp());
         QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral());
+        QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString());
 
         QList<QuickFixOperationPtr> candidates;
         candidates.append(rewriteLogicalAndOp);
@@ -1155,6 +1222,7 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         candidates.append(useInverseOp);
         candidates.append(flipBinaryOp);
         candidates.append(wrapStringLiteral);
+        candidates.append(wrapCString);
 
         QMap<int, QList<QuickFixOperationPtr> > matchedOps;
 
