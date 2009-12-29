@@ -116,6 +116,7 @@ protected:
 
     QString textOf(int firstOffset, int lastOffset) const;
     QString textOf(const CPlusPlus::AST *ast) const;
+    QChar charAt(int offset) const;
 
     struct Range {
         Range() {}

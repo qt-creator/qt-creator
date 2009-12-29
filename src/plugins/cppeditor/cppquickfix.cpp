@@ -759,7 +759,7 @@ class WrapStringLiteral: public QuickFixOperation
 {
 public:
     WrapStringLiteral()
-        : stringLiteral(0)
+        : stringLiteral(0), isObjCStringLiteral(false)
     {}
 
     virtual QString description() const
@@ -777,6 +777,8 @@ public:
 
         if (!stringLiteral)
             return -1;
+
+        isObjCStringLiteral = charAt(startOf(stringLiteral)) == QLatin1Char('@');
 
         // check if it is already wrapped in QLatin1String or -Literal
         if (index-2 < 0)
@@ -805,12 +807,20 @@ public:
 
     virtual void createChangeSet()
     {
-        insert(startOf(stringLiteral), "QLatin1String(");
+        const int startPos = startOf(stringLiteral);
+        const QLatin1String replacement("QLatin1String(");
+
+        if (isObjCStringLiteral)
+            replace(startPos, startPos + 1, replacement);
+        else
+            insert(startPos, replacement);
+
         insert(endOf(stringLiteral), ")");
     }
 
 private:
     StringLiteralAST *stringLiteral;
+    bool isObjCStringLiteral;
 };
 
 } // end of anonymous namespace
@@ -1038,6 +1048,11 @@ QString QuickFixOperation::textOf(int firstOffset, int lastOffset) const
 QString QuickFixOperation::textOf(const AST *ast) const
 {
     return textOf(startOf(ast), endOf(ast));
+}
+
+QChar QuickFixOperation::charAt(int offset) const
+{
+    return textOf(offset, offset + 1).at(0);
 }
 
 void QuickFixOperation::apply()
