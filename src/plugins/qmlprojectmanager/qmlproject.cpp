@@ -592,6 +592,7 @@ QmlRunControlFactory::~QmlRunControlFactory()
 
 bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
+    Q_UNUSED(mode)
     return (qobject_cast<QmlRunConfiguration*>(runConfiguration) != 0);
 }
 

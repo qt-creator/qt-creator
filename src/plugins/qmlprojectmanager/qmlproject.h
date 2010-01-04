@@ -164,12 +164,12 @@ private Q_SLOTS:
 
 private:
     QmlProject *m_project;
-    uint m_debugServerPort;
     QString m_scriptFile;
     QString m_qmlViewerCustomPath;
     QString m_qmlViewerDefaultPath;
     QString m_qmlViewerArgs;
     QLatin1String m_type;
+    uint m_debugServerPort;
 };
 
 class QmlRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
