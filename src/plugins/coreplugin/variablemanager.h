@@ -56,10 +56,10 @@ public:
     void insert(const QString &variable, const QString &value);
     void insertFileInfo(const QString &tag, const QFileInfo &file);
     void removeFileInfo(const QString &tag);
-    QString value(const QString &variable);
-    QString value(const QString &variable, const QString &defaultValue);
-    void remove(const QString &variable);
-    QString resolve(const QString &stringWithVariables);
+    QString value(const QString &variable) const;
+    QString value(const QString &variable, const QString &defaultValue) const;
+    bool remove(const QString &variable);
+    QString resolve(const QString &stringWithVariables) const;
 
 private slots:
     void updateCurrentDocument(Core::IEditor *editor);
