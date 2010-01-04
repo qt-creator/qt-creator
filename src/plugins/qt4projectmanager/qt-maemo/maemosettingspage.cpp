@@ -137,7 +137,6 @@ private slots:
     void passwordEditingFinished();
     void keyFileEditingFinished();
     void testConfig();
-    void enableTestStop();
     void processSshOutput(const QString &data);
     void handleSshFinished();
     void stopConfigTest();
@@ -397,6 +396,7 @@ void MaemoSettingsWidget::testConfig()
     if (m_deviceTester)
         return;
 
+    m_ui->testConfigButton->disconnect();
     m_ui->testResultEdit->setPlainText(m_defaultTestOutput);
     QLatin1String sysInfoCmd("uname -rsm");
     QLatin1String qtInfoCmd("dpkg -l |grep libqt "
@@ -404,22 +404,15 @@ void MaemoSettingsWidget::testConfig()
         "|cut -d ' ' -f 2,3 |sed 's/~.*//g'");
     QString command(sysInfoCmd + " && " + qtInfoCmd);
     m_deviceTester = new MaemoSshRunner(currentConfig(), command);
-    connect(m_deviceTester, SIGNAL(connectionEstablished()),
-            this, SLOT(enableTestStop()));
     connect(m_deviceTester, SIGNAL(remoteOutput(QString)),
             this, SLOT(processSshOutput(QString)));
     connect(m_deviceTester, SIGNAL(finished()),
             this, SLOT(handleSshFinished()));
-    m_deviceTester->start();
-#endif
-}
-
-void MaemoSettingsWidget::enableTestStop()
-{
-    m_ui->testConfigButton->disconnect();
     m_ui->testConfigButton->setText(tr("Stop test"));
     connect(m_ui->testConfigButton, SIGNAL(clicked()),
             this, SLOT(stopConfigTest()));
+    m_deviceTester->start();
+#endif
 }
 
 void MaemoSettingsWidget::processSshOutput(const QString &data)
@@ -453,15 +446,14 @@ void MaemoSettingsWidget::stopConfigTest()
     qDebug("================> %s", Q_FUNC_INFO);
     if (m_deviceTester) {
         qDebug("Actually doing something");
-        m_deviceTester->disconnect();
+        m_ui->testConfigButton->disconnect();
         const bool buttonWasEnabled = m_ui->testConfigButton->isEnabled();
-        m_ui->testConfigButton->setEnabled(false);
+        m_deviceTester->disconnect();
         m_deviceTester->stop();
         delete m_deviceTester;
         m_deviceTester = 0;
         m_deviceTestOutput.clear();
         m_ui->testConfigButton->setText(tr("Test"));
-        m_ui->testConfigButton->disconnect();
         connect(m_ui->testConfigButton, SIGNAL(clicked()),
                 this, SLOT(testConfig()));
         m_ui->testConfigButton->setEnabled(buttonWasEnabled);

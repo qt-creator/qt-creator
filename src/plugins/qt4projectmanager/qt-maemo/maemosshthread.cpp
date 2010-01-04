@@ -47,7 +47,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoSshThread::MaemoSshThread(const MaemoDeviceConfig &devConf)
-    : m_devConf(devConf)
+    : m_stopRequested(false), m_devConf(devConf)
 {
 }
 
@@ -60,7 +60,8 @@ MaemoSshThread::~MaemoSshThread()
 void MaemoSshThread::run()
 {
     try {
-        runInternal();
+        if (!m_stopRequested)
+            runInternal();
     } catch (const MaemoSshException &e) {
         m_error = e.error();
     }
@@ -68,13 +69,21 @@ void MaemoSshThread::run()
 
 void MaemoSshThread::stop()
 {
-    m_connection->stop();
+    m_mutex.lock();
+    m_stopRequested = true;
+    const bool hasConnection = !m_connection.isNull();
+    m_mutex.unlock();
+    if (hasConnection)
+        m_connection->stop();
 }
 
-void MaemoSshThread::setConnection(const MaemoSshConnection::Ptr &connection)
+template <class Conn> typename Conn::Ptr MaemoSshThread::createConnection()
 {
+    typename Conn::Ptr connection = Conn::create(m_devConf);
+    m_mutex.lock();
     m_connection = connection;
-    emit connectionEstablished();
+    m_mutex.unlock();
+    return connection;
 }
 
 MaemoSshRunner::MaemoSshRunner(const MaemoDeviceConfig &devConf,
@@ -86,8 +95,9 @@ MaemoSshRunner::MaemoSshRunner(const MaemoDeviceConfig &devConf,
 void MaemoSshRunner::runInternal()
 {
     MaemoInteractiveSshConnection::Ptr connection
-        = MaemoInteractiveSshConnection::create(m_devConf);
-    setConnection(connection);
+        = createConnection<MaemoInteractiveSshConnection>();
+    if (stopRequested())
+        return;
     connect(connection.data(), SIGNAL(remoteOutput(QString)),
             this, SIGNAL(remoteOutput(QString)));
     connection->runCommand(m_command);
@@ -102,8 +112,9 @@ MaemoSshDeployer::MaemoSshDeployer(const MaemoDeviceConfig &devConf,
 void MaemoSshDeployer::runInternal()
 {
     MaemoSftpConnection::Ptr connection
-        = MaemoSftpConnection::create(m_devConf);
-    setConnection(connection);
+        = createConnection<MaemoSftpConnection>();
+    if (stopRequested())
+        return;
     connect(connection.data(), SIGNAL(fileCopied(QString)),
             this, SIGNAL(fileCopied(QString)));
     connection->transferFiles(m_filePaths, m_targetDirs);

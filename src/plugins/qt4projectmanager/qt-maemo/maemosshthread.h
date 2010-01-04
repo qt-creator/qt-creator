@@ -45,6 +45,7 @@
 #include "maemodeviceconfigurations.h"
 #include "maemosshconnection.h"
 
+#include <QtCore/QMutex>
 #include <QtCore/QStringList>
 #include <QtCore/QThread>
 
@@ -64,19 +65,18 @@ public:
     virtual void run();
     ~MaemoSshThread();
 
-signals:
-    void connectionEstablished();
-
 protected:
     MaemoSshThread(const MaemoDeviceConfig &devConf);
-    virtual void runInternal()=0;
-    void setConnection(const MaemoSshConnection::Ptr &connection);
-    
-    const MaemoDeviceConfig m_devConf;
+    template <class Conn> typename Conn::Ptr createConnection();
+    bool stopRequested() const { return m_stopRequested; }
 
 private:
+    virtual void runInternal()=0;
 
+    bool m_stopRequested;
     QString m_error;
+    QMutex m_mutex;
+    const MaemoDeviceConfig m_devConf;
     MaemoSshConnection::Ptr m_connection;
 };
 
