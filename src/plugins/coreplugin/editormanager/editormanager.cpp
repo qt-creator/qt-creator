@@ -1789,7 +1789,7 @@ void EditorManager::openInExternalEditor()
                 s = c;
             else {
                 s = QLatin1Char('%');
-                cmd += c;
+                s += c;
             }
             cmd += s;
             continue;
