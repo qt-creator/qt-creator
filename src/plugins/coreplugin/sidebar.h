@@ -101,8 +101,8 @@ public:
     void makeItemAvailable(SideBarItem *item);
     SideBarItem *item(const QString &title);
 
-    void saveSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    void saveSettings(QSettings *settings, const QString &name);
+    void readSettings(QSettings *settings, const QString &name);
 
     void activateItem(SideBarItem *item);
 

@@ -143,24 +143,28 @@ void SideBar::updateWidgets()
         i->updateAvailableItems();
 }
 
-void SideBar::saveSettings(QSettings *settings)
+void SideBar::saveSettings(QSettings *settings, const QString &name)
 {
+    const QString prefix = name.isEmpty() ? name : (name + QLatin1Char('/'));
+
     QStringList views;
     for (int i = 0; i < m_widgets.count(); ++i)
         views.append(m_widgets.at(i)->currentItemTitle());
-    settings->setValue("HelpSideBar/Views", views);
-    settings->setValue("HelpSideBar/Visible", true);//isVisible());
-    settings->setValue("HelpSideBar/VerticalPosition", saveState());
-    settings->setValue("HelpSideBar/Width", width());
+    settings->setValue(prefix + "Views", views);
+    settings->setValue(prefix + "Visible", true);//isVisible());
+    settings->setValue(prefix + "VerticalPosition", saveState());
+    settings->setValue(prefix + "Width", width());
 }
 
-void SideBar::readSettings(QSettings *settings)
+void SideBar::readSettings(QSettings *settings, const QString &name)
 {
+    const QString prefix = name.isEmpty() ? name : (name + QLatin1Char('/'));
+
     foreach (SideBarWidget *widget, m_widgets)
         removeSideBarWidget(widget);
 
-    if (settings->contains("HelpSideBar/Views")) {
-        QStringList views = settings->value("HelpSideBar/Views").toStringList();
+    if (settings->contains(prefix + "Views")) {
+        QStringList views = settings->value(prefix + "Views").toStringList();
         if (views.count()) {
             foreach (const QString &title, views)
                 insertSideBarWidget(m_widgets.count(), title);
@@ -172,15 +176,15 @@ void SideBar::readSettings(QSettings *settings)
             insertSideBarWidget(m_widgets.count(), title);
     }
 
-    if (settings->contains("HelpSideBar/Visible"))
-        setVisible(settings->value("HelpSideBar/Visible").toBool());
+    if (settings->contains(prefix + "Visible"))
+        setVisible(settings->value(prefix + "Visible").toBool());
 
-    if (settings->contains("HelpSideBar/VerticalPosition"))
-        restoreState(settings->value("HelpSideBar/VerticalPosition").toByteArray());
+    if (settings->contains(prefix + "VerticalPosition"))
+        restoreState(settings->value(prefix + "VerticalPosition").toByteArray());
 
-    if (settings->contains("HelpSideBar/Width")) {
+    if (settings->contains(prefix + "Width")) {
         QSize s = size();
-        s.setWidth(settings->value("HelpSideBar/Width").toInt());
+        s.setWidth(settings->value(prefix + "Width").toInt());
         resize(s);
     }
 }
