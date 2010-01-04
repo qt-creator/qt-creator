@@ -121,7 +121,7 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
         emit inferiorPrepared();
     } else {
         QString msg = tr("Starting executable failed:\n") +
-            __(response.data.findChild("msg").data());
+            QString::fromLocal8Bit(response.data.findChild("msg").data());
         emit inferiorStartFailed(msg);
     }
 }
@@ -163,7 +163,7 @@ void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
         showStatusMessage(msgInferiorStarted());
     } else {
         QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
-        const QByteArray &msg = response.data.findChild("msg").data();
+        const QString &msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
         //QTC_ASSERT(status() == InferiorRunning, /**/);
         //interruptInferior();
         emit inferiorStartFailed(msg);

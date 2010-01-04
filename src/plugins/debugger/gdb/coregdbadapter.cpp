@@ -108,7 +108,7 @@ void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
         showStatusMessage(tr("Symbols found."));
     } else {
         QString msg = tr("Loading symbols from \"%1\" failed:\n").arg(m_executable)
-            + __(response.data.findChild("msg").data());
+            + QString::fromLocal8Bit(response.data.findChild("msg").data());
         showMessageBox(QMessageBox::Warning, tr("Error Loading Symbols"), msg);
     }
     loadCoreFile();
@@ -160,7 +160,7 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
         m_engine->updateAll();
     } else {
         QString msg = tr("Attach to core \"%1\" failed:\n").arg(startParameters().coreFile)
-            + __(response.data.findChild("msg").data());
+            + QString::fromLocal8Bit(response.data.findChild("msg").data());
         emit inferiorStartFailed(msg);
     }
 }

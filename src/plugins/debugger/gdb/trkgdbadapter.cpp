@@ -1628,7 +1628,7 @@ void TrkGdbAdapter::handleTargetRemote(const GdbResponse &record)
         emit inferiorPrepared();
     } else {
         QString msg = tr("Connecting to TRK server adapter failed:\n")
-            + _(record.data.findChild("msg").data());
+            + QString::fromLocal8Bit(record.data.findChild("msg").data());
         emit inferiorStartFailed(msg);
     }
 }

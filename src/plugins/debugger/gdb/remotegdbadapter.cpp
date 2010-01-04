@@ -203,7 +203,7 @@ void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
             CB(handleTargetRemote));
     } else {
         QString msg = tr("Starting remote executable failed:\n");
-        msg += __(response.data.findChild("msg").data());
+        msg += QString::fromLocal8Bit(response.data.findChild("msg").data());
         emit inferiorStartFailed(msg);
     }
 }
@@ -219,7 +219,8 @@ void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
         emit inferiorPrepared();
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
-        QString msg = msgConnectRemoteServerFailed(__(record.data.findChild("msg").data()));
+        QString msg = msgConnectRemoteServerFailed(
+            QString::fromLocal8Bit(record.data.findChild("msg").data()));
         emit inferiorStartFailed(msg);
     }
 }
