@@ -1964,7 +1964,7 @@ void GdbEngine::sendInsertBreakpoint(int index)
 void GdbEngine::reloadBreakListInternal()
 {
     m_breakListUpdating = true; 
-    postCommand(_("-break-list"), CB(handleBreakList));
+    postCommand(_("-break-list"), NeedsStop, CB(handleBreakList));
 }
 
 void GdbEngine::handleBreakList(const GdbResponse &response)
