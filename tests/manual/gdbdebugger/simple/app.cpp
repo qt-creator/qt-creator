@@ -27,6 +27,11 @@
 **
 **************************************************************************/
 
+//#include <complex>
+
+
+//template <typename T> class B;  B foo() {}
+
 #include <QtCore/QDebug>
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
@@ -68,6 +73,18 @@
 #ifdef Q_OS_WIN
 #include <windows.h>
 #endif
+
+template <typename T> class Vector
+{
+public:
+    explicit Vector(int size) : m_size(size), m_data(new T[size]) {}
+    ~Vector() { delete [] m_data; }
+    //...
+private:
+    int m_size;
+    T *m_data;
+};
+
 
 
 uint qHash(const QMap<int, int> &)
@@ -1347,8 +1364,22 @@ void testEndlessRecursion()
     testEndlessRecursion();
 }
 
+QString fooxx()
+{
+    return "bababa";
+}
+
+int testReference()
+{
+    QString a = "hello";
+    const QString &b = fooxx();
+    QString c = "world";
+    return a.size() + b.size() + c.size();
+}
+
 int main(int argc, char *argv[])
 {
+    testReference();
     //testEndlessRecursion();
     testQStack();
     testUninitialized();
