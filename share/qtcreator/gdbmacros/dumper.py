@@ -177,8 +177,11 @@ def checkPointer(p, align = 1):
 
 
 def isNull(p):
-    s = str(p)
-    return s == "0x0" or s.startswith("0x0 ")
+    # The following can cause evaluation to abort with "UnicodeEncodeError"
+    # for invalid char *, as their "contents" is being examined
+    #s = str(p)
+    #return s == "0x0" or s.startswith("0x0 ")
+    return p.cast(gdb.lookup_type("unsigned long long")) == 0
 
 movableTypes = set([
     "QBrush", "QBitArray", "QByteArray",
