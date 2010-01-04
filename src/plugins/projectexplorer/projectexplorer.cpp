@@ -84,6 +84,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <welcome/welcomemode.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
 #include <utils/unixutils.h>
@@ -145,6 +146,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_addExistingFilesAction;
     QAction *m_openFileAction;
     QAction *m_showInGraphicalShell;
+    QAction *m_openTerminalHere;
     QAction *m_removeFileAction;
     QAction *m_renameFileAction;
 
@@ -488,7 +490,18 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #else
     d->m_showInGraphicalShell = new QAction(tr("Show containing folder..."), this);
 #endif
+
+#ifdef Q_OS_WIN
+    d->m_openTerminalHere = new QAction(tr("Open Command Prompt here..."), this);
+#else
+    d->m_openTerminalHere = new QAction(tr("Open Terminal here..."), this);
+#endif
     cmd = am->registerAction(d->m_showInGraphicalShell, ProjectExplorer::Constants::SHOWINGRAPHICALSHELL,
+                       globalcontext);
+    mfilec->addAction(cmd, Constants::G_FILE_OPEN);
+    mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
+
+    cmd = am->registerAction(d->m_openTerminalHere, ProjectExplorer::Constants::OPENTERMIANLHERE,
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OPEN);
     mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
@@ -746,6 +759,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_addExistingFilesAction, SIGNAL(triggered()), this, SLOT(addExistingFiles()));
     connect(d->m_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(d->m_showInGraphicalShell, SIGNAL(triggered()), this, SLOT(showInGraphicalShell()));
+    connect(d->m_openTerminalHere, SIGNAL(triggered()), this, SLOT(openTerminalHere()));
     connect(d->m_removeFileAction, SIGNAL(triggered()), this, SLOT(removeFile()));
     connect(d->m_renameFileAction, SIGNAL(triggered()), this, SLOT(renameFile()));
 
@@ -1890,6 +1904,24 @@ void ProjectExplorerPlugin::showInGraphicalShell()
         graphicalShellHasError(app, error);
     }
 #endif
+}
+
+void ProjectExplorerPlugin::openTerminalHere()
+{
+#ifdef Q_OS_WIN
+    const QString terminalEmulator = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+    const QStringList args; // none
+#else
+   QStringList args = Utils::ConsoleProcess::terminalEmulator(
+           Core::ICore::instance()->settings()).split(QLatin1Char(' '));
+    const QString terminalEmulator = args.takeFirst();
+    const QString shell = QString::fromLocal8Bit(qgetenv("SHELL"));
+    args.append(shell);
+#endif
+    const QFileInfo fileInfo(d->m_currentNode->path());
+    const QString pwd = QDir::toNativeSeparators(fileInfo.path());
+    QProcess::startDetached(terminalEmulator, args, pwd);
+
 }
 
 void ProjectExplorerPlugin::removeFile()
