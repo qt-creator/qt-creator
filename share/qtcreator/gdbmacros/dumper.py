@@ -410,7 +410,7 @@ class FrameCommand(gdb.Command):
             d.beginHash()
             d.put('iname="watch.%s",' % name)
             d.put('name="%s",' % exp)
-            d.put('exp="%s"' % exp)
+            d.put('exp="%s",' % exp)
             try:
                 list = eval(exp)
                 #warn("EVAL: LIST: %s" % list)
@@ -437,7 +437,7 @@ class FrameCommand(gdb.Command):
         d.beginHash()
         d.put('iname="watch.%s",' % name)
         d.put('name="%s",' % exp)
-        d.put('exp="%s"' % exp)
+        d.put('exp="%s",' % exp)
         handled = False
         if exp == "<Edit>":
             d.put(',value=" ",')
@@ -445,7 +445,7 @@ class FrameCommand(gdb.Command):
         else:
             try:
                 value = parseAndEvaluate(exp)
-                item = Item(value, "watch", name, name)
+                item = Item(value, "watch", None, None)
                 d.safePutItemHelper(item)
             except RuntimeError:
                 d.put(',value="<invalid>",')
