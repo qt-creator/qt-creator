@@ -151,6 +151,11 @@ def check(exp):
     if not exp:
         raise RuntimeError("Check failed")
 
+def checkRef(ref):
+    count = ref["_q_value"]
+    check(count > 0)
+    check(count < 1000000) # assume there aren't a million references to any object
+
 #def couldBePointer(p, align):
 #    type = gdb.lookup_type("unsigned int")
 #    ptr = gdb.Value(p).cast(type)
@@ -235,7 +240,7 @@ def encodeByteArray(value):
     size = d_ptr['size']
     alloc = d_ptr['alloc']
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    check(d_ptr["ref"]["_q_value"] > 0)
+    checkRef(d_ptr["ref"])
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0
@@ -253,7 +258,7 @@ def encodeString(value):
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size * 2) == 0
-    check(d_ptr["ref"]["_q_value"] > 0)
+    checkRef(d_ptr["ref"])
     p = gdb.Value(d_ptr["data"])
     s = ""
     for i in xrange(size):

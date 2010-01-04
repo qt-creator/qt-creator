@@ -260,7 +260,7 @@ def qdump__QHash(d, item):
     hashNodeType = e_ptr.type
 
     check(0 <= size and size <= 100 * 1000 * 1000)
-    check(d_ptr["ref"]["_q_value"] > 0)
+    checkRef(d_ptr["ref"])
 
     d.putItemCount(size)
     d.putNumChild(size)
@@ -324,8 +324,7 @@ def qdump__QList(d, item):
     #if n > 0:
     #    checkAccess(&list.front())
     #    checkAccess(&list.back())
-
-    check(d_ptr["ref"]["_q_value"] > 0)
+    checkRef(d_ptr["ref"])
 
     # Additional checks on pointer arrays.
     innerType = item.value.type.template_argument(0)
@@ -371,7 +370,7 @@ def qdump__QImage(d, item):
     if isNull(d_ptr):
         d.putValue("(null)")
     else:
-        check(d_ptr["ref"]["_q_value"] > 0)
+        checkRef(d_ptr["ref"])
         d.putValue("(%dx%d)" % (d_ptr["width"], d_ptr["height"]))
     d.putNumChild(0)
     #d.putNumChild(1)
@@ -395,7 +394,7 @@ def qdump__QLinkedList(d, item):
     e_ptr = item.value["e"]
     n = d_ptr["size"]
     check(0 <= n and n <= 100*1000*1000)
-    check(d_ptr["ref"]["_q_value"] > 0)
+    checkRef(d_ptr["ref"])
     d.putItemCount(n)
     d.putNumChild(n)
     if d.isExpanded(item):
@@ -450,7 +449,7 @@ def qdump__QMap(d, item):
     e_ptr = item.value["e"].dereference()
     n = d_ptr["size"]
     check(0 <= n and n <= 100*1000*1000)
-    check(d_ptr["ref"]["_q_value"] > 0)
+    checkRef(d_ptr["ref"])
 
     d.putItemCount(n)
     d.putNumChild(n)
@@ -561,7 +560,7 @@ def qdump__QObject(d, item):
     #d.putValue("")
     d.putStringValue(objectName)
     #QSignalMapper::staticMetaObject
-    #check(d_ptr["ref"]["_q_value"] > 0)
+    #checkRef(d_ptr["ref"])
     d.putNumChild(4)
     if d.isExpanded(item):
         d.beginChildren()
@@ -1275,7 +1274,7 @@ def qdump__QPixmap(d, item):
     if isNull(d_ptr):
         d.putValue("(null)")
     else:
-        check(d_ptr["ref"]["_q_value"] > 0)
+        checkRef(d_ptr["ref"])
         d.putValue("(%dx%d)" % (d_ptr["w"], d_ptr["h"]))
     d.putNumChild(0)
 
@@ -1379,7 +1378,7 @@ def qdump__QSet(d, item):
     hashNodeType = e_ptr.type
 
     check(0 <= size and size <= 100 * 1000 * 1000)
-    check(d_ptr["ref"]["_q_value"] > 0)
+    checkRef(d_ptr["ref"])
 
     d.putItemCount(size)
     d.putNumChild(size)
@@ -1440,7 +1439,7 @@ def qdump__QStringList(d, item):
     check(size <= 10 * 1000 * 1000)
     #    checkAccess(&list.front())
     #    checkAccess(&list.back())
-    check(d_ptr["ref"]["_q_value"] > 0)
+    checkRef(d_ptr["ref"])
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded(item):
@@ -1619,7 +1618,7 @@ def qdump__QVector(d, item):
     size = d_ptr["size"]
 
     check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
-    check(d_ptr["ref"]["_q_value"] > 0)
+    checkRef(d_ptr["ref"])
 
     innerType = item.value.type.template_argument(0)
     d.putItemCount(size)
