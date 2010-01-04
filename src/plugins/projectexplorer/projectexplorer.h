@@ -213,6 +213,7 @@ private slots:
     void currentModeChanged(Core::IMode *mode);
 
 private:
+    void graphicalShellHasError(const QString &app, const QString &error);
     void runProjectImpl(Project *pro, QString mode);
     void executeRunConfiguration(RunConfiguration *, const QString &mode);
     bool showBuildConfigDialog();

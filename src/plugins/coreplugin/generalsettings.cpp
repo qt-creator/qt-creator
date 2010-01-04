@@ -33,6 +33,7 @@
 #include <utils/stylehelper.h>
 #include <utils/qtcolorbutton.h>
 #include <utils/consoleprocess.h>
+#include <utils/unixutils.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
@@ -45,6 +46,7 @@
 
 using namespace Utils;
 using namespace Core::Internal;
+
 
 GeneralSettings::GeneralSettings():
     m_dialog(0)
@@ -77,15 +79,24 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
 
+    QSettings* settings = Core::ICore::instance()->settings();
     m_page->colorButton->setColor(StyleHelper::baseColor());
     m_page->externalEditorEdit->setText(EditorManager::instance()->externalEditor());
     m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadBehavior());
 #ifdef Q_OS_UNIX
-    m_page->terminalEdit->setText(ConsoleProcess::terminalEmulator(Core::ICore::instance()->settings()));
+    m_page->terminalEdit->setText(ConsoleProcess::terminalEmulator(settings));
 #else
     m_page->terminalLabel->hide();
     m_page->terminalEdit->hide();
     m_page->resetTerminalButton->hide();
+#endif
+
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+    m_page->externalFileBrowserEdit->setText(UnixUtils::fileBrowser(settings));
+#else
+    m_page->externalFileBrowserLabel->hide();
+    m_page->externalFileBrowserEdit->hide();
+    m_page->resetFileBrowserButton->hide();
 #endif
 
     connect(m_page->resetButton, SIGNAL(clicked()),
@@ -97,6 +108,12 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
 #ifdef Q_OS_UNIX
     connect(m_page->resetTerminalButton, SIGNAL(clicked()),
             this, SLOT(resetTerminal()));
+#ifndef Q_OS_MAC
+    connect(m_page->resetFileBrowserButton, SIGNAL(clicked()),
+            this, SLOT(resetFileBrowser()));
+    connect(m_page->helpExternalFileBrowserButton, SIGNAL(clicked()),
+            this, SLOT(showHelpForFileBrowser()));
+#endif
 #endif
 
     if (m_searchKeywords.isEmpty()) {
@@ -122,6 +139,9 @@ void GeneralSettings::apply()
 #ifdef Q_OS_UNIX
 	ConsoleProcess::setTerminalEmulator(Core::ICore::instance()->settings(),
                                         m_page->terminalEdit->text());
+#ifndef Q_OS_MAC
+        Utils::UnixUtils::setFileBrowser(Core::ICore::instance()->settings(), m_page->externalFileBrowserEdit->text());
+#endif
 #endif
 }
 
@@ -145,9 +165,17 @@ void GeneralSettings::resetTerminal()
 {
     m_page->terminalEdit->setText(ConsoleProcess::defaultTerminalEmulator() + QLatin1String(" -e"));
 }
+
+#ifndef Q_OS_MAC
+void GeneralSettings::resetFileBrowser()
+{
+    m_page->externalFileBrowserEdit->setText(UnixUtils::defaultFileBrowser());
+}
+#endif
 #endif
 
-void GeneralSettings::showHelpForExternalEditor()
+
+void GeneralSettings::variableHelpDialogCreator(const QString& helpText)
 {
     if (m_dialog) {
         m_dialog->show();
@@ -157,10 +185,23 @@ void GeneralSettings::showHelpForExternalEditor()
     }
     QMessageBox *mb = new QMessageBox(QMessageBox::Information,
                                   tr("Variables"),
-                                  EditorManager::instance()->externalEditorHelpText(),
-                                  QMessageBox::Cancel,
+                                  helpText,
+                                  QMessageBox::Close,
                                   m_page->helpExternalEditorButton);
     mb->setWindowModality(Qt::NonModal);
     m_dialog = mb;
     mb->show();
 }
+
+
+void GeneralSettings::showHelpForExternalEditor()
+{
+    variableHelpDialogCreator(EditorManager::instance()->externalEditorHelpText());
+}
+
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+void GeneralSettings::showHelpForFileBrowser()
+{
+    variableHelpDialogCreator(UnixUtils::fileBrowserHelpText());
+}
+#endif

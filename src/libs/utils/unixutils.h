@@ -27,56 +27,30 @@
 **
 **************************************************************************/
 
-#ifndef GENERALSETTINGS_H
-#define GENERALSETTINGS_H
+#ifndef UNIXUTILS_H
+#define UNIXUTILS_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <QtCore/QPointer>
-#include <QtGui/QWidget>
+#include "utils_global.h"
 
-namespace Core {
-namespace Internal {
+#include <QtCore/QString>
 
-namespace Ui {
-    class GeneralSettings;
-}
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
-class GeneralSettings : public IOptionsPage
+namespace Utils {
+
+class QTCREATOR_UTILS_EXPORT UnixUtils
 {
-    Q_OBJECT
-
 public:
-    GeneralSettings();
-
-    QString id() const;
-    QString trName() const;
-    QString category() const;
-    QString trCategory() const;
-    QWidget* createPage(QWidget *parent);
-    void apply();
-    void finish();
-    virtual bool matches(const QString &) const;
-
-private slots:
-    void resetInterfaceColor();
-    void resetExternalEditor();
-    void showHelpForExternalEditor();
-#ifdef Q_OS_UNIX
-#  ifndef Q_OS_MAC
-    void showHelpForFileBrowser();
-    void resetFileBrowser();
-#  endif
-    void resetTerminal();
-#endif
-
-private:
-    void variableHelpDialogCreator(const QString& helpText);
-    Ui::GeneralSettings *m_page;
-    QString m_searchKeywords;
-    QPointer<QWidget> m_dialog;
+    static QString defaultFileBrowser();
+    static QString fileBrowser(const QSettings *settings);
+    static void setFileBrowser(QSettings *settings, const QString &term);
+    static QString fileBrowserHelpText();
+    static QString substituteFileBrowserParameters(const QString &command,
+                                                   const QString &file);
 };
 
-} // namespace Internal
-} // namespace Core
+};
 
-#endif // GENERALSETTINGS_H
+#endif // UNIXUTILS_H

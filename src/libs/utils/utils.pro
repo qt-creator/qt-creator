@@ -46,6 +46,11 @@ win32 {
     HEADERS += winutils.h
 }
 else:SOURCES += consoleprocess_unix.cpp
+
+unix:!macx {
+    HEADERS += unixutils.h
+    SOURCES += unixutils.cpp
+}
 HEADERS += utils_global.h \
     reloadpromptutils.h \
     stringutils.h \

@@ -86,6 +86,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
+#include <utils/unixutils.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDateTime>
@@ -1842,6 +1843,21 @@ void ProjectExplorerPlugin::openFile()
     em->ensureEditorManagerVisible();
 }
 
+void ProjectExplorerPlugin::graphicalShellHasError(const QString &app, const QString &error)
+{
+    QWidget *w = Core::ICore::instance()->mainWindow();
+    QMessageBox mbox(w);
+    mbox.setIcon(QMessageBox::Warning);
+    mbox.setWindowTitle(tr("Launching a file browser failed"));
+    mbox.setText(tr("Unable to start the file manager:\n\n%1\n\n"
+                             "Do you want to change the current file manager?").arg(app));
+    if (!error.isEmpty()) {
+        mbox.setDetailedText(tr("'%1' returned the following error:\n\n%2").arg(app, error));
+    }
+    if (mbox.exec() == QMessageBox::Accepted)
+        Core::ICore::instance()->showOptionsDialog("environment", QString(), w);
+}
+
 void ProjectExplorerPlugin::showInGraphicalShell()
 {
     QTC_ASSERT(d->m_currentNode, return)
@@ -1865,14 +1881,14 @@ void ProjectExplorerPlugin::showInGraphicalShell()
 #else
     // we cannot select a file here, because no file browser really supports it...
     const QFileInfo fileInfo(d->m_currentNode->path());
-    const QString xdgopen = Environment::systemEnvironment().searchInPath("xdg-open");
-    if (xdgopen.isEmpty()) {
-        QMessageBox::warning(Core::ICore::instance()->mainWindow(),
-                             tr("Launching a file explorer failed"),
-                             tr("Could not find xdg-open to launch the native file explorer."));
-        return;
+    QString app = Utils::UnixUtils::fileBrowser(Core::ICore::instance()->settings());
+    QProcess browserProc;
+    bool success = browserProc.startDetached(Utils::UnixUtils::substituteFileBrowserParameters(app, fileInfo.filePath()));
+    QString error = QString::fromLocal8Bit(browserProc.readAllStandardError());
+    success = success && error.isEmpty();
+    if (!success) {
+        graphicalShellHasError(app, error);
     }
-    QProcess::startDetached(xdgopen, QStringList(fileInfo.path()));
 #endif
 }
 
