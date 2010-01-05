@@ -60,6 +60,7 @@ private slots:
 
     // command mode
     void command_oO();
+    void command_put_at_eol();
     void command_Cxx_down_dot();
     void command_Gyyp();
     void command_J();
@@ -620,6 +621,16 @@ return; // FIXME: not in sync with Gui behaviour?
     checkEx("redo", lmid(0, 5) + "@ " + lmid(5));
 }
 
+void tst_FakeVim::command_put_at_eol()
+{
+    setup();
+    move("j$",               l[1] + "@");
+    check("y$",              lmid(0,2)+"@\n" + lmid(2));
+    check("p",               lmid(0,2)+"@>\n" + lmid(2));
+    check("p",               lmid(0,2)+">@>\n" + lmid(2));
+    check("$",               lmid(0,2)+">>@\n" + lmid(2));
+    check("P",               lmid(0,2)+">@>>\n" + lmid(2));
+}
 
 void tst_FakeVim::command_oO()
 {
