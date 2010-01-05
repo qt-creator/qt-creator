@@ -59,6 +59,7 @@ private slots:
     void indentation();
 
     // command mode
+    void command_oO();
     void command_Cxx_down_dot();
     void command_Gyyp();
     void command_J();
@@ -619,6 +620,19 @@ return; // FIXME: not in sync with Gui behaviour?
     checkEx("redo", lmid(0, 5) + "@ " + lmid(5));
 }
 
+
+void tst_FakeVim::command_oO()
+{
+    setup();
+    check("gg",              "@" + lmid(0));
+    check("Ol1" + escape,    "l@1\n" + lmid(0));
+    check("gg",              "@l1\n" + lmid(0));
+    check("ol2" + escape,    "l1\n" "l@2\n" + lmid(0));
+    check("G$",              "l1\n" "l2\n" + lmid(0)+"@");
+    check("ol-1" + escape,   "l1\n" "l2\n" + lmid(0)+"\n" + "l-@1");
+    check("G",               "l1\n" "l2\n" + lmid(0)+"\n" + "@l-1");
+    check("Ol-2" + escape,   "l1\n" "l2\n" + lmid(0)+"\n" + "l-@2\n" + "l-1");
+}
 
 /*
 
