@@ -47,8 +47,8 @@ struct SubversionSettings
     void fromSettings(QSettings *);
     void toSettings(QSettings *) const;
 
-    inline int timeOutMS() const     { return timeOutS * 10000;  }
-    inline int longTimeOutMS() const { return timeOutS * 100000; }
+    inline int timeOutMS() const     { return timeOutS * 1000;  }
+    inline int longTimeOutMS() const { return timeOutS * 10000; }
 
     // Add authentication and (maybe future) options to the
     // command line
