@@ -47,6 +47,7 @@
 
 #include "/opt/ne7ssh/include/ne7ssh.h"
 
+#include <QtCore/QFileInfo>
 #include <QtCore/QStringBuilder>
 #include <QtCore/QStringList>
 
@@ -159,14 +160,15 @@ void MaemoSftpConnection::transferFiles(const QStringList &filePaths,
                                      &std::fclose);
         if (filePtr.isNull())
             throw MaemoSshException(tr("Could not open file '%1'").arg(curFile));
-        const QString &targetFile
-             = targetDirs.at(i) % QLatin1String("/") % curFile;
+        const QString &targetFile = targetDirs.at(i) % QLatin1String("/")
+                                    % QFileInfo(curFile).fileName();
         if (!sftp->put(filePtr.data(), targetFile.toLatin1().data())) {
             const QString &error = tr("Could not copy local file '%1' "
                     "to remote file '%2': %3").arg(curFile, targetFile)
                     .arg(lastError());
             throw MaemoSshException(error);
         }
+        emit fileCopied(curFile);
     }
 }
 

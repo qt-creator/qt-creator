@@ -32,6 +32,7 @@
 #include "maemodeviceconfigurations.h"
 #include "maemomanager.h"
 #include "maemosettingspage.h"
+#include "maemosshthread.h"
 #include "maemotoolchain.h"
 #include "profilereader.h"
 #include "qt4project.h"
@@ -52,7 +53,9 @@
 #include <QtCore/QFuture>
 #include <QtCore/QPair>
 #include <QtCore/QProcess>
+#include <QtCore/QScopedPointer>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QStringBuilder>
 
 #include <QtGui/QComboBox>
 #include <QtGui/QCheckBox>
@@ -120,12 +123,19 @@ protected:
     const QString targetCmdLinePrefix() const;
     const QString remoteDir() const;
     const QStringList options() const;
+// #ifndef USE_SSH_LIB
     void deploymentFinished(bool success);
     virtual bool setProcessEnvironment(QProcess &process);
+// #endif // USE_SSH_LIB
 private slots:
+// #ifndef USE_SSH_LIB
     void readStandardError();
     void readStandardOutput();
+//  #endif // USE_SSH_LIB
     void deployProcessFinished();
+#ifdef USE_SSH_LIB
+    void handleFileCopied();
+#endif
 
 protected:
     ErrorDumper dumper;
@@ -136,7 +146,11 @@ private:
     virtual void handleDeploymentFinished(bool success)=0;
 
     QFutureInterface<void> m_progress;
+#ifdef USE_SSH_LIB
+    QScopedPointer<MaemoSshDeployer> sshDeployer;
+#else
     QProcess deployProcess;
+#endif // USE_SSH_LIB
     struct Deployable
     {
         typedef void (MaemoRunConfiguration::*updateFunc)();
@@ -990,8 +1004,8 @@ AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc)
     , runConfig(qobject_cast<MaemoRunConfiguration *>(rc))
     , devConfig(runConfig ? runConfig->deviceConfig() : MaemoDeviceConfig())
 {
+#ifndef USE_SSH_LIB
     setProcessEnvironment(deployProcess);
-
     connect(&deployProcess, SIGNAL(readyReadStandardError()), this,
         SLOT(readStandardError()));
     connect(&deployProcess, SIGNAL(readyReadStandardOutput()), this,
@@ -1000,14 +1014,17 @@ AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc)
         SLOT(printToStream(QProcess::ProcessError)));
     connect(&deployProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this,
         SLOT(deployProcessFinished()));
+#endif // USE_SSH_LIB
 }
 
 void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 {
     QTC_ASSERT(runConfig, return);
 
+#ifndef USE_SSH_LIB
     Core::ICore::instance()->progressManager()->addTask(m_progress.future(),
         tr("Deploying"), QLatin1String("Maemo.Deploy"));
+#endif // USE_SSH_LIB
     if (devConfig.isValid()) {
         deployables.clear();
         if (runConfig->currentlyNeedsDeployment()) {
@@ -1021,9 +1038,11 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
                 &MaemoRunConfiguration::debuggingHelpersDeployed));
         }
 
+#ifndef USE_SSH_LIB
         m_progress.setProgressRange(0, deployables.count());
         m_progress.setProgressValue(0);
         m_progress.reportStarted();
+#endif // USE_SSH_LIB
         deploy();
     } else {
         deploymentFinished(false);
@@ -1032,6 +1051,32 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 
 void AbstractMaemoRunControl::deploy()
 {
+#ifdef USE_SSH_LIB
+    if (!deployables.isEmpty()) {
+        QStringList files;
+        QStringList targetDirs;
+        foreach (const Deployable &deployable, deployables) {
+            files << deployable.dir + QDir::separator() + deployable.fileName;
+            targetDirs << remoteDir();
+        }
+        emit addToOutputWindow(this, tr("Files to deploy: %1.").arg(files.join(" ")));
+        sshDeployer.reset(new MaemoSshDeployer(devConfig, files, targetDirs));
+        connect(sshDeployer.data(), SIGNAL(finished()),
+                this, SLOT(deployProcessFinished()));
+        connect(sshDeployer.data(), SIGNAL(fileCopied(QString)),
+                this, SLOT(handleFileCopied()));
+        Core::ICore::instance()->progressManager()
+                ->addTask(m_progress.future(), tr("Deploying"),
+                          QLatin1String("Maemo.Deploy"));
+        m_progress.setProgressRange(0, deployables.count());
+        m_progress.setProgressValue(0);
+        m_progress.reportStarted();
+        emit started();
+        sshDeployer->start();
+    } else {
+        handleDeploymentFinished(true);
+    }
+#else
     if (!deployables.isEmpty()) {
         const Deployable &deployable = deployables.first();
         emit addToOutputWindow(this, tr("File to deploy: %1.").arg(deployable.fileName));
@@ -1051,20 +1096,49 @@ void AbstractMaemoRunControl::deploy()
     } else {
         deploymentFinished(true);
     }
+#endif // USE_SSH_LIB
 }
+
+#ifdef USE_SSH_LIB
+void AbstractMaemoRunControl::handleFileCopied()
+{
+    Deployable deployable = deployables.takeFirst();
+    (runConfig->*deployable.updateTimestamp)();
+    m_progress.setProgressValue(m_progress.progressValue() + 1);
+}
+#endif // USE_SSH_LIB
 
 void AbstractMaemoRunControl::stopDeployment()
 {
+#ifdef USE_SSH_LIB
+    sshDeployer->stop();
+#else
     deployProcess.kill();
+#endif // USE_SSH_LIB
 }
 
 bool AbstractMaemoRunControl::isDeploying() const
 {
+#ifdef USE_SSH_LIB
+    return !sshDeployer.isNull() && sshDeployer->isRunning();
+#else
     return deployProcess.state() != QProcess::NotRunning;
+#endif // USE_SSH_LIB
 }
 
 void AbstractMaemoRunControl::deployProcessFinished()
 {
+#if USE_SSH_LIB
+    const bool success = !sshDeployer->hasError();
+    if (success) {
+        emit addToOutputWindow(this, tr("Deployment finished."));
+    } else {
+        emit error(this, tr("Deployment failed: ") % sshDeployer->error());
+        m_progress.reportCanceled();
+    }
+    m_progress.reportFinished();
+    handleDeploymentFinished(success);
+#else
     bool success;
     if (deployProcess.exitCode() == 0) {
         emit addToOutputWindow(this, tr("Target deployed."));
@@ -1080,13 +1154,16 @@ void AbstractMaemoRunControl::deployProcessFinished()
         deploymentFinished(success);
     else
         deploy();
+#endif // USE_SSH_LIB
 }
 
+#ifndef USE_SSH_LIB
 void AbstractMaemoRunControl::deploymentFinished(bool success)
 {
     m_progress.reportFinished();
     handleDeploymentFinished(success);
 }
+#endif // USE_SSH_LIB
 
 const QString AbstractMaemoRunControl::executableOnHost() const
 {
@@ -1140,6 +1217,7 @@ const QString AbstractMaemoRunControl::targetCmdLinePrefix() const
         arg(executableOnTarget());
 }
 
+// #ifndef USE_SSH_LIB
 bool AbstractMaemoRunControl::setProcessEnvironment(QProcess &process)
 {
     QTC_ASSERT(runConfig, return false);
@@ -1168,7 +1246,7 @@ void AbstractMaemoRunControl::readStandardOutput()
     emit addToOutputWindow(this, QString::fromLocal8Bit(data.constData(),
         data.length()));
 }
-
+// #endif // USE_SSH_LIB
 
 // #pragma mark -- MaemoRunControl
 
