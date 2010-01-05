@@ -1497,9 +1497,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_beginEditBlock = false;
         moveToFirstNonBlankOnLine();
         if (key == 'O')
-            moveUp();
-        moveToEndOfLine();
+            moveToStartOfLine();
+        else
+            moveToEndOfLine();
         m_tc.insertText("\n");
+        if (key == 'O')
+            moveUp();
         insertAutomaticIndentation(key == 'o');
         endEditBlock();
     } else if (key == control('o')) {
