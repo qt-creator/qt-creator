@@ -27,8 +27,9 @@ def qmin(n, m):
     return m
 
 def isGoodGdb():
-    return gdb.VERSION.startswith("6.8.50.2009") \
-       and gdb.VERSION != "6.8.50.20090630-cvs"
+    #return gdb.VERSION.startswith("6.8.50.2009") \
+    #   and gdb.VERSION != "6.8.50.20090630-cvs"
+    return 'parse_and_eval' in dir(gdb)
 
 def parseAndEvaluate(exp):
     if isGoodGdb():
@@ -414,6 +415,16 @@ class FrameCommand(gdb.Command):
 
     def handleWatch(self, d, exp, name):
         #warn("HANDLING WATCH %s, NAME: %s" % (exp, name))
+        if not isGoodGdb():
+            d.beginHash()
+            d.put('iname="watch.%s",' % name)
+            d.put('name="%s",' % exp)
+            d.put('exp="%s",' % exp)
+            d.put('value="<unsupported gdb version>"',)
+            d.put('type="<unknown>",numchild="0"')
+            d.endHash()
+            return
+
         if exp.startswith("["):
             #warn("EVAL: EXP: %s" % exp)
             d.beginHash()
@@ -745,10 +756,10 @@ class Dumper:
             #warn("IS DUMPABLE: %s " % type)
             self.putType(item.value.type)
             self.dumpers[strippedType](self, item)
-            warn(" RESULT: %s " % self.output)
+            #warn(" RESULT: %s " % self.output)
 
         elif type.code == gdb.TYPE_CODE_ENUM:
-            warn("GENERIC ENUM: %s" % value)
+            #warn("GENERIC ENUM: %s" % value)
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
@@ -792,7 +803,7 @@ class Dumper:
             #warn("RES: %s" % (self.autoDerefPointers and not isHandled))
             if self.autoDerefPointers and not isHandled:
                 ## Generic pointer type.
-                warn("GENERIC AUTODEREF POINTER: %s" % value.address)
+                #warn("GENERIC AUTODEREF POINTER: %s" % value.address)
                 innerType = item.value.type.target()
                 self.putType(innerType)
                 self.childTypes.append(
