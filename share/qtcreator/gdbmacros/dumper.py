@@ -411,11 +411,6 @@ class FrameCommand(gdb.Command):
             + 'watchers={iname="watch",name="Watchers",value=" ",type=" ",'
             + 'children=[' + watchers + ']}\n')
 
-        warn('OUTPUT: locals={iname="local",name="Locals",value=" ",type=" ",'
-            + 'children=[' + locals + ']},'
-            + 'watchers={iname="watch",name="Watchers",value=" ",type=" ",'
-            + 'children=[' + watchers + ']}')
-
 
     def handleWatch(self, d, exp, name):
         #warn("HANDLING WATCH %s, NAME: %s" % (exp, name))

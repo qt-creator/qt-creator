@@ -3180,7 +3180,8 @@ void GdbEngine::updateSubItem(const WatchData &data0)
     if (data.isHasChildrenNeeded()) {
         QTC_ASSERT(!data.variable.isEmpty(), return); // tested above
         QString cmd = _("-var-list-children --all-values \"") + data.variable + _c('"');
-        postCommand(cmd, Discardable, CB(handleVarListChildren), QVariant::fromValue(data));
+        postCommand(cmd, Discardable,
+            CB(handleVarListChildren), QVariant::fromValue(data));
         return;
     }
 
@@ -3632,6 +3633,7 @@ void GdbEngine::updateLocals(const QVariant &cookie)
                 .arg(options)
                 .arg(expanded.join(_(",")))
                 .arg(_(watchers.toLatin1().toHex())),
+            Discardable,
             CB(handleStackFrame));
     } else {
         m_processedNames.clear();
