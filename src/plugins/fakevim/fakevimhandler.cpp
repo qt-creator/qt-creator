@@ -1208,7 +1208,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == '-') {
         moveToStartOfLine();
-        moveUp();
+        moveUp(count());
+        moveToFirstNonBlankOnLine();
+        finishMovement();
+    } else if (key == '+') {
+        moveToStartOfLine();
+        moveDown(count());
         moveToFirstNonBlankOnLine();
         finishMovement();
     } else if (key == Key_Home) {
