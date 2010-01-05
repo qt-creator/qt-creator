@@ -839,7 +839,9 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_submode = NoSubMode;
     } else if (m_submode == IndentSubMode) {
         recordJump();
+        beginEditBlock();
         indentRegion();
+        endEditBlock();
         m_submode = NoSubMode;
         updateMiniBuffer();
     } else if (m_submode == ShiftRightSubMode) {
@@ -1247,7 +1249,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == '=' && isNoVisualMode()) {
         m_submode = IndentSubMode;
     } else if (key == '=' && isVisualMode()) {
+        beginEditBlock();
         indentRegion();
+        endEditBlock();
         leaveVisualMode();
     } else if (key == '%') {
         m_movetype = MoveExclusive;
