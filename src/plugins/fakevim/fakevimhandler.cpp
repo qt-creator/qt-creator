@@ -1381,21 +1381,25 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_subsubmode = FtSubSubMode;
         m_movetype = MoveExclusive;
         m_subsubdata = key;
-    } else if (key == 'g') {
-        if (m_gflag) {
+    } else if (key == 'g' && !m_gflag) {
+        m_gflag = true;
+    } else if (key == 'g' || key == 'G') {
+        QString dotCommand = key + m_mvcount;
+        if (key == 'g')
             m_gflag = false;
-            int n = m_mvcount.isEmpty() ? 1 : count();
+        int n = (key == 'g') ? 1 : linesInDocument();
+        n = m_mvcount.isEmpty() ? n : count();
+        if (m_submode == NoSubMode || m_submode == ZSubMode
+                || m_submode == CapitalZSubMode || m_submode == RegisterSubMode) {
             m_tc.setPosition(firstPositionInLine(n), KeepAnchor);
             handleStartOfLine();
-            finishMovement();
         } else {
-            m_gflag = true;
+            m_movetype = MoveLineWise;
+            m_rangemode = RangeLineMode;
+            setAnchor();
+            m_tc.setPosition(firstPositionInLine(n), KeepAnchor);
         }
-    } else if (key == 'G') {
-        int n = m_mvcount.isEmpty() ? linesInDocument() : count();
-        m_tc.setPosition(firstPositionInLine(n), KeepAnchor);
-        handleStartOfLine();
-        finishMovement();
+        finishMovement(dotCommand);
     } else if (key == 'h' || key == Key_Left
             || key == Key_Backspace || key == control('h')) {
         int n = qMin(count(), leftDist());
