@@ -783,10 +783,12 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_marks['>'] = m_tc.position();
 
     if (m_submode == ChangeSubMode) {
+        if (atEndOfLine())
+            moveLeft();
         if (m_movetype == MoveInclusive)
             moveRight(); // correction
         if (anchor() >= position())
-           m_anchor++;
+            m_anchor--;
         if (!dotCommand.isEmpty())
             setDotCommand("c" + dotCommand);
         //QString text = removeSelectedText();
@@ -798,11 +800,13 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_beginEditBlock = false;
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
+        if (atEndOfLine())
+            moveLeft();
         if (m_rangemode == RangeCharMode) {
             if (m_movetype == MoveInclusive)
                 moveRight(); // correction
             if (anchor() >= position())
-                m_anchor++;
+                m_anchor--;
         }
         if (!dotCommand.isEmpty())
             setDotCommand("d" + dotCommand);
@@ -1000,14 +1004,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_submode = NoSubMode;
         m_rangemode = RangeLineMode;
     } else if (m_submode == ChangeSubMode && key == 'c') { // tested
+        moveToStartOfLine();
+        setAnchor();
         moveDown(count() - 1);
         moveToEndOfLine();
-        moveLeft();
-        setAnchor();
-        moveToStartOfLine();
-        setTargetColumn();
-        moveUp(count() - 1);
-        m_movetype = MoveLineWise;
         m_lastInsertion.clear();
         setDotCommand("%1cc", count());
         finishMovement();
@@ -1205,12 +1205,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setTargetColumn();
         finishMovement();
     } else if (key == '$' || key == Key_End) {
-        int submode = m_submode;
         moveToEndOfLine();
-        m_movetype = MoveExclusive;
+        m_movetype = MoveInclusive;
         setTargetColumn();
-        if (submode == NoSubMode)
+        if (m_submode == NoSubMode)
+        {
             m_targetColumn = -1;
+        }
         finishMovement("$");
     } else if (key == ',') {
         // FIXME: use some other mechanism
@@ -1266,6 +1267,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToWordBoundary(true, false);
         finishMovement();
     } else if (key == 'c' && isNoVisualMode()) {
+        if (atEndOfLine())
+            moveLeft();
         setAnchor();
         m_submode = ChangeSubMode;
     } else if (key == 'c' && isVisualCharMode()) {
@@ -1273,6 +1276,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_submode = ChangeSubMode;
         finishMovement();
     } else if (key == 'C') {
+        if (atEndOfLine())
+            moveLeft();
         setAnchor();
         moveToEndOfLine();
         yankSelectedText();
@@ -1317,10 +1322,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         removeSelectedText();
         setPosition(qMin(position(), anchor()));
     } else if (key == 'D' && isNoVisualMode()) {
+        if (atEndOfLine())
+            moveLeft();
         setAnchor();
         m_submode = DeleteSubMode;
         moveDown(qMax(count() - 1, 0));
-        m_movetype = MoveExclusive;
+        m_movetype = MoveInclusive;
         moveToEndOfLine();
         setDotCommand("D");
         finishMovement();
