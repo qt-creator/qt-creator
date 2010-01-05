@@ -111,11 +111,6 @@ public:
     AbstractMaemoRunControl(RunConfiguration *runConfig);
     virtual ~AbstractMaemoRunControl() {}
 
-#ifdef USE_SSH_LIB
-protected slots:
-    void handleRemoteOutput(const QString &output);
-#endif
-
 protected:
     void startDeployment(bool forDebugging);
     void deploy();
@@ -128,15 +123,15 @@ protected:
     const QString targetCmdLinePrefix() const;
     const QString remoteDir() const;
     const QStringList options() const;
-// #ifndef USE_SSH_LIB
+#ifndef USE_SSH_LIB
     void deploymentFinished(bool success);
     virtual bool setProcessEnvironment(QProcess &process);
-// #endif // USE_SSH_LIB
+#endif // USE_SSH_LIB
 private slots:
-// #ifndef USE_SSH_LIB
+#ifndef USE_SSH_LIB
     void readStandardError();
     void readStandardOutput();
-//  #endif // USE_SSH_LIB
+#endif // USE_SSH_LIB
     void deployProcessFinished();
 #ifdef USE_SSH_LIB
     void handleFileCopied();
@@ -180,9 +175,12 @@ public:
 
 private slots:
     void executionFinished();
+#ifdef USE_SSH_LIB
+    void handleRemoteOutput(const QString &output);
+#endif
 
 private:
-    virtual void handleDeploymentFinished(bool success);
+    virtual void handleDeploymentFinished(bool success);    
     void startExecution();
 
 #ifdef USE_SSH_LIB
@@ -210,7 +208,12 @@ signals:
     void stopRequested();
 
 private slots:
+#ifdef USE_SSH_LIB
+    void gdbServerStarted(const QString &output);
+#else
     void gdbServerStarted();
+#endif // USE_SSH_LIB
+
     void debuggerOutput(const QString &output);
 
 private:
@@ -220,8 +223,13 @@ private:
     void gdbServerStartFailed(const QString &reason);
     void startDebugging();
 
+#ifdef USE_SSH_LIB
+    QScopedPointer<MaemoSshRunner> sshRunner;
+    QScopedPointer<MaemoSshRunner> sshStopper;
+#else
     QProcess gdbServer;
     QProcess stopProcess;
+#endif // USE_SSH_LIB
     const QString gdbServerPort;
     Debugger::DebuggerManager *debuggerManager;
     QSharedPointer<Debugger::DebuggerStartParameters> startParams;
@@ -1055,7 +1063,11 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 #endif // USE_SSH_LIB
         deploy();
     } else {
+#ifdef USE_SSH_LIB
+        handleDeploymentFinished(false);
+#else
         deploymentFinished(false);
+#endif // USE_SSH_LIB
     }
 }
 
@@ -1227,7 +1239,7 @@ const QString AbstractMaemoRunControl::targetCmdLinePrefix() const
         arg(executableOnTarget());
 }
 
-// #ifndef USE_SSH_LIB
+#ifndef USE_SSH_LIB
 bool AbstractMaemoRunControl::setProcessEnvironment(QProcess &process)
 {
     QTC_ASSERT(runConfig, return false);
@@ -1256,14 +1268,6 @@ void AbstractMaemoRunControl::readStandardOutput()
     emit addToOutputWindow(this, QString::fromLocal8Bit(data.constData(),
         data.length()));
 }
-// #endif // USE_SSH_LIB
-
-#ifdef USE_SSH_LIB
-void AbstractMaemoRunControl::handleRemoteOutput(const QString &output)
-{
-    emit addToOutputWindowInline(this, output);
-}
-
 #endif // USE_SSH_LIB
 
 // #pragma mark -- MaemoRunControl
@@ -1371,6 +1375,7 @@ void MaemoRunControl::stop()
         stopDeployment();
     } else {
 #ifdef USE_SSH_LIB
+        sshRunner->stop();
         const QString remoteCall = QString::fromLocal8Bit("pkill -x %1; "
             "sleep 1; pkill -x -9 %1").arg(executableFileName());
         sshStopper.reset(new MaemoSshRunner(devConfig, remoteCall));
@@ -1397,6 +1402,13 @@ bool MaemoRunControl::isRunning() const
 #endif // USE_SSH_LIB
 }
 
+#ifdef USE_SSH_LIB
+void MaemoRunControl::handleRemoteOutput(const QString &output)
+{
+    emit addToOutputWindowInline(this, output);
+}
+
+#endif // USE_SSH_LIB
 
 // #pragma mark -- MaemoDebugRunControl
 
@@ -1406,10 +1418,11 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     , gdbServerPort("10000"), debuggerManager(0)
     , startParams(new Debugger::DebuggerStartParameters)
 {
+#ifndef USE_SSH_LIB
     setProcessEnvironment(gdbServer);
     setProcessEnvironment(stopProcess);
+#endif // USE_SSH_LIB
 
-    qDebug("Maemo Debug run controls started");
     debuggerManager = ExtensionSystem::PluginManager::instance()
         ->getObject<Debugger::DebuggerManager>();
 
@@ -1459,15 +1472,21 @@ void MaemoDebugRunControl::startGdbServer()
     const QString remoteCall(QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4").
         arg(targetCmdLinePrefix()).arg(gdbServerPort). arg(executableOnTarget())
         .arg(runConfig->arguments().join(" ")));
+    inferiorPid = -1;
+#ifdef USE_SSH_LIB
+    sshRunner.reset(new MaemoSshRunner(devConfig, remoteCall));
+    connect(sshRunner.data(), SIGNAL(remoteOutput(QString)),
+            this, SLOT(gdbServerStarted(QString)));
+    sshRunner->start();
+#else
     QStringList sshArgs;
     sshArgs << "-t" << "-n" << "-l" << devConfig.uname << "-p"
         << port() << options() << devConfig.host << remoteCall;
-    inferiorPid = -1;
     disconnect(&gdbServer, SIGNAL(readyReadStandardError()), 0, 0);
     connect(&gdbServer, SIGNAL(readyReadStandardError()), this,
         SLOT(gdbServerStarted()));
     gdbServer.start(runConfig->sshCmd(), sshArgs);
-    qDebug("Maemo: started gdb server, ssh arguments were %s", qPrintable(sshArgs.join(" ")));
+#endif // USE_SSH_LIB
 }
 
 void MaemoDebugRunControl::gdbServerStartFailed(const QString &reason)
@@ -1477,6 +1496,37 @@ void MaemoDebugRunControl::gdbServerStartFailed(const QString &reason)
     emit finished();
 }
 
+#ifdef USE_SSH_LIB
+void MaemoDebugRunControl::gdbServerStarted(const QString &output)
+{
+    qDebug("gdbserver's stderr output: %s", output.toLatin1().data());
+    if (inferiorPid != -1)
+        return;
+    const QString searchString("pid = ");
+    const int searchStringLength = searchString.length();
+    int pidStartPos = output.indexOf(searchString);
+    const int pidEndPos = output.indexOf("\n", pidStartPos + searchStringLength);
+    if (pidStartPos == -1 || pidEndPos == -1) {
+        gdbServerStartFailed(output);
+        return;
+    }
+    pidStartPos += searchStringLength;
+    QString pidString = output.mid(pidStartPos, pidEndPos - pidStartPos);
+    qDebug("pidString = %s", pidString.toLatin1().data());
+    bool ok;
+    const int pid = pidString.toInt(&ok);
+    if (!ok) {
+        gdbServerStartFailed(tr("Debugging failed, could not parse gdb "
+            "server pid!"));
+        return;
+    }
+    inferiorPid = pid;
+    qDebug("inferiorPid = %d", inferiorPid);
+
+    disconnect(sshRunner.data(), SIGNAL(remoteOutput(QString)), 0, 0);
+    startDebugging();
+}
+#else
 void MaemoDebugRunControl::gdbServerStarted()
 {
     const QByteArray output = gdbServer.readAllStandardError();
@@ -1512,6 +1562,7 @@ void MaemoDebugRunControl::gdbServerStarted()
         SLOT(readStandardError()));
     startDebugging();
 }
+#endif // USE_SSH_LIB
 
 void MaemoDebugRunControl::startDebugging()
 {
@@ -1532,12 +1583,26 @@ void MaemoDebugRunControl::stop()
 
 bool MaemoDebugRunControl::isRunning() const
 {
-    return isDeploying() || gdbServer.state() != QProcess::NotRunning
+    return isDeploying()
+#ifdef USE_SSH_LIB
+        || (!sshRunner.isNull() && sshRunner->isRunning())
+#else
+        || gdbServer.state() != QProcess::NotRunning
+#endif // USE_SSH_LIB
         || debuggerManager->state() != Debugger::DebuggerNotReady;
 }
 
 void MaemoDebugRunControl::debuggingFinished()
 {
+#ifdef USE_SSH_LIB
+    if (!sshRunner.isNull() && sshRunner->isRunning()) {
+        sshRunner->stop();
+        const QString remoteCall = QString::fromLocal8Bit("kill %1; sleep 1; "
+            "kill -9 %1; pkill -x -9 gdbserver").arg(inferiorPid);
+        sshStopper.reset(new MaemoSshRunner(devConfig, remoteCall));
+        sshStopper->start();
+    }
+#else
     if (gdbServer.state() != QProcess::NotRunning) {
         stopProcess.kill();
         const QString remoteCall = QString::fromLocal8Bit("kill %1; sleep 1; "
@@ -1548,6 +1613,7 @@ void MaemoDebugRunControl::debuggingFinished()
         stopProcess.start(runConfig->sshCmd(), sshArgs);
     }
     qDebug("ssh return code is %d", gdbServer.exitCode());
+#endif // USE_SSH_LIB
     emit addToOutputWindow(this, tr("Debugging finished."));
     emit finished();
 }
