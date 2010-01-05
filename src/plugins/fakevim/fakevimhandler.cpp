@@ -795,6 +795,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         //qDebug() << "CHANGING TO INSERT MODE" << text;
         //m_registers[m_register] = text;
         yankSelectedText();
+        if (m_movetype == MoveLineWise)
+            m_registers[m_register].rangemode = RangeLineMode;
         removeSelectedText();
         enterInsertMode();
         m_beginEditBlock = false;
@@ -805,12 +807,15 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         if (m_rangemode == RangeCharMode) {
             if (m_movetype == MoveInclusive)
                 moveRight(); // correction
-            if (anchor() >= position())
-                m_anchor--;
+            if (m_movetype != MoveLineWise)
+                if (anchor() >= position())
+                    m_anchor--;
         }
         if (!dotCommand.isEmpty())
             setDotCommand("d" + dotCommand);
         yankSelectedText();
+        if (m_movetype == MoveLineWise)
+            m_registers[m_register].rangemode = RangeLineMode;
         removeSelectedText();
         m_submode = NoSubMode;
         if (atEndOfLine())
@@ -819,6 +824,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
             setTargetColumn();
     } else if (m_submode == YankSubMode) {
         yankSelectedText();
+        if (m_movetype == MoveLineWise)
+            m_registers[m_register].rangemode = RangeLineMode;
         m_submode = NoSubMode;
         if (m_register != '"') {
             setPosition(m_marks[m_register]);
@@ -1429,6 +1436,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_movetype = MoveLineWise;
             moveToStartOfLine();
             setAnchor();
+            m_targetColumn = 0;
             moveDown(count() + 1);
         }
         finishMovement("j");
@@ -1462,6 +1470,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         } else {
             m_movetype = MoveLineWise;
             moveToStartOfLine();
+            m_targetColumn = 0;
             moveDown();
             setAnchor();
             moveUp(count() + 1);
