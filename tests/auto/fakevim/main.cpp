@@ -74,6 +74,8 @@ private slots:
     void command_dd();
     void command_dd_2();
     void command_d_dollar();
+    void command_dgg();
+    void command_dG();
     void command_dj();
     void command_dk();
     void command_D();
@@ -497,6 +499,28 @@ void tst_FakeVim::command_dk()
     move("j05l",             l[1].left(5) + "@" + l[1].mid(5));
     check("dk",              "@" + lmid(2));
     check("p",               lmid(2,1)+"\n" + "@" + lmid(0,2)+"\n" + lmid(3));
+}
+
+void tst_FakeVim::command_dgg()
+{
+    setup();
+    check("G",               lmid(0, l.size()-1)+"\n" "@"+lmid(l.size()-1));
+    check("dgg",             "@");
+    check("u",               lmid(0) + "@");
+}
+
+void tst_FakeVim::command_dG()
+{
+    setup();
+    check("dG",              "@");
+    check("u",               "@" + lmid(0));
+    move("j",                "@" + l[1]);
+    check("dG",              "@" + lmid(0,1));
+    check("u",               l[0]+"\n" + "@" + lmid(1));
+    check("G",               lmid(0, l.size()-1)+"\n" + "@"+lmid(l.size()-1));
+    // include movement to first column, as otherwise the result depends on the 'startofline' setting
+    check("dG0",             lmid(0, l.size()-2)+"\n" + "@"+lmid(l.size()-2,1));
+    check("dG0",             lmid(0, l.size()-3)+"\n" + "@"+lmid(l.size()-3,1));
 }
 
 void tst_FakeVim::command_D()
