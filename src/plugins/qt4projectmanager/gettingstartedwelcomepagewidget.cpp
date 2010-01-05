@@ -330,7 +330,7 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
         tips.append(tr("You can add custom build steps in the "
                        "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#build-settings\">build settings</a>."));
         tips.append(tr("Within a session, you can add "
-                       "<a href=\"qthelp://com.nokia.qtcreator/doc/http://doc.qt.nokia.com/qtcreator-1.3/creator-project-pane.html#dependencies\">dependencies</a> between projects."));
+                       "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#dependencies\">dependencies</a> between projects."));
         tips.append(tr("You can set the preferred editor encoding for every project in <tt>Projects -> Editor Settings -> Default Encoding</tt>."));
         tips.append(tr("You can use Qt Creator with a number of <a href=\"qthelp://com.nokia.qtcreator/doc/creator-version-control.html\">"
                        "revision control systems</a> such as Subversion, Perforce, CVS and Git."));
