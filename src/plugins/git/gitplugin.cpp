@@ -110,6 +110,7 @@ GitPlugin::GitPlugin() :
     m_core(0),
     m_diffAction(0),
     m_diffProjectAction(0),
+    m_diffRepositoryAction(0),
     m_statusRepositoryAction(0),
     m_logAction(0),
     m_blameAction(0),
@@ -270,16 +271,23 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffCurrentProject()));
     gitContainer->addAction(command);
 
-    m_statusRepositoryAction = new QAction(tr("Repository Status"), this);
-    command = actionManager->registerAction(m_statusRepositoryAction, "Git.StatusRepository", globalcontext);
-    connect(m_statusRepositoryAction, SIGNAL(triggered()), this, SLOT(statusRepository()));
-    gitContainer->addAction(command);
-
     m_logProjectAction = new Utils::ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_logProjectAction, "Git.LogProject", globalcontext);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+K")));
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
+    gitContainer->addAction(command);
+
+    gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Repository"), this));
+
+    m_diffRepositoryAction = new QAction(tr("Diff Repository"), this);
+    command = actionManager->registerAction(m_diffRepositoryAction, "Git.DiffRepository", globalcontext);
+    connect(m_diffRepositoryAction, SIGNAL(triggered()), this, SLOT(diffRepository()));
+    gitContainer->addAction(command);
+
+    m_statusRepositoryAction = new QAction(tr("Repository Status"), this);
+    command = actionManager->registerAction(m_statusRepositoryAction, "Git.StatusRepository", globalcontext);
+    connect(m_statusRepositoryAction, SIGNAL(triggered()), this, SLOT(statusRepository()));
     gitContainer->addAction(command);
 
     m_undoRepositoryAction = new QAction(tr("Undo Repository Changes"), this);
@@ -388,6 +396,13 @@ void GitPlugin::diffCurrentProject()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return)
     m_gitClient->diff(state.currentProjectTopLevel(), QStringList(), state.relativeCurrentProject());
+}
+
+void GitPlugin::diffRepository()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    m_gitClient->diff(state.topLevel(), QStringList(), QStringList());
 }
 
 void GitPlugin::statusRepository()
@@ -673,6 +688,7 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_undoRepositoryAction->setEnabled(projectEnabled);
 
     const bool repositoryEnabled = currentState().hasTopLevel();
+    m_diffRepositoryAction->setEnabled(repositoryEnabled);
     m_statusRepositoryAction->setEnabled(repositoryEnabled);
     m_branchListAction->setEnabled(repositoryEnabled);
     m_stashListAction->setEnabled(repositoryEnabled);

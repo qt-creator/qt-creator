@@ -88,6 +88,7 @@ public:
 private slots:
     void diffCurrentFile();
     void diffCurrentProject();
+    void diffRepository();
     void submitEditorDiff(const QStringList &unstaged, const QStringList &staged);
     void submitCurrentLog();
     void statusRepository();
@@ -121,6 +122,7 @@ private:
     Core::ICore *m_core;
     Utils::ParameterAction *m_diffAction;
     Utils::ParameterAction *m_diffProjectAction;
+    QAction *m_diffRepositoryAction;
     QAction *m_statusRepositoryAction;
     Utils::ParameterAction *m_logAction;
     Utils::ParameterAction *m_blameAction;
