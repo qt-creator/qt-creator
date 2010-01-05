@@ -2,8 +2,9 @@
 
 use strict;
 
+@ARGV == 1 or die "usage: $0 <qdoc-file>\n";
 my $file = $ARGV[0];
-open FILE, $file or die "File $file cannot be opened.";
+open FILE, $file or die "File $file cannot be opened.\n";
 my @toc = ();
 my %title2page = ();
 my $doctitle = "";
@@ -17,7 +18,7 @@ while (<FILE>) {
             $curpage = $1;
         } elsif (/^\h*\\title\h+(.+)$/) {
             if ($curpage eq "") {
-                die "Title '$1' appears in no \\page\n";
+                die "Title '$1' appears in no \\page.\n";
             }
             $title2page{$1} = $curpage;
             $doctitle = $1 if (!$doctitle);
@@ -42,8 +43,8 @@ for my $title (@toc) {
     $last = $title;
 }
 
-open IN, $file or die "File $file cannot be opened a second time?!";
-open OUT, '>'.$file.".out" or die "File $file.out cannot be created.";
+open IN, $file or die "File $file cannot be opened a second time?!\n";
+open OUT, '>'.$file.".out" or die "File $file.out cannot be created.\n";
 my $cutting = 0;
 while (<IN>) {
     if (!$cutting) {
@@ -66,4 +67,4 @@ while (<IN>) {
 close OUT;
 close IN;
 
-rename($file.".out", $file) or die "Cannot replace $file with new version.";
+rename($file.".out", $file) or die "Cannot replace $file with new version.\n";
