@@ -2418,7 +2418,8 @@ void FakeVimHandler::Private::indentRegion(QChar typedChar)
         qSwap(beginLine, endLine);
 
     int amount = 0;
-    emit q->indentRegion(&amount, beginLine, endLine, typedChar);
+    // lineForPosition has returned 1-based line numbers
+    emit q->indentRegion(&amount, beginLine-1, endLine-1, typedChar);
 
     setPosition(firstPositionInLine(beginLine));
     moveToFirstNonBlankOnLine();

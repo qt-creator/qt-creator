@@ -634,28 +634,24 @@ void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
     indenter.setTabSize(tabSettings.m_tabSize);
 
     const QTextDocument *doc = bt->document();
-    QTextBlock begin = doc->findBlockByNumber(beginLine);
-    QTextBlock end = doc->findBlockByNumber(endLine);
     const TextEditor::TextBlockIterator docStart(doc->begin());
-    QTextBlock cur = begin;
-    do {
+    QTextBlock cur = doc->findBlockByNumber(beginLine);
+    for(int i = beginLine; i<= endLine; ++i)
+    {
         if (typedChar == 0 && cur.text().simplified().isEmpty()) {
+            // clear empty lines
             *amount = 0;
-            if (cur != end) {
-                QTextCursor cursor(cur);
-                while (!cursor.atBlockEnd())
-                    cursor.deleteChar();
-            }
+            QTextCursor cursor(cur);
+            while (!cursor.atBlockEnd())
+                cursor.deleteChar();
         } else {
             const TextEditor::TextBlockIterator current(cur);
             const TextEditor::TextBlockIterator next(cur.next());
             *amount = indenter.indentForBottomLine(current, docStart, next, typedChar);
-            if (cur != end)
-                tabSettings.indentLine(cur, *amount);
+            tabSettings.indentLine(cur, *amount);
         }
-        if (cur != end)
-           cur = cur.next();
-    } while (cur != end);
+        cur = cur.next();
+    }
 }
 
 void FakeVimPluginPrivate::quitFakeVim()
