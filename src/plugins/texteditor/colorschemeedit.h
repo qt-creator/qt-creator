@@ -82,6 +82,7 @@ private:
     int m_curItem;
     Ui::ColorSchemeEdit *m_ui;
     FormatsModel *m_formatsModel;
+    bool m_readOnly;
 };
 
 

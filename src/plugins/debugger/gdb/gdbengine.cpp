@@ -1567,7 +1567,8 @@ void GdbEngine::handleInferiorShutdown(const GdbResponse &response)
     } else {
         debugMessage(_("INFERIOR SHUTDOWN FAILED"));
         setState(InferiorShutdownFailed);
-        QString msg = m_gdbAdapter->msgInferiorStopFailed(_(response.data.findChild("msg").data()));
+        QString msg = m_gdbAdapter->msgInferiorStopFailed(
+            QString::fromLocal8Bit(response.data.findChild("msg").data()));
         showMessageBox(QMessageBox::Critical, tr("Inferior shutdown failed"), msg);
     }
     shutdown(); // re-iterate...
@@ -1580,7 +1581,8 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
         m_commandsDoneCallback = 0;
         // don't set state here, this will be handled in handleGdbFinished()
     } else {
-        QString msg = m_gdbAdapter->msgGdbStopFailed(_(response.data.findChild("msg").data()));
+        QString msg = m_gdbAdapter->msgGdbStopFailed(
+            QString::fromLocal8Bit(response.data.findChild("msg").data()));
         debugMessage(_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
         m_gdbProc.kill();
     }
@@ -4329,7 +4331,7 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
         if (msg == "mi_cmd_disassemble: Invalid line number")
             fetchDisassemblerByAddress(ac.agent, true);
         else
-            showStatusMessage(tr("Disassembler failed: %1").arg(_(msg)), 5000);
+            showStatusMessage(tr("Disassembler failed: %1").arg(QString::fromLocal8Bit(msg)), 5000);
     }
 }
 
@@ -4354,7 +4356,7 @@ void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResponse &response)
     } else {
         // 26^error,msg="Cannot access memory at address 0x801ca308"
         QByteArray msg = response.data.findChild("msg").data();
-        showStatusMessage(tr("Disassembler failed: %1").arg(_(msg)), 5000);
+        showStatusMessage(tr("Disassembler failed: %1").arg(QString::fromLocal8Bit(msg)), 5000);
     }
 }
 
@@ -4368,7 +4370,7 @@ void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResponse &response)
         ac.agent->setContents(parseDisassembler(lines));
     } else {
         QByteArray msg = response.data.findChild("msg").data();
-        showStatusMessage(tr("Disassembler failed: %1").arg(_(msg)), 5000);
+        showStatusMessage(tr("Disassembler failed: %1").arg(QString::fromLocal8Bit(msg)), 5000);
     }
 }
 

@@ -16,7 +16,6 @@
 .#*
 *.*#
 core
-.qmake.cache
 tags
 .DS_Store
 *.debug
@@ -58,24 +57,12 @@ share/qtcreator/translations/extract-mimetypes.xq
 # ---------------------
 
 debug
-examples/tools/plugandpaint/plugins
-include/*
-include/*/*
 lib/*
 lib64/*
-plugins/*/*
 release
-tmp
-doc-build
 doc/html/*
-doc/qch
-doc-build
 .rcc
 .pch
-src/corelib/lib
-src/network/lib
-src/xml/lib/
-run/*
 
 # Binaries
 # --------

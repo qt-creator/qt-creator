@@ -85,7 +85,7 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
         emit inferiorPrepared();
         m_engine->updateAll();
     } else {
-        QString msg = __(response.data.findChild("msg").data());
+        QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
         emit inferiorStartFailed(msg);
     }
 }

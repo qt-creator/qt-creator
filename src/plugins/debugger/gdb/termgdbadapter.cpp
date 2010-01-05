@@ -143,7 +143,7 @@ void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
         m_engine->postCommand(_("-stack-list-frames 0 0"), CB(handleEntryPoint));
 #endif
     } else if (response.resultClass == GdbResultError) {
-        QString msg = _(response.data.findChild("msg").data());
+        QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
         emit inferiorStartFailed(msg);
     }
 }
