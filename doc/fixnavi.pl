@@ -27,7 +27,7 @@ while (<FILE>) {
     } else {
         if (/^\h*\\endlist/) {
             $intoc--;
-        } elsif (/^\h*\\o\h+\\l{(.*)}$/) {
+        } elsif (/^\h*\\o\h+\\l\h*{(.*)}$/) {
             push @toc, $1;
         }
     }
