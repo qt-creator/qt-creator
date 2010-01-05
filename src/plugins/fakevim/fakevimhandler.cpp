@@ -3001,6 +3001,7 @@ void FakeVimHandler::Private::enterInsertMode()
 {
     EDITOR(setCursorWidth(m_cursorWidth));
     EDITOR(setOverwriteMode(false));
+    leaveVisualMode();
     m_mode = InsertMode;
     m_lastInsertion.clear();
     m_beginEditBlock = true;
