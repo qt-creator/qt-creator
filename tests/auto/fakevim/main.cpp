@@ -67,11 +67,15 @@ private slots:
     void command_Yp();
     void command_cc();
     void command_cw();
+    void command_cj();
+    void command_ck();
     void command_c_dollar();
     void command_C();
     void command_dd();
     void command_dd_2();
     void command_d_dollar();
+    void command_dj();
+    void command_dk();
     void command_D();
     void command_dfx_down();
     void command_dollar();
@@ -371,6 +375,28 @@ return; // FIXME
     check("cwx" + escape,    l[0] + "\n@xinclude <QtCore>\n" + lmid(2));
 }
 
+void tst_FakeVim::command_cj()
+{
+    setup();
+    move("j$",               l[1] + "@");
+    check("cj" + escape,     l[0]+"\n@" + lmid(3));
+    check("P",               lmid(0,1)+"\n" + "@"+lmid(1));
+    move("0",                "@" + l[1]);
+    check("cjabc" + escape,  l[0]+"\nab@c" + lmid(3));
+    check("u",               lmid(0,1)+"\n" + "@"+lmid(1));
+    check(".",               l[0]+"\nab@c" + lmid(3));
+}
+
+void tst_FakeVim::command_ck()
+{
+    setup();
+    move("j$",               l[1] + "@");
+    check("ck" + escape,     "@\n" + lmid(2));
+    qWarning("FIXME");
+return; // FIXME
+    check("P",               "@" + lmid(0,2)+"\n" + "\n" + lmid(2));
+}
+
 void tst_FakeVim::command_c_dollar()
 {
     setup();
@@ -438,6 +464,39 @@ void tst_FakeVim::command_d_dollar()
     move("j$",               l[1] + "@");
     check("$d$",             l[0]+"\n" + l[1].left(l[1].length()-2)+"@"+l[1][l[1].length()-2]+"\n" + lmid(2));
     check("0d$",             l[0] + "\n"+"@\n" + lmid(2));
+}
+
+void tst_FakeVim::command_dj()
+{
+    setup();
+    move("j$",               l[1] + "@");
+    check("dj",              l[0]+"\n@" + lmid(3));
+    check("P",               lmid(0,1)+"\n" + "@"+lmid(1));
+    move("0",                "@" + l[1]);
+    check("dj",              l[0]+"\n@" + lmid(3));
+    check("P",               lmid(0,1)+"\n" + "@"+lmid(1));
+    move("05l",              l[1].left(5) + "@" + l[1].mid(5));
+    check("dj",              l[0]+"\n@" + lmid(3));
+    check("P",               lmid(0,1)+"\n" + "@"+lmid(1));
+    check("dj",              l[0]+"\n@" + lmid(3));
+    check("p",               lmid(0,1)+"\n" + lmid(3,1)+"\n" + "@"+lmid(1,2)+"\n" + lmid(4));
+}
+
+void tst_FakeVim::command_dk()
+{
+    setup();
+    move("j$",               l[1] + "@");
+    check("dk",              "@" + lmid(2));
+    check("P",               "@" + lmid(0));
+    move("j0",               "@" + l[1]);
+    check("dk",              "@" + lmid(2));
+    check("P",               "@" + lmid(0));
+    move("j05l",             l[1].left(5) + "@" + l[1].mid(5));
+    check("dk",              "@" + lmid(2));
+    check("P",               "@" + lmid(0));
+    move("j05l",             l[1].left(5) + "@" + l[1].mid(5));
+    check("dk",              "@" + lmid(2));
+    check("p",               lmid(2,1)+"\n" + "@" + lmid(0,2)+"\n" + lmid(3));
 }
 
 void tst_FakeVim::command_D()
