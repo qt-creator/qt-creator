@@ -230,7 +230,7 @@ bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QSt
         derefedWd.setType(type);
         derefedWd.setAddress(hexAddrS);
         derefedWd.name = QString(QLatin1Char('*'));
-        derefedWd.iname = wd.iname + QLatin1String(".*");
+        derefedWd.iname = wd.iname + ".*";
         derefedWd.source = OwnerDumper | CdbStackFrameContext::ChildrenKnownBit;
         const CdbDumperHelper::DumpResult dr = m_dumper->dumpType(derefedWd, true, &m_dumperResult, errorMessage);
         if (dr != CdbDumperHelper::DumpOk)

@@ -70,7 +70,7 @@ void AttachGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     const qint64 pid = startParameters().attachPID;
-    m_engine->postCommand(_("attach %1").arg(pid), CB(handleAttach));
+    m_engine->postCommand("attach " + QByteArray::number(pid), CB(handleAttach));
     // Task 254674 does not want to remove them
     //qq->breakHandler()->removeAllBreakpoints();
 }

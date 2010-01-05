@@ -138,12 +138,11 @@ QDebug operator<<(QDebug d, const Scope &scope)
 namespace Debugger {
 namespace Internal {
 
-QString dotEscape(QString str)
+QByteArray dotEscape(QByteArray str)
 {
-    const QChar dot = QLatin1Char('.');
-    str.replace(QLatin1Char(' '), dot);
-    str.replace(QLatin1Char('\\'), dot);
-    str.replace(QLatin1Char('/'), dot);
+    str.replace(' ', '.');
+    str.replace('\\', '.');
+    str.replace('/', '.');
     return str;
 }
 
@@ -273,15 +272,6 @@ bool isCharPointerType(const QString &type)
     return type == QLatin1String("char *")
         || type == QLatin1String("const char *")
         || type == QLatin1String("char const *");
-}
-
-bool isAccessSpecifier(const QString &str)
-{
-    static const QStringList items = QStringList()
-        << QLatin1String("private")
-        << QLatin1String("protected")
-        << QLatin1String("public");
-    return items.contains(str);
 }
 
 bool startsWithDigit(const QString &str)
@@ -1270,13 +1260,13 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
     inBuffer->clear();
     inBuffer->append(outertype.toUtf8());
     inBuffer->append('\0');
-    inBuffer->append(data.iname.toUtf8());
+    inBuffer->append(data.iname);
     inBuffer->append('\0');
-    inBuffer->append(data.exp.toUtf8());
+    inBuffer->append(data.exp);
     inBuffer->append('\0');
     inBuffer->append(inner.toUtf8());
     inBuffer->append('\0');
-    inBuffer->append(data.iname.toUtf8());
+    inBuffer->append(data.iname);
     inBuffer->append('\0');
 
     if (debug)
@@ -1361,6 +1351,17 @@ static bool gdbMiGetStringValue(QString *target,
     return true;
 }
 
+static bool gdbMiGetByteArrayValue(QByteArray *target,
+                             const GdbMi &node,
+                             const char *child,
+                             const char *encodingChild = 0)
+{
+    QString str;
+    const bool success = gdbMiGetStringValue(&str, node, child, encodingChild);
+    *target = str.toLatin1();
+    return success;
+}
+
 static bool gdbMiGetBoolValue(bool *target,
                              const GdbMi &node,
                              const char *child)
@@ -1377,7 +1378,8 @@ static bool gdbMiGetBoolValue(bool *target,
  *  (next level only, it is not further inherited). For example, the root item
  * can provide a "childtype" node that specifies the type of the children. */
 
-struct GdbMiRecursionContext {
+struct GdbMiRecursionContext
+{
     GdbMiRecursionContext(int recursionLevelIn = 0) :
             recursionLevel(recursionLevelIn), childNumChild(-1), childIndex(0) {}
 
@@ -1385,7 +1387,7 @@ struct GdbMiRecursionContext {
     int childNumChild;
     int childIndex;
     QString childType;
-    QString parentIName;
+    QByteArray parentIName;
 };
 
 static void gbdMiToWatchData(const GdbMi &root,
@@ -1396,16 +1398,19 @@ static void gbdMiToWatchData(const GdbMi &root,
         qDebug() << Q_FUNC_INFO << '\n' << root.toString(false, 0);
     WatchData w;    
     QString v;
+    QByteArray b;
     // Check for name/iname and use as expression default
     if (ctx.recursionLevel == 0) {
         // parents have only iname, from which name is derived
-        if (!gdbMiGetStringValue(&w.iname, root, "iname"))
+        QString iname;
+        if (!gdbMiGetStringValue(&iname, root, "iname"))
             qWarning("Internal error: iname missing");
-        w.name = w.iname;
+        w.iname = iname.toLatin1();
+        w.name = iname;
         const int lastDotPos = w.name.lastIndexOf(QLatin1Char('.'));
         if (lastDotPos != -1)
             w.name.remove(0, lastDotPos + 1);
-        w.exp = w.name;
+        w.exp = w.name.toLatin1();
     } else {
         // Children can have a 'name' attribute. If missing, assume array index
         // For display purposes, it can be overridden by "key"
@@ -1414,8 +1419,8 @@ static void gbdMiToWatchData(const GdbMi &root,
         }
         // Set iname
         w.iname = ctx.parentIName;
-        w.iname += QLatin1Char('.');
-        w.iname += w.name;
+        w.iname += '.';
+        w.iname += w.name.toLatin1();
         // Key?
         QString key;
         if (gdbMiGetStringValue(&key, root, "key", "keyencoded")) {
@@ -1427,12 +1432,12 @@ static void gbdMiToWatchData(const GdbMi &root,
         qWarning("%s\n", qPrintable(msg));
     }
     gdbMiGetStringValue(&w.displayedType, root, "displayedtype");
-    if (gdbMiGetStringValue(&v, root, "editvalue"))
-        w.editvalue = v.toLatin1();
-    if (gdbMiGetStringValue(&v, root, "exp"))
-        w.exp = v;
-    gdbMiGetStringValue(&w.addr, root, "addr");
-    gdbMiGetStringValue(&w.saddr, root, "saddr");
+    if (gdbMiGetByteArrayValue(&b, root, "editvalue"))
+        w.editvalue = b;
+    if (gdbMiGetByteArrayValue(&b, root, "exp"))
+        w.exp = b;
+    gdbMiGetByteArrayValue(&w.addr, root, "addr");
+    gdbMiGetByteArrayValue(&w.saddr, root, "saddr");
     gdbMiGetBoolValue(&w.valueEnabled, root, "valueenabled");    
     gdbMiGetBoolValue(&w.valueEditable, root, "valueeditable");
     if (gdbMiGetStringValue(&v, root, "valuetooltip", "valuetooltipencoded"))

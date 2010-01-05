@@ -155,21 +155,24 @@ void RemoteGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
 
-    m_engine->postCommand(_("set architecture %1")
-        .arg(startParameters().remoteArchitecture));
-    m_engine->postCommand(_("set sysroot %1").arg(startParameters().sysRoot));
-    m_engine->postCommand(_("set solib-search-path %1").
-                          arg(QFileInfo(startParameters().dumperLibrary).path()));
+    m_engine->postCommand("set architecture "
+        + startParameters().remoteArchitecture.toLatin1());
+    m_engine->postCommand("set sysroot "
+        + startParameters().sysRoot.toLocal8Bit());
+    m_engine->postCommand("set solib-search-path "
+        + QFileInfo(startParameters().dumperLibrary).path().toLocal8Bit());
 
-    if (!startParameters().processArgs.isEmpty())
-        m_engine->postCommand(_("-exec-arguments ")
-            + startParameters().processArgs.join(_(" ")));
+    if (!startParameters().processArgs.isEmpty()) {
+        QString args = startParameters().processArgs.join(_(" "));
+        m_engine->postCommand("-exec-arguments " + args.toLocal8Bit());
+    }
 
-    m_engine->postCommand(_("set target-async on"), CB(handleSetTargetAsync));
+    m_engine->postCommand("set target-async on", CB(handleSetTargetAsync));
     QString x = startParameters().executable;
     QFileInfo fi(startParameters().executable);
     QString fileName = fi.absoluteFilePath();
-    m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fileName),
+    m_engine->postCommand("-file-exec-and-symbols \""
+        + fileName.toLocal8Bit() + '"',
         CB(handleFileExecAndSymbols));
 }
 
@@ -191,7 +194,7 @@ void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
         //     (2) starts the remote application
         //     (3) stops the remote application (early, e.g. in the dynamic linker)
         QString channel = startParameters().remoteChannel;
-        m_engine->postCommand(_("target remote %1").arg(channel),
+        m_engine->postCommand("target remote " + channel.toLatin1(),
             CB(handleTargetRemote));
     } else {
         QString msg = tr("Starting remote executable failed:\n");
@@ -224,7 +227,7 @@ void RemoteGdbAdapter::startInferiorPhase2()
 
 void RemoteGdbAdapter::interruptInferior()
 {
-    m_engine->postCommand(_("-exec-interrupt"));
+    m_engine->postCommand("-exec-interrupt");
 }
 
 void RemoteGdbAdapter::shutdown()

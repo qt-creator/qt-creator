@@ -129,7 +129,8 @@ void TermGdbAdapter::startInferior()
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
     m_engine->handleInferiorPidChanged(attachedPID);
-    m_engine->postCommand(_("attach %1").arg(attachedPID), CB(handleStubAttached));
+    m_engine->postCommand("attach " + QByteArray::number(attachedPID),
+        CB(handleStubAttached));
 }
 
 void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
@@ -140,7 +141,7 @@ void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
         debugMessage(_("INFERIOR ATTACHED"));
         emit inferiorPrepared();
 #ifdef Q_OS_LINUX
-        m_engine->postCommand(_("-stack-list-frames 0 0"), CB(handleEntryPoint));
+        m_engine->postCommand("-stack-list-frames 0 0", CB(handleEntryPoint));
 #endif
     } else if (response.resultClass == GdbResultError) {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());

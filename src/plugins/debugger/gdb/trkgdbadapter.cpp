@@ -1685,15 +1685,15 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 
     logMessage(startMsg);
 
-    const QString fileName = m_symbolFile;
-    if (m_symbolFile.isEmpty()) {
+    const QByteArray symbolFile = m_symbolFile.toLocal8Bit();
+    if (symbolFile.isEmpty()) {
         logMessage(_("WARNING: No symbol file available."));
     } else {
-        m_engine->postCommand(_("add-symbol-file \"%1\" %2").arg(m_symbolFile)
-                              .arg(m_session.codeseg));
-        m_engine->postCommand(_("symbol-file \"%1\"").arg(m_symbolFile));
+        m_engine->postCommand("add-symbol-file \"" + symbolFile + "\" "
+            + QByteArray::number(m_session.codeseg));
+        m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
     }
-    m_engine->postCommand(_("target remote ") + gdbServerName(),
+    m_engine->postCommand("target remote " + gdbServerName().toLatin1(),
         CB(handleTargetRemote));
 }
 

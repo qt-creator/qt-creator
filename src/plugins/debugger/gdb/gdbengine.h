@@ -201,7 +201,7 @@ private: ////////// Gdb Command Management //////////
         GdbCommandCallback callback;
         AdapterCallback adapterCallback;
         const char *callbackName;
-        QString command;
+        QByteArray command;
         QVariant cookie;
         QTime postTime;
     };
@@ -211,20 +211,20 @@ private: ////////// Gdb Command Management //////////
     // send and decrements on receipt, effectively preventing
     // watch model updates before everything is finished.
     void flushCommand(const GdbCommand &cmd);
-    void postCommand(const QString &command,
+    void postCommand(const QByteArray &command,
                      GdbCommandFlags flags,
                      GdbCommandCallback callback = 0,
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
-    void postCommand(const QString &command,
+    void postCommand(const QByteArray &command,
                      GdbCommandCallback callback = 0,
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
-    void postCommand(const QString &command,
+    void postCommand(const QByteArray &command,
                      AdapterCallback callback,
                      const char *callbackName,
                      const QVariant &cookie = QVariant());
-    void postCommand(const QString &command,
+    void postCommand(const QByteArray &command,
                      GdbCommandFlags flags,
                      AdapterCallback callback,
                      const char *callbackName,
@@ -458,7 +458,7 @@ private: ////////// View & Data Stuff //////////
     void setWatchDataType(WatchData &data, const GdbMi &mi);
     void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
 
-    QSet<QString> m_processedNames;
+    QSet<QByteArray> m_processedNames;
     QMap<QString, QString> m_varToType;
 
 private: ////////// Dumper Management //////////

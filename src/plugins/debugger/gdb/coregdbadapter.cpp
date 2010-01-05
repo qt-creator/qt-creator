@@ -97,8 +97,9 @@ void CoreGdbAdapter::loadExeAndSyms()
 {
     // Do that first, otherwise no symbols are loaded.
     QFileInfo fi(m_executable);
-    m_engine->postCommand(_("-file-exec-and-symbols \"%1\"")
-        .arg(fi.absoluteFilePath()), CB(handleFileExecAndSymbols));
+    QByteArray path = fi.absoluteFilePath().toLocal8Bit();
+    m_engine->postCommand("-file-exec-and-symbols \"" + path + '"',
+         CB(handleFileExecAndSymbols));
 }
 
 void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
@@ -118,8 +119,8 @@ void CoreGdbAdapter::loadCoreFile()
 {
     // Quoting core name below fails in gdb 6.8-debian.
     QFileInfo fi(startParameters().coreFile);
-    QString coreName = fi.absoluteFilePath();
-    m_engine->postCommand(_("target core ") + coreName, CB(handleTargetCore));
+    QByteArray coreName = fi.absoluteFilePath().toLocal8Bit();
+    m_engine->postCommand("target core " + coreName, CB(handleTargetCore));
 }
 
 void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
@@ -144,7 +145,7 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
                     if (QFile::exists(m_executable)) {
                         // Finish extra round ...
                         showStatusMessage(tr("Attached to core temporarily."));
-                        m_engine->postCommand(_("detach"));
+                        m_engine->postCommand("detach");
                         // ... and retry.
                         loadExeAndSyms();
                         return;

@@ -470,11 +470,11 @@ static inline QString fixValue(const QString &value, const QString &type)
 WatchData CdbSymbolGroupContext::watchDataAt(unsigned long index) const
 {
     WatchData wd;
-    wd.iname = symbolINameAt(index);
+    wd.iname = symbolINameAt(index).toLatin1();
     wd.exp = wd.iname;
     // Determine name from iname and format shadowed variables correctly
     // as "<shadowed X>, see populateINameIndexMap().
-    const int lastDelimiterPos = wd.iname.lastIndexOf(m_nameDelimiter);
+    const int lastDelimiterPos = wd.iname.lastIndexOf(m_nameDelimiter.toLatin1());
     QString name = lastDelimiterPos == -1 ? wd.iname : wd.iname.mid(lastDelimiterPos + 1);
     int shadowedNumber = 0;
     const int shadowedPos = name.lastIndexOf(QLatin1Char(iNameShadowDelimiter));
@@ -486,7 +486,7 @@ WatchData CdbSymbolGroupContext::watchDataAt(unsigned long index) const
     // (std::map extends std::tree<>... Remove them for display only.
     const QString fullShadowedName = WatchData::shadowedName(name, shadowedNumber);
     wd.name = WatchData::shadowedName(removeInnerTemplateType(name), shadowedNumber);
-    wd.addr = hexSymbolOffset(m_symbolGroup, index);
+    wd.addr = hexSymbolOffset(m_symbolGroup, index).toLatin1();
     const QString type = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index);    
     wd.setType(type);    
     // Check for unitialized variables at level 0 only.

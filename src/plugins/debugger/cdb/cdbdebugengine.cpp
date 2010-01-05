@@ -985,7 +985,7 @@ void CdbDebugEngine::updateWatchData(const WatchData &incomplete)
         qDebug() << Q_FUNC_INFO << "\n    " << incomplete.toString();
 
     WatchHandler *watchHandler = manager()->watchHandler();
-    if (incomplete.iname.startsWith(QLatin1String("watch."))) {
+    if (incomplete.iname.startsWith("watch.")) {
         WatchData watchData = incomplete;
         evaluateWatcher(&watchData);
         watchHandler->insertData(watchData);
@@ -1311,7 +1311,7 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
             break;
         // Update view
         WatchHandler *watchHandler = manager()->watchHandler();
-        if (WatchData *fwd = watchHandler->findItem(expr)) {
+        if (WatchData *fwd = watchHandler->findItem(expr.toLatin1())) {
             fwd->setValue(newValue);
             watchHandler->insertData(*fwd);
             watchHandler->updateWatchers();

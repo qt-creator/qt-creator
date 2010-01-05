@@ -109,8 +109,8 @@ public:
 
     QString toString() const;
     QString toToolTip() const;
-    bool isLocal() const { return iname.startsWith(QLatin1String("local.")); }
-    bool isWatcher() const { return iname.startsWith(QLatin1String("watch.")); }
+    bool isLocal() const { return iname.startsWith("local."); }
+    bool isWatcher() const { return iname.startsWith("watch."); }
     bool isValid() const { return !iname.isEmpty(); }
     
     bool isEqual(const WatchData &other) const;
@@ -119,17 +119,17 @@ public:
     static QString shadowedName(const QString &name, int seen);
 
 public:
-    QString iname;        // internal name sth like 'local.baz.public.a'
-    QString exp;          // the expression
+    QByteArray iname;     // internal name sth like 'local.baz.public.a'
+    QByteArray exp;       // the expression
     QString name;         // displayed name
     QString value;        // displayed value
     QByteArray editvalue; // displayed value
     QString valuetooltip; // tooltip in value column
     QString type;         // type for further processing
-    QString displayedType; // displayed type (optional)
-    QString variable;     // name of internal Gdb variable if created
-    QString addr;         // displayed adress
-    QString saddr;        // stored address (pointer in container)
+    QString displayedType;// displayed type (optional)
+    QByteArray variable;  // name of internal Gdb variable if created
+    QByteArray addr;      // displayed adress
+    QByteArray saddr;     // stored address (pointer in container)
     QString framekey;     // key for type cache
     QScriptValue scriptValue; // if needed...
     bool hasChildren;
@@ -215,7 +215,7 @@ private:
 
     void insertData(const WatchData &data);
     void insertBulkData(const QList<WatchData> &data);
-    WatchItem *findItem(const QString &iname, WatchItem *root) const;
+    WatchItem *findItem(const QByteArray &iname, WatchItem *root) const;
     void reinitialize();
     void removeOutdated();
     void removeOutdatedHelper(WatchItem *item);
@@ -243,7 +243,7 @@ private:
     WatchHandler *m_handler;
     WatchType m_type;
     WatchItem *m_root;
-    QSet<QString> m_fetchTriggered;
+    QSet<QByteArray> m_fetchTriggered;
     // Part of the workaround to update the [+] marker when items
     // are added to a container.
     bool m_inExtraLayoutChanged;
@@ -256,7 +256,7 @@ class WatchHandler : public QObject
 public:
     explicit WatchHandler(DebuggerManager *manager);
     WatchModel *model(WatchType type) const;
-    WatchModel *modelForIName(const QString &data) const;
+    WatchModel *modelForIName(const QByteArray &iname) const;
 
 //public slots:
     void cleanup();
@@ -272,20 +272,20 @@ public:
 
     void insertData(const WatchData &data);
     void insertBulkData(const QList<WatchData> &data);
-    void removeData(const QString &iname);
-    WatchData *findItem(const QString &iname) const;
+    void removeData(const QByteArray &iname);
+    WatchData *findItem(const QByteArray &iname) const;
 
     void loadSessionData();
     void saveSessionData();
 
-    bool isDisplayedIName(const QString &iname) const
+    bool isDisplayedIName(const QByteArray &iname) const
         { return m_displayedINames.contains(iname); }
-    bool isExpandedIName(const QString &iname) const
+    bool isExpandedIName(const QByteArray &iname) const
         { return m_expandedINames.contains(iname); }
-    QSet<QString> expandedINames() const
+    QSet<QByteArray> expandedINames() const
         { return m_expandedINames; }
     QStringList watchedExpressions() const;
-    QHash<QString, int> watcherNames() const
+    QHash<QByteArray, int> watcherNames() const
         { return m_watcherNames; }
 
     static QString watcherEditPlaceHolder();
@@ -306,14 +306,14 @@ private:
     typedef QMap<QString, QPointer<QWidget> > EditWindows;
     EditWindows m_editWindows;
 
-    QHash<QString, int> m_watcherNames;
-    QString watcherName(const QString &exp);
+    QHash<QByteArray, int> m_watcherNames;
+    QByteArray watcherName(const QByteArray &exp);
     QHash<QString, int> m_typeFormats;
     QHash<QString, int> m_individualFormats;
 
     void setDisplayedIName(const QString &iname, bool on);
-    QSet<QString> m_expandedINames;  // those expanded in the treeview
-    QSet<QString> m_displayedINames; // those with "external" viewers
+    QSet<QByteArray> m_expandedINames;  // those expanded in the treeview
+    QSet<QByteArray> m_displayedINames; // those with "external" viewers
 
     WatchModel *m_locals;
     WatchModel *m_watchers;
