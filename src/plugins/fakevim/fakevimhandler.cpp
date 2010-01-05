@@ -437,6 +437,7 @@ public:
     void redo();
     void setUndoPosition(int pos);
     QMap<int, int> m_undoCursorPosition; // revision -> position
+    bool m_beginEditBlock;
 
     // extra data for '.'
     void replay(const QString &text, int count);
@@ -528,6 +529,7 @@ void FakeVimHandler::Private::init()
     m_inReplay = false;
     m_justAutoIndented = 0;
     m_rangemode = RangeCharMode;
+    m_beginEditBlock = true;
 }
 
 bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
@@ -793,6 +795,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         yankSelectedText();
         removeSelectedText();
         enterInsertMode();
+        m_beginEditBlock = false;
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
         if (m_rangemode == RangeCharMode) {
@@ -1275,6 +1278,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         yankSelectedText();
         removeSelectedText();
         enterInsertMode();
+        m_beginEditBlock = false;
         setDotCommand("C");
         finishMovement();
     } else if (key == control('c')) {
@@ -1490,6 +1494,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         beginEditBlock();
         setDotCommand("%1o", count());
         enterInsertMode();
+        m_beginEditBlock = false;
         moveToFirstNonBlankOnLine();
         if (key == 'O')
             moveUp();
@@ -1541,6 +1546,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_opcount.clear();
         m_mvcount.clear();
         enterInsertMode();
+        m_beginEditBlock = false;
     } else if (key == 't') {
         m_movetype = MoveInclusive;
         m_subsubmode = FtSubSubMode;
@@ -1751,6 +1757,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         insertAutomaticIndentation(true);
         setTargetColumn();
     } else if (key == Key_Backspace || key == control('h')) {
+        joinPreviousEditBlock();
         if (!removeAutomaticIndentation()
             && (!m_lastInsertion.isEmpty()
                 || hasConfig(ConfigBackspace, "start")))
@@ -1771,6 +1778,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
                 }
                 setTargetColumn();
             }
+        endEditBlock();
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
         m_lastInsertion.clear();
@@ -1792,6 +1800,13 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
     } else if (key >= control('a') && key <= control('z')) {
         // ignore these
     } else if (!text.isEmpty()) {
+        if (m_beginEditBlock)
+        {
+            beginEditBlock();
+            m_beginEditBlock = false;
+        }
+        else
+            joinPreviousEditBlock();
         m_justAutoIndented = false;
         m_lastInsertion.append(text);
         if (m_submode == ReplaceSubMode) {
@@ -1811,6 +1826,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         if (!m_inReplay)
             emit q->completionRequested();
         setTargetColumn();
+        endEditBlock();
     } else {
         return EventUnhandled;
     }
@@ -2940,6 +2956,7 @@ void FakeVimHandler::Private::enterInsertMode()
     EDITOR(setOverwriteMode(false));
     m_mode = InsertMode;
     m_lastInsertion.clear();
+    m_beginEditBlock = true;
 }
 
 void FakeVimHandler::Private::enterCommandMode()
