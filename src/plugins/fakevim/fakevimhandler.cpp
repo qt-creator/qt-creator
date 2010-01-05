@@ -1225,9 +1225,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_movetype = MoveInclusive;
         setTargetColumn();
         if (m_submode == NoSubMode)
-        {
             m_targetColumn = -1;
-        }
         finishMovement("$");
     } else if (key == ',') {
         // FIXME: use some other mechanism
@@ -1835,13 +1833,12 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
     } else if (key >= control('a') && key <= control('z')) {
         // ignore these
     } else if (!text.isEmpty()) {
-        if (m_beginEditBlock)
-        {
+        if (m_beginEditBlock) {
             beginEditBlock();
             m_beginEditBlock = false;
-        }
-        else
+        } else {
             joinPreviousEditBlock();
+        }
         m_justAutoIndented = false;
         m_lastInsertion.append(text);
         if (m_submode == ReplaceSubMode) {
