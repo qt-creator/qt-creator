@@ -111,6 +111,11 @@ public:
     AbstractMaemoRunControl(RunConfiguration *runConfig);
     virtual ~AbstractMaemoRunControl() {}
 
+#ifdef USE_SSH_LIB
+protected slots:
+    void handleRemoteOutput(const QString &output);
+#endif
+
 protected:
     void startDeployment(bool forDebugging);
     void deploy();
@@ -180,8 +185,13 @@ private:
     virtual void handleDeploymentFinished(bool success);
     void startExecution();
 
+#ifdef USE_SSH_LIB
+    QScopedPointer<MaemoSshRunner> sshRunner;
+    QScopedPointer<MaemoSshRunner> sshStopper;
+#else
     QProcess sshProcess;
     QProcess stopProcess;
+#endif // USE_SSH_LIB
     bool stoppedByUser;
 };
 
@@ -1248,12 +1258,21 @@ void AbstractMaemoRunControl::readStandardOutput()
 }
 // #endif // USE_SSH_LIB
 
+#ifdef USE_SSH_LIB
+void AbstractMaemoRunControl::handleRemoteOutput(const QString &output)
+{
+    emit addToOutputWindowInline(this, output);
+}
+
+#endif // USE_SSH_LIB
+
 // #pragma mark -- MaemoRunControl
 
 
 MaemoRunControl::MaemoRunControl(RunConfiguration *runConfiguration)
     : AbstractMaemoRunControl(runConfiguration)
 {
+#ifndef USE_SSH_LIB
     setProcessEnvironment(sshProcess);
     setProcessEnvironment(stopProcess);
 
@@ -1265,12 +1284,15 @@ MaemoRunControl::MaemoRunControl(RunConfiguration *runConfiguration)
         SLOT(executionFinished()));
     connect(&sshProcess, SIGNAL(error(QProcess::ProcessError)), &dumper,
         SLOT(printToStream(QProcess::ProcessError)));
+#endif // USE_SSH_LIB
 }
 
 MaemoRunControl::~MaemoRunControl()
 {
     stop();
+#ifndef USE_SSH_LIB
     stopProcess.waitForFinished(5000);
+#endif
 }
 
 void MaemoRunControl::start()
@@ -1289,6 +1311,19 @@ void MaemoRunControl::handleDeploymentFinished(bool success)
 
 void MaemoRunControl::startExecution()
 {
+#ifdef USE_SSH_LIB
+    const QString remoteCall = QString::fromLocal8Bit("%1 %2 %3")
+        .arg(targetCmdLinePrefix()).arg(executableOnTarget())
+        .arg(runConfig->arguments().join(" "));
+    sshRunner.reset(new MaemoSshRunner(devConfig, remoteCall));
+    connect(sshRunner.data(), SIGNAL(remoteOutput(QString)),
+            this, SLOT(handleRemoteOutput(QString)));
+    connect(sshRunner.data(), SIGNAL(finished()),
+            this, SLOT(executionFinished()));
+    emit addToOutputWindow(this, tr("Starting remote application."));
+    emit started();
+    sshRunner->start();
+#else
     const QString remoteCall = QString::fromLocal8Bit("%1 %2 %3")
         .arg(targetCmdLinePrefix()).arg(executableOnTarget())
         .arg(runConfig->arguments().join(" "));
@@ -1306,14 +1341,21 @@ void MaemoRunControl::startExecution()
         emit error(this, tr("Could not start ssh!"));
         sshProcess.kill();
     }
+#endif // USE_SSH_LIB
 }
 
 void MaemoRunControl::executionFinished()
 {
     if (stoppedByUser)
         emit addToOutputWindow(this, tr("Remote process stopped by user."));
+#ifdef USE_SSH_LIB
+    else if (sshRunner->hasError())
+        emit addToOutputWindow(this, tr("Remote process exited with error: ")
+                               % sshRunner->error());
+#else
     else if (sshProcess.exitCode() != 0)
         emit addToOutputWindow(this, tr("Remote process exited with error."));
+#endif // USE_SSH_LIB
     else
         emit addToOutputWindow(this, tr("Remote process finished successfully."));
     emit finished();
@@ -1328,6 +1370,12 @@ void MaemoRunControl::stop()
     if (isDeploying()) {
         stopDeployment();
     } else {
+#ifdef USE_SSH_LIB
+        const QString remoteCall = QString::fromLocal8Bit("pkill -x %1; "
+            "sleep 1; pkill -x -9 %1").arg(executableFileName());
+        sshStopper.reset(new MaemoSshRunner(devConfig, remoteCall));
+        sshStopper->start();
+#else
         stopProcess.kill();
         QStringList cmdArgs;
         const QString remoteCall = QString::fromLocal8Bit("pkill -x %1; "
@@ -1335,12 +1383,18 @@ void MaemoRunControl::stop()
         cmdArgs << "-n" << "-p" << port() << "-l" << devConfig.uname
             << options() << devConfig.host << remoteCall;
         stopProcess.start(runConfig->sshCmd(), cmdArgs);
+#endif // USE_SSH_LIB
     }
 }
 
 bool MaemoRunControl::isRunning() const
 {
-    return isDeploying() || sshProcess.state() != QProcess::NotRunning;
+    return isDeploying()
+#ifdef USE_SSH_LIB
+        || (!sshRunner.isNull() && sshRunner->isRunning());
+#else
+        || sshProcess.state() != QProcess::NotRunning;
+#endif // USE_SSH_LIB
 }
 
 

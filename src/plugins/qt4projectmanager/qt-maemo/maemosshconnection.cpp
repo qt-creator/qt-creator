@@ -45,13 +45,14 @@
 
 #include "maemodeviceconfigurations.h"
 
-#include "/opt/ne7ssh/include/ne7ssh.h"
+#include "/opt/ne7sshModified/include/ne7ssh.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QStringBuilder>
 #include <QtCore/QStringList>
 
 #include <cstdio>
+#include <cstring>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -121,13 +122,17 @@ void MaemoInteractiveSshConnection::runCommand(const QString &command)
 
     bool done;
     do {
-        done = ssh.waitFor(channel(), m_prompt, 2);
+        done = ssh.waitFor(channel(), m_prompt, 1);
         const char * const error = lastError();
         if (error)
             throw MaemoSshException(tr("SSH error: %1").arg(error));
-        const char * const output = ssh.read(channel());
-        if (output)
+        ssh.lock();
+        const char * output = ssh.read(channel(), false);
+        if (output) {
             emit remoteOutput(QLatin1String(output));
+            ssh.resetInput(channel(), false);
+        }
+        ssh.unlock();
     } while (!done && !stopRequested());
 }
 
