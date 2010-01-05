@@ -500,6 +500,7 @@ void OverrideableAction::addOverrideAction(QAction *action, const QList<int> &co
             m_contextActionMap.insert(k, action);
         }
     }
+    action->setShortcut(OverrideableAction::action()->shortcut());
 }
 
 void OverrideableAction::actionChanged()
@@ -528,4 +529,15 @@ void OverrideableAction::actionChanged()
 bool OverrideableAction::isActive() const
 {
     return m_active;
+}
+
+void OverrideableAction::setKeySequence(const QKeySequence &key)
+{
+    QMap<int, QPointer<QAction> >::const_iterator it = m_contextActionMap.constBegin();
+    QMap<int, QPointer<QAction> >::const_iterator itEnd = m_contextActionMap.constEnd();
+    while (it != itEnd) {
+        it.value()->setShortcut(key);
+        ++it;
+    }
+    Action::setKeySequence(key);
 }
