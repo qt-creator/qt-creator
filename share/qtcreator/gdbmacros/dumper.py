@@ -130,7 +130,7 @@ def isSimpleType(typeobj):
         or type == "int" \
         or type == "long" or type.startswith("long ") \
         or type == "short" or type.startswith("short ") \
-        or type == "signed" or  type.startswith("signed ") \
+        or type == "signed" or type.startswith("signed ") \
         or type == "unsigned" or type.startswith("unsigned ")
 
 
@@ -303,11 +303,11 @@ class FrameCommand(gdb.Command):
         args = arg.split(' ')
         #warn("ARG: %s" % arg)
         #warn("ARGS: %s" % args)
-        useFancy = int(args[0])
-        passExceptions = int(args[1])
+        options = args[0].split(",")
+        useFancy = "fancy" in options
         expandedINames = set()
-        if len(args) > 2:
-            expandedINames = set(args[2].split(","))
+        if len(args) > 1:
+            expandedINames = set(args[1].split(","))
         #warn("EXPANDED INAMES: %s" % expandedINames)
         module = sys.modules[__name__]
         self.dumpers = {}
@@ -339,10 +339,11 @@ class FrameCommand(gdb.Command):
 
         d = Dumper()
         d.dumpers = self.dumpers
-        d.passExceptions = passExceptions
+        d.useFancy = useFancy
+        d.passExceptions = "passexceptions" in options
+        d.autoDerefPointers = "autoderef" in options
         d.ns = qtNamespace()
         d.expandedINames = expandedINames
-        d.useFancy = useFancy
         #warn(" NAMESPACE IS: '%s'" % d.ns)
 
         #
@@ -396,8 +397,8 @@ class FrameCommand(gdb.Command):
         #
         d.safeoutput = ""
         watchers = ""
-        if len(args) > 3:
-            watchers = base64.b16decode(args[3], True)
+        if len(args) > 2:
+            watchers = base64.b16decode(args[2], True)
         if len(watchers) > 0:
             for watcher in watchers.split("$$"):
                 (exp, name) = watcher.split("$")
@@ -406,6 +407,11 @@ class FrameCommand(gdb.Command):
         watchers = d.safeoutput
 
         print('locals={iname="local",name="Locals",value=" ",type=" ",'
+            + 'children=[' + locals + ']},'
+            + 'watchers={iname="watch",name="Watchers",value=" ",type=" ",'
+            + 'children=[' + watchers + ']}\n')
+
+        warn('OUTPUT: locals={iname="local",name="Locals",value=" ",type=" ",'
             + 'children=[' + locals + ']},'
             + 'watchers={iname="watch",name="Watchers",value=" ",type=" ",'
             + 'children=[' + watchers + ']}')
@@ -454,7 +460,7 @@ class FrameCommand(gdb.Command):
             try:
                 value = parseAndEvaluate(exp)
                 item = Item(value, "watch", None, None)
-                d.safePutItemHelper(item)
+                d.putItemHelper(item)
             except RuntimeError:
                 d.put(',value="<invalid>",')
                 d.put('type="<unknown>",numchild="0"')
@@ -712,7 +718,10 @@ class Dumper:
         # FIXME: Gui shows references stripped?
         #warn("REAL INAME: %s " % item.iname)
         #warn("REAL TYPE: %s " % item.value.type)
-        #warn("REAL VALUE: %s " % item.value)
+        #try:
+        #    warn("REAL VALUE: %s " % item.value)
+        #except UnicodeEncodeError:
+        #    warn("REAL VALUE: <unprintable>")
 
         value = item.value
         type = value.type
@@ -741,33 +750,36 @@ class Dumper:
             #warn("IS DUMPABLE: %s " % type)
             self.putType(item.value.type)
             self.dumpers[strippedType](self, item)
+            warn(" RESULT: %s " % self.output)
 
         elif type.code == gdb.TYPE_CODE_ENUM:
-            #warn("GENERIC ENUM: %s" % value)
+            warn("GENERIC ENUM: %s" % value)
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
             
 
         elif type.code == gdb.TYPE_CODE_PTR:
+            isHandled = False
             if self.useFancy:
                 #warn("A POINTER: %s" % value.type)
-                isHandled = False
                 if isNull(value):
                     self.putValue("0x0")
                     self.putType(item.value.type)
                     self.putNumChild(0)
                     isHandled = True
 
-                target = str(type.target().unqualified())
-                if target == "void" and not isHandled:
+                target = str(type.target().strip_typedefs().unqualified())
+                if (not isHandled) and target == "void":
                     self.putType(item.value.type)
                     self.putValue(str(value))
                     self.putNumChild(0)
                     isHandled = True
 
-                if target == "char" and not isHandled:
+                if (not isHandled) and (target == "char"
+                        or target == "signed char" or target == "unsigned char"):
                     # Display values up to given length directly
+                    #warn("CHAR AUTODEREF: %s" % value.address)
                     self.putType(item.value.type)
                     firstNul = -1
                     p = value
@@ -780,17 +792,24 @@ class Dumper:
                             break
                         p += 1
 
-                if not isHandled:
-                    ## Generic pointer type.
-                    #warn("GENERIC POINTER: %s" % value)
-                    innerType = item.value.type.target()
-                    self.putType(innerType)
-                    self.childTypes.append(
-                        stripClassTag(str(innerType)))
-                    self.putItemHelper(
-                        Item(item.value.dereference(), item.iname, None, None))
-                    self.childTypes.pop()
-            else:
+            #warn("AUTODEREF: %s" % self.autoDerefPointers)
+            #warn("IS HANDLED: %s" % isHandled)
+            #warn("RES: %s" % (self.autoDerefPointers and not isHandled))
+            if self.autoDerefPointers and not isHandled:
+                ## Generic pointer type.
+                warn("GENERIC AUTODEREF POINTER: %s" % value.address)
+                innerType = item.value.type.target()
+                self.putType(innerType)
+                self.childTypes.append(
+                    stripClassTag(str(innerType)))
+                self.putItemHelper(
+                    Item(item.value.dereference(), item.iname, None, None))
+                self.childTypes.pop()
+                isHandled = True
+
+            # Fall back to plain pointer printing
+            if not isHandled:
+                #warn("GENERIC PLAIN POINTER: %s" % type(value))
                 self.putType(item.value.type)
                 self.putValue(str(value.address))
                 self.putNumChild(1)

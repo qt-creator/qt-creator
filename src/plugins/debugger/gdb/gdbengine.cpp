@@ -3605,6 +3605,7 @@ void GdbEngine::updateLocals(const QVariant &cookie)
         m_toolTipExpression.clear();
         WatchHandler *handler = m_manager->watchHandler();
         QStringList expanded = handler->expandedINames().toList();
+        expanded.append(_("defaults"));
         QString watchers;
         QHash<QString, int> watcherNames = handler->watcherNames();
         QHashIterator<QString, int> it(watcherNames);
@@ -3618,8 +3619,17 @@ void GdbEngine::updateLocals(const QVariant &cookie)
                 watchers += _("%1$%2").arg(it.key()).arg(it.value());
         }
 
-        postCommand(_("-interpreter-exec console \"bb %1 0 %2 %3\"")
-                .arg(int(theDebuggerBoolSetting(UseDebuggingHelpers)))
+        QString options;
+        if (theDebuggerBoolSetting(UseDebuggingHelpers))
+            options += _("fancy,");
+        if (theDebuggerBoolSetting(AutoDerefPointers))
+            options += _("autoderef,");
+        if (options.isEmpty())
+            options += _("defaults,");
+        options.chop(1);
+
+        postCommand(_("-interpreter-exec console \"bb %1 %2 %3\"")
+                .arg(options)
                 .arg(expanded.join(_(",")))
                 .arg(_(watchers.toLatin1().toHex())),
             CB(handleStackFrame));
