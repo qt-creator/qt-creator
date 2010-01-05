@@ -281,6 +281,7 @@ public:
     void fixMarks(int positionAction, int positionChange); //Updates marks positions by the difference in positionChange
 
     void installEventFilter();
+    void passShortcuts(bool enable);
     void setupWidget();
     void restoreWidget();
 
@@ -611,6 +612,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     }
 
     if (m_passing) {
+        passShortcuts(false);
         KEY_DEBUG("PASSING PLAIN KEY..." << ev->key() << ev->text());
         //if (key == ',') { // use ',,' to leave, too.
         //    qDebug() << "FINISHED...";
@@ -1104,6 +1106,16 @@ void FakeVimHandler::Private::notImplementedYet()
     updateMiniBuffer();
 }
 
+void FakeVimHandler::Private::passShortcuts(bool enable)
+{
+    m_passing = enable;
+    updateMiniBuffer();
+    if (enable)
+        QCoreApplication::instance()->installEventFilter(q);
+    else
+        QCoreApplication::instance()->removeEventFilter(q);
+}
+
 EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     const QString &text)
 {
@@ -1346,10 +1358,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_visualTargetColumn = -1;
         finishMovement("%1$", count());
     } else if (key == ',') {
-        // FIXME: use some other mechanism
-        //m_passing = true;
-        m_passing = !m_passing;
-        updateMiniBuffer();
+        passShortcuts(true);
     } else if (key == '.') {
         //qDebug() << "REPEATING" << quoteUnprintable(m_dotCommand) << count();
         QString savedCommand = m_dotCommand;
@@ -3420,6 +3429,11 @@ FakeVimHandler::~FakeVimHandler()
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 {
     bool active = theFakeVimSetting(ConfigUseFakeVim)->value().toBool();
+
+    if (active && ev->type() == QEvent::Shortcut) {
+        d->passShortcuts(false);
+        return false;
+    }
 
     if (active && ev->type() == QEvent::KeyPress && ob == d->editor()) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
