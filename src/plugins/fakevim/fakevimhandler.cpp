@@ -2792,6 +2792,8 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                     moveRight();
                 fixMarks(position(), text.length());
                 m_tc.insertText(text);
+                if (!afterCursor && atEndOfLine())
+                    moveLeft();
                 moveLeft();
             }
             break;
