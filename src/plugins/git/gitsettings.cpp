@@ -43,6 +43,7 @@ static const char *logCountKeyC = "LogCount";
 static const char *timeoutKeyC = "TimeOut";
 static const char *promptToSubmitKeyC = "PromptForSubmit";
 static const char *omitAnnotationDateKeyC = "OmitAnnotationDate";
+static const char *spaceIgnorantBlameKeyC = "SpaceIgnorantBlame";
 
 enum { defaultLogCount =  10 , defaultTimeOut = 30};
 
@@ -54,7 +55,8 @@ GitSettings::GitSettings() :
     logCount(defaultLogCount),
     timeout(defaultTimeOut),
     promptToSubmit(true),
-    omitAnnotationDate(false)
+    omitAnnotationDate(false),
+    spaceIgnorantBlame(true)
 {
 }
 
@@ -67,6 +69,7 @@ void GitSettings::fromSettings(QSettings *settings)
     timeout = settings->value(QLatin1String(timeoutKeyC), defaultTimeOut).toInt();
     promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     omitAnnotationDate = settings->value(QLatin1String(omitAnnotationDateKeyC), false).toBool();
+    spaceIgnorantBlame = settings->value(QLatin1String(spaceIgnorantBlameKeyC), true).toBool();
     settings->endGroup();
 }
 
@@ -79,6 +82,7 @@ void GitSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(timeoutKeyC), timeout);
     settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
     settings->setValue(QLatin1String(omitAnnotationDateKeyC), omitAnnotationDate);
+    settings->setValue(QLatin1String(spaceIgnorantBlameKeyC), spaceIgnorantBlame);
     settings->endGroup();
 }
 
@@ -86,7 +90,7 @@ bool GitSettings::equals(const GitSettings &s) const
 {
     return adoptPath == s.adoptPath && path == s.path && logCount == s.logCount
            && timeout == s.timeout && promptToSubmit == s.promptToSubmit
-           && omitAnnotationDate == s.omitAnnotationDate;
+           && omitAnnotationDate == s.omitAnnotationDate && spaceIgnorantBlame == s.spaceIgnorantBlame;
 }
 
 QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const

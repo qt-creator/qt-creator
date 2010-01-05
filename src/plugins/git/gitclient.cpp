@@ -302,6 +302,9 @@ void GitClient::blame(const QString &workingDirectory, const QString &fileName, 
     if (Git::Constants::debug)
         qDebug() << "blame" << workingDirectory << fileName << lineNumber;
     QStringList arguments(QLatin1String("blame"));
+    arguments << QLatin1String("--root");
+    if (m_plugin->settings().spaceIgnorantBlame)
+        arguments << QLatin1String("-w");
     arguments << QLatin1String("--") << fileName;
 
     const QString kind = QLatin1String(Git::Constants::GIT_BLAME_EDITOR_KIND);

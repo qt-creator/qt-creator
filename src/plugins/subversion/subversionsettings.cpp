@@ -42,6 +42,7 @@ static const char *userNameOptionC = "--username";
 static const char *passwordOptionC = "--password";
 static const char *promptToSubmitKeyC = "PromptForSubmit";
 static const char *timeOutKeyC = "TimeOut";
+static const char *spaceIgnorantAnnotationKeyC = "SpaceIgnorantAnnotation";
 
 enum { defaultTimeOutS = 30 };
 
@@ -61,7 +62,8 @@ SubversionSettings::SubversionSettings() :
     svnCommand(defaultCommand()),
     useAuthentication(false),
     timeOutS(defaultTimeOutS),
-    promptToSubmit(true)
+    promptToSubmit(true),
+    spaceIgnorantAnnotation(true)
 {
 }
 
@@ -74,6 +76,7 @@ void SubversionSettings::fromSettings(QSettings *settings)
     password =  settings->value(QLatin1String(passwordKeyC), QString()).toString();
     timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
     promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
+    spaceIgnorantAnnotation = settings->value(QLatin1String(spaceIgnorantAnnotationKeyC), true).toBool();
     settings->endGroup();
 }
 
@@ -86,6 +89,7 @@ void SubversionSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(passwordKeyC), password);
     settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
     settings->setValue(QLatin1String(timeOutKeyC), timeOutS);
+    settings->setValue(QLatin1String(spaceIgnorantAnnotationKeyC), spaceIgnorantAnnotation);
     settings->endGroup();
 }
 
@@ -96,7 +100,8 @@ bool SubversionSettings::equals(const SubversionSettings &s) const
         && user              == s.user
         && password          == s.password
         && timeOutS          == s.timeOutS
-        && promptToSubmit    == s.promptToSubmit;
+        && promptToSubmit    == s.promptToSubmit
+        && spaceIgnorantAnnotation == s.spaceIgnorantAnnotation;
 }
 
 QStringList SubversionSettings::addOptions(const QStringList &args) const

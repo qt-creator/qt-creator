@@ -62,6 +62,7 @@ SubversionSettings SettingsPageWidget::settings() const
     if (rc.user.isEmpty())
         rc.useAuthentication = false;
     rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
+    rc.spaceIgnorantAnnotation = m_ui.spaceIgnorantAnnotationCheckBox->isChecked();
     return rc;
 }
 
@@ -73,6 +74,7 @@ void SettingsPageWidget::setSettings(const SubversionSettings &s)
     m_ui.userGroupBox->setChecked(s.useAuthentication);
     m_ui.timeOutSpinBox->setValue(s.timeOutS);
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
+    m_ui.spaceIgnorantAnnotationCheckBox->setChecked(s.spaceIgnorantAnnotation);
 }
 
 QString SettingsPageWidget::searchKeywords() const
@@ -81,7 +83,8 @@ QString SettingsPageWidget::searchKeywords() const
     QTextStream(&rc) << m_ui.commandLabel->text()
             << ' ' << m_ui.usernameLabel->text()
             << ' ' << m_ui.passwordLabel->text()
-            << ' ' << m_ui.userGroupBox->title();
+            << ' ' << m_ui.userGroupBox->title()
+            << ' ' << m_ui.spaceIgnorantAnnotationCheckBox->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }

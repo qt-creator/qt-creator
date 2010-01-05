@@ -717,6 +717,8 @@ void SubversionPlugin::annotate(const QString &workingDir, const QString &file)
     QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(file);
 
     QStringList args(QLatin1String("annotate"));
+    if (m_settings.spaceIgnorantAnnotation)
+        args << QLatin1String("-x") << QLatin1String("-uw");
     args.push_back(QLatin1String("-v"));
     args.append(QDir::toNativeSeparators(file));
 

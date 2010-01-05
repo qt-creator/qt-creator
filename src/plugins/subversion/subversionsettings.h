@@ -64,6 +64,7 @@ struct SubversionSettings
     QString password;
     int timeOutS;
     bool promptToSubmit;
+    bool spaceIgnorantAnnotation;
 };
 
 inline bool operator==(const SubversionSettings &p1, const SubversionSettings &p2)

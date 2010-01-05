@@ -58,6 +58,7 @@ GitSettings SettingsPageWidget::settings() const
     rc.timeout = m_ui.timeoutSpinBox->value();
     rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
     rc.omitAnnotationDate = m_ui.omitAnnotationDataCheckBox->isChecked();
+    rc.spaceIgnorantBlame = m_ui.spaceIgnorantBlameCheckBox->isChecked();
     return rc;
 }
 
@@ -69,6 +70,7 @@ void SettingsPageWidget::setSettings(const GitSettings &s)
     m_ui.timeoutSpinBox->setValue(s.timeout);
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
     m_ui.omitAnnotationDataCheckBox->setChecked(s.omitAnnotationDate);
+    m_ui.spaceIgnorantBlameCheckBox->setChecked(s.spaceIgnorantBlame);
 }
 
 void SettingsPageWidget::setSystemPath()
@@ -83,7 +85,8 @@ QString SettingsPageWidget::searchKeywords() const
         << ' ' << m_ui.timeoutLabel->text()
         << ' ' << m_ui.promptToSubmitCheckBox->text()
         << ' ' << m_ui.omitAnnotationDataCheckBox->text()
-        << ' ' << m_ui.environmentGroupBox->title();
+        << ' ' << m_ui.environmentGroupBox->title()
+        << ' ' << m_ui.spaceIgnorantBlameCheckBox->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }
