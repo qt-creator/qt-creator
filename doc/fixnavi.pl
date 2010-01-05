@@ -11,10 +11,10 @@ my $doctitle = "";
 my $curpage = "";
 my $intoc = 0;
 while (<FILE>) {
-    if (!$intoc) {
-        if (keys(%title2page) == 1 && /^\h*\\list/) {
-            $intoc = 1;
-        } elsif (/^\h*\\page\h+(\H+)/) {
+    if (keys(%title2page) == 1 && /^\h*\\list/) {
+        $intoc++;
+    } elsif (!$intoc) {
+        if (/^\h*\\page\h+(\H+)/) {
             $curpage = $1;
         } elsif (/^\h*\\title\h+(.+)$/) {
             if ($curpage eq "") {
@@ -26,7 +26,7 @@ while (<FILE>) {
         }
     } else {
         if (/^\h*\\endlist/) {
-            $intoc = 0;
+            $intoc--;
         } elsif (/^\h*\\o\h+\\l{(.*)}$/) {
             push @toc, $1;
         }
