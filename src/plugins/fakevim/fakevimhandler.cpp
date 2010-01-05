@@ -1384,7 +1384,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'g') {
         if (m_gflag) {
             m_gflag = false;
-            m_tc.setPosition(firstPositionInLine(1), KeepAnchor);
+            int n = m_mvcount.isEmpty() ? 1 : count();
+            m_tc.setPosition(firstPositionInLine(n), KeepAnchor);
             handleStartOfLine();
             finishMovement();
         } else {
