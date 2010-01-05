@@ -150,9 +150,34 @@ bool CompletionWidget::event(QEvent *e)
 #endif
         closeList(index);
         return true;
+    } else if (e->type() == QEvent::ShortcutOverride) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        switch (ke->key()) {
+        case Qt::Key_N:
+        case Qt::Key_P:
+            // select next/previous completion
+            if (ke->modifiers() == Qt::ControlModifier)
+            {
+                e->accept();
+                QModelIndex oldIndex = currentIndex();
+                int change = (ke->key() == Qt::Key_N) ? 1 : -1;
+                int nrows = model()->rowCount();
+                int row = currentIndex().row();
+                int newRow = (row + change + nrows) % nrows;
+                if (newRow == row + change || !ke->isAutoRepeat())
+                    setCurrentIndex(m_model->index(newRow));
+                return true;
+            }
+        }
     } else if (e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
         switch (ke->key()) {
+        case Qt::Key_N:
+        case Qt::Key_P:
+            // select next/previous completion - so don't pass on to editor
+            if (ke->modifiers() == Qt::ControlModifier)
+                forwardKeys = false;
+            break;
         case Qt::Key_Escape:
             closeList();
             return true;
