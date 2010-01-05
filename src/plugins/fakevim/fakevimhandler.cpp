@@ -817,6 +817,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         if (m_movetype == MoveLineWise)
             m_registers[m_register].rangemode = RangeLineMode;
         removeSelectedText();
+        if (m_movetype == MoveLineWise)
+            handleStartOfLine();
         m_submode = NoSubMode;
         if (atEndOfLine())
             moveLeft();
@@ -2769,7 +2771,21 @@ void FakeVimHandler::Private::removeText(const Range &range)
             tc.movePosition(StartOfLine, MoveAnchor);
             tc.setPosition(range.endPos, KeepAnchor);
             tc.movePosition(EndOfLine, KeepAnchor);
-            tc.movePosition(Right, KeepAnchor, 1);
+            // make sure that complete lines are removed
+            // - also at the beginning and at the end of the document
+            if (tc.atEnd()) {
+                tc.setPosition(range.beginPos, MoveAnchor);
+                tc.movePosition(StartOfLine, MoveAnchor);
+                if (!tc.atStart()) {
+                    // also remove first line if it is the only one
+                    tc.movePosition(Left, MoveAnchor, 1);
+                    tc.movePosition(EndOfLine, MoveAnchor, 1);
+                }
+                tc.setPosition(range.endPos, KeepAnchor);
+                tc.movePosition(EndOfLine, KeepAnchor);
+            } else {
+                tc.movePosition(Right, KeepAnchor, 1);
+            }
             fixMarks(range.beginPos, tc.selectionStart() - tc.selectionEnd());
             tc.removeSelectedText();
             return;
