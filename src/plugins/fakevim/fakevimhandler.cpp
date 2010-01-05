@@ -1527,6 +1527,16 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_opcount.clear();
         m_mvcount.clear();
         enterInsertMode();
+    } else if (key == 'S') {
+        const int line = cursorLineInDocument() + 1;
+        setAnchor(firstPositionInLine(line));
+        setPosition(lastPositionInLine(line + count() - 1));
+        yankSelectedText();
+        removeSelectedText();
+        setDotCommand("%1S", count());
+        m_opcount.clear();
+        m_mvcount.clear();
+        enterInsertMode();
     } else if (key == 't') {
         m_movetype = MoveInclusive;
         m_subsubmode = FtSubSubMode;
@@ -1594,7 +1604,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         const int line = cursorLineInDocument() + 1;
         m_savedYankPosition = position();
         setAnchor(firstPositionInLine(line));
-        setPosition(lastPositionInLine(line+count() - 1));
+        setPosition(lastPositionInLine(line + count() - 1));
         if (count() > 1)
             showBlackMessage(QString("%1 lines yanked").arg(count()));
         m_rangemode = RangeLineMode;
