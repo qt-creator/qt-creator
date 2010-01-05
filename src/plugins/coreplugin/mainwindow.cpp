@@ -114,6 +114,7 @@ MainWindow::MainWindow() :
     m_uniqueIDManager(new UniqueIDManager()),
     m_globalContext(QList<int>() << Constants::C_GLOBAL_ID),
     m_additionalContexts(m_globalContext),
+    // keep this in sync with main() in app/main.cpp
     m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope,
                              QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
     m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),

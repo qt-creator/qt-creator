@@ -60,6 +60,7 @@ public:
 private slots:
     void resetInterfaceColor();
     void resetExternalEditor();
+    void resetLanguage();
     void showHelpForExternalEditor();
 #ifdef Q_OS_UNIX
 #  ifndef Q_OS_MAC
@@ -71,6 +72,9 @@ private slots:
 
 private:
     void variableHelpDialogCreator(const QString& helpText);
+    void fillLanguageBox() const;
+    QString language() const;
+    void setLanguage(const QString&);
     Ui::GeneralSettings *m_page;
     QString m_searchKeywords;
     QPointer<QWidget> m_dialog;
