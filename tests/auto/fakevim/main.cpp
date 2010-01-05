@@ -67,8 +67,12 @@ private slots:
     void command_Yp();
     void command_cc();
     void command_cw();
+    void command_c_dollar();
+    void command_C();
     void command_dd();
     void command_dd_2();
+    void command_d_dollar();
+    void command_D();
     void command_dfx_down();
     void command_dollar();
     void command_down();
@@ -82,6 +86,7 @@ private slots:
     void command_up();
     void command_w();
     void command_yyp();
+    void command_y_dollar();
 
     // special tests
     void test_i_cw_i();
@@ -366,6 +371,28 @@ return; // FIXME
     check("cwx" + escape,    l[0] + "\n@xinclude <QtCore>\n" + lmid(2));
 }
 
+void tst_FakeVim::command_c_dollar()
+{
+    setup();
+    move("j",                "@" + l[1]);
+    move("$",                l[1] + "@");
+    check("c$" + escape,     l[0]+"\n" + l[1].left(l[1].length()-2)+"@"+l[1][l[1].length()-2]+"\n" + lmid(2));
+    check("c$" + escape,     l[0]+"\n" + l[1].left(l[1].length()-3)+"@"+l[1][l[1].length()-3]+"\n" + lmid(2));
+    check("0c$abc" + escape, l[0]+"\n" + "ab@c\n" + lmid(2));
+    check("0c$abc" + escape, l[0]+"\n" + "ab@c\n" + lmid(2));
+}
+
+void tst_FakeVim::command_C()
+{
+    setup();
+    move("j",                "@" + l[1]);
+    check("Cabc" + escape,   l[0] + "\nab@c\n" + lmid(2));
+    check("Cabc" + escape,   l[0] + "\nabab@c\n" + lmid(2));
+    check("$Cabc" + escape,  l[0] + "\nababab@c\n" + lmid(2));
+    check("0C" + escape,     l[0] + "\n@\n" + lmid(2));
+    check("0Cabc" + escape,  l[0] + "\nab@c\n" + lmid(2));
+}
+
 void tst_FakeVim::command_dw()
 {
     setup();
@@ -403,6 +430,22 @@ void tst_FakeVim::command_dd_2()
     check("dd",  l[0] + "\n@" + lmid(2));
     check("p",   l[0] + "\n" + l[2] + "\n@" + l[1] + "\n" + lmid(3));
     check("u",   l[0] + "\n@" + lmid(2));
+}
+
+void tst_FakeVim::command_d_dollar()
+{
+    setup();
+    move("j$",               l[1] + "@");
+    check("$d$",             l[0]+"\n" + l[1].left(l[1].length()-2)+"@"+l[1][l[1].length()-2]+"\n" + lmid(2));
+    check("0d$",             l[0] + "\n"+"@\n" + lmid(2));
+}
+
+void tst_FakeVim::command_D()
+{
+    setup();
+    move("j",                "@" + l[1]);
+    check("$D",              l[0]+"\n" + l[1].left(l[1].length()-2)+"@"+l[1][l[1].length()-2]+"\n" + lmid(2));
+    check("0D",              l[0] + "\n@\n" + lmid(2));
 }
 
 void tst_FakeVim::command_dollar()
@@ -566,6 +609,16 @@ void tst_FakeVim::command_yyp()
     setup();
     move("4j",   "@int main");
     check("yyp", lmid(0, 4) + "\n" + lmid(4, 1) + "\n@" + lmid(4));
+}
+
+void tst_FakeVim::command_y_dollar()
+{
+    setup();
+    move("j",     "@" + l[1]);
+    check("$y$p", l[0]+"\n"+ l[1]+"@>\n" + lmid(2));
+    check("$y$p", l[0]+"\n"+ l[1]+">@>\n" + lmid(2));
+    check("$y$P", l[0]+"\n"+ l[1]+">@>>\n" + lmid(2));
+    check("$y$P", l[0]+"\n"+ l[1]+">>@>>\n" + lmid(2));
 }
 
 void tst_FakeVim::command_Yp()
