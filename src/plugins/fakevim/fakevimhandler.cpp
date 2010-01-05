@@ -796,10 +796,10 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
         if (m_rangemode == RangeCharMode) {
-           if (m_movetype == MoveInclusive)
-               moveRight(); // correction
-           if (anchor() >= position())
-              m_anchor++;
+            if (m_movetype == MoveInclusive)
+                moveRight(); // correction
+            if (anchor() >= position())
+                m_anchor++;
         }
         if (!dotCommand.isEmpty())
             setDotCommand("d" + dotCommand);
