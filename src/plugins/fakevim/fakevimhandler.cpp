@@ -1277,7 +1277,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setDotCommand("C");
         finishMovement();
     } else if (key == control('c')) {
-        showBlackMessage("Type Alt-v,Alt-v  to quit FakeVim mode");
+        if (isNoVisualMode())
+            showBlackMessage("Type Alt-v,Alt-v  to quit FakeVim mode");
+        else
+            leaveVisualMode();
     } else if (key == 'd' && isNoVisualMode()) {
         if (m_rangemode == RangeLineMode) {
             m_savedYankPosition = m_tc.position();
