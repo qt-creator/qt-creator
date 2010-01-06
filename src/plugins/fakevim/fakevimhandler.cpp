@@ -323,7 +323,8 @@ public:
 
     // helper functions for indenting
     bool isElectricCharacter(QChar c) const;
-    void indentRegion(QChar lastTyped = QChar());
+    void indentSelectedText(QChar lastTyped = QChar());
+    int indentText(const Range &range, QChar lastTyped = QChar());
     void shiftRegionLeft(int repeat = 1);
     void shiftRegionRight(int repeat = 1);
 
@@ -839,7 +840,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
     } else if (m_submode == IndentSubMode) {
         recordJump();
         beginEditBlock();
-        indentRegion();
+        indentSelectedText();
         endEditBlock();
         m_submode = NoSubMode;
         updateMiniBuffer();
@@ -1252,11 +1253,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_submode = IndentSubMode;
     } else if (key == '=' && isVisualMode()) {
         beginEditBlock();
-        indentRegion();
+        indentSelectedText();
         endEditBlock();
         leaveVisualMode();
     } else if (key == '%') {
         m_movetype = MoveExclusive;
+        setAnchor();
         moveToMatchingParanthesis();
         finishMovement();
     } else if (key == 'a') {
@@ -1847,11 +1849,14 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
                 m_tc.deleteChar();
         }
         m_tc.insertText(text);
-        if (0 && hasConfig(ConfigAutoIndent) && isElectricCharacter(text.at(0))) {
+        if (hasConfig(ConfigSmartIndent) && isElectricCharacter(text.at(0))) {
             const QString leftText = m_tc.block().text()
-                .left(m_tc.position() - 1 - m_tc.block().position());
-            if (leftText.simplified().isEmpty())
-                indentRegion(text.at(0));
+                   .left(m_tc.position() - 1 - m_tc.block().position());
+            if (leftText.simplified().isEmpty()) {
+                Range range(position(), position());
+                range.rangemode = m_rangemode;
+                indentText(range, text.at(0));
+            }
         }
 
         if (!m_inReplay)
@@ -2410,11 +2415,25 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
     setPosition(block.position());
 }
 
-void FakeVimHandler::Private::indentRegion(QChar typedChar)
+void FakeVimHandler::Private::indentSelectedText(QChar typedChar)
 {
-    //int savedPos = anchor();
-    int beginLine = lineForPosition(anchor());
-    int endLine = lineForPosition(position());
+    int beginLine = qMin(lineForPosition(position()), lineForPosition(anchor()));
+    int endLine = qMax(lineForPosition(position()), lineForPosition(anchor()));
+
+    Range range(anchor(), position());
+    range.rangemode = m_rangemode;
+    indentText(range, typedChar);
+
+    setPosition(firstPositionInLine(beginLine));
+    moveToFirstNonBlankOnLine();
+    setTargetColumn();
+    setDotCommand("%1==", endLine - beginLine + 1);
+}
+
+int FakeVimHandler::Private::indentText(const Range &range, QChar typedChar)
+{
+    int beginLine = lineForPosition(range.beginPos);
+    int endLine = lineForPosition(range.endPos);
     if (beginLine > endLine)
         qSwap(beginLine, endLine);
 
@@ -2422,10 +2441,7 @@ void FakeVimHandler::Private::indentRegion(QChar typedChar)
     // lineForPosition has returned 1-based line numbers
     emit q->indentRegion(&amount, beginLine-1, endLine-1, typedChar);
 
-    setPosition(firstPositionInLine(beginLine));
-    moveToFirstNonBlankOnLine();
-    setTargetColumn();
-    setDotCommand("%1==", endLine - beginLine + 1);
+    return amount;
 }
 
 bool FakeVimHandler::Private::isElectricCharacter(QChar c) const
@@ -3073,18 +3089,24 @@ QString FakeVimHandler::Private::tabExpand(int n) const
 
 void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown)
 {
-    if (!hasConfig(ConfigAutoIndent))
+    if (!hasConfig(ConfigAutoIndent) && !hasConfig(ConfigSmartIndent))
         return;
-    QTextBlock block = goingDown ? m_tc.block().previous() : m_tc.block().next();
-    QString text = block.text();
-    int pos = 0;
-    int n = text.size();
-    while (pos < n && text.at(pos).isSpace())
-        ++pos;
-    text.truncate(pos);
-    // FIXME: handle 'smartindent' and 'cindent'
-    m_tc.insertText(text);
-    m_justAutoIndented = text.size();
+
+    if (hasConfig(ConfigSmartIndent)) {
+        Range range(m_tc.block().position(), m_tc.block().position());
+        m_justAutoIndented = indentText(range, QLatin1Char('\n'));
+    } else {
+        QTextBlock block = goingDown ? m_tc.block().previous() : m_tc.block().next();
+        QString text = block.text();
+        int pos = 0;
+        int n = text.size();
+        while (pos < n && text.at(pos).isSpace())
+            ++pos;
+        text.truncate(pos);
+        // FIXME: handle 'smartindent' and 'cindent'
+        m_tc.insertText(text);
+        m_justAutoIndented = text.size();
+    }
 }
 
 bool FakeVimHandler::Private::removeAutomaticIndentation()
