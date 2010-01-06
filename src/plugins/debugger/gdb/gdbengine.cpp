@@ -1256,11 +1256,12 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     // that into a TARGET_WAITKIND_LOADED. Does it?
     // The bandaid here has the problem that it breaks for 'next' over a
     // statement that indirectly loads shared libraries
-    if (reason == "signal-received"
-          && data.findChild("signal-name").data() == "SIGTRAP") {
-        continueInferiorInternal();
-        return;
-    }
+    // 6.1.2010: Breaks interrupting inferiors, disabled:
+    // if (reason == "signal-received"
+    //      && data.findChild("signal-name").data() == "SIGTRAP") {
+    //    continueInferiorInternal();
+    //    return;
+    // }
 
     // jump over well-known frames
     static int stepCounter = 0;
