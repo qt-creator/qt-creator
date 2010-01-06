@@ -525,8 +525,10 @@ protected:
     void leaveEvent(QEvent *);
     void keyReleaseEvent(QKeyEvent *);
 
+public:
     // Returns true if key triggers an indent.
     virtual bool isElectricCharacter(const QChar &ch) const;
+protected:
     // Returns the text to complete at the cursor position, or an empty string
     virtual QString autoComplete(QTextCursor &cursor, const QString &text) const;
     // Handles backspace. When returning true, backspace processing is stopped
