@@ -436,6 +436,7 @@ public:
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
+    void setType(const FullySpecifiedType &type);
 
     virtual const BaseClass *asBaseClass() const
     { return this; }
@@ -448,6 +449,7 @@ protected:
 
 private:
     bool _isVirtual;
+    FullySpecifiedType _type;
 };
 
 class CPLUSPLUS_EXPORT Class: public ScopedSymbol, public Type

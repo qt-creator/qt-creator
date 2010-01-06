@@ -475,7 +475,10 @@ BaseClass::~BaseClass()
 { }
 
 FullySpecifiedType BaseClass::type() const
-{ return FullySpecifiedType(); }
+{ return _type; }
+
+void BaseClass::setType(const FullySpecifiedType &type)
+{ _type = type; }
 
 bool BaseClass::isVirtual() const
 { return _isVirtual; }
