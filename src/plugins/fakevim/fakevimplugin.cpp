@@ -162,6 +162,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 
     m_group.insert(theFakeVimSetting(ConfigAutoIndent), 
         m_ui.checkBoxAutoIndent);
+    m_group.insert(theFakeVimSetting(ConfigSmartIndent), 
+        m_ui.checkBoxSmartIndent);
     m_group.insert(theFakeVimSetting(ConfigIncSearch), 
         m_ui.checkBoxIncSearch);
 
@@ -174,6 +176,7 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords)
            << ' ' << m_ui.labelAutoIndent->text()  << ' ' << m_ui.labelExpandTab->text()
+           << ' ' << m_ui.labelSmartIndent->text()  << ' ' << m_ui.labelExpandTab->text()
            << ' ' << m_ui.labelHlSearch->text()    << ' ' << m_ui.labelIncSearch->text()
            << ' ' << m_ui.labelShiftWidth->text()  << ' ' << m_ui.labelSmartTab->text()
            << ' ' << m_ui.labelStartOfLine->text() << ' ' << m_ui.tabulatorLabel->text()
@@ -192,7 +195,8 @@ void FakeVimOptionPage::copyTextEditorSettings()
     m_ui.lineEditTabStop->setText(QString::number(ts.m_tabSize));
     m_ui.lineEditShiftWidth->setText(QString::number(ts.m_indentSize));
     m_ui.checkBoxSmartTab->setChecked(ts.m_smartBackspace);
-    m_ui.checkBoxAutoIndent->setChecked(ts.m_autoIndent);
+    m_ui.checkBoxAutoIndent->setChecked(true);
+    m_ui.checkBoxSmartIndent->setChecked(ts.m_autoIndent);
     // FIXME: Not present in core
     //m_ui.checkBoxIncSearch->setChecked(ts.m_incSearch);
 }
@@ -205,6 +209,7 @@ void FakeVimOptionPage::setQtStyle()
     m_ui.lineEditShiftWidth->setText(four);
     m_ui.checkBoxSmartTab->setChecked(true);
     m_ui.checkBoxAutoIndent->setChecked(true);
+    m_ui.checkBoxSmartIndent->setChecked(true);
     m_ui.checkBoxIncSearch->setChecked(true);
     m_ui.lineEditBackspace->setText(QLatin1String("indent,eol,start"));
 }
@@ -217,6 +222,7 @@ void FakeVimOptionPage::setPlainStyle()
     m_ui.lineEditShiftWidth->setText(eight);
     m_ui.checkBoxSmartTab->setChecked(false);
     m_ui.checkBoxAutoIndent->setChecked(false);
+    m_ui.checkBoxSmartIndent->setChecked(false);
     m_ui.checkBoxIncSearch->setChecked(false);
     m_ui.lineEditBackspace->setText(QString());
 }
