@@ -145,10 +145,14 @@ public:
     static QString getSource(const QString &workingDirectory, const QStringList &fileNames);
     // Convenience functions to determine an title/id to identify the editor
     // from the arguments (','-joined arguments or directory).
-    static QString getTitleId(const QString &workingDirectory, const QStringList &fileNames);
-
+    static QString getTitleId(const QString &workingDirectory,
+                              const QStringList &fileNames,
+                              const QString &revision = QString());
 signals:
+    // These signals also exist in the opaque editable (IEditor) that is
+    // handled by the editor manager for convenience.
     void describeRequested(const QString &source, const QString &change);
+    void annotatePreviousRequested(const QString &source, const QString &change, int lineNumber);
 
 public slots:
     // Convenience slot to set data read from stdout, will use the
@@ -173,6 +177,7 @@ private slots:
     void slotPopulateDiffBrowser();
     void slotDiffBrowse(int);
     void slotDiffCursorPositionChanged();
+    void slotAnnotatePrevious();
 
 protected:
     /* A helper that can be used to locate a file in a diff in case it
@@ -192,6 +197,10 @@ private:
     // Implement to return a local file name from the diff file specification
     // (text cursor at position above change hunk)
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const = 0;
+    // Implement to return the previous version[s] of an annotation change
+    // for "Annotate previous version" and a format for the action text containing %1
+    // for the revision
+    virtual QStringList annotationPreviousVersions(const QString &revision, QString *actionTextFormat) const;
 
     void jumpToChangeFromDiff(QTextCursor cursor);
 

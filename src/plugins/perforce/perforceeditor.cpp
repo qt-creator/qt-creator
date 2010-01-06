@@ -154,5 +154,15 @@ QString PerforceEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock)
     return QString();
 }
 
+QStringList PerforceEditor::annotationPreviousVersions(const QString &v, QString *actionTextFormat) const
+{
+    bool ok;
+    const int changeList = v.toInt(&ok);
+    if (!ok || changeList < 2)
+        return QStringList();
+    *actionTextFormat = tr("Annotate change list \"%1\"");
+    return QStringList(QString::number(changeList - 1));
+}
+
 } // namespace Internal
 } // namespace Perforce

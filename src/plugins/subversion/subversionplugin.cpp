@@ -712,13 +712,25 @@ void SubversionPlugin::annotateCurrentFile()
     annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void SubversionPlugin::annotate(const QString &workingDir, const QString &file)
+void SubversionPlugin::annotateVersion(const QString &file,
+                                       const QString &revision,
+                                       int lineNr)
+{
+    const QFileInfo fi(file);
+    annotate(fi.absolutePath(), fi.fileName(), revision, lineNr);
+}
+
+void SubversionPlugin::annotate(const QString &workingDir, const QString &file,
+                                const QString &revision /* = QString() */,
+                                int lineNumber /* = -1 */)
 {
     QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(file);
 
     QStringList args(QLatin1String("annotate"));
     if (m_settings.spaceIgnorantAnnotation)
         args << QLatin1String("-x") << QLatin1String("-uw");
+    if (!revision.isEmpty())
+        args << QLatin1String("-r") << revision;
     args.push_back(QLatin1String("-v"));
     args.append(QDir::toNativeSeparators(file));
 
@@ -729,8 +741,10 @@ void SubversionPlugin::annotate(const QString &workingDir, const QString &file)
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     const QString source = workingDir + QLatin1Char('/') + file;
-    const int lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(source);
-    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir, QStringList(file));
+    if (lineNumber <= 0)
+        lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(source);
+    // Determine id
+    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir, QStringList(file), revision);
 
     if (Core::IEditor *editor = locateEditor("annotateFileName", id)) {
         editor->createNew(response.stdOut);
@@ -739,6 +753,8 @@ void SubversionPlugin::annotate(const QString &workingDir, const QString &file)
     } else {
         const QString title = QString::fromLatin1("svn annotate %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, source, codec);
+        connect(newEditor, SIGNAL(annotatePreviousRequested(QString,QString,int)),
+                this, SLOT(annotateVersion(QString,QString,int)));
         newEditor->setProperty("annotateFileName", id);
         VCSBase::VCSBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }

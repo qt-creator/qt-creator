@@ -104,12 +104,14 @@ private slots:
     void startCommitCurrentFile();
     void filelogCurrentFile();
     void annotateCurrentFile();
+    void annotateVersion(const QString &file, const QString &revision, int lineNumber);
     void projectStatus();
     void describe(const QString &source, const QString &changeNr);
     void slotDescribe();
     void updateProject();
     void submitCurrentLog();
     void diffCommitFiles(const QStringList &);
+
 
 protected:
     virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
@@ -123,7 +125,8 @@ private:
     SubversionResponse runSvn(const QString &workingDir,
                               const QStringList &arguments, int timeOut,
                               bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0);
-    void annotate(const QString &workingDir, const QString &file);
+    void annotate(const QString &workingDir, const QString &file,
+                  const QString &revision = QString(), int lineNumber = -1);
     void filelog(const QString &workingDir, const QStringList &file = QStringList());
     bool managesDirectory(const QDir &directory) const;
     QString findTopLevelForDirectoryI(const QString &directory) const;

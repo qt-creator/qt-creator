@@ -120,6 +120,7 @@ private slots:
     void describeChange();
     void annotateCurrentFile();
     void annotate();
+    void annotateVersion(const QString &file, const QString &revision, int lineNumber);
     void filelogCurrentFile();
     void filelog();
 
@@ -138,7 +139,7 @@ private:
     typedef QHash<QString, bool> ManagedDirectoryCache;
 
     Core::IEditor *showOutputInEditor(const QString& title, const QString output,
-                                      int editorType,
+                                      int editorType, const QString &source,
                                       QTextCodec *codec = 0);
 
     // Flags for runP4Cmd.
@@ -174,7 +175,8 @@ private:
                                                     QTextCodec *outputCodec) const;
 
     QString clientFilePath(const QString &serverFilePath);
-    void annotate(const QString &workingDir, const QString &fileName);
+    void annotate(const QString &workingDir, const QString &fileName,
+                  const QString &changeList = QString(), int lineNumber = -1);
     void filelog(const QString &workingDir, const QStringList &fileNames);
     void cleanCommitMessageFile();
     bool isCommitEditorOpen() const;

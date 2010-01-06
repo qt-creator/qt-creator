@@ -107,6 +107,7 @@ private slots:
     void startCommitCurrentFile();
     void filelogCurrentFile();
     void annotateCurrentFile();
+    void annotateVersion(const QString &file, const QString &revision, int lineNumber);
     void projectStatus();
     void slotDescribe(const QString &source, const QString &changeNr);
     void updateProject();
@@ -129,7 +130,8 @@ private:
                        bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0,
                        bool mergeStderr = false);
 
-    void annotate(const QString &workingDir, const QString &file);
+    void annotate(const QString &workingDir, const QString &file,
+                  const QString &revision = QString(), int lineNumber= -1);
     bool describe(const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &toplevel, const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &repository, QList<CVS_LogEntry> entries, QString *errorMessage);

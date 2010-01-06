@@ -690,21 +690,33 @@ void CVSPlugin::annotateCurrentFile()
     annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void CVSPlugin::annotate(const QString &workingDir, const QString &file)
+void CVSPlugin::annotateVersion(const QString &file, const QString &revision, int lineNumber)
+{
+    const QFileInfo fi(file);
+    annotate(fi.absolutePath(), fi.fileName(), revision, lineNumber);
+}
+
+void CVSPlugin::annotate(const QString &workingDir, const QString &file,
+                         const QString &revision /* = QString() */,
+                         int lineNumber /* = -1 */)
 {
     const QStringList files(file);
     QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(workingDir, files);
-    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir, files);
+    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir, files, revision);
     const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, file);
     QStringList args;
-    args << QLatin1String("annotate") << file;
+    args << QLatin1String("annotate");
+    if (!revision.isEmpty())
+        args << QLatin1String("-r") << revision;
+    args << file;
     const CVSResponse response = runCVS(workingDir, args, m_settings.timeOutMS(), false, codec);
     if (response.result != CVSResponse::Ok)
         return;
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const int lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(file);
+    if (lineNumber < 1)
+        lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(file);
 
     if (Core::IEditor *editor = locateEditor("annotateFileName", id)) {
         editor->createNew(response.stdOut);
@@ -714,6 +726,8 @@ void CVSPlugin::annotate(const QString &workingDir, const QString &file)
         const QString title = QString::fromLatin1("cvs annotate %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, source, codec);
         newEditor->setProperty("annotateFileName", id);
+        connect(newEditor, SIGNAL(annotatePreviousRequested(QString,QString,int)),
+                this, SLOT(annotateVersion(QString,QString,int)));
         VCSBase::VCSBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
 }
@@ -727,22 +741,6 @@ void CVSPlugin::projectStatus()
     const CVSResponse response = runCVS(state.currentProjectTopLevel(), args, m_settings.timeOutMS(), false);
     if (response.result == CVSResponse::Ok)
         showOutputInEditor(tr("Project status"), response.stdOut, VCSBase::RegularCommandOutput, state.currentProjectTopLevel(), 0);
-}
-
-// Decrement version number "1.2" -> "1.1"
-static QString previousRevision(const QString &rev)
-{
-    const int dotPos = rev.lastIndexOf(QLatin1Char('.'));
-    if (dotPos == -1)
-        return rev;
-    const int minor = rev.mid(dotPos + 1).toInt();
-    return rev.left(dotPos + 1) + QString::number(minor - 1);
-}
-
-// Is "[1.2...].1"?
-static inline bool isFirstRevision(const QString &r)
-{
-    return r.endsWith(QLatin1String(".1"));
 }
 
 void CVSPlugin::slotDescribe(const QString &source, const QString &changeNr)

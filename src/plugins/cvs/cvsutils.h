@@ -80,6 +80,11 @@ QString fixDiffOutput(QString d);
 typedef QList<CVSSubmitEditor::StateFilePair> StateList;
 StateList parseStatusOutput(const QString &directory, const QString &output);
 
+// Revision number utilities: Decrement version number "1.2" -> "1.1"
+QString previousRevision(const QString &rev);
+// Revision number utilities: Is it "[1.2...].1"?
+bool isFirstRevision(const QString &r);
+
 } // namespace Internal
 } // namespace CVS
 

@@ -67,8 +67,11 @@ namespace VCSBase {
 
 // VCSBaseEditorEditable: An editable with no support for duplicates
 // Creates a browse combo in the toolbar for diff output.
+// It also mirrors the signals of the VCSBaseEditor since the editor
+// manager passes the Editable around.
 class VCSBaseEditorEditable : public TextEditor::BaseTextEditorEditable
 {
+    Q_OBJECT
 public:
     VCSBaseEditorEditable(VCSBaseEditor *,
                           const VCSBaseEditorParameters *type);
@@ -79,6 +82,10 @@ public:
     const char *kind() const { return m_kind; }
 
     bool isTemporary() const { return true; }
+
+signals:
+    void describeRequested(const QString &source, const QString &change);
+    void annotatePreviousRequested(const QString &source, const QString &change, int line);
 
 private:
     const char *m_kind;
@@ -247,13 +254,22 @@ bool VCSBaseEditor::isModified() const
 
 TextEditor::BaseTextEditorEditable *VCSBaseEditor::createEditableInterface()
 {
-    if (d->m_parameters->type != DiffOutput)
-        return new VCSBaseEditorEditable(this, d->m_parameters);
-    // Diff: set up diff file browsing
-    VCSBaseDiffEditorEditable *de = new VCSBaseDiffEditorEditable(this, d->m_parameters);
-    QComboBox *diffBrowseComboBox = de->diffFileBrowseComboBox();
-    connect(diffBrowseComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotDiffBrowse(int)));
-    return de;
+    TextEditor::BaseTextEditorEditable *editable = 0;
+    if (d->m_parameters->type == DiffOutput) {
+        // Diff: set up diff file browsing
+        VCSBaseDiffEditorEditable *de = new VCSBaseDiffEditorEditable(this, d->m_parameters);
+        QComboBox *diffBrowseComboBox = de->diffFileBrowseComboBox();
+        connect(diffBrowseComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotDiffBrowse(int)));
+        editable = de;
+    } else {
+        editable = new VCSBaseEditorEditable(this, d->m_parameters);
+    }
+    // Pass on signals.
+    connect(this, SIGNAL(describeRequested(QString,QString)),
+            editable, SIGNAL(describeRequested(QString,QString)));
+    connect(this, SIGNAL(annotatePreviousRequested(QString,QString,int)),
+            editable, SIGNAL(annotatePreviousRequested(QString,QString,int)));
+    return editable;
 }
 
 void VCSBaseEditor::slotPopulateDiffBrowser()
@@ -339,6 +355,21 @@ void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
             d->m_describeAction->setText(tr("Describe change %1").arg(d->m_currentChange));
             menu->addSeparator();
             menu->addAction(d->m_describeAction);
+            // Offer to annotate previous changes
+            if (contentType() == AnnotateOutput) {
+                QString actionTextFormat;
+                const QStringList previousVersions = annotationPreviousVersions(d->m_currentChange, &actionTextFormat);
+                if (!previousVersions.isEmpty()) {
+                    if (actionTextFormat.isEmpty())
+                        actionTextFormat = tr("Annotate \"%1\"");
+                    menu->addSeparator();
+                    foreach(const QString &pv, previousVersions) {
+                        QAction *a = menu->addAction(actionTextFormat.arg(pv));
+                        a->setData(pv);
+                        connect(a, SIGNAL(triggered()), this, SLOT(slotAnnotatePrevious()));
+                    }
+                }
+            }
         }
     }
     menu->exec(e->globalPos());
@@ -673,17 +704,27 @@ QString VCSBaseEditor::getSource(const QString &workingDirectory,
             workingDirectory;
 }
 
-QString VCSBaseEditor::getTitleId(const QString &workingDirectory, const QStringList &fileNames)
+QString VCSBaseEditor::getTitleId(const QString &workingDirectory,
+                                  const QStringList &fileNames,
+                                  const QString &revision)
 {
+    QString rc;
     switch (fileNames.size()) {
     case 0:
-        return workingDirectory;
+        rc = workingDirectory;
+        break;
     case 1:
-        return fileNames.front();
+        rc = fileNames.front();
+        break;
     default:
+        rc = fileNames.join(QLatin1String(", "));
         break;
     }
-    return fileNames.join(QLatin1String(", "));
+    if (!revision.isEmpty()) {
+        rc += QLatin1Char(':');
+        rc += revision;
+    }
+    return rc;
 }
 
 // Find the complete file from a diff relative specification.
@@ -722,4 +763,18 @@ QString VCSBaseEditor::findDiffFile(const QString &f, Core::IVersionControl *con
     return QString();
 }
 
+void VCSBaseEditor::slotAnnotatePrevious()
+{
+    if (const QAction *a = qobject_cast<const QAction *>(sender()))
+        emit annotatePreviousRequested(source(), a->data().toString(),
+                                       editableInterface()->currentLine());
+}
+
+QStringList VCSBaseEditor::annotationPreviousVersions(const QString &, QString *) const
+{
+    return QStringList();
+}
+
 } // namespace VCSBase
+
+#include "vcsbaseeditor.moc"

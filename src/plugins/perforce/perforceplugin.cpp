@@ -683,22 +683,40 @@ void PerforcePlugin::annotate()
     }
 }
 
-void PerforcePlugin::annotate(const QString &workingDir, const QString &fileName)
+void PerforcePlugin::annotateVersion(const QString &file, const QString &revision, int lineNumber)
+{
+    const QFileInfo fi(file);
+    annotate(fi.absolutePath(), fi.fileName(), revision, lineNumber);
+}
+
+void PerforcePlugin::annotate(const QString &workingDir,
+                              const QString &fileName,
+                              const QString &changeList /* = QString() */,
+                              int lineNumber /* = -1 */)
 {
     const QStringList files = QStringList(fileName);
     QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(workingDir, files);
-    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir, files);
+    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir, files, changeList);
     const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, files);
     QStringList args;
-    args << QLatin1String("annotate") << QLatin1String("-cqi") << fileName;
+    args << QLatin1String("annotate") << QLatin1String("-cqi");
+    if (changeList.isEmpty()) {
+        args << fileName;
+    } else {
+        args << (fileName + QLatin1Char('@') + changeList);
+    }
     const PerforceResponse result = runP4Cmd(workingDir, args,
                                              CommandToWindow|StdErrToWindow|ErrorToWindow,
                                              QStringList(), QByteArray(), codec);
     if (!result.error) {
-        const int lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor();
+        if (lineNumber < 1)
+            lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor();
         const QFileInfo fi(fileName);
         Core::IEditor *ed = showOutputInEditor(tr("p4 annotate %1").arg(id),
-                                               result.stdOut, VCSBase::AnnotateOutput, codec);
+                                               result.stdOut, VCSBase::AnnotateOutput,
+                                               source, codec);
+        connect(ed, SIGNAL(annotatePreviousRequested(QString,QString,int)),
+                this, SLOT(annotateVersion(QString,QString,int)));
         VCSBase::VCSBaseEditor::gotoLineOfEditor(ed, lineNumber);
     }
 }
@@ -730,7 +748,10 @@ void PerforcePlugin::filelog(const QString &workingDir, const QStringList &fileN
                                              CommandToWindow|StdErrToWindow|ErrorToWindow,
                                              QStringList(), QByteArray(), codec);
     if (!result.error)
-        showOutputInEditor(tr("p4 filelog %1").arg(id), result.stdOut, VCSBase::LogOutput, codec);
+        showOutputInEditor(tr("p4 filelog %1").arg(id), result.stdOut,
+                           VCSBase::LogOutput,
+                           VCSBase::VCSBaseEditor::getSource(workingDir, fileNames),
+                           codec);
 }
 
 void PerforcePlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
@@ -1078,7 +1099,9 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
 }
 
 Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const QString output,
-                                                   int editorType, QTextCodec *codec)
+                                                   int editorType,
+                                                   const QString &source,
+                                                   QTextCodec *codec)
 {
     const VCSBase::VCSBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
@@ -1090,6 +1113,7 @@ Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const Q
     PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());
     if (!e)
         return 0;
+    e->setSource(source);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
     e->setSuggestedFileName(s);
     if (codec)
@@ -1138,7 +1162,9 @@ void PerforcePlugin::p4Diff(const QString &workingDir, const QStringList &files)
         existingEditor->createNew(result.stdOut);
         Core::EditorManager::instance()->activateEditor(existingEditor);
     } else {
-        Core::IEditor *editor = showOutputInEditor(tr("p4 diff %1").arg(id), result.stdOut, VCSBase::DiffOutput, codec);
+        Core::IEditor *editor = showOutputInEditor(tr("p4 diff %1").arg(id), result.stdOut, VCSBase::DiffOutput,
+                                                   VCSBase::VCSBaseEditor::getSource(workingDir, files),
+                                                   codec);
         editor->file()->setProperty("originalFileName", id);
     }
 }
@@ -1151,7 +1177,7 @@ void PerforcePlugin::describe(const QString & source, const QString &n)
     const PerforceResponse result = runP4Cmd(m_settings.topLevel(), args, CommandToWindow|StdErrToWindow|ErrorToWindow,
                                              QStringList(), QByteArray(), codec);
     if (!result.error)
-        showOutputInEditor(tr("p4 describe %1").arg(n), result.stdOut, VCSBase::DiffOutput, codec);
+        showOutputInEditor(tr("p4 describe %1").arg(n), result.stdOut, VCSBase::DiffOutput, source, codec);
 }
 
 void PerforcePlugin::submitCurrentLog()
