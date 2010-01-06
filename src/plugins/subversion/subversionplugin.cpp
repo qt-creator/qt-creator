@@ -960,9 +960,8 @@ SubversionPlugin *SubversionPlugin::subversionPluginInstance()
 bool SubversionPlugin::vcsAdd(const QString &workingDir, const QString &rawFileName)
 {
     const QString file = QDir::toNativeSeparators(rawFileName);
-    QStringList args(QLatin1String("add"));
-    args.push_back(file);
-
+    QStringList args;
+    args << QLatin1String("add") << QLatin1String("--parents") << file;
     const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), true);
     return !response.error;
 }
