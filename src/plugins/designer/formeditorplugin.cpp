@@ -91,6 +91,18 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 
     addAutoReleasedObject(new FormEditorFactory);
 
+    // Ensure that loading designer translations is done before FormEditorW is instantiated
+    const QString locale = qApp->property("qtc_locale").toString();
+    if (!locale.isEmpty()) {
+        QTranslator *qtr = new QTranslator(this);
+        const QString &creatorTrPath =
+                Core::ICore::instance()->resourcePath() + QLatin1String("/translations");
+        const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+        const QString &trFile = QLatin1String("designer_") + locale;
+        if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
+            qApp->installTranslator(qtr);
+    }
+
     if (qgetenv("KDE_SESSION_VERSION") == QByteArray("4")) {
         // KDE 4, possibly dangerous...
         // KDE 4.2.0 had a nasty bug, which resulted in the File/Open Dialog crashing
@@ -103,17 +115,6 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
             FormEditorW::ensureInitStage(FormEditorW::FullyInitialized);
     } else {
         FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
-    }
-
-    const QString locale = qApp->property("qtc_locale").toString();
-    if (!locale.isEmpty()) {
-        QTranslator *qtr = new QTranslator(this);
-        const QString &creatorTrPath =
-                Core::ICore::instance()->resourcePath() + QLatin1String("/translations");
-        const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
-        const QString &trFile = QLatin1String("designer_") + locale;
-        if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
-            qApp->installTranslator(qtr);
     }
 
     error->clear();

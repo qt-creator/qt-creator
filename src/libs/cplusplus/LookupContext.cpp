@@ -361,8 +361,10 @@ QList<Scope *> LookupContext::visibleScopes(const LookupItem &result) const
 QList<Scope *> LookupContext::visibleScopes(Symbol *symbol) const
 {
     QList<Scope *> scopes;
-    for (Scope *scope = symbol->scope(); scope; scope = scope->enclosingScope())
-        scopes.append(scope);
+    if (symbol) {
+        for (Scope *scope = symbol->scope(); scope; scope = scope->enclosingScope())
+            scopes.append(scope);
+    }
     scopes += visibleScopes();
     scopes = expand(scopes);
     return scopes;
