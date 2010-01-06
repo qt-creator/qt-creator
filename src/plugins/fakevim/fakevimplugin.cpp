@@ -268,6 +268,7 @@ private slots:
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void writeFile(bool *handled, const QString &fileName, const QString &contents);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
+    void checkForElectricCharacter(bool *result, QChar c);
     void indentRegion(int *amount, int beginLine, int endLine,  QChar typedChar);
     void handleExCommand(const QString &cmd);
 
@@ -446,6 +447,8 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)));
     connect(handler, SIGNAL(indentRegion(int*,int,int,QChar)),
         this, SLOT(indentRegion(int*,int,int,QChar)));
+    connect(handler, SIGNAL(checkForElectricCharacter(bool*,QChar)),
+        this, SLOT(checkForElectricCharacter(bool*,QChar)));
     connect(handler, SIGNAL(completionRequested()),
         this, SLOT(triggerCompletions()));
     connect(handler, SIGNAL(windowCommandRequested(int)),
@@ -500,6 +503,15 @@ void FakeVimPluginPrivate::triggerCompletions()
         TextEditor::Internal::CompletionSupport::instance()->
             autoComplete(bt->editableInterface(), false);
    //     bt->triggerCompletions();
+}
+
+void FakeVimPluginPrivate::checkForElectricCharacter(bool *result, QChar c)
+{
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (!handler)
+        return;
+    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget()))
+        *result = bt->isElectricCharacter(c);
 }
 
 void FakeVimPluginPrivate::writeFile(bool *handled,

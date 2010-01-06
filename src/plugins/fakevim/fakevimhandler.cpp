@@ -322,8 +322,7 @@ public:
         { setPosition(p.position); scrollToLineInDocument(p.scrollLine); }
 
     // helper functions for indenting
-    bool isElectricCharacter(QChar c) const
-        { return c == '{' || c == '}' || c == '#'; }
+    bool isElectricCharacter(QChar c) const;
     void indentRegion(QChar lastTyped = QChar());
     void shiftRegionLeft(int repeat = 1);
     void shiftRegionRight(int repeat = 1);
@@ -2427,6 +2426,13 @@ void FakeVimHandler::Private::indentRegion(QChar typedChar)
     moveToFirstNonBlankOnLine();
     setTargetColumn();
     setDotCommand("%1==", endLine - beginLine + 1);
+}
+
+bool FakeVimHandler::Private::isElectricCharacter(QChar c) const
+{
+    bool result = false;
+    emit q->checkForElectricCharacter(&result, c);
+    return result;
 }
 
 void FakeVimHandler::Private::shiftRegionRight(int repeat)
