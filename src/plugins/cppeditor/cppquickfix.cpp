@@ -70,12 +70,15 @@ public:
         return _nodes;
     }
 
+#if 0
+    // Useful for debugging:
     static void dump(const QList<AST *> nodes)
     {
         qDebug() << "ASTPath dump," << nodes.size() << "nodes:";
         for (int i = 0; i < nodes.size(); ++i)
             qDebug() << qPrintable(QString(i + 1, QLatin1Char('-'))) << typeid(*nodes.at(i)).name();
     }
+#endif
 
 protected:
     virtual bool preVisit(AST *ast)
