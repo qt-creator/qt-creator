@@ -37,7 +37,9 @@
 
 typedef unsigned char byte;
 
+QT_BEGIN_NAMESPACE
 class QDateTime;
+QT_END_NAMESPACE
 
 namespace trk {
 
