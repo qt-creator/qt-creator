@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>429</width>
-    <height>452</height>
+    <width>397</width>
+    <height>322</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -36,6 +36,9 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="1">
+       <widget class="Utils::PathChooser" name="gdbLocationChooser" native="true"/>
+      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="labelEnvironment">
         <property name="text">
@@ -59,19 +62,52 @@
       <item row="2" column="1">
        <widget class="Utils::PathChooser" name="scriptFileChooser" native="true"/>
       </item>
-      <item row="0" column="1">
-       <widget class="Utils::PathChooser" name="gdbLocationChooser" native="true"/>
-      </item>
       <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUsePreciseBreakpoints">
-        <property name="text">
-         <string>Use full path information to set breakpoints</string>
-        </property>
         <property name="toolTip">
          <string>When this option is checked, the debugger plugin attempts
 to extract full path information for all source files from gdb. This is a
 slow process but enables setting breakpoints in files with the same file
 name in different directories.</string>
+        </property>
+        <property name="text">
+         <string>Use full path information to set breakpoints</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="labelGdbWatchdogTimeout">
+        <property name="text">
+         <string>Gdb timeout:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QSpinBox" name="spinBoxGdbWatchdogTimeout">
+        <property name="toolTip">
+         <string>This is the number of second Qt Creator will wait before
+it terminates non-reacting gdb process. The default value of 20 seconds
+should be sufficient for most applications, but there are situations when
+loading big libraries or listing source files takes much longer than that
+on slow machines. In this case the value should be increased.</string>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="specialValueText">
+         <string>&lt;unlimited&gt;</string>
+        </property>
+        <property name="minimum">
+         <number>20</number>
+        </property>
+        <property name="maximum">
+         <number>1000000</number>
+        </property>
+        <property name="singleStep">
+         <number>20</number>
+        </property>
+        <property name="value">
+         <number>20</number>
         </property>
        </widget>
       </item>

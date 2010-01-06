@@ -234,7 +234,6 @@ private: ////////// Gdb Command Management //////////
 
     QHash<int, GdbCommand> m_cookieForToken;
     QTimer *m_commandTimer;
-    enum { COMMAND_TIMEOUT = 20000 };
 
     QByteArray m_pendingConsoleStreamOutput;
     QByteArray m_pendingLogStreamOutput;

@@ -100,6 +100,7 @@ enum DebuggerActionCode
     GdbEnvironment,
     GdbScriptFile,
     ExecuteCommand,
+    GdbWatchdogTimeout,
 
     // Stack
     MaximalStackDepth,

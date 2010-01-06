@@ -52,6 +52,9 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
         m_ui.environmentEdit);
     m_group.insert(theDebuggerAction(UsePreciseBreakpoints), 
         m_ui.checkBoxUsePreciseBreakpoints);
+    m_group.insert(theDebuggerAction(GdbWatchdogTimeout), 
+        m_ui.spinBoxGdbWatchdogTimeout);
+
 
 #if 1
     m_ui.groupBoxPluginDebugging->hide();
