@@ -204,7 +204,7 @@ void Parser::skipUntilDeclaration()
                 lookAtFunctionSpecifier() || lookAtStorageClassSpecifier())
                 return;
         } // switch
-    }
+    }    
 }
 
 bool Parser::skipUntilStatement()
@@ -439,6 +439,7 @@ bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
             (*decl)->value = declaration;
             decl = &(*decl)->next;
         } else {
+            _translationUnit->error(start_declaration, "expected a declaration");
             rewind(start_declaration + 1);
             skipUntilDeclaration();
         }
@@ -568,6 +569,7 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
                 (*declaration_ptr)->value = declaration;
                 declaration_ptr = &(*declaration_ptr)->next;
             } else {
+                _translationUnit->error(start_declaration, "expected a declaration");
                 rewind(start_declaration + 1);
                 skipUntilDeclaration();
             }
@@ -1601,6 +1603,7 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
                 (*declaration_ptr)->value = declaration;
                 declaration_ptr = &(*declaration_ptr)->next;
             } else {
+                _translationUnit->error(start_declaration, "expected a declaration");
                 rewind(start_declaration + 1);
                 skipUntilDeclaration();
             }
@@ -2857,21 +2860,24 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
     DeclaratorListAST *declarator_list = 0,
         **declarator_ptr = &declarator_list;
 
-    const bool maybeCtor = (LA() == T_LPAREN && named_type_specifier);
     DeclaratorAST *declarator = 0;
-    if (! parseInitDeclarator(declarator, acceptStructDeclarator) && maybeCtor) {
-        rewind(startOfNamedTypeSpecifier);
-        named_type_specifier = 0;
-        // pop the named type specifier from the decl-specifier-seq
-        SpecifierListAST **spec_ptr = &decl_specifier_seq;
-        for (; *spec_ptr; spec_ptr = &(*spec_ptr)->next) {
-            if (! (*spec_ptr)->next) {
-                *spec_ptr = 0;
-                break;
+
+    if (LA() != T_SEMICOLON) {
+        const bool maybeCtor = (LA() == T_LPAREN && named_type_specifier);
+        if (! parseInitDeclarator(declarator, acceptStructDeclarator) && maybeCtor) {
+            rewind(startOfNamedTypeSpecifier);
+            named_type_specifier = 0;
+            // pop the named type specifier from the decl-specifier-seq
+            SpecifierListAST **spec_ptr = &decl_specifier_seq;
+            for (; *spec_ptr; spec_ptr = &(*spec_ptr)->next) {
+                if (! (*spec_ptr)->next) {
+                    *spec_ptr = 0;
+                    break;
+                }
             }
+            if (! parseInitDeclarator(declarator, acceptStructDeclarator))
+                return false;
         }
-        if (! parseInitDeclarator(declarator, acceptStructDeclarator))
-            return false;
     }
 
     // if there is no valid declarator
@@ -2955,11 +2961,23 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
 bool Parser::maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq) const
 {
     // look at the decl_specifier for possible fwd or class declarations.
-    if (SpecifierListAST *spec = decl_specifier_seq) {
-        if (! spec->next && (spec->value->asElaboratedTypeSpecifier() ||
-                             spec->value->asEnumSpecifier() ||
-                             spec->value->asClassSpecifier()))
-            return true;
+    if (SpecifierListAST *it = decl_specifier_seq) {
+        while (it) {
+            SimpleSpecifierAST *spec = it->value->asSimpleSpecifier();
+            if (spec && _translationUnit->tokenKind(spec->specifier_token) == T_FRIEND)
+                it = it->next;
+            else
+                break;
+        }
+
+        if (it) {
+            SpecifierAST *spec = it->value;
+
+            if (! it->next && (spec->asElaboratedTypeSpecifier() ||
+                               spec->asEnumSpecifier() ||
+                               spec->asClassSpecifier()))
+                return true;
+        }
     }
 
     return false;
