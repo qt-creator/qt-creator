@@ -4256,7 +4256,7 @@ void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent,
         // Disassemble full function:
         QByteArray cmd = "-data-disassemble"
             " -f " + frame.file.toLocal8Bit() +
-            " -l " + QByteArray::number(frame.line) + "-n -1 -- 1";
+            " -l " + QByteArray::number(frame.line) + " -n -1 -- 1";
         postCommand(cmd, Discardable, CB(handleFetchDisassemblerByLine),
             QVariant::fromValue(DisassemblerAgentCookie(agent)));
     }
