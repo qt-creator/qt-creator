@@ -427,30 +427,31 @@ void GitPlugin::diffCurrentProject()
 
 QFileInfo GitPlugin::currentFile() const
 {
-    QString fileName = m_core->fileManager()->currentFile();
-    QFileInfo fileInfo(fileName);
-    return fileInfo;
+    return QFileInfo(m_core->fileManager()->currentFile());
 }
 
 QString GitPlugin::getWorkingDirectory()
 {
     QString workingDirectory;
-    if (const ProjectExplorer::ProjectExplorerPlugin *p = ProjectExplorer::ProjectExplorerPlugin::instance())
-        if (p && p->currentNode())
-            workingDirectory = QFileInfo(p->currentNode()->path()).absolutePath();
+    if (const ProjectExplorer::ProjectExplorerPlugin *p = ProjectExplorer::ProjectExplorerPlugin::instance()) {
+        if (p && p->currentNode()) {
+            const QString currentPath = p->currentNode()->path();
+            if (!currentPath.isEmpty())
+                workingDirectory = QFileInfo(currentPath).absolutePath();
+        }
+    }
 
     if (Git::Constants::debug > 1)
         qDebug() << Q_FUNC_INFO << "Project" << workingDirectory;
 
-    if (workingDirectory.isEmpty())
-        workingDirectory = QFileInfo(m_core->fileManager()->currentFile()).absolutePath();
+    if (workingDirectory.isEmpty()) {
+        const QString currentFileName = m_core->fileManager()->currentFile();
+        if (!currentFileName.isEmpty())
+            workingDirectory = QFileInfo(currentFileName).absolutePath();
+    }
     if (Git::Constants::debug > 1)
         qDebug() << Q_FUNC_INFO << "file" << workingDirectory;
 
-    if (workingDirectory.isEmpty()) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Could not find working directory"));
-        return QString();
-    }
     return workingDirectory;
 }
 
@@ -469,7 +470,7 @@ void GitPlugin::statusFile()
 
 void GitPlugin::logFile()
 {
-    const QFileInfo fileInfo = currentFile();    
+    const QFileInfo fileInfo = currentFile();
     const QString fileName = fileInfo.fileName();
     const QString workingDirectory = fileInfo.absolutePath();
     m_gitClient->log(workingDirectory, fileName);
@@ -631,7 +632,7 @@ bool GitPlugin::editorAboutToClose(Core::IEditor *iEditor)
                                  tr("Do you want to commit the change?"),
                                  tr("The commit message check failed. Do you want to commit the change?"),
                                  &settings.promptToSubmit, !m_submitActionTriggered);
-    m_submitActionTriggered = false;    
+    m_submitActionTriggered = false;
     switch (answer) {
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
