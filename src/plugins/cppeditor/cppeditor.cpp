@@ -1969,7 +1969,7 @@ void CPPEditor::keyPressEvent(QKeyEvent *e)
     }
     TextEditor::BaseTextEditor::keyPressEvent(e);
     if (wantEditBlock)
-    cursor.endEditBlock();
+        cursor.endEditBlock();
     finishRename();
 }
 
