@@ -110,11 +110,10 @@ void PlainTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar ty
         return;
 
     // Just use previous line.
-    // Skip non-alphanumerical characters when determining the indentation
-    // to enable writing bulleted lists whose items span several lines.
+    // Skip blank characters when determining the indentation
     int i = 0;
     while (i < previousText.size()) {
-        if (previousText.at(i).isLetterOrNumber()) {
+        if (!previousText.at(i).isSpace()) {
             const TextEditor::TabSettings &ts = tabSettings();
             ts.indentLine(block, ts.columnAt(previousText, i));
             break;
