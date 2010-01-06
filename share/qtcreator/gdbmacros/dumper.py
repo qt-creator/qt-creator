@@ -724,6 +724,7 @@ class Dumper:
         # FIXME: Gui shows references stripped?
         #warn("REAL INAME: %s " % item.iname)
         #warn("REAL TYPE: %s " % item.value.type)
+        #warn("REAL VALUE: %s " % item.value)
         #try:
         #    warn("REAL VALUE: %s " % item.value)
         #except UnicodeEncodeError:
@@ -746,7 +747,7 @@ class Dumper:
         #warn(" DUMPERS: %s" % self.dumpers)
         #warn(" DUMPERS: %s" % (strippedType in self.dumpers))
 
-        if isSimpleType(type):
+        if isSimpleType(type.unqualified()):
             #warn("IS SIMPLE: %s " % type)
             self.putType(item.value.type)
             self.putValue(value)
