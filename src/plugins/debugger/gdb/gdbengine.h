@@ -47,11 +47,12 @@
 #include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
-class QAction;
 class QAbstractItemModel;
+class QAction;
+class QMainWindow;
+class QMessageBox;
 class QTimer;
 class QWidget;
-class QMainWindow;
 QT_END_NAMESPACE
 
 namespace Debugger {
@@ -176,10 +177,11 @@ private: ////////// Gdb Command Management //////////
         Discardable = 2,  // No need to wait for the reply before continuing inferior
         RebuildModel = 4, // Trigger model rebuild when no such commands are pending any more
         WatchUpdate = Discardable | RebuildModel,
-        EmbedToken = 8,   // Expand %1 in the command to the command token
+        NonCriticalResponse = 8,  // We can live without recieving an answer
         RunRequest = 16,  // Callback expects GdbResultRunning instead of GdbResultDone
         ExitRequest = 32, // Callback expects GdbResultExit instead of GdbResultDone
-        LosesChild = 64   // Auto-set inferior shutdown related states
+        LosesChild = 64,   // Auto-set inferior shutdown related states
+        EmbedToken = 128   // Expand %1 in the command to the command token
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
     private:
@@ -233,6 +235,7 @@ private: ////////// Gdb Command Management //////////
     void setTokenBarrier();
 
     QHash<int, GdbCommand> m_cookieForToken;
+    int commandTimeoutTime() const;
     QTimer *m_commandTimer;
 
     QByteArray m_pendingConsoleStreamOutput;
@@ -476,7 +479,8 @@ private: ////////// Dumper Management //////////
 private: ////////// Convenience Functions //////////
 
     QString errorMessage(QProcess::ProcessError error);
-    void showMessageBox(int icon, const QString &title, const QString &text);
+    QMessageBox *showMessageBox(int icon, const QString &title, const QString &text,
+        int buttons = 0);
     void debugMessage(const QString &msg);
     QMainWindow *mainWindow() const;
 };
