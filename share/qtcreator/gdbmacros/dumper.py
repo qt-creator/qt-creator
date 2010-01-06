@@ -31,6 +31,15 @@ def isGoodGdb():
     #   and gdb.VERSION != "6.8.50.20090630-cvs"
     return 'parse_and_eval' in dir(gdb)
 
+def cleanAddress(addr):
+    # 'unsigned char tmp = 1' yields for gdb.parse_and_eval(\"tmp\").address
+    # ~"0xbffff0e7 \"\\001\\b\\361\\377\\277\\\\\\206\\004\\b\"\n"
+    # we need to remove the trailing rubbish
+    pos = addr.find(' ')
+    if pos == -1
+        return addr
+    return addr[0:pos]
+
 def parseAndEvaluate(exp):
     if isGoodGdb():
         return gdb.parse_and_eval(exp)
@@ -58,7 +67,7 @@ def listOfLocals():
                 break
             for symbol in block:
                 name = symbol.print_name
-                
+
                 if name == "__in_chrg":
                     continue
 
@@ -330,7 +339,7 @@ class FrameCommand(gdb.Command):
             output += "]"
             print output
             return
-  
+
 
         if useFancy:
             for key, value in module.__dict__.items():
@@ -385,7 +394,7 @@ class FrameCommand(gdb.Command):
                 # A "normal" local variable or parameter
                 d.beginHash()
                 d.put('iname="%s",' % item.iname)
-                d.put('addr="%s",' % item.value.address)
+                d.put('addr="%s",' % cleanAddress(item.value.address))
                 d.safePutItemHelper(item)
                 d.endHash()
 
@@ -601,7 +610,7 @@ class Dumper:
         str = encodeByteArray(value)
         self.putCommaIfNeeded()
         self.put('valueencoded="%d",value="%s"' % (6, str))
-    
+
     def putName(self, name):
         self.putCommaIfNeeded()
         self.put('name="%s"' % name)
@@ -723,6 +732,7 @@ class Dumper:
 
         # FIXME: Gui shows references stripped?
         #warn("REAL INAME: %s " % item.iname)
+        #warn("REAL NAME: %s " % name)
         #warn("REAL TYPE: %s " % item.value.type)
         #warn("REAL VALUE: %s " % item.value)
         #try:
@@ -742,7 +752,7 @@ class Dumper:
 
         strippedType = self.stripNamespaceFromType(
             type.strip_typedefs().unqualified()).replace("::", "__")
-        
+
         #warn(" STRIPPED: %s" % strippedType)
         #warn(" DUMPERS: %s" % self.dumpers)
         #warn(" DUMPERS: %s" % (strippedType in self.dumpers))
@@ -764,7 +774,7 @@ class Dumper:
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
-            
+
 
         elif type.code == gdb.TYPE_CODE_PTR:
             isHandled = False
