@@ -88,6 +88,8 @@ static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrP
 void GeneralSettings::fillLanguageBox() const
 {
     m_page->languageBox->addItem(tr("<System Language>"), QString());
+    // need to add this explicitly, since there is no qm file for English
+    m_page->languageBox->addItem(QLatin1String("English"), QLatin1String("C"));
 
     const QString creatorTrPath =
             Core::ICore::instance()->resourcePath() + QLatin1String("/translations");
