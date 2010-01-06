@@ -3938,7 +3938,7 @@ void GdbEngine::handleVarListChildrenHelper(const GdbMi &item,
         if (data.type == data.name) {
             if (isPointerType(parent.type)) {
                 data.exp = "*(" + parent.exp + ')';
-                data.name = _("*") + parent.name;
+                data.name = _("*"); // + parent.name;
             } else {
                 // A type we derive from? gdb crashes when creating variables here
                 data.exp = parent.exp;

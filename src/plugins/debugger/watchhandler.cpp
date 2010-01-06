@@ -89,7 +89,7 @@ public:
         { parent = 0; }
 
     void setData(const WatchData &data)
-        { static_cast<WatchData &>(*this) = data; }
+        { static_cast<WatchData &>(*this) = data; parent = 0; }
 
     WatchItem *parent;
     QList<WatchItem *> children;  // fetched children
@@ -775,12 +775,15 @@ void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex)
 
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
-    const WatchItem &data = *watchItem(idx);
+    const WatchItem *item = watchItem(idx);
+    const WatchItem &data = *item;
 
     switch (role) {
         case Qt::DisplayRole: {
             switch (idx.column()) {
                 case 0:
+                    if (data.name == QLatin1String("*") && item->parent)
+                        return QLatin1String("*") + item->parent->name;
                     return data.name;
                 case 1: {
                     int format = m_handler->m_individualFormats.value(data.iname, -1);
