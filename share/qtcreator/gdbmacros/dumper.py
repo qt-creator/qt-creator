@@ -401,8 +401,8 @@ class FrameCommand(gdb.Command):
         if len(args) > 2:
             watchers = base64.b16decode(args[2], True)
         if len(watchers) > 0:
-            for watcher in watchers.split("$$"):
-                (exp, name) = watcher.split("$")
+            for watcher in watchers.split("##"):
+                (exp, name) = watcher.split("#")
                 self.handleWatch(d, exp, name)
         d.pushOutput()
         watchers = d.safeoutput
@@ -465,7 +465,7 @@ class FrameCommand(gdb.Command):
         else:
             try:
                 value = parseAndEvaluate(exp)
-                item = Item(value, "watch", None, None)
+                item = Item(value, "watch.%s" % name, None, None)
                 d.putItemHelper(item)
             except RuntimeError:
                 d.put(',value="<invalid>",')

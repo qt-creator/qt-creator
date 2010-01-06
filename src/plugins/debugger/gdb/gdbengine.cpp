@@ -3626,11 +3626,11 @@ void GdbEngine::updateLocals(const QVariant &cookie)
         while (it.hasNext()) {
             it.next();
             if (!watchers.isEmpty())
-                watchers += "$$";
+                watchers += "##";
             if (it.key() == WatchHandler::watcherEditPlaceHolder().toLatin1())
-                watchers += "<Edit>$" + QByteArray::number(it.value());
+                watchers += "<Edit>#" + QByteArray::number(it.value());
             else
-                watchers += it.key() + '$' + QByteArray::number(it.value());
+                watchers += it.key() + '#' + QByteArray::number(it.value());
         }
 
         QByteArray options;
