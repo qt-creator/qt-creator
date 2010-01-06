@@ -36,7 +36,7 @@ def cleanAddress(addr):
     # ~"0xbffff0e7 \"\\001\\b\\361\\377\\277\\\\\\206\\004\\b\"\n"
     # we need to remove the trailing rubbish
     pos = addr.find(' ')
-    if pos == -1
+    if pos == -1:
         return addr
     return addr[0:pos]
 
@@ -394,7 +394,7 @@ class FrameCommand(gdb.Command):
                 # A "normal" local variable or parameter
                 d.beginHash()
                 d.put('iname="%s",' % item.iname)
-                d.put('addr="%s",' % cleanAddress(item.value.address))
+                d.put('addr="%s",' % cleanAddress(str(item.value.address)))
                 d.safePutItemHelper(item)
                 d.endHash()
 

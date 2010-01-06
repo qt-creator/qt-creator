@@ -89,7 +89,7 @@ public:
         { parent = 0; }
 
     void setData(const WatchData &data)
-        { static_cast<WatchData &>(*this) = data; parent = 0; }
+        { static_cast<WatchData &>(*this) = data; }
 
     WatchItem *parent;
     QList<WatchItem *> children;  // fetched children
