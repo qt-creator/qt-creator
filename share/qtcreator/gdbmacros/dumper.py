@@ -32,13 +32,9 @@ def isGoodGdb():
     return 'parse_and_eval' in dir(gdb)
 
 def cleanAddress(addr):
-    # 'unsigned char tmp = 1' yields for gdb.parse_and_eval(\"tmp\").address
-    # ~"0xbffff0e7 \"\\001\\b\\361\\377\\277\\\\\\206\\004\\b\"\n"
-    # we need to remove the trailing rubbish
-    pos = addr.find(' ')
-    if pos == -1:
-        return addr
-    return addr[0:pos]
+    # we cannot use str(addr) as it yields rubbish for char pointers
+    # that might trigger Unicode encoding errors
+    return addr.cast(gdb.lookup_type("void").pointer())
 
 def parseAndEvaluate(exp):
     if isGoodGdb():
@@ -132,6 +128,8 @@ def value(expr):
 
 
 def isSimpleType(typeobj):
+    if typeobj.code == gdb.TYPE_CODE_PTR:
+        return False
     type = str(typeobj)
     return type == "bool" \
         or type == "char" \
@@ -191,7 +189,7 @@ def isNull(p):
     # for invalid char *, as their "contents" is being examined
     #s = str(p)
     #return s == "0x0" or s.startswith("0x0 ")
-    return p.cast(gdb.lookup_type("unsigned long long")) == 0
+    return p.cast(gdb.lookup_type("void").pointer()) == 0
 
 movableTypes = set([
     "QBrush", "QBitArray", "QByteArray",
@@ -242,6 +240,7 @@ def qtNamespace():
 
 def encodeCharArray(p, size):
     s = ""
+    p = p.cast(gdb.lookup_type("unsigned char").pointer())
     for i in xrange(size):
         s += "%02x" % int(p.dereference())
         p += 1
@@ -394,7 +393,7 @@ class FrameCommand(gdb.Command):
                 # A "normal" local variable or parameter
                 d.beginHash()
                 d.put('iname="%s",' % item.iname)
-                d.put('addr="%s",' % cleanAddress(str(item.value.address)))
+                d.put('addr="%s",' % cleanAddress(item.value.address))
                 d.safePutItemHelper(item)
                 d.endHash()
 
@@ -731,6 +730,7 @@ class Dumper:
             self.putName(name)
 
         # FIXME: Gui shows references stripped?
+        #warn(" ");
         #warn("REAL INAME: %s " % item.iname)
         #warn("REAL NAME: %s " % name)
         #warn("REAL TYPE: %s " % item.value.type)
@@ -778,8 +778,8 @@ class Dumper:
 
         elif type.code == gdb.TYPE_CODE_PTR:
             isHandled = False
+            #warn("A POINTER: %s" % value.type)
             if self.useFancy:
-                #warn("A POINTER: %s" % value.type)
                 if isNull(value):
                     self.putValue("0x0")
                     self.putType(item.value.type)
@@ -793,6 +793,7 @@ class Dumper:
                     self.putNumChild(0)
                     isHandled = True
 
+                #warn("TARGET: %s " % target) 
                 if (not isHandled) and (target == "char"
                         or target == "signed char" or target == "unsigned char"):
                     # Display values up to given length directly
@@ -800,14 +801,20 @@ class Dumper:
                     self.putType(item.value.type)
                     firstNul = -1
                     p = value
+                    found = False
                     for i in xrange(100):
                         if p.dereference() == 0:
                             # Found terminating NUL
-                            self.putValue(encodeCharArray(value, i), "6")
-                            self.putNumChild(0)
-                            isHandled = True
+                            found = True
                             break
                         p += 1
+                    if found:
+                        self.putValue(encodeCharArray(value, i), "6")
+                        self.putNumChild(0)
+                    else:
+                        self.putValue(encodeCharArray(value, 100) + "2e2e2e", "6")
+                        self.putNumChild(0)
+                    isHandled = True
 
             #warn("AUTODEREF: %s" % self.autoDerefPointers)
             #warn("IS HANDLED: %s" % isHandled)
@@ -826,7 +833,7 @@ class Dumper:
 
             # Fall back to plain pointer printing
             if not isHandled:
-                #warn("GENERIC PLAIN POINTER: %s" % type(value))
+                #warn("GENERIC PLAIN POINTER: %s" % value.type)
                 self.putType(item.value.type)
                 self.putValue(str(value.address))
                 self.putNumChild(1)
@@ -837,6 +844,7 @@ class Dumper:
                     self.endChildren()
 
         else:
+            #warn("GENERIC STRUCT: %s" % value.type)
             #warn("INAME: %s " % item.iname)
             #warn("INAMES: %s " % self.expandedINames)
             #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
