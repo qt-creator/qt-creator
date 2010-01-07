@@ -1493,10 +1493,17 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
             }
             const QRegExp regExp(keyRegExp, m_caseSensitivity);
 
+            const bool hasKey = !key.isEmpty();
             foreach (TextEditor::CompletionItem item, m_completions) {
                 if (regExp.indexIn(item.text) == 0) {
-                    item.relevance = (key.length() > 0 &&
-                                         item.text.startsWith(key, Qt::CaseInsensitive)) ? 1 : 0;
+                    if (hasKey) {
+                        if (item.text.startsWith(key, Qt::CaseSensitive)) {
+                            item.relevance = 2;
+                        } else if (m_caseSensitivity == Qt::CaseInsensitive
+                                   && item.text.startsWith(key, Qt::CaseInsensitive)) {
+                            item.relevance = 1;
+                        }
+                    }
                     (*completions) << item;
                 }
             }
