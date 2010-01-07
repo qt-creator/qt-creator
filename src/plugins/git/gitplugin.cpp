@@ -566,7 +566,7 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
                                  tr("Do you want to commit the change?"),
                                  tr("The commit message check failed. Do you want to commit the change?"),
                                  &settings.promptToSubmit, !m_submitActionTriggered);
-    m_submitActionTriggered = false;    
+    m_submitActionTriggered = false;
     switch (answer) {
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
