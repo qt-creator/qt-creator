@@ -180,6 +180,8 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
      QmlItemNode newItemNode(node);
      if (newItemNode.isValid()) //only setup QmlItems
          setupFormEditorItemTree(newItemNode);
+
+     m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
  }
 
 void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
