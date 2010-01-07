@@ -53,7 +53,8 @@ public:
     virtual ~BaseVCSSubmitEditorFactory();
 
     virtual Core::IEditor *createEditor(QWidget *parent);
-    virtual QString kind() const;
+    virtual QString id() const;
+    virtual QString displayName() const;
     virtual QStringList mimeTypes() const;
     Core::IFile *open(const QString &fileName);
 

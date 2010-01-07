@@ -50,8 +50,8 @@ public:
     CppCurrentDocumentFilter(CppModelManager *manager, Core::EditorManager *editorManager);
     ~CppCurrentDocumentFilter() {}
 
-    QString trName() const { return tr("Methods in current Document"); }
-    QString name() const { return QLatin1String("Methods in current Document"); }
+    QString displayName() const { return tr("Methods in current Document"); }
+    QString id() const { return QLatin1String("Methods in current Document"); }
     Priority priority() const { return Medium; }
     QList<Locator::FilterEntry> matchesFor(const QString &entry);
     void accept(Locator::FilterEntry selection) const;

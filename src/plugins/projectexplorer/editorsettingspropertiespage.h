@@ -51,7 +51,7 @@ class EditorSettingsPanel : public IPropertiesPanel
 public:
     EditorSettingsPanel(Project *project);
     ~EditorSettingsPanel();
-    QString name() const;
+    QString displayName() const;
     QWidget *widget() const;
     QIcon icon() const;
 

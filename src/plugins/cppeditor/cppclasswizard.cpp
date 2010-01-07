@@ -197,10 +197,10 @@ Core::GeneratedFiles CppClassWizard::generateFiles(const QWizard *w, QString *er
     const QString headerFileName = Core::BaseFileWizard::buildFileName(params.path, params.headerFile, headerSuffix());
 
     Core::GeneratedFile sourceFile(sourceFileName);
-    sourceFile.setEditorKind(QLatin1String(Constants::CPPEDITOR_KIND));
+    sourceFile.setEditorId(QLatin1String(Constants::CPPEDITOR_ID));
 
     Core::GeneratedFile headerFile(headerFileName);
-    headerFile.setEditorKind(QLatin1String(Constants::CPPEDITOR_KIND));
+    headerFile.setEditorId(QLatin1String(Constants::CPPEDITOR_ID));
 
     QString header, source;
     if (!generateHeaderAndSource(params, &header, &source)) {

@@ -59,11 +59,11 @@ Core::BaseFileWizardParameters QmlNewProjectWizard::parameters()
 {
     static Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
-    parameters.setName(tr("QML Application"));
+    parameters.setDisplayName(tr("QML Application"));
     parameters.setId(QLatin1String("QA.QML Application"));
     parameters.setDescription(tr("Creates a QML application."));
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
-    parameters.setTrCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
+    parameters.setDisplayCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
     return parameters;
 }
 
@@ -74,7 +74,7 @@ QWizard *QmlNewProjectWizard::createWizardDialog(QWidget *parent,
     QmlNewProjectWizardDialog *wizard = new QmlNewProjectWizardDialog(parent);
 
     wizard->setPath(defaultPath);
-    wizard->setName(QmlNewProjectWizardDialog::projectName(defaultPath));
+    wizard->setProjectName(QmlNewProjectWizardDialog::uniqueProjectName(defaultPath));
 
     foreach (QWizardPage *p, extensionPages)
         wizard->addPage(p);
@@ -88,7 +88,7 @@ Core::GeneratedFiles QmlNewProjectWizard::generateFiles(const QWizard *w,
     Q_UNUSED(errorMessage)
 
     const QmlNewProjectWizardDialog *wizard = qobject_cast<const QmlNewProjectWizardDialog *>(w);
-    const QString projectName = wizard->name();
+    const QString projectName = wizard->projectName();
     const QString projectPath = wizard->path() + QLatin1Char('/') + projectName;
 
     const QString creatorFileName = Core::BaseFileWizard::buildFileName(projectPath,

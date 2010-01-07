@@ -43,8 +43,8 @@ public:
     CppFunctionsFilter(CppModelManager *manager, Core::EditorManager *editorManager);
     ~CppFunctionsFilter();
 
-    QString trName() const { return tr("Methods"); }
-    QString name() const { return QLatin1String("Methods"); }
+    QString displayName() const { return tr("Methods"); }
+    QString id() const { return QLatin1String("Methods"); }
     Priority priority() const { return Medium; }
 };
 

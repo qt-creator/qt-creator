@@ -71,10 +71,10 @@ public:
     Project *project() const;
 
     // The type of this RunConfiguration, e.g. "ProjectExplorer.LocalApplicationRunConfiguration"
-    virtual QString type() const = 0;
+    virtual QString id() const = 0;
     // Name shown to the user
-    QString name() const;
-    void setName(const QString &name);
+    QString displayName() const;
+    void setDisplayName(const QString &name);
 
     virtual bool isEnabled(BuildConfiguration *) const { return true; }
     bool isEnabled() const;
@@ -86,17 +86,17 @@ public:
     virtual void save(PersistentSettingsWriter &writer) const;
     virtual void restore(const PersistentSettingsReader &reader);
 signals:
-    void nameChanged();
+    void displayNameChanged();
 private:
     QPointer<Project> m_project;
-    QString m_name;
+    QString m_displayName;
 };
 
 /* The run configuration factory is used for restoring run configurations from
  * settings. And used to create new runconfigurations in the "Run Settings" Dialog.
  * For the first case bool canRestore(const QString &type) and
  * RunConfiguration* create(Project *project, QString type) are used.
- * For the second type the functions QStringList availableCreationTypes(Project *pro) and
+ * For the second type the functions QStringList availableCreationIds(Project *pro) and
  * QString displayNameForType(const QString&) are used to generate a list of creatable
  * RunConfigurations, and create(..) is used to create it.
  */
@@ -107,13 +107,13 @@ public:
     explicit IRunConfigurationFactory(QObject *parent = 0);
     virtual ~IRunConfigurationFactory();
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(const QString &type) const = 0;
+    virtual bool canRestore(const QString &id) const = 0;
     // used to show the list of possible additons to a project, returns a list of types
-    virtual QStringList availableCreationTypes(Project *pro) const = 0;
+    virtual QStringList availableCreationIds(Project *pro) const = 0;
     // used to translate the types to names to display to the user
-    virtual QString displayNameForType(const QString &type) const = 0;
+    virtual QString displayNameForId(const QString &id) const = 0;
     // used to create a run configuration from scratch
-    virtual RunConfiguration* create(Project *project, const QString &type) = 0;
+    virtual RunConfiguration* create(Project *project, const QString &id) = 0;
 };
 
 class PROJECTEXPLORER_EXPORT IRunControlFactory : public QObject

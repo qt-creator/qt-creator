@@ -65,7 +65,7 @@ class DependenciesPanel : public IPropertiesPanel
 public:
     DependenciesPanel(SessionManager *session, Project *project);
     ~DependenciesPanel();
-    QString name() const;
+    QString displayName() const;
     QWidget *widget() const;
     QIcon icon() const;
 

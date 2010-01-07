@@ -50,7 +50,7 @@ QString PasteBinDotComSettings::id() const
     return QLatin1String("B.Pastebin.com");
 }
 
-QString PasteBinDotComSettings::trName() const
+QString PasteBinDotComSettings::displayName() const
 {
     return tr("Pastebin.com");
 }
@@ -60,7 +60,7 @@ QString PasteBinDotComSettings::category() const
     return QLatin1String(CodePaster::Constants::CPASTER_SETTINGS_CATEGORY);
 }
 
-QString PasteBinDotComSettings::trCategory() const
+QString PasteBinDotComSettings::displayCategory() const
 {
     return QCoreApplication::translate("CodePaster", CodePaster::Constants::CPASTER_SETTINGS_TR_CATEGORY);
 }

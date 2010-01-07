@@ -54,7 +54,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &t
     , m_title(title)
     , m_baseEnvironmentBase(CMakeRunConfiguration::BuildEnvironmentBase)
 {
-    setName(title);
+    setDisplayName(title);
 
     connect(pro, SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
@@ -70,7 +70,7 @@ CMakeProject *CMakeRunConfiguration::cmakeProject() const
     return static_cast<CMakeProject *>(project());
 }
 
-QString CMakeRunConfiguration::type() const
+QString CMakeRunConfiguration::id() const
 {
     return Constants::CMAKERUNCONFIGURATION;
 }
@@ -417,15 +417,15 @@ CMakeRunConfigurationFactory::~CMakeRunConfigurationFactory()
 }
 
 // used to recreate the runConfigurations when restoring settings
-bool CMakeRunConfigurationFactory::canRestore(const QString &type) const
+bool CMakeRunConfigurationFactory::canRestore(const QString &id) const
 {
-    if (type.startsWith(Constants::CMAKERUNCONFIGURATION))
+    if (id.startsWith(Constants::CMAKERUNCONFIGURATION))
         return true;
     return false;
 }
 
-// used to show the list of possible additons to a project, returns a list of types
-QStringList CMakeRunConfigurationFactory::availableCreationTypes(ProjectExplorer::Project *project) const
+// used to show the list of possible additons to a project, returns a list of ids
+QStringList CMakeRunConfigurationFactory::availableCreationIds(ProjectExplorer::Project *project) const
 {
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
     if (!pro)
@@ -437,28 +437,28 @@ QStringList CMakeRunConfigurationFactory::availableCreationTypes(ProjectExplorer
     return allTargets;
 }
 
-// used to translate the types to names to display to the user
-QString CMakeRunConfigurationFactory::displayNameForType(const QString &type) const
+// used to translate the ids to names to display to the user
+QString CMakeRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    Q_ASSERT(type.startsWith(Constants::CMAKERUNCONFIGURATION));
+    Q_ASSERT(id.startsWith(Constants::CMAKERUNCONFIGURATION));
 
-    if (type == Constants::CMAKERUNCONFIGURATION)
+    if (id == Constants::CMAKERUNCONFIGURATION)
         return "CMake"; // Doesn't happen
     else
-        return type.mid(QString(Constants::CMAKERUNCONFIGURATION).length());
+        return id.mid(QString(Constants::CMAKERUNCONFIGURATION).length());
 }
 
-ProjectExplorer::RunConfiguration* CMakeRunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &type)
+ProjectExplorer::RunConfiguration* CMakeRunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &id)
 {
     CMakeProject *pro = qobject_cast<CMakeProject *>(project);
     Q_ASSERT(pro);
-    if (type == Constants::CMAKERUNCONFIGURATION) {
+    if (id == Constants::CMAKERUNCONFIGURATION) {
         // Restoring, filename will be added by restoreSettings
         ProjectExplorer::RunConfiguration* rc = new CMakeRunConfiguration(pro, QString::null, QString::null, QString::null);
         return rc;
     } else {
         // Adding new
-        const QString title = type.mid(QString(Constants::CMAKERUNCONFIGURATION).length());
+        const QString title = id.mid(QString(Constants::CMAKERUNCONFIGURATION).length());
         const CMakeTarget &ct = pro->targetForTitle(title);
         ProjectExplorer::RunConfiguration * rc = new CMakeRunConfiguration(pro, ct.executable, ct.workingDirectory, ct.title);
         return rc;

@@ -48,9 +48,9 @@ public:
     virtual ~IOptionsPage() {}
 
     virtual QString id() const = 0;
-    virtual QString trName() const = 0;
+    virtual QString displayName() const = 0;
     virtual QString category() const = 0;
-    virtual QString trCategory() const = 0;
+    virtual QString displayCategory() const = 0;
     virtual bool matches(const QString & /* searchKeyWord*/) const { return false; }
 
     virtual QWidget *createPage(QWidget *parent) = 0;

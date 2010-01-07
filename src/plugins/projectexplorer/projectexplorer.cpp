@@ -256,8 +256,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     pecontext << core->uniqueIDManager()->uniqueIdentifier(Constants::C_PROJECTEXPLORER);
 
     Core::BaseMode *mode = new Core::BaseMode;
-    mode->setName(tr("Projects"));
-    mode->setUniqueModeName(Constants::MODE_SESSION);
+    mode->setDisplayName(tr("Projects"));
+    mode->setId(QLatin1String(Constants::MODE_SESSION));
     mode->setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")));
     mode->setPriority(Constants::P_MODE_SESSION);
     mode->setWidget(d->m_proWindow);
@@ -854,7 +854,7 @@ void ProjectExplorerPlugin::unloadProject()
     if (!success)
         return;
 
-    addToRecentProjects(fi->fileName(), d->m_currentProject->name());
+    addToRecentProjects(fi->fileName(), d->m_currentProject->displayName());
     d->m_session->removeProject(d->m_currentProject);
     updateActions();
 }
@@ -983,7 +983,7 @@ bool ProjectExplorerPlugin::openProject(const QString &fileName)
 
     QList<Project *> list = openProjects(QStringList() << fileName);
     if (!list.isEmpty()) {
-        addToRecentProjects(fileName, list.first()->name());
+        addToRecentProjects(fileName, list.first()->displayName());
         return true;
     }
     return false;
@@ -1052,7 +1052,7 @@ Project *ProjectExplorerPlugin::currentProject() const
 {
     if (debug) {
         if (d->m_currentProject)
-            qDebug() << "ProjectExplorerPlugin::currentProject returns " << d->m_currentProject->name();
+            qDebug() << "ProjectExplorerPlugin::currentProject returns " << d->m_currentProject->displayName();
         else
             qDebug() << "ProjectExplorerPlugin::currentProject returns 0";
     }
@@ -1290,7 +1290,7 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
 {
     if (debug)
         qDebug() << "ProjectExplorer - setting path to " << (node ? node->path() : filePath)
-                << " and project to " << (project ? project->name() : "0");
+                << " and project to " << (project ? project->displayName() : "0");
 
     if (node)
         filePath = node->path();
@@ -1327,12 +1327,12 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
     if (projectChanged || d->m_currentNode != node) {
         d->m_currentNode = node;
         if (debug)
-            qDebug() << "ProjectExplorer - currentNodeChanged(" << (node ? node->path() : "0") << ", " << (project ? project->name() : "0") << ")";
+            qDebug() << "ProjectExplorer - currentNodeChanged(" << (node ? node->path() : "0") << ", " << (project ? project->displayName() : "0") << ")";
         emit currentNodeChanged(d->m_currentNode, project);
     }
     if (projectChanged) {
         if (debug)
-            qDebug() << "ProjectExplorer - currentProjectChanged(" << (project ? project->name() : "0") << ")";
+            qDebug() << "ProjectExplorer - currentProjectChanged(" << (project ? project->displayName() : "0") << ")";
         emit currentProjectChanged(project);
         updateActions();
     }
@@ -1350,7 +1350,7 @@ void ProjectExplorerPlugin::updateActions()
                               && d->m_currentProject->hasBuildSettings();
     bool hasProjects = !d->m_session->projects().isEmpty();
     bool building = d->m_buildManager->isBuilding();
-    QString projectName = d->m_currentProject ? d->m_currentProject->name() : QString();
+    QString projectName = d->m_currentProject ? d->m_currentProject->displayName() : QString();
 
     if (debug)
         qDebug() << "BuildManager::isBuilding()" << building;
@@ -1753,7 +1753,7 @@ void ProjectExplorerPlugin::openRecentProject()
 void ProjectExplorerPlugin::invalidateProject(Project *project)
 {
     if (debug)
-        qDebug() << "ProjectExplorerPlugin::invalidateProject" << project->name();
+        qDebug() << "ProjectExplorerPlugin::invalidateProject" << project->displayName();
     if (d->m_currentProject == project) {
         //
         // Workaround for a bug in QItemSelectionModel
@@ -1817,7 +1817,7 @@ void ProjectExplorerPlugin::addExistingFiles()
         projectNode->addFiles(type, fileTypeToFiles.values(type), &notAdded);
     }
     if (!notAdded.isEmpty()) {
-        QString message = tr("Could not add following files to project %1:\n").arg(projectNode->name());
+        QString message = tr("Could not add following files to project %1:\n").arg(projectNode->displayName());
         QString files = notAdded.join("\n");
         QMessageBox::warning(core->mainWindow(), tr("Add files to project failed"),
                              message + files);
@@ -1830,7 +1830,7 @@ void ProjectExplorerPlugin::addExistingFiles()
             const QString files = fileNames.join(QString(QLatin1Char('\n')));
             QMessageBox::StandardButton button =
                 QMessageBox::question(core->mainWindow(), tr("Add to Version Control"),
-                                      tr("Add files\n%1\nto version control (%2)?").arg(files, vcManager->name()),
+                                      tr("Add files\n%1\nto version control (%2)?").arg(files, vcManager->displayName()),
                                       QMessageBox::Yes | QMessageBox::No);
             if (button == QMessageBox::Yes) {
                 QStringList notAddedToVc;
@@ -1840,7 +1840,7 @@ void ProjectExplorerPlugin::addExistingFiles()
                 }
 
                 if (!notAddedToVc.isEmpty()) {
-                    const QString message = tr("Could not add following files to version control (%1)\n").arg(vcManager->name());
+                    const QString message = tr("Could not add following files to version control (%1)\n").arg(vcManager->displayName());
                     const QString filesNotAdded = notAddedToVc.join(QString(QLatin1Char('\n')));
                     QMessageBox::warning(core->mainWindow(), tr("Add files to version control failed"),
                                          message + filesNotAdded);
@@ -1944,7 +1944,7 @@ void ProjectExplorerPlugin::removeFile()
 
         if (!projectNode->removeFiles(fileNode->fileType(), QStringList(filePath))) {
             QMessageBox::warning(core->mainWindow(), tr("Remove file failed"),
-                                 tr("Could not remove file %1 from project %2.").arg(filePath).arg(projectNode->name()));
+                                 tr("Could not remove file %1 from project %2.").arg(filePath).arg(projectNode->displayName()));
             return;
         }
 
@@ -2029,14 +2029,14 @@ void ProjectExplorerPlugin::populateRunConfigurationMenu()
 
     foreach (const Project *pro, d->m_session->projects()) {
         foreach (RunConfiguration *runConfiguration, pro->runConfigurations()) {
-            const QString title = QString("%1 (%2)").arg(pro->name(), runConfiguration->name());
+            const QString title = QString("%1 (%2)").arg(pro->displayName(), runConfiguration->displayName());
             QAction *act = new QAction(title, d->m_runConfigurationActionGroup);
             act->setCheckable(true);
             act->setData(qVariantFromValue(runConfiguration));
             act->setChecked(runConfiguration == activeRunConfiguration);
             d->m_runConfigurationMenu->addAction(act);
             if (debug)
-                qDebug() << "RunConfiguration" << runConfiguration << "project:" << pro->name()
+                qDebug() << "RunConfiguration" << runConfiguration << "project:" << pro->displayName()
                          << "active:" << (runConfiguration == activeRunConfiguration);
         }
     }
@@ -2074,7 +2074,7 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
             // Add all suitable editors
             foreach (Core::IEditorFactory *editorFactory, factories) {
                 // Add action to open with this very editor factory
-                QString const actionTitle = qApp->translate("OpenWith::Editors", editorFactory->kind().toAscii());
+                QString const actionTitle = editorFactory->displayName();
                 QAction * const action = d->m_openWithMenu->addAction(actionTitle);
                 action->setData(qVariantFromValue(editorFactory));
                 // File already open in an editor -> only enable that entry since
@@ -2082,7 +2082,7 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
                 if (!editorsOpenForFile.isEmpty()) {
                     bool enabled = false;
                     foreach (Core::IEditor * const openEditor, editorsOpenForFile) {
-                        if (editorFactory->kind() == QLatin1String(openEditor->kind()))
+                        if (editorFactory->id() == openEditor->id())
                             enabled = true;
                         break;
                     }
@@ -2091,7 +2091,7 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
             } // for editor factories
             // Add all suitable external editors
             foreach (Core::IExternalEditor *externalEditor, externalEditors) {
-                QAction * const action = d->m_openWithMenu->addAction(qApp->translate("OpenWith::Editors", externalEditor->kind().toAscii()));
+                QAction * const action = d->m_openWithMenu->addAction(externalEditor->displayName());
                 action->setData(qVariantFromValue(externalEditor));
             }
         } // matches
@@ -2109,13 +2109,13 @@ void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
     const QVariant data = action->data();
     if (qVariantCanConvert<Core::IEditorFactory *>(data)) {
         Core::IEditorFactory *factory = qVariantValue<Core::IEditorFactory *>(data);
-        em->openEditor(currentNode()->path(), factory->kind());
+        em->openEditor(currentNode()->path(), factory->id());
         em->ensureEditorManagerVisible();
         return;
     }
     if (qVariantCanConvert<Core::IExternalEditor *>(data)) {
         Core::IExternalEditor *externalEditor = qVariantValue<Core::IExternalEditor *>(data);
-        em->openExternalEditor(currentNode()->path(), externalEditor->kind());
+        em->openExternalEditor(currentNode()->path(), externalEditor->id());
     }
 }
 
@@ -2205,7 +2205,7 @@ BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
     QFormLayout *formlayout = new QFormLayout;
     formlayout->addRow(ActiveConfigurationWidget::tr("Active run configuration"),
                        // ^ avoiding a new translatable string for active run configuration
-                       new QLabel(activeRun->name()));
+                       new QLabel(activeRun->displayName()));
     formlayout->addRow(tr("Choose build configuration:"), m_configCombo);
     vlayout->addLayout(formlayout);
     vlayout->addWidget(buttonBox);

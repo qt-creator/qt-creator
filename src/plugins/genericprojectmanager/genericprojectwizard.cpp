@@ -56,7 +56,7 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
     // first page
     m_firstPage = new FileWizardPage;
     m_firstPage->setTitle(tr("Generic Project"));
-    m_firstPage->setNameLabel(tr("Project name:"));
+    m_firstPage->setFileNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
 
     addPage(m_firstPage);
@@ -77,7 +77,7 @@ void GenericProjectWizardDialog::setPath(const QString &path)
 
 QString GenericProjectWizardDialog::projectName() const
 {
-    return m_firstPage->name();
+    return m_firstPage->fileName();
 }
 
 GenericProjectWizard::GenericProjectWizard()
@@ -91,11 +91,11 @@ Core::BaseFileWizardParameters GenericProjectWizard::parameters()
 {
     static Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(":/wizards/images/console.png"));
-    parameters.setName(tr("Import of Makefile-based Project"));
+    parameters.setDisplayName(tr("Import of Makefile-based Project"));
     parameters.setId(QLatin1String("Z.Makefile"));
     parameters.setDescription(tr("Creates a generic project, supporting any build system."));
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
-    parameters.setTrCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
+    parameters.setDisplayCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
     return parameters;
 }
 

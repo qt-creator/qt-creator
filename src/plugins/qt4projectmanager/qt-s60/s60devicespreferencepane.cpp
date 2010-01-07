@@ -109,7 +109,7 @@ QString S60DevicesPreferencePane::id() const
     return QLatin1String("Z.S60 SDKs");
 }
 
-QString S60DevicesPreferencePane::trName() const
+QString S60DevicesPreferencePane::displayName() const
 {
     return tr("S60 SDKs");
 }
@@ -119,7 +119,7 @@ QString S60DevicesPreferencePane::category() const
     return QLatin1String(Constants::QT_SETTINGS_CATEGORY);
 }
 
-QString S60DevicesPreferencePane::trCategory() const
+QString S60DevicesPreferencePane::displayCategory() const
 {
     return QCoreApplication::translate("Qt4ProjectManager", Constants::QT_SETTINGS_CATEGORY);
 }

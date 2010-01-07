@@ -80,7 +80,7 @@ public:
     virtual void run(QFutureInterface<bool> &);
 
     // pure virtual functions inheritated from BuildStep
-    virtual QString name() = 0;
+    virtual QString id() = 0;
     virtual QString displayName() = 0;
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
     virtual bool immutable() const = 0;

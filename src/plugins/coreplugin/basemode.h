@@ -49,26 +49,26 @@ public:
     ~BaseMode();
 
     // IMode
-    QString name() const { return m_name; }
+    QString displayName() const { return m_displayName; }
     QIcon icon() const { return m_icon; }
     int priority() const { return m_priority; }
     QWidget *widget() { return m_widget; }
-    const char *uniqueModeName() const { return m_uniqueModeName; }
+    QString id() const { return m_id; }
     QList<int> context() const { return m_context; }
 
-    void setName(const QString &name) { m_name = name; }
+    void setDisplayName(const QString &name) { m_displayName = name; }
     void setIcon(const QIcon &icon) { m_icon = icon; }
     void setPriority(int priority) { m_priority = priority; }
     void setWidget(QWidget *widget) { m_widget = widget; }
-    void setUniqueModeName(const char *uniqueModeName) { m_uniqueModeName = uniqueModeName; }
+    void setId(const QString &id) { m_id = id; }
     void setContext(const QList<int> &context) { m_context = context; }
 
 private:
-    QString m_name;
+    QString m_displayName;
     QIcon m_icon;
     int m_priority;
     QWidget *m_widget;
-    const char * m_uniqueModeName;
+    QString m_id;
     QList<int> m_context;
 };
 

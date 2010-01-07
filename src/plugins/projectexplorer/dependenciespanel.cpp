@@ -103,7 +103,7 @@ QVariant DependenciesModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DisplayRole:
-        return p->name();
+        return p->displayName();
     case Qt::CheckStateRole:
         return m_session->hasDependency(m_project, p) ? Qt::Checked : Qt::Unchecked;
     case Qt::DecorationRole:
@@ -266,16 +266,16 @@ void DependenciesWidget::updateDetails()
 
     foreach(Project *other, m_session->projects()) {
         if (m_session->hasDependency(m_project, other)) {
-            dependsOn.append(other->name());
+            dependsOn.append(other->displayName());
         }
     }
     QString text;
     if (dependsOn.isEmpty()) {
-        text = tr("%1 has no dependencies.").arg(m_project->name());
+        text = tr("%1 has no dependencies.").arg(m_project->displayName());
     } else if (dependsOn.count() == 1) {
-        text =tr("%1 depends on %2.").arg(m_project->name(), dependsOn.first());
+        text =tr("%1 depends on %2.").arg(m_project->displayName(), dependsOn.first());
     } else {
-        text = tr("%1 depends on: %2.").arg(m_project->name(), dependsOn.join(QLatin1String(", ")));
+        text = tr("%1 depends on: %2.").arg(m_project->displayName(), dependsOn.join(QLatin1String(", ")));
     }
     m_detailsContainer->setSummaryText(text);
 }
@@ -295,7 +295,7 @@ DependenciesPanel::~DependenciesPanel()
     delete m_widget;
 }
 
-QString DependenciesPanel::name() const
+QString DependenciesPanel::displayName() const
 {
     return QApplication::tr("Dependencies");
 }

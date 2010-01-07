@@ -63,7 +63,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     setLayout(mainLayout);
 
     mainLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    m_configNameLineEdit = new QLineEdit(m_runConfiguration->name());
+    m_configNameLineEdit = new QLineEdit(m_runConfiguration->displayName());
     mainLayout->addRow(tr("Run configuration name:"), m_configNameLineEdit);
     QWidget *devConfWidget = new QWidget;
     QHBoxLayout *devConfLayout = new QHBoxLayout(devConfWidget);
@@ -105,7 +105,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
 
 void MaemoRunConfigurationWidget::configNameEdited(const QString &text)
 {
-    m_runConfiguration->setName(text);
+    m_runConfiguration->setDisplayName(text);
 }
 
 void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)

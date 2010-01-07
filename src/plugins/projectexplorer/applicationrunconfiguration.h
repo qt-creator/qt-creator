@@ -50,7 +50,7 @@ public:
 
     LocalApplicationRunConfiguration(Project *pro);
     virtual ~LocalApplicationRunConfiguration();
-    virtual QString type() const;
+    virtual QString id() const;
     virtual QString executable() const = 0;
     virtual RunMode runMode() const = 0;
     virtual QString workingDirectory() const = 0;

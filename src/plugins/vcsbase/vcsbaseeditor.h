@@ -70,11 +70,12 @@ enum EditorContentType {
 };
 
 // Helper struct used to parametrize an editor with mime type, context
-// and kind. The extension is currently only a suggestion when running
+// and id. The extension is currently only a suggestion when running
 // VCS commands with redirection.
 struct VCSBASE_EXPORT VCSBaseEditorParameters {
     EditorContentType type;
-    const char *kind;
+    QString id;
+    QString displayName;
     const char *context;
     const char *mimeType;
     const char *extension;

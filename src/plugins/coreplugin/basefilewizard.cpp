@@ -63,7 +63,7 @@ public:
     explicit GeneratedFilePrivate(const QString &p);
     QString path;
     QByteArray contents;
-    QString editorKind;
+    QString editorId;
     bool binary;
 };
 
@@ -139,14 +139,14 @@ void GeneratedFile::setBinary(bool b)
     m_d->binary = b;
 }
 
-QString GeneratedFile::editorKind() const
+QString GeneratedFile::editorId() const
 {
-    return m_d->editorKind;
+    return m_d->editorId;
 }
 
-void GeneratedFile::setEditorKind(const QString &k)
+void GeneratedFile::setEditorId(const QString &k)
 {
-    m_d->editorKind = k;
+    m_d->editorId = k;
 }
 
 bool GeneratedFile::write(QString *errorMessage) const
@@ -189,10 +189,10 @@ public:
     IWizard::Kind kind;
     QIcon icon;
     QString description;
-    QString name;
+    QString displayName;
     QString id;
     QString category;
-    QString trCategory;    
+    QString displayCategory;
 };
 
 BaseFileWizardParameterData::BaseFileWizardParameterData(IWizard::Kind k) :
@@ -251,14 +251,14 @@ void BaseFileWizardParameters::setDescription(const QString &v)
     m_d->description = v;
 }
 
-QString BaseFileWizardParameters::name() const
+QString BaseFileWizardParameters::displayName() const
 {
-    return m_d->name;
+    return m_d->displayName;
 }
 
-void BaseFileWizardParameters::setName(const QString &v)
+void BaseFileWizardParameters::setDisplayName(const QString &v)
 {
-    m_d->name = v;
+    m_d->displayName = v;
 }
 
 QString BaseFileWizardParameters::id() const
@@ -281,14 +281,14 @@ void BaseFileWizardParameters::setCategory(const QString &v)
     m_d->category = v;
 }
 
-QString BaseFileWizardParameters::trCategory() const
+QString BaseFileWizardParameters::displayCategory() const
 {
-    return m_d->trCategory;
+    return m_d->displayCategory;
 }
 
-void BaseFileWizardParameters::setTrCategory(const QString &v)
+void BaseFileWizardParameters::setDisplayCategory(const QString &v)
 {
-    m_d->trCategory = v;
+    m_d->displayCategory = v;
 }
 
 /* WizardEventLoop: Special event loop that runs a QWizard and terminates if the page changes.
@@ -416,9 +416,9 @@ QString BaseFileWizard::description() const
     return m_d->m_parameters.description();
 }
 
-QString BaseFileWizard::name() const
+QString BaseFileWizard::displayName() const
 {
-    return m_d->m_parameters.name();
+    return m_d->m_parameters.displayName();
 }
 
 QString BaseFileWizard::id() const
@@ -431,9 +431,9 @@ QString BaseFileWizard::category() const
     return m_d->m_parameters.category();
 }
 
-QString BaseFileWizard::trCategory() const
+QString BaseFileWizard::displayCategory() const
 {
-    return m_d->m_parameters.trCategory();
+    return m_d->m_parameters.displayCategory();
 }
 
 QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
@@ -553,7 +553,7 @@ bool BaseFileWizard::postGenerateFiles(const GeneratedFiles &l, QString *errorMe
     const Core::GeneratedFiles::const_iterator cend = l.constEnd();
     Core::EditorManager *em = Core::EditorManager::instance();
     for (Core::GeneratedFiles::const_iterator it = l.constBegin(); it != cend; ++it) {
-        if (!em->openEditor(it->path(), it->editorKind())) {
+        if (!em->openEditor(it->path(), it->editorId())) {
             *errorMessage = tr("Failed to open an editor for '%1'.").arg(it->path());
             return false;
         }
@@ -665,7 +665,7 @@ QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
                                                 const WizardPageList &extensionPages) const
 {
     Utils::FileWizardDialog *standardWizardDialog = new Utils::FileWizardDialog(parent);
-    standardWizardDialog->setWindowTitle(tr("New %1").arg(name()));
+    standardWizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
     setupWizard(standardWizardDialog);
     standardWizardDialog->setPath(defaultPath);
     foreach (QWizardPage *p, extensionPages)
@@ -678,7 +678,7 @@ GeneratedFiles StandardFileWizard::generateFiles(const QWizard *w,
 {
     const Utils::FileWizardDialog *standardWizardDialog = qobject_cast<const Utils::FileWizardDialog *>(w);
     return generateFilesFromPath(standardWizardDialog->path(),
-                                 standardWizardDialog->name(),
+                                 standardWizardDialog->fileName(),
                                  errorMessage);
 }
 

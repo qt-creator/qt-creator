@@ -50,8 +50,8 @@ class DirectoryFilter : public BaseFileFilter
 
 public:
     DirectoryFilter();
-    QString trName() const { return m_name; }
-    QString name() const { return m_name; }
+    QString displayName() const { return m_name; }
+    QString id() const { return m_name; }
     Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Medium; }
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);

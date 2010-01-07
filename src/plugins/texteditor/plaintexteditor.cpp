@@ -42,8 +42,10 @@ PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
   : BaseTextEditorEditable(editor)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_TEXT_EDITOR);
+    m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+
+    setDisplayName(tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
 }
 
 PlainTextEditor::PlainTextEditor(QWidget *parent)
@@ -55,6 +57,7 @@ PlainTextEditor::PlainTextEditor(QWidget *parent)
     setLineSeparatorsAllowed(true);
 
     setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
+    setDisplayName(tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
 }
 
 QList<int> PlainTextEditorEditable::context() const
@@ -70,9 +73,9 @@ Core::IEditor *PlainTextEditorEditable::duplicate(QWidget *parent)
     return newEditor->editableInterface();
 }
 
-const char *PlainTextEditorEditable::kind() const
+QString PlainTextEditorEditable::id() const
 {
-    return Core::Constants::K_DEFAULT_TEXT_EDITOR;
+    return QLatin1String(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
 }
 
 // Indent a text block based on previous line.

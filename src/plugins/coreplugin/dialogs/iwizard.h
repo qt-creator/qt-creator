@@ -56,11 +56,11 @@ public:
     virtual Kind kind() const = 0;
     virtual QIcon icon() const = 0;
     virtual QString description() const = 0;
-    virtual QString name() const = 0;
+    virtual QString displayName() const = 0;
     virtual QString id() const = 0;
 
     virtual QString category() const = 0;
-    virtual QString trCategory() const = 0;
+    virtual QString displayCategory() const = 0;
 
     virtual QStringList runWizard(const QString &path, QWidget *parent) = 0;
 

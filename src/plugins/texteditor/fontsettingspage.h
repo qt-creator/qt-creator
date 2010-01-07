@@ -49,19 +49,19 @@ namespace Internal {
 class FontSettingsPagePrivate;
 } // namespace Internal
 
-// GUI description of a format consisting of name (settings key)
-// and trName to be displayed
+// GUI description of a format consisting of id (settings key)
+// and displayName to be displayed
 class TEXTEDITOR_EXPORT FormatDescription
 {
 public:
-    FormatDescription(const QString &name, const QString &trName,
+    FormatDescription(const QString &id, const QString &displayName,
                       const QColor &foreground = Qt::black);
 
-    QString name() const
-    { return m_name; }
+    QString id() const
+    { return m_id; }
 
-    QString trName() const
-    { return m_trName; }
+    QString displayName() const
+    { return m_displayName; }
 
     QColor foreground() const;
     QColor background() const;
@@ -70,8 +70,8 @@ public:
     Format &format() { return m_format; }
 
 private:
-    QString m_name;             // Name of the category
-    QString m_trName;           // Displayed name of the category
+    QString m_id;               // Name of the category
+    QString m_displayName;      // Displayed name of the category
     Format m_format;            // Default format
 };
 
@@ -91,9 +91,9 @@ public:
     ~FontSettingsPage();
 
     QString id() const;
-    QString trName() const;
+    QString displayName() const;
     QString category() const;
-    QString trCategory() const;
+    QString displayCategory() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

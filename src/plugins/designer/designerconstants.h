@@ -41,7 +41,8 @@ const char * const SETTINGS_CPP_SETTINGS_ID = "Class Generation";
 const char * const SETTINGS_CPP_SETTINGS_NAME = QT_TRANSLATE_NOOP("Designer", "Class Generation");
 
 // context
-const char * const C_FORMEDITOR         = "FormEditor";
+const char * const C_FORMEDITOR_ID      = "FormEditor";
+const char * const C_FORMEDITOR_DISPLAY_NAME  = QT_TRANSLATE_NOOP("Designer", "Form Editor");
 const char * const T_FORMEDITOR         = "FormEditor.Toolbar";
 const char * const M_FORMEDITOR         = "FormEditor.Menu";
 const char * const M_FORMEDITOR_VIEWS   = "FormEditor.Menu.Views";

@@ -49,8 +49,8 @@ class LineNumberFilter : public Locator::ILocatorFilter
 public:
     explicit LineNumberFilter(QObject *parent = 0);
 
-    QString trName() const { return tr("Line in current document"); }
-    QString name() const { return "Line in current document"; }
+    QString displayName() const { return tr("Line in current document"); }
+    QString id() const { return "Line in current document"; }
     Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::High; }
     QList<Locator::FilterEntry> matchesFor(const QString &entry);
     void accept(Locator::FilterEntry selection) const;

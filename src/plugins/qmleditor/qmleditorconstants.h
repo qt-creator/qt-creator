@@ -30,12 +30,15 @@
 #ifndef QMLEDITOR_CONSTANTS_H
 #define QMLEDITOR_CONSTANTS_H
 
+#include <QtCore/QtGlobal>
+
 namespace QmlEditor {
 namespace Constants {
 
 const char * const M_CONTEXT = "QML Editor.ContextMenu";
 const char * const RUN_SEP = "QmlEditor.Run.Separator";
-const char * const C_QMLEDITOR = "QML Editor";
+const char * const C_QMLEDITOR_ID = "QMLProjectManager.QMLEditor";
+const char * const C_QMLEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "QML Editor");
 const char * const TASK_INDEX = "QmlEditor.TaskIndex";
 
 const char * const QMLEDITOR_MIMETYPE = "application/x-qml";

@@ -244,7 +244,7 @@ QString CMakeSettingsPage::id() const
     return QLatin1String("CMake");
 }
 
-QString CMakeSettingsPage::trName() const
+QString CMakeSettingsPage::displayName() const
 {
     return tr("CMake");
 }
@@ -254,7 +254,7 @@ QString CMakeSettingsPage::category() const
     return QLatin1String("M.CMake");
 }
 
-QString CMakeSettingsPage::trCategory() const
+QString CMakeSettingsPage::displayCategory() const
 {
     return tr("CMake");
 }

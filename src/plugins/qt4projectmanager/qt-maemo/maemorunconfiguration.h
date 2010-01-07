@@ -70,7 +70,7 @@ public:
                           const QString &proFilePath);
     ~MaemoRunConfiguration();
 
-    QString type() const;
+    QString id() const;
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
     using RunConfiguration::isEnabled;
     QWidget *configurationWidget();
@@ -173,7 +173,6 @@ private:
 #endif
 };
 
-
 class MaemoRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
@@ -181,20 +180,18 @@ public:
     MaemoRunConfigurationFactory(QObject *parent);
     ~MaemoRunConfigurationFactory();
 
-    bool canRestore(const QString &type) const;
-    QStringList availableCreationTypes(ProjectExplorer::Project *project) const;
-    QString displayNameForType(const QString &type) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project,
-                                              const QString &type);
-
+    bool canRestore(const QString &id) const;
+    QStringList availableCreationIds(ProjectExplorer::Project *project) const;
+    QString displayNameForId(const QString &id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
 
 private slots:
-    void addedRunConfiguration(ProjectExplorer::Project* project);
-    void removedRunConfiguration(ProjectExplorer::Project* project);
+    void addedRunConfiguration(ProjectExplorer::Project *project);
+    void removedRunConfiguration(ProjectExplorer::Project *project);
 
-    void projectAdded(ProjectExplorer::Project* project);
-    void projectRemoved(ProjectExplorer::Project* project);
-    void currentProjectChanged(ProjectExplorer::Project* project);
+    void projectAdded(ProjectExplorer::Project *project);
+    void projectRemoved(ProjectExplorer::Project *project);
+    void currentProjectChanged(ProjectExplorer::Project *project);
 };
 
 

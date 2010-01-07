@@ -66,7 +66,7 @@ QString SettingsPage::id() const
     return QLatin1String("A.General");
 }
 
-QString SettingsPage::trName() const
+QString SettingsPage::displayName() const
 {
     return tr("General");
 }
@@ -76,7 +76,7 @@ QString SettingsPage::category() const
     return QLatin1String(Constants::CPASTER_SETTINGS_CATEGORY);
 }
 
-QString SettingsPage::trCategory() const
+QString SettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("CodePaster", Constants::CPASTER_SETTINGS_TR_CATEGORY);
 }

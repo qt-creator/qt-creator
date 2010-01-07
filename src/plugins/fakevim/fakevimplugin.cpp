@@ -114,9 +114,9 @@ public:
 
     // IOptionsPage
     QString id() const { return QLatin1String(Constants::SETTINGS_ID); }
-    QString trName() const { return tr("General"); }
+    QString displayName() const { return tr("General"); }
     QString category() const { return QLatin1String(Constants::SETTINGS_CATEGORY); }
-    QString trCategory() const { return tr("FakeVim"); }
+    QString displayCategory() const { return tr("FakeVim"); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(ICore::instance()->settings()); }

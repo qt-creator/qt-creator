@@ -92,7 +92,7 @@ QString OptionsPage::id() const
     return QLatin1String(VCSBase::Constants::VCS_ID_MERCURIAL);
 }
 
-QString OptionsPage::trName() const
+QString OptionsPage::displayName() const
 {
     return tr("Mercurial");
 }
@@ -102,7 +102,7 @@ QString OptionsPage::category() const
     return QLatin1String(VCSBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 
-QString OptionsPage::trCategory() const
+QString OptionsPage::displayCategory() const
 {
     return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_TR_CATEGORY);
 }

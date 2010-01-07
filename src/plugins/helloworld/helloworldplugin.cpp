@@ -109,7 +109,7 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_m
     // Add a mode with a push button based on BaseMode. Like the BaseView,
     // it will unregister itself from the plugin manager when it is deleted.
     Core::BaseMode *baseMode = new Core::BaseMode;
-    baseMode->setUniqueModeName("HelloWorld.HelloWorldMode");
+    baseMode->setId(QLatin1String("HelloWorld.HelloWorldMode"));
     baseMode->setName(tr("Hello world!"));
     baseMode->setIcon(QIcon());
     baseMode->setPriority(0);

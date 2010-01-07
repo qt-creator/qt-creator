@@ -68,7 +68,6 @@ enum { QUICKFIX_INTERVAL = 20 };
 //////////////////////////// CppEditorFactory /////////////////////////////
 
 CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
-    m_kind(QLatin1String(CppEditor::Constants::CPPEDITOR_KIND)),
     m_owner(owner)
 {
     m_mimeTypes << QLatin1String(CppEditor::Constants::C_SOURCE_MIMETYPE)
@@ -88,14 +87,19 @@ CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
 #endif
 }
 
-QString CppEditorFactory::kind() const
+QString CppEditorFactory::id() const
 {
-    return m_kind;
+    return QLatin1String(QLatin1String(CppEditor::Constants::CPPEDITOR_ID));
+}
+
+QString CppEditorFactory::displayName() const
+{
+    return tr(CppEditor::Constants::CPPEDITOR_DISPLAY_NAME);
 }
 
 Core::IFile *CppEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     return iface ? iface->file() : 0;
 }
 
@@ -204,8 +208,8 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
 
     wizardParameters.setCategory(QLatin1String("C.C++"));
-    wizardParameters.setTrCategory(tr("C++"));
-    wizardParameters.setName(tr("C++ Class"));
+    wizardParameters.setDisplayCategory(tr("C++"));
+    wizardParameters.setDisplayName(tr("C++ Class"));
     wizardParameters.setId(QLatin1String("A.Class"));
     wizardParameters.setKind(Core::IWizard::ClassWizard);
     wizardParameters.setDescription(tr("Creates a header and a source file for a new class."));
@@ -213,17 +217,17 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     wizardParameters.setKind(Core::IWizard::FileWizard);
     wizardParameters.setDescription(tr("Creates a C++ source file."));
-    wizardParameters.setName(tr("C++ Source File"));
+    wizardParameters.setDisplayName(tr("C++ Source File"));
     wizardParameters.setId(QLatin1String("B.Source"));
     addAutoReleasedObject(new CppFileWizard(wizardParameters, Source, core));
 
     wizardParameters.setDescription(tr("Creates a C++ header file."));
-    wizardParameters.setName(tr("C++ Header File"));
+    wizardParameters.setDisplayName(tr("C++ Header File"));
     wizardParameters.setId(QLatin1String("C.Header"));
     addAutoReleasedObject(new CppFileWizard(wizardParameters, Header, core));
 
     QList<int> context;
-    context << core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
+    context << core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::CPPEDITOR_ID);
 
     Core::ActionManager *am = core->actionManager();
     Core::ActionContainer *contextMenu= am->createMenu(CppEditor::Constants::M_CONTEXT);
@@ -274,7 +278,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     connect(m_updateCodeModelAction, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
     cppToolsMenu->addAction(cmd);
 
-    m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
+    m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::CPPEDITOR_ID,
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);

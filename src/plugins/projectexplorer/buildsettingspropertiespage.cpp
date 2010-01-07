@@ -79,7 +79,7 @@ BuildSettingsPanel::~BuildSettingsPanel()
     delete m_widget;
 }
 
-QString BuildSettingsPanel::name() const
+QString BuildSettingsPanel::displayName() const
 {
     return QApplication::tr("Build Settings");
 }
@@ -169,7 +169,7 @@ void BuildSettingsWidget::setupUi()
             this, SLOT(checkMakeActiveLabel()));
 
     if (m_project->buildConfigurationFactory())
-        connect(m_project->buildConfigurationFactory(), SIGNAL(availableCreationTypesChanged()), SLOT(updateAddButtonMenu()));
+        connect(m_project->buildConfigurationFactory(), SIGNAL(availableCreationIdsChanged()), SLOT(updateAddButtonMenu()));
 
     updateAddButtonMenu();
     updateBuildSettings();
@@ -221,9 +221,9 @@ void BuildSettingsWidget::updateAddButtonMenu()
                                this, SLOT(cloneConfiguration()));
     IBuildConfigurationFactory *factory = m_project->buildConfigurationFactory();
     if (factory) {
-        foreach (const QString &type, factory->availableCreationTypes()) {
-            QAction *action = m_addButtonMenu->addAction(factory->displayNameForType(type), this, SLOT(createConfiguration()));
-            action->setData(type);
+        foreach (const QString &id, factory->availableCreationIds()) {
+            QAction *action = m_addButtonMenu->addAction(factory->displayNameForId(id), this, SLOT(createConfiguration()));
+            action->setData(id);
         }
     }
 }

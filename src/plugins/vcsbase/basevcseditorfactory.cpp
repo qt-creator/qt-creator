@@ -42,14 +42,14 @@ struct BaseVCSEditorFactoryPrivate
     BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t);
 
     const VCSBaseEditorParameters *m_type;
-    const QString m_kind;
+    const QString m_id;
     const QStringList m_mimeTypes;
     TextEditor::TextEditorActionHandler *m_editorHandler;
 };
 
 BaseVCSEditorFactoryPrivate::BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t) :
     m_type(t),
-    m_kind(QLatin1String(t->kind)),
+    m_id(t->id),
     m_mimeTypes(QStringList(QLatin1String(t->mimeType))),
     m_editorHandler(new TextEditor::TextEditorActionHandler(t->context))
 {
@@ -70,14 +70,19 @@ QStringList BaseVCSEditorFactory::mimeTypes() const
     return m_d->m_mimeTypes;
 }
 
-QString BaseVCSEditorFactory::kind() const
+QString BaseVCSEditorFactory::id() const
 {
-    return m_d->m_kind;
+    return m_d->m_id;
+}
+
+QString BaseVCSEditorFactory::displayName() const
+{
+    return tr("Base VCS Editor", "VCSBase BaseVCSEditorFactory display name.");
 }
 
 Core::IFile *BaseVCSEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     return iface ? iface->file() : 0;
 }
 

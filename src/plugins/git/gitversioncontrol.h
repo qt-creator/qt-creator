@@ -44,7 +44,7 @@ class GitVersionControl : public Core::IVersionControl
 public:
     explicit GitVersionControl(GitClient *plugin);
 
-    virtual QString name() const;
+    virtual QString displayName() const;
 
     bool managesDirectory(const QString &directory) const;
     virtual QString findTopLevelForDirectory(const QString &directory) const;

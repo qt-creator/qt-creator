@@ -82,6 +82,24 @@ private:
     QString m_msvcVersion;
 };
 
+class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    CMakeBuildConfigurationFactory(CMakeProject *project);
+    ~CMakeBuildConfigurationFactory();
+
+    QStringList availableCreationIds() const;
+    QString displayNameForId(const QString &id) const;
+
+    ProjectExplorer::BuildConfiguration *create(const QString &id) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *restore(const QVariantMap &map) const;
+
+private:
+    CMakeProject *m_project;
+};
 
 } // namespace Internal
 } // namespace CMakeProjectManager

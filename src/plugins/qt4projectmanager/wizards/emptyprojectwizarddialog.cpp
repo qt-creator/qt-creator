@@ -53,7 +53,7 @@ QtProjectParameters EmptyProjectWizardDialog::parameters() const
 {
     QtProjectParameters rc;
     rc.type = QtProjectParameters::EmptyProject;
-    rc.name = name();
+    rc.fileName = projectName();
     rc.path = path();
     return rc;
 }

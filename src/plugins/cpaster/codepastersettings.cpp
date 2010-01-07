@@ -59,7 +59,7 @@ QString CodePasterSettingsPage::id() const
     return QLatin1String("C.CodePaster");
 }
 
-QString CodePasterSettingsPage::trName() const
+QString CodePasterSettingsPage::displayName() const
 {
     return tr("CodePaster");
 }
@@ -69,7 +69,7 @@ QString CodePasterSettingsPage::category() const
     return QLatin1String(Constants::CPASTER_SETTINGS_CATEGORY);
 }
 
-QString CodePasterSettingsPage::trCategory() const
+QString CodePasterSettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("CodePaster", Constants::CPASTER_SETTINGS_TR_CATEGORY);
 }

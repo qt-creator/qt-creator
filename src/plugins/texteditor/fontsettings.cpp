@@ -126,8 +126,8 @@ bool FontSettings::fromSettings(const QString &category,
     } else {
         // Load color scheme from ini file
         foreach (const FormatDescription &desc, descriptions) {
-            const QString name = desc.name();
-            const QString fmt = s->value(group + name, QString()).toString();
+            const QString id = desc.id();
+            const QString fmt = s->value(group + id, QString()).toString();
             Format format;
             if (fmt.isEmpty()) {
                 format.setForeground(desc.foreground());
@@ -137,10 +137,10 @@ bool FontSettings::fromSettings(const QString &category,
             } else {
                 format.fromString(fmt);
             }
-            m_scheme.setFormatFor(name, format);
+            m_scheme.setFormatFor(id, format);
         }
 
-        m_scheme.setName(QCoreApplication::translate("TextEditor::Internal::FontSettings", "Customized"));
+        m_scheme.setDisplayName(QCoreApplication::translate("TextEditor::Internal::FontSettings", "Customized"));
     }
 
     return true;
@@ -286,14 +286,14 @@ bool FontSettings::loadColorScheme(const QString &fileName,
 
     // Apply default formats to undefined categories
     foreach (const FormatDescription &desc, descriptions) {
-        const QString name = desc.name();
-        if (!m_scheme.contains(name)) {
+        const QString id = desc.id();
+        if (!m_scheme.contains(id)) {
             Format format;
             format.setForeground(desc.foreground());
             format.setBackground(desc.background());
             format.setBold(desc.format().bold());
             format.setItalic(desc.format().italic());
-            m_scheme.setFormatFor(name, format);
+            m_scheme.setFormatFor(id, format);
         }
     }
 

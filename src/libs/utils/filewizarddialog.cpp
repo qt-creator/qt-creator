@@ -46,9 +46,9 @@ FileWizardDialog::FileWizardDialog(QWidget *parent) :
     connect(m_filePage, SIGNAL(activated()), button(QWizard::FinishButton), SLOT(animateClick()));
 }
 
-QString FileWizardDialog::name() const
+QString FileWizardDialog::fileName() const
 {
-    return m_filePage->name();
+    return m_filePage->fileName();
 }
 
 QString FileWizardDialog::path() const
@@ -62,9 +62,9 @@ void FileWizardDialog::setPath(const QString &path)
 
 }
 
-void FileWizardDialog::setName(const QString &name)
+void FileWizardDialog::setFileName(const QString &name)
 {
-    m_filePage->setName(name);
+    m_filePage->setFileName(name);
 }
 
 } // namespace Utils

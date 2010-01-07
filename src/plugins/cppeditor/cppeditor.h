@@ -166,7 +166,7 @@ public:
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
-    const char *kind() const;
+    QString id() const;
 
     bool isTemporary() const { return false; }
     virtual bool open(const QString & fileName);

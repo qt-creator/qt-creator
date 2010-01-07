@@ -75,16 +75,21 @@ QStringList ProjectFilesFactory::mimeTypes() const
     return m_mimeTypes;
 }
 
-QString ProjectFilesFactory::kind() const
+QString ProjectFilesFactory::id() const
 {
-    return QLatin1String(Constants::FILES_EDITOR);
+    return QLatin1String(Constants::FILES_EDITOR_ID);
+}
+
+QString ProjectFilesFactory::displayName() const
+{
+    return tr(Constants::FILES_EDITOR_DISPLAY_NAME);
 }
 
 Core::IFile *ProjectFilesFactory::open(const QString &fileName)
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
 
-    if (Core::IEditor *editor = editorManager->openEditor(fileName, kind()))
+    if (Core::IEditor *editor = editorManager->openEditor(fileName, id()))
         return editor->file();
 
     return 0;
@@ -99,6 +104,8 @@ ProjectFilesEditable::ProjectFilesEditable(ProjectFilesEditor *editor)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(Constants::C_FILESEDITOR);
+
+    setDisplayName(tr(Constants::FILES_EDITOR_DISPLAY_NAME));
 }
 
 ProjectFilesEditable::~ProjectFilesEditable()
@@ -109,9 +116,9 @@ QList<int> ProjectFilesEditable::context() const
     return m_context;
 }
 
-const char *ProjectFilesEditable::kind() const
+QString ProjectFilesEditable::id() const
 {
-    return Constants::FILES_EDITOR;
+    return Constants::FILES_EDITOR_ID;
 }
 
 bool ProjectFilesEditable::duplicateSupported() const

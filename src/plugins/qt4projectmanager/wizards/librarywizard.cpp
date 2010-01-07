@@ -58,11 +58,11 @@ QWizard *LibraryWizard::createWizardDialog(QWidget *parent,
                                           const QString &defaultPath,
                                           const WizardPageList &extensionPages) const
 {
-    LibraryWizardDialog *dialog = new  LibraryWizardDialog(name(), icon(), extensionPages,
+    LibraryWizardDialog *dialog = new  LibraryWizardDialog(displayName(), icon(), extensionPages,
                                                            showModulesPageForLibraries(), parent);
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
     dialog->setPath(defaultPath);
-    dialog->setName(LibraryWizardDialog::projectName(defaultPath));
+    dialog->setProjectName(LibraryWizardDialog::uniqueProjectName(defaultPath));
     dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());    
     return dialog;
 }
@@ -78,7 +78,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     const LibraryParameters params = dialog->libraryParameters();
     const QString license = CppTools::AbstractEditorSupport::licenseTemplate();
 
-    const QString sharedLibExportMacro = QtProjectParameters::exportMacro(projectParams.name);
+    const QString sharedLibExportMacro = QtProjectParameters::exportMacro(projectParams.fileName);
 
     Core::GeneratedFiles rc;
     // Class header + source
@@ -92,16 +92,16 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     // Create files: global header for shared libs
     QString globalHeaderFileName;
     if (projectParams.type == QtProjectParameters::SharedLibrary) {
-        const QString globalHeaderName = buildFileName(projectPath, projectParams.name + QLatin1String(sharedHeaderPostfixC), headerSuffix());
+        const QString globalHeaderName = buildFileName(projectPath, projectParams.fileName + QLatin1String(sharedHeaderPostfixC), headerSuffix());
         Core::GeneratedFile globalHeader(globalHeaderName);
         globalHeaderFileName = QFileInfo(globalHeader.path()).fileName();
-        globalHeader.setContents(license + LibraryParameters::generateSharedHeader(globalHeaderFileName, projectParams.name, sharedLibExportMacro));
+        globalHeader.setContents(license + LibraryParameters::generateSharedHeader(globalHeaderFileName, projectParams.fileName, sharedLibExportMacro));
         rc.push_back(globalHeader);
     }
 
     // Generate code
     QString headerContents, sourceContents;
-    params.generateCode(projectParams.type, projectParams.name,  headerFileName,
+    params.generateCode(projectParams.type, projectParams.fileName,  headerFileName,
                         globalHeaderFileName, sharedLibExportMacro,
                         /* indentation*/ 4, &headerContents, &sourceContents);
 
@@ -110,7 +110,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     rc.push_back(source);
     rc.push_back(header);
     // Create files: profile
-    const QString profileName = buildFileName(projectPath, projectParams.name, profileSuffix());
+    const QString profileName = buildFileName(projectPath, projectParams.fileName, profileSuffix());
     Core::GeneratedFile profile(profileName);
     QString profileContents;
     {

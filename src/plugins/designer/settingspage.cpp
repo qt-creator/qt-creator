@@ -50,7 +50,7 @@ QString SettingsPage::id() const
     return m_designerPage->name();
 }
 
-QString SettingsPage::trName() const
+QString SettingsPage::displayName() const
 {
     return m_designerPage->name();
 }
@@ -60,7 +60,7 @@ QString SettingsPage::category() const
     return QLatin1String(Designer::Constants::SETTINGS_CATEGORY);
 }
 
-QString SettingsPage::trCategory() const
+QString SettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY);
 }

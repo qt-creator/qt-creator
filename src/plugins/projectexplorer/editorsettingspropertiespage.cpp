@@ -59,7 +59,7 @@ EditorSettingsPanel::~EditorSettingsPanel()
     delete m_widget;
 }
 
-QString EditorSettingsPanel::name() const
+QString EditorSettingsPanel::displayName() const
 {
     return QApplication::tr("Editor Settings");
 }

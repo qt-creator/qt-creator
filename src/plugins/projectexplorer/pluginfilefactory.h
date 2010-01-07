@@ -53,14 +53,15 @@ class ProjectFileFactory : public Core::IFileFactory
 public:
     virtual QStringList mimeTypes() const;
     bool canOpen(const QString &fileName);
-    QString kind() const;
+    QString id() const;
+    QString displayName() const;
+
     Core::IFile *open(const QString &fileName);
 
     static QList<ProjectFileFactory*> createFactories(QString *filterString);
 
 private:
     const QStringList m_mimeTypes;
-    const QString m_kind;
     ProjectExplorer::IProjectManager *m_manager;
 };
 

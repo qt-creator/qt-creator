@@ -62,7 +62,7 @@ class BuildSettingsPanel : public IPropertiesPanel
 public:
     BuildSettingsPanel(Project *project);
     ~BuildSettingsPanel();
-    QString name() const;
+    QString displayName() const;
     QWidget *widget() const;
     QIcon icon() const;
 

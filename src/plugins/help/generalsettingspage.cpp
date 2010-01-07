@@ -71,7 +71,7 @@ QString GeneralSettingsPage::id() const
     return QLatin1String("A.General settings");
 }
 
-QString GeneralSettingsPage::trName() const
+QString GeneralSettingsPage::displayName() const
 {
     return tr("General settings");
 }
@@ -81,7 +81,7 @@ QString GeneralSettingsPage::category() const
     return QLatin1String(Help::Constants::HELP_CATEGORY);
 }
 
-QString GeneralSettingsPage::trCategory() const
+QString GeneralSettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY);
 }

@@ -61,7 +61,7 @@ struct QtProjectParameters {
     static QString libraryMacro(const QString &projectName);
 
     Type type;
-    QString name;
+    QString fileName;
     QString target;
     QString path;
     QString selectedModules;

@@ -237,10 +237,10 @@ namespace Internal {
             QMap<QString, InternalNode*>::const_iterator newNodeIter = subnodes.constBegin();;
             while (existingNodeIter != existingFolderNodes.constEnd()
                    && newNodeIter != subnodes.constEnd()) {
-                if ((*existingNodeIter)->name() < newNodeIter.key()) {
+                if ((*existingNodeIter)->displayName() < newNodeIter.key()) {
                     foldersToRemove << *existingNodeIter;
                     ++existingNodeIter;
-                } else if ((*existingNodeIter)->name() > newNodeIter.key()) {
+                } else if ((*existingNodeIter)->displayName() > newNodeIter.key()) {
                     FolderNode *newNode = new FolderNode(newNodeIter.value()->fullName);
                     newNode->setFolderName(newNodeIter.key());
                     if (!newNodeIter.value()->icon.isNull())

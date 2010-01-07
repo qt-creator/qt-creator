@@ -82,9 +82,9 @@ public:
     bool isBinary() const;
     void setBinary(bool b);
 
-    // Kind of editor to open the file with
-    QString editorKind() const;
-    void setEditorKind(const QString &k);
+    // Id of editor to open the file with
+    QString editorId() const;
+    void setEditorId(const QString &k);
 
     bool write(QString *errorMessage) const;
 
@@ -114,8 +114,8 @@ public:
     QString description() const;
     void setDescription(const QString &description);
 
-    QString name() const;
-    void setName(const QString &name);
+    QString displayName() const;
+    void setDisplayName(const QString &name);
 
     QString id() const;
     void setId(const QString &id);
@@ -123,8 +123,8 @@ public:
     QString category() const;
     void setCategory(const QString &category);
 
-    QString trCategory() const;
-    void setTrCategory(const QString &trCategory);
+    QString displayCategory() const;
+    void setDisplayCategory(const QString &trCategory);
 
 private:
     QSharedDataPointer<BaseFileWizardParameterData> m_d;
@@ -154,11 +154,11 @@ public:
     virtual Kind kind() const;
     virtual QIcon icon() const;
     virtual QString description() const;
-    virtual QString name() const;
+    virtual QString displayName() const;
     virtual QString id() const;
 
     virtual QString category() const;
-    virtual QString trCategory() const;
+    virtual QString displayCategory() const;
 
     virtual QStringList runWizard(const QString &path, QWidget *parent);
 

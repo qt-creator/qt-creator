@@ -311,7 +311,7 @@ void LocatorWidget::updateFilterList()
     m_filterMenu->clear();
     foreach (ILocatorFilter *filter, m_locatorPlugin->filters()) {
         if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
-            QAction *action = m_filterMenu->addAction(filter->trName(), this, SLOT(filterSelected()));
+            QAction *action = m_filterMenu->addAction(filter->displayName(), this, SLOT(filterSelected()));
             action->setData(qVariantFromValue(filter));
         }
     }

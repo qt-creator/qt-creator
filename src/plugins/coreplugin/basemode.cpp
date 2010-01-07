@@ -53,7 +53,7 @@ using namespace Core;
     {
         [...]
         addObject(new Core::BaseMode("mymode",
-            "MyPlugin.UniqueModeName",
+            "MyPlugin.Id",
             icon,
             50, // priority
             new MyWidget));
@@ -65,7 +65,7 @@ using namespace Core;
 /*!
     \fn BaseMode::BaseMode(QObject *parent)
 
-    Creates a mode with empty name, no icon, lowest priority and no widget. You should use the
+    Creates a mode with empty display name, no icon, lowest priority and no widget. You should use the
     setter functions to give the mode a meaning.
 
     \a parent

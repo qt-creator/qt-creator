@@ -95,23 +95,23 @@ public:
 
         switch (role) {
         case Qt::DisplayRole:
-            return description.trName();
+            return description.displayName();
         case Qt::ForegroundRole: {
-            QColor foreground = m_scheme->formatFor(description.name()).foreground();
+            QColor foreground = m_scheme->formatFor(description.id()).foreground();
             if (foreground.isValid())
                 return foreground;
             else
                 return m_scheme->formatFor(QLatin1String(TextEditor::Constants::C_TEXT)).foreground();
         }
         case Qt::BackgroundRole: {
-            QColor background = m_scheme->formatFor(description.name()).background();
+            QColor background = m_scheme->formatFor(description.id()).background();
             if (background.isValid())
                 return background;
         }
         case Qt::FontRole: {
             QFont font = m_baseFont;
-            font.setBold(m_scheme->formatFor(description.name()).bold());
-            font.setItalic(m_scheme->formatFor(description.name()).italic());
+            font.setBold(m_scheme->formatFor(description.id()).bold());
+            font.setItalic(m_scheme->formatFor(description.id()).italic());
             return font;
         }
         }
@@ -218,7 +218,7 @@ void ColorSchemeEdit::currentItemChanged(const QModelIndex &index)
 
 void ColorSchemeEdit::updateControls()
 {
-    const Format &format = m_scheme.formatFor(m_descriptions[m_curItem].name());
+    const Format &format = m_scheme.formatFor(m_descriptions[m_curItem].id());
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(format.foreground()));
     m_ui->backgroundToolButton->setStyleSheet(colorButtonStyleSheet(format.background()));
 
@@ -238,7 +238,7 @@ void ColorSchemeEdit::changeForeColor()
 {
     if (m_curItem == -1)
         return;
-    QColor color = m_scheme.formatFor(m_descriptions[m_curItem].name()).foreground();
+    QColor color = m_scheme.formatFor(m_descriptions[m_curItem].id()).foreground();
     const QColor newColor = QColorDialog::getColor(color, m_ui->boldCheckBox->window());
     if (!newColor.isValid())
         return;
@@ -247,7 +247,7 @@ void ColorSchemeEdit::changeForeColor()
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
 
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
-        const QString category = m_descriptions[index.row()].name();
+        const QString category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setForeground(newColor);
         m_formatsModel->emitDataChanged(index);
     }
@@ -257,7 +257,7 @@ void ColorSchemeEdit::changeBackColor()
 {
     if (m_curItem == -1)
         return;
-    QColor color = m_scheme.formatFor(m_descriptions[m_curItem].name()).background();
+    QColor color = m_scheme.formatFor(m_descriptions[m_curItem].id()).background();
     const QColor newColor = QColorDialog::getColor(color, m_ui->boldCheckBox->window());
     if (!newColor.isValid())
         return;
@@ -265,7 +265,7 @@ void ColorSchemeEdit::changeBackColor()
     m_ui->eraseBackgroundToolButton->setEnabled(true);
 
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
-        const QString category = m_descriptions[index.row()].name();
+        const QString category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setBackground(newColor);
         m_formatsModel->emitDataChanged(index);
         // Synchronize item list background with text background
@@ -283,7 +283,7 @@ void ColorSchemeEdit::eraseBackColor()
     m_ui->eraseBackgroundToolButton->setEnabled(false);
 
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
-        const QString category = m_descriptions[index.row()].name();
+        const QString category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setBackground(newColor);
         m_formatsModel->emitDataChanged(index);
     }
@@ -295,7 +295,7 @@ void ColorSchemeEdit::checkCheckBoxes()
         return;
 
     foreach (const QModelIndex &index, m_ui->itemList->selectionModel()->selectedRows()) {
-        const QString category = m_descriptions[index.row()].name();
+        const QString category = m_descriptions[index.row()].id();
         m_scheme.formatFor(category).setBold(m_ui->boldCheckBox->isChecked());
         m_scheme.formatFor(category).setItalic(m_ui->italicCheckBox->isChecked());
         m_formatsModel->emitDataChanged(index);

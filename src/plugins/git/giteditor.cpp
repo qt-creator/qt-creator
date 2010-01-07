@@ -67,7 +67,7 @@ GitEditor::GitEditor(const VCSBase::VCSBaseEditorParameters *type,
     QTC_ASSERT(m_changeNumberPattern40.isValid(), return);
     setAnnotateRevisionTextFormat(tr("Blame %1"));
     if (Git::Constants::debug)
-        qDebug() << "GitEditor::GitEditor" << type->type << type->kind;
+        qDebug() << "GitEditor::GitEditor" << type->type << type->id;
 }
 
 QSet<QString> GitEditor::annotationChanges() const

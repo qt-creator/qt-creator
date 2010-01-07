@@ -50,17 +50,17 @@ class QTCREATOR_UTILS_EXPORT FileWizardPage : public QWizardPage
     Q_OBJECT
     Q_DISABLE_COPY(FileWizardPage)
     Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
-    Q_PROPERTY(QString name READ name WRITE setName DESIGNABLE true)
+    Q_PROPERTY(QString fileName READ fileName WRITE setFileName DESIGNABLE true)
 public:
     explicit FileWizardPage(QWidget *parent = 0);
     virtual ~FileWizardPage();
 
-    QString name() const;
+    QString fileName() const;
     QString path() const;
 
     virtual bool isComplete() const;
 
-    void setNameLabel(const QString &label);
+    void setFileNameLabel(const QString &label);
     void setPathLabel(const QString &label);
 
     // Validate a base name entry field (potentially containing extension)
@@ -72,7 +72,7 @@ signals:
 
 public slots:
     void setPath(const QString &path);
-    void setName(const QString &name);
+    void setFileName(const QString &name);
 
 private slots:
     void slotValidChanged();

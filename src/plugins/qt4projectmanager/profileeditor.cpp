@@ -72,9 +72,9 @@ Core::IEditor *ProFileEditorEditable::duplicate(QWidget *parent)
     return ret->editableInterface();
 }
 
-const char *ProFileEditorEditable::kind() const
+QString ProFileEditorEditable::id() const
 {
-    return Qt4ProjectManager::Constants::PROFILE_EDITOR;
+    return QLatin1String(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
 }
 
 //

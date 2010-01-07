@@ -95,11 +95,11 @@ public:
     virtual QStringList mimeTypes() const;
 
     Core::IEditor *createEditor(QWidget *parent);
-    QString kind() const;
+    QString id() const;
+    QString displayName() const;
     Core::IFile *open(const QString &fileName);
 
 private:
-    const QString m_kind;
     const QStringList m_mimeTypes;
     BinEditorPlugin *m_owner;
 };

@@ -841,8 +841,8 @@ Core::IEditor *EditorManager::activateEditor(const QModelIndex &index, Internal:
     }
 
     QString fileName = index.data(Qt::UserRole + 1).toString();
-    QByteArray kind = index.data(Qt::UserRole + 2).toByteArray();
-    return openEditor(view, fileName, kind, flags);
+    QString id = index.data(Qt::UserRole + 2).toString();
+    return openEditor(view, fileName, id, flags);
 }
 
 Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core::IEditor *editor)
@@ -970,45 +970,44 @@ EditorManager::ExternalEditorList
     return rc;
 }
 
-/* For something that has a 'QString kind' (IEditorFactory
- * or IExternalEditor), find the one matching a kind. */
+/* For something that has a 'QString id' (IEditorFactory
+ * or IExternalEditor), find the one matching a id. */
 template <class EditorFactoryLike>
-        inline EditorFactoryLike *findByKind(ExtensionSystem::PluginManager *pm,
-                                             const QString &kind)
+        inline EditorFactoryLike *findById(ExtensionSystem::PluginManager *pm,
+                                             const QString &id)
 {
     const QList<EditorFactoryLike *> factories = pm->template getObjects<EditorFactoryLike>();
     foreach(EditorFactoryLike *efl, factories)
-        if (kind == efl->kind())
+        if (id == efl->id())
             return efl;
     return 0;
 }
 
-IEditor *EditorManager::createEditor(const QString &editorKind,
+IEditor *EditorManager::createEditor(const QString &editorId,
                                      const QString &fileName)
 {
     typedef QList<IEditorFactory*> FactoryList;
     if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << editorKind << fileName;
-
+        qDebug() << Q_FUNC_INFO << editorId << fileName;
 
     EditorFactoryList factories;
-    if (editorKind.isEmpty()) {
+    if (editorId.isEmpty()) {
         // Find by mime type
         MimeType mimeType = m_d->m_core->mimeDatabase()->findByFile(QFileInfo(fileName));
         if (!mimeType) {
             qWarning("%s unable to determine mime type of %s/%s. Falling back to text/plain",
-                     Q_FUNC_INFO, fileName.toUtf8().constData(), editorKind.toUtf8().constData());
+                     Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.toUtf8().constData());
             mimeType = m_d->m_core->mimeDatabase()->findByType(QLatin1String("text/plain"));
         }
         factories = editorFactories(mimeType, true);
     } else {
-        // Find by editor kind
-        if (IEditorFactory *factory = findByKind<IEditorFactory>(pluginManager(), editorKind))
+        // Find by editor id
+        if (IEditorFactory *factory = findById<IEditorFactory>(pluginManager(), editorId))
             factories.push_back(factory);
     }
     if (factories.empty()) {
-        qWarning("%s: unable to find an editor factory for the file '%s', editor kind '%s'.",
-                 Q_FUNC_INFO, fileName.toUtf8().constData(), editorKind.toUtf8().constData());
+        qWarning("%s: unable to find an editor factory for the file '%s', editor Id '%s'.",
+                 Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.toUtf8().constData());
         return 0;
     }
 
@@ -1036,42 +1035,42 @@ void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
     emit editorOpened(editor);
 }
 
-// Run the OpenWithDialog and return the editor kind
+// Run the OpenWithDialog and return the editor id
 // selected by the user.
-QString EditorManager::getOpenWithEditorKind(const QString &fileName,
-                                             bool *isExternalEditor) const
+QString EditorManager::getOpenWithEditorId(const QString &fileName,
+                                           bool *isExternalEditor) const
 {
     // Collect editors that can open the file
     const MimeType mt = m_d->m_core->mimeDatabase()->findByFile(fileName);
     if (!mt)
         return QString();
-    QStringList allEditorKinds;
-    QStringList externalEditorKinds;
+    QStringList allEditorIds;
+    QStringList externalEditorIds;
     // Built-in
     const EditorFactoryList editors = editorFactories(mt, false);
     const int size = editors.size();
     for (int i = 0; i < size; i++) {
-        allEditorKinds.push_back(editors.at(i)->kind());
+        allEditorIds.push_back(editors.at(i)->id());
     }
     // External editors
     const ExternalEditorList exEditors = externalEditors(mt, false);
     const int esize = exEditors.size();
     for (int i = 0; i < esize; i++) {
-        externalEditorKinds.push_back(exEditors.at(i)->kind());
-        allEditorKinds.push_back(exEditors.at(i)->kind());
+        externalEditorIds.push_back(exEditors.at(i)->id());
+        allEditorIds.push_back(exEditors.at(i)->id());
     }
-    if (allEditorKinds.empty())
+    if (allEditorIds.empty())
         return QString();
     // Run dialog.
     OpenWithDialog dialog(fileName, m_d->m_core->mainWindow());
-    dialog.setEditors(allEditorKinds);
+    dialog.setEditors(allEditorIds);
     dialog.setCurrentEditor(0);
     if (dialog.exec() != QDialog::Accepted)
         return QString();
-    const QString selectedKind = dialog.editor();
+    const QString selectedId = dialog.editor();
     if (isExternalEditor)
-        *isExternalEditor = externalEditorKinds.contains(selectedKind);
-    return selectedKind;
+        *isExternalEditor = externalEditorIds.contains(selectedId);
+    return selectedId;
 }
 
 static QString formatFileFilters(const Core::ICore *core, QString *selectedFilter)
@@ -1111,17 +1110,17 @@ static QString formatFileFilters(const Core::ICore *core, QString *selectedFilte
     return rc;
 }
 
-IEditor *EditorManager::openEditor(const QString &fileName, const QString &editorKind,
+IEditor *EditorManager::openEditor(const QString &fileName, const QString &editorId,
                                    EditorManager::OpenEditorFlags flags)
 {
-    return openEditor(0, fileName, editorKind, flags);
+    return openEditor(0, fileName, editorId, flags);
 }
 
 IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QString &fileName,
-                        const QString &editorKind, EditorManager::OpenEditorFlags flags)
+                        const QString &editorId, EditorManager::OpenEditorFlags flags)
 {
     if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << fileName << editorKind;
+        qDebug() << Q_FUNC_INFO << fileName << editorId;
 
     if (fileName.isEmpty())
         return 0;
@@ -1131,7 +1130,7 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
         return activateEditor(view, editors.first(), flags);
     }
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    IEditor *editor = createEditor(editorKind, fileName);
+    IEditor *editor = createEditor(editorId, fileName);
     if (!editor || !editor->open(fileName)) {
         QApplication::restoreOverrideCursor();
         QMessageBox::critical(m_d->m_core->mainWindow(), tr("Opening File"), tr("Cannot open file %1!").arg(QDir::toNativeSeparators(fileName)));
@@ -1148,9 +1147,9 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     return result;
 }
 
-bool EditorManager::openExternalEditor(const QString &fileName, const QString &editorKind)
+bool EditorManager::openExternalEditor(const QString &fileName, const QString &editorId)
 {
-    IExternalEditor *ee = findByKind<IExternalEditor>(pluginManager(), editorKind);
+    IExternalEditor *ee = findById<IExternalEditor>(pluginManager(), editorId);
     if (!ee)
         return false;
     QString errorMessage;
@@ -1176,18 +1175,18 @@ void EditorManager::ensureEditorManagerVisible()
         m_d->m_core->modeManager()->activateMode(Constants::MODE_EDIT);
 }
 
-IEditor *EditorManager::openEditorWithContents(const QString &editorKind,
+IEditor *EditorManager::openEditorWithContents(const QString &editorId,
                                         QString *titlePattern,
                                         const QString &contents)
 {
     if (debugEditorManager)
-        qDebug() << Q_FUNC_INFO << editorKind << titlePattern << contents;
+        qDebug() << Q_FUNC_INFO << editorId << titlePattern << contents;
 
-    if (editorKind.isEmpty())
+    if (editorId.isEmpty())
         return 0;
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    IEditor *edt = createEditor(editorKind);
+    IEditor *edt = createEditor(editorId);
     if (!edt) {
         QApplication::restoreOverrideCursor();
         return 0;
@@ -1311,7 +1310,7 @@ EditorManager::ReadOnlyAction
 
     QPushButton *sccButton = 0;
     if (versionControl && versionControl->supportsOperation(IVersionControl::OpenOperation))
-        sccButton = msgBox.addButton(tr("Open with VCS (%1)").arg(versionControl->name()), QMessageBox::AcceptRole);
+        sccButton = msgBox.addButton(tr("Open with VCS (%1)").arg(versionControl->displayName()), QMessageBox::AcceptRole);
 
     QPushButton *makeWritableButton =  msgBox.addButton(tr("Make writable"), QMessageBox::AcceptRole);
 
@@ -1556,7 +1555,7 @@ QByteArray EditorManager::saveState() const
     stream << entries.count();
 
     foreach (OpenEditorsModel::Entry entry, entries) {
-        stream << entry.fileName() << entry.displayName() << entry.kind();
+        stream << entry.fileName() << entry.displayName() << entry.id();
     }
 
     stream << m_d->m_splitter->saveState();
@@ -1595,11 +1594,11 @@ bool EditorManager::restoreState(const QByteArray &state)
         stream >> fileName;
         QString displayName;
         stream >> displayName;
-        QByteArray kind;
-        stream >> kind;
+        QString id;
+        stream >> id;
 
         if (!fileName.isEmpty() && !displayName.isEmpty()){
-            m_d->m_editorModel->addRestoredEditor(fileName, displayName, kind);
+            m_d->m_editorModel->addRestoredEditor(fileName, displayName, id);
         }
     }
 
@@ -1685,35 +1684,35 @@ void EditorManager::revertToSaved()
     currEditor->file()->modified(&temp);
 }
 
-void EditorManager::showEditorInfoBar(const QString &kind,
+void EditorManager::showEditorInfoBar(const QString &id,
                                       const QString &infoText,
                                       const QString &buttonText,
                                       QObject *object, const char *member)
 {
 
-    currentEditorView()->showEditorInfoBar(kind, infoText, buttonText, object, member);
+    currentEditorView()->showEditorInfoBar(id, infoText, buttonText, object, member);
 }
 
 
-void EditorManager::hideEditorInfoBar(const QString &kind)
+void EditorManager::hideEditorInfoBar(const QString &id)
 {
     Core::Internal::EditorView *cev = currentEditorView();
     if (cev)
-        cev->hideEditorInfoBar(kind);
+        cev->hideEditorInfoBar(id);
 }
 
-void EditorManager::showEditorStatusBar(const QString &kind,
+void EditorManager::showEditorStatusBar(const QString &id,
                                       const QString &infoText,
                                       const QString &buttonText,
                                       QObject *object, const char *member)
 {
 
-    currentEditorView()->showEditorStatusBar(kind, infoText, buttonText, object, member);
+    currentEditorView()->showEditorStatusBar(id, infoText, buttonText, object, member);
 }
 
-void EditorManager::hideEditorStatusBar(const QString &kind)
+void EditorManager::hideEditorStatusBar(const QString &id)
 {
-    currentEditorView()->hideEditorStatusBar(kind);
+    currentEditorView()->hideEditorStatusBar(id);
 }
 
 QString EditorManager::externalEditorHelpText() const

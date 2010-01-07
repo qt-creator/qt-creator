@@ -85,11 +85,11 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/qtscripteditor/QtScriptEditor.mimetypes.xml"), error_message))
         return false;
-    m_scriptcontext << core->uniqueIDManager()->uniqueIdentifier(QtScriptEditor::Constants::C_QTSCRIPTEDITOR);
+    m_scriptcontext << core->uniqueIDManager()->uniqueIdentifier(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_ID);
     m_context = m_scriptcontext;
     m_context << core->uniqueIDManager()->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 
-    m_actionHandler = new TextEditor::TextEditorActionHandler(QtScriptEditor::Constants::C_QTSCRIPTEDITOR,
+    m_actionHandler = new TextEditor::TextEditorActionHandler(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_ID,
           TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);
@@ -101,12 +101,12 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
     wizardParameters.setDescription(tr("Creates a Qt Script file."));
-    wizardParameters.setName(tr("Qt Script file"));
+    wizardParameters.setDisplayName(tr("Qt Script file"));
     wizardParameters.setId(QLatin1String("Z.Script"));
     wizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    wizardParameters.setTrCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
+    wizardParameters.setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
     m_wizard = new TextEditor::TextFileWizard(QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE),
-                                              QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR),
+                                              QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_ID),
                                               QLatin1String("qtscript$"),
                                               wizardParameters, this);
     addObject(m_wizard);

@@ -54,11 +54,11 @@ class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     QMakeStepFactory();
     virtual ~QMakeStepFactory();
-    bool canCreate(const QString & name) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString & name) const;
+    bool canCreate(const QString & id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString &id) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
     QStringList canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
-    QString displayNameForName(const QString &name) const;
+    QString displayNameForId(const QString &id) const;
 };
 
 } // namespace Internal
@@ -74,7 +74,7 @@ public:
     Internal::Qt4BuildConfiguration *qt4BuildConfiguration() const;
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
-    virtual QString name();
+    virtual QString id();
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;

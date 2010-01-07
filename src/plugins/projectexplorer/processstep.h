@@ -44,11 +44,11 @@ class ProcessStepFactory : public IBuildStepFactory
 {
 public:
     ProcessStepFactory();
-    virtual bool canCreate(const QString &name) const;
-    virtual BuildStep *create(BuildConfiguration *bc, const QString &name) const;
+    virtual bool canCreate(const QString &id) const;
+    virtual BuildStep *create(BuildConfiguration *bc, const QString &id) const;
     virtual BuildStep *clone(BuildStep *bs, BuildConfiguration *bc) const;
     virtual QStringList canCreateForBuildConfiguration(BuildConfiguration *pro) const;
-    virtual QString displayNameForName(const QString &name) const;
+    virtual QString displayNameForId(const QString &id) const;
 };
 
 class ProcessStep : public ProjectExplorer::AbstractProcessStep
@@ -60,7 +60,7 @@ public:
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
 
-    virtual QString name();
+    virtual QString id();
     void setDisplayName(const QString &name);
     virtual QString displayName();
     virtual BuildStepConfigWidget *createConfigWidget();

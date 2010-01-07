@@ -47,10 +47,10 @@ public:
     IMode(QObject *parent = 0) : IContext(parent) {}
     virtual ~IMode() {}
 
-    virtual QString name() const = 0;
+    virtual QString displayName() const = 0;
     virtual QIcon icon() const = 0;
     virtual int priority() const = 0;
-    virtual const char *uniqueModeName() const = 0;
+    virtual QString id() const = 0;
 };
 
 } // namespace Core

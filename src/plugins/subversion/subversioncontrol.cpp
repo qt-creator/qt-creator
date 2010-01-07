@@ -41,7 +41,7 @@ SubversionControl::SubversionControl(SubversionPlugin *plugin) :
 {
 }
 
-QString SubversionControl::name() const
+QString SubversionControl::displayName() const
 {
     return QLatin1String("subversion");
 }

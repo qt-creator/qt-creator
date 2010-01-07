@@ -66,10 +66,10 @@ QWizard *ConsoleAppWizard::createWizardDialog(QWidget *parent,
                                               const QString &defaultPath,
                                               const WizardPageList &extensionPages) const
 {
-    ConsoleAppWizardDialog *dialog = new ConsoleAppWizardDialog(name(), icon(), extensionPages,
+    ConsoleAppWizardDialog *dialog = new ConsoleAppWizardDialog(displayName(), icon(), extensionPages,
                                                                 showModulesPageForApplications(), parent);
     dialog->setPath(defaultPath);
-    dialog->setName(ConsoleAppWizardDialog::projectName(defaultPath));
+    dialog->setProjectName(ConsoleAppWizardDialog::uniqueProjectName(defaultPath));
     return dialog;
 }
 
@@ -88,7 +88,7 @@ Core::GeneratedFiles
     Core::GeneratedFile source(sourceFileName);
     source.setContents(license + QLatin1String(mainCppC));
     // Create files: Profile
-    const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.name,profileSuffix());
+    const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.fileName, profileSuffix());
 
     Core::GeneratedFile profile(profileName);
     QString contents;

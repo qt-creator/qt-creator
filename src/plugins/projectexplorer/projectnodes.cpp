@@ -172,7 +172,7 @@ FolderNode::~FolderNode()
 
   \see setFolderName()
  */
-QString FolderNode::name() const
+QString FolderNode::displayName() const
 {
     return m_folderName;
 }
@@ -559,7 +559,7 @@ bool ProjectNode::sortNodesByPath(Node *n1, Node *n2) {
 
 bool ProjectNode::sortFolderNodesByName(FolderNode *f1, FolderNode *f2)
 {
-    return f1->name() < f2->name();
+    return f1->displayName() < f2->displayName();
 }
 
 /*!

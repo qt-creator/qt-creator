@@ -55,7 +55,7 @@ QString CompletionSettingsPage::id() const
     return QLatin1String("P.Completion");
 }
 
-QString CompletionSettingsPage::trName() const
+QString CompletionSettingsPage::displayName() const
 {
     return tr("Completion");
 }
@@ -65,7 +65,7 @@ QString CompletionSettingsPage::category() const
     return QLatin1String(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
 }
 
-QString CompletionSettingsPage::trCategory() const
+QString CompletionSettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("Text Editor", TextEditor::Constants::TEXT_EDITOR_SETTINGS_TR_CATEGORY);
 }

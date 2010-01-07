@@ -166,7 +166,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     //register actions
     m_projectContext = core->uniqueIDManager()->
-        uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
+        uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_ID);
     QList<int> context = QList<int>() << m_projectContext;
     Core::Command *command;
 

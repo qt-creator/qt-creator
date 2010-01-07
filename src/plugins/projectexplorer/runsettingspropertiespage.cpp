@@ -44,16 +44,16 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-struct FactoryAndType
+struct FactoryAndId
 {
     ProjectExplorer::IRunConfigurationFactory *factory;
-    QString type;
+    QString id;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
 
-Q_DECLARE_METATYPE(ProjectExplorer::Internal::FactoryAndType);
+Q_DECLARE_METATYPE(ProjectExplorer::Internal::FactoryAndId);
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -72,7 +72,7 @@ public:
 
     void setRunConfigurations(const QList<RunConfiguration *> &runConfigurations);
     QList<RunConfiguration *> runConfigurations() const { return m_runConfigurations; }
-    void nameChanged(RunConfiguration *rc);
+    void displayNameChanged(RunConfiguration *rc);
 
 private:
     QList<RunConfiguration *> m_runConfigurations;
@@ -114,7 +114,7 @@ RunSettingsPanel::~RunSettingsPanel()
     delete m_widget;
 }
 
-QString RunSettingsPanel::name() const
+QString RunSettingsPanel::displayName() const
 {
     return QApplication::tr("Run Settings");
 }
@@ -143,7 +143,7 @@ int RunConfigurationsModel::columnCount(const QModelIndex &parent) const
     return parent.isValid() ? 0 : 1;
 }
 
-void RunConfigurationsModel::nameChanged(RunConfiguration *rc)
+void RunConfigurationsModel::displayNameChanged(RunConfiguration *rc)
 {
     for (int i = 0; i<m_runConfigurations.size(); ++i) {
         if (m_runConfigurations.at(i) == rc) {
@@ -158,7 +158,7 @@ QVariant RunConfigurationsModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         const int row = index.row();
         if (row < m_runConfigurations.size()) {
-            return m_runConfigurations.at(row)->name();
+            return m_runConfigurations.at(row)->displayName();
         }
     }
 
@@ -214,8 +214,8 @@ RunSettingsWidget::RunSettingsWidget(Project *project)
     initRunConfigurationComboBox();
     const QList<RunConfiguration *> runConfigurations = m_project->runConfigurations();
     for (int i=0; i<runConfigurations.size(); ++i) {
-        connect(runConfigurations.at(i), SIGNAL(nameChanged()),
-                this, SLOT(nameChanged()));
+        connect(runConfigurations.at(i), SIGNAL(displayNameChanged()),
+                this, SLOT(displayNameChanged()));
     }
 
     // TODO: Add support for custom runner configuration widgets once we have some
@@ -239,14 +239,14 @@ void RunSettingsWidget::aboutToShowAddMenu()
     QList<IRunConfigurationFactory *> factories =
         ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
     foreach (IRunConfigurationFactory *factory, factories) {
-        QStringList types = factory->availableCreationTypes(m_project);
-        foreach (const QString &type, types) {
-            QAction *action = m_addMenu->addAction(factory->displayNameForType(type));;
-            FactoryAndType fat;
-            fat.factory = factory;
-            fat.type = type;
+        QStringList ids = factory->availableCreationIds(m_project);
+        foreach (const QString &id, ids) {
+            QAction *action = m_addMenu->addAction(factory->displayNameForId(id));;
+            FactoryAndId fai;
+            fai.factory = factory;
+            fai.id = id;
             QVariant v;
-            v.setValue(fat);
+            v.setValue(fai);
             action->setData(v);
             connect(action, SIGNAL(triggered()),
                     this, SLOT(addRunConfiguration()));
@@ -259,22 +259,22 @@ void RunSettingsWidget::addRunConfiguration()
     QAction *act = qobject_cast<QAction *>(sender());
     if (!act)
         return;
-    FactoryAndType fat = act->data().value<FactoryAndType>();
-    RunConfiguration *newRC = fat.factory->create(m_project, fat.type);
+    FactoryAndId fai = act->data().value<FactoryAndId>();
+    RunConfiguration *newRC = fai.factory->create(m_project, fai.id);
     if (!newRC)
         return;
     m_project->addRunConfiguration(newRC);
     initRunConfigurationComboBox();
     m_ui->runConfigurationCombo->setCurrentIndex(
             m_runConfigurationsModel->runConfigurations().indexOf(newRC));
-    connect(newRC, SIGNAL(nameChanged()), this, SLOT(nameChanged()));
+    connect(newRC, SIGNAL(displayNameChanged()), this, SLOT(displayNameChanged()));
 }
 
 void RunSettingsWidget::removeRunConfiguration()
 {
     int index = m_ui->runConfigurationCombo->currentIndex();
     RunConfiguration *rc = m_runConfigurationsModel->runConfigurations().at(index);
-    disconnect(rc, SIGNAL(nameChanged()), this, SLOT(nameChanged()));
+    disconnect(rc, SIGNAL(displayNameChanged()), this, SLOT(displayNameChanged()));
     m_project->removeRunConfiguration(rc);
     initRunConfigurationComboBox();
 }
@@ -324,7 +324,7 @@ void RunSettingsWidget::updateMakeActiveLabel()
     }
     if (rc) {
         if (m_project->activeRunConfiguration() != rc) {
-            m_makeActiveLabel->setText(tr("<a href=\"#\">Make %1 active.</a>").arg(rc->name()));
+            m_makeActiveLabel->setText(tr("<a href=\"#\">Make %1 active.</a>").arg(rc->displayName()));
             m_makeActiveLabel->setVisible(true);
         }
     }
@@ -341,9 +341,9 @@ void RunSettingsWidget::makeActive()
         m_project->setActiveRunConfiguration(rc);
 }
 
-void RunSettingsWidget::nameChanged()
+void RunSettingsWidget::displayNameChanged()
 {
     RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
-    m_runConfigurationsModel->nameChanged(rc);
+    m_runConfigurationsModel->displayNameChanged(rc);
     updateMakeActiveLabel();
 }

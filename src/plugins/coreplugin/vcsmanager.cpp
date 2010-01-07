@@ -141,7 +141,7 @@ bool VCSManager::showDeleteDialog(const QString &fileName)
     const QString title = QCoreApplication::translate("VCSManager", "Version Control");
     const QString msg = QCoreApplication::translate("VCSManager",
                                                     "Would you like to remove this file from the version control system (%1)?\n"
-                                                    "Note: This might remove the local file.").arg(vc->name());
+                                                    "Note: This might remove the local file.").arg(vc->displayName());
     const QMessageBox::StandardButton button =
         QMessageBox::question(0, title, msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
     if (button != QMessageBox::Yes)
@@ -154,7 +154,7 @@ CORE_EXPORT QDebug operator<<(QDebug in, const VCSManager &v)
     QDebug nospace = in.nospace();
     const VersionControlCache::const_iterator cend = v.m_d->m_cachedMatches.constEnd();
     for (VersionControlCache::const_iterator it = v.m_d->m_cachedMatches.constBegin(); it != cend; ++it)
-        nospace << "Directory: " << it.key() << ' ' << it.value()->name() << '\n';
+        nospace << "Directory: " << it.key() << ' ' << it.value()->displayName() << '\n';
     nospace << '\n';
     return in;
 }

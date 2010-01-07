@@ -58,7 +58,8 @@ class ExternalQtEditor : public Core::IExternalEditor
     Q_OBJECT
 public:
     virtual QStringList mimeTypes() const;
-    virtual QString kind() const;
+    virtual QString id() const;
+    virtual QString displayName() const;
 
 protected:
     // Method pointer for a QtVersion method return a string (command)
@@ -71,7 +72,8 @@ protected:
         QString workingDirectory;
     };
 
-    explicit ExternalQtEditor(const QString &kind,
+    explicit ExternalQtEditor(const QString &id,
+                              const QString &displayName,
                               const QString &mimetype,
                               QObject *parent = 0);
 
@@ -91,7 +93,8 @@ protected:
 
 private:
     const QStringList m_mimeTypes;
-    const QString m_kind;
+    const QString m_id;
+    const QString m_displayName;
 };
 
 // Qt Linguist

@@ -62,7 +62,7 @@ public:
     RunSettingsPanel(Project *project);
     ~RunSettingsPanel();
 
-    QString name() const;
+    QString displayName() const;
     QWidget *widget() const;
     QIcon icon() const;
 
@@ -83,7 +83,7 @@ private slots:
     void aboutToShowAddMenu();
     void addRunConfiguration();
     void removeRunConfiguration();
-    void nameChanged();
+    void displayNameChanged();
     void initRunConfigurationComboBox();
     void updateMakeActiveLabel();
     void makeActive();

@@ -60,12 +60,12 @@ class OpenEditorsModel;
 
 namespace Internal {
 
-    struct EditLocation {
-        QPointer<IFile> file;
-        QString fileName;
-        QString kind;
-        QVariant state;
-    };
+struct EditLocation {
+    QPointer<IFile> file;
+    QString fileName;
+    QString id;
+    QVariant state;
+};
 
 class EditorView : public QWidget
 {
@@ -84,17 +84,17 @@ public:
     bool hasEditor(IEditor *editor) const;
 
     QList<IEditor *> editors() const;
-    void showEditorInfoBar(const QString &kind,
+    void showEditorInfoBar(const QString &id,
                            const QString &infoText,
                            const QString &buttonText,
                            QObject *object, const char *member);
-    void hideEditorInfoBar(const QString &kind);
+    void hideEditorInfoBar(const QString &id);
 
-    void showEditorStatusBar(const QString &kind,
+    void showEditorStatusBar(const QString &id,
                            const QString &infoText,
                            const QString &buttonText,
                            QObject *object, const char *member);
-    void hideEditorStatusBar(const QString &kind);
+    void hideEditorStatusBar(const QString &id);
 
 public slots:
     void closeView();
@@ -118,12 +118,12 @@ private:
     QToolButton *m_closeButton;
     QToolButton *m_lockButton;
     QWidget *m_defaultToolBar;
-    QString m_infoWidgetKind;
+    QString m_infoWidgetId;
     QFrame *m_infoWidget;
     QLabel *m_infoWidgetLabel;
     QToolButton *m_infoWidgetButton;
     IEditor *m_editorForInfoWidget;
-    QString m_statusWidgetKind;
+    QString m_statusWidgetId;
     QFrame *m_statusHLine;
     QFrame *m_statusWidget;
     QLabel *m_statusWidgetLabel;

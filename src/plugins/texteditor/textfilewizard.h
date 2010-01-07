@@ -43,7 +43,7 @@ class TEXTEDITOR_EXPORT TextFileWizard : public Core::StandardFileWizard
 public:
     typedef Core::BaseFileWizardParameters BaseFileWizardParameters;
     TextFileWizard(const QString &mimeType,
-                   const QString &editorKind,
+                   const QString &editorId,
                    const QString &suggestedFileName,
                    const BaseFileWizardParameters &parameters,
                    QObject *parent = 0);
@@ -54,7 +54,7 @@ protected:
                               QString *errorMessage) const;
 private:
     const QString m_mimeType;
-    const QString m_editorKind;
+    const QString m_editorId;
     const QString m_suggestedFileName;
 };
 

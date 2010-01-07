@@ -58,9 +58,9 @@ S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Project *project, const
     m_cachedTargetInformationValid(false)
 {
     if (!m_proFilePath.isEmpty())
-        setName(tr("%1 in Symbian Emulator").arg(QFileInfo(m_proFilePath).completeBaseName()));
+        setDisplayName(tr("%1 in Symbian Emulator").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
-        setName(tr("QtSymbianEmulatorRunConfiguration"));
+        setDisplayName(tr("QtSymbianEmulatorRunConfiguration"));
 
     connect(project, SIGNAL(targetInformationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
@@ -85,7 +85,7 @@ Qt4Project *S60EmulatorRunConfiguration::qt4Project() const
     return static_cast<Qt4Project *>(project());
 }
 
-QString S60EmulatorRunConfiguration::type() const
+QString S60EmulatorRunConfiguration::id() const
 {
     return "Qt4ProjectManager.EmulatorRunConfiguration";
 }
@@ -133,7 +133,7 @@ void S60EmulatorRunConfiguration::updateTarget()
         if (info.error == Qt4TargetInformation::ProParserError) {
             Core::ICore::instance()->messageManager()->printToOutputPane(
                     tr("Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.")
-                    .arg(m_proFilePath).arg(name()));
+                    .arg(m_proFilePath).arg(displayName()));
         }
         m_executable = QString::null;
         m_cachedTargetInformationValid = true;
@@ -170,7 +170,7 @@ S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60Emulator
     : QWidget(parent),
     m_runConfiguration(runConfiguration),
     m_detailsWidget(new Utils::DetailsWidget),
-    m_nameLineEdit(new QLineEdit(m_runConfiguration->name())),
+    m_nameLineEdit(new QLineEdit(m_runConfiguration->displayName())),
     m_executableLabel(new QLabel(m_runConfiguration->executable()))
 {
     QVBoxLayout *mainBoxLayout = new QVBoxLayout();
@@ -192,15 +192,15 @@ S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60Emulator
     detailsFormLayout->addRow(tr("Executable:"), m_executableLabel);
 
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
-        this, SLOT(nameEdited(QString)));
+        this, SLOT(displayNameEdited(QString)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
     updateSummary();
 }
 
-void S60EmulatorRunConfigurationWidget::nameEdited(const QString &text)
+void S60EmulatorRunConfigurationWidget::displayNameEdited(const QString &text)
 {
-    m_runConfiguration->setName(text);
+    m_runConfiguration->setDisplayName(text);
 }
 
 void S60EmulatorRunConfigurationWidget::updateTargetInformation()
@@ -224,12 +224,12 @@ S60EmulatorRunConfigurationFactory::~S60EmulatorRunConfigurationFactory()
 {
 }
 
-bool S60EmulatorRunConfigurationFactory::canRestore(const QString &type) const
+bool S60EmulatorRunConfigurationFactory::canRestore(const QString &id) const
 {
-    return type == "Qt4ProjectManager.EmulatorRunConfiguration";
+    return id == "Qt4ProjectManager.EmulatorRunConfiguration";
 }
 
-QStringList S60EmulatorRunConfigurationFactory::availableCreationTypes(Project *pro) const
+QStringList S60EmulatorRunConfigurationFactory::availableCreationIds(Project *pro) const
 {
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
     if (qt4project) {
@@ -244,21 +244,21 @@ QStringList S60EmulatorRunConfigurationFactory::availableCreationTypes(Project *
     }
 }
 
-QString S60EmulatorRunConfigurationFactory::displayNameForType(const QString &type) const
+QString S60EmulatorRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    QString fileName = type.mid(QString("QtSymbianEmulatorRunConfiguration.").size());
+    QString fileName = id.mid(QString("QtSymbianEmulatorRunConfiguration.").size());
     return tr("%1 in Symbian Emulator").arg(QFileInfo(fileName).completeBaseName());
 }
 
-RunConfiguration *S60EmulatorRunConfigurationFactory::create(Project *project, const QString &type)
+RunConfiguration *S60EmulatorRunConfigurationFactory::create(Project *project, const QString &id)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(p);
-    if (type.startsWith("QtSymbianEmulatorRunConfiguration.")) {
-        QString fileName = type.mid(QString("QtSymbianEmulatorRunConfiguration.").size());
+    if (id.startsWith("QtSymbianEmulatorRunConfiguration.")) {
+        QString fileName = id.mid(QString("QtSymbianEmulatorRunConfiguration.").size());
         return new S60EmulatorRunConfiguration(p, fileName);
     }
-    Q_ASSERT(type == "Qt4ProjectManager.EmulatorRunConfiguration");
+    Q_ASSERT(id == "Qt4ProjectManager.EmulatorRunConfiguration");
     // The right path is set in restoreSettings
     RunConfiguration *rc = new S60EmulatorRunConfiguration(p, QString::null);
     return rc;

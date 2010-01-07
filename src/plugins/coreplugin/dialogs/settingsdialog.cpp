@@ -132,7 +132,7 @@ bool PageFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
         return true;
     if (const IOptionsPage *page = pageOfItem(sourceModel(), source_parent.child(source_row, 0))) {
         const QString pattern = filterRegExp().pattern();
-        return page->trCategory().contains(pattern, Qt::CaseInsensitive) ||
+        return page->displayCategory().contains(pattern, Qt::CaseInsensitive) ||
         page->matches(pattern);
     }
     return false;
@@ -151,9 +151,9 @@ static QStandardItemModel *pageModel(const QList<IOptionsPage*> &pages,
     QMap<QString, QStandardItem *> categories;
     foreach (IOptionsPage *page, pages) {
         const QStringList categoriesId = page->category().split(hierarchySeparator);
-        const QStringList trCategories = page->trCategory().split(hierarchySeparator);
+        const QStringList displayCategories = page->displayCategory().split(hierarchySeparator);
         const int categoryDepth = categoriesId.size();
-        if (categoryDepth != trCategories.size()) {
+        if (categoryDepth != displayCategories.size()) {
             qWarning("Internal error: Hierarchy mismatch in settings page %s.", qPrintable(page->id()));
             continue;
         }
@@ -162,7 +162,7 @@ static QStandardItemModel *pageModel(const QList<IOptionsPage*> &pages,
         QString currentCategory = categoriesId.at(0);
         QStandardItem *treeItem = categories.value(currentCategory, 0);
         if (!treeItem) {
-            treeItem = createStandardItem(model, trCategories.at(0), CategoryItem);
+            treeItem = createStandardItem(model, displayCategories.at(0), CategoryItem);
             categories.insert(currentCategory, treeItem);
         }
 
@@ -172,7 +172,7 @@ static QStandardItemModel *pageModel(const QList<IOptionsPage*> &pages,
             if (!treeItem) {
                 QStandardItem *parentItem = categories.value(currentCategory);
                 QTC_ASSERT(parentItem, return model)
-                treeItem = createStandardItem(parentItem, trCategories.at(cat), CategoryItem);
+                treeItem = createStandardItem(parentItem, displayCategories.at(cat), CategoryItem);
                 categories.insert(fullCategory, treeItem);
             }
             currentCategory = fullCategory;
@@ -180,7 +180,7 @@ static QStandardItemModel *pageModel(const QList<IOptionsPage*> &pages,
 
         // Append page item
         QTC_ASSERT(treeItem, return model)
-        QStandardItem *item = createStandardItem(treeItem, page->trName(), PageItem, index, page);
+        QStandardItem *item = createStandardItem(treeItem, page->displayName(), PageItem, index, page);
         if (currentCategory == initialCategory && page->id() == initialPageId) {
             *initialIndex = model->indexFromItem(item);
         }
@@ -339,7 +339,7 @@ void SettingsDialog::showPage(const QStandardItem *item)
             m_currentPage = page->id();
             m_stackedLayout->setCurrentIndex(indexOfItem(item));
             m_visitedPages.insert(page);
-            m_headerLabel->setText(page->trName());
+            m_headerLabel->setText(page->displayName());
         }
         break;
     case CategoryItem:

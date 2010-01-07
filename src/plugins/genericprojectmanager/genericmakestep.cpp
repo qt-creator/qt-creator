@@ -38,6 +38,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <coreplugin/variablemanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QGroupBox>
@@ -141,7 +142,7 @@ void GenericMakeStep::run(QFutureInterface<bool> &fi)
     AbstractProcessStep::run(fi);
 }
 
-QString GenericMakeStep::name()
+QString GenericMakeStep::id()
 {
     return Constants::MAKESTEP;
 }
@@ -279,15 +280,15 @@ void GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited()
 // GenericMakeStepFactory
 //
 
-bool GenericMakeStepFactory::canCreate(const QString &name) const
+bool GenericMakeStepFactory::canCreate(const QString &id) const
 {
-    return (Constants::MAKESTEP == name);
+    return (Constants::MAKESTEP == id);
 }
 
 ProjectExplorer::BuildStep *GenericMakeStepFactory::create(ProjectExplorer::BuildConfiguration *bc,
-                                                           const QString &name) const
+                                                           const QString &id) const
 {
-    Q_ASSERT(name == Constants::MAKESTEP);
+    Q_ASSERT(id == Constants::MAKESTEP);
     return new GenericMakeStep(bc);
 }
 
@@ -297,12 +298,14 @@ ProjectExplorer::BuildStep *GenericMakeStepFactory::clone(ProjectExplorer::Build
     return new GenericMakeStep(static_cast<GenericMakeStep*>(bs), bc);
 }
 
-QStringList GenericMakeStepFactory::canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration * /* pro */) const
+QStringList GenericMakeStepFactory::canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const
 {
+    Q_UNUSED(bc);
     return QStringList();
 }
 
-QString GenericMakeStepFactory::displayNameForName(const QString & /* name */) const
+QString GenericMakeStepFactory::displayNameForId(const QString &id) const
 {
+    QTC_ASSERT(id == Constants::MAKESTEP, return QString());
     return "Make";
 }

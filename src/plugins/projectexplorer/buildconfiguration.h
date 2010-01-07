@@ -100,23 +100,23 @@ public:
     virtual ~IBuildConfigurationFactory();
 
     // used to show the list of possible additons to a project, returns a list of types
-    virtual QStringList availableCreationTypes() const = 0;
+    virtual QStringList availableCreationIds() const = 0;
     // used to translate the types to names to display to the user
-    virtual QString displayNameForType(const QString &type) const = 0;
+    virtual QString displayNameForId(const QString &id) const = 0;
 
     // creates build configuration(s) for given type and adds them to project
     // if successfull returns the BuildConfiguration that should be shown in the
     // project mode for editing
-    virtual BuildConfiguration *create(const QString &type) const = 0;
+    virtual BuildConfiguration *create(const QString &id) const = 0;
 
     // clones a given BuildConfiguration, should not add it to the project
     virtual BuildConfiguration *clone(BuildConfiguration *source) const = 0;
 
     // restores a BuildConfiguration with the name and adds it to the project
-    virtual BuildConfiguration *restore(const QMap<QString, QVariant> &values) const = 0;
+    virtual BuildConfiguration *restore(const QVariantMap &values) const = 0;
 
 signals:
-    void availableCreationTypesChanged();
+    void availableCreationIdsChanged();
 };
 
 } // namespace ProjectExplorer

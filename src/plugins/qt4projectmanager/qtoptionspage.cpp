@@ -72,7 +72,7 @@ void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
     future.setProgressValue(1);
     const QString output = m_version->buildDebuggingHelperLibrary();
     future.setProgressValue(1);
-    emit finished(m_version->name(), output);
+    emit finished(m_version->displayName(), output);
     deleteLater();
 }
 
@@ -89,7 +89,7 @@ QString QtOptionsPage::id() const
     return QLatin1String(Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 
-QString QtOptionsPage::trName() const
+QString QtOptionsPage::displayName() const
 {
     return QCoreApplication::translate("Qt4ProjectManager", Constants::QTVERSION_SETTINGS_PAGE_NAME);
 }
@@ -99,7 +99,7 @@ QString QtOptionsPage::category() const
     return QLatin1String(Constants::QT_SETTINGS_CATEGORY);
 }
 
-QString QtOptionsPage::trCategory() const
+QString QtOptionsPage::displayCategory() const
 {
     return QCoreApplication::translate("Qt4ProjectManager", Constants::QT_SETTINGS_TR_CATEGORY);
 }
@@ -178,7 +178,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     for (int i = 0; i < m_versions.count(); ++i) {
         const QtVersion * const version = m_versions.at(i).data();
         QTreeWidgetItem *item = new QTreeWidgetItem(version->isAutodetected()? autoItem : manualItem);
-        item->setText(0, version->name());
+        item->setText(0, version->displayName());
         item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
         item->setData(0, Qt::UserRole, version->uniqueId());
 
@@ -188,7 +188,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
             item->setData(2, Qt::DecorationRole, QIcon());
         }
 
-        m_ui->defaultCombo->addItem(version->name());
+        m_ui->defaultCombo->addItem(version->displayName());
         if (i == m_defaultVersion)
             m_ui->defaultCombo->setCurrentIndex(i);
     }
@@ -275,7 +275,7 @@ static inline int findVersionByName(const QList<QSharedPointerQtVersion> &l, con
 {
     const int size = l.size();
     for (int i = 0; i < size; i++)
-        if (l.at(i)->name() == name)
+        if (l.at(i)->displayName() == name)
             return i;
     return -1;
 }
@@ -347,16 +347,16 @@ void QtOptionsPageWidget::addQtDir()
     m_versions.append(newVersion);
 
     QTreeWidgetItem *item = new QTreeWidgetItem(m_ui->qtdirList->topLevelItem(1));
-    item->setText(0, newVersion->name());
+    item->setText(0, newVersion->displayName());
     item->setText(1, QDir::toNativeSeparators(newVersion->qmakeCommand()));
     item->setData(0, Qt::UserRole, newVersion->uniqueId());
     item->setData(2, Qt::DecorationRole, QIcon());
 
     m_ui->qtdirList->setCurrentItem(item);
 
-    m_ui->nameEdit->setText(newVersion->name());
+    m_ui->nameEdit->setText(newVersion->displayName());
     m_ui->qmakePath->setPath(newVersion->qmakeCommand());
-    m_ui->defaultCombo->addItem(newVersion->name());
+    m_ui->defaultCombo->addItem(newVersion->displayName());
     m_ui->nameEdit->setFocus();
     m_ui->nameEdit->selectAll();
 
@@ -606,7 +606,7 @@ void QtOptionsPageWidget::onMingwBrowsed()
 void QtOptionsPageWidget::defaultChanged(int)
 {
     for (int i=0; i<m_ui->defaultCombo->count(); ++i) {
-        if (m_versions.at(i)->name() == m_ui->defaultCombo->currentText()) {
+        if (m_versions.at(i)->displayName() == m_ui->defaultCombo->currentText()) {
             m_defaultVersion = i;
             return;
         }
@@ -622,10 +622,10 @@ void QtOptionsPageWidget::updateCurrentQtName()
     int currentItemIndex = indexForTreeItem(currentItem);
     if (currentItemIndex < 0)
         return;
-    m_versions[currentItemIndex]->setName(m_ui->nameEdit->text());
-    currentItem->setText(0, m_versions[currentItemIndex]->name());
+    m_versions[currentItemIndex]->setDisplayName(m_ui->nameEdit->text());
+    currentItem->setText(0, m_versions[currentItemIndex]->displayName());
 
-    m_ui->defaultCombo->setItemText(currentItemIndex, m_versions[currentItemIndex]->name());
+    m_ui->defaultCombo->setItemText(currentItemIndex, m_versions[currentItemIndex]->displayName());
 }
 
 
@@ -644,10 +644,10 @@ void QtOptionsPageWidget::fixQtVersionName(int index)
     if (index < 0)
         return;
     int count = m_versions.count();
-    QString name = m_versions.at(index)->name();
+    QString name = m_versions.at(index)->displayName();
     for (int i = 0; i < count; ++i) {
         if (i != index) {
-            if (m_versions.at(i)->name() == m_versions.at(index)->name()) {
+            if (m_versions.at(i)->displayName() == m_versions.at(index)->displayName()) {
                 // Same name, find new name
                 QRegExp regexp("^(.*)\\((\\d)\\)$");
                 if (regexp.exactMatch(name)) {
@@ -657,7 +657,7 @@ void QtOptionsPageWidget::fixQtVersionName(int index)
                     name = name + " (2)";
                 }
                 // set new name
-                m_versions[index]->setName(name);
+                m_versions[index]->setDisplayName(name);
                 treeItemForIndex(index)->setText(0, name);
                 m_ui->defaultCombo->setItemText(index, name);
 

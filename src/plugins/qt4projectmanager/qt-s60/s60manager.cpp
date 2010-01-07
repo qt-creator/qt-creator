@@ -183,12 +183,12 @@ void S60Manager::updateQtVersions()
         }
         if (deviceVersion) {
             deviceVersion->setQMakeCommand(qmakeFromQtDir(device.qt));
-            deviceVersion->setName(QString("%1 (Qt %2)").arg(device.id, deviceVersion->qtVersionString()));
+            deviceVersion->setDisplayName(QString("%1 (Qt %2)").arg(device.id, deviceVersion->qtVersionString()));
             handledVersions.append(deviceVersion);
         } else {
             deviceVersion = new QtVersion(QString("%1 (Qt %2)").arg(device.id), qmakeFromQtDir(device.qt),
                                           true, QString("%1.%2").arg(S60_AUTODETECTION_SOURCE, device.id));
-            deviceVersion->setName(deviceVersion->name().arg(deviceVersion->qtVersionString()));
+            deviceVersion->setDisplayName(deviceVersion->displayName().arg(deviceVersion->qtVersionString()));
             versionsToAdd.append(deviceVersion);
         }
         deviceVersion->setS60SDKDirectory(device.epocRoot);

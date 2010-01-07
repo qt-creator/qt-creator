@@ -96,13 +96,13 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
         if (cit == categories.end()) {
             QTreeWidgetItem *categoryItem = new QTreeWidgetItem(m_ui->templatesTree);
             categoryItem->setFlags(Qt::ItemIsEnabled);
-            categoryItem->setText(0, wizard->trCategory());
+            categoryItem->setText(0, wizard->displayCategory());
             qVariantSetValue<IWizard*>(wizardPtr, 0);
             categoryItem->setData(0, Qt::UserRole, wizardPtr);
             cit = categories.insert(categoryName, categoryItem);
         }
         // add item
-        QTreeWidgetItem *wizardItem = new QTreeWidgetItem(cit.value(), QStringList(wizard->name()));
+        QTreeWidgetItem *wizardItem = new QTreeWidgetItem(cit.value(), QStringList(wizard->displayName()));
         wizardItem->setIcon(0, wizard->icon());
         qVariantSetValue<IWizard*>(wizardPtr, wizard);
         wizardItem->setData(0, Qt::UserRole, wizardPtr);

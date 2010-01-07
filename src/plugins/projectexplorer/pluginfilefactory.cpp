@@ -46,7 +46,6 @@ using namespace ProjectExplorer::Internal;
 
 ProjectFileFactory::ProjectFileFactory(IProjectManager *manager)
   : m_mimeTypes(manager->mimeType()),
-    m_kind(Constants::FILE_FACTORY_KIND),
     m_manager(manager)
 {
 }
@@ -56,9 +55,14 @@ QStringList ProjectFileFactory::mimeTypes() const
     return m_mimeTypes;
 }
 
-QString ProjectFileFactory::kind() const
+QString ProjectFileFactory::id() const
 {
-    return m_kind;
+    return QLatin1String(Constants::FILE_FACTORY_ID);
+}
+
+QString ProjectFileFactory::displayName() const
+{
+    return tr("Project File Factory", "ProjectExplorer::ProjectFileFactory display name.");
 }
 
 Core::IFile *ProjectFileFactory::open(const QString &fileName)

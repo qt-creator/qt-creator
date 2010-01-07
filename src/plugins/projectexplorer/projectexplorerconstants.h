@@ -141,8 +141,8 @@ const char * const G_FILE_OPEN          = "ProjectFile.Group.Open";
 const char * const G_FILE_OTHER         = "ProjectFile.Group.Other";
 const char * const G_FILE_CONFIG        = "ProjectFile.Group.Config";
 
-// file kind
-const char * const FILE_FACTORY_KIND    = "ProjectExplorer.FileFactoryKind";
+// file id
+const char * const FILE_FACTORY_ID      = "ProjectExplorer.FileFactoryId";
 
 // wizard kind
 const char * const WIZARD_TYPE_PROJECT  = "ProjectExplorer.WizardType.Project";

@@ -63,25 +63,6 @@ struct CMakeTarget
     void clear();
 };
 
-class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
-{
-    Q_OBJECT
-
-public:
-    CMakeBuildConfigurationFactory(CMakeProject *project);
-    ~CMakeBuildConfigurationFactory();
-
-    QStringList availableCreationTypes() const;
-    QString displayNameForType(const QString &type) const;
-
-    ProjectExplorer::BuildConfiguration *create(const QString &type) const;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *restore(const QMap<QString, QVariant> &map) const;
-
-private:
-    CMakeProject *m_project;
-};
-
 class CMakeProject : public ProjectExplorer::Project
 {
     Q_OBJECT
@@ -93,7 +74,7 @@ public:
 
     CMakeBuildConfiguration *activeCMakeBuildConfiguration() const;
 
-    virtual QString name() const;
+    virtual QString displayName() const;
     virtual Core::IFile *file() const;
     virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
     virtual CMakeManager *projectManager() const;

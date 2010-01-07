@@ -43,7 +43,6 @@ using namespace QmlEditor::Constants;
 
 QmlEditorFactory::QmlEditorFactory(QObject *parent)
   : Core::IEditorFactory(parent),
-    m_kind(QLatin1String(C_QMLEDITOR)),
     m_mimeTypes(QLatin1String(QmlEditor::Constants::QMLEDITOR_MIMETYPE))
 {
 }
@@ -52,14 +51,20 @@ QmlEditorFactory::~QmlEditorFactory()
 {
 }
 
-QString QmlEditorFactory::kind() const
+QString QmlEditorFactory::id() const
 {
-    return m_kind;
+    return QLatin1String(C_QMLEDITOR_ID);
 }
+
+QString QmlEditorFactory::displayName() const
+{
+    return tr(C_QMLEDITOR_DISPLAY_NAME);
+}
+
 
 Core::IFile *QmlEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     if (!iface) {
         qWarning() << "QmlEditorFactory::open: openEditor failed for " << fileName;
         return 0;

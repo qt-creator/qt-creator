@@ -81,7 +81,7 @@ public:
 
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget * /*parent*/) { return 0; }
-    const char *kind() const { return m_kind; }
+    QString id() const { return m_id; }
 
     bool isTemporary() const { return true; }
 
@@ -90,14 +90,14 @@ signals:
     void annotateRevisionRequested(const QString &source, const QString &change, int line);
 
 private:
-    const char *m_kind;
+    QString m_id;
     QList<int> m_context;
 };
 
 VCSBaseEditorEditable::VCSBaseEditorEditable(VCSBaseEditor *editor,
                                              const VCSBaseEditorParameters *type)  :
     BaseTextEditorEditable(editor),
-    m_kind(type->kind)
+    m_id(type->id)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(QLatin1String(type->context))
@@ -180,7 +180,7 @@ VCSBaseEditor::VCSBaseEditor(const VCSBaseEditorParameters *type, QWidget *paren
     d(new VCSBaseEditorPrivate(type))
 {
     if (VCSBase::Constants::Internal::debug)
-        qDebug() << "VCSBaseEditor::VCSBaseEditor" << type->type << type->kind;
+        qDebug() << "VCSBaseEditor::VCSBaseEditor" << type->type << type->id;
 
     setReadOnly(true);
     viewport()->setMouseTracking(true);
@@ -674,7 +674,7 @@ static QTextCodec *findProjectCodec(const QString &dir)
                 if (file->fileName().startsWith(dir)) {
                     QTextCodec *codec = (*it)->editorConfiguration()->defaultTextCodec();
                     if (VCSBase::Constants::Internal::debug)
-                        qDebug() << Q_FUNC_INFO << dir << (*it)->name() << codec->name();
+                        qDebug() << Q_FUNC_INFO << dir << (*it)->displayName() << codec->name();
                     return codec;
                 }
     }

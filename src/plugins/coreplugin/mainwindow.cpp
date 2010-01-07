@@ -910,13 +910,13 @@ void MainWindow::openFileWith()
     QStringList fileNames = editorManager()->getOpenFileNames();
     foreach (const QString &fileName, fileNames) {
         bool isExternal;
-        const QString editorKind = editorManager()->getOpenWithEditorKind(fileName, &isExternal);
-        if (editorKind.isEmpty())
+        const QString editorId = editorManager()->getOpenWithEditorId(fileName, &isExternal);
+        if (editorId.isEmpty())
             continue;
         if (isExternal) {
-            editorManager()->openExternalEditor(fileName, editorKind);
+            editorManager()->openExternalEditor(fileName, editorId);
         } else {
-            editorManager()->openEditor(fileName, editorKind);
+            editorManager()->openEditor(fileName, editorId);
         }
     }
 }

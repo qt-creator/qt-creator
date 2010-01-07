@@ -178,8 +178,8 @@ public:
 public slots:
     QList<Core::IEditor*> editorsForFiles(QList<Core::IFile*> files) const;
     bool closeEditors(const QList<Core::IEditor*> editorsToClose, bool askAboutModifiedEditors);
-    Core::IEditor *openEditor(const QString &fileName, const QString &editorKind);
-    Core::IEditor *newFile(const QString &editorKind, QString titlePattern, const QString &contents);
+    Core::IEditor *openEditor(const QString &fileName, const QString &editorId);
+    Core::IEditor *newFile(const QString &editorId, QString titlePattern, const QString &contents);
     int makeEditorWritable(Core::IEditor *editor);
 
     QString toString() const;
@@ -194,7 +194,7 @@ class EditorPrototype :  public QObject, public QScriptable
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ displayName WRITE setDisplayName DESIGNABLE false SCRIPTABLE true STORED false)
-    Q_PROPERTY(QString kind READ kind DESIGNABLE false SCRIPTABLE true STORED false)
+    Q_PROPERTY(QString id READ id DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(bool duplicateSupported READ duplicateSupported DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(Core::IFile* file READ file DESIGNABLE false SCRIPTABLE true STORED false)
     Q_PROPERTY(QWidget* toolBar  READ toolBar DESIGNABLE false SCRIPTABLE true STORED false)
@@ -205,7 +205,7 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &title);
 
-    QString kind() const;
+    QString id() const;
     bool duplicateSupported() const;
 
     Core::IFile *file() const;

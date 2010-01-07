@@ -48,7 +48,7 @@ public:
     virtual bool createNew(const QString &contents = QString()) = 0;
     virtual bool open(const QString &fileName = QString()) = 0;
     virtual IFile *file() = 0;
-    virtual const char *kind() const = 0;
+    virtual QString id() const = 0;
     virtual QString displayName() const = 0;
     virtual void setDisplayName(const QString &title) = 0;
 

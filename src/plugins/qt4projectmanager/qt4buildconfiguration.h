@@ -138,6 +138,37 @@ private:
     QtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
 };
 
+class Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    Qt4BuildConfigurationFactory(Qt4Project *project);
+    ~Qt4BuildConfigurationFactory();
+
+    QStringList availableCreationIds() const;
+    QString displayNameForId(const QString &id) const;
+
+    ProjectExplorer::BuildConfiguration *create(const QString &id) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *restore(const QVariantMap &values) const;
+
+private slots:
+    void update();
+
+private:
+    struct VersionInfo {
+        VersionInfo() {}
+        VersionInfo(const QString &d, int v)
+            : displayName(d), versionId(v) { }
+        QString displayName;
+        int versionId;
+    };
+
+    Qt4Project *m_project;
+    QMap<QString, VersionInfo> m_versions;
+};
+
 } // namespace Qt4ProjectManager
 } // namespace Internal
 

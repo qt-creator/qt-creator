@@ -90,7 +90,7 @@ public:
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget *) { return 0; }
     Core::IFile *file() { return m_resourceFile; }
-    const char *kind() const;
+    QString id() const;
     QString displayName() const { return m_displayName; }
     void setDisplayName(const QString &title) { m_displayName = title; }
     QWidget *toolBar() { return 0; }

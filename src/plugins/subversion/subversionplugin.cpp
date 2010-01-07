@@ -972,11 +972,11 @@ Core::IEditor * SubversionPlugin::showOutputInEditor(const QString& title, const
 {
     const VCSBase::VCSBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const QString kind = QLatin1String(params->kind);
+    const QString id = params->id;
     if (Subversion::Constants::debug)
-        qDebug() << "SubversionPlugin::showOutputInEditor" << title << kind <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
+        qDebug() << "SubversionPlugin::showOutputInEditor" << title << id <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(kind, &s, output);
+    Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(id, &s, output);
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,int)));
     SubversionEditor *e = qobject_cast<SubversionEditor*>(editor->widget());

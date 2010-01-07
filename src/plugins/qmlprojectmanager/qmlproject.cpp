@@ -166,7 +166,7 @@ QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
 QStringList QmlProject::files() const
 { return m_files; }
 
-QString QmlProject::name() const
+QString QmlProject::displayName() const
 {
     return m_projectName;
 }
@@ -305,10 +305,9 @@ void QmlProjectFile::modified(ReloadBehavior *)
 QmlRunConfiguration::QmlRunConfiguration(QmlProject *pro)
     : ProjectExplorer::RunConfiguration(pro),
       m_project(pro),
-      m_type(Constants::QMLRUNCONFIGURATION),
       m_debugServerPort(3768)
 {
-    setName(tr("QML Viewer"));
+    setDisplayName(tr("QML Viewer"));
 
     // append creator/bin dir to search path (only useful for special creator-qml package)
     const QString searchPath = QString(qgetenv("PATH"))
@@ -322,9 +321,9 @@ QmlRunConfiguration::~QmlRunConfiguration()
 {
 }
 
-QString QmlRunConfiguration::type() const
+QString QmlRunConfiguration::id() const
 {
-    return m_type;
+    return QLatin1String(Constants::QMLRUNCONFIGURATION);
 }
 
 QString QmlRunConfiguration::viewerPath() const
@@ -476,7 +475,6 @@ void QmlRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReade
 }
 
 QmlRunConfigurationFactory::QmlRunConfigurationFactory()
-    : m_type(Constants::QMLRUNCONFIGURATION)
 {
 }
 
@@ -484,22 +482,22 @@ QmlRunConfigurationFactory::~QmlRunConfigurationFactory()
 {
 }
 
-bool QmlRunConfigurationFactory::canRestore(const QString &type) const
+bool QmlRunConfigurationFactory::canRestore(const QString &id) const
 {
-    if (type.startsWith(m_type))
+    if (id.startsWith(QLatin1String(Constants::QMLRUNCONFIGURATION)))
         return true;
 
     return false;
 }
 
-QStringList QmlRunConfigurationFactory::availableCreationTypes(ProjectExplorer::Project *) const
+QStringList QmlRunConfigurationFactory::availableCreationIds(ProjectExplorer::Project *) const
 {
     return QStringList();
 }
 
-QString QmlRunConfigurationFactory::displayNameForType(const QString &type) const
+QString QmlRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    return type;
+    return id;
 }
 
 ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::create(ProjectExplorer::Project *project,
@@ -592,7 +590,7 @@ QmlRunControlFactory::~QmlRunControlFactory()
 
 bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
-    Q_UNUSED(mode)
+    Q_UNUSED(mode);
     return (qobject_cast<QmlRunConfiguration*>(runConfiguration) != 0);
 }
 

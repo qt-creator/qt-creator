@@ -67,12 +67,12 @@ void HelpIndexFilter::updateIndices()
         m_plugin->setIndexFilter(currentFilter);
 }
 
-QString HelpIndexFilter::trName() const
+QString HelpIndexFilter::displayName() const
 {
     return tr("Help index");
 }
 
-QString HelpIndexFilter::name() const
+QString HelpIndexFilter::id() const
 {
     return QLatin1String("HelpIndexFilter");
 }

@@ -71,22 +71,22 @@
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput,
-    Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_KIND,
+    Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_ID,
     Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_CONTEXT,
     "application/vnd.nokia.text.scs_commandlog",
     "scslog"},
 {   VCSBase::LogOutput,
-    Perforce::Constants::PERFORCE_LOG_EDITOR_KIND,
+    Perforce::Constants::PERFORCE_LOG_EDITOR_ID,
     Perforce::Constants::PERFORCE_LOG_EDITOR_CONTEXT,
     "application/vnd.nokia.text.scs_filelog",
     "scsfilelog"},
 {    VCSBase::AnnotateOutput,
-     Perforce::Constants::PERFORCE_ANNOTATION_EDITOR_KIND,
+     Perforce::Constants::PERFORCE_ANNOTATION_EDITOR_ID,
      Perforce::Constants::PERFORCE_ANNOTATION_EDITOR_CONTEXT,
     "application/vnd.nokia.text.scs_annotation",
     "scsannotate"},
 {   VCSBase::DiffOutput,
-    Perforce::Constants::PERFORCE_DIFF_EDITOR_KIND,
+    Perforce::Constants::PERFORCE_DIFF_EDITOR_ID,
     Perforce::Constants::PERFORCE_DIFF_EDITOR_CONTEXT,
     "text/x-patch","diff"}
 };
@@ -172,7 +172,7 @@ PerforceResponse::PerforceResponse() :
 PerforcePlugin *PerforcePlugin::m_perforcePluginInstance = NULL;
 
 PerforcePlugin::PerforcePlugin() :
-    VCSBase::VCSBasePlugin(QLatin1String(Constants::PERFORCE_SUBMIT_EDITOR_KIND)),
+    VCSBase::VCSBasePlugin(QLatin1String(Constants::PERFORCE_SUBMIT_EDITOR_ID)),
     m_editAction(0),
     m_addAction(0),
     m_deleteAction(0),
@@ -204,7 +204,7 @@ PerforcePlugin::PerforcePlugin() :
 
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Perforce::Constants::SUBMIT_MIMETYPE,
-    Perforce::Constants::PERFORCE_SUBMIT_EDITOR_KIND,
+    Perforce::Constants::PERFORCE_SUBMIT_EDITOR_ID,
     Perforce::Constants::PERFORCESUBMITEDITOR_CONTEXT
 };
 
@@ -657,7 +657,7 @@ void PerforcePlugin::startSubmitProject()
 Core::IEditor *PerforcePlugin::openPerforceSubmitEditor(const QString &fileName, const QStringList &depotFileNames)
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    Core::IEditor *editor = editorManager->openEditor(fileName, Constants::PERFORCE_SUBMIT_EDITOR_KIND);
+    Core::IEditor *editor = editorManager->openEditor(fileName, Constants::PERFORCE_SUBMIT_EDITOR_ID);
     editorManager->ensureEditorManagerVisible();
     PerforceSubmitEditor *submitEditor = static_cast<PerforceSubmitEditor*>(editor);
     submitEditor->restrictToProjectFiles(depotFileNames);
@@ -1146,11 +1146,11 @@ Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const Q
 {
     const VCSBase::VCSBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const QString kind = QLatin1String(params->kind);
+    const QString id = params->id;
     if (Perforce::Constants::debug)
-        qDebug() << "PerforcePlugin::showOutputInEditor" << title << kind <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
+        qDebug() << "PerforcePlugin::showOutputInEditor" << title << id <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(kind, &s, output);
+    Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(id, &s, output);
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,int)));
     PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());

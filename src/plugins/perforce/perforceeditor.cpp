@@ -64,7 +64,7 @@ PerforceEditor::PerforceEditor(const VCSBase::VCSBaseEditorParameters *type,
     QTC_ASSERT(m_changeNumberPattern.isValid(), /**/);
     setAnnotateRevisionTextFormat(tr("Annotate change list \"%1\""));
     if (Perforce::Constants::debug)
-        qDebug() << "PerforceEditor::PerforceEditor" << type->type << type->kind;
+        qDebug() << "PerforceEditor::PerforceEditor" << type->type << type->id;
 }
 
 QSet<QString> PerforceEditor::annotationChanges() const

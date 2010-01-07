@@ -35,26 +35,27 @@ namespace Constants {
 
 const char * const PERFORCEEDITOR_CONTEXT  = "Perforce Editor";
 
-
-const char * const PERFORCE_SUBMIT_EDITOR_KIND  = "Perforce Submit Editor";
+const char * const PERFORCE_SUBMIT_EDITOR_ID  = "Perforce.SubmitEditor";
 const char * const PERFORCESUBMITEDITOR_CONTEXT = "Perforce Submit Editor";
 
-const char * const PERFORCE_COMMANDLOG_EDITOR_KIND = "Perforce Command Log Editor";
+const char * const PERFORCE_COMMANDLOG_EDITOR_ID = "Perfoirce.CommandLogEditor";
 const char * const PERFORCE_COMMANDLOG_EDITOR_CONTEXT = "Perforce Command Log Editor";
 
-const char * const PERFORCE_LOG_EDITOR_KIND = "Perforce Log Editor";
+const char * const PERFORCE_LOG_EDITOR_ID = "Perforce.LogEditor";
 const char * const PERFORCE_LOG_EDITOR_CONTEXT = "Perforce Log Editor";
 
-const char * const PERFORCE_DIFF_EDITOR_KIND = "Perforce Diff Editor";
+const char * const PERFORCE_DIFF_EDITOR_ID = "Perforce.DiffEditor";
 const char * const PERFORCE_DIFF_EDITOR_CONTEXT = "Perforce Diff Editor";
 
-const char * const PERFORCE_ANNOTATION_EDITOR_KIND = "Perforce Annotation Editor";
+const char * const PERFORCE_ANNOTATION_EDITOR_ID = "Perforce.AnnotationEditor";
 const char * const PERFORCE_ANNOTATION_EDITOR_CONTEXT = "Perforce Annotation Editor";
 
 const char * const SUBMIT_CURRENT = "Perforce.SubmitCurrentLog";
 const char * const DIFF_SELECTED = "Perforce.DiffSelectedFilesInLog";
 const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.p4.submit";
+
 enum { debug = 0 };
+
 } // Internal
 } // Perforce
 

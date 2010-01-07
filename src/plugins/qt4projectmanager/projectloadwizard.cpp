@@ -172,7 +172,7 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
     QVBoxLayout *importLayout = new QVBoxLayout(importPage);
     importLabel = new QLabel(importPage);
 
-    QString versionString = version->name() + " (" + QDir::toNativeSeparators(version->qmakeCommand()) + ")";
+    QString versionString = version->displayName() + " (" + QDir::toNativeSeparators(version->qmakeCommand()) + ")";
     QString buildConfigString = (buildConfig & QtVersion::BuildAll) ? QLatin1String("debug_and_release ") : QLatin1String("");
     buildConfigString.append((buildConfig & QtVersion::DebugBuild) ? QLatin1String("debug") : QLatin1String("release"));
     importLabel->setTextFormat(Qt::RichText);

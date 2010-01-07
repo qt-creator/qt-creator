@@ -247,7 +247,7 @@ void ProjectTreeWidget::editCurrentItem()
 void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
 {
     if (debug)
-        qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->name() : "0")
+        qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->displayName() : "0")
                  << ", " <<  (node ? node->path() : "0") << ")";
     if (!project) {
         return;

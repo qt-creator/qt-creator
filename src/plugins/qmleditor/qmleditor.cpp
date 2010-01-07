@@ -278,8 +278,10 @@ QmlEditorEditable::QmlEditorEditable(QmlTextEditor *editor)
 {
 
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(QmlEditor::Constants::C_QMLEDITOR);
+    m_context << uidm->uniqueIdentifier(QmlEditor::Constants::C_QMLEDITOR_ID);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+
+    setDisplayName(tr(QmlEditor::Constants::C_QMLEDITOR_DISPLAY_NAME));
 }
 
 QmlTextEditor::QmlTextEditor(QWidget *parent) :
@@ -328,9 +330,9 @@ Core::IEditor *QmlEditorEditable::duplicate(QWidget *parent)
     return newEditor->editableInterface();
 }
 
-const char *QmlEditorEditable::kind() const
+QString QmlEditorEditable::id() const
 {
-    return QmlEditor::Constants::C_QMLEDITOR;
+    return QLatin1String(QmlEditor::Constants::C_QMLEDITOR_ID);
 }
 
 QmlTextEditor::Context QmlEditorEditable::context() const

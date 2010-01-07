@@ -1022,11 +1022,11 @@ Core::IEditor * CVSPlugin::showOutputInEditor(const QString& title, const QStrin
 {
     const VCSBase::VCSBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const QString kind = QLatin1String(params->kind);
+    const QString id = params->id;
     if (CVS::Constants::debug)
-        qDebug() << "CVSPlugin::showOutputInEditor" << title << kind <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
+        qDebug() << "CVSPlugin::showOutputInEditor" << title << id <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(kind, &s, output.toLocal8Bit());
+    Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(id, &s, output.toLocal8Bit());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,int)));
     CVSEditor *e = qobject_cast<CVSEditor*>(editor->widget());

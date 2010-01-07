@@ -131,7 +131,7 @@ QString SettingsPage::id() const
     return QLatin1String(VCSBase::Constants::VCS_ID_PERFORCE);
 }
 
-QString SettingsPage::trName() const
+QString SettingsPage::displayName() const
 {
     return tr("Perforce");
 }
@@ -141,7 +141,7 @@ QString SettingsPage::category() const
     return QLatin1String(VCSBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 
-QString SettingsPage::trCategory() const
+QString SettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_TR_CATEGORY);
 }

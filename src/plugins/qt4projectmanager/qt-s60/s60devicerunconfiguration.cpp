@@ -93,9 +93,9 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
     m_signingMode(SignSelf)
 {
     if (!m_proFilePath.isEmpty())
-        setName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
+        setDisplayName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
-        setName(tr("QtS60DeviceRunConfiguration"));
+        setDisplayName(tr("QtS60DeviceRunConfiguration"));
 
     connect(project, SIGNAL(targetInformationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
@@ -120,7 +120,7 @@ Qt4Project *S60DeviceRunConfiguration::qt4Project() const
     return static_cast<Qt4Project *>(project());
 }
 
-QString S60DeviceRunConfiguration::type() const
+QString S60DeviceRunConfiguration::id() const
 {
     return QLatin1String("Qt4ProjectManager.DeviceRunConfiguration");
 }
@@ -286,7 +286,7 @@ void S60DeviceRunConfiguration::updateTarget()
         if (info.error == Qt4TargetInformation::ProParserError) {
             Core::ICore::instance()->messageManager()->printToOutputPane(
                     tr("Could not parse %1. The QtS60 Device run configuration %2 can not be started.")
-                    .arg(m_proFilePath).arg(name()));
+                    .arg(m_proFilePath).arg(displayName()));
         }
         m_targetName = QString::null;
         m_baseFileName = QString::null;
@@ -347,12 +347,12 @@ S60DeviceRunConfigurationFactory::~S60DeviceRunConfigurationFactory()
 {
 }
 
-bool S60DeviceRunConfigurationFactory::canRestore(const QString &type) const
+bool S60DeviceRunConfigurationFactory::canRestore(const QString &id) const
 {
-    return type == "Qt4ProjectManager.DeviceRunConfiguration";
+    return id == "Qt4ProjectManager.DeviceRunConfiguration";
 }
 
-QStringList S60DeviceRunConfigurationFactory::availableCreationTypes(Project *pro) const
+QStringList S60DeviceRunConfigurationFactory::availableCreationIds(Project *pro) const
 {
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
     if (qt4project) {
@@ -367,21 +367,21 @@ QStringList S60DeviceRunConfigurationFactory::availableCreationTypes(Project *pr
     }
 }
 
-QString S60DeviceRunConfigurationFactory::displayNameForType(const QString &type) const
+QString S60DeviceRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    QString fileName = type.mid(QString("QtSymbianDeviceRunConfiguration.").size());
+    QString fileName = id.mid(QString("QtSymbianDeviceRunConfiguration.").size());
     return tr("%1 on Symbian Device").arg(QFileInfo(fileName).completeBaseName());
 }
 
-RunConfiguration *S60DeviceRunConfigurationFactory::create(Project *project, const QString &type)
+RunConfiguration *S60DeviceRunConfigurationFactory::create(Project *project, const QString &id)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(p);
-    if (type.startsWith("QtSymbianDeviceRunConfiguration.")) {
-        QString fileName = type.mid(QString("QtSymbianDeviceRunConfiguration.").size());
+    if (id.startsWith("QtSymbianDeviceRunConfiguration.")) {
+        QString fileName = id.mid(QString("QtSymbianDeviceRunConfiguration.").size());
         return new S60DeviceRunConfiguration(p, fileName);
     }
-    Q_ASSERT(type == "Qt4ProjectManager.DeviceRunConfiguration");
+    Q_ASSERT(id == "Qt4ProjectManager.DeviceRunConfiguration");
     // The right path is set in restoreSettings
     RunConfiguration *rc = new S60DeviceRunConfiguration(p, QString::null);
     return rc;

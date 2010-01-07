@@ -48,7 +48,7 @@ QString DocSettingsPage::id() const
     return QLatin1String("B.Documentation");
 }
 
-QString DocSettingsPage::trName() const
+QString DocSettingsPage::displayName() const
 {
     return tr("Documentation");
 }
@@ -58,7 +58,7 @@ QString DocSettingsPage::category() const
     return QLatin1String(Help::Constants::HELP_CATEGORY);
 }
 
-QString DocSettingsPage::trCategory() const
+QString DocSettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY);
 }

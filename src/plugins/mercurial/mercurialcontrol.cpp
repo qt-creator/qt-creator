@@ -43,7 +43,7 @@ MercurialControl::MercurialControl(MercurialClient *client)
 {
 }
 
-QString MercurialControl::name() const
+QString MercurialControl::displayName() const
 {
     return tr("Mercurial");
 }

@@ -56,7 +56,8 @@ struct VCSBaseSubmitEditorPrivate;
 /* Utility struct to parametrize a VCSBaseSubmitEditor. */
 struct VCSBASE_EXPORT VCSBaseSubmitEditorParameters {
     const char *mimeType;
-    const char *kind;
+    QString id;
+    QString displayName;
     const char *context;
 };
 
@@ -141,7 +142,7 @@ public:
     virtual void setDisplayName(const QString &title);
     virtual bool duplicateSupported() const;
     virtual Core::IEditor *duplicate(QWidget * parent);
-    virtual const char *kind() const;
+    virtual QString id() const;
 
     virtual QWidget *toolBar();
     virtual QList<int> context() const;

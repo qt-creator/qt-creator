@@ -47,7 +47,7 @@ QString GdbOptionsPage::settingsId()
     return QLatin1String("M.Gdb");
 }
 
-QString GdbOptionsPage::trName() const
+QString GdbOptionsPage::displayName() const
 {
     return tr("Gdb");
 }
@@ -57,7 +57,7 @@ QString GdbOptionsPage::category() const
     return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
 }
 
-QString GdbOptionsPage::trCategory() const
+QString GdbOptionsPage::displayCategory() const
 {
     return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY);
 }

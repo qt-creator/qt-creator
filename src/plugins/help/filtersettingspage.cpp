@@ -49,7 +49,7 @@ QString FilterSettingsPage::id() const
     return QLatin1String("D.Filters");
 }
 
-QString FilterSettingsPage::trName() const
+QString FilterSettingsPage::displayName() const
 {
     return tr("Filters");
 }
@@ -59,7 +59,7 @@ QString FilterSettingsPage::category() const
     return QLatin1String(Help::Constants::HELP_CATEGORY);
 }
 
-QString FilterSettingsPage::trCategory() const
+QString FilterSettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY);
 }

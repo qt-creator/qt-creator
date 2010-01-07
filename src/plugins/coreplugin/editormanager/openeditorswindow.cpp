@@ -231,7 +231,7 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
             item->setToolTip(0, hi.file->fileName());
             item->setData(0, Qt::UserRole, QVariant::fromValue(hi.file.data()));
             item->setData(0, Qt::UserRole+1, QVariant::fromValue(view));
-            item->setData(0, Qt::UserRole+2, QVariant::fromValue(hi.kind));
+            item->setData(0, Qt::UserRole+2, QVariant::fromValue(hi.id));
             item->setTextAlignment(0, Qt::AlignLeft);
 
             m_editorList->addTopLevelItem(item);
@@ -252,7 +252,7 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
         item->setIcon(0, emptyIcon);
         item->setText(0, title);
         item->setToolTip(0, entry.fileName());
-        item->setData(0, Qt::UserRole+2, QVariant::fromValue(entry.kind()));
+        item->setData(0, Qt::UserRole+2, QVariant::fromValue(entry.id()));
         item->setTextAlignment(0, Qt::AlignLeft);
 
         m_editorList->addTopLevelItem(item);

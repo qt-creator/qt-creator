@@ -52,8 +52,8 @@ public:
     HelpIndexFilter(HelpPlugin *plugin, QHelpEngine *helpEngine);
 
     // ILocatorFilter
-    QString trName() const;
-    QString name() const;
+    QString displayName() const;
+    QString id() const;
     Priority priority() const;
     QList<Locator::FilterEntry> matchesFor(const QString &entry);
     void accept(Locator::FilterEntry selection) const;

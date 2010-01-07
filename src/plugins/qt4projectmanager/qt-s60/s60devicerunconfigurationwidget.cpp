@@ -69,7 +69,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     m_runConfiguration(runConfiguration),
     m_detailsWidget(new Utils::DetailsWidget),
     m_serialPortsCombo(new QComboBox),
-    m_nameLineEdit(new QLineEdit(m_runConfiguration->name())),
+    m_nameLineEdit(new QLineEdit(m_runConfiguration->displayName())),
     m_sisxFileLabel(new QLabel),
     m_deviceInfoButton(new QToolButton),
     m_deviceInfoDescriptionLabel(new QLabel(tr("Device:"))),
@@ -162,7 +162,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     keyPath->setPath(m_runConfiguration->customKeyPath());
 
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(nameEdited(QString)));
+            this, SLOT(displayNameEdited(QString)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
     connect(selfSign, SIGNAL(toggled(bool)), this, SLOT(selfSignToggled(bool)));
@@ -216,9 +216,9 @@ CommunicationDevice S60DeviceRunConfigurationWidget::currentDevice() const
     return device(m_serialPortsCombo->currentIndex());
 }
 
-void S60DeviceRunConfigurationWidget::nameEdited(const QString &text)
+void S60DeviceRunConfigurationWidget::displayNameEdited(const QString &text)
 {
-    m_runConfiguration->setName(text);
+    m_runConfiguration->setDisplayName(text);
 }
 
 void S60DeviceRunConfigurationWidget::updateTargetInformation()

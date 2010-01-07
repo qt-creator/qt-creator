@@ -28,7 +28,12 @@
 **************************************************************************/
 
 #include "qt4buildconfiguration.h"
+
 #include "qt4project.h"
+
+#include <utils/qtcassert.h>
+
+#include <QtGui/QInputDialog>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -501,3 +506,90 @@ QString Qt4BuildConfiguration::extractSpecFromArgumentList(const QStringList &li
 #endif
     return parsedSpec;
 }
+
+/*!
+  \class Qt4BuildConfigurationFactory
+*/
+
+Qt4BuildConfigurationFactory::Qt4BuildConfigurationFactory(Qt4Project *project)
+    : IBuildConfigurationFactory(project),
+    m_project(project)
+{
+    update();
+
+    QtVersionManager *vm = QtVersionManager::instance();
+    connect(vm, SIGNAL(defaultQtVersionChanged()),
+            this, SLOT(update()));
+    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
+            this, SLOT(update()));
+}
+
+Qt4BuildConfigurationFactory::~Qt4BuildConfigurationFactory()
+{
+}
+
+void Qt4BuildConfigurationFactory::update()
+{
+
+    m_versions.clear();
+    m_versions.insert(QLatin1String("DefaultQt"), VersionInfo(tr("Using Default Qt Version"), 0));
+    QtVersionManager *vm = QtVersionManager::instance();
+    foreach (const QtVersion *version, vm->versions()) {
+        m_versions.insert(QString::fromLatin1("Qt%1").arg(version->uniqueId()),
+                          VersionInfo(tr("Using Qt Version \"%1\"").arg(version->displayName()), version->uniqueId()));
+    }
+    emit availableCreationIdsChanged();
+}
+
+QStringList Qt4BuildConfigurationFactory::availableCreationIds() const
+{
+    return m_versions.keys();
+}
+
+QString Qt4BuildConfigurationFactory::displayNameForId(const QString &id) const
+{
+    if (m_versions.contains(id))
+        return m_versions.value(id).displayName;
+    return QString();
+}
+
+BuildConfiguration *Qt4BuildConfigurationFactory::create(const QString &id) const
+{
+    QTC_ASSERT(m_versions.contains(id), return false);
+    const VersionInfo &info = m_versions.value(id);
+    QtVersion *version = QtVersionManager::instance()->version(info.versionId);
+    if (!version)
+        return false;
+    bool ok;
+    QString buildConfigurationName = QInputDialog::getText(0,
+                          tr("New configuration"),
+                          tr("New Configuration Name:"),
+                          QLineEdit::Normal,
+                          version->displayName(),
+                          &ok);
+    if (!ok || buildConfigurationName.isEmpty())
+        return false;
+
+    m_project->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
+                                     version,
+                                     (version->defaultBuildConfig() | QtVersion::DebugBuild));
+    BuildConfiguration *bc =
+    m_project->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
+                                     version,
+                                     (version->defaultBuildConfig() & ~QtVersion::DebugBuild));
+    return bc;
+}
+
+BuildConfiguration *Qt4BuildConfigurationFactory::clone(BuildConfiguration *source) const
+{
+    Qt4BuildConfiguration *oldbc = static_cast<Qt4BuildConfiguration *>(source);
+    Qt4BuildConfiguration *newbc = new Qt4BuildConfiguration(oldbc);
+    return newbc;
+}
+
+BuildConfiguration *Qt4BuildConfigurationFactory::restore(const QMap<QString, QVariant> &values) const
+{
+    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(m_project, values);
+    return bc;
+}
+

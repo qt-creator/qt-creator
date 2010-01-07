@@ -61,7 +61,7 @@ public:
 
     QString filesFileName() const;
 
-    virtual QString name() const;
+    virtual QString displayName() const;
     virtual Core::IFile *file() const;
     virtual Manager *projectManager() const;
     virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
@@ -149,7 +149,7 @@ public:
     uint debugServerPort() const;
 
     // RunConfiguration
-    virtual QString type() const;
+    virtual QString id() const;
     virtual QWidget *configurationWidget();
 
     virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
@@ -168,7 +168,6 @@ private:
     QString m_qmlViewerCustomPath;
     QString m_qmlViewerDefaultPath;
     QString m_qmlViewerArgs;
-    QLatin1String m_type;
     uint m_debugServerPort;
 };
 
@@ -181,19 +180,16 @@ public:
     virtual ~QmlRunConfigurationFactory();
 
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(const QString &type) const;
+    virtual bool canRestore(const QString &id) const;
 
     // used to show the list of possible additons to a project, returns a list of types
-    virtual QStringList availableCreationTypes(ProjectExplorer::Project *pro) const;
+    virtual QStringList availableCreationIds(ProjectExplorer::Project *pro) const;
 
     // used to translate the types to names to display to the user
-    virtual QString displayNameForType(const QString &type) const;
+    virtual QString displayNameForId(const QString &id) const;
 
     virtual ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project,
-                                                                     const QString &type);
-
-private:
-    QLatin1String m_type;
+                                                      const QString &id);
 };
 
 class QmlRunControl : public ProjectExplorer::RunControl {

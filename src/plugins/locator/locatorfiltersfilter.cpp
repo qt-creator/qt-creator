@@ -48,12 +48,12 @@ LocatorFiltersFilter::LocatorFiltersFilter(LocatorPlugin *plugin,
     setHidden(true);
 }
 
-QString LocatorFiltersFilter::trName() const
+QString LocatorFiltersFilter::displayName() const
 {
     return tr("Available filters");
 }
 
-QString LocatorFiltersFilter::name() const
+QString LocatorFiltersFilter::id() const
 {
     return QLatin1String("FiltersFilter");
 }
@@ -73,7 +73,7 @@ QList<FilterEntry> LocatorFiltersFilter::matchesFor(const QString &entry)
                                   filter->shortcutString(),
                                   QVariant::fromValue(filter),
                                   m_icon);
-                entry.extraInfo = filter->trName();
+                entry.extraInfo = filter->displayName();
                 entries.append(entry);
             }
         }

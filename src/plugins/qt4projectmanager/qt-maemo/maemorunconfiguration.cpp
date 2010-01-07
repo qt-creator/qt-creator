@@ -113,10 +113,10 @@ MaemoRunConfiguration::MaemoRunConfiguration(Project *project,
     , qemu(0)
 {
     if (!m_proFilePath.isEmpty()) {
-        setName(tr("%1 on Maemo device").arg(QFileInfo(m_proFilePath)
+        setDisplayName(tr("%1 on Maemo device").arg(QFileInfo(m_proFilePath)
             .completeBaseName()));
     } else {
-        setName(tr("MaemoRunConfiguration"));
+        setDisplayName(tr("MaemoRunConfiguration"));
     }
 
     connect(&MaemoDeviceConfigurations::instance(), SIGNAL(updated()),
@@ -148,7 +148,7 @@ MaemoRunConfiguration::~MaemoRunConfiguration()
     qemu = NULL;
 }
 
-QString MaemoRunConfiguration::type() const
+QString MaemoRunConfiguration::id() const
 {
     return QLatin1String("Qt4ProjectManager.MaemoRunConfiguration");
 }
@@ -421,7 +421,7 @@ void MaemoRunConfiguration::updateTarget()
         if (info.error == Qt4TargetInformation::ProParserError) {
             Core::ICore::instance()->messageManager()->printToOutputPane(tr(
                 "Could not parse %1. The Maemo run configuration %2 "
-                "can not be started.").arg(m_proFilePath).arg(name()));
+                "can not be started.").arg(m_proFilePath).arg(displayName()));
         }
         emit targetInformationChanged();
         return;
@@ -561,12 +561,12 @@ MaemoRunConfigurationFactory::~MaemoRunConfigurationFactory()
 {
 }
 
-bool MaemoRunConfigurationFactory::canRestore(const QString &type) const
+bool MaemoRunConfigurationFactory::canRestore(const QString &id) const
 {
-    return type == "Qt4ProjectManager.MaemoRunConfiguration";
+    return id == "Qt4ProjectManager.MaemoRunConfiguration";
 }
 
-QStringList MaemoRunConfigurationFactory::availableCreationTypes(
+QStringList MaemoRunConfigurationFactory::availableCreationIds(
     Project *pro) const
 {
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
@@ -581,16 +581,15 @@ QStringList MaemoRunConfigurationFactory::availableCreationTypes(
     return QStringList();
 }
 
-QString MaemoRunConfigurationFactory::displayNameForType(
-    const QString &type) const
+QString MaemoRunConfigurationFactory::displayNameForId(const QString &id) const
 {
     const int size = QString::fromLocal8Bit("MaemoRunConfiguration.").size();
-    return tr("%1 on Maemo Device").arg(QFileInfo(type.mid(size))
+    return tr("%1 on Maemo Device").arg(QFileInfo(id.mid(size))
         .completeBaseName());
 }
 
 RunConfiguration *MaemoRunConfigurationFactory::create(Project *project,
-    const QString &type)
+    const QString &id)
 {
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(qt4project);
@@ -602,10 +601,10 @@ RunConfiguration *MaemoRunConfigurationFactory::create(Project *project,
 
     RunConfiguration *rc = 0;
     const QLatin1String prefix("MaemoRunConfiguration.");
-    if (type.startsWith(prefix)) {
-        rc = new MaemoRunConfiguration(qt4project, type.mid(QString(prefix).size()));
+    if (id.startsWith(prefix)) {
+        rc = new MaemoRunConfiguration(qt4project, id.mid(QString(prefix).size()));
     } else {
-        Q_ASSERT(type == "Qt4ProjectManager.MaemoRunConfiguration");
+        Q_ASSERT(id == "Qt4ProjectManager.MaemoRunConfiguration");
         rc = new MaemoRunConfiguration(qt4project, QString::null);
     }
 
@@ -642,35 +641,35 @@ bool hasMaemoRunConfig(ProjectExplorer::Project* project)
 }
 
 void MaemoRunConfigurationFactory::addedRunConfiguration(
-    ProjectExplorer::Project* project)
+    ProjectExplorer::Project *project)
 {
     if (hasMaemoRunConfig(project))
         MaemoManager::instance()->addQemuSimulatorStarter(project);
 }
 
 void MaemoRunConfigurationFactory::removedRunConfiguration(
-    ProjectExplorer::Project* project)
+    ProjectExplorer::Project *project)
 {
     if (!hasMaemoRunConfig(project))
         MaemoManager::instance()->removeQemuSimulatorStarter(project);
 }
 
 void MaemoRunConfigurationFactory::projectAdded(
-    ProjectExplorer::Project* project)
+    ProjectExplorer::Project *project)
 {
     if (hasMaemoRunConfig(project))
         MaemoManager::instance()->addQemuSimulatorStarter(project);
 }
 
 void MaemoRunConfigurationFactory::projectRemoved(
-    ProjectExplorer::Project* project)
+    ProjectExplorer::Project *project)
 {
     if (hasMaemoRunConfig(project))
         MaemoManager::instance()->removeQemuSimulatorStarter(project);
 }
 
 void MaemoRunConfigurationFactory::currentProjectChanged(
-    ProjectExplorer::Project* project)
+    ProjectExplorer::Project *project)
 {
     bool hasRunConfig = hasMaemoRunConfig(project);
     MaemoManager::instance()->setQemuSimulatorStarterEnabled(hasRunConfig);

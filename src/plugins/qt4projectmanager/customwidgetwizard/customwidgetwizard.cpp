@@ -50,9 +50,9 @@ QWizard *CustomWidgetWizard::createWizardDialog(QWidget *parent,
                                                 const QString &defaultPath,
                                                 const WizardPageList &extensionPages) const
 {
-    CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(name(), icon(), extensionPages, parent);
+    CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(displayName(), icon(), extensionPages, parent);
     rc->setPath(defaultPath);
-    rc->setName(CustomWidgetWizardDialog::projectName(defaultPath));
+    rc->setProjectName(CustomWidgetWizardDialog::uniqueProjectName(defaultPath));
     rc->setFileNamingParameters(FileNamingParameters(headerSuffix(), sourceSuffix(), QtWizard::lowerCaseFiles()));
     return rc;
 }
@@ -63,7 +63,7 @@ Core::GeneratedFiles CustomWidgetWizard::generateFiles(const QWizard *w,
     const CustomWidgetWizardDialog *cw = qobject_cast<const CustomWidgetWizardDialog *>(w);
     Q_ASSERT(w);
     GenerationParameters p;
-    p.name = cw->name();
+    p.fileName = cw->projectName();
     p.path = cw->path();
     p.license = CppTools::AbstractEditorSupport::licenseTemplate();
     p.templatePath = QtWizard::templateDir();

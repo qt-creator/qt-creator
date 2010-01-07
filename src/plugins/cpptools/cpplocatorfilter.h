@@ -50,8 +50,8 @@ public:
     CppLocatorFilter(CppModelManager *manager, Core::EditorManager *editorManager);
     ~CppLocatorFilter();
 
-    QString trName() const { return tr("Classes and Methods"); }
-    QString name() const { return QLatin1String("Classes and Methods"); }
+    QString displayName() const { return tr("Classes and Methods"); }
+    QString id() const { return QLatin1String("Classes and Methods"); }
     Priority priority() const { return Medium; }
     QList<Locator::FilterEntry> matchesFor(const QString &entry);
     void accept(Locator::FilterEntry selection) const;

@@ -62,7 +62,7 @@ QString GeneralSettings::id() const
     return QLatin1String("A.General");
 }
 
-QString GeneralSettings::trName() const
+QString GeneralSettings::displayName() const
 {
     return tr("General");
 }
@@ -72,7 +72,7 @@ QString GeneralSettings::category() const
     return QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE);
 }
 
-QString GeneralSettings::trCategory() const
+QString GeneralSettings::displayCategory() const
 {
     return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
 }

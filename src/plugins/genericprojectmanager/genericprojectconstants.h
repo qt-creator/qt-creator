@@ -43,7 +43,9 @@ const char *const C_FILESEDITOR      = ".files Editor";
 // kinds
 const char *const PROJECT_KIND       = "Generic";
 
-const char *const FILES_EDITOR       = ".files Editor";
+const char *const FILES_EDITOR_ID    = "QT4.FilesEditor";
+const char *const FILES_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", ".files Editor");
+
 const char *const FILES_MIMETYPE     = "application/vnd.nokia.qt.generic.files";
 
 const char *const INCLUDES_EDITOR    = ".includes Editor";

@@ -596,9 +596,11 @@ CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
     : BaseTextEditorEditable(editor)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
+    m_context << uidm->uniqueIdentifier(CppEditor::Constants::CPPEDITOR_ID);
     m_context << uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+
+    setDisplayName(tr(CppEditor::Constants::CPPEDITOR_DISPLAY_NAME));
 }
 
 CPPEditor::CPPEditor(QWidget *parent)
@@ -2007,9 +2009,9 @@ Core::IEditor *CPPEditorEditable::duplicate(QWidget *parent)
     return newEditor->editableInterface();
 }
 
-const char *CPPEditorEditable::kind() const
+QString CPPEditorEditable::id() const
 {
-    return CppEditor::Constants::CPPEDITOR_KIND;
+    return QLatin1String(CppEditor::Constants::CPPEDITOR_ID);
 }
 
 bool CPPEditorEditable::open(const QString & fileName)
@@ -2095,7 +2097,7 @@ bool CPPEditor::openCppEditorAt(const Link &link)
     return TextEditor::BaseTextEditor::openEditorAt(link.fileName,
                                                     link.line,
                                                     link.column,
-                                                    Constants::C_CPPEDITOR);
+                                                    Constants::CPPEDITOR_ID);
 }
 
 void CPPEditor::semanticRehighlight()

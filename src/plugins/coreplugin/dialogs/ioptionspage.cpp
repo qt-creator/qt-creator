@@ -37,9 +37,9 @@
   Guidelines for implementing:
   \list
   \o id() is an id used for filtering when calling ICore:: showOptionsDialog()
-  \o trName() is the (translated) name for display.
+  \o displayName() is the (translated) name for display.
   \o category() is the category used for filtering when calling ICore:: showOptionsDialog()
-  \o trCategory() is the translated category
+  \o displayCategory() is the translated category
   \o apply() is called to store the settings. It should detect if any changes have been
          made and store those.
   \o matches() is used for the options dialog search filter.

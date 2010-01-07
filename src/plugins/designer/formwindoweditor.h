@@ -74,7 +74,7 @@ public:
     bool duplicateSupported() const;
     Core::IEditor *duplicate(QWidget *);
     Core::IFile *file();
-    const char *kind() const;
+    QString id() const;
     QString displayName() const;
     void setDisplayName(const QString &title);
     QWidget *toolBar();

@@ -59,7 +59,7 @@ QtProjectParameters ConsoleAppWizardDialog::parameters() const
 {
     QtProjectParameters rc;
     rc.type = QtProjectParameters::ConsoleApp;
-    rc.name = name();
+    rc.fileName = projectName();
     rc.path = path();
 
     rc.selectedModules = selectedModules();

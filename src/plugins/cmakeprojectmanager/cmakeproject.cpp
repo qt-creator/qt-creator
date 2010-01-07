@@ -67,87 +67,6 @@ using ProjectExplorer::EnvironmentItem;
 // Who sets up the environment for cl.exe ? INCLUDEPATH and so on
 
 /*!
-  \class CMakeBuildConfigurationFactory
-*/
-
-CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory(CMakeProject *project)
-    : IBuildConfigurationFactory(project),
-    m_project(project)
-{
-}
-
-CMakeBuildConfigurationFactory::~CMakeBuildConfigurationFactory()
-{
-}
-
-QStringList CMakeBuildConfigurationFactory::availableCreationTypes() const
-{
-    return QStringList() << "Create";
-}
-
-QString CMakeBuildConfigurationFactory::displayNameForType(const QString & /* type */) const
-{
-    return tr("Create");
-}
-
-BuildConfiguration *CMakeBuildConfigurationFactory::create(const QString &type) const
-{
-    QTC_ASSERT(type == "Create", return false);
-
-    //TODO configuration name should be part of the cmakeopenprojectwizard
-    bool ok;
-    QString buildConfigurationName = QInputDialog::getText(0,
-                          tr("New configuration"),
-                          tr("New Configuration Name:"),
-                          QLineEdit::Normal,
-                          QString(),
-                          &ok);
-    if (!ok || buildConfigurationName.isEmpty())
-        return false;
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project);
-    bc->setDisplayName(buildConfigurationName);
-
-    MakeStep *makeStep = new MakeStep(bc);
-    bc->insertBuildStep(0, makeStep);
-
-    MakeStep *cleanMakeStep = new MakeStep(bc);
-    bc->insertCleanStep(0, cleanMakeStep);
-    cleanMakeStep->setClean(true);
-
-    CMakeOpenProjectWizard copw(m_project->projectManager(),
-                                m_project->sourceDirectory(),
-                                bc->buildDirectory(),
-                                bc->environment());
-    if (copw.exec() != QDialog::Accepted) {
-        delete bc;
-        return false;
-    }
-    m_project->addBuildConfiguration(bc); // this also makes the name unique
-
-    bc->setBuildDirectory(copw.buildDirectory());
-    bc->setMsvcVersion(copw.msvcVersion());
-    m_project->parseCMakeLists();
-
-    // Default to all
-    if (m_project->targets().contains("all"))
-        makeStep->setBuildTarget("all", true);
-    return bc;
-}
-
-BuildConfiguration *CMakeBuildConfigurationFactory::clone(ProjectExplorer::BuildConfiguration *source) const
-{
-    CMakeBuildConfiguration *old = static_cast<CMakeBuildConfiguration *>(source);
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(old);
-    return bc;
-}
-
-BuildConfiguration *CMakeBuildConfigurationFactory::restore(const QMap<QString, QVariant> &map) const
-{
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project, map);
-    return bc;
-}
-
-/*!
   \class CMakeProject
 */
 CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
@@ -504,7 +423,7 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
     return parent;
 }
 
-QString CMakeProject::name() const
+QString CMakeProject::displayName() const
 {
     return m_projectName;
 }

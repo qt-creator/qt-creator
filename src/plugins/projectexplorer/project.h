@@ -73,7 +73,7 @@ public:
     Project();
     virtual ~Project();
 
-    virtual QString name() const = 0;
+    virtual QString displayName() const = 0;
     virtual Core::IFile *file() const = 0;
     virtual IProjectManager *projectManager() const = 0;
 

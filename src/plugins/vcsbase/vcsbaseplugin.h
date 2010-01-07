@@ -139,7 +139,7 @@ class VCSBASE_EXPORT VCSBasePlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 protected:
-    explicit VCSBasePlugin(const QString &submitEditorKind);
+    explicit VCSBasePlugin(const QString &submitEditorId);
 
     void initialize(Core::IVersionControl *vc);
 

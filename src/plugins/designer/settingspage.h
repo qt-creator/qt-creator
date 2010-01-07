@@ -50,9 +50,9 @@ public:
     virtual ~SettingsPage();
 
     QString id() const;
-    QString trName() const;
+    QString displayName() const;
     QString category() const;
-    QString trCategory() const;
+    QString displayCategory() const;
 
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();

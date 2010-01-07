@@ -219,93 +219,6 @@ void Qt4ProjectFile::modified(Core::IFile::ReloadBehavior *)
 {
 }
 
-
-/*!
-  \class Qt4BuildConfigurationFactory
-*/
-
-Qt4BuildConfigurationFactory::Qt4BuildConfigurationFactory(Qt4Project *project)
-    : IBuildConfigurationFactory(project),
-    m_project(project)
-{
-    update();
-
-    QtVersionManager *vm = QtVersionManager::instance();
-    connect(vm, SIGNAL(defaultQtVersionChanged()),
-            this, SLOT(update()));
-    connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
-            this, SLOT(update()));
-}
-
-Qt4BuildConfigurationFactory::~Qt4BuildConfigurationFactory()
-{
-}
-
-void Qt4BuildConfigurationFactory::update()
-{
-
-    m_versions.clear();
-    m_versions.insert(QLatin1String("DefaultQt"), VersionInfo(tr("Using Default Qt Version"), 0));
-    QtVersionManager *vm = QtVersionManager::instance();
-    foreach (const QtVersion *version, vm->versions()) {
-        m_versions.insert(QString::fromLatin1("Qt%1").arg(version->uniqueId()),
-                          VersionInfo(tr("Using Qt Version \"%1\"").arg(version->name()), version->uniqueId()));
-    }
-    emit availableCreationTypesChanged();
-}
-
-QStringList Qt4BuildConfigurationFactory::availableCreationTypes() const
-{
-    return m_versions.keys();
-}
-
-QString Qt4BuildConfigurationFactory::displayNameForType(const QString &type) const
-{
-    if (m_versions.contains(type))
-        return m_versions.value(type).displayName;
-    return QString();
-}
-
-BuildConfiguration *Qt4BuildConfigurationFactory::create(const QString &type) const
-{
-    QTC_ASSERT(m_versions.contains(type), return false);
-    const VersionInfo &info = m_versions.value(type);
-    QtVersion *version = QtVersionManager::instance()->version(info.versionId);
-    if (!version)
-        return false;
-    bool ok;
-    QString buildConfigurationName = QInputDialog::getText(0,
-                          tr("New configuration"),
-                          tr("New Configuration Name:"),
-                          QLineEdit::Normal,
-                          version->name(),
-                          &ok);
-    if (!ok || buildConfigurationName.isEmpty())
-        return false;
-
-    m_project->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
-                                     version,
-                                     (version->defaultBuildConfig() | QtVersion::DebugBuild));
-    BuildConfiguration *bc =
-    m_project->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
-                                     version,
-                                     (version->defaultBuildConfig() & ~QtVersion::DebugBuild));
-    return bc;
-}
-
-BuildConfiguration *Qt4BuildConfigurationFactory::clone(BuildConfiguration *source) const
-{
-    Qt4BuildConfiguration *oldbc = static_cast<Qt4BuildConfiguration *>(source);
-    Qt4BuildConfiguration *newbc = new Qt4BuildConfiguration(oldbc);
-    return newbc;
-}
-
-BuildConfiguration *Qt4BuildConfigurationFactory::restore(const QMap<QString, QVariant> &values) const
-{
-    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(m_project, values);
-    return bc;
-}
-
 /*!
   \class Qt4Project
 
@@ -783,7 +696,7 @@ Qt4Manager *Qt4Project::qt4ProjectManager() const
     return m_manager;
 }
 
-QString Qt4Project::name() const
+QString Qt4Project::displayName() const
 {
     return QFileInfo(file()->fileName()).completeBaseName();
 }

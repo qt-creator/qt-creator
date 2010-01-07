@@ -86,7 +86,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 
     initializeTemplates();
 
-    const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR));
+    const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR_ID));
     const QList<int> context = QList<int>() << uid;
 
     addAutoReleasedObject(new FormEditorFactory);
@@ -135,16 +135,16 @@ void FormEditorPlugin::initializeTemplates()
 {
     FormWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
     wizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    wizardParameters.setTrCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
+    wizardParameters.setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
     const QString formFileType = QLatin1String(Constants::FORM_FILE_TYPE);
-    wizardParameters.setName(tr("Qt Designer Form"));
+    wizardParameters.setDisplayName(tr("Qt Designer Form"));
     wizardParameters.setId(QLatin1String("D.Form"));
     wizardParameters.setDescription(tr("Creates a Qt Designer form file (.ui)."));
     addAutoReleasedObject(new FormWizard(wizardParameters, this));
 
 #ifdef CPP_ENABLED
     wizardParameters.setKind(Core::IWizard::ClassWizard);
-    wizardParameters.setName(tr("Qt Designer Form Class"));
+    wizardParameters.setDisplayName(tr("Qt Designer Form Class"));
     wizardParameters.setId(QLatin1String("C.FormClass"));
     wizardParameters.setDescription(tr("Creates a Qt Designer form file (.ui) with a matching class."));
     addAutoReleasedObject(new FormClassWizard(wizardParameters, this));

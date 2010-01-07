@@ -43,7 +43,7 @@ class PerforceVersionControl : public Core::IVersionControl
 public:
     explicit PerforceVersionControl(PerforcePlugin *plugin);
 
-    virtual QString name() const;
+    virtual QString displayName() const;
 
     bool managesDirectory(const QString &directory) const;
     virtual QString findTopLevelForDirectory(const QString &directory) const;

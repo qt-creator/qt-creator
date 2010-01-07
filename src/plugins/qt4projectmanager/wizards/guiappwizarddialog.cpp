@@ -87,7 +87,7 @@ QtProjectParameters GuiAppWizardDialog::projectParameters() const
 {
     QtProjectParameters rc;
     rc.type =  QtProjectParameters::GuiApp;
-    rc.name = name();
+    rc.fileName = projectName();
     rc.path = path();
     rc.selectedModules = selectedModules();
     rc.deselectedModules = deselectedModules();

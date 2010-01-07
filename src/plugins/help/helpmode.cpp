@@ -43,8 +43,8 @@ using namespace Help::Internal;
 HelpMode::HelpMode(QWidget *widget, QWidget *centralWidget, QObject *parent)
     : BaseMode(parent), m_centralWidget(centralWidget)
 {
-    setName(tr("Help"));
-    setUniqueModeName(Constants::ID_MODE_HELP);
+    setDisplayName(tr("Help"));
+    setId(QLatin1String(Constants::ID_MODE_HELP));
     setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Reference.png")));
     setPriority(Constants::P_MODE_HELP);
     setWidget(widget);

@@ -125,10 +125,10 @@ public:
 
 public:
     const QString m_id;
-    const QString m_name;
+    const QString m_displayName;
     const QString m_settingsGroup;
     const QString m_category;
-    const QString m_trCategory;
+    const QString m_displayCategory;
 
     TextEditor::FormatDescriptions m_descriptions;
     FontSettings m_value;
@@ -178,14 +178,14 @@ static QString createColorSchemeFileName(const QString &pattern)
 // ------- FontSettingsPagePrivate
 FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescriptions &fd,
                                                  const QString &id,
-                                                 const QString &name,
+                                                 const QString &displayName,
                                                  const QString &category,
                                                  const QString &trCategory) :
     m_id(id),
-    m_name(name),
+    m_displayName(displayName),
     m_settingsGroup(Utils::settingsKey(category)),
     m_category(category),
-    m_trCategory(trCategory),
+    m_displayCategory(trCategory),
     m_descriptions(fd),
     m_schemeListModel(new SchemeListModel),
     m_refreshingSchemeList(false)
@@ -197,22 +197,22 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
 
     if (!settingsFound) { // Apply defaults
         foreach (const FormatDescription &f, m_descriptions) {
-            const QString name = f.name();
+            const QString id = f.id();
 
-            m_value.formatFor(name).setForeground(f.foreground());
-            m_value.formatFor(name).setBackground(f.background());
-            m_value.formatFor(name).setBold(f.format().bold());
-            m_value.formatFor(name).setItalic(f.format().italic());
+            m_value.formatFor(id).setForeground(f.foreground());
+            m_value.formatFor(id).setBackground(f.background());
+            m_value.formatFor(id).setBold(f.format().bold());
+            m_value.formatFor(id).setItalic(f.format().italic());
         }
     } else if (m_value.colorSchemeFileName().isEmpty()) {
         // No color scheme was loaded, but one might be imported from the ini file
         ColorScheme defaultScheme;
         foreach (const FormatDescription &f, m_descriptions) {
-            const QString name = f.name();
-            defaultScheme.formatFor(name).setForeground(f.foreground());
-            defaultScheme.formatFor(name).setBackground(f.background());
-            defaultScheme.formatFor(name).setBold(f.format().bold());
-            defaultScheme.formatFor(name).setItalic(f.format().italic());
+            const QString id = f.id();
+            defaultScheme.formatFor(id).setForeground(f.foreground());
+            defaultScheme.formatFor(id).setBackground(f.background());
+            defaultScheme.formatFor(id).setBold(f.format().bold());
+            defaultScheme.formatFor(id).setItalic(f.format().italic());
         }
         if (m_value.colorScheme() != defaultScheme) {
             // Save it as a color scheme file
@@ -234,32 +234,32 @@ FontSettingsPagePrivate::~FontSettingsPagePrivate()
 
 
 // ------- FormatDescription
-FormatDescription::FormatDescription(const QString &name, const QString &trName, const QColor &color) :
-    m_name(name),
-    m_trName(trName)
+FormatDescription::FormatDescription(const QString &id, const QString &displayName, const QColor &color) :
+    m_id(id),
+    m_displayName(displayName)
 {
     m_format.setForeground(color);
 }
 
 QColor FormatDescription::foreground() const
 {
-    if (m_name == QLatin1String(Constants::C_LINE_NUMBER)) {
+    if (m_id == QLatin1String(Constants::C_LINE_NUMBER)) {
         const QColor bg = QApplication::palette().background().color();
         if (bg.value() < 128) {
             return QApplication::palette().foreground().color();
         } else {
             return QApplication::palette().dark().color();
         }
-    } else if (m_name == QLatin1String(Constants::C_CURRENT_LINE_NUMBER)) {
+    } else if (m_id == QLatin1String(Constants::C_CURRENT_LINE_NUMBER)) {
         const QColor bg = QApplication::palette().background().color();
         if (bg.value() < 128) {
             return QApplication::palette().foreground().color();
         } else {
             return m_format.foreground();
         }
-    } else if (m_name == QLatin1String(Constants::C_OCCURRENCES_UNUSED)) {
+    } else if (m_id == QLatin1String(Constants::C_OCCURRENCES_UNUSED)) {
         return Qt::darkYellow;
-    } else if (m_name == QLatin1String(Constants::C_PARENTHESES)) {
+    } else if (m_id == QLatin1String(Constants::C_PARENTHESES)) {
         return QColor(Qt::red);
     }
     return m_format.foreground();
@@ -267,23 +267,23 @@ QColor FormatDescription::foreground() const
 
 QColor FormatDescription::background() const
 {
-    if (m_name == QLatin1String(Constants::C_TEXT))
+    if (m_id == QLatin1String(Constants::C_TEXT))
         return Qt::white;
-    else if (m_name == QLatin1String(Constants::C_LINE_NUMBER))
+    else if (m_id == QLatin1String(Constants::C_LINE_NUMBER))
         return QApplication::palette().background().color();
-    else if (m_name == QLatin1String(Constants::C_SEARCH_RESULT))
+    else if (m_id == QLatin1String(Constants::C_SEARCH_RESULT))
         return QColor(0xffef0b);
-    else if (m_name == QLatin1String(Constants::C_PARENTHESES))
+    else if (m_id == QLatin1String(Constants::C_PARENTHESES))
         return QColor(0xb4, 0xee, 0xb4);
-    else if (m_name == QLatin1String(Constants::C_CURRENT_LINE)
-             || m_name == QLatin1String(Constants::C_SEARCH_SCOPE)) {
+    else if (m_id == QLatin1String(Constants::C_CURRENT_LINE)
+             || m_id == QLatin1String(Constants::C_SEARCH_SCOPE)) {
         const QPalette palette = QApplication::palette();
         const QColor &fg = palette.color(QPalette::Highlight);
         const QColor &bg = palette.color(QPalette::Base);
 
         qreal smallRatio;
         qreal largeRatio;
-        if (m_name == QLatin1String(Constants::C_CURRENT_LINE)) {
+        if (m_id == QLatin1String(Constants::C_CURRENT_LINE)) {
             smallRatio = .15;
             largeRatio = .3;
         } else {
@@ -297,14 +297,14 @@ QColor FormatDescription::background() const
                                              fg.greenF() * ratio + bg.greenF() * (1 - ratio),
                                              fg.blueF() * ratio + bg.blueF() * (1 - ratio));
         return col;
-    } else if (m_name == QLatin1String(Constants::C_SELECTION)) {
+    } else if (m_id == QLatin1String(Constants::C_SELECTION)) {
         const QPalette palette = QApplication::palette();
         return palette.color(QPalette::Highlight);
-    } else if (m_name == QLatin1String(Constants::C_OCCURRENCES)) {
+    } else if (m_id == QLatin1String(Constants::C_OCCURRENCES)) {
         return QColor(180, 180, 180);
-    } else if (m_name == QLatin1String(Constants::C_OCCURRENCES_RENAME)) {
+    } else if (m_id == QLatin1String(Constants::C_OCCURRENCES_RENAME)) {
         return QColor(255, 100, 100);
-    } else if (m_name == QLatin1String(Constants::C_DISABLED_CODE)) {
+    } else if (m_id == QLatin1String(Constants::C_DISABLED_CODE)) {
         return QColor(239, 239, 239);
     }
     return QColor(); // invalid color
@@ -332,9 +332,9 @@ QString FontSettingsPage::id() const
     return d_ptr->m_id;
 }
 
-QString FontSettingsPage::trName() const
+QString FontSettingsPage::displayName() const
 {
-    return d_ptr->m_name;
+    return d_ptr->m_displayName;
 }
 
 QString FontSettingsPage::category() const
@@ -342,9 +342,9 @@ QString FontSettingsPage::category() const
     return d_ptr->m_category;
 }
 
-QString FontSettingsPage::trCategory() const
+QString FontSettingsPage::displayCategory() const
 {
-    return d_ptr->m_trCategory;
+    return d_ptr->m_displayCategory;
 }
 
 QWidget *FontSettingsPage::createPage(QWidget *parent)
@@ -454,7 +454,7 @@ void FontSettingsPage::copyColorScheme()
     dialog->setInputMode(QInputDialog::TextInput);
     dialog->setWindowTitle(tr("Copy Color Scheme"));
     dialog->setLabelText(tr("Color Scheme name:"));
-    dialog->setTextValue(tr("%1 (copy)").arg(d_ptr->m_value.colorScheme().name()));
+    dialog->setTextValue(tr("%1 (copy)").arg(d_ptr->m_value.colorScheme().displayName()));
 
     connect(dialog, SIGNAL(textValueSelected(QString)), this, SLOT(copyColorScheme(QString)));
     dialog->open();
@@ -480,7 +480,7 @@ void FontSettingsPage::copyColorScheme(const QString &name)
         d_ptr->m_value.setColorScheme(d_ptr->ui.schemeEdit->colorScheme());
 
         ColorScheme scheme = d_ptr->m_value.colorScheme();
-        scheme.setName(name);
+        scheme.setDisplayName(name);
         scheme.save(fileName);
         d_ptr->m_value.setColorSchemeFileName(fileName);
 
@@ -536,7 +536,7 @@ void FontSettingsPage::maybeSaveColorScheme()
     QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
                                               tr("Color Scheme Changed"),
                                               tr("The color scheme \"%1\" was modified, do you want to save the changes?")
-                                                  .arg(d_ptr->ui.schemeEdit->colorScheme().name()),
+                                                  .arg(d_ptr->ui.schemeEdit->colorScheme().displayName()),
                                               QMessageBox::Discard | QMessageBox::Save,
                                               d_ptr->ui.schemeComboBox->window());
 

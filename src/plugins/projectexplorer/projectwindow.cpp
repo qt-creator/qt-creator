@@ -252,7 +252,7 @@ ActiveConfigurationWidget::ActiveConfigurationWidget(QWidget *parent)
     foreach(Project *p, session->projects()) {
         ++i;
         BuildConfigurationComboBox *buildConfigurationComboBox = new BuildConfigurationComboBox(p, this);
-        QLabel *label = new QLabel("Build configuration for <b>" + p->name() + "</b>", this);
+        QLabel *label = new QLabel("Build configuration for <b>" + p->displayName() + "</b>", this);
         grid->addWidget(label, i, 0);
         grid->addWidget(buildConfigurationComboBox, i, 1);
         m_buildComboBoxMap.insert(p, qMakePair(buildConfigurationComboBox, label));
@@ -270,7 +270,7 @@ void ActiveConfigurationWidget::projectAdded(Project *p)
 {
     QGridLayout *grid = static_cast<QGridLayout *>(layout());
     BuildConfigurationComboBox *buildConfigurationComboBox = new BuildConfigurationComboBox(p, this);
-    QLabel *label = new QLabel("Build configuration for <b>" + p->name() + "</b>");
+    QLabel *label = new QLabel("Build configuration for <b>" + p->displayName() + "</b>");
     grid->addWidget(label);
     grid->addWidget(buildConfigurationComboBox);
     m_buildComboBoxMap.insert(p, qMakePair(buildConfigurationComboBox, label));
@@ -310,7 +310,7 @@ RunConfigurationComboBox::RunConfigurationComboBox(QWidget *parent)
     // Connect
     foreach(Project *p, session->projects()) {
         foreach(RunConfiguration *rc, p->runConfigurations()) {
-            connect(rc, SIGNAL(nameChanged()), this, SLOT(rebuildTree()));
+            connect(rc, SIGNAL(displayNameChanged()), this, SLOT(rebuildTree()));
         }
         connectToProject(p);
     }
@@ -411,13 +411,13 @@ void RunConfigurationComboBox::addedRunConfiguration(ProjectExplorer::Project *p
 {
     RunConfiguration *runConfiguration = 0;
     foreach(RunConfiguration *rc, p->runConfigurations()) {
-        if (rc->name() == name) {
+        if (rc->displayName() == name) {
             runConfiguration = rc;
             break;
         }
     }
     if (runConfiguration) {
-        connect(runConfiguration, SIGNAL(nameChanged()),
+        connect(runConfiguration, SIGNAL(displayNameChanged()),
                 this, SLOT(rebuildTree()));
     }
     rebuildTree();
@@ -434,7 +434,7 @@ void RunConfigurationComboBox::projectAdded(ProjectExplorer::Project *p)
 {
     rebuildTree();
     foreach(RunConfiguration *rc, p->runConfigurations())
-        connect(rc, SIGNAL(nameChanged()), this, SLOT(rebuildTree()));
+        connect(rc, SIGNAL(displayNameChanged()), this, SLOT(rebuildTree()));
     connectToProject(p);
 }
 
@@ -472,9 +472,9 @@ void RunConfigurationComboBox::rebuildTree()
     SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
     Project *startupProject = session->startupProject();
     foreach(Project *p, session->projects()) {
-        addItem(p->name(), QVariant(0));
+        addItem(p->displayName(), QVariant(0));
         foreach(RunConfiguration *rc, p->runConfigurations()) {
-            addItem("  " + rc->name(), QVariant(1));
+            addItem("  " + rc->displayName(), QVariant(1));
             if ((startupProject == p) && (p->activeRunConfiguration() == rc)){
                 setCurrentIndex(count() - 1);
             }
@@ -613,7 +613,7 @@ ProjectLabel::~ProjectLabel()
 void ProjectLabel::setProject(ProjectExplorer::Project *p)
 {
     if (p)
-        setText(tr("Edit Project Settings for Project <b>%1</b>").arg(p->name()));
+        setText(tr("Edit Project Settings for Project <b>%1</b>").arg(p->displayName()));
     else
         setText(tr("No Project loaded"));
 }
@@ -634,7 +634,7 @@ ProjectPushButton::ProjectPushButton(QWidget *parent)
     SessionManager *session = ProjectExplorerPlugin::instance()->session();
 
     foreach(Project *p, session->projects()) {
-        QAction *act = m_menu->addAction(p->name());
+        QAction *act = m_menu->addAction(p->displayName());
         act->setData(QVariant::fromValue((void *) p));
         connect(act, SIGNAL(triggered()),
                 this, SLOT(actionTriggered()));
@@ -655,7 +655,7 @@ ProjectPushButton::~ProjectPushButton()
 
 void ProjectPushButton::projectAdded(ProjectExplorer::Project *p)
 {
-    QAction *act = m_menu->addAction(p->name());
+    QAction *act = m_menu->addAction(p->displayName());
     act->setData(QVariant::fromValue((void *) p));
     connect(act, SIGNAL(triggered()),
                 this, SLOT(actionTriggered()));
@@ -824,7 +824,7 @@ void ProjectWindow::showProperties(Project *project)
         foreach (IPanelFactory *panelFactory, pages) {
             if (panelFactory->supports(project)) {
                 IPropertiesPanel *panel = panelFactory->createPanel(project);
-                m_panelsWidget->addWidget(panel->name(), panel->widget(), panel->icon());
+                m_panelsWidget->addWidget(panel->displayName(), panel->widget(), panel->icon());
                 m_panels.push_back(panel);
             }
         }

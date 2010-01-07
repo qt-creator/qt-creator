@@ -118,7 +118,7 @@
 */
 
 /*!
-    \fn QString IWizard::trCategory() const
+    \fn QString IWizard::displayCategory() const
     Returns the translated string of the category, how it should appear
     in the dialog.
 */

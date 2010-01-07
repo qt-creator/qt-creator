@@ -95,7 +95,7 @@ public:
     {
     }
 
-    void setName(const QString &name) { m_oldName = name; }
+    void setDisplayName(const QString &name) { m_oldName = name; }
 
     virtual State validate(QString &input, int & /* pos */) const
     {
@@ -186,7 +186,7 @@ QString MaemoSettingsPage::id() const
     return QLatin1String(PAGE_ID);
 }
 
-QString MaemoSettingsPage::trName() const
+QString MaemoSettingsPage::displayName() const
 {
     return tr(PAGE_ID_TR);
 }
@@ -196,7 +196,7 @@ QString MaemoSettingsPage::category() const
     return QLatin1String(Constants::QT_SETTINGS_CATEGORY);
 }
 
-QString MaemoSettingsPage::trCategory() const
+QString MaemoSettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("Qt4ProjectManager",
         Constants::QT_SETTINGS_CATEGORY);
@@ -311,7 +311,7 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfig &devConfig)
     m_ui->pwdLineEdit->setText(devConfig.pwd);
     m_ui->keyFileLineEdit->setPath(devConfig.keyFile);
     m_ui->detailsWidget->setEnabled(true);
-    m_nameValidator.setName(devConfig.name);
+    m_nameValidator.setDisplayName(devConfig.name);
     m_portValidator.setValue(devConfig.port);
     m_timeoutValidator.setValue(devConfig.timeout);
     m_ui->detailsWidget->setEnabled(true);
@@ -337,7 +337,7 @@ void MaemoSettingsWidget::configNameEditingFinished()
 {
     const QString &newName = m_ui->nameLineEdit->text();
     currentConfig().name = newName;
-    m_nameValidator.setName(newName);
+    m_nameValidator.setDisplayName(newName);
     m_ui->configListWidget->currentItem()->setText(newName);
 }
 

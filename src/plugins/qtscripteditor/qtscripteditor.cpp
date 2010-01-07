@@ -180,9 +180,9 @@ Core::IEditor *ScriptEditorEditable::duplicate(QWidget *parent)
     return newEditor->editableInterface();
 }
 
-const char *ScriptEditorEditable::kind() const
+QString ScriptEditorEditable::id() const
 {
-    return QtScriptEditor::Constants::C_QTSCRIPTEDITOR;
+    return QtScriptEditor::Constants::C_QTSCRIPTEDITOR_ID;
 }
 
 ScriptEditor::Context ScriptEditorEditable::context() const

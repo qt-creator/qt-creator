@@ -54,7 +54,7 @@ QString TrkOptionsPage::settingsId()
     return QLatin1String("S.Trk");
 }
 
-QString TrkOptionsPage::trName() const
+QString TrkOptionsPage::displayName() const
 {
     return tr("Symbian TRK");
 }
@@ -64,7 +64,7 @@ QString TrkOptionsPage::category() const
     return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
 }
 
-QString TrkOptionsPage::trCategory() const
+QString TrkOptionsPage::displayCategory() const
 {
     return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY);
 }

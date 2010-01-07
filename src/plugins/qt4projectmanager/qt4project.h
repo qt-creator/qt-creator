@@ -74,6 +74,7 @@ namespace Internal {
     struct Qt4ProjectFiles;
     class Qt4ProjectConfigWidget;
     class Qt4BuildConfiguration;
+    class Qt4BuildConfigurationFactory;
 
     class CodeModelInfo
     {
@@ -117,37 +118,6 @@ private:
     QString m_filePath;
 };
 
-class Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
-{
-    Q_OBJECT
-
-public:
-    Qt4BuildConfigurationFactory(Qt4Project *project);
-    ~Qt4BuildConfigurationFactory();
-
-    QStringList availableCreationTypes() const;
-    QString displayNameForType(const QString &type) const;
-
-    ProjectExplorer::BuildConfiguration *create(const QString &type) const;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *restore(const QMap<QString, QVariant> &values) const;
-
-private slots:
-    void update();
-
-private:
-    struct VersionInfo {
-        VersionInfo() {}
-        VersionInfo(const QString &d, int v)
-            : displayName(d), versionId(v) { }
-        QString displayName;
-        int versionId;
-    };
-
-    Qt4Project *m_project;
-    QMap<QString, VersionInfo> m_versions;
-};
-
 struct Qt4TargetInformation
 {
     enum ErrorCode {
@@ -174,7 +144,7 @@ public:
 
     Internal::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
-    QString name() const;
+    QString displayName() const;
     Core::IFile *file() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;
@@ -261,7 +231,7 @@ private:
     Qt4Manager *m_manager;
     Internal::Qt4ProFileNode *m_rootProjectNode;
     Internal::Qt4NodesWatcher *m_nodesWatcher;
-    Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
+    Internal::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
 
     Qt4ProjectFile *m_fileInfo;
     bool m_isApplication;

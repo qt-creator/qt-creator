@@ -61,7 +61,7 @@ FileWizardPage::~FileWizardPage()
     delete m_d;
 }
 
-QString FileWizardPage::name() const
+QString FileWizardPage::fileName() const
 {
     return m_d->m_ui.nameLineEdit->text();
 }
@@ -76,7 +76,7 @@ void FileWizardPage::setPath(const QString &path)
     m_d->m_ui.pathChooser->setPath(path);
 }
 
-void FileWizardPage::setName(const QString &name)
+void FileWizardPage::setFileName(const QString &name)
 {
     m_d->m_ui.nameLineEdit->setText(name);
 }
@@ -98,7 +98,7 @@ bool FileWizardPage::isComplete() const
     return m_d->m_complete;
 }
 
-void FileWizardPage::setNameLabel(const QString &label)
+void FileWizardPage::setFileNameLabel(const QString &label)
 {
     m_d->m_ui.nameLabel->setText(label);
 }

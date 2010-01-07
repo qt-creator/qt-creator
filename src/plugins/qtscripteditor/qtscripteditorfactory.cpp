@@ -46,7 +46,6 @@ using namespace QtScriptEditor::Constants;
 
 QtScriptEditorFactory::QtScriptEditorFactory(const Context &context, QObject *parent)
   : Core::IEditorFactory(parent),
-    m_kind(QLatin1String(C_QTSCRIPTEDITOR)),
     m_mimeTypes(QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE)),
     m_context(context)
 {
@@ -56,14 +55,19 @@ QtScriptEditorFactory::~QtScriptEditorFactory()
 {
 }
 
-QString QtScriptEditorFactory::kind() const
+QString QtScriptEditorFactory::id() const
 {
-    return m_kind;
+    return QLatin1String(C_QTSCRIPTEDITOR_ID);
+}
+
+QString QtScriptEditorFactory::displayName() const
+{
+    return tr(C_QTSCRIPTEDITOR_DISPLAY_NAME);
 }
 
 Core::IFile *QtScriptEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     if (!iface) {
         qWarning() << "QtScriptEditorFactory::open: openEditor failed for " << fileName;
         return 0;

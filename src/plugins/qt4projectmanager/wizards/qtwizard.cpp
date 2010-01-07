@@ -56,9 +56,9 @@ static inline Core::BaseFileWizardParameters
 {
     Core::BaseFileWizardParameters rc(Core::IWizard::ProjectWizard);
     rc.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
-    rc.setTrCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
+    rc.setDisplayCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
     rc.setIcon(icon);
-    rc.setName(name);
+    rc.setDisplayName(name);
     rc.setId(id);
     rc.setDescription(description);
     return rc;
