@@ -47,7 +47,6 @@ namespace Internal {
 class MaemoManager;
 class MaemoToolChain;
 class Qt4ProFileNode;
-using namespace ProjectExplorer;
 
 #define USE_SSL_PASSWORD 0
 
@@ -63,11 +62,12 @@ public slots:
 };
 
 
-class MaemoRunConfiguration : public RunConfiguration
+class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 public:
-    MaemoRunConfiguration(Project *project, const QString &proFilePath);
+    MaemoRunConfiguration(ProjectExplorer::Project *project,
+                          const QString &proFilePath);
     ~MaemoRunConfiguration();
 
     QString type() const;
@@ -111,7 +111,7 @@ public:
     void setRemotePassword(const QString &password);
     const QString remoteUserPassword() const { return m_remoteUserPassword; }
 
-        void setRemoteHostRequiresPassword(bool requiresPassword);
+    void setRemoteHostRequiresPassword(bool requiresPassword);
     bool remoteHostRequiresPassword() const { return m_remoteHostRequiresPassword; }
 #endif
 
@@ -174,7 +174,7 @@ private:
 };
 
 
-class MaemoRunConfigurationFactory : public IRunConfigurationFactory
+class MaemoRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
 public:
@@ -182,9 +182,10 @@ public:
     ~MaemoRunConfigurationFactory();
 
     bool canRestore(const QString &type) const;
-    QStringList availableCreationTypes(Project *project) const;
+    QStringList availableCreationTypes(ProjectExplorer::Project *project) const;
     QString displayNameForType(const QString &type) const;
-    RunConfiguration *create(Project *project, const QString &type);
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project,
+                                              const QString &type);
 
 
 private slots:
@@ -197,15 +198,17 @@ private slots:
 };
 
 
-class MaemoRunControlFactory : public IRunControlFactory
+class MaemoRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 public:
     MaemoRunControlFactory(QObject *parent = 0);
-    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
-    RunControl* create(RunConfiguration *runConfiguration, const QString &mode);
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
+                const QString &mode) const;
+    ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration,
+                                        const QString &mode);
     QString displayName() const;
-    QWidget *configurationWidget(RunConfiguration *runConfiguration);
+    QWidget *configurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 };
 
 } // namespace Internal
