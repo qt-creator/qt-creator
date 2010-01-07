@@ -7,6 +7,11 @@
 #
 #######################################################################
 
+def qdump__QBasicAtomicInt(d, item):
+    d.putValue(item.value["_q_value"])
+    d.putNumChild(0)
+
+
 def qdump__QByteArray(d, item):
     d.putByteArrayValue(item.value)
 
