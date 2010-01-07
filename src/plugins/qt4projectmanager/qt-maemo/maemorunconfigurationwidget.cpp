@@ -62,10 +62,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     QFormLayout *mainLayout = new QFormLayout;
     setLayout(mainLayout);
 
-    // TODO: Does not compile with the canonical form for some reason.
-    mainLayout->setFormAlignment(QFlags<Qt::AlignmentFlag>(Qt::AlignLeft)
-                                 | Qt::AlignVCenter);
-
+    mainLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     m_configNameLineEdit = new QLineEdit(m_runConfiguration->name());
     mainLayout->addRow(tr("Run configuration name:"), m_configNameLineEdit);
     QWidget *devConfWidget = new QWidget;
