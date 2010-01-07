@@ -30,14 +30,15 @@
 #ifndef QMLIDCOLLECTOR_H
 #define QMLIDCOLLECTOR_H
 
+#include <qml/parser/qmljsastvisitor_p.h>
+#include <qml/parser/qmljsengine_p.h>
+#include <qml/qmldocument.h>
+#include <qml/qmlsymbol.h>
+
 #include <QMap>
 #include <QPair>
 #include <QStack>
 #include <QString>
-
-#include <qml/parser/qmljsastvisitor_p.h>
-#include <qml/qmldocument.h>
-#include <qml/qmlsymbol.h>
 
 namespace Qml {
 namespace Internal {
@@ -46,6 +47,9 @@ class QML_EXPORT QmlIdCollector: protected QmlJS::AST::Visitor
 {
 public:
     QMap<QString, Qml::QmlIdSymbol*> operator()(QmlEditor::QmlDocument &doc);
+
+    QList<QmlJS::DiagnosticMessage> diagnosticMessages()
+    { return _diagnosticMessages; }
 
 protected:
     virtual bool visit(QmlJS::AST::UiArrayBinding *ast);
@@ -61,6 +65,7 @@ private:
     QmlEditor::QmlDocument *_doc;
     QMap<QString, Qml::QmlIdSymbol*> _ids;
     Qml::QmlSymbolFromFile *_currentSymbol;
+    QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
 };
 
 } // namespace Internal

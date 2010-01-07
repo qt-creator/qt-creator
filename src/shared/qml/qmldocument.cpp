@@ -117,6 +117,8 @@ bool QmlDocument::parse()
 
          Internal::QmlIdCollector collect;
         _ids = collect(*this);
+        if (_diagnosticMessages.isEmpty())
+            _diagnosticMessages = collect.diagnosticMessages();
     }
 
     return _parsedCorrectly;

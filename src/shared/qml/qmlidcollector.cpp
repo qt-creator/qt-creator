@@ -31,7 +31,6 @@
 
 #include "qmlidcollector.h"
 #include "qmljsast_p.h"
-#include "qmljsengine_p.h"
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -108,10 +107,14 @@ QmlSymbolFromFile *QmlIdCollector::switchSymbol(QmlJS::AST::UiObjectMember *node
 
 void QmlIdCollector::addId(const QString &id, QmlJS::AST::UiScriptBinding *ast)
 {
-    if (!_ids.contains(id) && _currentSymbol) {
-        QmlSymbolFromFile *symbol = _currentSymbol->findMember(ast);
+    if (!_currentSymbol)
+        return;
 
-        if (QmlIdSymbol *idSymbol = symbol->asIdSymbol())
-            _ids[id] = idSymbol;
+    if (_ids.contains(id)) {
+        _diagnosticMessages.append(DiagnosticMessage(DiagnosticMessage::Warning, ast->statement->firstSourceLocation(), "Duplicate ID"));
+    } else {
+        if (QmlSymbolFromFile *symbol = _currentSymbol->findMember(ast))
+            if (QmlIdSymbol *idSymbol = symbol->asIdSymbol())
+                _ids[id] = idSymbol;
     }
 }
