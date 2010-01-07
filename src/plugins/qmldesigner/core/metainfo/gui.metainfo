@@ -1,0 +1,184 @@
+<!-- Metadata that is general to Qt and cannot be put into a separate plugin -->
+<metainfo>
+  <enumerator name="Orientation" scope="Qt">
+    <element name="Horizontal" value="1" />
+    <element name="Vertical" value="2" />
+  </enumerator>
+  <enumerator name="ContextMenuPolicy" scope="Qt">
+    <element name="DefaultContextMenu" value="1" />
+    <element name="PreventContextMenu" value="4" />
+    <element name="ActionsContextMenu" value="2" />
+    <element name="NoContextMenu" value="0" />
+    <element name="CustomContextMenu" value="3" />
+  </enumerator>
+  <enumerator name="LayoutDirection" scope="Qt">
+    <element name="RightToLeft" value="1" />
+    <element name="LeftToRight" value="0" />
+  </enumerator>
+  <enumerator name="ArrowType" scope="Qt">
+    <element name="RightArrow" value="4" />
+    <element name="NoArrow" value="0" />
+    <element name="UpArrow" value="1" />
+    <element name="DownArrow" value="2" />
+    <element name="LeftArrow" value="3" />
+  </enumerator>
+  <enumerator name="PenStyle" scope="Qt">
+    <element name="DashLine" value="2" />
+    <element name="NoPen" value="0" />
+    <element name="DashDotLine" value="4" />
+    <element name="DashDotDotLine" value="5" />
+    <element name="SolidLine" value="1" />
+    <element name="DotLine" value="3" />
+    <element name="CustomDashLine" value="6" />
+  </enumerator>
+  <enumerator name="CaseSensitivity" scope="Qt">
+    <element name="CaseSensitive" value="1" />
+    <element name="CaseInsensitive" value="0" />
+  </enumerator>
+  <enumerator name="WritingSystem" scope="QFontDatabase">
+    <element name="Thaana" value="8" />
+    <element name="Telugu" value="15" />
+    <element name="Cyrillic" value="3" />
+    <element name="Oriya" value="13" />
+    <element name="Gujarati" value="12" />
+    <element name="Other" value="30" />
+    <element name="Any" value="0" />
+    <element name="Korean" value="28" />
+    <element name="Khmer" value="24" />
+    <element name="Latin" value="1" />
+    <element name="Georgian" value="23" />
+    <element name="Vietnamese" value="29" />
+    <element name="TraditionalChinese" value="26" />
+    <element name="Armenian" value="4" />
+    <element name="Devanagari" value="9" />
+    <element name="Thai" value="19" />
+    <element name="Tibetan" value="21" />
+    <element name="Bengali" value="10" />
+    <element name="Symbol" value="30" />
+    <element name="WritingSystemsCount" value="33" />
+    <element name="Greek" value="2" />
+    <element name="Lao" value="20" />
+    <element name="Gurmukhi" value="11" />
+    <element name="Malayalam" value="17" />
+    <element name="Ogham" value="31" />
+    <element name="Myanmar" value="22" />
+    <element name="Tamil" value="14" />
+    <element name="Japanese" value="27" />
+    <element name="SimplifiedChinese" value="25" />
+    <element name="Kannada" value="16" />
+    <element name="Syriac" value="7" />
+    <element name="Runic" value="32" />
+    <element name="Hebrew" value="5" />
+    <element name="Arabic" value="6" />
+    <element name="Sinhala" value="18" />
+  </enumerator>
+  <enumerator name="ToolButtonStyle" scope="Qt">
+    <element name="ToolButtonIconOnly" value="0" />
+    <element name="ToolButtonTextBesideIcon" value="2" />
+    <element name="ToolButtonTextOnly" value="1" />
+    <element name="ToolButtonTextUnderIcon" value="3" />
+  </enumerator>
+  <enumerator name="ItemSelectionMode" scope="Qt">
+    <element name="ContainsItemBoundingRect" value="2" />
+    <element name="IntersectsItemBoundingRect" value="3" />
+    <element name="ContainsItemShape" value="0" />
+    <element name="IntersectsItemShape" value="1" />
+  </enumerator>
+  <enumerator name="TextElideMode" scope="Qt">
+    <element name="ElideMiddle" value="2" />
+    <element name="ElideRight" value="1" />
+    <element name="ElideNone" value="3" />
+    <element name="ElideLeft" value="0" />
+  </enumerator>
+  <enumerator name="TimeSpec" scope="Qt">
+    <element name="OffsetFromUTC" value="2" />
+    <element name="UTC" value="1" />
+    <element name="LocalTime" value="0" />
+  </enumerator>
+  <enumerator name="FocusPolicy" scope="Qt">
+    <element name="StrongFocus" value="11" />
+    <element name="WheelFocus" value="15" />
+    <element name="ClickFocus" value="2" />
+    <element name="TabFocus" value="1" />
+    <element name="NoFocus" value="0" />
+  </enumerator>
+  <enumerator name="ScrollBarPolicy" scope="Qt">
+    <element name="ScrollBarAsNeeded" value="0" />
+    <element name="ScrollBarAlwaysOff" value="1" />
+    <element name="ScrollBarAlwaysOn" value="2" />
+  </enumerator>
+  <enumerator name="TextFormat" scope="Qt">
+    <element name="PlainText" value="0" />
+    <element name="AutoText" value="2" />
+    <element name="LogText" value="3" />
+    <element name="RichText" value="1" />
+  </enumerator>
+  <enumerator name="DayOfWeek" scope="Qt">
+    <element name="Monday" value="1" />
+    <element name="Tuesday" value="2" />
+    <element name="Friday" value="5" />
+    <element name="Wednesday" value="3" />
+    <element name="Thursday" value="4" />
+    <element name="Sunday" value="7" />
+    <element name="Saturday" value="6" />
+  </enumerator>
+  <enumerator name="WindowModality" scope="Qt">
+    <element name="WindowModal" value="1" />
+    <element name="NonModal" value="0" />
+    <element name="ApplicationModal" value="2" />
+  </enumerator>
+  <flag name="Alignment" scope="Qt">
+    <element name="AlignLeft" value="1" />
+    <element name="AlignTrailing" value="2" />
+    <element name="AlignAbsolute" value="16" />
+    <element name="AlignHCenter" value="4" />
+    <element name="AlignCenter" value="132" />
+    <element name="AlignJustify" value="8" />
+    <element name="AlignHorizontal_Mask" value="31" />
+    <element name="AlignTop" value="32" />
+    <element name="AlignRight" value="2" />
+    <element name="AlignLeading" value="1" />
+    <element name="AlignVCenter" value="128" />
+    <element name="AlignBottom" value="64" />
+    <element name="AlignVertical_Mask" value="224" />
+  </flag>
+  <flag name="DockWidgetAreas" scope="Qt">
+    <element name="AllDockWidgetAreas" value="15" />
+    <element name="LeftDockWidgetArea" value="1" />
+    <element name="DockWidgetArea_Mask" value="15" />
+    <element name="NoDockWidgetArea" value="0" />
+    <element name="TopDockWidgetArea" value="4" />
+    <element name="RightDockWidgetArea" value="2" />
+    <element name="BottomDockWidgetArea" value="8" />
+  </flag>
+  <flag name="ToolBarAreas" scope="Qt">
+    <element name="RightToolBarArea" value="2" />
+    <element name="TopToolBarArea" value="4" />
+    <element name="ToolBarArea_Mask" value="15" />
+    <element name="NoToolBarArea" value="0" />
+    <element name="LeftToolBarArea" value="1" />
+    <element name="AllToolBarAreas" value="15" />
+    <element name="BottomToolBarArea" value="8" />
+  </flag>
+  <flag name="RenderHints" scope="QPainter">
+    <element name="Antialiasing" value="1" />
+    <element name="TextAntialiasing" value="2" />
+    <element name="SmoothPixmapTransform" value="4" />
+    <element name="HighQualityAntialiasing" value="8" />
+    <element name="NonCosmeticDefaultPen" value="16" />
+  </flag>
+  <flag name="TextInteractionFlags" scope="Qt">
+    <element name="TextEditable" value="16" />
+    <element name="TextSelectableByKeyboard" value="2" />
+    <element name="NoTextInteraction" value="0" />
+    <element name="TextSelectableByMouse" value="1" />
+    <element name="TextBrowserInteraction" value="13" />
+    <element name="LinksAccessibleByKeyboard" value="8" />
+    <element name="LinksAccessibleByMouse" value="4" />
+    <element name="TextEditorInteraction" value="19" />
+  </flag>
+
+  <node name="Object">
+    <property index="0" isEnumType="False" isFlagType="False" isReadable="True" isResettable="False" isWritable="True" name="objectName" type="QString" showInPropertyEditor="true"/>
+  </node>
+</metainfo>

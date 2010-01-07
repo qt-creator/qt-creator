@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>toolbar-cssedit.png</file>
+        <file>toolbar-edit.png</file>
+        <file>bauhaus-windows.css</file>
+        <file>bauhaus-macos.css</file>
+        <file>bauhaus-x11.css</file>
+        <file>128xBauhaus_Logo.png</file>
+        <file>bauhaus.css</file>
+        <file alias="qmldesigner/templates/General/Empty QWidget">templates/qwidget.qml</file>
+        <file alias="qmldesigner/templates/General/Empty QGraphicsView">templates/qgraphicsview.qml</file>
+        <file>64xBauhaus_Logo.png</file>
+        <file>preview.png</file>
+        <file alias="qmldesigner/templates/General/Empty Fx">templates/fx.qml</file>
+        <file>16xBauhaus_Logo.png</file>
+        <file>256xBauhaus_Logo.png</file>
+        <file>32xBauhaus_Logo.png</file>
+    </qresource>
+</RCC>

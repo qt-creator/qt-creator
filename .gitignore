@@ -73,3 +73,6 @@ bin/qtcreator_process_stub*
 bin/qtcreator.exe
 share/doc/qtcreator/qtcreator.qch
 tests/manual/cplusplus/cplusplus0
+tests/auto/qml/qmldesigner/bauhaustests/tst_bauhaus
+tests/auto/qml/qmldesigner/coretests/tst_qmldesigner_core
+tests/auto/qml/qmldesigner/propertyeditortests/tst_propertyeditor

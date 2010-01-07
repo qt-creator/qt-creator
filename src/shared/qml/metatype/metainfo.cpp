@@ -254,7 +254,7 @@ QStringList MetaInfo::s_pluginDirs;
 
 
 /*!
-\class QKineticDesigner::MetaInfo
+\class QmlDesigner::MetaInfo
 \ingroup CoreModel
 \brief The MetaInfo class provides meta information about qml types and properties.
 
@@ -268,7 +268,7 @@ The MetaInfo object should always be accessed via the model (see Model::metaInfo
 Otherwise types specific to a model (like sub components) might
 be missed.
 
-\see Model::metaInfo(), QKineticDesigner::NodeMetaInfo, QKineticDesigner::PropertyMetaInfo, QKineticDesigner::EnumeratorMetaInfo
+\see Model::metaInfo(), QmlDesigner::NodeMetaInfo, QmlDesigner::PropertyMetaInfo, QmlDesigner::EnumeratorMetaInfo
 */
 
 /*!
@@ -486,4 +486,4 @@ bool operator!=(const MetaInfo &first, const MetaInfo &second)
 {
     return !(first == second);
 }
-} //namespace QKineticDesigner
+} //namespace QmlDesigner

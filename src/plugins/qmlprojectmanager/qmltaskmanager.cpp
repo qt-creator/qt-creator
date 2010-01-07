@@ -50,6 +50,7 @@ void QmlTaskManager::setTaskWindow(ProjectExplorer::TaskWindow *taskWindow)
 
 void QmlTaskManager::documentUpdated(QmlEditor::QmlDocument::Ptr doc)
 {
+#if 0 // This will give way too many flickering errors in the build-results pane *when you're typing*
     m_taskWindow->clearTasks(Constants::TASK_CATEGORY_QML);
 
     foreach (const QmlJS::DiagnosticMessage &msg, doc->diagnosticMessages()) {
@@ -61,6 +62,7 @@ void QmlTaskManager::documentUpdated(QmlEditor::QmlDocument::Ptr doc)
                                                 Constants::TASK_CATEGORY_QML);
         m_taskWindow->addTask(task);
     }
+#endif
 }
 
 } // Internal

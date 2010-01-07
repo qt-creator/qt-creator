@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/stateseditor" >
+        <file>stateslist.qml</file>
+    </qresource>
+</RCC>

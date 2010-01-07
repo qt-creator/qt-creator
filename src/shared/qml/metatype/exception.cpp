@@ -41,7 +41,7 @@
 \defgroup CoreExceptions
 */
 /*!
-\class QKineticDesigner::Exception
+\class QmlDesigner::Exception
 \ingroup CoreExceptions
 \brief This is the abstract base class for all excetions.
     Exceptions should be used in cases there is no other way to say something goes wrong. For example

@@ -1,0 +1,72 @@
+QFrame {
+   border: 2px;
+   background-color: #707070;
+}
+
+QLabel {
+    border: none;
+    border-image: none;
+    padding: 0;
+    background: none;
+    color: #E1E1E1;
+}
+
+QScrollArea {
+     border: 0px;
+     background-color: #707070;
+}
+
+QStackedWidget {
+     border: 0px;
+     background-color: #707070;
+}
+
+
+QGraphicsView {
+     border: 0px;
+     background-color: #707070;
+}
+
+QTabWidget {
+     border: 0px;
+     background-color: #707070;
+}
+
+QTabWidget::pane { /* The tab widget frame */
+     border: 0px;
+     background-color: #707070;
+}
+
+QLineEdit
+{
+     border: 2px solid #8F8F8F;
+     border-radius: 4px;
+     padding: 0 8px;
+     background-color: white;
+     selection-background-color: darkgray;
+}
+ 
+ QTreeView {
+    color: white;
+    selection-color: white
+ }
+ 
+ QTreeView::item:selected {
+     color: white;
+ }
+ 
+ QListView {
+    color: white;
+    selection-color: white
+ }
+ 
+ QListView::item:selected {
+     color: white;
+ }
+
+QComboBox QAbstractItemView {
+     color: black;
+     border: 2px solid darkgray;
+     selection-background-color: lightgray;
+ }
+ 

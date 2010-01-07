@@ -1,0 +1,690 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+#include "objectnodeinstance.h"
+
+#include <invalidreparentingexception.h>
+#include <invalidnodeinstanceexception.h>
+#include <notimplementedexception.h>
+#include <noanchoringpossibleexception.h>
+
+#include <QmlContext>
+#include <QtDeclarative/private/qmlcontext_p.h>
+#include <QmlList>
+#include <QmlBinding>
+#include <private/qmllistaccessor_p.h>
+
+#include <metainfo.h>
+#include <propertymetainfo.h>
+#include <qmlmetaproperty.h>
+#include <QmlMetaType>
+#include <QmlEngine>
+#include <private/qmlgraphicsanchors_p.h>
+#include <private/qmlgraphicsrectangle_p.h>
+
+#include "qmlgraphicsitemnodeinstance.h"
+#include "graphicsobjectnodeinstance.h"
+#include "graphicsviewnodeinstance.h"
+#include "graphicsscenenodeinstance.h"
+#include "graphicswidgetnodeinstance.h"
+#include "qmlviewnodeinstance.h"
+#include "widgetnodeinstance.h"
+#include "proxywidgetnodeinstance.h"
+#include "variantproperty.h"
+#include <nodelistproperty.h>
+
+namespace QmlDesigner {
+namespace Internal {
+
+ChildrenChangeEventFilter::ChildrenChangeEventFilter(QObject *parent)
+    : QObject(parent)
+{
+}
+
+
+bool ChildrenChangeEventFilter::eventFilter(QObject *object, QEvent *event)
+{
+    switch (event->type()) {
+        case QEvent::ChildAdded:
+        case QEvent::ChildRemoved: emit childrenChanged(object); break;
+        default: break;
+    }
+
+    return false;
+}
+
+ObjectNodeInstance::ObjectNodeInstance(QObject *object)
+    : m_deleteHeldInstance(true),
+    m_object(object)
+{
+}
+
+ObjectNodeInstance::~ObjectNodeInstance()
+{
+    destroy();
+}
+
+static bool isChildrenProperty(const QString &name)
+{
+    return name == "data" || name == "children" || name == "resources";
+}
+
+static void specialRemoveParentForQmlGraphicsItemChildren(QObject *object)
+{
+    QmlGraphicsItem *item = qobject_cast<QmlGraphicsItem*>(object);
+    if (item && item->scene())
+        item->scene()->removeItem(item);
+
+    object->setParent(0);
+}
+
+void ObjectNodeInstance::destroy()
+{
+    // Remove from old property
+    if (object() && modelNode().isValid() && modelNode().parentProperty().isValid()) {
+        NodeAbstractProperty parentProperty = modelNode().parentProperty();
+        ModelNode parentNode = parentProperty.parentModelNode();
+        if (parentNode.isValid() && nodeInstanceView()->hasInstanceForNode(parentNode)) {
+            NodeInstance parentInstance = nodeInstanceView()->instanceForNode(parentNode);
+            if (parentInstance.isQmlGraphicsItem() && isChildrenProperty(parentProperty.name())) {
+                specialRemoveParentForQmlGraphicsItemChildren(object());
+            } else {
+                removeFromOldProperty(object(), parentInstance.internalObject(), parentProperty.name());
+            }
+        }
+    }
+
+    if (deleteHeldInstance() && object()) {
+        if (!object()->objectName().isEmpty()) {
+            context()->engine()->rootContext()->setContextProperty(object()->objectName(), 0);
+        }
+        QObject *obj = object();
+        m_object.clear();
+        delete obj;
+    }
+}
+
+ModelNode ObjectNodeInstance::modelNode() const
+{
+    return m_modelNode;
+}
+
+void ObjectNodeInstance::setModelNode(const ModelNode &node)
+{
+    m_modelNode = node;
+}
+
+NodeInstanceView *ObjectNodeInstance::nodeInstanceView() const
+{
+    return m_nodeInstanceView.data();
+}
+
+void ObjectNodeInstance::setNodeInstance(NodeInstanceView *view)
+{
+    m_nodeInstanceView = view;
+}
+
+void ObjectNodeInstance::setId(const QString &id)
+{
+    object()->setObjectName(id);
+
+    if (!id.isEmpty()) {
+        context()->engine()->rootContext()->setContextProperty(id, object()); // will also force refresh of all bindings
+    } else {
+        context()->engine()->rootContext()->setContextProperty(id, 0);
+    }
+}
+
+bool ObjectNodeInstance::isQmlGraphicsItem() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isGraphicsScene() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isGraphicsView() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isGraphicsWidget() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isProxyWidget() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isWidget() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isQmlView() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isGraphicsObject() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isTransition() const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::equalGraphicsItem(QGraphicsItem * /*item*/) const
+{
+    return false;
+}
+
+QTransform ObjectNodeInstance::transform() const
+{
+    return QTransform();
+}
+
+QTransform ObjectNodeInstance::customTransform() const
+{
+    return QTransform();
+}
+
+QTransform ObjectNodeInstance::sceneTransform() const
+{
+    return QTransform();
+}
+
+double ObjectNodeInstance::rotation() const
+{
+    return 0.0;
+}
+
+double ObjectNodeInstance::scale() const
+{
+    return 1.0;
+}
+
+QList<QGraphicsTransform *> ObjectNodeInstance::transformations() const
+{
+    QList<QGraphicsTransform *> transformationsList;
+
+    return transformationsList;
+}
+
+QPointF ObjectNodeInstance::transformOriginPoint() const
+{
+    return QPoint();
+}
+
+double ObjectNodeInstance::zValue() const
+{
+    return 0.0;
+}
+
+double ObjectNodeInstance::opacity() const
+{
+    return 1.0;
+}
+
+bool ObjectNodeInstance::hasAnchor(const QString &/*name*/) const
+{
+    return false;
+}
+
+bool ObjectNodeInstance::isAnchoredBy() const
+{
+    return false;
+}
+
+QPair<QString, NodeInstance> ObjectNodeInstance::anchor(const QString &/*name*/) const
+{
+    return qMakePair(QString(), NodeInstance());
+}
+
+
+static bool isList(const QmlMetaProperty &metaProperty)
+{
+    return metaProperty.propertyCategory() == QmlMetaProperty::List || metaProperty.propertyCategory() == QmlMetaProperty::QmlList;
+}
+
+static bool isObject(const QmlMetaProperty &metaProperty)
+{
+    return metaProperty.propertyCategory() == QmlMetaProperty::Object;
+}
+
+static QVariant objectToVariant(QObject *object)
+{
+    const QMetaObject *metaObject = object->metaObject();
+    QmlType *qmlType = QmlMetaType::qmlType(metaObject);
+
+    return qmlType->fromObject(object);
+}
+
+static void removeObjectFromList(const QmlMetaProperty &metaProperty, QObject *object, QmlEngine *engine)
+{
+    QmlListAccessor listAccessor;
+    listAccessor.setList(metaProperty.read(), engine);
+
+    for (int i = 0; i < listAccessor.count(); ++i)  {
+        if (QmlMetaType::toQObject(listAccessor.at(i)) == object) {
+            listAccessor.removeAt(i);
+            break;
+        }
+    }
+}
+
+void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty)
+{
+    QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(oldParent, oldParentProperty, context());
+
+    if (isList(metaProperty)) {
+        removeObjectFromList(metaProperty, object, nodeInstanceView()->engine());
+    } else if (isObject(metaProperty)) {
+        resetProperty(object, oldParentProperty);
+    }
+
+    object->setParent(0);
+}
+
+void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, const QString &newParentProperty)
+{
+    QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(newParent, newParentProperty, context());
+
+    if (isList(metaProperty)) {
+        QmlListAccessor listAccessor;
+        listAccessor.setList(metaProperty.read(), nodeInstanceView()->engine());
+        listAccessor.append(objectToVariant(object));
+    } else if (isObject(metaProperty)) {
+        metaProperty.write(objectToVariant(object));
+    }
+    object->setParent(newParent);
+
+    Q_ASSERT(objectToVariant(object).isValid());
+}
+
+static void specialSetParentForQmlGraphicsItemChildren(QObject *object, QmlGraphicsItem *parent)
+{
+    QmlGraphicsItem *item = qobject_cast<QmlGraphicsItem*>(object);
+    if (item)
+        item->setParentItem(parent);
+    else
+        object->setParent(parent);
+}
+
+void ObjectNodeInstance::reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty)
+{
+    if (oldParentInstance.isValid()) {
+        if (oldParentInstance.isQmlGraphicsItem() && isChildrenProperty(oldParentProperty))
+            specialRemoveParentForQmlGraphicsItemChildren(object());
+        else
+            removeFromOldProperty(object(), oldParentInstance.internalObject(), oldParentProperty);
+    }
+
+    if (newParentInstance.isValid()) {
+        if (newParentInstance.isQmlGraphicsItem() && isChildrenProperty(newParentProperty))
+            specialSetParentForQmlGraphicsItemChildren(object(), qobject_cast<QmlGraphicsItem*>(newParentInstance.internalObject()));
+        else
+            addToNewProperty(object(), newParentInstance.internalObject(), newParentProperty);
+    }
+
+    refreshBindings(context()->engine()->rootContext());
+}
+
+void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &valueArg)
+{
+    QVariant value = valueArg;
+
+    QmlMetaProperty qmlMetaProperty = QmlMetaProperty::createProperty(object(), name, context());
+
+//    if (qmlMetaProperty.propertyType() == QVariant::Url) {
+//        QUrl url = value.toUrl();
+//        if (url.isRelative()) {
+//            QUrl baseUrl(nodeInstanceView()->model()->fileUrl());
+//            value.setValue(baseUrl.resolved(url));
+//        }
+//    }
+
+    qmlMetaProperty.write(value);
+}
+
+void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+{
+    QmlContext *qmlContext = QmlEngine::contextForObject(object());
+
+    QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(object(), name, context());
+    if (metaProperty.isValid() && metaProperty.isProperty()) {
+        QmlBinding *qmlBinding = new QmlBinding(expression, object(), qmlContext);
+        qmlBinding->setTarget(metaProperty);
+        qmlBinding->setTrackChange(true);
+        QmlAbstractBinding *oldBinding = metaProperty.setBinding(qmlBinding);
+        delete oldBinding;
+        qmlBinding->update();
+    } else {
+        qWarning() << "Cannot set binding for property" << name << ": property is unknown for type"
+                   << (modelNode().isValid() ? modelNode().type() : "unknown");
+    }
+}
+
+void ObjectNodeInstance::deleteObjectsInList(const QmlMetaProperty &metaProperty)
+{
+    QObjectList objectList;
+    QmlListAccessor listAccessor;
+    listAccessor.setList(metaProperty.read());
+
+    for(int i = 0; i < listAccessor.count(); i++) {
+        objectList += QmlMetaType::toQObject(listAccessor.at(i));
+    }
+
+    listAccessor.clear();
+}
+
+void ObjectNodeInstance::resetProperty(const QString &name)
+{
+    resetProperty(object(), name);
+
+    if (name == "font.pixelSize")
+        resetProperty(object(), "font.pointSize");
+
+    if (name == "font.pointSize")
+        resetProperty(object(), "font.pixelSize");
+}
+
+NodeInstance ObjectNodeInstance::instanceForNode(const ModelNode &node, const QString &fullname)
+{
+    if (nodeInstanceView()->hasInstanceForNode(node)) {
+        return nodeInstanceView()->instanceForNode(node);
+    } else {
+        NodeInstance instance(nodeInstanceView()->loadNode(node));
+        m_modelAbstractPropertyHash.insert(fullname, instance);
+        return instance;
+    }
+}
+
+void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyName)
+{
+    m_modelAbstractPropertyHash.remove(propertyName);
+
+    QmlMetaProperty qmlMetaProperty = QmlMetaProperty::createProperty(object, propertyName, context());
+    QMetaProperty metaProperty = qmlMetaProperty.property();
+
+    QmlAbstractBinding *binding = qmlMetaProperty.binding();
+    if (binding) {
+        binding->setEnabled(false, 0);
+        delete binding;
+    }
+
+    if (metaProperty.isResettable()) {
+        metaProperty.reset(object);
+    } else if (qmlMetaProperty.isWritable()) {
+        if (qmlMetaProperty.read() == resetValue(propertyName))
+            return;
+        qmlMetaProperty.write(resetValue(propertyName));
+    } else if (QmlMetaType::isList(qmlMetaProperty.propertyType()) ||
+               QmlMetaType::isQmlList(qmlMetaProperty.propertyType())) {
+        QmlMetaType::clear(object->property(propertyName.toLatin1()));
+    }
+}
+
+QVariant ObjectNodeInstance::property(const QString &name) const
+{
+    if (m_modelAbstractPropertyHash.contains(name))
+        return QVariant::fromValue(m_modelAbstractPropertyHash.value(name));
+
+
+    // TODO: handle model nodes
+
+    QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(object(), name, context());
+    if (metaProperty.property().isEnumType()) {
+        QVariant value = object()->property(name.toLatin1());
+        return metaProperty.property().enumerator().valueToKey(value.toInt());
+    }
+
+    if (metaProperty.propertyType() == QVariant::Url) {
+        QUrl url = metaProperty.read().toUrl();
+        if (url.isEmpty())
+            return QVariant();
+
+        if (url.scheme() == "file") {
+            int basePathLength = nodeInstanceView()->model()->fileUrl().toLocalFile().lastIndexOf("/");
+            return QUrl(url.toLocalFile().mid(basePathLength + 1));
+        }
+    }
+
+    return metaProperty.read();
+}
+
+
+void ObjectNodeInstance::setDeleteHeldInstance(bool deleteInstance)
+{
+    m_deleteHeldInstance = deleteInstance;
+}
+
+bool ObjectNodeInstance::deleteHeldInstance() const
+{
+    return m_deleteHeldInstance;
+}
+
+ObjectNodeInstance::Pointer ObjectNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QmlContext *context, QObject *objectToBeWrapped)
+{
+    QObject *object = 0;
+    if (objectToBeWrapped)
+        object = objectToBeWrapped;
+    else
+        object = createObject(nodeMetaInfo, context);
+
+    Pointer instance(new ObjectNodeInstance(object));
+
+    if (objectToBeWrapped)
+        instance->setDeleteHeldInstance(false); // the object isn't owned
+
+    instance->populateResetValueHash();
+
+    return instance;
+}
+
+void ObjectNodeInstance::updateObjectSignals(QObject *object)
+{
+    // iterates over all properties and find the QObjects.
+    // connect all signal of this property objects to the visibleChanged signal of this object
+    // to get updates of this item
+    int visibleSignalIndex = QGraphicsObject::staticMetaObject.indexOfSignal("visibleChanged()");
+    int transformSignalIndex = QGraphicsObject::staticMetaObject.indexOfSignal("xChanged()");
+    // iterate over all proeprties and find the object
+    for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < object->metaObject()->propertyCount(); propertyIndex++) {
+        if (QmlMetaType::isObject(object->metaObject()->property(propertyIndex).userType())) {
+            QObject *propertyObject = QmlMetaType::toQObject(object->metaObject()->property(propertyIndex).read(object));
+            if (propertyObject) {
+                int signalIndex = -1;
+                if (qobject_cast<QmlGraphicsAnchors*>(propertyObject)
+                    || qobject_cast<QmlGraphicsPen*>(propertyObject)) // test if this is a anchor and use the tranform signal instead
+                    signalIndex = transformSignalIndex;
+                else
+                    signalIndex = visibleSignalIndex;
+
+                // connect with every signal of the object to get the formeditor updated
+
+                for (int methodIndex = QObject::staticMetaObject.methodCount();
+                     methodIndex <  propertyObject->metaObject()->methodCount();
+                     methodIndex++) {
+                    QMetaMethod metaMethod = propertyObject->metaObject()->method(methodIndex);
+                    if (metaMethod.methodType() == QMetaMethod::Signal) {
+                        QObject::staticMetaObject.connect(propertyObject, methodIndex, object, signalIndex);
+                    }
+                }
+
+            }
+        }
+    }
+}
+
+QObject* ObjectNodeInstance::createObject(const NodeMetaInfo &metaInfo, QmlContext *context)
+{
+    QObject *object = metaInfo.createInstance(context);
+
+    if (object == 0)
+        throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
+
+    updateObjectSignals(object);
+
+    return object;
+}
+
+QObject *ObjectNodeInstance::object() const
+{
+    return m_object.data();
+}
+
+bool ObjectNodeInstance::hasContent() const
+{
+    return false;
+}
+
+void ObjectNodeInstance::updateAnchors()
+{
+}
+
+QmlContext *ObjectNodeInstance::context() const
+{
+    QmlContext *context = QmlEngine::contextForObject(object());
+    if (context)
+        return context;
+    else  if (nodeInstanceView())
+        return nodeInstanceView()->engine()->rootContext();
+
+    return 0;
+}
+
+void ObjectNodeInstance::paintUpdate()
+{
+}
+
+QStringList propertyNameForWritableProperties(QObject *object, const QString &baseName = QString())
+{
+    QStringList propertyNameList;
+
+    const QMetaObject *metaObject = object->metaObject();
+    for (int index = 0; index < metaObject->propertyCount(); ++index) {
+        QMetaProperty metaProperty = metaObject->property(index);
+        if (metaProperty.isReadable() && !metaProperty.isWritable()) {
+            QObject *childObject = QmlMetaType::toQObject(metaProperty.read(object));
+            if (childObject)
+                propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + "."));
+        } else if (QmlValueTypeFactory::valueType(metaProperty.userType())) {
+            QmlValueType *valueType = QmlValueTypeFactory::valueType(metaProperty.userType());
+            valueType->setValue(metaProperty.read(object));
+            propertyNameList.append(propertyNameForWritableProperties(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + "."));
+        } else if (metaProperty.isReadable() && metaProperty.isWritable()) {
+            propertyNameList.append(baseName + QString::fromUtf8(metaProperty.name()));
+        }
+    }
+
+    return propertyNameList;
+}
+
+void ObjectNodeInstance::populateResetValueHash()
+{
+    QStringList propertyNameList = propertyNameForWritableProperties(object());
+
+    foreach(const QString &propertyName, propertyNameList) {
+        QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(object(), propertyName, context());
+        if (metaProperty.isWritable())
+            m_resetValueHash.insert(propertyName, metaProperty.read());
+    }
+}
+
+QVariant ObjectNodeInstance::resetValue(const QString &propertyName) const
+{
+    return m_resetValueHash.value(propertyName);
+}
+
+void ObjectNodeInstance::paint(QPainter * /*painter*/) const
+{
+}
+
+bool ObjectNodeInstance::isTopLevel() const
+{
+    return false;
+}
+
+QObject *ObjectNodeInstance::parent() const
+{
+    if (!object())
+        return 0;
+
+    return object()->parent();
+}
+
+QRectF ObjectNodeInstance::boundingRect() const
+{
+    return QRect();
+}
+
+QPointF ObjectNodeInstance::position() const
+{
+    return QPointF();
+}
+
+QSizeF ObjectNodeInstance::size() const
+{
+    return QSizeF();
+}
+
+bool ObjectNodeInstance::isVisible() const
+{
+    return false;
+}
+
+void ObjectNodeInstance::setVisible(bool /*isVisible*/)
+{
+}
+
+void ObjectNodeInstance::createDynamicProperty(const QString &/*name*/, const QString &/*typeName*/)
+{
+    //todo not implemented at all
+
+}
+
+/**
+  Force all bindings in this or a sub context to be re-evaluated.
+  */
+void ObjectNodeInstance::refreshBindings(QmlContext *context)
+{
+    // TODO: Maybe do this via a timer to prevent update flooding
+    QmlContextPrivate::get(context)->refreshExpressions();
+}
+
+}
+}
+

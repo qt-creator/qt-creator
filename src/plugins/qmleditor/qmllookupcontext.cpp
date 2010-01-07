@@ -159,7 +159,7 @@ QmlSymbol *QmlLookupContext::resolveBuildinType(const QString &name)
 QmlSymbol *QmlLookupContext::resolveProperty(const QString &name, QmlSymbol *scope, const QString &fileName)
 {
     foreach (QmlSymbol *symbol, scope->members())
-        if (symbol->name() == name)
+        if (symbol->isProperty() && symbol->name() == name)
             return symbol;
 
     UiQualifiedId *typeName = 0;

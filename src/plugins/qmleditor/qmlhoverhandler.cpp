@@ -171,6 +171,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         }
     }
 
+    QString symbolName = QLatin1String("<unknown>");
     if (m_helpId.isEmpty()) {
         // Move to the end of a qualified name
         bool stop = false;
@@ -194,7 +195,12 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         QmlSymbol *resolvedSymbol = resolver.typeOf(expressionUnderCursor.expressionNode());
 
         if (resolvedSymbol) {
-            m_helpId = buildHelpId(resolvedSymbol);
+            symbolName = resolvedSymbol->name();
+
+            if (resolvedSymbol->isBuildInSymbol())
+                m_helpId = buildHelpId(resolvedSymbol);
+            else if (QmlSymbolFromFile *symbolFromFile = resolvedSymbol->asSymbolFromFile())
+                m_toolTip = symbolFromFile->fileName();
         }
     }
 
@@ -216,6 +222,6 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     } else if (!m_toolTip.isEmpty()) {
         m_toolTip = QString(QLatin1String("<nobr>%1")).arg(m_toolTip);
     } else if (!m_helpId.isEmpty()) {
-        m_toolTip = QString(QLatin1String("<nobr>No help available for \"%1\"")).arg(m_helpId);
+        m_toolTip = QString(QLatin1String("<nobr>No help available for \"%1\"")).arg(symbolName);
     }
 }

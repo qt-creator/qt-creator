@@ -1,0 +1,23 @@
+QToolButton {
+    border-image: url(:/qmldesigner/images/pushbutton.png) 3;
+    border-width: 3;
+    border-radius: 6px;
+    margin: 4px 4px 4px 4px;
+    color: white;
+}
+
+QToolButton:hover {
+    border-image: url(:/qmldesigner/images/pushbutton_hover.png) 3;
+    border-width: 3;
+}
+
+QToolButton:pressed {
+    border-image: url(:/qmldesigner/images/pushbutton_pressed.png) 3;
+    border-width: 3;
+}
+
+QToolButton:checked
+{
+    border-image: url(:/qmldesigner/images/pushbutton_pressed.png) 3;
+    border-width: 3;
+}

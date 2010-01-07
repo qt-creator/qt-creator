@@ -30,7 +30,7 @@
 #include "invalidmetainfoexception.h"
 
 /*!
-\class QKineticDesigner::InvalidMetaInfoException
+\class QmlDesigner::InvalidMetaInfoException
 \ingroup CoreExceptions
 \brief Exception for a invalid meta info
 

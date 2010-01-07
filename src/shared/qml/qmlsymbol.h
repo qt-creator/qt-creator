@@ -48,6 +48,7 @@ public:
 
     virtual const QString name() const = 0;
     virtual const List members() = 0;
+    virtual bool isProperty() const = 0;
 
     bool isBuildInSymbol();
     bool isSymbolFromFile();
@@ -101,6 +102,7 @@ public:
 
     virtual const QString name() const;
     virtual const List members();
+    virtual bool isProperty() const;
     virtual QmlSymbolFromFile *findMember(QmlJS::AST::Node *memberNode);
 
 private:

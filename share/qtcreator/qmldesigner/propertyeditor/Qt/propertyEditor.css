@@ -1,0 +1,397 @@
+QFrame, QSpinBox {
+    background-color: #707070;
+}
+
+QFrame 
+{
+    border-radius: 0px;
+    font-size: 11px
+}
+
+WidgetFrame {
+   border: 0px;
+   background-color: #707070;
+}
+
+ QComboBox QAbstractItemView {
+     border: 2px solid darkgray;
+     background-color: White;
+ }
+
+QLabel {
+    border: none;
+    border-image: none;
+    padding: 0;
+    background: none;
+    color: #dedede;
+    font: bold 
+}
+
+QScrollArea {
+     border: 0px;
+     border-radius: 0px;
+     background-color: #707070;
+}
+
+QGroupBox 
+{
+background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
+                                       stop: 0 #4a4a4a, stop: 1 #4f4f4f);
+     border: 1px solid #4F4F4F;
+     border-radius: 5px;
+     color: white;
+     font: bold 
+}
+
+QLineEdit 
+{
+     color: white;
+     border: 2px solid #0F0F0F;
+     border-radius: 6px;
+     border-width: 1;
+     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #2c2c2c, stop: 1 #333333);
+}
+
+QTextEdit 
+{
+     border: 2px solid #8F8F8F;
+     border-radius: 10px;
+     padding: 0 8px;
+     background-color: white;
+     selection-background-color: darkgray;
+}
+
+ QSpinBox 
+ {
+     font-size: 11px;
+     color: white;
+     padding-right: 20px; /* make room for the arrows */
+     padding-top: 2px; /* make room for the arrows */
+     padding-bottom: 2px; /* make room for the arrows */
+     border: 2px solid #0F0F0F;
+     border-radius: 6px;
+     border-width: 1;
+     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #2c2c2c, stop: 1 #333333);
+
+     min-height: 14px;
+     max-height: 14px;
+ }
+ 
+ QDoubleSpinBox 
+ {
+     font-size: 11px;
+     color: white;
+     padding-right: 20px; /* make room for the arrows */
+     padding-top: 2px; /* make room for the arrows */
+     padding-bottom: 2px; /* make room for the arrows */
+     border: 2px solid #0F0F0F;
+     border-radius: 6px;
+     border-width: 1;
+     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #2c2c2c, stop: 1 #333333);
+     max-height: 14px;
+     min-height: 14px;
+ }
+ 
+ QSpinBox::down-button {
+     subcontrol-origin: border;
+     subcontrol-position: bottom right; /* position at bottom right corner */
+     border-image: url(:/qmldesigner/images/spindown.png) 1;
+
+     width: 16px;
+     border-width: 1px;
+     border-top-width: 0;
+ }
+
+QSpinBox::down-button:hover {
+    border-image: url(:/qmldesigner/images/spindown_hover.png) 1;
+}
+
+QSpinBox::down-button:pressed {
+    border-image: url(:/qmldesigner/images/spindown_pressed.png) 1;
+}
+
+ 
+ QSpinBox::up-button {
+     subcontrol-origin: border;
+     subcontrol-position: top right; /* position at bottom right corner */
+     border-image: url(:/qmldesigner/images/spinup.png) 1;
+
+     width: 16px;
+     border-width: 1px;
+ }
+
+QSpinBox::up-button:hover {
+    border-image: url(:/qmldesigner/images/spinup_hover.png) 1;
+}
+
+QSpinBox::up-button:pressed {
+    border-image: url(:/qmldesigner/images/spinup_pressed.png) 1;
+}
+ 
+ 
+ QDoubleSpinBox::down-button {
+     subcontrol-origin: border;
+     subcontrol-position: bottom right; /* position at bottom right corner */
+     border-image: url(:/qmldesigner/images/spindown.png) 1;
+
+     width: 16px;
+     border-width: 1px;
+ }
+
+QDoubleSpinBox::down-button:hover {
+    border-image: url(:/qmldesigner/images/spindown_hover.png) 1;
+}
+
+QDoubleSpinBox::down-button:pressed {
+    border-image: url(:/qmldesigner/images/spindown_pressed.png) 1;
+}
+ 
+QDoubleSpinBox::up-button {
+     subcontrol-origin: border;
+     subcontrol-position: top right; /* position at bottom right corner */
+     border-image: url(:/qmldesigner/images/spinup.png) 1;
+
+     width: 16px;
+     border-width: 1px;
+}
+
+QDoubleSpinBox::up-button:hover {
+    border-image: url(:/qmldesigner/images/spinup_hover.png) 1;
+}
+
+QDoubleSpinBox::up-button:pressed {
+    border-image: url(:/qmldesigner/images/spinup_pressed.png) 1;
+}
+ 
+QToolButton
+{
+     background: none;
+     border: none;
+     background-color: none;
+}
+
+QToolButton::pressed
+{
+     background: none;
+     border: none;
+     background-color: none;
+}
+
+QToolButton::checked
+{
+     background: none;
+     border: none;
+}
+
+QPushButton {
+    padding: 0px;
+    font-size: 11px
+}
+
+QPushButton, QComboBox[editable="false"],
+QComboBox[editable="true"]::drop-down {
+    border-image: url(:/qmldesigner/images/pushbutton.png) 3;
+    border-width: 3;
+}
+
+QPushButton:hover, QComboBox[editable="false"]:hover,
+QComboBox[editable="true"]::drop-down:hover, QMenuBar::item:hover {
+    border-image: url(:/qmldesigner/images/pushbutton_hover.png) 3;
+    border-width: 3;
+}
+
+QPushButton:pressed, QComboBox[editable="false"]:on,
+QComboBox[editable="true"]::drop-down:on, QMenuBar::item:on {
+    border-image: url(:/qmldesigner/images/pushbutton_pressed.png) 3;
+    border-width: 3;
+}
+
+/* Customize read-only comboboxes. */
+
+QComboBox 
+{
+    font-size: 11px;
+    color: white;
+}
+
+QComboBox[editable="false"] {
+    padding-left: 3px;
+    padding-right: 20px; /* space for the arrow */
+}
+
+QComboBox[editable="false"]::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+    border-left-style: solid;
+    border-left-color: black;
+    border-left-width: 1px;
+}
+
+QComboBox[editable="false"]::down-arrow {
+    subcontrol-origin: content;
+    subcontrol-position: center;
+    position: relative;
+    left: 1px; /* 1 pixel dropdown border */
+}
+
+/* The combobox arrow is on when the popup is open. */
+QComboBox[editable="false"]::down-arrow:on {
+    position: relative;
+    top: 1px;
+    left: 2px;
+}
+
+/* Customize editable comboboxes. */
+
+QComboBox[editable="true"] {
+    padding-right: 16px;
+}
+
+QComboBox[editable="true"]::drop-down {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 13px;
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    right: 2px;
+}
+
+QComboBox[editable="true"]::drop-down,
+QComboBox[editable="true"]::drop-down:hover,
+QComboBox[editable="true"]::drop-down:on {
+    border-width: 0px;  
+    border-left-width: 3px; /* we need only left and center part */
+}
+
+/* Shift the arrow when it's open. */
+QComboBox[editable="true"]::down-arrow:on {
+    position: relative;
+    top: 1px;
+    left: 1px;
+}
+
+ QRadioButton {
+    spacing: 5px;
+}
+
+QRadioButton::indicator {
+    width: 13px;
+    height: 13px;
+}
+
+QRadioButton::indicator::unchecked {
+    image: url(:/qmldesigner/images/radiobutton_unchecked.png);
+}
+
+QRadioButton::indicator:unchecked:hover {
+    image: url(:/qmldesigner/images/radiobutton_unchecked_hover.png);
+}
+
+QRadioButton::indicator:unchecked:pressed {
+    image: url(:/qmldesigner/images/radiobutton_unchecked_pressed.png);
+}
+
+QRadioButton::indicator::checked {
+    image: url(:/qmldesigner/images/radiobutton_checked.png);
+}
+
+QRadioButton::indicator:checked:hover {
+    image: url(:/qmldesigner/images/radiobutton_checked_hover.png);
+}
+
+QRadioButton::indicator:checked:pressed {
+    image: url(:/qmldesigner/images/radiobutton_checked_pressed.png);
+}
+
+/* Customize arrows. */
+
+*::down-arrow, *::menu-indicator {
+    image: url(:/qmldesigner/images/down_arrow.png);
+    width: 7px;
+    height: 7px;
+}
+
+*::down-arrow:disabled, *::down-arrow:off {
+   image: url(:/qmldesigner/images/down_arrow_disabled.png);
+}
+
+*::up-arrow {
+    image: url(:/qmldesigner/images/up_arrow.png);
+    width: 7px;
+    height: 7px;
+}
+
+*::up-arrow:disabled, *::up-arrow:off {
+   image: url(:/qmldesigner/images/up_arrow_disabled.png);
+}
+
+/* Customize push buttons and comboboxes. Our read-only combobox
+   is very similar to a push button, so they share the same border image. */
+
+
+/* Customize check boxes. */
+QCheckBox {
+    spacing: 8px;
+    font-size: 11px
+}
+
+QCheckBox::indicator {
+    width: 20px;
+    height: 20px;
+}
+
+QCheckBox::indicator:unchecked {
+    image: url(:/qmldesigner/images/checkbox_unchecked.png);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(:/qmldesigner/images/checkbox_unchecked_hover.png);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(:/qmldesigner/images/checkbox_unchecked_pressed.png);
+}
+
+QCheckBox::indicator:checked {
+    image: url(:/qmldesigner/images/checkbox_checked.png);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(:/qmldesigner/images/checkbox_checked_hover.png);
+}
+
+QCheckBox::indicator:checked:pressed {
+    image: url(:/qmldesigner/images/checkbox_checked_pressed.png);
+}
+
+QMenu {
+     background-color: #494949; /* sets background of the menu */
+     border: 1px solid black;
+     margin: 0px; /* some spacing around the menu */
+     color: #cacaca;
+ }
+
+ QMenu::item {
+     /* sets background of menu item. set this to something non-transparent
+         if you want menu color and menu item color to be different */
+     background-color: transparent;
+     padding: 2px 25px 2px 20px;
+ }
+
+ QMenu::item:selected { /* when user selects item using mouse or keyboard */
+     background-color: #d2d2d2;
+     padding: 2px;
+     color: #404040;
+     border-radius: 4px;
+ }
+QMenu::separator {
+     height: 1px;
+     background: #404040;
+     margin-left: 5px;
+     margin-right: 5px;
+ }

@@ -1,0 +1,20 @@
+QCheckBox {
+     spacing: 2px;
+     border-width: 2px;
+     border-radius: 2px;
+ }
+
+ QCheckBox::indicator {
+     width: 13px;
+     height: 13px;
+ }
+ QLabel {
+     border  : 2px solid gray;
+     border-radius: 10px;
+     padding: 0 8px;
+     background: yellow;
+     selection-background-color: darkgray;
+ }
+
+
+ 

@@ -655,7 +655,6 @@ TextEditor::BaseTextEditor::Link QmlTextEditor::findLinkAt(const QTextCursor &cu
     QTextCursor expressionCursor(cursor);
     {
         // correct the position by moving to the end of an identifier (if we're hovering over one):
-        const QString txt = cursor.block().text();
         int pos = cursor.position();
         forever {
             const QChar ch = characterAt(pos);

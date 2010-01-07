@@ -98,6 +98,9 @@ public:
         return result;
     }
 
+    virtual bool isProperty() const
+    { return false; }
+
 public:
     static QString key(const NodeMetaInfo &metaInfo)
     {
@@ -172,6 +175,9 @@ public:
     {
         return members();
     }
+
+    virtual bool isProperty() const
+    { return true; }
 
 private:
     PropertyMetaInfo m_metaInfo;

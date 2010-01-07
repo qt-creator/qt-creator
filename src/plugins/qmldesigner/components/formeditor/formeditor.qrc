@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/icon/handle">
+        <file>resize_handle.png</file>
+    </qresource>
+    <qresource prefix="/icon/tool">
+        <file>anchor.png</file>
+        <file>transform.png</file>
+    </qresource>
+    <qresource prefix="/icon/layout">
+        <file>snapping.png</file>
+    </qresource>
+</RCC>

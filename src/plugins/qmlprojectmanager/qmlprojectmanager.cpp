@@ -33,7 +33,10 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 
 #include <QtDebug>
 
@@ -60,10 +63,23 @@ QString Manager::mimeType() const
 
 ProjectExplorer::Project *Manager::openProject(const QString &fileName)
 {
+    Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
+    messageManager->displayStatusBarMessage(tr("Loading project %1 ...").arg(fileName), 50000);
+
     QFileInfo fileInfo(fileName);
+    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+
+    foreach (ProjectExplorer::Project *pi, projectExplorer->session()->projects()) {
+        if (fileName == pi->file()->fileName()) {
+            messageManager->printToOutputPane(tr("Failed opening project '%1': Project already open").arg(QDir::toNativeSeparators(fileName)));
+            messageManager->displayStatusBarMessage(tr("Failed opening project"), 5000);
+            return 0;
+        }
+    }
 
     if (fileInfo.isFile()) {
         QmlProject *project = new QmlProject(this, fileName);
+        messageManager->displayStatusBarMessage(tr("Done opening project"), 5000);
         return project;
     }
 

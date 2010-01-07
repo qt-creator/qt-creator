@@ -1,0 +1,1 @@
+DEPENDPATH += $$PWD/qtpropertybrowser/src/

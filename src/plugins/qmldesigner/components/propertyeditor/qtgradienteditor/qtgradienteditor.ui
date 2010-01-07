@@ -1,0 +1,1377 @@
+<ui version="4.0" >
+ <comment>*********************************************************************
+**
+** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** All rights reserved.
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** This file is part of the tools applications of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** No Commercial Usage
+** This file contains pre-release code and may not be distributed.
+** You may use this file in accordance with the terms and conditions
+** contained in the Technology Preview License Agreement accompanying
+** this package.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights.  These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+**
+**
+**
+**
+**
+**
+**
+** $QT_END_LICENSE$
+**
+*********************************************************************</comment>
+ <class>QtGradientEditor</class>
+ <widget class="QWidget" name="QtGradientEditor" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>364</width>
+    <height>518</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <widget class="QFrame" name="frame" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>69</y>
+     <width>193</width>
+     <height>150</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="frameShape" >
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow" >
+    <enum>QFrame::Raised</enum>
+   </property>
+   <layout class="QVBoxLayout" >
+    <property name="spacing" >
+     <number>6</number>
+    </property>
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QtGradientWidget" native="1" name="gradientWidget" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="toolTip" >
+       <string>Gradient Editor</string>
+      </property>
+      <property name="whatsThis" >
+       <string>This area shows a preview of the gradient being edited. It also allows you to edit parameters specific to the gradient's type such as start and final point, radius, etc. by drag &amp; drop.</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="label1" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>69</y>
+     <width>64</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>1</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="spinBox1" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>69</y>
+     <width>73</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="keyboardTracking" >
+    <bool>false</bool>
+   </property>
+   <property name="decimals" >
+    <number>3</number>
+   </property>
+   <property name="maximum" >
+    <double>1.000000000000000</double>
+   </property>
+   <property name="singleStep" >
+    <double>0.010000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label2" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>99</y>
+     <width>64</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>2</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="spinBox2" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>99</y>
+     <width>73</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="keyboardTracking" >
+    <bool>false</bool>
+   </property>
+   <property name="decimals" >
+    <number>3</number>
+   </property>
+   <property name="maximum" >
+    <double>1.000000000000000</double>
+   </property>
+   <property name="singleStep" >
+    <double>0.010000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label3" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>129</y>
+     <width>64</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>3</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="spinBox3" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>129</y>
+     <width>73</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="keyboardTracking" >
+    <bool>false</bool>
+   </property>
+   <property name="decimals" >
+    <number>3</number>
+   </property>
+   <property name="maximum" >
+    <double>1.000000000000000</double>
+   </property>
+   <property name="singleStep" >
+    <double>0.010000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label4" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>159</y>
+     <width>64</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>4</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="spinBox4" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>159</y>
+     <width>73</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="keyboardTracking" >
+    <bool>false</bool>
+   </property>
+   <property name="decimals" >
+    <number>3</number>
+   </property>
+   <property name="maximum" >
+    <double>1.000000000000000</double>
+   </property>
+   <property name="singleStep" >
+    <double>0.010000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label5" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>189</y>
+     <width>64</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>5</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="spinBox5" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>189</y>
+     <width>73</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="keyboardTracking" >
+    <bool>false</bool>
+   </property>
+   <property name="decimals" >
+    <number>3</number>
+   </property>
+   <property name="maximum" >
+    <double>1.000000000000000</double>
+   </property>
+   <property name="singleStep" >
+    <double>0.010000000000000</double>
+   </property>
+  </widget>
+  <widget class="QtGradientStopsWidget" native="1" name="gradientStopsWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>225</y>
+     <width>193</width>
+     <height>67</height>
+    </rect>
+   </property>
+   <property name="toolTip" >
+    <string>Gradient Stops Editor</string>
+   </property>
+   <property name="whatsThis" >
+    <string>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="zoomLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>231</y>
+     <width>64</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Zoom</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="zoomAllButton" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>260</y>
+     <width>72</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="toolTip" >
+    <string>Reset Zoom</string>
+   </property>
+   <property name="text" >
+    <string>Reset Zoom</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="positionLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>304</y>
+     <width>64</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Position</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="hLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>335</y>
+     <width>32</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="toolTip" >
+    <string>Hue</string>
+   </property>
+   <property name="text" >
+    <string>H</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame_2" >
+   <property name="geometry" >
+    <rect>
+     <x>48</x>
+     <y>333</y>
+     <width>155</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="frameShape" >
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow" >
+    <enum>QFrame::Raised</enum>
+   </property>
+   <layout class="QHBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QtColorLine" native="1" name="hueColorLine" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="toolTip" >
+       <string>Hue</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="hueLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>335</y>
+     <width>64</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text" >
+    <string>Hue</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="sLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>364</y>
+     <width>32</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="toolTip" >
+    <string>Saturation</string>
+   </property>
+   <property name="text" >
+    <string>S</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame_5" >
+   <property name="geometry" >
+    <rect>
+     <x>48</x>
+     <y>362</y>
+     <width>155</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="frameShape" >
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow" >
+    <enum>QFrame::Raised</enum>
+   </property>
+   <layout class="QHBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QtColorLine" native="1" name="saturationColorLine" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="toolTip" >
+       <string>Saturation</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="saturationLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>364</y>
+     <width>64</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text" >
+    <string>Sat</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="vLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>393</y>
+     <width>32</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="toolTip" >
+    <string>Value</string>
+   </property>
+   <property name="text" >
+    <string>V</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame_3" >
+   <property name="geometry" >
+    <rect>
+     <x>48</x>
+     <y>391</y>
+     <width>155</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="frameShape" >
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow" >
+    <enum>QFrame::Raised</enum>
+   </property>
+   <layout class="QHBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QtColorLine" native="1" name="valueColorLine" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="toolTip" >
+       <string>Value</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="valueLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>393</y>
+     <width>64</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text" >
+    <string>Val</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="aLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>422</y>
+     <width>32</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="toolTip" >
+    <string>Alpha</string>
+   </property>
+   <property name="text" >
+    <string>A</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame_4" >
+   <property name="geometry" >
+    <rect>
+     <x>48</x>
+     <y>420</y>
+     <width>155</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="frameShape" >
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow" >
+    <enum>QFrame::Raised</enum>
+   </property>
+   <layout class="QHBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QtColorLine" native="1" name="alphaColorLine" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="toolTip" >
+       <string>Alpha</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="alphaLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>422</y>
+     <width>64</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text" >
+    <string>Alpha</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="typeComboBox" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>40</y>
+     <width>79</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="toolTip" >
+    <string>Type</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="spreadComboBox" >
+   <property name="geometry" >
+    <rect>
+     <x>96</x>
+     <y>40</y>
+     <width>72</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="toolTip" >
+    <string>Spread</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="colorLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>298</y>
+     <width>32</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Preferred" hsizetype="Fixed" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text" >
+    <string>Color</string>
+   </property>
+  </widget>
+  <widget class="QtColorButton" name="colorButton" >
+   <property name="geometry" >
+    <rect>
+     <x>48</x>
+     <y>300</y>
+     <width>26</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="toolTip" >
+    <string>Current stop's color</string>
+   </property>
+   <property name="text" >
+    <string/>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="hsvRadioButton" >
+   <property name="geometry" >
+    <rect>
+     <x>80</x>
+     <y>301</y>
+     <width>49</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="toolTip" >
+    <string>Show HSV specification</string>
+   </property>
+   <property name="text" >
+    <string>HSV</string>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="rgbRadioButton" >
+   <property name="geometry" >
+    <rect>
+     <x>135</x>
+     <y>301</y>
+     <width>49</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="toolTip" >
+    <string>Show RGB specification</string>
+   </property>
+   <property name="text" >
+    <string>RGB</string>
+   </property>
+  </widget>
+  <widget class="QWidget" native="1" name="positionWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>304</y>
+     <width>73</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QDoubleSpinBox" name="positionSpinBox" >
+      <property name="toolTip" >
+       <string>Current stop's position</string>
+      </property>
+      <property name="keyboardTracking" >
+       <bool>false</bool>
+      </property>
+      <property name="decimals" >
+       <number>3</number>
+      </property>
+      <property name="minimum" >
+       <double>0.000000000000000</double>
+      </property>
+      <property name="maximum" >
+       <double>1.000000000000000</double>
+      </property>
+      <property name="singleStep" >
+       <double>0.010000000000000</double>
+      </property>
+      <property name="value" >
+       <double>0.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" native="1" name="hueWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>333</y>
+     <width>73</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSpinBox" name="hueSpinBox" >
+      <property name="keyboardTracking" >
+       <bool>false</bool>
+      </property>
+      <property name="maximum" >
+       <number>359</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" native="1" name="saturationWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>362</y>
+     <width>73</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSpinBox" name="saturationSpinBox" >
+      <property name="keyboardTracking" >
+       <bool>false</bool>
+      </property>
+      <property name="maximum" >
+       <number>255</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" native="1" name="valueWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>391</y>
+     <width>73</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSpinBox" name="valueSpinBox" >
+      <property name="keyboardTracking" >
+       <bool>false</bool>
+      </property>
+      <property name="maximum" >
+       <number>255</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" native="1" name="alphaWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>420</y>
+     <width>73</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSpinBox" name="alphaSpinBox" >
+      <property name="keyboardTracking" >
+       <bool>false</bool>
+      </property>
+      <property name="maximum" >
+       <number>255</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" native="1" name="zoomWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>279</x>
+     <y>231</y>
+     <width>73</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSpinBox" name="zoomSpinBox" >
+      <property name="keyboardTracking" >
+       <bool>false</bool>
+      </property>
+      <property name="suffix" >
+       <string>%</string>
+      </property>
+      <property name="minimum" >
+       <number>100</number>
+      </property>
+      <property name="maximum" >
+       <number>10000</number>
+      </property>
+      <property name="singleStep" >
+       <number>100</number>
+      </property>
+      <property name="value" >
+       <number>100</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" native="1" name="line1Widget" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>219</y>
+     <width>143</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="Line" name="line1" >
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" native="1" name="line2Widget" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>292</y>
+     <width>143</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="Line" name="line2" >
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" native="1" name="zoomButtonsWidget" >
+   <property name="geometry" >
+    <rect>
+     <x>209</x>
+     <y>260</y>
+     <width>64</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Preferred" hsizetype="Maximum" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QHBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
+    </property>
+    <property name="topMargin" >
+     <number>0</number>
+    </property>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QToolButton" name="zoomInButton" >
+      <property name="toolTip" >
+       <string>Zoom In</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QToolButton" name="zoomOutButton" >
+      <property name="toolTip" >
+       <string>Zoom Out</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" >
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolButton" name="detailsButton" >
+   <property name="geometry" >
+    <rect>
+     <x>176</x>
+     <y>40</y>
+     <width>25</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Ignored" hsizetype="Fixed" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="toolTip" >
+    <string>Toggle details extension</string>
+   </property>
+   <property name="text" >
+    <string>></string>
+   </property>
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="autoRaise" >
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="linearButton" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>30</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="toolTip" >
+    <string>Linear Type</string>
+   </property>
+   <property name="text" >
+    <string>...</string>
+   </property>
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="autoRaise" >
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="radialButton" >
+   <property name="geometry" >
+    <rect>
+     <x>40</x>
+     <y>10</y>
+     <width>30</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="toolTip" >
+    <string>Radial Type</string>
+   </property>
+   <property name="text" >
+    <string>...</string>
+   </property>
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="autoRaise" >
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="conicalButton" >
+   <property name="geometry" >
+    <rect>
+     <x>70</x>
+     <y>10</y>
+     <width>30</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="toolTip" >
+    <string>Conical Type</string>
+   </property>
+   <property name="text" >
+    <string>...</string>
+   </property>
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="autoRaise" >
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="padButton" >
+   <property name="geometry" >
+    <rect>
+     <x>110</x>
+     <y>10</y>
+     <width>30</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="toolTip" >
+    <string>Pad Spread</string>
+   </property>
+   <property name="text" >
+    <string>...</string>
+   </property>
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="autoRaise" >
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="repeatButton" >
+   <property name="geometry" >
+    <rect>
+     <x>140</x>
+     <y>10</y>
+     <width>30</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="toolTip" >
+    <string>Repeat Spread</string>
+   </property>
+   <property name="text" >
+    <string>...</string>
+   </property>
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="autoRaise" >
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="reflectButton" >
+   <property name="geometry" >
+    <rect>
+     <x>170</x>
+     <y>10</y>
+     <width>30</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="toolTip" >
+    <string>Reflect Spread</string>
+   </property>
+   <property name="text" >
+    <string>...</string>
+   </property>
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="autoRaise" >
+    <bool>true</bool>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QtColorButton</class>
+   <extends>QToolButton</extends>
+   <header>qtcolorbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QtColorLine</class>
+   <extends>QWidget</extends>
+   <header>qtcolorline.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QtGradientStopsWidget</class>
+   <extends>QWidget</extends>
+   <header>qtgradientstopswidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QtGradientWidget</class>
+   <extends>QWidget</extends>
+   <header>qtgradientwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>typeComboBox</tabstop>
+  <tabstop>spreadComboBox</tabstop>
+  <tabstop>detailsButton</tabstop>
+  <tabstop>spinBox1</tabstop>
+  <tabstop>spinBox2</tabstop>
+  <tabstop>spinBox3</tabstop>
+  <tabstop>spinBox4</tabstop>
+  <tabstop>spinBox5</tabstop>
+  <tabstop>zoomSpinBox</tabstop>
+  <tabstop>zoomInButton</tabstop>
+  <tabstop>zoomOutButton</tabstop>
+  <tabstop>zoomAllButton</tabstop>
+  <tabstop>colorButton</tabstop>
+  <tabstop>hsvRadioButton</tabstop>
+  <tabstop>rgbRadioButton</tabstop>
+  <tabstop>positionSpinBox</tabstop>
+  <tabstop>hueSpinBox</tabstop>
+  <tabstop>saturationSpinBox</tabstop>
+  <tabstop>valueSpinBox</tabstop>
+  <tabstop>alphaSpinBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

@@ -142,16 +142,16 @@ const QString QmlSymbolFromFile::name() const
 const QmlSymbol::List QmlSymbolFromFile::members()
 {
     if (!todo.isEmpty()) {
-        foreach (Node *node, todo) {
-            if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node))
+        foreach (Node *todoNode, todo) {
+            if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(todoNode))
                 _members.append(new QmlSymbolFromFile(fileName(), objectBinding));
-            else if (UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node))
+            else if (UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(todoNode))
                 _members.append(new QmlSymbolFromFile(fileName(), objectDefinition));
-            else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(node))
+            else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(todoNode))
                 _members.append(new QmlSymbolFromFile(fileName(), arrayBinding));
-            else if (UiPublicMember *publicMember = cast<UiPublicMember*>(node))
+            else if (UiPublicMember *publicMember = cast<UiPublicMember*>(todoNode))
                 _members.append(new QmlPropertyDefinitionSymbol(fileName(), publicMember));
-            else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(node)) {
+            else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(todoNode)) {
                 if (scriptBinding->qualifiedId && scriptBinding->qualifiedId->name && scriptBinding->qualifiedId->name->asString() == QLatin1String("id") && !scriptBinding->qualifiedId->next)
                     _members.append(new QmlIdSymbol(fileName(), scriptBinding, this));
                 else
@@ -164,6 +164,9 @@ const QmlSymbol::List QmlSymbolFromFile::members()
 
     return _members;
 }
+
+bool QmlSymbolFromFile::isProperty() const
+{ return cast<UiObjectDefinition*>(_node) == 0; }
 
 QmlSymbolFromFile *QmlSymbolFromFile::findMember(QmlJS::AST::Node *memberNode)
 {
