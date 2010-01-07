@@ -63,7 +63,7 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
     m_borderWidth(1.0),
     m_opacity(0.6)
 {
-    setCacheMode(QGraphicsItem::ItemCoordinateCache);
+    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setup();
 }
 
@@ -182,7 +182,7 @@ static QRectF alignedRect(const QRectF &rect)
     alignedRect.setTop(std::floor(rect.top()) + 0.5);
     alignedRect.setBottom(std::floor(rect.bottom()) + 0.5);
     alignedRect.setLeft(std::floor(rect.left()) + 0.5);
-    alignedRect.setRight(std::floor(rect.right()) + 0.5);
+    alignedRect.setRight(std::floor(rect.right()) + 1.5);
 
     return alignedRect;
 }
