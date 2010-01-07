@@ -47,6 +47,8 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
+QString homeDirOnDevice(const QString &uname);
+
 class MaemoDeviceConfig
 {
 public:

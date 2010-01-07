@@ -109,19 +109,19 @@ private:
 class SshDeploySpec
 {
 public:
-    SshDeploySpec(const QString &srcFilePath, const QString &targetDir,
+    SshDeploySpec(const QString &srcFilePath, const QString &tgtFilePath,
                   bool mkdir = false)
-        : m_srcFilePath(srcFilePath), m_targetDir(targetDir), m_mkdir(mkdir)
+        : m_srcFilePath(srcFilePath), m_tgtFilePath(tgtFilePath), m_mkdir(mkdir)
     {
     }
 
     QString srcFilePath() const { return m_srcFilePath; }
-    QString targetDir() const { return m_targetDir; }
+    QString tgtFilePath() const { return m_tgtFilePath; }
     bool mkdir() const { return m_mkdir; }
 
 private:
     QString m_srcFilePath;
-    QString m_targetDir;
+    QString m_tgtFilePath;
     bool m_mkdir;
 };
 

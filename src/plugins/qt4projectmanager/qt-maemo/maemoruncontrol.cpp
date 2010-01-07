@@ -123,8 +123,10 @@ void AbstractMaemoRunControl::deploy()
         foreach (const Deployable &deployable, deployables) {
             const QString srcFilePath
                 = deployable.dir % QDir::separator() % deployable.fileName;
+            const QString tgtFilePath
+                = remoteDir() % QDir::separator() % deployable.fileName;
             files << srcFilePath;
-            deploySpecs << SshDeploySpec(srcFilePath, remoteDir());
+            deploySpecs << SshDeploySpec(srcFilePath, tgtFilePath);
         }
         emit addToOutputWindow(this, tr("Files to deploy: %1.").arg(files.join(" ")));
         sshDeployer.reset(new MaemoSshDeployer(devConfig, deploySpecs));
@@ -249,9 +251,7 @@ const QString AbstractMaemoRunControl::executableFileName() const
 
 const QString AbstractMaemoRunControl::remoteDir() const
 {
-    return devConfig.uname == QString::fromLocal8Bit("root")
-        ? QString::fromLocal8Bit("/root")
-        : QString::fromLocal8Bit("/home/") + devConfig.uname;
+    return homeDirOnDevice(devConfig.uname);
 }
 
 const QStringList AbstractMaemoRunControl::options() const

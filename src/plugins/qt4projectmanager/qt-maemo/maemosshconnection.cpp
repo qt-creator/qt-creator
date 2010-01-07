@@ -160,26 +160,30 @@ void MaemoSftpConnection::transferFiles(const QList<SshDeploySpec> &deploySpecs)
 {
     for (int i = 0; i < deploySpecs.count(); ++i) {
         const SshDeploySpec &deploySpec = deploySpecs.at(i);
-        const QString &curFile = deploySpec.srcFilePath();
-        QSharedPointer<FILE> filePtr(fopen(curFile.toLatin1().data(), "rb"),
+        const QString &curSrcFile = deploySpec.srcFilePath();
+        QSharedPointer<FILE> filePtr(fopen(curSrcFile.toLatin1().data(), "rb"),
                                      &std::fclose);
         if (filePtr.isNull())
-            throw MaemoSshException(tr("Could not open file '%1'").arg(curFile));
+            throw MaemoSshException(tr("Could not open file '%1'").arg(curSrcFile));
+
+        const QString &curTgtFile = deploySpec.tgtFilePath();
 
         // TODO: Is the mkdir() method recursive? If not, we have to
         //       introduce a recursive version ourselves.
-        if (deploySpec.mkdir())
-            sftp->mkdir(deploySpec.targetDir().toLatin1().data());
+        if (deploySpec.mkdir()) {
+            const QString &dir = QFileInfo(curTgtFile).path();
+            sftp->mkdir(dir.toLatin1().data());
+        }
 
-        const QString &targetFile = deploySpec.targetDir() % QLatin1String("/")
-                                    % QFileInfo(curFile).fileName();
-        if (!sftp->put(filePtr.data(), targetFile.toLatin1().data())) {
+        qDebug("Deploying file %s to %s.", qPrintable(curSrcFile), qPrintable(curTgtFile));
+
+        if (!sftp->put(filePtr.data(), curTgtFile.toLatin1().data())) {
             const QString &error = tr("Could not copy local file '%1' "
-                    "to remote file '%2': %3").arg(curFile, targetFile)
+                    "to remote file '%2': %3").arg(curSrcFile, curTgtFile)
                     .arg(lastError());
             throw MaemoSshException(error);
         }
-        emit fileCopied(curFile);
+        emit fileCopied(curSrcFile);
     }
 }
 
