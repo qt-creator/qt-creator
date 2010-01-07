@@ -1730,8 +1730,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             finishMovement();
         }
     } else {
-        qDebug() << "IGNORED IN COMMAND MODE: " << key << text
-            << " VISUAL: " << m_visualMode;
+        //qDebug() << "IGNORED IN COMMAND MODE: " << key << text
+        //    << " VISUAL: " << m_visualMode;
         handled = EventUnhandled;
     }
 
