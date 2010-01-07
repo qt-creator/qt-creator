@@ -131,7 +131,10 @@ void TextToModelMerger::syncNode(ModelNode &modelNode, const QmlDomObject &domOb
     {
         const QString domObjectId = domObject.objectId();
 
-        if (!domObjectId.isEmpty()) {
+        if (domObjectId.isEmpty()) {
+            if (!modelNode.id().isEmpty())
+                differenceHandler.idsDiffer(modelNode, domObjectId);
+        } else {
             if (modelNode.id() != domObjectId)
                 differenceHandler.idsDiffer(modelNode, domObjectId);
         }
