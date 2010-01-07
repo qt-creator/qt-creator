@@ -1555,7 +1555,7 @@ QByteArray EditorManager::saveState() const
     stream << entries.count();
 
     foreach (OpenEditorsModel::Entry entry, entries) {
-        stream << entry.fileName() << entry.displayName() << entry.id();
+        stream << entry.fileName() << entry.displayName() << entry.id().toUtf8();
     }
 
     stream << m_d->m_splitter->saveState();
@@ -1594,12 +1594,11 @@ bool EditorManager::restoreState(const QByteArray &state)
         stream >> fileName;
         QString displayName;
         stream >> displayName;
-        QString id;
+        QByteArray id;
         stream >> id;
 
-        if (!fileName.isEmpty() && !displayName.isEmpty()){
-            m_d->m_editorModel->addRestoredEditor(fileName, displayName, id);
-        }
+        if (!fileName.isEmpty() && !displayName.isEmpty())
+            m_d->m_editorModel->addRestoredEditor(fileName, displayName, QString::fromUtf8(id));
     }
 
     QByteArray splitterstates;
