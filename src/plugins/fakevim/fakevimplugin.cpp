@@ -175,12 +175,17 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         this, SLOT(setPlainStyle()));
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords)
-           << ' ' << m_ui.labelAutoIndent->text()  << ' ' << m_ui.labelExpandTab->text()
-           << ' ' << m_ui.labelSmartIndent->text()  << ' ' << m_ui.labelExpandTab->text()
-           << ' ' << m_ui.labelHlSearch->text()    << ' ' << m_ui.labelIncSearch->text()
-           << ' ' << m_ui.labelShiftWidth->text()  << ' ' << m_ui.labelSmartTab->text()
-           << ' ' << m_ui.labelStartOfLine->text() << ' ' << m_ui.tabulatorLabel->text()
-           << ' ' << m_ui.labelBackspace->text();
+            << ' ' << m_ui.labelAutoIndent->text()
+            << ' ' << m_ui.labelExpandTab->text()
+            << ' ' << m_ui.labelSmartIndent->text()
+            << ' ' << m_ui.labelExpandTab->text()
+            << ' ' << m_ui.labelHlSearch->text()
+            << ' ' << m_ui.labelIncSearch->text()
+            << ' ' << m_ui.labelShiftWidth->text()
+            << ' ' << m_ui.labelSmartTab->text()
+            << ' ' << m_ui.labelStartOfLine->text()
+            << ' ' << m_ui.tabulatorLabel->text()
+            << ' ' << m_ui.labelBackspace->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;
