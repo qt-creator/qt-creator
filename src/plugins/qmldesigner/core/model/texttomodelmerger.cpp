@@ -114,7 +114,7 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
 
         setActive(false);
 
-        throw;
+        return false;
     }
 }
 

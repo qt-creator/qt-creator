@@ -169,7 +169,7 @@ static bool idContainsWrongLetter(const QString& id)
 
 bool ModelNode::isValidId(const QString &id)
 {
-    return !(id.isEmpty() || idContainsWrongLetter(id));
+    return id.isEmpty() || !idContainsWrongLetter(id);
 }
 
 void ModelNode::setId(const QString& id)
