@@ -1,4 +1,4 @@
-<plugin name="QmlEditor" version="1.3.0" compatVersion="1.3.0">
+<plugin name="QmlEditor" version="1.3.1" compatVersion="1.3.1">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -19,8 +19,8 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <description>Editor for QML.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.3.0"/>
-        <dependency name="TextEditor" version="1.3.0"/>
-        <dependency name="Help" version="1.3.0"/>
+        <dependency name="Core" version="1.3.1"/>
+        <dependency name="TextEditor" version="1.3.1"/>
+        <dependency name="Help" version="1.3.1"/>
     </dependencyList>
 </plugin>
