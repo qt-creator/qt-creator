@@ -359,7 +359,8 @@ class FrameCommand(gdb.Command):
         # Locals
         #
         for item in listOfLocals():
-            #warn("ITEM %s: " % item.value)
+            #warn("ITEM NAME %s: " % item.name)
+            #warn("ITEM VALUE %s: " % item.value)
 
             type = item.value.type
             if type.code == gdb.TYPE_CODE_PTR \
@@ -391,11 +392,24 @@ class FrameCommand(gdb.Command):
 
             else:
                 # A "normal" local variable or parameter
-                d.beginHash()
-                d.put('iname="%s",' % item.iname)
-                d.put('addr="%s",' % cleanAddress(item.value.address))
-                d.safePutItemHelper(item)
-                d.endHash()
+                try:
+                    addr = cleanAddress(item.value.address)
+                    d.beginHash()
+                    d.put('iname="%s",' % item.iname)
+                    d.put('addr="%s",' % addr)
+                    d.safePutItemHelper(item)
+                    d.endHash()
+                except AttributeError:
+                    # thrown by cleanAddreas with message
+                    # "'NoneType' object has no attribute 'cast'"
+                    # for optimized-out values
+                    d.beginHash()
+                    d.put('iname="%s",' % item.iname)
+                    d.put('name="%s",' % item.name)
+                    d.put('addr="<optimized out>",')
+                    d.put('value="<optimized out>",')
+                    d.put('type="%s"' % item.value.type)
+                    d.endHash()
 
         d.pushOutput()
         locals = d.safeoutput
