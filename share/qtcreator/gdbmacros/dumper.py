@@ -873,6 +873,7 @@ class Dumper:
                 self.beginChildren(1, innerType)
 
                 baseNumber = 0
+                anonNumber = 0
                 for field in fields:
                     #warn("FIELD: %s" % field)
                     #warn("  BITSIZE: %s" % field.bitsize)
@@ -906,13 +907,30 @@ class Dumper:
                         self.putField("iname", child.iname)
                         self.safePutItemHelper(child)
                         self.endHash()
+                    elif field.name == "":
+                        # Anonymous union. We need a dummy name to distinguish
+                        # multiple anonymous unions in the struct.
+                        iname = "%s.#%d" % (item.iname, anonNumber)
+                        anonNumber += 1
+                        self.beginHash()
+                        self.putField("iname", iname)
+                        self.putField("name", "<n/a>")
+                        self.putField("value", " ")
+                        self.putField("type", "<anonymous union>")
+                        if self.isExpandedIName(iname):
+                            self.beginChildren()
+                            for f in field.type.fields():
+                                child = Item(item.value[f.name],
+                                    item.iname, f.name, f.name)
+                                self.safePutItem(child)
+                            self.endChildren()
+                        self.endHash()
                     else:
-                        # Data member.
+                        # Named field.
+                        self.beginHash()
                         child = Item(value[field.name],
                             item.iname, field.name, field.name)
-                        if not child.name:
-                            child.name = "<anon>"
-                        self.beginHash()
                         self.safePutItemHelper(child)
                         self.endHash()
+
                 self.endChildren()
