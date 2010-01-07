@@ -94,7 +94,7 @@ Rectangle {
                 anchors.fill: container
                 onClicked: {
                     root.currentStateIndex = index
-					ocusStealer.focus=true; // steal focus from textinput
+                    focusStealer.focus=true; // steal focus from textinput
                 }
             }
 
