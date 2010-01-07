@@ -1131,6 +1131,10 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     }
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     IEditor *editor = createEditor(editorId, fileName);
+    // If we could not open the file in the requested editor, fall
+    // back to the default editor:
+    if (!editor)
+        editor = createEditor(QString(), fileName);
     if (!editor || !editor->open(fileName)) {
         QApplication::restoreOverrideCursor();
         QMessageBox::critical(m_d->m_core->mainWindow(), tr("Opening File"), tr("Cannot open file %1!").arg(QDir::toNativeSeparators(fileName)));
