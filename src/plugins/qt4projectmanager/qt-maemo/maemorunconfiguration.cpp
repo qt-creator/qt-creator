@@ -31,9 +31,8 @@
 
 #include "maemodeviceconfigurations.h"
 #include "maemomanager.h"
+#include "maemorunconfigurationwidget.h"
 #include "maemoruncontrol.h"
-#include "maemosettingspage.h"
-#include "maemosshthread.h"
 #include "maemotoolchain.h"
 #include "profilereader.h"
 #include "qt4project.h"
@@ -49,55 +48,12 @@
 #include <projectexplorer/session.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QPair>
 #include <QtCore/QProcess>
-#include <QtCore/QSharedPointer>
 
-#include <QtGui/QComboBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QFormLayout>
-#include <QtGui/QFrame>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QRadioButton>
-#include <QtGui/QToolButton>
+namespace Qt4ProjectManager {
+namespace Internal {
 
 using namespace ProjectExplorer;
-
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
-
-class MaemoRunConfigurationWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    MaemoRunConfigurationWidget(MaemoRunConfiguration *runConfiguration,
-                                QWidget *parent = 0);
-
-private slots:
-    void configNameEdited(const QString &text);
-    void argumentsEdited(const QString &args);
-    void deviceConfigurationChanged(const QString &name);
-    void resetDeviceConfigurations();
-    void showSettingsDialog();
-
-    void updateSimulatorPath();
-    void updateTargetInformation();
-
-private:
-    void setSimInfoVisible(const MaemoDeviceConfig &devConf);
-
-    QLineEdit *m_configNameLineEdit;
-    QLineEdit *m_argsLineEdit;
-    QLabel *m_executableLabel;
-    QLabel *m_debuggerLabel;
-    QComboBox *m_devConfBox;
-    QLabel *m_simPathNameLabel;
-    QLabel *m_simPathValueLabel;
-    MaemoRunConfiguration *m_runConfiguration;
-};
 
 void ErrorDumper::printToStream(QProcess::ProcessError error)
 {
@@ -594,115 +550,7 @@ void MaemoRunConfiguration::updateDeviceConfigurations()
     emit deviceConfigurationsUpdated();
 }
 
-
-// #pragma mark -- MaemoRunConfigurationWidget
-
-MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
-        MaemoRunConfiguration *runConfiguration, QWidget *parent)
-    : QWidget(parent)
-    , m_runConfiguration(runConfiguration)
-{
-    QFormLayout *mainLayout = new QFormLayout;
-    setLayout(mainLayout);
-
-    mainLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    m_configNameLineEdit = new QLineEdit(m_runConfiguration->name());
-    mainLayout->addRow(tr("Run configuration name:"), m_configNameLineEdit);
-    QWidget *devConfWidget = new QWidget;
-    QHBoxLayout *devConfLayout = new QHBoxLayout(devConfWidget);
-    m_devConfBox = new QComboBox;
-    m_devConfBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    devConfLayout->addWidget(m_devConfBox);
-    QLabel *addDevConfLabel
-        = new QLabel(tr("<a href=\"#\">Manage device configurations</a>"));
-    devConfLayout->addWidget(addDevConfLabel);
-    mainLayout->addRow(new QLabel(tr("Device Configuration:")), devConfWidget);
-    m_executableLabel = new QLabel(m_runConfiguration->executable());
-    mainLayout->addRow(tr("Executable:"), m_executableLabel);
-    m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
-    mainLayout->addRow(tr("Arguments:"), m_argsLineEdit);
-    m_debuggerLabel = new QLabel(m_runConfiguration->gdbCmd());
-    mainLayout->addRow(tr("Debugger:"), m_debuggerLabel);
-    mainLayout->addItem(new QSpacerItem(10, 10));
-    m_simPathNameLabel = new QLabel(tr("Simulator Path:"));
-    m_simPathValueLabel = new QLabel(m_runConfiguration->simulatorPath());
-    mainLayout->addRow(m_simPathNameLabel, m_simPathValueLabel);
-    resetDeviceConfigurations();
-
-    connect(m_runConfiguration, SIGNAL(cachedSimulatorInformationChanged()),
-        this, SLOT(updateSimulatorPath()));
-    connect(m_runConfiguration, SIGNAL(deviceConfigurationsUpdated()),
-            this, SLOT(resetDeviceConfigurations()));
-
-    connect(m_configNameLineEdit, SIGNAL(textEdited(QString)), this,
-        SLOT(configNameEdited(QString)));
-    connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
-        SLOT(argumentsEdited(QString)));
-    connect(m_devConfBox, SIGNAL(activated(QString)), this,
-            SLOT(deviceConfigurationChanged(QString)));
-    connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
-        SLOT(updateTargetInformation()));
-    connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
-        SLOT(showSettingsDialog()));
-}
-
-void MaemoRunConfigurationWidget::configNameEdited(const QString &text)
-{
-    m_runConfiguration->setName(text);
-}
-
-void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
-{
-    m_runConfiguration->setArguments(text.split(' ', QString::SkipEmptyParts));
-}
-
-void MaemoRunConfigurationWidget::updateTargetInformation()
-{
-    m_executableLabel->setText(m_runConfiguration->executable());
-}
-
-void MaemoRunConfigurationWidget::updateSimulatorPath()
-{
-    m_simPathValueLabel->setText(m_runConfiguration->simulatorPath());
-}
-
-void MaemoRunConfigurationWidget::deviceConfigurationChanged(const QString &name)
-{
-    const MaemoDeviceConfig &devConfig
-        = MaemoDeviceConfigurations::instance().find(name);
-    setSimInfoVisible(devConfig);
-    m_runConfiguration->setDeviceConfig(devConfig);
-}
-
-void MaemoRunConfigurationWidget::setSimInfoVisible(const MaemoDeviceConfig &devConf)
-{
-    const bool isSimulator = devConf.type == MaemoDeviceConfig::Simulator;
-    m_simPathNameLabel->setVisible(isSimulator);
-    m_simPathValueLabel->setVisible(isSimulator);
-}
-
-void MaemoRunConfigurationWidget::resetDeviceConfigurations()
-{
-    m_devConfBox->clear();
-    const QList<MaemoDeviceConfig> &devConfs =
-        MaemoDeviceConfigurations::instance().devConfigs();
-    foreach (const MaemoDeviceConfig &devConf, devConfs)
-        m_devConfBox->addItem(devConf.name);
-    m_devConfBox->addItem(MaemoDeviceConfig().name);
-    const MaemoDeviceConfig &devConf = m_runConfiguration->deviceConfig();
-    m_devConfBox->setCurrentIndex(m_devConfBox->findText(devConf.name));
-    setSimInfoVisible(devConf);
-}
-
-void MaemoRunConfigurationWidget::showSettingsDialog()
-{
-    MaemoSettingsPage *settingsPage = MaemoManager::instance()->settingsPage();
-    Core::ICore::instance()->showOptionsDialog(settingsPage->category(),
-                                               settingsPage->id());
-}
-
 // #pragma mark -- MaemoRunConfigurationFactory
-
 
 MaemoRunConfigurationFactory::MaemoRunConfigurationFactory(QObject* parent)
     : IRunConfigurationFactory(parent)
@@ -876,7 +724,5 @@ QWidget* MaemoRunControlFactory::configurationWidget(RunConfiguration *config)
     return 0;
 }
 
-
-// #pragma mark -- AbstractMaemoRunControl
-
-#include "maemorunconfiguration.moc"
+} // namespace Internal
+} // namespace Qt4ProjectManager

@@ -133,6 +133,8 @@ static const char * const CMD_ID_EDIT = "Perforce.Edit";
 static const char * const CMD_ID_ADD = "Perforce.Add";
 static const char * const CMD_ID_DELETE_FILE = "Perforce.Delete";
 static const char * const CMD_ID_OPENED = "Perforce.Opened";
+static const char * const CMD_ID_PROJECTLOG = "Perforce.ProjectLog";
+static const char * const CMD_ID_REPOSITORYLOG = "Perforce.RepositoryLog";
 static const char * const CMD_ID_REVERT = "Perforce.Revert";
 static const char * const CMD_ID_DIFF_CURRENT = "Perforce.DiffCurrent";
 static const char * const CMD_ID_DIFF_PROJECT = "Perforce.DiffProject";
@@ -152,6 +154,7 @@ static const char * const CMD_ID_UPDATEALL = "Perforce.UpdateAll";
 static const char * const CMD_ID_SEPARATOR1 = "Perforce.Separator1";
 static const char * const CMD_ID_SEPARATOR2 = "Perforce.Separator2";
 static const char * const CMD_ID_SEPARATOR3 = "Perforce.Separator3";
+static const char * const CMD_ID_SEPARATOR4 = "Perforce.Separator4";
 
 ////
 // PerforcePlugin
@@ -188,6 +191,8 @@ PerforcePlugin::PerforcePlugin() :
     m_annotateAction(0),
     m_filelogCurrentAction(0),
     m_filelogAction(0),
+    m_logProjectAction(0),
+    m_logRepositoryAction(0),
     m_submitCurrentLogAction(0),
     m_updateAllAction(0),
     m_submitActionTriggered(false),
@@ -318,6 +323,12 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
     connect(m_openedAction, SIGNAL(triggered()), this, SLOT(printOpenedFileList()));
     mperforce->addAction(command);
 
+    m_logProjectAction = new Utils::ParameterAction(tr("Log Project Log"), tr("Log Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = am->registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
+    mperforce->addAction(command);
+
     m_submitProjectAction = new Utils::ParameterAction(tr("Submit Project"), tr("Submit Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_submitProjectAction, CMD_ID_SUBMIT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -383,6 +394,16 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
     m_filelogAction = new QAction(tr("Filelog..."), this);
     command = am->registerAction(m_filelogAction, CMD_ID_FILELOG, globalcontext);
     connect(m_filelogAction, SIGNAL(triggered()), this, SLOT(filelog()));
+    mperforce->addAction(command);
+
+    tmpaction = new QAction(this);
+    tmpaction->setSeparator(true);
+    command = am->registerAction(tmpaction, QLatin1String(CMD_ID_SEPARATOR4), globalcontext);
+    mperforce->addAction(command);
+
+    m_logRepositoryAction = new QAction(tr("Repository Log"), this);
+    command = am->registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, globalcontext);
+    connect(m_logRepositoryAction, SIGNAL(triggered()), this, SLOT(logRepository()));
     mperforce->addAction(command);
 
     m_updateAllAction = new QAction(tr("Update All"), this);
@@ -715,8 +736,6 @@ void PerforcePlugin::annotate(const QString &workingDir,
         Core::IEditor *ed = showOutputInEditor(tr("p4 annotate %1").arg(id),
                                                result.stdOut, VCSBase::AnnotateOutput,
                                                source, codec);
-        connect(ed, SIGNAL(annotatePreviousRequested(QString,QString,int)),
-                this, SLOT(annotateVersion(QString,QString,int)));
         VCSBase::VCSBaseEditor::gotoLineOfEditor(ed, lineNumber);
     }
 }
@@ -725,7 +744,7 @@ void PerforcePlugin::filelogCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
-    filelog(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    filelog(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
 void PerforcePlugin::filelog()
@@ -737,27 +756,48 @@ void PerforcePlugin::filelog()
     }
 }
 
-void PerforcePlugin::filelog(const QString &workingDir, const QStringList &fileNames)
+void PerforcePlugin::logProject()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasProject(), return)
+    filelog(state.currentProjectTopLevel(), perforceRelativeFileArguments(state.relativeCurrentProject()));
+}
+
+void PerforcePlugin::logRepository()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    filelog(state.topLevel(), perforceRelativeFileArguments(QStringList()));
+}
+
+void PerforcePlugin::filelog(const QString &workingDir, const QStringList &fileNames,
+                             bool enableAnnotationContextMenu)
 {
     const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDir, fileNames);
     QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(workingDir, fileNames);
     QStringList args;
     args << QLatin1String("filelog") << QLatin1String("-li");
+    if (m_settings.logCount() > 0)
+        args << QLatin1String("-m") << QString::number(m_settings.logCount());
     args.append(fileNames);
     const PerforceResponse result = runP4Cmd(workingDir, args,
                                              CommandToWindow|StdErrToWindow|ErrorToWindow,
                                              QStringList(), QByteArray(), codec);
-    if (!result.error)
-        showOutputInEditor(tr("p4 filelog %1").arg(id), result.stdOut,
-                           VCSBase::LogOutput,
-                           VCSBase::VCSBaseEditor::getSource(workingDir, fileNames),
-                           codec);
+    if (!result.error) {
+        const QString source = VCSBase::VCSBaseEditor::getSource(workingDir, fileNames);
+        Core::IEditor *editor = showOutputInEditor(tr("p4 filelog %1").arg(id), result.stdOut,
+                                VCSBase::LogOutput, source, codec);
+        if (enableAnnotationContextMenu)
+            VCSBase::VCSBaseEditor::getVcsBaseEditor(editor)->setFileLogAnnotateEnabled(true);
+    }
 }
 
 void PerforcePlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
     if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
         return;
+
+    m_logRepositoryAction->setEnabled(currentState().hasTopLevel());
 
     const QString fileName = currentState().currentFileName();
     m_editAction->setParameter(fileName);
@@ -769,6 +809,7 @@ void PerforcePlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_filelogCurrentAction->setParameter(fileName);
 
     const QString projectName = currentState().currentProjectName();
+    m_logProjectAction->setParameter(projectName);
     m_updateProjectAction->setParameter(projectName);
     m_diffProjectAction->setParameter(projectName);
     m_submitProjectAction->setParameter(projectName);
@@ -1110,6 +1151,8 @@ Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const Q
         qDebug() << "PerforcePlugin::showOutputInEditor" << title << kind <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(kind, &s, output);
+    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
+            this, SLOT(annotateVersion(QString,QString,int)));
     PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());
     if (!e)
         return 0;

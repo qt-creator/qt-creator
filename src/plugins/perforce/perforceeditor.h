@@ -53,7 +53,7 @@ private:
     virtual VCSBase::DiffHighlighter *createDiffHighlighter() const;
     virtual VCSBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
-    virtual QStringList annotationPreviousVersions(const QString &v, QString *actionTextFormat) const;
+    virtual QStringList annotationPreviousVersions(const QString &v) const;
 
     const QRegExp m_changeNumberPattern;
     PerforcePlugin *m_plugin;

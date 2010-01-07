@@ -2,9 +2,10 @@ SUPPORT_QT_MAEMO = $$(QTCREATOR_WITH_MAEMO)
 !isEmpty(SUPPORT_QT_MAEMO) { 
     message("Adding experimental support for Qt/Maemo applications.")
     DEFINES += QTCREATOR_WITH_MAEMO
-#    DEFINES += USE_SSH_LIB
-#    LIBS += -L/opt/ne7sshModified/lib/ \
-#        -lnet7ssh
+    
+    # DEFINES += USE_SSH_LIB
+    # LIBS += -L/opt/ne7sshModified/lib/ \
+    # -lnet7ssh
     HEADERS += $$PWD/maemorunconfiguration.h \
         $$PWD/maemomanager.h \
         $$PWD/maemotoolchain.h \
@@ -12,7 +13,8 @@ SUPPORT_QT_MAEMO = $$(QTCREATOR_WITH_MAEMO)
         $$PWD/maemosettingspage.h \
         $$PWD/maemosshconnection.h \
         $$PWD/maemosshthread.h \
-        $$PWD/maemoruncontrol.h
+        $$PWD/maemoruncontrol.h \
+        $$PWD/maemorunconfigurationwidget.h
     SOURCES += $$PWD/maemorunconfiguration.cpp \
         $$PWD/maemomanager.cpp \
         $$PWD/maemotoolchain.cpp \
@@ -20,7 +22,8 @@ SUPPORT_QT_MAEMO = $$(QTCREATOR_WITH_MAEMO)
         $$PWD/maemosettingspage.cpp \
         $$PWD/maemosshconnection.cpp \
         $$PWD/maemosshthread.cpp \
-        $$PWD/maemoruncontrol.cpp
+        $$PWD/maemoruncontrol.cpp \
+        $$PWD/maemorunconfigurationwidget.cpp
     FORMS += $$PWD/maemosettingswidget.ui
     RESOURCES += $$PWD/qt-maemo.qrc
 }

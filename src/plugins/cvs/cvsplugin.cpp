@@ -95,6 +95,9 @@ static const char * const CMD_ID_ANNOTATE_CURRENT   = "CVS.AnnotateCurrent";
 static const char * const CMD_ID_SEPARATOR3         = "CVS.Separator3";
 static const char * const CMD_ID_STATUS             = "CVS.Status";
 static const char * const CMD_ID_UPDATE             = "CVS.Update";
+static const char * const CMD_ID_PROJECTLOG         = "CVS.ProjectLog";
+static const char * const CMD_ID_REPOSITORYLOG      = "CVS.RepositoryLog";
+static const char * const CMD_ID_SEPARATOR4         = "CVS.Separator4";
 
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
@@ -149,6 +152,8 @@ CVSPlugin::CVSPlugin() :
     m_revertAction(0),
     m_diffProjectAction(0),
     m_diffCurrentAction(0),
+    m_logProjectAction(0),
+    m_logRepositoryAction(0),
     m_commitAllAction(0),
     m_commitCurrentAction(0),
     m_filelogCurrentAction(0),
@@ -325,10 +330,22 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     connect(m_statusProjectAction, SIGNAL(triggered()), this, SLOT(projectStatus()));
     cvsMenu->addAction(command);
 
+    m_logProjectAction = new Utils::ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = ami->registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
+    cvsMenu->addAction(command);
+
     m_updateProjectAction = new Utils::ParameterAction(tr("Update Project"), tr("Update Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_updateProjectAction, CMD_ID_UPDATE, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_updateProjectAction, SIGNAL(triggered()), this, SLOT(updateProject()));
+    cvsMenu->addAction(command);
+
+    cvsMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR4, globalcontext));
+    m_logRepositoryAction = new QAction(tr("Repository Log"), this);
+    command = ami->registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, globalcontext);
+    connect(m_logRepositoryAction, SIGNAL(triggered()), this, SLOT(logRepository()));
     cvsMenu->addAction(command);
 
     // Actions of the submit editor
@@ -475,6 +492,8 @@ void CVSPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
         return;
 
+    m_logRepositoryAction->setEnabled(currentState().hasTopLevel());
+
     const QString currentFileName = currentState().currentFileName();
     m_addAction->setParameter(currentFileName);
     m_deleteAction->setParameter(currentFileName);
@@ -488,6 +507,7 @@ void CVSPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_diffProjectAction->setParameter(currentProjectName);
     m_statusProjectAction->setParameter(currentProjectName);
     m_updateProjectAction->setParameter(currentProjectName);
+    m_logProjectAction->setParameter(currentProjectName);
 
     m_commitAllAction->setEnabled(currentState().hasTopLevel());
 }
@@ -641,10 +661,26 @@ void CVSPlugin::filelogCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
-    filelog(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    filelog(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
-void CVSPlugin::filelog(const QString &workingDir, const QStringList &files)
+void CVSPlugin::logProject()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasProject(), return)
+    filelog(state.currentProjectTopLevel(), state.relativeCurrentProject());
+}
+
+void CVSPlugin::logRepository()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    filelog(state.topLevel());
+}
+
+void CVSPlugin::filelog(const QString &workingDir,
+                        const QStringList &files,
+                        bool enableAnnotationContextMenu)
 {
     QTextCodec *codec = VCSBase::VCSBaseEditor::getCodec(workingDir, files);
     // no need for temp file
@@ -659,7 +695,6 @@ void CVSPlugin::filelog(const QString &workingDir, const QStringList &files)
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-
     if (Core::IEditor *editor = locateEditor("logFileName", id)) {
         editor->createNew(response.stdOut);
         Core::EditorManager::instance()->activateEditor(editor);
@@ -667,6 +702,8 @@ void CVSPlugin::filelog(const QString &workingDir, const QStringList &files)
         const QString title = QString::fromLatin1("cvs log %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::LogOutput, source, codec);
         newEditor->setProperty("logFileName", id);
+        if (enableAnnotationContextMenu)
+            VCSBase::VCSBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
     }
 }
 
@@ -726,8 +763,6 @@ void CVSPlugin::annotate(const QString &workingDir, const QString &file,
         const QString title = QString::fromLatin1("cvs annotate %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, source, codec);
         newEditor->setProperty("annotateFileName", id);
-        connect(newEditor, SIGNAL(annotatePreviousRequested(QString,QString,int)),
-                this, SLOT(annotateVersion(QString,QString,int)));
         VCSBase::VCSBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
 }
@@ -992,6 +1027,8 @@ Core::IEditor * CVSPlugin::showOutputInEditor(const QString& title, const QStrin
         qDebug() << "CVSPlugin::showOutputInEditor" << title << kind <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(kind, &s, output.toLocal8Bit());
+    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
+            this, SLOT(annotateVersion(QString,QString,int)));
     CVSEditor *e = qobject_cast<CVSEditor*>(editor->widget());
     if (!e)
         return 0;

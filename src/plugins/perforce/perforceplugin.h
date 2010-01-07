@@ -123,6 +123,8 @@ private slots:
     void annotateVersion(const QString &file, const QString &revision, int lineNumber);
     void filelogCurrentFile();
     void filelog();
+    void logProject();
+    void logRepository();
 
     void submitCurrentLog();
     void printPendingChanges();
@@ -177,7 +179,8 @@ private:
     QString clientFilePath(const QString &serverFilePath);
     void annotate(const QString &workingDir, const QString &fileName,
                   const QString &changeList = QString(), int lineNumber = -1);
-    void filelog(const QString &workingDir, const QStringList &fileNames);
+    void filelog(const QString &workingDir, const QStringList &fileNames = QStringList(),
+                 bool enableAnnotationContextMenu = false);
     void cleanCommitMessageFile();
     bool isCommitEditorOpen() const;
     QSharedPointer<QTemporaryFile> createTemporaryArgumentFile(const QStringList &extraArgs) const;
@@ -208,6 +211,8 @@ private:
     QAction *m_annotateAction;
     Utils::ParameterAction *m_filelogCurrentAction;
     QAction *m_filelogAction;
+    Utils::ParameterAction *m_logProjectAction;
+    QAction *m_logRepositoryAction;
     QAction *m_submitCurrentLogAction;
     QAction *m_updateAllAction;
     bool m_submitActionTriggered;

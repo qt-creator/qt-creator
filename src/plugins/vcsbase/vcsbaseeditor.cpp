@@ -85,7 +85,7 @@ public:
 
 signals:
     void describeRequested(const QString &source, const QString &change);
-    void annotatePreviousRequested(const QString &source, const QString &change, int line);
+    void annotateRevisionRequested(const QString &source, const QString &change, int line);
 
 private:
     const char *m_kind;
@@ -147,11 +147,10 @@ VCSBaseDiffEditorEditable::~VCSBaseDiffEditorEditable()
 
 struct VCSBaseEditorPrivate
 {
-    VCSBaseEditorPrivate(const VCSBaseEditorParameters *type, QObject *parent);
+    VCSBaseEditorPrivate(const VCSBaseEditorParameters *type);
 
     const VCSBaseEditorParameters *m_parameters;
 
-    QAction *m_describeAction;
     QString m_currentChange;
     QString m_source;
     QString m_diffBaseDirectory;
@@ -159,25 +158,27 @@ struct VCSBaseEditorPrivate
     QRegExp m_diffFilePattern;
     QList<int> m_diffSections; // line number where this section starts
     int m_cursorLine;
+    QString m_annotateRevisionTextFormat;
+    bool m_fileLogAnnotateEnabled;
 };
 
-VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type, QObject *parent)  :
-        m_parameters(type),
-        m_describeAction(new QAction(parent)),
-        m_cursorLine(-1)
+VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type)  :
+    m_parameters(type),
+    m_cursorLine(-1),
+    m_annotateRevisionTextFormat(VCSBaseEditor::tr("Annotate \"%1\"")),
+    m_fileLogAnnotateEnabled(false)
 {
 }
 
 // ------------ VCSBaseEditor
 VCSBaseEditor::VCSBaseEditor(const VCSBaseEditorParameters *type, QWidget *parent)
   : BaseTextEditor(parent),
-    d(new VCSBaseEditorPrivate(type, this))
+    d(new VCSBaseEditorPrivate(type))
 {
     if (VCSBase::Constants::Internal::debug)
         qDebug() << "VCSBaseEditor::VCSBaseEditor" << type->type << type->kind;
 
     setReadOnly(true);
-    connect(d->m_describeAction, SIGNAL(triggered()), this, SLOT(describe()));
     viewport()->setMouseTracking(true);
     setBaseTextDocument(new Internal::VCSBaseTextDocument);
     setMimeType(QLatin1String(d->m_parameters->mimeType));
@@ -216,6 +217,26 @@ QString VCSBaseEditor::source() const
 void VCSBaseEditor::setSource(const  QString &source)
 {
     d->m_source = source;
+}
+
+QString VCSBaseEditor::annotateRevisionTextFormat() const
+{
+    return d->m_annotateRevisionTextFormat;
+}
+
+void VCSBaseEditor::setAnnotateRevisionTextFormat(const QString &f)
+{
+    d->m_annotateRevisionTextFormat = f;
+}
+
+bool VCSBaseEditor::isFileLogAnnotateEnabled() const
+{
+    return d->m_fileLogAnnotateEnabled;
+}
+
+void VCSBaseEditor::setFileLogAnnotateEnabled(bool e)
+{
+    d->m_fileLogAnnotateEnabled = e;
 }
 
 QString VCSBaseEditor::diffBaseDirectory() const
@@ -267,8 +288,8 @@ TextEditor::BaseTextEditorEditable *VCSBaseEditor::createEditableInterface()
     // Pass on signals.
     connect(this, SIGNAL(describeRequested(QString,QString)),
             editable, SIGNAL(describeRequested(QString,QString)));
-    connect(this, SIGNAL(annotatePreviousRequested(QString,QString,int)),
-            editable, SIGNAL(annotatePreviousRequested(QString,QString,int)));
+    connect(this, SIGNAL(annotateRevisionRequested(QString,QString,int)),
+            editable, SIGNAL(annotateRevisionRequested(QString,QString,int)));
     return editable;
 }
 
@@ -345,6 +366,21 @@ void VCSBaseEditor::slotDiffCursorPositionChanged()
     }
 }
 
+QAction *VCSBaseEditor::createDescribeAction(const QString &change)
+{
+    QAction *a = new QAction(tr("Describe change %1").arg(change), 0);
+    connect(a, SIGNAL(triggered()), this, SLOT(describe()));
+    return a;
+}
+
+QAction *VCSBaseEditor::createAnnotateAction(const QString &change)
+{
+    QAction *a = new QAction(d->m_annotateRevisionTextFormat.arg(change), 0);
+    a->setData(change);
+    connect(a, SIGNAL(triggered()), this, SLOT(slotAnnotateRevision()));
+    return a;
+}
+
 void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = createStandardContextMenu();
@@ -352,25 +388,28 @@ void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
     if (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput) {
         d->m_currentChange = changeUnderCursor(cursorForPosition(e->pos()));
         if (!d->m_currentChange.isEmpty()) {
-            d->m_describeAction->setText(tr("Describe change %1").arg(d->m_currentChange));
-            menu->addSeparator();
-            menu->addAction(d->m_describeAction);
-            // Offer to annotate previous changes
-            if (contentType() == AnnotateOutput) {
-                QString actionTextFormat;
-                const QStringList previousVersions = annotationPreviousVersions(d->m_currentChange, &actionTextFormat);
-                if (!previousVersions.isEmpty()) {
-                    if (actionTextFormat.isEmpty())
-                        actionTextFormat = tr("Annotate \"%1\"");
+            switch (d->m_parameters->type) {
+            case LogOutput: // Describe current / Annotate file of current
+                menu->addSeparator();
+                menu->addAction(createDescribeAction(d->m_currentChange));
+                if (d->m_fileLogAnnotateEnabled)
+                    menu->addAction(createAnnotateAction(d->m_currentChange));
+                break;
+            case AnnotateOutput: { // Describe current / annotate previous
                     menu->addSeparator();
-                    foreach(const QString &pv, previousVersions) {
-                        QAction *a = menu->addAction(actionTextFormat.arg(pv));
-                        a->setData(pv);
-                        connect(a, SIGNAL(triggered()), this, SLOT(slotAnnotatePrevious()));
-                    }
+                    menu->addAction(createDescribeAction(d->m_currentChange));
+                    const QStringList previousVersions = annotationPreviousVersions(d->m_currentChange);
+                    if (!previousVersions.isEmpty()) {
+                        menu->addSeparator();
+                        foreach(const QString &pv, previousVersions)
+                            menu->addAction(createAnnotateAction(pv));
+                    } // has previous versions
                 }
-            }
-        }
+                break;
+            default:
+                break;
+            }         // switch type
+        }             // has current change
     }
     menu->exec(e->globalPos());
     delete menu;
@@ -763,14 +802,14 @@ QString VCSBaseEditor::findDiffFile(const QString &f, Core::IVersionControl *con
     return QString();
 }
 
-void VCSBaseEditor::slotAnnotatePrevious()
+void VCSBaseEditor::slotAnnotateRevision()
 {
     if (const QAction *a = qobject_cast<const QAction *>(sender()))
-        emit annotatePreviousRequested(source(), a->data().toString(),
+        emit annotateRevisionRequested(source(), a->data().toString(),
                                        editableInterface()->currentLine());
 }
 
-QStringList VCSBaseEditor::annotationPreviousVersions(const QString &, QString *) const
+QStringList VCSBaseEditor::annotationPreviousVersions(const QString &) const
 {
     return QStringList();
 }

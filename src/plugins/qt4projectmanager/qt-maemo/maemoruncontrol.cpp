@@ -55,6 +55,10 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
+using ProjectExplorer::Environment;
+using ProjectExplorer::RunConfiguration;
+using ProjectExplorer::ToolChain;
+
 AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc)
     : RunControl(rc)
     , runConfig(qobject_cast<MaemoRunConfiguration *>(rc))

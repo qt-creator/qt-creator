@@ -113,6 +113,8 @@ private slots:
     void updateProject();
     void submitCurrentLog();
     void diffCommitFiles(const QStringList &);
+    void logProject();
+    void logRepository();
 
 protected:
     virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
@@ -135,7 +137,9 @@ private:
     bool describe(const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &toplevel, const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &repository, QList<CVS_LogEntry> entries, QString *errorMessage);
-    void filelog(const QString &workingDir, const QStringList &files = QStringList());
+    void filelog(const QString &workingDir,
+                 const QStringList &files = QStringList(),
+                 bool enableAnnotationContextMenu = false);
     bool managesDirectory(const QDir &directory) const;
     QString findTopLevelForDirectoryI(const QString &directory) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
@@ -152,6 +156,8 @@ private:
     Utils::ParameterAction *m_revertAction;
     Utils::ParameterAction *m_diffProjectAction;
     Utils::ParameterAction *m_diffCurrentAction;
+    Utils::ParameterAction *m_logProjectAction;
+    QAction *m_logRepositoryAction;
     QAction *m_commitAllAction;
     Utils::ParameterAction *m_commitCurrentAction;
     Utils::ParameterAction *m_filelogCurrentAction;
