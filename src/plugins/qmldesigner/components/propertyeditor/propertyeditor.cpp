@@ -118,9 +118,9 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
     ctxt->setContextProperty("anchorBackend", 0);
     ctxt->setContextProperty("backendValues", 0);
 
-    foreach (const QString &propertyName, m_backendValuesPropertyMap.keys())
-        m_backendValuesPropertyMap.clear(propertyName);
-    qDeleteAll(m_backendValuesPropertyMap.children());
+    //foreach (const QString &propertyName, m_backendValuesPropertyMap.keys())
+    //    m_backendValuesPropertyMap.clear(propertyName);
+    //qDeleteAll(m_backendValuesPropertyMap.children());
 
     if (fxObjectNode.isValid()) {
         foreach (const QString &propertyName, fxObjectNode.modelNode().metaInfo().properties(true).keys())
