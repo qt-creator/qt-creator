@@ -415,6 +415,10 @@ void OutputWindow::appendOutput(const QString &out)
         s.chop(1);
     }
     setMaximumBlockCount(MaxBlockCount);
+
+    QTextCharFormat format;
+    format.setForeground(palette().text().color());
+    setCurrentCharFormat(format);
     appendPlainText(out);
     enableUndoRedo();
 }
@@ -447,6 +451,9 @@ void OutputWindow::appendOutputInline(const QString &out)
             m_enforceNewline = true;
             s.chop(1);
         }
+        QTextCharFormat format;
+        format.setForeground(palette().text().color());
+        setCurrentCharFormat(format);
         appendPlainText(s);
     }
 
