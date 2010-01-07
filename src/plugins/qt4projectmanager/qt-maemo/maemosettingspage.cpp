@@ -165,8 +165,8 @@ private:
     PortAndTimeoutValidator m_timeoutValidator;
     NameValidator m_nameValidator;
 #ifdef USE_SSH_LIB
-    MaemoSshDeployer *m_keyDeployer;
     MaemoSshRunner *m_deviceTester;
+    MaemoSshDeployer *m_keyDeployer;
 #endif
     QString m_deviceTestOutput;
     QString m_defaultTestOutput;
@@ -224,6 +224,7 @@ MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
       m_nameValidator(m_devConfs)
 #ifdef USE_SSH_LIB
       , m_deviceTester(0)
+      , m_keyDeployer(0)
 #endif
 
 {
@@ -561,7 +562,7 @@ void MaemoSettingsWidget::stopDeploying()
         m_keyDeployer->stop();
         delete m_keyDeployer;
         m_keyDeployer = 0;
-        m_ui->deployKeyButton->setText(tr("Deploy key ..."));
+        m_ui->deployKeyButton->setText(tr("Deploy Key ..."));
         connect(m_ui->deployKeyButton, SIGNAL(clicked()),
                 this, SLOT(deployKey()));
         m_ui->deployKeyButton->setEnabled(buttonWasEnabled);

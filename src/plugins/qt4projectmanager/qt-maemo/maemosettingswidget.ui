@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>515</width>
+    <width>526</width>
     <height>487</height>
    </rect>
   </property>
@@ -230,7 +230,7 @@ p, li { white-space: pre-wrap; }
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Deploy key ...</string>
+        <string>Deploy Key ...</string>
        </property>
       </widget>
      </item>
