@@ -179,8 +179,6 @@ private:
     mutable QString m_linguistCommand;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QtVersion::QmakeBuildConfigs)
-
 struct QMakeAssignment
 {
     QString variable;
@@ -254,5 +252,7 @@ private:
 };
 
 } // namespace Qt4ProjectManager
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt4ProjectManager::QtVersion::QmakeBuildConfigs)
 
 #endif // QTVERSIONMANAGER_H

@@ -134,11 +134,10 @@ private:
     bool separateScope;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(SearchSymbols::SymbolTypes)
-
 } // namespace Internal
 } // namespace CppTools
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(CppTools::Internal::SearchSymbols::SymbolTypes)
 Q_DECLARE_METATYPE(CppTools::Internal::ModelItemInfo)
 
 #endif // SEARCHSYMBOLS_H
