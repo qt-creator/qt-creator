@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 
+#include "exception.h"
 #include "qmldesignerplugin.h"
 #include "designmode.h"
 #include "qmldesignerconstants.h"
@@ -53,6 +54,16 @@ namespace Internal {
 BauhausPlugin::BauhausPlugin() :
     m_designerCore(0)
 {
+    // Exceptions should never ever assert: they are handled in a number of
+    // places where it is actually VALID AND EXPECTED BEHAVIOUR to get an
+    // exception.
+    // If you still want to see exactly where the exception originally
+    // occurred, then you have various ways to do this:
+    //  1. set a breakpoint on the constructor of the exception
+    //  2. in gdb: "catch throw" or "catch throw Exception"
+    //  3. set a breakpoint on __raise_exception()
+    // And with gdb, you can even do this from your ~/.gdbinit file.
+    Exception::setShouldAssert(false);
 }
 
 BauhausPlugin::~BauhausPlugin()

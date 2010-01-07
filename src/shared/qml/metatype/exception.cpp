@@ -71,7 +71,7 @@ const char* demangle(const char* name)
 #endif
 
 
-bool Exception::s_shouldAssert = true;
+bool Exception::s_shouldAssert = false;
 
 void Exception::setShouldAssert(bool assert)
 {
