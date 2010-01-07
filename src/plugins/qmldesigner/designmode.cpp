@@ -177,7 +177,7 @@ QWidget *DesignMode::widget()
     return m_mainWidget;
 }
 
-QString DesignMode::name() const
+QString DesignMode::displayName() const
 {
     return tr(Constants::DESIGN_MODE_NAME);
 }
@@ -192,9 +192,9 @@ int DesignMode::priority() const
     return Constants::DESIGN_MODE_PRIORITY;
 }
 
-const char *DesignMode::uniqueModeName() const
+QString DesignMode::id() const
 {
-    return Constants::DESIGN_MODE_NAME;
+    return QLatin1String(Constants::DESIGN_MODE_NAME);
 }
 
 void DesignMode::textEditorsClosed(QList<Core::IEditor*> editors)

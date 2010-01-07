@@ -67,10 +67,10 @@ public:
     QWidget *widget();
 
     // IMode
-    QString name() const;
+    QString displayName() const;
     QIcon icon() const;
     int priority() const;
-    const char *uniqueModeName() const;
+    QString id() const;
 
 private slots:
     void textEditorsClosed(QList<Core::IEditor *> editors);
