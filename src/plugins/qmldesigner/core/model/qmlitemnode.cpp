@@ -200,15 +200,15 @@ void QmlItemNode::paintInstance(QPainter *painter) const
 void QmlItemNode::setSize(const QSizeF &size)
 {
     RewriterTransaction transaction = qmlModelView()->beginRewriterTransaction();
-    setVariantProperty("width", round(size.width(), 4));
-    setVariantProperty("height", round(size.height(), 4));
+    setVariantProperty("width", qRound(size.width()));
+    setVariantProperty("height", qRound(size.height()));
 }
 
 void QmlItemNode::setPosition(const QPointF &position)
 {
     RewriterTransaction transaction = qmlModelView()->beginRewriterTransaction();
-    setVariantProperty("x", round(position.x(), 4));
-    setVariantProperty("y", round(position.y(), 4));
+    setVariantProperty("x", qRound(position.x()));
+    setVariantProperty("y", qRound(position.y()));
 }
 
 void QmlItemNode::selectNode()

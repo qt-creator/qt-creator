@@ -91,7 +91,7 @@ void SnappingLineCreator::generateLines(const QList<FormEditorItem*> &exceptionL
     Q_ASSERT(transformationSpaceItem);
     {
         QRectF containerBoundingRectInTransformationSpace = m_formEditorItem->mapRectToItem(transformationSpaceItem,
-                                                                                            m_formEditorItem->boundingRect());
+                                                                                            m_formEditorItem->qmlItemNode().instanceBoundingRect());
 
         addLines(containerBoundingRectInTransformationSpace, m_formEditorItem);
         containerBoundingRectInTransformationSpace.adjust(m_leftMargin, m_topMargin, -m_rightMargin, -m_rightMargin);
@@ -103,7 +103,7 @@ void SnappingLineCreator::generateLines(const QList<FormEditorItem*> &exceptionL
             continue;
         QRectF boundingRectInContainerSpace;
 
-        boundingRectInContainerSpace = item->mapRectToItem(transformationSpaceItem, item->boundingRect());
+        boundingRectInContainerSpace = item->mapRectToItem(transformationSpaceItem, item->qmlItemNode().instanceBoundingRect());
 
         boundingRectInContainerSpace = boundingRectInContainerSpace.toRect(); // round to integer
 

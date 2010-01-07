@@ -87,7 +87,7 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
     foreach (FormEditorItem *item, itemList) {
         QGraphicsPolygonItem *newSelectionIndicatorGraphicsItem = new QGraphicsPolygonItem(m_layerItem.data());
         m_indicatorShapeHash.insert(item, newSelectionIndicatorGraphicsItem);
-        QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect().adjusted(0.5, 0.5, 0.5, 0.5)));
+        QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect()));
         //        alignVertices(boundingRectInSceneSpace, 0.5 / item->formEditorView()->widget()->zoomAction()->zoomLevel());
         QPolygonF boundingRectInLayerItemSpace = m_layerItem->mapFromScene(boundingRectInSceneSpace);
         newSelectionIndicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpace);
@@ -106,7 +106,7 @@ void SelectionIndicator::updateItems(const QList<FormEditorItem*> &itemList)
     foreach (FormEditorItem *item, itemList) {
         if (m_indicatorShapeHash.contains(item)) {
             QGraphicsPolygonItem *indicatorGraphicsItem =  m_indicatorShapeHash.value(item);
-            QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect().adjusted(0.5, 0.5, 0.5, 0.5)));
+            QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect()));
 //            alignVertices(boundingRectInSceneSpace, 0.5 / item->formEditorView()->widget()->zoomAction()->zoomLevel());
             QPolygonF boundingRectInLayerItemSpace = m_layerItem->mapFromScene(boundingRectInSceneSpace);
             indicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpace);

@@ -609,7 +609,7 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundi
 
     foreach(const QLineF &line, lineList) {
         QLineF lineInTransformationSpace = transform.map(line);
-        alignLine(lineInTransformationSpace);
+//        alignLine(lineInTransformationSpace);
         QGraphicsLineItem * lineItem = new QGraphicsLineItem(lineInTransformationSpace, layerItem);
         lineItem->setZValue(40);
         QPen linePen;

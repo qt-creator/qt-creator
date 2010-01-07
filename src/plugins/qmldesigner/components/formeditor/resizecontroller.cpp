@@ -186,8 +186,7 @@ static QPointF bottomCenter(const QRectF &rect)
 
 void ResizeController::updatePosition()
 {
-    QRectF originalBoundingRect = m_data->formEditorItem->qmlItemNode().instanceBoundingRect();
-    QRectF boundingRect = m_data->formEditorItem->qmlItemNode().instanceBoundingRect().adjusted(0.49, 0.49, 0.49, 0.49);
+    QRectF boundingRect = m_data->formEditorItem->qmlItemNode().instanceBoundingRect();
     QPointF topLeftPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
                                                                        boundingRect.topLeft()));
     QPointF topRightPointInLayerSpace(m_data->formEditorItem->mapToItem(m_data->layerItem.data(),
@@ -209,14 +208,14 @@ void ResizeController::updatePosition()
 
 
 
-    m_data->topRightItem->setHandlePosition(topRightPointInLayerSpace, originalBoundingRect.topRight());
-    m_data->topLeftItem->setHandlePosition(topLeftPointInLayerSpace, originalBoundingRect.topLeft());
-    m_data->bottomLeftItem->setHandlePosition(bottomLeftPointInLayerSpace, originalBoundingRect.bottomLeft());
-    m_data->bottomRightItem->setHandlePosition(bottomRightPointInLayerSpace, originalBoundingRect.bottomRight());
-    m_data->topItem->setHandlePosition(topPointInLayerSpace, topCenter(originalBoundingRect));
-    m_data->leftItem->setHandlePosition(leftPointInLayerSpace, leftCenter(originalBoundingRect));
-    m_data->rightItem->setHandlePosition(rightPointInLayerSpace, rightCenter(originalBoundingRect));
-    m_data->bottomItem->setHandlePosition(bottomPointInLayerSpace, bottomCenter(originalBoundingRect));
+    m_data->topRightItem->setHandlePosition(topRightPointInLayerSpace, boundingRect.topRight());
+    m_data->topLeftItem->setHandlePosition(topLeftPointInLayerSpace, boundingRect.topLeft());
+    m_data->bottomLeftItem->setHandlePosition(bottomLeftPointInLayerSpace, boundingRect.bottomLeft());
+    m_data->bottomRightItem->setHandlePosition(bottomRightPointInLayerSpace, boundingRect.bottomRight());
+    m_data->topItem->setHandlePosition(topPointInLayerSpace, topCenter(boundingRect));
+    m_data->leftItem->setHandlePosition(leftPointInLayerSpace, leftCenter(boundingRect));
+    m_data->rightItem->setHandlePosition(rightPointInLayerSpace, rightCenter(boundingRect));
+    m_data->bottomItem->setHandlePosition(bottomPointInLayerSpace, bottomCenter(boundingRect));
 }
 
 

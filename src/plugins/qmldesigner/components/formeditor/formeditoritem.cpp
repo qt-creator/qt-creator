@@ -88,7 +88,7 @@ QRectF FormEditorItem::boundingRect() const
 void FormEditorItem::updateGeometry()
 {
     prepareGeometryChange();
-    m_boundingRect = qmlItemNode().instanceBoundingRect();
+    m_boundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
     setTransform(qmlItemNode().instanceTransform());
     setTransform(m_attentionTransform, true);
     //the property for zValue is called z in QGraphicsObject
@@ -182,7 +182,7 @@ static QRectF alignedRect(const QRectF &rect)
     alignedRect.setTop(std::floor(rect.top()) + 0.5);
     alignedRect.setBottom(std::floor(rect.bottom()) + 0.5);
     alignedRect.setLeft(std::floor(rect.left()) + 0.5);
-    alignedRect.setRight(std::floor(rect.right()) + 1.5);
+    alignedRect.setRight(std::floor(rect.right()) + 0.5);
 
     return alignedRect;
 }
@@ -209,7 +209,7 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
 
     painter->setPen(pen);
     int offset =  m_borderWidth / 2;
-    painter->drawRect(alignedRect(boundingRect().adjusted(offset, offset, -offset, -offset)));
+    painter->drawRect(boundingRect().adjusted(0., 0., -1., -1.));
 }
 
 void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
