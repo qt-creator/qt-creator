@@ -63,6 +63,7 @@ SubversionSettings SettingsPageWidget::settings() const
         rc.useAuthentication = false;
     rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
     rc.spaceIgnorantAnnotation = m_ui.spaceIgnorantAnnotationCheckBox->isChecked();
+    rc.logCount = m_ui.logCountSpinBox->value();
     return rc;
 }
 
@@ -75,6 +76,7 @@ void SettingsPageWidget::setSettings(const SubversionSettings &s)
     m_ui.timeOutSpinBox->setValue(s.timeOutS);
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
     m_ui.spaceIgnorantAnnotationCheckBox->setChecked(s.spaceIgnorantAnnotation);
+    m_ui.logCountSpinBox->setValue(s.logCount);
 }
 
 QString SettingsPageWidget::searchKeywords() const

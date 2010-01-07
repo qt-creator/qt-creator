@@ -43,8 +43,9 @@ static const char *passwordOptionC = "--password";
 static const char *promptToSubmitKeyC = "PromptForSubmit";
 static const char *timeOutKeyC = "TimeOut";
 static const char *spaceIgnorantAnnotationKeyC = "SpaceIgnorantAnnotation";
+static const char *logCountKeyC = "LogCount";
 
-enum { defaultTimeOutS = 30 };
+enum { defaultTimeOutS = 30, defaultLogCount = 1000 };
 
 static QString defaultCommand()
 {
@@ -61,6 +62,7 @@ using namespace Subversion::Internal;
 SubversionSettings::SubversionSettings() :
     svnCommand(defaultCommand()),
     useAuthentication(false),
+    logCount(defaultLogCount),
     timeOutS(defaultTimeOutS),
     promptToSubmit(true),
     spaceIgnorantAnnotation(true)
@@ -77,6 +79,7 @@ void SubversionSettings::fromSettings(QSettings *settings)
     timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
     promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     spaceIgnorantAnnotation = settings->value(QLatin1String(spaceIgnorantAnnotationKeyC), true).toBool();
+    logCount = settings->value(QLatin1String(logCountKeyC), int(defaultLogCount)).toInt();
     settings->endGroup();
 }
 
@@ -90,6 +93,7 @@ void SubversionSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
     settings->setValue(QLatin1String(timeOutKeyC), timeOutS);
     settings->setValue(QLatin1String(spaceIgnorantAnnotationKeyC), spaceIgnorantAnnotation);
+    settings->setValue(QLatin1String(logCountKeyC), logCount);
     settings->endGroup();
 }
 
@@ -99,6 +103,7 @@ bool SubversionSettings::equals(const SubversionSettings &s) const
         && useAuthentication == s.useAuthentication
         && user              == s.user
         && password          == s.password
+        && logCount          == s.logCount
         && timeOutS          == s.timeOutS
         && promptToSubmit    == s.promptToSubmit
         && spaceIgnorantAnnotation == s.spaceIgnorantAnnotation;

@@ -57,6 +57,7 @@ struct Settings {
     QString p4Client;
     QString p4User;
     QString errorString;
+    int logCount;
     bool defaultEnv;
     int timeOutS;
     bool promptToSubmit;
@@ -96,6 +97,8 @@ public:
     inline int timeOutS()      const { return m_settings.timeOutS;  }
     inline int timeOutMS()     const { return m_settings.timeOutS * 1000;  }
     inline int longTimeOutMS() const { return m_settings.timeOutS * 10000; }
+
+    inline int logCount() const { return m_settings.logCount; }
 
     QString topLevel() const;
     QString topLevelSymLinkTarget() const;

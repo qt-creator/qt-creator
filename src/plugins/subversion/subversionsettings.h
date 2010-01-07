@@ -62,6 +62,7 @@ struct SubversionSettings
     bool useAuthentication;
     QString user;
     QString password;
+    int logCount;
     int timeOutS;
     bool promptToSubmit;
     bool spaceIgnorantAnnotation;

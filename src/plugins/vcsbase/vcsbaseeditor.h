@@ -52,15 +52,16 @@ struct VCSBaseEditorPrivate;
 class DiffHighlighter;
 class BaseAnnotationHighlighter;
 
-// Contents of a VCSBaseEditor
+// Contents of a VCSBaseEditor and its interaction.
 enum EditorContentType {
     // No special handling.
     RegularCommandOutput,
     // Log of a file under revision control. Provide  'click on change'
-    // description.
+    // description and 'Annotate' if is the log of a single file.
     LogOutput,
     // <change description>: file line
     // Color per change number and provide 'click on change' description.
+    // Context menu offers "Annotate previous version".
     AnnotateOutput,
     // Diff output. Might includes describe output, which consists of a
     // header and diffs. Interaction is 'double click in  hunk' which
@@ -89,6 +90,8 @@ class VCSBASE_EXPORT VCSBaseEditor : public TextEditor::BaseTextEditor
     Q_PROPERTY(QString source READ source WRITE setSource)
     Q_PROPERTY(QString diffBaseDirectory READ diffBaseDirectory WRITE setDiffBaseDirectory)
     Q_PROPERTY(QTextCodec *codec READ codec WRITE setCodec)
+    Q_PROPERTY(QString annotateRevisionTextFormat READ annotateRevisionTextFormat WRITE setAnnotateRevisionTextFormat)
+    Q_PROPERTY(bool isFileLogAnnotateEnabled READ isFileLogAnnotateEnabled WRITE setFileLogAnnotateEnabled)
     Q_OBJECT
 protected:
     // Initialization requires calling init() (which in turns calls
@@ -102,6 +105,15 @@ public:
 
     QString source() const;
     void setSource(const  QString &source);
+
+    // Format for "Annotate" revision menu entries. Should contain '%1" placeholder
+    QString annotateRevisionTextFormat() const;
+    void setAnnotateRevisionTextFormat(const QString &);
+
+    // Enable "Annotate" context menu in file log view
+    // (set to true if the source is a single file and the VCS implements it)
+    bool isFileLogAnnotateEnabled() const;
+    void setFileLogAnnotateEnabled(bool e);
 
     QTextCodec *codec() const;
     void setCodec(QTextCodec *);
@@ -144,15 +156,16 @@ public:
     static QString getSource(const QString &workingDirectory, const QString &fileName);
     static QString getSource(const QString &workingDirectory, const QStringList &fileNames);
     // Convenience functions to determine an title/id to identify the editor
-    // from the arguments (','-joined arguments or directory).
+    // from the arguments (','-joined arguments or directory) + revision.
     static QString getTitleId(const QString &workingDirectory,
                               const QStringList &fileNames,
                               const QString &revision = QString());
 signals:
     // These signals also exist in the opaque editable (IEditor) that is
-    // handled by the editor manager for convenience.
+    // handled by the editor manager for convenience. They are emitted
+    // for LogOutput/AnnotateOutput content types.
     void describeRequested(const QString &source, const QString &change);
-    void annotatePreviousRequested(const QString &source, const QString &change, int lineNumber);
+    void annotateRevisionRequested(const QString &source, const QString &change, int lineNumber);
 
 public slots:
     // Convenience slot to set data read from stdout, will use the
@@ -177,7 +190,7 @@ private slots:
     void slotPopulateDiffBrowser();
     void slotDiffBrowse(int);
     void slotDiffCursorPositionChanged();
-    void slotAnnotatePrevious();
+    void slotAnnotateRevision();
 
 protected:
     /* A helper that can be used to locate a file in a diff in case it
@@ -198,11 +211,12 @@ private:
     // (text cursor at position above change hunk)
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const = 0;
     // Implement to return the previous version[s] of an annotation change
-    // for "Annotate previous version" and a format for the action text containing %1
-    // for the revision
-    virtual QStringList annotationPreviousVersions(const QString &revision, QString *actionTextFormat) const;
+    // for "Annotate previous version"
+    virtual QStringList annotationPreviousVersions(const QString &revision) const;
 
     void jumpToChangeFromDiff(QTextCursor cursor);
+    QAction *createDescribeAction(const QString &change);
+    QAction *createAnnotateAction(const QString &change);
 
     VCSBaseEditorPrivate *d;
 };

@@ -54,6 +54,7 @@ CVSEditor::CVSEditor(const VCSBase::VCSBaseEditorParameters *type,
 {
     QTC_ASSERT(m_revisionAnnotationPattern.isValid(), return);
     QTC_ASSERT(m_revisionLogPattern.isValid(), return);
+    setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
 }
 
 QSet<QString> CVSEditor::annotationChanges() const
@@ -149,11 +150,10 @@ QString CVSEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) cons
     return QString();
 }
 
-QStringList CVSEditor::annotationPreviousVersions(const QString &revision, QString *actionTextFormat) const
+QStringList CVSEditor::annotationPreviousVersions(const QString &revision) const
 {
     if (isFirstRevision(revision))
         return QStringList();
-    *actionTextFormat = tr("Annotate revision \"%1\"");
     return QStringList(previousRevision(revision));
 }
 

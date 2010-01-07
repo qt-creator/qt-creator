@@ -51,6 +51,7 @@ SubversionEditor::SubversionEditor(const VCSBase::VCSBaseEditorParameters *type,
 {
     QTC_ASSERT(m_changeNumberPattern.isValid(), return);
     QTC_ASSERT(m_revisionNumberPattern.isValid(), return);
+    setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
 }
 
 QSet<QString> SubversionEditor::annotationChanges() const
@@ -138,12 +139,11 @@ QString SubversionEditor::fileNameFromDiffSpecification(const QTextBlock &inBloc
     return QString();
 }
 
-QStringList SubversionEditor::annotationPreviousVersions(const QString &v, QString *actionTextFormat) const
+QStringList SubversionEditor::annotationPreviousVersions(const QString &v) const
 {
     bool ok;
     const int revision = v.toInt(&ok);
     if (!ok || revision < 2)
         return QStringList();
-    *actionTextFormat = tr("Annotate revision \"%1\"");
     return QStringList(QString::number(revision - 1));
 }
