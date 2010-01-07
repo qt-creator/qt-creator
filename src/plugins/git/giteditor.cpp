@@ -32,13 +32,14 @@
 #include "annotationhighlighter.h"
 #include "gitconstants.h"
 #include "gitplugin.h"
+#include "gitclient.h"
 #include "gitsettings.h"
 #include <QtCore/QTextCodec>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/diffhighlighter.h>
-
+#include <vcsbase/vcsbaseoutputwindow.h>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -64,6 +65,7 @@ GitEditor::GitEditor(const VCSBase::VCSBaseEditorParameters *type,
 {
     QTC_ASSERT(m_changeNumberPattern8.isValid(), return);
     QTC_ASSERT(m_changeNumberPattern40.isValid(), return);
+    setAnnotateRevisionTextFormat(tr("Blame %1"));
     if (Git::Constants::debug)
         qDebug() << "GitEditor::GitEditor" << type->type << type->kind;
 }
@@ -184,6 +186,28 @@ void GitEditor::commandFinishedGotoLine(bool ok, const QVariant &v)
         if (line >= 0)
             gotoLine(line);
     }
+}
+
+QStringList GitEditor::annotationPreviousVersions(const QString &revision) const
+{
+    QStringList revisions;
+    QString errorMessage;
+    GitClient *client = GitPlugin::instance()->gitClient();
+    const QFileInfo fi(source());
+    const QString workingDirectory = fi.absolutePath();
+    // Get the SHA1's of the file.
+    if (!client->synchronousParentRevisions(workingDirectory, QStringList(fi.fileName()),
+                                            revision, &revisions, &errorMessage)) {
+        VCSBase::VCSBaseOutputWindow::instance()->appendSilently(errorMessage);
+        return QStringList();
+    }
+    // Format verbose, SHA1 being first token
+    QStringList descriptions;
+    if (!client->synchronousShortDescriptions(workingDirectory, revisions, &descriptions, &errorMessage)) {
+        VCSBase::VCSBaseOutputWindow::instance()->appendSilently(errorMessage);
+        return QStringList();
+    }
+    return descriptions;
 }
 
 } // namespace Internal

@@ -416,7 +416,7 @@ void GitPlugin::logFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
-    m_gitClient->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    m_gitClient->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
 void GitPlugin::blameFile()
@@ -424,7 +424,7 @@ void GitPlugin::blameFile()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     const int lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
-    m_gitClient->blame(state.currentFileTopLevel(), state.relativeCurrentFile(), lineNumber);
+    m_gitClient->blame(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(), lineNumber);
 }
 
 void GitPlugin::logProject()

@@ -41,8 +41,6 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-class GitPlugin;
-
 class GitEditor : public VCSBase::VCSBaseEditor
 {
     Q_OBJECT
@@ -62,10 +60,10 @@ private:
     virtual VCSBase::DiffHighlighter *createDiffHighlighter() const;
     virtual VCSBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
+    virtual QStringList annotationPreviousVersions(const QString &revision) const;
 
     const QRegExp m_changeNumberPattern8;
     const QRegExp m_changeNumberPattern40;
-    GitPlugin *m_plugin;
 };
 
 } // namespace Git

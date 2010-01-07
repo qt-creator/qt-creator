@@ -173,6 +173,8 @@ VCSBase::VCSBaseEditor
         outputEditor = m_core->editorManager()->openEditorWithContents(kind, &title, m_msgWait);
         outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         rc = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
+        connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,int)),
+                this, SLOT(slotBlameRevisionRequested(QString,QString,int)));
         QTC_ASSERT(rc, return 0);
         rc->setSource(source);
         if (setSourceCodec)
@@ -258,7 +260,7 @@ void GitClient::status(const QString &workingDirectory)
             Qt::QueuedConnection);
 }
 
-void GitClient::log(const QString &workingDirectory, const QStringList &fileNames)
+void GitClient::log(const QString &workingDirectory, const QStringList &fileNames, bool enableAnnotationContextMenu)
 {
     if (Git::Constants::debug)
         qDebug() << "log" << workingDirectory << fileNames;
@@ -278,6 +280,7 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
     const QString kind = QLatin1String(Git::Constants::GIT_LOG_EDITOR_KIND);
     const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, fileNames);
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, sourceFile, false, "logFileName", sourceFile);
+    editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
     executeGit(workingDirectory, arguments, editor);
 }
 
@@ -297,7 +300,21 @@ void GitClient::show(const QString &source, const QString &id)
     executeGit(workDir, arguments, editor);
 }
 
-void GitClient::blame(const QString &workingDirectory, const QString &fileName, int lineNumber /* = -1 */)
+void GitClient::slotBlameRevisionRequested(const QString &source, QString change, int lineNumber)
+{
+    // This might be invoked with a verbose revision description
+    // "SHA1 author subject" from the annotation context menu. Strip the rest.
+    const int blankPos = change.indexOf(QLatin1Char(' '));
+    if (blankPos != -1)
+        change.truncate(blankPos);
+    const QFileInfo fi(source);
+    blame(fi.absolutePath(), fi.fileName(), change, lineNumber);
+}
+
+void GitClient::blame(const QString &workingDirectory,
+                      const QString &fileName,
+                      const QString &revision /* = QString() */,
+                      int lineNumber /* = -1 */)
 {
     if (Git::Constants::debug)
         qDebug() << "blame" << workingDirectory << fileName << lineNumber;
@@ -306,12 +323,14 @@ void GitClient::blame(const QString &workingDirectory, const QString &fileName, 
     if (m_plugin->settings().spaceIgnorantBlame)
         arguments << QLatin1String("-w");
     arguments << QLatin1String("--") << fileName;
-
+    if (!revision.isEmpty())
+        arguments << revision;
     const QString kind = QLatin1String(Git::Constants::GIT_BLAME_EDITOR_KIND);
-    const QString title = tr("Git Blame %1").arg(fileName);
+    const QString id = VCSBase::VCSBaseEditor::getTitleId(workingDirectory, QStringList(fileName), revision);
+    const QString title = tr("Git Blame %1").arg(id);
     const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, fileName);
 
-    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, sourceFile, true, "blameFileName", sourceFile);
+    VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, sourceFile, true, "blameFileName", id);
     executeGit(workingDirectory, arguments, editor, false, GitCommand::NoReport, lineNumber);
 }
 
@@ -420,6 +439,131 @@ bool GitClient::synchronousCheckout(const QString &workingDirectory,
         *errorMessage = tr("Unable to checkout %n file(s) in %1: %2", 0, files.size()).arg(workingDirectory, QString::fromLocal8Bit(errorText));
         return false;
     }
+    return true;
+}
+
+static inline QString msgParentRevisionFailed(const QString &workingDirectory,
+                                              const QString &revision,
+                                              const QString &why)
+{
+    return GitClient::tr("Unable to find parent revisions of %1 in %2: %3").arg(revision, workingDirectory, why);
+}
+
+static inline QString msgInvalidRevision()
+{
+    return GitClient::tr("Invalid revision");
+}
+
+// Split a line of "<commit> <parent1> ..." to obtain parents from "rev-list" or "log".
+static inline bool splitCommitParents(const QString &line,
+                                      QString *commit = 0,
+                                      QStringList *parents = 0)
+{
+    if (commit)
+        commit->clear();
+    if (parents)
+        parents->clear();
+    QStringList tokens = line.trimmed().split(QLatin1Char(' '));
+    if (tokens.size() < 2)
+        return false;
+    if (commit)
+        *commit = tokens.front();
+    tokens.pop_front();
+    if (parents)
+        *parents = tokens;
+    return true;
+}
+
+// Find out the immediate parent revisions of a revision of the repository.
+// Might be several in case of merges.
+bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
+                                           const QStringList &files /* = QStringList() */,
+                                           const QString &revision,
+                                           QStringList *parents,
+                                           QString *errorMessage)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory << revision;
+    QByteArray outputTextData;
+    QByteArray errorText;
+    QStringList arguments;
+    arguments << QLatin1String("rev-list") << QLatin1String(GitClient::noColorOption)
+              << QLatin1String("--parents") << QLatin1String("--max-count=1") << revision;
+    if (!files.isEmpty()) {
+        arguments.append(QLatin1String("--"));
+        arguments.append(files);
+    }
+    const bool rc = synchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
+    if (!rc) {
+        *errorMessage = msgParentRevisionFailed(workingDirectory, revision, QString::fromLocal8Bit(errorText));
+        return false;
+    }
+    // Should result in one line of blank-delimited revisions, specifying current first
+    // unless it is top.
+    QString outputText = QString::fromLocal8Bit(outputTextData);
+    outputText.remove(QLatin1Char('\r'));
+    outputText.remove(QLatin1Char('\n'));
+    if (!splitCommitParents(outputText, 0, parents)) {
+        *errorMessage = msgParentRevisionFailed(workingDirectory, revision, msgInvalidRevision());
+        return false;
+    }
+    if (Git::Constants::debug)
+        qDebug() << workingDirectory << files << revision << "->" << *parents;
+    return true;
+}
+
+// Short SHA1, author, subject
+static const char defaultShortLogFormatC[] = "%h (%an \"%s\")";
+
+bool GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision,
+                                    QString *description, QString *errorMessage)
+{
+    // Short SHA 1, author, subject
+    return synchronousShortDescription(workingDirectory, revision,
+                               QLatin1String(defaultShortLogFormatC),
+                               description, errorMessage);
+}
+
+// Convenience working on a list of revisions
+bool GitClient::synchronousShortDescriptions(const QString &workingDirectory, const QStringList &revisions,
+                                            QStringList *descriptions, QString *errorMessage)
+{
+    descriptions->clear();
+    foreach (const QString &revision, revisions) {
+        QString description;
+        if (!synchronousShortDescription(workingDirectory, revision, &description, errorMessage)) {
+            descriptions->clear();
+            return false;
+        }
+        descriptions->push_back(description);
+    }
+    return true;
+}
+
+// Format an entry in a one-liner for selection list using git log.
+bool GitClient::synchronousShortDescription(const QString &workingDirectory,
+                                    const QString &revision,
+                                    const QString &format,
+                                    QString *description,
+                                    QString *errorMessage)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory << revision;
+    QByteArray outputTextData;
+    QByteArray errorText;
+    QStringList arguments;
+    arguments << QLatin1String("log") << QLatin1String(GitClient::noColorOption)
+              << (QLatin1String("--pretty=format:") + format)
+              << QLatin1String("--max-count=1") << revision;
+    const bool rc = synchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
+    if (!rc) {
+        *errorMessage = tr("Unable to describe revision %1 in %2: %3").arg(revision, workingDirectory, QString::fromLocal8Bit(errorText));
+        return false;
+    }
+    *description = QString::fromLocal8Bit(outputTextData);
+    description->remove(QLatin1Char('\r'));
+    if (description->endsWith(QLatin1Char('\n')))
+        description->truncate(description->size() - 1);
     return true;
 }
 
