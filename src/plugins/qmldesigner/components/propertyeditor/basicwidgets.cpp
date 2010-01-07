@@ -789,6 +789,7 @@ void WidgetLoader::setSource(const QUrl &source)
 
     if (m_widget) {
         //m_widget->deleteLater();
+        m_widget->hide();
         m_widget = 0;
     }
 
