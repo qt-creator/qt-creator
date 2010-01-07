@@ -45,8 +45,8 @@
 #include "maemodeviceconfigurations.h"
 #include "maemosshconnection.h"
 
+#include <QtCore/QList>
 #include <QtCore/QMutex>
-#include <QtCore/QStringList>
 #include <QtCore/QThread>
 
 #ifdef USE_SSH_LIB
@@ -104,7 +104,7 @@ class MaemoSshDeployer : public MaemoSshThread
     Q_DISABLE_COPY(MaemoSshDeployer)
 public:
     MaemoSshDeployer(const MaemoDeviceConfig &devConf,
-        const QStringList &filePaths, const QStringList &targetDirs);
+                     const QList<SshDeploySpec> &deploySpecs);
 
 signals:
     void fileCopied(const QString &filePath);
@@ -112,8 +112,7 @@ signals:
 private:
     virtual void runInternal();
 
-    const QStringList m_filePaths;
-    const QStringList m_targetDirs;
+    const QList<SshDeploySpec> m_deploySpecs;
 };
 
 } // namespace Internal

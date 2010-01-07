@@ -43,8 +43,9 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <debugger/debuggermanager.h>
+#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
@@ -55,7 +56,9 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
+#ifndef USE_SSH_LIB
 using ProjectExplorer::Environment;
+#endif // USE_SSH_LIB
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::ToolChain;
 
@@ -115,14 +118,16 @@ void AbstractMaemoRunControl::deploy()
 {
 #ifdef USE_SSH_LIB
     if (!deployables.isEmpty()) {
+        QList<SshDeploySpec> deploySpecs;
         QStringList files;
-        QStringList targetDirs;
         foreach (const Deployable &deployable, deployables) {
-            files << deployable.dir + QDir::separator() + deployable.fileName;
-            targetDirs << remoteDir();
+            const QString srcFilePath
+                = deployable.dir % QDir::separator() % deployable.fileName;
+            files << srcFilePath;
+            deploySpecs << SshDeploySpec(srcFilePath, remoteDir());
         }
         emit addToOutputWindow(this, tr("Files to deploy: %1.").arg(files.join(" ")));
-        sshDeployer.reset(new MaemoSshDeployer(devConfig, files, targetDirs));
+        sshDeployer.reset(new MaemoSshDeployer(devConfig, deploySpecs));
         connect(sshDeployer.data(), SIGNAL(finished()),
                 this, SLOT(deployProcessFinished()));
         connect(sshDeployer.data(), SIGNAL(fileCopied(QString)),

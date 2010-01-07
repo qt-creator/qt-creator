@@ -49,11 +49,6 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
-QT_BEGIN_NAMESPACE
-class QStringList;
-QT_END_NAMESPACE
-
-class ne7ssh;
 class Ne7SftpSubsystem;
 
 namespace Qt4ProjectManager {
@@ -110,6 +105,26 @@ private:
     const char *m_prompt;
 };
 
+
+class SshDeploySpec
+{
+public:
+    SshDeploySpec(const QString &srcFilePath, const QString &targetDir,
+                  bool mkdir = false)
+        : m_srcFilePath(srcFilePath), m_targetDir(targetDir), m_mkdir(mkdir)
+    {
+    }
+
+    QString srcFilePath() const { return m_srcFilePath; }
+    QString targetDir() const { return m_targetDir; }
+    bool mkdir() const { return m_mkdir; }
+
+private:
+    QString m_srcFilePath;
+    QString m_targetDir;
+    bool m_mkdir;
+};
+
 class MaemoSftpConnection : public MaemoSshConnection
 {
     Q_OBJECT
@@ -118,8 +133,7 @@ public:
     typedef QSharedPointer<MaemoSftpConnection> Ptr;
 
     static Ptr create(const MaemoDeviceConfig &devConf);
-    void transferFiles(const QStringList &filePaths,
-                       const QStringList &targetDirs);
+    void transferFiles(const QList<SshDeploySpec> &deploySpecs);
     virtual ~MaemoSftpConnection();
 
 signals:

@@ -104,8 +104,8 @@ void MaemoSshRunner::runInternal()
 }
 
 MaemoSshDeployer::MaemoSshDeployer(const MaemoDeviceConfig &devConf,
-    const QStringList &filePaths, const QStringList &targetDirs)
-    : MaemoSshThread(devConf), m_filePaths(filePaths), m_targetDirs(targetDirs)
+                                   const QList<SshDeploySpec> &deploySpecs)
+    : MaemoSshThread(devConf), m_deploySpecs(deploySpecs)
 {
 }
 
@@ -117,7 +117,7 @@ void MaemoSshDeployer::runInternal()
         return;
     connect(connection.data(), SIGNAL(fileCopied(QString)),
             this, SIGNAL(fileCopied(QString)));
-    connection->transferFiles(m_filePaths, m_targetDirs);
+    connection->transferFiles(m_deploySpecs);
 }
 
 } // namespace Internal

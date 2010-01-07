@@ -49,7 +49,6 @@
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QStringBuilder>
-#include <QtCore/QStringList>
 
 #include <cstdio>
 #include <cstring>
@@ -59,6 +58,8 @@ namespace Internal {
 namespace {
     ne7ssh ssh;
 }
+
+// TODO: Which encoding to use for file names? Unicode? Latin1? ASCII?
 
 MaemoSshConnection::MaemoSshConnection(const MaemoDeviceConfig &devConf,
                                        bool shell)
@@ -155,17 +156,22 @@ MaemoSftpConnection::~MaemoSftpConnection()
 
 }
 
-void MaemoSftpConnection::transferFiles(const QStringList &filePaths,
-                                        const QStringList &targetDirs)
+void MaemoSftpConnection::transferFiles(const QList<SshDeploySpec> &deploySpecs)
 {
-    Q_ASSERT(filePaths.count() == targetDirs.count());
-    for (int i = 0; i < filePaths.count(); ++i) {
-        const QString &curFile = filePaths.at(i);
+    for (int i = 0; i < deploySpecs.count(); ++i) {
+        const SshDeploySpec &deploySpec = deploySpecs.at(i);
+        const QString &curFile = deploySpec.srcFilePath();
         QSharedPointer<FILE> filePtr(fopen(curFile.toLatin1().data(), "rb"),
                                      &std::fclose);
         if (filePtr.isNull())
             throw MaemoSshException(tr("Could not open file '%1'").arg(curFile));
-        const QString &targetFile = targetDirs.at(i) % QLatin1String("/")
+
+        // TODO: Is the mkdir() method recursive? If not, we have to
+        //       introduce a recursive version ourselves.
+        if (deploySpec.mkdir())
+            sftp->mkdir(deploySpec.targetDir().toLatin1().data());
+
+        const QString &targetFile = deploySpec.targetDir() % QLatin1String("/")
                                     % QFileInfo(curFile).fileName();
         if (!sftp->put(filePtr.data(), targetFile.toLatin1().data())) {
             const QString &error = tr("Could not copy local file '%1' "
