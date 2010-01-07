@@ -27,7 +27,8 @@ Rectangle {
         signal: "changedToState(n)"
         script: {root.currentStateIndex = n}
     }
-
+	
+	Item { id:focusStealer } 
 
     Flickable {
         id: listView
@@ -93,7 +94,7 @@ Rectangle {
                 anchors.fill: container
                 onClicked: {
                     root.currentStateIndex = index
-                    focus=true; // steal focus from textinput
+					ocusStealer.focus=true; // steal focus from textinput
                 }
             }
 
