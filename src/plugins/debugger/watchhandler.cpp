@@ -783,8 +783,8 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case Qt::DisplayRole: {
             switch (idx.column()) {
                 case 0:
-                    //if (data.name == QLatin1String("*") && item->parent)
-                    //    return QLatin1String("*") + item->parent->name;
+                    if (data.name == QLatin1String("*") && item->parent)
+                        return QLatin1String("*") + item->parent->name;
                     return data.name;
                 case 1: {
                     int format = m_handler->m_individualFormats.value(data.iname, -1);
