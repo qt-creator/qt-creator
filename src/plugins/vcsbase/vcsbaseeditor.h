@@ -91,6 +91,7 @@ class VCSBASE_EXPORT VCSBaseEditor : public TextEditor::BaseTextEditor
     Q_PROPERTY(QString diffBaseDirectory READ diffBaseDirectory WRITE setDiffBaseDirectory)
     Q_PROPERTY(QTextCodec *codec READ codec WRITE setCodec)
     Q_PROPERTY(QString annotateRevisionTextFormat READ annotateRevisionTextFormat WRITE setAnnotateRevisionTextFormat)
+    Q_PROPERTY(QString copyRevisionTextFormat READ copyRevisionTextFormat WRITE setCopyRevisionTextFormat)
     Q_PROPERTY(bool isFileLogAnnotateEnabled READ isFileLogAnnotateEnabled WRITE setFileLogAnnotateEnabled)
     Q_OBJECT
 protected:
@@ -109,6 +110,10 @@ public:
     // Format for "Annotate" revision menu entries. Should contain '%1" placeholder
     QString annotateRevisionTextFormat() const;
     void setAnnotateRevisionTextFormat(const QString &);
+
+    // Format for "Copy" revision menu entries. Should contain '%1" placeholder
+    QString copyRevisionTextFormat() const;
+    void setCopyRevisionTextFormat(const QString &);
 
     // Enable "Annotate" context menu in file log view
     // (set to true if the source is a single file and the VCS implements it)
@@ -191,6 +196,7 @@ private slots:
     void slotDiffBrowse(int);
     void slotDiffCursorPositionChanged();
     void slotAnnotateRevision();
+    void slotCopyRevision();
 
 protected:
     /* A helper that can be used to locate a file in a diff in case it
@@ -217,6 +223,7 @@ private:
     void jumpToChangeFromDiff(QTextCursor cursor);
     QAction *createDescribeAction(const QString &change);
     QAction *createAnnotateAction(const QString &change);
+    QAction *createCopyRevisionAction(const QString &change);
 
     VCSBaseEditorPrivate *d;
 };

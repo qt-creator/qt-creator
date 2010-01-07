@@ -64,9 +64,11 @@ public:
     bool remove(const QString &workingDir, const QString &fileName);
     bool manifestSync(const QString &repository, const QString &filename);
     QString branchQuerySync(const QString &repositoryRoot);
-    void annotate(const QString &workingDir, const QString &files);
+    void annotate(const QString &workingDir, const QString &files,
+                  const QString revision = QString(), int lineNumber = -1);
     void diff(const QString &workingDir, const QStringList &files = QStringList());
-    void log(const QString &workingDir, const QStringList &files = QStringList());
+    void log(const QString &workingDir, const QStringList &files = QStringList(),
+             bool enableAnnotationContextMenu = false);
     void import(const QString &repositoryRoot, const QStringList &files);
     void pull(const QString &repositoryRoot, const QString &repository = QString());
     void push(const QString &repositoryRoot, const QString &repository = QString());
@@ -93,6 +95,7 @@ public slots:
 
 private slots:
     void statusParser(const QByteArray &data);
+    void slotAnnotateRevisionRequested(const QString &source, const QString &change, int lineNumber);
 
 private:
     bool executeHgSynchronously(const QString  &workingDir,

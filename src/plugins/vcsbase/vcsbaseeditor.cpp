@@ -62,6 +62,8 @@
 #include <QtGui/QTextEdit>
 #include <QtGui/QComboBox>
 #include <QtGui/QToolBar>
+#include <QtGui/QClipboard>
+#include <QtGui/QApplication>
 
 namespace VCSBase {
 
@@ -159,6 +161,7 @@ struct VCSBaseEditorPrivate
     QList<int> m_diffSections; // line number where this section starts
     int m_cursorLine;
     QString m_annotateRevisionTextFormat;
+    QString m_copyRevisionTextFormat;
     bool m_fileLogAnnotateEnabled;
 };
 
@@ -166,6 +169,7 @@ VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type) 
     m_parameters(type),
     m_cursorLine(-1),
     m_annotateRevisionTextFormat(VCSBaseEditor::tr("Annotate \"%1\"")),
+    m_copyRevisionTextFormat(VCSBaseEditor::tr("Copy \"%1\"")),
     m_fileLogAnnotateEnabled(false)
 {
 }
@@ -227,6 +231,16 @@ QString VCSBaseEditor::annotateRevisionTextFormat() const
 void VCSBaseEditor::setAnnotateRevisionTextFormat(const QString &f)
 {
     d->m_annotateRevisionTextFormat = f;
+}
+
+QString VCSBaseEditor::copyRevisionTextFormat() const
+{
+    return d->m_copyRevisionTextFormat;
+}
+
+void VCSBaseEditor::setCopyRevisionTextFormat(const QString &f)
+{
+    d->m_copyRevisionTextFormat = f;
 }
 
 bool VCSBaseEditor::isFileLogAnnotateEnabled() const
@@ -381,6 +395,14 @@ QAction *VCSBaseEditor::createAnnotateAction(const QString &change)
     return a;
 }
 
+QAction *VCSBaseEditor::createCopyRevisionAction(const QString &change)
+{
+    QAction *a = new QAction(d->m_copyRevisionTextFormat.arg(change), 0);
+    a->setData(change);
+    connect(a, SIGNAL(triggered()), this, SLOT(slotCopyRevision()));
+    return a;
+}
+
 void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = createStandardContextMenu();
@@ -391,12 +413,14 @@ void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
             switch (d->m_parameters->type) {
             case LogOutput: // Describe current / Annotate file of current
                 menu->addSeparator();
+                menu->addAction(createCopyRevisionAction(d->m_currentChange));
                 menu->addAction(createDescribeAction(d->m_currentChange));
                 if (d->m_fileLogAnnotateEnabled)
                     menu->addAction(createAnnotateAction(d->m_currentChange));
                 break;
             case AnnotateOutput: { // Describe current / annotate previous
                     menu->addSeparator();
+                    menu->addAction(createCopyRevisionAction(d->m_currentChange));
                     menu->addAction(createDescribeAction(d->m_currentChange));
                     const QStringList previousVersions = annotationPreviousVersions(d->m_currentChange);
                     if (!previousVersions.isEmpty()) {
@@ -807,6 +831,11 @@ void VCSBaseEditor::slotAnnotateRevision()
     if (const QAction *a = qobject_cast<const QAction *>(sender()))
         emit annotateRevisionRequested(source(), a->data().toString(),
                                        editableInterface()->currentLine());
+}
+
+void VCSBaseEditor::slotCopyRevision()
+{
+    QApplication::clipboard()->setText(d->m_currentChange);
 }
 
 QStringList VCSBaseEditor::annotationPreviousVersions(const QString &) const

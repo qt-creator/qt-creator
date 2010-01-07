@@ -159,11 +159,22 @@ QString MercurialClient::branchQuerySync(const QString &repositoryRoot)
     return QLatin1String("Unknown Branch");
 }
 
-void MercurialClient::annotate(const QString &workingDir, const QString &file)
+void MercurialClient::slotAnnotateRevisionRequested(const QString &source, const QString &change, int lineNumber)
 {
-    QStringList args;
-    args << QLatin1String("annotate") << QLatin1String("-u") << QLatin1String("-c") << QLatin1String("-d") << file;
+    const QFileInfo fi(source);
+    annotate(fi.absolutePath(), fi.fileName(), change, lineNumber);
+}
 
+void MercurialClient::annotate(const QString &workingDir, const QString &file,
+                               const QString revision /* = QString() */,
+                               int lineNumber /* = -1 */)
+{
+    Q_UNUSED(lineNumber)
+    QStringList args;
+    args << QLatin1String("annotate") << QLatin1String("-u") << QLatin1String("-c") << QLatin1String("-d");
+    if (!revision.isEmpty())
+        args << QLatin1String("-r") << revision;
+    args << file;
     const QString kind = QLatin1String(Constants::ANNOTATELOG);
     const QString id   = VCSBase::VCSBaseEditor::getSource(workingDir, QStringList(file));
     const QString title = tr("Hg Annotate %1").arg(id);
@@ -197,7 +208,8 @@ void MercurialClient::diff(const QString &workingDir, const QStringList &files)
 }
 
 
-void MercurialClient::log(const QString &workingDir, const QStringList &files)
+void MercurialClient::log(const QString &workingDir, const QStringList &files,
+                          bool enableAnnotationContextMenu)
 {
     QStringList args(QLatin1String("log"));
     if (!files.empty())
@@ -210,6 +222,7 @@ void MercurialClient::log(const QString &workingDir, const QStringList &files)
 
     VCSBase::VCSBaseEditor *editor = createVCSEditor(kind, title, workingDir, true,
                                                      "log", id);
+    editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
     QSharedPointer<HgTask> job(new HgTask(workingDir, args, editor));
     enqueueJob(job);
@@ -440,6 +453,8 @@ VCSBase::VCSBaseEditor *MercurialClient::createVCSEditor(const QString &kind, QS
         outputEditor = core->editorManager()->openEditorWithContents(kind, &title, progressMsg);
         outputEditor->file()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VCSBase::VCSBaseEditor::getVcsBaseEditor(outputEditor);
+        connect(baseEditor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
+                this, SLOT(slotAnnotateRevisionRequested(QString,QString,int)));
         QTC_ASSERT(baseEditor, return 0);
         baseEditor->setSource(source);
         if (setSourceCodec)
