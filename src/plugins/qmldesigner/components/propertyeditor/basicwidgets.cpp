@@ -785,7 +785,7 @@ void WidgetLoader::setSource(const QUrl &source)
         m_component = 0;
     }
 
-    QWidget *oldWidget = m_widget;
+//    QWidget *oldWidget = m_widget;
 
     if (m_widget) {
         //m_widget->deleteLater();

@@ -176,16 +176,16 @@ FormEditorItem* FormEditorItem::fromQGraphicsItem(QGraphicsItem *graphicsItem)
     return qgraphicsitem_cast<FormEditorItem*>(graphicsItem);
 }
 
-static QRectF alignedRect(const QRectF &rect)
-{
-    QRectF alignedRect(rect);
-    alignedRect.setTop(std::floor(rect.top()) + 0.5);
-    alignedRect.setBottom(std::floor(rect.bottom()) + 0.5);
-    alignedRect.setLeft(std::floor(rect.left()) + 0.5);
-    alignedRect.setRight(std::floor(rect.right()) + 0.5);
-
-    return alignedRect;
-}
+//static QRectF alignedRect(const QRectF &rect)
+//{
+//    QRectF alignedRect(rect);
+//    alignedRect.setTop(std::floor(rect.top()) + 0.5);
+//    alignedRect.setBottom(std::floor(rect.bottom()) + 0.5);
+//    alignedRect.setLeft(std::floor(rect.left()) + 0.5);
+//    alignedRect.setRight(std::floor(rect.right()) + 0.5);
+//
+//    return alignedRect;
+//}
 
 void FormEditorItem::paintBoundingRect(QPainter *painter) const
 {
@@ -208,7 +208,7 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
     }
 
     painter->setPen(pen);
-    int offset =  m_borderWidth / 2;
+//    int offset =  m_borderWidth / 2;
     painter->drawRect(boundingRect().adjusted(0., 0., -1., -1.));
 }
 

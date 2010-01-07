@@ -241,7 +241,7 @@ void ModelToTextMerger::applyChanges()
     }
 }
 
-void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const
+void ModelToTextMerger::reindent(const QMap<int, int> &/*dirtyAreas*/) const
 {
 //    QList<int> offsets = dirtyAreas.keys();
 //    qSort(offsets);

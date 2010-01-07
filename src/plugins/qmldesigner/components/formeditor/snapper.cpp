@@ -571,13 +571,13 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QRectF &boundingRect,
     return generateSnappingLines(boundingRectList, layerItem, transform);
 }
 
-static void alignLine(QLineF &line)
-{
-    line.setP1(QPointF(std::floor(line.p1().x()) + 0.5,
-                       std::floor(line.p1().y()) + 0.5));
-    line.setP2(QPointF(std::floor(line.p2().x()) + 0.5,
-                       std::floor(line.p2().y()) + 0.5));
-}
+//static void alignLine(QLineF &line)
+//{
+//    line.setP1(QPointF(std::floor(line.p1().x()) + 0.5,
+//                       std::floor(line.p1().y()) + 0.5));
+//    line.setP2(QPointF(std::floor(line.p2().x()) + 0.5,
+//                       std::floor(line.p2().y()) + 0.5));
+//}
 
 QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundingRectList,
                                                      QGraphicsItem *layerItem,

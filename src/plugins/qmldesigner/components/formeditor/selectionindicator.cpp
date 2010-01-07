@@ -69,16 +69,16 @@ void SelectionIndicator::clear()
     m_indicatorShapeHash.clear();
 }
 
-static void alignVertices(QPolygonF &polygon, double factor)
-{
-    QMutableVectorIterator<QPointF> iterator(polygon);
-    while (iterator.hasNext()) {
-        QPointF &vertex = iterator.next();
-        vertex.setX(std::floor(vertex.x()) + factor);
-        vertex.setY(std::floor(vertex.y()) + factor);
-    }
-
-}
+//static void alignVertices(QPolygonF &polygon, double factor)
+//{
+//    QMutableVectorIterator<QPointF> iterator(polygon);
+//    while (iterator.hasNext()) {
+//        QPointF &vertex = iterator.next();
+//        vertex.setX(std::floor(vertex.x()) + factor);
+//        vertex.setY(std::floor(vertex.y()) + factor);
+//    }
+//
+//}
 
 void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
 {
