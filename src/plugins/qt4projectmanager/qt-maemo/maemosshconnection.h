@@ -67,6 +67,7 @@ private:
 
 class MaemoSshConnection : public QObject
 {
+    Q_OBJECT
     Q_DISABLE_COPY(MaemoSshConnection)
 public:
     typedef QSharedPointer<MaemoSshConnection> Ptr;
