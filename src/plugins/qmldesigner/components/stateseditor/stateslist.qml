@@ -178,14 +178,12 @@ Rectangle {
             height:2
             color:"black"
             anchors.centerIn:parent
-            //effect: Blur { blurRadius: 1; }
         }
         Rectangle {
             width:2
             height:12
             color:"black"
             anchors.centerIn:parent
-            //effect: Blur { blurRadius: 1; }
         }
 
         MouseRegion {
@@ -248,7 +246,6 @@ Rectangle {
             height:2
             color:"black"
             anchors.centerIn:parent
-            //effect: Blur { blurRadius: 1; }
         }
 
         visible: { root.currentStateIndex != 0 }
@@ -299,10 +296,12 @@ Rectangle {
         // the bar itself
         Item {
             id: draggableBar
-            width: if (horizontalScrollbar.viewLength>horizontalScrollbar.totalLength) parent.width;
-            else horizontalScrollbar.viewLength/horizontalScrollbar.totalLength  * parent.width;
+            width: if (horizontalScrollbar.totalLength>0) {
+                if (horizontalScrollbar.viewLength>horizontalScrollbar.totalLength) parent.width;
+                else horizontalScrollbar.viewLength/horizontalScrollbar.totalLength  * parent.width;
+            } else 0;
             height: parent.height;
-            x: horizontalScrollbar.viewPosition*horizontalScrollbar.width/horizontalScrollbar.totalLength;
+            x: (horizontalScrollbar.totalLength>0?horizontalScrollbar.viewPosition*horizontalScrollbar.width/horizontalScrollbar.totalLength:0);
 
 
             Rectangle {
