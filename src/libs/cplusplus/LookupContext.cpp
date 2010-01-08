@@ -717,7 +717,7 @@ Symbol *LookupContext::canonicalSymbol(const QList<LookupItem> &results,
     QList<Symbol *> candidates;
 
     foreach (const LookupItem &result, results)
-        candidates.append(result.lastVisibleSymbol()); // ### not exacly.
+        candidates.append(result.lastVisibleSymbol()); // ### not exactly.
 
     return canonicalSymbol(candidates, globalNamespaceBinding);
 }
