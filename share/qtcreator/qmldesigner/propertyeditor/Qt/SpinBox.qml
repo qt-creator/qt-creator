@@ -29,7 +29,7 @@ QWidget { //This is a special SpinBox that does color coding for states
                     SpinBox.setStyleSheet("color: gray;");
             } else {
                 if (backendValue != null && backendValue.isInSubState)
-                    SpinBox.setStyleSheet("color: blue;");
+                    SpinBox.setStyleSheet("color: #7799FF;");
                 else
                     SpinBox.setStyleSheet("color: gray;");
             }

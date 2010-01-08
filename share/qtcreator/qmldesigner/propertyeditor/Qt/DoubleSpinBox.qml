@@ -31,7 +31,7 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
                 DoubleSpinBox.setStyleSheet("color: gray;");
                 } else {
                 if (backendValue != null && backendValue.isInSubState)
-                DoubleSpinBox.setStyleSheet("color: blue;");
+                DoubleSpinBox.setStyleSheet("color: #7799FF;");
                 else
                 DoubleSpinBox.setStyleSheet("color: gray;");
                 }

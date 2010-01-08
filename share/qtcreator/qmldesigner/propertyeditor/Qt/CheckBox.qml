@@ -22,17 +22,17 @@ QCheckBox { //This is a special CheckBox that does color coding for states
 
    Script {
        function evaluate() {
-           if (baseStateFlag) {
-               if (backendValue.isInModel)
+            if (baseStateFlag) {
+                if (backendValue != null && backendValue.isInModel)
                     CheckBox.setStyleSheet("color: white;");
-               else
-                   CheckBox.setStyleSheet("color: gray;");
-           } else {
-               if (backendValue.IsInSubState)
-                   CheckBox.setStyleSheet("color: blue;");
-               else
-                   CheckBox.setStyleSheet("color: gray;");
-          }
-       }
+                else
+                    CheckBox.setStyleSheet("color: gray;");
+            } else {
+                if (backendValue != null && backendValue.isInSubState)
+                    CheckBox.setStyleSheet("color: #7799FF;");
+                else
+                    CheckBox.setStyleSheet("color: gray;");
+            }
+		}
    }
 }
