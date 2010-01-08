@@ -72,21 +72,25 @@ static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput,
     Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_ID,
+    Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_DISPLAY_NAME,
     Perforce::Constants::PERFORCE_COMMANDLOG_EDITOR_CONTEXT,
     "application/vnd.nokia.text.scs_commandlog",
     "scslog"},
 {   VCSBase::LogOutput,
     Perforce::Constants::PERFORCE_LOG_EDITOR_ID,
+    Perforce::Constants::PERFORCE_LOG_EDITOR_DISPLAY_NAME,
     Perforce::Constants::PERFORCE_LOG_EDITOR_CONTEXT,
     "application/vnd.nokia.text.scs_filelog",
     "scsfilelog"},
 {    VCSBase::AnnotateOutput,
      Perforce::Constants::PERFORCE_ANNOTATION_EDITOR_ID,
+     Perforce::Constants::PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME,
      Perforce::Constants::PERFORCE_ANNOTATION_EDITOR_CONTEXT,
     "application/vnd.nokia.text.scs_annotation",
     "scsannotate"},
 {   VCSBase::DiffOutput,
     Perforce::Constants::PERFORCE_DIFF_EDITOR_ID,
+    Perforce::Constants::PERFORCE_DIFF_EDITOR_DISPLAY_NAME,
     Perforce::Constants::PERFORCE_DIFF_EDITOR_CONTEXT,
     "text/x-patch","diff"}
 };
@@ -205,6 +209,7 @@ PerforcePlugin::PerforcePlugin() :
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Perforce::Constants::SUBMIT_MIMETYPE,
     Perforce::Constants::PERFORCE_SUBMIT_EDITOR_ID,
+    Perforce::Constants::PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME,
     Perforce::Constants::PERFORCESUBMITEDITOR_CONTEXT
 };
 

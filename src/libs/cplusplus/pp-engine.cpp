@@ -56,7 +56,6 @@
 
 #include <QtDebug>
 #include <algorithm>
-#include <cctype>
 
 namespace CPlusPlus {
 

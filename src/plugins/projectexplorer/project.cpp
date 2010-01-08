@@ -85,7 +85,7 @@ void Project::addBuildConfiguration(BuildConfiguration *configuration)
     // add it
     m_buildConfigurationValues.push_back(configuration);
 
-    emit addedBuildConfiguration(this, configuration);
+    emit addedBuildConfiguration(configuration);
 }
 
 void Project::removeBuildConfiguration(BuildConfiguration *configuration)
@@ -96,7 +96,7 @@ void Project::removeBuildConfiguration(BuildConfiguration *configuration)
 
     m_buildConfigurationValues.removeOne(configuration);
 
-    emit removedBuildConfiguration(this, configuration);
+    emit removedBuildConfiguration(configuration);
     delete configuration;
 }
 
@@ -124,7 +124,7 @@ bool Project::restoreSettings()
     if (!restoreSettingsImpl(reader))
         return false;
 
-    if (m_activeBuildConfiguration && !m_buildConfigurationValues.isEmpty())
+    if (!m_activeBuildConfiguration && !m_buildConfigurationValues.isEmpty())
         setActiveBuildConfiguration(m_buildConfigurationValues.at(0));
 
     if (!m_activeRunConfiguration && !m_runConfigurations.isEmpty())
@@ -158,7 +158,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     for(int i=0; i < bcs.size(); ++i) {
         QStringList buildStepNames;
         foreach (BuildStep *buildStep, bcs.at(i)->buildSteps())
-            buildStepNames << buildStep->displayName();
+            buildStepNames << buildStep->id();
         writer.saveValue("buildconfiguration-" + QString::number(i) + "-buildsteps", buildStepNames);
 
         int buildstepnr = 0;
@@ -174,7 +174,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     for(int i=0; i < bcs.size(); ++i) {
         QStringList cleanStepNames;
         foreach (BuildStep *cleanStep, bcs.at(i)->cleanSteps())
-            cleanStepNames << cleanStep->displayName();
+            cleanStepNames << cleanStep->id();
         writer.saveValue("buildconfiguration-" + QString::number(i) + "-cleansteps", cleanStepNames);
 
         int cleanstepnr = 0;

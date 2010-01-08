@@ -27,8 +27,9 @@
 **
 **************************************************************************/
 
-#include "Overview.h"
 #include "TypePrettyPrinter.h"
+
+#include "Overview.h"
 #include <FullySpecifiedType.h>
 #include <Literals.h>
 #include <CoreTypes.h>

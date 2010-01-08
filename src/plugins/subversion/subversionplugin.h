@@ -88,6 +88,8 @@ public:
 
     // IVersionControl
     bool vcsAdd(const QString &workingDir, const QString &fileName);
+    bool vcsAdd14(const QString &workingDir, const QString &fileName);
+    bool vcsAdd15(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &fileName);
     bool managesDirectory(const QString &directory) const;
     QString findTopLevelForDirectory(const QString &directory) const;

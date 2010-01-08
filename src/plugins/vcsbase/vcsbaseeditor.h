@@ -74,8 +74,8 @@ enum EditorContentType {
 // VCS commands with redirection.
 struct VCSBASE_EXPORT VCSBaseEditorParameters {
     EditorContentType type;
-    QString id;
-    QString displayName;
+    const char *id;
+    const char *displayName;
     const char *context;
     const char *mimeType;
     const char *extension;

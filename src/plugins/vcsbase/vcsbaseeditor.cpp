@@ -82,6 +82,7 @@ public:
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget * /*parent*/) { return 0; }
     QString id() const { return m_id; }
+    QString displayName() const { return m_displayName; }
 
     bool isTemporary() const { return true; }
 
@@ -91,13 +92,15 @@ signals:
 
 private:
     QString m_id;
+    QString m_displayName;
     QList<int> m_context;
 };
 
 VCSBaseEditorEditable::VCSBaseEditorEditable(VCSBaseEditor *editor,
                                              const VCSBaseEditorParameters *type)  :
     BaseTextEditorEditable(editor),
-    m_id(type->id)
+    m_id(type->id),
+    m_displayName(QCoreApplication::translate("VCS", type->displayName))
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(QLatin1String(type->context))

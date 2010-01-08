@@ -35,6 +35,8 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <QtCore/QCoreApplication>
+
 namespace VCSBase {
 
 struct BaseVCSEditorFactoryPrivate
@@ -43,6 +45,7 @@ struct BaseVCSEditorFactoryPrivate
 
     const VCSBaseEditorParameters *m_type;
     const QString m_id;
+    QString m_displayName;
     const QStringList m_mimeTypes;
     TextEditor::TextEditorActionHandler *m_editorHandler;
 };
@@ -58,6 +61,7 @@ BaseVCSEditorFactoryPrivate::BaseVCSEditorFactoryPrivate(const VCSBaseEditorPara
 BaseVCSEditorFactory::BaseVCSEditorFactory(const VCSBaseEditorParameters *t)
   : m_d(new BaseVCSEditorFactoryPrivate(t))
 {
+    m_d->m_displayName = QCoreApplication::translate("VCS", t->displayName);
 }
 
 BaseVCSEditorFactory::~BaseVCSEditorFactory()
@@ -77,7 +81,7 @@ QString BaseVCSEditorFactory::id() const
 
 QString BaseVCSEditorFactory::displayName() const
 {
-    return tr("Base VCS Editor", "VCSBase BaseVCSEditorFactory display name.");
+    return m_d->m_displayName;
 }
 
 Core::IFile *BaseVCSEditorFactory::open(const QString &fileName)

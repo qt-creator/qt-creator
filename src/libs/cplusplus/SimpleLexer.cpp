@@ -27,8 +27,9 @@
 **
 **************************************************************************/
 
-#include "ObjectiveCTypeQualifiers.h"
 #include "SimpleLexer.h"
+
+#include "ObjectiveCTypeQualifiers.h"
 
 #include <Lexer.h>
 #include <Token.h>

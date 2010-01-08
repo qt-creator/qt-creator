@@ -39,6 +39,12 @@
 #include <ASTPatternBuilder.h>
 #include <ASTMatcher.h>
 #include <Token.h>
+#include <Type.h>
+#include <CoreTypes.h>
+#include <Symbol.h>
+#include <Symbols.h>
+#include <Name.h>
+#include <Literals.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <QtDebug>
@@ -899,6 +905,165 @@ private:
     PostfixExpressionAST *qlatin1Call;
 };
 
+/*
+  Replace
+    a + b
+  With
+    a % b
+  If a and b are of string type.
+*/
+class UseFastStringConcatenation: public QuickFixOperation
+{
+public:
+    UseFastStringConcatenation()
+    {}
+
+    virtual QString description() const
+    {
+        return QLatin1String("Use fast string concatenation with %"); // ### tr?
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        if (path.isEmpty())
+            return -1;
+
+        // need to search 'up' too
+        int index = path.size() - 1;
+        if (BinaryExpressionAST *binary = asPlusNode(path[index])) {
+            while (0 != (binary = asPlusNode(binary->left_expression)))
+                _binaryExpressions.prepend(binary);
+        }
+
+        // search 'down'
+        for (index = path.size() - 1; index != -1; --index) {
+            AST *node = path.at(index);
+            if (BinaryExpressionAST *binary = asPlusNode(node)) {
+                _binaryExpressions.append(binary);
+            } else if (! _binaryExpressions.isEmpty()) {
+                break;
+            }
+        }
+
+        if (_binaryExpressions.isEmpty())
+            return -1;
+
+        // verify types of arguments
+        BinaryExpressionAST *prevBinary = 0;
+        foreach (BinaryExpressionAST *binary, _binaryExpressions) {
+            if (binary->left_expression != prevBinary) {
+                if (!hasCorrectType(binary->left_expression))
+                    return -1;
+            }
+            if (binary->right_expression != prevBinary) {
+                if (!hasCorrectType(binary->right_expression))
+                    return -1;
+            }
+            prevBinary = binary;
+        }
+
+        return index + _binaryExpressions.size();
+    }
+
+    virtual void createChangeSet()
+    {
+        // replace + -> %
+        foreach (BinaryExpressionAST *binary, _binaryExpressions)
+            replace(binary->binary_op_token, "%");
+
+        // wrap literals in QLatin1Literal
+        foreach (StringLiteralAST *literal, _stringLiterals) {
+            insert(startOf(literal), "QLatin1Literal(");
+            insert(endOf(literal), ")");
+        }
+
+        // replace QLatin1String/QString/QByteArray(literal) -> QLatin1Literal(literal)
+        foreach (PostfixExpressionAST *postfix, _incorrectlyWrappedLiterals) {
+            replace(postfix->base_expression, "QLatin1Literal");
+        }
+    }
+
+    BinaryExpressionAST *asPlusNode(AST *ast)
+    {
+        BinaryExpressionAST *binary = ast->asBinaryExpression();
+        if (binary && tokenAt(binary->binary_op_token).kind() == T_PLUS)
+            return binary;
+        return 0;
+    }
+
+    bool hasCorrectType(ExpressionAST *ast)
+    {
+        if (StringLiteralAST *literal = ast->asStringLiteral()) {
+            _stringLiterals += literal;
+            return true;
+        }
+
+        if (PostfixExpressionAST *postfix = ast->asPostfixExpression()) {
+            if (postfix->base_expression && postfix->postfix_expression_list
+                && postfix->postfix_expression_list->value
+                && !postfix->postfix_expression_list->next)
+            {
+                NameAST *name = postfix->base_expression->asName();
+                CallAST *call = postfix->postfix_expression_list->value->asCall();
+                if (name && call) {
+                    QByteArray nameStr(name->name->identifier()->chars());
+                    if ((nameStr == "QLatin1String"
+                         || nameStr == "QString"
+                         || nameStr == "QByteArray")
+                        && call->expression_list
+                        && call->expression_list->value
+                        && call->expression_list->value->asStringLiteral()
+                        && !call->expression_list->next)
+                    {
+                        _incorrectlyWrappedLiterals += postfix;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        const QList<LookupItem> &lookup = typeOf(ast);
+        if (lookup.isEmpty())
+            return false;
+        return isQtStringType(lookup[0].type());
+    }
+
+    bool isBuiltinStringType(FullySpecifiedType type)
+    {
+        // char*
+        if (PointerType *ptrTy = type->asPointerType())
+            if (IntegerType *intTy = ptrTy->elementType()->asIntegerType())
+                if (intTy->kind() == IntegerType::Char)
+                    return true;
+        return false;
+    }
+
+    bool isQtStringType(FullySpecifiedType type)
+    {
+        if (NamedType *nameTy = type->asNamedType()) {
+            if (!nameTy->name() || !nameTy->name()->identifier())
+                return false;
+
+            QByteArray name(nameTy->name()->identifier()->chars());
+            if (name == "QString"
+                || name == "QByteArray"
+                || name == "QLatin1String"
+                || name == "QLatin1Literal"
+                || name == "QStringRef"
+                || name == "QChar"
+                )
+                return true;
+        }
+
+        return false;
+    }
+
+private:
+    QList<BinaryExpressionAST *> _binaryExpressions;
+    QList<StringLiteralAST *> _stringLiterals;
+    QList<PostfixExpressionAST *> _incorrectlyWrappedLiterals;
+};
+
 } // end of anonymous namespace
 
 
@@ -1211,6 +1376,7 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         QSharedPointer<FlipBinaryOp> flipBinaryOp(new FlipBinaryOp());
         QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral());
         QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString());
+        QSharedPointer<UseFastStringConcatenation> useFastStringConcat(new UseFastStringConcatenation());
 
         QList<QuickFixOperationPtr> candidates;
         candidates.append(rewriteLogicalAndOp);
@@ -1223,6 +1389,7 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         candidates.append(flipBinaryOp);
         candidates.append(wrapStringLiteral);
         candidates.append(wrapCString);
+        candidates.append(useFastStringConcat);
 
         QMap<int, QList<QuickFixOperationPtr> > matchedOps;
 

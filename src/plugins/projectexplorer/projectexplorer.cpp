@@ -836,7 +836,6 @@ void ProjectExplorerPlugin::unloadProject()
 
     QList<Core::IFile*> filesToSave;
     filesToSave << fi;
-    // FIXME: What we want here is to check whether we need to safe any of the pro/pri files in this project
 
     // check the number of modified files
     int readonlycount = 0;

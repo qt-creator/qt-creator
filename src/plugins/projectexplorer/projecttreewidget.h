@@ -89,7 +89,7 @@ private:
     QModelIndex m_subIndex;
     QString m_modelId;
     bool m_autoSync;
-
+    bool m_currentItemLocked;
     friend class ProjectTreeWidgetFactory;
 };
 

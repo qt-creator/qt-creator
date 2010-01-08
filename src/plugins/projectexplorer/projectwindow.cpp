@@ -502,8 +502,11 @@ BuildConfigurationComboBox::BuildConfigurationComboBox(Project *p, QWidget *pare
     addWidget(m_label);
 
     //m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    foreach(BuildConfiguration *buildConfiguration, p->buildConfigurations())
+    foreach(BuildConfiguration *buildConfiguration, p->buildConfigurations()) {
         m_comboBox->addItem(buildConfiguration->displayName(), QVariant::fromValue(buildConfiguration));
+        connect(buildConfiguration, SIGNAL(displayNameChanged()),
+                this, SLOT(displayNameChanged()));
+    }
     if (p->buildConfigurations().count() == 1) {
         m_label->setText(m_comboBox->itemText(0));
         setCurrentWidget(m_label);
@@ -518,10 +521,10 @@ BuildConfigurationComboBox::BuildConfigurationComboBox(Project *p, QWidget *pare
     //            this, SLOT(nameChanged(ProjectExplorer::BuildConfiguration *)));
     connect(p, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(activeConfigurationChanged()));
-    connect(p, SIGNAL(addedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(addedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)));
-    connect(p, SIGNAL(removedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(removedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)));
+    connect(p, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    connect(p, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
     connect(m_comboBox, SIGNAL(activated(int)),
             this, SLOT(changedIndex(int)));
 }
@@ -531,15 +534,16 @@ BuildConfigurationComboBox::~BuildConfigurationComboBox()
 
 }
 
-void BuildConfigurationComboBox::nameChanged(BuildConfiguration *bc)
+void BuildConfigurationComboBox::displayNameChanged()
 {
-    const int index(buildConfigurationToIndex(bc));
-    if (index == -1)
-        return;
-    const QString &displayName = bc->displayName();
-    m_comboBox->setItemText(index, displayName);
+    for (int i=0; i < m_comboBox->count(); ++i) {
+        BuildConfiguration *bc = m_comboBox->itemData(i).value<BuildConfiguration *>();
+        const QString &displayName = bc->displayName();
+        m_comboBox->setItemText(i, displayName);
+    }
+
     if (m_comboBox->count() == 1)
-        m_label->setText(displayName);
+        m_label->setText(m_comboBox->itemText(0));
 }
 
 int BuildConfigurationComboBox::buildConfigurationToIndex(BuildConfiguration *bc)
@@ -560,22 +564,20 @@ void BuildConfigurationComboBox::activeConfigurationChanged()
     ignoreIndexChange = false;
 }
 
-void BuildConfigurationComboBox::addedBuildConfiguration(ProjectExplorer::Project *project,
-                                                         ProjectExplorer::BuildConfiguration *bc)
+void BuildConfigurationComboBox::addedBuildConfiguration(BuildConfiguration *bc)
 {
-    Q_UNUSED(project);
     ignoreIndexChange = true;
     m_comboBox->addItem(bc->displayName(), QVariant::fromValue(bc));
 
     if (m_comboBox->count() == 2)
         setCurrentWidget(m_comboBox);
     ignoreIndexChange = false;
+    connect(bc, SIGNAL(displayNameChanged()),
+            this, SLOT(displayNameChanged()));
 }
 
-void BuildConfigurationComboBox::removedBuildConfiguration(ProjectExplorer::Project *project,
-                                                           BuildConfiguration * bc)
+void BuildConfigurationComboBox::removedBuildConfiguration(BuildConfiguration * bc)
 {
-    Q_UNUSED(project);
     ignoreIndexChange = true;
     const int index(buildConfigurationToIndex(bc));
     if (index == -1)
@@ -586,6 +588,8 @@ void BuildConfigurationComboBox::removedBuildConfiguration(ProjectExplorer::Proj
         setCurrentWidget(m_label);
     }
     ignoreIndexChange = false;
+    connect(bc, SIGNAL(displayNameChanged()),
+            this, SLOT(displayNameChanged()));
 }
 
 void BuildConfigurationComboBox::changedIndex(int newIndex)

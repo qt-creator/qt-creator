@@ -97,22 +97,26 @@ static const char *nonInteractiveOptionC = "--non-interactive";
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput,
-    "Subversion Command Log Editor", // kind
+    "Subversion Command Log Editor", // id
+    QT_TRANSLATE_NOOP("VCS", "Subversion Command Log Editor"), // display name
     "Subversion Command Log Editor", // context
     "application/vnd.nokia.text.scs_svn_commandlog",
     "scslog"},
 {   VCSBase::LogOutput,
-    "Subversion File Log Editor",   // kind
+    "Subversion File Log Editor",   // id
+    QT_TRANSLATE_NOOP("VCS", "Subversion File Log Editor"),   // display_name
     "Subversion File Log Editor",   // context
     "application/vnd.nokia.text.scs_svn_filelog",
     "scsfilelog"},
 {    VCSBase::AnnotateOutput,
-    "Subversion Annotation Editor",  // kind
+    "Subversion Annotation Editor",  // id
+    QT_TRANSLATE_NOOP("VCS", "Subversion Annotation Editor"),   // display_name
     "Subversion Annotation Editor",  // context
     "application/vnd.nokia.text.scs_svn_annotation",
     "scsannotate"},
 {   VCSBase::DiffOutput,
-    "Subversion Diff Editor",  // kind
+    "Subversion Diff Editor",  // id
+    QT_TRANSLATE_NOOP("VCS", "Subversion Diff Editor"),   // display_name
     "Subversion Diff Editor",  // context
     "text/x-patch","diff"}
 };
@@ -175,7 +179,7 @@ static inline QStringList svnDirectories()
 SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
 
 SubversionPlugin::SubversionPlugin() :
-    VCSBase::VCSBasePlugin(QLatin1String(Subversion::Constants::SUBVERSIONCOMMITEDITOR_KIND)),
+    VCSBase::VCSBasePlugin(QLatin1String(Subversion::Constants::SUBVERSIONCOMMITEDITOR_ID)),
     m_svnDirectories(svnDirectories()),
     m_addAction(0),
     m_deleteAction(0),
@@ -221,7 +225,8 @@ bool SubversionPlugin::isCommitEditorOpen() const
 
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Subversion::Constants::SUBVERSION_SUBMIT_MIMETYPE,
-    Subversion::Constants::SUBVERSIONCOMMITEDITOR_KIND,
+    Subversion::Constants::SUBVERSIONCOMMITEDITOR_ID,
+    Subversion::Constants::SUBVERSIONCOMMITEDITOR_DISPLAY_NAME,
     Subversion::Constants::SUBVERSIONCOMMITEDITOR
 };
 
@@ -506,7 +511,7 @@ void SubversionPlugin::svnDiff(const QString &workingDir, const QStringList &fil
 
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
 {
-    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_KIND));
+    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_ID));
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, /**/);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
@@ -1015,9 +1020,49 @@ SubversionPlugin *SubversionPlugin::subversionPluginInstance()
 
 bool SubversionPlugin::vcsAdd(const QString &workingDir, const QString &rawFileName)
 {
+#ifdef Q_OS_MAC // See below.
+    return vcsAdd14(workingDir, rawFileName);
+#else
+    return vcsAdd15(workingDir, rawFileName);
+#endif
+}
+
+// Post 1.4 add: Use "--parents" to add directories
+bool SubversionPlugin::vcsAdd15(const QString &workingDir, const QString &rawFileName)
+{
     const QString file = QDir::toNativeSeparators(rawFileName);
     QStringList args;
     args << QLatin1String("add") << QLatin1String("--parents") << file;
+    const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), true);
+    return !response.error;
+}
+
+// Pre 1.5 add: Add directories in a loop. To be deprecated
+// once Mac ships newer svn-versions
+bool SubversionPlugin::vcsAdd14(const QString &workingDir, const QString &rawFileName)
+{
+    const QChar slash = QLatin1Char('/');
+    const QStringList relativePath = rawFileName.split(slash);
+    // Add directories (dir1/dir2/file.cpp) in a loop.
+    if (relativePath.size() > 1) {
+        QString path;
+        const int lastDir = relativePath.size() - 1;
+        for (int p = 0; p < lastDir; p++) {
+            if (!path.isEmpty())
+                path += slash;
+            path += relativePath.at(p);
+            if (!managesDirectory(QDir(path))) {
+                QStringList addDirArgs;
+                addDirArgs << QLatin1String("add") << QLatin1String("--non-recursive") << QDir::toNativeSeparators(path);
+                const SubversionResponse addDirResponse = runSvn(workingDir, addDirArgs, m_settings.timeOutMS(), true);
+                if (addDirResponse.error)
+                    return false;
+            }
+        }
+    }
+    // Add file
+    QStringList args;
+    args << QLatin1String("add") << QDir::toNativeSeparators(rawFileName);
     const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), true);
     return !response.error;
 }

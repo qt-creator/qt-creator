@@ -127,9 +127,7 @@ signals:
     void fileListChanged();
 
 // TODO clean up signal names
-// might be better to also have
-// a aboutToRemoveRunConfiguration
-// and a removedBuildConfiguration
+// might be better to also have aboutToRemove signals
 // a runconfiguration display name changed is missing
     void activeBuildConfigurationChanged();
     void activeRunConfigurationChanged();
@@ -138,8 +136,8 @@ signals:
     void removedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
     void addedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
 
-    void removedBuildConfiguration(ProjectExplorer::Project *p, ProjectExplorer::BuildConfiguration *bc);
-    void addedBuildConfiguration(ProjectExplorer::Project *p, ProjectExplorer::BuildConfiguration *bc);
+    void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
+    void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
 
 protected:
     /* This method is called when the project .user file is saved. Simply call

@@ -74,25 +74,29 @@ using namespace Mercurial;
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput, //type
-    Constants::COMMANDLOG, // kind
+    Constants::COMMANDLOG_ID, // id
+    Constants::COMMANDLOG_DISPLAY_NAME, // display name
     Constants::COMMANDLOG, // context
     Constants::COMMANDAPP, // mime type
     Constants::COMMANDEXT}, //extension
 
 {   VCSBase::LogOutput,
-    Constants::FILELOG,
+    Constants::FILELOG_ID,
+    Constants::FILELOG_DISPLAY_NAME,
     Constants::FILELOG,
     Constants::LOGAPP,
     Constants::LOGEXT},
 
 {    VCSBase::AnnotateOutput,
-     Constants::ANNOTATELOG,
+     Constants::ANNOTATELOG_ID,
+     Constants::ANNOTATELOG_DISPLAY_NAME,
      Constants::ANNOTATELOG,
      Constants::ANNOTATEAPP,
      Constants::ANNOTATEEXT},
 
 {   VCSBase::DiffOutput,
-    Constants::DIFFLOG,
+    Constants::DIFFLOG_ID,
+    Constants::DIFFLOG_DISPLAY_NAME,
     Constants::DIFFLOG,
     Constants::DIFFAPP,
     Constants::DIFFEXT}
@@ -100,8 +104,9 @@ static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 
 static const VCSBase::VCSBaseSubmitEditorParameters submitEditorParameters = {
     Constants::COMMITMIMETYPE,
-    Constants::COMMITKIND,
-    Constants::COMMITKIND
+    Constants::COMMIT_ID,
+    Constants::COMMIT_DISPLAY_NAME,
+    Constants::COMMIT_ID
 };
 
 // Utility to find a parameter set by type
@@ -115,7 +120,7 @@ static inline const VCSBase::VCSBaseEditorParameters *findType(int ie)
 MercurialPlugin *MercurialPlugin::m_instance = 0;
 
 MercurialPlugin::MercurialPlugin() :
-        VCSBase::VCSBasePlugin(QLatin1String(Constants::COMMITKIND)),
+        VCSBase::VCSBasePlugin(QLatin1String(Constants::COMMIT_ID)),
         optionsPage(0),
         m_client(0),
         changeLog(0),
@@ -475,7 +480,7 @@ void MercurialPlugin::outgoing()
 
 void MercurialPlugin::createSubmitEditorActions()
 {
-    QList<int> context = QList<int>()<< core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::COMMITKIND));
+    QList<int> context = QList<int>()<< core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::COMMIT_ID));
     Core::Command *command;
 
     editorCommit = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
@@ -529,7 +534,7 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
     }
 
     Core::IEditor *editor = core->editorManager()->openEditor(changeLog->fileName(),
-                                                              QLatin1String(Constants::COMMITKIND));
+                                                              QLatin1String(Constants::COMMIT_ID));
     if (!editor) {
         outputWindow->appendError(tr("Unable to create an editor for the commit."));
         return;

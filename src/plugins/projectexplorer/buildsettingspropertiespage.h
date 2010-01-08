@@ -98,6 +98,9 @@ private slots:
 
     void setupUi();
 
+    void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
+    void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
+    void buildConfigurationDisplayNameChanged();
 private:
     void cloneConfiguration(BuildConfiguration *toClone);
     void deleteConfiguration(BuildConfiguration *toDelete);

@@ -503,6 +503,7 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
         //TODO save arguments somewhere copw.arguments()
         MakeStep *cleanMakeStep = new MakeStep(bc);
         bc->insertCleanStep(0, cleanMakeStep);
+        cleanMakeStep->setAdditionalArguments(QStringList() << "clean");
         cleanMakeStep->setClean(true);
 
         addBuildConfiguration(bc);

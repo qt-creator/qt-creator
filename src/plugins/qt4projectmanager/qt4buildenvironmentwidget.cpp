@@ -72,7 +72,7 @@ void Qt4BuildEnvironmentWidget::init(ProjectExplorer::BuildConfiguration *bc)
         qDebug() << "Qt4BuildConfigWidget::init()";
 
     if (m_buildConfiguration) {
-        disconnect(this, SIGNAL(environmentChanged()),
+        disconnect(m_buildConfiguration, SIGNAL(environmentChanged()),
                    this, SLOT(environmentChanged()));
     }
 
