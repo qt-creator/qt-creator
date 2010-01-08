@@ -158,7 +158,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     for(int i=0; i < bcs.size(); ++i) {
         QStringList buildStepNames;
         foreach (BuildStep *buildStep, bcs.at(i)->buildSteps())
-            buildStepNames << buildStep->displayName();
+            buildStepNames << buildStep->id();
         writer.saveValue("buildconfiguration-" + QString::number(i) + "-buildsteps", buildStepNames);
 
         int buildstepnr = 0;
@@ -174,7 +174,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     for(int i=0; i < bcs.size(); ++i) {
         QStringList cleanStepNames;
         foreach (BuildStep *cleanStep, bcs.at(i)->cleanSteps())
-            cleanStepNames << cleanStep->displayName();
+            cleanStepNames << cleanStep->id();
         writer.saveValue("buildconfiguration-" + QString::number(i) + "-cleansteps", cleanStepNames);
 
         int cleanstepnr = 0;
