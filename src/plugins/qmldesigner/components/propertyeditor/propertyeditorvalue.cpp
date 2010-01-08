@@ -58,7 +58,7 @@ PropertyEditorValue::PropertyEditorValue(QObject *parent)
 QVariant PropertyEditorValue::value() const
 {
     QVariant returnValue = m_value;
-    if (modelNode().metaInfo().isValid() && modelNode().metaInfo().property(name()).isValid())
+    if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().property(name()).isValid())
         if (modelNode().metaInfo().property(name()).type() == QLatin1String("QUrl")) {
         returnValue = returnValue.toUrl().toString();
     }
@@ -137,7 +137,7 @@ bool PropertyEditorValue::isInSubState() const
 
 bool PropertyEditorValue::isBound() const
 {
-    return modelNode().property(name()).isBindingProperty();
+    return modelNode().isValid() && modelNode().property(name()).isValid() && modelNode().property(name()).isBindingProperty();
 }
 
 void PropertyEditorValue::setIsInSubState(bool isInSubState)
