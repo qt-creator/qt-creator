@@ -48,7 +48,7 @@ NavigatorTreeModel::NavigatorTreeModel(QObject *parent)
     setHorizontalHeaderItem(1,  new QStandardItem(tr("Type")));
     setHorizontalHeaderItem(2,  new QStandardItem(tr("Show in Editor")));
 
-    setSupportedDragActions(Qt::MoveAction);
+    setSupportedDragActions(Qt::LinkAction);
 
     connect(this, SIGNAL(itemChanged(QStandardItem*)),
             this, SLOT(handleChangedItem(QStandardItem*)));
@@ -60,7 +60,7 @@ NavigatorTreeModel::~NavigatorTreeModel()
 
 Qt::DropActions NavigatorTreeModel::supportedDropActions() const
 {
-    return Qt::MoveAction;
+    return Qt::LinkAction;
 }
 
 QStringList NavigatorTreeModel::mimeTypes() const
@@ -113,7 +113,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
 {
     if (action == Qt::IgnoreAction)
         return true;
-    if (action != Qt::MoveAction)
+    if (action != Qt::LinkAction)
         return false;
     if (!data->hasFormat("application/vnd.modelnode.list"))
         return false;
@@ -159,7 +159,8 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
         if (!isAnchestorInList(node, nodeList)) {
             if (node.parentProperty().parentModelNode() != parentItemNode) {
                 QmlItemNode itemNode(node);
-                itemNode.setParent(parentItemNode);
+                if (node != parentItemNode)
+                    itemNode.setParent(parentItemNode);
             }
 
             if (node.parentProperty().isNodeListProperty()) {

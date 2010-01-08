@@ -46,6 +46,7 @@ NavigatorWidget::NavigatorWidget(QWidget* parent) :
     m_treeView->setAcceptDrops(true);
     m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_treeView->header()->setStretchLastSection(false);
+    m_treeView->setDefaultDropAction(Qt::LinkAction);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setSpacing(0);
