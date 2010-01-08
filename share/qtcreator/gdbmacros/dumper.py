@@ -9,7 +9,7 @@ import gdb
 import base64
 import curses.ascii
 
-# only needed for gdb 7.0
+# only needed for gdb 7.0/7.0.1 that do not implement parse_and_eval
 import os
 import tempfile
 
@@ -428,23 +428,20 @@ class FrameCommand(gdb.Command):
             watchers = base64.b16decode(args[2], True)
         if len(watchers) > 0:
             for watcher in watchers.split("##"):
-                (exp, name) = watcher.split("#")
-                self.handleWatch(d, exp, name)
+                (exp, iname) = watcher.split("#")
+                self.handleWatch(d, exp, iname)
         d.pushOutput()
         watchers = d.safeoutput
 
-        print('locals={iname="local",name="Locals",value=" ",type=" ",'
-            + 'children=[' + locals + ']},'
-            + 'watchers={iname="watch",name="Watchers",value=" ",type=" ",'
-            + 'children=[' + watchers + ']}\n')
+        print('data=[' + locals + ',' + watchers + ']\n')
 
 
-    def handleWatch(self, d, exp, name):
-        #warn("HANDLING WATCH %s, NAME: %s" % (exp, name))
+    def handleWatch(self, d, exp, iname):
+        #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("["):
-            #warn("EVAL: EXP: %s" % exp)
+            warn("EVAL: EXP: %s" % exp)
             d.beginHash()
-            d.put('iname="watch.%s",' % name)
+            d.put('iname="%s",' % iname)
             d.put('name="%s",' % exp)
             d.put('exp="%s",' % exp)
             try:
@@ -457,7 +454,7 @@ class FrameCommand(gdb.Command):
                 d.beginChildren(len(list))
                 itemNumber = 0
                 for item in list:
-                    self.handleWatch(d, item, "%s.%d" % (name, itemNumber))
+                    self.handleWatch(d, item, "%s.%d" % (iname, itemNumber))
                     itemNumber += 1
                 d.endChildren()
             except:
@@ -471,7 +468,7 @@ class FrameCommand(gdb.Command):
             return
 
         d.beginHash()
-        d.put('iname="watch.%s",' % name)
+        d.put('iname="%s",' % iname)
         d.put('name="%s",' % exp)
         d.put('exp="%s",' % exp)
         handled = False
@@ -481,7 +478,7 @@ class FrameCommand(gdb.Command):
         else:
             try:
                 value = parseAndEvaluate(exp)
-                item = Item(value, "watch.%s" % name, None, None)
+                item = Item(value, iname, None, None)
                 d.putItemHelper(item)
             except RuntimeError:
                 d.put(',value="<invalid>",')

@@ -1517,10 +1517,10 @@ WatchModel *WatchHandler::modelForIName(const QByteArray &iname) const
 {
     if (iname.startsWith("local"))
         return m_locals;
-    if (iname.startsWith("watch"))
-        return m_watchers;
     if (iname.startsWith("tooltip"))
         return m_tooltips;
+    if (iname.startsWith("watch"))
+        return m_watchers;
     QTC_ASSERT(false, qDebug() << "INAME: " << iname);
     return 0;
 }

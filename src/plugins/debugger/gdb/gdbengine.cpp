@@ -105,6 +105,14 @@ namespace Internal {
 
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
 
+static QByteArray tooltipINameForExpression(const QByteArray &exp)
+{
+    // FIXME: 'exp' can contain illegal characters
+    //return "tooltip." + exp;
+    Q_UNUSED(exp)
+    return "tooltip.x";
+}
+
 static bool stateAcceptsGdbCommands(DebuggerState state)
 {
     switch (state) {
@@ -2726,14 +2734,6 @@ bool GdbEngine::supportsThreads() const
 static QString m_toolTipExpression;
 static QPoint m_toolTipPos;
 
-static QByteArray tooltipINameForExpression(const QByteArray &exp)
-{
-    // FIXME: 'exp' can contain illegal characters
-    //return "tooltip." + exp;
-    Q_UNUSED(exp)
-    return "tooltip.x";
-}
-
 bool GdbEngine::showToolTip()
 {
     WatchHandler *handler = manager()->watchHandler();
@@ -2765,6 +2765,9 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
     m_toolTipPos = mousePos;
     int line, column;
     QString exp = cppExpressionAt(editor, cursorPos, &line, &column);
+    if (exp == m_toolTipExpression)
+        return;
+
     m_toolTipExpression = exp;
 
     // FIXME: enable caching
@@ -2822,6 +2825,11 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
         }
     }
 */
+
+    if (isSynchroneous()) {
+        updateLocals(QVariant());
+        return;
+    }
 
     WatchData toolTip;
     toolTip.exp = exp.toLatin1();
@@ -3608,7 +3616,7 @@ void GdbEngine::updateLocals(const QVariant &cookie)
     if (isSynchroneous()) {
         m_processedNames.clear();
         manager()->watchHandler()->beginCycle();
-        m_toolTipExpression.clear();
+        //m_toolTipExpression.clear();
         WatchHandler *handler = m_manager->watchHandler();
 
         QByteArray expanded;
@@ -3630,10 +3638,13 @@ void GdbEngine::updateLocals(const QVariant &cookie)
             if (!watchers.isEmpty())
                 watchers += "##";
             if (it.key() == WatchHandler::watcherEditPlaceHolder().toLatin1())
-                watchers += "<Edit>#" + QByteArray::number(it.value());
+                watchers += "<Edit>#watch." + QByteArray::number(it.value());
             else
-                watchers += it.key() + '#' + QByteArray::number(it.value());
+                watchers += it.key() + "#watch." + QByteArray::number(it.value());
         }
+        if (!m_toolTipExpression.isEmpty())
+            watchers += "##" + m_toolTipExpression.toLatin1()
+                + "#" + tooltipINameForExpression(m_toolTipExpression.toLatin1());
 
         QByteArray options;
         if (theDebuggerBoolSetting(UseDebuggingHelpers))
@@ -3679,7 +3690,7 @@ void GdbEngine::handleStackFrame(const GdbResponse &response)
         while (out.endsWith(' ') || out.endsWith('\n'))
             out.chop(1);
         //qDebug() << "SECOND CHUNK: " << out;
-        int pos = out.indexOf("locals=");
+        int pos = out.indexOf("data=");
         if (pos != 0) {
             qDebug() << "DISCARDING JUNK AT BEGIN OF RESPONSE: "
                 << out.left(pos);
@@ -3687,27 +3698,21 @@ void GdbEngine::handleStackFrame(const GdbResponse &response)
         }
         GdbMi all;
         all.fromStringMultiple(out);
+        //qDebug() << "ALL: " << all.toString();
         
-        GdbMi locals = all.findChild("locals");
-        WatchData *data = manager()->watchHandler()->findItem("local");
-        QTC_ASSERT(data, return);
+        GdbMi data = all.findChild("data");
         QList<WatchData> list;
-        handleChildren(*data, locals, &list);
+        foreach (const GdbMi &child, data.children()) {
+            WatchData dummy;
+            dummy.iname = child.findChild("iname").data();
+            dummy.name = _(child.findChild("name").data());
+            //qDebug() << "CHILD: " << child.toString();
+            handleChildren(dummy, child, &list);
+        }
+        manager()->watchHandler()->insertBulkData(list);
         //for (int i = 0; i != list.size(); ++i)
         //    qDebug() << "LOCAL: " << list.at(i).toString();
-        manager()->watchHandler()->insertBulkData(list);
 
-        GdbMi watchers = all.findChild("watchers");
-        data = manager()->watchHandler()->findItem("watch");
-        QTC_ASSERT(data, return);
-        list.clear();
-        handleChildren(*data, watchers, &list);
-        //for (int i = 0; i != list.size(); ++i)
-        //    qDebug() << "WATCH: " << list.at(i).toString();
-        manager()->watchHandler()->insertBulkData(list);
-
-        // FIXME:
-        //manager()->watchHandler()->updateWatchers();
         PENDING_DEBUG("AFTER handleStackFrame()");
         // FIXME: This should only be used when updateLocals() was
         // triggered by expanding an item in the view.
