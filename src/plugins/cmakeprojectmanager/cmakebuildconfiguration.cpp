@@ -255,6 +255,7 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(cons
 
     MakeStep *cleanMakeStep = new MakeStep(bc);
     bc->insertCleanStep(0, cleanMakeStep);
+    cleanMakeStep->setAdditionalArguments(QStringList() << "clean");
     cleanMakeStep->setClean(true);
 
     CMakeOpenProjectWizard copw(m_project->projectManager(),
