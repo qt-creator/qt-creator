@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>397</width>
-    <height>322</height>
+    <width>480</width>
+    <height>371</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -37,7 +37,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="Utils::PathChooser" name="gdbLocationChooser" native="true"/>
+       <widget class="Utils::PathChooser" name="gdbLocationChooser"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="labelEnvironment">
@@ -60,7 +60,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="Utils::PathChooser" name="scriptFileChooser" native="true"/>
+       <widget class="Utils::PathChooser" name="scriptFileChooser"/>
       </item>
       <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUsePreciseBreakpoints">
@@ -85,11 +85,11 @@ name in different directories.</string>
       <item row="4" column="1">
        <widget class="QSpinBox" name="spinBoxGdbWatchdogTimeout">
         <property name="toolTip">
-         <string>This is the number of second Qt Creator will wait before
-it terminates non-reacting gdb process. The default value of 20 seconds
+         <string>This is the number of seconds Qt Creator will wait before
+it terminates non-responsive gdb process. The default value of 20 seconds
 should be sufficient for most applications, but there are situations when
 loading big libraries or listing source files takes much longer than that
-on slow machines. In this case the value should be increased.</string>
+on slow machines. In this case, the value should be increased.</string>
         </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
