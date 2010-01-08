@@ -388,6 +388,7 @@ QMenu {
      padding: 2px;
      color: #404040;
      border-radius: 4px;
+	 padding: 2px 25px 2px 20px;
  }
 QMenu::separator {
      height: 1px;
@@ -395,3 +396,14 @@ QMenu::separator {
      margin-left: 5px;
      margin-right: 5px;
  }
+ 
+ QComboBox QAbstractItemView {
+     show-decoration-selected: 1; /* make the selection span the entire width of the view */
+	 background-color: #494949; /* sets background of the menu */
+     border: 1px solid black;
+     margin: 0px; /* some spacing around the menu */
+     color: #cacaca;
+	 selection-background-color: #d2d2d2;
+	 selection-color: #404040;
+ }
+
