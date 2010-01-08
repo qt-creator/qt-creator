@@ -42,7 +42,11 @@ def parseAndEvaluate(exp):
     # Work around non-existing gdb.parse_and_eval as in released 7.0
     gdb.execute("set logging redirect on")
     gdb.execute("set logging on")
-    gdb.execute("print %s" % exp)
+    try:
+        gdb.execute("print %s" % exp)
+    except:
+        gdb.execute("set logging off")
+        return None
     gdb.execute("set logging off")
     return gdb.history(0)
 
@@ -437,16 +441,6 @@ class FrameCommand(gdb.Command):
 
     def handleWatch(self, d, exp, name):
         #warn("HANDLING WATCH %s, NAME: %s" % (exp, name))
-        if not isGoodGdb():
-            d.beginHash()
-            d.put('iname="watch.%s",' % name)
-            d.put('name="%s",' % exp)
-            d.put('exp="%s",' % exp)
-            d.put('value="<unsupported gdb version>"',)
-            d.put('type="<unknown>",numchild="0"')
-            d.endHash()
-            return
-
         if exp.startswith("["):
             #warn("EVAL: EXP: %s" % exp)
             d.beginHash()
@@ -742,6 +736,14 @@ class Dumper:
         name = getattr(item, "name", None)
         if not name is None:
             self.putName(name)
+
+        if item.value is None:
+            # Happens for non-available watchers in gdb versions that
+            # need to use gdb.execute instead of gdb.parse_and_eval
+            self.putValue("<not available>")
+            self.putType("<unknown>")
+            self.putNumChild(0)
+            return
 
         # FIXME: Gui shows references stripped?
         #warn(" ");
