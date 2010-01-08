@@ -39,6 +39,7 @@ namespace Internal {
 
 class MercurialEditor : public VCSBase::VCSBaseEditor
 {
+    Q_OBJECT
 public:
     explicit MercurialEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent);
 
