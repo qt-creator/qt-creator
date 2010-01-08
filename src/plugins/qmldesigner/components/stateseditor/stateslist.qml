@@ -27,8 +27,10 @@ Rectangle {
         signal: "changedToState(n)"
         script: {root.currentStateIndex = n}
     }
-	
-	Item { id:focusStealer } 
+
+    // TextInputs don't loose focus automatically when user clicks away, have to be done explicitly
+    signal unFocus
+    Item { id:focusStealer }
 
     Flickable {
         id: listView
@@ -94,8 +96,14 @@ Rectangle {
                 anchors.fill: container
                 onClicked: {
                     root.currentStateIndex = index
-                    focusStealer.focus=true; // steal focus from textinput
+                    root.unFocus();
                 }
+            }
+
+            Connection {
+                sender: root
+                signal: "unFocus()"
+                script: txt.unFocus()
             }
 
             TextInput {
@@ -104,24 +112,22 @@ Rectangle {
                 id: txt
                 text: stateName
                 color: "#E1E1E1";
-                onAccepted: {
-                    // force focus to move to another item, otherwise this one will be reactivated at mode change
+                function unFocus() {
                     focus=false;
-                    itemRegion.focus=true;
+                    focusStealer.focus=true;
+                    txtRegion.enabled=true;
+                    if (index!=0)
+                        statesEditorModel.renameState(index,text);
                 }
-                onFocusChanged: if (!focus) {
-                    txtRegion.enabled=true
-                    statesEditorModel.renameState(index, text)
-                }
+                onAccepted: unFocus();
                 MouseRegion {
                     id: txtRegion
                     anchors.fill:parent
-                    property bool wasDoubleClicked:false
                     onClicked: {
                         root.currentStateIndex = index;
-                        itemRegion.focus=true;
+                        root.unFocus();
                     }
-                    onDoubleClicked: if (index!=0) { // base state not editable
+                    onDoubleClicked: if (index!=0) {
                         parent.focus=true;
                         enabled=false;
                     }
@@ -185,6 +191,7 @@ Rectangle {
         MouseRegion {
             anchors.fill:parent
             onClicked: {
+                root.unFocus();
                 if (root.currentStateIndex == 0)
                 root.createNewState(); //create new state
                 else
@@ -249,6 +256,7 @@ Rectangle {
         MouseRegion {
             anchors.fill:parent
             onClicked: {
+                root.unFocus();
                 root.deleteCurrentState();
                 if (root.currentStateIndex >= statesEditorModel.count)
                     root.currentStateIndex = root.currentStateIndex-1;
@@ -312,7 +320,7 @@ Rectangle {
                 anchors.fill:parent
                 property int dragging:0;
                 property int originalX:0;
-                onPressed: { dragging = 1; originalX = mouse.x; }
+                onPressed: { dragging = 1; originalX = mouse.x;root.unFocus(); }
                 onReleased: { dragging = 0; }
                 onPositionChanged: if (dragging)
                 {
