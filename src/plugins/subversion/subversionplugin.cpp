@@ -1020,9 +1020,49 @@ SubversionPlugin *SubversionPlugin::subversionPluginInstance()
 
 bool SubversionPlugin::vcsAdd(const QString &workingDir, const QString &rawFileName)
 {
+#ifdef Q_OS_MAC // See below.
+    return vcsAdd14(workingDir, rawFileName);
+#else
+    return vcsAdd15(workingDir, rawFileName);
+#endif
+}
+
+// Post 1.4 add: Use "--parents" to add directories
+bool SubversionPlugin::vcsAdd15(const QString &workingDir, const QString &rawFileName)
+{
     const QString file = QDir::toNativeSeparators(rawFileName);
     QStringList args;
     args << QLatin1String("add") << QLatin1String("--parents") << file;
+    const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), true);
+    return !response.error;
+}
+
+// Pre 1.5 add: Add directories in a loop. To be deprecated
+// once Mac ships newer svn-versions
+bool SubversionPlugin::vcsAdd14(const QString &workingDir, const QString &rawFileName)
+{
+    const QChar slash = QLatin1Char('/');
+    const QStringList relativePath = rawFileName.split(slash);
+    // Add directories (dir1/dir2/file.cpp) in a loop.
+    if (relativePath.size() > 1) {
+        QString path;
+        const int lastDir = relativePath.size() - 1;
+        for (int p = 0; p < lastDir; p++) {
+            if (!path.isEmpty())
+                path += slash;
+            path += relativePath.at(p);
+            if (!managesDirectory(QDir(path))) {
+                QStringList addDirArgs;
+                addDirArgs << QLatin1String("add") << QLatin1String("--non-recursive") << QDir::toNativeSeparators(path);
+                const SubversionResponse addDirResponse = runSvn(workingDir, addDirArgs, m_settings.timeOutMS(), true);
+                if (addDirResponse.error)
+                    return false;
+            }
+        }
+    }
+    // Add file
+    QStringList args;
+    args << QLatin1String("add") << QDir::toNativeSeparators(rawFileName);
     const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), true);
     return !response.error;
 }
