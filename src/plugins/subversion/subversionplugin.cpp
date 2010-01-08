@@ -97,22 +97,26 @@ static const char *nonInteractiveOptionC = "--non-interactive";
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput,
-    "Subversion Command Log Editor", // kind
+    "Subversion Command Log Editor", // id
+    QT_TRANSLATE_NOOP("VCS", "Subversion Command Log Editor"), // display name
     "Subversion Command Log Editor", // context
     "application/vnd.nokia.text.scs_svn_commandlog",
     "scslog"},
 {   VCSBase::LogOutput,
-    "Subversion File Log Editor",   // kind
+    "Subversion File Log Editor",   // id
+    QT_TRANSLATE_NOOP("VCS", "Subversion File Log Editor"),   // display_name
     "Subversion File Log Editor",   // context
     "application/vnd.nokia.text.scs_svn_filelog",
     "scsfilelog"},
 {    VCSBase::AnnotateOutput,
-    "Subversion Annotation Editor",  // kind
+    "Subversion Annotation Editor",  // id
+    QT_TRANSLATE_NOOP("VCS", "Subversion Annotation Editor"),   // display_name
     "Subversion Annotation Editor",  // context
     "application/vnd.nokia.text.scs_svn_annotation",
     "scsannotate"},
 {   VCSBase::DiffOutput,
-    "Subversion Diff Editor",  // kind
+    "Subversion Diff Editor",  // id
+    QT_TRANSLATE_NOOP("VCS", "Subversion Diff Editor"),   // display_name
     "Subversion Diff Editor",  // context
     "text/x-patch","diff"}
 };
@@ -175,7 +179,7 @@ static inline QStringList svnDirectories()
 SubversionPlugin *SubversionPlugin::m_subversionPluginInstance = 0;
 
 SubversionPlugin::SubversionPlugin() :
-    VCSBase::VCSBasePlugin(QLatin1String(Subversion::Constants::SUBVERSIONCOMMITEDITOR_KIND)),
+    VCSBase::VCSBasePlugin(QLatin1String(Subversion::Constants::SUBVERSIONCOMMITEDITOR_ID)),
     m_svnDirectories(svnDirectories()),
     m_addAction(0),
     m_deleteAction(0),
@@ -221,7 +225,8 @@ bool SubversionPlugin::isCommitEditorOpen() const
 
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Subversion::Constants::SUBVERSION_SUBMIT_MIMETYPE,
-    Subversion::Constants::SUBVERSIONCOMMITEDITOR_KIND,
+    Subversion::Constants::SUBVERSIONCOMMITEDITOR_ID,
+    Subversion::Constants::SUBVERSIONCOMMITEDITOR_DISPLAY_NAME,
     Subversion::Constants::SUBVERSIONCOMMITEDITOR
 };
 
@@ -506,7 +511,7 @@ void SubversionPlugin::svnDiff(const QString &workingDir, const QStringList &fil
 
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
 {
-    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_KIND));
+    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, QLatin1String(Constants::SUBVERSIONCOMMITEDITOR_ID));
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, /**/);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);

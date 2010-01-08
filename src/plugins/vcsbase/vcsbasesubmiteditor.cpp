@@ -308,6 +308,8 @@ Core::IFile *VCSBaseSubmitEditor::file()
 
 QString VCSBaseSubmitEditor::displayName() const
 {
+    if (m_d->m_displayName.isEmpty())
+        m_d->m_displayName = QCoreApplication::translate("VCS", m_d->m_parameters->displayName);
     return m_d->m_displayName;
 }
 

@@ -71,22 +71,26 @@
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput,
-    Git::Constants::GIT_COMMAND_LOG_EDITOR_KIND,
+    Git::Constants::GIT_COMMAND_LOG_EDITOR_ID,
+    Git::Constants::GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_COMMAND_LOG_EDITOR,
     "application/vnd.nokia.text.scs_git_commandlog",
     "gitlog"},
 {   VCSBase::LogOutput,
-    Git::Constants::GIT_LOG_EDITOR_KIND,
+    Git::Constants::GIT_LOG_EDITOR_ID,
+    Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_LOG_EDITOR,
     "application/vnd.nokia.text.scs_git_filelog",
     "gitfilelog"},
 {   VCSBase::AnnotateOutput,
-    Git::Constants::GIT_BLAME_EDITOR_KIND,
+    Git::Constants::GIT_BLAME_EDITOR_ID,
+    Git::Constants::GIT_BLAME_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_BLAME_EDITOR,
     "application/vnd.nokia.text.scs_git_annotation",
     "gitsannotate"},
 {   VCSBase::DiffOutput,
-    Git::Constants::GIT_DIFF_EDITOR_KIND,
+    Git::Constants::GIT_DIFF_EDITOR_ID,
+    Git::Constants::GIT_DIFF_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_DIFF_EDITOR,
     "text/x-patch","diff"}
 };
@@ -106,7 +110,7 @@ using namespace Git::Internal;
 GitPlugin *GitPlugin::m_instance = 0;
 
 GitPlugin::GitPlugin() :
-    VCSBase::VCSBasePlugin(QLatin1String(Git::Constants::GITSUBMITEDITOR_KIND)),
+    VCSBase::VCSBasePlugin(QLatin1String(Git::Constants::GITSUBMITEDITOR_ID)),
     m_core(0),
     m_diffAction(0),
     m_diffProjectAction(0),
@@ -166,7 +170,8 @@ GitPlugin *GitPlugin::instance()
 
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Git::Constants::SUBMIT_MIMETYPE,
-    Git::Constants::GITSUBMITEDITOR_KIND,
+    Git::Constants::GITSUBMITEDITOR_ID,
+    Git::Constants::GITSUBMITEDITOR_DISPLAY_NAME,
     Git::Constants::C_GITSUBMITEDITOR
 };
 
@@ -518,7 +523,7 @@ void GitPlugin::startCommit()
 
 Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd)
 {
-    Core::IEditor *editor = m_core->editorManager()->openEditor(fileName, QLatin1String(Constants::GITSUBMITEDITOR_KIND));
+    Core::IEditor *editor = m_core->editorManager()->openEditor(fileName, QLatin1String(Constants::GITSUBMITEDITOR_ID));
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << fileName << editor;
     m_core->editorManager()->ensureEditorManagerVisible();

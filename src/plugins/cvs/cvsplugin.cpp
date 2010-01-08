@@ -102,22 +102,26 @@ static const char * const CMD_ID_SEPARATOR4         = "CVS.Separator4";
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput,
-    "CVS Command Log Editor", // kind
+    "CVS Command Log Editor", // id
+    QT_TRANSLATE_NOOP("VCS", "CVS Command Log Editor"), // display name
     "CVS Command Log Editor", // context
     "application/vnd.nokia.text.scs_cvs_commandlog",
     "scslog"},
 {   VCSBase::LogOutput,
-    "CVS File Log Editor",   // kind
+    "CVS File Log Editor",   // id
+    QT_TRANSLATE_NOOP("VCS", "CVS File Log Editor"),   // display name
     "CVS File Log Editor",   // context
     "application/vnd.nokia.text.scs_cvs_filelog",
     "scsfilelog"},
 {    VCSBase::AnnotateOutput,
-    "CVS Annotation Editor",  // kind
+    "CVS Annotation Editor",  // id
+    QT_TRANSLATE_NOOP("VCS", "CVS Annotation Editor"),  // display name
     "CVS Annotation Editor",  // context
     "application/vnd.nokia.text.scs_cvs_annotation",
     "scsannotate"},
 {   VCSBase::DiffOutput,
-    "CVS Diff Editor",  // kind
+    "CVS Diff Editor",  // id
+    QT_TRANSLATE_NOOP("VCS", "CVS Diff Editor"),  // display name
     "CVS Diff Editor",  // context
     "text/x-patch","diff"}
 };
@@ -146,7 +150,7 @@ Core::IEditor* locateEditor(const char *property, const QString &entry)
 CVSPlugin *CVSPlugin::m_cvsPluginInstance = 0;
 
 CVSPlugin::CVSPlugin() :
-    VCSBase::VCSBasePlugin(QLatin1String(CVS::Constants::CVSCOMMITEDITOR_KIND)),
+    VCSBase::VCSBasePlugin(QLatin1String(CVS::Constants::CVSCOMMITEDITOR_ID)),
     m_addAction(0),
     m_deleteAction(0),
     m_revertAction(0),
@@ -189,7 +193,8 @@ bool CVSPlugin::isCommitEditorOpen() const
 
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     CVS::Constants::CVS_SUBMIT_MIMETYPE,
-    CVS::Constants::CVSCOMMITEDITOR_KIND,
+    CVS::Constants::CVSCOMMITEDITOR_ID,
+    CVS::Constants::CVSCOMMITEDITOR_DISPLAY_NAME,
     CVS::Constants::CVSCOMMITEDITOR
 };
 
@@ -478,7 +483,7 @@ void CVSPlugin::cvsDiff(const QString &workingDir, const QStringList &files)
 
 CVSSubmitEditor *CVSPlugin::openCVSSubmitEditor(const QString &fileName)
 {
-    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, QLatin1String(Constants::CVSCOMMITEDITOR_KIND));
+    Core::IEditor *editor = Core::EditorManager::instance()->openEditor(fileName, QLatin1String(Constants::CVSCOMMITEDITOR_ID));
     CVSSubmitEditor *submitEditor = qobject_cast<CVSSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, /**/);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);

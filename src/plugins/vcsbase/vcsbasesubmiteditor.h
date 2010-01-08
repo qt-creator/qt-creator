@@ -56,8 +56,8 @@ struct VCSBaseSubmitEditorPrivate;
 /* Utility struct to parametrize a VCSBaseSubmitEditor. */
 struct VCSBASE_EXPORT VCSBaseSubmitEditorParameters {
     const char *mimeType;
-    QString id;
-    QString displayName;
+    const char *id;
+    const char *displayName;
     const char *context;
 };
 

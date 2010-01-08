@@ -30,24 +30,31 @@
 #ifndef PERFORCE_CONSTANTS_H
 #define PERFORCE_CONSTANTS_H
 
+#include <QtCore/QtGlobal>
+
 namespace Perforce {
 namespace Constants {
 
 const char * const PERFORCEEDITOR_CONTEXT  = "Perforce Editor";
 
 const char * const PERFORCE_SUBMIT_EDITOR_ID  = "Perforce.SubmitEditor";
+const char * const PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Perforce.SubmitEditor");
 const char * const PERFORCESUBMITEDITOR_CONTEXT = "Perforce Submit Editor";
 
 const char * const PERFORCE_COMMANDLOG_EDITOR_ID = "Perfoirce.CommandLogEditor";
+const char * const PERFORCE_COMMANDLOG_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Perforce CommandLog Editor");
 const char * const PERFORCE_COMMANDLOG_EDITOR_CONTEXT = "Perforce Command Log Editor";
 
 const char * const PERFORCE_LOG_EDITOR_ID = "Perforce.LogEditor";
+const char * const PERFORCE_LOG_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Perforce Log Editor");
 const char * const PERFORCE_LOG_EDITOR_CONTEXT = "Perforce Log Editor";
 
 const char * const PERFORCE_DIFF_EDITOR_ID = "Perforce.DiffEditor";
+const char * const PERFORCE_DIFF_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Perforce Diff Editor");
 const char * const PERFORCE_DIFF_EDITOR_CONTEXT = "Perforce Diff Editor";
 
 const char * const PERFORCE_ANNOTATION_EDITOR_ID = "Perforce.AnnotationEditor";
+const char * const PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Perforce Annotation Editor");
 const char * const PERFORCE_ANNOTATION_EDITOR_CONTEXT = "Perforce Annotation Editor";
 
 const char * const SUBMIT_CURRENT = "Perforce.SubmitCurrentLog";
