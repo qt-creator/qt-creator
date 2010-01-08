@@ -4,7 +4,7 @@ GroupBox {
     finished: finishedNotify;
     caption: "Layout";
 id: Layout;
-maximumHeight: 340;
+  minimumHeight: 280;
   enabled: anchorBackend.hasParent;
 
   layout: QVBoxLayout {
