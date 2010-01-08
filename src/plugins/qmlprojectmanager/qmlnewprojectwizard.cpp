@@ -109,8 +109,9 @@ Core::GeneratedFiles QmlNewProjectWizard::generateFiles(const QWizard *w,
         << "    width: 200" << endl
         << "    height: 200" << endl
         << "    Text {" << endl
+        << "        x: 66" << endl
+        << "        y: 93" << endl
         << "        text: \"Hello World\"" << endl
-        << "        anchors.centerIn: parent" << endl
         << "    }" << endl
         << "}" << endl;
 
