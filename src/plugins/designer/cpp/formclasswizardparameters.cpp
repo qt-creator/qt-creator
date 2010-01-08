@@ -386,7 +386,7 @@ bool FormClassWizardParametersPrivate::generateCpp(const FormClassWizardGenerati
     }
     headerStr << " {\n" << namespaceIndent << indent << "Q_OBJECT\n"
               << namespaceIndent << "public:\n"
-              << namespaceIndent << indent << unqualifiedClassName << "(QWidget *parent = 0);\n";
+              << namespaceIndent << indent << "explicit " << unqualifiedClassName << "(QWidget *parent = 0);\n";
     if (embedding == FormClassWizardGenerationParameters::PointerAggregatedUiClass)
         headerStr << namespaceIndent << indent << "~" << unqualifiedClassName << "();\n";
     // retranslation
