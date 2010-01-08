@@ -30,39 +30,40 @@
 #ifndef QTSCRIPTINDENTER_H
 #define QTSCRIPTINDENTER_H
 
+#include <qscripthighlighter/qscripthighlighter_global.h>
+
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
-#include <texteditor/textblockiterator.h>
+#include <QtGui/QTextBlock>
 
-namespace QtScriptEditor {
-namespace Internal {
+namespace SharedTools {
 
-class QtScriptIndenter
+class QSCRIPTHIGHLIGHTER_EXPORT QScriptIndenter
 {
-    Q_DISABLE_COPY(QtScriptIndenter)
+    Q_DISABLE_COPY(QScriptIndenter)
 
 public:
-    QtScriptIndenter();
-    ~QtScriptIndenter();
+    QScriptIndenter();
+    ~QScriptIndenter();
 
     void setTabSize(int size);
     void setIndentSize(int size);
 
-    int indentForBottomLine(TextEditor::TextBlockIterator begin, TextEditor::TextBlockIterator end, QChar typedIn);
-    QChar firstNonWhiteSpace(const QString &t);
+    int indentForBottomLine(QTextBlock firstBlock, QTextBlock lastBlock, QChar typedIn);
+    QChar firstNonWhiteSpace(const QString &t) const;
 
 private:
     static const int SmallRoof;
     static const int BigRoof;
 
-    bool isOnlyWhiteSpace(const QString &t);
-    int columnForIndex(const QString &t, int index);
-    int indentOfLine(const QString &t);
-    QString trimmedCodeLine(const QString &t);
+    bool isOnlyWhiteSpace(const QString &t) const;
+    int columnForIndex(const QString &t, int index) const;
+    int indentOfLine(const QString &t) const;
+    QString trimmedCodeLine(const QString &t) const;
 
-    inline void eraseChar(QString &t, int k, QChar ch);
-    inline QChar lastParen(const QString &t);
-    inline bool okay(QChar typedIn, QChar okayCh);
+    void eraseChar(QString &t, int k, QChar ch) const;
+    QChar lastParen(const QString &t) const;
+    bool okay(QChar typedIn, QChar okayCh) const;
 
     /*
         The "linizer" is a group of functions and variables to iterate
@@ -103,23 +104,21 @@ private:
         bool inCComment;
         bool pendingRightBrace;
         QString line;
-        TextEditor::TextBlockIterator iter;
+        QTextBlock iter;
     };
 
-    struct Program {
-        TextEditor::TextBlockIterator b, e;
-        typedef TextEditor::TextBlockIterator iterator;
-        typedef TextEditor::TextBlockIterator const_iterator;
-
+    class Program
+    {
+    public:
         Program() {}
-        Program(TextEditor::TextBlockIterator begin, TextEditor::TextBlockIterator end)
-            : b(begin), e(end) {}
+        Program(QTextBlock begin, QTextBlock end)
+            : begin(begin), end(end) {}
 
-        iterator begin() const { return b; }
-        iterator end() const { return e; }
+        QTextBlock firstBlock() const { return begin; }
+        QTextBlock lastBlock() const { return end; }
 
-        const_iterator constBegin() const { return b; }
-        const_iterator constEnd() const { return e; }
+    private:
+        QTextBlock begin, end;
     };
 
     Program yyProgram;
@@ -135,10 +134,10 @@ private:
     QRegExp inlineCComment;
     QRegExp braceX;
     QRegExp iflikeKeyword;
+    QRegExp propertylikeKeyword;
 };
 
-} // namespace Internal
-} // namespace QtScriptEditor
+} // namespace SharedTools
 
 #endif // QTSCRIPTINDENTER_H
 

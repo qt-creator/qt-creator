@@ -31,7 +31,8 @@
 #include "qtscripteditorconstants.h"
 #include "qtscripthighlighter.h"
 #include "qtscripteditorplugin.h"
-#include "qtscriptindenter.h"
+
+#include <qscripthighlighter/qscriptindenter.h>
 
 #include "parser/javascriptengine_p.h"
 #include "parser/javascriptparser_p.h"
@@ -340,15 +341,12 @@ bool ScriptEditor::isElectricCharacter(const QChar &ch) const
 
 void ScriptEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
-    const TextEditor::TextBlockIterator begin(doc->begin());
-    const TextEditor::TextBlockIterator end(block.next());
-
     TextEditor::TabSettings ts = tabSettings();
-    QtScriptIndenter indenter;
+    SharedTools::QScriptIndenter indenter;
     indenter.setTabSize(ts.m_tabSize);
     indenter.setIndentSize(ts.m_indentSize);
 
-    const int indent = indenter.indentForBottomLine(begin, end, typedChar);
+    const int indent = indenter.indentForBottomLine(doc->begin(), block.next(), typedChar);
     ts.indentLine(block, indent);
 }
 

@@ -6,6 +6,6 @@ SOURCES += $$PWD/qscriptincrementalscanner.cpp
 HEADERS += $$PWD/qscriptincrementalscanner.h $$PWD/qscripthighlighter_global.h
 
 contains(QT, gui) {
-    SOURCES += $$PWD/qscripthighlighter.cpp
-    HEADERS += $$PWD/qscripthighlighter.h
+    SOURCES += $$PWD/qscripthighlighter.cpp $$PWD/qscriptindenter.cpp
+    HEADERS += $$PWD/qscripthighlighter.h $$PWD/qscriptindenter.h
 }
