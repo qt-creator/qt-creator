@@ -45,7 +45,7 @@ static const char *promptToSubmitKeyC = "PromptForSubmit";
 static const char *omitAnnotationDateKeyC = "OmitAnnotationDate";
 static const char *spaceIgnorantBlameKeyC = "SpaceIgnorantBlame";
 
-enum { defaultLogCount =  10 , defaultTimeOut = 30};
+enum { defaultLogCount =  100 , defaultTimeOut = 30};
 
 namespace Git {
 namespace Internal {

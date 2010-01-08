@@ -79,6 +79,7 @@ public:
               const QStringList &unstagedFileNames, const QStringList &stagedFileNames= QStringList());
 
     void status(const QString &workingDirectory);
+    void graphLog(const QString &workingDirectory);
     void log(const QString &workingDirectory, const QStringList &fileNames,
              bool enableAnnotationContextMenu = false);
     void blame(const QString &workingDirectory, const QString &fileName,

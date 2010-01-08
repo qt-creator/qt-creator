@@ -120,6 +120,7 @@ GitPlugin::GitPlugin() :
     m_blameAction(0),
     m_logProjectAction(0),
     m_undoFileAction(0),
+    m_logRepositoryAction(0),
     m_undoRepositoryAction(0),
     m_showAction(0),
     m_stageAction(0),
@@ -295,9 +296,13 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_statusRepositoryAction, SIGNAL(triggered()), this, SLOT(statusRepository()));
     gitContainer->addAction(command);
 
+    m_logRepositoryAction = new QAction(tr("Log Repository"), this);
+    command = actionManager->registerAction(m_logRepositoryAction, "Git.LogRepository", globalcontext);
+    connect(m_logRepositoryAction, SIGNAL(triggered()), this, SLOT(logRepository()));
+    gitContainer->addAction(command);
+
     m_undoRepositoryAction = new QAction(tr("Undo Repository Changes"), this);
     command = actionManager->registerAction(m_undoRepositoryAction, "Git.UndoRepository", globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_undoRepositoryAction, SIGNAL(triggered()), this, SLOT(undoRepositoryChanges()));
     gitContainer->addAction(command);
 
@@ -446,6 +451,13 @@ void GitPlugin::undoFileChanges()
     Core::FileChangeBlocker fcb(state.currentFile());
     fcb.setModifiedReload(true);
     m_gitClient->revert(QStringList(state.currentFile()));
+}
+
+void GitPlugin::logRepository()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    m_gitClient->graphLog(state.topLevel());
 }
 
 void GitPlugin::undoRepositoryChanges()
@@ -690,7 +702,6 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_diffProjectAction->setParameter(projectName);
     m_logProjectAction->setEnabled(projectEnabled);
     m_logProjectAction->setParameter(projectName);
-    m_undoRepositoryAction->setEnabled(projectEnabled);
 
     const bool repositoryEnabled = currentState().hasTopLevel();
     m_diffRepositoryAction->setEnabled(repositoryEnabled);
@@ -698,6 +709,8 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_branchListAction->setEnabled(repositoryEnabled);
     m_stashListAction->setEnabled(repositoryEnabled);
     m_stashPopAction->setEnabled(repositoryEnabled);
+    m_logRepositoryAction->setEnabled(repositoryEnabled);
+    m_undoRepositoryAction->setEnabled(repositoryEnabled);
 
     // Prompts for repo.
     m_showAction->setEnabled(true);

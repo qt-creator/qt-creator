@@ -50,7 +50,7 @@
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextEdit>
 
-#define CHANGE_PATTERN_8C "[a-f0-9]{8,8}"
+#define CHANGE_PATTERN_8C "[a-f0-9]{7,8}"
 #define CHANGE_PATTERN_40C "[a-f0-9]{40,40}"
 
 namespace Git {

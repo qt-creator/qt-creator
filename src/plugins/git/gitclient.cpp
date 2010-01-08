@@ -260,6 +260,29 @@ void GitClient::status(const QString &workingDirectory)
             Qt::QueuedConnection);
 }
 
+static const char graphLogFormatC[] = "%h %an %s %ci";
+
+// Create a graphical log.
+void GitClient::graphLog(const QString &workingDirectory)
+{
+    if (Git::Constants::debug)
+        qDebug() << "log" << workingDirectory;
+
+    QStringList arguments;
+    arguments << QLatin1String("log") << QLatin1String(noColorOption);
+
+    if (m_settings.logCount > 0)
+         arguments << QLatin1String("-n") << QString::number(m_settings.logCount);
+    arguments << (QLatin1String("--pretty=format:") +  QLatin1String(graphLogFormatC))
+              << QLatin1String("--topo-order") <<  QLatin1String("--graph");
+
+    const QString title = tr("Git Log");
+    const QString editorId = QLatin1String(Git::Constants::GIT_LOG_EDITOR_ID);
+    const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, QStringList());
+    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, sourceFile, false, "logFileName", sourceFile);
+    executeGit(workingDirectory, arguments, editor);
+}
+
 void GitClient::log(const QString &workingDirectory, const QStringList &fileNames, bool enableAnnotationContextMenu)
 {
     if (Git::Constants::debug)
