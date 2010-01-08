@@ -40,6 +40,7 @@ class Model;
 
 class NavigatorWidget: public QFrame
 {
+    Q_OBJECT
 public:
     NavigatorWidget(QWidget* parent = 0);
     virtual ~NavigatorWidget();
