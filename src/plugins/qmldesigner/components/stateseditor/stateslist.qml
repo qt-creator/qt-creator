@@ -178,14 +178,14 @@ Rectangle {
             height:2
             color:"black"
             anchors.centerIn:parent
-            effect: Blur { blurRadius: 1; }
+            //effect: Blur { blurRadius: 1; }
         }
         Rectangle {
             width:2
             height:12
             color:"black"
             anchors.centerIn:parent
-            effect: Blur { blurRadius: 1; }
+            //effect: Blur { blurRadius: 1; }
         }
 
         MouseRegion {
@@ -248,7 +248,7 @@ Rectangle {
             height:2
             color:"black"
             anchors.centerIn:parent
-            effect: Blur { blurRadius: 1; }
+            //effect: Blur { blurRadius: 1; }
         }
 
         visible: { root.currentStateIndex != 0 }
