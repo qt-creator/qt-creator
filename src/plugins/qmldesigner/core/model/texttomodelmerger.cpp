@@ -104,7 +104,7 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
             QList<RewriterView::Error> errors;
             foreach (const QmlError &qmlError, doc.errors())
                 errors.append(RewriterView::Error(qmlError));
-            m_rewriterView->addErrors(errors);
+            m_rewriterView->setErrors(errors);
         }
 
         setActive(false);

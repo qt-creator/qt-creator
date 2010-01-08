@@ -376,9 +376,9 @@ void RewriterView::clearErrors()
     emit errorsChanged(m_errors);
 }
 
-void RewriterView::addErrors(const QList<RewriterView::Error> &errors)
+void RewriterView::setErrors(const QList<RewriterView::Error> &errors)
 {
-    m_errors.append(errors);
+    m_errors = errors;
     emit errorsChanged(m_errors);
 }
 

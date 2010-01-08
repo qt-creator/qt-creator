@@ -281,27 +281,30 @@ void DocumentWidget::setAutoSynchronization(bool sync)
 
     if (sync) {
         // text editor -> visual editor
-        if (!m_document->model()) {
-            QList<RewriterView::Error> errors = m_document->loadMaster(m_textBuffer.data());
+        if (!document()->model()) {
+            // first initialization
+            QList<RewriterView::Error> errors = document()->loadMaster(m_textBuffer.data());
             if (!errors.isEmpty()) {
                 disable(errors);
-            } else {
-                connect(m_document, SIGNAL(qmlErrorsChanged(QList<RewriterView::Error>)),
-                        this, SLOT(updateErrorStatus(QList<RewriterView::Error>)));
             }
         }
-        if (m_document->model() && m_document->qmlErrors().isEmpty()) {
+        if (document()->model() && document()->qmlErrors().isEmpty()) {
             // set selection to text cursor
-            RewriterView *rewriter = m_document->rewriterView();
+            RewriterView *rewriter = document()->rewriterView();
             const int cursorPos = m_textBuffer->textCursor().position();
             ModelNode node = nodeForPosition(cursorPos);
             if (node.isValid()) {
                 rewriter->setSelectedModelNodes(QList<ModelNode>() << node);
             }
+            enable();
         }
+
+        connect(document(), SIGNAL(qmlErrorsChanged(QList<RewriterView::Error>)),
+                this, SLOT(updateErrorStatus(QList<RewriterView::Error>)));
+
     } else {
-        if (m_document->model() && m_document->qmlErrors().isEmpty()) {
-            RewriterView *rewriter = m_document->rewriterView();
+        if (document()->model() && document()->qmlErrors().isEmpty()) {
+            RewriterView *rewriter = document()->rewriterView();
             // visual editor -> text editor
             ModelNode selectedNode;
             if (!rewriter->selectedModelNodes().isEmpty())
@@ -319,6 +322,9 @@ void DocumentWidget::setAutoSynchronization(bool sync)
                 }
             }
         }
+
+        disconnect(document(), SIGNAL(qmlErrorsChanged(QList<RewriterView::Error>)),
+                this, SLOT(updateErrorStatus(QList<RewriterView::Error>)));
     }
 }
 
@@ -350,7 +356,7 @@ void DocumentWidget::updateErrorStatus(const QList<RewriterView::Error> &errors)
 {
     if (m_isDisabled && errors.isEmpty()) {
         enable();
-    } else if (!m_isDisabled && !errors.isEmpty()) {
+    } else if (!errors.isEmpty()) {
         disable(errors);
     }
 }

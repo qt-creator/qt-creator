@@ -137,7 +137,7 @@ public:
 
     QList<Error> errors() const;
     void clearErrors();
-    void addErrors(const QList<Error> &errors);
+    void setErrors(const QList<Error> &errors);
     void addError(const Error &error);
 
     QMap<ModelNode, QString> extractText(const QList<ModelNode> &nodes) const;
