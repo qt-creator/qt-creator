@@ -159,8 +159,116 @@ QString MercurialClient::branchQuerySync(const QString &repositoryRoot)
     return QLatin1String("Unknown Branch");
 }
 
-void MercurialClient::slotAnnotateRevisionRequested(const QString &source, const QString &change, int lineNumber)
+static inline QString msgParentRevisionFailed(const QString &workingDirectory,
+                                              const QString &revision,
+                                              const QString &why)
 {
+    return MercurialClient::tr("Unable to find parent revisions of %1 in %2: %3").arg(revision, workingDirectory, why);
+}
+
+static inline QString msgParseParentsOutputFailed(const QString &output)
+{
+    return MercurialClient::tr("Cannot parse output: %1").arg(output);
+}
+
+bool MercurialClient::parentRevisionsSync(const QString &workingDirectory,
+                                          const QString &file /* = QString() */,
+                                          const QString &revision,
+                                          QStringList *parents)
+{
+    parents->clear();
+    QStringList args;
+    args << QLatin1String("parents") <<  QLatin1String("-r") <<revision;
+    if (!file.isEmpty())
+        args << file;
+    QByteArray outputData;
+    if (!executeHgSynchronously(workingDirectory, args, &outputData))
+        return false;
+    QString output = QString::fromLocal8Bit(outputData);
+    output.remove(QLatin1Char('\r'));
+    /* Looks like: \code
+changeset:   0:031a48610fba
+user: ...
+\endcode   */
+    // Obtain first line and split by blank-delimited tokens
+    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+    const QStringList lines = output.split(QLatin1Char('\n'));
+    if (lines.size() < 1) {
+        outputWindow->appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
+        return false;
+    }
+    QStringList changeSets = lines.front().simplified().split(QLatin1Char(' '));
+    if (changeSets.size() < 2) {
+        outputWindow->appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
+        return false;
+    }
+    // Remove revision numbers
+    const QChar colon = QLatin1Char(':');
+    const QStringList::iterator end = changeSets.end();
+    QStringList::iterator it = changeSets.begin();
+    for (++it; it != end; ++it) {
+        const int colonIndex = it->indexOf(colon);
+        if (colonIndex != -1)
+            parents->push_back(it->mid(colonIndex + 1));
+    }
+    return true;
+}
+
+// Describe a change using an optional format
+bool MercurialClient::shortDescriptionSync(const QString &workingDirectory,
+                                           const QString &revision,
+                                           const QString &format,
+                                           QString *description)
+{
+    description->clear();
+    QStringList args;
+    args << QLatin1String("log") <<  QLatin1String("-r") <<revision;
+    if (!format.isEmpty())
+        args << QLatin1String("--template") << format;
+    QByteArray outputData;
+    if (!executeHgSynchronously(workingDirectory, args, &outputData))
+        return false;
+    *description = QString::fromLocal8Bit(outputData);
+    description->remove(QLatin1Char('\r'));
+    if (description->endsWith(QLatin1Char('\n')))
+        description->truncate(description->size() - 1);
+    return true;
+}
+
+// Default format: "SHA1 (author summmary)"
+static const char defaultFormatC[] = "{node} ({author|person} {desc|firstline})";
+
+bool MercurialClient::shortDescriptionSync(const QString &workingDirectory,
+                                           const QString &revision,
+                                           QString *description)
+{
+    if (!shortDescriptionSync(workingDirectory, revision, QLatin1String(defaultFormatC), description))
+        return false;
+    description->remove(QLatin1Char('\n'));
+    return true;
+}
+
+// Convenience to format a list of changes
+bool MercurialClient::shortDescriptionsSync(const QString &workingDirectory, const QStringList &revisions,
+                                            QStringList *descriptions)
+{
+    descriptions->clear();
+    foreach(const QString &revision, revisions) {
+        QString description;
+        if (!shortDescriptionSync(workingDirectory, revision, &description))
+            return false;
+        descriptions->push_back(description);
+    }
+    return true;
+}
+
+void MercurialClient::slotAnnotateRevisionRequested(const QString &source, QString change, int lineNumber)
+{
+    // This might be invoked with a verbose revision description
+    // "SHA1 author subject" from the annotation context menu. Strip the rest.
+    const int blankPos = change.indexOf(QLatin1Char(' '));
+    if (blankPos != -1)
+        change.truncate(blankPos);
     const QFileInfo fi(source);
     annotate(fi.absolutePath(), fi.fileName(), change, lineNumber);
 }

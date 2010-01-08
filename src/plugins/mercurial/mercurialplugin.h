@@ -79,6 +79,7 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
     static MercurialPlugin *instance() { return m_instance; }
+    MercurialClient *client() const { return m_client; }
 
     QStringList standardArguments() const;
 
@@ -145,7 +146,7 @@ private:
     static MercurialPlugin *m_instance;
     MercurialSettings mercurialSettings;
     OptionsPage *optionsPage;
-    MercurialClient *client;
+    MercurialClient *m_client;
 
     Core::ICore *core;
     Core::ActionManager *actionManager;
