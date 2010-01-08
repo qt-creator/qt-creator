@@ -143,7 +143,6 @@ public:
     bool setCurrentContext(const QList<int> &context);
     void addOverrideAction(QAction *action, const QList<int> &context);
     bool isActive() const;
-    void setKeySequence(const QKeySequence &key);
 
 private slots:
     void actionChanged();
