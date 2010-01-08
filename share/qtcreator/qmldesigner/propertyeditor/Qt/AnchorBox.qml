@@ -64,8 +64,8 @@ QWidget {
 	text: "top";
 	font.bold: true;
         //styleSheet: "border-radius:5px; background-color: #ffda82";
-        height:72;fixedHeight: height;
-        width:100;fixedWidth: width;
+        height:27;fixedHeight: 27;
+        width:100;fixedWidth: 100;
         x: 49;
         y: 30;
         id: QPushButton6;
