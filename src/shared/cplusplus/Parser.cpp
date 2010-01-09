@@ -2433,7 +2433,7 @@ bool Parser::parseForStatement(StatementAST *&node)
 
             parseExpression(ast->fast_enumeratable_expression);
             match(T_RPAREN, &ast->rparen_token);
-            parseStatement(ast->body_statement);
+            parseStatement(ast->statement);
 
             node = ast;
             return true;

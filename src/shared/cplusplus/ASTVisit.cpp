@@ -1066,7 +1066,7 @@ void ObjCFastEnumerationAST::accept0(ASTVisitor *visitor)
         accept(declarator, visitor);
         accept(initializer, visitor);
         accept(fast_enumeratable_expression, visitor);
-        accept(body_statement, visitor);
+        accept(statement, visitor);
     }
     visitor->endVisit(this);
 }

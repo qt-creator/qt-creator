@@ -2439,9 +2439,9 @@ bool ASTMatcher::match(ObjCFastEnumerationAST *node, ObjCFastEnumerationAST *pat
 
     pattern->rparen_token = node->rparen_token;
 
-    if (! pattern->body_statement)
-        pattern->body_statement = node->body_statement;
-    else if (! AST::match(node->body_statement, pattern->body_statement, this))
+    if (! pattern->statement)
+        pattern->statement = node->statement;
+    else if (! AST::match(node->statement, pattern->statement, this))
         return false;
 
     return true;

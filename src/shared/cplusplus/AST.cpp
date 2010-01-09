@@ -2226,8 +2226,8 @@ unsigned ObjCFastEnumerationAST::firstToken() const
 
 unsigned ObjCFastEnumerationAST::lastToken() const
 {
-    if (body_statement)
-        return body_statement->lastToken();
+    if (statement)
+        return statement->lastToken();
     else if (rparen_token)
         return rparen_token + 1;
     else if (fast_enumeratable_expression)
