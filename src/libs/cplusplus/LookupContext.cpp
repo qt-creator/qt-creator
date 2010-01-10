@@ -727,6 +727,8 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
 {
     Symbol *canonical = symbol;
     Class *canonicalClass = 0;
+    ObjCClass *canonicalObjCClass = 0;
+    ObjCProtocol *canonicalObjCProto = 0;
 
     for (; symbol; symbol = symbol->next()) {
         if (symbol->identifier() == canonical->identifier()) {
@@ -734,6 +736,10 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
 
             if (Class *klass = symbol->asClass())
                 canonicalClass = klass;
+            else if (ObjCClass *clazz = symbol->asObjCClass())
+                canonicalObjCClass = clazz;
+            else if (ObjCProtocol *proto = symbol->asObjCProtocol())
+                canonicalObjCProto = proto;
         }
     }
 
@@ -742,6 +748,16 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
 
         if (canonical->isForwardClassDeclaration())
             return canonicalClass; // prefer class declarations when available.
+    } else if (canonicalObjCClass) {
+        Q_ASSERT(canonical != 0);
+
+        if (canonical->isObjCForwardClassDeclaration())
+            return canonicalObjCClass;
+    } else if (canonicalObjCProto) {
+        Q_ASSERT(canonical != 0);
+
+        if (canonical->isObjCForwardProtocolDeclaration())
+            return canonicalObjCProto;
     }
 
     if (canonical && canonical->scope()->isClassScope()) {
