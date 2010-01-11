@@ -24,6 +24,8 @@
 using namespace std;
 using namespace Botan;
 
+const u32bit PIPE_DEFAULT_MESSAGE = -1;
+
 ne7ssh_keys::ne7ssh_keys() : dsaPrivateKey(0), rsaPrivateKey(0), keyAlgo(0)
 {
 }
@@ -82,7 +84,7 @@ bool ne7ssh_keys::generateRSAKeys (const char* fqdn, const char* privKeyFileName
   Pipe base64it (new Base64_Encoder);
   base64it.process_msg(pubKeyBlob.value());
 
-  SecureVector<Botan::byte> pubKeyBase64 = base64it.read_all ();
+  SecureVector<Botan::byte> pubKeyBase64 = base64it.read_all (PIPE_DEFAULT_MESSAGE);
 
   pubKeyFile = fopen (pubKeyFileName, "w");
 
@@ -107,21 +109,21 @@ bool ne7ssh_keys::generateRSAKeys (const char* fqdn, const char* privKeyFileName
   fclose (pubKeyFile);
 
 #if (BOTAN_PRE_15)
-	encoder.start_sequence();
-	DER::encode (encoder, 0U);
-	DER::encode (encoder, n);
-	DER::encode (encoder, e);
-	DER::encode (encoder, d);
-	DER::encode (encoder, p);
-	DER::encode (encoder, q);
-	DER::encode (encoder, dmp1);
-	DER::encode (encoder, dmq1);
-	DER::encode (encoder, iqmp);
-	encoder.end_sequence();
+    encoder.start_sequence();
+    DER::encode (encoder, 0U);
+    DER::encode (encoder, n);
+    DER::encode (encoder, e);
+    DER::encode (encoder, d);
+    DER::encode (encoder, p);
+    DER::encode (encoder, q);
+    DER::encode (encoder, dmp1);
+    DER::encode (encoder, dmq1);
+    DER::encode (encoder, iqmp);
+    encoder.end_sequence();
 
-	privKeyEncoded = PEM_Code::encode (encoder.get_contents(), "RSA PRIVATE KEY");
+    privKeyEncoded = PEM_Code::encode (encoder.get_contents(), "RSA PRIVATE KEY");
 #else
- 	privKeyEncoded = PEM_Code::encode (
+    privKeyEncoded = PEM_Code::encode (
         DER_Encoder().start_cons (SEQUENCE)
           .encode(0U)
           .encode(n)
@@ -194,7 +196,7 @@ bool ne7ssh_keys::generateDSAKeys (const char* fqdn, const char* privKeyFileName
   Pipe base64it (new Base64_Encoder);
   base64it.process_msg(pubKeyBlob.value());
 
-  SecureVector<Botan::byte> pubKeyBase64 = base64it.read_all ();
+  SecureVector<Botan::byte> pubKeyBase64 = base64it.read_all (PIPE_DEFAULT_MESSAGE);
 
   pubKeyFile = fopen (pubKeyFileName, "w");
 
@@ -364,7 +366,7 @@ bool ne7ssh_keys::getKeyPairFromFile (const char* privKeyFileName)
   buffer = (char*) malloc (privKeyStr.length() + 1);
   memcpy (buffer, (const char*)privKeyStr.value().begin(), privKeyStr.length());
   buffer[privKeyStr.length()] = 0x0;
-	
+    
   length = privKeyStr.length();
 
   for (i = pos = 0; i < privKeyStr.length(); i++)
@@ -386,7 +388,7 @@ bool ne7ssh_keys::getKeyPairFromFile (const char* privKeyFileName)
   }
   buffer[pos] = 0x00;
   length = pos;
-		
+        
   if ((memcmp (buffer, "-----BEGIN", 10)) ||
      (memcmp (buffer + length - 17, "PRIVATE KEY-----", 16)))
   {
@@ -438,7 +440,7 @@ bool ne7ssh_keys::getDSAKeys (char* buffer, uint32 size)
   start = buffer + strlen(headerDSA);
   Pipe base64dec (new Base64_Decoder);
   base64dec.process_msg ((Botan::byte*)start, size - strlen(footerDSA) - strlen(headerDSA));
-  keyDataRaw = base64dec.read_all ();
+  keyDataRaw = base64dec.read_all (PIPE_DEFAULT_MESSAGE);
 
   BER_Decoder decoder (keyDataRaw);
 
@@ -510,7 +512,7 @@ bool ne7ssh_keys::getRSAKeys (char* buffer, uint32 size)
   start = buffer + strlen(headerRSA);
   Pipe base64dec (new Base64_Decoder);
   base64dec.process_msg ((Botan::byte*)start, size - strlen(footerRSA) - strlen(headerRSA));
-  keyDataRaw = base64dec.read_all ();
+  keyDataRaw = base64dec.read_all (PIPE_DEFAULT_MESSAGE);
 
   BER_Decoder decoder (keyDataRaw);
 
@@ -541,7 +543,7 @@ bool ne7ssh_keys::getRSAKeys (char* buffer, uint32 size)
   sequence.decode (p);
   sequence.decode (q);
 #endif
-	
+    
   sequence.discard_remaining();
   sequence.verify_end();
 
