@@ -32,6 +32,7 @@
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
+#include <QtCore/QDir>
 #include <QtDebug>
 
 using namespace Qt4ProjectManager;
@@ -65,7 +66,8 @@ void S60DevicesWidget::updateDevicesList()
     m_ui->list->clear();
     foreach (const S60Devices::Device &device, devices) {
         QStringList columns;
-        columns << device.epocRoot << (device.qt.isEmpty()?tr("No Qt installed"):device.qt);
+        columns << QDir::toNativeSeparators(device.epocRoot)
+                << (device.qt.isEmpty()?tr("No Qt installed"):QDir::toNativeSeparators(device.qt));
         QTreeWidgetItem *item = new QTreeWidgetItem(columns);
         const QString tooltip = device.toHtml();
         item->setToolTip(0, tooltip);
