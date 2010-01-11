@@ -464,18 +464,6 @@ void TestCore::testModelCreateSubNode()
     QCOMPARE(view->methodCalls(), expectedCalls);
 
     try {
-        childNode.setId("");
-        QFAIL("Setting an invalid id does not throw an exception");
-    } catch (Exception &exception) {
-        QCOMPARE(exception.type(), QString("InvalidIdException"));
-    }
-    try {
-        childNode.setId(QString());
-        QFAIL("Setting an invalid id does not throw an exception");
-    } catch (Exception &exception) {
-        QCOMPARE(exception.type(), QString("InvalidIdException"));
-    }
-    try {
         childNode.setId("invalid id");
         QFAIL("Setting an invalid id does not throw an excxeption");
     } catch (Exception &exception) {
@@ -484,6 +472,9 @@ void TestCore::testModelCreateSubNode()
 
     QCOMPARE(childNode.id(), QString("Blah"));
     QCOMPARE(view->methodCalls(), expectedCalls);
+
+    childNode.setId(QString());
+    QVERIFY(childNode.id().isEmpty());
 }
 
 
