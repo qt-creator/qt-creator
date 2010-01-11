@@ -217,7 +217,7 @@ FormEditorW::FormEditorW() :
     m_fwm = qobject_cast<qdesigner_internal::QDesignerFormWindowManager*>(m_formeditor->formWindowManager());
     QTC_ASSERT(m_fwm, return);
 
-    const int uid = m_core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR_ID));
+    const int uid = m_core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR));
     m_context << uid;
 
     setupActions();
@@ -705,7 +705,7 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
         qDebug() << Q_FUNC_INFO << editor << " of " << m_fwm->formWindowCount();
 
     // Deactivate Designer if a non-form is being edited
-    if (editor && editor->id() == QLatin1String(Constants::C_FORMEDITOR_ID)) {
+    if (editor && editor->id() == QLatin1String(Constants::FORMEDITOR_ID)) {
         FormWindowEditor *fw = qobject_cast<FormWindowEditor *>(editor);
         QTC_ASSERT(fw, return);
         fw->activate();

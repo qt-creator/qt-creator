@@ -594,11 +594,9 @@ CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
     : BaseTextEditorEditable(editor)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(CppEditor::Constants::CPPEDITOR_ID);
+    m_context << uidm->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
     m_context << uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
-
-    setDisplayName(tr(CppEditor::Constants::CPPEDITOR_DISPLAY_NAME));
 }
 
 CPPEditor::CPPEditor(QWidget *parent)

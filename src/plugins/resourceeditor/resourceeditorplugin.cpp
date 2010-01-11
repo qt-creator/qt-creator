@@ -88,13 +88,13 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
 
     // Register undo and redo
     Core::ActionManager * const actionManager = core->actionManager();
-    int const pluginId = core->uniqueIDManager()->uniqueIdentifier(
-            Constants::C_RESOURCEEDITOR_ID);
-    const QList<int> idList = QList<int>() << pluginId;
+    int const contextId = core->uniqueIDManager()->uniqueIdentifier(
+            Constants::C_RESOURCEEDITOR);
+    const QList<int> context = QList<int>() << contextId;
     m_undoAction = new QAction(tr("&Undo"), this);
     m_redoAction = new QAction(tr("&Redo"), this);
-    actionManager->registerAction(m_undoAction, Core::Constants::UNDO, idList);
-    actionManager->registerAction(m_redoAction, Core::Constants::REDO, idList);
+    actionManager->registerAction(m_undoAction, Core::Constants::UNDO, context);
+    actionManager->registerAction(m_redoAction, Core::Constants::REDO, context);
     connect(m_undoAction, SIGNAL(triggered()), this, SLOT(onUndo()));
     connect(m_redoAction, SIGNAL(triggered()), this, SLOT(onRedo()));
 

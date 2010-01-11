@@ -86,7 +86,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 
     initializeTemplates();
 
-    const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR_ID));
+    const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR));
     const QList<int> context = QList<int>() << uid;
 
     addAutoReleasedObject(new FormEditorFactory);

@@ -53,7 +53,7 @@ using namespace Core;
     {
         [...]
         addObject(new Core::BaseMode("mymode",
-            "MyPlugin.Id",
+            "MyPlugin.ModeId",
             icon,
             50, // priority
             new MyWidget));

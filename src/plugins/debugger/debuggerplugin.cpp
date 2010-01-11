@@ -678,7 +678,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     debuggercontext << uidm->uniqueIdentifier(C_GDBDEBUGGER);
 
     QList<int> cppeditorcontext;
-    cppeditorcontext << uidm->uniqueIdentifier(CppEditor::Constants::CPPEDITOR_ID);
+    cppeditorcontext << uidm->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
 
     QList<int> texteditorcontext;
     texteditorcontext << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);

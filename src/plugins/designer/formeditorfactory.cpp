@@ -53,7 +53,7 @@ FormEditorFactory::FormEditorFactory()
 
 QString FormEditorFactory::id() const
 {
-    return QLatin1String(C_FORMEDITOR_ID);
+    return QLatin1String(FORMEDITOR_ID);
 }
 
 QString FormEditorFactory::displayName() const

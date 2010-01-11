@@ -265,7 +265,7 @@ Core::IFile *FormWindowEditor::file()
 
 QString FormWindowEditor::id() const
 {
-    return QLatin1String(C_FORMEDITOR_ID);
+    return QLatin1String(FORMEDITOR_ID);
 }
 
 QString FormWindowEditor::displayName() const

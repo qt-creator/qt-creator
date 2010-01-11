@@ -44,8 +44,6 @@ PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
-
-    setDisplayName(tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
 }
 
 PlainTextEditor::PlainTextEditor(QWidget *parent)

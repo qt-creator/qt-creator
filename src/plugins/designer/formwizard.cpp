@@ -66,6 +66,6 @@ Core::GeneratedFiles FormWizard::generateFiles(const QWizard *w,
 
     Core::GeneratedFile file(fileName);
     file.setContents(formTemplate);
-    file.setEditorId(QLatin1String(Constants::C_FORMEDITOR_ID));
+    file.setEditorId(QLatin1String(Constants::FORMEDITOR_ID));
     return Core::GeneratedFiles() << file;
 }

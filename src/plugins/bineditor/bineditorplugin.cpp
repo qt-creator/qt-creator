@@ -304,7 +304,7 @@ public:
         m_editor = parent;
         m_file = new BinEditorFile(parent);
         m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-        m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR_ID);
+        m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR);
         m_cursorPositionLabel = new Utils::LineColumnLabel;
 
         QHBoxLayout *l = new QHBoxLayout;
@@ -443,7 +443,7 @@ void BinEditorPlugin::initializeEditor(BinEditor *editor)
     editor->setEditorInterface(editorInterface);
 
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR_ID);
+    m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR);
     if (!m_undoAction) {
         m_undoAction      = registerNewAction(QLatin1String(Core::Constants::UNDO),
                                               this, SLOT(undoAction()),

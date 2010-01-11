@@ -48,7 +48,7 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
     m_plugin(plugin)
 {
     m_context += Core::UniqueIDManager::instance()
-                 ->uniqueIdentifier(QLatin1String(ResourceEditor::Constants::C_RESOURCEEDITOR_ID));
+                 ->uniqueIdentifier(QLatin1String(ResourceEditor::Constants::C_RESOURCEEDITOR));
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconOverlayForSuffix(QIcon(":/resourceeditor/images/qt_qrc.png"),
                                                QLatin1String("qrc"));
@@ -56,7 +56,7 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
 
 QString ResourceEditorFactory::id() const
 {
-    return QLatin1String(C_RESOURCEEDITOR_ID);
+    return QLatin1String(RESOURCEEDITOR_ID);
 }
 
 QString ResourceEditorFactory::displayName() const

@@ -104,8 +104,6 @@ ProjectFilesEditable::ProjectFilesEditable(ProjectFilesEditor *editor)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(Constants::C_FILESEDITOR);
-
-    setDisplayName(tr(Constants::FILES_EDITOR_DISPLAY_NAME));
 }
 
 ProjectFilesEditable::~ProjectFilesEditable()

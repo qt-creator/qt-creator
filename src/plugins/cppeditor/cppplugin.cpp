@@ -227,7 +227,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     addAutoReleasedObject(new CppFileWizard(wizardParameters, Header, core));
 
     QList<int> context;
-    context << core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::CPPEDITOR_ID);
+    context << core->uniqueIDManager()->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
 
     Core::ActionManager *am = core->actionManager();
     Core::ActionContainer *contextMenu= am->createMenu(CppEditor::Constants::M_CONTEXT);
@@ -278,7 +278,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     connect(m_updateCodeModelAction, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
     cppToolsMenu->addAction(cmd);
 
-    m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::CPPEDITOR_ID,
+    m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll);

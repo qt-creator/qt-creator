@@ -1205,7 +1205,7 @@ IEditor *EditorManager::openEditorWithContents(const QString &editorId,
 
     QString title = edt->displayName();
 
-    if (title.isEmpty() && titlePattern) {
+    if (titlePattern) {
         const QChar dollar = QLatin1Char('$');
         const QChar dot = QLatin1Char('.');
 

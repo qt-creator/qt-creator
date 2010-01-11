@@ -96,7 +96,7 @@ Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *e
     // UI
     Core::GeneratedFile uiFile(formFileName);
     uiFile.setContents(params.uiTemplate());
-    uiFile.setEditorId(QLatin1String(Constants::C_FORMEDITOR_ID));
+    uiFile.setEditorId(QLatin1String(Constants::FORMEDITOR_ID));
 
     QString source, header;
     Designer::FormClassWizardGenerationParameters generationParameters;

@@ -35,6 +35,7 @@ namespace Constants {
 
 const char * const FORMATCODE   = "CppEditor.FormatCode";
 const char * const M_CONTEXT    = "CppEditor.ContextMenu";
+const char * const C_CPPEDITOR  = "CppPlugin.C++Editor";
 const char * const CPPEDITOR_ID = "CppPlugin.C++Editor";
 const char * const CPPEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "C++ Editor");
 const char * const SWITCH_DECLARATION_DEFINITION = "CppEditor.SwitchDeclarationDefinition";
