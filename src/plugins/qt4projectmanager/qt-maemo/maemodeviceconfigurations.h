@@ -62,7 +62,8 @@ public:
     QString name;
     DeviceType type;
     QString host;
-    int port;
+    int sshPort;
+    int gdbServerPort;
     QString uname;
     AuthType authentication;
     QString pwd;

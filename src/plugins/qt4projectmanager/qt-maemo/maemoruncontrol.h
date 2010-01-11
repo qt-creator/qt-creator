@@ -73,7 +73,7 @@ protected:
     const QString executableOnHost() const;
     const QString executableOnTarget() const;
     const QString executableFileName() const;
-    const QString port() const;
+    const QString sshPort() const;
     const QString targetCmdLinePrefix() const;
     const QString remoteDir() const;
     const QStringList options() const;
@@ -183,7 +183,6 @@ private:
     QProcess gdbServer;
     QProcess stopProcess;
 #endif // USE_SSH_LIB
-    const QString gdbServerPort;
     Debugger::DebuggerManager *debuggerManager;
     QSharedPointer<Debugger::DebuggerStartParameters> startParams;
     int inferiorPid;

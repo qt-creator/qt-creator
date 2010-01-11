@@ -151,7 +151,7 @@ void AbstractMaemoRunControl::deploy()
         emit addToOutputWindow(this, tr("File to deploy: %1.").arg(deployable.fileName));
 
         QStringList cmdArgs;
-        cmdArgs << "-P" << port() << options() << deployable.fileName
+        cmdArgs << "-P" << sshPort() << options() << deployable.fileName
             << (devConfig.uname + "@" + devConfig.host + ":" + remoteDir());
         deployProcess.setWorkingDirectory(deployable.dir);
 
@@ -239,9 +239,9 @@ const QString AbstractMaemoRunControl::executableOnHost() const
     return runConfig->executable();
 }
 
-const QString AbstractMaemoRunControl::port() const
+const QString AbstractMaemoRunControl::sshPort() const
 {
-    return QString::number(devConfig.port);
+    return QString::number(devConfig.sshPort);
 }
 
 const QString AbstractMaemoRunControl::executableFileName() const
@@ -376,7 +376,7 @@ void MaemoRunControl::startExecution()
         .arg(runConfig->arguments().join(" "));
 
     QStringList cmdArgs;
-    cmdArgs << "-n" << "-p" << port() << "-l" << devConfig.uname
+    cmdArgs << "-n" << "-p" << sshPort() << "-l" << devConfig.uname
         << options() << devConfig.host << remoteCall;
     sshProcess.start(runConfig->sshCmd(), cmdArgs);
 
@@ -428,7 +428,7 @@ void MaemoRunControl::stop()
         QStringList cmdArgs;
         const QString remoteCall = QString::fromLocal8Bit("pkill -x %1; "
             "sleep 1; pkill -x -9 %1").arg(executableFileName());
-        cmdArgs << "-n" << "-p" << port() << "-l" << devConfig.uname
+        cmdArgs << "-n" << "-p" << sshPort() << "-l" << devConfig.uname
             << options() << devConfig.host << remoteCall;
         stopProcess.start(runConfig->sshCmd(), cmdArgs);
 #endif // USE_SSH_LIB
@@ -458,7 +458,7 @@ void MaemoRunControl::handleRemoteOutput(const QString &output)
 
 MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     : AbstractMaemoRunControl(runConfiguration)
-    , gdbServerPort("10000"), debuggerManager(0)
+    , debuggerManager(0)
     , startParams(new Debugger::DebuggerStartParameters)
 {
 #ifndef USE_SSH_LIB
@@ -472,7 +472,8 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     QTC_ASSERT(debuggerManager != 0, return);
     startParams->startMode = Debugger::StartRemote;
     startParams->executable = executableOnHost();
-    startParams->remoteChannel = devConfig.host + ":" + gdbServerPort;
+    startParams->remoteChannel
+        = devConfig.host + ":" + QString::number(devConfig.gdbServerPort);
     startParams->remoteArchitecture = "arm";
     startParams->sysRoot = runConfig->sysRoot();
     startParams->toolChainType = ToolChain::GCC_MAEMO;
@@ -513,8 +514,8 @@ void MaemoDebugRunControl::handleDeploymentFinished(bool success)
 void MaemoDebugRunControl::startGdbServer()
 {
     const QString remoteCall(QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4").
-        arg(targetCmdLinePrefix()).arg(gdbServerPort). arg(executableOnTarget())
-        .arg(runConfig->arguments().join(" ")));
+        arg(targetCmdLinePrefix()).arg(devConfig.gdbServerPort)
+        .arg(executableOnTarget()).arg(runConfig->arguments().join(" ")));
     inferiorPid = -1;
 #ifdef USE_SSH_LIB
     sshRunner.reset(new MaemoSshRunner(devConfig, remoteCall));
@@ -524,7 +525,7 @@ void MaemoDebugRunControl::startGdbServer()
 #else
     QStringList sshArgs;
     sshArgs << "-t" << "-n" << "-l" << devConfig.uname << "-p"
-        << port() << options() << devConfig.host << remoteCall;
+        << sshPort() << options() << devConfig.host << remoteCall;
     disconnect(&gdbServer, SIGNAL(readyReadStandardError()), 0, 0);
     connect(&gdbServer, SIGNAL(readyReadStandardError()), this,
         SLOT(gdbServerStarted()));
@@ -651,7 +652,7 @@ void MaemoDebugRunControl::debuggingFinished()
         const QString remoteCall = QString::fromLocal8Bit("kill %1; sleep 1; "
             "kill -9 %1; pkill -x -9 gdbserver").arg(inferiorPid);
         QStringList sshArgs;
-        sshArgs << "-n" << "-l" << devConfig.uname << "-p" << port()
+        sshArgs << "-n" << "-l" << devConfig.uname << "-p" << sshPort()
             << options() << devConfig.host << remoteCall;
         stopProcess.start(runConfig->sshCmd(), sshArgs);
     }

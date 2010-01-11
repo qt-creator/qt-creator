@@ -74,8 +74,8 @@ MaemoSshConnection::MaemoSshConnection(const MaemoDeviceConfig &devConf,
         authString = &devConf.keyFile;
         connFunc = &ne7ssh::connectWithKey;
     }
-    m_channel = (ssh.*connFunc)(devConf.host.toAscii(), devConf.port,
-        devConf.uname.toAscii(), authString->toAscii(), shell, devConf.timeout);
+    m_channel = (ssh.*connFunc)(devConf.host.toLatin1(), devConf.sshPort,
+        devConf.uname.toAscii(), authString->toLatin1(), shell, devConf.timeout);
     if (m_channel == -1)
         throw MaemoSshException(tr("Could not connect to host"));
 }
@@ -130,7 +130,7 @@ void MaemoInteractiveSshConnection::runCommand(const QString &command)
         ssh.lock();
         const char * output = ssh.read(channel(), false);
         if (output) {
-            emit remoteOutput(QLatin1String(output));
+            emit remoteOutput(QString::fromUtf8(output));
             ssh.resetInput(channel(), false);
         }
         ssh.unlock();

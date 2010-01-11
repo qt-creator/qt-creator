@@ -64,7 +64,8 @@ namespace {
     const QLatin1String NameKey("Name");
     const QLatin1String TypeKey("Type");
     const QLatin1String HostKey("Host");
-    const QLatin1String PortKey("Port");
+    const QLatin1String SshPortKey("SshPort");
+    const QLatin1String GdbServerPortKey("GdbServerPort");
     const QLatin1String UserNameKey("Uname");
     const QLatin1String AuthKey("Authentication");
     const QLatin1String KeyFileKey("KeyFile");
@@ -92,7 +93,8 @@ private:
 MaemoDeviceConfig::MaemoDeviceConfig(const QString &name)
     : name(name),
       type(Physical),
-      port(22),
+      sshPort(22),
+      gdbServerPort(10000),
       authentication(Key),
       keyFile(DefaultKeyFile),
       timeout(30),
@@ -105,7 +107,8 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
     : name(settings.value(NameKey).toString()),
       type(static_cast<DeviceType>(settings.value(TypeKey, Physical).toInt())),
       host(settings.value(HostKey).toString()),
-      port(settings.value(PortKey, 22).toInt()),
+      sshPort(settings.value(SshPortKey, 22).toInt()),
+      gdbServerPort(settings.value(GdbServerPortKey, 10000).toInt()),
       uname(settings.value(UserNameKey).toString()),
       authentication(static_cast<AuthType>(settings.value(AuthKey).toInt())),
       pwd(settings.value(PasswordKey).toString()),
@@ -132,7 +135,8 @@ void MaemoDeviceConfig::save(QSettings &settings) const
     settings.setValue(NameKey, name);
     settings.setValue(TypeKey, type);
     settings.setValue(HostKey, host);
-    settings.setValue(PortKey, port);
+    settings.setValue(SshPortKey, sshPort);
+    settings.setValue(GdbServerPortKey, gdbServerPort);
     settings.setValue(UserNameKey, uname);
     settings.setValue(AuthKey, authentication);
     settings.setValue(PasswordKey, pwd);

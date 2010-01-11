@@ -124,56 +124,66 @@
          <item row="4" column="0">
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>Port:</string>
+            <string>SSH Port:</string>
            </property>
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="QLineEdit" name="portLineEdit"/>
+          <widget class="QLineEdit" name="sshPortLineEdit"/>
          </item>
-         <item row="5" column="0">
+         <item row="6" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
             <string>Connection Timeout:</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="6" column="1">
           <widget class="QLineEdit" name="timeoutLineEdit"/>
          </item>
-         <item row="6" column="0">
+         <item row="7" column="0">
           <widget class="QLabel" name="label_6">
            <property name="text">
             <string>User Name:</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
+         <item row="7" column="1">
           <widget class="QLineEdit" name="userLineEdit"/>
          </item>
-         <item row="7" column="0">
+         <item row="8" column="0">
           <widget class="QLabel" name="passwordLabel">
            <property name="text">
             <string>Password:</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
+         <item row="8" column="1">
           <widget class="QLineEdit" name="pwdLineEdit">
            <property name="echoMode">
             <enum>QLineEdit::Password</enum>
            </property>
           </widget>
          </item>
-         <item row="8" column="0">
+         <item row="9" column="0">
           <widget class="QLabel" name="keyLabel">
            <property name="text">
             <string>Private key file:</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="1">
+         <item row="9" column="1">
           <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="gdbServerPortLabel">
+           <property name="text">
+            <string>Gdbserver Port:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="gdbServerPortLineEdit"/>
          </item>
         </layout>
        </widget>
@@ -272,8 +282,8 @@ p, li { white-space: pre-wrap; }
    <slot>configNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>372</x>
-     <y>146</y>
+     <x>396</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>514</x>
@@ -288,8 +298,8 @@ p, li { white-space: pre-wrap; }
    <slot>deviceTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>264</x>
-     <y>175</y>
+     <x>267</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
      <x>511</x>
@@ -304,8 +314,8 @@ p, li { white-space: pre-wrap; }
    <slot>hostNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>385</x>
-     <y>228</y>
+     <x>396</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -314,14 +324,14 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>portLineEdit</sender>
+   <sender>sshPortLineEdit</sender>
    <signal>editingFinished()</signal>
    <receiver>maemoSettingsWidget</receiver>
-   <slot>portEditingFinished()</slot>
+   <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>385</x>
-     <y>255</y>
+     <x>396</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>514</x>
@@ -384,8 +394,8 @@ p, li { white-space: pre-wrap; }
    <slot>deviceTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>376</x>
-     <y>175</y>
+     <x>387</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
      <x>426</x>
@@ -521,12 +531,28 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>gdbServerPortLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>gdbServerPortEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>218</x>
+     <y>255</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>427</x>
+     <y>467</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>configNameEditingFinished()</slot>
   <slot>deviceTypeChanged()</slot>
   <slot>hostNameEditingFinished()</slot>
-  <slot>portEditingFinished()</slot>
+  <slot>sshPortEditingFinished()</slot>
   <slot>timeoutEditingFinished()</slot>
   <slot>userNameEditingFinished()</slot>
   <slot>passwordEditingFinished()</slot>
@@ -537,5 +563,6 @@ p, li { white-space: pre-wrap; }
   <slot>keyFileEditingFinished()</slot>
   <slot>testConfig()</slot>
   <slot>deployKey()</slot>
+  <slot>gdbServerPortEditingFinished()</slot>
  </slots>
 </ui>

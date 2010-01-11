@@ -133,7 +133,8 @@ private slots:
     void deviceTypeChanged();
     void authenticationTypeChanged();
     void hostNameEditingFinished();
-    void portEditingFinished();
+    void sshPortEditingFinished();
+    void gdbServerPortEditingFinished();
     void timeoutEditingFinished();
     void userNameEditingFinished();
     void passwordEditingFinished();
@@ -161,7 +162,8 @@ private:
 
     Ui_maemoSettingsWidget *m_ui;
     QList<MaemoDeviceConfig> m_devConfs;
-    PortAndTimeoutValidator m_portValidator;
+    PortAndTimeoutValidator m_sshPortValidator;
+    PortAndTimeoutValidator m_gdbServerPortValidator;
     PortAndTimeoutValidator m_timeoutValidator;
     NameValidator m_nameValidator;
 #ifdef USE_SSH_LIB
@@ -239,7 +241,8 @@ void MaemoSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
     m_ui->nameLineEdit->setValidator(&m_nameValidator);
-    m_ui->portLineEdit->setValidator(&m_portValidator);
+    m_ui->sshPortLineEdit->setValidator(&m_sshPortValidator);
+    m_ui->gdbServerPortLineEdit->setValidator(&m_gdbServerPortValidator);
     m_ui->timeoutLineEdit->setValidator(&m_timeoutValidator);
     m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
     foreach(const MaemoDeviceConfig &devConf, m_devConfs)
@@ -305,14 +308,17 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfig &devConfig)
     else
         m_ui->keyButton->setChecked(true);
     m_ui->hostLineEdit->setText(devConfig.host);
-    m_ui->portLineEdit->setText(QString::number(devConfig.port));
+    m_ui->sshPortLineEdit->setText(QString::number(devConfig.sshPort));
+    m_ui->gdbServerPortLineEdit
+        ->setText(QString::number(devConfig.gdbServerPort));
     m_ui->timeoutLineEdit->setText(QString::number(devConfig.timeout));
     m_ui->userLineEdit->setText(devConfig.uname);
     m_ui->pwdLineEdit->setText(devConfig.pwd);
     m_ui->keyFileLineEdit->setPath(devConfig.keyFile);
     m_ui->detailsWidget->setEnabled(true);
     m_nameValidator.setDisplayName(devConfig.name);
-    m_portValidator.setValue(devConfig.port);
+    m_sshPortValidator.setValue(devConfig.sshPort);
+    m_gdbServerPortValidator.setValue(devConfig.gdbServerPort);
     m_timeoutValidator.setValue(devConfig.timeout);
     m_ui->detailsWidget->setEnabled(true);
 }
@@ -367,9 +373,16 @@ void MaemoSettingsWidget::hostNameEditingFinished()
     currentConfig().host = m_ui->hostLineEdit->text();
 }
 
-void MaemoSettingsWidget::portEditingFinished()
+void MaemoSettingsWidget::sshPortEditingFinished()
 {
-    setPortOrTimeout(m_ui->portLineEdit, currentConfig().port, m_portValidator);
+    setPortOrTimeout(m_ui->sshPortLineEdit, currentConfig().sshPort,
+                     m_sshPortValidator);
+}
+
+void MaemoSettingsWidget::gdbServerPortEditingFinished()
+{
+    setPortOrTimeout(m_ui->gdbServerPortLineEdit, currentConfig().gdbServerPort,
+                     m_gdbServerPortValidator);
 }
 
 void MaemoSettingsWidget::timeoutEditingFinished()
@@ -594,7 +607,8 @@ void MaemoSettingsWidget::clearDetails()
 {
     m_ui->nameLineEdit->clear();
     m_ui->hostLineEdit->clear();
-    m_ui->portLineEdit->clear();
+    m_ui->sshPortLineEdit->clear();
+    m_ui->gdbServerPortLineEdit->clear();
     m_ui->timeoutLineEdit->clear();
     m_ui->userLineEdit->clear();
     m_ui->pwdLineEdit->clear();
