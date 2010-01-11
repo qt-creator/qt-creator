@@ -152,13 +152,13 @@ void ObjectNodeInstance::setNodeInstance(NodeInstanceView *view)
 
 void ObjectNodeInstance::setId(const QString &id)
 {
-    object()->setObjectName(id);
-
     if (!id.isEmpty()) {
         context()->engine()->rootContext()->setContextProperty(id, object()); // will also force refresh of all bindings
-    } else {
-        context()->engine()->rootContext()->setContextProperty(id, 0);
+    } else if (!object()->objectName().isEmpty()) {
+        context()->engine()->rootContext()->setContextProperty(object()->objectName(), 0);
     }
+
+    object()->setObjectName(id);
 }
 
 bool ObjectNodeInstance::isQmlGraphicsItem() const
