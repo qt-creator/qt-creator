@@ -211,6 +211,9 @@ bool CompletionWidget::event(QEvent *e)
             forwardKeys = false;
             break;
         default:
+            // if a key is forwarded, completion widget is re-opened and selected item is reset to first,
+            // so only forward keys that insert text and refine the completed item
+            forwardKeys = !ke->text().isEmpty();
             break;
         }
 
