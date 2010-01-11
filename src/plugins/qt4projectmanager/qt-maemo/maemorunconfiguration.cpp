@@ -427,12 +427,7 @@ void MaemoRunConfiguration::updateTarget()
         return;
     }
 
-    QString baseDir;
-    if (info.hasCustomDestDir)
-        baseDir = info.workingDir;
-    else
-        baseDir = info.baseDestDir;
-    m_executable = QDir::cleanPath(baseDir + QLatin1Char('/') + info.target);
+    m_executable = QDir::cleanPath(info.workingDir + QLatin1Char('/') + info.target);
 
     emit targetInformationChanged();
 }

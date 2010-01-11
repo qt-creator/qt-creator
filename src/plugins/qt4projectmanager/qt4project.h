@@ -127,8 +127,6 @@ struct Qt4TargetInformation
     };
 
     ErrorCode error;
-    bool hasCustomDestDir;
-    QString baseDestDir;
     QString workingDir;
     QString target;
     QString executable;

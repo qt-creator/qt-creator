@@ -295,14 +295,10 @@ void S60DeviceRunConfiguration::updateTarget()
         emit targetInformationChanged();
         return;
     }
-    QString workingDir;
-    if (info.hasCustomDestDir)
-        workingDir = info.workingDir;
-    else
-        workingDir = info.baseDestDir;
+
     m_targetName = info.target;
 
-    m_baseFileName = workingDir + QLatin1Char('/') + m_targetName;
+    m_baseFileName = info.workingDir + QLatin1Char('/') + m_targetName;
     m_packageTemplateFileName = m_baseFileName + QLatin1String("_template.pkg");
 
     Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();

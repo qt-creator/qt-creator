@@ -838,12 +838,10 @@ Qt4TargetInformation Qt4Project::targetInformation(Qt4BuildConfiguration *buildC
     const QString relSubDir = baseProjectDirectory.relativeFilePath(QFileInfo(proFilePath).path());
     const QDir baseBuildDirectory = buildConfiguration->buildDirectory();
     const QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
-    info.baseDestDir = QDir::cleanPath(baseDir);
     //qDebug()<<relSubDir<<baseDir;
 
     // Working Directory
     if (reader->contains("DESTDIR")) {
-        info.hasCustomDestDir = true;
         //qDebug() << "reader contains destdir:" << reader->value("DESTDIR");
         info.workingDir = reader->value("DESTDIR");
         if (QDir::isRelativePath(info.workingDir)) {
@@ -851,16 +849,8 @@ Qt4TargetInformation Qt4Project::targetInformation(Qt4BuildConfiguration *buildC
             //qDebug() << "was relative and expanded to" << info.workingDir;
         }
     } else {
-        info.hasCustomDestDir = false;
         //qDebug() << "reader didn't contain DESTDIR, setting to " << baseDir;
         info.workingDir = baseDir;
-        if (reader->values("CONFIG").contains("debug_and_release_target")) {
-            //qDebug() << "reader has debug_and_release_target";
-            QString qmakeBuildConfig = "release";
-            if (buildConfiguration->qmakeBuildConfiguration() & QtVersion::DebugBuild)
-                qmakeBuildConfig = "debug";
-            info.workingDir += QLatin1Char('/') + qmakeBuildConfig;
-        }
     }
 
     info.target = reader->value("TARGET");
@@ -876,7 +866,21 @@ Qt4TargetInformation Qt4Project::targetInformation(Qt4BuildConfiguration *buildC
 #endif
 
     info.workingDir = QDir::cleanPath(info.workingDir);
-    info.executable = QDir::cleanPath(info.workingDir + QLatin1Char('/') + info.target);
+
+    QString wd = info.workingDir;
+    if (!reader->contains("DESTDIR")
+        && reader->values("CONFIG").contains("debug_and_release")
+        && reader->values("CONFIG").contains("debug_and_release_target")) {
+        // If we don't have a destdir and debug and release is set
+        // then the executable is in a debug/release folder
+        //qDebug() << "reader has debug_and_release_target";
+        QString qmakeBuildConfig = "release";
+        if (buildConfiguration->qmakeBuildConfiguration() & QtVersion::DebugBuild)
+            qmakeBuildConfig = "debug";
+        wd += QLatin1Char('/') + qmakeBuildConfig;
+    }
+
+    info.executable = QDir::cleanPath(wd + QLatin1Char('/') + info.target);
     //qDebug() << "##### updateTarget sets:" << info.workingDir << info.executable;
 
 #if defined (Q_OS_WIN)
