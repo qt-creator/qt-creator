@@ -177,8 +177,4 @@
     <element name="LinksAccessibleByMouse" value="4" />
     <element name="TextEditorInteraction" value="19" />
   </flag>
-
-  <node name="Object">
-    <property index="0" isEnumType="False" isFlagType="False" isReadable="True" isResettable="False" isWritable="True" name="objectName" type="QString" showInPropertyEditor="true"/>
-  </node>
 </metainfo>
