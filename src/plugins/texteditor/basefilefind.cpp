@@ -274,7 +274,7 @@ void BaseFileFind::openEditor(const Find::SearchResultItem &item)
     TextEditor::BaseTextEditor::openEditorAt(item.fileName, item.lineNumber, item.searchTermStart);
 }
 
-#pragma mark Static methods
+// #pragma mark Static methods
 
 static void applyChanges(QTextDocument *doc, const QString &text, const QList<Find::SearchResultItem> &items)
 {
