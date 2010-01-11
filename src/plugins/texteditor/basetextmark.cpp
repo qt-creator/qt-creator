@@ -72,7 +72,12 @@ void BaseTextMark::editorOpened(Core::IEditor *editor)
         if (m_markableInterface == 0) { // We aren't added to something
             m_markableInterface = textEditor->markableInterface();
             m_internalMark = new InternalMark(this);
-            m_markableInterface->addMark(m_internalMark, m_line);
+
+            if (!m_markableInterface->addMark(m_internalMark, m_line)) {
+                delete m_internalMark;
+                m_internalMark = 0;
+                m_markableInterface = 0;
+            }
         }
     }
 }
