@@ -3631,6 +3631,10 @@ void GdbEngine::updateLocals(const QVariant &cookie)
         expanded.chop(1);
 
         QByteArray watchers;
+        if (!m_toolTipExpression.isEmpty())
+            watchers += m_toolTipExpression.toLatin1()
+                + "#" + tooltipINameForExpression(m_toolTipExpression.toLatin1());
+
         QHash<QByteArray, int> watcherNames = handler->watcherNames();
         QHashIterator<QByteArray, int> it(watcherNames);
         while (it.hasNext()) {
@@ -3642,9 +3646,6 @@ void GdbEngine::updateLocals(const QVariant &cookie)
             else
                 watchers += it.key() + "#watch." + QByteArray::number(it.value());
         }
-        if (!m_toolTipExpression.isEmpty())
-            watchers += "##" + m_toolTipExpression.toLatin1()
-                + "#" + tooltipINameForExpression(m_toolTipExpression.toLatin1());
 
         QByteArray options;
         if (theDebuggerBoolSetting(UseDebuggingHelpers))

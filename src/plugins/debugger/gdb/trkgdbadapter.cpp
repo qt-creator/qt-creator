@@ -451,6 +451,7 @@ void TrkGdbAdapter::readGdbServerCommand()
 
         if (code == '-') {
             logMessage("NAK: Retransmission requested");
+            emit adapterCrashed("Communication problem encountered.");
             continue;
         }
 
@@ -1459,9 +1460,15 @@ void TrkGdbAdapter::handleStepInto(const TrkResult &result)
     m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + " in handleStepInto");
+#if 0
         // Try fallback with Step Over
         QByteArray ba = trkStepRangeMessage(0x11);  // options "step over"
         sendTrkMessage(0x19, TrkCB(handleStepInto2), ba, "Step range");
+#else
+        sendTrkMessage(0x12,
+            TrkCB(handleAndReportReadRegistersAfterStop),
+            trkReadRegistersMessage());
+#endif
         return;
     }
     // The gdb server response is triggered later by the Stop Reply packet
@@ -1472,9 +1479,15 @@ void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
 {
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + " in handleStepInto2");
+#if 0
         // Try fallback with Continue
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
         //sendGdbServerMessage("S05", "Stepping finished");
+#else
+        sendTrkMessage(0x12,
+            TrkCB(handleAndReportReadRegistersAfterStop),
+            trkReadRegistersMessage());
+#endif
         return;
     }
     logMessage("STEP INTO FINISHED (FALLBACK)");
