@@ -613,9 +613,13 @@ class Dumper:
         self.putField("value", value)
 
     def putStringValue(self, value):
-        str = encodeString(value)
-        self.putCommaIfNeeded()
-        self.put('valueencoded="%d",value="%s"' % (7, str))
+        if value is None:
+            self.putCommaIfNeeded()
+            self.put('value="<not available>"')
+        else:
+            str = encodeString(value)
+            self.putCommaIfNeeded()
+            self.put('valueencoded="%d",value="%s"' % (7, str))
 
     def putByteArrayValue(self, value):
         str = encodeByteArray(value)
@@ -733,8 +737,11 @@ class Dumper:
         self.endHash()
 
     def putCallItem(self, name, item, func):
-        result = call(item.value, func)
-        self.putItem(Item(result, item.iname, name, name))
+        try:
+            result = call(item.value, func)
+            self.safePutItem(Item(result, item.iname, name, name))
+        except:
+            self.safePutItem(Item(None, item.iname))
 
     def putItemHelper(self, item):
         name = getattr(item, "name", None)

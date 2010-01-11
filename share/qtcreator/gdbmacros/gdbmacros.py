@@ -179,27 +179,30 @@ def qdump__QFileInfo(d, item):
 
         #QFile::Permissions permissions () const
         perms = call(item.value, "permissions()")
-        d.beginHash()
-        d.putName("permissions")
-        d.putValue(" ")
-        d.putType(d.ns + "QFile::Permissions")
-        d.putNumChild(10)
-        if d.isExpandedIName(item.iname + ".permissions"):
-            d.beginChildren(10)
-            d.putBoolItem("ReadOwner",  perms & 0x4000)
-            d.putBoolItem("WriteOwner", perms & 0x2000)
-            d.putBoolItem("ExeOwner",   perms & 0x1000)
-            d.putBoolItem("ReadUser",   perms & 0x0400)
-            d.putBoolItem("WriteUser",  perms & 0x0200)
-            d.putBoolItem("ExeUser",    perms & 0x0100)
-            d.putBoolItem("ReadGroup",  perms & 0x0040)
-            d.putBoolItem("WriteGroup", perms & 0x0020)
-            d.putBoolItem("ExeGroup",   perms & 0x0010)
-            d.putBoolItem("ReadOther",  perms & 0x0004)
-            d.putBoolItem("WriteOther", perms & 0x0002)
-            d.putBoolItem("ExeOther",   perms & 0x0001)
-            d.endChildren()
-        d.endHash()
+        if perms is None:
+            d.putValue("<not available>")
+        else:
+            d.beginHash()
+            d.putName("permissions")
+            d.putValue(" ")
+            d.putType(d.ns + "QFile::Permissions")
+            d.putNumChild(10)
+            if d.isExpandedIName(item.iname + ".permissions"):
+                d.beginChildren(10)
+                d.putBoolItem("ReadOwner",  perms & 0x4000)
+                d.putBoolItem("WriteOwner", perms & 0x2000)
+                d.putBoolItem("ExeOwner",   perms & 0x1000)
+                d.putBoolItem("ReadUser",   perms & 0x0400)
+                d.putBoolItem("WriteUser",  perms & 0x0200)
+                d.putBoolItem("ExeUser",    perms & 0x0100)
+                d.putBoolItem("ReadGroup",  perms & 0x0040)
+                d.putBoolItem("WriteGroup", perms & 0x0020)
+                d.putBoolItem("ExeGroup",   perms & 0x0010)
+                d.putBoolItem("ReadOther",  perms & 0x0004)
+                d.putBoolItem("WriteOther", perms & 0x0002)
+                d.putBoolItem("ExeOther",   perms & 0x0001)
+                d.endChildren()
+            d.endHash()
 
         #QDir absoluteDir () const
         #QDir dir () const
