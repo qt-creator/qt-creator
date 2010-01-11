@@ -515,12 +515,19 @@ void MercurialClient::update(const QString &repositoryRoot, const QString &revis
 }
 
 void MercurialClient::commit(const QString &repositoryRoot, const QStringList &files,
-                             const QString &committerInfo, const QString &commitMessageFile)
+                             const QString &committerInfo, const QString &commitMessageFile,
+                             bool autoAddRemove)
 {
+    // refuse to do "autoadd" on a commit with working directory only, as this will
+    // add all the untracked stuff.
+    QTC_ASSERT(!(autoAddRemove && files.isEmpty()), return)
     QStringList args(QLatin1String("commit"));
     if (!committerInfo.isEmpty())
         args << QLatin1String("-u") << committerInfo;
-    args << QLatin1String("-l") << commitMessageFile << files;
+    args << QLatin1String("-l") << commitMessageFile;
+    if (autoAddRemove)
+        args << QLatin1String("-A");
+    args << files;
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, false));
     enqueueJob(job);
 }

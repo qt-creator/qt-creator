@@ -89,8 +89,11 @@ public:
     void revertFile(const QString &workingDir, const QString &file, const QString &revision = QString());
     void revertRepository(const QString &workingDir, const QString &revision = QString());
     void update(const QString &repositoryRoot, const QString &revision = QString());
-    void commit(const QString &repositoryRoot, const QStringList &files,
-                const QString &commiterInfo, const QString &commitMessageFile);
+    void commit(const QString &repositoryRoot,
+                const QStringList &files,
+                const QString &commiterInfo,
+                const QString &commitMessageFile,
+                bool autoAddRemove = false);
 
     static QString findTopLevelForFile(const QFileInfo &file);
 

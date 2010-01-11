@@ -634,7 +634,7 @@ bool MercurialPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *sub
         core->fileManager()->unblockFileChange(editorFile);
 
         m_client->commit(commitEditor->repoRoot(), files, commitEditor->committerInfo(),
-                       editorFile->fileName());
+                       editorFile->fileName(), true);
     }
     return true;
 }
