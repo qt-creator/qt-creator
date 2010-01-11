@@ -64,6 +64,8 @@ enum FakeVimSettingsCode
 
 class FakeVimSettings : public QObject
 {
+    Q_OBJECT
+
 public:
     FakeVimSettings();
     ~FakeVimSettings();
