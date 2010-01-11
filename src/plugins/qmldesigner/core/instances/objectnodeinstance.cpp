@@ -661,6 +661,11 @@ QSizeF ObjectNodeInstance::size() const
     return QSizeF();
 }
 
+int ObjectNodeInstance::penWidth() const
+{
+    return 0;
+}
+
 bool ObjectNodeInstance::isVisible() const
 {
     return false;

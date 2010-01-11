@@ -60,6 +60,8 @@ public:
     QVariant property(const QString &name) const;
     void resetProperty(const QString &name);
 
+    int penWidth() const;
+
     bool hasAnchor(const QString &name) const;
     QPair<QString, NodeInstance> anchor(const QString &name) const;
     bool isAnchoredBy() const;

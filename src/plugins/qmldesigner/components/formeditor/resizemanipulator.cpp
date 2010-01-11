@@ -185,7 +185,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
                 boundingRect.setTop(boundingRect.top() - minimumHeight + boundingRect.height());
 
             formEditorItem->qmlItemNode().setSize(boundingRect.size());
-            formEditorItem->qmlItemNode().setPosition(m_beginToParentTransform.map(boundingRect.topLeft()));
+            formEditorItem->qmlItemNode().setPositionWithBorder(m_beginToParentTransform.map(boundingRect.topLeft()));
 
 
             if (anchors.instanceHasAnchor(AnchorLine::Top)) {
@@ -226,7 +226,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
                 boundingRect.setWidth(minimumWidth);
 
             formEditorItem->qmlItemNode().setSize(boundingRect.size());
-            formEditorItem->qmlItemNode().setPosition(m_beginToParentTransform.map(boundingRect.topLeft()));
+            formEditorItem->qmlItemNode().setPositionWithBorder(m_beginToParentTransform.map(boundingRect.topLeft()));
 
             if (anchors.instanceHasAnchor(AnchorLine::Top)) {
                anchors.setMargin(AnchorLine::Top,
@@ -266,7 +266,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
                 boundingRect.setLeft(boundingRect.left() - minimumWidth + boundingRect.width());
 
             formEditorItem->qmlItemNode().setSize(boundingRect.size());
-            formEditorItem->qmlItemNode().setPosition(m_beginToParentTransform.map(boundingRect.topLeft()));
+            formEditorItem->qmlItemNode().setPositionWithBorder(m_beginToParentTransform.map(boundingRect.topLeft()));
 
             if (anchors.instanceHasAnchor(AnchorLine::Left)) {
                anchors.setMargin(AnchorLine::Left,
@@ -320,7 +320,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
                 boundingRect.setTop(boundingRect.top() - minimumHeight + boundingRect.height());
 
             formEditorItem->qmlItemNode().setSize(boundingRect.size());
-            formEditorItem->qmlItemNode().setPosition(m_beginToParentTransform.map(boundingRect.topLeft()));
+            formEditorItem->qmlItemNode().setPositionWithBorder(m_beginToParentTransform.map(boundingRect.topLeft()));
 
             if (anchors.instanceHasAnchor(AnchorLine::Top)) {
                anchors.setMargin(AnchorLine::Top,
@@ -370,7 +370,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
                 boundingRect.setLeft(boundingRect.left() - minimumWidth + boundingRect.width());
 
             formEditorItem->qmlItemNode().setSize(boundingRect.size());
-            formEditorItem->qmlItemNode().setPosition(m_beginToParentTransform.map(boundingRect.topLeft()));
+            formEditorItem->qmlItemNode().setPositionWithBorder(m_beginToParentTransform.map(boundingRect.topLeft()));
 
             if (anchors.instanceHasAnchor(AnchorLine::Left)) {
                anchors.setMargin(AnchorLine::Left,

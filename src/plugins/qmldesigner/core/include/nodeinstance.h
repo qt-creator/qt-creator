@@ -129,6 +129,8 @@ public:
     bool isAnchoredBy() const;
     QPair<QString, NodeInstance> anchor(const QString &name) const;
 
+    int penWidth() const;
+
 private: // functions
     NodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
 

@@ -40,7 +40,7 @@
 
 #include <private/qmlgraphicsanchors_p.h>
 #include <private/qmlgraphicsanchors_p_p.h>
-
+#include <private/qmlgraphicsrectangle_p.h>
 #include <private/qmlexpression_p.h>
 
 #include <cmath>
@@ -226,6 +226,14 @@ void QmlGraphicsItemNodeInstance::resetVertical()
        setPropertyVariant("height", qmlGraphicsItem()->implicitHeight());
 }
 
+int QmlGraphicsItemNodeInstance::penWidth() const
+{
+    QmlGraphicsRectangle *qmlGraphcisRectangle = qobject_cast<QmlGraphicsRectangle*>(object());
+    if (qmlGraphcisRectangle)
+        return qmlGraphcisRectangle->border()->width();
+
+    return GraphicsObjectNodeInstance::penWidth();
+}
 
 void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 {

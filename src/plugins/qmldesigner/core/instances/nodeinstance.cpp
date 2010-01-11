@@ -455,6 +455,11 @@ bool NodeInstance::hasAnchor(const QString &name) const
     return m_nodeInstance->hasAnchor(name);
 }
 
+int NodeInstance::penWidth() const
+{
+    return m_nodeInstance->penWidth();
+}
+
 bool NodeInstance::isAnchoredBy() const
 {
     return m_nodeInstance->isAnchoredBy();

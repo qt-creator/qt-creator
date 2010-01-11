@@ -76,6 +76,7 @@ public:
 
     void setSize(const QSizeF &size);
     void setPosition(const QPointF &position);
+    void setPositionWithBorder(const QPointF &position);
 
     void selectNode();
     void deselectNode();

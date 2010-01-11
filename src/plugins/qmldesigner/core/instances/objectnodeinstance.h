@@ -122,6 +122,8 @@ public:
     virtual QTransform sceneTransform() const;
     virtual double opacity() const;
 
+    virtual int penWidth() const;
+
     virtual bool hasAnchor(const QString &name) const;
     virtual QPair<QString, NodeInstance> anchor(const QString &name) const;
     virtual bool isAnchoredBy() const;
