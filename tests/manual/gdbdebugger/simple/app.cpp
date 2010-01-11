@@ -593,6 +593,9 @@ void testPlugin()
 #ifdef Q_OS_WIN
     QLibrary lib(dir + "/plugin.dll");
 #endif
+#ifdef Q_OS_SYMBIAN
+    QLibrary lib(dir + "/plugin.dll");
+#endif
     int (*foo)() = (int(*)()) lib.resolve("pluginTest");
     qDebug() << "library resolve: " << foo;
     if (foo) {
