@@ -122,14 +122,11 @@ void TextToModelMerger::syncNode(ModelNode &modelNode, const QmlDomObject &domOb
 {
     m_rewriterView->positionStorage()->setNodeOffset(modelNode, domObject.position());
 
-    if (modelNode.type() != domObject.objectType()
-            || modelNode.majorVersion() != domObject.objectTypeMajorVersion()
-            || modelNode.minorVersion() != domObject.objectTypeMinorVersion()) {
-        differenceHandler.typeDiffers(modelNode, domObject);
-    }
-
     {
-        const QString domObjectId = domObject.objectId();
+        QString domObjectId = domObject.objectId();
+        const QmlDomProperty domIdProperty = domObject.property("id");
+        if (domObjectId.isEmpty() && domIdProperty.value().isLiteral())
+            domObjectId = domIdProperty.value().toLiteral().literal();
 
         if (domObjectId.isEmpty()) {
             if (!modelNode.id().isEmpty())
@@ -138,6 +135,12 @@ void TextToModelMerger::syncNode(ModelNode &modelNode, const QmlDomObject &domOb
             if (modelNode.id() != domObjectId)
                 differenceHandler.idsDiffer(modelNode, domObjectId);
         }
+    }
+
+    if (modelNode.type() != domObject.objectType()
+            || modelNode.majorVersion() != domObject.objectTypeMajorVersion()
+            || modelNode.minorVersion() != domObject.objectTypeMinorVersion()) {
+        differenceHandler.typeDiffers(modelNode, domObject);
     }
 
     QSet<QString> modelPropertyNames = QSet<QString>::fromList(modelNode.propertyNames());
@@ -149,15 +152,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode, const QmlDomObject &domOb
             continue;
 
         if (domPropertyName == QLatin1String("id")) {
-            const QmlDomValue domValue = domProperty.value();
-            if (domValue.isLiteral()) {
-                const QString domId = domValue.toLiteral().literal();
-
-                if (modelNode.id() != domId)
-                    differenceHandler.idsDiffer(modelNode, domId);
-            } else {
-                qWarning() << "id property found which is not a literal";
-            }
+            // already done before
+            continue;
         } else if (domPropertyName.isEmpty()) {
             qWarning() << "QML DOM returned an empty property name";
             continue;
