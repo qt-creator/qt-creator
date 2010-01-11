@@ -1,0 +1,398 @@
+\documentclass{article}
+
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{9in}
+
+\setlength{\headheight}{0in}
+\setlength{\topmargin}{0in}
+\setlength{\headsep}{0in}
+
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+
+\title{\textbf{Botan Build Guide}}
+\author{Jack Lloyd \\
+        \texttt{lloyd@randombit.net}}
+\date{2008-11-24}
+
+\newcommand{\filename}[1]{\texttt{#1}}
+\newcommand{\module}[1]{\texttt{#1}}
+
+\newcommand{\type}[1]{\texttt{#1}}
+\newcommand{\function}[1]{\textbf{#1}}
+\newcommand{\macro}[1]{\texttt{#1}}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\parskip=5pt
+\pagebreak
+
+\section{Introduction}
+
+This document describes how to build Botan on Unix/POSIX and MS
+Windows systems. The POSIX oriented descriptions should apply to most
+common Unix systems (including MacOS X), along with POSIX-ish systems
+like BeOS, QNX, and Plan 9. Currently, systems other than Windows and
+POSIX (such as VMS, MacOS 9, OS/390, OS/400, ...) are not supported by
+the build system, primarily due to lack of access. Please contact the
+maintainer if you would like to build Botan on such a system.
+
+Botan's build is controlled by configure.pl, which is a Perl
+script. Perl 5.6 or later is required.
+
+\section{For the Impatient}
+
+\begin{verbatim}
+$ ./configure.pl [--prefix=/some/directory]
+$ make
+$ make install
+\end{verbatim}
+
+Or using \verb|nmake|, if you're compiling on Windows with Visual
+C++. On platforms that do not understand the '\#!' convention for
+beginning script files, or that have Perl installed in an unusual
+spot, you might need to prefix the \texttt{configure.pl} command with
+\texttt{perl} or \texttt{/path/to/perl}.
+
+\section{Building the Library}
+
+The first step is to run \filename{configure.pl}, which is a Perl
+script that creates various directories, config files, and a Makefile
+for building everything. The script requires at least Perl 5.6; any
+later version should also work.
+
+The script will attempt to guess what kind of system you are trying
+to compile for (and will print messages telling you what it guessed).
+You can override this process by passing the options \verb|--cc|,
+\verb|--os|, and \verb|--cpu| -- acceptable values are printed if
+you run \verb|configure.pl| with \verb|--help|.
+
+You can pass basically anything reasonable with \verb|--cpu|: the
+script knows about a large number of different architectures, their
+sub-models, and common aliases for them. The script does not display
+all the possibilities in its help message because there are simply too
+many entries. You should only select the 64-bit version of a CPU (such
+as ``sparc64'' or ``mips64'') if your operating system knows how to
+handle 64-bit object code -- a 32-bit kernel on a 64-bit CPU will
+generally not like 64-bit code.
+
+By default the script tries to figure out what will work on your
+system, and use that. It will print a display at the end showing
+which algorithms have and have not been abled. For instance on one
+system we might see the line:
+
+\begin{verbatim}
+   (loading): entropy: [beos_stats] buf_es [cryptoapi_rng]
+                       dev_random egd proc_walk unix_procs [win32_stats]
+\end{verbatim}
+
+The names listed in brackets are disabled, the others are
+enabled. Here we see the list of entropy sources which are going to be
+compiled into Botan. Since this particular line comes when Botan was
+configuring for a Linux system, the Win32 and BeOS specific modules
+were disabled, while modules that use Unix APIs and /dev/random are
+built.
+
+You can control which algorithms and modules are built using the
+options ``\verb|--enable-modules=MODS|'' and
+``\verb|--disable-modules=MODS|'', for instance \\
+``\verb|--enable-modules=blowfish,md5,rsa,zlib --disable-modules=arc4,cmac|''.
+Modules not listed on the command line will simply be loaded if needed
+or if configured to load by default.
+
+Not all OSes or CPUs have specific support in
+\filename{configure.pl}. If the CPU architecture of your system isn't
+supported by \filename{configure.pl}, use 'generic'. This setting
+disables machine-specific optimization flags. Similarly, setting OS to
+'generic' disables things which depend greatly on OS support
+(specifically, shared libraries).
+
+However, it's impossible to guess which options to give to a system
+compiler.  Thus, if you want to compile Botan with a compiler which
+\filename{configure.pl} does not support, you will need to tell it how
+that compiler works. This is done by adding a new file in the
+directory \filename{src/build-data/cc}; the existing files should put you
+in the right direction.
+
+The script tries to guess what kind of makefile to generate, and it
+almost always guesses correctly (basically, Visual C++ uses NMAKE with
+Windows commands, and everything else uses Unix make with POSIX
+commands). Just in case, you can override it with
+\verb|--make-style=somestyle|. The styles Botan currently knows about
+are 'unix' (normal Unix makefiles), and 'nmake', the make variant
+commonly used by Windows compilers. To add a new variant (eg, a build
+script for VMS), you will need to create a new template file in
+\filename{src/build-data/makefile}.
+
+\pagebreak
+
+\subsection{POSIX / Unix}
+
+The basic build procedure on Unix and Unix-like systems is:
+
+\begin{verbatim}
+   $ ./configure.pl [--enable-modules=<list>] [--cc=CC]
+   $ make
+   # You may need to set your LD_LIBRARY_PATH or equivalent for ./check to run
+   $ make check # optional, but a good idea
+   $ make install
+\end{verbatim}
+
+This will probably default to using GCC, depending on what can be
+found within your PATH.
+
+The \verb|make install| target has a default directory in which it
+will install Botan (typically \verb|/usr/local|). You can override
+this by using the \texttt{--prefix} argument to
+\filename{configure.pl}, like so:
+
+\verb|./configure.pl --prefix=/opt <other arguments>|
+
+On some systems shared libraries might not be immediately visible to
+the runtime linker. For example, on Linux you may have to edit
+\filename{/etc/ld.so.conf} and run \texttt{ldconfig} (as root) in
+order for new shared libraries to be picked up by the linker. An
+alternative is to set your \texttt{LD\_LIBRARY\_PATH} shell variable
+to include the directory that the Botan libraries were installed into.
+
+\subsection{MS Windows}
+
+The situation is not much different here. We'll assume you're using Visual C++
+(for Cygwin, the Unix instructions are probably more relevant). You need to
+have a copy of Perl installed, and have both Perl and Visual C++ in your path.
+
+\begin{verbatim}
+   > perl configure.pl --cc=msvc (or --cc=gcc for MinGW) [--cpu=CPU]
+   > nmake
+   > nmake check # optional, but recommended
+\end{verbatim}
+
+For Win95 pre OSR2, the \verb|cryptoapi_rng| module will not work,
+because CryptoAPI didn't exist. And all versions of NT4 lack the
+ToolHelp32 interface, which is how \verb|win32_stats| does its slow
+polls, so a version of the library built with that module will not
+load under NT4. Later systems (98/ME/2000/XP) support both methods, so
+this shouldn't be much of an issue.
+
+Unfortunately, there currently isn't an install script usable on
+Windows. Basically all you have to do is copy the newly created
+\filename{libbotan.lib} to someplace where you can find it later (say,
+\verb|C:\botan\|). Then copy the entire \verb|build\include\botan|
+directory, which was constructed when you built the library, into the
+same directory.
+
+When building your applications, all you have to do is tell the
+compiler to look for both include files and library files in
+\verb|C:\botan|, and it will find both. Or you can move them to a
+place where they will be in the default compiler search paths (consult
+your documentation and/or local expert for details).
+
+\pagebreak
+
+\subsection{Configuration Parameters}
+
+There are some configuration parameters which you may want to tweak
+before building the library. These can be found in
+\filename{config.h}. This file is overwritten every time the configure
+script is run (and does not exist until after you run the script for
+the first time).
+
+Also included in \filename{build/build.h} are macros which are defined
+if one or more extensions are available. All of them begin with
+\verb|BOTAN_HAS_|. For example, if \verb|BOTAN_HAS_COMPRESSOR_BZIP2|
+is defined, then an application using Botan can include
+\filename{<botan/bzip2.h>} and use the Bzip2 filters.
+
+\macro{BOTAN\_MP\_WORD\_BITS}: This macro controls the size of the
+words used for calculations with the MPI implementation in Botan. You
+can choose 8, 16, 32, or 64, with 32 being the default. You can use 8,
+16, or 32 bit words on any CPU, but the value should be set to the
+same size as the CPU's registers for best performance. You can only
+use 64-bit words if an assembly module (such as \module{mp\_ia32} or
+\module{mp\_asm64}) is used. If the appropriate module is available,
+64 bits are used, otherwise this is set to 32. Unless you are building
+for a 8 or 16-bit CPU, this isn't worth messing with.
+
+\macro{BOTAN\_VECTOR\_OVER\_ALLOCATE}: The memory container
+\type{SecureVector} will over-allocate requests by this amount (in
+elements). In several areas of the library, we grow a vector fairly often. By
+over-allocating by a small amount, we don't have to do allocations as often
+(which is good, because the allocators can be quite slow). If you \emph{really}
+want to reduce memory usage, set it to 0. Otherwise, the default should be
+perfectly fine.
+
+\macro{BOTAN\_DEFAULT\_BUFFER\_SIZE}: This constant is used as the size of
+buffers throughout Botan. A good rule of thumb would be to use the page size of
+your machine. The default should be fine for most, if not all, purposes.
+
+\macro{BOTAN\_GZIP\_OS\_CODE}: The OS code is included in the Gzip header when
+compressing. The default is 255, which means 'Unknown'. You can look in RFC
+1952 for the full list; the most common are Windows (0) and Unix (3). There is
+also a Macintosh (7), but it probably makes more sense to use the Unix code on
+OS X.
+
+\subsection{Multiple Builds}
+
+It may be useful to run multiple builds with different
+configurations. Specify \verb|--build-dir=<dir>| to set up a build
+environment in a different directory.
+
+\subsection{Local Configuration}
+
+You may want to do something peculiar with the configuration; to
+support this there is a flag to \filename{configure.pl} called
+\texttt{--with-local-config=<file>}. The contents of the file are
+inserted into \filename{build/build.h} which is (indirectly) included
+into every Botan header and source file.
+
+\pagebreak
+
+\section{Modules}
+
+There are a fairly large number of modules included with Botan. Some
+of these are extremely useful, while others are only necessary in very
+unusual circumstances. The modules included with this release are:
+
+\newcommand{\mod}[2]{\textbf{#1}: #2}
+
+\begin{list}{$\cdot$}
+  \item \mod{alloc\_mmap}{Allocates memory using memory mappings of temporary
+         files. This means that if the OS swaps all or part of the application,
+         the sensitive data will be swapped to where we can later clean it,
+         rather than somewhere in the swap partition.}
+
+  \item \mod{bzip2}{Enables an application to perform bzip2 compression
+         and decompression using the library. Available on any system that has
+         bzip2.}
+
+  \item \mod{zlib}{Enables an application to perform zlib compression and
+         decompression using the library. Available on any system that has
+         zlib.}
+
+  %\item \mod{eng\_aep}{An engine that uses any available AEP accelerator card
+  %       to speed up PK operations. You have to have the AEP drivers installed
+  %       for this to link correctly, but you don't have to have a card
+  %       installed - it will automatically be enabled if a card is detected at
+  %       run time.}
+
+  \item \mod{gnump}{An engine that uses GNU MP to speed up PK operations.
+         GNU MP 4.1 or later is required.}
+
+  \item \mod{openssl}{An engine that uses OpenSSL to speed up public key
+                      operations and some ciphers/hashes. OpenSSL 0.9.7 or
+                      later is required.}
+
+  \item \mod{beos\_stats}{An entropy source that uses BeOS-specific
+    APIs to gather (hopefully unpredictable) data from the system.}
+
+  \item \mod{cryptoapi\_rng}{An entropy source that uses the Win32
+    CryptoAPI function \texttt{CryptGenRandom} to gather
+    entropy. Supported on NT4, Win95 OSR2, and all later Windows
+    systems.}
+
+  \item \mod{egd}{An entropy source that accesses EGD (the entropy
+         gathering daemon). Common on Unix systems that don't have
+         \texttt{/dev/random}.}
+
+  \item \mod{proc\_walk}{Gather entropy by reading files from a particular file
+          tree. Usually used with \texttt{/proc}; most other file trees don't
+          have sufficient variability over time to be useful.}
+
+  \item \mod{unix\_procs}{Gather entropy by running various Unix programs, like
+          \texttt{arp} and \texttt{vmstat}, and reading their output in the
+          hopes that at least some of it will be unpredictable to an attacker.}
+
+  \item \mod{win32\_stats}{Gather entropy by walking through various pieces of
+          information about processes running on the system. Does not run on
+          NT4, but should run on all other Win32 systems.}
+
+  \item \mod{fd\_unix}{Let the users of \texttt{Pipe} perform I/O with Unix
+         file descriptors in addition to \texttt{iostream} objects.}
+
+  \item \mod{pthread}{Add support for using \texttt{pthread} mutexes to
+         lock internal data structures. Important if you are using threads
+         with the library.}
+
+  \item \mod{qt\_mutex}{Add support for using Qt mutexes to lock internal data
+         structures.}
+
+  \item \mod{cpu\_counter}{Use the contents of the CPU cycle counter when
+         generating random bits to further randomize the results. Works on x86
+         (Pentium and up), Alpha, and SPARCv9.}
+
+  \item \mod{posix\_rt}{Use the POSIX realtime clock as a high-resolution
+         timer.}
+
+  \item \mod{gettimeofday}{Use the traditional Unix
+    \texttt{gettimeofday} as a high resolution timer.}
+
+  \item \mod{win32\_query\_perf\_ctr}{Use Win32's
+    \texttt{QueryPerformanceCounter} as a high resolution timer.}
+
+\end{list}
+
+\pagebreak
+
+\section{Building Applications}
+
+\subsection{Unix}
+
+Botan usually links in several different system libraries (such as
+\texttt{librt} and \texttt{libz}), depending on which modules are
+configured at compile time. In many environments, particularly ones
+using static libraries, an application has to link against the same
+libraries as Botan for the linking step to succeed. But how does it
+figure out what libraries it \emph{is} linked against?
+
+The answer is to ask the \filename{botan-config} script. This
+basically solves the same problem all the other \filename{*-config}
+scripts solve, and in basically the same manner.
+
+There are 4 options:
+
+\texttt{--prefix[=DIR]}: If no argument, print the prefix where Botan
+is installed (such as \filename{/opt} or \filename{/usr/local}). If an
+argument is specified, other options given with the same command will
+execute as if Botan as actually installed at \filename{DIR} and not
+where it really is; or at least where \filename{botan-config} thinks
+it really is. I should mention that it
+
+\texttt{--version}: Print the Botan version number.
+
+\texttt{--cflags}: Print options that should be passed to the compiler
+whenever a C++ file is compiled. Typically this is used for setting
+include paths.
+
+\texttt{--libs}: Print options for which libraries to link to (this includes
+\texttt{-lbotan}).
+
+Your \filename{Makefile} can run \filename{botan-config} and get the
+options necessary for getting your application to compile and link,
+regardless of whatever crazy libraries Botan might be linked against.
+
+Botan also by default installs a file for \texttt{pkg-config},
+namespaced by the major and minor versions. So it can be used,
+for instance, as
+
+\begin{verbatim}
+$ pkg-config botan-1.8 --modversion
+1.8.0
+$ pkg-config botan-1.8 --cflags
+-I/usr/local/include
+$ pkg-config botan-1.8 --libs
+-L/usr/local/lib -lbotan -lm -lbz2 -lpthread -lrt
+\end{verbatim}
+
+\subsection{MS Windows}
+
+No special help exists for building applications on Windows. However,
+given that typically Windows software is distributed as binaries, this
+is less of a problem - only the developer needs to worry about it. As
+long as they can remember where they installed Botan, they just have
+to set the appropriate flags in their Makefile/project file.
+
+\end{document}

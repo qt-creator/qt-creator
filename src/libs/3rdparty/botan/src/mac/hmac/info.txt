@@ -1,0 +1,14 @@
+realname "HMAC"
+
+define HMAC
+
+load_on auto
+
+<add>
+hmac.cpp
+hmac.h
+</add>
+
+<requires>
+hash
+</requires>

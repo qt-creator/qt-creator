@@ -1,0 +1,15 @@
+realname "Lion"
+
+define LION
+
+load_on auto
+
+<add>
+lion.cpp
+lion.h
+</add>
+
+<requires>
+hash
+stream
+</requires>

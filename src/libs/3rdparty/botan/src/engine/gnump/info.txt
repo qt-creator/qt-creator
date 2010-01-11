@@ -1,0 +1,26 @@
+realname "GMP Engine"
+
+define ENGINE_GNU_MP
+
+load_on request
+
+<libs>
+all -> gmp
+</libs>
+
+<add>
+eng_gmp.h
+gmp_dh.cpp
+gmp_dsa.cpp
+gmp_elg.cpp
+gmp_if.cpp
+gmp_mem.cpp
+gmp_nr.cpp
+gmp_powm.cpp
+gmp_wrap.cpp
+gmp_wrap.h
+</add>
+
+<requires>
+bigint
+</requires>

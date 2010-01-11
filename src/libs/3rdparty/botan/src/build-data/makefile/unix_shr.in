@@ -1,0 +1,137 @@
+##################################################
+# Compiler Options                               #
+##################################################
+CXX           = %{cc}
+LIB_OPT       = %{lib_opt}
+CHECK_OPT     = %{check_opt}
+MACH_OPT      = %{mach_opt}
+LANG_FLAGS    = %{lang_flags}
+WARN_FLAGS    = %{warn_flags}
+SO_OBJ_FLAGS  = %{shared_flags}
+SO_LINK_CMD   = %{so_link}
+LINK_TO       = %{link_to}
+
+##################################################
+# Version Numbers                                #
+##################################################
+VERSION       = %{version}
+SO_VERSION    = %{so_version}
+
+##################################################
+# Installation Settings                          #
+##################################################
+DESTDIR       = %{prefix}
+
+BINDIR        = $(DESTDIR)/bin
+LIBDIR        = $(DESTDIR)/%{libdir}
+HEADERDIR     = $(DESTDIR)/%{includedir}/botan
+DOCDIR        = $(DESTDIR)/%{docdir}/Botan-$(VERSION)
+PKGCONF_DIR   = $(LIBDIR)/pkgconfig
+
+CONFIG_SCRIPT = %{botan_config}
+PKGCONFIG     = %{botan_pkgconfig}
+
+##################################################
+# Aliases for Common Programs                    #
+##################################################
+AR               = %{ar_command}
+CD               = @cd
+ECHO             = @echo
+INSTALL_CMD_EXEC = %{install_cmd_exec}
+INSTALL_CMD_DATA = %{install_cmd_data}
+LN               = ln -fs
+MKDIR            = @mkdir
+MKDIR_INSTALL    = @umask 022; mkdir -p -m 755
+RANLIB           = %{ranlib_command}
+RM               = @rm -f
+RM_R             = @rm -rf
+
+##################################################
+# File Lists                                     #
+##################################################
+CHECK         = %{check_prefix}check
+
+DOCS          = %{doc_files}
+
+HEADERS       = %{include_files}
+
+LIBOBJS       = %{lib_objs}
+
+CHECKOBJS     = %{check_objs}
+
+LIB_FLAGS     = $(LIB_OPT) $(MACH_OPT) $(LANG_FLAGS) $(WARN_FLAGS) $(SO_OBJ_FLAGS)
+CHECK_FLAGS   = $(CHECK_OPT) $(LANG_FLAGS) $(WARN_FLAGS)
+
+LIBRARIES     = $(STATIC_LIB) $(SHARED_LIB)
+
+LIBNAME       = %{lib_prefix}libbotan
+STATIC_LIB    = $(LIBNAME).a
+
+SHARED_LIB    = $(LIBNAME)-$(SO_VERSION).%{so_suffix}
+SONAME        = $(LIBNAME)-$(SO_VERSION).%{so_suffix}
+
+SYMLINK       = libbotan.%{so_suffix}
+
+all: $(LIBRARIES)
+
+##################################################
+# Build Commands                                 #
+##################################################
+%{lib_build_cmds}
+
+%{check_build_cmds}
+
+##################################################
+# Link Commands                                  #
+##################################################
+$(CHECK): $(LIBRARIES) $(CHECKOBJS)
+	$(CXX) $(LDFLAGS) $(CHECKOBJS) -o $(CHECK) -L. -lbotan-%{so_version} $(LINK_TO)
+
+$(STATIC_LIB): $(LIBOBJS)
+	$(RM) $(STATIC_LIB)
+	$(AR) $(STATIC_LIB) $(LIBOBJS)
+	$(RANLIB) $(STATIC_LIB)
+
+$(SHARED_LIB): $(LIBOBJS)
+	$(SO_LINK_CMD) $(LDFLAGS) $(LIBOBJS) -o $(SHARED_LIB) $(LINK_TO)
+	$(LN) $(SHARED_LIB) $(SYMLINK)
+
+##################################################
+# Fake Targets                                   #
+##################################################
+.PHONY = doxygen clean distclean install static shared
+
+static: $(STATIC_LIB)
+
+shared: $(SHARED_LIB)
+
+doxygen:
+	doxygen %{doc_src_dir}/botan.doxy
+
+clean:
+	$(RM_R) %{build_dir}/lib/* %{build_dir}/checks/*
+	$(RM) $(LIBRARIES) $(SYMLINK) $(CHECK)
+
+distclean: clean
+	$(RM_R) %{build_dir}
+	$(RM_R) %{doc_src_dir}/doxygen %{doc_src_dir}/botan.doxy
+	$(RM) Makefile $(CONFIG_SCRIPT) $(PKGCONFIG)
+
+install: $(LIBRARIES)
+	$(ECHO) "Installing Botan into $(DESTDIR)... "
+	$(MKDIR_INSTALL) $(DOCDIR)
+	$(MKDIR_INSTALL) $(HEADERDIR)
+	$(MKDIR_INSTALL) $(LIBDIR)
+	$(MKDIR_INSTALL) $(BINDIR)
+	$(MKDIR_INSTALL) $(PKGCONF_DIR)
+	for i in $(DOCS); do \
+	   $(INSTALL_CMD_DATA) $$i $(DOCDIR); \
+	 done
+	for i in $(HEADERS); do \
+	   $(INSTALL_CMD_DATA) $$i $(HEADERDIR); \
+	 done
+	$(INSTALL_CMD_DATA) $(STATIC_LIB) $(LIBDIR)
+	$(INSTALL_CMD_EXEC) $(CONFIG_SCRIPT) $(BINDIR)
+	$(INSTALL_CMD_EXEC) $(SHARED_LIB) $(LIBDIR)
+	$(INSTALL_CMD_DATA) $(PKGCONFIG) $(PKGCONF_DIR)
+	$(CD) $(LIBDIR); $(LN) $(SHARED_LIB) $(SYMLINK)

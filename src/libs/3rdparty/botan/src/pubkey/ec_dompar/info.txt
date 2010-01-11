@@ -1,0 +1,18 @@
+realname "ECC Domain Parameters"
+
+define ECC_DOMAIN_PARAMATERS
+
+load_on auto
+
+<add>
+ec_dompar.cpp
+ec_dompar.h
+</add>
+
+<requires>
+asn1
+bigint
+filters
+gfpmath
+hex
+</requires>

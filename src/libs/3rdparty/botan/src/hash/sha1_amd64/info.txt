@@ -1,0 +1,34 @@
+realname "SHA-1 (x86-64 assembler)"
+
+define SHA1_AMD64
+
+load_on asm_ok
+
+<add>
+sha1_amd64_imp.S
+sha1_amd64.cpp
+sha1_amd64.h
+</add>
+
+<arch>
+amd64
+</arch>
+
+<cc>
+gcc
+icc
+</cc>
+
+# ELF systems
+<os>
+linux
+netbsd
+openbsd
+solaris
+</os>
+
+<requires>
+amd64_eng
+asm_amd64
+sha1
+</requires>

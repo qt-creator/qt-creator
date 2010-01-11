@@ -1,0 +1,16 @@
+realname "Symmetric Algorithms"
+
+load_on auto
+
+<add>
+sym_algo.h
+symkey.cpp
+symkey.h
+</add>
+
+<requires>
+alloc
+filters
+hex
+rng
+</requires>
