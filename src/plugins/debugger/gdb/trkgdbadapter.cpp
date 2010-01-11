@@ -108,9 +108,16 @@ QDebug operator<<(QDebug d, MemoryRange range)
 //
 ///////////////////////////////////////////////////////////////////////////
 
+MemoryRange::MemoryRange(uint f, uint t)
+    : from(f), to(t)
+{
+    QTC_ASSERT(f <= t, /**/);
+}
+
 bool MemoryRange::intersects(const MemoryRange &other) const
 {
     Q_UNUSED(other);
+    QTC_ASSERT(false, /**/);
     return false; // FIXME
 }
 
@@ -153,7 +160,7 @@ void Snapshot::reset()
 
 void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
 {
-    QTC_ASSERT(range.size() == ba.size(),
+    QTC_ASSERT(range.size() == uint(ba.size()),
         qDebug() << "RANGE: " << range << " BA SIZE: " << ba.size(); return);
     
     MEMORY_DEBUG("INSERT: " << range);
@@ -165,18 +172,20 @@ void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
             MEMORY_DEBUG("COMBINING " << it.key() << " AND " << range);
             QByteArray data = *it;
             data.append(ba);
+            const MemoryRange res(it.key().from, range.to);
             memory.remove(it.key());
-            memory.insert(MemoryRange(it.key().from, range.to), data);
-            MEMORY_DEBUG(" TO  " << MemoryRange(it.key().from, range.to));
+            memory.insert(res, data);
+            MEMORY_DEBUG(" TO(1)  " << res);
             return;
         }
         if (it.key().from == range.to) {
             MEMORY_DEBUG("COMBINING " << range << " AND " << it.key());
             QByteArray data = ba;
             data.append(*it);
+            const MemoryRange res(range.from, it.key().to);
             memory.remove(it.key());
-            memory.insert(MemoryRange(range.from, it.key().to), data);
-            MEMORY_DEBUG(" TO  " << MemoryRange(range.from, it.key().to));
+            memory.insert(res, data);
+            MEMORY_DEBUG(" TO(2)  " << res);
             return;
         }
     }
@@ -857,12 +866,16 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd.startsWith("qXfer:libraries:read")) {
+        qDebug() << "COMMAND: " << cmd;
         sendGdbServerAck();
         QByteArray response = "l<library-list>";
         for (int i = 0; i != m_session.libraries.size(); ++i) {
             const Library &lib = m_session.libraries.at(i);
             response += "<library name=\"" + lib.name + "\">";
-            response += "<segment address=\"0x" + hexNumber(lib.codeseg) + "\"/>";
+            //response += "<segment address=\"0x" + hexNumber(lib.codeseg) + "\"/>";
+            response += "<section address=\"0x" + hexNumber(lib.codeseg) + "\"/>";
+            response += "<section address=\"0x" + hexNumber(lib.dataseg) + "\"/>";
+            response += "<section address=\"0x" + hexNumber(lib.dataseg) + "\"/>";
             response += "</library>";
         }
         response += "</library-list>";
@@ -1339,8 +1352,16 @@ void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
     if (const int errorCode = result.errorCode()) {
         logMessage(_("TEMPORARY: ") + msgMemoryReadError(errorCode, range.from));
         logMessage(_("RETRYING UNBUFFERED"));
+#if 1
         const QByteArray ba = "E20";
         sendGdbServerMessage(ba, msgMemoryReadError(32, range.from).toLatin1());
+#else
+        // emit bogus data to make Python happy
+        MemoryRange wanted = m_snapshot.wantedMemory;
+        qDebug() << "SENDING BOGUS DATA FOR " << wanted;
+        m_snapshot.insertMemory(wanted, QByteArray(wanted.size(), 0xa5));
+        tryAnswerGdbMemoryRequest(false);
+#endif
         return;
     }
     const QByteArray ba = result.data.mid(3);
@@ -1350,7 +1371,7 @@ void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
 
 void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
 {
-    //logMessage("UNBUFFERED MEMORY READ: " + stringFromArray(result.data));
+    //logMessage("TRYING TO ANSWERING MEMORY REQUEST ");
 
     MemoryRange wanted = m_snapshot.wantedMemory;
     MemoryRange needed = m_snapshot.wantedMemory;
@@ -1358,10 +1379,10 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
     Snapshot::Memory::const_iterator it = m_snapshot.memory.begin();
     Snapshot::Memory::const_iterator et = m_snapshot.memory.end();
     for ( ; it != et; ++it) {
-        MEMORY_DEBUG("   NEEDED: " << needed);
+        MEMORY_DEBUG("   NEEDED STEP: " << needed);
         needed -= it.key(); 
     }
-    MEMORY_DEBUG("NEEDED: " << needed);
+    MEMORY_DEBUG("NEEDED FINAL: " << needed);
 
     if (needed.to == 0) {
         // FIXME: need to combine chunks first.

@@ -73,13 +73,13 @@ enum TargetConstants
 struct MemoryRange
 {
     MemoryRange() : from(0), to(0) {}
-    MemoryRange(uint f, uint t) : from(f), to(t) {}
+    MemoryRange(uint f, uint t);
     void operator-=(const MemoryRange &other);
     bool intersects(const MemoryRange &other) const;
     quint64 hash() const { return (quint64(from) << 32) + to; }
     bool operator==(const MemoryRange &other) const { return hash() == other.hash(); }
     bool operator<(const MemoryRange &other) const { return hash() < other.hash(); }
-    int size() const { return to - from; }
+    uint size() const { return to - from; }
 
     uint from; // Inclusive.
     uint to;   // Exclusive.
