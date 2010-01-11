@@ -25,11 +25,11 @@
 #include "ne7ssh_mutex.h"
 
 #if defined(WIN32) || defined(__MINGW32__)
-#	define kill(pid,signo) raise(signo)
-#	define ne7ssh_thread_join(hndl,ign) WaitForSingleObject(hndl, INFINITE)
-#	define ne7ssh_thread_exit(sig) ExitThread(sig)
+#   define kill(pid,signo) raise(signo)
+#   define ne7ssh_thread_join(hndl,ign) WaitForSingleObject(hndl, INFINITE)
+#   define ne7ssh_thread_exit(sig) ExitThread(sig)
 #else
-#	define ne7ssh_thread_create pthread_create
+#   define ne7ssh_thread_create pthread_create
 #       define ne7ssh_thread_join pthread_join
 #       define ne7ssh_thread_exit pthread_exit
 #endif
@@ -69,7 +69,7 @@ class Locking_AutoSeeded_RNG : public Botan::RandomNumberGenerator
     Locking_AutoSeeded_RNG() { rng = new Botan::AutoSeeded_RNG(); }
     ~Locking_AutoSeeded_RNG() { delete rng; }
     
-    void randomize(byte output[], u32bit length)
+    void randomize(Botan::byte output[], u32bit length)
     {
       mutex.lock();
       rng->randomize(output, length);
@@ -99,7 +99,7 @@ class Locking_AutoSeeded_RNG : public Botan::RandomNumberGenerator
       mutex.unlock();
     }
 
-    void add_entropy(const byte in[], u32bit length)
+    void add_entropy(const Botan::byte in[], u32bit length)
     {
       mutex.lock();
       rng->add_entropy(in, length);
@@ -242,15 +242,15 @@ void *ne7ssh::selectThread (void *initData)
       else if ((allConns->conns[i]->isConnected() && allConns->conns[i]->isRemoteShell()) || allConns->conns[i]->isCmdClosed())
       {
         delete (allConns->conns[i]);
-	allConns->conns[i] = 0;
+    allConns->conns[i] = 0;
         allConns->count--;
         for (z = i; z < allConns->count; z++)
-	    {
+        {
           allConns->conns[z] = allConns->conns[z + 1];
           allConns->conns[z + 1] = 0;
-	    }
+        }
         _ssh->setCount (allConns->count);
-	i--;
+    i--;
       }
     }
     if (!unlock())
@@ -405,11 +405,11 @@ bool ne7ssh::send (const char* data, int channel)
     if (channel == connections[i]->getChannelNo())
     {
       connections[i]->sendData (data);
-	    if (!unlock()) return false;
+        if (!unlock()) return false;
       else return true;
     }
   }
-	errs->push (-1, "Bad channel: %i specified for sending.", channel);
+    errs->push (-1, "Bad channel: %i specified for sending.", channel);
   if (!unlock()) return false;
   return false;
 }
@@ -428,7 +428,7 @@ bool ne7ssh::initSftp (Ne7SftpSubsystem& _sftp, int channel)
       if (!__sftp)
       {
         if (!unlock()) return false;
-	return false;
+    return false;
       }
       else
       {
@@ -462,47 +462,47 @@ bool ne7ssh::sendCmd (const char* cmd, int channel, int timeout)
       if (!status)
       {
         if (!unlock()) return false;
-	return false;
+    return false;
       }
 
       if (!timeout)
       {
         while (!connections[i]->getCmdComplete())
-	{
+    {
           for (i = 0; i < conCount; i++)
-  	  {
+      {
             if (channel == connections[i]->getChannelNo())
-	      break;
+          break;
           }
-	  if (i == conCount)
-	  {
-	    errs->push (-1, "Bad channel: %i specified for sending.", channel);
-  	    unlock();
-  	    return false;
-	  }
+      if (i == conCount)
+      {
+        errs->push (-1, "Bad channel: %i specified for sending.", channel);
+        unlock();
+        return false;
+      }
           if (!connections[i]->getCmdComplete())
           {
             if (!unlock()) return false;
             usleep (10000);
             if (!lock()) return false;
           }
-	}
+    }
       }
       else if (timeout > 0)
       {
         while (!connections[i]->getCmdComplete())
-	{
+    {
           for (i = 0; i < conCount; i++)
-  	  {
+      {
             if (channel == connections[i]->getChannelNo())
-	      break;
+          break;
           }
-	  if (i == conCount)
-	  {
-	    errs->push (-1, "Bad channel: %i specified for sending.", channel);
-  	    if (!unlock()) return false;
-  	    return false;
-	  }
+      if (i == conCount)
+      {
+        errs->push (-1, "Bad channel: %i specified for sending.", channel);
+        if (!unlock()) return false;
+        return false;
+      }
           if (!connections[i]->getCmdComplete())
           {
             if (!unlock()) return false;
@@ -511,7 +511,7 @@ bool ne7ssh::sendCmd (const char* cmd, int channel, int timeout)
             if (!cutoff) continue;
             if (time(NULL) >= cutoff) break;
           }
-	}
+    }
       }
       if (!unlock()) return false;
       return true;
@@ -676,7 +676,7 @@ int ne7ssh::getReceivedSize (int channel, bool do_lock)
       if (!connections[i]->getReceived().size())
       {
         if (do_lock && !unlock()) return 0;
-      	return 0;
+        return 0;
       }
       else
       {
