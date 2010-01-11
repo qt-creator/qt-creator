@@ -35,12 +35,10 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
-#include <QtCore/QDir>
 #include <QtGui/QPushButton>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QHeaderView>
 #include <QtGui/QCheckBox>
-#include <QtGui/QPushButton>
 
 Q_DECLARE_METATYPE(Core::IFile*);
 

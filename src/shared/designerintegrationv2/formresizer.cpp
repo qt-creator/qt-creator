@@ -39,7 +39,6 @@
 #include <QtGui/QPalette>
 #include <QtGui/QLayout>
 #include <QtGui/QFrame>
-#include <QtGui/QResizeEvent>
 
 enum { debugFormResizer = 0 };
 

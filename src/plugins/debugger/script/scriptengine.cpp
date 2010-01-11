@@ -38,7 +38,6 @@
 #include "stackhandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"
-#include "moduleshandler.h"
 
 #include <utils/qtcassert.h>
 

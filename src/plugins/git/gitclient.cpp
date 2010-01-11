@@ -44,7 +44,6 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/filemanager.h>
-#include <coreplugin/filemanager.h>
 #include <coreplugin/iversioncontrol.h>
 
 #include <texteditor/itexteditor.h>

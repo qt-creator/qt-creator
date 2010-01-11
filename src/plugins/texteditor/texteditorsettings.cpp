@@ -38,7 +38,6 @@
 #include "fontsettingspage.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
-#include "texteditorconstants.h"
 #include "texteditorplugin.h"
 
 #include <extensionsystem/pluginmanager.h>

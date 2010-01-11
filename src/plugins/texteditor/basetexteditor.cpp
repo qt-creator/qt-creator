@@ -69,10 +69,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QPrinter>
 #include <QtGui/QPrintDialog>
-#include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
 #include <QtGui/QShortcut>
-#include <QtGui/QScrollBar>
 #include <QtGui/QStyle>
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextCursor>
@@ -82,7 +80,6 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMenu>
-#include <QtGui/QKeyEvent>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

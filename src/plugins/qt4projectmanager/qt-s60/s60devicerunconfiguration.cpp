@@ -48,7 +48,6 @@
 #include <projectexplorer/persistentsettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/persistentsettings.h>
 
 #include <debugger/debuggermanager.h>
 

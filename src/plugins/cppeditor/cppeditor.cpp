@@ -40,7 +40,6 @@
 #include <Scope.h>
 #include <Symbols.h>
 #include <Names.h>
-#include <Control.h>
 #include <CoreTypes.h>
 #include <Literals.h>
 #include <Semantic.h>
@@ -54,7 +53,6 @@
 #include <cplusplus/OverviewModel.h>
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/TokenUnderCursor.h>
-#include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FastPreprocessor.h>

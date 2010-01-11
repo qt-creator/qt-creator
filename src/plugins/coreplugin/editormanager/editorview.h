@@ -43,7 +43,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/ifile.h>
 
-#include <QtCore/QMap>
 #include <QtGui/QSortFilterProxyModel>
 
 QT_BEGIN_NAMESPACE

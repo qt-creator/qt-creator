@@ -30,7 +30,6 @@
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
-#include "cmakeprojectconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>

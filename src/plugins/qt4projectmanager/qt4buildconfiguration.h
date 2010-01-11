@@ -34,7 +34,6 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/toolchain.h>
-#include "qtversionmanager.h"
 
 namespace Qt4ProjectManager {
 

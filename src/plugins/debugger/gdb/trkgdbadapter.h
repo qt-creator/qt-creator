@@ -43,7 +43,6 @@
 #include <QtCore/QQueue>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>

@@ -85,7 +85,6 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QStatusBar>
 #include <QtGui/QWizard>
-#include <QtGui/QPrinter>
 #include <QtGui/QToolButton>
 #include <QtGui/QMessageBox>
 

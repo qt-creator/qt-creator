@@ -36,7 +36,6 @@
 #include <QtCore/QHash>
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
-#include <QtCore/QDateTime>
 #include <QtCore/QMap>
 
 QT_BEGIN_NAMESPACE

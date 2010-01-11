@@ -49,8 +49,6 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QTabWidget>
 
-#include <QtGui/QApplication>
-
 using namespace ProjectExplorer::Internal;
 using namespace ProjectExplorer;
 

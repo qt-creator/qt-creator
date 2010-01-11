@@ -44,7 +44,6 @@
 #include <qmleditor/qmlmodelmanagerinterface.h>
 
 #include <utils/synchronousprocess.h>
-#include <utils/pathchooser.h>
 
 #include <QtCore/QtDebug>
 #include <QtCore/QDir>

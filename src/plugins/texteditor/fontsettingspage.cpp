@@ -49,7 +49,6 @@
 #include <QtGui/QListWidget>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPalette>
-#include <QtGui/QPalette>
 #include <QtGui/QTextCharFormat>
 #include <QtGui/QTextEdit>
 #include <QtGui/QToolButton>

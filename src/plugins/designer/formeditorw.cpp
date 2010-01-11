@@ -54,7 +54,6 @@
 
 #include <QtDesigner/QDesignerWidgetBoxInterface>
 #include <QtDesigner/abstractobjectinspector.h>
-#include <QtDesigner/QDesignerComponents>
 #include <QtDesigner/QDesignerPropertyEditorInterface>
 #include <QtDesigner/QDesignerActionEditorInterface>
 

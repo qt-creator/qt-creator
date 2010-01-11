@@ -35,7 +35,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/iversioncontrol.h>
 #include <extensionsystem/pluginmanager.h>

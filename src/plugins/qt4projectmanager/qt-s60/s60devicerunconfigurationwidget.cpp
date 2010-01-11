@@ -34,7 +34,6 @@
 #include "s60manager.h"
 #include "launcher.h"
 #include "bluetoothlistener.h"
-#include "bluetoothlistener_gui.h"
 #include "serialdevicelister.h"
 
 #include <utils/detailswidget.h>

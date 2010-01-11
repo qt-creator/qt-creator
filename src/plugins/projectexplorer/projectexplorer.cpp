@@ -78,10 +78,8 @@
 #include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/basefilewizard.h>
-#include <coreplugin/mainwindow.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/vcsmanager.h>
 #include <welcome/welcomemode.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/consoleprocess.h>
