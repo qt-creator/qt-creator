@@ -106,7 +106,6 @@ public slots:
 private slots:
     void openCurrentFile();
     void addCurrentFile();
-    void deleteCurrentFile();
     void revertCurrentFile();
     void printOpenedFileList();
     void diffCurrentFile();

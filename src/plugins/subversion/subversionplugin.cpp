@@ -292,14 +292,14 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     subversionMenu->addAction(command);
 
-    m_deleteAction = new Utils::ParameterAction(tr("Delete"), tr("Delete \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Utils::ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
+    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
     subversionMenu->addAction(command);
 
-    m_revertAction = new Utils::ParameterAction(tr("Revert"), tr("Revert \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_revertAction = new Utils::ParameterAction(tr("Revert..."), tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_revertAction, CMD_ID_REVERT,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -554,13 +554,6 @@ void SubversionPlugin::addCurrentFile()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
-}
-
-void SubversionPlugin::deleteCurrentFile()
-{
-    const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
-    vcsDelete(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void SubversionPlugin::revertCurrentFile()

@@ -66,7 +66,6 @@ public slots:
 
 private:
     MercurialClient *mercurialClient;
-    bool mercurialEnabled;
 };
 
 } //namespace Internal

@@ -1946,7 +1946,7 @@ void ProjectExplorerPlugin::removeFile()
         }
 
         // remove from version control
-        core->vcsManager()->showDeleteDialog(filePath);
+        core->vcsManager()->promptToDelete(filePath);
 
         // remove from file system
         if (deleteFile) {

@@ -261,14 +261,14 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     cvsMenu->addAction(command);
 
-    m_deleteAction = new Utils::ParameterAction(tr("Delete"), tr("Delete \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Utils::ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
+    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
     cvsMenu->addAction(command);
 
-    m_revertAction = new Utils::ParameterAction(tr("Revert"), tr("Revert \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_revertAction = new Utils::ParameterAction(tr("Revert..."), tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_revertAction, CMD_ID_REVERT,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -522,14 +522,6 @@ void CVSPlugin::addCurrentFile()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
-}
-
-void CVSPlugin::deleteCurrentFile()
-{
-    const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
-    if (!Core::ICore::instance()->vcsManager()->showDeleteDialog(state.currentFile()))
-        QMessageBox::warning(0, QLatin1String("CVS remove"), tr("The file '%1' could not be deleted.").arg(state.currentFile()), QMessageBox::Ok);
 }
 
 void CVSPlugin::revertCurrentFile()

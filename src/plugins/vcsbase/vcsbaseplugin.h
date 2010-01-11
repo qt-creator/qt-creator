@@ -149,6 +149,11 @@ public:
     const VCSBasePluginState &currentState() const;
     Core::IVersionControl *versionControl() const;
 
+public slots:
+    // Convenience slot for "Delete current file" action. Prompts to
+    // delete the file via VCSManager.
+    void promptToDeleteCurrentFile();
+
 protected:
     enum ActionState { NoVCSEnabled, OtherVCSEnabled, VCSEnabled };
 

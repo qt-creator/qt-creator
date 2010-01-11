@@ -98,7 +98,6 @@ public:
 
 private slots:
     void addCurrentFile();
-    void deleteCurrentFile();
     void revertCurrentFile();
     void diffProject();
     void diffCurrentFile();

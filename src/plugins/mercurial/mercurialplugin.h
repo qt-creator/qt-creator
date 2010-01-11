@@ -88,6 +88,7 @@ public:
 
 private slots:
     // File menu action Slots
+    void addCurrentFile();
     void annotateCurrentFile();
     void diffCurrentFile();
     void logCurrentFile();
@@ -156,6 +157,8 @@ private:
     QTemporaryFile *changeLog;
 
     //Menu Items (file actions)
+    Utils::ParameterAction *m_addAction;
+    Utils::ParameterAction *m_deleteAction;
     Utils::ParameterAction *annotateFile;
     Utils::ParameterAction *diffFile;
     Utils::ParameterAction *logFile;

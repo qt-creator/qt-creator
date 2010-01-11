@@ -46,6 +46,7 @@
 #include <QtCore/QSharedData>
 
 #include <QtGui/QAction>
+#include <QtGui/QMessageBox>
 
 enum { debug = 0 };
 
@@ -444,6 +445,15 @@ bool VCSBasePlugin::enableMenuAction(ActionState as, QAction *menuAction)
         break;
     }
     return true;
+}
+
+void VCSBasePlugin::promptToDeleteCurrentFile()
+{
+    const VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    const bool rc = Core::ICore::instance()->vcsManager()->promptToDelete(versionControl(), state.currentFile());
+    if (!rc)
+        QMessageBox::warning(0, tr("Version Control"), tr("The file '%1' could not be deleted.").arg(state.currentFile()), QMessageBox::Ok);
 }
 
 } // namespace VCSBase

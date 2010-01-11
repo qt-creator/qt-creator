@@ -85,6 +85,8 @@ const char * const COMMITMIMETYPE = "application/vnd.nokia.text.scs_mercurial_co
 
 //menu items
 //File menu actions
+const char * const ADD = "Mercurial.AddSingleFile";
+const char * const DELETE = "Mercurial.DeleteSingleFile";
 const char * const ANNOTATE = "Mercurial.Annotate";
 const char * const DIFF = "Mercurial.DiffSingleFile";
 const char * const LOG = "Mercurial.LogSingleFile";

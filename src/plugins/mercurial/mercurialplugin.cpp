@@ -41,6 +41,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/basemode.h>
+#include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
@@ -124,6 +125,8 @@ MercurialPlugin::MercurialPlugin() :
         optionsPage(0),
         m_client(0),
         changeLog(0),
+        m_addAction(0),
+        m_deleteAction(0),
         m_menuAction(0)
 {
     m_instance = this;
@@ -225,38 +228,59 @@ void MercurialPlugin::createFileActions(const QList<int> &context)
 {
     Core::Command *command;
 
-    annotateFile = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    annotateFile = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(annotateFile, QLatin1String(Constants::ANNOTATE), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(annotateFile, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
     mercurialContainer->addAction(command);
 
-    diffFile = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    diffFile = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(diffFile, QLatin1String(Constants::DIFF), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+D")));
     connect(diffFile, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     mercurialContainer->addAction(command);
 
-    logFile = new Utils::ParameterAction(tr("Log Current File"), tr("Log \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    logFile = new Utils::ParameterAction(tr("Log Current File"), tr("Log \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(logFile, QLatin1String(Constants::LOG), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+L")));
     connect(logFile, SIGNAL(triggered()), this, SLOT(logCurrentFile()));
     mercurialContainer->addAction(command);
 
-    revertFile = new Utils::ParameterAction(tr("Revert Current File"), tr("Revert \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
-    command = actionManager->registerAction(revertFile, QLatin1String(Constants::REVERT), context);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(revertFile, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
-    mercurialContainer->addAction(command);
-
-    statusFile = new Utils::ParameterAction(tr("Status Current File"), tr("Status \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    statusFile = new Utils::ParameterAction(tr("Status Current File"), tr("Status \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(statusFile, QLatin1String(Constants::STATUS), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+S")));
     connect(statusFile, SIGNAL(triggered()), this, SLOT(statusCurrentFile()));
     mercurialContainer->addAction(command);
+
+    createSeparator(context, QLatin1String("FileDirSeperator1"));
+
+    m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = actionManager->registerAction(m_addAction, QLatin1String(Constants::ADD), context);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
+    mercurialContainer->addAction(command);
+
+    m_deleteAction = new Utils::ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
+    command = actionManager->registerAction(m_deleteAction, QLatin1String(Constants::DELETE), context);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
+    mercurialContainer->addAction(command);
+
+    revertFile = new Utils::ParameterAction(tr("Revert Current File..."), tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
+    command = actionManager->registerAction(revertFile, QLatin1String(Constants::REVERT), context);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(revertFile, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
+    mercurialContainer->addAction(command);
+}
+
+void MercurialPlugin::addCurrentFile()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    m_client->add(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void MercurialPlugin::annotateCurrentFile()
@@ -655,19 +679,15 @@ void MercurialPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
         return;
 
     const QString filename = currentState().currentFileName();
-    const bool fileEnabled = !filename.isEmpty();
     const bool repoEnabled = currentState().hasTopLevel();
 
     annotateFile->setParameter(filename);
-    annotateFile->setEnabled(fileEnabled);
     diffFile->setParameter(filename);
-    diffFile->setEnabled(fileEnabled);
     logFile->setParameter(filename);
-    logFile->setEnabled(fileEnabled);
+    m_addAction->setParameter(filename);
+    m_deleteAction->setParameter(filename);
     revertFile->setParameter(filename);
-    revertFile->setEnabled(fileEnabled);
     statusFile->setParameter(filename);
-    statusFile->setEnabled(fileEnabled);
 
     foreach (QAction *repoAction, m_repositoryActionList)
         repoAction->setEnabled(repoEnabled);

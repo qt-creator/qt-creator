@@ -38,8 +38,7 @@
 using namespace Mercurial::Internal;
 
 MercurialControl::MercurialControl(MercurialClient *client)
-        :   mercurialClient(client),
-            mercurialEnabled(true)
+        :   mercurialClient(client)
 {
 }
 

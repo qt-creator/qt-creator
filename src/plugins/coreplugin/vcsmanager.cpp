@@ -33,6 +33,7 @@
 #include "filemanager.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QString>
 #include <QtCore/QList>
@@ -133,10 +134,17 @@ IVersionControl* VCSManager::findVersionControlForDirectory(const QString &direc
     return 0;
 }
 
-bool VCSManager::showDeleteDialog(const QString &fileName)
+bool VCSManager::promptToDelete(const QString &fileName)
 {
-    IVersionControl *vc = findVersionControlForDirectory(QFileInfo(fileName).absolutePath());
-    if (!vc || !vc->supportsOperation(IVersionControl::DeleteOperation))
+    if (IVersionControl *vc = findVersionControlForDirectory(QFileInfo(fileName).absolutePath()))
+        return promptToDelete(vc, fileName);
+    return true;
+}
+
+bool VCSManager::promptToDelete(IVersionControl *vc, const QString &fileName)
+{
+    QTC_ASSERT(vc, return true)
+    if (!vc->supportsOperation(IVersionControl::DeleteOperation))
         return true;
     const QString title = QCoreApplication::translate("VCSManager", "Version Control");
     const QString msg = QCoreApplication::translate("VCSManager",

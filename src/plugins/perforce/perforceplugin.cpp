@@ -276,11 +276,11 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     mperforce->addAction(command);
 
-    m_deleteAction = new Utils::ParameterAction(tr("Delete"), tr("Delete \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Utils::ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_deleteAction, CMD_ID_DELETE_FILE, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultText(tr("Delete File"));
-    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
+    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
     mperforce->addAction(command);
 
     m_revertFileAction = new Utils::ParameterAction(tr("Revert"), tr("Revert \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
@@ -449,13 +449,6 @@ void PerforcePlugin::addCurrentFile()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
-}
-
-void PerforcePlugin::deleteCurrentFile()
-{
-    const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return)
-    vcsDelete(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void PerforcePlugin::revertCurrentFile()
