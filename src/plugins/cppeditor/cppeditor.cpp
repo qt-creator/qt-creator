@@ -1374,11 +1374,11 @@ QString CPPEditor::autoComplete(QTextCursor &cursor, const QString &textToInsert
     QString brackets = QLatin1String("[]");
     if (parentheses.contains(character) || brackets.contains(character)) {
         QTextCursor tmp= cursor;
-        TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
-        int blockStart = tmp.isNull() ? 0 : tmp.position();
+        bool foundBlockStart = TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
+        int blockStart = foundBlockStart ? tmp.position() : 0;
         tmp = cursor;
-        TextEditor::TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
-        int blockEnd = tmp.isNull() ? (cursor.document()->characterCount()-1) : tmp.position();
+        bool foundBlockEnd = TextEditor::TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
+        int blockEnd = foundBlockEnd ? tmp.position() : (cursor.document()->characterCount() - 1);
         QChar openChar = parentheses.contains(character) ? QLatin1Char('(') : QLatin1Char('[');
         QChar closeChar = parentheses.contains(character) ? QLatin1Char(')') : QLatin1Char(']');
 
