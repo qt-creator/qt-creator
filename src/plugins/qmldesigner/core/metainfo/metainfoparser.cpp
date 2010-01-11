@@ -169,7 +169,7 @@ void MetaInfoParser::handleNodeElement(QXmlStreamReader &reader)
         nodeMetaInfo = m_metaInfo.nodeMetaInfo(className);
     } else {
         qWarning() << "Metainfo: " << className << " does not exist";
-       while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "node"))
+        while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "node"))
             reader.readNext();
         return;
     }
