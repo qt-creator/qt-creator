@@ -186,6 +186,7 @@ void StatesEditorView::modelAboutToBeDetached(Model *model)
 
 void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
+    QmlModelView::propertiesAboutToBeRemoved(propertyList);
     foreach (const AbstractProperty &property, propertyList) {
         // remove all states except base state
         if ((property.name()=="states") && (property.parentModelNode().isRootNode())) {
@@ -197,6 +198,9 @@ void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
             ModelNode node (property.parentModelNode().parentProperty().parentModelNode());
             if (QmlModelState(node).isValid()) {
                 startUpdateTimer(modelStateIndex(node) + 1, 0);
+            } else { //a change to the base state update all
+                for (int i = 0; i < m_modelStates.count(); ++i)
+                    startUpdateTimer(i, 0);
             }
         }
     }
