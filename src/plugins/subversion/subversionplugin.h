@@ -103,6 +103,7 @@ private slots:
     void diffCurrentFile();
     void startCommitAll();
     void startCommitCurrentFile();
+    void revertAll();
     void filelogCurrentFile();
     void annotateCurrentFile();
     void annotateVersion(const QString &file, const QString &revision, int lineNumber);
@@ -153,6 +154,7 @@ private:
     Utils::ParameterAction *m_logProjectAction;
     QAction *m_logRepositoryAction;
     QAction *m_commitAllAction;
+    QAction *m_revertRepositoryAction;
     Utils::ParameterAction *m_commitCurrentAction;
     Utils::ParameterAction *m_filelogCurrentAction;
     Utils::ParameterAction *m_annotateCurrentAction;

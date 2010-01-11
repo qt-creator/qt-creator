@@ -158,7 +158,6 @@ static const char * const CMD_ID_UPDATEALL = "Perforce.UpdateAll";
 static const char * const CMD_ID_SEPARATOR1 = "Perforce.Separator1";
 static const char * const CMD_ID_SEPARATOR2 = "Perforce.Separator2";
 static const char * const CMD_ID_SEPARATOR3 = "Perforce.Separator3";
-static const char * const CMD_ID_SEPARATOR4 = "Perforce.Separator4";
 
 ////
 // PerforcePlugin
@@ -213,6 +212,16 @@ static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Perforce::Constants::PERFORCESUBMITEDITOR_CONTEXT
 };
 
+static inline Core::Command *createSeparator(QObject *parent,
+                                             Core::ActionManager *ami,
+                                             const char*id,
+                                             const QList<int> &globalcontext)
+{
+    QAction *tmpaction = new QAction(parent);
+    tmpaction->setSeparator(true);
+    return ami->registerAction(tmpaction, id, globalcontext);
+}
+
 bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * errorMessage)
 {
     typedef VCSBase::VCSEditorFactory<PerforceEditor> PerforceEditorFactory;
@@ -258,7 +267,30 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
             uniqueIdentifier(Constants::PERFORCESUBMITEDITOR_CONTEXT);
 
     Core::Command *command;
-    QAction *tmpaction;
+
+    m_diffFileAction = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = am->registerAction(m_diffFileAction, CMD_ID_DIFF_CURRENT, globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setDefaultText(tr("Diff Current File"));
+    connect(m_diffFileAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
+    mperforce->addAction(command);
+
+    m_annotateCurrentAction = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = am->registerAction(m_annotateCurrentAction, CMD_ID_ANNOTATE_CURRENT, globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setDefaultText(tr("Annotate Current File"));
+    connect(m_annotateCurrentAction, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
+    mperforce->addAction(command);
+
+    m_filelogCurrentAction = new Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = am->registerAction(m_filelogCurrentAction, CMD_ID_FILELOG_CURRENT, globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+F")));
+    command->setDefaultText(tr("Filelog Current File"));
+    connect(m_filelogCurrentAction, SIGNAL(triggered()), this, SLOT(filelogCurrentFile()));
+    mperforce->addAction(command);
+
+    mperforce->addAction(createSeparator(this, am, "Perforce.Sep.Edit", globalcontext));
 
     m_editAction = new Utils::ParameterAction(tr("Edit"), tr("Edit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_editAction, CMD_ID_EDIT, globalcontext);
@@ -291,17 +323,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
     connect(m_revertFileAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
     mperforce->addAction(command);
 
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    command = am->registerAction(tmpaction, QLatin1String("Perforce.Sep.Edit"), globalcontext);
-    mperforce->addAction(command);
-
-    m_diffFileAction = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = am->registerAction(m_diffFileAction, CMD_ID_DIFF_CURRENT, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultText(tr("Diff Current File"));
-    connect(m_diffFileAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
-    mperforce->addAction(command);
+    mperforce->addAction(createSeparator(this, am, "Perforce.Sep.Project", globalcontext));
 
     const QString diffProjectDefaultText = tr("Diff Current Project/Session");
     m_diffProjectAction = new Utils::ParameterAction(diffProjectDefaultText, tr("Diff Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
@@ -310,22 +332,6 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+D")));
     command->setDefaultText(diffProjectDefaultText);
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffCurrentProject()));
-    mperforce->addAction(command);
-
-    m_diffAllAction = new QAction(tr("Diff Opened Files"), this);
-    command = am->registerAction(m_diffAllAction, CMD_ID_DIFF_ALL, globalcontext);
-    connect(m_diffAllAction, SIGNAL(triggered()), this, SLOT(diffAllOpened()));
-    mperforce->addAction(command);
-
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    command = am->registerAction(tmpaction, QLatin1String("Perforce.Sep.Diff"), globalcontext);
-    mperforce->addAction(command);
-
-    m_openedAction = new QAction(tr("Opened"), this);
-    command = am->registerAction(m_openedAction, CMD_ID_OPENED, globalcontext);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+O")));
-    connect(m_openedAction, SIGNAL(triggered()), this, SLOT(printOpenedFileList()));
     mperforce->addAction(command);
 
     m_logProjectAction = new Utils::ParameterAction(tr("Log Project Log"), tr("Log Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
@@ -341,11 +347,6 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
     connect(m_submitProjectAction, SIGNAL(triggered()), this, SLOT(startSubmitProject()));
     mperforce->addAction(command);
 
-    m_pendingAction = new QAction(tr("Pending Changes..."), this);
-    command = am->registerAction(m_pendingAction, CMD_ID_PENDING_CHANGES, globalcontext);
-    connect(m_pendingAction, SIGNAL(triggered()), this, SLOT(printPendingChanges()));
-    mperforce->addAction(command);
-
     const QString updateProjectDefaultText = tr("Update Current Project");
     m_updateProjectAction = new Utils::ParameterAction(updateProjectDefaultText, tr("Update Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = am->registerAction(m_updateProjectAction, CMD_ID_UPDATE_PROJECT, globalcontext);
@@ -354,56 +355,29 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
     connect(m_updateProjectAction, SIGNAL(triggered()), this, SLOT(updateCurrentProject()));
     mperforce->addAction(command);
 
-    m_revertProjectAction = new Utils::ParameterAction(tr("Revert Project"), tr("Revert Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = am->registerAction(m_revertProjectAction, CMD_ID_REVERT_PROJECT, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_revertProjectAction, SIGNAL(triggered()), this, SLOT(revertCurrentProject()));
-    mperforce->addAction(command);
-
     m_revertUnchangedAction = new Utils::ParameterAction(tr("Revert Unchanged"), tr("Revert Unchanged Files of Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_revertUnchangedAction, CMD_ID_REVERT_UNCHANGED_PROJECT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_revertUnchangedAction, SIGNAL(triggered()), this, SLOT(revertUnchangedCurrentProject()));
     mperforce->addAction(command);
 
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    command = am->registerAction(tmpaction, QLatin1String("Perforce.Sep.Changes"), globalcontext);
-    mperforce->addAction(command);
-
-    m_describeAction = new QAction(tr("Describe..."), this);
-    command = am->registerAction(m_describeAction, CMD_ID_DESCRIBE, globalcontext);
-    connect(m_describeAction, SIGNAL(triggered()), this, SLOT(describeChange()));
-    mperforce->addAction(command);
-
-    m_annotateCurrentAction = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = am->registerAction(m_annotateCurrentAction, CMD_ID_ANNOTATE_CURRENT, globalcontext);
+    m_revertProjectAction = new Utils::ParameterAction(tr("Revert Project"), tr("Revert Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = am->registerAction(m_revertProjectAction, CMD_ID_REVERT_PROJECT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultText(tr("Annotate Current File"));
-    connect(m_annotateCurrentAction, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
+    connect(m_revertProjectAction, SIGNAL(triggered()), this, SLOT(revertCurrentProject()));
     mperforce->addAction(command);
 
-    m_annotateAction = new QAction(tr("Annotate..."), this);
-    command = am->registerAction(m_annotateAction, CMD_ID_ANNOTATE, globalcontext);
-    connect(m_annotateAction, SIGNAL(triggered()), this, SLOT(annotate()));
+    mperforce->addAction(createSeparator(this, am, "Perforce.Sep.Repository", globalcontext));
+
+    m_diffAllAction = new QAction(tr("Diff Opened Files"), this);
+    command = am->registerAction(m_diffAllAction, CMD_ID_DIFF_ALL, globalcontext);
+    connect(m_diffAllAction, SIGNAL(triggered()), this, SLOT(diffAllOpened()));
     mperforce->addAction(command);
 
-    m_filelogCurrentAction = new Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = am->registerAction(m_filelogCurrentAction, CMD_ID_FILELOG_CURRENT, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+F")));
-    command->setDefaultText(tr("Filelog Current File"));
-    connect(m_filelogCurrentAction, SIGNAL(triggered()), this, SLOT(filelogCurrentFile()));
-    mperforce->addAction(command);
-
-    m_filelogAction = new QAction(tr("Filelog..."), this);
-    command = am->registerAction(m_filelogAction, CMD_ID_FILELOG, globalcontext);
-    connect(m_filelogAction, SIGNAL(triggered()), this, SLOT(filelog()));
-    mperforce->addAction(command);
-
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    command = am->registerAction(tmpaction, QLatin1String(CMD_ID_SEPARATOR4), globalcontext);
+    m_openedAction = new QAction(tr("Opened"), this);
+    command = am->registerAction(m_openedAction, CMD_ID_OPENED, globalcontext);
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+O")));
+    connect(m_openedAction, SIGNAL(triggered()), this, SLOT(printOpenedFileList()));
     mperforce->addAction(command);
 
     m_logRepositoryAction = new QAction(tr("Repository Log"), this);
@@ -411,9 +385,31 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
     connect(m_logRepositoryAction, SIGNAL(triggered()), this, SLOT(logRepository()));
     mperforce->addAction(command);
 
+    m_pendingAction = new QAction(tr("Pending Changes..."), this);
+    command = am->registerAction(m_pendingAction, CMD_ID_PENDING_CHANGES, globalcontext);
+    connect(m_pendingAction, SIGNAL(triggered()), this, SLOT(printPendingChanges()));
+    mperforce->addAction(command);
+
     m_updateAllAction = new QAction(tr("Update All"), this);
     command = am->registerAction(m_updateAllAction, CMD_ID_UPDATEALL, globalcontext);
     connect(m_updateAllAction, SIGNAL(triggered()), this, SLOT(updateAll()));
+    mperforce->addAction(command);
+
+    mperforce->addAction(createSeparator(this, am, "Perforce.Sep.Dialogs", globalcontext));
+
+    m_describeAction = new QAction(tr("Describe..."), this);
+    command = am->registerAction(m_describeAction, CMD_ID_DESCRIBE, globalcontext);
+    connect(m_describeAction, SIGNAL(triggered()), this, SLOT(describeChange()));
+    mperforce->addAction(command);
+
+    m_annotateAction = new QAction(tr("Annotate..."), this);
+    command = am->registerAction(m_annotateAction, CMD_ID_ANNOTATE, globalcontext);
+    connect(m_annotateAction, SIGNAL(triggered()), this, SLOT(annotate()));
+    mperforce->addAction(command);
+
+    m_filelogAction = new QAction(tr("Filelog..."), this);
+    command = am->registerAction(m_filelogAction, CMD_ID_FILELOG, globalcontext);
+    connect(m_filelogAction, SIGNAL(triggered()), this, SLOT(filelog()));
     mperforce->addAction(command);
 
     m_submitCurrentLogAction = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Submit"), this);

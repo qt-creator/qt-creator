@@ -88,16 +88,15 @@ static const char * const CMD_ID_DIFF_PROJECT       = "CVS.DiffAll";
 static const char * const CMD_ID_DIFF_CURRENT       = "CVS.DiffCurrent";
 static const char * const CMD_ID_SEPARATOR1         = "CVS.Separator1";
 static const char * const CMD_ID_COMMIT_ALL         = "CVS.CommitAll";
+static const char * const CMD_ID_REVERT_ALL         = "CVS.RevertAll";
 static const char * const CMD_ID_COMMIT_CURRENT     = "CVS.CommitCurrent";
 static const char * const CMD_ID_SEPARATOR2         = "CVS.Separator2";
 static const char * const CMD_ID_FILELOG_CURRENT    = "CVS.FilelogCurrent";
 static const char * const CMD_ID_ANNOTATE_CURRENT   = "CVS.AnnotateCurrent";
-static const char * const CMD_ID_SEPARATOR3         = "CVS.Separator3";
 static const char * const CMD_ID_STATUS             = "CVS.Status";
 static const char * const CMD_ID_UPDATE             = "CVS.Update";
 static const char * const CMD_ID_PROJECTLOG         = "CVS.ProjectLog";
 static const char * const CMD_ID_REPOSITORYLOG      = "CVS.RepositoryLog";
-static const char * const CMD_ID_SEPARATOR4         = "CVS.Separator4";
 
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
@@ -159,6 +158,7 @@ CVSPlugin::CVSPlugin() :
     m_logProjectAction(0),
     m_logRepositoryAction(0),
     m_commitAllAction(0),
+    m_revertRepositoryAction(0),
     m_commitCurrentAction(0),
     m_filelogCurrentAction(0),
     m_annotateCurrentAction(0),
@@ -253,36 +253,6 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     globalcontext << core->uniqueIDManager()->uniqueIdentifier(C_GLOBAL);
 
     Core::Command *command;
-    m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_addAction, CMD_ID_ADD,
-        globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+A")));
-    connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
-    cvsMenu->addAction(command);
-
-    m_deleteAction = new Utils::ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
-        globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
-    cvsMenu->addAction(command);
-
-    m_revertAction = new Utils::ParameterAction(tr("Revert..."), tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_revertAction, CMD_ID_REVERT,
-        globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
-    cvsMenu->addAction(command);
-
-    cvsMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR0, globalcontext));
-
-    m_diffProjectAction = new Utils::ParameterAction(tr("Diff Project"), tr("Diff Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
-        globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffProject()));
-    cvsMenu->addAction(command);
 
     m_diffCurrentAction = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_diffCurrentAction,
@@ -291,24 +261,6 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+D")));
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     cvsMenu->addAction(command);
-
-    cvsMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR1, globalcontext));
-
-    m_commitAllAction = new QAction(tr("Commit All Files"), this);
-    command = ami->registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
-        globalcontext);
-    connect(m_commitAllAction, SIGNAL(triggered()), this, SLOT(startCommitAll()));
-    cvsMenu->addAction(command);
-
-    m_commitCurrentAction = new Utils::ParameterAction(tr("Commit Current File"), tr("Commit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_commitCurrentAction,
-        CMD_ID_COMMIT_CURRENT, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+C")));
-    connect(m_commitCurrentAction, SIGNAL(triggered()), this, SLOT(startCommitCurrentFile()));
-    cvsMenu->addAction(command);
-
-    cvsMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR2, globalcontext));
 
     m_filelogCurrentAction = new Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_filelogCurrentAction,
@@ -326,7 +278,46 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
         SLOT(annotateCurrentFile()));
     cvsMenu->addAction(command);
 
-    cvsMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR3, globalcontext));
+    cvsMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR0, globalcontext));
+
+    m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = ami->registerAction(m_addAction, CMD_ID_ADD,
+        globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+A")));
+    connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
+    cvsMenu->addAction(command);
+
+    m_commitCurrentAction = new Utils::ParameterAction(tr("Commit Current File"), tr("Commit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = ami->registerAction(m_commitCurrentAction,
+        CMD_ID_COMMIT_CURRENT, globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+C")));
+    connect(m_commitCurrentAction, SIGNAL(triggered()), this, SLOT(startCommitCurrentFile()));
+    cvsMenu->addAction(command);
+
+    m_deleteAction = new Utils::ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
+    command = ami->registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
+        globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
+    cvsMenu->addAction(command);
+
+    m_revertAction = new Utils::ParameterAction(tr("Revert..."), tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
+    command = ami->registerAction(m_revertAction, CMD_ID_REVERT,
+        globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
+    cvsMenu->addAction(command);
+
+    cvsMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR1, globalcontext));
+
+    m_diffProjectAction = new Utils::ParameterAction(tr("Diff Project"), tr("Diff Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = ami->registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
+        globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffProject()));
+    cvsMenu->addAction(command);
 
     m_statusProjectAction = new Utils::ParameterAction(tr("Project Status"), tr("Status of Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = ami->registerAction(m_statusProjectAction, CMD_ID_STATUS,
@@ -347,10 +338,23 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     connect(m_updateProjectAction, SIGNAL(triggered()), this, SLOT(updateProject()));
     cvsMenu->addAction(command);
 
-    cvsMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR4, globalcontext));
+    cvsMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR2, globalcontext));
+
     m_logRepositoryAction = new QAction(tr("Repository Log"), this);
     command = ami->registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, globalcontext);
     connect(m_logRepositoryAction, SIGNAL(triggered()), this, SLOT(logRepository()));
+    cvsMenu->addAction(command);
+
+    m_commitAllAction = new QAction(tr("Commit All Files"), this);
+    command = ami->registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
+        globalcontext);
+    connect(m_commitAllAction, SIGNAL(triggered()), this, SLOT(startCommitAll()));
+    cvsMenu->addAction(command);
+
+    m_revertRepositoryAction = new QAction(tr("Revert Repository..."), this);
+    command = ami->registerAction(m_revertRepositoryAction, CMD_ID_REVERT_ALL,
+                                  globalcontext);
+    connect(m_revertRepositoryAction, SIGNAL(triggered()), this, SLOT(revertAll()));
     cvsMenu->addAction(command);
 
     // Actions of the submit editor
@@ -522,6 +526,24 @@ void CVSPlugin::addCurrentFile()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
+}
+
+void CVSPlugin::revertAll()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    const QString title = tr("Revert repository");
+    if (QMessageBox::warning(0, title, tr("Would you like to revert all changes to the repository?"),
+                             QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        return;
+    QStringList args;
+    args << QLatin1String("update") << QLatin1String("-C") << state.topLevel();
+    const CVSResponse revertResponse = runCVS(state.topLevel(), args, m_settings.timeOutMS(), true);
+    if (revertResponse.result == CVSResponse::Ok) {
+        cvsVersionControl()->emitRepositoryChanged(state.topLevel());
+    } else {
+        QMessageBox::warning(0, title, tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
+    }
 }
 
 void CVSPlugin::revertCurrentFile()

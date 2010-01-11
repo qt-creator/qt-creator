@@ -102,6 +102,7 @@ private slots:
     void revertCurrentFile();
     void diffProject();
     void diffCurrentFile();
+    void revertAll();
     void startCommitAll();
     void startCommitCurrentFile();
     void filelogCurrentFile();
@@ -158,6 +159,7 @@ private:
     Utils::ParameterAction *m_logProjectAction;
     QAction *m_logRepositoryAction;
     QAction *m_commitAllAction;
+    QAction *m_revertRepositoryAction;
     Utils::ParameterAction *m_commitCurrentAction;
     Utils::ParameterAction *m_filelogCurrentAction;
     Utils::ParameterAction *m_annotateCurrentAction;
