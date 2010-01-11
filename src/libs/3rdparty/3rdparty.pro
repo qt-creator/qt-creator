@@ -2,4 +2,4 @@ TEMPLATE = subdirs
 CONFIG  += ordered
 
 SUBDIRS += botan \
-           ne7ssh
+           net7ssh
