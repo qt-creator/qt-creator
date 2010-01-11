@@ -61,7 +61,8 @@ class QmlDeclarativeObjectSymbol: public QmlDeclarativeSymbol
 public:
     QmlDeclarativeObjectSymbol(const NodeMetaInfo &metaInfo, QtDeclarativeMetaTypeBackend* backend):
             QmlDeclarativeSymbol(backend),
-            m_metaInfo(metaInfo)
+            m_metaInfo(metaInfo),
+            m_membersToBeDone(true)
     {
         Q_ASSERT(metaInfo.isValid());
 
