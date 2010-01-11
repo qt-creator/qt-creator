@@ -68,7 +68,7 @@ int CMakeManager::projectLanguage() const
 
 ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName)
 {
-    // TODO check wheter this project is already opened
+    // TODO check whether this project is already opened
     return new CMakeProject(this, fileName);
 }
 

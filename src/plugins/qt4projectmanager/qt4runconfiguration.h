@@ -105,7 +105,7 @@ signals:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
 
-    // note those signals might not emited for every change
+    // Note: These signals might not get emitted for every change!
     void effectiveTargetInformationChanged();
 
 private slots:

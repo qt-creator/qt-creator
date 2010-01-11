@@ -57,7 +57,7 @@ public:
 
     FormEditorItem *beginFormEditorItem() const;
 
-private: // fucntions
+private: // functions
     void setMargin(FormEditorItem *endItem, AnchorLine::Type endAnchorLine);
 
 private: // variables

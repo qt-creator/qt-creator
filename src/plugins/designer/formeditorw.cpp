@@ -90,7 +90,7 @@ static const char *settingsGroup = "Designer";
 
 /* Actions of the designer plugin:
  * Designer provides a toolbar which is subject to a context change (to
- * "edit mode" context) when it is focussed.
+ * "edit mode" context) when it is focused.
  * In order to prevent its actions from being disabled/hidden by that context
  * change, the actions are registered on the global context. In currentEditorChanged(),
  * the ones that are present in the global edit menu are set visible/invisible manually.

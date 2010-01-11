@@ -651,7 +651,7 @@ void QtOptionsPageWidget::fixQtVersionName(int index)
                 // Same name, find new name
                 QRegExp regexp("^(.*)\\((\\d)\\)$");
                 if (regexp.exactMatch(name)) {
-                    // Alreay in Name (#) format
+                    // Already in Name (#) format
                     name = regexp.cap(1) + "(" + QString().setNum(regexp.cap(2).toInt() + 1) + ")";
                 } else {
                     name = name + " (2)";

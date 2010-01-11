@@ -279,7 +279,7 @@ bool CMakeProject::parseCMakeLists()
                 //qDebug()<<"  Executable:"<<ct.executable<<"WD:"<<ct.workingDirectory;
                 ProjectExplorer::RunConfiguration *rc(new CMakeRunConfiguration(this, ct.executable, ct.workingDirectory, ct.title));
                 addRunConfiguration(rc);
-                // The first one gets the honour of beeing the active one
+                // The first one gets the honour of being the active one
                 if (setActive) {
                     setActiveRunConfiguration(rc);
                     setActive = false;
@@ -378,7 +378,7 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
         rootNode->addFileNodes(QList<ProjectExplorer::FileNode *>()<< fn, folder);
     }
 
-    // remove old file nodes and check wheter folder nodes can be removed
+    // remove old file nodes and check whether folder nodes can be removed
     foreach (ProjectExplorer::FileNode *fn, deleted) {
         ProjectExplorer::FolderNode *parent = fn->parentFolderNode();
 //        qDebug()<<"removed"<<fn->path();

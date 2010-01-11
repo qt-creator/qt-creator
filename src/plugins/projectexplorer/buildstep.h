@@ -93,7 +93,7 @@ public:
     virtual QString displayName() = 0;
 
     // the Widget shown in the project settings dialog for this buildStep
-    // ownership is transfered to the caller
+    // ownership is transferred to the caller
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
 
     // if this function returns true, the user can't delete this BuildStep for this project
@@ -129,7 +129,7 @@ class PROJECTEXPLORER_EXPORT IBuildStepFactory
 public:
     IBuildStepFactory();
     virtual ~IBuildStepFactory();
-    /// Called to check wheter this factory can restore the named BuildStep
+    /// Called to check whether this factory can restore the named BuildStep
     virtual bool canCreate(const QString &id) const = 0;
     /// Called to restore a buildstep
     virtual BuildStep *create(BuildConfiguration *bc, const QString &id) const = 0;

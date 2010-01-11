@@ -128,7 +128,7 @@ public:
     QString type;         // type for further processing
     QString displayedType;// displayed type (optional)
     QByteArray variable;  // name of internal Gdb variable if created
-    QByteArray addr;      // displayed adress
+    QByteArray addr;      // displayed address
     QByteArray saddr;     // stored address (pointer in container)
     QString framekey;     // key for type cache
     QScriptValue scriptValue; // if needed...
@@ -150,7 +150,7 @@ enum WatchRoles
 {
     INameRole = Qt::UserRole,
     ExpressionRole,
-    ExpandedRole,    // used to communicate prefered expanded state to the view
+    ExpandedRole,    // used to communicate preferred expanded state to the view
     ActiveDataRole,  // used for tooltip
     TypeFormatListRole,
     TypeFormatRole,  // used to communicate alternative formats to the view

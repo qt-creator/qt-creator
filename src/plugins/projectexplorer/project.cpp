@@ -141,7 +141,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
 {
     const QList<BuildConfiguration *> bcs = buildConfigurations();
 
-    // For compability with older versions the "name" is saved as a string instead of a number
+    // For compatibility with older versions the "name" is saved as a string instead of a number
     writer.saveValue("activebuildconfiguration", QString::number(bcs.indexOf(m_activeBuildConfiguration)));
 
     //save buildsettings
@@ -288,7 +288,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
     //Build Settings
     QVariant buildStepsVariant = reader.restoreValue("buildsteps");
     if (buildStepsVariant.isValid()) {
-        // Old code path for 1.3 compability
+        // Old code path for 1.3 compatibility
         // restoring BuildSteps from settings
         int pos = 0;
         QStringList buildStepNames = buildStepsVariant.toStringList();
@@ -320,7 +320,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 
     QVariant cleanStepsVariant = reader.restoreValue("cleansteps");
     if (cleanStepsVariant.isValid()) {
-        // Old code path for 1.3 compability
+        // Old code path for 1.3 compatibility
         QStringList cleanStepNames = cleanStepsVariant.toStringList();
         // restoring BuildSteps from settings
         int pos = 0;

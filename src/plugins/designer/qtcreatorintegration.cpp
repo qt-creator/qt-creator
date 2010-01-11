@@ -421,7 +421,7 @@ static void addDeclaration(const QString &docFileName, const Class *cl, const QS
                     if (ITextEditable *editable = editableAt(docFileName, line, column)) {
                         unsigned dl, dc; // this position is the beginning of return value: "^void foo(...)"
                         decl->getStartPosition(&dl, &dc);
-                        dc--; // if the first character in line is 'v' comming from "void" getStartPosition returns 1, not 0, so we always decrement it.
+                        dc--; // if the first character in line is 'v' coming from "void" getStartPosition returns 1, not 0, so we always decrement it.
                         editable->gotoLine(dl, dc);
                         editable->position(ITextEditor::StartOfLine);
                         const QString indentation = QString(dc, QLatin1Char(' '));

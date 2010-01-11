@@ -59,7 +59,7 @@ class IOutputParser;
     The two functions processStarted() and processFinished() are called after starting/finishing the process.
     By default they add a message to the output window.
 
-    Use setEnabled() to control wheter the BuildStep needs to run. (A disabled BuildStep immediately returns true,
+    Use setEnabled() to control whether the BuildStep needs to run. (A disabled BuildStep immediately returns true,
     from the run function.)
 
 */
@@ -103,7 +103,7 @@ public:
     void setEnabled(bool b);
 
     /// If ignoreReturnValue is set to true, then the abstractprocess step will
-    /// return sucess even if the return value indicates otherwise
+    /// return success even if the return value indicates otherwise
     /// should be called from init
     void setIgnoreReturnValue(bool b);
     /// Set the Environment for running the command

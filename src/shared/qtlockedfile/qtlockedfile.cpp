@@ -123,9 +123,9 @@ QtLockedFile::LockMode QtLockedFile::lockMode() const
     Obtains a lock of type \a mode.
 
     If \a block is true, this
-    function will block until the lock is aquired. If \a block is
+    function will block until the lock is acquired. If \a block is
     false, this function returns \e false immediately if the lock cannot
-    be aquired.
+    be acquired.
 
     If this object already has a lock of type \a mode, this function returns \e true immediately. If this object has a lock of a different type than \a mode, the lock
     is first released and then a new lock is obtained.

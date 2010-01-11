@@ -143,7 +143,7 @@ private: //variables
     bool m_isInSubState;
     bool m_isInModel;
     bool m_isBound;
-    bool m_isValid; //if the property value belongs to an non existant complexProperty it is invalid
+    bool m_isValid; // if the property value belongs to a non-existing complexProperty it is invalid
     PropertyEditorNodeWrapper *m_complexNode;
 };
 

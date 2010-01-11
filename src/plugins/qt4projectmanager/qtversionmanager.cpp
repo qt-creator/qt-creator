@@ -696,7 +696,7 @@ void QtVersion::updateSourcePath()
 
 // Returns the version that was used to build the project in that directory
 // That is returns the directory
-// To find out wheter we already have a qtversion for that directory call
+// To find out whether we already have a qtversion for that directory call
 // QtVersion *QtVersionManager::qtVersionForDirectory(const QString directory);
 QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &directory)
 {
@@ -755,7 +755,7 @@ QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(
         line = trimLine(line);
         QStringList parts = splitLine(line);
         if (debug)
-            qDebug()<<"Splitted into"<<parts;
+            qDebug()<<"Split into"<<parts;
         QList<QMakeAssignment> assignments;
         QList<QMakeAssignment> afterAssignments;
         QStringList additionalArguments;

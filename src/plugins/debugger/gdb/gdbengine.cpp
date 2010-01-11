@@ -276,7 +276,7 @@ void GdbEngine::initializeVariables()
     m_gdbVersion = 100;
     m_gdbBuildVersion = -1;
     m_isMacGdb = false;
-    m_isSynchroneous = false;
+    m_isSynchronous = false;
     m_registerNamesListed = false;
 
     m_fullToShortName.clear();
@@ -1113,7 +1113,7 @@ void GdbEngine::handleAqcuiredInferior()
 
     #ifndef Q_OS_MAC
     // intentionally after tryLoadDebuggingHelpers(),
-    // otherwise we'd interupt solib loading.
+    // otherwise we'd interrupt solib loading.
     if (theDebuggerBoolSetting(AllPluginBreakpoints)) {
         postCommand("set auto-solib-add on");
         postCommand("set stop-on-solib-events 0");
@@ -1467,9 +1467,9 @@ void GdbEngine::handleIsSynchroneous(const GdbResponse &response)
 {
     Q_UNUSED(response);
     if (response.resultClass == GdbResultDone) {
-        m_isSynchroneous = true;
+        m_isSynchronous = true;
     } else {
-        m_isSynchroneous = false;
+        m_isSynchronous = false;
     }
 }
 
@@ -2136,7 +2136,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
         data->bpLineNumber = re.cap(4).toLatin1();
         QString full = fullName(re.cap(3));
         if (full.isEmpty()) {
-            // FIXME: This happens without UsePreciseBreakpoints regularily.
+            // FIXME: This happens without UsePreciseBreakpoints regularly.
             // We need to revive that "fill full name mapping bit by bit"
             // approach of 1.2.x
             //qDebug() << "NO FULL NAME KNOWN FOR" << re.cap(3);
@@ -4168,7 +4168,7 @@ void GdbEngine::tryQueryDebuggingHelpers()
 void GdbEngine::recheckDebuggingHelperAvailability()
 {
     if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
-        // retreive list of dumpable classes
+        // retrieve list of dumpable classes
         postCommand("call (void*)qDumpObjectData440(1,0,0,0,0,0,0,0)");
         postCommand("p (char*)&qDumpOutBuffer", CB(handleQueryDebuggingHelper));
     }
@@ -4511,9 +4511,9 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     //  Pass means let program see this signal;
     //  otherwise program doesn't know.
     //  Pass and Stop may be combined.
-    // We need "print" as otherwise we would get no feedback whatsoever
-    // Custom DebuggingHelper crashs which happen regularily for when accessing
-    // uninitialized variables.
+    // We need "print" as otherwise we will get no feedback whatsoever
+    // when Custom DebuggingHelper crash (which happen regularly when accessing
+    // uninitialized variables).
     postCommand("handle SIGSEGV nopass stop print");
 
     // This is useful to kill the inferior whenever gdb dies.
@@ -4700,7 +4700,7 @@ QMessageBox * GdbEngine::showMessageBox(int icon, const QString &title,
 
 bool GdbEngine::isSynchroneous() const
 {
-    return m_isSynchroneous;
+    return m_isSynchronous;
 }
 
 //

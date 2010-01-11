@@ -792,7 +792,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
                             + ",TextSeg=" + hexNumber(lib.codeseg)
                             + ",DataSeg=" + hexNumber(lib.dataseg);
             }
-            sendGdbServerMessage(response, "library information transfered");
+            sendGdbServerMessage(response, "library information transferred");
         } else {
             sendGdbServerMessage("l", "library information transfer finished");
         }
@@ -844,7 +844,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             // FIXME: Limit packet length by using qsThreadInfo packages?
             qDebug()  << "CURRENT THREAD: " << m_session.tid;
             response += hexNumber(m_session.tid);
-            sendGdbServerMessage(response, "thread information transfered");
+            sendGdbServerMessage(response, "thread information transferred");
         } else {
             sendGdbServerMessage("l", "thread information transfer finished");
         }
@@ -866,7 +866,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             response += "</library>";
         }
         response += "</library-list>";
-        sendGdbServerMessage(response, "library information transfered");
+        sendGdbServerMessage(response, "library information transferred");
     }
 
     else if (cmd == "QStartNoAckMode") {
@@ -967,7 +967,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
                     .toInt(&ok1, 16);
                 const int length = data.mid(commaPos + 1).toInt(&ok2, 16);
                 if (ok1 && ok2) {
-                    const QString msg = _("Read of OS auxilary "
+                    const QString msg = _("Read of OS auxiliary "
                         "vector (%1, %2) not implemented.").arg(offset).arg(length);
                     logMessage(msgGdbPacket(msg));
                     sendGdbServerMessage("E20", msg.toLatin1());

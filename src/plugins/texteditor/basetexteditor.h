@@ -578,7 +578,7 @@ protected:
 
     /*!
        Reimplement this function if you want to customize the way a link is
-       opened. Returns whether the link was opened succesfully.
+       opened. Returns whether the link was opened successfully.
      */
     virtual bool openLink(const Link &link);
 

@@ -489,7 +489,7 @@ WatchData CdbSymbolGroupContext::watchDataAt(unsigned long index) const
     wd.addr = hexSymbolOffset(m_symbolGroup, index).toLatin1();
     const QString type = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index);    
     wd.setType(type);    
-    // Check for unitialized variables at level 0 only.
+    // Check for uninitialized variables at level 0 only.
     const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(index);
     if (p.ParentSymbol == DEBUG_ANY_ID && m_uninitializedVariables.contains(fullShadowedName)) {
         wd.setError(WatchData::msgNotInScope());

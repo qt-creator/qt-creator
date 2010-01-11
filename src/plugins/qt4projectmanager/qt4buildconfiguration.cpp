@@ -184,8 +184,8 @@ QString Qt4BuildConfiguration::buildDirectory() const
 
 /// returns whether this is a shadow build configuration or not
 /// note, even if shadowBuild() returns true, it might be using the
-/// source directory as the shadow build directorys, thus not
-/// still be a insource build
+/// source directory as the shadow build directory, thus it
+/// still is a in-source build
 bool Qt4BuildConfiguration::shadowBuild() const
 {
     return m_shadowBuild;
@@ -391,7 +391,7 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &workingDirectory)
                 // and compare that on its own
                 QString actualSpec = extractSpecFromArgumentList(qs->userArguments(), workingDirectory, version);
                 if (actualSpec.isEmpty()) {
-                    // Easy one the user has choosen not to override the settings
+                    // Easy one: the user has chosen not to override the settings
                     actualSpec = version->mkspec();
                 }
 

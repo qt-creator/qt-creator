@@ -234,7 +234,7 @@ PropertyMetaInfo AbstractProperty::metaInfo() const
 }
 
 /*!
-  \brief returns wether the property is the default property for the model node.
+  \brief returns whether the property is the default property for the model node.
 */
 bool AbstractProperty::isDefaultProperty() const
 {

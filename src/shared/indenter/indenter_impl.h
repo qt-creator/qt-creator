@@ -930,7 +930,7 @@ int Indenter<Iterator>::indentForContinuationLine()
 	  }
 	  d;
 
-  Still, we're striving to go back as little as possible to accomodate
+  Still, we are striving to go back as little as possible to accommodate
   people with irregular indentation schemes. A hook line near at hand
   is much more reliable than a remote one.
 */

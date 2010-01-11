@@ -124,7 +124,7 @@ bool MakeStep::init()
 
     // If we are cleaning, then make can fail with a error code, but that doesn't mean
     // we should stop the clean queue
-    // That is mostly so that rebuild works on a alrady clean project
+    // That is mostly so that rebuild works on a already clean project
     setIgnoreReturnValue(m_clean);
     QStringList args = m_userArgs;
     if (!m_clean) {

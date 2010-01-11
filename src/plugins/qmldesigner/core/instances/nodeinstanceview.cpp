@@ -78,7 +78,7 @@ namespace QmlDesigner {
 
 /*! \brief Constructor
 
-  The class will be rendered offscreen if not setted otherwise.
+  The class will be rendered offscreen if not set otherwise.
 
 \param Parent of this object. If this parent is deleted this instance is
 deleted too.
@@ -153,9 +153,9 @@ void NodeInstanceView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeA
 
 /*! \brief Notifing the view that a AbstractProperty was added to a ModelNode.
 
-  The property will be setted for the NodeInstance.
+  The property will be set for the NodeInstance.
 
-\param state ModelNode to wich the Property belongs
+\param state ModelNode to which the Property belongs
 \param property AbstractProperty which was added
 \see AbstractProperty NodeInstance ModelNode
 */
@@ -224,9 +224,9 @@ void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& pr
 
 /*! \brief Notifing the view that a AbstractProperty value was changed to a ModelNode.
 
-  The property will be setted for the NodeInstance.
+  The property will be set for the NodeInstance.
 
-\param state ModelNode to wich the Property belongs
+\param state ModelNode to which the Property belongs
 \param property AbstractProperty which was changed
 \param newValue New Value of the property
 \param oldValue Old Value of the property

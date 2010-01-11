@@ -298,7 +298,7 @@ bool MainWindow::init(QString *errorMessage)
     pm->addObject(m_shortcutSettings);
 
     // Add widget to the bottom, we create the view here instead of inside the
-    // OutputPaneManager, since the StatusBarManager needs to be initilized before
+    // OutputPaneManager, since the StatusBarManager needs to be initialized before
     m_outputView = new Core::StatusBarWidget;
     m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
     m_outputView->setPosition(Core::StatusBarWidget::Second);

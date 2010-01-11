@@ -274,7 +274,7 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     int m_gdbVersion; // 6.8.0 is 60800
     int m_gdbBuildVersion; // MAC only?
     bool m_isMacGdb;
-    bool m_isSynchroneous; // Can act synchroneously?
+    bool m_isSynchronous; // Can act synchronously?
 
 private: ////////// Inferior Management //////////
 

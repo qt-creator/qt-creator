@@ -997,7 +997,7 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 QStringList SessionManager::sessions() const
 {
     if (m_sessions.isEmpty()) {
-        // We aren't yet initalized, so do that now
+        // We are not initialized yet, so do that now
         QDirIterator dirIter(QFileInfo(m_core->settings()->fileName()).path() + "/qtcreator/");
         while (dirIter.hasNext()) {
             dirIter.next();

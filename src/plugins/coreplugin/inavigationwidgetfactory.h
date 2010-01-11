@@ -64,7 +64,7 @@ public:
     virtual NavigationView createWidget() = 0;
 
     // Read and store settings for the widget, created by this factory
-    // and beeing at position position. (The position is important since
+    // and being at position position. (The position is important since
     // a certain type of widget could exist multiple times.)
     virtual void saveSettings(int position, QWidget *widget);
     virtual void restoreSettings(int position, QWidget *widget);

@@ -99,20 +99,22 @@ public:
     IBuildConfigurationFactory(QObject *parent = 0);
     virtual ~IBuildConfigurationFactory();
 
-    // used to show the list of possible additons to a project, returns a list of types
+    // Used to show the list of possible additons to a project.
+    // Returns a list of ids.
     virtual QStringList availableCreationIds() const = 0;
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
 
-    // creates build configuration(s) for given type and adds them to project
-    // if successfull returns the BuildConfiguration that should be shown in the
-    // project mode for editing
+    // Creates build configuration(s) for the given id and adds them to
+    // the project.
+    // If successful it returns the BuildConfiguration that should be shown in
+    // project mode.
     virtual BuildConfiguration *create(const QString &id) const = 0;
 
-    // clones a given BuildConfiguration, should not add it to the project
+    // Clones a given BuildConfiguration, should not add it to the project
     virtual BuildConfiguration *clone(BuildConfiguration *source) const = 0;
 
-    // restores a BuildConfiguration with the name and adds it to the project
+    // Restores a BuildConfiguration with the data given and adds it to the project.
     virtual BuildConfiguration *restore(const QVariantMap &values) const = 0;
 
 signals:

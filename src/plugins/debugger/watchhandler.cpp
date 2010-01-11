@@ -646,7 +646,7 @@ static QString formattedValue(const WatchData &data, int format)
             reinterpret_cast<void *>(data.value.toULongLong(&ok, 0));
         if (!ok || !addr)
             return data.value;
-        // FIXME: add a round trip throught the debugger to prevent crashs?
+        // FIXME: add a round trip through the debugger to prevent crashs?
         if (format == Latin1StringFormat)
             return QString::fromLatin1(static_cast<const char *>(addr));
         if (format == Local8BitStringFormat)

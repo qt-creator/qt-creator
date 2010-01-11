@@ -105,7 +105,7 @@ QmlMetaProperty QmlPropertyChangesObject::metaProperty(const QString &property)
 {
     QmlMetaProperty prop = QmlMetaProperty::createProperty(m_targetObject.data(), property);
     if (!prop.isValid()) {
-        qWarning() << "Cannot assign to non-existant property" << property;
+        qWarning() << "Cannot assign to non-existent property" << property;
         return QmlMetaProperty();
     } else if (!prop.isWritable()) {
         qWarning() << "Cannot assign to read-only property" << property;

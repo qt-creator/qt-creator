@@ -62,10 +62,10 @@ public:
 
     // This function is called to give the outputwindow focus
     virtual void setFocus() = 0;
-    // Wheter the outputpane has focus
+    // Whether the outputpane has focus
     virtual bool hasFocus() = 0;
-    // Wheter the outputpane can be focused at the moment.
-    // (E.g. the search result window doesn't want to be focussed if the are no results.)
+    // Whether the outputpane can be focused at the moment.
+    // (E.g. the search result window does not want to be focused if the are no results.)
     virtual bool canFocus() = 0;
 
     virtual bool canNavigate() = 0;

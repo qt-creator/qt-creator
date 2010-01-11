@@ -997,7 +997,7 @@ void Qt4Project::projectTypeChanged(Qt4ProFileNode *node, const Qt4ProjectType o
 {
     if (oldType == Internal::ApplicationTemplate
         || oldType == Internal::ScriptTemplate) {
-        // check wheter we need to delete a Run Configuration
+        // check whether we need to delete a Run Configuration
         checkForDeletedApplicationProjects();
     }
 

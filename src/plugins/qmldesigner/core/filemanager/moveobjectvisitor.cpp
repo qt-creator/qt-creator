@@ -214,7 +214,7 @@ bool MoveObjectVisitor::visit(UiArrayBinding *ast)
             moveInfo.leadingCharsToRemove = objectLocation - start;
             moveInfo.trailingCharsToRemove = end - moveInfo.objectEnd;
         } else {
-            // we're the last member, but not the only member, so remove the preceeding comma too
+            // we are the last member, but not the only member, so remove the preceding comma, too
             Q_ASSERT(currentMember->commaToken.isValid());
 
             int start = currentMember->commaToken.offset;
