@@ -212,7 +212,8 @@ void ItemLibrary::setNameFilter(const QString &nameFilter)
     nameFilterList.append(nameFilter + "*.");
     m_d->m_resourcesDirModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
     m_d->m_resourcesDirModel->setNameFilters(nameFilterList);
-    m_d->m_ui.ItemLibraryTreeView->setRootIndex(m_d->m_resourcesDirModel->index(m_d->m_resourcePath));
+    if (m_d->m_ui.ItemLibraryTreeView->model() == m_d->m_resourcesDirModel)
+        m_d->m_ui.ItemLibraryTreeView->setRootIndex(m_d->m_resourcesDirModel->index(m_d->m_resourcePath));
 }
 
 void ItemLibrary::itemLibraryButton()
