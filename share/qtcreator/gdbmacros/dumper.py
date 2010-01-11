@@ -241,6 +241,9 @@ def qtNamespace():
         return type[0:len(type) - len("QString::null")]
     except RuntimeError:
         return ""
+    except AttributeError:
+        # Happens for none-Qt applications
+        return ""
 
 def encodeCharArray(p, size):
     s = ""
