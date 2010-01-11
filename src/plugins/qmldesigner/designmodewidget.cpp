@@ -334,6 +334,7 @@ void DocumentWidget::enable()
         qDebug() << Q_FUNC_INFO;
     m_warningWidget->setVisible(false);
     m_document->documentWidget()->setEnabled(true);
+    m_document->statesEditorWidget()->setEnabled(true);
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
     m_isDisabled = false;
@@ -347,6 +348,7 @@ void DocumentWidget::disable(const QList<RewriterView::Error> &errors)
     m_warningWidget->setError(errors.first());
     m_warningWidget->setVisible(true);
     m_document->documentWidget()->setEnabled(false);
+    m_document->statesEditorWidget()->setEnabled(false);
     m_leftSideBar->setEnabled(false);
     m_rightSideBar->setEnabled(false);
     m_isDisabled = true;
