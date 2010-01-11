@@ -193,6 +193,11 @@ void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
                 if (!state.isBaseState())
                     removeModelState(state);
             }
+        } else {
+            ModelNode node (property.parentModelNode().parentProperty().parentModelNode());
+            if (QmlModelState(node).isValid()) {
+                startUpdateTimer(modelStateIndex(node) + 1, 0);
+            }
         }
     }
 }
@@ -200,12 +205,6 @@ void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
 void StatesEditorView::propertiesRemoved(const QList<AbstractProperty>& propertyList)
 {
     QmlModelView::propertiesRemoved(propertyList);
-    foreach (const AbstractProperty &property, propertyList) {
-        ModelNode node (property.parentModelNode().parentProperty().parentModelNode());
-        if (QmlModelState(node).isValid()) {
-            startUpdateTimer(modelStateIndex(node) + 1, 0);
-        }
-    }
 }
 
 void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange)
