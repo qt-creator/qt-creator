@@ -436,7 +436,11 @@ class FrameCommand(gdb.Command):
         d.pushOutput()
         watchers = d.safeoutput
 
-        print('data=[' + locals + ',' + watchers + ']\n')
+        sep = ""
+        if len(locals) and len(watchers):
+            sep = ","
+
+        print('data=[' + locals + sep + watchers + ']\n')
 
 
     def handleWatch(self, d, exp, iname):
