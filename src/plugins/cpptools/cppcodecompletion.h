@@ -47,6 +47,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 class ITextEditor;
+class BaseTextEditor;
 }
 
 namespace CppTools {
@@ -93,14 +94,18 @@ public:
 
 private:
     void addKeywords();
-    void addMacros(const CPlusPlus::LookupContext &context);
-    void addMacros_helper(const CPlusPlus::LookupContext &context,
+    void addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot);
+    void addMacros_helper(const CPlusPlus::Snapshot &snapshot,
                           const QString &fileName,
                           QSet<QString> *processed,
                           QSet<QString> *definedMacros);
     void addCompletionItem(CPlusPlus::Symbol *symbol);
 
     bool completeInclude(const QTextCursor &cursor);
+
+    int globalCompletion(CPlusPlus::Symbol *lastVisibleSymbol,
+                         CPlusPlus::Document::Ptr thisDocument,
+                         const CPlusPlus::Snapshot &snapshot);
 
     bool completeConstructorOrFunction(const QList<CPlusPlus::LookupItem> &,
                                        const CPlusPlus::LookupContext &,
@@ -134,6 +139,12 @@ private:
     { return completeQtMethod(results, context, false); }
 
     int findStartOfName(int pos = -1) const;
+
+    int startCompletionInternal(TextEditor::BaseTextEditor *edit,
+                                const QString fileName,
+                                unsigned line, unsigned column,
+                                const QString &expression,
+                                int endOfExpression);
 
 private:
     bool objcKeywordsWanted() const;
