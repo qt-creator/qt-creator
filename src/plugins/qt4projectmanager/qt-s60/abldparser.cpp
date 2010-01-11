@@ -54,7 +54,7 @@ void AbldParser::stdOutput(const QString &line)
 
     QString lne = line.trimmed();
     // possible ABLD.bat errors:
-    if (lne.startsWith("Is Perl, version ")) {
+    if (lne.startsWith(QLatin1String("Is Perl, version "))) {
         emit addTask(TaskWindow::Task(TaskWindow::Error,
                                       lne /* description */,
                                       QString() /* filename */,
@@ -62,7 +62,7 @@ void AbldParser::stdOutput(const QString &line)
                                       TASK_CATEGORY_BUILDSYSTEM));
         return;
     }
-    if (lne.startsWith("FATAL ERROR:")) {
+    if (lne.startsWith(QLatin1String("FATAL ERROR:"))) {
         emit addTask(TaskWindow::Task(TaskWindow::Error,
                                       lne /* description */,
                                       QString() /* filename */,
@@ -114,9 +114,9 @@ void AbldParser::stdError(const QString &line)
     QString lne = line.trimmed();
 
     // possible abld.pl errors:
-    if (lne.startsWith("ABLD ERROR:") ||
-        lne.startsWith("This project does not support ") ||
-        lne.startsWith("Platform ")) {
+    if (lne.startsWith(QLatin1String("ABLD ERROR:")) ||
+        lne.startsWith(QLatin1String("This project does not support ")) ||
+        lne.startsWith(QLatin1String("Platform "))) {
         emit addTask(TaskWindow::Task(TaskWindow::Error,
                                       lne /* description */,
                                       QString() /* filename */,
@@ -125,7 +125,7 @@ void AbldParser::stdError(const QString &line)
         return;
     }
 
-    if (lne.startsWith("Died at ")) {
+    if (lne.startsWith(QLatin1String("Died at "))) {
         emit addTask(TaskWindow::Task(TaskWindow::Error,
                                       lne /* description */,
                                       QString() /* filename */,
@@ -135,7 +135,7 @@ void AbldParser::stdError(const QString &line)
         return;
     }
 
-    if (lne.startsWith("MMPFILE \"")) {
+    if (lne.startsWith(QLatin1String("MMPFILE \""))) {
         m_currentFile = lne.mid(9, lne.size() - 10);
         m_waitingForStdErrContinuation = false;
         return;
@@ -144,7 +144,7 @@ void AbldParser::stdError(const QString &line)
         m_waitingForStdErrContinuation = false;
         return;
     }
-    if (lne.startsWith("WARNING: ")) {
+    if (lne.startsWith(QLatin1String("WARNING: "))) {
         QString description = lne.mid(9);
         emit addTask(TaskWindow::Task(TaskWindow::Warning, description,
                                       m_currentFile,
@@ -153,7 +153,7 @@ void AbldParser::stdError(const QString &line)
         m_waitingForStdErrContinuation = true;
         return;
     }
-    if (lne.startsWith("ERROR: ")) {
+    if (lne.startsWith(QLatin1String("ERROR: "))) {
         QString description = lne.mid(7);
         emit addTask(TaskWindow::Task(TaskWindow::Error, description,
                                       m_currentFile,
