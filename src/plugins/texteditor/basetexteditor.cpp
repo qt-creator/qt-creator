@@ -1173,7 +1173,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 
     if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()) {
         QPlainTextEdit::keyPressEvent(e);
-    } else if ((e->modifiers() & Qt::ControlModifier) != Qt::ControlModifier){
+    } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
         QTextCursor cursor = textCursor();
         QString text = e->text();
         QString autoText = autoComplete(cursor, text);
