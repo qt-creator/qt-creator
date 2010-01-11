@@ -39,7 +39,7 @@
 #include <QtCore/QSharedData>
 #include <QDebug>
 
-enum { debug = 1 };
+enum { debug = 0 };
 
 namespace QmlDesigner {
 
@@ -51,36 +51,44 @@ namespace Internal {
 // ignore it from then on.
 static IWidgetPlugin *instance(WidgetPluginData &p)
 {
-    qWarning() << "START";
-    qWarning() << p.path;
+    if (debug)
+        qDebug() << "Loading QmlDesigner plugin" << p.path << "...";
+
     // Go stale once something fails
     if (p.failed)
         return 0;
+
     // Pull up the plugin, retrieve IPlugin instance.
     if (!p.instanceGuard) {
         p.instance = 0;
         QPluginLoader loader(p.path);
-        qWarning() << "guard";
-        qWarning() << p.path;
+
+        if (debug)
+            qDebug() << "guard" << p.path;
+
         if (!(loader.isLoaded() || loader.load())) {
             p.failed = true;
+            p.errorMessage = QCoreApplication::translate("WidgetPluginManager",
+                                                         "Failed to create instance of file "
+                                                         "'%1': %2").arg(p.path).arg(p.errorMessage);
             qWarning() << p.errorMessage;
-            p.errorMessage = loader.errorString();
             return 0;
         }
         QObject *object = loader.instance();
         if (!object) {
             p.failed = true;
-            qWarning() << "plugin loading failed";
-            p.errorMessage = QCoreApplication::translate("WidgetPluginManager", "Failed to create instance.");
+            p.errorMessage = QCoreApplication::translate("WidgetPluginManager",
+                                                         "Failed to create instance of file '%1'."
+                                                         ).arg(p.path);
             qWarning() << p.errorMessage;
             return 0;
         }
         IWidgetPlugin *iplugin = qobject_cast<IWidgetPlugin *>(object);
         if (!iplugin) {
             p.failed = true;
-            p.errorMessage = QCoreApplication::translate("WidgetPluginManager", "Not a QmlDesigner plugin.");
-            qWarning() << "cast failed";
+            p.errorMessage = QCoreApplication::translate("WidgetPluginManager",
+                                                         "File '%1' is not a QmlDesigner plugin."
+                                                         ).arg(p.path);
             qWarning() << p.errorMessage;
             delete object;
             return 0;
@@ -97,7 +105,9 @@ static IWidgetPlugin *instance(WidgetPluginData &p)
             return 0;
         }
     }*/
-    qWarning() << "instance created";
+
+    if (debug)
+        qDebug() << "QmlDesigner plugin" << p.path << "successfully loaded!";
     return p.instance;
 }
 
@@ -138,7 +148,8 @@ QStringList WidgetPluginPath::libraryFilePaths(const QDir &dir)
             result += fileName;
     }
 
-	qDebug() << "Library file paths: " << result;
+    if (debug)
+        qDebug() << "Library files in directory" << dir << ": " << result;
 
     return result;
 }
