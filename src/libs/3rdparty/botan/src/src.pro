@@ -17,6 +17,11 @@ win32 {
     DEFINES += BOTAN_DLL=__declspec(dllexport)
 }
 
+unix {
+    QMAKE_CFLAGS += -fPIC -ansi -fpermissive -finline-functions -Wno-long-long
+    QMAKE_CXXFLAGS += -fPIC -ansi -fpermissive -finline-functions -Wno-long-long
+}
+
 # Input
 HEADERS += algo_factory/algo_cache.h \
         algo_factory/algo_factory.h \
@@ -80,9 +85,7 @@ HEADERS += algo_factory/algo_cache.h \
         cryptobox/cryptobox.h \
         engine/def_engine/def_eng.h \
         engine/engine.h \
-        entropy/cryptoapi_rng/es_capi.h \
         entropy/entropy_src.h \
-        entropy/win32_stats/es_win32.h \
         filters/basefilt.h \
         filters/buf_filt.h \
         filters/data_snk.h \
@@ -154,7 +157,6 @@ HEADERS += algo_factory/algo_cache.h \
         modes/xts/xts.h \
         mutex/mutex.h \
         mutex/noop_mutex/mux_noop.h \
-        mutex/win32_crit_section/mux_win32.h \
         pbe/get_pbe.h \
         pbe/pbes1/pbes1.h \
         pbe/pbes2/pbes2.h \
@@ -215,7 +217,6 @@ HEADERS += algo_factory/algo_cache.h \
         sym_algo/sym_algo.h \
         sym_algo/symkey.h \
         timer/timer.h \
-        timer/win32_query_perf_ctr/tm_win32.h \
         utils/bit_ops.h \
         utils/bswap.h \
         utils/buf_comp/buf_comp.h \
@@ -232,6 +233,51 @@ HEADERS += algo_factory/algo_cache.h \
         utils/util.h \
         utils/version.h \
         utils/xor_buf.h
+
+win32 {
+    HEADERS += entropy/cryptoapi_rng/es_capi.h \
+        entropy/win32_stats/es_win32.h \
+        mutex/win32_crit_section/mux_win32.h \
+        timer/win32_query_perf_ctr/tm_win32.h
+}
+
+unix {
+    HEADERS += botan/curve_gfp.h \
+        build.kh/botan/cvc_ado.h \
+        build.kh/botan/cvc_ca.h \
+        build.kh/botan/cvc_cert.h \
+        build.kh/botan/cvc_gen_cert.h \
+        build.kh/botan/cvc_key.h \
+        build.kh/botan/cvc_req.h \
+        build.kh/botan/cvc_self.h \
+        build.kh/botan/eac_asn_obj.h \
+        build.kh/botan/eac_obj.h \
+        build.kh/botan/ecc_key.h \
+        build.kh/botan/ec_dompar.h \
+        build.kh/botan/ecdsa_core.h \
+        build.kh/botan/ecdsa.h \
+        build.kh/botan/ecdsa_op.h \
+        build.kh/botan/ecdsa_sig.h \
+        build.kh/botan/eckaeg_core.h \
+        build.kh/botan/eckaeg.h \
+        build.kh/botan/eckaeg_op.h \
+        build.kh/botan/es_dev.h \
+        build.kh/botan/es_egd.h \
+        build.kh/botan/es_ftw.h \
+        build.kh/botan/es_unix.h \
+        build.kh/botan/fd_unix.h \
+        build.kh/botan/freestore.h \
+        build.kh/botan/gfp_element.h \
+        build.kh/botan/gfp_modulus.h \
+        build.kh/botan/mmap_mem.h \
+        build.kh/botan/mux_pthr.h \
+        build.kh/botan/point_gfp.h \
+        build.kh/botan/signed_obj.h \
+        build.kh/botan/tm_posix.h \
+        build.kh/botan/tm_unix.h \
+        build.kh/botan/unix_cmd.h
+}
+
 
 SOURCES += algo_factory/algo_factory.cpp \
         algo_factory/prov_weight.cpp \
@@ -317,8 +363,6 @@ SOURCES += algo_factory/algo_factory.cpp \
         engine/def_engine/lookup_hash.cpp \
         engine/def_engine/lookup_mac.cpp \
         engine/def_engine/lookup_stream.cpp \
-        entropy/cryptoapi_rng/es_capi.cpp \
-        entropy/win32_stats/es_win32.cpp \
         filters/algo_filt.cpp \
         filters/basefilt.cpp \
         filters/buf_filt.cpp \
@@ -408,7 +452,6 @@ SOURCES += algo_factory/algo_factory.cpp \
         modes/ofb/ofb.cpp \
         modes/xts/xts.cpp \
         mutex/noop_mutex/mux_noop.cpp \
-        mutex/win32_crit_section/mux_win32.cpp \
         pbe/get_pbe.cpp \
         pbe/pbes1/pbes1.cpp \
         pbe/pbes2/pbes2.cpp \
@@ -467,7 +510,6 @@ SOURCES += algo_factory/algo_factory.cpp \
         stream/wid_wake/wid_wake.cpp \
         sym_algo/symkey.cpp \
         timer/timer.cpp \
-        timer/win32_query_perf_ctr/tm_win32.cpp \
         utils/charset.cpp \
         utils/datastor/datastor.cpp \
         utils/exceptn.cpp \
@@ -476,3 +518,57 @@ SOURCES += algo_factory/algo_factory.cpp \
         utils/ui.cpp \
         utils/util.cpp \
         utils/version.cpp
+
+win32 {
+SOURCES += entropy/cryptoapi_rng/es_capi.cpp \
+           entropy/win32_stats/es_win32.cpp \
+           mutex/win32_crit_section/mux_win32.cpp \
+           timer/win32_query_perf_ctr/tm_win32.cpp
+}
+
+unix {
+SOURCES += alloc/alloc_mmap/mmap_mem.cpp \
+           cert/cvc/asn1_eac_str.cpp \
+           cert/cvc/asn1_eac_tm.cpp \
+           cert/cvc/cvc_ado.cpp \
+           cert/cvc/cvc_ca.cpp \
+           cert/cvc/cvc_cert.cpp \
+           cert/cvc/cvc_req.cpp \
+           cert/cvc/cvc_self.cpp \
+           cert/cvc/ecdsa_sig.cpp \
+           cert/cvc/signed_obj.cpp \
+           entropy/dev_random/es_dev.cpp \
+           entropy/egd/es_egd.cpp \
+           entropy/proc_walk/es_ftw.cpp \
+           entropy/unix_procs/es_unix.cpp \
+           entropy/unix_procs/unix_cmd.cpp \
+           entropy/unix_procs/unix_src.cpp \
+           filters/fd_unix/fd_unix.cpp \
+           math/gfpmath/curve_gfp.cpp \
+           math/gfpmath/gfp_element.cpp \
+           math/gfpmath/point_gfp.cpp \
+           mutex/pthreads/mux_pthr.cpp \
+           pubkey/ec_dompar/ec_dompar.cpp \
+           pubkey/ecc_key/ecc_key.cpp \
+           pubkey/ecdsa/ecdsa.cpp \
+           pubkey/ecdsa/ecdsa_core.cpp \
+           pubkey/ecdsa/ecdsa_op.cpp \
+           pubkey/eckaeg/eckaeg.cpp \
+           pubkey/eckaeg/eckaeg_core.cpp \
+           pubkey/eckaeg/eckaeg_op.cpp \
+           timer/gettimeofday/tm_unix.cpp
+}
+
+linux*-g++* {
+SOURCES += \
+# block/serpent_ia32/serp_ia32.cpp \
+#           block/serpent_ia32/serp_ia32_imp.S \
+#           engine/ia32_eng/eng_ia32.cpp \
+#           hash/md4_ia32/md4_ia32.cpp \
+#           hash/md4_ia32/md4_ia32_imp.S \
+#           hash/md5_ia32/md5_ia32.cpp \
+#           hash/md5_ia32/md5_ia32_imp.S \
+#           hash/sha1_ia32/sha1_ia32.cpp \
+#           hash/sha1_ia32/sha1_ia32_imp.S \
+           timer/posix_rt/tm_posix.cpp
+}
