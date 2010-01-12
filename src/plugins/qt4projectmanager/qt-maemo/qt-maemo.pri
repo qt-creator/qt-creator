@@ -4,7 +4,9 @@ SUPPORT_QT_MAEMO = $$(QTCREATOR_WITH_MAEMO)
     DEFINES += QTCREATOR_WITH_MAEMO
 #    DEFINES += USE_SSH_LIB
 #    INCLUDEPATH += $$PWD/../../../libs/3rdparty/net7ssh/src
-#    LIBS += -L$$PWD/../../../../lib/qtcreator -lNet7ssh
+#    INCLUDEPATH += $$PWD/../../../libs/3rdparty/botan/build
+#    LIBS += -l$$qtLibraryTarget(Net7ssh) -l$$qtLibraryTarget(Botan)
+
     HEADERS += $$PWD/maemorunconfiguration.h \
         $$PWD/maemomanager.h \
         $$PWD/maemotoolchain.h \
