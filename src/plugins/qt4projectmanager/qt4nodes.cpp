@@ -27,8 +27,6 @@
 **
 **************************************************************************/
 
-#include "proeditormodel.h"
-
 #include "profilereader.h"
 #include "prowriter.h"
 #include "qt4nodes.h"
@@ -553,6 +551,23 @@ bool Qt4PriFileNode::saveModifiedEditors(const QString &path)
     return true;
 }
 
+static void findProVariables(ProBlock *block, const QStringList &vars,
+                             QList<ProVariable *> *proVars)
+{
+    foreach (ProItem *item, block->items()) {
+        if (item->kind() == ProItem::BlockKind) {
+            ProBlock *subBlock = static_cast<ProBlock *>(item);
+            if (subBlock->blockKind() == ProBlock::VariableKind) {
+                ProVariable *proVar = static_cast<ProVariable*>(subBlock);
+                if (vars.contains(proVar->variable()))
+                    *proVars << proVar;
+            } else {
+                findProVariables(subBlock, vars, proVars);
+            }
+        }
+    }
+}
+
 void Qt4PriFileNode::changeFiles(const FileType fileType,
                                  const QStringList &filePaths,
                                  QStringList *notChanged,
@@ -581,28 +596,24 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
         return;
     }
 
-    // Check if file is readonly
-    ProEditorModel proModel;
-    proModel.setProFiles(QList<ProFile*>() << includeFile);
-
     const QStringList vars = varNames(fileType);
     QDir priFileDir = QDir(m_projectDir);
 
     if (change == AddToProFile) {
-        // root item "<Global Scope>"
-        const QModelIndex root = proModel.index(0, 0);
+        ProVariable *proVar = 0;
 
         // Check if variable item exists as child of root item
-        ProVariable *proVar = 0;
-        int row = 0;
-        for (; row < proModel.rowCount(root); ++row) {
-            if ((proVar = proModel.proVariable(root.child(row, 0)))) {
-                if (vars.contains(proVar->variable())
-                    && proVar->variableOperator() != ProVariable::RemoveOperator
-                    && proVar->variableOperator() != ProVariable::ReplaceOperator)
-                    break;
-                else
+        foreach (ProItem *item, includeFile->items()) {
+            if (item->kind() == ProItem::BlockKind) {
+                ProBlock *block = static_cast<ProBlock *>(item);
+                if (block->blockKind() == ProBlock::VariableKind) {
+                    proVar = static_cast<ProVariable*>(block);
+                    if (vars.contains(proVar->variable())
+                        && proVar->variableOperator() != ProVariable::RemoveOperator
+                        && proVar->variableOperator() != ProVariable::ReplaceOperator)
+                        break;
                     proVar = 0;
+                }
             }
         }
 
@@ -610,53 +621,44 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
             // Create & append new variable item
 
             // TODO: This will always store e.g. a source file in SOURCES and not OBJECTIVE_SOURCES
-            proVar = new ProVariable(vars.first(), proModel.proBlock(root));
+            proVar = new ProVariable(vars.first(), includeFile);
             proVar->setVariableOperator(ProVariable::AddOperator);
-            proModel.insertItem(proVar, row, root);
+            includeFile->appendItem(proVar);
         }
-        const QModelIndex varIndex = root.child(row, 0);
 
         const QString &proFilePath = includeFile->fileName();
         foreach (const QString &filePath, filePaths) {
             if (filePath == proFilePath)
                 continue;
             const QString &relativeFilePath = priFileDir.relativeFilePath(filePath);
-            proModel.insertItem(new ProValue(relativeFilePath, proVar),
-                                proModel.rowCount(varIndex), varIndex);
+            proVar->appendItem(new ProValue(relativeFilePath, proVar));
             notChanged->removeOne(filePath);
         }
     } else { // RemoveFromProFile
-        QList<QModelIndex> proVarIndexes = proModel.findVariables(vars);
-        QList<QModelIndex> toRemove;
+        QList<ProVariable *> proVars;
+        findProVariables(includeFile, vars, &proVars);
 
         QStringList relativeFilePaths;
         foreach (const QString &absoluteFilePath, filePaths)
             relativeFilePaths << priFileDir.relativeFilePath(absoluteFilePath);
 
-        foreach (const QModelIndex &proVarIndex, proVarIndexes) {
-            ProVariable *proVar = proModel.proVariable(proVarIndex);
-
+        foreach (ProVariable *proVar, proVars) {
             if (proVar->variableOperator() != ProVariable::RemoveOperator
                 && proVar->variableOperator() != ProVariable::ReplaceOperator) {
-
-                for (int row = proModel.rowCount(proVarIndex) - 1; row >= 0; --row) {
-                    QModelIndex itemIndex = proModel.index(row, 0, proVarIndex);
-                    ProItem *item = proModel.proItem(itemIndex);
-
+                QList<ProItem *> values = proVar->items();
+                for (int i = values.count(); --i >= 0; ) {
+                    ProItem *item = values.at(i);
                     if (item->kind() == ProItem::ValueKind) {
                         ProValue *val = static_cast<ProValue *>(item);
                         int index = relativeFilePaths.indexOf(val->value());
                         if (index != -1) {
-                            toRemove.append(itemIndex);
+                            delete values.takeAt(i);
                             notChanged->removeAt(index);
                         }
                     }
                 }
+                proVar->setItems(values);
             }
-        }
-
-        foreach (const QModelIndex &index, toRemove) {
-            proModel.removeItem(index);
         }
     }
 
