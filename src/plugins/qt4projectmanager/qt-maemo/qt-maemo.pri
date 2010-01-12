@@ -2,10 +2,9 @@ SUPPORT_QT_MAEMO = $$(QTCREATOR_WITH_MAEMO)
 !isEmpty(SUPPORT_QT_MAEMO) { 
     message("Adding experimental support for Qt/Maemo applications.")
     DEFINES += QTCREATOR_WITH_MAEMO
-    
-    # DEFINES += USE_SSH_LIB
-    # LIBS += -L/opt/ne7sshModified/lib/ \
-    # -lnet7ssh
+#    DEFINES += USE_SSH_LIB
+#    INCLUDEPATH += $$PWD/../../../libs/3rdparty/net7ssh/src
+#    LIBS += -L$$PWD/../../../../lib/qtcreator -lNet7ssh
     HEADERS += $$PWD/maemorunconfiguration.h \
         $$PWD/maemomanager.h \
         $$PWD/maemotoolchain.h \

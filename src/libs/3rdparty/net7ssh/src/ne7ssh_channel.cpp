@@ -450,3 +450,7 @@ bool ne7ssh_channel::adjustRecvWindow (int bufferSize)
   return true;
 }
 
+void ne7ssh_channel::resetReceiveBuffer()
+{
+  inBuffer.clear();
+}

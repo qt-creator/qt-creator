@@ -228,6 +228,9 @@ class ne7ssh_connection
     * @return True if SFTP subsystem is active, otherwise false.
     */
     bool isSftpActive ();
+
+    /** Empties this connection's receive buffer. */
+    void resetReceiveBuffer();
 };
 
 #endif

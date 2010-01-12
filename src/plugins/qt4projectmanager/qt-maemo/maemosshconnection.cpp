@@ -45,7 +45,7 @@
 
 #include "maemodeviceconfigurations.h"
 
-#include "/opt/ne7sshModified/include/ne7ssh.h"
+#include <ne7ssh.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QStringBuilder>
@@ -57,6 +57,11 @@ namespace Qt4ProjectManager {
 namespace Internal {
 namespace {
     ne7ssh ssh;
+
+    char *alloc(size_t n)
+    {
+        return new char[n];
+    }
 }
 
 // TODO: Which encoding to use for file names? Unicode? Latin1? ASCII?
@@ -127,13 +132,11 @@ void MaemoInteractiveSshConnection::runCommand(const QString &command)
         const char * const error = lastError();
         if (error)
             throw MaemoSshException(tr("SSH error: %1").arg(error));
-        ssh.lock();
-        const char * output = ssh.read(channel(), false);
+        const char * output = ssh.readAndReset(channel(), alloc);
         if (output) {
             emit remoteOutput(QString::fromUtf8(output));
-            ssh.resetInput(channel(), false);
+            delete[] output;
         }
-        ssh.unlock();
     } while (!done && !stopRequested());
 }
 
