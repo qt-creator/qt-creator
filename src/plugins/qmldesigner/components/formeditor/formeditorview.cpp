@@ -186,6 +186,26 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
 void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
+    foreach(const AbstractProperty &property, propertyList) {
+        if (property.isNodeAbstractProperty()) {
+            NodeAbstractProperty nodeAbstractProperty = property.toNodeAbstractProperty();
+            QList<FormEditorItem*> removedItemList;
+
+            foreach(const ModelNode &modelNode, nodeAbstractProperty.allSubNodes()) {
+                QmlItemNode qmlItemNode(modelNode);
+
+                if (qmlItemNode.isValid()) {
+                    FormEditorItem *item = m_scene->itemForQmlItemNode(qmlItemNode);
+                    removedItemList.append(item);
+
+                    delete item;
+                }
+            }
+
+            m_currentTool->itemsAboutToRemoved(removedItemList);
+        }
+    }
+
     QmlModelView::propertiesAboutToBeRemoved(propertyList);
 }
 void FormEditorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
