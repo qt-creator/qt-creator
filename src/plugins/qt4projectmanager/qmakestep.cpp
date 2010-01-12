@@ -109,10 +109,13 @@ bool QMakeStep::init()
 
     if (!qtVersion->isValid()) {
 #if defined(Q_WS_MAC)
-        emit addOutput(tr("\n<font color=\"#ff0000\"><b>No valid Qt version set. Set one in Preferences </b></font>\n"));
+        emit addOutput(tr("<font color=\"#ff0000\">Qt version <b>%1</b> is invalid. Set a valid Qt Version in Preferences </font>\n")
+                       .arg(qtVersion->displayName()));
 #else
-        emit addOutput(tr("\n<font color=\"#ff0000\"><b>No valid Qt version set. Set one in Tools/Options </b></font>\n"));
+        emit addOutput(tr("<font color=\"#ff0000\">Qt version <b>%1</b> is invalid. Set valid Qt Version in Tools/Options </b></font>\n")
+                       .arg(qtVersion->displayName()));
 #endif
+        emit addOutput("<font color=\"#ff0000\">" + qtVersion->invalidReason() + "</font><br>");
         return false;
     }
 

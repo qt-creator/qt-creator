@@ -114,6 +114,8 @@ Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
 void Qt4ProjectConfigWidget::updateDetails()
 {
     QtVersion *version = m_buildConfiguration->qtVersion();
+
+
     QString versionString;
     if (m_buildConfiguration->qtVersionId() == 0) {
         versionString = tr("Default Qt Version (%1)").arg(version->displayName());
@@ -122,13 +124,24 @@ void Qt4ProjectConfigWidget::updateDetails()
     } else {
         versionString = tr("No Qt Version set");
     }
-    // Qt Version, Build Directory and Toolchain
-    m_detailsContainer->setSummaryText(tr("using Qt version: <b>%1</b><br>"
-                                 "with tool chain <b>%2</b><br>"
-                                 "building in <b>%3</b>")
-                              .arg(versionString,
-                                   ProjectExplorer::ToolChain::toolChainName(m_buildConfiguration->toolChainType()),
-                                   QDir::toNativeSeparators(m_buildConfiguration->buildDirectory())));
+
+    if (!version->isValid()) {
+        // Not a valid qt version
+        m_detailsContainer->setSummaryText(
+                tr("using <font color=\"#ff0000\">invalid</font> Qt Version: <b>%1</b><br>"
+                   "%2")
+                .arg(versionString,
+                     version->invalidReason()));
+    } else {
+        // Qt Version, Build Directory and Toolchain
+        m_detailsContainer->setSummaryText(
+                tr("using Qt version: <b>%1</b><br>"
+                   "with tool chain <b>%2</b><br>"
+                   "building in <b>%3</b>")
+                .arg(versionString,
+                     ProjectExplorer::ToolChain::toolChainName(m_buildConfiguration->toolChainType()),
+                     QDir::toNativeSeparators(m_buildConfiguration->buildDirectory())));
+    }
 }
 
 void Qt4ProjectConfigWidget::manageQtVersions()

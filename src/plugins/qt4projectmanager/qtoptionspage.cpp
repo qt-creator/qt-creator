@@ -513,9 +513,8 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(false);
-            if (!m_versions.at(index)->isInstalled())
-                m_ui->errorLabel->setText(tr("The Qt Version identified by %1 is not installed. Run make install")
-                                           .arg(QDir::toNativeSeparators(m_versions.at(index)->qmakeCommand())));
+            if (!m_versions.at(index)->isValid())
+                m_ui->errorLabel->setText(m_versions.at(index)->invalidReason());
             else
                 m_ui->errorLabel->setText(tr("%1 does not specify a valid Qt installation").arg(QDir::toNativeSeparators(m_versions.at(index)->qmakeCommand())));
         } else { //ProjectExplorer::ToolChain::GCC

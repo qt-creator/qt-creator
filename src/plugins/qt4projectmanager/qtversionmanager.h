@@ -64,7 +64,7 @@ public:
     ~QtVersion();
 
     bool isValid() const; //TOOD check that the dir exists and the name is non empty
-    bool isInstalled() const;
+    QString invalidReason() const;
     bool isAutodetected() const { return m_isAutodetected; }
     QString autodetectionSource() const { return m_autodetectionSource; }
 
@@ -211,6 +211,7 @@ public:
     static QPair<QtVersion::QmakeBuildConfigs, QStringList> scanMakeFile(const QString &directory,
                                                                          QtVersion::QmakeBuildConfigs defaultBuildConfig);
     static QString findQMakeBinaryFromMakefile(const QString &directory);
+    bool isValidId(int id) const;
 signals:
     void defaultQtVersionChanged();
     void qtVersionsChanged(const QList<int> &uniqueIds);
