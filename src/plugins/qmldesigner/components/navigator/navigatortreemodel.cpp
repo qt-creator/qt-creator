@@ -197,6 +197,7 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     QStandardItem *visibilityItem = new QStandardItem;
     visibilityItem->setDropEnabled(node.metaInfo().isContainer());
     visibilityItem->setCheckable(true);
+    visibilityItem->setEditable(false);
     visibilityItem->setData(hash, Qt::UserRole);
 
     return ItemRow(idItem, typeItem, visibilityItem);
