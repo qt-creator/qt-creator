@@ -105,12 +105,23 @@ void HelpManager::registerDocumentation(const QStringList &fileNames)
             if (!QFileInfo(fileName).exists())
                 continue;
             const QString &nameSpace = QHelpEngineCore::namespaceName(fileName);
-            if (!nameSpace.isEmpty()
-                && !hc.registeredDocumentations().contains(nameSpace)) {
-                if (hc.registerDocumentation(fileName))
+            if (!nameSpace.isEmpty()) {
+                if (hc.registeredDocumentations().contains(nameSpace)) {
+                    if (!QFileInfo(hc.documentationFileName(nameSpace)).exists()) {
+                        // remove stale documentation path first
+                        if (!hc.unregisterDocumentation(fileName)) {
+                            qWarning() << "error unregistering " << fileName << hc.error();
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+                if (hc.registerDocumentation(fileName)) {
                     needsSetup = true;
-                else
-                    qDebug() << "error registering" << fileName << hc.error();
+                } else {
+                    qWarning() << "error registering" << fileName << hc.error();
+                }
             }
         }
     }
