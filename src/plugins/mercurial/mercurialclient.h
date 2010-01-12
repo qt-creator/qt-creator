@@ -88,6 +88,7 @@ public:
     void statusWithSignal(const QString &repository);
     void revertFile(const QString &workingDir, const QString &file, const QString &revision = QString());
     void revertRepository(const QString &workingDir, const QString &revision = QString());
+    bool createRepositorySync(const QString &workingDir);
     void update(const QString &repositoryRoot, const QString &revision = QString());
     void commit(const QString &repositoryRoot,
                 const QStringList &files,

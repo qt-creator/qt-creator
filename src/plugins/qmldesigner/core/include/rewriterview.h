@@ -121,7 +121,7 @@ public:
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
-    void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int /*oldIndex*/);
+    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
     void nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion);
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 

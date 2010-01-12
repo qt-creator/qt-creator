@@ -167,7 +167,7 @@ void ComponentView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeL
 
 void ComponentView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &/*newUrl*/) {}
 
-void ComponentView::nodeSlidedToIndex(const NodeListProperty &/*listProperty*/, int /*newIndex*/, int /*oldIndex*/) {}
+void ComponentView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode & /*movedNode*/, int /*oldIndex*/) {}
 
 void ComponentView::importsChanged() {}
 

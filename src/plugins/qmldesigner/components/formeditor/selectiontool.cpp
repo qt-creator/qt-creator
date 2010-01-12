@@ -41,6 +41,9 @@
 
 namespace QmlDesigner {
 
+static const int s_startDragDistance = 20;
+static const int s_startDragTime = 50;
+
 SelectionTool::SelectionTool(FormEditorView *editorView)
     : AbstractFormEditorTool(editorView),
     m_rubberbandSelectionManipulator(editorView->scene()->manipulatorLayerItem(), editorView),
@@ -95,16 +98,16 @@ void SelectionTool::mouseMoveEvent(const QList<QGraphicsItem*> &/*itemList*/,
 {
     if (m_singleSelectionManipulator.isActive()) {
         QPointF mouseMovementVector = m_singleSelectionManipulator.beginPoint() - event->scenePos();
-        if ((mouseMovementVector.toPoint().manhattanLength() > QApplication::startDragDistance())
-            && (m_mousePressTimer.elapsed() > QApplication::startDragTime())) {
+        if ((mouseMovementVector.toPoint().manhattanLength() > s_startDragDistance)
+            && (m_mousePressTimer.elapsed() > s_startDragTime)) {
             m_singleSelectionManipulator.end(event->scenePos());
             view()->changeToMoveTool(m_singleSelectionManipulator.beginPoint());
             return;
         }
     } else if (m_rubberbandSelectionManipulator.isActive()) {
         QPointF mouseMovementVector = m_rubberbandSelectionManipulator.beginPoint() - event->scenePos();
-        if ((mouseMovementVector.toPoint().manhattanLength() > QApplication::startDragDistance())
-            && (m_mousePressTimer.elapsed() > QApplication::startDragTime())) {
+        if ((mouseMovementVector.toPoint().manhattanLength() > s_startDragDistance)
+            && (m_mousePressTimer.elapsed() > s_startDragTime)) {
             m_rubberbandSelectionManipulator.update(event->scenePos());
 
             if (event->modifiers().testFlag(Qt::ControlModifier))
@@ -137,13 +140,12 @@ void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &/*itemList*/,
                                       QGraphicsSceneMouseEvent *event)
 {
     if (m_singleSelectionManipulator.isActive()) {
-        qDebug() << __FUNCTION__ << "single";
         m_singleSelectionManipulator.end(event->scenePos());
     }
     else if (m_rubberbandSelectionManipulator.isActive()) {
 
         QPointF mouseMovementVector = m_rubberbandSelectionManipulator.beginPoint() - event->scenePos();
-        if (mouseMovementVector.toPoint().manhattanLength() < QApplication::startDragDistance()) {
+        if (mouseMovementVector.toPoint().manhattanLength() < s_startDragDistance) {
             m_singleSelectionManipulator.begin(event->scenePos());
 
             if (event->modifiers().testFlag(Qt::ControlModifier))
@@ -272,7 +274,7 @@ void SelectionTool::selectUnderPoint(QGraphicsSceneMouseEvent *event)
     else if (event->modifiers().testFlag(Qt::ShiftModifier))
         m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection);
     else
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection);
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
 
     m_singleSelectionManipulator.end(event->scenePos());
 }

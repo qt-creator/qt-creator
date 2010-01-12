@@ -133,14 +133,10 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const QString &n
         m_treeModel->updateItemRow(node);
 }
 
-void NavigatorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex)
+void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
 {
-    QmlModelView::nodeSlidedToIndex(listProperty, newIndex, oldIndex);
+    QmlModelView::nodeOrderChanged(listProperty, node, oldIndex);
 
-    int nodeIndex = newIndex;
-    if (oldIndex < newIndex)
-        --nodeIndex;
-    ModelNode node = listProperty.toModelNodeList().at(nodeIndex);
     if (m_treeModel->isInTree(node))
         m_treeModel->updateItemRowOrder(node);
 }

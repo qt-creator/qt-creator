@@ -438,12 +438,15 @@ void ModelPrivate::notifyNodeReparent(const InternalNode::Pointer &internalNodeP
      }
  }
 
-void ModelPrivate::notifyNodeSlidedToIndex(const InternalNodeListProperty::Pointer &internalNodeListproperty, int newIndex, int oldIndex)
+void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListPropertyPointer,
+                                          const InternalNode::Pointer &internalNodePointer,
+                                          int oldIndex)
 {
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
-        Q_ASSERT(view != 0);
-        NodeListProperty nodeListproperty(internalNodeListproperty, model(), view.data());
-        view->nodeSlidedToIndex(nodeListproperty, newIndex, oldIndex);
+        Q_ASSERT(!view.isNull());
+        view->nodeOrderChanged(NodeListProperty(internalListPropertyPointer, model(), view.data()),
+                                ModelNode(internalNodePointer, model(), view.data()),
+                                oldIndex);
     }
 }
 
@@ -678,14 +681,15 @@ void ModelPrivate::changeType(const InternalNodePointer &internalNode, const QSt
     notifyNodeTypeChanged(internalNode, type, majorVersion, minorVersion);
 }
 
-void ModelPrivate::slideNodeList(const InternalNode::Pointer &internalNode, const QString &name, int from, int to)
+void ModelPrivate::changeNodeOrder(const InternalNode::Pointer &internalParentNode, const QString &listPropertyName, int from, int to)
 {
-    InternalNodeListProperty::Pointer nodeList(internalNode->nodeListProperty(name));
+    InternalNodeListProperty::Pointer nodeList(internalParentNode->nodeListProperty(listPropertyName));
     Q_ASSERT(!nodeList.isNull());
     nodeList->slide(from, to);
-    notifyNodeSlidedToIndex(nodeList, to, from);
-}
 
+    const InternalNodePointer internalNode = nodeList->nodeList().at(to);
+    notifyNodeOrderChanged(nodeList, internalNode, from);
+}
 
 void ModelPrivate::setRootNode(const InternalNode::Pointer& newRootNode)
 {

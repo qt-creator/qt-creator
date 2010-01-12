@@ -220,6 +220,9 @@ class ne7ssh_channel
     * @return Size of the send window.
     */
     uint32 getSendWindow () { return windowSend; }
+
+    /** Empties the receive buffer. */
+    void resetReceiveBuffer();
 };
 
 #endif

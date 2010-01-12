@@ -40,9 +40,10 @@ class IFile;
 }
 
 namespace QmlProjectManager {
-namespace Internal {
 
 class QmlProject;
+
+namespace Internal {
 
 class QmlProjectNode : public ProjectExplorer::ProjectNode
 {

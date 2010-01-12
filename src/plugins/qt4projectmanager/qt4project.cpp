@@ -464,6 +464,7 @@ void Qt4Project::updateCodeModel()
     if (!modelmanager)
         return;
 
+    // Collect global headers/defines
     QStringList predefinedIncludePaths;
     QStringList predefinedFrameworkPaths;
     QByteArray predefinedMacros;
@@ -506,6 +507,7 @@ void Qt4Project::updateCodeModel()
     QByteArray definedMacros = predefinedMacros;
     QStringList allIncludePaths = predefinedIncludePaths;
     QStringList allFrameworkPaths = predefinedFrameworkPaths;
+    QStringList allPrecompileHeaders;
 
 #ifdef Q_OS_MAC
     const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
@@ -519,11 +521,18 @@ void Qt4Project::updateCodeModel()
     }
 #endif
 
+
+    // Collect per .pro file information
+    m_codeModelInfo.clear();
     foreach (Qt4ProFileNode *pro, proFiles) {
         Internal::CodeModelInfo info;
         info.defines = predefinedMacros;
         info.includes = predefinedIncludePaths;
         info.frameworkPaths = predefinedFrameworkPaths;
+
+        info.precompiledHeader = pro->variableValue(PrecompiledHeaderVar);
+
+        allPrecompileHeaders.append(info.precompiledHeader);
 
         // Add custom defines
         foreach (const QString def, pro->variableValue(DefinesVar)) {
@@ -557,6 +566,10 @@ void Qt4Project::updateCodeModel()
                 info.includes.append(includePath);
         }
 
+#if 0
+        // Disable for now, we need better .pro parsing first
+        // Also the information gathered here isn't used
+        // by the codemodel yet
         { // Pkg Config support
             QStringList pkgConfig = pro->variableValue(PkgConfigVar);
             if (!pkgConfig.isEmpty()) {
@@ -570,12 +583,20 @@ void Qt4Project::updateCodeModel()
                 }
             }
         }
+#endif
 
         // Add mkspec directory
         info.includes.append(activeBC->qtVersion()->mkspecPath());
 
         info.frameworkPaths = allFrameworkPaths;
 
+#if 0
+        //Disable for now, we need better .pro file parsing first, and code model
+        //support to access this information
+
+        // TODO this is wastefull
+        // only save it per .pro file, and on beeing asked
+        // search for the .pro file that has that file
         foreach (FileNode *fileNode, pro->fileNodes()) {
             const QString path = fileNode->path();
             const int type = fileNode->fileType();
@@ -583,6 +604,7 @@ void Qt4Project::updateCodeModel()
                 m_codeModelInfo.insert(path, info);
             }
         }
+#endif
     }
 
     // Add mkspec directory
@@ -606,10 +628,13 @@ void Qt4Project::updateCodeModel()
 
     CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
 
-    if (pinfo.defines == predefinedMacros             &&
-            pinfo.includePaths == allIncludePaths     &&
-            pinfo.frameworkPaths == allFrameworkPaths &&
-            pinfo.sourceFiles == files) {
+    //qDebug()<<"Using precompiled header"<<allPrecompileHeaders;
+
+    if (pinfo.defines == predefinedMacros
+        && pinfo.includePaths == allIncludePaths
+        && pinfo.frameworkPaths == allFrameworkPaths
+        && pinfo.sourceFiles == files
+        && pinfo.precompiledHeaders == allPrecompileHeaders) {
         // Nothing to update...
     } else {
         if (pinfo.defines != predefinedMacros         ||
@@ -624,6 +649,7 @@ void Qt4Project::updateCodeModel()
         pinfo.includePaths = allIncludePaths;
         pinfo.frameworkPaths = allFrameworkPaths;
         pinfo.sourceFiles = files;
+        pinfo.precompiledHeaders = allPrecompileHeaders;
 
         modelmanager->updateProjectInfo(pinfo);
         modelmanager->updateSourceFiles(pinfo.sourceFiles);

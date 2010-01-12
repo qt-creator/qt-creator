@@ -118,7 +118,7 @@ public:
     void notifyBindingPropertiesChanged(const QList<InternalBindingPropertyPointer> &propertyList, AbstractView::PropertyChangeFlags propertyChange);
     void notifyVariantPropertiesChanged(const InternalNodePointer &internalNodePointer, const QStringList& propertyNameList, AbstractView::PropertyChangeFlags propertyChange);
 
-    void notifyNodeSlidedToIndex(const InternalNodeListPropertyPointer &internalNode, int newIndex, int oldIndex);
+    void notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListPropertyPointer, const InternalNodePointer &internalNodePointer, int oldIndex);
     void notifyAuxiliaryDataChanged(const InternalNodePointer &internalNode, const QString &name, const QVariant &data);
 
     void notifyNodeTypeChanged(const InternalNodePointer &internalNode, const QString &type, int majorVersion, int minorVersion);
@@ -156,7 +156,7 @@ public:
     void setDynamicVariantProperty(const InternalNodePointer &internalNode, const QString &name, const QString &propertyType, const QVariant &value);
     void setDynamicBindingProperty(const InternalNodePointer &internalNode, const QString &name, const QString &dynamicPropertyType, const QString &expression);
     void reparentNode(const InternalNodePointer &internalNode, const QString &name, const InternalNodePointer &internalNodeToBeAppended, bool list = true);
-    void slideNodeList(const InternalNodePointer &internalNode, const QString &name, int from, int to);
+    void changeNodeOrder(const InternalNodePointer &internalParentNode, const QString &listPropertyName, int from, int to);
     void checkPropertyName(const QString &propertyName);
     void clearParent(const InternalNodePointer &internalNode);
     void changeType(const InternalNodePointer & internalNode, const QString &type, int majorVersion, int minorVersion);

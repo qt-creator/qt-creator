@@ -71,6 +71,9 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro, const QMap<QString
     m_shadowBuild = map.value("useShadowBuild").toBool();
     m_buildDirectory = map.value("buildDirectory").toString();
     m_qtVersion = map.value(KEY_QT_VERSION_ID).toInt();
+    if (!QtVersionManager::instance()->isValidId(m_qtVersion))
+        m_qtVersion = 0;
+
     m_toolChainType = map.value("ToolChain").toInt();
     m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value("buildConfiguration").toInt());
 }
@@ -258,20 +261,15 @@ QtVersion *Qt4BuildConfiguration::qtVersion() const
 
 int Qt4BuildConfiguration::qtVersionId() const
 {
-    QtVersionManager *vm = QtVersionManager::instance();
-    if (debug)
-        qDebug()<<"Looking for qtVersion ID of "<<displayName();
-    if (vm->version(m_qtVersion)->isValid()) {
-        return m_qtVersion;
-    } else {
-        m_qtVersion = 0;
-        return 0;
-    }
+    return m_qtVersion;
 }
 
 void Qt4BuildConfiguration::setQtVersion(int id)
 {
-    if (qtVersionId() == id)
+    if (m_qtVersion == id)
+        return;
+
+    if (!QtVersionManager::instance()->isValidId(id))
         return;
 
     m_qtVersion = id;

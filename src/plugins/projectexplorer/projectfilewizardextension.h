@@ -38,10 +38,10 @@ namespace Internal {
 
 struct ProjectWizardContext;
 
-/*
-  Adds final page allowing the user to add files to project && version control
-  to BaseFileWizard.
-  */
+/* Final file wizard processing steps:
+ * 1) Add to a project file (*.pri/ *.pro)
+ * 2) Initialize a version control repository (unless the path is already
+ *    managed) and do 'add' if the VCS supports it.  */
 class ProjectFileWizardExtension : public Core::IFileWizardExtension
 {
     Q_OBJECT
@@ -56,6 +56,11 @@ public slots:
     virtual void firstExtensionPageShown(const QList<Core::GeneratedFile> &);
 
 private:
+    void initProjectChoices(bool enabled);
+    void initializeVersionControlChoices();
+    bool processProject(const QList<Core::GeneratedFile> &files, QString *errorMessage);
+    bool processVersionControl(const QList<Core::GeneratedFile> &files, QString *errorMessage);
+
     ProjectWizardContext *m_context;
 };
 

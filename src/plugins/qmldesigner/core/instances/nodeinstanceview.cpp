@@ -293,10 +293,10 @@ void NodeInstanceView::nodeIdChanged(const ModelNode& node, const QString& newId
     }
 }
 
-void NodeInstanceView::nodeSlidedToIndex(const NodeListProperty &listProperty, int /*newIndex*/, int /*oldIndex*/)
+void NodeInstanceView::nodeOrderChanged(const NodeListProperty & listProperty,
+                                        const ModelNode & /*movedNode*/, int /*oldIndex*/)
 {
-    QList<ModelNode> newOrderModelNodeList = listProperty.toModelNodeList();
-    foreach(const ModelNode &node, newOrderModelNodeList) {
+    foreach(const ModelNode &node, listProperty.toModelNodeList()) {
         NodeInstance instance = instanceForNode(node);
         instance.reparent(instance.parent(), listProperty.name(), instance.parent(), listProperty.name());
     }

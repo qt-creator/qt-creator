@@ -118,7 +118,7 @@ public:
 
     virtual void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl);
 
-    virtual void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex) = 0;
+    virtual void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) = 0;
 
     virtual void importsChanged();
 

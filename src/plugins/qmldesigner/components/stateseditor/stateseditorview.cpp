@@ -186,7 +186,6 @@ void StatesEditorView::modelAboutToBeDetached(Model *model)
 
 void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
-    QmlModelView::propertiesAboutToBeRemoved(propertyList);
     foreach (const AbstractProperty &property, propertyList) {
         // remove all states except base state
         if ((property.name()=="states") && (property.parentModelNode().isRootNode())) {
@@ -204,6 +203,7 @@ void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
             }
         }
     }
+    QmlModelView::propertiesAboutToBeRemoved(propertyList);
 }
 
 void StatesEditorView::propertiesRemoved(const QList<AbstractProperty>& propertyList)
@@ -274,15 +274,16 @@ void StatesEditorView::nodeReparented(const ModelNode &node, const NodeAbstractP
     }
 }
 
-void StatesEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex)
+void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex)
 {
-    QmlModelView::nodeSlidedToIndex(listProperty, newIndex, oldIndex);
+    QmlModelView::nodeOrderChanged(listProperty, movedNode, oldIndex);
     if (listProperty.parentModelNode() == m_stateRootNode
         && listProperty.name() == "states") {
-        int index = newIndex;
-        if (oldIndex < newIndex)
-            --index;
-        QmlModelState state = listProperty.toModelNodeList().at(index);
+
+        int newIndex = listProperty.toModelNodeList().indexOf(movedNode);
+        Q_ASSERT(newIndex >= 0);
+
+        QmlModelState state = QmlModelState(movedNode);
         if (state.isValid()) {
             Q_ASSERT(oldIndex == modelStateIndex(state));
             removeModelState(state);
@@ -300,6 +301,26 @@ void StatesEditorView::stateChanged(const QmlModelState &newQmlModelState, const
         m_editorModel->emitChangedToState(0);
     else
         m_editorModel->emitChangedToState(m_modelStates.indexOf(newQmlModelState));
+}
+
+void StatesEditorView::transformChanged(const QmlObjectNode &qmlObjectNode)
+{
+    QmlModelView::transformChanged(qmlObjectNode);
+}
+
+void StatesEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)
+{
+    QmlModelView::parentChanged(qmlObjectNode);
+}
+
+void StatesEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode)
+{
+    QmlModelView::otherPropertyChanged(qmlObjectNode);
+}
+
+void StatesEditorView::updateItem(const QmlObjectNode &qmlObjectNode)
+{
+    QmlModelView::updateItem(qmlObjectNode);
 }
 
 void StatesEditorView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)

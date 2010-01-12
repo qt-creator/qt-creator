@@ -338,3 +338,8 @@ bool ne7ssh_connection::isSftpActive ()
   if (sftp) return true;
   else return false;
 }
+
+void ne7ssh_connection::resetReceiveBuffer()
+{
+    channel->resetReceiveBuffer();
+}

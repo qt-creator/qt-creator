@@ -72,7 +72,7 @@ public:
 
     void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl);
 
-    void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
+    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
     void importsChanged();
 

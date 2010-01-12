@@ -166,6 +166,7 @@ private:
     Utils::ParameterAction *revertFile;
     Utils::ParameterAction *statusFile;
 
+    QAction *m_createRepositoryAction;
     //submit editor actions
     QAction *editorCommit;
     QAction *editorDiff;

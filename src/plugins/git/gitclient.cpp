@@ -446,6 +446,22 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
     return true;
 }
 
+// Initialize repository
+bool GitClient::synchronousInit(const QString &workingDirectory)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory;
+    QByteArray outputText;
+    QByteArray errorText;
+    const QStringList arguments(QLatin1String("init"));
+    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    // '[Re]Initialized...'
+    VCSBase::VCSBaseOutputWindow::instance()->append(QString::fromLocal8Bit(outputText));
+    if (!rc)
+        VCSBase::VCSBaseOutputWindow::instance()->append(QString::fromLocal8Bit(errorText));
+    return rc;
+}
+
 bool GitClient::synchronousCheckout(const QString &workingDirectory,
                                     const QStringList &files,
                                     QString *errorMessage)

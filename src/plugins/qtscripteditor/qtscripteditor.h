@@ -113,6 +113,12 @@ protected:
     TextEditor::BaseTextEditorEditable *createEditableInterface();
     void createToolBar(ScriptEditorEditable *editable);
 
+    //// brace matching
+    virtual bool contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert = QString()) const;
+    virtual bool isInComment(const QTextCursor &cursor) const;
+    virtual QString insertMatchingBrace(const QTextCursor &tc, const QString &text, const QChar &la, int *skippedChars) const;
+    virtual QString insertParagraphSeparator(const QTextCursor &tc) const;
+
 private:
     virtual bool isElectricCharacter(const QChar &ch) const;
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);

@@ -69,7 +69,7 @@ public:
 
     void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl);
 
-    void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
+    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
     void importsChanged();
 
@@ -210,10 +210,11 @@ void ForwardView<ViewType>::fileUrlChanged(const QUrl &oldUrl, const QUrl &newUr
 }
 
 template <class ViewType>
-void ForwardView<ViewType>::nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex)
+void ForwardView<ViewType>::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex)
 {
     foreach (const ViewTypePointer &view, m_targetViewList)
-        view->nodeSlidedToIndex(NodeListProperty(listProperty, view.data()), newIndex, oldIndex);
+        view->nodeOrderChanged(NodeListProperty(listProperty, view.data()),
+                                ModelNode(movedNode, view.data()), oldIndex);
 }
 
 template <class ViewType>

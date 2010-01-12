@@ -528,7 +528,7 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
 
 void SubversionPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
-    if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
+    if (!enableMenuAction(as, m_menuAction))
         return;
 
     m_logRepositoryAction->setEnabled(currentState().hasTopLevel());

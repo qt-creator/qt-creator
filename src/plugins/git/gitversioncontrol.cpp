@@ -29,6 +29,7 @@
 
 #include "gitversioncontrol.h"
 #include "gitclient.h"
+#include "gitplugin.h"
 
 namespace Git {
 namespace Internal {
@@ -52,6 +53,9 @@ bool GitVersionControl::supportsOperation(Operation operation) const
     case DeleteOperation:
     case OpenOperation:
         break;
+    case CreateRepositoryOperation:
+        rc = true;
+        break;
     }
     return rc;
 }
@@ -72,10 +76,14 @@ bool GitVersionControl::vcsDelete(const QString & /*fileName*/)
     return false;
 }
 
+bool GitVersionControl::vcsCreateRepository(const QString &directory)
+{
+    return GitPlugin::instance()->gitClient()->synchronousInit(directory);
+}
+
 bool GitVersionControl::managesDirectory(const QString &directory) const
 {
     return !GitClient::findRepositoryForDirectory(directory).isEmpty();
-
 }
 
 QString GitVersionControl::findTopLevelForDirectory(const QString &directory) const

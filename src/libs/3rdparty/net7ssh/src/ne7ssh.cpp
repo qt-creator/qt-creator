@@ -15,6 +15,7 @@
  ***************************************************************************/
 
 #include <signal.h>
+#include <string.h>
 #include <time.h>
 #include <botan/init.h>
 #include <botan/auto_rng.h>
@@ -633,6 +634,35 @@ const char* ne7ssh::read (int channel, bool do_lock)
   if (do_lock && !unlock()) return false;
   return 0;
 }
+
+char *ne7ssh::readAndReset(int channel, char *(*alloc)(size_t))
+{
+  if (channel == -1)
+  {
+    errs->push (-1, "Bad channel: %i specified for reading.", channel);
+    return 0;
+  }
+  if (!lock()) return 0;
+  char *buffer = 0;
+  for (uint32 i = 0; i < conCount; i++)
+  {
+    SecureVector<Botan::byte> data;
+    if (channel == connections[i]->getChannelNo())
+    {
+      data = connections[i]->getReceived();
+      if (data.size())
+      {
+        buffer = alloc(connections[i]->getReceived().size());
+        strcpy(buffer, reinterpret_cast<char*>(connections[i]->getReceived().begin()));
+        connections[i]->resetReceiveBuffer();
+      }
+      break;
+    }
+  }
+  if (!unlock()) return false;
+  return buffer;
+}
+
 
 void* ne7ssh::readBinary (int channel)
 {

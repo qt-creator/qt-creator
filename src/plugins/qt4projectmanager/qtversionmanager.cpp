@@ -278,6 +278,12 @@ QList<QtVersion* > QtVersionManager::versions() const
     return m_versions;
 }
 
+bool QtVersionManager::isValidId(int id) const
+{
+    int pos = m_uniqueIdToIndex.value(id, -1);
+    return (pos != -1);
+}
+
 QtVersion *QtVersionManager::version(int id) const
 {
     int pos = m_uniqueIdToIndex.value(id, -1);
@@ -1015,12 +1021,6 @@ void QtVersion::updateVersionInfo() const
     m_versionInfoUpToDate = true;
 }
 
-bool QtVersion::isInstalled() const
-{
-    updateVersionInfo();
-    return !m_notInstalled;
-}
-
 QString QtVersion::findQtBinary(const QStringList &possibleCommands) const
 {
     const QString qtdirbin = versionInfo().value(QLatin1String("QT_INSTALL_BINS")) + QLatin1Char('/');
@@ -1359,8 +1359,26 @@ int QtVersion::getUniqueId()
 bool QtVersion::isValid() const
 {
     updateVersionInfo();
-    return (!(m_id == -1 || qmakeCommand() == QString::null
-        || displayName() == QString::null) && !m_notInstalled);
+    return m_id != -1
+            && qmakeCommand() != QString::null
+            && displayName() != QString::null
+            && !m_notInstalled
+            && m_versionInfo.contains("QT_INSTALL_BINS");
+}
+
+QString QtVersion::invalidReason() const
+{
+    if (isValid())
+        return QString();
+    if (qmakeCommand() == QString::null)
+        return QApplication::translate("QtVersion", "No QMake path set");
+    if (displayName() == QString::null)
+        return QApplication::translate("QtVersion", "Qt Version has no name");
+    if (m_notInstalled)
+        return QApplication::translate("QtVersion", "Qt Version is not installed, please run make install");
+    if (!m_versionInfo.contains("QT_INSTALL_BINS"))
+        return QApplication::translate("QtVersion", "Could not determine qt install binary, maybe the qmake path is wrong?");
+    return QString();
 }
 
 QtVersion::QmakeBuildConfigs QtVersion::defaultBuildConfig() const

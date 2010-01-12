@@ -1381,13 +1381,11 @@ void TestCore::testModelReorderSiblings()
 
     NodeListProperty listProperty(rootModelNode.nodeListProperty("data"));
 
-    listProperty.slide(listProperty.toModelNodeList().indexOf(a), 3); //a.slideToIndex(3);
-
+    listProperty.slide(listProperty.toModelNodeList().indexOf(a), 2); //a.slideToIndex(2);
 
     QVERIFY(a.isValid()); QCOMPARE(listProperty.toModelNodeList().indexOf(a), 2);
     QVERIFY(b.isValid()); QCOMPARE(listProperty.toModelNodeList().indexOf(b), 0);
     QVERIFY(c.isValid()); QCOMPARE(listProperty.toModelNodeList().indexOf(c), 1);
-
 
     listProperty.slide(listProperty.toModelNodeList().indexOf(c), 0); //c.slideToIndex(0);
 
@@ -4229,6 +4227,45 @@ void TestCore::testModelNodeInHierarchy()
     view->rootModelNode().nodeListProperty("data").reparentHere(node2);
     QVERIFY(node1.isInHierarchy());
     QVERIFY(node2.isInHierarchy());
+}
+
+void TestCore::testModelNodeIsAncestorOf()
+{
+    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QVERIFY(model.data());
+
+    //
+    //  import Qt 4.6
+    //  Item {
+    //    Item {
+    //      id: item2
+    //    }
+    //    Item {
+    //      id: item3
+    //      Item {
+    //        id: item4
+    //      }
+    //    }
+    //  }
+    //
+    QScopedPointer<TestView> view(new TestView);
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    view->rootModelNode().setId("item1");
+    ModelNode item2 = view->rootModelNode().addChildNode("Qt/Item", 4, 6, "data");
+    item2.setId("item2");
+    ModelNode item3 = view->rootModelNode().addChildNode("Qt/Item", 4, 6, "data");
+    item3.setId("item3");
+    ModelNode item4 = item3.addChildNode("Qt/Item", 4, 6, "data");
+    item4.setId("item4");
+
+    QVERIFY(view->rootModelNode().isAncestorOf(item2));
+    QVERIFY(view->rootModelNode().isAncestorOf(item3));
+    QVERIFY(view->rootModelNode().isAncestorOf(item4));
+    QVERIFY(!item2.isAncestorOf(view->rootModelNode()));
+    QVERIFY(!item2.isAncestorOf(item4));
+    QVERIFY(item3.isAncestorOf(item4));
 }
 
 void TestCore::testModelDefaultProperties()

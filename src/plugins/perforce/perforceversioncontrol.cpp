@@ -50,14 +50,15 @@ QString PerforceVersionControl::displayName() const
 
 bool PerforceVersionControl::supportsOperation(Operation operation) const
 {
-    bool rc = true;
     switch (operation) {
     case AddOperation:
     case DeleteOperation:
     case OpenOperation:
+        return true;
+    case CreateRepositoryOperation:
         break;
     }
-    return rc;
+    return false;
 }
 
 bool PerforceVersionControl::vcsOpen(const QString &fileName)
@@ -76,6 +77,11 @@ bool PerforceVersionControl::vcsDelete(const QString &fileName)
 {
     const QFileInfo fi(fileName);
     return m_plugin->vcsDelete(fi.absolutePath(), fi.fileName());
+}
+
+bool PerforceVersionControl::vcsCreateRepository(const QString &)
+{
+    return false;
 }
 
 bool PerforceVersionControl::managesDirectory(const QString &directory) const

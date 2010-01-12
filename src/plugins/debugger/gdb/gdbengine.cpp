@@ -841,7 +841,11 @@ void GdbEngine::commandTimeout()
         const GdbCommand &cmd = m_cookieForToken.value(key);
         if (!(cmd.flags & NonCriticalResponse))
             killIt = true;
-        debugMessage(_("  %1: %2 => %3").arg(key).arg(_(cmd.command)).arg(_(cmd.callbackName)));
+        QByteArray msg = QByteArray::number(key);
+        msg += ": " + cmd.command + " => ";
+        QTC_ASSERT(cmd.callbackName, /**/);
+        msg += cmd.callbackName;
+        debugMessage(_(msg));
     }
     if (killIt) {
         debugMessage(_("TIMED OUT WAITING FOR GDB REPLY. COMMANDS STILL IN PROGRESS:"));
@@ -851,7 +855,7 @@ void GdbEngine::commandTimeout()
             "to a command within %1 seconds. This may been it is stuck "
             "in an endless loop or taking longer than expected to perform "
             "the operation it was reqested.\nYou have a choice of waiting "
-            "longer or abort debugging.").arg(timeOut);
+            "longer or abort debugging.").arg(timeOut / 1000);
         QMessageBox *mb = showMessageBox(QMessageBox::Critical,
             tr("Gdb not responding"), msg, 
             QMessageBox::Ok | QMessageBox::Cancel);
@@ -865,6 +869,8 @@ void GdbEngine::commandTimeout()
         } else {
             debugMessage(_("CONTINUE DEBUGGER AS REQUESTED BY USER"));
         }
+    } else {
+        debugMessage(_("\nNON-CRITICAL TIMEOUT\n"));
     }
 }
 
@@ -4495,6 +4501,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
 
     postCommand("set breakpoint pending on");
     postCommand("set print elements 10000");
+    // Produces a few messages during symtab loading
+    //postCommand("set verbose on");
 
     //postCommand("set substitute-path /var/tmp/qt-x11-src-4.5.0 "
     //    "/home/sandbox/qtsdk-2009.01/qt");

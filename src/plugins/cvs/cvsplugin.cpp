@@ -498,7 +498,7 @@ CVSSubmitEditor *CVSPlugin::openCVSSubmitEditor(const QString &fileName)
 
 void CVSPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
-    if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
+    if (!enableMenuAction(as, m_menuAction))
         return;
 
     m_logRepositoryAction->setEnabled(currentState().hasTopLevel());

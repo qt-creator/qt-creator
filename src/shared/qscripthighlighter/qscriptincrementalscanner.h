@@ -65,6 +65,7 @@ public:
         } kind;
 
         inline Token(int o, int l, Kind k): offset(o), length(l), kind(k) {}
+        inline int begin() const { return offset; }
         inline int end() const { return offset + length; }
         inline bool is(int k) const { return k == kind; }
         inline bool isNot(int k) const { return k != kind; }

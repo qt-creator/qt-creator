@@ -246,6 +246,17 @@ class SSH_EXPORT ne7ssh
     const char* read (int channel, bool do_lock=true);
 
     /**
+    * Reads all data from receiving buffer on specified channel into a newly
+    * allocated buffer and empties the receive buffer afterwards.
+    * @param channel Channel to read data on.
+    * @param alloc Pointer to function allocating the memory for the buffer
+    *              to return.
+    * @return Returns string read from receiver buffer or 0 if buffer is empty.
+    *         Freeing the returned buffer is the user's responsibility.
+    */
+    char* readAndReset (int channel, char* (*alloc)(size_t));
+
+    /**
     * Reads all data from receiving buffer on specified channel. Returns pointer to void. Together with getReceivedSize and sendCmd can be used to read remote files.
     * @param channel Channel to read data on.
     * @return Returns pointer to the start of binary data or 0 if nothing received.

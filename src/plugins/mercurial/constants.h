@@ -107,6 +107,7 @@ const char * const IMPORT = "Mercurial.Action.Import";
 const char * const INCOMING = "Mercurial.Action.Incoming";
 const char * const OUTGOING = "Mercurial.Action.Outgoing";
 const char * const COMMIT = "Mercurial.Action.Commit";
+const char * const CREATE_REPOSITORY = "Mercurial.Action.CreateRepository";
 
 //Repository Management
 const char * const MERGE = "Mercurial.Action.Merge";

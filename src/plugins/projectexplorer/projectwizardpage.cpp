@@ -29,27 +29,17 @@
 
 #include "projectwizardpage.h"
 #include "ui_projectwizardpage.h"
-#include "projectnodes.h"
 
-#include <utils/stringutils.h>
-
-#include <QtCore/QDebug>
-#include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 
 using namespace ProjectExplorer;
 using namespace Internal;
-
-Q_DECLARE_METATYPE(ProjectExplorer::ProjectNode*)
 
 ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
     QWizardPage(parent),
     m_ui(new Ui::WizardPage)
 {
     m_ui->setupUi(this);
-
-    connect(m_ui->addToProjectCheckBox, SIGNAL(toggled(bool)),
-            m_ui->projectComboBox, SLOT(setEnabled(bool)));
 }
 
 ProjectWizardPage::~ProjectWizardPage()
@@ -57,63 +47,36 @@ ProjectWizardPage::~ProjectWizardPage()
     delete m_ui;
 }
 
-void ProjectWizardPage::setProjects(const QList<ProjectNode*> &projectNodes)
+void ProjectWizardPage::setProjects(const QStringList &p)
 {
-    QMap<QString,ProjectNode*> projectMap;
-    foreach (ProjectNode *node, projectNodes) {
-        QString name = QFileInfo(node->path()).fileName();
-        if (!projectMap.contains(name))
-            projectMap.insert(name, node);
-    }
-
     m_ui->projectComboBox->clear();
-    foreach (const QString &name, projectMap.keys()) {
-        m_ui->projectComboBox->addItem(name, qVariantFromValue(projectMap.value(name)));
-    }
+    m_ui->projectComboBox->addItems(p);
 }
 
-void ProjectWizardPage::setAddToProjectEnabled(bool b)
+int ProjectWizardPage::currentProjectIndex() const
 {
-    m_ui->projectLabel->setEnabled(b);
-    m_ui->addToProjectLabel->setEnabled(b);
-    m_ui->addToProjectCheckBox->setChecked(b);
-    m_ui->addToProjectCheckBox->setEnabled(b);
-    m_ui->projectComboBox->setEnabled(b);
+    return m_ui->projectComboBox->currentIndex();
 }
 
-ProjectNode *ProjectWizardPage::currentProject() const
+void ProjectWizardPage::setCurrentProjectIndex(int idx)
 {
-    QVariant variant = m_ui->projectComboBox->itemData(m_ui->projectComboBox->currentIndex());
-    return qVariantValue<ProjectNode*>(variant);
+    m_ui->projectComboBox->setCurrentIndex(idx);
 }
 
-void ProjectWizardPage::setCurrentProject(ProjectNode *projectNode)
+void ProjectWizardPage::setVersionControls(const QStringList &vcs)
 {
-    if (!projectNode)
-        return;
-    for (int i = 0; i < m_ui->projectComboBox->count(); ++i) {
-        if (qVariantValue<ProjectNode*>(m_ui->projectComboBox->itemData(i)) == projectNode) {
-            m_ui->projectComboBox->setCurrentIndex(i);
-            return;
-        }
-    }
+    m_ui->addToVersionControlComboBox->clear();
+    m_ui->addToVersionControlComboBox->addItems(vcs);
 }
 
-bool ProjectWizardPage::addToProject() const
+int ProjectWizardPage::versionControlIndex() const
 {
-    return m_ui->addToProjectCheckBox->isChecked();
+    return m_ui->addToVersionControlComboBox->currentIndex();
 }
 
-bool ProjectWizardPage::addToVersionControl() const
+void ProjectWizardPage::setVersionControlIndex(int idx)
 {
-    return m_ui->addToVersionControlCheckBox->isChecked();
-}
-
-void ProjectWizardPage::setAddToVersionControlEnabled(bool b)
-{
-    m_ui->addToVersionControlLabel->setEnabled(b);
-    m_ui->addToVersionControlCheckBox->setChecked(b);
-    m_ui->addToVersionControlCheckBox->setEnabled(b);
+    m_ui->addToVersionControlComboBox->setCurrentIndex(idx);
 }
 
 void ProjectWizardPage::changeEvent(QEvent *e)
@@ -128,15 +91,9 @@ void ProjectWizardPage::changeEvent(QEvent *e)
     }
 }
 
-void ProjectWizardPage::setVCSDisplay(const QString &vcsName)
-{
-    m_ui->addToVersionControlLabel->setText(tr("Add to &VCS (%1)").arg(vcsName));
-}
-
-void ProjectWizardPage::setFilesDisplay(const QStringList &files)
+void ProjectWizardPage::setFilesDisplay(const QString &commonPath, const QStringList &files)
 {
     QString fileMessage;
-    const QString commonPath = Utils::commonPath(files);
     {
         QTextStream str(&fileMessage);
         str << "<qt>"

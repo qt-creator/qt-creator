@@ -719,5 +719,131 @@ void QmlTextEditor::unCommentSelection()
     Utils::unCommentSelection(this);
 }
 
+bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert) const
+{
+    QChar ch;
+
+    if (! textToInsert.isEmpty())
+        ch = textToInsert.at(0);
+
+    switch (ch.unicode()) {
+    case '\'':
+    case '"':
+
+    case '(':
+    case '[':
+    case '{':
+
+    case ')':
+    case ']':
+    case '}':
+
+    case ';':
+        break;
+
+    default:
+        if (ch.isNull())
+            break;
+
+        return false;
+    } // end of switch
+
+    const QString blockText = cursor.block().text();
+    const int blockState = blockStartState(cursor.block());
+
+    QScriptIncrementalScanner tokenize;
+    const QList<QScriptIncrementalScanner::Token> tokens = tokenize(blockText, blockState);
+    const int pos = cursor.columnNumber();
+
+    int tokenIndex = tokens.size() - 1;
+    for (; tokenIndex != -1; --tokenIndex) {
+        const QScriptIncrementalScanner::Token &token = tokens.at(tokenIndex);
+        if (pos >= token.begin()) {
+            if (pos < token.end())
+                break;
+            else if (pos == token.end() && token.is(QScriptIncrementalScanner::Token::Comment))
+                break;
+        }
+    }
+
+    if (tokenIndex != -1) {
+        const QScriptIncrementalScanner::Token &token = tokens.at(tokenIndex);
+
+        switch (token.kind) {
+        case QScriptIncrementalScanner::Token::Comment:
+            return false;
+
+        case QScriptIncrementalScanner::Token::String: {
+            if (ch == blockText.at(token.begin())) {
+                if (token.end() - 1 == pos && blockText.at(token.end() - 2) != QLatin1Char('\\'))
+                    break;
+            }
+            return false;
+        }
+
+        default:
+            break;
+        } // end of switch
+    }
+
+    return true;
+}
+
+bool QmlTextEditor::isInComment(const QTextCursor &) const
+{
+    // ### implement me
+    return false;
+}
+
+QString QmlTextEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text, const QChar &, int *skippedChars) const
+{
+    if (text.length() != 1)
+        return QString();
+
+    const QChar la = characterAt(tc.position());
+
+    const QChar ch = text.at(0);
+    switch (ch.unicode()) {
+    case '\'':
+        if (la != ch)
+            return QString(ch);
+        ++*skippedChars;
+        break;
+
+    case '"':
+        if (la != ch)
+            return QString(ch);
+        ++*skippedChars;
+        break;
+
+    case '(':
+        return QString(QLatin1Char(')'));
+
+    case '[':
+        return QString(QLatin1Char(']'));
+
+    case '{':
+        return QString(); // nothing to do.
+
+    case ')':
+    case ']':
+    case '}':
+    case ';':
+        if (la == ch)
+            ++*skippedChars;
+        break;
+
+    default:
+        break;
+    } // end of switch
+
+    return QString();
+}
+
+QString QmlTextEditor::insertParagraphSeparator(const QTextCursor &) const
+{
+    return QLatin1String("}\n");
+}
+
 } // namespace Internal
 } // namespace QmlEditor
