@@ -721,8 +721,32 @@ void QmlTextEditor::unCommentSelection()
 
 bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert) const
 {
-    if (isInComment(cursor))
-        return false;
+    const QString blockText = cursor.block().text();
+    const int blockState = blockStartState(cursor.block());
+
+    QScriptIncrementalScanner tokenize;
+    const QList<QScriptIncrementalScanner::Token> tokens = tokenize(blockText, blockState);
+    const int pos = cursor.columnNumber();
+
+    int tokenIndex = tokens.size() - 1;
+    for (; tokenIndex != -1; --tokenIndex) {
+        const QScriptIncrementalScanner::Token &token = tokens.at(tokenIndex);
+        if (pos >= token.begin() && pos < token.end())
+            break;
+    }
+
+    if (tokenIndex != -1) {
+        const QScriptIncrementalScanner::Token &token = tokens.at(tokenIndex);
+
+        switch (token.kind) {
+        case QScriptIncrementalScanner::Token::Comment:
+        case QScriptIncrementalScanner::Token::String:
+            return false;
+
+        default:
+            break;
+        } // end of switch
+    }
 
     QChar ch;
 
