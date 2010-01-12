@@ -555,11 +555,6 @@ bool QmlRunControl::isRunning() const
 
 void QmlRunControl::slotBringApplicationToForeground(qint64 pid)
 {
-    if (m_debugMode) {
-        Core::ICore *core = Core::ICore::instance();
-        core->modeManager()->activateMode(QLatin1String("QML_INSPECT_MODE"));
-    }
-
     bringApplicationToForeground(pid);
 }
 
@@ -571,6 +566,11 @@ void QmlRunControl::slotError(const QString &err)
 
 void QmlRunControl::slotAddToOutputWindow(const QString &line)
 {
+    if (m_debugMode && line.startsWith("QmlDebugServer: Waiting for connection")) {
+        Core::ICore *core = Core::ICore::instance();
+        core->modeManager()->activateMode(QLatin1String("QML_INSPECT_MODE"));
+    }
+
     emit addToOutputWindowInline(this, line);
 }
 
