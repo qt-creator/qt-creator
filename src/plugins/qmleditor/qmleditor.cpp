@@ -719,5 +719,98 @@ void QmlTextEditor::unCommentSelection()
     Utils::unCommentSelection(this);
 }
 
+bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert) const
+{
+    if (isInComment(cursor))
+        return false;
+
+    QChar ch;
+
+    if (! textToInsert.isEmpty())
+        ch = textToInsert.at(0);
+
+    switch (ch.unicode()) {
+#if 0 // ### enable me
+    case '\'':
+    case '"':
+#endif
+
+    case '(':
+    case '[':
+    case '{':
+
+    case ')':
+    case ']':
+    case '}':
+
+    case ';':
+        return true;
+
+    default:
+        if (ch.isNull())
+            return true;
+    } // end of switch
+
+    return false;
+}
+
+bool QmlTextEditor::isInComment(const QTextCursor &) const
+{
+    // ### implement me
+    return false;
+}
+
+QString QmlTextEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text, const QChar &, int *skippedChars) const
+{
+    if (text.length() != 1)
+        return QString();
+
+    const QChar la = characterAt(tc.position());
+
+    const QChar ch = text.at(0);
+    switch (ch.unicode()) {
+#if 0 // ### enable me
+    case '\'':
+        if (la != ch)
+            return QString(ch);
+        ++*skippedChars;
+        break;
+
+    case '"':
+        if (la != ch)
+            return QString(ch);
+        ++*skippedChars;
+        break;
+#endif
+
+    case '(':
+        return QString(QLatin1Char(')'));
+
+    case '[':
+        return QString(QLatin1Char(']'));
+
+    case '{':
+        return QString(); // nothing to do.
+
+    case ')':
+    case ']':
+    case '}':
+    case ';':
+        if (la == ch)
+            ++*skippedChars;
+        break;
+
+    default:
+        break;
+    } // end of switch
+
+    return QString();
+}
+
+QString QmlTextEditor::insertParagraphSeparator(const QTextCursor &) const
+{
+    return QLatin1String("}\n");
+}
+
 } // namespace Internal
 } // namespace QmlEditor
