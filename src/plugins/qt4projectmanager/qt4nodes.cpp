@@ -938,6 +938,11 @@ void Qt4ProFileNode::update()
     newVarValues[UiDirVar] = uiDirPaths(reader);
     newVarValues[MocDirVar] = mocDirPaths(reader);
     newVarValues[PkgConfigVar] = reader->values(QLatin1String("PKGCONFIG"));
+    newVarValues[PrecompiledHeaderVar] =
+            reader->absoluteFileValues(QLatin1String("PRECOMPILED_HEADER"),
+                                       m_projectDir,
+                                       QStringList() << m_projectDir,
+                                       0);
 
     if (m_varValues != newVarValues) {
         m_varValues = newVarValues;

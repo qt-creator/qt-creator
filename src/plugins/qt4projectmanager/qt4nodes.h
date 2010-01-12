@@ -97,7 +97,8 @@ enum Qt4Variable {
     IncludePathVar,
     UiDirVar,
     MocDirVar,
-    PkgConfigVar
+    PkgConfigVar,
+    PrecompiledHeaderVar
 };
 
 class Qt4PriFileNode;

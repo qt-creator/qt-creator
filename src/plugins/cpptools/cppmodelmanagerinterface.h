@@ -76,6 +76,7 @@ public:
         QStringList sourceFiles;
         QStringList includePaths;
         QStringList frameworkPaths;
+        QStringList precompiledHeaders;
     };
 
     class WorkingCopy

@@ -507,6 +507,7 @@ void Qt4Project::updateCodeModel()
     QByteArray definedMacros = predefinedMacros;
     QStringList allIncludePaths = predefinedIncludePaths;
     QStringList allFrameworkPaths = predefinedFrameworkPaths;
+    QStringList allPrecompileHeaders;
 
 #ifdef Q_OS_MAC
     const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
@@ -528,6 +529,10 @@ void Qt4Project::updateCodeModel()
         info.defines = predefinedMacros;
         info.includes = predefinedIncludePaths;
         info.frameworkPaths = predefinedFrameworkPaths;
+
+        info.precompiledHeader = pro->variableValue(PrecompiledHeaderVar);
+
+        allPrecompileHeaders.append(info.precompiledHeader);
 
         // Add custom defines
         foreach (const QString def, pro->variableValue(DefinesVar)) {
@@ -623,10 +628,13 @@ void Qt4Project::updateCodeModel()
 
     CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
 
-    if (pinfo.defines == predefinedMacros             &&
-            pinfo.includePaths == allIncludePaths     &&
-            pinfo.frameworkPaths == allFrameworkPaths &&
-            pinfo.sourceFiles == files) {
+    //qDebug()<<"Using precompiled header"<<allPrecompileHeaders;
+
+    if (pinfo.defines == predefinedMacros
+        && pinfo.includePaths == allIncludePaths
+        && pinfo.frameworkPaths == allFrameworkPaths
+        && pinfo.sourceFiles == files
+        && pinfo.precompiledHeaders == allPrecompileHeaders) {
         // Nothing to update...
     } else {
         if (pinfo.defines != predefinedMacros         ||
@@ -641,6 +649,7 @@ void Qt4Project::updateCodeModel()
         pinfo.includePaths = allIncludePaths;
         pinfo.frameworkPaths = allFrameworkPaths;
         pinfo.sourceFiles = files;
+        pinfo.precompiledHeaders = allPrecompileHeaders;
 
         modelmanager->updateProjectInfo(pinfo);
         modelmanager->updateSourceFiles(pinfo.sourceFiles);

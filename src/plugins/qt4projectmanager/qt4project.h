@@ -82,6 +82,7 @@ namespace Internal {
         QByteArray defines;
         QStringList includes;
         QStringList frameworkPaths;
+        QStringList precompiledHeader;
     };
 }
 
