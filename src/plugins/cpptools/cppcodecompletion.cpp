@@ -807,6 +807,7 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
     if (! thisDocument)
         return -1;
 
+    typeOfExpression.setSnapshot(m_manager->snapshot());
     Symbol *lastVisibleSymbol = thisDocument->findSymbolAt(line, column);
 
     if (expression.isEmpty()) {
@@ -820,7 +821,6 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
     }
 
 
-    typeOfExpression.setSnapshot(m_manager->snapshot());
     QList<LookupItem> results = typeOfExpression(expression, thisDocument, lastVisibleSymbol);
     LookupContext context = typeOfExpression.lookupContext();
 
