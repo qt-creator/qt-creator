@@ -833,7 +833,6 @@ int GdbEngine::commandTimeoutTime() const
 
 void GdbEngine::commandTimeout()
 {
-    qDebug("TIMEOUT");
     QList<int> keys = m_cookieForToken.keys();
     qSort(keys);
     bool killIt = false;
@@ -851,10 +850,10 @@ void GdbEngine::commandTimeout()
         debugMessage(_("TIMED OUT WAITING FOR GDB REPLY. COMMANDS STILL IN PROGRESS:"));
         int timeOut = m_commandTimer->interval();
         //m_commandTimer->stop();
-        QString msg = tr("The gdb process has not produced any response "
-            "to a command within %1 seconds. This may been it is stuck "
+        const QString msg = tr("The gdb process has not responded "
+            "to a command within %1 seconds. This could mean it is stuck "
             "in an endless loop or taking longer than expected to perform "
-            "the operation it was reqested.\nYou have a choice of waiting "
+            "the operation.\nYou can choose between waiting "
             "longer or abort debugging.").arg(timeOut / 1000);
         QMessageBox *mb = showMessageBox(QMessageBox::Critical,
             tr("Gdb not responding"), msg, 
@@ -3452,6 +3451,17 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResponse &response)
 {
     WatchData data = response.cookie.value<WatchData>();
     QTC_ASSERT(data.isValid(), return);
+
+    // The real dumper might have aborted without giving any answers.
+    // Remove traces of the question, too.
+    if (m_cookieForToken.contains(response.token - 1)) {
+        m_cookieForToken.remove(response.token - 1);
+        debugMessage(_("DETECTING LOST COMMAND %1").arg(response.token - 1));
+        --m_pendingRequests;
+        data.setError(WatchData::msgNotInScope());
+        insertData(data);
+        return;
+    }
 
     //qDebug() << "CUSTOM VALUE RESULT:" << response.toString();
     //qDebug() << "FOR DATA:" << data.toString() << response.resultClass;

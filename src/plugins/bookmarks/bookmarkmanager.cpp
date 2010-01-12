@@ -493,11 +493,10 @@ Bookmark *BookmarkManager::bookmarkForIndex(QModelIndex index)
 
 bool BookmarkManager::gotoBookmark(Bookmark* bookmark)
 {
-    if (!TextEditor::BaseTextEditor::openEditorAt(bookmark->filePath(), bookmark->lineNumber())) {
-        // Could not open editor
-        return false;
-    }
-    return true;
+    using namespace TextEditor;
+    if (ITextEditor *editor = BaseTextEditor::openEditorAt(bookmark->filePath(), bookmark->lineNumber()))
+        return (editor->currentLine() == bookmark->lineNumber());
+    return false;
 }
 
 void BookmarkManager::nextInDocument()
