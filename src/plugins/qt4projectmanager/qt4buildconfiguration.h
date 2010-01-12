@@ -90,6 +90,9 @@ public:
 
     QtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
     void setQMakeBuildConfiguration(QtVersion::QmakeBuildConfigs config);
+    // used by qmake step to notify that the qmake args have changed
+    // not really nice
+    void emitQMakeBuildConfigurationChanged();
     void getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const;
 
     // Those functions are used in a few places.
