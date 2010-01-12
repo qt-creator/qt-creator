@@ -464,6 +464,7 @@ void Qt4Project::updateCodeModel()
     if (!modelmanager)
         return;
 
+    // Collect global headers/defines
     QStringList predefinedIncludePaths;
     QStringList predefinedFrameworkPaths;
     QByteArray predefinedMacros;
@@ -519,6 +520,9 @@ void Qt4Project::updateCodeModel()
     }
 #endif
 
+
+    // Collect per .pro file information
+    m_codeModelInfo.clear();
     foreach (Qt4ProFileNode *pro, proFiles) {
         Internal::CodeModelInfo info;
         info.defines = predefinedMacros;
@@ -557,6 +561,10 @@ void Qt4Project::updateCodeModel()
                 info.includes.append(includePath);
         }
 
+#if 0
+        // Disable for now, we need better .pro parsing first
+        // Also the information gathered here isn't used
+        // by the codemodel yet
         { // Pkg Config support
             QStringList pkgConfig = pro->variableValue(PkgConfigVar);
             if (!pkgConfig.isEmpty()) {
@@ -570,12 +578,20 @@ void Qt4Project::updateCodeModel()
                 }
             }
         }
+#endif
 
         // Add mkspec directory
         info.includes.append(activeBC->qtVersion()->mkspecPath());
 
         info.frameworkPaths = allFrameworkPaths;
 
+#if 0
+        //Disable for now, we need better .pro file parsing first, and code model
+        //support to access this information
+
+        // TODO this is wastefull
+        // only save it per .pro file, and on beeing asked
+        // search for the .pro file that has that file
         foreach (FileNode *fileNode, pro->fileNodes()) {
             const QString path = fileNode->path();
             const int type = fileNode->fileType();
@@ -583,6 +599,7 @@ void Qt4Project::updateCodeModel()
                 m_codeModelInfo.insert(path, info);
             }
         }
+#endif
     }
 
     // Add mkspec directory
