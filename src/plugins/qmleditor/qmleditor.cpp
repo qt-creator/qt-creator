@@ -726,6 +726,28 @@ bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, cons
     if (! textToInsert.isEmpty())
         ch = textToInsert.at(0);
 
+    switch (ch.unicode()) {
+    case '\'':
+    case '"':
+
+    case '(':
+    case '[':
+    case '{':
+
+    case ')':
+    case ']':
+    case '}':
+
+    case ';':
+        break;
+
+    default:
+        if (ch.isNull())
+            break;
+
+        return false;
+    } // end of switch
+
     const QString blockText = cursor.block().text();
     const int blockState = blockStartState(cursor.block());
 
@@ -736,8 +758,12 @@ bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, cons
     int tokenIndex = tokens.size() - 1;
     for (; tokenIndex != -1; --tokenIndex) {
         const QScriptIncrementalScanner::Token &token = tokens.at(tokenIndex);
-        if (pos >= token.begin() && pos <= token.end())
-            break;
+        if (pos >= token.begin()) {
+            if (pos < token.end())
+                break;
+            else if (pos == token.end() && token.is(QScriptIncrementalScanner::Token::Comment))
+                break;
+        }
     }
 
     if (tokenIndex != -1) {
@@ -760,27 +786,7 @@ bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, cons
         } // end of switch
     }
 
-    switch (ch.unicode()) {
-    case '\'':
-    case '"':
-
-    case '(':
-    case '[':
-    case '{':
-
-    case ')':
-    case ']':
-    case '}':
-
-    case ';':
-        return true;
-
-    default:
-        if (ch.isNull())
-            return true;
-    } // end of switch
-
-    return false;
+    return true;
 }
 
 bool QmlTextEditor::isInComment(const QTextCursor &) const

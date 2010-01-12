@@ -409,8 +409,34 @@ bool ScriptEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, const
     if (! textToInsert.isEmpty())
         ch = textToInsert.at(0);
 
+    switch (ch.unicode()) {
+    case '\'':
+    case '"':
+
+    case '(':
+    case '[':
+    case '{':
+
+    case ')':
+    case ']':
+    case '}':
+
+    case ';':
+        break;
+
+    default:
+        if (ch.isNull())
+            break;
+
+        return false;
+    } // end of switch
+
     const QString blockText = cursor.block().text();
-    const int blockState = cursor.block().userState() & 0xFF;
+    int blockState = cursor.block().userState();
+    if (blockState == -1)
+        blockState = 0;
+    else
+        blockState = blockState & 0xFF;
 
     QScriptIncrementalScanner tokenize;
     const QList<QScriptIncrementalScanner::Token> tokens = tokenize(blockText, blockState);
@@ -419,8 +445,12 @@ bool ScriptEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, const
     int tokenIndex = tokens.size() - 1;
     for (; tokenIndex != -1; --tokenIndex) {
         const QScriptIncrementalScanner::Token &token = tokens.at(tokenIndex);
-        if (pos >= token.begin() && pos <= token.end())
-            break;
+        if (pos >= token.begin()) {
+            if (pos < token.end())
+                break;
+            else if (pos == token.end() && token.is(QScriptIncrementalScanner::Token::Comment))
+                break;
+        }
     }
 
     if (tokenIndex != -1) {
@@ -443,27 +473,7 @@ bool ScriptEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, const
         } // end of switch
     }
 
-    switch (ch.unicode()) {
-    case '\'':
-    case '"':
-
-    case '(':
-    case '[':
-    case '{':
-
-    case ')':
-    case ']':
-    case '}':
-
-    case ';':
-        return true;
-
-    default:
-        if (ch.isNull())
-            return true;
-    } // end of switch
-
-    return false;
+    return true;
 }
 
 bool ScriptEditor::isInComment(const QTextCursor &) const
