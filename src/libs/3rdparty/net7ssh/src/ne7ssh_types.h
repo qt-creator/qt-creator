@@ -39,7 +39,7 @@
 #   endif
 #else
 #  include <inttypes.h>
-#  define SSH_EXPORT
+#  define SSH_EXPORT __attribute__ ((visibility("default")))
 #endif
 
 #ifndef int64_defined

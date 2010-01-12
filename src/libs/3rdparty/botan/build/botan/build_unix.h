@@ -9,7 +9,7 @@
 #define BOTAN_VERSION_PATCH 8
 
 #ifndef BOTAN_DLL
-  #define BOTAN_DLL 
+  #define BOTAN_DLL __attribute__ ((visibility("default")))
 #endif
 
 /* Chunk sizes */
