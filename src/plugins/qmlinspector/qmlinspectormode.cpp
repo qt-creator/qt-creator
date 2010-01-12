@@ -211,7 +211,6 @@ void QmlInspectorMode::disconnectFromViewer()
 void QmlInspectorMode::connectionStateChanged()
 {
     switch (m_conn->state()) {
-        default:
         case QAbstractSocket::UnconnectedState:
         {
             emit statusMessage(tr("[Inspector] disconnected.\n\n"));
@@ -251,6 +250,9 @@ void QmlInspectorMode::connectionStateChanged()
         }
         case QAbstractSocket::ClosingState:
             emit statusMessage(tr("[Inspector] closing..."));
+            break;
+        case QAbstractSocket::BoundState:
+        case QAbstractSocket::ListeningState:
             break;
     }
 }
