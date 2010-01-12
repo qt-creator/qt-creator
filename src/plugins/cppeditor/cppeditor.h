@@ -214,15 +214,17 @@ protected:
     TextEditor::BaseTextEditorEditable *createEditableInterface();
 
     // These override BaseTextEditor
-    bool isElectricCharacter(const QChar &ch) const;
-    QString autoComplete(QTextCursor &cursor, const QString &text) const;
-    bool autoBackspace(QTextCursor &cursor);
-    int paragraphSeparatorAboutToBeInserted(QTextCursor &cursor);
+    virtual bool isElectricCharacter(const QChar &ch) const;
 
-    bool contextAllowsAutoParentheses(const QTextCursor &cursor,
-                                      const QString &textToInsert = QString()) const;
+    virtual QString insertMatchingBrace(const QTextCursor &tc, const QString &text,
+                                        const QChar &la, int *skippedChars) const;
 
-    bool isInComment(const QTextCursor &cursor) const;
+    virtual QString insertParagraphSeparator(const QTextCursor &tc) const;
+
+    virtual bool contextAllowsAutoParentheses(const QTextCursor &cursor,
+                                              const QString &textToInsert = QString()) const;
+
+    virtual bool isInComment(const QTextCursor &cursor) const;
 
     CPlusPlus::Symbol *findCanonicalSymbol(const QTextCursor &cursor,
                                            CPlusPlus::Document::Ptr doc,
@@ -303,8 +305,6 @@ private:
     bool m_inRename, m_inRenameChanged, m_firstRenameChange;
     QTextCursor m_currentRenameSelectionBegin;
     QTextCursor m_currentRenameSelectionEnd;
-
-    mutable bool m_allowSkippingOfBlockEnd;
 
     SemanticHighlighter *m_semanticHighlighter;
     SemanticInfo m_lastSemanticInfo;

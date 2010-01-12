@@ -158,6 +158,7 @@ public:
     BaseTextEditor *q;
     bool m_contentsChanged;
     bool m_lastCursorChangeWasInteresting;
+    bool m_allowSkippingOfBlockEnd;
 
     QList<QTextEdit::ExtraSelection> m_syntaxHighlighterSelections;
     QTextEdit::ExtraSelection m_lineSelection;

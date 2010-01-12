@@ -542,6 +542,21 @@ protected:
     // Reindent at cursor. Selection will be adjusted according to the indentation change of the first block
     virtual void reindent(QTextDocument *doc, const QTextCursor &cursor);
 
+    virtual bool contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert = QString()) const;
+
+    // Returns true if the cursor is inside a comment.
+    virtual bool isInComment(const QTextCursor &cursor) const;
+
+    virtual QString insertMatchingBrace(const QTextCursor &tc, const QString &text, const QChar &la, int *skippedChars) const;
+
+    // Returns the text that needs to be inserted
+    virtual QString insertParagraphSeparator(const QTextCursor &tc) const;
+
+    static void countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen);
+
+    static void countBrackets(QTextCursor cursor, int from, int end, QChar open, QChar close,
+                              int *errors, int *stillopen);
+
     struct Link
     {
         Link(const QString &fileName = QString(),
