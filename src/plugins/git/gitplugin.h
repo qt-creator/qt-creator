@@ -131,6 +131,7 @@ private:
     Utils::ParameterAction *m_undoFileAction;
     QAction *m_logRepositoryAction;
     QAction *m_undoRepositoryAction;
+    QAction *m_createRepositoryAction;
 
     QAction *m_showAction;
     Utils::ParameterAction *m_stageAction;

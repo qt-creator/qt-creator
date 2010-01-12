@@ -47,6 +47,8 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QMessageBox>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMainWindow>
 
 enum { debug = 0 };
 
@@ -345,6 +347,8 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VCSBasePluginState &state)
 struct VCSBasePluginPrivate {
     explicit VCSBasePluginPrivate(const QString &submitEditorId);
 
+    inline bool supportsRepositoryCreation() const;
+
     const QString m_submitEditorId;
     Core::IVersionControl *m_versionControl;
     VCSBasePluginState m_state;
@@ -358,6 +362,11 @@ VCSBasePluginPrivate::VCSBasePluginPrivate(const QString &submitEditorId) :
     m_versionControl(0),
     m_actionState(-1)
 {
+}
+
+bool VCSBasePluginPrivate::supportsRepositoryCreation() const
+{
+    return m_versionControl && m_versionControl->supportsOperation(Core::IVersionControl::CreateRepositoryOperation);
 }
 
 Internal::StateListener *VCSBasePluginPrivate::m_listener = 0;
@@ -427,15 +436,17 @@ const VCSBasePluginState &VCSBasePlugin::currentState() const
     return d->m_state;
 }
 
-bool VCSBasePlugin::enableMenuAction(ActionState as, QAction *menuAction)
+bool VCSBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
 {
     if (debug)
         qDebug() << "enableMenuAction" << menuAction->text() << as;
     switch (as) {
-    case VCSBase::VCSBasePlugin::NoVCSEnabled:
+    case VCSBase::VCSBasePlugin::NoVCSEnabled: {
+        const bool supportsCreation = d->supportsRepositoryCreation();
         menuAction->setVisible(true);
-        menuAction->setEnabled(false);
-        return false;
+        menuAction->setEnabled(supportsCreation);
+        return supportsCreation;
+    }
     case VCSBase::VCSBasePlugin::OtherVCSEnabled:
         menuAction->setVisible(false);
         return false;
@@ -454,6 +465,46 @@ void VCSBasePlugin::promptToDeleteCurrentFile()
     const bool rc = Core::ICore::instance()->vcsManager()->promptToDelete(versionControl(), state.currentFile());
     if (!rc)
         QMessageBox::warning(0, tr("Version Control"), tr("The file '%1' could not be deleted.").arg(state.currentFile()), QMessageBox::Ok);
+}
+
+static inline bool ask(QWidget *parent, const QString &title, const QString &question, bool defaultValue = true)
+
+{
+    const QMessageBox::StandardButton defaultButton = defaultValue ? QMessageBox::Yes : QMessageBox::No;
+    return QMessageBox::question(parent, title, question, QMessageBox::Yes|QMessageBox::No, defaultButton) == QMessageBox::Yes;
+}
+
+void VCSBasePlugin::createRepository()
+{
+    QTC_ASSERT(d->m_versionControl->supportsOperation(Core::IVersionControl::CreateRepositoryOperation), return);
+    // Find current starting directory
+    QString directory;
+    if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject())
+        directory = QFileInfo(currentProject->file()->fileName()).absolutePath();
+    // Prompt for a directory that is not under version control yet
+    QMainWindow *mw = Core::ICore::instance()->mainWindow();
+    do {
+        directory = QFileDialog::getExistingDirectory(mw, tr("Choose repository directory"), directory);
+        if (directory.isEmpty())
+            return;
+        const Core::IVersionControl *managingControl = Core::ICore::instance()->vcsManager()->findVersionControlForDirectory(directory);
+        if (managingControl == 0)
+            break;
+        const QString question = tr("The directory '%1' is already managed by a version control system (%2)."
+                                    " Would you like to specify another directory?").arg(directory, managingControl->displayName());
+
+        if (!ask(mw, tr("Repository already under version control"), question))
+            return;
+    } while (true);
+    // Create
+    const bool rc = d->m_versionControl->vcsCreateRepository(directory);
+    if (rc) {
+        QMessageBox::information(mw, tr("Repository created"),
+                                 tr("A version control repository has been created in %1.").arg(directory));
+    } else {
+        QMessageBox::warning(mw, tr("Repository creation failed"),
+                                 tr("A version control repository could not be created in %1.").arg(directory));
+    }
 }
 
 } // namespace VCSBase

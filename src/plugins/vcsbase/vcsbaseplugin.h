@@ -153,6 +153,9 @@ public slots:
     // Convenience slot for "Delete current file" action. Prompts to
     // delete the file via VCSManager.
     void promptToDeleteCurrentFile();
+    // Prompt to initalize version control in a directory, initially
+    // pointing to the current project.
+    void createRepository();
 
 protected:
     enum ActionState { NoVCSEnabled, OtherVCSEnabled, VCSEnabled };
@@ -163,9 +166,11 @@ protected:
     virtual bool submitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor) = 0;
 
     // A helper to enable the VCS menu action according to state:
-    // NoVCSEnabled->(visible,disabled), OtherVCSEnabled->(invisible), else
-    // enabled. Returns whether actions should be set up further.
-    static bool enableMenuAction(ActionState as, QAction *in);
+    // NoVCSEnabled    -> visible, enabled if repository creation is supported
+    // OtherVCSEnabled -> invisible
+    // Else:           -> fully enabled.
+    // Returns whether actions should be set up further.
+    bool enableMenuAction(ActionState as, QAction *in) const;
 
 private slots:
     void slotSubmitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor, bool *result);

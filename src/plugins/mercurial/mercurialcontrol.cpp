@@ -62,17 +62,15 @@ QString MercurialControl::findTopLevelForDirectory(const QString &directory) con
 bool MercurialControl::supportsOperation(Operation operation) const
 {
     bool supported = true;
-
     switch (operation) {
     case Core::IVersionControl::AddOperation:
     case Core::IVersionControl::DeleteOperation:
+    case Core::IVersionControl::CreateRepositoryOperation:
         break;
     case Core::IVersionControl::OpenOperation:
-    default:
         supported = false;
         break;
     }
-
     return supported;
 }
 
@@ -92,6 +90,11 @@ bool MercurialControl::vcsDelete(const QString &filename)
 {
     const QFileInfo fi(filename);
     return mercurialClient->remove(fi.absolutePath(), fi.fileName());
+}
+
+bool MercurialControl::vcsCreateRepository(const QString &directory)
+{
+    return mercurialClient->createRepositorySync(directory);
 }
 
 bool MercurialControl::sccManaged(const QString &filename)

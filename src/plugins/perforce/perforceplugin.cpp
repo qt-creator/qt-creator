@@ -788,7 +788,7 @@ void PerforcePlugin::filelog(const QString &workingDir, const QStringList &fileN
 
 void PerforcePlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
-    if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
+    if (!enableMenuAction(as, m_menuAction))
         return;
 
     m_logRepositoryAction->setEnabled(currentState().hasTopLevel());

@@ -92,6 +92,7 @@ public:
     bool synchronousAdd(const QString &workingDirectory, const QStringList &files);
     bool synchronousReset(const QString &workingDirectory, const QStringList &files);
     bool synchronousReset(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
+    bool synchronousInit(const QString &workingDirectory);
     bool synchronousCheckout(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
     bool synchronousStash(const QString &workingDirectory, QString *errorMessage);
     bool synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,

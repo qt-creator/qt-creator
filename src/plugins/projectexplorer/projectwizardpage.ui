@@ -20,43 +20,42 @@
       <enum>QFormLayout::ExpandingFieldsGrow</enum>
      </property>
      <item row="0" column="0">
-      <widget class="QLabel" name="addToProjectLabel">
-       <property name="text">
-        <string>&amp;Add to Project</string>
-       </property>
-       <property name="buddy">
-        <cstring>addToProjectCheckBox</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QCheckBox" name="addToProjectCheckBox"/>
-     </item>
-     <item row="1" column="0">
       <widget class="QLabel" name="projectLabel">
        <property name="text">
-        <string>&amp;Project</string>
+        <string>Add to &amp;project:</string>
        </property>
        <property name="buddy">
         <cstring>projectComboBox</cstring>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="projectComboBox"/>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="projectComboBox">
+       <item>
+        <property name="text">
+         <string notr="true">A very long project name indeed</string>
+        </property>
+       </item>
+      </widget>
      </item>
-     <item row="2" column="0">
+     <item row="1" column="0">
       <widget class="QLabel" name="addToVersionControlLabel">
        <property name="text">
-        <string>Add to &amp;version control</string>
+        <string>Add to &amp;version control:</string>
        </property>
        <property name="buddy">
-        <cstring>addToVersionControlCheckBox</cstring>
+        <cstring>addToVersionControlComboBox</cstring>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QCheckBox" name="addToVersionControlCheckBox"/>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="addToVersionControlComboBox">
+       <item>
+        <property name="text">
+         <string notr="true">A very long version control system name</string>
+        </property>
+       </item>
+      </widget>
      </item>
     </layout>
    </item>
@@ -96,7 +95,7 @@
         <x>0</x>
         <y>0</y>
         <width>611</width>
-        <height>305</height>
+        <height>328</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">

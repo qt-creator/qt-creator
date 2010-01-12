@@ -32,16 +32,7 @@
 
 #include <QtGui/QWizardPage>
 
-namespace Core {
-    class IVersionControl;
-    class SCCManager;
-    class FileManager;
-}
-
 namespace ProjectExplorer {
-
-class ProjectNode;
-
 namespace Internal {
 
 namespace Ui {
@@ -55,19 +46,17 @@ public:
     explicit ProjectWizardPage(QWidget *parent = 0);
     virtual ~ProjectWizardPage();
 
-    void setProjects(const QList<ProjectNode *> &);
-    void setCurrentProject(ProjectNode *);
+    void setProjects(const QStringList &);
+    int currentProjectIndex() const;
+    void setCurrentProjectIndex(int);
 
-    ProjectNode *currentProject() const;
+    void setVersionControls(const QStringList &);
 
-    void setAddToProjectEnabled(bool b);
-    bool addToProject() const;
+    int versionControlIndex() const;
+    void setVersionControlIndex(int);
 
-    bool addToVersionControl() const;
-    void setAddToVersionControlEnabled(bool b);
-
-    void setVCSDisplay(const QString &vcsName);
-    void setFilesDisplay(const QStringList &files);
+    // Returns the common path
+    void setFilesDisplay(const QString &commonPath, const QStringList &files);
 
 protected:
     virtual void changeEvent(QEvent *e);

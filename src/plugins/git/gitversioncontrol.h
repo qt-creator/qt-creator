@@ -53,6 +53,7 @@ public:
     virtual bool vcsOpen(const QString &fileName);
     virtual bool vcsAdd(const QString &fileName);
     virtual bool vcsDelete(const QString &filename);
+    virtual bool vcsCreateRepository(const QString &directory);
 
     void emitFilesChanged(const QStringList &);
 

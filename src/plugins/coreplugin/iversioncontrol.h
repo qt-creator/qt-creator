@@ -41,9 +41,10 @@ class CORE_EXPORT IVersionControl : public QObject
 {
     Q_OBJECT
 public:
-    enum Operation { AddOperation, DeleteOperation, OpenOperation };
+    enum Operation { AddOperation, DeleteOperation, OpenOperation,
+                     CreateRepositoryOperation };
 
-    IVersionControl(QObject *parent = 0) : QObject(parent) {}
+    explicit IVersionControl(QObject *parent = 0) : QObject(parent) {}
     virtual ~IVersionControl() {}
 
     virtual QString displayName() const = 0;
@@ -93,11 +94,13 @@ public:
     /*!
      * Called after a file has been removed from the project (if the user
      * wants), e.g. 'p4 delete', 'svn delete'.
-     *
-     * You probably want to call VcsManager::showDeleteDialog, which asks the
-     * user to confirm the deletion.
      */
     virtual bool vcsDelete(const QString &filename) = 0;
+
+    /*!
+     * Called to initialize the version control systemin a directory.
+     */
+    virtual bool vcsCreateRepository(const QString &directory) = 0;
 
 signals:
     void repositoryChanged(const QString &repository);

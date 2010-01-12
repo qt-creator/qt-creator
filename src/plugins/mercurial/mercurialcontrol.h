@@ -56,6 +56,7 @@ public:
     bool vcsOpen(const QString &fileName);
     bool vcsAdd(const QString &filename);
     bool vcsDelete(const QString &filename);
+    bool vcsCreateRepository(const QString &directory);
     bool sccManaged(const QString &filename);
 
 public slots:

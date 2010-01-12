@@ -122,6 +122,7 @@ GitPlugin::GitPlugin() :
     m_undoFileAction(0),
     m_logRepositoryAction(0),
     m_undoRepositoryAction(0),
+    m_createRepositoryAction(0),
     m_showAction(0),
     m_stageAction(0),
     m_unstageAction(0),
@@ -304,6 +305,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_undoRepositoryAction = new QAction(tr("Undo Repository Changes"), this);
     command = actionManager->registerAction(m_undoRepositoryAction, "Git.UndoRepository", globalcontext);
     connect(m_undoRepositoryAction, SIGNAL(triggered()), this, SLOT(undoRepositoryChanges()));
+    gitContainer->addAction(command);
+
+    m_createRepositoryAction = new QAction(tr("Create Repository..."), this);
+    command = actionManager->registerAction(m_createRepositoryAction, "Git.CreateRepository", globalcontext);
+    connect(m_createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
     gitContainer->addAction(command);
 
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Global"), this));
@@ -677,9 +683,10 @@ void GitPlugin::stashList()
 
 void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
-    if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
+    if (!enableMenuAction(as, m_menuAction))
         return;
-
+    // Note: This menu is visible if there is no repository. Only
+    // 'Create Repository'/'Show' actions should be available.
     const QString fileName = currentState().currentFileName();
     m_diffAction->setParameter(fileName);
     m_logAction->setParameter(fileName);
@@ -708,9 +715,13 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_statusRepositoryAction->setEnabled(repositoryEnabled);
     m_branchListAction->setEnabled(repositoryEnabled);
     m_stashListAction->setEnabled(repositoryEnabled);
+    m_stashAction->setEnabled(repositoryEnabled);
+    m_pullAction->setEnabled(repositoryEnabled);
+    m_commitAction->setEnabled(repositoryEnabled);
     m_stashPopAction->setEnabled(repositoryEnabled);
     m_logRepositoryAction->setEnabled(repositoryEnabled);
     m_undoRepositoryAction->setEnabled(repositoryEnabled);
+    m_pushAction->setEnabled(repositoryEnabled);
 
     // Prompts for repo.
     m_showAction->setEnabled(true);

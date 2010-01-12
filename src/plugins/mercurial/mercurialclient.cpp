@@ -366,6 +366,18 @@ void MercurialClient::revert(const QString &workingDir,
     enqueueJob(job);
 }
 
+bool MercurialClient::createRepositorySync(const QString &workingDirectory)
+{
+    const QStringList args(QLatin1String("init"));
+    QByteArray outputData;
+    if (!executeHgSynchronously(workingDirectory, args, &outputData))
+        return false;
+    QString output = QString::fromLocal8Bit(outputData);
+    output.remove(QLatin1Char('\r'));
+    VCSBase::VCSBaseOutputWindow::instance()->append(output);
+    return true;
+}
+
 void MercurialClient::status(const QString &workingDir, const QString &file)
 {
     QStringList args(QLatin1String("status"));

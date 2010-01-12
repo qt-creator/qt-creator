@@ -127,6 +127,7 @@ MercurialPlugin::MercurialPlugin() :
         changeLog(0),
         m_addAction(0),
         m_deleteAction(0),
+        m_createRepositoryAction(0),
         m_menuAction(0)
 {
     m_instance = this;
@@ -429,6 +430,11 @@ void MercurialPlugin::createRepositoryActions(const QList<int> &context)
     command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+C")));
     connect(action, SIGNAL(triggered()), this, SLOT(commit()));
     mercurialContainer->addAction(command);
+
+    m_createRepositoryAction = new QAction(tr("Create Repository..."), this);
+    command = actionManager->registerAction(m_createRepositoryAction, QLatin1String(Constants::CREATE_REPOSITORY), context);
+    connect(m_createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
+    mercurialContainer->addAction(command);
 }
 
 void MercurialPlugin::pull()
@@ -675,7 +681,7 @@ void MercurialPlugin::createSeparator(const QList<int> &context, const QString &
 
 void MercurialPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
-    if (!VCSBase::VCSBasePlugin::enableMenuAction(as, m_menuAction))
+    if (!enableMenuAction(as, m_menuAction))
         return;
 
     const QString filename = currentState().currentFileName();

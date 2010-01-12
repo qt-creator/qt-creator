@@ -54,6 +54,7 @@ bool SubversionControl::supportsOperation(Operation operation) const
     case DeleteOperation:
         break;
     case OpenOperation:
+    case CreateRepositoryOperation:
         rc = false;
         break;
     }
@@ -76,6 +77,11 @@ bool SubversionControl::vcsDelete(const QString &fileName)
 {
     const QFileInfo fi(fileName);
     return m_plugin->vcsDelete(fi.absolutePath(), fi.fileName());
+}
+
+bool SubversionControl::vcsCreateRepository(const QString &)
+{
+    return false;
 }
 
 bool SubversionControl::managesDirectory(const QString &directory) const
