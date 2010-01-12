@@ -132,9 +132,11 @@ void MaemoInteractiveSshConnection::runCommand(const QString &command)
         const char * const error = lastError();
         if (error)
             throw MaemoSshException(tr("SSH error: %1").arg(error));
-        const char * output = ssh.readAndReset(channel(), alloc);
+        const char * const output = ssh.readAndReset(channel(), alloc);
         if (output) {
             emit remoteOutput(QString::fromUtf8(output));
+            if (!done)
+                done = strstr(output, m_prompt) != 0;
             delete[] output;
         }
     } while (!done && !stopRequested());
