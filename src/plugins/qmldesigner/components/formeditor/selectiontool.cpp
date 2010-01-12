@@ -137,7 +137,6 @@ void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &/*itemList*/,
                                       QGraphicsSceneMouseEvent *event)
 {
     if (m_singleSelectionManipulator.isActive()) {
-        qDebug() << __FUNCTION__ << "single";
         m_singleSelectionManipulator.end(event->scenePos());
     }
     else if (m_rubberbandSelectionManipulator.isActive()) {
