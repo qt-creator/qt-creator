@@ -85,7 +85,7 @@ public:
     void nodeStatesAboutToBeRemoved(const QList<ModelNode> &nodeStateList);
     void nodeStatesAdded(const QList<ModelNode> &nodeStateList);
 
-    void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
+    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
     NodeInstance rootNodeInstance() const;
     NodeInstance viewNodeInstance() const;

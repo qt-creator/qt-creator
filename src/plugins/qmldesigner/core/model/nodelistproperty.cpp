@@ -103,10 +103,10 @@ void NodeListProperty::slide(int from, int to) const
 {
     if (!isValid())
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list property>");
-    if (to > toModelNodeList().count())
+    if (to > toModelNodeList().count() - 1)
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list sliding>");
 
-     model()->m_d->slideNodeList(internalNode(), name(), from, to);
+     model()->m_d->changeNodeOrder(internalNode(), name(), from, to);
 }
 
 void NodeListProperty::reparentHere(const ModelNode &modelNode)

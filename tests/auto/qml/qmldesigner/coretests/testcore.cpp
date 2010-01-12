@@ -1381,13 +1381,11 @@ void TestCore::testModelReorderSiblings()
 
     NodeListProperty listProperty(rootModelNode.nodeListProperty("data"));
 
-    listProperty.slide(listProperty.toModelNodeList().indexOf(a), 3); //a.slideToIndex(3);
-
+    listProperty.slide(listProperty.toModelNodeList().indexOf(a), 2); //a.slideToIndex(2);
 
     QVERIFY(a.isValid()); QCOMPARE(listProperty.toModelNodeList().indexOf(a), 2);
     QVERIFY(b.isValid()); QCOMPARE(listProperty.toModelNodeList().indexOf(b), 0);
     QVERIFY(c.isValid()); QCOMPARE(listProperty.toModelNodeList().indexOf(c), 1);
-
 
     listProperty.slide(listProperty.toModelNodeList().indexOf(c), 0); //c.slideToIndex(0);
 

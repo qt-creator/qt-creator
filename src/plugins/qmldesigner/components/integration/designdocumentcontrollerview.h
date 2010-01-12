@@ -56,7 +56,7 @@ public:
     virtual void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList);
 
-    virtual void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
+    virtual void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
     ModelNode insertModel(const ModelNode &modelNode)
     { return m_modelMerger.insertModel(modelNode); }

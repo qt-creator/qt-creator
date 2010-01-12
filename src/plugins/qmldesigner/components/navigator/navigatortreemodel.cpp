@@ -122,20 +122,18 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
     if (parentIndex.model() != this)
         return false;
 
-    int beginRow = 0;
 
     QModelIndex parentIdIndex = parentIndex;
     parentIdIndex = parentIdIndex.sibling(parentIdIndex.row(), 0);
 
     Q_ASSERT(parentIdIndex.isValid());
 
-    if (row > -1)
-        beginRow = row;
-    else if (parentIdIndex.isValid())
-        beginRow = rowCount(parentIdIndex);
-    else
-        beginRow = rowCount(QModelIndex());
-
+    int targetIndex = 0;
+    if (row > -1) {
+        targetIndex = row;
+    } else {
+        targetIndex = rowCount(parentIdIndex);
+    }
 
     QByteArray encodedData = data->data("application/vnd.modelnode.list");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
@@ -159,13 +157,19 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
         if (!isAnchestorInList(node, nodeList)) {
             if (node.parentProperty().parentModelNode() != parentItemNode) {
                 QmlItemNode itemNode(node);
-                if (node != parentItemNode)
+                if (node != parentItemNode) {
                     itemNode.setParent(parentItemNode);
+                }
             }
 
             if (node.parentProperty().isNodeListProperty()) {
                 int index = node.parentProperty().toNodeListProperty().toModelNodeList().indexOf(node);
-                node.parentProperty().toNodeListProperty().slide(index, beginRow);
+                if (index < targetIndex) { // item is first removed from oldIndex, then inserted at new index
+                    --targetIndex;
+                }
+                if (index != targetIndex) {
+                    node.parentProperty().toNodeListProperty().slide(index, targetIndex);
+                }
             }
         }
     }

@@ -52,7 +52,7 @@ void DesignDocumentControllerView::nodeTypeChanged(const ModelNode & /*node*/,co
 void DesignDocumentControllerView::selectedNodesChanged(const QList<ModelNode> & /*selectedNodeList*/,
                           const QList<ModelNode> & /*lastSelectedNodeList*/) {};
 
-void DesignDocumentControllerView::nodeSlidedToIndex(const NodeListProperty & /*listProperty*/, int /*newIndex*/, int /*oldIndex*/) {};
+void DesignDocumentControllerView::nodeOrderChanged(const NodeListProperty & /*listProperty*/, const ModelNode & /*movedNode*/, int /*oldIndex*/) {};
 
 static QStringList arrayToStringList(const QByteArray &byteArray)
 {

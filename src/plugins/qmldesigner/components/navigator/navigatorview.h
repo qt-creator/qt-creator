@@ -60,8 +60,8 @@ public:
 
     void nodeAboutToBeRemoved(const ModelNode &removedNode);
     void nodeReparented(const ModelNode &node, const ModelNode &oldParent, const ModelNode &newParent);
+    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
-    void nodeSlidedToIndex(const ModelNode &node, int newIndex, int oldIndex);
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
     void nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion);
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
@@ -70,7 +70,6 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList);
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
-    void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
 
     void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 

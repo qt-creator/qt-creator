@@ -171,9 +171,9 @@ void ViewLogger::fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl)
     m_output << time() << indent("fileUrlChanged:") << oldUrl.toString() << "\t" << newUrl.toString() << endl;
 }
 
-void ViewLogger::nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex)
+void ViewLogger::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex)
 {
-    m_output << time() << indent("nodeSlidedToIndex:") << listProperty << newIndex << oldIndex << endl;
+    m_output << time() << indent("nodeOrderChanged:") << listProperty << movedNode << oldIndex << endl;
 }
 
 void ViewLogger::importsChanged()

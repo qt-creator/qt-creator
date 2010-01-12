@@ -258,18 +258,19 @@ void RewriterView::nodeIdChanged(const ModelNode& node, const QString& newId, co
         modelToTextMerger()->applyChanges();
 }
 
-void RewriterView::nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int /*oldIndex*/)
-{ // FIXME: "slided" ain't no English, probably "slid" or "sliding" is meant...
+void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int /*oldIndex*/)
+{
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
 
     const QList<ModelNode> nodes = listProperty.toModelNodeList();
-    const ModelNode movingNode = nodes.at(newIndex);
+
     ModelNode trailingNode;
+    int newIndex = nodes.indexOf(movedNode);
     if (newIndex + 1 < nodes.size())
         trailingNode = nodes.at(newIndex + 1);
-    modelToTextMerger()->nodeSlidAround(movingNode, trailingNode);
+    modelToTextMerger()->nodeSlidAround(movedNode, trailingNode);
 
     if (!isModificationGroupActive())
         modelToTextMerger()->applyChanges();

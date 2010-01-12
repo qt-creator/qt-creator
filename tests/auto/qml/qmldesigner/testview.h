@@ -70,7 +70,7 @@ public:
     void selectedNodesChanged(const QList<QmlDesigner::ModelNode> &selectedNodeList,
                               const QList<QmlDesigner::ModelNode> &lastSelectedNodeList);
 
-    void nodeSlidedToIndex(const QmlDesigner::NodeListProperty &listProperty, int newIndex, int oldIndex);
+    void nodeOrderChanged(const QmlDesigner::NodeListProperty &listProperty, const QmlDesigner::ModelNode &movedNode, int oldIndex);
 
     void stateChanged(const QmlDesigner::QmlModelState &newQmlModelState, const QmlDesigner::QmlModelState &oldQmlModelState);
 

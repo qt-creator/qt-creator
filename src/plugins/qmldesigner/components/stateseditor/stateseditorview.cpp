@@ -274,15 +274,16 @@ void StatesEditorView::nodeReparented(const ModelNode &node, const NodeAbstractP
     }
 }
 
-void StatesEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex)
+void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex)
 {
-    QmlModelView::nodeSlidedToIndex(listProperty, newIndex, oldIndex);
+    QmlModelView::nodeOrderChanged(listProperty, movedNode, oldIndex);
     if (listProperty.parentModelNode() == m_stateRootNode
         && listProperty.name() == "states") {
-        int index = newIndex;
-        if (oldIndex < newIndex)
-            --index;
-        QmlModelState state = listProperty.toModelNodeList().at(index);
+
+        int newIndex = listProperty.toModelNodeList().indexOf(movedNode);
+        Q_ASSERT(newIndex >= 0);
+
+        QmlModelState state = QmlModelState(movedNode);
         if (state.isValid()) {
             Q_ASSERT(oldIndex == modelStateIndex(state));
             removeModelState(state);
