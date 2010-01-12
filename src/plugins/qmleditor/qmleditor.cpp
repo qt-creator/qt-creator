@@ -721,6 +721,11 @@ void QmlTextEditor::unCommentSelection()
 
 bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert) const
 {
+    QChar ch;
+
+    if (! textToInsert.isEmpty())
+        ch = textToInsert.at(0);
+
     const QString blockText = cursor.block().text();
     const int blockState = blockStartState(cursor.block());
 
@@ -731,7 +736,7 @@ bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, cons
     int tokenIndex = tokens.size() - 1;
     for (; tokenIndex != -1; --tokenIndex) {
         const QScriptIncrementalScanner::Token &token = tokens.at(tokenIndex);
-        if (pos >= token.begin() && pos < token.end())
+        if (pos >= token.begin() && pos <= token.end())
             break;
     }
 
@@ -740,24 +745,24 @@ bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, cons
 
         switch (token.kind) {
         case QScriptIncrementalScanner::Token::Comment:
-        case QScriptIncrementalScanner::Token::String:
             return false;
+
+        case QScriptIncrementalScanner::Token::String: {
+            if (ch == blockText.at(token.begin())) {
+                if (token.end() - 1 == pos && blockText.at(token.end() - 2) != QLatin1Char('\\'))
+                    break;
+            }
+            return false;
+        }
 
         default:
             break;
         } // end of switch
     }
 
-    QChar ch;
-
-    if (! textToInsert.isEmpty())
-        ch = textToInsert.at(0);
-
     switch (ch.unicode()) {
-#if 0 // ### enable me
     case '\'':
     case '"':
-#endif
 
     case '(':
     case '[':
@@ -793,7 +798,6 @@ QString QmlTextEditor::insertMatchingBrace(const QTextCursor &tc, const QString 
 
     const QChar ch = text.at(0);
     switch (ch.unicode()) {
-#if 0 // ### enable me
     case '\'':
         if (la != ch)
             return QString(ch);
@@ -805,7 +809,6 @@ QString QmlTextEditor::insertMatchingBrace(const QTextCursor &tc, const QString 
             return QString(ch);
         ++*skippedChars;
         break;
-#endif
 
     case '(':
         return QString(QLatin1Char(')'));
